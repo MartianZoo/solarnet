@@ -12,10 +12,10 @@ import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.types.Type
 
-internal val promoCardsCustomClasses: Set<CustomClass> = setOf(PromoCardsExpansion.CopyPrelude)
+internal val promoCardPackCustomClasses: Set<CustomClass> = setOf(PromoCardPack.CopyPrelude)
 
 /** Namespace for the promotional cards' custom Pets implementations. */
-internal object PromoCardsExpansion {
+internal object PromoCardPack {
   internal object CopyPrelude : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): InstructionTree {
       val card = reader.tfmAuthority.card(cardType.className)

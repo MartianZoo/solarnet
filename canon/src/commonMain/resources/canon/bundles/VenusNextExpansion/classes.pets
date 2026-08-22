@@ -1,8 +1,14 @@
 CLASS VenusNextExpansion : Module {
   This:: AirScrappingSP
+  This IF MAX 0 MilestonePoolOverride, MAX 0 VenusDefaultMilestones: VenusDefaultMilestones
+  This IF MultiplayerMode, MAX 0 AwardPoolOverride, MAX 0 VenusDefaultAwards: VenusDefaultAwards
   SetupPhase IF SoloMode: SoloVictoryRequirement
   SoloVictoryCheck IF SoloMode, MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
 }
+
+CLASS VenusDefaultMilestones : Module
+
+CLASS VenusDefaultAwards : Module
 
 CLASS AirScrappingSP : StandardProject {
   cost = 15
@@ -20,6 +26,9 @@ CLASS WorldGovernmentOption : Module {
 
 "Represents a 2% increase in Venus... terraformedness"
 CLASS VenusStep : GlobalParameter {
+  automaticSelectionRequirement = HAS VenusNextExpansion
+  activationRequirement = HAS VenusNextExpansion
+
   HAS MAX 15 This
 
   This IF =15 This: GpComplete<Class<VenusStep>>
@@ -27,7 +36,9 @@ CLASS VenusStep : GlobalParameter {
   This IF =8 This: TerraformRating
 }
 
-CLASS VenusTag : PlanetTag
+CLASS VenusTag : PlanetTag {
+  automaticSelectionRequirement = HAS VenusNextExpansion
+}
 
 "Asks the first player where an ocean is placed while preserving the performing Player"
 CLASS FirstPlayerOcean<Player> : Signal

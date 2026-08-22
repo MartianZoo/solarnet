@@ -32,10 +32,7 @@ internal object OptionCodeTranslation {
 
     val options = buildSet {
       add(TERRAFORMING_MARS)
-      add(
-          selectedMapBundles.singleOrNull()?.let(bundleDefaultMapOptions::getValue)
-              ?: THARSIS_MAP_OPTION
-      )
+      add(selectedMapBundles.singleOrNull()?.let(bundleDefaultMapOptions::getValue) ?: THARSIS_MAP)
       codes.mapNotNullTo(this) { positiveOptions[it] }
     }
     val excludedOptions = if (CORPORATE_ERA in options) emptySet() else setOf(CORPORATE_ERA)
@@ -59,12 +56,12 @@ internal object OptionCodeTranslation {
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val CORPORATE_ERA = cn("CorporateEraExpansion")
-  private val THARSIS_MAP_OPTION = cn("TharsisMapOption")
+  private val THARSIS_MAP = cn("TharsisMap")
 
   private val bundleDefaultMapOptions =
       linkedMapOf(
-          "H" to cn("HellasMapOption"),
-          "U" to cn("UtopiaPlanitiaMapOption"),
+          "H" to cn("HellasMap"),
+          "U" to cn("UtopiaMap"),
       )
 
   private val positiveOptions =

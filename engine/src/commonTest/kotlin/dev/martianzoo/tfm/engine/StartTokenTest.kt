@@ -61,7 +61,7 @@ class StartTokenTest {
 
   @Test
   fun autoWorkflowReadsTheTokenOwner() {
-    val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
+    val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)

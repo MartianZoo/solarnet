@@ -25,23 +25,26 @@ exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
 are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
 `Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
-an explicit projection root. Trigger protocols with inhabited arguments currently remain activation
-edges because external workflow creates signals such as `NewTurn`, concrete `UseAction` Types, and
-`SoloVictoryCheck`; Module ownership should eventually replace that compatibility rule.
+an explicit projection root. Trigger positions are observational and do not activate their
+protocol Classes. Modules create the concrete standard actions and other protocols they issue; an
+exact-Class invariant remains the fallback for generic families that cannot be constructed as one
+concrete expression.
 
-Module defaults and premise requirements are authored as Requirement-valued Pets properties. The
-Authority resolves defaults to a fixed point; the engine checks each selected Module's premise
+Module defaults, constructive active-provenance edges, and premise requirements are authored in
+Pets. The Authority resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
 requirement and configuration-facing invariants against the resolved projection before creating the
-World.
+World. Class automatic-selection requirements derive bundle-content conditions from lowered
+Definitions. Activation requirements lock ambient Classes behind their Modules, and exact
+uninhabited-domain viability checks reject impossible selected content before World construction.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.
 Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful operation.
 
 In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
-selected data families, Class representatives, and generic specialization fanout. A concrete
-component introduced by a live Module is instead created by that Module's effect and ordinarily has
-a maximum-one invariant; its event history then records the Module as its cause.
+selected data families, Class representatives, and generic specialization fanout. Initialization
+materializes Modules in an order consistent with active provenance, then Module effects create the
+ordinary concrete components they own.
 
 ## Component graph
 

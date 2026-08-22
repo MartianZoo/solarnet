@@ -1,7 +1,7 @@
 {
   "groups": [
     {
-      "setupRequirement": "HellasMapOption",
+      "group": "HellasDefaultMilestones",
       "milestones": [
         // Diversifier
         { "name": "Diversifier", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
@@ -16,7 +16,7 @@
       ],
     },
     {
-      "setupRequirement": "ElysiumMapOption",
+      "group": "ElysiumDefaultMilestones",
       "milestones": [
         // Generalist
         { "name": "Generalist", "requirement": "PROD[6, Steel, Titanium, Plant, Energy, Heat]" },

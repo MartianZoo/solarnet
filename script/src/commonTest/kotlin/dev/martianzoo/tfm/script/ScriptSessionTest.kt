@@ -63,7 +63,7 @@ internal class ScriptSessionTest {
         listOf("1 MilestonesAwardsExpansion"),
         repl.command("count MilestonesAwardsExpansion"),
     )
-    assertEquals(listOf("1 Tharsis"), repl.command("count Tharsis"))
+    assertEquals(listOf("1 TharsisMap"), repl.command("count TharsisMap"))
   }
 
   @Test
@@ -81,12 +81,12 @@ internal class ScriptSessionTest {
     assertEquals(
         listOf(
             "New 2-player game created with config: " +
-                "MultiplayerMode, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
+                "MultiplayerMode, TerraformingMars, TharsisMap, VenusNextExpansion, " +
                 "-CorporateEraExpansion, -WorldGovernmentOption; players: Player1, Player2",
             "Purple mode: workflow active",
         ),
         repl.command(
-            "newgame \"MultiplayerMode, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
+            "newgame \"MultiplayerMode, TerraformingMars, TharsisMap, VenusNextExpansion, " +
                 "-CorporateEraExpansion, -WorldGovernmentOption\" Player1 Player2 purple"
         ),
     )

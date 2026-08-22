@@ -4,6 +4,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.ClassTable
 
 /** One class inclusion or exclusion, optionally conditional on the full game configuration. */
 public data class ClassSelection(
@@ -12,13 +13,25 @@ public data class ClassSelection(
     public val requirement: Requirement? = null,
 ) {
   /** Whether this selection applies to the complete set of configured class names. */
-  public fun appliesTo(configuredClassNames: Set<ClassName>): Boolean =
-      requirement?.isMetBy { metric -> countConfigured(metric, configuredClassNames) } != false
+  public fun appliesTo(
+      configuredClassNames: Set<ClassName>,
+      classTable: ClassTable,
+  ): Boolean =
+      requirement?.isMetBy { metric ->
+        countConfigured(metric, configuredClassNames, classTable)
+      } != false
 
-  private fun countConfigured(metric: Metric, configuredClassNames: Set<ClassName>): Int {
+  private fun countConfigured(
+      metric: Metric,
+      configuredClassNames: Set<ClassName>,
+      classTable: ClassTable,
+  ): Int {
     require(metric is Count && metric.expression.simple) {
       "Module conditions must count simple classes: $metric"
     }
-    return if (metric.expression.className in configuredClassNames) 1 else 0
+    val countedClass = classTable.getClass(metric.expression.className)
+    return configuredClassNames.count { configuredName ->
+      classTable.getClass(configuredName).isSubtypeOf(countedClass)
+    }
   }
 }

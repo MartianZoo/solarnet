@@ -14,7 +14,7 @@ class ThermalPlasmaStateTest : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
-          ElysiumMapOption
+          ElysiumMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
           Tr63SoloVariant
           Ganymede, Luna, Pluto

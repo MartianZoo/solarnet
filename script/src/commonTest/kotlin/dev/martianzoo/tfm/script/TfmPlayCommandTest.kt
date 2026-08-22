@@ -9,7 +9,7 @@ internal class TfmPlayCommandTest {
   fun `tfm play works within the automatic solo workflow`() {
     val repl = ScriptSession()
     repl.command(
-        "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMapOption, " +
+        "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, " +
             "PreludeExpansion\" Me purple"
     )
     repl.command("task CityTile<Elysium_5_6, SoloOpponent>")

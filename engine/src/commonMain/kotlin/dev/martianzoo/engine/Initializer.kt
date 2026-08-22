@@ -2,11 +2,14 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.ModuleProvenance
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.ClassTable
@@ -40,13 +43,52 @@ internal class Initializer(
    * types until each dependency has had a chance to be created by an earlier round.
    */
   private fun createSingletons(cause: Cause) {
+    val orderedModules = orderModulesByActiveProvenance()
+    val moduleNames = premise.modules.toSet()
     createComponents(
-        classTable.allClasses().filter(Class::isSingletonType).flatMap {
-          it.baseType.concreteSubtypesSameClass()
-        },
+        orderedModules.flatMap { it.baseType.concreteSubtypesSameClass() } +
+            classTable
+                .allClasses()
+                .filter { it.className !in moduleNames && it.isSingletonType() }
+                .flatMap { it.baseType.concreteSubtypesSameClass() },
         cause,
         "singleton",
     )
+  }
+
+  /**
+   * Materializes provenance targets and Modules observed by provenance conditions before their
+   * sources. The source effects then confirm already-selected singleton state without leaving
+   * bootstrap tasks pending.
+   */
+  private fun orderModulesByActiveProvenance(): List<Class> {
+    val modules = premise.modules.associateWith(classTable::getClass)
+    val dependencies = modules.mapValues { (_, source) ->
+      ModuleProvenance.gains(source.declaration).flatMapTo(linkedSetOf()) { gain ->
+        val observedModules =
+            gain.requirements
+                .flatMap { it.descendantsOfType<ClassName>() }
+                .filter { it != THIS && classTable.findClass(it) != null }
+                .flatMap { referencedName ->
+                  val referenced = classTable.getClass(referencedName)
+                  modules.values.filter { candidate -> candidate.isSubtypeOf(referenced) }
+                }
+        observedModules + listOfNotNull(modules[gain.target])
+      } - source
+    }
+    val ordered = mutableListOf<Class>()
+    val visiting = mutableSetOf<ClassName>()
+    val visited = mutableSetOf<ClassName>()
+    fun visit(name: ClassName) {
+      if (name in visited) return
+      require(visiting.add(name)) { "cyclic active Module provenance involving $name" }
+      dependencies.getValue(name).forEach { visit(it.className) }
+      visiting.remove(name)
+      visited.add(name)
+      ordered.add(modules.getValue(name))
+    }
+    premise.modules.forEach(::visit)
+    return ordered
   }
 
   private fun createInitialComponents(cause: Cause) {

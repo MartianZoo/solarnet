@@ -1,4 +1,5 @@
 {
+  "group": "VenusDefaultMilestones",
   "milestones": [
     // Hoverlord
     { "name": "Hoverlord", "requirement": "7 Floater" },

@@ -18,7 +18,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """
-          ElysiumMapOption
+          ElysiumMap
           PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
 
           Builder7, Philantropist, Spacefarer, Terraformer29, Energizer

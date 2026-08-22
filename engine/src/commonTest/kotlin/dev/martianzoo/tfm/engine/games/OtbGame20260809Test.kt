@@ -22,7 +22,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
-          HellasMapOption
+          HellasMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion
           PromoCardPack
 

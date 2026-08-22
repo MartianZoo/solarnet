@@ -20,7 +20,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """
-          HellasMapOption
+          HellasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, MilestonesAwardsExpansion, Merger
 
           Energizer, Builder7, Generalist, Diversifier, Terraformer29, Sponsor

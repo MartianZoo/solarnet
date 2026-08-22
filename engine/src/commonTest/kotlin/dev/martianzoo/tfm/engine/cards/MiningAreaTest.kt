@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.TestOption.TerraCimmeriaMapOption
+import dev.martianzoo.tfm.engine.TestOption.Cimmeria
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -31,7 +31,7 @@ class MiningAreaTest : CardTest() {
 
   @Test
   fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
-    newGame(TerraCimmeriaMapOption)
+    newGame(Cimmeria)
     p1.manual("CityTile<Cimmeria_5_4>")
     p1.manual("$MiningArea") {
           doTask("MiningArea_SpecialTile<Cimmeria_6_4>")

@@ -48,7 +48,14 @@ internal class CanonClassesTest {
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
-    anomalies.classNames().shouldContainExactlyInAnyOrder(ANYONE, cn("NoctisArea"))
+    anomalies
+        .classNames()
+        .shouldContainExactlyInAnyOrder(
+            ANYONE,
+            cn("NoctisArea"),
+            cn("MilestonePoolOverride"),
+            cn("AwardPoolOverride"),
+        )
   }
 
   @Test
@@ -90,7 +97,7 @@ internal class CanonClassesTest {
 
   @Test
   fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
-    val maps = TestOption.entries.filter { it.name.endsWith("MapOption") }
+    val maps = listOf(Tharsis, Hellas, Elysium, Utopia, Cimmeria)
 
     maps.forEach { map ->
       val game =

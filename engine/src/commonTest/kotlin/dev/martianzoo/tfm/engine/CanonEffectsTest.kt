@@ -113,6 +113,15 @@ internal class CanonEffectsTest {
   }
 
   @Test
+  fun convertHeat() {
+    classEffectsOf(cn("ConvertHeatSA"), cn("UseAction1"))
+        .shouldContainExactlyInAnyOrder(
+            "UseAction1<Owner, This>: 8 Owed<Owner, Class<Heat>>! THEN Payment<Owner, Class<This>>!",
+            "CostPaid<Owner, Class<This>>: TemperatureStep.",
+        )
+  }
+
+  @Test
   fun teractor() {
     classEffectsOf(Teractor, cn("Owed"))
         .shouldContainExactlyInAnyOrder(

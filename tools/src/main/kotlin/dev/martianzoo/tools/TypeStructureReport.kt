@@ -26,7 +26,7 @@ internal object TypeStructureReport {
       setOf(
           cn("TerraformingMars"),
           cn("CorporateEraExpansion"),
-          cn("TharsisMapOption"),
+          cn("TharsisMap"),
           cn("VenusNextExpansion"),
           cn("PreludeExpansion"),
           cn("ColoniesExpansion"),

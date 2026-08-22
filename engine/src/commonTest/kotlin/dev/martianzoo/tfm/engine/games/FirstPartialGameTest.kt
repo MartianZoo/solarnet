@@ -21,7 +21,7 @@ class FirstPartialGameTest : TfmTest() {
     repeat(1) {
       val setup =
           canonicalPremise(
-              ElysiumMapOption,
+              Elysium,
               PreludeExpansion,
               TurmoilCardPack,
               players = 2,

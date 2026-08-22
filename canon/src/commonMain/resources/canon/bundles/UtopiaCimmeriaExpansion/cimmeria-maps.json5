@@ -13,8 +13,10 @@
 
   "maps": [
     {
-      "name": "Cimmeria",
-      "setupRequirement": "TerraCimmeriaMapOption",
+      "name": "CimmeriaMap",
+      "areaPrefix": "Cimmeria",
+      "defaultMilestones": "CimmeriaDefaultMilestones",
+      "defaultAwards": "CimmeriaDefaultAwards",
       "rows": [
         [
                                                "W"  ,  "LP" ,  "VS" ,  "LP" , "WPP"

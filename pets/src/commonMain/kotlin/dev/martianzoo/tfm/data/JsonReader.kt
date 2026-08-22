@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.ColonyTileDefinition.ColonyTileData
@@ -24,18 +23,24 @@ public object JsonReader {
 
   @Serializable
   private data class AwardList(
-      val setupRequirement: String? = null,
+      val group: String? = null,
+      val automaticSelectionRequirement: String? = null,
       val awards: List<AwardImport> = emptyList(),
       val groups: List<AwardList> = emptyList(),
   ) {
     init {
       require(awards.isNotEmpty() || groups.isNotEmpty())
-      require(setupRequirement?.isNotBlank() != false)
+      require(automaticSelectionRequirement?.isNotBlank() != false)
     }
 
-    fun complete(inheritedRequirement: String? = null): List<AwardDefinition> {
-      val requirement = combineRequirements(inheritedRequirement, setupRequirement)
-      return awards.map { it.complete(requirement) } + groups.flatMap { it.complete(requirement) }
+    fun complete(
+        inheritedRequirement: String? = null,
+        inheritedGroup: String? = null,
+    ): List<AwardDefinition> {
+      val requirement = combineRequirements(inheritedRequirement, automaticSelectionRequirement)
+      val selectionGroup = group ?: inheritedGroup
+      return awards.map { it.complete(requirement, selectionGroup) } +
+          groups.flatMap { it.complete(requirement, selectionGroup) }
     }
   }
 
@@ -44,14 +49,17 @@ public object JsonReader {
       val name: String,
       val replaces: String? = null,
       val metric: String,
-      val setupRequirement: String? = null,
+      val automaticSelectionRequirement: String? = null,
   ) {
-    fun complete(groupSetupRequirement: String?): AwardDefinition =
+    fun complete(groupAutomaticRequirement: String?, group: String?): AwardDefinition =
         AwardDefinition(
             cn(name),
             replaces?.let(::cn),
             metric,
-            listOfNotNull(groupSetupRequirement, setupRequirement).joinToString().ifEmpty { null },
+            listOfNotNull(groupAutomaticRequirement, automaticSelectionRequirement)
+                .joinToString()
+                .ifEmpty { null },
+            group?.let(::cn),
         )
   }
 
@@ -68,19 +76,24 @@ public object JsonReader {
 
   @Serializable
   private data class MilestoneList(
+      val group: String? = null,
       val milestones: List<MilestoneImport> = emptyList(),
-      val setupRequirement: String? = null,
+      val automaticSelectionRequirement: String? = null,
       val groups: List<MilestoneList> = emptyList(),
   ) {
     init {
       require(milestones.isNotEmpty() || groups.isNotEmpty())
-      require(setupRequirement?.isNotBlank() != false)
+      require(automaticSelectionRequirement?.isNotBlank() != false)
     }
 
-    fun definitions(inheritedRequirement: String? = null): List<MilestoneDefinition> {
-      val requirement = combineRequirements(inheritedRequirement, setupRequirement)
-      return milestones.map { it.complete(requirement) } +
-          groups.flatMap { it.definitions(requirement) }
+    fun definitions(
+        inheritedRequirement: String? = null,
+        inheritedGroup: String? = null,
+    ): List<MilestoneDefinition> {
+      val requirement = combineRequirements(inheritedRequirement, automaticSelectionRequirement)
+      val selectionGroup = group ?: inheritedGroup
+      return milestones.map { it.complete(requirement, selectionGroup) } +
+          groups.flatMap { it.definitions(requirement, selectionGroup) }
     }
   }
 
@@ -89,18 +102,21 @@ public object JsonReader {
       val name: String,
       val replaces: String? = null,
       val requirement: String,
-      val setupRequirement: String? = null,
+      val automaticSelectionRequirement: String? = null,
   ) {
     init {
-      require(setupRequirement?.isNotBlank() != false)
+      require(automaticSelectionRequirement?.isNotBlank() != false)
     }
 
-    fun complete(groupSetupRequirement: String?): MilestoneDefinition =
+    fun complete(groupAutomaticRequirement: String?, group: String?): MilestoneDefinition =
         MilestoneDefinition(
             cn(name),
             replaces?.let(::cn),
             requirement,
-            listOfNotNull(groupSetupRequirement, setupRequirement).joinToString().ifEmpty { null },
+            listOfNotNull(groupAutomaticRequirement, automaticSelectionRequirement)
+                .joinToString()
+                .ifEmpty { null },
+            group?.let(::cn),
         )
   }
 
@@ -120,7 +136,7 @@ public object JsonReader {
         val action: String? = null,
         val actions: List<String>? = null,
         val effects: List<String> = emptyList(),
-        val setupRequirement: String? = null,
+        val automaticSelectionRequirement: String? = null,
     ) {
       fun complete(): StandardActionDefinition {
         val realActions =
@@ -134,7 +150,7 @@ public object JsonReader {
         return StandardActionDefinition(
             className = cn(name),
             actions = realActions,
-            setupRequirementText = setupRequirement,
+            automaticSelectionRequirementText = automaticSelectionRequirement,
             effects = effects,
         )
       }
@@ -156,13 +172,16 @@ public object JsonReader {
     @Serializable
     data class MapImport(
         val name: String,
-        val setupRequirement: String? = null,
+        val areaPrefix: String? = null,
+        val defaultMilestones: String? = null,
+        val defaultAwards: String? = null,
         val rows: List<List<String>>,
     ) {
       internal fun toDefinition(
           legend: Legend,
       ): MarsMapDefinition {
         val mapName = cn(name)
+        val mapAreaPrefix = cn(areaPrefix ?: name)
         fun mapArea(
             row0Index: Int,
             col0Index: Int,
@@ -172,7 +191,7 @@ public object JsonReader {
           val compactCode = code.filterNot { it.isWhitespace() }
           if (compactCode.isEmpty()) return null
           return AreaDefinition(
-              mapName,
+              mapAreaPrefix,
               row0Index + 1,
               col0Index + 1,
               legend.getType(compactCode),
@@ -187,7 +206,12 @@ public object JsonReader {
           }
         }
         val grid = Grid.grid(areas, { it.row }, { it.column })
-        return MarsMapDefinition(mapName, grid, setupRequirement?.let(::parse))
+        return MarsMapDefinition(
+            mapName,
+            grid,
+            defaultMilestones?.let(::cn),
+            defaultAwards?.let(::cn),
+        )
       }
     }
 

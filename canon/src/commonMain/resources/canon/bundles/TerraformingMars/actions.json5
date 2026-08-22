@@ -15,7 +15,7 @@
         "UseAction<This>:: 8 Owed<>",
         "CostPaid<Class<This>>: Milestone"
       ],
-      "setupRequirement": "MAX 0 SoloMode"
+      "automaticSelectionRequirement": "MAX 0 SoloMode"
     },
 
     // Fund award
@@ -26,7 +26,7 @@
         "UseAction<This>:: (=0 Award: 8 Owed<>) OR (=1 Award: 14 Owed<>) OR (=2 Award: 20 Owed<>)",
         "CostPaid<Class<This>>: Award"
       ],
-      "setupRequirement": "MAX 0 SoloMode"
+      "automaticSelectionRequirement": "MAX 0 SoloMode"
     },
 
     // Use card action

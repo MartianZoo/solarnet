@@ -122,7 +122,6 @@
 
     {
       "name": "CorporateArchives",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
       "immediate": "13, 2 ProjectCard",
@@ -130,7 +129,6 @@
 
     {
       "name": "DoubleDown",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
       "components": [ "CLASS CopyPrelude<CardFront<Player>> : Owned<Player>, Custom" ],
@@ -138,21 +136,18 @@
 
     {
       "name": "Merger",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "4 CorporationCard THEN -3 CorporationCard THEN PlayCard<Class<CorporationCard>>, -42",
     },
 
     {
       "name": "NewPartner",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "PROD[1], 2 PreludeCard THEN -PreludeCard THEN PlayCard<Class<PreludeCard>>",
     },
 
     {
       "name": "HeadStart",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
       "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!",
@@ -160,7 +155,6 @@
 
     {
       "name": "AntiDesertificationTechniques",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag", "PlantTag" ],
       "immediate": "3, PROD[Plant, Steel]",
@@ -168,14 +162,12 @@
 
     {
       "name": "FakeEstablishedMethods",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "30, UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
     {
       "name": "GiantSolarCollector",
-      "setupRequirement": "PreludeExpansion, VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "PowerTag", "SpaceTag" ],
       "immediate": "PROD[2 Energy], VenusStep",
@@ -183,7 +175,6 @@
 
     {
       "name": "StrategicBasePlanning",
-      "setupRequirement": "PreludeExpansion, ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
       "immediate": "-3, CityTile<>, Colony<>",
@@ -191,7 +182,6 @@
 
     {
       "name": "AlbedoPlants",
-      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant], Plant",

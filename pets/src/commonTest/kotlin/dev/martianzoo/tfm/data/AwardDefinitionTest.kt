@@ -8,19 +8,20 @@ import kotlin.test.Test
 
 internal class AwardDefinitionTest {
   @Test
-  fun groupAndIndividualSetupRequirementsAreCombined() {
+  fun groupAndIndividualAutomaticSelectionRequirementsAreCombined() {
     val awards =
         JsonReader.readAwards(
             """
             {
               "groups": [{
-                "setupRequirement": "DemoMapOption",
+                "group": "DemoDefaultAwards",
+                "automaticSelectionRequirement": "DemoMap",
                 "awards": [
                   { "name": "Magnate", "replaces": "Landlord", "metric": "TerraformRating" },
                   {
                     "name": "SpaceBaron",
                     "metric": "VenusTag",
-                    "setupRequirement": "VenusNextExpansion",
+                    "automaticSelectionRequirement": "VenusNextExpansion",
                   },
                 ],
               }],
@@ -30,10 +31,13 @@ internal class AwardDefinitionTest {
 
     val replacement = awards.single { it.className == cn("Magnate") }
     replacement.replaces shouldBe cn("Landlord")
-    replacement.setupRequirement.toString() shouldBe "MAX 0 SoloMode, DemoMapOption"
+    replacement.selectionGroup shouldBe cn("DemoDefaultAwards")
+    replacement.automaticSelectionRequirement.toString() shouldBe "MultiplayerMode, DemoMap"
     replacement.asClassDeclaration.properties[PropertyName("metric")] shouldBe
         MetricValue(replacement.metric)
-    awards.single { it.className == cn("SpaceBaron") }.setupRequirement.toString() shouldBe
-        "MAX 0 SoloMode, DemoMapOption, VenusNextExpansion"
+    awards
+        .single { it.className == cn("SpaceBaron") }
+        .automaticSelectionRequirement
+        .toString() shouldBe "MultiplayerMode, (DemoMap, VenusNextExpansion)"
   }
 }

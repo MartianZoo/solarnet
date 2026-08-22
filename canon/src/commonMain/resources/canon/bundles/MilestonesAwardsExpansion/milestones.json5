@@ -51,7 +51,6 @@
       "name": "Pioneer4",
       "replaces": "Pioneer3",
       "requirement": "4 Colony",
-      "setupRequirement": "ColoniesExpansion",
     },
 
     // Producer. GrossHack contributes five synthetic M€ production components, so 21 models

@@ -22,7 +22,7 @@ class OtbGame20260818Test : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
-          UtopiaPlanitiaMapOption
+          UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion
           PromoCardPack
 

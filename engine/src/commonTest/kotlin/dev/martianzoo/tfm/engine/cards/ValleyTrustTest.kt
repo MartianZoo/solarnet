@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -11,12 +13,24 @@ import kotlin.test.Test
 
 class ValleyTrustTest : CardTest() {
   @Test
-  fun `Valley Trust activates its card back without the Prelude phase`() {
+  fun `Valley Trust is broken when no Prelude deck is selected`() {
+    val preludeCards =
+        Canon.bundles
+            .single { it.bundleName == cn("PreludeExpansion") }
+            .cardDefinitions
+            .filter { it.deck == PRELUDE }
+            .map { it.className }
     val game = newGame(GameConfig("ValleyTrust", "Player1", "Player2"))
 
     game.classTable.isActive(cn("PreludeExpansion")) shouldBe false
+    game.classTable.isActive(cn("Prelude2Expansion")) shouldBe false
     game.classTable.isActive(cn("PreludePhase")) shouldBe false
     game.classTable.isActive(cn("PreludeCard")) shouldBe true
+    preludeCards.none(game.classTable::isActive) shouldBe true
+
+    p1.playCorp(ValleyTrust, 5)
+    engine.phase("Action")
+    shouldThrow<AbstractException> { p1.stdAction("HandleMandates") }
   }
 
   @Test
@@ -29,6 +43,15 @@ class ValleyTrustTest : CardTest() {
           p1.playPrelude(MartianIndustries)
         }
         .expect("PROD[Steel, Energy]")
+  }
+
+  @Test
+  fun `Valley Trust uses an already selected Prelude generation`() {
+    val game = newGame(GameConfig("ValleyTrust, Prelude2Expansion", "Player1", "Player2"))
+
+    game.classTable.isActive(cn("PreludePhase")) shouldBe true
+    game.classTable.isActive(cn("AppliedScience")) shouldBe true
+    game.classTable.isActive(MartianIndustries) shouldBe false
   }
 
   @Test

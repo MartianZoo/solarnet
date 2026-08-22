@@ -15,7 +15,7 @@ import kotlin.test.Test
 internal class CustomMetricMilestonesTest {
   @Test
   fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
-    val p1 = Engine.newGame(canonicalPremise(ElysiumMapOption, players = 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(Elysium, players = 2)).tfm(PLAYER1)
     p1.godMode()
         .sneak(
             "$ColonizerTrainingCamp, $DeepWellHeating, $CloudSeeding, $MartianRails, " +
@@ -39,7 +39,7 @@ internal class CustomMetricMilestonesTest {
         Engine.newGame(
             canonicalPremise(
                 ColoniesExpansion,
-                HellasMapOption,
+                Hellas,
                 VenusNextExpansion,
                 PromoCardPack,
                 players = 2,
@@ -73,7 +73,7 @@ internal class CustomMetricMilestonesTest {
         Engine.newGame(
                 canonicalPremise(
                     ColoniesExpansion,
-                    HellasMapOption,
+                    Hellas,
                     players = 2,
                     colonyTiles = testColonyTiles(2),
                 )

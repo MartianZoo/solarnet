@@ -81,7 +81,7 @@ internal class ClassTableProjectionTest {
 
   @Test
   fun `Prelude classes stay unloaded without Prelude`() {
-    // Promo has Prelude-gated cards, including one whose instruction names PreludeCard.
+    // Promo has Prelude cards, but its ordinary selection filters them without a Prelude deck.
     matchingClasses("prelude", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
   }
 
@@ -170,13 +170,13 @@ internal class ClassTableProjectionTest {
     val withoutCorporateEra = projection("-CorporateEraExpansion", "Player1", "Player2")
     val promosUtopiaWithoutCorporateEra =
         projection(
-            "PromoCardPack, UtopiaPlanitiaMapOption, -CorporateEraExpansion",
+            "PromoCardPack, UtopiaMap, -CorporateEraExpansion",
             "Player1",
             "Player2",
         )
     val promosCimmeriaWithoutCorporateEra =
         projection(
-            "PromoCardPack, TerraCimmeriaMapOption, -CorporateEraExpansion",
+            "PromoCardPack, CimmeriaMap, -CorporateEraExpansion",
             "Player1",
             "Player2",
         )

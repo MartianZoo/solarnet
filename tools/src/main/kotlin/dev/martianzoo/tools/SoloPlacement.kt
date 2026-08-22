@@ -145,7 +145,10 @@ internal fun calculateSoloPlacements(arguments: List<String>): List<Placement> {
     "usage: solo-placement [--compatibility] MAP CARD1 CARD2 CARD3 CARD4"
   }
   val names = namesInOrder.map(::cn).map(soloPlacementVocabulary::canonicalName)
-  val map = soloPlacementAuthority.marsMap(names.first())
+  val requestedMap = names.first()
+  val mapName =
+      cn("${requestedMap}Map").takeIf { it in soloPlacementAuthority.allClassNames } ?: requestedMap
+  val map = soloPlacementAuthority.marsMap(mapName)
   val cards = names.drop(1).map(soloPlacementAuthority::card)
   val mode = if (compatibility) PlacementMode.COMPATIBILITY else PlacementMode.STANDARD
   return SoloPlacementCalculator(map, mode).calculate(cards)

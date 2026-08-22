@@ -9,6 +9,7 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.data.ClassProperties.ACTIVATION_REQUIREMENT
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -27,6 +28,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 
 /**
@@ -38,6 +40,8 @@ public class ClassLoader
 private constructor(
     internal val authority: Authority,
     private val masterSource: ClassTable?,
+    private val blockedActivations: Map<ClassName, Requirement> = emptyMap(),
+    private val configuredModuleNames: Set<ClassName> = emptySet(),
 ) : ClassTable() {
   /** Compiles the master table that an [Authority] implementation retains and exposes. */
   public constructor(authority: Authority) : this(authority, null)
@@ -116,6 +120,7 @@ private constructor(
   }
 
   private val queue = ArrayDeque<ClassName>()
+  private val requestedBy = mutableMapOf<ClassName, ClassName?>()
 
   private enum class Truth {
     TRUE,
@@ -139,15 +144,26 @@ private constructor(
 
   /** Equivalent to calling [load] on every canonical class name in [names]. */
   private fun loadAll(names: Collection<ClassName>) {
-    enqueue(names)
+    enqueue(names, requestedByClass = null)
     while (queue.isNotEmpty()) {
-      loadRelated(queue.removeFirst(), active = true)
+      val next = queue.removeFirst()
+      blockedActivations[next]?.let { requirement ->
+        val source = requestedBy.getValue(next)
+        val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
+        throw IllegalArgumentException(
+            "broken game premise: $path; activation requirement is not met: $requirement"
+        )
+      }
+      loadRelated(next, active = true)
       enqueueReachableActivationEdges()
     }
   }
 
-  private fun enqueue(names: Collection<ClassName>) {
-    queue += names - loadedClasses.keys - queue
+  private fun enqueue(names: Collection<ClassName>, requestedByClass: ClassName?) {
+    (names - loadedClasses.keys - queue).forEach { name ->
+      requestedBy[name] = requestedByClass
+      queue += name
+    }
   }
 
   internal fun loadRelated(next: ClassName, active: Boolean): Class {
@@ -195,11 +211,9 @@ private constructor(
               klass?.takeUnless(Class::phantom)?.className
             }
             .toSet()
-    val edges =
-        (activeNames - COMPONENT - CLASS).flatMapTo(linkedSetOf()) { name ->
-          activationEdges(knownDeclaration(name), activeNames)
-        }
-    enqueue(edges - THIS)
+    (activeNames - COMPONENT - CLASS).forEach { name ->
+      enqueue(activationEdges(knownDeclaration(name), activeNames) - THIS, name)
+    }
   }
 
   /** Returns the structurally or constructively required Classes in one live declaration. */
@@ -222,8 +236,15 @@ private constructor(
         when (requirement) {
           is Requirement.Counting -> {
             val metric = requirement.metric
-            if (metric is Metric.Count && isUninhabited(metric.expression)) {
-              if (0 in requirement.range) Truth.TRUE else Truth.FALSE
+            if (metric is Metric.Count) {
+              val configuredCount = configuredModuleCount(metric.expression)
+              when {
+                configuredCount != null ->
+                    if (configuredCount in requirement.range) Truth.TRUE else Truth.FALSE
+                isUninhabited(metric.expression) ->
+                    if (0 in requirement.range) Truth.TRUE else Truth.FALSE
+                else -> Truth.UNKNOWN
+              }
             } else {
               Truth.UNKNOWN
             }
@@ -246,29 +267,6 @@ private constructor(
           is XTrigger -> triggerReachable(trigger.inner)
           is Transform -> triggerReachable(trigger.inner)
         }
-
-    fun collectTriggerProtocols(trigger: Trigger) {
-      fun collectProtocol(expression: Expression) {
-        if (expression.className in knownClassNames && expression.arguments.none(::isUninhabited)) {
-          add(expression.className)
-        }
-      }
-
-      when (trigger) {
-        is SelfTrigger -> Unit
-        is OnGainOf -> collectProtocol(trigger.expression)
-        is OnRemoveOf -> collectProtocol(trigger.expression)
-        is Or -> trigger.triggers.forEach(::collectTriggerProtocols)
-        is ByTrigger -> collectTriggerProtocols(trigger.inner)
-        is IfTrigger -> {
-          if (truthOf(trigger.condition) != Truth.FALSE) {
-            collectTriggerProtocols(trigger.inner)
-          }
-        }
-        is XTrigger -> collectTriggerProtocols(trigger.inner)
-        is Transform -> collectTriggerProtocols(trigger.inner)
-      }
-    }
 
     fun collectRequiredInhabitants(requirement: Requirement) {
       when (requirement) {
@@ -307,7 +305,6 @@ private constructor(
         .forEach(::collectStructural)
     declaration.defaultsDeclaration.forClass?.let(::add)
     declaration.invariants.forEach(::collectRequiredInhabitants)
-    declaration.effects.forEach { collectTriggerProtocols(it.trigger) }
     declaration.effects
         .filter { triggerReachable(it.trigger) }
         .forEach {
@@ -322,6 +319,25 @@ private constructor(
     }
     if (declaration.custom) {
       addAll(authority.customClass(declaration.className).requiredClassNames)
+    }
+  }
+
+  private fun configuredModuleCount(expression: Expression): Int? {
+    if (masterSource == null || !expression.simple || expression.className == THIS) return null
+    val countedClass = masterSource.getClass(expression.className)
+    val concreteSubclassNames =
+        countedClass
+            .allSubclasses()
+            .filterNot(Class::abstract)
+            .mapTo(linkedSetOf(), Class::className)
+    if (
+        concreteSubclassNames.isEmpty() ||
+            !authority.modules.keys.containsAll(concreteSubclassNames)
+    ) {
+      return null
+    }
+    return configuredModuleNames.count { moduleName ->
+      masterSource.getClass(moduleName).isSubtypeOf(countedClass)
     }
   }
 
@@ -484,12 +500,32 @@ private constructor(
   internal companion object {
     private var nextId: Int = 0
 
-    internal fun projection(authority: Authority): ClassLoader {
+    internal fun projection(
+        authority: Authority,
+        configuredModuleNames: Set<ClassName>,
+    ): ClassLoader {
       val masterTable = authority.classTable
       require(masterTable.masterTable === masterTable) {
         "Authority class table is not a master table"
       }
-      return ClassLoader(authority, masterTable)
+      fun countConfigured(metric: Metric): Int {
+        require(metric is Count && metric.expression.simple) {
+          "Class activation requirements must count simple classes: $metric"
+        }
+        val countedClass = masterTable.getClass(metric.expression.className)
+        return configuredModuleNames.count { configuredName ->
+          masterTable.getClass(configuredName).isSubtypeOf(countedClass)
+        }
+      }
+      val blocked =
+          authority.allClassNames
+              .mapNotNull { className ->
+                val property = masterTable.getClass(className).properties[ACTIVATION_REQUIREMENT]
+                val requirement = (property as? RequirementValue)?.value ?: return@mapNotNull null
+                (className to requirement).takeUnless { requirement.isMetBy(::countConfigured) }
+              }
+              .toMap()
+      return ClassLoader(authority, masterTable, blocked, configuredModuleNames)
     }
   }
 }

@@ -10,24 +10,24 @@ import kotlin.test.Test
 
 /** Tests for the Canon data set. */
 internal class CanonMapsTest {
-  @Test fun testTharsis() = checkMap(Canon.marsMap(cn("Tharsis")))
+  @Test fun testTharsis() = checkMap(Canon.marsMap(cn("TharsisMap")))
 
-  @Test fun testHellas() = checkMap(Canon.marsMap(cn("Hellas")))
+  @Test fun testHellas() = checkMap(Canon.marsMap(cn("HellasMap")))
 
-  @Test fun testElysium() = checkMap(Canon.marsMap(cn("Elysium")))
+  @Test fun testElysium() = checkMap(Canon.marsMap(cn("ElysiumMap")))
 
   @Test
   fun testUtopia() {
-    val map = Canon.marsMap(cn("Utopia"))
-    map.className shouldBe cn("Utopia")
+    val map = Canon.marsMap(cn("UtopiaMap"))
+    map.className shouldBe cn("UtopiaMap")
     map.areas.single { it.className == cn("Utopia_3_3") }.bonusText shouldBe "Steel"
     checkMap(map)
   }
 
   @Test
   fun testCimmeria() {
-    val map = Canon.marsMap(cn("Cimmeria"))
-    map.className shouldBe cn("Cimmeria")
+    val map = Canon.marsMap(cn("CimmeriaMap"))
+    map.className shouldBe cn("CimmeriaMap")
     map.areas.single { it.className == cn("Cimmeria_3_3") }.bonusText shouldBe "TcColonyBonus"
     checkMap(map)
   }

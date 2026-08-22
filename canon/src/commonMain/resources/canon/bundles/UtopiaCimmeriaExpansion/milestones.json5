@@ -1,12 +1,12 @@
 {
   "groups": [
     {
-      "setupRequirement": "UtopiaPlanitiaMapOption",
+      "group": "UtopiaDefaultMilestones",
       "milestones": [
         // Manager
         { "name": "Manager", "requirement": "3 SpecialTile" },
         // Pioneer
-        { "name": "Pioneer3", "setupRequirement": "ColoniesExpansion", "requirement": "3 Colony" },
+        { "name": "Pioneer3", "requirement": "3 Colony" },
         // Trader
         { "name": "Trader", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
         // Metallurgist
@@ -16,13 +16,12 @@
       ],
     },
     {
-      "setupRequirement": "TerraCimmeriaMapOption",
+      "group": "CimmeriaDefaultMilestones",
       "milestones": [
         // Planetologist
         {
           "name": "Planetologist",
           "requirement": "2 EarthTag, 2 VenusTag, 2 JovianTag",
-          "setupRequirement": "VenusNextExpansion",
         },
         // Architect
         { "name": "Architect", "requirement": "3 CityTag" },

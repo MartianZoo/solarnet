@@ -13,8 +13,10 @@
   "maps": [
 
     {
-      "name": "Elysium",
-      "setupRequirement": "ElysiumMapOption",
+      "name": "ElysiumMap",
+      "areaPrefix": "Elysium",
+      "defaultMilestones": "ElysiumDefaultMilestones",
+      "defaultAwards": "ElysiumDefaultAwards",
       "rows": [
         [
                                       "W", "WT", "WC", "WS", "LC"

@@ -104,11 +104,11 @@ internal fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOptio
 
 private val MAP_OPTIONS =
     setOf(
-        TestOption.TharsisMapOption,
-        TestOption.HellasMapOption,
-        TestOption.ElysiumMapOption,
-        TestOption.UtopiaPlanitiaMapOption,
-        TestOption.TerraCimmeriaMapOption,
+        TestOption.Tharsis,
+        TestOption.Hellas,
+        TestOption.Elysium,
+        TestOption.Utopia,
+        TestOption.Cimmeria,
     )
 
 object TestHelpers {

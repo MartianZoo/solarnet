@@ -17,7 +17,7 @@ class LavaFlowsTest : CardTest() {
 
   @Test
   fun `Can place its tile on Hellas`() {
-    newGame(HellasMapOption)
+    newGame(Hellas)
     p1.manual("$LavaFlows") { doTask("LavaFlows_SpecialTile<Hellas_1_5>") }
         .expect("2 TemperatureStep")
   }

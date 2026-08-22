@@ -12,14 +12,15 @@ import dev.martianzoo.tfm.data.TfmClasses.STANDARD_ACTION
 public data class StandardActionDefinition(
     override val className: ClassName,
     val actions: List<String>,
-    private val setupRequirementText: String? = null,
+    private val automaticSelectionRequirementText: String? = null,
     val effects: List<String> = emptyList(),
 ) : Definition {
   init {
-    require(setupRequirementText?.isNotBlank() != false)
+    require(automaticSelectionRequirementText?.isNotBlank() != false)
   }
 
-  override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
+  override val automaticSelectionRequirement: Requirement? =
+      automaticSelectionRequirementText?.let(::parse)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     // TODO can share some of this across Definitions?

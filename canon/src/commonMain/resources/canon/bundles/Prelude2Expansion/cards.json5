@@ -69,7 +69,6 @@
     // Atmospheric Enhancers[F]
     {
       "name": "AtmosphericEnhancers",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "VenusTag" ],
       "immediate": "(2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), 2 ProjectCard",
@@ -90,7 +89,6 @@
     // Colony Trade Hub
     {
       "name": "ColonyTradeHub",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Energy], 2 Titanium",
@@ -100,7 +98,6 @@
     // Early Colonization
     {
       "name": "EarlyColonization",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "Colony<>, 3 Energy, 2 AdvanceColonyTracks",
@@ -165,7 +162,6 @@
     // Old Mining Colony
     {
       "name": "OldMiningColony",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Titanium], Colony<>, -ProjectCard",
@@ -174,7 +170,6 @@
     // Planetary Alliance[F]
     {
       "name": "PlanetaryAlliance",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
       "immediate": "2 TerraformRating, ProjectCard, ProjectCard",
@@ -245,7 +240,6 @@
     // Venus Contract[F]
     {
       "name": "VenusContract",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "VenusTag" ],
       "immediate": "ProjectCard, TerraformRating",
@@ -255,7 +249,6 @@
     // Venus L1 Shade
     {
       "name": "VenusL1Shade",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "3 VenusStep",
@@ -273,7 +266,6 @@
     // Ceres Tech Market
     {
       "name": "CeresTechMarket",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 12,
@@ -286,7 +278,6 @@
     // Cloud Tourism
     {
       "name": "CloudTourism",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -300,7 +291,6 @@
     // Floating Refinery
     {
       "name": "FloatingRefinery",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 7,
@@ -316,7 +306,6 @@
     // Ishtar Expedition[F]
     {
       "name": "IshtarExpedition",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "5 VenusStep",
@@ -328,7 +317,6 @@
     // Microgravity Nutrition
     {
       "name": "MicrogravityNutrition",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -340,7 +328,6 @@
     // Soil Studies
     {
       "name": "SoilStudies",
-      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "MAX 13 TemperatureStep",
@@ -352,7 +339,6 @@
     // Stratospheric Expedition[F]
     {
       "name": "StratosphericExpedition",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 12,
@@ -364,7 +350,6 @@
     // Unexpected Application
     {
       "name": "UnexpectedApplication",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 4,
@@ -375,7 +360,6 @@
     // Venus Allies
     {
       "name": "VenusAllies",
-      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 30,
@@ -387,7 +371,6 @@
     // Venus Orbital Survey[F]
     {
       "name": "VenusOrbitalSurvey",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 18,
@@ -398,7 +381,6 @@
     // Venus Shuttles
     {
       "name": "VenusShuttles",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 9,
@@ -412,7 +394,6 @@
     // Venus Trade Hub
     {
       "name": "VenusTradeHub",
-      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 VenusTag",

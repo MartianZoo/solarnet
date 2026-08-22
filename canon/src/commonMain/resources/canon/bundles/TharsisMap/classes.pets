@@ -1,4 +1,3 @@
-"Uses the Tharsis board and its map-specific rules and content"
-CLASS TharsisMapOption : MarsMapOption {
-  autoSelectWhen = HAS MAX 0 MarsMapOption
-}
+CLASS TharsisDefaultMilestones : Module
+
+CLASS TharsisDefaultAwards : Module
