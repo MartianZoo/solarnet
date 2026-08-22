@@ -6,15 +6,18 @@ import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.types.DependencySet.DependencyPath
 import dev.martianzoo.types.Type
 
-/** A Type together with the dependency keys explicitly supplied by its authored expression. */
+/** A card-context Type plus keyed source dependencies needed after contextual normalization. */
 internal data class ResolvedExpression(
     val type: Type,
-    val authoredDependencies: Map<Key, Expression>,
+    val selectedKeys: Set<Key>,
+    val sourceDependencies: Map<Key, Expression>,
 ) {
-  internal fun authored(key: Key): Expression? = authoredDependencies[key]
+  internal fun sourceDependency(key: Key): Expression? = sourceDependencies[key]
 
   internal fun dependency(key: Key): Type? {
     if (key !in type.dependencies.keys) return null
     return (type.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency)?.boundType
   }
+
+  internal fun selectedDependency(key: Key): Type? = dependency(key).takeIf { key in selectedKeys }
 }

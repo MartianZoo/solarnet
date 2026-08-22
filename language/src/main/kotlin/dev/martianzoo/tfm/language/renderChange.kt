@@ -15,14 +15,30 @@ internal fun renderChange(
     instruction: Instruction,
     describers: Describers,
     drawFilter: EnglishDrawFilter? = null,
-): Clause? {
+): Rendering<Clause?> {
   val expression =
       when (instruction) {
         is Gain -> instruction.gaining
         is Remove -> instruction.removing
         is Transmute -> instruction.gaining
-        else -> return null
+        else -> return Rendering.unresolved(instruction, RefusalReason.UNKNOWN_CHANGE_FRAME, null)
       }
+  val clause = renderChangeOrNull(instruction, expression, describers, drawFilter)
+  return if (clause != null) Rendering.resolved(clause)
+  else
+      Rendering.unresolved(
+          instruction,
+          changeRefusalReason(instruction, expression, describers),
+          null,
+      )
+}
+
+private fun renderChangeOrNull(
+    instruction: Instruction,
+    expression: Expression,
+    describers: Describers,
+    drawFilter: EnglishDrawFilter?,
+): Clause? {
   describers.fact(expression.className, ComponentDescriber::directChange)?.let {
     renderDirectChange(instruction, it, describers, drawFilter)?.let { clause ->
       return clause
@@ -53,6 +69,37 @@ internal fun renderChange(
   if (describers.isStandardResource(expression.className))
       return renderStandardResourceChange(instruction, describers)
   return null
+}
+
+private fun changeRefusalReason(
+    instruction: Instruction,
+    expression: Expression,
+    describers: Describers,
+): RefusalReason {
+  if (expression.refinement != null || expression.complement) {
+    return RefusalReason.REFINED_CHANGE_EXPRESSION
+  }
+  if (instruction is Instruction.Change && instruction.count.fixedQuantity() == null) {
+    return RefusalReason.UNSUPPORTED_CHANGE_QUANTITY
+  }
+  return when {
+    describers.fact(expression.className, ComponentDescriber::directChange) != null ->
+        RefusalReason.UNSUPPORTED_DECLARED_CHANGE
+    describers.fact(expression.className, ComponentDescriber::discardable) == true ->
+        RefusalReason.UNSUPPORTED_DISCARD
+    describers.fact(expression.className, ComponentDescriber::draw) == true ->
+        RefusalReason.UNSUPPORTED_DRAW
+    describers.isCardResource(expression.className) ->
+        RefusalReason.UNSUPPORTED_CARD_RESOURCE_CHANGE
+    describers.isProduction(expression.className) -> RefusalReason.UNSUPPORTED_PRODUCTION_CHANGE
+    describers.fact(expression.className, ComponentDescriber::track) != null ->
+        RefusalReason.UNSUPPORTED_TRACK_CHANGE
+    describers.fact(expression.className, ComponentDescriber::placement) != null ->
+        RefusalReason.UNSUPPORTED_PLACEMENT_CHANGE
+    describers.isStandardResource(expression.className) ->
+        RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
+    else -> RefusalReason.UNKNOWN_CHANGE_FRAME
+  }
 }
 
 private fun renderDiscard(

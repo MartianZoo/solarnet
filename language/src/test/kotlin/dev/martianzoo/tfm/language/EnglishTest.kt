@@ -78,6 +78,14 @@ internal class EnglishTest {
   }
 
   @Test
+  fun interpretsPlayerOwnedTypesInCardOwnershipContext() {
+    english.describe(parse<InstructionTree>("2 Megacredit / Colony")) shouldBe
+        "Gain 2 M€ for each colony you own."
+    english.describe(parse<InstructionTree>("2 Megacredit / Colony<Anyone>")) shouldBe
+        "Gain 2 M€ for each colony."
+  }
+
+  @Test
   fun cardWithoutBottomElementsHasEmptyBottomText() {
     val actionOnly =
         CardDefinition(
@@ -104,5 +112,14 @@ internal class EnglishTest {
         )
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
         listOf("3 VictoryPoint" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+  }
+
+  @Test
+  fun usesDefaultNounForAClassWithoutRegisteredEnglishFacts() {
+    val heat =
+        TerraformingMarsDescribers.descriptions.keys.single { it.className.toString() == "Heat" }
+    val sparseEnglish = English(TerraformingMarsDescribers.descriptions - heat)
+
+    sparseEnglish.describe(parse<InstructionTree>("2 Heat")) shouldBe "Gain 2 heat."
   }
 }

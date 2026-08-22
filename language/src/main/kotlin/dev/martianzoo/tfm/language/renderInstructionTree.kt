@@ -38,9 +38,14 @@ private fun renderLoweredInstructions(
     )
   }
   val rendered = instructions.map { instruction ->
-    instruction to
-        (renderInstruction(instruction, describers, drawFilter)
-            ?: Clause.RawPets(Unresolved(instruction, instructionRefusalReason(instruction))))
+    val rendering = renderInstruction(instruction, describers, drawFilter)
+    val clause =
+        rendering.value
+            ?: Clause.RawPets(
+                rendering.unresolved.singleOrNull()
+                    ?: Unresolved(instruction, instructionRefusalReason(instruction))
+            )
+    instruction to clause
   }
   return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
@@ -63,23 +68,29 @@ private fun renderInstruction(
     instruction: Instruction,
     describers: Describers,
     drawFilter: EnglishDrawFilter?,
-): Clause? =
+): Rendering<Clause?> =
     when (instruction) {
       is Gain,
       is Remove,
       is Instruction.Transmute -> renderChange(instruction, describers, drawFilter)
-      is Instruction.Or -> renderAlternatives(instruction, describers, drawFilter)
-      is Instruction.Per -> renderPer(instruction, describers, drawFilter)
-      is Instruction.Gated -> renderGated(instruction, describers, drawFilter)
+      is Instruction.Or ->
+          Rendering.resolved(renderAlternatives(instruction, describers, drawFilter))
+      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers, drawFilter))
+      is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers, drawFilter))
       is Instruction.Then ->
-          renderPlacementBonusProductionSequence(instruction, describers)
-              ?: renderCardPlaySequence(instruction, describers)
-              ?: renderDiscardCostSequence(instruction, describers, drawFilter)
-              ?: renderCardResourceCostSequence(instruction, describers, drawFilter)
-              ?: renderSequentialThen(instruction, describers, drawFilter)
-      is NoOp -> Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing"))))
+          Rendering.resolved(
+              renderPlacementBonusProductionSequence(instruction, describers)
+                  ?: renderCardPlaySequence(instruction, describers)
+                  ?: renderDiscardCostSequence(instruction, describers, drawFilter)
+                  ?: renderCardResourceCostSequence(instruction, describers, drawFilter)
+                  ?: renderSequentialThen(instruction, describers, drawFilter)
+          )
+      is NoOp ->
+          Rendering.resolved(
+              Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing"))))
+          )
       is Instruction.By,
-      is Instruction.Transform -> null
+      is Instruction.Transform -> Rendering.resolved(null)
     }
 
 private fun renderDiscardCostSequence(
@@ -88,7 +99,8 @@ private fun renderDiscardCostSequence(
     drawFilter: EnglishDrawFilter?,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
-  val discarded = renderChange(removal, describers, drawFilter) as? Clause.Simple ?: return null
+  val discarded =
+      renderChange(removal, describers, drawFilter).value as? Clause.Simple ?: return null
   if (describers.fact(removal.removing.className, ComponentDescriber::discardable) != true) {
     return null
   }
@@ -322,11 +334,52 @@ private fun renderPer(
     describers: Describers,
     drawFilter: EnglishDrawFilter?,
 ): Clause? {
+  renderProductionFloor(instruction, describers)?.let {
+    return it
+  }
   val clause =
       renderLoweredInstructions(instruction.inner, describers, drawFilter).clauses.singleOrNull()
           ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
+}
+
+private fun renderProductionFloor(
+    instruction: Instruction.Per,
+    describers: Describers,
+): Clause.Simple? {
+  val resourceClassName = productionFloorResource(instruction, describers) ?: return null
+  val resource = describers.componentNoun(resourceClassName, 1)
+  return Clause.Simple(
+      Predicate(
+          "increase",
+          Coordination.one(NounPhrase.text("your $resource production to 1")),
+          listOf(Modifier.Phrase("if it is below 1")),
+      )
+  )
+}
+
+private fun productionFloorResource(
+    instruction: Instruction,
+    describers: Describers,
+): ClassName? {
+  val per = instruction as? Instruction.Per ?: return null
+  val gain = per.inner as? Gain ?: return null
+  if (gain.intensity.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1) return null
+  val shortfall = per.metric as? Metric.Subtract ?: return null
+  val threshold = shortfall.minuend as? Metric.Constant ?: return null
+  if (threshold.value == 0) return null
+  val current = shortfall.subtrahend as? Metric.Count ?: return null
+  val (gainingOwners, gainingResource) =
+      describers.productionExpression(gain.gaining) ?: return null
+  val (currentOwners, currentResource) =
+      describers.productionExpression(current.expression) ?: return null
+  if (
+      gainingOwners.isNotEmpty() || currentOwners.isNotEmpty() || gainingResource != currentResource
+  ) {
+    return null
+  }
+  return gainingResource
 }
 
 private fun renderAlternatives(
@@ -407,8 +460,8 @@ private fun renderPlacementSiteFallback(
   val countedSite = absence.countedMetric as? Metric.Count ?: return null
   if (absence.maximum != 0 || countedSite.expression != site) return null
 
-  val preferredClause = renderChange(preferred, describers) as? Clause.Simple ?: return null
-  if (renderChange(unrestricted, describers) !is Clause.Simple) return null
+  val preferredClause = renderChange(preferred, describers).value as? Clause.Simple ?: return null
+  if (renderChange(unrestricted, describers).value !is Clause.Simple) return null
   return preferredClause
       .withModifier(Modifier.Phrase("if using a board that has one"))
       .withModifier(Modifier.Supplement("otherwise place it normally"))
@@ -422,6 +475,29 @@ private fun coalesceAdjacentChanges(
   var index = 0
   while (index < rendered.size) {
     val (instruction, renderedClause) = rendered[index]
+    if (productionFloorResource(instruction, describers) != null) {
+      val run =
+          rendered.drop(index).takeWhile { (candidate) ->
+            productionFloorResource(candidate, describers) != null
+          }
+      val resources = run.mapNotNull { (candidate) ->
+        productionFloorResource(candidate, describers)
+      }
+      if (resources.toSet() == describers.concreteStandardResources()) {
+        result +=
+            Clause.Simple(
+                Predicate(
+                    "increase",
+                    Coordination.one(NounPhrase.text("each of your productions below 1")),
+                    listOf(Modifier.Phrase("to 1")),
+                )
+            )
+      } else {
+        result += run.map { (_, clause) -> clause }
+      }
+      index += run.size
+      continue
+    }
     if (isProductionChange(instruction, describers)) {
       val run =
           rendered.drop(index).takeWhile { (candidate) ->

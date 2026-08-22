@@ -131,16 +131,22 @@ private fun Describers.placementCountPhrase(expression: Expression, count: Int):
   if (expression.refinement != null || expression.complement) return null
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
   val resolved = resolveExpression(expression) ?: return null
-  val site = resolved.authored(Key(TILE, 0))
-  val authoredOwner = resolved.authored(Key(OWNED, 0))
+  val ownerKey = Key(OWNED, 0)
+  val siteKey = Key(TILE, 0)
+  val ownerType = resolved.dependency(ownerKey) ?: return null
+  val site = resolved.selectedDependency(siteKey)
+  val explicitlyUnrestricted = resolved.sourceDependency(ownerKey) == anyoneExpression
+  val ownedByYou =
+      !explicitlyUnrestricted &&
+          (ownerType.expression == ownerExpression ||
+              isGameParticipant(ownerType.rootClass.className))
   val (owner, location) =
       when {
-        resolved.authoredDependencies.isEmpty() ->
-            (placement.unqualifiedMetricOwner ?: return null) to null
-        resolved.authoredDependencies.size == 1 && authoredOwner == anyoneExpression ->
+        ownedByYou && site == null -> (placement.unqualifiedMetricOwner ?: return null) to null
+        explicitlyUnrestricted && site == null ->
             (placement.anyoneMetricOwner ?: return null) to null
-        resolved.authoredDependencies.size == 2 && authoredOwner == anyoneExpression -> {
-          val location = site ?: return null
+        explicitlyUnrestricted && site != null -> {
+          val location = site.expression
           if (!location.simple) return null
           (placement.anyoneMetricOwner ?: return null) to
               (fact(location.className, ComponentDescriber::metricLocation) ?: return null)

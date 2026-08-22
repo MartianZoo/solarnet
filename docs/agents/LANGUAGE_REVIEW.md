@@ -59,6 +59,7 @@ Recorded so later rounds don't relitigate them.
 | D11 | **The refusal report is wanted** regardless of what else lands. |
 | D12 | Renaming (`English`, `Describers`, `ComponentDescriber`) is cheap and can happen any time. Not a priority. |
 | D13 | Whether the lexicon lives in Kotlin or in data files is not important. |
+| D14 | **Card ownership context is the renderer's law.** An omitted owner on a player-owned type means the card owner; explicit `<Anyone>` is required to opt out and address every player. The renderer need not support interpreting these source expressions outside ownership context. |
 
 ---
 
@@ -217,6 +218,13 @@ resolution helpers.
 order or nesting will now resolve. Every diff must be explainable; unexplained ones are bugs.
 *Note:* this is the largest single deletion in the plan and the strongest move against accidental
 invariants (D1, D6).
+
+**Ownership context, verified during implementation.** Renderer inputs use source syntax but are
+interpreted as attached to a card. Apply declared ownership defaults before rendering: an omitted
+owner on a player-owned type means the card owner, while explicit `<Anyone>` is the opt-out. The
+resolver may retain that explicit source dependency by `Key` when type normalization erases the
+distinction. This does not authorize positional matching or inspecting source class/resource/site
+arguments when the resolved dependency retains their meaning.
 
 ### Stage 3 · Verb frames
 

@@ -13,18 +13,20 @@ import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.DependencySet.DependencyPath
 import dev.martianzoo.types.Type
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers(private val descriptions: Map<Class, ComponentDescriber>) {
-  private val classesByName = descriptions.keys.associateBy { it.className }
   private val classTable =
       requireNotNull(descriptions.keys.firstOrNull()?.classTable) {
         "English descriptions must include at least one Class"
       }
+  private val classesByName = classTable.allClasses().associateBy { it.className }
 
   init {
     require(descriptions.keys.all { it.classTable === classTable })
+    validateInheritedFacts()
   }
 
   internal fun <T> fact(
@@ -32,19 +34,69 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       fact: (ComponentDescriber) -> T?,
   ): T? {
     val componentClass = classesByName.getValue(className)
-    val providers =
-        componentClass.allSuperclasses().mapNotNull { superclass ->
-          descriptions.getValue(superclass).let(fact)?.let { superclass to it }
-        }
+    val providers = providers(componentClass, fact)
     val nearest = providers.filter { (provider) ->
       providers.none { (other) -> other !== provider && other.isSubtypeOf(provider) }
     }
-    val values = nearest.map { (_, value) -> value }.distinct()
-    check(values.size <= 1) {
-      "${componentClass.className} inherits conflicting English component knowledge from " +
-          nearest.joinToString { (provider) -> provider.className.toString() }
+    return nearest.map { (_, value) -> value }.distinct().singleOrNull()
+  }
+
+  private fun <T> providers(
+      componentClass: Class,
+      fact: (ComponentDescriber) -> T?,
+  ): List<Pair<Class, T>> =
+      componentClass.allSuperclasses().mapNotNull { superclass ->
+        descriptions[superclass]?.let(fact)?.let { superclass to it }
+      }
+
+  private fun validateInheritedFacts() {
+    val facts: List<(ComponentDescriber) -> Any?> =
+        listOf(
+            ComponentDescriber::noun,
+            ComponentDescriber::discardable,
+            ComponentDescriber::cardResource,
+            ComponentDescriber::cardResourceHolder,
+            ComponentDescriber::metricLocation,
+            ComponentDescriber::track,
+            ComponentDescriber::placement,
+            ComponentDescriber::placementSite,
+            ComponentDescriber::placementBonus,
+            ComponentDescriber::spatialRelation,
+            ComponentDescriber::productionSelection,
+            ComponentDescriber::requirement,
+            ComponentDescriber::directChange,
+            ComponentDescriber::draw,
+            ComponentDescriber::purchase,
+            ComponentDescriber::score,
+            ComponentDescriber::deadEndSignal,
+            ComponentDescriber::playTrigger,
+            ComponentDescriber::playedCard,
+            ComponentDescriber::playedTagPhrase,
+            ComponentDescriber::presenceCondition,
+            ComponentDescriber::usedActionTrigger,
+            ComponentDescriber::actionNumber,
+            ComponentDescriber::actionUse,
+            ComponentDescriber::spentResourceTrigger,
+            ComponentDescriber::paymentRole,
+            ComponentDescriber::implicitPaymentResource,
+            ComponentDescriber::requirementShortfall,
+            ComponentDescriber::requirementKind,
+            ComponentDescriber::distinctKinds,
+            ComponentDescriber::countNoun,
+            ComponentDescriber::metricCount,
+        )
+    classesByName.values.forEach { componentClass ->
+      facts.forEach { fact ->
+        val providers = providers(componentClass, fact)
+        val nearest = providers.filter { (provider) ->
+          providers.none { (other) -> other !== provider && other.isSubtypeOf(provider) }
+        }
+        check(nearest.map { (_, value) -> value }.distinct().size <= 1) {
+          "${componentClass.className} inherits conflicting English component knowledge from " +
+              nearest.joinToString { (provider) -> provider.className.toString() }
+        }
+      }
     }
-    return values.singleOrNull()
   }
 
   internal fun placementSite(className: ClassName): ComponentDescriber.PlacementSite? {
@@ -58,7 +110,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val componentClass = classesByName.getValue(className)
     if (componentClass.abstract) return null
     val superclass = componentClass.directSuperclasses.singleOrNull() ?: return null
-    val superclassDescription = descriptions.getValue(superclass)
+    val superclassDescription = descriptions[superclass] ?: return null
     if (
         superclassDescription.directChange == null ||
             !superclassDescription.directChangeForSubclasses
@@ -109,6 +161,11 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun isStandardResource(className: ClassName): Boolean =
       isSubtypeOf(className, STANDARD_RESOURCE)
+
+  internal fun concreteStandardResources(): Set<ClassName> =
+      classesByName.values
+          .filter { !it.abstract && it.isSubtypeOf(classesByName.getValue(STANDARD_RESOURCE)) }
+          .mapTo(linkedSetOf(), Class::className)
 
   internal fun isCardResource(className: ClassName): Boolean = isSubtypeOf(className, CARD_RESOURCE)
 
@@ -196,7 +253,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
             ?: return null
     val ownerKey = Key(OWNED, 0)
     val owner = resolved.dependency(ownerKey) ?: return null
-    val owners = if (resolved.authored(ownerKey) != null) listOf(owner.expression) else emptyList()
+    val owners = if (owner.expression == ownerExpression) emptyList() else listOf(owner.expression)
     return owners to resource.className
   }
 
@@ -241,11 +298,9 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   private fun representedClassType(expression: Expression): Type? {
     val resolved = resolveExpression(expression) ?: return null
     val key =
-        resolved.type.typeDependencies
-            .singleOrNull {
-              resolved.authored(it.key) != null && it.boundType.rootClass.className == CLASS
-            }
-            ?.key ?: return null
+        resolved.type.rootClass.dependencies.keys.singleOrNull {
+          resolved.selectedDependency(it)?.rootClass?.className == CLASS
+        } ?: return null
     return resolved.dependency(key)
   }
 
@@ -255,14 +310,36 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun resolveExpression(expression: Expression): ResolvedExpression? {
     if (expression.complement) return null
-    val type =
+    val sourceType =
         try {
           classTable.resolve(expression)
         } catch (_: ExpressionException) {
           return null
         }
-    val keys = type.rootClass.matchDependencyKeys(expression.arguments)
-    return ResolvedExpression(type, keys.zip(expression.arguments).toMap())
+    val rootClass = sourceType.rootClass
+    val sourceDependencies =
+        rootClass.matchDependencyKeys(expression.arguments).zip(expression.arguments).toMap()
+    val defaultArguments = rootClass.defaultType.expressionFull.arguments
+    val defaults = rootClass.matchDependencyKeys(defaultArguments).zip(defaultArguments).toMap()
+    val defaultedKeys =
+        rootClass.dependencies.keys.filterTo(linkedSetOf()) { key ->
+          val path = DependencyPath(listOf(key))
+          rootClass.defaultType.dependencies.at(path) != rootClass.baseType.dependencies.at(path)
+        }
+    val semanticArguments =
+        rootClass.dependencies.keys.map { sourceDependencies[it] ?: defaults.getValue(it) }
+    val semanticExpression = expression.copy(arguments = semanticArguments)
+    val semanticType =
+        try {
+          classTable.resolve(semanticExpression)
+        } catch (_: ExpressionException) {
+          return null
+        }
+    return ResolvedExpression(
+        semanticType,
+        sourceDependencies.keys + defaultedKeys,
+        sourceDependencies,
+    )
   }
 
   private fun Type.representedType(): Type? {

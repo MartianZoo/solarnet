@@ -36,9 +36,8 @@ internal fun renderCountedRelation(
       describers.fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
   if (!relation.countedPair) return null
   val resolved = describers.resolveExpression(expression) ?: return null
-  if (resolved.authoredDependencies.size != 2) return null
-  val sourceExpression = resolved.authored(Key(ADJACENCY, 0)) ?: return null
-  val targetExpression = resolved.authored(Key(ADJACENCY, 1)) ?: return null
+  val sourceExpression = resolved.sourceDependency(Key(ADJACENCY, 0)) ?: return null
+  val targetExpression = resolved.sourceDependency(Key(ADJACENCY, 1)) ?: return null
   val source = renderParticipant(sourceExpression, describers) ?: return null
   val target = renderParticipant(targetExpression, describers) ?: return null
   return CountedRelation(source, target, relation.phrase)
@@ -52,12 +51,11 @@ private fun renderParticipant(
   val placement =
       describers.fact(expression.className, ComponentDescriber::placement) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
-  val owner = resolved.authored(Key(OWNED, 0))
+  val ownerKey = Key(OWNED, 0)
   val (determiner, ownedByYou) =
       when {
-        resolved.authoredDependencies.size == 1 && owner == describers.anyoneExpression ->
-            "any" to false
-        resolved.authoredDependencies.isNotEmpty() -> return null
+        resolved.sourceDependency(ownerKey) == describers.anyoneExpression -> "any" to false
+        resolved.sourceDependencies.isNotEmpty() -> return null
         placement.article == "this" -> "this" to false
         describers.isUnqualifiedPlacementOwned(expression) -> "your" to true
         else -> placement.article to false
