@@ -252,6 +252,26 @@ Introduce `Description` for `Gain`/`Remove`/`Transmute` only. The realizer owns 
 number; `NounPhrase.text` is banned in this family. Then move coalescing and `Or`-factoring onto the
 IR: two changes coalesce iff direction, party, place, and modality agree — no string comparison.
 
+This stage must also replace `Predicate`'s undifferentiated objects-plus-modifiers shape with the
+smallest role-bearing complement model the change family proves it needs. Direct object, extent,
+place/oblique, and adverbial are evidenced now; do not import a comprehensive grammatical taxonomy
+in anticipation of other constructions. Punctuation is a realization choice, not a complement
+role, so `Phrase`/`Parenthetical`/`Supplement` must not remain the semantic distinctions used by
+factoring.
+
+Keep each coordinated change's complements as one bundle. For example, the two members of
+*increase your heat production 2 steps and your plant production 2 steps* are `(object = heat
+production, extent = 2 steps)` and `(object = plant production, extent = 2 steps)` under one shared
+predicate head. Do not coordinate the objects and extents independently, because that would lose
+which extent belongs to which production. The representation may model the head as shared or let
+the aggregation pass emit it once; it should not need a syntax node whose unexplained meaning is
+merely “render an empty string.”
+
+For this family, factoring requires the same verb group and the same invariant place/oblique and
+adverbial complements, while direct object and extent may vary together by member. This implements
+the existing rule that every named production retains its own step count and removes the current
+need to bury production-plus-extent in `NounPhrase.text`.
+
 *Snapshot:* should improve. Cases that currently refuse to factor will begin factoring.
 
 ### Stage 5 · Requirements and metrics onto the IR
@@ -260,6 +280,23 @@ IR: two changes coalesce iff direction, party, place, and modality agree — no 
 
 Fold `EventKind`/`EventActor` into the IR's trigger representation. `renderEffect.kt` (999 lines)
 should roughly halve.
+
+Represent the finite verb group compositionally: lexical head, voice, polarity, and the evidenced
+auxiliary/modality. Destination is an ordinary complement, so `ADD_TO_CARD` and
+`ADD_TO_THIS_CARD` cease to be event kinds. This also gives removal prevention a structural route
+to a passive negative group with *may*. Voice does not by itself erase lexical distinctions such
+as *raise oxygen* versus *increase production*; those heads still come from the applicable frame.
+
+Replace `Clause.Simple.subject: NounPhrase?` with an explicit subject state. The first required
+distinction is an expressed subject versus the understood *you* of an imperative. Add contextual
+or controlled omission only when a current construction demonstrates that it is distinct; do not
+preload a larger omission taxonomy from hypothetical grammar coverage.
+
+Close the other raw-string boundary at the same time. `Clause.Prefaced` must take a structured
+fronted constituent, and gate rendering must return a clause or adverbial structure rather than a
+preassembled `String`. The same representation must cover lexical wrapper prefaces, conditional
+requirements, and trigger-derived forms such as *for each step …* without making all of them plain
+clauses.
 
 ### Stage 7 · Delete the recognizers
 
