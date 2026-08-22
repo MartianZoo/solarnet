@@ -18,12 +18,15 @@ Turmoil are omitted entirely.
 
 ## Current boundary
 
-The executable manifest contains 37 cards: 4 corporations, 12 projects, and 21 Preludes. The two
-remaining non-Turmoil definitions stay in `cards-dont-work.json5` so their accurate data and
-specific blockers remain reviewable without loading incorrect behavior:
+The executable manifest contains 38 cards: 5 corporations, 12 projects, and 21 Preludes. The one
+remaining non-Turmoil definition stays in `cards-dont-work.json5` so its accurate data and specific
+blocker remain reviewable without loading incorrect behavior:
 
-- `PC05` Spire needs its science resources to rewrite payment for standard projects only.
 - `P78` L1 Trade Terminal needs a clean way to select up to three distinct resource-bearing cards.
+
+Spire uses the shared card-resource payment protocol: starting a standard project offers payment
+from Spire, and each resulting payment signal removes 2 M€ of debt. Other payments never receive
+that offer.
 
 Prelude and Prelude 2 are independent modules. Each owns the shared Prelude setup and phase protocol,
 so selecting either activates it once; selecting both changes only the eligible card pool. The

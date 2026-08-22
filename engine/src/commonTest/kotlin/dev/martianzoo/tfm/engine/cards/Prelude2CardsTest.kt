@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -14,6 +15,7 @@ import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -144,6 +146,63 @@ class Prelude2CardsTest : CardTest() {
     }
 
     p1.count("Plant") shouldBe 2
+  }
+
+  @Test
+  fun `Spire draws four cards and discards three as its first action`() {
+    newGame(Prelude2Expansion)
+    p1.manual("$Spire")
+    engine.phase("Action")
+
+    p1.stdAction("HandleMandates")
+
+    p1.count("ProjectCard") shouldBe 1
+    p1.count("Mandate") shouldBe 0
+  }
+
+  @Test
+  fun `Spire counts the derived event tag toward its two-tag requirement`() {
+    newGame(Prelude2Expansion, CorporateEraExpansion)
+    p1.manual("$Spire")
+    val startingScience = p1.count("Science<$Spire>")
+
+    p1.manual("$BusinessContacts")
+    p1.count("Science<$Spire>") shouldBe startingScience + 1
+
+    p1.manual("$MineralDeposit")
+    p1.count("Science<$Spire>") shouldBe startingScience + 1
+  }
+
+  @Test
+  fun `Spire science pays two toward standard projects`() {
+    newGame(Prelude2Expansion, CorporateEraExpansion)
+    p1.manual("$Spire, 20")
+    val startingScience = p1.count("Science<$Spire>")
+    p1.manual("$Research")
+    p1.count("Science<$Spire>") shouldBe startingScience + 1
+    engine.phase("Action")
+    p1.stdAction("HandleMandates")
+
+    p1.stdProject(
+            "PowerPlantSP",
+            payment = {
+              doTask("PayFromCard<$Spire> FROM Science<$Spire>")
+              doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+            },
+        )
+        .expect("-Science<$Spire>, -9 Megacredit, PROD[Energy]")
+  }
+
+  @Test
+  fun `Spire science cannot pay other debts`() {
+    newGame(Prelude2Expansion)
+    p1.manual("$Spire, Science<$Spire>")
+
+    shouldThrow<NarrowingException> {
+      p1.manual("10 Owed<Class<Megacredit>>") {
+        doTask("PayFromCard<$Spire> FROM Science<$Spire>")
+      }
+    }
   }
 
   // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
