@@ -10,21 +10,17 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Let a game include Valley Trust and the Prelude-card pool without selecting
   `PreludeExpansion`; `PreludeCard` must be drawable and playable while `PreludePhase` remains
   absent.
-- Settle and prototype the generic `EACH Type { ... }` fanout proposed in
+- **Medium priority:** Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
 - **High priority:** Implement preparation-time delegated narrowing. The controller chooses when to
   prepare a parent task, the delegate alone narrows its child, and the controller remains blocked
   until that child completes. Fix Philares first, then prove Engine narrowing for real-card deals
   and Player delegation for Enceladus.
-- Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
+- **Low priority:** Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
 - **Low priority:** Support requirement adjustment when one part of a compound card requirement is
   a global-parameter requirement.
-- Prototype the bidirectional represented-family link in
-  [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact
-  `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
-- Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
 - **High priority:** Identify the signal Classes that workflows or APIs can create directly even
   though no selected Module activates them. Make their owning Modules activate them explicitly,
   then remove the `ClassLoader` rule that activates every reachable Trigger root.
@@ -40,22 +36,21 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **High priority:** Make task queues semantically unordered: remove positional task selection and
   stable-order autoexec precedence, require an id or unambiguous instruction match, and run tests
   under reverse and reproducibly randomized enumeration to expose hidden ordering dependencies.
-- Explore whether one dynamic `::` chain may suspend at a single abstract instruction: drain its
-  other automatic effects, admit and immediately prepare one forced choice, then let that choice
-  and its own automatic effects execute normally. Prefer this only if it removes more
-  barrier/continuation machinery than it adds.
-- Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
+- **Medium priority:** Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
   highest occupied priority in their control scope, without task-targeting effects or mutation.
   Test whether Trade can delete its pure scheduling barrier and whether PlayCard can directly create
   reduced-priority card-entry and event-cleanup work while preserving auditable `Owed` and
   `Required` components. Keep this distinct from `THEN`, state gates, and scoped drain.
 - **Medium-high priority:** Finish replacing the legacy “linkage” terminology and machinery with the
-  Type-variable model.
+  Type-variable model, including unifying Class-header Type-variable recognition with ordinary
+  scopes: bind whole abstract Expressions, keep sibling argument branches independent, propagate
+  variables into Effects only at their named Expressions, and reject conflicting replacements
+  (`docs/agents/TYPES.md` §12.1, §12.3, §12.4).
 - **Medium-high priority:** Heavily revamp the `TfmGameplay` and test-helper APIs: move test-only
   actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
   and give benchmarks explicit harness utilities rather than inheriting the test convenience
   surface.
-- **Low-medium priority:** Finish disposable Game World forks and overlays: overlay components and
+- **Medium priority:** Finish disposable Game World forks and overlays: overlay components and
   live effects, copy the small task queues, extend event history from a captured prefix, and
   preserve one clear revision boundary for prepared tasks.
 - **Medium priority:** Move more expansion-specific knowledge out of Kotlin and into Module/Pets
@@ -64,7 +59,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Low priority:** Consider compiling Pets during the build into validated runtime artifacts, but
   only if one compiler can replace runtime parsing/validation without creating a second semantic
   model.
-- Replace projection-local Class and Type ownership with the Authority-wide identities and explicit
+- **High priority:** Replace projection-local Class and Type ownership with the Authority-wide identities and explicit
   game-filtered views proposed in
   [`docs/agents/CLASS_TABLES.md`](docs/agents/CLASS_TABLES.md); eliminate reverse navigation from
   `Class` and `Type` to a game `ClassTable` and stop rebuilding every Class for every game.
@@ -73,15 +68,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Making Solarnet AI-player-ready
 
-- Move beyond follow-along mode by modeling shuffled decks, deals, draws, and actual private hands.
-- Provide one strict player-relative observation and visible-history interface that cannot expose opponents' cards, hidden deck order, or private events; use that same boundary for training, evaluation, and live play.
-- Provide a stable, machine-learning-friendly action interface that enumerates or scores complete legal choices while preserving the relationship among the engine's lower-level card, payment, target, quantity, and placement tasks.
-- Add reproducible randomness, cheap disposable state forks, parallel or batched simulation, and throughput benchmarks suitable for self-play and online search.
-- Add a standard training-environment adapter, baseline player population, replay format or dataset pipeline, and duplicated-seed evaluation harness.
-- Extend the standard-resource monotonicity scan from premise-wide candidates to state-conditional
-  certificates; classify triggered consequences and define contracts or simulations for relevant
-  custom operations.
-- Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and the remaining Prelude 2 cards; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
+- **Medium-high priority:** Move beyond follow-along mode by modeling shuffled decks, deals, draws, and actual private hands. Include the bidirectional represented-family link from [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
+- **Low priority:** Provide one strict player-relative observation and visible-history interface that cannot expose opponents' cards, hidden deck order, or private events; use that same boundary for training, evaluation, and live play.
+- **Low priority:** Provide a stable, machine-learning-friendly action interface that enumerates or scores complete legal choices while preserving the relationship among the engine's lower-level card, payment, target, quantity, and placement tasks.
+- Support parallel or batched game simulation for AI search and training.
+- Add a replay format or dataset pipeline.
+- Compare players across identical random seeds so evaluation does not confuse luck with strength.
+- **Low priority:** Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and the remaining Prelude 2 cards; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
 
 ### Soon
 
@@ -90,22 +83,15 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   the engine boundary, and the mixed automatic/queued phase triggers, and keep the verdict buckets
   current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline
   continuation, frozen trigger-time choice, and descendant-completion semantics.
-- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
 - **High priority:** Make Artificial Lake's concrete legal ocean placement refine and execute
   normally, without the solo whole-game test's mandatory `!` override.
-- When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
+- **Low priority:** When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - **Medium priority:** Model the solo setup choice that selects four colony tiles and removes one
   before assembling the playable Game World.
-- Determine whether gated preparation's loss of `<Anyone>` is harmless canonicalization or an invalid target; document or test the result.
-- Consider modeling multiplicity in the type system itself. The rule that every concrete type a dependency bound admits must have an applicable `MAX 1` or `=1` invariant is what makes a dependency edge designate one component (`docs/agents/TYPES.md` §5), yet the type system never checks it; `Limiter` does, once, at game construction, over active classes only. A type system that knew about multiplicity could reject such a table at load and could express `Atomized` and the `HAS =1 This` idiom directly.
 
 ### Medium Soon
 
-- Unify Class-header Type-variable recognition with ordinary scopes: bind whole abstract
-  Expressions, keep sibling argument branches independent, propagate variables into Effects only
-  at their named Expressions, and reject conflicting replacements (`docs/agents/TYPES.md` §12.1,
-  §12.3, §12.4).
-- Rethink Complement Types as one design problem, including domain preservation, abstract-candidate
+- **Low priority:** Rethink Complement Types as one design problem, including domain preservation, abstract-candidate
   narrowing, Complement combination, and nested-variable behavior, before patching the individual
   failures (`docs/agents/TYPES.md` §12.2, §12.5, §12.6).
 - Generalize corporation-play support so Merger can play its second corporation without also
