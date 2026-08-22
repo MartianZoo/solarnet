@@ -74,6 +74,9 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   public val keys: Set<Key> = deps.toSetStrict { it.key }
 
+  internal val representedClass: Class? =
+      if (isForClassType(deps)) getClassForClassType(deps) else null
+
   internal val classTable: ClassTable? = deps.firstOrNull()?.boundClass?.classTable
 
   internal fun expressions(): List<Expression> = deps.map { it.expression }

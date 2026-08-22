@@ -146,6 +146,9 @@ GreeneryTile<Tharsis_2_3, Player1>
 Order remains meaningful when dependency bounds overlap, as in `Adjacency<Tile, Tile>`. An
 unmatched extra argument is an error.
 
+`Class.matchDependencyKeys()` exposes the key matched by each authored argument when a consumer
+must retain which dependencies were supplied rather than only the fully resolved Type.
+
 A full form states every bound. A minimal form omits bounds equal to the root Class defaults while
 retaining placeholders needed for greedy matching to round-trip. Rendering uses minimal form. A
 Complement's unwritten domain is the known exception to round-tripping; see section 7 and divergence
@@ -165,6 +168,7 @@ component exists for each active concrete Class.
 The literal accepts one bare Class Name. `Class<Steel<Player1>>` and nested Class literals are
 invalid. Class literals are covariant. Their concreteness depends only on the represented Class, not
 that Class's dependencies: `Class<CityTile>` is concrete even when bare `CityTile<Area>` is not.
+The resolved `Type.representedClass` exposes that Class directly.
 
 ## 5. Defaults
 

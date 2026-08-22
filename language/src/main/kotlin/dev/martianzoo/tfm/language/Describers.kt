@@ -1,17 +1,32 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.types.Class
+import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.Dependency.TypeDependency
+import dev.martianzoo.types.DependencySet.DependencyPath
+import dev.martianzoo.types.Type
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers(private val descriptions: Map<Class, ComponentDescriber>) {
   private val classesByName = descriptions.keys.associateBy { it.className }
+  private val classTable =
+      requireNotNull(descriptions.keys.firstOrNull()?.classTable) {
+        "English descriptions must include at least one Class"
+      }
+
+  init {
+    require(descriptions.keys.all { it.classTable === classTable })
+  }
 
   internal fun <T> fact(
       className: ClassName,
@@ -155,6 +170,23 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   private fun parseProductionExpression(
       expression: Expression,
   ): Pair<List<Expression>, ClassName>? {
+    val type = resolve(expression) ?: return parseContextualProductionExpression(expression)
+    if (!type.rootClass.isSubtypeOf(classesByName.getValue(PRODUCTION))) return null
+    val resource =
+        type.dependency(Key(PRODUCTION, 0))?.representedType()?.takeIf { it.refinement == null }
+            ?: return null
+    val ownerKey = Key(OWNED, 0)
+    val owner = type.dependency(ownerKey) ?: return null
+    val authoredKeys = type.rootClass.matchDependencyKeys(expression.arguments)
+    val owners = if (ownerKey in authoredKeys) listOf(owner.expression) else emptyList()
+    return owners to resource.className
+  }
+
+  // TODO: Resolve contextual This through linked type sources, then delete this positional
+  // fallback.
+  private fun parseContextualProductionExpression(
+      expression: Expression,
+  ): Pair<List<Expression>, ClassName>? {
     if (
         fact(expression.className, ComponentDescriber::production) != true ||
             expression.refinement != null ||
@@ -177,25 +209,50 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun representedClass(expression: Expression): Expression? {
-    return representedExpression(expression)?.takeIf { it.simple }
+    val classType = representedClassType(expression) ?: return null
+    val represented = classType.representedClass ?: return null
+    if (classType.refinement != null) return null
+    return represented.className.expression
   }
 
   internal fun representedExpression(expression: Expression): Expression? {
-    if (expression.arguments.size != 1) return null
-    return representedClassArgument(expression.arguments.single())
+    val classType = representedClassType(expression) ?: return null
+    return classType.representedExpression()
+  }
+
+  private fun representedClassType(expression: Expression): Type? {
+    val type = resolve(expression) ?: return null
+    val authoredKeys = type.rootClass.matchDependencyKeys(expression.arguments)
+    return type.typeDependencies
+        .singleOrNull { it.key in authoredKeys && it.boundType.rootClass.className == CLASS }
+        ?.boundType
   }
 
   internal fun representedClassArgument(classExpression: Expression): Expression? {
-    if (
-        classExpression.className != CLASS ||
-            classExpression.arguments.size != 1 ||
-            classExpression.complement
-    ) {
-      return null
+    return resolve(classExpression)?.representedExpression()
+  }
+
+  private fun resolve(expression: Expression): Type? {
+    if (expression.complement) return null
+    return try {
+      classTable.resolve(expression)
+    } catch (_: ExpressionException) {
+      null
     }
-    val represented = classExpression.arguments.single()
-    if (represented.refinement != null && classExpression.refinement != null) return null
-    return represented.copy(refinement = represented.refinement ?: classExpression.refinement)
+  }
+
+  private fun Type.dependency(key: Key): Type? {
+    if (key !in dependencies.keys) return null
+    return (dependencies.at(DependencyPath(listOf(key))) as? TypeDependency)?.boundType
+  }
+
+  private fun Type.representedType(): Type? {
+    return representedClass?.baseType
+  }
+
+  private fun Type.representedExpression(): Expression? {
+    val represented = representedType() ?: return null
+    return represented.expression.copy(refinement = refinement)
   }
 
   internal fun distinctOwnedKinds(expression: Expression): ComponentDescriber.Noun.Counted? {

@@ -473,6 +473,10 @@ internal constructor(
 
   public fun specialize(specs: List<Expression>): Type = baseType.specialize(specs)
 
+  /** Returns the dependency key matched by each authored specialization, in authored order. */
+  public fun matchDependencyKeys(specs: List<Expression>): List<Key> =
+      dependencies.matchPartialInOrder(specs).map(Dependency::key)
+
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
    * the type `Class<Resource>`.

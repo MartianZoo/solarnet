@@ -76,6 +76,12 @@ declarations: `Describers` resolves each requested fact independently through th
 every undeclared canonical Class, keeping its map complete without copying inherited facts into
 each value.
 
+`Describers` resolves production and authored class-literal dependencies through the shared Class
+Table. It uses dependency keys returned by the declaring Class to distinguish supplied arguments
+from defaults; renderers do not infer owner, resource, or represented-Class roles from argument
+positions. Contextual `This` still has one explicitly marked production fallback until rendering
+receives the linked source needed to resolve it.
+
 Structural renderers only identify the component Class, ask `Describers` for the applicable
 inherited phrase or capability, and compose the answer. They do not name component Classes or
 enumerate categories such as city tiles and colonies. In particular, requirement descriptions own
