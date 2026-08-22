@@ -230,9 +230,10 @@ private fun renderCardResourceCostSequence(
     drawFilter: EnglishDrawFilter?,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
+  val resolved = describers.resolveCardResource(removal.removing) ?: return null
   if (
       removal.intensity.modality() != Modality.REQUIRED ||
-          removal.removing.arguments != listOf(describers.thisExpression) ||
+          !describers.cardResourceHasHolder(resolved, describers.thisExpression) ||
           removal.removing.refinement != null ||
           removal.removing.complement
   ) {

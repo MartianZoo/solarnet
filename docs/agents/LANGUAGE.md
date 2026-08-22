@@ -81,9 +81,10 @@ resolved `Type` plus authored dependency expressions indexed by the keys returne
 Class. Production and class-literal interpretation consume those keys rather than inferring owner,
 resource, or represented-Class roles from argument positions. In card ownership context, an
 otherwise-unresolvable explicit `Anyone` or complemented `Owner` is resolved through the applicable
-player domain while its authored expression remains indexed by dependency key. Contextual `This`
-still cannot always resolve without its linked source; the remaining positional recognition of that
-shape stays visible until rendering receives that source.
+player domain while its authored expression remains indexed by dependency key. A contextual `This`
+used as a card-resource holder resolves against the holder dependency's declared Type while retaining
+the authored `This` at that key. Contextual placement sites still cannot always resolve without their
+linked source; the remaining positional recognition stays visible until rendering receives it.
 Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, `PlanetTag`, `Player`,
 `Generational`, and `End` is read from the Class hierarchy and is not duplicated in
 `ComponentDescriber`. Card-resource number forms remain lexical data.
@@ -337,7 +338,8 @@ A tag-narrowed card-resource destination renders as `a <name> card`, independent
 whether the played card itself qualifies. This canonical wording replaces the data file's
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
-policy. Every card-resource instruction that moves a resource names a card location: `This` becomes
+policy. Card-resource holders and owners are read by dependency key, independent of authored argument
+order. Every card-resource instruction that moves a resource names a card location: `This` becomes
 `this card`, a tag-narrowed holder becomes `a <name> card`, and an unqualified removal
 says `from any card`. Aggregate requirements and metrics omit the redundant card location while
 retaining ownership; an unqualified card-resource metric says that the player has those resources.

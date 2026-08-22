@@ -160,7 +160,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Resolve contextual `This` in the English renderer through its linked holder or site type source,
+- Resolve contextual placement-site `This` in the English renderer through its linked type source,
   then delete its remaining positional recognition.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone

@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.types.DependencySet.DependencyPath
 import dev.martianzoo.types.Type
 
@@ -169,6 +170,26 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun isCardResource(className: ClassName): Boolean = isSubtypeOf(className, CARD_RESOURCE)
 
+  internal fun resolveCardResource(expression: Expression): ResolvedExpression? {
+    if (!isCardResource(expression.className)) return null
+    return resolveExpression(expression, Key(CARD_RESOURCE, 0))
+  }
+
+  internal fun cardResourceHolder(resolved: ResolvedExpression): Expression? =
+      resolved.sourceDependency(Key(CARD_RESOURCE, 0))
+
+  internal fun cardResourceHasHolder(
+      resolved: ResolvedExpression,
+      holder: Expression,
+  ): Boolean {
+    val holderKey = Key(CARD_RESOURCE, 0)
+    val ownerKey = Key(OWNED, 0)
+    if (resolved.sourceDependency(holderKey) != holder) return false
+    return resolved.sourceDependencies.all { (key, source) ->
+      key == holderKey || (key == ownerKey && source == ownerExpression)
+    }
+  }
+
   private fun isTag(className: ClassName): Boolean = isSubtypeOf(className, TAG)
 
   internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
@@ -308,7 +329,13 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return resolveExpression(classExpression)?.type?.representedExpression()
   }
 
-  internal fun resolveExpression(expression: Expression): ResolvedExpression? {
+  internal fun resolveExpression(expression: Expression): ResolvedExpression? =
+      resolveExpression(expression, contextualThisKey = null)
+
+  private fun resolveExpression(
+      expression: Expression,
+      contextualThisKey: Key?,
+  ): ResolvedExpression? {
     if (expression.complement) return null
     val declaredClass = classesByName[expression.className] ?: return null
     val playerOwned = declaredClass.isSubtypeOf(classesByName.getValue(OWNED))
@@ -322,11 +349,17 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         if (directSourceType != null) {
           expression.arguments
         } else {
+          val contextualThisType = contextualThisKey?.let { key ->
+            (declaredClass.baseType.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency)
+                ?.boundType
+          }
           expression.arguments.map { argument ->
-            if (playerOwned && (argument == anyoneExpression || argument == notOwnerExpression)) {
-              playerExpression
-            } else {
-              argument
+            when {
+              argument == thisExpression && contextualThisType != null ->
+                  contextualThisType.expression
+              playerOwned && (argument == anyoneExpression || argument == notOwnerExpression) ->
+                  playerExpression
+              else -> argument
             }
           }
         }

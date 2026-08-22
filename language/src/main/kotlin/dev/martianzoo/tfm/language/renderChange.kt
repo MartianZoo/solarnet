@@ -423,8 +423,9 @@ private fun renderCardResourceDrawExchange(
   val gaining = transmute.gaining
   if (!gaining.simple || !describers.concrete(gaining.className)) return null
   val removing = transmute.removing
+  val resolved = describers.resolveCardResource(removing) ?: return null
   if (
-      removing.arguments != listOf(describers.thisExpression) ||
+      !describers.cardResourceHasHolder(resolved, describers.thisExpression) ||
           removing.refinement != null ||
           removing.complement
   ) {
@@ -577,11 +578,13 @@ private fun renderCardResourceChange(
   if (expression.refinement != null || expression.complement) return null
   val count = change.count.fixedQuantity() ?: return null
   val noun = describers.cardResourceNounPhrase(expression.className, count) ?: return null
+  val resolved = describers.resolveCardResource(expression) ?: return null
+  val holder = describers.cardResourceHolder(resolved)
   if (instruction is Remove) {
     return when {
-      expression.simple && change.intensity.modality() == Modality.REQUIRED ->
+      resolved.sourceDependencies.isEmpty() && change.intensity.modality() == Modality.REQUIRED ->
           clause("remove", noun, Modifier.Phrase("from any card"))
-      expression.arguments == listOf(describers.anyoneExpression) &&
+      resolved.hasOnlySourceDependency(Key(OWNED, 0), describers.anyoneExpression) &&
           change.intensity.modality() == Modality.OPTIONAL ->
           clause(
               "remove",
@@ -593,7 +596,7 @@ private fun renderCardResourceChange(
   }
   if (
       change.intensity.modality() == Modality.OPTIONAL &&
-          expression.arguments == listOf(describers.thisExpression)
+          describers.cardResourceHasHolder(resolved, describers.thisExpression)
   ) {
     return clause(
         "add",
@@ -604,10 +607,10 @@ private fun renderCardResourceChange(
   if (change.intensity.modality() != Modality.REQUIRED) return null
   val target =
       when {
-        expression.arguments == listOf(describers.thisExpression) -> "this card"
-        expression.arguments.size == 1 ->
-            describers.renderCardResourceHolder(expression.arguments.single()) ?: return null
-        expression.arguments.isNotEmpty() -> return null
+        describers.cardResourceHasHolder(resolved, describers.thisExpression) -> "this card"
+        holder != null && describers.cardResourceHasHolder(resolved, holder) ->
+            describers.renderCardResourceHolder(holder) ?: return null
+        resolved.sourceDependencies.isNotEmpty() -> return null
         else -> "any card"
       }
   return clause("add", noun, Modifier.Phrase("to $target"))

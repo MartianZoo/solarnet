@@ -44,6 +44,8 @@ internal class EnglishTest {
         "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
+    english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe
+        "Add up to 1 animal to this card."
     english.describe(
         parse<InstructionTree>("3 Megacredit<Anyone> FROM Megacredit."),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."

@@ -59,9 +59,10 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
   val decline = choice.instructions.singleOrNull { it !== sequence } ?: return null
   if (InstructionGroup.of(decline).instructions.singleOrNull() !is NoOp) return null
   val resourceRemoval = sequence.stages.singleOrNull() as? Remove ?: return null
+  val resolvedResource = describers.resolveCardResource(resourceRemoval.removing) ?: return null
   if (
       resourceRemoval.intensity.modality() != Modality.REQUIRED ||
-          resourceRemoval.removing.arguments != listOf(describers.thisExpression) ||
+          !describers.cardResourceHasHolder(resolvedResource, describers.thisExpression) ||
           resourceRemoval.removing.refinement != null ||
           resourceRemoval.removing.complement ||
           !describers.isCardResource(resourceRemoval.removing.className)
@@ -125,9 +126,10 @@ private fun renderLinkedCardResourceGain(
     describers: Describers,
 ): Clause.Simple? {
   val gain = InstructionGroup.of(instruction).instructions.singleOrNull() as? Gain ?: return null
+  val resolved = describers.resolveCardResource(gain.gaining) ?: return null
   if (
       gain.intensity.modality() != Modality.REQUIRED ||
-          gain.gaining.arguments != listOf(holder) ||
+          !describers.cardResourceHasHolder(resolved, holder) ||
           gain.gaining.refinement != null ||
           gain.gaining.complement
   ) {
@@ -232,7 +234,9 @@ private fun renderRemovalPrevention(effect: Effect, describers: Describers): Str
   return when {
     actor == null &&
         removed.all {
-          it.arguments == listOf(describers.thisExpression)
+          if (!describers.isCardResource(it.className)) return@all false
+          val resolved = describers.resolveCardResource(it) ?: return@all false
+          describers.cardResourceHasHolder(resolved, describers.thisExpression)
         } -> completeSentence("$resources may not be removed from this card")
     actor == describers.notOwnerExpression && removed.all(Expression::simple) ->
         completeSentence("opponents may not remove your $resources")
@@ -882,8 +886,9 @@ private fun Describers.renderScoringCondition(requirement: Requirement): String?
   val minimum = requirement as? Requirement.Min ?: return null
   val metric = minimum.metric as? Metric.Count ?: return null
   val expression = metric.expression
+  val resolved = resolveCardResource(expression) ?: return null
   if (
-      expression.arguments != listOf(thisExpression) ||
+      !cardResourceHasHolder(resolved, thisExpression) ||
           expression.refinement != null ||
           expression.complement
   )
