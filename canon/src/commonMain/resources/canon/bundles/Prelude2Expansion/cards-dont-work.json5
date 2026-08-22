@@ -1,19 +1,6 @@
 {
   "cards": [
 
-    // Spire needs payment restricted to standard projects.
-    {
-      "name": "Spire",
-      "deck": "CORPORATION",
-      "tags": [ "CityTag", "EarthTag" ],
-      "resourceType": "Science",
-      "immediate": "50, Mandate { -> 4 ProjectCard THEN -3 ProjectCard }",
-      "effects": [
-        "CardFront(HAS 2 Tag) OR EventCard(HAS Tag): Science<This>",
-        "Pay<Class<Science>>:: -Owed<Class<Megacredit>>",
-      ],
-    },
-
     // L1 Trade Terminal needs a clean way to select up to three distinct resource-holding cards.
     {
       "name": "LagrangeOneTradeTerminal",
