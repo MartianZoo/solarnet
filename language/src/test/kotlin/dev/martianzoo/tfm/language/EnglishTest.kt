@@ -40,6 +40,8 @@ internal class EnglishTest {
   fun describesStandalonePetsElements() {
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This>")) shouldBe
         "Worth 1 VP per animal on this card."
+    english.describe(parse<Effect>("End: VictoryPoint / Animal<This, Owner>")) shouldBe
+        "Worth 1 VP per animal on this card."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
         "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe

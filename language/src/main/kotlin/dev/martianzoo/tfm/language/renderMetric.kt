@@ -63,8 +63,9 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   placementCountPhrase(expression, count)?.let { phrase ->
     return "$prefix $phrase"
   }
+  val resolved = resolveCardResource(expression) ?: return null
   if (
-      expression.arguments != listOf(thisExpression) ||
+      !cardResourceHasHolder(resolved, thisExpression) ||
           expression.refinement != null ||
           expression.complement
   ) {
