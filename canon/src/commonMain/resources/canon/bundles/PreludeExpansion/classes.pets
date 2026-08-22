@@ -1,8 +1,11 @@
 "Expansion giving each player two prelude cards to accelerate the opening game"
-CLASS PreludeExpansion : Module {
+CLASS PreludeExpansion : PreludeDeck {
   HAS =1 Class<PreludeSetup>, =1 Class<PreludePhase>
   Generation IF =1 Generation, SoloMode: -2 SoloGenerationsLeft.
 }
+
+"A selected published generation of Prelude cards"
+ABSTRACT CLASS PreludeDeck : Module
 
 "Deals each player the two generic card backs consumed during PreludePhase"
 CLASS PreludeSetup : Owned<Player>, System {

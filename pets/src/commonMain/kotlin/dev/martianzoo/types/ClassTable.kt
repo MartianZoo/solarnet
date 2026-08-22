@@ -28,7 +28,9 @@ public abstract class ClassTable {
               initialClassNames
       val moduleSelections = premise.modules.flatMap { premise.authority.modules.getValue(it) }
       val (applicableModuleSelections, inapplicableModuleSelections) =
-          moduleSelections.partition { selection -> selection.appliesTo(configurationNames) }
+          moduleSelections.partition { selection ->
+            selection.appliesTo(configurationNames, premise.authority.classTable)
+          }
       val moduleIncluded =
           applicableModuleSelections
               .filter(ClassSelection::included)
@@ -57,7 +59,10 @@ public abstract class ClassTable {
               initialClassNames +
               premise.actors.map(Actor::className)
 
-      val table = ClassLoader.projection(premise.authority).apply { roots.forEach(::load) }.freeze()
+      val table =
+          ClassLoader.projection(premise.authority, premise.modules)
+              .apply { roots.forEach(::load) }
+              .freeze()
       val unexpectedModules =
           premise.authority.modules.keys.filterTo(linkedSetOf()) {
             table.isActive(it)
@@ -74,6 +79,9 @@ public abstract class ClassTable {
       require(reactivated.isEmpty()) {
         "structural activation conflicts with excluded classes: $reactivated"
       }
+      val selectedDefinitionNames =
+          roots intersect premise.authority.allDefinitions.mapTo(hashSetOf()) { it.className }
+      PremiseViability.validate(premise.authority, table, selectedDefinitionNames)
       return table
     }
   }

@@ -1,7 +1,7 @@
 {
   "groups": [
     {
-      "setupRequirement": "UtopiaPlanitiaMapOption",
+      "group": "UtopiaDefaultAwards",
       "awards": [
         // Suburbian
         { "name": "Suburbian", "metric": "OwnedTile(HAS MAX 5 Neighbor)" },
@@ -16,7 +16,7 @@
       ],
     },
     {
-      "setupRequirement": "TerraCimmeriaMapOption",
+      "group": "CimmeriaDefaultAwards",
       "awards": [
         // Electrician
         { "name": "Electrician", "metric": "PowerTag" },

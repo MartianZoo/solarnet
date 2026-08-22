@@ -22,7 +22,7 @@ class SoloGame20230611Test : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
-          HellasMapOption
+          HellasMap
           VenusNextExpansion, PreludeExpansion, PromoCardPack, Tr63SoloVariant
           -WorldGovernmentOption
           """,

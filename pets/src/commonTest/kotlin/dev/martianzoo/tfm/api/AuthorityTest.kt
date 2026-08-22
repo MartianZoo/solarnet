@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.GameConfig
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind.CARDS
@@ -13,6 +14,7 @@ import dev.martianzoo.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class AuthorityTest {
@@ -122,6 +124,25 @@ internal class AuthorityTest {
 
     table.isActive(card.className) shouldBe true
     table.isActive(unrelated.className) shouldBe false
+  }
+
+  @Test
+  fun moduleWithoutAContentSelectionDoesNotSelectItsBundleDefinitions() {
+    val card = CardDefinition(CardData(name = "ExampleCard"))
+    val source =
+        object : Bundle(cn("ExampleBundle")) {
+          override val explicitClassDeclarations =
+              setOf(
+                  parseOneLinerClass("ABSTRACT CLASS Module"),
+                  parseOneLinerClass("ABSTRACT CLASS CardFront"),
+                  parseOneLinerClass("CLASS ExampleModule : Module"),
+              )
+          override val cardDefinitions = setOf(card)
+        }
+
+    val table = ClassTable.forPremise(source.gamePremise(GameConfig("ExampleModule")))
+
+    table.isActive(card.className) shouldBe false
   }
 
   @Test
@@ -249,6 +270,118 @@ internal class AuthorityTest {
     ClassTable.forPremise(premise).isActive(cn("ExampleCard")) shouldBe true
   }
 
+  @Test
+  fun classPoliciesFilterAutomaticContentButPermitViableExplicitComposition() {
+    val policyBundle =
+        object : Bundle(cn("PolicyBundle")) {
+          override val explicitClassDeclarations =
+              parseClasses(
+                      """
+                      ABSTRACT CLASS Module
+                      ABSTRACT CLASS CardBack
+                      ABSTRACT CLASS CardFront
+                      ABSTRACT CLASS AutomatedCard : CardFront
+                      CLASS ProjectCard : CardBack
+                      CLASS ContentPack : Module
+                      CLASS Feature : Module {
+                        HAS =1 Class<ObservedState>, =1 Class<LockedState>
+                      }
+                      CLASS ObservedState {
+                        automaticSelectionRequirement = HAS Feature
+                      }
+                      CLASS LockedState {
+                        activationRequirement = HAS Feature
+                      }
+                      """
+                          .trimIndent()
+                  )
+                  .toSet()
+          override val moduleContentSelections =
+              mapOf(cn("ContentPack") to setOf(BundleContentSelection(cn("Cards"), setOf(CARDS))))
+        }
+    val observingCard =
+        CardDefinition(
+            CardData(
+                name = "ObservingCard",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+                requirement = "ObservedState",
+            )
+        )
+    val constructingCard =
+        CardDefinition(
+            CardData(
+                name = "ConstructingCard",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+                immediate = "LockedState",
+            )
+        )
+    val observingMaximumCard =
+        CardDefinition(
+            CardData(
+                name = "ObservingMaximumCard",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+                requirement = "MAX 5 ObservedState",
+            )
+        )
+    val observingRemovalCard =
+        CardDefinition(
+            CardData(
+                name = "ObservingRemovalCard",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+                immediate = "-LockedState.",
+            )
+        )
+    val source =
+        TfmAuthority.compose(
+            policyBundle,
+            cardBundle(
+                "Cards",
+                observingCard,
+                constructingCard,
+                observingMaximumCard,
+                observingRemovalCard,
+            ),
+        )
+
+    val filtered = ClassTable.forPremise(source.gamePremise(GameConfig("ContentPack")))
+    filtered.isActive(observingCard.className) shouldBe false
+    filtered.isActive(constructingCard.className) shouldBe false
+    filtered.isActive(observingMaximumCard.className) shouldBe false
+    filtered.isActive(observingRemovalCard.className) shouldBe false
+
+    val automatic = ClassTable.forPremise(source.gamePremise(GameConfig("ContentPack, Feature")))
+    automatic.isActive(observingCard.className) shouldBe true
+    automatic.isActive(constructingCard.className) shouldBe true
+    automatic.isActive(observingMaximumCard.className) shouldBe true
+    automatic.isActive(observingRemovalCard.className) shouldBe true
+
+    val viableMaximum =
+        ClassTable.forPremise(source.gamePremise(GameConfig("ObservingMaximumCard")))
+    viableMaximum.isActive(observingMaximumCard.className) shouldBe true
+    viableMaximum.isActive(cn("ObservedState")) shouldBe false
+
+    val viableRemoval =
+        ClassTable.forPremise(source.gamePremise(GameConfig("ObservingRemovalCard")))
+    viableRemoval.isActive(observingRemovalCard.className) shouldBe true
+    viableRemoval.isActive(cn("LockedState")) shouldBe false
+
+    val unviable =
+        shouldThrow<IllegalArgumentException> {
+          ClassTable.forPremise(source.gamePremise(GameConfig("ObservingCard")))
+        }
+    unviable.message.orEmpty() shouldContain "unviable game premise"
+
+    val broken =
+        shouldThrow<IllegalArgumentException> {
+          ClassTable.forPremise(source.gamePremise(GameConfig("ConstructingCard")))
+        }
+    broken.message.orEmpty() shouldContain "broken game premise"
+  }
+
   private fun authority(vararg declarations: ClassDeclaration): TfmAuthority =
       object : TfmAuthority() {
         override val explicitClassDeclarations = declarations.toSet()
@@ -256,8 +389,7 @@ internal class AuthorityTest {
 
   private fun bundle(name: String, declarations: String): Bundle =
       object : Bundle(cn(name)) {
-        override val explicitClassDeclarations =
-            declarations.lines().filter(String::isNotBlank).map(::parseOneLinerClass).toSet()
+        override val explicitClassDeclarations = parseClasses(declarations).toSet()
       }
 
   private fun cardBundle(name: String, vararg cards: CardDefinition): Bundle =

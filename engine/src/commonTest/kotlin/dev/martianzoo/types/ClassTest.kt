@@ -22,8 +22,10 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.api.Bundle
+import dev.martianzoo.tfm.api.BundleContentSelection
+import dev.martianzoo.tfm.api.BundleContentSelection.Kind.MILESTONES
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.data.StandardActionDefinition
+import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -441,16 +443,27 @@ internal class ClassTest {
               parseClasses(
                       """
                       ABSTRACT CLASS Module
-                      ABSTRACT CLASS StandardAction
+                      ABSTRACT CLASS Milestone { requirement = Requirement }
                       CLASS Requested : Module { This:: Active }
-                      CLASS Active<ConditionalAction>
+                      CLASS Active<ConditionalMilestone>
                       CLASS Flag
                       """
                           .trimIndent()
                   )
                   .toSetStrict()
-          override val standardActionDefinitions =
-              setOf(StandardActionDefinition(cn("ConditionalAction"), emptyList(), "Flag"))
+          override val milestoneDefinitions =
+              setOf(
+                  MilestoneDefinition(
+                      cn("ConditionalMilestone"),
+                      requirementText = "MAX 0 Flag",
+                      automaticSelectionRequirementText = "Flag",
+                  )
+              )
+          override val moduleContentSelections =
+              mapOf(
+                  cn("Requested") to
+                      setOf(BundleContentSelection(cn("ConditionalBundle"), setOf(MILESTONES)))
+              )
         }
     val premise = authority.gamePremise(GameConfig("Requested"))
 
@@ -484,7 +497,34 @@ internal class ClassTest {
   }
 
   @Test
-  fun `bare trigger activates its externally issued protocol`() {
+  fun `configuration counting does not treat a mixed hierarchy as Module-only`() {
+    val authority =
+        bundle(
+            "MixedBundle",
+            """
+            ABSTRACT CLASS Module
+            ABSTRACT CLASS Mixed
+            CLASS SelectedModule : Module, Mixed
+            CLASS Ordinary : Mixed
+            CLASS Source { This IF 2 Mixed: Constructed }
+            CLASS Constructed
+            """,
+        )
+    val premise =
+        GamePremise(
+            authority,
+            setOf(cn("SelectedModule")),
+            setOf(ClassSelection(cn("Ordinary")), ClassSelection(cn("Source"))),
+            emptySet(),
+        )
+
+    val table = ClassTable.forPremise(premise)
+
+    table.isActive(cn("Constructed")) shouldBe true
+  }
+
+  @Test
+  fun `bare trigger does not activate its externally issued protocol`() {
     val authority =
         bundle(
             "Bundle",
@@ -497,8 +537,8 @@ internal class ClassTest {
 
     val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
 
-    table.getClass(cn("Protocol")).phantom shouldBe false
-    table.getClass(cn("Constructed")).phantom shouldBe false
+    table.getClass(cn("Protocol")).phantom shouldBe true
+    table.getClass(cn("Constructed")).phantom shouldBe true
   }
 
   @Test
@@ -533,6 +573,7 @@ internal class ClassTest {
         ClassLoader(authority)
             .apply {
               load(cn("Active"))
+              load(cn("InactiveTrigger"))
               load(cn("InactiveTriggerArgument"))
               load(cn("InactiveGate"))
             }

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.UtopiaPlanitiaMapOption
+import dev.martianzoo.tfm.engine.TestOption.Utopia
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -45,7 +45,7 @@ class CapitalTest : CardTest() {
 
   @Test
   fun `Does not count toward the Manager milestone`() {
-    newGame(UtopiaPlanitiaMapOption)
+    newGame(Utopia)
     p1.manual("8, PROD[2 Energy]")
     p1.manual("EcologicalZone_SpecialTile<Utopia_2_2>, NaturalPreserve_SpecialTile<Utopia_3_3>")
     p1.manual("$Capital") { doTask("CityTile<Utopia_1_1>") }

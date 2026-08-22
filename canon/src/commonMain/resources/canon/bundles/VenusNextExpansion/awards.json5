@@ -1,4 +1,5 @@
 {
+  "group": "VenusDefaultAwards",
   "awards": [
     // Venuphile
     { "name": "Venuphile", "metric": "VenusTag" },

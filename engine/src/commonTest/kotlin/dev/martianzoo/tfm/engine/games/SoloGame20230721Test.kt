@@ -14,7 +14,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
-          ElysiumMapOption
+          ElysiumMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
           Tr63SoloVariant
           Ceres, Luna, Triton

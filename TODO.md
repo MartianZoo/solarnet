@@ -4,12 +4,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
-- **High priority:** Implement Class activation requirements and exact uninhabited-domain premise
-  viability diagnostics. Only afterward consider stronger proofs such as Law Suit being unviable
-  in solo because no opponent-dependent attack record can inhabit the projected Type universe.
-- **Medium priority:** Let a game include Valley Trust and the Prelude-card pool without selecting
-  `PreludeExpansion`; `PreludeCard` must be drawable and playable while `PreludePhase` remains
-  absent.
+- **Low priority:** Extend premise viability beyond exact uninhabited-domain facts; Law Suit being
+  unviable in solo because no opponent-dependent attack record can inhabit the projected Type
+  universe is the canonical stronger proof.
 - Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
@@ -25,9 +22,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact
   `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
-- **High priority:** Identify the signal Classes that workflows or APIs can create directly even
-  though no selected Module activates them. Make their owning Modules activate them explicitly,
-  then remove the `ClassLoader` rule that activates every reachable Trigger root.
 - **Medium-high priority:** Implement the Pets Action semantics settled in
   [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): numbered `CostPaid` signals separate every
   cost from its result, while only fixed and X-scaled standard-resource costs become invoices.
@@ -116,9 +110,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   preserve significant trigger order. Metrics now reject duplicate authored arms and non-component
   unions while their factory deduplicates in first-occurrence order
   ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
-- Allow milestone and award sets to be selected independently of the map, so the 2026-06-19
-  whole-game test can claim Specialist normally instead of shutting down turn enforcement and
-  manually exchanging 8 M€ for 5 VP.
 - Reduce the remaining custom Pets instructions only where behavior can become hand-authored Pets; start with the candidates and constraints in [`docs/agents/REDUCE_CUSTOM.md`](docs/agents/REDUCE_CUSTOM.md).
 - Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return from Generation into the Solar phase.
 - **Medium-high priority:** Consolidate exception cleanup
@@ -167,6 +158,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Retain projection-decision provenance so premise diagnostics can explain automatic filtering and
+  complete hard-reference paths, rather than only the selected Definition or immediate source.
 - Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately
   incomplete substitute used by Game20260819.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be

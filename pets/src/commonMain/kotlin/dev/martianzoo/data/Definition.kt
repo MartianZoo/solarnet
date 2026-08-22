@@ -12,8 +12,12 @@ public interface Definition : HasClassName {
   /** The class name this definition will be known as; see [ClassDeclaration.className]. */
   override val className: ClassName
 
-  /** Configuration condition that must hold for this definition to be active. */
-  public val setupRequirement: Requirement?
+  /** Named content group that selects this definition instead of ordinary bundle ownership. */
+  public val selectionGroup: ClassName?
+    get() = null
+
+  /** Condition under which ordinary content selection includes this definition. */
+  public val automaticSelectionRequirement: Requirement?
     get() = null
 
   /**

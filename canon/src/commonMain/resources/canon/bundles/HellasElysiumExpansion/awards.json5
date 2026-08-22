@@ -1,7 +1,7 @@
 {
   "groups": [
     {
-      "setupRequirement": "HellasMapOption",
+      "group": "HellasDefaultAwards",
       "awards": [
         // Cultivator
         { "name": "Cultivator", "metric": "GreeneryTile" },
@@ -16,7 +16,7 @@
       ],
     },
     {
-      "setupRequirement": "ElysiumMapOption",
+      "group": "ElysiumDefaultAwards",
       "awards": [
         // Celebrity
         { "name": "Celebrity", "metric": "CardFront(HAS 20 cost)" },

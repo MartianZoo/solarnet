@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.TestOption.TerraCimmeriaMapOption
+import dev.martianzoo.tfm.engine.TestOption.Cimmeria
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -29,7 +29,7 @@ class MiningRightsTest : CardTest() {
   @Test
   fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
-    newGame(TerraCimmeriaMapOption)
+    newGame(Cimmeria)
 
     p1.manual("$MiningRights") {
           doTask("MiningRights_SpecialTile<Cimmeria_6_4>")

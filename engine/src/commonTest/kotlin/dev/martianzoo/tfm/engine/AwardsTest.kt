@@ -39,7 +39,7 @@ internal class AwardsTest : TfmTest() {
     game =
         Engine.newGame(
             canonicalPremise(
-                UtopiaPlanitiaMapOption,
+                Utopia,
                 players = 2,
             )
         )
@@ -60,7 +60,7 @@ internal class AwardsTest : TfmTest() {
 
   @Test
   fun customAwardMetricsAreCountedForEachPlayer() {
-    game = Engine.newGame(canonicalPremise(TerraCimmeriaMapOption, players = 3))
+    game = Engine.newGame(canonicalPremise(Cimmeria, players = 3))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)

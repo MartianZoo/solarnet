@@ -10,7 +10,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TestOption.HellasMapOption
+import dev.martianzoo.tfm.engine.TestOption.Hellas
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,7 +21,7 @@ import kotlin.test.Test
 internal class PropertyTest {
   @Test
   fun numberPropertiesAreReadableWithoutBecomingComponents() {
-    val game = Engine.newGame(canonicalPremise(HellasMapOption, VenusNextExpansion, players = 2))
+    val game = Engine.newGame(canonicalPremise(Hellas, VenusNextExpansion, players = 2))
     val p1 = game.tfm(PLAYER1)
     val componentCount = p1.count("Component")
 
@@ -40,7 +40,7 @@ internal class PropertyTest {
 
   @Test
   fun numberPropertiesWorkInsideARefinement() {
-    val game = Engine.newGame(canonicalPremise(HellasMapOption, players = 2))
+    val game = Engine.newGame(canonicalPremise(Hellas, players = 2))
     val p1 = game.tfm(PLAYER1)
 
     p1.godMode()

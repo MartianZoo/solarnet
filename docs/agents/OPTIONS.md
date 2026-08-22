@@ -1,7 +1,7 @@
 # Authorities, Modules, and game premises
 
-**Status: current model through "Invariants". Projection closure now implements the first slice of
-the settled direction below; class policies and premise viability remain future work.**
+**Status: current model through "Resolution order". Stronger closed-world viability proofs and
+durable projection-decision explanations remain future work.**
 
 ## Authority
 
@@ -36,12 +36,22 @@ contains mutually exclusive maps, modes, and replacement classes.
 ## Module
 
 A **Module** is an affirmative, immutable singleton component carrying ambient behavior for one
-realized choice. Base rules, expansions, maps, modes, and variants are Modules. The exact live Module
-set is the complete statement of a game's general rules.
+realized choice. Base rules, expansions, maps, modes, content groups, and variants are Modules. The
+exact live Module set is the complete statement of a game's general rules.
+
+`Module` is an ordinary Pets superclass except where premise construction and initialization ask
+whether a Class is its subtype. Its inherited rules make each concrete Module a permanent
+singleton; its `autoSelectWhen` and `premiseRequirement` properties have meaning because the
+Authority reads them. There is no separate Kotlin Module object or special component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
-configuration. Structural reachability may activate dependencies, but it may not activate an
-unselected Module or defeat an explicit exclusion.
+configuration. A constructive self-gain in an active Module is also **active provenance** for a
+target Module: `A { This:: B }` lets A select B. A gated gain does so only when its Requirement is
+true over the growing selection. This closure is resolved before class projection, and
+initialization orders Modules observed by those gates before their sources. Thus the declaration of
+A, rather than B or a central registry, owns “A causes B.” Other structural reachability may
+activate dependencies, but it may not activate an unselected Module or defeat an explicit
+exclusion.
 
 Module premise policy is authored with ordinary Requirement-valued Pets properties.
 `autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
@@ -70,9 +80,18 @@ Vocabulary aliases, not Class identities. Initial state is not an unrestricted P
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while setup creates only the chosen starting colony components.
 
-Defaults are evaluated against the growing Module selection. Naming a competing choice can make a
-default condition false; an explicit exclusion defeats it. Selecting named milestones or
-awards chooses that exact pool. Selecting colony tiles also requests their initial components.
+Defaults and active provenance are evaluated against the growing Module selection. Naming a
+competing choice can make a default condition false; an explicit exclusion defeats it. Each map
+constructively selects its printed milestone group and, in multiplayer, its printed award group.
+Venus Next similarly adds its published milestone and award. `MilestonesAwardsExpansion` is a goal-
+pool override, so those default group gains are inactive and the pool is exactly the explicitly
+named milestones and awards. Explicit goal names remain valid without that option and replace only
+their own category. Selecting colony tiles also requests their initial components.
+
+Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
+therefore identify both the immutable premise choice and the live board component; there is no
+parallel map option component. `TerraformingMars` selects `TharsisMap` only when no map is already
+selected.
 
 ## Bundle
 
@@ -80,9 +99,11 @@ A **Bundle** is an internal unit of ownership, provenance, distribution, and loa
 declarations, definitions, and custom implementations. It is not selected directly and never
 becomes a live component.
 
-A Module may select a whole content category from a named bundle. This supports an expansion adding
-its cards or milestones without exposing arbitrary bundle selection. Otherwise bundle provenance has
-no game semantics.
+A Module named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map
+Module selects only its own map definition, even when its Bundle contains multiple maps. A named
+definition-group Module selects definitions carrying that group. Exceptional cross-Bundle or
+narrowed selections remain expressible, but Canon's ordinary expansions do not require a central
+registry to restate their ownership.
 
 ## Invariants
 
@@ -98,10 +119,8 @@ no game semantics.
 
 ## Settled projection-policy direction
 
-**Status: constructive roles and exact-uninhabited reachability are current. Trigger protocol roots
-remain compatibility activation edges until Modules own them directly. The two Class policies and
-premise-viability rules remain settled target semantics.** Names used for the two policies below
-are descriptive and do not commit the public API.
+**Status: current.** Constructive reachability, the two Class policies, exact-uninhabited premise
+viability, and explicit Module ownership of externally issued protocols are implemented.
 
 ### Goals
 
@@ -144,6 +163,16 @@ Bundle that stores them; otherwise individual content could never be composed de
 | `VenusTag` | `VenusNextExpansion` | none | Automatic content is filtered, but a manual hard reference may activate the tag. |
 | `VenusStep` | `VenusNextExpansion` | `VenusNextExpansion` | It remains uninhabited; no reference may manufacture the Venus track. |
 
+`PreludeCard` needs no authored selection property. Either published Prelude Module owns its Bundle
+cards, whose deck declarations naturally activate their shared card back. Selecting Valley Trust
+without a Prelude generation activates that card back through the corporation's mandate but no
+concrete Prelude fronts; the resulting mandate is deliberately broken rather than silently choosing
+a deck.
+
+Concrete award Definitions have automatic- and activation requirements for `MultiplayerMode`.
+Solo projection therefore leaves every concrete award class uninhabited, and explicit selection
+cannot bypass that boundary.
+
 This classification is semantic. `WorldGovernmentTerraforming` was first used by Venus but works
 over whichever Global Parameters the projection supplies; Prelude 2 can therefore use the shared
 mechanism. `VenusTag` is meaningful as standalone card vocabulary. `VenusStep` represents one part
@@ -156,11 +185,11 @@ Automatic selection and projection closure ask different questions and must not 
 
 For **automatic content selection**, inspect every semantic Class reference in the Definition's
 lowered declaration. Conjoin the referenced Classes' automatic-selection requirements with the
-Definition's authored setup condition. This derives today's repeated `PreludeCard`, `VenusTag`,
-`VenusStep`, and `Colony` expansion conditions. Authored conditions remain necessary for facts not
-expressed by references, such as belonging to one map's milestone pool or being multiplayer-only.
-In the target model, `setupRequirements` records only those nonderivable facts; it does not restate
-an expansion condition already implied by referenced Classes.
+Definition's authored automatic-selection condition. This derives today's repeated `VenusTag`,
+`VenusStep`, and `Colony` expansion conditions. Named content groups and their source Module effects
+express default-pool facts such as which map prints a milestone or award. Authored automatic-
+selection conditions record only remaining nonderivable availability facts; they do not restate an
+expansion condition already implied by referenced Classes.
 
 An explicit individual inclusion overrides this automatic content filter. It does not override a
 Class's activation requirement.
@@ -177,12 +206,11 @@ For **projection closure**, classify references by what execution demands:
   of uninhabited Types is harmless; execution cannot reach it. A conservative analysis may treat
   anything it cannot prove unreachable as reachable.
 
-The loader now applies this systemic role-and-reachability rule instead of treating every mention as
-an activation edge. It rechecks the closure as Classes activate, and currently proves false gates
-from exact zero counts over uninhabited Types. As a temporary exception, a reachable Trigger whose
-arguments are inhabited activates its root protocol Class; this preserves externally issued
-workflow signals until Modules own them directly. Activation requirements and viability diagnostics
-are not yet implemented.
+The loader applies this systemic role-and-reachability rule instead of treating every mention as an
+activation edge. It rechecks the closure as Classes activate and proves false gates from exact zero
+counts over uninhabited Types. Trigger positions are wholly nonconstructive: Terraforming Mars and
+Solo mode explicitly own the protocol Classes issued by workflow and gameplay APIs. A hard
+reference to a Class whose activation requirement is false rejects the premise as broken.
 
 The important cases then fall out without card-specific rules:
 
@@ -218,7 +246,7 @@ projection change.
 
 ### Resolution order
 
-The target premise pipeline is:
+The premise pipeline is:
 
 1. Resolve Modules, defaults, and explicit exclusions.
 2. Derive automatic Definition conditions from all semantic references and filter bundle-selected
@@ -229,9 +257,10 @@ The target premise pipeline is:
 5. Leave every other Authority-known Class uninhabited.
 6. Validate selected content for viability and report unviable and broken paths separately.
 
-One analysis result should explain every decision: which reference derived an automatic exclusion,
-which hard-reference path activated a Class, or which permanently false condition made selected
-content unviable.
+A future retained analysis result should explain every decision, including which reference derived
+an automatic exclusion and the complete hard-reference path that activated or rejected a Class.
+Current failures identify the selected Definition or immediate hard-reference source and the exact
+false requirement.
 
 ## Non-Canon Kotlin expansion-coupling audit
 

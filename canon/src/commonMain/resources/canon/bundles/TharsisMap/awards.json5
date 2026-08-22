@@ -1,5 +1,5 @@
 {
-  "setupRequirement": "TharsisMapOption",
+  "group": "TharsisDefaultAwards",
   "awards": [
     // Landlord
     { "name": "Landlord", "metric": "OwnedTile" },

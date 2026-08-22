@@ -21,7 +21,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """
-          HellasMapOption
+          HellasMap
           PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
 
           Mayor, Diversifier, Trader, Sponsor, Tycoon10

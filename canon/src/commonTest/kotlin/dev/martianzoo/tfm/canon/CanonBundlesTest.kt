@@ -20,7 +20,7 @@ internal class CanonBundlesTest {
             cn("CimmeriaMap"),
         )
 
-    val hellas = table(cn("HellasMapOption"))
+    val hellas = table(cn("HellasMap"))
 
     hellas.isActive(cn("HellasMap")) shouldBe true
     hellas.isActive(cn("ElysiumMap")) shouldBe false
@@ -32,8 +32,8 @@ internal class CanonBundlesTest {
 
   @Test
   fun modulesInOneBundleRemainIndependent() {
-    val utopia = table(cn("UtopiaPlanitiaMapOption"))
-    val cimmeria = table(cn("TerraCimmeriaMapOption"))
+    val utopia = table(cn("UtopiaMap"))
+    val cimmeria = table(cn("CimmeriaMap"))
 
     utopia.isActive(cn("UtopiaMap")) shouldBe true
     utopia.isActive(cn("CimmeriaMap")) shouldBe false
@@ -43,8 +43,8 @@ internal class CanonBundlesTest {
 
   @Test
   fun definitionConditionsUseTheCompleteModuleSelection() {
-    val withoutColonies = table(cn("UtopiaPlanitiaMapOption"))
-    val withColonies = table(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion"))
+    val withoutColonies = table(cn("UtopiaMap"))
+    val withColonies = table(cn("UtopiaMap"), cn("ColoniesExpansion"))
 
     withoutColonies.isActive(cn("Pioneer3")) shouldBe false
     withColonies.isActive(cn("Pioneer3")) shouldBe true
@@ -52,24 +52,24 @@ internal class CanonBundlesTest {
 
   @Test
   fun expansionModuleCanAddDefinitionsToAnotherSelectedMap() {
-    val base = table(cn("TharsisMapOption"))
-    val venus = table(cn("TharsisMapOption"), cn("VenusNextExpansion"))
+    val base = table(cn("TharsisMap"))
+    val venus = table(cn("TharsisMap"), cn("VenusNextExpansion"))
 
     base.isActive(cn("Hoverlord")) shouldBe false
     venus.isActive(cn("Hoverlord")) shouldBe true
   }
 
   @Test
-  fun milestonesAwardsModulePrivatelySelectsItsBundleContent() {
-    val base = table(cn("TharsisMapOption"))
-    val expanded = table(cn("TharsisMapOption"), cn("MilestonesAwardsExpansion"))
+  fun milestonesAwardsModuleSuppressesTheDefaultGoalPool() {
+    val base = table(cn("TharsisMap"))
+    val expanded = table(cn("TharsisMap"), cn("MilestonesAwardsExpansion"))
 
     base.isActive(cn("Builder7")) shouldBe false
     base.isActive(cn("Builder8")) shouldBe true
-    expanded.isActive(cn("Builder7")) shouldBe true
+    expanded.isActive(cn("Builder7")) shouldBe false
     expanded.isActive(cn("Builder8")) shouldBe false
-    expanded.isActive(cn("Administrator")) shouldBe true
-    expanded.isActive(cn("Landscaper")) shouldBe true
+    expanded.isActive(cn("Administrator")) shouldBe false
+    expanded.isActive(cn("Landscaper")) shouldBe false
   }
 
   @Test
@@ -83,8 +83,8 @@ internal class CanonBundlesTest {
             cn("GreatDamPromo"),
             cn("MagneticFieldGeneratorsPromo"),
         )
-    val withoutPromos = table(cn("TharsisMapOption"))
-    val withPromos = table(cn("TharsisMapOption"), cn("PromoCardPack"))
+    val withoutPromos = table(cn("TharsisMap"))
+    val withPromos = table(cn("TharsisMap"), cn("PromoCardPack"))
 
     relevant.filterTo(linkedSetOf(), withoutPromos::isActive) shouldBe
         setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
@@ -106,8 +106,8 @@ internal class CanonBundlesTest {
 
   @Test
   fun playableTablesProjectTheAuthorityMasterTable() {
-    val tharsis = table(cn("TharsisMapOption"))
-    val hellas = table(cn("HellasMapOption"))
+    val tharsis = table(cn("TharsisMap"))
+    val hellas = table(cn("HellasMap"))
 
     (tharsis === hellas) shouldBe false
     assertProjectionOfCanon(tharsis)

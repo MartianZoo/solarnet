@@ -1,5 +1,5 @@
 {
-  "setupRequirement": "TharsisMapOption",
+  "group": "TharsisDefaultMilestones",
   "milestones": [
     // Terraformer
     { "name": "Terraformer35", "requirement": "35 TerraformRating" },

@@ -10,15 +10,13 @@
     // Claim milestone
     {
       "name": "ClaimMilestoneSA",
-      "action": "-> Payment<Class<This>>",
-      "setupRequirement": "MAX 0 SoloMode"
+      "action": "-> Payment<Class<This>>"
     },
 
     // Fund award
     {
       "name": "FundAwardSA",
-      "action": "-> Payment<Class<This>>",
-      "setupRequirement": "MAX 0 SoloMode"
+      "action": "-> Payment<Class<This>>"
     },
 
     // Use card action

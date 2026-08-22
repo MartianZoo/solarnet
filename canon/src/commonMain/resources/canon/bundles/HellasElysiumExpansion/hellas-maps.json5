@@ -16,7 +16,8 @@
     {
       "name": "HellasMap",
       "areaPrefix": "Hellas",
-      "setupRequirement": "HellasMapOption",
+      "defaultMilestones": "HellasDefaultMilestones",
+      "defaultAwards": "HellasDefaultAwards",
       "rows": [
         [
                                      "WPP","LPP","LPP","LPS","LP"

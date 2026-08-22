@@ -224,7 +224,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun tenPlantsCanBecomeTwoGreeneriesWithEcolinePolderTechAndTheElysiumBonus() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -257,7 +257,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -300,7 +300,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun sevenPlantsCanBecomeTwoGreeneriesInTheMostContrivedCanonicalCase() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

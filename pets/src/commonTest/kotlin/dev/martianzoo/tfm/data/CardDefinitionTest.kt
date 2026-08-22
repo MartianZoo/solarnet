@@ -137,25 +137,6 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun setupRequirementIsParsedAsPets() {
-    val json =
-        """
-          {
-            "cards": [{
-              "name": "ExamplePrelude",
-              "setupRequirement": "PreludeExpansion, VenusNextExpansion",
-              "deck": "PRELUDE",
-              "immediate": "Plant"
-            }]
-          }
-        """
-
-    val card = CardDefinition(JsonReader.readCards(json).single())
-
-    card.setupRequirement.toString() shouldBe "PreludeExpansion, VenusNextExpansion"
-  }
-
-  @Test
   fun derivedClassAtPointOfUseLowersToAnOrdinaryCardLocalClass() {
     val card =
         CardDefinition(CardData(name = "TestCard1", immediate = "Mandate { -> 3 ProjectCard }"))
@@ -256,7 +237,6 @@ internal class CardDefinitionTest {
   @Test
   fun emptyStrings() {
     assertFails { CardData("") }
-    assertFails { card.copy(setupRequirement = "") }
     assertFails { card.copy(replaces = "") }
     assertFails { card.copy(resourceType = "") }
     assertFails { card.copy(requirement = "") }

@@ -7,8 +7,9 @@ public abstract class Bundle(
     public val bundleName: ClassName,
 ) : TfmAuthority() {
   /**
-   * Bundle-wide content selections for Modules provided by this bundle. An omitted Module selects
-   * every content kind from its own bundle.
+   * Exceptional cross-bundle or narrowed content selections. A Module named for its owning bundle
+   * selects that bundle's ordinary cards and colony tiles without an entry here; a map Module
+   * selects its own map, and a named definition-group Module selects its group.
    */
   public open val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap()
 

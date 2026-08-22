@@ -7,7 +7,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.HellasMapOption
+import dev.martianzoo.tfm.engine.TestOption.Hellas
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -20,7 +20,7 @@ class EllieGameTest : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
-          HellasMapOption
+          HellasMap
           PromoCardPack, PreludeExpansion
           """,
           "Player1",
@@ -143,7 +143,7 @@ class EllieGameTest : AbstractFullGameTest() {
 
   @Test
   fun earlyGameWithNoPrelude() {
-    val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
+    val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

@@ -15,7 +15,6 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.util.Grid
@@ -23,13 +22,25 @@ import dev.martianzoo.util.Grid
 public data class MarsMapDefinition(
     override val className: ClassName,
     val areas: Grid<AreaDefinition>,
-    override val setupRequirement: Requirement? = null,
+    val defaultMilestones: ClassName? = null,
+    val defaultAwards: ClassName? = null,
 ) : Definition {
   override val asClassDeclaration: ClassDeclaration =
       ClassDeclaration(
           className = className,
           kind = CONCRETE,
           supertypes = setOf(MARS_MAP.expression),
+          effects =
+              listOfNotNull(
+                  defaultMilestones?.let {
+                    parse<Effect>("This IF MAX 0 MilestonePoolOverride, MAX 0 $it: $it")
+                  },
+                  defaultAwards?.let {
+                    parse<Effect>(
+                        "This IF MultiplayerMode, MAX 0 AwardPoolOverride, MAX 0 $it: $it"
+                    )
+                  },
+              ),
       )
 
   public data class AreaDefinition(
