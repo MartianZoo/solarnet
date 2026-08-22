@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Dependency.Key
 
 internal fun renderMetricPhrase(metric: Metric, describers: Describers): String? {
   return when (metric) {
@@ -127,13 +130,17 @@ private fun renderTagMetric(
 private fun Describers.placementCountPhrase(expression: Expression, count: Int): String? {
   if (expression.refinement != null || expression.complement) return null
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
+  val resolved = resolveExpression(expression) ?: return null
+  val site = resolved.authored(Key(TILE, 0))
+  val authoredOwner = resolved.authored(Key(OWNED, 0))
   val (owner, location) =
       when {
-        expression.simple -> (placement.unqualifiedMetricOwner ?: return null) to null
-        expression.arguments == listOf(anyoneExpression) ->
+        resolved.authoredDependencies.isEmpty() ->
+            (placement.unqualifiedMetricOwner ?: return null) to null
+        resolved.authoredDependencies.size == 1 && authoredOwner == anyoneExpression ->
             (placement.anyoneMetricOwner ?: return null) to null
-        expression.arguments.size == 2 && expression.arguments.last() == anyoneExpression -> {
-          val location = expression.arguments.first()
+        resolved.authoredDependencies.size == 2 && authoredOwner == anyoneExpression -> {
+          val location = site ?: return null
           if (!location.simple) return null
           (placement.anyoneMetricOwner ?: return null) to
               (fact(location.className, ComponentDescriber::metricLocation) ?: return null)
@@ -148,3 +155,5 @@ private fun Describers.placementCountPhrase(expression: Expression, count: Int):
   val noun = if (count == 1) placement.singular else placement.plural
   return "$noun$ownerPhrase${location?.let { " $it" }.orEmpty()}"
 }
+
+private val TILE = cn("Tile")

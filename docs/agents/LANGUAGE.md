@@ -79,9 +79,10 @@ each value.
 `Describers` resolves expressions through the shared Class Table into `ResolvedExpression`: the
 resolved `Type` plus authored dependency expressions indexed by the keys returned by the declaring
 Class. Production and class-literal interpretation consume those keys rather than inferring owner,
-resource, or represented-Class roles from argument positions. Contextual `This` still has one
-explicitly marked production fallback until rendering receives the linked source needed to resolve
-it.
+resource, or represented-Class roles from argument positions. Expressions containing contextual
+bindings such as `This` and complemented `Owner` cannot always resolve without their linked source;
+the remaining positional recognition of those shapes stays visible until rendering receives that
+source.
 Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, `PlanetTag`, `Player`,
 `Generational`, and `End` is read from the Class hierarchy and is not duplicated in
 `ComponentDescriber`. Card-resource number forms remain lexical data.

@@ -1,6 +1,9 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.types.Dependency.Key
 
 /** One countable component related spatially to another component. */
 internal data class CountedRelation(
@@ -32,8 +35,10 @@ internal fun renderCountedRelation(
   val relation =
       describers.fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
   if (!relation.countedPair) return null
-  val (sourceExpression, targetExpression) =
-      expression.arguments.takeIf { it.size == 2 } ?: return null
+  val resolved = describers.resolveExpression(expression) ?: return null
+  if (resolved.authoredDependencies.size != 2) return null
+  val sourceExpression = resolved.authored(Key(ADJACENCY, 0)) ?: return null
+  val targetExpression = resolved.authored(Key(ADJACENCY, 1)) ?: return null
   val source = renderParticipant(sourceExpression, describers) ?: return null
   val target = renderParticipant(targetExpression, describers) ?: return null
   return CountedRelation(source, target, relation.phrase)
@@ -46,10 +51,13 @@ private fun renderParticipant(
   if (expression.refinement != null || expression.complement) return null
   val placement =
       describers.fact(expression.className, ComponentDescriber::placement) ?: return null
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val owner = resolved.authored(Key(OWNED, 0))
   val (determiner, ownedByYou) =
       when {
-        expression.arguments == listOf(describers.anyoneExpression) -> "any" to false
-        !expression.simple -> return null
+        resolved.authoredDependencies.size == 1 && owner == describers.anyoneExpression ->
+            "any" to false
+        resolved.authoredDependencies.isNotEmpty() -> return null
         placement.article == "this" -> "this" to false
         describers.isUnqualifiedPlacementOwned(expression) -> "your" to true
         else -> placement.article to false
@@ -61,6 +69,8 @@ private fun renderParticipant(
       ownedByYou,
   )
 }
+
+private val ADJACENCY = cn("Adjacency")
 
 private fun Describers.isUnqualifiedPlacementOwned(expression: Expression): Boolean {
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return false
