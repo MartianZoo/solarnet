@@ -20,16 +20,16 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Landscaper counts only the largest contiguous group owned by the player`() {
+  fun `Landscaper counts the largest contiguous map group and ignores remote tiles`() {
     newGame(TestOption.MilestonesAwardsExpansion)
     val p2 = requireP2()
     p1.manual(
         "CommercialDistrict_SpecialTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>, NaturalPreserve_SpecialTile<Tharsis_2_3>, " +
-            "CityTile<Tharsis_4_6>"
+            "CityTile<Tharsis_4_6>, CityTile<GanymedeColony_RemoteArea>"
     )
     p2.manual("CityTile<Tharsis_8_7>, GreeneryTile<Tharsis_8_6>")
 
-    p1.count("OwnedTile") shouldBe 4
+    p1.count("OwnedTile") shouldBe 5
     p2.count("OwnedTile") shouldBe 2
     p1.count("OwnedTile<Tharsis_2_2>") shouldBe 1
     p1.count("TileInLargestGroup") shouldBe 3
@@ -40,7 +40,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.stdAction("ClaimMilestoneSA") { doTask("Landshaper") }
 
     p1.count("Landshaper") shouldBe 1
-    p1.count("OwnedTile") shouldBe 4
+    p1.count("OwnedTile") shouldBe 5
   }
 
   @Test

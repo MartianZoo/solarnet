@@ -16,13 +16,17 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
+- **High priority:** Implement preparation-time delegated narrowing. The controller chooses when to
+  prepare a parent task, the delegate alone narrows its child, and the controller remains blocked
+  until that child completes. Fix Philares first, then prove Engine narrowing for real-card deals
+  and Player delegation for Enceladus.
 - Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
 - **Low priority:** Support requirement adjustment when one part of a compound card requirement is
   a global-parameter requirement.
-- Decide whether `CardFront` should depend on `Class<CardBack>`, with types such as `ActiveCard`
-  extending `CardFront<Class<ProjectCard>>`, so the front-to-back relationship is represented in
-  the type model and may subsume the separate deck check.
+- Prototype the bidirectional represented-family link in
+  [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact
+  `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
 - **High priority:** Identify the signal Classes that workflows or APIs can create directly even
   though no selected Module activates them. Make their owning Modules activate them explicitly,

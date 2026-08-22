@@ -122,6 +122,12 @@ There is no parent/child queue suspension or delegated control scope. One prepar
 locks preparation of competitors. `TfmWorkflow.Auto` starts Player operations directly and waits
 for whole-world idleness instead.
 
+This is a known correctness gap for Philares. The current trigger-time assignment gives the
+Philares owner its resource choice immediately and does not let the active Player choose when to
+prepare that reward. The target preparation-time handoff and its blocking requirement are specified
+in [IDENTITY.md](IDENTITY.md); `BugsTest` preserves the two current incorrect behaviors until that
+handoff exists.
+
 ### Preparation
 
 A task can be abstract because of a Type, Quantifier, `OR`, refinement, or unresolved custom

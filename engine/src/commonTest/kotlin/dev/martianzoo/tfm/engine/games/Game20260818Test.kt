@@ -3,9 +3,7 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -1733,9 +1731,5 @@ class Game20260818Test : AbstractFullGameTest() {
             }
             .toTypedArray()
     )
-  }
-
-  private fun TfmGameplay.assertCardResources(vararg resources: Pair<Int, ClassName>) {
-    assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
   }
 }

@@ -28,12 +28,10 @@ private object MilestonesAwardsExpansion {
                 component.rootClass.isSubtypeOf(ownedTileClass) &&
                     getPlayerOwner(game, component) == player
               }
-              .mapTo(linkedSetOf()) { tile ->
-                val areaName =
-                    tile.expressionFull.arguments
-                        .single { argument -> argument.className in areasByName }
-                        .className
-                areasByName.getValue(areaName)
+              .mapNotNullTo(linkedSetOf()) { tile ->
+                tile.expressionFull.arguments.firstNotNullOfOrNull { argument ->
+                  areasByName[argument.className]
+                }
               }
       return areas.largestContiguousGroupSize(ownedAreas, { it.row }, { it.column })
     }

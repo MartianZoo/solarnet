@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.engine.games
 
+import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Synthetic Magnet Burst - https://terraforming-mars.herokuapp.com/the-end?id=pa9f45e80d897
@@ -1117,5 +1119,223 @@ class Game20260820Test : CardTrackingFullGameTest() {
 
     // Green acted as World Government and increased Venus scale
     green.doTask("VenusStep! BY Engine")
+
+    // Generation 11
+    // First player this generation is Pink
+    // Pink bought 2 card(s)
+    // You bought Technology Demonstration,Birds
+    pink.buyCards(TechnologyDemonstration, Birds)
+    // Green bought 2 card(s)
+    // You bought Giant Solar Shade,Algae
+    green.buyCards(GiantSolarShade, Algae)
+
+    pink.turn {
+      // Pink used Greenery standard project
+      // Pink placed greenery tile at 04
+      // Pink gained 2 plants
+      // Pink added 1 Animal to Herbivores
+      stdProject("GreenerySP") { doTask("GreeneryTile<Hellas_1_2>") }
+      // Pink used Convert Plants standard action
+      // Pink placed greenery tile at 13
+      // Pink gained 1 plant
+      // Pink added 1 Animal to Herbivores
+      convertPlants { doTask("GreeneryTile<Hellas_2_6>") }
+    }
+    green.turn {
+      // Green used Convert Plants standard action
+      // Green placed greenery tile at 53
+      // Green gained 1 steel
+      // Green gained 2 M€ from 1 ocean(s)
+      convertPlants { doTask("GreeneryTile<Hellas_8_4>") }
+      // Green used Business Network action
+      // Green bought 0 card(s)
+      cardAction1(BusinessNetwork) { doTask("Ok") }.expect("0 ProjectCard")
+    }
+    pink.turn {
+      // Pink played Technology Demonstration
+      // Pink drew 2 card(s)
+      // You drew Toll Station,Fueled Generators
+      playProject(TechnologyDemonstration, titanium = 1) {
+        draw(TollStation, FueledGenerators)
+      }
+      // Pink funded Founder award
+      stdAction("FundAwardSA") { doTask("Founder") }.expect("Award")
+    }
+    green.turn {
+      // Green used Ironworks action
+      // Green gained 1 steel
+      cardAction1(Ironworks).expect("Steel")
+      // Green played Commercial District
+      // Green gained 4 M€ production
+      // Green gained 2 M€ from Suitable Infrastructure
+      // Green lost 1 energy production
+      // Green placed Commercial District tile at 11
+      // Green gained 1 plant
+      // Green gained 1 steel
+      playProject(CommercialDistrict, 10, steel = 3) {
+        doTask("CommercialDistrict_SpecialTile<Hellas_2_4>")
+      }
+    }
+    pink.turn {
+      // Pink used Space Elevator action
+      // Pink gained 5 M€
+      cardAction1(SpaceElevator).expect("5, -Steel")
+      // Pink ended turn
+    }
+    green.turn {
+      // Green used Sell Patents standard project
+      // The five named Green cards sold this generation, and their division among the four unnamed
+      // sales, are test inference from the exact tracked hand and final empty hand.
+      sellPatents(StratosphericBirds)
+      // Green sold 1 patents
+      // Green ended turn
+    }
+    pink.turn {
+      // Pink used GHG Producing Bacteria action
+      cardAction1(GhgProducingBacteria).expect("Microbe<$GhgProducingBacteria>")
+      // Pink added 1 Microbe to GHG Producing Bacteria
+      // Pink ended turn
+    }
+    green.turn {
+      // Green used Sell Patents standard project
+      sellPatents(EnergyTapping)
+      // Green sold 1 patents
+      // Green ended turn
+    }
+    pink.turn {
+      // Pink played Advanced Ecosystems
+      // Pink added 3 Microbe(s) to Decomposers
+      // Pink added 2 Animal(s) to Ecological Zone
+      playProject(AdvancedEcosystems, 9)
+      // Pink ended turn
+    }
+    green.turn {
+      // Green played Giant Solar Shade
+      playProject(GiantSolarShade, 27)
+      // Green ended turn
+    }
+    pink.turn {
+      // Pink used Air Scrapping standard project
+      stdProject("AirScrappingSP")
+      // Pink ended turn
+    }
+    green.turn {
+      // Green used Sell Patents standard project
+      sellPatents(VenusShuttles)
+      // Green sold 1 patents
+      // Green ended turn
+    }
+    pink.turn {
+      // Pink used Sell Patents standard project
+      // The three named Pink cards sold this generation, and their order, are test inference from
+      // the exact tracked hand and final empty hand.
+      sellPatents(BeamFromAThoriumAsteroid)
+      // Pink sold 1 patents
+      // Pink ended turn
+    }
+    green.turn {
+      // Green played Noctis City
+      // Green gained 3 M€ production
+      // Green gained 2 M€ from Suitable Infrastructure
+      // Green placed city tile at 09
+      // Green gained 2 plants
+      // Green gained 2 M€ from 1 ocean(s)
+      // Pink gained 1 M€ production
+      // Pink gained 1 M€ production
+      playProject(NoctisCity, 16, steel = 1) { doTask("CityTile<Hellas_2_2>") }
+      // Green ended turn
+    }
+    pink.turn {
+      // Pink used Sell Patents standard project
+      sellPatents(TollStation)
+      // Pink sold 1 patents
+      // Pink ended turn
+    }
+    green.turn {
+      // Green used Sell Patents standard project
+      sellPatents(VenusSoils, Algae)
+      // Green sold 2 patents
+      // Green passed
+      // Green declared this pass early after one action; Solarnet executes it on Green's next turn.
+    }
+    pink.turn {
+      // Pink played Birds
+      // Pink added 1 Microbe to Decomposers
+      // Pink added 1 Animal to Ecological Zone
+      // Green lost 2 plant production because of Pink
+      // Pink gained 1 M€ for playing Birds, which has exactly 1 tag.
+      playProject(Birds, 8) { doTask("PROD[-2 Plant<Green>]") }
+      // Pink used Birds action
+      cardAction1(Birds).expect("Animal<$Birds>")
+      // Pink added 1 Animal to Birds
+    }
+    green.pass()
+    pink.turn {
+      // Pink played CEO's Favorite Project
+      playProject(CeosFavoriteProject, 0) { doTask("Animal<$Birds>") }
+      // Pink added 1 Animal to Birds
+      // Pink gained 1 M€ for playing CEO's Favorite Project, which has exactly 1 tag.
+      // Pink used Sell Patents standard project
+      sellPatents(FueledGenerators)
+      // Pink sold 1 patents
+      // Pink passed
+      pass()
+    }
+
+    assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
+
+    // Final greenery placement
+    pink.doTask("Ok")
+    green.doTask("Ok")
+
+    // This game id was ga5237bd2fb08
+    assertCardTrackingComplete()
+    pink.cardsInHand shouldBe emptySet()
+    green.cardsInHand shouldBe emptySet()
+    engine.assertCounts(1 to "EndPhase")
+
+    pink.assertCounts(
+        7 to "AwardTally<Pink, Landscaper>",
+        8 to "AwardTally<Pink, Founder>",
+        10 to "AwardTally<Pink, Contractor>",
+        41 to "TerraformRating",
+        100 to "VictoryPoint",
+        1 to "Victory",
+    )
+    green.assertCounts(
+        2 to "AwardTally<Green, Landscaper>",
+        0 to "AwardTally<Green, Founder>",
+        12 to "AwardTally<Green, Contractor>",
+        51 to "TerraformRating",
+        75 to "VictoryPoint",
+        0 to "Victory",
+    )
+
+    val score = Summarizer(game)
+    score.net("Milestone", "VictoryPoint<Pink>") shouldBe 10
+    score.net("Milestone", "VictoryPoint<Green>") shouldBe 5
+    score.net("FirstPlace", "VictoryPoint<Pink>") shouldBe 10
+    score.net("SecondPlace", "VictoryPoint<Pink>") shouldBe 0
+    score.net("FirstPlace", "VictoryPoint<Green>") shouldBe 5
+    score.net("SecondPlace", "VictoryPoint<Green>") shouldBe 0
+    score.net("GreeneryTile", "VictoryPoint<Pink>") shouldBe 6
+    score.net("GreeneryTile", "VictoryPoint<Green>") shouldBe 1
+    score.net("CityTile", "VictoryPoint<Pink>") shouldBe 7
+    score.net("CityTile", "VictoryPoint<Green>") shouldBe 3
+    score.net("Card", "VictoryPoint<Pink>") shouldBe 26
+    score.net("Card", "VictoryPoint<Green>") shouldBe 10
+
+    pink.assertCardResources(
+        9 to Decomposers,
+        6 to EcologicalZone,
+        4 to FloatingHabs,
+        3 to GhgProducingBacteria,
+        4 to Herbivores,
+        2 to Birds,
+    )
+    pink.assertResources(m = 71, s = 5, t = 7, p = 5, e = 1, h = 20)
+    pink.assertProduction(m = 25, s = 3, t = 4, p = 4, e = 1, h = 6)
+    green.assertResources(m = 69, s = 1, t = 0, p = 6, e = 3, h = 8)
+    green.assertProduction(m = 10, s = 1, t = 0, p = 2, e = 3, h = 1)
   }
 }
