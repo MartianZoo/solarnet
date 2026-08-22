@@ -20,6 +20,13 @@ generated characterization of what the renderer produces for canonical cards tha
 the current-versus-goal diff. Correct a goal row when card data or a systemic rule shows that it is
 mistaken.
 
+`english-published-wording-evidence.tsv` indexes wording occurrences harvested from the official
+expansion directories in `terraforming-mars/terraforming-mars` at the recorded commit. It stores
+source locations and short normalized forms rather than whole card text. Use its frequency evidence
+to choose one consistent style; it is not semantic authority. The current evidence favors `VP per`
+for proportional scoring, contains no scoring construction beginning with `Worth`, and is nearly
+even between `draw 1 card` and `draw a card`.
+
 ## Verification while replacing the data file
 
 Do not add a test merely to prove that a newly supported shape removes brackets. Such a test would

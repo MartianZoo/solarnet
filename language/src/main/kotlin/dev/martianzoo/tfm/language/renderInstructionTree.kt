@@ -116,6 +116,7 @@ private fun renderSequentialThen(
     describers: Describers,
     drawFilter: EnglishDrawFilter?,
 ): Clause? {
+  // TODO: Preserve linked Type variables when later stages refer to a choice made earlier.
   val clauses =
       (instruction.stages + instruction.continuation).map { part ->
         renderLoweredInstructions(part, describers, drawFilter).clauses.singleOrNull()

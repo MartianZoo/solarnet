@@ -60,6 +60,9 @@ Recorded so later rounds don't relitigate them.
 | D12 | Renaming (`English`, `Describers`, `ComponentDescriber`) is cheap and can happen any time. Not a priority. |
 | D13 | Whether the lexicon lives in Kotlin or in data files is not important. |
 | D14 | **Card ownership context is the renderer's law.** An omitted owner on a player-owned type means the card owner; explicit `<Anyone>` is required to opt out and address every player. The renderer need not support interpreting these source expressions outside ownership context. |
+| D15 | **`english-card-text-goals.tsv` is a fallible review aid, never authority.** Revise it for better wording and consistency, and pare back expectations that exceed the selected derivation boundary. |
+| D16 | Future iconographic generation should derive independently from Pets, whose syntax already follows the icon grammar. Do not complicate the English realizer's public boundary for it now. |
+| D17 | `english-filtered-draws.tsv` remains a narrow transitional supplement until the planned Pets representation replaces it; do not invest in generalizing it meanwhile. |
 
 ---
 
@@ -355,13 +358,6 @@ Short list; everything else is settled in §2.
 2. **Does Production collapse into Scale?** *increase your heat production 2 steps* and *raise oxygen
    1 step* may be one frame with an owner slot. Worth trying to merge; if it needs a special case,
    keep it separate and say why.
-3. **What happens to `english-card-text-goals.tsv`?** Under D8 it is scaffolding. Retire it, or keep
-   it purely as a review aid with no authority?
-4. **Does the UI want text or structure?** D3 says a UI will show generated card text. If it will ever
-   want icons or styled fragments, the realizer should emit structure and let the caller flatten. One
-   sentence from Kevin settles whether to design for that now or ignore it.
-5. **The filtered-draw table** (14 rows, keyed by card class, for a filter Pets cannot express) is the
-   one honestly-recognized fact left. Does Pets eventually learn it, or does it stay?
 
 ---
 

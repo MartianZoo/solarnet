@@ -1045,5 +1045,5 @@ private fun renderPerVictoryPoints(
   val metric =
       renderMetricPhrase(per.metric, describers)?.removePrefix("each ")?.removePrefix("every ")
           ?: "[${per.metric}]"
-  return "Worth $points per $metric."
+  return "$points per $metric."
 }

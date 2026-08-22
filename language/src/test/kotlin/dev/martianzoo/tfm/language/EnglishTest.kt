@@ -24,6 +24,7 @@ internal class EnglishTest {
   // shape. The separate goals file is reviewed target text, not an answer source or test oracle.
   @Test
   fun allCardTextMatchesCurrentSnapshot() {
+    goals.keys shouldBe cardsByClassName.keys
     current.keys shouldBe cardsByClassName.keys
     current.forEach { (cardFront, expected) ->
       withClue(cardFront.toString()) {
@@ -39,9 +40,9 @@ internal class EnglishTest {
   @Test
   fun describesStandalonePetsElements() {
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This>")) shouldBe
-        "Worth 1 VP per animal on this card."
+        "1 VP per animal on this card."
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This, Owner>")) shouldBe
-        "Worth 1 VP per animal on this card."
+        "1 VP per animal on this card."
     english.describe(parse<Effect>("CityTile<MarsArea, Anyone>: Steel")) shouldBe
         "When any city tile is placed on Mars, gain 1 steel."
     english.describe(parse<Effect>("PlantTag<CardFront<Anyone>, Anyone>: Steel")) shouldBe
