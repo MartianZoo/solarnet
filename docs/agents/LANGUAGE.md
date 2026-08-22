@@ -76,11 +76,12 @@ declarations: `Describers` resolves each requested fact independently through th
 every undeclared canonical Class, keeping its map complete without copying inherited facts into
 each value.
 
-`Describers` resolves production and authored class-literal dependencies through the shared Class
-Table. It uses dependency keys returned by the declaring Class to distinguish supplied arguments
-from defaults; renderers do not infer owner, resource, or represented-Class roles from argument
-positions. Contextual `This` still has one explicitly marked production fallback until rendering
-receives the linked source needed to resolve it.
+`Describers` resolves expressions through the shared Class Table into `ResolvedExpression`: the
+resolved `Type` plus authored dependency expressions indexed by the keys returned by the declaring
+Class. Production and class-literal interpretation consume those keys rather than inferring owner,
+resource, or represented-Class roles from argument positions. Contextual `This` still has one
+explicitly marked production fallback until rendering receives the linked source needed to resolve
+it.
 Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, and `PlanetTag` is read from
 the Class hierarchy and is not duplicated in `ComponentDescriber`. Card-resource number forms
 remain lexical data.

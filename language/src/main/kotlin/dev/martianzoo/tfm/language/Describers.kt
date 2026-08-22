@@ -13,8 +13,6 @@ import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.Dependency.TypeDependency
-import dev.martianzoo.types.DependencySet.DependencyPath
 import dev.martianzoo.types.Type
 
 /** Looks up the English description supplied for each component Class. */
@@ -183,15 +181,16 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   private fun parseProductionExpression(
       expression: Expression,
   ): Pair<List<Expression>, ClassName>? {
-    val type = resolve(expression) ?: return parseContextualProductionExpression(expression)
+    val resolved =
+        resolveExpression(expression) ?: return parseContextualProductionExpression(expression)
+    val type = resolved.type
     if (!type.rootClass.isSubtypeOf(classesByName.getValue(PRODUCTION))) return null
     val resource =
-        type.dependency(Key(PRODUCTION, 0))?.representedType()?.takeIf { it.refinement == null }
+        resolved.dependency(Key(PRODUCTION, 0))?.representedType()?.takeIf { it.refinement == null }
             ?: return null
     val ownerKey = Key(OWNED, 0)
-    val owner = type.dependency(ownerKey) ?: return null
-    val authoredKeys = type.rootClass.matchDependencyKeys(expression.arguments)
-    val owners = if (ownerKey in authoredKeys) listOf(owner.expression) else emptyList()
+    val owner = resolved.dependency(ownerKey) ?: return null
+    val owners = if (resolved.authored(ownerKey) != null) listOf(owner.expression) else emptyList()
     return owners to resource.className
   }
 
@@ -234,29 +233,30 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   private fun representedClassType(expression: Expression): Type? {
-    val type = resolve(expression) ?: return null
-    val authoredKeys = type.rootClass.matchDependencyKeys(expression.arguments)
-    return type.typeDependencies
-        .singleOrNull { it.key in authoredKeys && it.boundType.rootClass.className == CLASS }
-        ?.boundType
+    val resolved = resolveExpression(expression) ?: return null
+    val key =
+        resolved.type.typeDependencies
+            .singleOrNull {
+              resolved.authored(it.key) != null && it.boundType.rootClass.className == CLASS
+            }
+            ?.key ?: return null
+    return resolved.dependency(key)
   }
 
   internal fun representedClassArgument(classExpression: Expression): Expression? {
-    return resolve(classExpression)?.representedExpression()
+    return resolveExpression(classExpression)?.type?.representedExpression()
   }
 
-  private fun resolve(expression: Expression): Type? {
+  internal fun resolveExpression(expression: Expression): ResolvedExpression? {
     if (expression.complement) return null
-    return try {
-      classTable.resolve(expression)
-    } catch (_: ExpressionException) {
-      null
-    }
-  }
-
-  private fun Type.dependency(key: Key): Type? {
-    if (key !in dependencies.keys) return null
-    return (dependencies.at(DependencyPath(listOf(key))) as? TypeDependency)?.boundType
+    val type =
+        try {
+          classTable.resolve(expression)
+        } catch (_: ExpressionException) {
+          return null
+        }
+    val keys = type.rootClass.matchDependencyKeys(expression.arguments)
+    return ResolvedExpression(type, keys.zip(expression.arguments).toMap())
   }
 
   private fun Type.representedType(): Type? {
