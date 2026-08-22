@@ -21,7 +21,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Class-property values, cardinality, defaults, and groups | [PROPERTIES.md](PROPERTIES.md) | Current model plus working rules and proposals |
 | Authorities, Modules, configuration, and premises | [OPTIONS.md](OPTIONS.md) | Current model |
 | Task ordering, completion, `THEN`, automatic effects, and barriers | [SEQUENCING.md](SEQUENCING.md) | Working rules and audit |
-| Pets `Action` costs, invoices, and action-qualified `CostPaid` signals | [ACTIONS.md](ACTIONS.md) | Settled design direction with unresolved ownership |
+| Pets `Action` costs, invoices, and action-qualified `CostPaid` signals | [ACTIONS.md](ACTIONS.md) | Standard-resource lowering current; direct-cost normalization pending |
 | Commands and test design | [TESTING.md](TESTING.md) | Current procedure |
 | Reconstructing herokuapp game logs | [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md) | Current procedure |
 | Reconstructing recorded physical games | [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md) | Current procedure |

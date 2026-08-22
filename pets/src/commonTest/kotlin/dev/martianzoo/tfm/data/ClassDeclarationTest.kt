@@ -5,7 +5,6 @@ import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Transforming.actionToEffect
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Intensity
@@ -60,7 +59,9 @@ internal class ClassDeclarationTest {
 
     val inv: Requirement = Requirement.Exact(scaledEx(THIS.expression, 1))
     val eff: Effect = parse<Effect>("This: DoStuff")
-    val act = actionToEffect(parse("Steel -> 5"), 1)
+    val invoice =
+        parse<Effect>("UseAction<This, First>: Owed<Class<Steel>> THEN Payment<This, First>")
+    val result = parse<Effect>("CostPaid<This, First>: 5")
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
     val trigger = cn("Trigger").expression
@@ -71,7 +72,7 @@ internal class ClassDeclarationTest {
     decl.dependencies.shouldContainExactlyInAnyOrder(dep)
     decl.supertypes.shouldContainExactlyInAnyOrder(sup)
     decl.invariants.shouldContainExactlyInAnyOrder(inv)
-    decl.effects.shouldContainExactlyInAnyOrder(eff, act)
+    decl.effects.shouldContainExactlyInAnyOrder(eff, invoice, result)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
     decl.defaultsDeclaration.triggerOnly.specs.shouldContainExactlyInAnyOrder(trigger)
@@ -86,7 +87,8 @@ internal class ClassDeclarationTest {
         sup,
         inv,
         eff,
-        act,
+        invoice,
+        result,
         gain,
         univ,
         trigger,

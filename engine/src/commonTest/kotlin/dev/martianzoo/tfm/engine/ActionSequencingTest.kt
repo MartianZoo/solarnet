@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.TaskException
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
@@ -41,6 +42,30 @@ internal class ActionSequencingTest {
             abort()
           }
         }
+  }
+
+  @Test
+  fun `payment completion retains the full owned action provider`() {
+    val game = setUpGame()
+    val p1 = game.tfm(PLAYER1)
+    p1.godMode().manual("$Steelworks, 4 Energy")
+    game.tfm(ENGINE).phase("Action")
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+
+    manual.beginManual("UseAction<$Steelworks, First>") {
+      doTask("4 Owed<Class<Energy>>")
+      doTask("Payment<$Steelworks, First>")
+      doTask("4 Pay<Class<Energy>> FROM Energy")
+
+      game.tasks
+          .extract { it.instruction.toString() }
+          .filter { it.startsWith("CostPaid<") }
+          .shouldContainExactly(
+              "CostPaid<Player1, Steelworks<Player1>, First> FROM " +
+                  "Payment<Player1, Steelworks<Player1>, First>!"
+          )
+      abort()
+    }
   }
 
   @Test

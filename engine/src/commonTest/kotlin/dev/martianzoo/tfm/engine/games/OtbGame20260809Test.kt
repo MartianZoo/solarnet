@@ -530,7 +530,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I spend six money to gain three energy."
     ellie.turn {
-      cardAction1(EnergyMarket) { doTask("-6 THEN 3 Energy") }
+      cardAction1(EnergyMarket, x = 3)
 
       // "And then I will use the three energy to trade with Callisto and get ten."
       stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }.expect("7 E")
@@ -732,7 +732,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // (1:15 pm) "Energy Market: pay four money, gain two energy."
     ellie.turn {
-      cardAction1(EnergyMarket) { doTask("-4 THEN 2 Energy") }
+      cardAction1(EnergyMarket, x = 2)
 
       // "I use Ironworks to pay four energy, gain a steel, and raise oxygen."
       // "Oxygen is at 9%. I get a TR."
@@ -856,7 +856,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     }
 
     // (6:27 pm) "I will spend four money to gain two energy using Energy Market."
-    ellie.turn { cardAction1(EnergyMarket) { doTask("-4 THEN 2 Energy") } }
+    ellie.turn { cardAction1(EnergyMarket, x = 2) }
 
     // "I will sell a card."
     dad.turn { sellPatents(1) }
@@ -1352,7 +1352,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     dad.turn { playProject(FloatingHabs, 3) }
 
     // "I use Energy Market to pay six money for three energy."
-    ellie.turn { cardAction1(EnergyMarket) { doTask("-6 THEN 3 Energy") } }
+    ellie.turn { cardAction1(EnergyMarket, x = 3) }
 
     // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
     dad.turn {

@@ -1,10 +1,14 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.Transforming.bindXTo
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
@@ -43,9 +47,9 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val action =
         repl.game.reader.tfmAuthority.card(cardName).actions.getOrNull(actionNumber.toInt() - 1)
             ?: throw UsageException("$cardName has no action $actionNumber")
-    val pauseForDirectCost = payment.isNotEmpty() && action.cost != null
+    val pauseForWrittenCost = payment.isNotEmpty() && action.cost != null
     val previousAutoExecMode = repl.gameplay.autoExecMode
-    var directCostPaused = false
+    var writtenCostPaused = false
     val result =
         try {
           repl.game.timeline.atomic {
@@ -57,34 +61,35 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
               TaskCommand(repl).withArgs("UseAction<UseCardActionSA, First>")
             }
             TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
-            if (pauseForDirectCost) {
+            if (pauseForWrittenCost) {
               repl.gameplay.autoExecMode = NONE
-              directCostPaused = true
+              writtenCostPaused = true
             }
             val taskIdsBeforeAction = repl.game.tasks.ids()
             TaskCommand(repl).withArgs("UseAction<$cardName, $whichAction>")
             if (payment.isNotEmpty()) {
-              if (pauseForDirectCost) payDirectActionCost(payment, taskIdsBeforeAction)
+              if (pauseForWrittenCost) payWrittenActionCost(payment, taskIdsBeforeAction)
               else TfmPayCommand(repl).withArgs(payment)
             }
-            if (pauseForDirectCost) {
+            if (pauseForWrittenCost) {
               repl.gameplay.autoExecMode = previousAutoExecMode
-              directCostPaused = false
+              writtenCostPaused = false
             }
           }
         } finally {
-          if (directCostPaused) repl.gameplay.autoExecMode = previousAutoExecMode
+          if (writtenCostPaused) repl.gameplay.autoExecMode = previousAutoExecMode
         }
     return repl.describeExecutionResults(result)
   }
 
-  private fun payDirectActionCost(payment: String, taskIdsBeforeAction: Set<TaskId>) {
-    val directCosts =
-        repl.game.tasks
-            .extract { it }
-            .filter { it.id !in taskIdsBeforeAction }
-            .filter { it.instruction.descendantsOfType<Remove>().any() }
-    check(directCosts.isNotEmpty()) { "Action produced no direct cost to pay" }
+  private fun payWrittenActionCost(payment: String, taskIdsBeforeAction: Set<TaskId>) {
+    val costTasks = repl.game.tasks.extract { it }.filter { it.id !in taskIdsBeforeAction }
+    val directCosts = costTasks.filter { it.instruction.descendantsOfType<Remove>().any() }
+    if (directCosts.isEmpty()) {
+      openInvoice(costTasks, payment)
+      TfmPayCommand(repl).withArgs(payment)
+      return
+    }
 
     val removals = paymentRemovals(payment)
     check(removals.size == directCosts.size) {
@@ -94,6 +99,46 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
       val revision = specializeVariableCost(task.instruction, removal)
       repl.gameplay.reviseTask(task.id, revision.toString())
     }
+  }
+
+  private fun openInvoice(costTasks: List<Task>, payment: String) {
+    val invoice = costTasks.single { task ->
+      task.instruction.descendantsOfType<Change>().any { change ->
+        change.gaining?.className == cn("Owed")
+      }
+    }
+    val owed =
+        invoice.instruction.descendantsOfType<Change>().single { change ->
+          change.gaining?.className == cn("Owed")
+        }
+    val revision =
+        if (owed.count.abstract) {
+          val supplied =
+              paymentGains(payment).single { gain ->
+                gain.scaledEx.expression.className in owed.gaining!!.descendantsOfType<ClassName>()
+              }
+          val suppliedAmount = supplied.scaledEx.scalar.toString().toInt()
+          val authored = owed.count.toString()
+          val authoredMultiple = authored.removeSuffix("X").ifEmpty { "1" }.toInt()
+          check(suppliedAmount % authoredMultiple == 0) {
+            "$suppliedAmount isn't a multiple of $authoredMultiple"
+          }
+          bindXTo(suppliedAmount / authoredMultiple).transformInstruction(invoice.instruction)
+        } else {
+          invoice.instruction
+        }
+    val taskIdsBeforeInvoice = repl.game.tasks.ids()
+    TaskCommand(repl).withArgs(revision.toString())
+    val paymentTask =
+        repl.game.tasks
+            .extract { it }
+            .singleOrNull { task ->
+              task.id !in taskIdsBeforeInvoice &&
+                  task.instruction.descendantsOfType<Change>().any { change ->
+                    change.gaining?.className == cn("Payment")
+                  }
+            }
+    paymentTask?.let { TaskCommand(repl).withArgs(it.instruction.toString()) }
   }
 
   private fun specializeVariableCost(task: Instruction, removal: Instruction): Instruction {
@@ -111,27 +156,19 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
       "$supplied isn't a multiple of $authoredMultiple"
     }
     val x = supplied / authoredMultiple
-    val specialized =
-        X_SCALAR.replace(task.toString()) { match ->
-          val multiple = match.groupValues[1].ifEmpty { "1" }.toInt()
-          (multiple * x).toString()
-        }
-    return repl.game.vocabulary.canonicalize(Parsing.parse<Instruction>(specialized))
+    return bindXTo(x).transformInstruction(task)
   }
 
   private fun paymentRemovals(payment: String): List<Instruction> {
-    val gains =
-        repl.game.vocabulary
-            .canonicalize(Parsing.parse<InstructionTree>(payment))
-            .let(InstructionGroup::of)
-            .instructions
-    return gains.map {
-      val gain = it as? Gain ?: throw UsageException("payment must contain positive resources")
-      remove(gain.scaledEx)
-    }
+    return paymentGains(payment).map { gain -> remove(gain.scaledEx) }
   }
 
-  private companion object {
-    val X_SCALAR = Regex("""\b(\d*)X\b""")
-  }
+  private fun paymentGains(payment: String): List<Gain> =
+      repl.game.vocabulary
+          .canonicalize(Parsing.parse<InstructionTree>(payment))
+          .let(InstructionGroup::of)
+          .instructions
+          .map {
+            it as? Gain ?: throw UsageException("payment must contain positive resources")
+          }
 }

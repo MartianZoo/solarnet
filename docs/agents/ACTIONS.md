@@ -1,10 +1,9 @@
 # Pets Actions
 
-**Status: settled design direction with unresolved ownership.** This document describes the desired
-meaning of the Pets `Action` node. The current
-[transformer](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Action.kt) still lowers most
-Actions by putting the cost removal and result together after `UseAction`; the rules below are not a
-description of current behavior and do not prescribe a migration sequence.
+**Status: standard-resource lowering implemented; direct-cost normalization remains.** Terraforming
+Mars definitions now lower fixed and X-scaled standard-resource costs through invoices and
+`CostPaid`. Costless and direct-cost Actions still lower without the bridge described below, so
+those parts remain a design direction rather than current behavior.
 
 ## Scope and vocabulary
 
@@ -48,9 +47,8 @@ UseAction<provider, which> -> satisfy cost THEN CostPaid<provider, which>
 CostPaid<provider, which>  -> declared result
 ```
 
-This is a semantic normal form, not a required intermediate AST or a commitment about which
-compiler pass constructs it. The protocol retains the acting owner, exact Action provider, and
-`WhichAction` value needed to distinguish the activation.
+This is a semantic normal form, not a required intermediate AST. The protocol retains the acting
+owner, exact Action provider, and `WhichAction` value needed to distinguish the activation.
 
 “Costless” here is semantic, not merely syntactic. Several current declarations omit the left side
 but manually construct `Owed`, `Payment`, or direct removal on the right. Those are existing
@@ -163,26 +161,18 @@ The useful generalization is therefore not “all left sides are payments.” It
 If future corpus evidence does not fit those rules cleanly, reconsider the boundary from that real
 case rather than adding speculative kinds now.
 
-## The ownership problem remains real
+## Lowering ownership
 
-`Action` is currently a Pets AST concept, but `StandardResource`, the `UseAction` protocol,
-and the invoice declarations are Terraforming Mars concepts. Recognizing standard-resource costs
-during lowering therefore cannot be presented as a wholly generic Pets transformation. Unlike
-`PROD[...]` lowering, the invoice conversion is not merely like-for-like syntax expansion; it adds
-game-specific cost semantics and extension points for discounts and tender.
-
-The desired semantics do not settle which package owns that knowledge. Plausible boundaries
-include a narrow Authority/application-supplied Action lowering policy or moving the whole Action
-protocol under Terraforming Mars. A general plugin framework, a generic
-`StandardResource` concept, and duplicate generic/domain Action protocols would all be larger than
-the demonstrated need. Resolve ownership as one boundary decision when this behavior is selected
-for implementation; see [BOUNDARIES.md](BOUNDARIES.md#turnaction-protocol-is-split-across-layers).
+`Action` remains a Pets AST concept, while `StandardResource`, `Payment`, and `CostPaid` are
+Terraforming Mars concepts. The existing generic Action transformer currently recognizes the six
+concrete standard-resource names directly. This is deliberate local debt, accepted because bare
+numbers already give the same transformer Terraforming Mars currency semantics. Resolving both
+leaks together is preferable to adding a policy framework for this one rule.
 
 ## Deliberately separate questions
 
 This direction does not decide:
 
-- the compiler phase, runtime component shape, or payment barrier that realizes the normal form;
 - the name of the pre-payment extension point for discounts and accepted tender;
 - task priority or whether any cost step should be automatic;
 - the completion scope of a whole Terraforming Mars operation, including Head Start; or
@@ -193,23 +183,19 @@ the overgrown “action model” this separation is intended to avoid.
 
 ## Current implementation foothold
 
-`StandardActionDefinition` can attach ordinary Effects to the Class it generates. The claim
-milestone, fund award, convert plants, and convert heat definitions now use that ability to keep
-their invoice opening, payment barrier, and result on the standard-action Class instead of placing
-part of the workflow on the global `TerraformingMars` Module. In particular,
-`ClaimMilestoneSA` once again contains its `Milestone` instruction.
+`StandardActionDefinition` can attach ordinary Effects to the Class it generates. Claim milestone
+and fund award use that ability for their variable nominal costs. Convert plants and convert heat
+instead use ordinary standard-resource Action costs and the shared lowering.
 
-This is a locality correction, not the semantic lowering described above. These definitions still
-construct `Owed` and `Payment` explicitly. `UseAction`, `Payment`, and `CostPaid` carry the actual
-provider and a `WhichAction` value throughout the protocol. Existing one-action invoice workflows
-create `Payment<This, First>` but may subscribe to `CostPaid<This>` because only one action can
-complete for that provider.
+The standard-resource semantic lowering described above is now shared by card and standard-action
+definitions. `UseAction`, `Payment`, and `CostPaid` carry the actual provider and a `WhichAction`
+value. Existing one-action invoice workflows may leave the trailing selector
+unrestricted in their `CostPaid` subscription.
 Trade supplies the current multi-Action example: each choice opens an invoice in its printed
 standard resource, passes its selector through `Payment`, and unlocks `Trade` from the matching
 `CostPaid`. Cryo-Sleep and Rim Freighters now lower those invoices directly instead of granting a
 resource when the Action is selected.
 `Owed<>` accepts the default M€ debt type for gains and removals; non-M€ occurrences remain
 explicit, while bare `Owed` in triggers and requirements remains resource-generic.
-Automatic standard-resource Action lowering remains unresolved work. In particular, `8 Plant ->
-...` and `8 Heat -> ...` should eventually lower to the manual conversion invoices now present in
-the standard-action definitions.
+`ConvertPlantsSA` and `ConvertHeatSA` are now authored directly as `8 Plant -> ...` and `8 Heat ->
+...`; their invoices, payment barriers, and result subscriptions are generated automatically.
