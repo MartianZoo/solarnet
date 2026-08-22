@@ -38,8 +38,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   pending task while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
 - **High priority:** Make task queues semantically unordered: remove positional task selection and
-  stable-order autoexec precedence, require an id or unambiguous instruction match, and run tests
-  under reverse and reproducibly randomized enumeration to expose hidden ordering dependencies.
+  stable-order autoexec precedence, remove `FIRST`, require an id or unambiguous instruction match,
+  and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
+  dependencies. Autoexecution policy belongs outside the engine as specified in
+  [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - Explore whether one dynamic `::` chain may suspend at a single abstract instruction: drain its
   other automatic effects, admit and immediately prepare one forced choice, then let that choice
   and its own automatic effects execute normally. Prefer this only if it removes more
@@ -129,8 +131,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   — Resolve contextual ownership correctly and display the resolved player.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
 - **Medium priority:** Model Prelude plays as explicit first and second turns.
-- Rethink autoexec as a coherent project: first centralize draining at one outer command boundary,
-  then distinguish expected domain failures from defects and simplify `autoExecNext`; see
+- Move autoexecution out of the engine into optional clients of `Gameplay`: remove implicit drains,
+  replace modes with named policies, record the issuing agent, and initially provide only policies
+  that prove they make no gameplay sacrifice; see
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **Medium priority:** Separate Authority data from premise resolution, and split `TfmAuthority`'s
   generic declaration aggregation/validation into `Authority` from the Terraforming Mars registries
@@ -143,8 +146,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ### Medium Priority
 
 - **Medium-high priority:**
-  [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define a small set of
-  rules for unique choices without removing real choices.
+  [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define small,
+  independently selectable autoexecution policies that can prove and submit forced task narrowings
+  without making raw preparation search through player choices.
 
 ### Low Priority
 
@@ -167,6 +171,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Preserve and enforce the existing `GameReader` boundary that prevents game mechanics, including
+  custom Classes, from reading `EventLog`; add an architectural check so event history remains
+  diagnostic and gameplay-state equivalence can depend only on the `ComponentGraph` and
+  gameplay-relevant `TaskQueues`.
 - Decide whether `Ok` narrows a gated instruction; `Gated.ensureIsNarrowedBy` currently throws a
   `ClassCastException` instead of expressing the semantic result.
 - Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately
