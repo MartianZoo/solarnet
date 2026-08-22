@@ -17,7 +17,9 @@ internal fun renderPlacement(
   if (!describers.concrete(gain.gaining.className)) return null
   if (gain.gaining.refinement != null || gain.gaining.complement) return null
 
-  val siteModifiers = renderPlacementSites(gain.gaining.arguments, describers) ?: return null
+  val placement = describers.resolvePlacementExpression(gain.gaining) ?: return null
+  if (placement.owner != null || placement.unknownDependencies.isNotEmpty()) return null
+  val siteModifiers = renderPlacementSites(placement, describers) ?: return null
   val count = gain.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
   if (count != 1 && !description.allowsMultiple) return null
@@ -32,21 +34,16 @@ internal fun renderPlacement(
 }
 
 internal fun renderPlacementSites(
-    arguments: List<Expression>,
+    placement: Describers.PlacementExpression,
     describers: Describers,
 ): List<Modifier>? {
   // No dependencies, including an explicitly authored <>, accept the placement defaults.
-  if (arguments.isEmpty()) return emptyList()
+  if (placement.sites.isEmpty()) return emptyList()
 
-  val describedSites = arguments.mapNotNull { expression ->
-    describers.placementSite(expression.className)?.let {
-      expression to it
-    }
-  }
-  // A restricted placement has exactly one described site and no unknown dependency arguments.
-  if (describedSites.size != 1 || describedSites.size != arguments.size) return null
-  val (expression, site) = describedSites.single()
-  if (expression.arguments.isNotEmpty() || expression.complement) return null
+  val expression = placement.sites.singleOrNull() ?: return null
+  val site = describers.placementSite(expression.className) ?: return null
+  val resolvedSite = describers.resolveExpression(expression) ?: return null
+  if (resolvedSite.sourceDependencies.isNotEmpty() || expression.complement) return null
 
   val siteNoun = describers.describedNoun(expression.className, site.noun, 1)
   val article = site.article ?: describers.indefiniteArticle(siteNoun)

@@ -695,7 +695,7 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       )
     }
   }
-  if (expression.arguments.firstOrNull() == anyoneExpression) {
+  if (resolvePlacementExpression(expression)?.owner == anyoneExpression) {
     placementEvent(expression, EventActor.UNRESTRICTED)?.let {
       return it
     }
@@ -714,9 +714,6 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (expression.arguments == listOf(anyoneExpression)) {
     tagName(expression.className)?.let { (name) ->
       return Event(EventKind.PLAY, EventActor.UNRESTRICTED, "any $name tag")
-    }
-    placementEvent(expression, EventActor.UNRESTRICTED)?.let {
-      return it
     }
   }
   return null
@@ -852,19 +849,19 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
 
 private fun Describers.placementEvent(expression: Expression, actor: EventActor): Event? {
   if (expression.refinement != null || expression.complement) return null
-  val siteArguments =
-      when (actor) {
-        EventActor.YOU -> expression.arguments
-        EventActor.UNRESTRICTED ->
-            when {
-              expression.arguments.isEmpty() -> emptyList()
-              expression.arguments.first() == anyoneExpression -> expression.arguments.drop(1)
-              else -> return null
-            }
-      }
+  val resolvedPlacement = resolvePlacementExpression(expression) ?: return null
+  if (resolvedPlacement.unknownDependencies.isNotEmpty()) return null
+  if (actor == EventActor.YOU && resolvedPlacement.owner != null) return null
+  if (
+      actor == EventActor.UNRESTRICTED &&
+          resolvedPlacement.owner != null &&
+          resolvedPlacement.owner != anyoneExpression
+  ) {
+    return null
+  }
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
   val location =
-      siteArguments
+      resolvedPlacement.sites
           .singleOrNull()
           ?.takeIf { it.simple }
           ?.let {
@@ -872,7 +869,7 @@ private fun Describers.placementEvent(expression: Expression, actor: EventActor)
           }
   val modifiers =
       location?.let { listOf(Modifier.Phrase(it)) }
-          ?: renderPlacementSites(siteArguments, this)
+          ?: renderPlacementSites(resolvedPlacement, this)
           ?: return null
   val phrase =
       when (actor) {

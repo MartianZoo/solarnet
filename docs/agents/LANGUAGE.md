@@ -101,8 +101,9 @@ component-category value for `Describers` to switch over.
 Restricted placements follow the same rule. A placement-site fact marks an expression argument as
 the placed component's site and supplies its noun and optional definite article, while a
 spatial-relation fact supplies the relation phrase and its implicit target noun. The placement
-renderer interprets strict counting refinements on that site structurally; neither fact contains a
-card or a complete instruction.
+renderer reads owner and site dependencies by key, independent of authored argument order, and
+interprets strict counting refinements on that site structurally; neither fact contains a card or a
+complete instruction.
 A placement site may decline inheritance when its specialized sites have different printed
 semantics; those subclasses remain unsupported until they furnish their own site description.
 

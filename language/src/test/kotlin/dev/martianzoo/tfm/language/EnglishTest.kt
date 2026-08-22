@@ -42,6 +42,8 @@ internal class EnglishTest {
         "Worth 1 VP per animal on this card."
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This, Owner>")) shouldBe
         "Worth 1 VP per animal on this card."
+    english.describe(parse<Effect>("CityTile<MarsArea, Anyone>: Steel")) shouldBe
+        "When any city tile is placed on Mars, gain 1 steel."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
         "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe

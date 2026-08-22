@@ -178,8 +178,12 @@ private fun renderPlacementBonusProductionSequence(
       bonuses.map(PlacementBonusProduction::siteClassName).distinct().singleOrNull() ?: return null
   val bonusNoun =
       bonuses.map(PlacementBonusProduction::bonusNoun).distinct().singleOrNull() ?: return null
+  val resolvedPlacement = describers.resolvePlacementExpression(placement.gaining) ?: return null
+  if (resolvedPlacement.owner != null || resolvedPlacement.unknownDependencies.isNotEmpty()) {
+    return null
+  }
   val siteModifiers =
-      renderPlacementSites(placement.gaining.arguments, describers)?.takeIf { it.isNotEmpty() }
+      renderPlacementSites(resolvedPlacement, describers)?.takeIf { it.isNotEmpty() }
           ?: run {
             val description = describers.placementSite(siteClassName) ?: return null
             val noun = describers.describedNoun(siteClassName, description.noun, 1)
@@ -438,11 +442,18 @@ private fun renderPlacementSiteFallback(
           as? Instruction.Gated ?: return null
   val unrestricted =
       InstructionGroup.of(fallback.inner).instructions.singleOrNull() as? Gain ?: return null
+  val preferredPlacement = describers.resolvePlacementExpression(preferred.gaining) ?: return null
+  val unrestrictedPlacement =
+      describers.resolvePlacementExpression(unrestricted.gaining) ?: return null
   if (
       preferred.gaining.refinement != null ||
           preferred.gaining.complement ||
           preferred.gaining.className != unrestricted.gaining.className ||
-          unrestricted.gaining.arguments.isNotEmpty() ||
+          preferredPlacement.owner != null ||
+          preferredPlacement.unknownDependencies.isNotEmpty() ||
+          unrestrictedPlacement.owner != null ||
+          unrestrictedPlacement.sites.isNotEmpty() ||
+          unrestrictedPlacement.unknownDependencies.isNotEmpty() ||
           unrestricted.gaining.refinement != null ||
           unrestricted.gaining.complement ||
           preferred.intensity.modality() != unrestricted.intensity.modality() ||
@@ -451,7 +462,7 @@ private fun renderPlacementSiteFallback(
   ) {
     return null
   }
-  val site = preferred.gaining.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
+  val site = preferredPlacement.sites.singleOrNull()?.takeIf { it.simple } ?: return null
   if (describers.placementSite(site.className) == null) return null
   val placement =
       describers.fact(preferred.gaining.className, ComponentDescriber::placement) ?: return null

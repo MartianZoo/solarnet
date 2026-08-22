@@ -190,6 +190,21 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     }
   }
 
+  internal fun resolvePlacementExpression(expression: Expression): PlacementExpression? {
+    val resolved = resolveExpression(expression) ?: return null
+    val ownerKey = Key(OWNED, 0)
+    val siteDependencies = resolved.sourceDependencies.filterKeys { key ->
+      val siteClassName = resolved.dependency(key)?.rootClass?.className ?: return@filterKeys false
+      placementSite(siteClassName) != null
+    }
+    val recognizedKeys = siteDependencies.keys + ownerKey
+    return PlacementExpression(
+        owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == ownerExpression },
+        sites = siteDependencies.values.toList(),
+        unknownDependencies = resolved.sourceDependencies.keys - recognizedKeys,
+    )
+  }
+
   private fun isTag(className: ClassName): Boolean = isSubtypeOf(className, TAG)
 
   internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
@@ -474,6 +489,12 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal data class ProductionExpression(
       val owner: Expression?,
       val resource: ClassName,
+  )
+
+  internal data class PlacementExpression(
+      val owner: Expression?,
+      val sites: List<Expression>,
+      val unknownDependencies: Set<Key>,
   )
 
   private companion object {
