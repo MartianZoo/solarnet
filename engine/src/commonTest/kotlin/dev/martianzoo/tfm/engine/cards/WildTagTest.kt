@@ -17,7 +17,7 @@ class WildTagTest : CardTest() {
 
     p1.playPrelude(ResearchNetwork)
     p1.startTurn()
-    p1.doTask("PowerTag<WildTagUse<$ResearchNetwork>>")
+    p1.assignWildTag(ResearchNetwork, "PowerTag")
     p1.playPrelude(FakeEstablishedMethods) {
       val offers =
           game.tasks
@@ -88,7 +88,8 @@ class WildTagTest : CardTest() {
     p1.manual(
         "$ResearchCoordination, $ResearchNetwork, $PointLuna, $MarsUniversity, 2 ProjectCard"
     ) {
-      doTask("Ok")
+      // Decline Mars University's discard-and-draw effect.
+      declineTask()
     }
     p1.count("WildTag") shouldBe 2
     val cardsBeforeWildTags = p1.count("ProjectCard")
@@ -96,8 +97,8 @@ class WildTagTest : CardTest() {
     p1.startTurn()
 
     p1.count("WildTagUse") shouldBe 2
-    p1.doTask("EarthTag<WildTagUse<$ResearchCoordination>>")
-    p1.doTask("ScienceTag<WildTagUse<$ResearchNetwork>>")
+    p1.assignWildTag(ResearchCoordination, "EarthTag")
+    p1.assignWildTag(ResearchNetwork, "ScienceTag")
 
     p1.count("EarthTag") shouldBe 2
     p1.count("EarthTag<CardFront>") shouldBe 1
@@ -123,7 +124,7 @@ class WildTagTest : CardTest() {
     p1.count("WildTag") shouldBe 1
     engine.phase("Action")
     p1.startTurn()
-    p1.doTask("BuildingTag<WildTagUse<$ResearchNetwork>>")
+    p1.assignWildTag(ResearchNetwork, "BuildingTag")
 
     p1.playProject(RoboticWorkforce, 9) {
           doTask("CopyProductionBox<$ResearchNetwork>")
@@ -141,7 +142,7 @@ class WildTagTest : CardTest() {
     p1.startTurn()
     p1.playPrelude(ResearchNetwork)
     p1.startTurn()
-    p1.doTask("EarthTag<WildTagUse<$ResearchNetwork>>")
+    p1.assignWildTag(ResearchNetwork, "EarthTag")
 
     p1.playPrelude(ExcentricSponsor) { p1.playProject(SpaceHotels, 0) }.expect("PROD[4]")
   }
@@ -154,7 +155,7 @@ class WildTagTest : CardTest() {
     p1.startTurn()
     p1.playPrelude(ResearchNetwork)
     p1.startTurn()
-    p1.doTask("PowerTag<WildTagUse<$ResearchNetwork>>")
+    p1.assignWildTag(ResearchNetwork, "PowerTag")
 
     p1.playPrelude(ExcentricSponsor) { p1.playProject(PowerGrid, 0) }.expect("PROD[2 Energy]")
   }

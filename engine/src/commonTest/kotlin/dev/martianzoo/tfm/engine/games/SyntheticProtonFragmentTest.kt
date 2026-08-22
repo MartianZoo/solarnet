@@ -162,12 +162,12 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // (Dad already passed early)
     dad.pass()
     ellie.playProject(MiningRights, 5, steel = 1) {
-      doTask("MiningRights_SpecialTile<Hellas_8_8>")
+      placeTile(8, 8)
     }
     ellie.playProject(DirectedImpactors, 3, titanium = 1)
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(6)
-      doTask("Asteroid<$DirectedImpactors>")
+      addCardResources(DirectedImpactors)
     }
     ellie.doTask("Pass")
 
@@ -196,30 +196,30 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
     }
     dad.playProject(CorporateStronghold, 7, steel = 2) {
-          doTask("CityTile<Hellas_2_4>")
+          placeTile(2, 4)
         }
         .expect("Disease<Player1>")
     mom.assertCounts(7 to "Plant")
     dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
 
     mom.playProject(IndustrialCenter, 4) {
-      doTask("IndustrialCenter_SpecialTile<Hellas_2_3>")
+      placeTile(2, 3)
       doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
     }
     mom.assertCounts(8 to "Plant")
     mom.convertPlants {
-      doTask("GreeneryTile<Hellas_1_2>")
+      placeTile(1, 2)
     }
 
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(titanium = 2)
-      doTask("Asteroid<$DirectedImpactors>")
+      addCardResources(DirectedImpactors)
     }
     ellie.declineSecondAction()
     dad.pass()
 
     mom.playProject(EcologicalZone, 12) {
-          doTask("EcologicalZone_SpecialTile<Hellas_1_3>")
+          placeTile(1, 3)
         }
         .expect("2 Plant")
     mom.convertHeat()
@@ -239,10 +239,10 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.buyCards(LunarBeam, WeatherBalloons)
 
     mom.stdProject("AquiferSP") {
-      doTask("OceanTile<Hellas_2_1>")
+      placeTile(2, 1)
     }
     mom.convertPlants {
-      doTask("GreeneryTile<Hellas_3_3>")
+      placeTile(3, 3)
     }
 
     ellie.convertHeat()
@@ -264,7 +264,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     }
 
     mom.playProject(NaturalPreserve, 5, steel = 2) {
-          doTask("NaturalPreserve_SpecialTile<Hellas_3_7>")
+          placeTile(3, 7)
           mom.draw(Psychrophiles)
         }
         .expect("PROD[1], Plant")
@@ -274,7 +274,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.playProject(ProtectedGrowth, megacredits = 0)
     ellie.playProject(Soletta, 21, titanium = 4).expect("PROD[7 Heat]")
 
-    dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
+    dad.cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
     // Reason 3: Mercurian Alloys makes Dad's retained titanium worth more after this payment; the
     // next authoritative dashboard confirms that he retained all four.
     dad.intentionalUnderpay()
@@ -282,7 +282,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     mom.cardAction1(Hospitals)
     mom.playProject(Psychrophiles, 2) {
-          doTask("Microbe<$Psychrophiles>!")
+          addCardResources(Psychrophiles)
         }
         .expect("2 Megacredit<Player3>")
 
@@ -330,7 +330,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     mom.playProject(TollStation, 12).expect("PROD[7]")
     mom.convertPlants {
-      doTask("GreeneryTile<Hellas_4_4>")
+      placeTile(4, 4)
     }
 
     ellie.playProject(BribedCommittee, 5)
@@ -354,7 +354,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // (Ellie already passed early)
     ellie.pass()
     dad.convertPlants {
-      doTask("GreeneryTile<Hellas_1_4>")
+      placeTile(1, 4)
     }
     dad.doTask("Pass")
 
@@ -370,7 +370,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.buyCards(RadChemFactory, SaturnSurfing, IoMiningIndustries)
 
     dad.playProject(CupolaCity, 10, steel = 3) {
-      doTask("CityTile<Hellas_4_3>")
+      placeTile(4, 3)
     }
     dad.cardAction1(Ants) {
       doTask("-Microbe<Player1, $Psychrophiles<Player1>>")
@@ -379,23 +379,23 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.stdAction("ClaimMilestoneSA") { doTask("Trader") }
     mom.playProject(ProtectedValley, 9, steel = 5) {
           doTask("2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
-          doTask("GreeneryTile<Hellas_1_1>")
+          placeTile(1, 1)
         }
         .expect("2 Plant, -5 Steel")
 
     ellie.playProject(LavaFlows, 16) {
-      doTask("LavaFlows_SpecialTile<Hellas_2_2>")
+      placeTile(2, 2)
     }
     ellie.convertPlants {
-      doTask("GreeneryTile<Hellas_8_7>")
+      placeTile(8, 7)
     }
 
-    dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
+    dad.cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
     dad.playProject(Hackers, 3) { doTask("PROD[-2 Megacredit<Player2>]") }
 
     mom.convertHeat()
     mom.stdProject("AquiferSP") {
-      doTask("OceanTile<Hellas_4_7>")
+      placeTile(4, 7)
     }
 
     ellie.convertHeat()
@@ -411,7 +411,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     mom.cardAction1(Psychrophiles)
     mom.convertPlants {
-      doTask("GreeneryTile<Hellas_3_6>")
+      placeTile(3, 6)
     }
 
     ellie.cardAction2(DirectedImpactors)
@@ -434,10 +434,10 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.buyCards(Algae, BactoviralResearch)
 
     mom.stdProject("CitySP") {
-      doTask("CityTile<Hellas_4_5>")
+      placeTile(4, 5)
     }
     mom.convertPlants {
-      doTask("GreeneryTile<Hellas_5_5>")
+      placeTile(5, 5)
     }
 
     ellie.cardAction1(RobinsonIndustries)
@@ -458,13 +458,13 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     }
     dad.stdProject("AsteroidSP")
     dad.convertHeat() {
-      doTask("OceanTile<Hellas_3_1>")
+      placeTile(3, 1)
     }
 
-    mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
+    mom.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
     mom.playProject(ImportedNutrients, 14) {
           dad.draw(Grass)
-          doTask("4 Microbe<$Recyclon>")
+          addCardResources(Recyclon)
         }
         .expect("4 Plant")
     ellie.convertHeat()
@@ -482,7 +482,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.playProject(IoMiningIndustries, 12, titanium = 9).expect("PROD[2, 2 Titanium]")
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(6)
-      doTask("Asteroid<$DirectedImpactors>")
+      addCardResources(DirectedImpactors)
     }
 
     // Test inference: the log gives only the count; Cyberia Systems is never played later.
@@ -492,7 +492,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.pass()
     ellie.pass()
     dad.convertPlants {
-      doTask("GreeneryTile<Hellas_3_2>")
+      placeTile(3, 2)
     }
     dad.cardAction1(WeatherBalloons)
     dad.doTask("Pass")
@@ -516,11 +516,11 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.stdAction("FundAwardSA") { doTask("Forecaster") }
 
     mom.stdProject("AquiferSP") {
-      doTask("OceanTile<Hellas_5_6>")
+      placeTile(5, 6)
       mom.draw(ProjectInspection)
     }
     mom.convertPlants {
-      doTask("GreeneryTile<Hellas_6_6>")
+      placeTile(6, 6)
     }
 
     ellie
@@ -541,11 +541,11 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
           doTask("OceanTile<Hellas_4_1>")
         }
         .expect("0 Titanium")
-    dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
+    dad.cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
 
-    mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
+    mom.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
     mom.playProject(FieldCappedCity, 25, steel = 2) {
-          doTask("CityTile<Hellas_6_5>")
+          placeTile(6, 5)
           doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
         }
         .expect("PROD[2, Energy, Plant], 3 Plant, Disease")
@@ -554,7 +554,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         .playProject(ConvoyFromEuropa, 1, titanium = 4) {
           ellie.draw(MagneticFieldGeneratorsPromo)
           dad.draw(LocalHeatTrapping)
-          doTask("OceanTile<Hellas_5_8>")
+          placeTile(5, 8)
         }
         .expect("6")
     ellie.playProject(VestaShipyard, 7, titanium = 2)
@@ -571,7 +571,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     dad.playProject(RobotPollinators, 9)
     dad.convertPlants {
-      doTask("GreeneryTile<Hellas_4_2>")
+      placeTile(4, 2)
     }
 
     mom.playProject(InventionContest, 2) { mom.draw(WaterImportFromEuropa) }
@@ -615,14 +615,14 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.buyCards(HousePrinting, BeamFromAThoriumAsteroid)
 
     dad.stdProject("GreenerySP") {
-      doTask("GreeneryTile<Hellas_2_5>")
+      placeTile(2, 5)
     }
     dad.convertPlants {
-      doTask("GreeneryTile<Hellas_5_3>")
+      placeTile(5, 3)
     }
 
     mom.convertPlants {
-          doTask("GreeneryTile<Hellas_7_6>")
+          placeTile(7, 6)
           mom.draw(LightningHarvest)
         }
         .expect("0 TerraformRating")
@@ -630,7 +630,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     ellie
         .stdProject("CitySP") {
-          doTask("CityTile<Hellas_7_7>")
+          placeTile(7, 7)
         }
         .expect("Disease<Player1>")
     ellie.playProject(HousePrinting, steel = 4)
@@ -645,7 +645,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
           doTask("3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
         }
         .expect("Animal")
-    mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
+    mom.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
 
     ellie.cardAction1(SaturnSurfing)
     ellie.playProject(BeamFromAThoriumAsteroid, 9, titanium = 7)
@@ -653,7 +653,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.playProject(Windmills, 4, steel = 1)
     dad.playProject(BactoviralResearch, 10) {
       dad.draw(Potatoes)
-      doTask("5 Microbe<$Ants>")
+      addCardResources(Ants)
     }
 
     mom.cardAction1(Psychrophiles)
@@ -661,7 +661,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     ellie
         .playProject(MagneticFieldGeneratorsPromo, steel = 10) {
-          doTask("MagneticFieldGeneratorsPromo_SpecialTile<Hellas_5_1>")
+          placeTile(5, 1)
           ellie.draw(AsteroidHollowing)
         }
         .expect("PROD[2 Plant, -4 Energy], 2")
@@ -679,7 +679,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // Test inference: the log gives only the count; none of these cards is played later.
     mom.sellPatents(WaterImportFromEuropa, PhysicsComplex, LightningHarvest)
     mom.stdProject("CitySP") {
-      doTask("CityTile<Hellas_1_5>")
+      placeTile(1, 5)
     }
 
     // Test inference: the log gives only the count; Methane From Titan is never played later.
@@ -707,13 +707,17 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.pass()
     dad.pass()
 
-    mom.doTask("Ok")
-    dad.convertPlants { doTask("GreeneryTile<Hellas_3_5>") }
-    dad.doTask("Ok")
-    mom.convertPlants { doTask("GreeneryTile<Hellas_2_6>") }
-    mom.doTask("Ok")
-    ellie.convertPlants { doTask("GreeneryTile<Hellas_7_8>") }
-    ellie.doTask("Ok")
+    // Decline Mom's first final greenery placement.
+    mom.declineTask()
+    dad.convertPlants { placeTile(3, 5) }
+    // Decline another final greenery placement for Dad.
+    dad.declineTask()
+    mom.convertPlants { placeTile(2, 6) }
+    // Decline another final greenery placement for Mom.
+    mom.declineTask()
+    ellie.convertPlants { placeTile(7, 8) }
+    // Decline another final greenery placement for Ellie.
+    ellie.declineTask()
 
     assertCardTrackingComplete()
     mom.cardsInHand shouldBe emptySet()

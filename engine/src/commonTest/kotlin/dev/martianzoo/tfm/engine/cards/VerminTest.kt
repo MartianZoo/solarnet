@@ -15,9 +15,9 @@ class VerminTest : CardTest() {
     engine.phase("Action")
 
     requireP2().manual("CityTile<Tharsis_2_1>").expect("Animal<Player1, $Vermin<Player1>>")
-    p1.cardAction1(Vermin) { doTask("Animal<$Vermin>!") }
+    p1.cardAction1(Vermin) { addCardResources(Vermin) }
     engine.manual("Generation")
-    p1.cardAction1(Vermin) { doTask("Microbe<$Decomposers>") }
+    p1.cardAction1(Vermin) { addCardResources(Decomposers) }
 
     p1.assertCounts(2 to "Animal<$Vermin>", 2 to "Microbe<$Decomposers>")
   }

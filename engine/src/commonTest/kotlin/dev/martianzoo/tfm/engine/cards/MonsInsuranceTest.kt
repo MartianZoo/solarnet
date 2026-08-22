@@ -173,7 +173,10 @@ class MonsInsuranceTest : CardTest() {
     p1.manual("$MonsInsurance, 10 Megacredit")
     p2.manual("Plant")
 
-    p1.manual("-Plant<Player2>?") { doTask("Ok") }
+    p1.manual("-Plant<Player2>?") {
+          // Decline removing Player 2's plant.
+          declineTask()
+        }
         .expect("0 Plant<Player2>, 0 Megacredit<Player1>, 0 Megacredit<Player2>")
   }
 

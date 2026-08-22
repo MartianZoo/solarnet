@@ -103,12 +103,12 @@ class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat().expect("PROD[Heat]")
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       convertPlants {
-            doTask("GreeneryTile<Tharsis_6_3>")
+            placeTile(6, 3)
           }
           .expect("-6 Plant, TR")
 
       playProject(MineralDeposit, 5)
-      playProject(FieldCappedCity, 5, steel = 8) { doTask("CityTile<Tharsis_7_4>") }
+      playProject(FieldCappedCity, 5, steel = 8) { placeTile(7, 4) }
 
       nextRound("OceanTile<Tharsis_6_7>", 2)
 
@@ -139,7 +139,7 @@ class SoloGame20230710Test : AbstractSoloTest() {
         doTask("OceanTile<Tharsis_5_6>")
       }
       convertPlants {
-        doTask("GreeneryTile<Tharsis_6_4>")
+        placeTile(6, 4)
       }
       playProject(MagneticShield, 22)
 
@@ -155,20 +155,20 @@ class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat()
       playProject(ResearchOutpost, 6, steel = 4) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
-        doTask("CityTile<Tharsis_8_6>")
+        placeTile(8, 6)
       }
       playProject(IceMoonColony, 20) {
         doTask("Colony<Ganymede>")
-        doTask("OceanTile<Tharsis_2_6>")
+        placeTile(2, 6)
       }
       stdProject("AirScrappingSP").expect("-12")
-      cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
+      cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       sellPatents(3)
       convertPlants {
-        doTask("GreeneryTile<Tharsis_8_7>")
+        placeTile(8, 7)
       }
-      playProject(PermafrostExtraction, 7) { doTask("OceanTile<Tharsis_9_9>") }
+      playProject(PermafrostExtraction, 7) { placeTile(9, 9) }
 
       nextRound("OxygenStep", 2)
 
@@ -180,21 +180,21 @@ class SoloGame20230710Test : AbstractSoloTest() {
 
       playProject(SubZeroSaltFish, 4) {
         doTask("PROD[-Plant<SoloOpponent>]")
-        doTask("Animal<$SubZeroSaltFish>") // Viral Enhancers
+        addCardResources(SubZeroSaltFish) // Viral Enhancers
       }
       cardAction1(SubZeroSaltFish).expect("Animal")
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
       playProject(GhgProducingBacteria, 7) { doTask("Plant") }
       playProject(ImportedNitrogen, 0, titanium = 5) {
-        doTask("3 Microbe<$GhgProducingBacteria>")
-        doTask("2 Animal<$SubZeroSaltFish>")
+        addCardResources(GhgProducingBacteria)
+        addCardResources(SubZeroSaltFish)
       }
-      cardAction2(GhgProducingBacteria) { doTask("OceanTile<Tharsis_1_2>") }
+      cardAction2(GhgProducingBacteria) { placeTile(1, 2) }
 
-      playProject(ArtificialLake, 2, steel = 4) { doTask("OceanTile<Tharsis_6_6>") }
+      playProject(ArtificialLake, 2, steel = 4) { placeTile(6, 6) }
       convertPlants {
-        doTask("GreeneryTile<Tharsis_5_2>")
+        placeTile(5, 2)
       }
 
       playProject(RefugeeCamps, 9)
@@ -213,19 +213,19 @@ class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat()
       convertHeat()
       cardAction1(RefugeeCamps)
-      playProject(IceCapMelting, 4) { doTask("OceanTile<Tharsis_1_4>") }
+      playProject(IceCapMelting, 4) { placeTile(1, 4) }
 
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
       playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science<$OlympusConference>") }
-      stdProject("CitySP") { doTask("CityTile<Tharsis_6_5>") }
-      playProject(UrbanizedArea, steel = 3) { doTask("CityTile<Tharsis_7_5>") }
+      stdProject("CitySP") { placeTile(6, 5) }
+      playProject(UrbanizedArea, steel = 3) { placeTile(7, 5) }
       convertPlants {
-        doTask("GreeneryTile<Tharsis_8_5>")
+        placeTile(8, 5)
       }
       cardAction1(SubZeroSaltFish)
       cardAction1(GhgProducingBacteria)
-      cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
-      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_8_4>") }
+      cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
+      stdProject("GreenerySP") { placeTile(8, 4) }
       playProject(JovianEmbassy, 4, steel = 3)
       convertHeat()
       sellPatents(2)
@@ -248,22 +248,23 @@ class SoloGame20230710Test : AbstractSoloTest() {
       cardAction1(RefugeeCamps)
       cardAction1(GhgProducingBacteria) // uselessly
       playProject(MagneticFieldDome, 1, steel = 1)
-      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_9_6>") }
+      stdProject("GreenerySP") { placeTile(9, 6) }
       playProject(InterstellarColonyShip, 1, titanium = 5)
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
-      stdProject("CitySP") { doTask("CityTile<Tharsis_9_5>") }
-      playProject(SpacePort, 3, steel = 6) { doTask("CityTile<Tharsis_6_2>") }
+      stdProject("CitySP") { placeTile(9, 5) }
+      playProject(SpacePort, 3, steel = 6) { placeTile(6, 2) }
       sellPatents(1)
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       convertPlants {
-        doTask("GreeneryTile<Tharsis_7_6>")
+        placeTile(7, 6)
       }
-      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_3>") }
+      stdProject("GreenerySP") { placeTile(7, 3) }
       stdProject("AirScrappingSP")
 
       pass()
       has("Victory") shouldBe true
-      doTask("Ok")
+      // Decline another final greenery placement.
+      declineTask()
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")

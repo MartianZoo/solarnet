@@ -18,7 +18,7 @@ class MiningRightsTest : CardTest() {
     manual
         .manual("$MiningRights") {
           shouldThrow<TaskException> { doTask("PROD[Steel]") }
-          doTask("MiningRights_SpecialTile<Tharsis_1_1>")
+          placeTile(1, 1)
           doTask("2 Steel")
           doTask("PROD[Steel]")
         }
@@ -32,7 +32,7 @@ class MiningRightsTest : CardTest() {
     newGame(Cimmeria)
 
     p1.manual("$MiningRights") {
-          doTask("MiningRights_SpecialTile<Cimmeria_6_4>")
+          placeTile(6, 4)
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
@@ -50,7 +50,7 @@ class MiningRightsTest : CardTest() {
   fun `Cannot select a card-bonus area`() {
     newGame()
     shouldThrow<NotNowException> {
-      p1.manual("$MiningRights") { doTask("MiningRights_SpecialTile<Tharsis_2_1>") }
+      p1.manual("$MiningRights") { placeTile(2, 1) }
     }
   }
 }

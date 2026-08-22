@@ -26,7 +26,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   @Test
   fun `Raises the track when Titan Floating Launch-Pad trades`() {
     p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") {
-      doTask("2 Floater<$TitanFloatingLaunchPad>")
+      addCardResources(TitanFloatingLaunchPad)
     }
     engine.manual("3 ColonyProduction<Luna>")
 
@@ -60,13 +60,14 @@ class TradeEnvoysTest : ColoniesCardTest() {
     p1.manual("ProjectCard, 30")
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
-      doTask("OceanTile<Tharsis_1_2>")
+      placeTile(1, 2)
     }
     engine.manual("ColonyProduction<Europa>")
 
     p1.stdAction("TradeSA") {
       doTask("Trade<Europa>")
-      doTask("Ok")
+      // Decline Trade Envoys' optional Europa colony-track increase.
+      declineTask()
     }
 
     p1.assertCounts(
@@ -81,14 +82,15 @@ class TradeEnvoysTest : ColoniesCardTest() {
     p1.playProject(TradeEnvoys, 6)
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
-      doTask("OceanTile<Tharsis_1_2>")
+      placeTile(1, 2)
     }
     engine.manual("3 ColonyProduction<Luna>")
 
     p1.stdAction("TradeSA") {
       doTask("Trade<Luna>")
       doTask("ColonyProduction<Luna>")
-      doTask("Ok")
+      // Decline Trade Envoys' additional optional Luna colony-track increase.
+      declineTask()
     }
 
     p1.assertCounts(

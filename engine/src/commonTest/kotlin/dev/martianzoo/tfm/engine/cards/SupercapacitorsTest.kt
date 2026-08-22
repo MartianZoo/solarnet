@@ -22,7 +22,10 @@ class SupercapacitorsTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
-    engine.phase("Production") { p1.doTask("Ok") }
+    engine.phase("Production") {
+      // Decline converting energy into heat.
+      p1.declineTask()
+    }
 
     p1.assertCounts(3 to "Energy", 17 to "Heat")
   }

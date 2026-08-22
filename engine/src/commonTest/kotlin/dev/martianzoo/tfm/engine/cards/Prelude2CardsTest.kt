@@ -55,7 +55,7 @@ class Prelude2CardsTest : CardTest() {
 
     engine.phase("Action")
     p1.startTurn()
-    p1.doTask("PlantTag<WildTagUse<$AppliedScience>>")
+    p1.assignWildTag(AppliedScience, "PlantTag")
     p1.cardAction1(AppliedScience) { doTask("Plant") }.expect("Plant")
 
     p1.count("Science<$AppliedScience>") shouldBe 5
@@ -111,7 +111,7 @@ class Prelude2CardsTest : CardTest() {
     engine.phase("Action")
     val startingTr = p1.count("TerraformRating")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep! BY Engine") }
+    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
 
     engine.count("TemperatureStep") shouldBe 1
     p1.count("TerraformRating") shouldBe startingTr
@@ -130,7 +130,7 @@ class Prelude2CardsTest : CardTest() {
     engine.phase("Action")
     val startingTr = p1.count("TerraformRating")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep! BY Engine") }
+    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
 
     engine.count("VenusStep") shouldBe 1
     p1.count("TerraformRating") shouldBe startingTr
@@ -349,7 +349,7 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("$SagittaFrontierServices")
     p1.count("Megacredit") shouldBe 35
 
-    p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.count("Megacredit") shouldBe 39
 
     p2.manual("7")
@@ -412,7 +412,7 @@ class Prelude2CardsTest : CardTest() {
   fun `Venus Shuttles action cost is reduced by Venus tags`() {
     newGame(Prelude2Expansion, VenusNextExpansion)
     p1.manual("$VenusGovernor, $VenusWaystation, $ForcedPrecipitation, $VenusMagnetizer, 20")
-    p1.manual("$VenusShuttles") { doTask("2 Floater<$ForcedPrecipitation>") }
+    p1.manual("$VenusShuttles") { addCardResources(ForcedPrecipitation) }
     engine.phase("Action")
     val startingMoney = p1.count("Megacredit")
     val startingVenus = engine.count("VenusStep")

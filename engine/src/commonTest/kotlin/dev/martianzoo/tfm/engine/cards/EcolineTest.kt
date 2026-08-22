@@ -20,7 +20,7 @@ class EcolineTest : CardTest() {
     p1.manual("4 Plant")
     p1.assertCounts(7 to "Plant")
     p1.convertPlants {
-          doTask("GreeneryTile<Tharsis_4_2>")
+          placeTile(4, 2)
         }
         .expect("-6 Plant, GreeneryTile")
     p1.assertCounts(1 to "Plant")

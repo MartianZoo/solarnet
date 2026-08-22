@@ -33,7 +33,7 @@ class HellasMapTest : CardTest() {
     p1.manual("-54 Megacredit")
 
     p1.manual("GreeneryTile<Hellas_9_7>") {
-      doTask("OceanTile<Hellas_5_7>")
+      placeTile(5, 7)
     }
 
     p1.count("Megacredit") shouldBe 0

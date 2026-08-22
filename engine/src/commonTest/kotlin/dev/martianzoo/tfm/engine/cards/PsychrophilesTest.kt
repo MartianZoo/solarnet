@@ -19,14 +19,20 @@ class PsychrophilesTest : CardTest() {
   @Test
   fun `Can play a plant-tag card without spending microbes`() {
     p1.manual("$Psychrophiles")
-    p1.playProject(AdaptedLichen, 9) { doTask("Ok") }.expect("PROD[Plant]")
+    p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
+          declineTask()
+        }
+        .expect("PROD[Plant]")
   }
 
   @Test
   fun `Can decline to spend a microbe on a plant-tag card`() {
     p1.manual("$Psychrophiles, Microbe<$Psychrophiles>")
 
-    p1.playProject(AdaptedLichen, 9) { doTask("Ok") }.expect("PROD[Plant]")
+    p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
+          declineTask()
+        }
+        .expect("PROD[Plant]")
     p1.count("Microbe<$Psychrophiles>") shouldBe 1
   }
 

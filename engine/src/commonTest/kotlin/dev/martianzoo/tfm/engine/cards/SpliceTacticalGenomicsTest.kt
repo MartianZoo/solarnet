@@ -13,7 +13,7 @@ class SpliceTacticalGenomicsTest : CardTest() {
     newGame(PromoCardPack)
 
     p1.playCorp(SpliceTacticalGenomics, 0) {
-          doTask("Microbe<$SpliceTacticalGenomics>!")
+          addCardResources(SpliceTacticalGenomics)
         }
         .expect("46, Microbe<$SpliceTacticalGenomics>")
 
@@ -49,7 +49,7 @@ class SpliceTacticalGenomicsTest : CardTest() {
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
 
-    p2.manual("$Decomposers") { doTask("Microbe<$Decomposers>!") }
+    p2.manual("$Decomposers") { addCardResources(Decomposers) }
         .expect("2 Megacredit<Player1>, 2 Microbe<$Decomposers>")
   }
 
@@ -63,7 +63,7 @@ class SpliceTacticalGenomicsTest : CardTest() {
 
     p2.manual("$Decomposers") {
           shouldThrow<NarrowingException> { doTask("Microbe<$RegolithEaters>!") }
-          doTask("Microbe<$Decomposers>!")
+          addCardResources(Decomposers)
         }
         .expect("2 Megacredit<Player1>, 2 Microbe<$Decomposers>")
   }

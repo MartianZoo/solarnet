@@ -118,14 +118,14 @@ class SoloGame20230611Test : AbstractSoloTest() {
       buyCards(3)
 
       convertPlants {
-        doTask("GreeneryTile<Hellas_9_7>")
-        doTask("OceanTile<Hellas_5_6>")
+        placeTile(9, 7)
+        placeTile(5, 6)
       }
 
       cardAction1(SubCrustMeasurements)
       cardAction1(ForcedPrecipitation).expect("-2")
       cardAction1(RegolithEaters).expect("Microbe")
-      playProject(ResearchOutpost, 12, steel = 2) { doTask("CityTile<Hellas_7_6>") }
+      playProject(ResearchOutpost, 12, steel = 2) { placeTile(7, 6) }
 
       playProject(Cartel, 7).expect("PROD[5]")
       playProject(Supercapacitors, 3).expect("PROD[1]")
@@ -150,7 +150,7 @@ class SoloGame20230611Test : AbstractSoloTest() {
       cardAction1(EquatorialMagnetizer)
       playProject(VestaShipyard, 2, titanium = 4)
       sellPatents(4)
-      playProject(CorporateStronghold, 10) { doTask("CityTile<Hellas_5_5>") }
+      playProject(CorporateStronghold, 10) { placeTile(5, 5) }
 
       // The player chose to convert none of five energy with Supercapacitors.
       pass()
@@ -187,7 +187,7 @@ class SoloGame20230611Test : AbstractSoloTest() {
       playProject(MirandaResort, 2, titanium = 3)
       cardAction1(RegolithEaters)
       cardAction1(ForcedPrecipitation)
-      stdProject("AquiferSP") { doTask("OceanTile<Hellas_6_7>") }
+      stdProject("AquiferSP") { placeTile(6, 7) }
       sellPatents(3)
       stdProject("AirScrappingSP")
 
@@ -201,7 +201,7 @@ class SoloGame20230611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements)
       cardAction2(ForcedPrecipitation)
       convertPlants {
-        doTask("GreeneryTile<Hellas_6_6>")
+        placeTile(6, 6)
       }
 
       playProject(WaterSplittingPlant, 5, steel = 3)
@@ -213,7 +213,7 @@ class SoloGame20230611Test : AbstractSoloTest() {
       cardAction1(EquatorialMagnetizer)
       playProject(ImportedGhg, 1, titanium = 1)
       playProject(NitrogenRichAsteroid, 10, titanium = 6)
-      stdProject("GreenerySP") { doTask("GreeneryTile<Hellas_7_7>") }
+      stdProject("GreenerySP") { placeTile(7, 7) }
       cardAction1(RegolithEaters)
 
       pass()
@@ -236,7 +236,7 @@ class SoloGame20230611Test : AbstractSoloTest() {
       sellPatents(3)
       playProject(TransNeptuneProbe, 1)
       convertPlants {
-        doTask("GreeneryTile<Hellas_6_5>")
+        placeTile(6, 5)
       }
 
       assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
@@ -252,7 +252,8 @@ class SoloGame20230611Test : AbstractSoloTest() {
       assertCounts(4 to "Plant")
       assertCounts(12 to "Tile") // checking for the heck of it
 
-      doTask("Ok")
+      // Decline the final greenery placement.
+      declineTask()
       assertCounts(78 to "VP") // wow that was not good
     }
   }

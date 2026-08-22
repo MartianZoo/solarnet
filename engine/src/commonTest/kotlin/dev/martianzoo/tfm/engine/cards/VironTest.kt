@@ -61,7 +61,7 @@ class VironTest : CardTest() {
     val p2 = requireP2()
     engine.phase("Action")
     p1.manual("$Viron, $ExtractorBalloons")
-    p2.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p2.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.cardAction1(ExtractorBalloons)
     p2.cardAction1(AtmoCollectors)
 
@@ -77,11 +77,11 @@ class VironTest : CardTest() {
     engine.phase("Action")
     p1.manual("$Viron, $Celestic")
     p1.stdAction("HandleMandates").expect("2 ProjectCard")
-    p1.cardAction1(Celestic) { doTask("Floater<$Celestic>") }
+    p1.cardAction1(Celestic) { addCardResources(Celestic) }
 
     p1.cardAction1(Viron) {
       doTask("UseAction<$Celestic, First>")
-      doTask("Floater<$Celestic>")
+      addCardResources(Celestic)
     }
     p1.count("Floater<$Celestic>") shouldBe 2
   }
@@ -93,6 +93,6 @@ class VironTest : CardTest() {
         colonyTiles = testColonyTiles(2),
     )
     engine.phase("Action")
-    p1.manual("$Viron, $AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("$Viron, $AtmoCollectors") { addCardResources(AtmoCollectors) }
   }
 }

@@ -151,7 +151,8 @@ class NewPromoCardsTest : CardTest() {
     p2.manual("CityTile<Player2, Tharsis_4_2>") { doTask("Plant") }
 
     p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>")
-    p2.doTask("Ok")
+    // Decline paying two megacredits to draw a card from the Cathedral.
+    p2.declineTask()
     p1.autoExecMode = FIRST
     p2.autoExecMode = FIRST
     engine.phase("End")

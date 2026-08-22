@@ -45,7 +45,7 @@ class KuiperCooperativeTest : CardTest() {
     p1.cardAction1(KuiperCooperative)
 
     p1.stdProject("AquiferSP", payment = { payWithKuiperAsteroids(this) }) {
-          doTask("OceanTile<Tharsis_1_2>")
+          placeTile(1, 2)
         }
         .expect("-2 Asteroid<$KuiperCooperative>, -16 Megacredit, OceanTile, TerraformRating")
   }
