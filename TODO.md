@@ -167,6 +167,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Decide whether `Ok` narrows a gated instruction; `Gated.ensureIsNarrowedBy` currently throws a
+  `ClassCastException` instead of expressing the semantic result.
 - Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately
   incomplete substitute used by Game20260819.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
@@ -194,8 +196,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
-- Delete or replace `ClassTableProjectionTest`'s exact cumulative card-count assertion; it is a
-  pure content change detector and currently requires manual updates whenever a card is added.
 - Make class-literal parameters specialize inherited generic effects through a subclass, so solo
   resource helpers can share replenishment behavior without a holder/resource dependency cycle.
 - Define the `script` command's relative-path policy and correct its help text, which currently
@@ -203,8 +203,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   directory.
 - Separate `Instructor`'s preparation-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `PrepareTest`.
-- Remove `Task.newTask`'s unused private `automatic` parameter; it is leftover scaffolding that only
-  maps to `next` and has no caller.
 - Canonicalize unambiguous authored dependency arguments by key before implicit-variable matching, so equivalent argument orders share a variable as intended (`docs/agents/TYPES.md` §12.7).
 - Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.
