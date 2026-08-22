@@ -50,11 +50,13 @@ add a test DSL operation for one named component.
 ## Treat sources according to what they prove
 
 The full log is nearly a gold standard for action identity, order, choices, and narrated consequences.
-Keep the raw log as the source of truth instead of duplicating it line by line in test comments.
-Periodically audit the test against the preserved log for action identity, order, choices, and
-consequences. When the test disagrees, first suspect our chronology, payment allocation, card
-implementation, workflow, or engine. Override a logged claim only with stronger independent evidence
-and say why.
+During reconstruction, copied log lines are useful for auditing the translation line by line. Before
+removing them, preserve the complete raw log under `_local/GameYYYYMMDD/` and compare the replay with
+it for action identity, order, choices, and consequences. Delete the copied lines once a complete
+replay is working and that audit is complete; retain them in an incomplete replay where they still
+support reconstruction. When the test disagrees, first suspect our chronology, payment allocation,
+card implementation, workflow, or engine. Override a logged claim only with stronger independent
+evidence and say why.
 
 Never invent a source-style comment. A comment that reads like a log line must be traceable to that
 line in the preserved log. Label deductions and assignments explicitly as test inference, user
@@ -95,9 +97,25 @@ prepared; the executable pass-call order can therefore differ from the source lo
 verbatim log lines in their source order near the relevant boundary, but do not treat every logged
 pass as an immediate gameplay event.
 
-Keep each log comment directly above its representing statement. Put a consequence inside an action
-lambda only when that action genuinely causes it. Do not use an unrelated executable context as a place
-to hide a manual adjustment.
+While copied log comments remain, keep each one directly above its representing statement. Put a
+consequence inside an action lambda only when that action genuinely causes it. Do not use an unrelated
+executable context as a place to hide a manual adjustment.
+
+## Keep archive replays visually consistent
+
+Start each replay with a comment that says whether it is complete or the exact generation boundary
+through which it is implemented, followed by the archived title, internal game ID, and end-page URL.
+Name a partial test method for that boundary rather than as though it covered the entire game.
+
+Explicitly set `inputOnlySynonyms` to an empty list. Spell out resource, production, rating, and point
+types in test strings. Money is the exception: bare numbers are the idiomatic form in payments and
+expectations. Use the canonical owned money type only where a cross-player task cannot be expressed
+as a bare number.
+
+Use consistent provenance labels for retained comments: `Player-record evidence`, `Screenshot
+evidence`, `Test inference`, `Payment reconstruction`, `Chronology`, and `Unsupported component`.
+Keep final assertions in source order: card-hand closure, resources, production, score breakdown,
+Terraform Rating, Victory Points, then winner.
 
 Research screenshots need special care. The UI state—not a filename timestamp—determines whether a
 dashboard was captured before card purchases, after drafting choices, or after payment. Put the entire
@@ -153,29 +171,36 @@ and award ownership, tiles, global parameters, and phase. At the end, use the ar
 full resource and production stanzas immediately before the final VP and `Victory` assertions. After
 final greenery, also assert the remaining plants when the archive exposes them.
 
-## Use expectations to localize errors
+## Use expectations only for interesting results
 
-An expectation is a partial net delta for one completed operation. Include a component type when:
+An expectation is a partial net delta for one completed operation. A narrated log result is not by
+itself a reason to assert it, but the bar should not be so high that a replay loses most of its local
+behavioral evidence. Add an expectation when the result is interesting because it is:
 
-- the log explicitly says it was gained, removed, increased, or decreased;
-- it is an interesting automatic, passive, cross-player, rebate, placement, or backend effect; or
-- an unexplained reconciliation of that type must be localized between the nearest absolute
-  checkpoints.
+- automatic, passive, conditional, cross-player, or otherwise non-obvious;
+- zero, capped, cancelled, protected, or unexpectedly absent;
+- a one-off, source-narrated combination of several distinct consequences;
+- variable, threshold-dependent, or materially changed by a discount, rebate, or interacting card;
+- needed to bound a nearby sourced reconciliation or uncertain payment allocation; or
+- evidence for behavior that the action body cannot express directly.
 
-Do not include a type merely to restate an explicit cost, payment argument, or literal `doTask()`.
-Include payment only when it is necessary to express the net result of a logged same-type gain or to
-diagnose an unresolved gap. If the log states a new absolute balance or global value, add a nearby
-absolute assertion rather than replacing it with an inferred relative expectation. When an expected TR
-already proves an ordinary global-parameter increase, omit the global-step type unless the log names the
-step too.
+An ordinary card can therefore merit an expectation when its sourced result has multiple interacting
+parts or a state-dependent amount. A single fixed production or resource gain usually does not. Do not
+use an expectation merely because a standard action has its ordinary result or a global-parameter
+increase ordinarily grants TR. Do not restate an explicit cost, payment argument, literal `doTask()`,
+milestone claim, award funding, or every repetition of the same recurring action. A late conversion
+that earns zero TR is interesting; an ordinary conversion that earns one is not.
 
-Expectations are net, so the amount can differ from the source's gross statement. Order the expected
-types to follow the comments and causal flow. Prefer `Microbe`, `Animal`, or another readable general
+Assert only the interesting net types, not every change from the operation. Expectations are net, so
+the amount can differ from the source's gross statement when a same-type cost, rebate, or passive effect
+is part of what makes the result interesting. Prefer `Microbe`, `Animal`, or another readable general
 type unless the destination is genuinely ambiguous. Use typed zeroes to prove cancellation, a failed
 draw, or the absence of a promised result.
 
-When new expectations make an old repair overcompensate, remove the repair. Use nearby absolute counts
-to distinguish a real gap from a stale paired adjustment.
+If the source states an absolute balance or global value, prefer a nearby absolute assertion. Around a
+forced `exMachina()` reconciliation, add enough expectations for the affected types to bound the gap to
+the smallest sourced interval, but do not expand unrelated expectations. When new expectations make an
+old repair overcompensate, remove the repair.
 
 ## Reserve `exMachina()` for evidenced residuals
 
