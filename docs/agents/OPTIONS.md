@@ -85,21 +85,25 @@ Availability and existence are distinct. With Colonies active, eligible colony c
 so effects can select them, while setup creates only the chosen starting colony components.
 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
-competing choice can make a default condition false; an explicit exclusion defeats it. Each map
-constructively selects its printed milestone group and, in multiplayer, its printed award group.
-Venus Next similarly adds its published milestone and award. Explicitly naming any milestones or
-awards makes that category an exact pool, so named goals replace only their own category without a
-separate Module. Selecting colony tiles also requests their initial components.
+competing choice can make a default condition false; an explicit exclusion defeats it. In
+multiplayer, each map constructively selects its printed milestone and award groups. Venus Next
+selects its single published milestone and award directly as conditional bundle content rather than
+creating one-item pool Modules. Explicitly naming any milestones or awards makes that category an
+exact pool, so named goals replace only their own category. Selecting colony tiles also requests
+their initial components. Solo Colonies uses three tiles, two-player Colonies uses five, and games
+with at least three players use two more tiles than players.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
 parallel map option component. `TerraformingMars` selects `TharsisMap` only when no map is already
 selected. Creating the selected map creates all of its Areas through the map instruction.
 
-`PreludeExpansion` supplies the Prelude rules and phase. It selects `Prelude1Deck` by default, but
-that card-pool Module may be explicitly excluded. `Prelude2Expansion` supplies its card pool and
-constructively selects `PreludeExpansion`; it therefore cannot be configured without the Prelude
-rules, while the phase and solo generation adjustment still come only from `PreludeExpansion`.
+`PreludeExpansion` supplies the Prelude rules and phase. It selects `Prelude1Deck` by default and
+requires at least one `PreludeDeck`. The original deck may therefore be explicitly excluded only
+when another deck such as `Prelude2Expansion` is selected. `Prelude2Expansion` supplies its card
+pool and constructively selects `PreludeExpansion`; it therefore cannot be configured without the
+Prelude rules, while the phase and solo generation adjustment still come only from
+`PreludeExpansion`.
 
 ## Bundle
 
@@ -172,18 +176,18 @@ Bundle that stores them; otherwise individual content could never be composed de
 | `VenusStep` | `VenusNextExpansion` | `VenusNextExpansion` | It remains uninhabited; no reference may manufacture the Venus track. |
 
 `PreludeCard` needs no authored selection property. Either published Prelude Module owns its Bundle
-cards, whose deck declarations naturally activate their shared card back. Selecting Valley Trust
-without a Prelude generation activates that card back through the corporation's mandate but no
-concrete Prelude fronts; the resulting mandate is deliberately broken rather than silently choosing
-a deck.
+cards, whose deck declarations naturally activate their shared card back. Valley Trust carries an
+activation requirement for `PreludeDeck`, so selecting it without either published deck rejects the
+premise instead of creating a mandate with no concrete Prelude front to choose.
 
 Concrete award Definitions have automatic- and activation requirements for `MultiplayerMode`.
 Solo projection therefore leaves every concrete award class uninhabited, and explicit selection
 cannot bypass that boundary.
 
 This classification is semantic. `WorldGovernmentTerraforming` was first used by Venus but works
-over whichever Global Parameters the projection supplies; Prelude 2 can therefore use the shared
-mechanism. `VenusTag` is meaningful as standalone card vocabulary. `VenusStep` represents one part
+over whichever Global Parameters the projection supplies; `WorldGovernmentOption` can therefore be
+selected without Venus Next, and Prelude 2 can use the shared mechanism. `VenusTag` is meaningful
+as standalone card vocabulary. `VenusStep` represents one part
 of the Venus expansion's ambient game state and is not meaningful without that Module.
 
 ### Two analyses of a Definition

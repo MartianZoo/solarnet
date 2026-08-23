@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.data.ClassProperties.ACTIVATION_REQUIREMENT
 import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.DerivedClassLowerer
 import dev.martianzoo.pets.Parsing
@@ -62,8 +63,14 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val deck: Deck? = data.deck?.let(Deck::valueOf)
 
+  private val activationRequirement: Requirement? =
+      data.activationRequirement?.let { parseOwned<Requirement>(it) }
+
   override val automaticSelectionRequirement: Requirement? =
-      if (deck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null
+      Requirement.join(
+          if (deck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null,
+          activationRequirement,
+      )
 
   /** The card this card replaces, if any. For example, `DeimosDownPromo` replaces `DeimosDown`. */
   public val replaces: ClassName? = data.replaces?.let(::cn)
@@ -177,6 +184,9 @@ public class CardDefinition(data: CardData) : Definition {
             buildMap {
               put(COST_PROPERTY, NumberValue(cost))
               requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
+              activationRequirement?.let {
+                put(ACTIVATION_REQUIREMENT, RequirementValue(it))
+              }
             },
         extraNodes =
             setOfNotNull(deck?.className) +
@@ -211,6 +221,7 @@ public class CardDefinition(data: CardData) : Definition {
       val effects: List<String> = emptyList(),
       val resourceType: String? = null,
       val components: Set<String> = emptySet(),
+      val activationRequirement: String? = null,
       val requirement: String? = null,
       val cost: Int = 0,
       val projectKind: String? = null,
@@ -219,6 +230,7 @@ public class CardDefinition(data: CardData) : Definition {
       cn(name)
       require(replaces?.isNotEmpty() != false)
       require(resourceType?.isNotEmpty() != false)
+      require(activationRequirement?.isNotBlank() != false)
       require(requirement?.isNotEmpty() != false)
       require(cost >= 0)
 

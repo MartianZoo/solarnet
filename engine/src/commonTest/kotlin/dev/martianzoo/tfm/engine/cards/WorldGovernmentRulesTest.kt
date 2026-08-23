@@ -48,7 +48,7 @@ class WorldGovernmentRulesTest : CardTest() {
   }
 
   @Test
-  fun `World Government is absent without Venus or when disabled`() {
+  fun `World Government is absent when unselected or disabled in Venus`() {
     newGame()
     TfmWorkflow.Manual(game).solarPhase()
     game.isIdle() shouldBe true
@@ -63,5 +63,15 @@ class WorldGovernmentRulesTest : CardTest() {
     TfmWorkflow.Manual(game).solarPhase()
 
     game.isIdle() shouldBe true
+  }
+
+  @Test
+  fun `World Government can be selected without Venus`() {
+    newGame(GameConfig("WorldGovernmentOption", "Player1", "Player2"))
+
+    TfmWorkflow.Manual(game).solarPhase()
+    p1.doTask("TemperatureStep! BY Engine")
+
+    p1.count("TemperatureStep") shouldBe 1
   }
 }

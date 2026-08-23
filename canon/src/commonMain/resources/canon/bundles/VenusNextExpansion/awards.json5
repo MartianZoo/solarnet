@@ -1,5 +1,5 @@
 {
-  "group": "VenusDefaultAwards",
+  "automaticSelectionRequirement": "VenusNextExpansion, MAX 0 Award",
   "awards": [
     // Venuphile
     { "name": "Venuphile", "metric": "VenusTag" },

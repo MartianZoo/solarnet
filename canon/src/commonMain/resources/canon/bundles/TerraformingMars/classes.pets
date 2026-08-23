@@ -8,7 +8,7 @@ CLASS TerraformingMars : Module {
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardSA, UseStandardProjectSA, UseCardActionSA, ConvertPlantsSA, ConvertHeatSA, SellPatents, HandleMandates
-  This IF MAX 0 MarsMap:: TharsisMap
+  This IF Mode, MAX 0 MarsMap:: TharsisMap
 
   SetupPhase IF MultiplayerMode:: BeginGame
 
@@ -490,6 +490,7 @@ ABSTRACT CLASS Mode : Module {
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
+    HAS 2 Player
     autoSelectWhen = HAS 2 Player
 
     This:: ClaimMilestoneSA, FundAwardSA
@@ -506,6 +507,7 @@ CLASS MultiplayerVictoryCheck : Custom
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
+  HAS =1 Player
   autoSelectWhen = HAS =1 Player
 
   HAS =1 SoloVariant, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>, =1 Class<SoloVictoryCheck>
@@ -522,7 +524,7 @@ CLASS SoloMode : Mode {
 
 "Exactly one solo objective Module active in a solo game"
 ABSTRACT CLASS SoloVariant : Module {
-  HAS MAX 1 SoloVariant
+  HAS MAX 1 SoloVariant, =1 SoloMode
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloVariant {

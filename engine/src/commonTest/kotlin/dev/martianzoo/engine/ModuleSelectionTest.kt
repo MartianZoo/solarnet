@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.canon.Canon
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /**
@@ -38,7 +39,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, SoloMode, StandardSoloVariant,
-                    TharsisMap, TharsisDefaultMilestones
+                    TharsisMap
                     """,
             ),
 
@@ -97,8 +98,7 @@ internal class ModuleSelectionTest {
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
-                    VenusNextExpansion, VenusDefaultMilestones, VenusDefaultAwards,
-                    WorldGovernmentOption
+                    VenusNextExpansion, WorldGovernmentOption
                     """,
             ),
             Configuration(
@@ -108,7 +108,27 @@ internal class ModuleSelectionTest {
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
-                    VenusNextExpansion, VenusDefaultMilestones, VenusDefaultAwards
+                    VenusNextExpansion
+                    """,
+            ),
+            Configuration(
+                description = "World Government can be selected without Venus Next",
+                config = "WorldGovernmentOption",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    WorldGovernmentOption
+                    """,
+            ),
+            Configuration(
+                description = "solo Venus uses neither default milestone nor award pools",
+                config = "VenusNextExpansion",
+                players = 1,
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, SoloMode, StandardSoloVariant,
+                    TharsisMap, VenusNextExpansion, WorldGovernmentOption
                     """,
             ),
             Configuration(
@@ -133,16 +153,6 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Prelude rules can omit the original Prelude deck",
-                config = "PreludeExpansion, -Prelude1Deck",
-                selectsExactly =
-                    """
-                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
-                    PreludeExpansion
-                    """,
-            ),
-            Configuration(
                 description = "Prelude 2 implies the Prelude rules and original deck",
                 config = "Prelude2Expansion",
                 selectsExactly =
@@ -164,15 +174,6 @@ internal class ModuleSelectionTest {
             ),
 
             // INDEPENDENT EXPANSIONS AND BASE-GAME VARIANTS
-            Configuration(
-                description = "Valley Trust does not imply Prelude rules",
-                config = "ValleyTrust",
-                selectsExactly =
-                    """
-                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
-                    """,
-            ),
             Configuration(
                 description = "promotional and Turmoil card packs are independent",
                 config = "TurmoilCardPack, PromoCardPack",
@@ -209,7 +210,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, SoloMode, Tr63SoloVariant,
-                    TharsisMap, TharsisDefaultMilestones
+                    TharsisMap
                     """,
             ),
         )
@@ -224,13 +225,28 @@ internal class ModuleSelectionTest {
   }
 
   @Test
+  fun `Venus selects Hoverlord and Venuphile directly unless named goals replace them`() {
+    val defaults = Engine.newGame(premise("VenusNextExpansion", 2)).classTable
+
+    defaults.isActive(cn("Hoverlord")) shouldBe true
+    defaults.isActive(cn("Venuphile")) shouldBe true
+
+    val namedGoals =
+        Engine.newGame(
+                premise(
+                    "VenusNextExpansion, Coastguard, Landshaper, Botanist, Founder",
+                    2,
+                )
+            )
+            .classTable
+    namedGoals.isActive(cn("Hoverlord")) shouldBe false
+    namedGoals.isActive(cn("Venuphile")) shouldBe false
+  }
+
+  @Test
   fun `requirements exclusions and mutually exclusive choices reject these configurations`() {
     val rejections =
         listOf(
-            Rejection(
-                description = "World Government requires Venus Next",
-                config = "WorldGovernmentOption",
-            ),
             Rejection(
                 description = "the original Prelude deck requires the Prelude rules",
                 config = "Prelude1Deck",
@@ -240,8 +256,16 @@ internal class ModuleSelectionTest {
                 config = "Prelude2Expansion, -PreludeExpansion",
             ),
             Rejection(
-                description = "a two-player Colonies game requires five colony tiles",
-                config = "ColoniesExpansion",
+                description = "Prelude rules require at least one Prelude deck",
+                config = "PreludeExpansion, -Prelude1Deck",
+            ),
+            Rejection(
+                description = "Valley Trust requires a viable Prelude deck",
+                config = "ValleyTrust",
+            ),
+            Rejection(
+                description = "a two-player Colonies game rejects one fewer than five tiles",
+                config = "ColoniesExpansion, Callisto, Ceres, Europa, Ganymede",
             ),
             Rejection(
                 description =
@@ -261,8 +285,26 @@ internal class ModuleSelectionTest {
                 config = "SoloMode, MultiplayerMode",
             ),
             Rejection(
+                description = "two players cannot force solo mode by excluding multiplayer mode",
+                config = "SoloMode, -MultiplayerMode",
+            ),
+            Rejection(
+                description = "one player cannot force multiplayer mode by excluding solo mode",
+                config = "MultiplayerMode, -SoloMode",
+                players = 1,
+            ),
+            Rejection(
+                description = "a multiplayer game cannot select a solo objective",
+                config = "Tr63SoloVariant",
+            ),
+            Rejection(
                 description = "a solo game cannot select two solo objectives",
                 config = "StandardSoloVariant, Tr63SoloVariant",
+                players = 1,
+            ),
+            Rejection(
+                description = "a solo game cannot exclude its only objective",
+                config = "-StandardSoloVariant",
                 players = 1,
             ),
         )

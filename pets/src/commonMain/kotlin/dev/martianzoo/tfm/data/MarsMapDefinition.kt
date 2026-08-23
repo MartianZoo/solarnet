@@ -33,7 +33,7 @@ public data class MarsMapDefinition(
           effects =
               listOfNotNull(
                   defaultMilestones?.let {
-                    parse<Effect>("This IF MAX 0 Milestone, MAX 0 $it:: $it.")
+                    parse<Effect>("This IF MultiplayerMode, MAX 0 Milestone, MAX 0 $it:: $it.")
                   },
                   defaultAwards?.let {
                     parse<Effect>("This IF MultiplayerMode, MAX 0 Award, MAX 0 $it:: $it.")

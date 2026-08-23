@@ -10,7 +10,7 @@ public object Canon :
         StandardFormBundle("TharsisMap"),
         StandardFormBundle("HellasElysiumExpansion"),
         StandardFormBundle("UtopiaCimmeriaExpansion"),
-        StandardFormBundle("VenusNextExpansion"),
+        venusNextExpansionBundle,
         milestonesAwardsExpansionBundle,
         preludeExpansionBundle,
         StandardFormBundle("Prelude2Expansion"),

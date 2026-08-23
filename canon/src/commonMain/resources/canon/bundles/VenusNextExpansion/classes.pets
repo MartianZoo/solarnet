@@ -1,14 +1,8 @@
 CLASS VenusNextExpansion : Module {
   This:: AirScrappingSP
-  This IF MAX 0 Milestone, MAX 0 VenusDefaultMilestones:: VenusDefaultMilestones.
-  This IF MultiplayerMode, MAX 0 Award, MAX 0 VenusDefaultAwards:: VenusDefaultAwards.
   SetupPhase IF SoloMode: SoloVictoryRequirement
   SoloVictoryCheck IF SoloMode, MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
 }
-
-CLASS VenusDefaultMilestones : Module
-
-CLASS VenusDefaultAwards : Module
 
 CLASS AirScrappingSP : StandardProject {
   cost = 15
@@ -18,10 +12,8 @@ CLASS AirScrappingSP : StandardProject {
 "Adds World Government Terraforming to the solar phase"
 CLASS WorldGovernmentOption : Module {
   autoSelectWhen = HAS VenusNextExpansion
-  premiseRequirement = HAS =1 VenusNextExpansion
 
-  // A Venus game has four global parameters, so MAX 3 means at least one is still incomplete.
-  SolarPhase IF MAX 3 GpComplete:: WorldGovernmentTerraforming
+  SolarPhase IF MAX 2 GpComplete OR (VenusNextExpansion, MAX 3 GpComplete):: WorldGovernmentTerraforming
 }
 
 "Represents a 2% increase in Venus... terraformedness"
