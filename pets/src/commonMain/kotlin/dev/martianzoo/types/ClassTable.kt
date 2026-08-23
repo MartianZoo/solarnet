@@ -60,7 +60,7 @@ public abstract class ClassTable {
               premise.actors.map(Actor::className)
 
       val table =
-          ClassLoader.projection(premise.authority, premise.modules)
+          ClassLoader.projection(premise.authority, premise.modules, premise.classSelections)
               .apply { roots.forEach(::load) }
               .freeze()
       val unexpectedModules =

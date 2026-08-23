@@ -50,6 +50,39 @@ internal class BootstrapLifecycleTest {
     val soloOpponent = changes.single { it.change.gaining?.className == cn("SoloOpponent") }
 
     soloOpponent.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
+    val standardVariant = changes.single {
+      it.change.gaining?.className == cn("StandardSoloVariant")
+    }
+    standardVariant.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
+  }
+
+  @Test
+  fun selectedSourcesCreateTheirRuntimeBootstrapComponents() {
+    val game = Engine.newGame(canonicalPremise())
+    val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
+    val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
+    val map = changes.single { it.change.gaining?.className == cn("TharsisMap") }
+    val milestones = changes.single {
+      it.change.gaining?.className == cn("TharsisDefaultMilestones")
+    }
+    val area = changes.single { it.change.gaining?.className == cn("Tharsis_1_1") }
+
+    map.cause shouldBe Cause(cn("TerraformingMars").expression, terraform.ordinal)
+    milestones.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)
+    area.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)
+  }
+
+  @Test
+  fun selectedNondefaultMapsExistBeforeTheDefaultMapIsEvaluated() {
+    listOf(Hellas, Elysium, Utopia, Cimmeria).forEach { selectedMap ->
+      val game = Engine.newGame(canonicalPremise(selectedMap))
+      val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
+      val map = changes.single { it.change.gaining?.className == selectedMap.className }
+      val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
+
+      (map.ordinal < terraform.ordinal) shouldBe true
+      changes.none { it.change.gaining?.className == cn("TharsisMap") } shouldBe true
+    }
   }
 
   @Test

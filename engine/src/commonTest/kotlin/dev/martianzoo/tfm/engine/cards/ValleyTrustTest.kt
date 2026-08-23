@@ -47,7 +47,14 @@ class ValleyTrustTest : CardTest() {
 
   @Test
   fun `Valley Trust uses an already selected Prelude generation`() {
-    val game = newGame(GameConfig("ValleyTrust, Prelude2Expansion", "Player1", "Player2"))
+    val game =
+        newGame(
+            GameConfig(
+                "ValleyTrust, Prelude2Expansion, -Prelude1Deck",
+                "Player1",
+                "Player2",
+            )
+        )
 
     game.classTable.isActive(cn("PreludePhase")) shouldBe true
     game.classTable.isActive(cn("AppliedScience")) shouldBe true

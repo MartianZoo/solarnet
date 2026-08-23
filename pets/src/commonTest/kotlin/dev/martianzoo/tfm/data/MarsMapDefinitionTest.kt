@@ -42,10 +42,10 @@ internal class MarsMapDefinitionTest {
     map.defaultAwards shouldBe cn("DemoDefaultAwards")
     map.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>(
-            "This IF MAX 0 MilestonePoolOverride, MAX 0 DemoDefaultMilestones: DemoDefaultMilestones"
+            "This IF MAX 0 Milestone, MAX 0 DemoDefaultMilestones:: DemoDefaultMilestones."
         ),
         parse<Effect>(
-            "This IF MultiplayerMode, MAX 0 AwardPoolOverride, MAX 0 DemoDefaultAwards: DemoDefaultAwards"
+            "This IF MultiplayerMode, MAX 0 Award, MAX 0 DemoDefaultAwards:: DemoDefaultAwards."
         ),
     )
     map.asClassDeclaration.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("MarsMap"))

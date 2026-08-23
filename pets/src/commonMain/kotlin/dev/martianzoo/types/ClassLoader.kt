@@ -3,6 +3,7 @@ package dev.martianzoo.types
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.PetException
+import dev.martianzoo.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
@@ -10,6 +11,7 @@ import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.data.ClassProperties.ACTIVATION_REQUIREMENT
+import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -21,6 +23,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.SelfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.Transform
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -42,6 +45,7 @@ private constructor(
     private val masterSource: ClassTable?,
     private val blockedActivations: Map<ClassName, Requirement> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
+    private val configuredClassSelections: Set<ClassSelection> = emptySet(),
 ) : ClassTable() {
   /** Compiles the master table that an [Authority] implementation retains and exposes. */
   public constructor(authority: Authority) : this(authority, null)
@@ -176,8 +180,20 @@ private constructor(
     }
     val declaration = knownDeclaration(next)
     validateClassLiterals(declaration)
+    validateNoEffectCreatesClass(declaration)
     val phantom = !active
     return construct(declaration, phantom)
+  }
+
+  private fun validateNoEffectCreatesClass(declaration: ClassDeclaration) {
+    val change =
+        declaration.effects
+            .flatMap { effect -> effect.instruction.descendantsOfType<Change>() }
+            .firstOrNull { it.gaining?.className == CLASS } ?: return
+    throw invalidPetDefinition(
+        "Class representatives are fixed before effects run and cannot be gained by an effect: " +
+            change
+    )
   }
 
   private fun validateClassLiterals(declaration: ClassDeclaration) {
@@ -237,7 +253,7 @@ private constructor(
           is Requirement.Counting -> {
             val metric = requirement.metric
             if (metric is Metric.Count) {
-              val configuredCount = configuredModuleCount(metric.expression)
+              val configuredCount = configuredCount(metric.expression)
               when {
                 configuredCount != null ->
                     if (configuredCount in requirement.range) Truth.TRUE else Truth.FALSE
@@ -322,7 +338,7 @@ private constructor(
     }
   }
 
-  private fun configuredModuleCount(expression: Expression): Int? {
+  private fun configuredCount(expression: Expression): Int? {
     if (masterSource == null || !expression.simple || expression.className == THIS) return null
     val countedClass = masterSource.getClass(expression.className)
     val concreteSubclassNames =
@@ -330,14 +346,16 @@ private constructor(
             .allSubclasses()
             .filterNot(Class::abstract)
             .mapTo(linkedSetOf(), Class::className)
-    if (
-        concreteSubclassNames.isEmpty() ||
-            !authority.modules.keys.containsAll(concreteSubclassNames)
-    ) {
-      return null
+    if (concreteSubclassNames.isEmpty()) return null
+    if (authority.modules.keys.containsAll(concreteSubclassNames)) {
+      return configuredModuleNames.count { moduleName ->
+        masterSource.getClass(moduleName).isSubtypeOf(countedClass)
+      }
     }
-    return configuredModuleNames.count { moduleName ->
-      masterSource.getClass(moduleName).isSubtypeOf(countedClass)
+    val selections = configuredClassSelections.associateBy(ClassSelection::className)
+    if (!selections.keys.containsAll(concreteSubclassNames)) return null
+    return selections.values.count { selection ->
+      selection.included && masterSource.getClass(selection.className).isSubtypeOf(countedClass)
     }
   }
 
@@ -503,6 +521,7 @@ private constructor(
     internal fun projection(
         authority: Authority,
         configuredModuleNames: Set<ClassName>,
+        configuredClassSelections: Set<ClassSelection>,
     ): ClassLoader {
       val masterTable = authority.classTable
       require(masterTable.masterTable === masterTable) {
@@ -525,7 +544,13 @@ private constructor(
                 (className to requirement).takeUnless { requirement.isMetBy(::countConfigured) }
               }
               .toMap()
-      return ClassLoader(authority, masterTable, blocked, configuredModuleNames)
+      return ClassLoader(
+          authority,
+          masterTable,
+          blocked,
+          configuredModuleNames,
+          configuredClassSelections,
+      )
     }
   }
 }

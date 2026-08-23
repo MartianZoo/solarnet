@@ -47,6 +47,7 @@ import dev.martianzoo.util.Grid
 internal val baseCustomClasses: Set<CustomClass> =
     setOf(
         TerraformingMars.CreateAdjacencies,
+        TerraformingMars.CreateMapAreas,
         TerraformingMars.CheckCardDeck,
         TerraformingMars.HandlePossibleGpRequirement,
         TerraformingMars.HandleCardTags,
@@ -61,6 +62,19 @@ internal val baseCustomClasses: Set<CustomClass> =
 
 /** Namespace for the core game's custom Pets implementations. */
 internal object TerraformingMars {
+  internal object CreateMapAreas : CustomClass() {
+    override fun translate(reader: GameReader, mapType: Type): InstructionTree {
+      val map = reader.tfmAuthority.marsMap(mapType.className)
+      return Then.create(
+          map.areas.mapNotNull { area ->
+            gain(area.className.expression).takeIf {
+              reader.countComponent(reader.resolve(area.className.expression)) == 0
+            }
+          }
+      )
+    }
+  }
+
   internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
       val card: CardDefinition = reader.tfmAuthority.card(cardType.className)

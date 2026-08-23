@@ -10,7 +10,7 @@ class TharsisRepublicTest : CardTest() {
   fun `Gains two megacredit production in solo mode`() {
     newGame(players = 1)
 
-    p1.playCorp(TharsisRepublic, 1) { doTask("PROD[2]") }.expect("PROD[2]")
+    p1.playCorp(TharsisRepublic, 1).expect("PROD[2]")
   }
 
   @Test
@@ -29,7 +29,6 @@ class TharsisRepublicTest : CardTest() {
 
     p1.playPrelude(Merger) {
           doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>")
-          doTask("PROD[2]")
         }
         .expect("PROD[2]")
   }

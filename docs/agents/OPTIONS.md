@@ -47,17 +47,21 @@ Authority reads them. There is no separate Kotlin Module object or special compo
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. A constructive self-gain in an active Module is also **active provenance** for a
 target Module: `A { This:: B }` lets A select B. A gated gain does so only when its Requirement is
-true over the growing selection. This closure is resolved before class projection, and
-initialization orders Modules observed by those gates before their sources. Thus the declaration of
-A, rather than B or a central registry, owns “A causes B.” Other structural reachability may
+true over the growing selection. This closure is resolved before class projection. Initialization
+creates sources before their constructively selected targets, while still creating Modules needed
+to evaluate a source's gates first. Thus the declaration of A, rather than B or a central registry,
+owns “A causes B.” Other structural reachability may
 activate dependencies, but it may not activate an unselected Module or defeat an explicit
 exclusion.
 
 Module premise policy is authored with ordinary Requirement-valued Pets properties.
 `autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
-resolve to a fixed point and an explicit exclusion wins. `premiseRequirement` is checked against
-the completed projection when that Module is selected. Module invariants provide the ordinary
-exact-count rules that are also meaningful in the live World.
+resolve to a fixed point and an explicit exclusion wins. By contrast, an explicit exclusion that
+contradicts an active constructive provenance edge makes the configuration invalid.
+`premiseRequirement` is checked against the completed projection when that Module is selected.
+Module invariants provide the ordinary exact-count rules that are also meaningful in the live
+World. `Class<T>` representatives describe that already-fixed projection: required representatives
+are declared with invariants, not created by triggered instructions.
 
 ## Configuration and premise
 
@@ -83,15 +87,19 @@ so effects can select them, while setup creates only the chosen starting colony 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. Each map
 constructively selects its printed milestone group and, in multiplayer, its printed award group.
-Venus Next similarly adds its published milestone and award. `MilestonesAwardsExpansion` is a goal-
-pool override, so those default group gains are inactive and the pool is exactly the explicitly
-named milestones and awards. Explicit goal names remain valid without that option and replace only
-their own category. Selecting colony tiles also requests their initial components.
+Venus Next similarly adds its published milestone and award. Explicitly naming any milestones or
+awards makes that category an exact pool, so named goals replace only their own category without a
+separate Module. Selecting colony tiles also requests their initial components.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
 parallel map option component. `TerraformingMars` selects `TharsisMap` only when no map is already
-selected.
+selected. Creating the selected map creates all of its Areas through the map instruction.
+
+`PreludeExpansion` supplies the Prelude rules and phase. It selects `Prelude1Deck` by default, but
+that card-pool Module may be explicitly excluded. `Prelude2Expansion` supplies its card pool and
+constructively selects `PreludeExpansion`; it therefore cannot be configured without the Prelude
+rules, while the phase and solo generation adjustment still come only from `PreludeExpansion`.
 
 ## Bundle
 

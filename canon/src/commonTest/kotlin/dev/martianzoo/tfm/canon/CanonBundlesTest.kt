@@ -60,16 +60,9 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun milestonesAwardsModuleSuppressesTheDefaultGoalPool() {
-    val base = table(cn("TharsisMap"))
-    val expanded = table(cn("TharsisMap"), cn("MilestonesAwardsExpansion"))
-
-    base.isActive(cn("Builder7")) shouldBe false
-    base.isActive(cn("Builder8")) shouldBe true
-    expanded.isActive(cn("Builder7")) shouldBe false
-    expanded.isActive(cn("Builder8")) shouldBe false
-    expanded.isActive(cn("Administrator")) shouldBe false
-    expanded.isActive(cn("Landscaper")) shouldBe false
+  fun goalCatalogDoesNotRequireASelectableBundleModule() {
+    Canon.allClassNames.contains(cn("MilestonesAwardsExpansion")) shouldBe false
+    Canon.allClassNames.contains(cn("Landscaper")) shouldBe true
   }
 
   @Test

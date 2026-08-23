@@ -6,11 +6,25 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getOwner
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.BundleContentSelection
+import dev.martianzoo.tfm.api.BundleContentSelection.Kind.CARDS
 import dev.martianzoo.types.Type
 
 internal val preludeCustomClasses: Set<CustomClass> = setOf(PreludeExpansion.LowestProduction)
+
+internal val preludeExpansionBundle: StandardFormBundle by lazy {
+  StandardFormBundle(
+      "PreludeExpansion",
+      preludeCustomClasses,
+      mapOf(
+          cn("PreludeExpansion") to emptySet(),
+          cn("Prelude1Deck") to setOf(BundleContentSelection(cn("PreludeExpansion"), setOf(CARDS))),
+      ),
+  )
+}
 
 /** Namespace for Prelude's custom Pets implementations. */
 internal object PreludeExpansion {

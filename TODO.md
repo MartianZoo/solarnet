@@ -15,6 +15,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
+- Give players 20 TR in multiplayer setup and 14 TR in solo setup directly, instead of granting 20
+  and then removing 6 in solo; keep both grants causally attached to `SetupPhase`.
 - **High priority:** Implement preparation-time delegated narrowing. The controller chooses when to
   prepare a parent task, the delegate alone narrows its child, and the controller remains blocked
   until that child completes. Fix Philares first, then prove Engine narrowing for real-card deals
@@ -57,6 +59,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Move more expansion-specific knowledge out of Kotlin and into Module/Pets
   data, starting with workflow phase insertion and Terraforming Mars registries that enumerate
   expansions directly.
+- Replace negative `ClassSelection` exclusions for definition replacements with one positive
+  systemic rule: selecting a replacement chooses that provider for the definition slot while the
+  Authority continues to retain every known variant.
 - **Low priority:** Consider compiling Pets during the build into validated runtime artifacts, but
   only if one compiler can replace runtime parsing/validation without creating a second semantic
   model.
@@ -166,6 +171,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   gameplay-relevant `TaskQueues`.
 - Decide whether `Ok` narrows a gated instruction; `Gated.ensureIsNarrowedBy` currently throws a
   `ClassCastException` instead of expressing the semantic result.
+- Filter inactive gated provenance from `Initializer` source ordering so false mutual gains cannot
+  create a bootstrap cycle absent from the selected configuration.
 - Retain projection-decision provenance so premise diagnostics can explain automatic filtering and
   complete hard-reference paths, rather than only the selected Definition or immediate source.
 - Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately

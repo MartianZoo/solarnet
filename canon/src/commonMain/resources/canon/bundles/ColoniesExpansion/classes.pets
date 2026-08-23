@@ -4,7 +4,7 @@ CLASS ColoniesExpansion : Module {
 
   This:: TradeSA, BuildColonySP
   SetupPhase: ColoniesSetup
-  SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
+  SetupPhase IF SoloMode: PROD[-2 Megacredit<Player1>]
   SolarPhase: AdvanceColonyTracks
 }
 

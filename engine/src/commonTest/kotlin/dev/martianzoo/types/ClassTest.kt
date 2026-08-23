@@ -222,6 +222,13 @@ internal class ClassTest {
   }
 
   @Test
+  fun `effects cannot create class representatives`() {
+    shouldThrow<PetException> {
+      loader("CLASS Source { This:: Class<Target> }\nCLASS Target")
+    }
+  }
+
+  @Test
   fun `root classes reject unexpected custom implementations`() {
     val authority =
         object : TfmAuthority() {

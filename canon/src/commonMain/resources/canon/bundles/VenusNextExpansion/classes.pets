@@ -1,7 +1,7 @@
 CLASS VenusNextExpansion : Module {
   This:: AirScrappingSP
-  This IF MAX 0 MilestonePoolOverride, MAX 0 VenusDefaultMilestones: VenusDefaultMilestones
-  This IF MultiplayerMode, MAX 0 AwardPoolOverride, MAX 0 VenusDefaultAwards: VenusDefaultAwards
+  This IF MAX 0 Milestone, MAX 0 VenusDefaultMilestones:: VenusDefaultMilestones.
+  This IF MultiplayerMode, MAX 0 Award, MAX 0 VenusDefaultAwards:: VenusDefaultAwards.
   SetupPhase IF SoloMode: SoloVictoryRequirement
   SoloVictoryCheck IF SoloMode, MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
 }
