@@ -15,7 +15,7 @@
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": "36, 3 Plant, PROD[2 Plant]",
-      "effects": [ "UseAction<ConvertPlantsSA>: -Owed<Class<Plant>>" ],
+      "effects": [ "Invoice<ConvertPlantsSA, First>:: -Owed<Class<Plant>>" ],
     },
 
     {
@@ -70,7 +70,7 @@
       "immediate": "48, PROD[Energy]",
       "effects": [
         "PlayTag<Class<PowerTag>>:: -3 Owed<>",
-        "UseAction<PowerPlantSP>: -3 Owed<>"
+        "Invoice<PowerPlantSP, First>:: -3 Owed<>"
       ],
     },
 
@@ -185,10 +185,10 @@
       "cost": 25,
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [
-        // 12[Titanium] -> OceanTile
-        "-> 12 Owed<> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: OceanTile<>"
+        "12 -> OceanTile<>"
       ],
       "effects": [
+          "UseAction<This, First>:: Accept<Class<Titanium>>",
           "End: VictoryPoint / JovianTag"
       ],
     },
@@ -249,7 +249,7 @@
       "cost": 18,
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
       "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
-      "effects": [ "PlayCard: -Owed<>" ],
+      "effects": [ "Billing<PlayCards>:: -Owed<>" ],
     },
 
     {
@@ -1374,9 +1374,9 @@
       "cost": 18,
       "tags": [ "BuildingTag" ],
       "actions": [
-        // 8[Steel] -> OceanTile
-        "-> 8 Owed<> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: OceanTile<>"
+        "8 -> OceanTile<>"
       ],
+      "effects": [ "UseAction<This, First>:: Accept<Class<Steel>>" ],
     },
 
     {

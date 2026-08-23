@@ -139,8 +139,8 @@ internal class CanonEffectsTest {
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
             "UseAction<Owner, This, First>: Owed<Owner, Class<Titanium>>! THEN " +
-                "Payment<Owner, This, First>!",
-            "CostPaid<Owner, This, First>: 2 Floater<This>.",
+                "Invoice<Owner, This, First, Class<Titanium>>!",
+            "-Invoice<Owner, This, First>: 2 Floater<This>.",
             "UseAction<Owner, This, Second>: -2 Floater<This>! THEN TerraformRating<Owner>!",
             "End: 2 VictoryPoint<Owner>!",
         )

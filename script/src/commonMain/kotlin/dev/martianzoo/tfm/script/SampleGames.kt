@@ -36,7 +36,7 @@ internal object SampleGames {
 
     p1.playProject(cn("InventorsGuild"), 9)
     p2.playProject(cn("ArcticAlgae"), 12)
-    p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p2.cardAction1(cn("Factorum"))
     p1.stdProject("PowerPlantSP")
     p1.playProject(cn("BuildingIndustries"), 4, steel = 1)
@@ -52,7 +52,7 @@ internal object SampleGames {
     p2.playProject(cn("MarsUniversity"), 6, steel = 1) {
       doTask("-ProjectCard")
     }
-    p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p1.playProject(cn("EarthOffice"), 1)
     p2.cardAction2(cn("RotatorImpacts"))
     p1.playProject(cn("DevelopmentCenter"), 1, steel = 5)
@@ -84,7 +84,7 @@ internal object SampleGames {
     p2.cardAction2(cn("Factorum"))
     p2.playProject(cn("AquiferPumping"), 14, steel = 2)
     p1.cardAction1(cn("DevelopmentCenter"))
-    p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p2.cardAction1(cn("AquiferPumping")) {
       p2.pay(8)
       doTask("OceanTile<Tharsis_2_6>")
@@ -133,7 +133,7 @@ internal object SampleGames {
     }
     p2.cardAction2(cn("Factorum"))
     p1.cardAction1(cn("DevelopmentCenter"))
-    p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p2.playProject(cn("PowerPlantCard"), 2, steel = 1)
     p2.cardAction1(cn("AquiferPumping")) {
       p2.pay(8)
@@ -212,7 +212,7 @@ internal object SampleGames {
     p2.convertPlants {
       doTask("GreeneryTile<Tharsis_8_6>")
     }
-    p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p1.cardAction1(cn("DeuteriumExport"))
     p2.cardAction1(cn("BioPrintingFacility")) { doTask("2 Plant") }
     p1.convertHeat()
@@ -226,7 +226,7 @@ internal object SampleGames {
     engine.nextGeneration(3, 2)
 
     p1.cardAction1(cn("DevelopmentCenter"))
-    p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p2.playProject(cn("DeimosDown"), 9, titanium = 5) {
       p2.doTask("OceanTile<Tharsis_6_7>")
       p2.doTask("DeimosDownPromo_SpecialTile<Tharsis_2_5>")

@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
@@ -88,6 +89,30 @@ class Prelude2CardsTest : CardTest() {
 
     p1.count("Director<$BoardOfDirectors>") shouldBe 3
     p1.count("$Recession") shouldBe 1
+  }
+
+  @Test
+  fun `Sky Docks discounts a project played through Board of Directors and Ecology Experts`() {
+    newGame(
+        PreludeExpansion,
+        Prelude2Expansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    engine.phase("Action")
+    p1.manual("13 Megacredit, PreludeCard, ProjectCard, $BoardOfDirectors, $SkyDocks")
+
+    p1.cardAction1(BoardOfDirectors) {
+          doTask(
+              "-12 THEN -Director<$BoardOfDirectors> THEN " +
+                  "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>"
+          )
+          doTask("PlayCard<Class<ProjectCard>, Class<$DustSeals>>")
+          p1.pay(1)
+        }
+        .expect("-13 Megacredit")
+
+    p1.assertCounts(1 to "$EcologyExperts", 1 to "$DustSeals")
   }
 
   @Test
@@ -198,7 +223,7 @@ class Prelude2CardsTest : CardTest() {
     newGame(Prelude2Expansion)
     p1.manual("$Spire, Science<$Spire>")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       p1.manual("10 Owed<>") {
         doTask("PayFromCard<$Spire> FROM Science<$Spire>")
       }
@@ -401,7 +426,7 @@ class Prelude2CardsTest : CardTest() {
 
     p1.cardAction1(VenusOrbitalSurvey) {
       doTask("ProjectCard")
-      doTask("BuyCard")
+      p1.buyCards(1)
     }
 
     p1.count("ProjectCard") shouldBe 2

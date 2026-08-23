@@ -118,7 +118,7 @@
     {
       "name": "ExcentricSponsor",
       "deck": "PRELUDE",
-      "immediate": "PlayCard THEN -25 Owed<>.",
+      "immediate": "PlayCard<Class<ProjectCard>> THEN -25 Owed<>.",
     },
 
     {
@@ -319,7 +319,7 @@
       "resourceType": "Microbe",
       "actions": [ "-> Microbe<This>" ],
       "effects": [
-        "PlayTag<Class<PlantTag>>: AcceptFromCard<This>",
+        "PlayTag<Class<PlantTag>>:: AcceptFromCard<This>",
         "PayFromCard<This>:: -2 Owed<>"
       ],
     },

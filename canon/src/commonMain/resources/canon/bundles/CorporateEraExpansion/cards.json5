@@ -222,7 +222,7 @@
       "cost": 23,
       "tags": [ "EarthTag" ],
       "effects": [
-        "PlayCard: -2 Owed<>",
+        "Billing<PlayCards>:: -2 Owed<>",
         "End: 2 VictoryPoint"
       ],
     },
@@ -514,7 +514,7 @@
       "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard: -2 Owed<>",
+        "Billing<PlayCards>:: -2 Owed<>",
         "End: 3 VictoryPoint"
       ],
     },
@@ -638,7 +638,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "NextCardEffect { PlayCard:: -8 Owed<> }",
+      "immediate": "NextCardEffect { Billing<PlayCards>:: -8 Owed<> }",
       "effects": [ "End: -VictoryPoint" ],
     },
 

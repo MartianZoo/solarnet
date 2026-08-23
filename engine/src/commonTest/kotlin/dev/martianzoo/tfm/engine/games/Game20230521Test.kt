@@ -1249,7 +1249,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 funded Venuphile award
     p1.turn {
-      stdAction("FundAwardSA") { doTask("Venuphile") }
+      stdAction("FundAwardSA", which = 2) { doTask("Venuphile") }
       // Player1 passed
       pass()
     }
@@ -1324,7 +1324,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
       // You drew no cards
-      cardAction1(InventorsGuild) { buyCards(0) }
+      cardAction1(InventorsGuild) { p1.buyCards(0) }
     }
     // Player2 played Mercurian Alloys
     p2.turn {
@@ -1508,7 +1508,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
       // You drew no cards
-      cardAction1(InventorsGuild) { buyCards(0) }
+      cardAction1(InventorsGuild) { p1.buyCards(0) }
     }
     // Player2 played Media Group
     p2.turn {
@@ -1546,7 +1546,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Business Network action
       // Player1 bought 1 card(s)
       // You drew Standard Technology
-      cardAction1(BusinessNetwork) { buyCards(1) }
+      cardAction1(BusinessNetwork) { p1.buyCards(1) }
     }
     // Player2 used City standard project
     // Player2 placed city tile on row 8 position 2
@@ -1689,7 +1689,7 @@ class Game20230521Test : AbstractFullGameTest() {
     }
     // Player1 funded Thermalist award
     p1.turn {
-      stdAction("FundAwardSA") { doTask("Thermalist") }
+      stdAction("FundAwardSA", which = 3) { doTask("Thermalist") }
       // Player1 used Convert Plants standard action
       convertPlants {
             // Player1 placed greenery tile on row 4 position 4

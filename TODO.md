@@ -4,6 +4,15 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Replace the artificial persistent `PlayCards` invoice host in a later, dedicated lifecycle
+  redesign. Distinguish the early card-play attempt from the later live payable card play; keep
+  tag enumeration internal and let generic card behavior respond to the live operation without
+  naming its `Class<CardFront>` data.
+- In card and action behavior tests that can leave optional or delegated work behind, explicitly
+  verify that the operation completes and the game returns to idle instead of checking only the
+  resulting components.
+- Restrict `TfmGameplay.stdAction` to actual `StandardAction` providers; give other live
+  `HasActions` components a correctly named gameplay operation instead.
 - **High priority:** Implement Class activation requirements and exact uninhabited-domain premise
   viability diagnostics. Only afterward consider stronger proofs such as Law Suit being unviable
   in solo because no opponent-dependent attack record can inhabit the projected Type universe.
@@ -28,10 +37,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **High priority:** Identify the signal Classes that workflows or APIs can create directly even
   though no selected Module activates them. Make their owning Modules activate them explicitly,
   then remove the `ClassLoader` rule that activates every reachable Trigger root.
-- **Medium-high priority:** Complete the Pets Action semantics settled in
-  [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): standard-resource costs now become invoices;
-  lower costless and direct-cost Actions through their provider- and action-qualified
-  `CostPaid` signals. Keep Head Start completion scopes and action-use marker behavior separate.
 - **High priority:** Allow a partial instruction to narrow the matching portion of exactly one
   pending task while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
@@ -160,17 +165,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
 - Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
-- Document the `BuyCard`/payment protocol and verify delayed 3 M€ payment cannot be exploited.
 - Move Pets AST generation to Kotest property tests only if domain-aware shrinking improves failures.
 
 ## Autonomous Follow-ups
 
-- Decide whether `Summarizer` should attribute invoice settlement back through `Payment` and
-  `Owed` to the Action provider; standard-resource Action costs are currently attributed to the
-  payment machinery rather than cards such as Search for Life.
-- Let invoice lowering compose a fixed base with a per-component increment as one exact debt;
-  `FundAwardSA` must retain its gated 8/14/20 gains until separate `Owed` gains cannot expose
-  payment and `CostPaid` between invoice parts.
+- Decide whether `Summarizer` should attribute invoice settlement through `Invoice` and `Owed` to
+  the Action provider; standard-resource Action costs are currently attributed to the payment
+  machinery rather than cards such as Search for Life.
 - Decide whether `Ok` narrows a gated instruction; `Gated.ensureIsNarrowedBy` currently throws a
   `ClassCastException` instead of expressing the semantic result.
 - Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately

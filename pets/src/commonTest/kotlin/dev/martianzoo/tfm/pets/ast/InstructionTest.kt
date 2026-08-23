@@ -62,6 +62,7 @@ internal class InstructionTest {
 
   @Test
   fun groupedShapesRoundTripWithoutChangingTheirTree() {
+    testRoundTrip<InstructionTree>("(Foo FROM This) / This", "Foo FROM This / This")
     testRoundTrip<InstructionTree>("1: (1, -5 Bar)")
     testRoundTrip<InstructionTree>("(Foo, Bar) OR Qux")
     testRoundTrip<InstructionTree>(
@@ -105,6 +106,7 @@ internal class InstructionTest {
       (MAX 0 Foo, MAX 1 Foo): Ok
       (1: 1, -1!, Xyz, -1) OR Foo
       (5 Xyz FROM Bar) BY Ooh<Wau>
+      Foo FROM This / This
       Ahh<Abc> THEN Qux, PROD[-Qux]
       Foo, Foo(HAS 2 Bar) / Bar<Foo>
       2 Abc(HAS 1) FROM Foo, 5, 5 Bar

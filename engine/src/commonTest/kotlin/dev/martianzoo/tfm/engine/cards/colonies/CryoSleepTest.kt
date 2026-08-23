@@ -24,7 +24,8 @@ class CryoSleepTest : ColoniesCardTest() {
     p1.godMode()
         .also { it.autoExecMode = NONE }
         .beginManual("UseAction<TradeSA, Second>") {
-          doTask("-Owed<Class<Energy>>")
+          doTask("3 Owed<Class<Energy>>")
+          doTask("Invoice<TradeSA, Second, Class<Energy>>")
           p1.count("Energy") shouldBe 2
           p1.count("Owed<Class<Energy>>") shouldBe 2
           abort()

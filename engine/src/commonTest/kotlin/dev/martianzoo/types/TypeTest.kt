@@ -449,6 +449,20 @@ internal class TypeTest {
                 .trimIndent()
         )
     incompatibleTable.resolve(te("General<Right>")).singleConcreteSubtype(met) shouldBe null
+
+    val specializedTable =
+        loadTypes(
+            """
+            ABSTRACT CLASS Choice { CLASS Left, Right }
+            ABSTRACT CLASS Holder<Choice> {
+              CLASS LeftHolder : Holder<Left>
+              CLASS RightHolder : Holder<Right>
+            }
+            """
+                .trimIndent()
+        )
+    specializedTable.resolve(te("Holder<Left>")).singleConcreteSubtype(met) shouldBe
+        specializedTable.resolve(te("LeftHolder"))
   }
 
   private fun typeInfo(has: Boolean): TypeInfo = typeInfo { has }

@@ -152,7 +152,15 @@ internal class Limiter(
       val simple = it.bindThisTo(type) ?: return@mapNotNull null
       if (type.isSubtypeOf(simple.type)) simple else null
     }
-    return ourRestrictions.toSet() + SimpleRangeRestriction(type, 0..MAX_VALUE)
+    val applicable = ourRestrictions.toSet() + SimpleRangeRestriction(type, 0..MAX_VALUE)
+    return applicable.filterTo(linkedSetOf()) { candidate ->
+      applicable.none { stronger ->
+        stronger.type == candidate.type &&
+            stronger.range != candidate.range &&
+            stronger.range.first >= candidate.range.first &&
+            stronger.range.last <= candidate.range.last
+      }
+    }
   }
 
   internal sealed class RangeRestriction {

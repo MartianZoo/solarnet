@@ -17,7 +17,7 @@
       "name": "Polyphemos",
       "deck": "CORPORATION",
       "immediate": "50, 5 Titanium, PROD[5]",
-      "effects" : [ "BuyCard: -2" ],
+      "effects" : [ "BuyCard:: 2 Owed<>" ],
     },
 
     {
@@ -74,7 +74,7 @@
       "requirement": "2 EarthTag",
       "cost": 5,
       "tags": [ "EarthTag" ],
-      "immediate": "NextCardEffect { PlayCard:: -16 Owed<> }",
+      "immediate": "NextCardEffect { Billing<PlayCards>:: -16 Owed<> }",
       "effects": [ "End: -VictoryPoint" ],
     },
 
@@ -94,12 +94,7 @@
       "projectKind": "ACTIVE",
       "cost": 10,
       "tags": [ "ScienceTag" ],
-      "effects": [
-        "UseAction<TradeSA, First>: -Owed<>",
-        "UseAction<TradeSA, Second>: -Owed<Class<Energy>>",
-        "UseAction<TradeSA, Third>: -Owed<Class<Titanium>>",
-        "End: VictoryPoint"
-      ],
+      "effects": [ "Invoice<TradeSA>:: -Owed", "End: VictoryPoint" ],
     },
 
     {
@@ -386,11 +381,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "SpaceTag" ],
-      "effects": [
-        "UseAction<TradeSA, First>: -Owed<>",
-        "UseAction<TradeSA, Second>: -Owed<Class<Energy>>",
-        "UseAction<TradeSA, Third>: -Owed<Class<Titanium>>"
-      ],
+      "effects": [ "Invoice<TradeSA>:: -Owed" ],
     },
 
     {
@@ -402,7 +393,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "ReserveTradeFleet",
       "effects": [
-        "PlayCard: -Owed<>",
+        "Billing<PlayCards>:: -Owed<>",
         "End: 2 VictoryPoint"
       ],
     },

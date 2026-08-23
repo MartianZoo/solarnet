@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.script.ScriptCommand
@@ -127,19 +128,20 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
         } else {
           invoice.instruction
         }
-    val taskIdsBeforeInvoice = repl.game.tasks.ids()
-    TaskCommand(repl).withArgs(revision.toString())
-    val paymentTask =
+    TaskCommand(repl).withArgs(firstStage(revision).toString())
+    val invoiceTask =
         repl.game.tasks
             .extract { it }
-            .singleOrNull { task ->
-              task.id !in taskIdsBeforeInvoice &&
-                  task.instruction.descendantsOfType<Change>().any { change ->
-                    change.gaining?.className == cn("Payment")
-                  }
+            .single { task ->
+              task.instruction.descendantsOfType<Change>().any { change ->
+                change.gaining?.className == cn("Invoice")
+              }
             }
-    paymentTask?.let { TaskCommand(repl).withArgs(it.instruction.toString()) }
+    TaskCommand(repl).withArgs(firstStage(invoiceTask.instruction).toString())
   }
+
+  private fun firstStage(instruction: InstructionTree): InstructionTree =
+      if (instruction is Then) instruction.first else instruction
 
   private fun specializeVariableCost(task: Instruction, removal: Instruction): Instruction {
     val directRemoval = removal as Remove

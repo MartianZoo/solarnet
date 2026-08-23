@@ -76,6 +76,7 @@ class TransformersTest {
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
     checkApplyDefaults("Owed<>", "Owed<Owner, Class<Megacredit>>!")
+    checkApplyDefaults("-Owed", "-Owed<Owner>.")
     checkApplyDefaults("-Owed<>", "-Owed<Owner, Class<Megacredit>>.")
   }
 
@@ -85,8 +86,7 @@ class TransformersTest {
         "`OceanTile` has gain dependency defaults; write `OceanTile<>` to accept them or provide dependency arguments"
     shouldThrow<PetSyntaxException> { applyDefaults("Owed") }.message shouldBe
         "`Owed` has gain dependency defaults; write `Owed<>` to accept them or provide dependency arguments"
-    shouldThrow<PetSyntaxException> { applyDefaults("-Owed") }.message shouldBe
-        "`Owed` has removal dependency defaults; write `Owed<>` to accept them or provide dependency arguments"
+    checkApplyDefaults("-Owed", "-Owed<Owner>.")
     checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
   }

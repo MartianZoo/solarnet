@@ -322,15 +322,12 @@ public class Transformers(public val classTable: ClassTable) {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val spec: DefaultSpec = extractor(classTable.getClass(original.className).defaults)
-          requireExplicitDependencyDefaults(original, spec, if (node is Gain) "gain" else "removal")
+          val kind = if (node is Gain) "gain" else "removal"
+          val spec = extractor(classTable.getClass(original.className).defaults)
+          if (kind == "gain") requireExplicitDependencyDefaults(original, spec, kind)
           val fixed =
-              insertDefaultsIntoExpr(
-                  original,
-                  spec.dependencies,
-                  context,
-                  classTable,
-              )
+              if (kind == "removal" && hasUnacceptedDependencyDefaults(original, spec)) original
+              else insertDefaultsIntoExpr(original, spec.dependencies, context, classTable)
           val intensity = node.intensity ?: spec.intensity
           rebuild(fixed, intensity)
         }
@@ -344,8 +341,8 @@ public class Transformers(public val classTable: ClassTable) {
 
         return Transmute(
             FromExpression(
-                applyDefault(node.gaining, gainDefault, context),
-                applyDefault(node.removing, removeDefault, context),
+                applyDefault(node.gaining, gainDefault, context, gain = true),
+                applyDefault(node.removing, removeDefault, context, gain = false),
             ),
             node.count,
             intensity,
@@ -359,7 +356,7 @@ public class Transformers(public val classTable: ClassTable) {
       ): DefaultSpec? {
         if (leaveItAlone(expression)) return null
         val default = extractor(classTable.getClass(expression.className).defaults)
-        requireExplicitDependencyDefaults(expression, default, if (gain) "gain" else "removal")
+        if (gain) requireExplicitDependencyDefaults(expression, default, "gain")
         return default
       }
 
@@ -367,9 +364,11 @@ public class Transformers(public val classTable: ClassTable) {
           expression: Expression,
           default: DefaultSpec?,
           context: Expression,
+          gain: Boolean,
       ): Expression =
-          if (default == null) expression
-          else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
+          if (default == null || (!gain && hasUnacceptedDependencyDefaults(expression, default))) {
+            expression
+          } else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
 
       private fun intersectIntensities(
           gainIntensity: Instruction.Intensity?,
@@ -404,6 +403,14 @@ public class Transformers(public val classTable: ClassTable) {
       )
     }
   }
+
+  private fun hasUnacceptedDependencyDefaults(
+      expression: Expression,
+      default: DefaultSpec,
+  ): Boolean =
+      default.dependencies.keys.isNotEmpty() &&
+          expression.arguments.isEmpty() &&
+          !expression.argumentsSpecified
 
   public fun insertExpressionDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
@@ -658,8 +665,8 @@ public class Transformers(public val classTable: ClassTable) {
     val commonKeys = gendeps.flatten().keys.intersect(specdeps.flatten().keys)
     return commonKeys
         .mapNotNull {
-          val replaced = gendeps.at(it).expression
-          val replacement = specdeps.at(it).expression
+          val replaced = gendeps.at(it).expressionFull
+          val replacement = specdeps.at(it).expressionFull
           when {
             classTable.getClass(replaced.className).abstract &&
                 replaced.className != replacement.className ->

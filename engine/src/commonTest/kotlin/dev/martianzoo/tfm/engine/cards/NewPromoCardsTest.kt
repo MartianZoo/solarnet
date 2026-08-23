@@ -3,9 +3,8 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER3
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -108,9 +107,26 @@ class NewPromoCardsTest : CardTest() {
     engine.phase("Action")
     p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
     p1.playProject(Mine, 1) {
-          doTask("-Plant! THEN -3 Owed<>.")
+          doTask("Pay<Class<Plant>> FROM Plant")
         }
         .expect("-Plant")
+  }
+
+  @Test
+  fun `Neptunian Power Consultants may pay for its ocean bonus with steel`() {
+    newGame(PromoCardPack)
+    engine.phase("Action")
+    p1.manual("50 Megacredit, 2 ProjectCard")
+    p1.playProject(NeptunianPowerConsultants, 14)
+
+    p1.stdProject("AquiferSP") {
+      doTask("OceanTile<Tharsis_1_2>")
+      doTask("UseAction<NeptunianOption, First>")
+      p1.pay(megacredits = 1, steel = 2)
+    }
+
+    p1.assertCounts(17 to "Megacredit", 0 to "Steel", 1 to "Hydroelectric")
+    p1.assertProds(1 to "Energy")
   }
 
   @Test
@@ -142,21 +158,41 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `St Joseph of Cupertino Mission scores beside an opponent's city`() {
+  fun `St Joseph of Cupertino Mission offers the city owner a paid draw and scores`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.autoExecMode = NONE
-    p2.autoExecMode = NONE
-    p1.manual("$StJosephOfCupertinoMission")
-    p2.manual("CityTile<Player2, Tharsis_4_2>") { doTask("Plant") }
+    p1.manual("12 Megacredit, ProjectCard")
+    p2.manual("2 Megacredit")
+    p2.manual("CityTile<Player2, Tharsis_4_2>")
+    engine.phase("Action")
 
-    p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>")
-    p2.doTask("Ok")
-    p1.autoExecMode = FIRST
-    p2.autoExecMode = FIRST
+    p1.playProject(StJosephOfCupertinoMission, 7)
+    p1.cardAction1(StJosephOfCupertinoMission) {
+      p1.pay(5)
+      doTask("Cathedral<CityTile<Player2, Tharsis_4_2>>")
+      p2.doTask("UseAction<CathedralAction, First>")
+      p2.pay(2)
+    }
+
+    p2.assertCounts(0 to "Megacredit", 1 to "ProjectCard")
     engine.phase("End")
     p1.assertCounts(21 to "VictoryPoint")
-    p2.assertCounts(20 to "VictoryPoint")
+  }
+
+  @Test
+  fun `St Joseph of Cupertino Mission can place a Cathedral on a neutral solo city`() {
+    newGame(PromoCardPack, players = 1)
+    p1.manual("12 Megacredit, ProjectCard")
+    engine.phase("Action")
+
+    p1.playProject(StJosephOfCupertinoMission, 7)
+    p1.cardAction1(StJosephOfCupertinoMission) {
+      p1.pay(5)
+      doTask("Cathedral<CityTile<SoloOpponent, Tharsis_4_1>>")
+    }
+
+    p1.assertCounts(1 to "Cathedral<SoloOpponent, CityTile<SoloOpponent, Tharsis_4_1>>")
+    game.isIdle() shouldBe true
   }
 
   @Test

@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class PolyphemosTest : CardTest() {
-
   @Test
   fun `Applies its card-purchase surcharge to Inventors Guild`() {
     newGame(
@@ -16,6 +15,6 @@ class PolyphemosTest : CardTest() {
     p1.playCorp(Polyphemos, 7)
     engine.phase("Action")
     p1.playProject(InventorsGuild, 9)
-    p1.cardAction1(InventorsGuild) { buyCards(1) }.expect("ProjectCard, -5")
+    p1.cardAction1(InventorsGuild) { p1.buyCards(1) }.expect("ProjectCard, -5")
   }
 }

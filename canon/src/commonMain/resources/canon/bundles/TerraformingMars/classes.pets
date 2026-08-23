@@ -276,7 +276,7 @@ CLASS SecondPlace<Award> : Owned<Player> {
 // TURN AND ACTION PROTOCOL
 
 // Any component that responds to `UseAction` signals
-ABSTRACT CLASS HasActions
+ABSTRACT CLASS HasActions { HAS MAX 1 This }
 
 "Identifies one of the actions offered by a component"
 ABSTRACT CLASS WhichAction {
@@ -309,56 +309,55 @@ CLASS Pass : Owned<Player>, Generational { HAS MAX 1 This }
 "Any of the basic choices a player can make on their turn"
 ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
 
+"The persistent operation that owns research-phase and corporation-setup card purchases"
+CLASS BuyCards : HasActions { HAS =1 This }
+
+// TODO: Replace this stable invoice host with a live late-stage card-play operation.
+"The persistent operation that owns card play regardless of how the play was initiated"
+CLASS PlayCards : HasActions { HAS =1 This }
+
 "A standard project, as the game defines it (but excluding Sell Patents)"
 ABSTRACT CLASS StandardProject : HasActions {
   HAS MAX 1 This
   cost = Number
-  UseAction<This>:: Owed<> / This.cost
-  -> Payment<This, First>
 }
 
 CLASS PowerPlantSP : StandardProject {
   cost = 11
-  CostPaid<This>: PROD[Energy]
+  1 / cost -> PROD[Energy]
 }
 
 CLASS AsteroidSP : StandardProject {
   cost = 14
-  CostPaid<This>: TemperatureStep
-}
-
-CLASS BufferGasSP : StandardProject {
-  cost = 16
-  CostPaid<This>: TerraformRating
+  1 / cost -> TemperatureStep
 }
 
 CLASS AquiferSP : StandardProject {
   cost = 18
-  CostPaid<This>: OceanTile<>
+  1 / cost -> OceanTile<>
 }
 
 CLASS GreenerySP : StandardProject {
   cost = 23
-  CostPaid<This>: GreeneryTile<>
+  1 / cost -> GreeneryTile<>
 }
 
 CLASS CitySP : StandardProject {
   cost = 25
-  CostPaid<This>: PROD[1], CityTile<>
+  1 / cost -> CityTile<>, PROD[1]
 }
 
 // PAY AND PLAY
 
 CLASS BuyCard : Owned<Player>, Signal {
-  This: -3, ProjectCard
+  This:: 3 Owed<>
+  X This: Invoice<BuyCards, First> THEN MAX 0 Invoice: X ProjectCard
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
   This:: (EVAL CardFront.requirement: Ok) OR HandlePossibleGpRequirement<Class<CardFront>>
-  This:: Owed<> / CardFront.cost
-  This:: HandleCardTags<Class<CardFront>>
-  This: MAX 0 Barrier: CardFront FROM CardBack
+  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack
 }
 
 CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
@@ -370,10 +369,11 @@ ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Tempora
     X This:: Accept<Class<StandardResource>>
   }
 
-  CLASS Accept : Signal {
+  CLASS Accept : Temporary {
     HAS MAX 1 This
     DEFAULT +Accept.
-    This: X Pay<Class<StandardResource>> FROM StandardResource?
+    Billing: X Pay<Class<StandardResource>> FROM StandardResource?
+    -X Billing:: -This!
   }
 
   CLASS Pay : Signal {
@@ -383,24 +383,33 @@ ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Tempora
 }
 
 "Offers payment using the resource held by a specific card"
-CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal {
-  This: X PayFromCard<ResourceCard> FROM CardResource<ResourceCard>?
+CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Temporary {
+  HAS MAX 1 This
+  Billing: X PayFromCard<ResourceCard> FROM CardResource<ResourceCard>?
+  -X Billing:: -This!
 }
 
 "Records payment using the resource held by a specific card"
 CLASS PayFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal
 
-"Becomes a payment-specific signal when the owner's final debt is removed"
-CLASS Payment<HasActions, WhichAction> : Owned<Player>, Barrier {
-  -X Owed IF MAX 0 Owed: CostPaid<HasActions, WhichAction> FROM This
+"A finalized debt; removing it signals that its denomination has been fully paid"
+ABSTRACT CLASS Billing<HasActions, WhichAction, Class<StandardResource>> : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This IF MAX 0 Owed<Class<StandardResource>>:: -This!
+  -X Owed<Class<StandardResource>> IF MAX 0 Owed<Class<StandardResource>>:: -This!
 }
 
-"Signals that payment for one action offered by a specific component has been completed"
-CLASS CostPaid<HasActions, WhichAction> : Owned<Player>, Signal
+"The invoice produced by an action with a standard-resource cost"
+CLASS Invoice : Billing {
+  DEFAULT +Invoice<HasActions, WhichAction, Class<Megacredit>>
+}
+
+"The finalized debt for playing a particular card"
+CLASS CardInvoice<Class<CardFront>> : Billing<PlayCards, First, Class<Megacredit>>
 
 "Cards like Indentured Workers leave this in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
-  PlayCard:: -This!
+  Billing<PlayCards>:: -This!
 }
 
 // PHASES
@@ -530,6 +539,12 @@ ABSTRACT CLASS SoloVariant : Module {
     SetupPhase: Tr63SoloObjective
     SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
   }
+}
+
+"The TR63 solo variant's additional standard project"
+CLASS BufferGasSP : StandardProject {
+  cost = 16
+  1 / cost -> TerraformRating
 }
 
 "Records that a selected expansion extends the ordinary solo victory objective"
