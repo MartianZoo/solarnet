@@ -95,6 +95,17 @@ internal class EffectTest {
   }
 
   @Test
+  internal fun componentTriggersRequireAQualifier() {
+    listOf("Component: Bar", "-Component: Bar", "Foo OR Component: Bar").forEach {
+      assertFailsWith<PetSyntaxException>(it) { parse<Effect>(it) }
+    }
+
+    parse<Effect>("Component IF Foo: Bar").toString() shouldBe "Component IF Foo: Bar"
+    parse<Effect>("Component BY Anyone: Bar").toString() shouldBe "Component BY Anyone: Bar"
+    parse<Effect>("Owned<Player>: Bar").toString() shouldBe "Owned<Player>: Bar"
+  }
+
+  @Test
   internal fun bySelectorsAreExpressions() {
     parse<Effect>("Foo BY !Owner: Bar").toString() shouldBe "Foo BY !Owner: Bar"
     parse<Effect>("Foo BY !Player2: Bar").toString() shouldBe "Foo BY !Player2: Bar"
