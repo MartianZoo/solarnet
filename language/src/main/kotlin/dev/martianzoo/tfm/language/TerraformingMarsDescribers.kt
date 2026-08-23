@@ -5,8 +5,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.language.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.types.Class
 
-private typealias RequirementCount = ComponentDescriber.Requirement.CountSyntax
-
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
   internal val descriptions: Map<Class, ComponentDescriber> by lazy {
@@ -51,7 +49,7 @@ internal object TerraformingMarsDescribers {
         klass("CardResource") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
-                changeFrame = Frame.Held(suffixed = true),
+                changeFrame = Frame.Held,
                 distinctKinds =
                     ComponentDescriber.Noun.Counted(
                         "different type of card resource",
@@ -172,13 +170,27 @@ internal object TerraformingMarsDescribers {
                         article = "this",
                         singular = "tile",
                         plural = "tiles",
-                        allowsMultiple = false,
                     ),
             ),
-        klass("Animal") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
-        klass("Asteroid") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
-        klass("Floater") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
-        klass("Microbe") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
+        klass("Animal") to ComponentDescriber(noun = counted("animal", "animals")),
+        klass("Asteroid") to ComponentDescriber(noun = counted("asteroid", "asteroids")),
+        klass("Camp") to ComponentDescriber(noun = counted("camp resource", "camp resources")),
+        klass("Director") to
+            ComponentDescriber(noun = counted("director resource", "director resources")),
+        klass("Disease") to
+            ComponentDescriber(noun = counted("disease resource", "disease resources")),
+        klass("Fighter") to
+            ComponentDescriber(noun = counted("fighter resource", "fighter resources")),
+        klass("Floater") to ComponentDescriber(noun = counted("floater", "floaters")),
+        klass("Graphene") to
+            ComponentDescriber(noun = counted("graphene resource", "graphene resources")),
+        klass("Hydroelectric") to
+            ComponentDescriber(noun = counted("hydroelectric resource", "hydroelectric resources")),
+        klass("Microbe") to ComponentDescriber(noun = counted("microbe", "microbes")),
+        klass("Preservation") to
+            ComponentDescriber(noun = counted("preservation resource", "preservation resources")),
+        klass("Science") to
+            ComponentDescriber(noun = counted("science resource", "science resources")),
         klass("Tag") to
             ComponentDescriber(
                 countNoun = ComponentDescriber.Noun.Counted("tag", "tags"),
@@ -205,15 +217,11 @@ internal object TerraformingMarsDescribers {
                             threshold(
                                 "oxygen",
                                 ComponentDescriber.Requirement.Value.PERCENT,
-                                ComponentDescriber.Requirement.ThresholdSyntax
-                                    .REQUIRES_VALUE_SUBJECT,
                             ),
                         maximum =
                             threshold(
-                                "Oxygen",
+                                "oxygen",
                                 ComponentDescriber.Requirement.Value.PERCENT,
-                                ComponentDescriber.Requirement.ThresholdSyntax
-                                    .SUBJECT_MUST_BE_VALUE_OR_LESS,
                             ),
                     ),
             ),
@@ -226,15 +234,11 @@ internal object TerraformingMarsDescribers {
                             threshold(
                                 "temperature",
                                 ComponentDescriber.Requirement.Value.TEMPERATURE,
-                                ComponentDescriber.Requirement.ThresholdSyntax
-                                    .REQUIRES_VALUE_OR_WARMER,
                             ),
                         maximum =
                             threshold(
-                                "Temperature",
+                                "temperature",
                                 ComponentDescriber.Requirement.Value.TEMPERATURE,
-                                ComponentDescriber.Requirement.ThresholdSyntax
-                                    .SUBJECT_MUST_BE_VALUE_OR_COLDER,
                             ),
                     ),
             ),
@@ -247,15 +251,11 @@ internal object TerraformingMarsDescribers {
                             threshold(
                                 "Venus",
                                 ComponentDescriber.Requirement.Value.DOUBLE_PERCENT,
-                                ComponentDescriber.Requirement.ThresholdSyntax
-                                    .REQUIRES_SUBJECT_VALUE,
                             ),
                         maximum =
                             threshold(
                                 "Venus",
                                 ComponentDescriber.Requirement.Value.DOUBLE_PERCENT,
-                                ComponentDescriber.Requirement.ThresholdSyntax
-                                    .SUBJECT_MUST_BE_VALUE_OR_LESS,
                             ),
                     ),
             ),
@@ -266,10 +266,7 @@ internal object TerraformingMarsDescribers {
                     ComponentDescriber.Requirement(
                         minimum =
                             threshold(
-                                "a terraform rating",
-                                syntax =
-                                    ComponentDescriber.Requirement.ThresholdSyntax
-                                        .REQUIRES_HAVE_SUBJECT_OF_VALUE_OR_MORE,
+                                "your terraform rating",
                             )
                     ),
             ),
@@ -278,14 +275,8 @@ internal object TerraformingMarsDescribers {
                 changeFrame = Frame.Positioned("an", "ocean tile", "ocean tiles"),
                 requirement =
                     ComponentDescriber.Requirement(
-                        minimum =
-                            count("ocean tile", "ocean tiles", RequirementCount.REQUIRES_COUNT),
-                        maximum =
-                            count(
-                                "ocean tile",
-                                "ocean tiles",
-                                RequirementCount.THERE_MUST_BE_COUNT_OR_FEWER,
-                            ),
+                        minimum = count("ocean tile", "ocean tiles"),
+                        maximum = count("ocean tile", "ocean tiles"),
                     ),
             ),
         klass("GreeneryTile") to
@@ -295,8 +286,6 @@ internal object TerraformingMarsDescribers {
                         "a",
                         "greenery tile",
                         "greenery tiles",
-                        consequence = "and raise oxygen 1 step",
-                        allowsMultiple = false,
                     ),
                 requirement =
                     ComponentDescriber.Requirement(
@@ -304,7 +293,6 @@ internal object TerraformingMarsDescribers {
                             count(
                                 "greenery tile",
                                 "greenery tiles",
-                                RequirementCount.REQUIRES_OWNED_COUNT,
                             )
                     ),
             ),
@@ -323,8 +311,6 @@ internal object TerraformingMarsDescribers {
                             count(
                                 "city tile",
                                 "city tiles",
-                                RequirementCount.REQUIRES_OWNED_COUNT,
-                                RequirementCount.REQUIRES_COUNT,
                             ),
                         ownedCount = ComponentDescriber.Noun.Counted("city tile", "city tiles"),
                     ),
@@ -341,13 +327,8 @@ internal object TerraformingMarsDescribers {
                     ),
                 requirement =
                     ComponentDescriber.Requirement(
-                        minimum = count("colony", "colonies", RequirementCount.REQUIRES_COUNT),
-                        maximum =
-                            count(
-                                "colony",
-                                "colonies",
-                                RequirementCount.YOU_MUST_HAVE_NO_MORE_THAN_COUNT,
-                            ),
+                        minimum = count("colony", "colonies"),
+                        maximum = count("colony", "colonies"),
                         ownedCount = ComponentDescriber.Noun.Counted("colony", "colonies"),
                     ),
             ),
@@ -460,19 +441,22 @@ internal object TerraformingMarsDescribers {
   private fun threshold(
       subject: String,
       value: ComponentDescriber.Requirement.Value = ComponentDescriber.Requirement.Value.PLAIN,
-      syntax: ComponentDescriber.Requirement.ThresholdSyntax,
   ): ComponentDescriber.Requirement.Bound =
-      ComponentDescriber.Requirement.Bound.Threshold(subject, value, syntax)
+      ComponentDescriber.Requirement.Bound.Threshold(
+          subject,
+          value,
+      )
+
+  private fun counted(
+      singular: String,
+      plural: String,
+  ): ComponentDescriber.Noun.Counted = ComponentDescriber.Noun.Counted(singular, plural)
 
   private fun count(
       singular: String,
       plural: String,
-      syntax: RequirementCount,
-      anyoneSyntax: RequirementCount? = null,
   ): ComponentDescriber.Requirement.Bound =
       ComponentDescriber.Requirement.Bound.Count(
           ComponentDescriber.Noun.Counted(singular, plural),
-          syntax,
-          anyoneSyntax,
       )
 }

@@ -24,15 +24,13 @@ internal fun renderPlacement(
   val siteModifiers = renderPlacementSites(placement, describers) ?: return null
   val count = gain.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
-  if (count != 1 && !description.allowsMultiple) return null
   val noun =
       if (count == 1) {
         NounPhrase(description.singular, description.plural, determiner = description.article)
       } else {
         NounPhrase(description.singular, description.plural, count = count)
       }
-  val consequence = description.consequence?.let(Modifier::Parenthetical)
-  return placementClause(noun, siteModifiers + listOfNotNull(consequence))
+  return placementClause(noun, siteModifiers)
 }
 
 internal fun resolvePlacementExpression(

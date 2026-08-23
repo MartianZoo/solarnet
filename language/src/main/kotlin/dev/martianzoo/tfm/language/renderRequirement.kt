@@ -55,7 +55,7 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
     return requirementClause("requires", objectPhrase)
   }
   fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
-    return renderRequirementBound(expression, target, bound)
+    return renderRequirementBound(expression, target, bound, BoundDirection.MINIMUM)
   }
   return renderProductionRequirement(requirement)
       ?: renderCardResourceRequirement(requirement)
@@ -76,7 +76,12 @@ private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
   val metric = requirement.metric as? Metric.Count ?: return null
   val expression = metric.expression
   val bound = fact(expression.className, ComponentDescriber::requirement)?.maximum ?: return null
-  return renderRequirementBound(expression, requirement.target, bound)
+  return renderRequirementBound(
+      expression,
+      requirement.target,
+      bound,
+      BoundDirection.MAXIMUM,
+  )
 }
 
 private fun Describers.renderRequirementGroup(requirement: Requirement.And): Clause? =
@@ -135,7 +140,11 @@ private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Require
         val noun =
             fact(metric.expression.className, ComponentDescriber::requirement)?.ownedCount
                 as? ComponentDescriber.Noun.Counted ?: return null
-        "${minimum.target} ${if (minimum.target == 1) noun.singular else noun.plural}"
+        if (minimum.target == 1) {
+          "${indefiniteArticle(noun.singular)} ${noun.singular}"
+        } else {
+          "${minimum.target} or more ${noun.plural}"
+        }
       }
   return requirementClause("requires", "that you have ${englishList(nouns)}")
 }
@@ -144,55 +153,65 @@ private fun Describers.renderRequirementBound(
     expression: Expression,
     target: Int,
     bound: ComponentDescriber.Requirement.Bound,
+    direction: BoundDirection,
 ): Clause? {
   return when (bound) {
-    is ComponentDescriber.Requirement.Bound.Threshold -> {
-      if (!expression.simple) return null
-      val value = renderRequirementValue(bound.value, target)
-      when (bound.syntax) {
-        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_VALUE_SUBJECT ->
-            requirementClause("requires", "$value ${bound.subject}")
-        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_SUBJECT_VALUE ->
-            requirementClause("requires", "${bound.subject} $value")
-        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_VALUE_OR_WARMER ->
-            requirementClause("requires", "$value or warmer")
-        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_HAVE_SUBJECT_OF_VALUE_OR_MORE ->
-            requirementClause("requires", "that you have ${bound.subject} of $value or more")
-        ComponentDescriber.Requirement.ThresholdSyntax.SUBJECT_MUST_BE_VALUE_OR_LESS ->
-            requirementClause("must be", "$value or less", bound.subject)
-        ComponentDescriber.Requirement.ThresholdSyntax.SUBJECT_MUST_BE_VALUE_OR_COLDER ->
-            requirementClause("must be", "$value or colder", bound.subject)
-      }
-    }
-    is ComponentDescriber.Requirement.Bound.Count -> {
-      val resolved = resolveExpression(expression) ?: return null
-      val ownerKey = Key(OWNED, 0)
-      val unrestricted =
-          resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) &&
-              expression.refinement == null
-      val syntax =
-          when {
-            resolved.sourceDependencies.isEmpty() && expression.refinement == null -> bound.syntax
-            unrestricted -> bound.anyoneSyntax ?: return null
-            else -> return null
-          }
-      val noun = if (target == 1) bound.noun.singular else bound.noun.plural
-      when (syntax) {
-        ComponentDescriber.Requirement.CountSyntax.REQUIRES_COUNT ->
-            requirementClause(
-                "requires",
-                if (unrestricted) "any ${if (target == 1) "" else "$target "}$noun"
-                else "$target $noun",
-            )
-        ComponentDescriber.Requirement.CountSyntax.REQUIRES_OWNED_COUNT ->
-            requirementClause("requires", "that you have $target $noun")
-        ComponentDescriber.Requirement.CountSyntax.THERE_MUST_BE_COUNT_OR_FEWER ->
-            requirementClause("must be", "$target or fewer ${bound.noun.plural}", "there")
-        ComponentDescriber.Requirement.CountSyntax.YOU_MUST_HAVE_NO_MORE_THAN_COUNT ->
-            requirementClause("must have", "no more than $target $noun", "you")
-      }
-    }
+    is ComponentDescriber.Requirement.Bound.Threshold ->
+        renderThresholdBound(expression, target, bound, direction)
+    is ComponentDescriber.Requirement.Bound.Count ->
+        renderCountBound(expression, target, bound, direction)
   }
+}
+
+private fun Describers.renderThresholdBound(
+    expression: Expression,
+    target: Int,
+    bound: ComponentDescriber.Requirement.Bound.Threshold,
+    direction: BoundDirection,
+): Clause? {
+  if (!expression.simple) return null
+  val value = renderRequirementValue(bound.value, target)
+  val comparison = if (direction == BoundDirection.MINIMUM) "higher" else "lower"
+  return requirementClause("requires", "that ${bound.subject} is $value or $comparison")
+}
+
+private fun Describers.renderCountBound(
+    expression: Expression,
+    target: Int,
+    bound: ComponentDescriber.Requirement.Bound.Count,
+    direction: BoundDirection,
+): Clause? {
+  val resolved = resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  if (expression.refinement != null) return null
+  val owned =
+      when {
+        resolved.sourceDependencies.isEmpty() -> isPlayerOwned(expression.className)
+        resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) -> false
+        else -> return null
+      }
+  val noun = if (target == 1) bound.noun.singular else bound.noun.plural
+  return when (direction) {
+    BoundDirection.MINIMUM ->
+        if (owned) {
+          val amount =
+              if (target == 1) "${indefiniteArticle(noun)} $noun" else "$target or more $noun"
+          requirementClause("requires", "that you have $amount")
+        } else {
+          requirementClause("requires", "$target $noun")
+        }
+    BoundDirection.MAXIMUM ->
+        if (owned) {
+          requirementClause("requires", "that you have $target or fewer ${bound.noun.plural}")
+        } else {
+          requirementClause("requires", "that there are $target or fewer ${bound.noun.plural}")
+        }
+  }
+}
+
+private enum class BoundDirection {
+  MINIMUM,
+  MAXIMUM,
 }
 
 private fun requirementClause(

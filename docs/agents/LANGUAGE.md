@@ -97,7 +97,8 @@ Family renderers do not inspect `Expression.arguments`; dependency matching and 
 documented contextual-production fallback are confined to expression-role resolution.
 Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, `PlanetTag`, `Player`,
 `Generational`, and `End` is read from the Class hierarchy and is not duplicated in
-`ComponentDescriber`. Card-resource number forms remain lexical data.
+`ComponentDescriber`. Card-resource nouns and number forms remain lexical data; whether a noun
+contains the word `resource` is not a separate renderer category.
 Pets scalars are resolved once into fixed or variable `Quantity` values, and intensities into
 required, best-effort, or optional `Modality` values. Family renderers do not inspect the Pets
 scalar or intensity variants.
@@ -108,9 +109,10 @@ inherited phrase or capability, and compose the answer. Change rendering uses on
 identified structurally. The frame contains the construction and its lexical words rather than a
 second classification field or a component-shaped renderer variant. Structural renderers do not
 name component Classes or
-enumerate categories such as city tiles and colonies. In particular, requirement descriptions own
-their minimum, maximum, and compound-owned wording rather than exposing a centralized
-component-category value for `Describers` to switch over.
+enumerate categories such as city tiles and colonies. Requirement descriptions supply only nouns,
+value formats, and threshold subjects. The requirement AST determines minimum versus maximum and
+therefore `higher` versus `lower`, while Class membership and the keyed owner dependency determine
+player-owned versus unrestricted wording.
 
 Restricted placements follow the same rule. A placement-site fact marks an expression argument as
 the placed component's site and supplies its noun and optional definite article, while a
@@ -182,7 +184,9 @@ wording and punctuation may be standardized without reordering those subclauses.
 may happen alongside derivation or in focused data-cleanup passes, whichever keeps the work
 clearest and the implementation simplest.
 
-For minimum thresholds, prefer `N or more` to `at least N`.
+Numeric track thresholds use `Requires that <subject> is <value> or higher/lower`, without `at`.
+Minimum owned counts above one use `N or more`; a minimum owned count of one uses an indefinite
+article. Maximum counts use `N or fewer`.
 
 Corporation definitions must author starting money before their other immediate instructions so
 the ordinary authored-order renderer puts that gain first. Correct the canonical card definition
@@ -279,8 +283,8 @@ a group of concrete
 mandatory standard-resource production gains or decreases; a mandatory one-for-one conversion of
 one or more steps of the player's production from one concrete standard resource to another;
 a mandatory transfer of a fixed number of steps between two selected instances of one described
-track; a city-tile, colony, ocean-tile, or described special-tile placement using the type's default
-arguments; one plain greenery-tile placement; one city, greenery, or special-tile placement on a
+track; one city-tile, colony, ocean-tile, greenery-tile, or described special-tile placement using
+the type's default arguments; one city, greenery, or special-tile placement on a
 described land site, optionally narrowed by a supported minimum or zero-maximum adjacency
 refinement; one city placement on a definite described site outside Mars; a concrete
 mandatory removal of a concrete card resource; a mandatory exchange of a concrete number of card
@@ -346,9 +350,10 @@ directly described operation such as trading.
 A tag-narrowed card-resource destination renders as `a <name> card`, independently of
 whether the played card itself qualifies. This canonical wording replaces the data file's
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
-class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
-policy. Card-resource holders and owners are read by dependency key, independent of authored argument
-order. Every card-resource instruction that moves a resource names a card location: `This` becomes
+class renders as `resource`; each concrete card-resource noun independently declares forms such as
+`animal` or `science resource`. Card-resource holders and owners are read by dependency key,
+independent of authored argument order. Every card-resource instruction that moves a resource names
+a card location: `This` becomes
 `this card`, a tag-narrowed holder becomes `a <name> card`, and an unqualified removal
 says `from any card`. Aggregate requirements and metrics omit the redundant card location while
 retaining ownership; an unqualified card-resource metric says that the player has those resources.
@@ -356,15 +361,16 @@ An unrestricted gain says `any card`. The `<name> card` contraction applies when
 a minimum threshold of one tag; wording whose meaning depends on tag cardinality retains that
 cardinality explicitly.
 
-Any-player city-tile requirements use `any` to distinguish them from the player's own tiles and name
-the required tiles without `in play`; a compound owned city-and-colony requirement says that you
-have those components. Solarnet components outside the game do not exist, so the published `in
-play` wording adds no existence state or scope.
+Any-player city-tile requirements name the required tiles without `in play`, while unqualified
+player-owned requirements say that you have the components. A compound owned city-and-colony
+requirement follows the same ownership rule. Solarnet components outside the game do not exist, so
+the published `in play` wording adds no existence state or scope.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
-ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
-remain numeric even when the count is one. Attach a step count to every production named; do not
-move a shared count after several productions with `each`.
+ocean tile`. Larger placement quantities remain numeric. A singular owned-count requirement likewise
+says that you have `a colony` or `a city tile`; tag counts remain numeric. Resource quantities and
+track or production steps remain numeric even when the count is one. Attach a step count to every
+production named; do not move a shared count after several productions with `each`.
 
 An unsupported requirement or unsupported fixed part of an End-triggered scoring effect renders as
 one bracketed Pets element.
@@ -386,8 +392,9 @@ card to draw a declared drawable component; a same-component transmutation inste
 directional transfer as stealing from or paying to its other participant. This deliberately does
 not cover optional `PlayedEvent` retrieval.
 
-A plain mandatory placement of one greenery tile renders its implicit oxygen increase. A strict
-placement-site refinement can express a minimum adjacency count or the absence of adjacent tiles;
+A plain mandatory placement of one greenery tile does not restate its automatic oxygen increase,
+consistent with other systemic placement consequences. A strict placement-site refinement can
+express a minimum adjacency count or the absence of adjacent tiles;
 its relation target may be implicit or one described placed-component type explicitly qualified by
 `Anyone`. A Describer can also identify a specialized placement site such as an area reserved for
 ocean. The resulting placement is derived, but any printed waiver of normal placement restrictions
@@ -407,11 +414,18 @@ An unrestricted gain of a concrete card resource says `any card`. Other narrowed
 targets remain bracketed.
 
 Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
-`Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; counts above
-one use `colonies`. A placement narrowed to a colony tile remains bracketed because Research Colony
-and Space Port Colony print additional permission to reuse an occupied colony tile.
+`Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; multiple
+placements use a numeric plural. A placement narrowed to a colony tile remains bracketed because
+Research Colony and Space Port Colony print additional permission to reuse an occupied colony tile.
 
 ## Review cadence
+
+When asking Kevin to judge possible wording canonicalizations, use concrete sentence pairs rather
+than architectural descriptions. For each candidate, show two actual current outputs, then show both
+sentences after applying one proposed consistency rule. Keep each item to one visible transformation
+so Kevin can mark a winner, reject it, or refine its boundary directly. Carry those decisions into
+the next pair or implementation; do not translate them back into abstract questions unless the
+implementation reveals a genuine design choice.
 
 Commit bounded renderer iterations autonomously. Stop autonomous rounds after accumulating roughly
 25 modified cards, then provide an old-versus-new comparison roundup grouped by the

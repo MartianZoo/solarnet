@@ -72,8 +72,5 @@ private val ADJACENCY = cn("Adjacency")
 private fun Describers.isUnqualifiedPlacementOwned(expression: Expression): Boolean {
   val placement = positionedFrame(expression.className) ?: return false
   if (placement.unqualifiedMetricOwner == ComponentDescriber.MetricOwner.YOU) return true
-  val requirement = fact(expression.className, ComponentDescriber::requirement) ?: return false
-  if (requirement.ownedCount != null) return true
-  val minimum = requirement.minimum as? ComponentDescriber.Requirement.Bound.Count ?: return false
-  return minimum.syntax == ComponentDescriber.Requirement.CountSyntax.REQUIRES_OWNED_COUNT
+  return isPlayerOwned(expression.className)
 }

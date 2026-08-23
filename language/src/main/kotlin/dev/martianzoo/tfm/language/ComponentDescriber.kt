@@ -42,7 +42,7 @@ public data class ComponentDescriber(
   public sealed interface ChangeFrame {
     public data object Countable : ChangeFrame
 
-    public data class Held(public val suffixed: Boolean) : ChangeFrame
+    public data object Held : ChangeFrame
 
     public data class Scale(public val subject: String) : ChangeFrame
 
@@ -50,8 +50,6 @@ public data class ComponentDescriber(
         public val article: String,
         public val singular: String,
         public val plural: String,
-        public val consequence: String? = null,
-        public val allowsMultiple: Boolean = true,
         public val unqualifiedMetricOwner: MetricOwner? = null,
         public val anyoneMetricOwner: MetricOwner? = null,
     ) : ChangeFrame
@@ -112,14 +110,9 @@ public data class ComponentDescriber(
       public data class Threshold(
           public val subject: String,
           public val value: Value = Value.PLAIN,
-          public val syntax: ThresholdSyntax,
       ) : Bound
 
-      public data class Count(
-          public val noun: Noun.Counted,
-          public val syntax: CountSyntax,
-          public val anyoneSyntax: CountSyntax? = null,
-      ) : Bound
+      public data class Count(public val noun: Noun.Counted) : Bound
     }
 
     public enum class Value {
@@ -127,22 +120,6 @@ public data class ComponentDescriber(
       PERCENT,
       DOUBLE_PERCENT,
       TEMPERATURE,
-    }
-
-    public enum class ThresholdSyntax {
-      REQUIRES_VALUE_SUBJECT,
-      REQUIRES_SUBJECT_VALUE,
-      REQUIRES_VALUE_OR_WARMER,
-      REQUIRES_HAVE_SUBJECT_OF_VALUE_OR_MORE,
-      SUBJECT_MUST_BE_VALUE_OR_LESS,
-      SUBJECT_MUST_BE_VALUE_OR_COLDER,
-    }
-
-    public enum class CountSyntax {
-      REQUIRES_COUNT,
-      REQUIRES_OWNED_COUNT,
-      THERE_MUST_BE_COUNT_OR_FEWER,
-      YOU_MUST_HAVE_NO_MORE_THAN_COUNT,
     }
   }
 

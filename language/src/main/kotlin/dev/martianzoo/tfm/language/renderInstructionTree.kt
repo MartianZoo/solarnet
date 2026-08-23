@@ -424,8 +424,7 @@ private fun renderPlacementSiteFallback(
   }
   val site = preferredPlacement.sites.singleOrNull()?.takeIf { it.simple } ?: return null
   if (describers.placementSite(site.className) == null) return null
-  val placement = describers.positionedFrame(preferred.gaining.className) ?: return null
-  if (placement.consequence != null) return null
+  if (describers.positionedFrame(preferred.gaining.className) == null) return null
   val absence = fallback.gate as? Requirement.Max ?: return null
   val countedSite = absence.countedMetric as? Metric.Count ?: return null
   if (absence.maximum != 0 || countedSite.expression != site) return null
@@ -524,12 +523,13 @@ internal fun Describers.renderGateCondition(requirement: Requirement): String? {
     return "if $condition$scope"
   }
   fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
-    if (
-        bound is ComponentDescriber.Requirement.Bound.Count &&
-            bound.syntax == ComponentDescriber.Requirement.CountSyntax.REQUIRES_COUNT
-    ) {
+    if (bound is ComponentDescriber.Requirement.Bound.Count) {
       val noun = if (requirement.minimum == 1) bound.noun.singular else bound.noun.plural
-      return "if there are ${requirement.minimum} $noun"
+      return if (isPlayerOwned(expression.className)) {
+        "if you have ${requirement.minimum} $noun"
+      } else {
+        "if there are ${requirement.minimum} $noun"
+      }
     }
   }
   val (name) = tagName(expression.className) ?: return null

@@ -156,6 +156,8 @@ internal class ExpressionResolver(classes: Set<Class>) {
 
   internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
 
+  internal fun isPlayerOwned(className: ClassName): Boolean = isSubtypeOf(className, OWNED)
+
   internal fun isGameParticipant(className: ClassName): Boolean = isSubtypeOf(className, PLAYER)
 
   internal fun isGenerationScoped(className: ClassName): Boolean =

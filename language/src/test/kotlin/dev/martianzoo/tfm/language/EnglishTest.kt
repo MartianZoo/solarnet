@@ -58,7 +58,8 @@ internal class EnglishTest {
     english.describe(
         parse<InstructionTree>("3 Megacredit<Anyone> FROM Megacredit."),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
-    english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Oxygen must be 6% or less."
+    english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe
+        "Requires that oxygen is 6% or lower."
 
     val animalCard =
         CardDefinition(

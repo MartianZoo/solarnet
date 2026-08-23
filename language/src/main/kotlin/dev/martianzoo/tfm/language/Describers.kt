@@ -123,6 +123,8 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun isProduction(className: ClassName): Boolean = expressions.isProduction(className)
 
+  internal fun isPlayerOwned(className: ClassName): Boolean = expressions.isPlayerOwned(className)
+
   internal fun isGameParticipant(className: ClassName): Boolean =
       expressions.isGameParticipant(className)
 
@@ -203,16 +205,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {
-    val frame = changeFrame(className) as? ComponentDescriber.ChangeFrame.Held ?: return null
-    if (!expressions.concrete(className)) {
-      val noun =
-          fact(className, ComponentDescriber::noun) as? ComponentDescriber.Noun.Counted
-              ?: return null
-      return NounPhrase(noun.singular, noun.plural, count)
-    }
-    val noun = unCamelCase(className.toString())
-    return if (frame.suffixed) NounPhrase("$noun resource", "$noun resources", count)
-    else NounPhrase(noun, "${noun}s", count)
+    if (changeFrame(className) != ComponentDescriber.ChangeFrame.Held) return null
+    val noun =
+        fact(className, ComponentDescriber::noun) as? ComponentDescriber.Noun.Counted ?: return null
+    return NounPhrase(noun.singular, noun.plural, count)
   }
 
   internal fun indefiniteArticle(noun: String): String =
