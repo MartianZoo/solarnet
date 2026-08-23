@@ -211,7 +211,7 @@
       "cost": 17,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy]",
-      "actions": [ "Plant OR Steel -> 7" ],
+      "actions": [ "Plant -> 7", "Steel -> 7" ],
       "effects": [ "End: VictoryPoint" ],
     },
 

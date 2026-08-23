@@ -13,8 +13,8 @@ internal class ActionTest {
   }
 
   @Test
-  fun requirementGatedCosts() {
-    testRoundTrip<Action>("(=0 Award: 8) OR (=1 Award: 14) OR (=2 Award: 20) -> Award")
+  fun requirementGatedCost() {
+    testRoundTrip<Action>("=0 Award: 8 -> Award")
   }
 
   @Test
@@ -24,62 +24,60 @@ internal class ActionTest {
 
   private val inputs =
       """
-      -> Ok
-      -> -Wau
-      2X -> Ok
-      -> 11 Xyz
-      -> -X Qux!
-      Ahh, X -> 2
-      1 -> 1 OR 1?
-      -> 1: 1, -Ahh
-      5 Foo -> X Foo
-      PROD[Foo] -> Ok
-      PROD[1] -> X Foo
-      -> =1 Bar: -2 Xyz
-      PROD[1] -> -Wau, 5
-      -> PROD[1 / Foo], 1
-      5X Abc<Foo> -> 1, 5?
-      -> -1. OR Ok OR 2 Abc
-      2 Eep / Bar MAX 5 -> 1
-      Foo / Bar MAX 5 - Qux -> Ok
-      PROD[PROD[Ooh]] -> -Eep
-      PROD[Foo] -> Bar / 2 Foo
-      Qux -> 1 OR Qux<Bar, Xyz>
-      PROD[X] -> 2 Ooh<Ahh, Ahh>
-      -> 5 Ahh? / PROD[Bar MAX 5]
-      PROD[X Foo] -> -2X Xyz / Bar
-      PROD[((1, 1): 1) / Xyz] -> 5X
-      PROD[Bar OR 2] -> -X Foo<Qux>!
-      PROD[Qux(HAS Foo)] -> -11X Eep?
-      Qux -> PROD[MAX 1 Megacredit: 2]
-      Qux<Abc> -> Qux BY Bar, Foo OR 1!
-      PROD[1 / PROD[Bar]] -> -1? / 2 Abc
-      PROD[2: Foo] -> Foo / 2 (Qux MAX 5)
-      PROD[MAX 0 Megacredit: (1, 1)] -> 5?
-      Eep, Qux -> PROD[Xyz FROM Qux], -!Qux
-      PROD[1] -> (-Abc, Foo) OR -2 OR (1, 1)
-      PROD[1] -> -2 Qux / (Qux OR Foo) OR Abc
-      PROD[X Ooh<Foo> / Bar] -> 11 Bar(HAS 1)!
-      PROD[Ahh / 2 Foo MAX 11] -> -1 / Xyz<Qux>
-      5 Ahh<Bar, Ooh, Foo> -> 1, Foo<Foo> BY Eep
-      PROD[(MAX 0 Foo: 1) / Xyz, Qux] -> Bar<Xyz>
-      1, Qux OR (1 OR Bar, 1) -> PROD[5X / Foo], 1
-      Foo<Foo<Bar, Bar>>: 1, PROD[Bar] -> Ahh<Qux>!
-      Eep -> 11 Ooh<Ahh>, (Bar FROM Qux!) OR 1 / Ahh
-      PROD[=1 Bar OR Bar]: PROD[Qux / Qux] -> 1 / Foo
-      (MAX 1 Abc, (Qux, 1)): 2 Bar -> X / Foo, PROD[1]
-      Qux, 1 / 2 (2 Xyz), (1, (1, Abc<Foo>, Bar)) -> Ok
-      PROD[1: Foo, (Bar: 1) / 2 Foo] -> Qux! / 3 (3 Qux)
-      PROD[1: Abc] / (Bar OR Foo<Foo, Bar>) OR Qux -> 11?
-      2, (Ahh, (MAX 0 Megacredit: 1) / 2 Qux) -> Foo<Foo>.
-      (Xyz, Bar): 1, PROD[Abc / Abc<Xyz>] -> X Abc FROM Ahh
-      5 Bar / Foo<Foo, Bar> -> Foo: -Foo, 1 / 2 Foo, 1 OR Ok
-      ((Xyz, 1) OR Xyz): PROD[1 / 2 Qux MAX 5] -> Foo(HAS 5)?
-      1 -> -Ooh / 3 Qux, X Abc / Xyz<Bar>, MAX 1 Megacredit: 1
-      (Ooh OR 1): (Foo<Bar, Qux> OR Qux OR 1) -> 1 / Abc OR Xyz
-      Bar: (((1 OR Ooh) OR (Foo: 1 / Qux) / Foo) OR 1) -> 5 Eep?
-      PROD[Bar<Foo>], 1, Eep<Bar> -> 11X Eep FROM !Xyz<Eep, Foo>?
-      Foo<Abc<Foo<Bar<Qux<Qux>>>>>, Bar / Qux OR 2 Foo -> PROD[-1]
+      -> 2?
+      2 -> 1?
+      Foo -> 1
+      Abc -> Ok
+      Bar -> -Abc
+      -> Qux<Foo>?
+      -> X Bar<Bar>
+      PROD[Ooh] -> 2
+      2 -> -Wau<!Qux>
+      X !Xyz -> 2X Bar
+      1 -> Eep FROM Foo
+      Xyz<Qux<Bar>> -> X
+      5 Xyz -> -Abc / Ooh
+      1, 1 -> 2 Ahh / !Bar
+      1 / Ahh -> -Foo<Qux>?
+      2 Wau -> -X !Ooh<Xyz>!
+      2 Xyz -> -2X, Bar / Foo
+      2X Qux -> 2 Bar, 1 OR Ok
+      Foo, 1 -> PROD[1, 1], Wau
+      X Abc -> -1, Foo<Bar<Qux>>
+      Qux / Eep -> -Ooh<Foo, Eep>
+      -> (Foo: Foo FROM Foo) OR Ok
+      PROD[1 / Foo] -> X, Foo, -Foo
+      2 Xyz, Ooh -> PROD[PROD[-Ooh]]
+      PROD[Qux] -> Qux FROM Bar / Abc
+      (MAX 0 Qux: Foo) / Ooh -> 5X Foo
+      Abc<Qux<Eep>> -> Ok OR (1, 2 Foo)
+      Foo<Qux>, X Ahh -> Bar FROM Qux, X
+      PROD[1] -> (-Foo OR 1 / Qux) OR Ooh
+      X Ooh<Abc>(HAS 1) -> Foo: -1, -X Ooh
+      -> -X Ahh<Foo>(HAS MAX 0 Megacredit)!
+      1 / Foo<Qux>, (MAX 0 Foo: 1, 1) -> -1?
+      1 / EVAL Bar.score - Abc MAX 11 -> -Foo
+      PROD[Xyz(HAS 1)] -> X !Foo FROM Ooh<Foo>
+      5 Qux -> PROD[1], PROD[Qux THEN Foo<Qux>]
+      Ooh / 3 Ooh<Bar> MAX 5 -> 11 Abc FROM Ooh?
+      2 / Qux -> Bar, (Ooh FROM Bar / Foo) BY Foo
+      =1 !Abc: (MAX 0 Qux: Bar) -> X Abc FROM Abc?
+      2 Abc, 1 -> 1, (Bar FROM Bar) OR (Qux OR Bar)
+      5 Ooh<Ooh, Bar> -> -2X Foo(HAS =1 Megacredit).
+      -> MAX 0 Megacredit: 1 THEN 1., PROD[PROD[Bar]]
+      -> 5, (MAX 0 Foo OR (1 OR Foo)): X Bar<Qux, Qux>
+      PROD[1 / Abc<Foo> MAX 11], Eep, X Foo -> Bar<Ooh>
+      2 Qux<Xyz(HAS MAX 1 Megacredit, 1)> -> X Ahh<Bar>.
+      PROD[Bar] -> -2 Bar<!Bar<Eep, Foo<Bar, Foo>, Abc>>!
+      PROD[=1 Megacredit: X Bar] -> 2 Foo, X / 2 Foo MAX 5
+      PROD[PROD[Bar]] -> -Bar<Foo> BY Foo<Xyz<Ooh>> OR Abc.
+      PROD[(Qux, 1), PROD[Foo]] -> Bar<Ahh, Ooh, Bar>, 2 Xyz
+      PROD[MAX 1 Megacredit OR 1]: Abc / Xyz<Bar> -> 11X Ooh.
+      Foo, PROD[Bar<Bar>], X Ahh<Qux> -> 2X Foo<Ahh> FROM Ooh!
+      2 Wau -> (1 BY Bar, 1) OR (Ooh / 2 Bar) BY Qux<Xyz>, -Abc
+      Ooh -> -Foo / Ooh - Abc - 2 (Foo MAX 5) THEN Ok THEN X Foo
+      PROD[(Xyz: 1) / Bar, Bar: 1] -> Qux, Bar<Abc> FROM Foo<Foo>
+      (Foo: Foo / 2 (2 Foo)) / EVAL Ooh.score -> -1 / Foo MAX 5, 1
       """
           .trimIndent()
 

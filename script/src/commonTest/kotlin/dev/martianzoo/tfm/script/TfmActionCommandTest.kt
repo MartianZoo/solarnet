@@ -48,10 +48,10 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action selects an alternative direct removal cost`() {
+  fun `tfm action selects Electro Catapult's steel action`() {
     val repl = actionGame("PROD[Energy], ElectroCatapult, Plant, Steel")
 
-    val output = repl.command("tfm_action ElectroCatapult 1, 1 Steel")
+    val output = repl.command("tfm_action ElectroCatapult 2, 1 Steel")
 
     assertEquals(
         1,
@@ -109,12 +109,15 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action rolls back when a direct removal does not match the payment`() {
+  fun `tfm action rolls back when invoice payment uses the wrong resource`() {
     val repl = actionGame("PROD[Energy], ElectroCatapult, Plant, Energy")
 
     val output = repl.command("tfm_action ElectroCatapult 1, 1 Energy")
 
-    assertTrue(output.single().contains("does not narrow"), output.joinToString("\n"))
+    assertTrue(
+        output.single().contains("there wasn't exactly one matching task"),
+        output.joinToString("\n"),
+    )
     assertEquals(0, repl.gameplay.count("ActionUsedMarker<ElectroCatapult>"))
     assertEquals(1, repl.gameplay.count("Plant"))
     assertEquals(1, repl.gameplay.count("Energy"))
