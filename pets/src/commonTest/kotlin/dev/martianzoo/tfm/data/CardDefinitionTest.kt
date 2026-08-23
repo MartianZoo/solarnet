@@ -266,15 +266,15 @@ internal class CardDefinitionTest {
                     ),
             )
         )
-    val filtered =
+    val revealed =
         CardDefinition(
             CardData(
-                name = "FilteredCardPurchase",
+                name = "RevealedCardPurchase",
                 deck = "PROJECT",
                 projectKind = "ACTIVE",
                 actions =
                     listOf(
-                        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard FROM ProjectCard<Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]"
+                        "-> CARDS[2 ProjectCard<Revealed> THEN 2 ProjectCard(HAS VenusTag) FROM ProjectCard<Revealed>. THEN BuyCards]"
                     ),
             )
         )
@@ -282,7 +282,7 @@ internal class CardDefinitionTest {
     single.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>("UseAction<This, First>: BuyCard?")
     )
-    filtered.asClassDeclaration.effects.shouldContainExactly(
+    revealed.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>("UseAction<This, First>: ProjectCard OR BuyCard?, ProjectCard OR BuyCard?")
     )
   }
