@@ -54,6 +54,7 @@ internal class Instructor(
     private val customClasses: CustomClassRuntime =
         CustomClassRuntime(reader.authority, Transformers(classTable)),
 ) {
+  private val automaticEffectStack = mutableListOf<PendingTask>()
 
   internal fun execute(
       instruction: Instruction,
@@ -135,10 +136,28 @@ internal class Instructor(
 
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
-        task.instruction.instructions.forEach { doExecute(it, task.cause, deferred, task.actor) }
+        executeAutomaticEffect(task, deferred)
       }
       deferred += effector.fire(result, automatic = false)
       if (done) break
+    }
+  }
+
+  private fun executeAutomaticEffect(
+      task: PendingTask,
+      deferred: MutableList<PendingTask>,
+  ) {
+    if (automaticEffectStack.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
+      throw RunawayEffectChainException(
+          MAX_AUTOMATIC_EFFECT_DEPTH,
+          (automaticEffectStack + task).map(PendingTask::instruction),
+      )
+    }
+    automaticEffectStack += task
+    try {
+      task.instruction.instructions.forEach { doExecute(it, task.cause, deferred, task.actor) }
+    } finally {
+      automaticEffectStack.removeLast()
     }
   }
 
@@ -244,6 +263,10 @@ internal class Instructor(
           }
       else -> false
     }
+  }
+
+  private companion object {
+    const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
   }
 
   private fun prepareTree(unprepared: InstructionTree): InstructionTree =
