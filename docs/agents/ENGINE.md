@@ -197,8 +197,10 @@ instruction. Type-variable occurrence paths likewise carry a concrete trigger na
 instruction positions without rewriting coincidental equal Class Names.
 
 `::` effects execute inline, recursively, before queued effects from the same concrete change are
-admitted. `:` effects become tasks. Use [SEQUENCING.md](SEQUENCING.md) before depending on that
-difference.
+admitted. A causal chain may contain at most eight nested automatic effects; exceeding that limit
+fails the operation atomically with `RunawayEffectChainException`, which carries the attempted
+chain. `:` effects become tasks. Use
+[SEQUENCING.md](SEQUENCING.md) before depending on that difference.
 
 ### Terraforming Mars wild tags
 
