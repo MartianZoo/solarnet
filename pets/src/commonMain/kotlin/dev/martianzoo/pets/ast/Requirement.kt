@@ -111,7 +111,7 @@ public sealed class Requirement : PetElement() {
     }
   }
 
-  public data class Min(private val minimum: Int, private val countedMetric: Metric) :
+  public data class Min(public val minimum: Int, public val countedMetric: Metric) :
       Counting(minimum, countedMetric) {
     public constructor(
         scaledEx: ScaledExpression
@@ -137,7 +137,7 @@ public sealed class Requirement : PetElement() {
     override val range: IntRange = 0..target
   }
 
-  public data class Exact(private val expected: Int, private val countedMetric: Metric) :
+  public data class Exact(public val expected: Int, public val countedMetric: Metric) :
       Counting(expected, countedMetric) {
     internal constructor(
         scaledEx: ScaledExpression

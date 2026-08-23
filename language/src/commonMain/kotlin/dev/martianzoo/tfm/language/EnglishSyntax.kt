@@ -6,7 +6,7 @@ internal sealed interface Clause {
 
   data class Simple(
       val predicate: Predicate,
-      private val subject: NounPhrase? = null,
+      public val subject: NounPhrase? = null,
   ) : Clause {
     fun withModifier(modifier: Modifier): Simple =
         copy(predicate = predicate.withModifier(modifier))
@@ -15,7 +15,7 @@ internal sealed interface Clause {
         listOfNotNull(subject?.linearize(), predicate.linearize()).joinToString(" ")
   }
 
-  data class Coordinated(private val clauses: Coordination<Clause>) : Clause {
+  data class Coordinated(public val clauses: Coordination<Clause>) : Clause {
     override fun linearize(): String = clauses.linearize(Clause::linearize)
   }
 }
@@ -40,7 +40,7 @@ internal data class Predicate(
 /** A noun phrase whose number agreement is decided only by the final linearizer. */
 internal data class NounPhrase(
     private val singular: String,
-    private val plural: String = singular,
+    public val plural: String = singular,
     private val count: Int? = null,
     private val determiner: String? = null,
 ) {
