@@ -12,7 +12,7 @@ public sealed class PetNode {
    * concrete implementation type. For example, a [Gain] has kind [Instruction], not [Gain]. A node
    * may also be accepted through a broader kind such as [InstructionTree].
    */
-  public abstract val kind: KClass<out PetNode>
+  internal abstract val kind: KClass<out PetNode>
 
   protected fun groupPartIfNeeded(part: PetNode): String =
       if (part.safeToNestIn(this)) "$part" else "($part)"
@@ -55,7 +55,7 @@ public sealed class PetNode {
   public fun visitDescendants(visitor: (PetNode) -> Boolean): Unit = Visitor(visitor).visit(this)
 
   /** Returns the total number of [PetNode]s in this subtree, including this. */
-  public fun descendantCount(): Int {
+  internal fun descendantCount(): Int {
     var count = 0
     visitDescendants {
       count++
@@ -93,9 +93,9 @@ public sealed class PetNode {
 
   /** See [PetNode.visitChildren]. */
   protected class Visitor(private val shouldContinue: (PetNode) -> Boolean) {
-    public fun visit(nodes: Iterable<PetNode?>): Unit = nodes.forEach(::maybeVisit)
+    internal fun visit(nodes: Iterable<PetNode?>): Unit = nodes.forEach(::maybeVisit)
 
-    public fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
+    internal fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
 
     private fun maybeVisit(node: PetNode?) {
       node?.let { if (shouldContinue(it)) it.visitChildren(this) }

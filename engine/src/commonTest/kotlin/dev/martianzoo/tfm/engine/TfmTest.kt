@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
-abstract class TfmTest {
+internal abstract class TfmTest {
   protected lateinit var game: World
 
   protected val engine: TfmGameplay

@@ -19,7 +19,7 @@ import kotlin.test.Test
  */
 internal class ModuleSelectionTest {
   @Test
-  fun `valid configurations resolve to exactly these Modules`() {
+  internal fun `valid configurations resolve to exactly these Modules`() {
     val configurations =
         listOf(
             // CORE DEFAULTS
@@ -225,7 +225,7 @@ internal class ModuleSelectionTest {
   }
 
   @Test
-  fun `Venus selects Hoverlord and Venuphile directly unless named goals replace them`() {
+  internal fun `Venus selects Hoverlord and Venuphile directly unless named goals replace them`() {
     val defaults = Engine.newGame(premise("VenusNextExpansion", 2)).classTable
 
     defaults.isActive(cn("Hoverlord")) shouldBe true
@@ -244,7 +244,7 @@ internal class ModuleSelectionTest {
   }
 
   @Test
-  fun `requirements exclusions and mutually exclusive choices reject these configurations`() {
+  internal fun `requirements exclusions and mutually exclusive choices reject these configurations`() {
     val rejections =
         listOf(
             Rejection(

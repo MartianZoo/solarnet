@@ -9,7 +9,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import kotlin.test.Test
 
-class ComponentEffectsValidationTest {
+internal class ComponentEffectsValidationTest {
   private val table =
       loader(
           """
@@ -24,7 +24,7 @@ class ComponentEffectsValidationTest {
   private val transformers = Transformers(table)
 
   @Test
-  fun `valid specialized component effect is retained`() {
+  internal fun `valid specialized component effect is retained`() {
     val component = Component(table.resolve(te("Holder<Good>")))
 
     LiveEffect.compile(component, transformers)
@@ -34,7 +34,7 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `invalid atomic branch after component specialization becomes Die`() {
+  internal fun `invalid atomic branch after component specialization becomes Die`() {
     val component = Component(table.resolve(te("Holder<Bad>")))
 
     LiveEffect.compile(component, transformers)
@@ -44,14 +44,14 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `invalid specialized component trigger fails validation`() {
+  internal fun `invalid specialized component trigger fails validation`() {
     val component = Component(table.resolve(te("BrokenHolder<Bad>")))
 
     shouldThrow<ExpressionException> { LiveEffect.compile(component, transformers) }
   }
 
   @Test
-  fun `class effects reject a class from another class table`() {
+  internal fun `class effects reject a class from another class table`() {
     val otherUniverse = loader("CLASS Holder")
 
     shouldThrow<IllegalArgumentException> {
@@ -60,7 +60,7 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `components without ownership are unowned`() {
+  internal fun `components without ownership are unowned`() {
     val table = loader("CLASS Token")
 
     Component(table.resolve(te("Token"))).owner.shouldBeNull()

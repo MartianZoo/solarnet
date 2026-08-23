@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class AdvertisingTest : CardTest() {
+internal class AdvertisingTest : CardTest() {
   @Test
-  fun `Triggers on a 20-cost card but not a 19-cost card`() {
+  internal fun `Triggers on a 20-cost card but not a 19-cost card`() {
     newGame(
         ColoniesExpansion,
         PromoCardPack,

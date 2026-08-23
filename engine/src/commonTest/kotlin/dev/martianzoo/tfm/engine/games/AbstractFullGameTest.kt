@@ -17,7 +17,7 @@ import dev.martianzoo.tfm.engine.TfmTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
-abstract class AbstractFullGameTest : TfmTest() {
+internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
   protected lateinit var p3: TfmGameplay
@@ -34,7 +34,7 @@ abstract class AbstractFullGameTest : TfmTest() {
     if (players.size > 2) p3 = game.tfm(players[2]).requireExplicitPaymentChoices()
   }
 
-  fun copyThis() {
+  private fun copyThis() {
     p1.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
     p1.assertResources(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
     p1.assertDashMiddle(played = 0, actions = 0, vp = 0, tr = 0, hand = 0)

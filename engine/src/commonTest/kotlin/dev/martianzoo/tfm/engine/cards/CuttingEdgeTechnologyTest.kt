@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class CuttingEdgeTechnologyTest : CardTest() {
+internal class CuttingEdgeTechnologyTest : CardTest() {
   @Test
-  fun `Discounts cards with and without requirements`() {
+  internal fun `Discounts cards with and without requirements`() {
     newGame(VenusNextExpansion, PromoCardPack)
     engine.phase("Action")
     p1.manual(

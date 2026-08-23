@@ -11,9 +11,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class WorldGovernmentRulesTest : CardTest() {
+internal class WorldGovernmentRulesTest : CardTest() {
   @Test
-  fun `A completed parameter is not a legal World Government choice`() {
+  internal fun `A completed parameter is not a legal World Government choice`() {
     newGame(VenusNextExpansion)
     p1.manual("15 VenusStep")
     TfmWorkflow.Manual(game).solarPhase()
@@ -23,7 +23,7 @@ class WorldGovernmentRulesTest : CardTest() {
   }
 
   @Test
-  fun `Engine terraforming triggers Aphrodite without granting terraform rating`() {
+  internal fun `Engine terraforming triggers Aphrodite without granting terraform rating`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.manual("$Aphrodite")
     val moneyBefore = p1.count("Megacredit")
@@ -37,7 +37,7 @@ class WorldGovernmentRulesTest : CardTest() {
   }
 
   @Test
-  fun `Engine terraforming does not trigger an owner-only effect`() {
+  internal fun `Engine terraforming does not trigger an owner-only effect`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.manual("$HomeostasisBureau")
     TfmWorkflow.Manual(game).solarPhase()
@@ -48,7 +48,7 @@ class WorldGovernmentRulesTest : CardTest() {
   }
 
   @Test
-  fun `World Government is absent when unselected or disabled in Venus`() {
+  internal fun `World Government is absent when unselected or disabled in Venus`() {
     newGame()
     TfmWorkflow.Manual(game).solarPhase()
     game.isIdle() shouldBe true
@@ -66,7 +66,7 @@ class WorldGovernmentRulesTest : CardTest() {
   }
 
   @Test
-  fun `World Government can be selected without Venus`() {
+  internal fun `World Government can be selected without Venus`() {
     newGame(GameConfig("WorldGovernmentOption", "Player1", "Player2"))
 
     TfmWorkflow.Manual(game).solarPhase()

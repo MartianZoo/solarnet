@@ -6,16 +6,16 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class SkyDocksTest : ColoniesCardTest() {
+internal class SkyDocksTest : ColoniesCardTest() {
   @Test
-  fun `Can be played with two Earth tags`() {
+  internal fun `Can be played with two Earth tags`() {
     p1.manual("ProjectCard, 18, $LunaGovernor")
     p1.playProject(SkyDocks, 18).expect("TradeFleet")
     p1.assertCounts(2 to "TradeFleet")
   }
 
   @Test
-  fun `Allows a second trade in the same generation`() {
+  internal fun `Allows a second trade in the same generation`() {
     p1.manual("$SkyDocks, 18")
     p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
     p1.stdAction("TradeSA", 1) { doTask("Trade<Triton>") }
@@ -23,7 +23,7 @@ class SkyDocksTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Cannot be played with only one Earth tag`() {
+  internal fun `Cannot be played with only one Earth tag`() {
     p1.manual("ProjectCard, 18, $HeavyTaxation")
     shouldThrow<RequirementException> { p1.playProject(SkyDocks, 18) }
   }

@@ -15,19 +15,19 @@ internal class ExpressionTest {
   private fun testRoundTrip(petsText: String) = testRoundTrip<Expression>(petsText)
 
   @Test
-  fun simpleSourceToApi() {
+  internal fun simpleSourceToApi() {
     val foo = te("Foo")
     foo shouldBe cn("Foo").expression
     te("Foo<>").argumentsSpecified shouldBe true
   }
 
   @Test
-  fun simpleApiToSource() {
+  internal fun simpleApiToSource() {
     cn("Foo").expression.toString() shouldBe "Foo"
   }
 
   @Test
-  fun simpleRoundTrips() {
+  internal fun simpleRoundTrips() {
     testRoundTrip("Foo")
     testRoundTrip("Foo<>")
     testRoundTrip("Foo<Bar>")
@@ -44,12 +44,12 @@ internal class ExpressionTest {
   }
 
   @Test
-  fun complexRoundTrip() {
+  internal fun complexRoundTrip() {
     testRoundTrip("Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Me>>, Jj>>, Kk>>")
   }
 
   @Test
-  fun complexSourceToApi() {
+  internal fun complexSourceToApi() {
     val parsed = te(" Red< Blue  < This,Teal> , Gold > ")
     parsed shouldBe
         cn("Red")
@@ -60,7 +60,7 @@ internal class ExpressionTest {
   }
 
   @Test
-  fun complexApiToSource() {
+  internal fun complexApiToSource() {
     val expr =
         cn("Aa")
             .of(
@@ -77,7 +77,7 @@ internal class ExpressionTest {
   }
 
   @Test
-  fun classLiteralStuff() {
+  internal fun classLiteralStuff() {
     te("Foo")
     te("Foo<Bar>")
 

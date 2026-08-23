@@ -11,7 +11,7 @@ import kotlin.test.Test
 internal class SoloGenerationCountdownTest {
 
   @Test
-  fun laterGenerationsRemoveOneGenerationLeft() {
+  internal fun laterGenerationsRemoveOneGenerationLeft() {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
     finishNeutralSetup(engine)
@@ -22,7 +22,7 @@ internal class SoloGenerationCountdownTest {
   }
 
   @Test
-  fun enteringTheFinalSoloGenerationRecordsIt() {
+  internal fun enteringTheFinalSoloGenerationRecordsIt() {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
     finishNeutralSetup(engine)
@@ -35,7 +35,7 @@ internal class SoloGenerationCountdownTest {
   }
 
   @Test
-  fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
+  internal fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
     val game = setUpGame(Tr63SoloVariant, players = 1)
     val engine = game.tfm(ENGINE)
     val player = game.tfm(PLAYER1)

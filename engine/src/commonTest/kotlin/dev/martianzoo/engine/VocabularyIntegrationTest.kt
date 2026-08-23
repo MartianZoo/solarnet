@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 internal class VocabularyIntegrationTest {
   @Test
-  fun worldCanonicalizesSessionInputBeforeEngineResolution() {
+  internal fun worldCanonicalizesSessionInputBeforeEngineResolution() {
     val world =
         Engine.newGame(
             canonicalPremise(),

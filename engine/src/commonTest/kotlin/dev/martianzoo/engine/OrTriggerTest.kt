@@ -10,9 +10,9 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
-class OrTriggerTest {
+internal class OrTriggerTest {
   @Test
-  fun simpleSuperclassTriggerFiresForSubclass() {
+  internal fun simpleSuperclassTriggerFiresForSubclass() {
     val game = newGame()
     val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
 
@@ -25,7 +25,7 @@ class OrTriggerTest {
   }
 
   @Test
-  fun indexingPreservesEffectRegistrationOrderAcrossTriggerClasses() {
+  internal fun indexingPreservesEffectRegistrationOrderAcrossTriggerClasses() {
     val game = newGame()
     val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
 
@@ -38,7 +38,7 @@ class OrTriggerTest {
   }
 
   @Test
-  fun firstMatchingArmGovernsSpecialization() {
+  internal fun firstMatchingArmGovernsSpecialization() {
     val game = newGame()
     val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
 

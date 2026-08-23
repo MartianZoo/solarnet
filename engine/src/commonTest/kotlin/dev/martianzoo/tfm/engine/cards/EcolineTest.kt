@@ -7,7 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class EcolineTest : CardTest() {
+internal class EcolineTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
@@ -16,7 +16,7 @@ class EcolineTest : CardTest() {
   }
 
   @Test
-  fun `Can convert seven plants into greenery`() {
+  internal fun `Can convert seven plants into greenery`() {
     p1.manual("4 Plant")
     p1.assertCounts(7 to "Plant")
     p1.convertPlants {
@@ -27,7 +27,7 @@ class EcolineTest : CardTest() {
   }
 
   @Test
-  fun `Cannot convert only six plants into greenery`() {
+  internal fun `Cannot convert only six plants into greenery`() {
     p1.manual("3 Plant")
     shouldThrow<LimitsException> {
       p1.convertPlants()

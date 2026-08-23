@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.engine.cardnames.Factorum
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class FactorumTest : CardTest() {
+internal class FactorumTest : CardTest() {
   @Test
-  fun `Can raise energy production when it has no energy`() {
+  internal fun `Can raise energy production when it has no energy`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$Factorum")
@@ -17,7 +17,7 @@ class FactorumTest : CardTest() {
   }
 
   @Test
-  fun `Cannot raise energy production while it has energy`() {
+  internal fun `Cannot raise energy production while it has energy`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$Factorum, Energy")

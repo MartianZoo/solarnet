@@ -96,7 +96,7 @@ internal fun canonicalPremise(
   )
 }
 
-internal fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
+private fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
   val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }
   require(selectedMaps.size <= 1) { "select at most one map" }
   return selectedOptions.toSet()

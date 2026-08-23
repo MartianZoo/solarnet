@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 // Complete archive replay: Solar Fusion Stream (g4ce040d78bb6)
 // https://terraforming-mars.herokuapp.com/the-end?id=pc2de3208e4ca
-class SolarFusionStreamTest : CardTrackingFullGameTest() {
+internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
   // Player-record evidence: Elysium, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, and these limited-synergy milestone and award pools.
   // Unsupported component: unclaimed Terraformer substitutes for unclaimed Hydrologist.
@@ -31,7 +31,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
   override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
-  fun game20260819() {
+  internal fun game20260819() {
     TfmWorkflow.Auto(game).launch()
 
     val JR = p1

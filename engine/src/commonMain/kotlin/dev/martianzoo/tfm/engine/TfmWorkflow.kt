@@ -94,7 +94,7 @@ public object TfmWorkflow {
     private val workflowScope = CoroutineScope(lifecycleJob + Dispatchers.Unconfined)
     private var workflowJob: Job? = null
 
-    public val isRunning: Boolean
+    internal val isRunning: Boolean
       get() = workflowJob?.isActive == true
 
     /**
@@ -134,7 +134,7 @@ public object TfmWorkflow {
      * for a player to handle a workflow-created task (NewTurn or SecondAction), that task is rolled
      * back so the queue is empty and the game is ready for a manual phase transition.
      */
-    public fun shutdown() {
+    internal fun shutdown() {
       game.onAtomicComplete = {}
       lifecycleJob.cancel()
       resumeSignal.cancel()

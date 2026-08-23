@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 internal class FinalGreeneryPhaseTest {
   @Test
-  fun normalGreeneryRaisesOxygen() {
+  internal fun normalGreeneryRaisesOxygen() {
     val game = Engine.newGame(canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -34,7 +34,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun finalGreeneryRaisesOxygen() {
+  internal fun finalGreeneryRaisesOxygen() {
     val game = Engine.newGame(canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -51,7 +51,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun automaticSoloLossSkipsFinalGreeneryAndScoring() {
+  internal fun automaticSoloLossSkipsFinalGreeneryAndScoring() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
@@ -78,7 +78,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun automaticSoloWinRequiresCompletedBaseParameters() {
+  internal fun automaticSoloWinRequiresCompletedBaseParameters() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
@@ -107,7 +107,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun venusSoloAlsoRequiresCompletedVenusParameter() {
+  internal fun venusSoloAlsoRequiresCompletedVenusParameter() {
     val setup = canonicalPremise(VenusNextExpansion, players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
@@ -138,7 +138,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun automaticMultiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
+  internal fun automaticMultiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
     val setup = canonicalPremise()
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
@@ -158,7 +158,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun multiplayerFinalGreeneryAdvancesAfterAPlayerCanNoLongerConvert() {
+  internal fun multiplayerFinalGreeneryAdvancesAfterAPlayerCanNoLongerConvert() {
     val game = Engine.newGame(canonicalPremise(players = 3))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -196,7 +196,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun tenPlantsCanBecomeTwoGreeneriesWithEcolinePolderTechAndTheElysiumBonus() {
+  internal fun tenPlantsCanBecomeTwoGreeneriesWithEcolinePolderTechAndTheElysiumBonus() {
     val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -229,7 +229,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
+  internal fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
     val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -272,7 +272,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun sevenPlantsCanBecomeTwoGreeneriesInTheMostContrivedCanonicalCase() {
+  internal fun sevenPlantsCanBecomeTwoGreeneriesInTheMostContrivedCanonicalCase() {
     val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -313,7 +313,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun multiplayerEndConditionIgnoresVenusCompletion() {
+  internal fun multiplayerEndConditionIgnoresVenusCompletion() {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
 

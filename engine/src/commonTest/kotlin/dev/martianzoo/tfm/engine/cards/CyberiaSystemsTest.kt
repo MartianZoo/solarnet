@@ -7,7 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class CyberiaSystemsTest : CardTest() {
+internal class CyberiaSystemsTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
@@ -15,7 +15,7 @@ class CyberiaSystemsTest : CardTest() {
   }
 
   @Test
-  fun `Copies production boxes from two different building cards`() {
+  internal fun `Copies production boxes from two different building cards`() {
     p1.manual("$CyberiaSystems") {
           doTask("CopyProductionBox<$Mine>")
           doTask("CopyProductionBox<$IndustrialMicrobes>")
@@ -24,7 +24,7 @@ class CyberiaSystemsTest : CardTest() {
   }
 
   @Test
-  fun `Cannot copy the same card twice`() {
+  internal fun `Cannot copy the same card twice`() {
     p1.manual("$CyberiaSystems") {
       doTask("CopyProductionBox<$Mine>")
       shouldThrow<NarrowingException> { doTask("CopyProductionBox<$Mine>") }
@@ -33,7 +33,7 @@ class CyberiaSystemsTest : CardTest() {
   }
 
   @Test
-  fun `Cannot copy itself`() {
+  internal fun `Cannot copy itself`() {
     p1.manual("$CyberiaSystems") {
       shouldThrow<NarrowingException> { doTask("CopyProductionBox<$CyberiaSystems>") }
       abort()

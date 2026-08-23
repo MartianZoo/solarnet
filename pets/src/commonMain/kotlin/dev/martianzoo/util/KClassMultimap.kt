@@ -9,18 +9,18 @@ internal class KClassMultimap<B : Any>(list: Collection<B> = emptyList()) {
     this += list
   }
 
-  internal fun <T : B> put(type: KClass<T>, value: T) = doPut(type, value)
+  private fun <T : B> put(type: KClass<T>, value: T) = doPut(type, value)
 
   private fun doPut(type: KClass<out B>, value: B) {
     val list = map.getOrPut(type) { mutableListOf() }
     list += value
   }
 
-  internal inline operator fun <reified T : B> plusAssign(value: T) {
+  private inline operator fun <reified T : B> plusAssign(value: T) {
     put(T::class, value)
   }
 
-  internal operator fun plusAssign(values: Collection<B>) = values.forEach { doPut(it::class, it) }
+  private operator fun plusAssign(values: Collection<B>) = values.forEach { doPut(it::class, it) }
 
   internal inline fun <reified T : B> get(): List<T> = get(T::class)
 

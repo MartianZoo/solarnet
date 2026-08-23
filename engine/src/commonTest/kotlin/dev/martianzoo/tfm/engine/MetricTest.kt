@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class MetricTest {
   @Test
-  fun metricUnitsAndRequirementThresholdsHaveDifferentMeanings() {
+  internal fun metricUnitsAndRequirementThresholdsHaveDifferentMeanings() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode().manual("8 Plant")
 
@@ -21,7 +21,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun metricSubtractionComposesInCountsRequirementsAndInstructions() {
+  internal fun metricSubtractionComposesInCountsRequirementsAndInstructions() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode().manual("7 Plant, 2 Steel")
 
@@ -39,7 +39,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun metricsSupportConstantMinuendsAndDynamicCaps() {
+  internal fun metricsSupportConstantMinuendsAndDynamicCaps() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode().manual("7 Plant, 2 Steel")
 
@@ -50,7 +50,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun orCountsTheUnionOfMatchingComponents() {
+  internal fun orCountsTheUnionOfMatchingComponents() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode()
         .manual(

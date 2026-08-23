@@ -10,9 +10,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class TfmGameplayTest : CardTest() {
+internal class TfmGameplayTest : CardTest() {
   @Test
-  fun `Declining a second action rejects an unrelated optional task`() {
+  internal fun `Declining a second action rejects an unrelated optional task`() {
     newGame()
 
     p1.manual("UseAction<StandardAction>?") {
@@ -22,7 +22,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `Payment rejects leaving steel unspent at full value`() {
+  internal fun `Payment rejects leaving steel unspent at full value`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
@@ -44,7 +44,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `Underpayment permission applies to only one payment`() {
+  internal fun `Underpayment permission applies to only one payment`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
@@ -57,7 +57,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `Payment rejects steel that cannot receive full value`() {
+  internal fun `Payment rejects steel that cannot receive full value`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
@@ -74,7 +74,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `Payment rejects megacredits beyond the remainder after steel`() {
+  internal fun `Payment rejects megacredits beyond the remainder after steel`() {
     newGame()
     engine.phase("Action")
     p1.manual("30 Megacredit, 5 Steel, ProjectCard")
@@ -90,7 +90,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `Overpayment permission applies to only one payment`() {
+  internal fun `Overpayment permission applies to only one payment`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")

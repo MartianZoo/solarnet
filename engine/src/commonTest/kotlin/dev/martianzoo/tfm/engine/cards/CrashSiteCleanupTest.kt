@@ -9,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class CrashSiteCleanupTest : CardTest() {
+internal class CrashSiteCleanupTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
@@ -19,37 +19,37 @@ class CrashSiteCleanupTest : CardTest() {
   }
 
   @Test
-  fun `Can be played after removing an opponent's plant`() {
+  internal fun `Can be played after removing an opponent's plant`() {
     p1.manual("-Plant<Player2>")
     p1.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
   }
 
   @Test
-  fun `Cannot be played without removing a plant`() {
+  internal fun `Cannot be played without removing a plant`() {
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `Cannot be played after losing one of its own plants`() {
+  internal fun `Cannot be played after losing one of its own plants`() {
     p1.manual("Plant, -Plant")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `Cannot be played after an opponent removes its own plant`() {
+  internal fun `Cannot be played after an opponent removes its own plant`() {
     requireP2().manual("-Plant")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `Cannot be played if the plant removal was in a previous generation`() {
+  internal fun `Cannot be played if the plant removal was in a previous generation`() {
     p1.manual("-Plant<Player2>")
     engine.manual("Generation")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `Only the player who removed the plant qualifies`() {
+  internal fun `Only the player who removed the plant qualifies`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     engine.phase("Action")

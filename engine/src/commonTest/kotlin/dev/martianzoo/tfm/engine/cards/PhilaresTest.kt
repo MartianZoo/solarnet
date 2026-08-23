@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class PhilaresTest : CardTest() {
+internal class PhilaresTest : CardTest() {
   @Test
-  fun `Pays its owner when an opponent places an adjacent greenery`() {
+  internal fun `Pays its owner when an opponent places an adjacent greenery`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares, GreeneryTile<Tharsis_3_2>")
@@ -20,7 +20,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `Pays its owner when an opponent creates an adjacency`() {
+  internal fun `Pays its owner when an opponent creates an adjacency`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares")
@@ -29,7 +29,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `Pays its owner for creating adjacency to an opponent's tile`() {
+  internal fun `Pays its owner for creating adjacency to an opponent's tile`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$Philares")
@@ -39,7 +39,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `Does not pay when an opponent joins two of their own tiles`() {
+  internal fun `Does not pay when an opponent joins two of their own tiles`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares")
@@ -49,7 +49,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `Does not pay its owner for adjacency to their own tile`() {
+  internal fun `Does not pay its owner for adjacency to their own tile`() {
     newGame(PromoCardPack)
     p1.manual("$Philares")
     p1.manual("23")

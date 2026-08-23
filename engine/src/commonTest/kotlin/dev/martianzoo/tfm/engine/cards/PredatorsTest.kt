@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class PredatorsTest : CardTest() {
+internal class PredatorsTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
@@ -18,18 +18,18 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `Cannot act when no animal can be removed`() {
+  internal fun `Cannot act when no animal can be removed`() {
     shouldThrow<LimitsException> { p1.cardAction1(Predators) }
   }
 
   @Test
-  fun `Can remove an opponent's animal`() {
+  internal fun `Can remove an opponent's animal`() {
     addBirdForP2()
     p1.cardAction1(Predators).expect("Animal<$Predators>, -Animal<Player2, $Birds<Player2>>")
   }
 
   @Test
-  fun `Removes exactly one of two animals on the target card`() {
+  internal fun `Removes exactly one of two animals on the target card`() {
     addBirdForP2()
     requireP2().manual("Animal<$Birds>")
 
@@ -40,7 +40,7 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `Cannot decline to remove an opponent's animal`() {
+  internal fun `Cannot decline to remove an opponent's animal`() {
     addBirdForP2()
     p1.manual("Animal<$Predators>")
 
@@ -51,7 +51,7 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `Can remove an animal from another card its player owns`() {
+  internal fun `Can remove an animal from another card its player owns`() {
     p1.manual("PROD[2 Plant], $Birds")
     p1.manual("Animal<$Birds>")
     p1.manual("Animal<$Predators>")
@@ -61,13 +61,13 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `Can remove and replace its own animal`() {
+  internal fun `Can remove and replace its own animal`() {
     p1.manual("Animal<$Predators>")
     p1.cardAction1(Predators).expect("0 Animal<$Predators>")
   }
 
   @Test
-  fun `Predators can remove its own animal and trigger Meat Industry when replacing it`() {
+  internal fun `Predators can remove its own animal and trigger Meat Industry when replacing it`() {
     newGame(PromoCardPack, players = 1)
     p1.manual("$Predators, $MeatIndustry, Animal<$Predators>")
     engine.phase("Action")
@@ -76,7 +76,7 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `Takes an animal from the neutral holder in solo play`() {
+  internal fun `Takes an animal from the neutral holder in solo play`() {
     newGame(players = 1)
     p1.manual("$Predators")
     engine.phase("Action")

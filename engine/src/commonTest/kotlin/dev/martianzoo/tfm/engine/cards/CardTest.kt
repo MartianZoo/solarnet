@@ -17,7 +17,7 @@ import dev.martianzoo.tfm.engine.TfmTest
 import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.tfm.engine.setUpGame as setUpTfmGame
 
-abstract class CardTest : TfmTest() {
+internal abstract class CardTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
     private set
 

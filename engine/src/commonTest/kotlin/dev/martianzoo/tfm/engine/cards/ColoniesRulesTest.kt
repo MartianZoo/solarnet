@@ -9,9 +9,9 @@ import dev.martianzoo.tfm.engine.cardnames.RegolithEaters
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ColoniesRulesTest : CardTest() {
+internal class ColoniesRulesTest : CardTest() {
   @Test
-  fun `A card-resource colony bonus goes to the colony owner`() {
+  internal fun `A card-resource colony bonus goes to the colony owner`() {
     newGame(
         ColoniesExpansion,
         PromoCardPack,
@@ -39,7 +39,7 @@ class ColoniesRulesTest : CardTest() {
   }
 
   @Test
-  fun `Pluto draws a card before requiring its discard`() {
+  internal fun `Pluto draws a card before requiring its discard`() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(players = 2, "Pluto"),

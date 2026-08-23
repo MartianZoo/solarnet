@@ -4,10 +4,10 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class SteelworksTest : CardTest() {
+internal class SteelworksTest : CardTest() {
   // FAQ: "used even after the oxygen has been maxed out"
   @Test
-  fun `Can be used when oxygen is already maxed`() {
+  internal fun `Can be used when oxygen is already maxed`() {
     newGame()
     p1.manual("$Steelworks, 4 Energy")
     engine.manual("14 OxygenStep")

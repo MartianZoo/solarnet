@@ -18,7 +18,7 @@ import kotlin.test.Test
 
 internal class ClassDeclarationTest {
   @Test
-  fun duplicateEffectsArePreserved() {
+  internal fun duplicateEffectsArePreserved() {
     val effects =
         Parsing.parseClasses(
                 """
@@ -36,7 +36,7 @@ internal class ClassDeclarationTest {
   }
 
   @Test
-  fun testExample() {
+  internal fun testExample() {
     val declText =
         """
         ABSTRACT CLASS Foo<Bar> : Baz<Qux> {

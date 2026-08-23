@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class GameConfigTest {
   @Test
-  fun flexiblyParsesCommasSpacesNewlinesAndBlankLines() {
+  internal fun flexiblyParsesCommasSpacesNewlinesAndBlankLines() {
     val config =
         GameConfig(
             """
@@ -33,13 +33,13 @@ internal class GameConfigTest {
   }
 
   @Test
-  fun entryOrderIsNotSemantic() {
+  internal fun entryOrderIsNotSemantic() {
     GameConfig("TerraformingMars, PreludeExpansion") shouldBe
         GameConfig("PreludeExpansion, TerraformingMars")
   }
 
   @Test
-  fun acceptsArbitraryPlayerClassNamesSeparately() {
+  internal fun acceptsArbitraryPlayerClassNamesSeparately() {
     val config = GameConfig("TerraformingMars", "Mom", "Ellie")
 
     config.includedClassNames.shouldContainExactly(cn("TerraformingMars"))
@@ -48,7 +48,7 @@ internal class GameConfigTest {
   }
 
   @Test
-  fun rejectsDuplicateAndNonClassEntries() {
+  internal fun rejectsDuplicateAndNonClassEntries() {
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, -TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars", "Mom", "Mom") }

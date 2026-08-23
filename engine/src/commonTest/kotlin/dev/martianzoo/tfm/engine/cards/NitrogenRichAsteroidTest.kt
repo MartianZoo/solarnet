@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class NitrogenRichAsteroidTest : CardTest() {
+internal class NitrogenRichAsteroidTest : CardTest() {
   @Test
-  fun `May choose the lesser production branch with three plant tags`() {
+  internal fun `May choose the lesser production branch with three plant tags`() {
     newGame(CorporateEraExpansion)
     engine.phase("Action")
     p1.manual("$Ecoline, $AdaptedLichen, $Lichen")

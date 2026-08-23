@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 // Complete archive replay: Thermal Matter Wave (gafda6ee74f34)
 // https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
-class ThermalMatterWaveTest : AbstractSoloTest() {
+internal class ThermalMatterWaveTest : AbstractSoloTest() {
   override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   override val config =
@@ -26,7 +26,7 @@ class ThermalMatterWaveTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_3_6" to "Tharsis_6_5"
 
   @Test
-  fun game20260730() {
+  internal fun game20260730() {
     with(me) {
       playCorp(CrediCor) {
         buyCards(

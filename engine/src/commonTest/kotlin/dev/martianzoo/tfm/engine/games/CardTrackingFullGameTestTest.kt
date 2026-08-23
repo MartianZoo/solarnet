@@ -7,11 +7,11 @@ import dev.martianzoo.tfm.engine.cardnames.AsteroidMining
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class CardTrackingFullGameTestTest : CardTrackingFullGameTest() {
+internal class CardTrackingFullGameTestTest : CardTrackingFullGameTest() {
   override val config = GameConfig("PreludeExpansion", "Player1")
 
   @Test
-  fun namedDrawsPlaysAndDiscardsMaintainThePlayersHand() {
+  internal fun namedDrawsPlaysAndDiscardsMaintainThePlayersHand() {
     p1.godMode().manual("3 ProjectCard") { p1.draw(AcquiredCompany, AdaptedLichen, AsteroidMining) }
     p1.cardsInHand shouldBe setOf(AcquiredCompany, AdaptedLichen, AsteroidMining)
 

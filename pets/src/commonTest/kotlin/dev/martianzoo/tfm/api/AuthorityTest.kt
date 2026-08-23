@@ -19,12 +19,12 @@ import kotlin.test.Test
 
 internal class AuthorityTest {
   @Test
-  fun everyAuthorityIncludesThePetsRuntimeDeclarations() {
+  internal fun everyAuthorityIncludesThePetsRuntimeDeclarations() {
     TfmAuthority().classDeclaration(COMPONENT)
   }
 
   @Test
-  fun definitionsAndTheirExtraClassesBecomeDeclarations() {
+  internal fun definitionsAndTheirExtraClassesBecomeDeclarations() {
     val authority =
         object : TfmAuthority() {
           override val cardDefinitions =
@@ -45,7 +45,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun compositionCoalescesIdenticalClassDeclarations() {
+  internal fun compositionCoalescesIdenticalClassDeclarations() {
     val declaration = parseOneLinerClass("CLASS Shared")
     val composed = TfmAuthority.compose(authority(declaration), authority(declaration))
 
@@ -53,7 +53,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun compositionRejectsAmbiguousModuleOwnership() {
+  internal fun compositionRejectsAmbiguousModuleOwnership() {
     val declarations =
         "ABSTRACT CLASS Module\nCLASS SharedModule : Module"
             .lines()
@@ -74,7 +74,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun compositionRejectsDifferentDeclarationsWithTheSameName() {
+  internal fun compositionRejectsDifferentDeclarationsWithTheSameName() {
     val concrete = parseOneLinerClass("CLASS Shared")
     val abstract = parseOneLinerClass("ABSTRACT CLASS Shared")
 
@@ -84,7 +84,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun compositionRejectsConflictingDisplayNames() {
+  internal fun compositionRejectsConflictingDisplayNames() {
     fun named(displayName: String) =
         object : TfmAuthority() {
           override val displayNamesByLanguage = mapOf("en" to mapOf(cn("Shared") to displayName))
@@ -96,7 +96,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun moduleCanSelectOneContentKindFromAnotherBundle() {
+  internal fun moduleCanSelectOneContentKindFromAnotherBundle() {
     val moduleBundle =
         object : Bundle(cn("ModuleProvider")) {
           override val explicitClassDeclarations =
@@ -127,7 +127,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun moduleWithoutAContentSelectionDoesNotSelectItsBundleDefinitions() {
+  internal fun moduleWithoutAContentSelectionDoesNotSelectItsBundleDefinitions() {
     val card = CardDefinition(CardData(name = "ExampleCard"))
     val source =
         object : Bundle(cn("ExampleBundle")) {
@@ -146,7 +146,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun replacementsRemainKnownWhileTheSelectedModuleActivatesOnlyTheReplacement() {
+  internal fun replacementsRemainKnownWhileTheSelectedModuleActivatesOnlyTheReplacement() {
     val moduleBundle =
         bundle("Base", "ABSTRACT CLASS Module\nABSTRACT CLASS CardFront\nCLASS Base : Module")
     val original = CardDefinition(CardData(name = "DeimosDown"))
@@ -176,7 +176,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun replacementExclusionsFollowTheEntireChain() {
+  internal fun replacementExclusionsFollowTheEntireChain() {
     val moduleBundle =
         object : Bundle(cn("ModuleProvider")) {
           override val explicitClassDeclarations =
@@ -217,7 +217,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun multipleSelectedReplacementsForOneDefinitionAreRejected() {
+  internal fun multipleSelectedReplacementsForOneDefinitionAreRejected() {
     val moduleBundle =
         object : Bundle(cn("ModuleProvider")) {
           override val explicitClassDeclarations =
@@ -255,7 +255,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun individualCardConfigurationIsSupported() {
+  internal fun individualCardConfigurationIsSupported() {
     val source =
         TfmAuthority.compose(
             bundle(
@@ -271,7 +271,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun classPoliciesFilterAutomaticContentButPermitViableExplicitComposition() {
+  internal fun classPoliciesFilterAutomaticContentButPermitViableExplicitComposition() {
     val policyBundle =
         object : Bundle(cn("PolicyBundle")) {
           override val explicitClassDeclarations =

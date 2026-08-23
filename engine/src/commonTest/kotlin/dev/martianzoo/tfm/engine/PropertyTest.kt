@@ -20,7 +20,7 @@ import kotlin.test.Test
 
 internal class PropertyTest {
   @Test
-  fun numberPropertiesAreReadableWithoutBecomingComponents() {
+  internal fun numberPropertiesAreReadableWithoutBecomingComponents() {
     val game = Engine.newGame(canonicalPremise(Hellas, VenusNextExpansion, players = 2))
     val p1 = game.tfm(PLAYER1)
     val componentCount = p1.count("Component")
@@ -39,7 +39,7 @@ internal class PropertyTest {
   }
 
   @Test
-  fun numberPropertiesWorkInsideARefinement() {
+  internal fun numberPropertiesWorkInsideARefinement() {
     val game = Engine.newGame(canonicalPremise(Hellas, players = 2))
     val p1 = game.tfm(PLAYER1)
 
@@ -57,7 +57,7 @@ internal class PropertyTest {
   }
 
   @Test
-  fun metricPropertiesAreEvaluatedExplicitlyInsideClassEffects() {
+  internal fun metricPropertiesAreEvaluatedExplicitlyInsideClassEffects() {
     val authority = TfmAuthority.Composite(Canon, MetricPropertyProbeAuthority)
     val game = Engine.newGame(canonicalPremise(authority = authority, players = 2))
     val p1 = game.tfm(PLAYER1).godMode()
@@ -72,7 +72,7 @@ internal class PropertyTest {
   }
 
   @Test
-  fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
+  internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
     val authority = TfmAuthority.Composite(Canon, RequirementPropertyProbeAuthority)
     val game = Engine.newGame(canonicalPremise(authority = authority, players = 2))
     val p1 = game.tfm(PLAYER1).godMode()

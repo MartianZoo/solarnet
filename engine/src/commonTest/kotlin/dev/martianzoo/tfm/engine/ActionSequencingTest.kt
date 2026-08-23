@@ -12,7 +12,7 @@ import kotlin.test.Test
 
 internal class ActionSequencingTest {
   @Test
-  fun `city standard project creates independent production and placement tasks after payment`() {
+  internal fun `city standard project creates independent production and placement tasks after payment`() {
     val game = setUpGame()
     val p1 = game.tfm(PLAYER1)
     p1.godMode().manual("25 Megacredit")
@@ -50,7 +50,7 @@ internal class ActionSequencingTest {
   }
 
   @Test
-  fun `use-card action rejects a different card after placing the marker`() {
+  internal fun `use-card action rejects a different card after placing the marker`() {
     val game = setUpGame()
     val manual = game.tfm(PLAYER1).godMode().also { it.autoExecMode = NONE }
     manual.manual("$SymbioticFungus, $Ants")

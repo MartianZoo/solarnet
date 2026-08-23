@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class PsychrophilesTest : CardTest() {
+internal class PsychrophilesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PreludeExpansion)
@@ -17,7 +17,7 @@ class PsychrophilesTest : CardTest() {
   }
 
   @Test
-  fun `Can play a plant-tag card without spending microbes`() {
+  internal fun `Can play a plant-tag card without spending microbes`() {
     p1.manual("$Psychrophiles")
     p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
           declineTask()
@@ -26,7 +26,7 @@ class PsychrophilesTest : CardTest() {
   }
 
   @Test
-  fun `Can decline to spend a microbe on a plant-tag card`() {
+  internal fun `Can decline to spend a microbe on a plant-tag card`() {
     p1.manual("$Psychrophiles, Microbe<$Psychrophiles>")
 
     p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
@@ -37,13 +37,13 @@ class PsychrophilesTest : CardTest() {
   }
 
   @Test
-  fun `Can add a microbe with its action`() {
+  internal fun `Can add a microbe with its action`() {
     p1.manual("$Psychrophiles")
     p1.cardAction1(Psychrophiles).expect("Microbe<$Psychrophiles>")
   }
 
   @Test
-  fun `Can spend a microbe toward a plant-tag card`() {
+  internal fun `Can spend a microbe toward a plant-tag card`() {
     p1.manual("$Psychrophiles, Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 7) {
           doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
@@ -52,7 +52,7 @@ class PsychrophilesTest : CardTest() {
   }
 
   @Test
-  fun `Can spend five microbes toward a nine-cost card`() {
+  internal fun `Can spend five microbes toward a nine-cost card`() {
     p1.manual("$Psychrophiles, 5 Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 0) {
           doTask("5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
@@ -61,7 +61,7 @@ class PsychrophilesTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be played above its temperature limit`() {
+  internal fun `Cannot be played above its temperature limit`() {
     p1.manual("6 TemperatureStep")
     shouldThrow<RequirementException> { p1.playProject(Psychrophiles, 2) }
   }

@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class TitanShuttlesTest : ColoniesCardTest() {
+internal class TitanShuttlesTest : ColoniesCardTest() {
   @Test
-  fun `Can convert five floaters into five titanium`() {
+  internal fun `Can convert five floaters into five titanium`() {
     initializeCard()
     p1.cardAction2(TitanShuttles) {
           doTask("-5 Floater<$TitanShuttles> THEN 5 Titanium")
@@ -16,7 +16,7 @@ class TitanShuttlesTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Cannot underpay its floater cost`() {
+  internal fun `Cannot underpay its floater cost`() {
     initializeCard()
 
     p1.cardAction2(TitanShuttles) {

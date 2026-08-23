@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class GlobalParameterCompletionTest {
   @Test
-  fun eachTrackRecordsCompletionOnItsFinalStep() {
+  internal fun eachTrackRecordsCompletionOnItsFinalStep() {
     val game = setUpGame(VenusNextExpansion)
     val p1 = game.tfm(PLAYER1)
     val waterAreas = p1.list("WaterArea")

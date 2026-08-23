@@ -35,7 +35,7 @@ public sealed class Requirement : PetElement() {
           listOf(requirement)
         }
 
-    public fun join(one: Requirement?, two: Requirement?): Requirement? {
+    internal fun join(one: Requirement?, two: Requirement?): Requirement? {
       val x = setOfNotNull(one, two)
       return when (x.size) {
         0 -> null
@@ -111,7 +111,7 @@ public sealed class Requirement : PetElement() {
     }
   }
 
-  public data class Min(val minimum: Int, val countedMetric: Metric) :
+  public data class Min(private val minimum: Int, private val countedMetric: Metric) :
       Counting(minimum, countedMetric) {
     public constructor(
         scaledEx: ScaledExpression
@@ -128,7 +128,7 @@ public sealed class Requirement : PetElement() {
 
   public data class Max(val maximum: Int, val countedMetric: Metric) :
       Counting(maximum, countedMetric) {
-    public constructor(
+    internal constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 
@@ -137,9 +137,9 @@ public sealed class Requirement : PetElement() {
     override val range: IntRange = 0..target
   }
 
-  public data class Exact(val expected: Int, val countedMetric: Metric) :
+  public data class Exact(private val expected: Int, private val countedMetric: Metric) :
       Counting(expected, countedMetric) {
-    public constructor(
+    internal constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 
@@ -177,7 +177,7 @@ public sealed class Requirement : PetElement() {
 
   @ConsistentCopyVisibility
   public data class And internal constructor(val requirements: List<Requirement>) : Requirement() {
-    internal constructor(
+    private constructor(
         req1: Requirement,
         req2: Requirement,
         vararg rest: Requirement,

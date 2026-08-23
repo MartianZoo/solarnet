@@ -25,7 +25,7 @@ public object Engine {
   ): World = Wiring(premise, locale, inputOnlySynonyms).createWorld()
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
-  internal class Wiring(
+  private class Wiring(
       private val premise: GamePremise,
       locale: String,
       inputOnlySynonyms: Iterable<Pair<String, String>>,

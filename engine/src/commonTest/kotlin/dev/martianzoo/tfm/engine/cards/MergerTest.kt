@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class MergerTest : CardTest() {
+internal class MergerTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
@@ -20,12 +20,12 @@ class MergerTest : CardTest() {
   }
 
   @Test
-  fun `Can choose Celestic after Valley Trust`() {
+  internal fun `Can choose Celestic after Valley Trust`() {
     p1.assertCounts(0 to "PreludeCard", 6 to "ProjectCard")
   }
 
   @Test
-  fun `Resolves both corporations' starting benefits`() {
+  internal fun `Resolves both corporations' starting benefits`() {
     engine.phase("Action")
 
     p1.stdAction("HandleMandates") {
@@ -52,7 +52,7 @@ class MergerTest : CardTest() {
   }
 
   @Test
-  fun `Can pay for Merger before playing the second corporation`() {
+  internal fun `Can pay for Merger before playing the second corporation`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
     p1.playCorp(CrediCor, 0)
     engine.phase("Prelude")

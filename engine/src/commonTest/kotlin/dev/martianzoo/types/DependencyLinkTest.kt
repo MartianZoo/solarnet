@@ -32,7 +32,7 @@ internal class DependencyLinkTest {
   private val transformers = Transformers(table)
 
   @Test
-  fun `linked specialization also specializes effects`() {
+  internal fun `linked specialization also specializes effects`() {
     val component = Component(table.resolve(te("InheritedLink<Player1, Card>")))
 
     LiveEffect.compile(component, transformers)
@@ -42,7 +42,7 @@ internal class DependencyLinkTest {
   }
 
   @Test
-  fun `an unlinked nested owner does not capture contextual Owner in effects`() {
+  internal fun `an unlinked nested owner does not capture contextual Owner in effects`() {
     val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")))
 
     LiveEffect.compile(component, transformers)
@@ -52,21 +52,21 @@ internal class DependencyLinkTest {
   }
 
   @Test
-  fun `links survive inheritance`() {
+  internal fun `links survive inheritance`() {
     table.resolve(te("InheritedLink<Player1, Card>")) shouldBe
         table.resolve(te("InheritedLink<Card<Player1>>"))
     assertFails { table.resolve(te("InheritedLink<Player1, Card<Player2>>")) }
   }
 
   @Test
-  fun `linked complements are narrowed before exclusion`() {
+  internal fun `linked complements are narrowed before exclusion`() {
     table.resolve(te("Linked<Player1, !Card<Player2>>")) shouldBe
         table.resolve(te("Linked<Player1>"))
     table.resolve(te("Linked<Player1, !Card>")).abstract shouldBe true
   }
 
   @Test
-  fun `linked complement constrains every occurrence`() {
+  internal fun `linked complement constrains every occurrence`() {
     val notPlayer1 = table.resolve(te("Linked<!Player1>"))
 
     table.resolve(te("Linked<Player2>")).isSubtypeOf(notPlayer1) shouldBe true
@@ -74,7 +74,7 @@ internal class DependencyLinkTest {
   }
 
   @Test
-  fun `linked concrete types are enumerated once`() {
+  internal fun `linked concrete types are enumerated once`() {
     table
         .getClass(te("InheritedLink").className)
         .concreteTypes()

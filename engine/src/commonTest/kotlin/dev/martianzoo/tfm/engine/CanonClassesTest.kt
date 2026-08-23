@@ -39,13 +39,13 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun childlessAbstractClass() {
+  internal fun childlessAbstractClass() {
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().none() }
     anomalies.shouldBeEmpty()
   }
 
   @Test
-  fun abstractClassWithOnlyChild() {
+  internal fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
     anomalies
@@ -57,7 +57,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun actorOwnerAndPlayerHierarchy() {
+  internal fun actorOwnerAndPlayerHierarchy() {
     val actor = table.getClass(ACTOR)
     val owner = table.getClass(OWNER)
     val player = table.getClass(PLAYER)
@@ -78,7 +78,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun setupSeparatesPlayersFromActors() {
+  internal fun setupSeparatesPlayersFromActors() {
     val premise = canonicalPremise()
     premise.actors
         .filterIsInstance<dev.martianzoo.data.Player>()
@@ -94,7 +94,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
+  internal fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
     val maps = listOf(Tharsis, Hellas, Elysium, Utopia, Cimmeria)
 
     maps.forEach { map ->
@@ -118,7 +118,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
+  internal fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
     val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
 
     game.tfm(PLAYER1).phase("Prelude")
@@ -128,7 +128,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun soloSetupUsesPetsOnlyOpponent() {
+  internal fun soloSetupUsesPetsOnlyOpponent() {
     val premise = canonicalPremise(players = 1)
     premise.actors.shouldContainExactly(PLAYER1, ENGINE)
     val game = setUpGame(premise)
@@ -185,7 +185,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun testOwnedTileIsAnIntersectionType() {
+  internal fun testOwnedTileIsAnIntersectionType() {
     val owned = table.getClass(cn("Owned"))
     val tile = table.getClass(cn("Tile"))
     val ownedTile = table.getClass(cn("OwnedTile"))
@@ -196,7 +196,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun testActionCardIsAnIntersectionType() {
+  internal fun testActionCardIsAnIntersectionType() {
     val cardFront = table.getClass(cn("CardFront"))
     val hasActions = table.getClass(cn("HasActions"))
     val actionCard = table.getClass(cn("ActionCard"))
@@ -207,7 +207,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun cardboundComponentsRequirePlayerOwners() {
+  internal fun cardboundComponentsRequirePlayerOwners() {
     table.resolve(te("ResourceHolder<SoloOpponent, Class<Animal>>"))
     assertFailsWith<ExpressionException> {
       table.resolve(te("Cardbound<SoloOpponent, $Predators<Player1>>"))
@@ -215,7 +215,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun component() {
+  internal fun component() {
     val loader = ClassLoader(Canon)
 
     with(loader.componentClass) {
@@ -247,7 +247,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun testAllConcreteSubtypes() {
+  internal fun testAllConcreteSubtypes() {
     val table = ClassTable.forPremise(canonicalPremise(players = 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
@@ -288,7 +288,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
+  internal fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(PLAYER1) as GodMode
     val withVenus =

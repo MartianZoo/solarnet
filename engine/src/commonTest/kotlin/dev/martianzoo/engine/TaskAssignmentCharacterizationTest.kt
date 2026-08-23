@@ -18,9 +18,9 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class TaskAssignmentCharacterizationTest {
+internal class TaskAssignmentCharacterizationTest {
   @Test
-  fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
+  internal fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
@@ -36,7 +36,7 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
+  internal fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
@@ -51,7 +51,7 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun assignedPlayerCanCompleteATaskPerformedByEngine() {
+  internal fun assignedPlayerCanCompleteATaskPerformedByEngine() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
@@ -66,7 +66,7 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun performerOverridePreservesThenTaskSequencing() {
+  internal fun performerOverridePreservesThenTaskSequencing() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
@@ -91,7 +91,7 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun pendingTaskReceivesItsAddEventOrdinalWhenInsertedIntoItsAssigneesQueue() {
+  internal fun pendingTaskReceivesItsAddEventOrdinalWhenInsertedIntoItsAssigneesQueue() {
     val events = EventLog()
     val queues = TaskQueues(events)
     val cause = Cause(te("TerraformingMars"), triggerEvent = 0)
@@ -114,7 +114,7 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun copiedQueuesRetainTasksAndThenDiverge() {
+  internal fun copiedQueuesRetainTasksAndThenDiverge() {
     val events = EventLog()
     val queues = TaskQueues(events)
     val pending =

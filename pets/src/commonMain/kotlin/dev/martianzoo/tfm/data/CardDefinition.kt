@@ -75,7 +75,7 @@ public class CardDefinition(data: CardData) : Definition {
   /** The card this card replaces, if any. For example, `DeimosDownPromo` replaces `DeimosDown`. */
   public val replaces: ClassName? = data.replaces?.let(::cn)
 
-  public val projectInfo: ProjectInfo? =
+  internal val projectInfo: ProjectInfo? =
       if (deck == PROJECT) {
         ProjectInfo(data, data.requirement?.let(::parseOwned))
       } else {
@@ -122,8 +122,8 @@ public class CardDefinition(data: CardData) : Definition {
   public val cost: Int = projectInfo?.cost ?: 0
 
   /** Extra information that only project cards have. */
-  public class ProjectInfo internal constructor(data: CardData, requirement: Requirement?) {
-    public val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
+  internal class ProjectInfo internal constructor(data: CardData, requirement: Requirement?) {
+    internal val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
 
     /** The card's printed play requirement, if any. */
     public val requirement: Requirement? = requirement
@@ -207,7 +207,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** A kind (color) of project; see [CardDefinition.ProjectInfo.kind]. */
-  public enum class ProjectKind(internal val className: ClassName) {
+  internal enum class ProjectKind(internal val className: ClassName) {
     EVENT(EVENT_CARD),
     AUTOMATED(AUTOMATED_CARD),
     ACTIVE(ACTIVE_CARD),

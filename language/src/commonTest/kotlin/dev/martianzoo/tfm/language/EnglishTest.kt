@@ -20,7 +20,7 @@ internal class EnglishTest {
   // derivation shape. Do not add shape-specific expected text. The two tests below it only prove
   // that an absent region does not consult the golden data at all.
   @Test
-  fun allCardTextMatchesDataFile() {
+  internal fun allCardTextMatchesDataFile() {
     EnglishCardTextData.byCardFront.forEach { (cardFront, expected) ->
       withClue(cardFront.toString()) {
         val card = cardsByClassName[cardFront]
@@ -33,7 +33,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun describesStandalonePetsElements() {
+  internal fun describesStandalonePetsElements() {
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This>")) shouldBe
         "1 VP for each animal on this card."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
@@ -56,7 +56,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun noTopTextElementsDoesNotConsultDataFile() {
+  internal fun noTopTextElementsDoesNotConsultDataFile() {
     val requirementOnly =
         CardDefinition(
             CardData(
@@ -71,7 +71,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun noBottomTextElementsDoesNotConsultDataFile() {
+  internal fun noBottomTextElementsDoesNotConsultDataFile() {
     val actionOnly =
         CardDefinition(
             CardData(

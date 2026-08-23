@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
-abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
+internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   private val hands = mutableMapOf<Player, MutableSet<ClassName>>()
   private val expectedDraws = mutableMapOf<Player, MutableList<ClassName>>()
   private val expectedDiscards = mutableMapOf<Player, MutableList<ClassName>>()
@@ -135,7 +135,7 @@ abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   private val TfmGameplay.player: Player
     get() = actor as Player
 
-  protected companion object {
+  private companion object {
     val PROJECT_CARD: ClassName = cn("ProjectCard")
   }
 }

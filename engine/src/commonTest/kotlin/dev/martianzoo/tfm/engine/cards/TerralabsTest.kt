@@ -5,17 +5,17 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class TerralabsTest : CardTest() {
+internal class TerralabsTest : CardTest() {
 
   @Test
-  fun `Buys project cards for one megacredit each`() {
+  internal fun `Buys project cards for one megacredit each`() {
     newGame(TurmoilCardPack)
     p1.playCorp(TerraLabsResearch, 10)
     p1.manual("4 BuyCard").expect("4 ProjectCard, -4")
   }
 
   @Test
-  fun `Terralabs and Polyphemos cancel each other's card-purchase modifiers`() {
+  internal fun `Terralabs and Polyphemos cancel each other's card-purchase modifiers`() {
     newGame(
         TurmoilCardPack,
         ColoniesExpansion,

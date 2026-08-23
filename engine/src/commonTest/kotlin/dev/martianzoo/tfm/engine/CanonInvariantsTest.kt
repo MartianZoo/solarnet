@@ -21,7 +21,7 @@ internal class CanonInvariantsTest {
   private val table = Canon.classTable
 
   @Test
-  fun introspect() {
+  internal fun introspect() {
     val limiter = Limiter(table, ComponentGraph.empty(table))
 
     fun checkTypeLimits(s: String, vararg pairs: Pair<String, IntRange>) {
@@ -62,7 +62,7 @@ internal class CanonInvariantsTest {
   }
 
   @Test
-  fun testLookup() {
+  internal fun testLookup() {
     val limiter = Limiter(table, ComponentGraph.empty(table))
 
     fun restrictions(a: String) = limiter.rangeRestrictionsByClass[table.getClass(cn(a))]

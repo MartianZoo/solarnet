@@ -3,15 +3,15 @@ package dev.martianzoo.util
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class CartesianProductTest {
+internal class CartesianProductTest {
   @Test
-  fun zeroLists() {
+  internal fun zeroLists() {
     val sequence = listOf<Sequence<Unit>>().cartesianProduct()
     sequence.toList() shouldBe listOf(listOf<Unit>())
   }
 
   @Test
-  fun severalDimensions() {
+  internal fun severalDimensions() {
     val letters = sequenceOf("a", "b", "c")
     val numbers = sequenceOf(1, 2, 3, 4, 5)
     val colors = sequenceOf("red", "blue")

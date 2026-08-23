@@ -8,16 +8,16 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class DiversitySupportTest : CardTest() {
+internal class DiversitySupportTest : CardTest() {
   @Test
-  fun `Can be played with nine resource types`() {
+  internal fun `Can be played with nine resource types`() {
     seedResources()
     p1.manual("$ForcedPrecipitation, Floater<$ForcedPrecipitation>")
     p1.playProject(DiversitySupport, 1).expect("TerraformRating")
   }
 
   @Test
-  fun `Cannot be played with only eight resource types`() {
+  internal fun `Cannot be played with only eight resource types`() {
     seedResources()
     p1.count("TerraformRating") shouldBe 20
     shouldThrow<RequirementException> { p1.playProject(DiversitySupport, 1) }

@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 
 internal class StinaScriptTest {
   @Test
-  fun `Stina Saturn Systems game`() {
+  internal fun `Stina Saturn Systems game`() {
     val repl = ScriptSession()
     val script =
         """

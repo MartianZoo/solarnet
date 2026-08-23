@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
-class StandardTechnologyTest : CardTest() {
+internal class StandardTechnologyTest : CardTest() {
   @Test
-  fun `Rebates three megacredits without reducing the standard project payment`() {
+  internal fun `Rebates three megacredits without reducing the standard project payment`() {
     newGame()
     engine.phase("Action")
     p1.manual("8 Megacredit, $StandardTechnology")

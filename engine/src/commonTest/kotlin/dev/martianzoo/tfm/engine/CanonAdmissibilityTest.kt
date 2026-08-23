@@ -25,7 +25,7 @@ import kotlin.test.Test
 
 internal class CanonAdmissibilityTest {
   @Test
-  fun everySupportedMapBuildsAnIdleWorldWithTheRequestedMap() {
+  internal fun everySupportedMapBuildsAnIdleWorldWithTheRequestedMap() {
     val maps =
         listOf(
             Tharsis to "TharsisMap",
@@ -45,7 +45,7 @@ internal class CanonAdmissibilityTest {
   }
 
   @Test
-  fun representativeCompleteConfigurationBuildsOneCoherentProjection() {
+  internal fun representativeCompleteConfigurationBuildsOneCoherentProjection() {
     val colonies = testColonyTiles(players = 2)
     val selected =
         arrayOf(

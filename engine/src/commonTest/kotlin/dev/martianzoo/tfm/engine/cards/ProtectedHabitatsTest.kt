@@ -7,9 +7,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ProtectedHabitatsTest : CardTest() {
+internal class ProtectedHabitatsTest : CardTest() {
   @Test
-  fun `Allows its owner to remove their own protected resources`() {
+  internal fun `Allows its owner to remove their own protected resources`() {
     newGame()
     p1.manual("PROD[Plant], $ProtectedHabitats, Plant, $Fish, $Tardigrades")
     p1.manual("Animal<$Fish>, Microbe<$Tardigrades>")
@@ -17,7 +17,7 @@ class ProtectedHabitatsTest : CardTest() {
   }
 
   @Test
-  fun `Prevents an opponent from removing protected plants`() {
+  internal fun `Prevents an opponent from removing protected plants`() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
@@ -26,7 +26,7 @@ class ProtectedHabitatsTest : CardTest() {
   }
 
   @Test
-  fun `Prevents an opponent from removing protected animals`() {
+  internal fun `Prevents an opponent from removing protected animals`() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
@@ -35,7 +35,7 @@ class ProtectedHabitatsTest : CardTest() {
   }
 
   @Test
-  fun `Prevents an opponent from removing protected microbes`() {
+  internal fun `Prevents an opponent from removing protected microbes`() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()

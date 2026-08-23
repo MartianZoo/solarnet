@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class CommunityServicesTest : CardTest() {
+internal class CommunityServicesTest : CardTest() {
   @Test
-  fun `Can be played with three tagless cards`() {
+  internal fun `Can be played with three tagless cards`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.manual("$Airliners") { addCardResources(AtmoCollectors) }
@@ -17,7 +17,7 @@ class CommunityServicesTest : CardTest() {
   }
 
   @Test
-  fun `Ecology Experts is not tagless after playing its selected card`() {
+  internal fun `Ecology Experts is not tagless after playing its selected card`() {
     newGame(
         PreludeExpansion,
         ColoniesExpansion,

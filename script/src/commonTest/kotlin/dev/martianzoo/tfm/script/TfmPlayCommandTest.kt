@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 internal class TfmPlayCommandTest {
   @Test
-  fun `tfm play works within the automatic solo workflow`() {
+  internal fun `tfm play works within the automatic solo workflow`() {
     val repl = ScriptSession()
     repl.command(
         "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, " +
@@ -29,7 +29,7 @@ internal class TfmPlayCommandTest {
   }
 
   @Test
-  fun `tfm play selects the play card action and forwards inline payment`() {
+  internal fun `tfm play selects the play card action and forwards inline payment`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("auto safe")

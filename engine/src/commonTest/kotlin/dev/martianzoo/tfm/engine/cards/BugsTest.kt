@@ -15,9 +15,9 @@ import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
-class BugsTest : CardTest() {
+internal class BugsTest : CardTest() {
   @Test
-  fun `Philares incorrectly gives its owner the resource choice immediately`() {
+  internal fun `Philares incorrectly gives its owner the resource choice immediately`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares")
@@ -38,7 +38,7 @@ class BugsTest : CardTest() {
   }
 
   @Test
-  fun `Philares incorrectly lets the active player continue while its reward is unresolved`() {
+  internal fun `Philares incorrectly lets the active player continue while its reward is unresolved`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares")
@@ -60,7 +60,7 @@ class BugsTest : CardTest() {
   // NOTE: losing 10 M€ (or as much as possible). Fake Established Methods intentionally omits
   // NOTE: that fallback.
   @Test
-  fun `Established Methods without its note dead-ends when no second project is affordable`() {
+  internal fun `Established Methods without its note dead-ends when no second project is affordable`() {
     newGame(PreludeExpansion, PromoCardPack)
     p1.phase("Prelude")
     p1.manual("PreludeCard")
@@ -79,7 +79,7 @@ class BugsTest : CardTest() {
 
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
-  fun `Head Start incorrectly allows its two actions to interleave`() {
+  internal fun `Head Start incorrectly allows its two actions to interleave`() {
     newGame(PreludeExpansion, TurmoilCardPack, PromoCardPack)
     p1.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard, 10 Heat")
@@ -97,7 +97,7 @@ class BugsTest : CardTest() {
 
   // Solar Probe should count its own science tag and draw one card for all three tags.
   @Test
-  fun `Solar Probe incorrectly draws no card during normal play`() {
+  internal fun `Solar Probe incorrectly draws no card during normal play`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     engine.phase("Action")
     p1.manual("9, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
@@ -106,7 +106,7 @@ class BugsTest : CardTest() {
   }
 
   @Test
-  fun `Stealing zero is incorrectly allowed and prevents Mons Insurance compensation`() {
+  internal fun `Stealing zero is incorrectly allowed and prevents Mons Insurance compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$MonsInsurance, 10 Megacredit")
@@ -120,7 +120,7 @@ class BugsTest : CardTest() {
   }
 
   @Test
-  fun `Air Raid incorrectly remains playable when only its player has money`() {
+  internal fun `Air Raid incorrectly remains playable when only its player has money`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     val p2 = requireP2()
     engine.phase("Action")
@@ -132,7 +132,7 @@ class BugsTest : CardTest() {
   }
 
   @Test
-  fun `Public Plans incorrectly remains playable while revealing no other cards`() {
+  internal fun `Public Plans incorrectly remains playable while revealing no other cards`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("7 Megacredit, ProjectCard")

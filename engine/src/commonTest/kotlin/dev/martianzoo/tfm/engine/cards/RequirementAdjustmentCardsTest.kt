@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class RequirementAdjustmentCardsTest : CardTest() {
+internal class RequirementAdjustmentCardsTest : CardTest() {
   @Test
-  fun `A satisfied printed requirement bypasses adjustment debt`() {
+  internal fun `A satisfied printed requirement bypasses adjustment debt`() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
@@ -25,7 +25,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
   }
 
   @Test
-  fun `Inventrix adjusts minimum and maximum global requirements by two`() {
+  internal fun `Inventrix adjusts minimum and maximum global requirements by two`() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
@@ -43,7 +43,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
   }
 
   @Test
-  fun `Requirement adjustments stack and Special Design expires on the next card`() {
+  internal fun `Requirement adjustments stack and Special Design expires on the next card`() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
@@ -58,7 +58,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
   }
 
   @Test
-  fun `Morning Star adjusts Venus requirements regardless of the card's tags`() {
+  internal fun `Morning Star adjusts Venus requirements regardless of the card's tags`() {
     newGame(VenusNextExpansion)
     p1.playCorp(MorningStarInc, 0)
     engine.phase("Action")

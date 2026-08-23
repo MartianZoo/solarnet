@@ -20,7 +20,7 @@ public object SystemClasses {
   public val ATOMIZED: ClassName = cn("Atomized")
   public val ACTOR: ClassName = cn("Actor")
   public val CLASS: ClassName = cn("Class")
-  public val CUSTOM: ClassName = cn("Custom")
+  internal val CUSTOM: ClassName = cn("Custom")
   public val COMPONENT: ClassName = cn("Component")
   public val DIE: ClassName = cn("Die")
   public val HIDDEN: ClassName = cn("Hidden")

@@ -8,11 +8,11 @@ import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.types.Class
 
 /** English Pets text using the complete component descriptions supplied by its client. */
-public class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
+internal class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
   private val describers = Describers(descriptions)
 
   /** Returns complete English sentences describing [effect]. */
-  public fun describe(effect: Effect): String = describeOrNull(effect) ?: unsupported(effect)
+  internal fun describe(effect: Effect): String = describeOrNull(effect) ?: unsupported(effect)
 
   /** Returns complete English sentences describing [actions] as one action region. */
   public fun describe(actions: List<Action>): String =
@@ -23,25 +23,25 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
       describeOrNull(actions) ?: unsupported(actions)
 
   /** Returns complete, context-neutral English sentences describing [instructionTree]. */
-  public fun describe(instructionTree: InstructionTree): String =
+  internal fun describe(instructionTree: InstructionTree): String =
       describeOrNull(instructionTree) ?: unsupported(instructionTree)
 
   /**
    * Returns complete English sentences describing [instructionTree] as an instruction on [card].
    */
-  public fun describe(instructionTree: InstructionTree, card: CardDefinition): String =
+  internal fun describe(instructionTree: InstructionTree, card: CardDefinition): String =
       describeOrNull(instructionTree) ?: unsupported(instructionTree)
 
   /** Returns complete English sentences describing [requirement]. */
-  public fun describe(requirement: Requirement): String =
+  internal fun describe(requirement: Requirement): String =
       describeOrNull(requirement) ?: unsupported(requirement)
 
   /** Returns the text above [card]'s artwork, using [fallback] for unsupported content. */
-  public fun topText(card: CardDefinition, fallback: () -> String): String =
+  internal fun topText(card: CardDefinition, fallback: () -> String): String =
       derivedTopText(card) ?: if (hasTopTextElement(card)) fallback() else ""
 
   /** Returns the text below [card]'s artwork, using [fallback] for unsupported content. */
-  public fun bottomText(card: CardDefinition, fallback: () -> String): String =
+  internal fun bottomText(card: CardDefinition, fallback: () -> String): String =
       derivedBottomText(card) ?: if (hasBottomTextElement(card)) fallback() else ""
 
   // Of the card's Effects, only endgame scoring is printed below the artwork.

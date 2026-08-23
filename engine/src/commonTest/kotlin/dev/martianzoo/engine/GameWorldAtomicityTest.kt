@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 internal class GameWorldAtomicityTest {
   @Test
-  fun failedOperationRestoresTheWholeWorldTogether() {
+  internal fun failedOperationRestoresTheWholeWorldTogether() {
     val world = Engine.newGame(premise) as WholeWorld
     val engine = world.gameplay(ENGINE).godMode()
     val checkpoint = world.timeline.checkpoint()

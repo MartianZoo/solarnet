@@ -5,10 +5,10 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class PolyphemosTest : CardTest() {
+internal class PolyphemosTest : CardTest() {
 
   @Test
-  fun `Applies its card-purchase surcharge to Inventors Guild`() {
+  internal fun `Applies its card-purchase surcharge to Inventors Guild`() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),

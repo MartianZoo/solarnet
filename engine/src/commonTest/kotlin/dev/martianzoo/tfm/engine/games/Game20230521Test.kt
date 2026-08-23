@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class Game20230521Test : AbstractFullGameTest() {
+internal class Game20230521Test : AbstractFullGameTest() {
 
   override val config =
       GameConfig(
@@ -23,7 +23,7 @@ class Game20230521Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun game20230521() {
+  internal fun game20230521() {
     TfmWorkflow.Auto(game).launch()
 
     // Good luck Player1!

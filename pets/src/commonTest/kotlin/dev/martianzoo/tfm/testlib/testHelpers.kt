@@ -7,14 +7,14 @@ import dev.martianzoo.util.Multiset
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 
-public fun te(s: String): Expression = parse(s)
+internal fun te(s: String): Expression = parse(s)
 
-public fun assertFails(message: String, shouldFail: () -> Unit) =
+internal fun assertFails(message: String, shouldFail: () -> Unit) =
     withClue(message) { assertFails(shouldFail) }
 
-public fun assertFails(shouldFail: () -> Unit) = shouldThrow<RuntimeException>(shouldFail)
+internal fun assertFails(shouldFail: () -> Unit) = shouldThrow<RuntimeException>(shouldFail)
 
-public fun <T> multiset(vararg pairs: Pair<Int, T>): Multiset<T> {
+internal fun <T> multiset(vararg pairs: Pair<Int, T>): Multiset<T> {
   val result = HashMultiset<T>()
   pairs.forEach { (count, element) -> result.add(element, count) }
   return result

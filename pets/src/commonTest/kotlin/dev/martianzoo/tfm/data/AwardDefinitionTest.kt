@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class AwardDefinitionTest {
   @Test
-  fun groupAndIndividualAutomaticSelectionRequirementsAreCombined() {
+  internal fun groupAndIndividualAutomaticSelectionRequirementsAreCombined() {
     val awards =
         JsonReader.readAwards(
             """

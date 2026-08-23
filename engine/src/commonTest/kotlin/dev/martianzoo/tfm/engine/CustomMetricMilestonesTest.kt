@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 internal class CustomMetricMilestonesTest {
   @Test
-  fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
+  internal fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
     val p1 = Engine.newGame(canonicalPremise(Elysium, players = 2)).tfm(PLAYER1)
     p1.godMode()
         .sneak(
@@ -34,7 +34,7 @@ internal class CustomMetricMilestonesTest {
   }
 
   @Test
-  fun diversifierCanBeClaimedWithEightDistinctTagTypes() {
+  internal fun diversifierCanBeClaimedWithEightDistinctTagTypes() {
     val game =
         Engine.newGame(
             canonicalPremise(
@@ -68,7 +68,7 @@ internal class CustomMetricMilestonesTest {
   }
 
   @Test
-  fun tacticianCanBeClaimedWithFiveCardsHavingRequirements() {
+  internal fun tacticianCanBeClaimedWithFiveCardsHavingRequirements() {
     val p1 =
         Engine.newGame(
                 canonicalPremise(

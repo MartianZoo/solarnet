@@ -10,7 +10,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class SulphurEatingBacteriaTest : CardTest() {
+internal class SulphurEatingBacteriaTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion)
@@ -19,12 +19,12 @@ class SulphurEatingBacteriaTest : CardTest() {
   }
 
   @Test
-  fun `Can add a microbe with its first action`() {
+  internal fun `Can add a microbe with its first action`() {
     p1.cardAction1(SulphurEatingBacteria).expect("Microbe")
   }
 
   @Test
-  fun `Can convert three microbes into nine megacredits`() {
+  internal fun `Can convert three microbes into nine megacredits`() {
     p1.cardAction2(SulphurEatingBacteria) {
           doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9")
         }
@@ -32,52 +32,52 @@ class SulphurEatingBacteriaTest : CardTest() {
   }
 
   @Test
-  fun `Cannot take more than three megacredits per microbe`() {
+  internal fun `Cannot take more than three megacredits per microbe`() {
     assertInvalidPayment<NarrowingException>("-Microbe<$SulphurEatingBacteria> THEN 4")
   }
 
   @Test
-  fun `Cannot take fewer than three megacredits per microbe`() {
+  internal fun `Cannot take fewer than three megacredits per microbe`() {
     assertInvalidPayment<NarrowingException>("-Microbe<$SulphurEatingBacteria> THEN 2")
   }
 
   @Test
-  fun `Cannot remove microbes without taking their payment`() {
+  internal fun `Cannot remove microbes without taking their payment`() {
     assertInvalidPayment<NarrowingException>("-Microbe<$SulphurEatingBacteria>")
   }
 
   @Test
-  fun `Must remove microbes from Sulphur-Eating Bacteria`() {
+  internal fun `Must remove microbes from Sulphur-Eating Bacteria`() {
     assertInvalidPayment<NarrowingException>("-3 Microbe THEN 9")
   }
 
   @Test
-  fun `Cannot spend more microbes than it has`() {
+  internal fun `Cannot spend more microbes than it has`() {
     assertInvalidPayment<LimitsException>("-5 Microbe<$SulphurEatingBacteria> THEN 15")
   }
 
   @Test
-  fun `Cannot spend zero microbes`() {
+  internal fun `Cannot spend zero microbes`() {
     assertInvalidPayment<PetSyntaxException>("-0 Microbe<$SulphurEatingBacteria> THEN 0")
   }
 
   @Test
-  fun `Must spend microbes rather than an abstract resource`() {
+  internal fun `Must spend microbes rather than an abstract resource`() {
     assertInvalidPayment<ExpressionException>("-3 Resource<$SulphurEatingBacteria> THEN 9")
   }
 
   @Test
-  fun `Must remove microbes before taking payment`() {
+  internal fun `Must remove microbes before taking payment`() {
     assertInvalidPayment<NarrowingException>("9 THEN -3 Microbe<$SulphurEatingBacteria>")
   }
 
   @Test
-  fun `Cannot add microbes in exchange for megacredits`() {
+  internal fun `Cannot add microbes in exchange for megacredits`() {
     assertInvalidPayment<NarrowingException>("2 Microbe<$SulphurEatingBacteria> THEN -6")
   }
 
   @Test
-  fun `Can convert one microbe into three megacredits`() {
+  internal fun `Can convert one microbe into three megacredits`() {
     p1.cardAction2(SulphurEatingBacteria) {
           doTask("-Microbe<$SulphurEatingBacteria> THEN 3")
         }
@@ -85,7 +85,7 @@ class SulphurEatingBacteriaTest : CardTest() {
   }
 
   @Test
-  fun `Can convert all four microbes into twelve megacredits`() {
+  internal fun `Can convert all four microbes into twelve megacredits`() {
     p1.cardAction2(SulphurEatingBacteria) {
           doTask("-4 Microbe<$SulphurEatingBacteria> THEN 12")
         }

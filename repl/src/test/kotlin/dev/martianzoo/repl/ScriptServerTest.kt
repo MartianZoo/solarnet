@@ -43,12 +43,12 @@ internal class ScriptServerTest {
   }
 
   @Test
-  fun basicCommand() = withServer { send ->
+  internal fun basicCommand() = withServer { send ->
     assertThat(send("count Steel")).containsExactly("0 Steel<Owner>").inOrder()
   }
 
   @Test
-  fun statusReturnsPrompt() = withServer { send ->
+  internal fun statusReturnsPrompt() = withServer { send ->
     val result = send("status")
     assertThat(result).hasSize(1)
     assertThat(result.single()).endsWith("> ")
@@ -56,35 +56,35 @@ internal class ScriptServerTest {
   }
 
   @Test
-  fun semicolons() = withServer { send ->
+  internal fun semicolons() = withServer { send ->
     assertThat(send("count Steel; count Plant"))
         .containsExactly("0 Steel<Owner>", "", "0 Plant<Owner>")
         .inOrder()
   }
 
   @Test
-  fun trailingTabReturnsCompletions() = withServer { send ->
+  internal fun trailingTabReturnsCompletions() = withServer { send ->
     assertThat(send("mode b\t")).containsExactly("blue")
   }
 
   @Test
-  fun trailingBackslashTAlsoReturnsCompletions() = withServer { send ->
+  internal fun trailingBackslashTAlsoReturnsCompletions() = withServer { send ->
     assertThat(send("mode b\\t")).containsExactly("blue")
   }
 
   @Test
-  fun trailingTabDoesNotExecuteServerControlCommands() = withServer { send ->
+  internal fun trailingTabDoesNotExecuteServerControlCommands() = withServer { send ->
     assertThat(send("exit\t")).isEmpty()
     assertThat(send("status")).hasSize(1)
   }
 
   @Test
-  fun rebuildReturnsError() = withServer { send ->
+  internal fun rebuildReturnsError() = withServer { send ->
     assertThat(send("rebuild").single()).contains("not supported")
   }
 
   @Test
-  fun exitShutsDownServer() = withServer { send ->
+  internal fun exitShutsDownServer() = withServer { send ->
     // withServer itself calls exit and asserts the thread dies — just verify the response message
     assertThat(send("exit").single()).contains("Shutting down")
   }

@@ -6,7 +6,7 @@ internal sealed interface Clause {
 
   data class Simple(
       val predicate: Predicate,
-      val subject: NounPhrase? = null,
+      private val subject: NounPhrase? = null,
   ) : Clause {
     fun withModifier(modifier: Modifier): Simple =
         copy(predicate = predicate.withModifier(modifier))
@@ -15,7 +15,7 @@ internal sealed interface Clause {
         listOfNotNull(subject?.linearize(), predicate.linearize()).joinToString(" ")
   }
 
-  data class Coordinated(val clauses: Coordination<Clause>) : Clause {
+  data class Coordinated(private val clauses: Coordination<Clause>) : Clause {
     override fun linearize(): String = clauses.linearize(Clause::linearize)
   }
 }
@@ -39,10 +39,10 @@ internal data class Predicate(
 
 /** A noun phrase whose number agreement is decided only by the final linearizer. */
 internal data class NounPhrase(
-    val singular: String,
-    val plural: String = singular,
-    val count: Int? = null,
-    val determiner: String? = null,
+    private val singular: String,
+    private val plural: String = singular,
+    private val count: Int? = null,
+    private val determiner: String? = null,
 ) {
   fun noun(): String = if (count == null || count == 1) singular else plural
 
@@ -61,11 +61,11 @@ internal data class NounPhrase(
 internal sealed interface Modifier {
   fun linearize(): String
 
-  data class Phrase(val text: String) : Modifier {
+  data class Phrase(private val text: String) : Modifier {
     override fun linearize(): String = text
   }
 
-  data class Parenthetical(val text: String) : Modifier {
+  data class Parenthetical(private val text: String) : Modifier {
     override fun linearize(): String = "($text)"
   }
 }
@@ -73,7 +73,7 @@ internal sealed interface Modifier {
 /** Ordered conjunction or disjunction. */
 internal data class Coordination<T>(
     val members: List<T>,
-    val conjunction: Conjunction? = null,
+    private val conjunction: Conjunction? = null,
 ) {
   init {
     require(members.isNotEmpty())
@@ -101,8 +101,8 @@ internal enum class Conjunction {
 
 /** The sole capitalization and punctuation boundary. */
 internal data class Sentence(
-    val clause: Clause,
-    val punctuation: String = ".",
+    private val clause: Clause,
+    private val punctuation: String = ".",
 ) {
   fun linearize(): String = completeSentence(clause.linearize(), punctuation)
 }

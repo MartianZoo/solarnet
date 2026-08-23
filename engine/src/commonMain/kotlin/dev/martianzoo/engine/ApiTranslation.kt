@@ -214,7 +214,7 @@ internal class ApiTranslation(
 
   // autoExecNow() and cross-Actor gameplay calls can re-enter this boundary. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
-  fun atomic(block: () -> Unit): TaskResult =
+  private fun atomic(block: () -> Unit): TaskResult =
       atomicOperationBoundary.run(block) { impl.autoExecNow(autoExecMode) }
 
   private data class ParsedTaskRevision(

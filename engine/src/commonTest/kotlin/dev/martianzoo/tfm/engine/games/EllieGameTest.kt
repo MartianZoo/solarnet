@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class EllieGameTest : AbstractFullGameTest() {
+internal class EllieGameTest : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
@@ -28,7 +28,7 @@ class EllieGameTest : AbstractFullGameTest() {
       )
 
   @Test
-  fun ellieGame() {
+  internal fun ellieGame() {
     val workflow = TfmWorkflow.Auto(game).launch()
     workflow.isRunning shouldBe true
 
@@ -147,7 +147,7 @@ class EllieGameTest : AbstractFullGameTest() {
   }
 
   @Test
-  fun earlyGameWithNoPrelude() {
+  internal fun earlyGameWithNoPrelude() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     val p1 = game.tfm(PLAYER1)

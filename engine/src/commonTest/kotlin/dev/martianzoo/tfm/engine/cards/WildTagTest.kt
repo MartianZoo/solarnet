@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class WildTagTest : CardTest() {
+internal class WildTagTest : CardTest() {
   @Test
-  fun `Nested standard projects preserve pending payments offer positions and wild tags`() {
+  internal fun `Nested standard projects preserve pending payments offer positions and wild tags`() {
     newGame(PreludeExpansion, PromoCardPack)
     p1.manual("2 PreludeCard")
     engine.phase("Prelude")
@@ -65,7 +65,7 @@ class WildTagTest : CardTest() {
   }
 
   @Test
-  fun `Another player's earlier task does not change a wild tag offer's position`() {
+  internal fun `Another player's earlier task does not change a wild tag offer's position`() {
     newGame(PreludeExpansion)
     val p2 = requireP2()
     p1.manual("$ResearchCoordination")
@@ -83,7 +83,7 @@ class WildTagTest : CardTest() {
   }
 
   @Test
-  fun `Temporary tags count normally without triggering printed-tag effects`() {
+  internal fun `Temporary tags count normally without triggering printed-tag effects`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     p1.manual(
         "$ResearchCoordination, $ResearchNetwork, $PointLuna, $MarsUniversity, 2 ProjectCard"
@@ -118,7 +118,7 @@ class WildTagTest : CardTest() {
   }
 
   @Test
-  fun `Robotic Workforce follows a claimed building wild tag`() {
+  internal fun `Robotic Workforce follows a claimed building wild tag`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     p1.manual("$ResearchNetwork, ProjectCard, 9 Megacredit")
     p1.count("WildTag") shouldBe 1
@@ -135,7 +135,7 @@ class WildTagTest : CardTest() {
   }
 
   @Test
-  fun `Excentric Sponsor can play a card whose requirement needs the wild tag`() {
+  internal fun `Excentric Sponsor can play a card whose requirement needs the wild tag`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     p1.manual("$Teractor, 2 PreludeCard")
     engine.phase("Prelude")
@@ -148,7 +148,7 @@ class WildTagTest : CardTest() {
   }
 
   @Test
-  fun `A per-tag production box counts the wild tag`() {
+  internal fun `A per-tag production box counts the wild tag`() {
     newGame(PreludeExpansion)
     p1.manual("2 PreludeCard")
     engine.phase("Prelude")

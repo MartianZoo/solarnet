@@ -5,9 +5,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class TestHelpersTest : CardTest() {
+internal class TestHelpersTest : CardTest() {
   @Test
-  fun `Net-change expectations reject empty argument lists`() {
+  internal fun `Net-change expectations reject empty argument lists`() {
     newGame()
     val result = p1.manual("GreeneryTile<Tharsis_6_6>")
 

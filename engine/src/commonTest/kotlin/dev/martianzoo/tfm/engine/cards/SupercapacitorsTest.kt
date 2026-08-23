@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class SupercapacitorsTest : CardTest() {
+internal class SupercapacitorsTest : CardTest() {
   @Test
-  fun `Can preserve some energy`() {
+  internal fun `Can preserve some energy`() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
@@ -18,7 +18,7 @@ class SupercapacitorsTest : CardTest() {
   }
 
   @Test
-  fun `Can preserve no energy`() {
+  internal fun `Can preserve no energy`() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
@@ -31,7 +31,7 @@ class SupercapacitorsTest : CardTest() {
   }
 
   @Test
-  fun `Can preserve all existing energy but not newly produced energy`() {
+  internal fun `Can preserve all existing energy but not newly produced energy`() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 

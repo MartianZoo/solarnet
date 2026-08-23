@@ -18,9 +18,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class Prelude2CardsTest : CardTest() {
+internal class Prelude2CardsTest : CardTest() {
   @Test
-  fun `Nirgal pays nothing for milestones and awards`() {
+  internal fun `Nirgal pays nothing for milestones and awards`() {
     newGame(Prelude2Expansion)
     p1.manual("$NirgalEnterprises, 16 ProjectCard")
     val startingMoney = p1.count("Megacredit")
@@ -34,7 +34,7 @@ class Prelude2CardsTest : CardTest() {
 
   // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
   @Test
-  fun `Prelude and Prelude 2 share one setup and phase`() {
+  internal fun `Prelude and Prelude 2 share one setup and phase`() {
     newGame(Prelude2Expansion)
 
     engine.phase("Prelude")
@@ -45,7 +45,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Applied Science supplies a wild tag and converts its science`() {
+  internal fun `Applied Science supplies a wild tag and converts its science`() {
     newGame(Prelude2Expansion)
     p1.manual("$AppliedScience")
 
@@ -61,7 +61,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Nobel Prize supplies its wild tag and immediate gains`() {
+  internal fun `Nobel Prize supplies its wild tag and immediate gains`() {
     newGame(Prelude2Expansion)
     p1.manual("$NobelPrize")
 
@@ -71,7 +71,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Board of Directors remains in play and can play another prelude`() {
+  internal fun `Board of Directors remains in play and can play another prelude`() {
     newGame(Prelude2Expansion)
     engine.phase("Prelude")
     p1.manual("12, 2 PreludeCard")
@@ -90,7 +90,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Terraforming Deal pays two per TR step`() {
+  internal fun `Terraforming Deal pays two per TR step`() {
     newGame(Prelude2Expansion)
     p1.manual("20, $TerraformingDeal")
     engine.phase("Action")
@@ -104,7 +104,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `World Government Advisor raises a parameter as Engine`() {
+  internal fun `World Government Advisor raises a parameter as Engine`() {
     newGame(Prelude2Expansion)
     p1.manual("$WorldGovernmentAdvisor")
     engine.phase("Action")
@@ -117,7 +117,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `World Government Advisor works with Venus while World Government is disabled`() {
+  internal fun `World Government Advisor works with Venus while World Government is disabled`() {
     newGame(
         GameConfig(
             "Prelude2Expansion, VenusNextExpansion, -WorldGovernmentOption",
@@ -136,7 +136,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `EcoTec rewards both of its starting tags`() {
+  internal fun `EcoTec rewards both of its starting tags`() {
     newGame(Prelude2Expansion)
 
     p1.manual("$EcoTec") {
@@ -148,7 +148,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Spire draws four cards and discards three as its first action`() {
+  internal fun `Spire draws four cards and discards three as its first action`() {
     newGame(Prelude2Expansion)
     p1.manual("$Spire")
     engine.phase("Action")
@@ -160,7 +160,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Spire counts the derived event tag toward its two-tag requirement`() {
+  internal fun `Spire counts the derived event tag toward its two-tag requirement`() {
     newGame(Prelude2Expansion, CorporateEraExpansion)
     p1.manual("$Spire")
     val startingScience = p1.count("Science<$Spire>")
@@ -173,7 +173,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Spire science pays two toward standard projects`() {
+  internal fun `Spire science pays two toward standard projects`() {
     newGame(Prelude2Expansion, CorporateEraExpansion)
     p1.manual("$Spire, 20")
     val startingScience = p1.count("Science<$Spire>")
@@ -193,7 +193,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Spire science cannot pay other debts`() {
+  internal fun `Spire science cannot pay other debts`() {
     newGame(Prelude2Expansion)
     p1.manual("$Spire, Science<$Spire>")
 
@@ -206,7 +206,7 @@ class Prelude2CardsTest : CardTest() {
 
   // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
   @Test
-  fun `Suitable Infrastructure pays once for each action`() {
+  internal fun `Suitable Infrastructure pays once for each action`() {
     newGame(Prelude2Expansion)
     engine.phase("Prelude")
     p1.manual("$SuitableInfrastructure")
@@ -236,7 +236,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Focused Organization may gain a different resource than it spends`() {
+  internal fun `Focused Organization may gain a different resource than it spends`() {
     newGame(Prelude2Expansion)
     p1.manual("$FocusedOrganization") { doTask("Steel") }
     engine.phase("Action")
@@ -249,7 +249,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Early Colonization advances every track twice and Solar reuses the same operation`() {
+  internal fun `Early Colonization advances every track twice and Solar reuses the same operation`() {
     val colonyTiles = testColonyTiles(2, "Luna")
     newGame(Prelude2Expansion, ColoniesExpansion, colonyTiles = colonyTiles)
     engine.manual("5 ColonyProduction<Luna>")
@@ -269,7 +269,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Industrial Complex raises only production tracks below one`() {
+  internal fun `Industrial Complex raises only production tracks below one`() {
     newGame(Prelude2Expansion)
     p1.manual("18, PROD[-5 Megacredit], PROD[2 Titanium], PROD[Plant]")
 
@@ -287,7 +287,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Recession applies each opponent loss as much as possible`() {
+  internal fun `Recession applies each opponent loss as much as possible`() {
     newGame(Prelude2Expansion, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -304,7 +304,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Recession losses are performed by each opponent`() {
+  internal fun `Recession losses are performed by each opponent`() {
     newGame(Prelude2Expansion, PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -318,7 +318,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Cloud Tourism uses the lower Earth and Venus tag count`() {
+  internal fun `Cloud Tourism uses the lower Earth and Venus tag count`() {
     newGame(Prelude2Expansion, VenusNextExpansion, CorporateEraExpansion)
     p1.manual("$Sponsors, $EarthOffice, $VenusGovernor, $VenusWaystation, $ForcedPrecipitation")
     val firstStartingProduction = p1.production(cn("Megacredit"))
@@ -335,7 +335,7 @@ class Prelude2CardsTest : CardTest() {
 
   // https://boardgamegeek.com/thread/3154781/do-event-tags-count-for-sagitta
   @Test
-  fun `Sagitta treats the event icon as an additional printed tag`() {
+  internal fun `Sagitta treats the event icon as an additional printed tag`() {
     newGame(
         Prelude2Expansion,
         CorporateEraExpansion,
@@ -364,7 +364,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Sagitta ignores cards played by another player`() {
+  internal fun `Sagitta ignores cards played by another player`() {
     newGame(Prelude2Expansion, players = 2)
     val p2 = requireP2()
     p1.manual("$SagittaFrontierServices")
@@ -378,7 +378,7 @@ class Prelude2CardsTest : CardTest() {
 
   // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg
   @Test
-  fun `A prelude remains playable when its global parameter is already maximized`() {
+  internal fun `A prelude remains playable when its global parameter is already maximized`() {
     newGame(Prelude2Expansion)
     engine.phase("Prelude")
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
@@ -393,7 +393,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Venus Orbital Survey follows both reveal outcomes`() {
+  internal fun `Venus Orbital Survey follows both reveal outcomes`() {
     newGame(Prelude2Expansion, VenusNextExpansion)
     p1.manual("$VenusOrbitalSurvey, 3")
     engine.phase("Action")
@@ -408,7 +408,7 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Venus Shuttles action cost is reduced by Venus tags`() {
+  internal fun `Venus Shuttles action cost is reduced by Venus tags`() {
     newGame(Prelude2Expansion, VenusNextExpansion)
     p1.manual("$VenusGovernor, $VenusWaystation, $ForcedPrecipitation, $VenusMagnetizer, 20")
     p1.manual("$VenusShuttles") { addCardResources(ForcedPrecipitation) }

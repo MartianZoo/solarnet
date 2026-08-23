@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class AsteroidDeflectionSystemTest : CardTest() {
+internal class AsteroidDeflectionSystemTest : CardTest() {
   @Test
-  fun `Reveals cards through Asteroid Deflection System when plants are protected`() {
+  internal fun `Reveals cards through Asteroid Deflection System when plants are protected`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     engine.phase("Action")

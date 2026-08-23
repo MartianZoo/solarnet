@@ -25,7 +25,7 @@ import kotlin.test.assertFailsWith
 
 internal class ClassDeclarationParsingTest {
   @Test
-  fun propertiesUseBoundsLiteralsMetricsAndRequirements() {
+  internal fun propertiesUseBoundsLiteralsMetricsAndRequirements() {
     val declaration =
         parseClasses(
                 """
@@ -65,7 +65,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
+  internal fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar, Bar") }
     shouldThrow<PetSyntaxException> {
       parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }")
@@ -78,7 +78,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun ownerLocalClassesAreRejectedInsideOrdinaryClassDeclarations() {
+  internal fun ownerLocalClassesAreRejectedInsideOrdinaryClassDeclarations() {
     val source = "CLASS Foo { Bar {}: Baz }"
 
     shouldThrow<PetSyntaxException> { parseClasses(source) }
@@ -86,7 +86,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun simpleOneLiners() {
+  internal fun simpleOneLiners() {
     parseClasses("CLASS Foo") // minimal
     parseClasses("ABSTRACT CLASS Foo") // abstract
     parseClasses("CLASS Foo<Bar>") // with spec
@@ -99,17 +99,17 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun declarationShortNamesAreNotPetsSyntax() {
+  internal fun declarationShortNamesAreNotPetsSyntax() {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo[FOO]") }
   }
 
   @Test
-  fun ordinaryWhitespaceLineEndingsAndFinalComments() {
+  internal fun ordinaryWhitespaceLineEndingsAndFinalComments() {
     parseClasses("CLASS\tFoo\r\nCLASS\tBar // final comment") shouldHaveSize 2
   }
 
   @Test
-  fun incompleteFinalDeclarationIsRejected() {
+  internal fun incompleteFinalDeclarationIsRejected() {
     listOf(
             "CLASS Foo\nABSTRACT",
             "CLASS Foo\nCLASS",
@@ -124,7 +124,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun slightlyMoreComplex() {
+  internal fun slightlyMoreComplex() {
     parseClasses(
         """
       CLASS Foo
@@ -174,7 +174,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun body() {
+  internal fun body() {
     parseClasses(
             """
               CLASS Bar : Qux { DEFAULT +Bar?
@@ -191,7 +191,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun series() {
+  internal fun series() {
     parseClasses(
         """
           CLASS Die {
@@ -209,7 +209,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun nesting() {
+  internal fun nesting() {
     val cs =
         parseClasses(
             """
@@ -243,7 +243,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun nestedOneLiner() {
+  internal fun nestedOneLiner() {
     parseClasses(
         """
       CLASS One {
@@ -255,7 +255,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun withDefaults() {
+  internal fun withDefaults() {
     parseClasses(
         """
         ABSTRACT CLASS Component {

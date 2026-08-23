@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 internal class ComponentGraphIndexTest {
   @Test
-  fun componentInMultipleTopLevelBranchesIsCountedOnce() {
+  internal fun componentInMultipleTopLevelBranchesIsCountedOnce() {
     val game = Engine.newGame(canonicalPremise(authority = IndexProbeAuthority))
     val gameplay = game.gameplay(PLAYER1).godMode()
     val componentCount = gameplay.count("Component")

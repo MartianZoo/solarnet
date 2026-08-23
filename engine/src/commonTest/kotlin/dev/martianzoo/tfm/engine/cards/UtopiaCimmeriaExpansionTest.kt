@@ -9,9 +9,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class UtopiaCimmeriaExpansionTest : CardTest() {
+internal class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
-  fun `MSL Curiosity bonus is inert without Colonies`() {
+  internal fun `MSL Curiosity bonus is inert without Colonies`() {
     newGame(Cimmeria)
     p1.manual("10")
 
@@ -22,7 +22,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `MSL Curiosity bonus can buy a colony with Colonies`() {
+  internal fun `MSL Curiosity bonus can buy a colony with Colonies`() {
     newGame(
         ColoniesExpansion,
         Cimmeria,
@@ -39,7 +39,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
+  internal fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
     newGame(Utopia)
     val p2 = requireP2()
     p1.manual("8, $Ecoline, $EarthCatapult, Asteroid")
@@ -54,7 +54,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Suburbian rewards a tile on the map edge over an interior tile`() {
+  internal fun `Suburbian rewards a tile on the map edge over an interior tile`() {
     newGame(Utopia)
     val p2 = requireP2()
     p1.manual("8, CityTile<Utopia_1_1>")
@@ -69,7 +69,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Founder counts a tile once when it neighbors multiple opponents' special tiles`() {
+  internal fun `Founder counts a tile once when it neighbors multiple opponents' special tiles`() {
     newGame(Cimmeria)
     val p2 = requireP2()
     p1.manual("8, CityTile<Cimmeria_3_3>")
@@ -87,7 +87,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Claims Metallurgist for combined metal production and Trader for three resource types`() {
+  internal fun `Claims Metallurgist for combined metal production and Trader for three resource types`() {
     newGame(Utopia)
     p1.manual(
         "16, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
@@ -102,7 +102,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Fundraiser requires printed megacredit production of twelve`() {
+  internal fun `Fundraiser requires printed megacredit production of twelve`() {
     newGame(Cimmeria)
     p1.manual("PROD[11 Megacredit]")
 

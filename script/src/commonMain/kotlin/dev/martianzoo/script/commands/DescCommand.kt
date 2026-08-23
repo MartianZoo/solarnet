@@ -48,7 +48,7 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
     return listOf(TypeToText.describe(expression, type, repl.game.classTable, repl.game.vocabulary))
   }
 
-  object TypeToText {
+  private object TypeToText {
     /** A detailed multi-line description of a type. */
     internal fun describe(
         expression: Expression,

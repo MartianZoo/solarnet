@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.cardnames.AstraMechanica
 import kotlin.test.Test
 
-class AstraMechanicaTest : CardTest() {
+internal class AstraMechanicaTest : CardTest() {
   @Test
-  fun `Can choose zero played events`() {
+  internal fun `Can choose zero played events`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("7 Megacredit, ProjectCard")

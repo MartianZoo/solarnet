@@ -12,9 +12,9 @@ import kotlinx.serialization.Serializable
 public class ColonyTileDefinition(data: ColonyTileData) : Definition {
   override val className: ClassName = cn(data.name)
 
-  internal val placementBonus: Instruction = parse(data.placementBonus)
-  internal val colonyBonus: Instruction = parse(data.colonyBonus)
-  internal val tradeIncome: List<Instruction> = data.tradeIncome.map(::parse)
+  private val placementBonus: Instruction = parse(data.placementBonus)
+  private val colonyBonus: Instruction = parse(data.colonyBonus)
+  private val tradeIncome: List<Instruction> = data.tradeIncome.map(::parse)
   public val resourceType: ClassName? = data.resourceType?.let(::cn)
 
   override val asClassDeclaration: ClassDeclaration by lazy {

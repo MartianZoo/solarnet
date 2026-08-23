@@ -8,9 +8,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class EcologyExpertsTest : CardTest() {
+internal class EcologyExpertsTest : CardTest() {
   @Test
-  fun `Plays Decomposers while ignoring its global requirement`() {
+  internal fun `Plays Decomposers while ignoring its global requirement`() {
     newGame(PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("10 Megacredit, ProjectCard, PreludeCard")
@@ -27,7 +27,7 @@ class EcologyExpertsTest : CardTest() {
   }
 
   @Test
-  fun `Splice money from Ecology Experts tags can pay for Decomposers`() {
+  internal fun `Splice money from Ecology Experts tags can pay for Decomposers`() {
     newGame(PreludeExpansion, PromoCardPack)
     val p2 = requireP2()
     p2.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
@@ -44,7 +44,7 @@ class EcologyExpertsTest : CardTest() {
   }
 
   @Test
-  fun `Can play a card without a bio tag`() {
+  internal fun `Can play a card without a bio tag`() {
     newGame(PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("2 Megacredit, ProjectCard, PreludeCard")
@@ -55,7 +55,7 @@ class EcologyExpertsTest : CardTest() {
   }
 
   @Test
-  fun `Viral Enhancers sees only its own plant tag`() {
+  internal fun `Viral Enhancers sees only its own plant tag`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     engine.phase("Prelude")
     p1.manual("9 Megacredit, ProjectCard, PreludeCard")
@@ -68,7 +68,7 @@ class EcologyExpertsTest : CardTest() {
   }
 
   @Test
-  fun `Ecological Zone sees only its own tags`() {
+  internal fun `Ecological Zone sees only its own tags`() {
     newGame(PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("12 Megacredit, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")

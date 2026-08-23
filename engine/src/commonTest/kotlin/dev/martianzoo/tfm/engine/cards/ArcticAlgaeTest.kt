@@ -8,9 +8,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ArcticAlgaeTest : CardTest() {
+internal class ArcticAlgaeTest : CardTest() {
   @Test
-  fun `Triggers when an opponent places an ocean`() {
+  internal fun `Triggers when an opponent places an ocean`() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae")
@@ -18,7 +18,7 @@ class ArcticAlgaeTest : CardTest() {
   }
 
   @Test
-  fun `Can resolve ocean placements and Arctic Algae before removing plants`() {
+  internal fun `Can resolve ocean placements and Arctic Algae before removing plants`() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae, Plant")
@@ -42,7 +42,7 @@ class ArcticAlgaeTest : CardTest() {
   }
 
   @Test
-  fun `Can remove plants before resolving ocean placements and Arctic Algae`() {
+  internal fun `Can remove plants before resolving ocean placements and Arctic Algae`() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae, Plant")

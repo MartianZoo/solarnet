@@ -5,9 +5,9 @@ import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.testRoundTrip
 import kotlin.test.Test
 
-class ScaledExpressionTest {
+internal class ScaledExpressionTest {
   @Test
-  fun testParse() {
+  internal fun testParse() {
     parse(ScaledExpression.scalar(), "2")
     parse(ScaledExpression.scalar(), "0")
     parse(ScaledExpression.scalar(), "X")

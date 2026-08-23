@@ -16,9 +16,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class TransformersTest {
+internal class TransformersTest {
   @Test
-  fun atomizerChangesKindOnlyThroughTheBroaderInstructionTreeKind() {
+  internal fun atomizerChangesKindOnlyThroughTheBroaderInstructionTreeKind() {
     val instruction = parse<Instruction>("2 OxygenStep!")
     val atomizer = transformers.atomizer()
     val transformed = atomizer.transformInstructionTree(instruction)
@@ -28,7 +28,7 @@ class TransformersTest {
   }
 
   @Test
-  fun test() {
+  internal fun test() {
     checkApplyDefaults("Heat", "Heat<Owner>!")
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
@@ -80,7 +80,7 @@ class TransformersTest {
   }
 
   @Test
-  fun dependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
+  internal fun dependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
     shouldThrow<PetSyntaxException> { applyDefaults("OceanTile") }.message shouldBe
         "`OceanTile` has gain dependency defaults; write `OceanTile<>` to accept them or provide dependency arguments"
     shouldThrow<PetSyntaxException> { applyDefaults("Owed") }.message shouldBe
@@ -92,7 +92,7 @@ class TransformersTest {
   }
 
   @Test
-  fun triggerDependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
+  internal fun triggerDependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
     applyEffectDefaults("ScienceTag<>: Heat") shouldBe
         applyEffectDefaults("ScienceTag<CardFront>: Heat")
     applyEffectDefaults("-ScienceTag<>: Heat") shouldBe
@@ -123,7 +123,7 @@ class TransformersTest {
       transformers.insertDefaults().transformEffect(parse(original))
 
   @Test
-  fun testDeprodify_noProd() {
+  internal fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
     val ep: Effect = Prod.deprodify(transformers.classTable).transformEffect(e)
@@ -131,14 +131,14 @@ class TransformersTest {
   }
 
   @Test
-  fun testDeprodify_simple() {
+  internal fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
     val deprodden: Effect = Prod.deprodify(setOf(cn("Plant"))).transformEffect(prodden)
     deprodden.toString() shouldBe "This: Production<Class<Plant>> / PlantTag"
   }
 
   @Test
-  fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
+  internal fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
     val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
 
     Prod.deprodify(setOf(cn("StandardResource"))).transformInstruction(prodden).toString() shouldBe
@@ -146,7 +146,7 @@ class TransformersTest {
   }
 
   @Test
-  fun testDeprodify_lessSimple() {
+  internal fun testDeprodify_lessSimple() {
     val prodden: Effect =
         parse(
             "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz> FROM " +
@@ -163,7 +163,7 @@ class TransformersTest {
   }
 
   @Test
-  fun `invalid atomic change after trigger specialization becomes Die`() {
+  internal fun `invalid atomic change after trigger specialization becomes Die`() {
     val general = CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)"))
     val specific = CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>"))
     val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
@@ -175,7 +175,7 @@ class TransformersTest {
   }
 
   @Test
-  fun `nested abstract dependency specializes to the concrete changed component`() {
+  internal fun `nested abstract dependency specializes to the concrete changed component`() {
     val general =
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
@@ -191,7 +191,7 @@ class TransformersTest {
   }
 
   @Test
-  fun `specialization reaches a nested dependency when its containing class also specializes`() {
+  internal fun `specialization reaches a nested dependency when its containing class also specializes`() {
     val general =
         CanonClassesTest.table.resolve(
             parse<Expression>("AcceptFromCard<Player1, ResourceCard<Player1, Class<CardResource>>>")
@@ -209,7 +209,7 @@ class TransformersTest {
   }
 
   @Test
-  fun `linkage specialization leaves an unlinked occurrence of the same class independent`() {
+  internal fun `linkage specialization leaves an unlinked occurrence of the same class independent`() {
     val general =
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
@@ -230,7 +230,7 @@ class TransformersTest {
   }
 
   @Test
-  fun `linked complemented dependency specializes to the concrete event dependency`() {
+  internal fun `linked complemented dependency specializes to the concrete event dependency`() {
     val general = CanonClassesTest.table.resolve(parse<Expression>("Resource<!Player2>"))
     val specific = CanonClassesTest.table.resolve(parse<Expression>("Plant<Player3>"))
     val instruction = parse<Instruction>("Steel<!Player2>")

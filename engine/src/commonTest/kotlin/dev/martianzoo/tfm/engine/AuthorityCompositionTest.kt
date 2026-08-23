@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 internal class AuthorityCompositionTest {
   @Test
-  fun composedAuthorityCreatesAWorkingGame() {
+  internal fun composedAuthorityCreatesAWorkingGame() {
     val extension =
         object : TfmAuthority() {
           override val explicitClassDeclarations =
@@ -31,7 +31,7 @@ internal class AuthorityCompositionTest {
   }
 
   @Test
-  fun singletonCreationWaitsForDependencies() {
+  internal fun singletonCreationWaitsForDependencies() {
     val extension =
         object : TfmAuthority() {
           override val explicitClassDeclarations =
@@ -53,7 +53,7 @@ internal class AuthorityCompositionTest {
   }
 
   @Test
-  fun singletonDependencyStallHasUsefulDiagnostic() {
+  internal fun singletonDependencyStallHasUsefulDiagnostic() {
     val extension =
         object : TfmAuthority() {
           override val explicitClassDeclarations =

@@ -15,9 +15,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
-class FirstPartialGameTest : TfmTest() {
+internal class FirstPartialGameTest : TfmTest() {
   @Test
-  fun fourWholeGenerations() {
+  internal fun fourWholeGenerations() {
     repeat(1) {
       val setup =
           canonicalPremise(

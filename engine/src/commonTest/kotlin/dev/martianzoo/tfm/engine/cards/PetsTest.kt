@@ -6,7 +6,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class PetsTest : CardTest() {
+internal class PetsTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
@@ -14,7 +14,7 @@ class PetsTest : CardTest() {
   }
 
   @Test
-  fun `Prevents Predators from removing its animal when another target exists`() {
+  internal fun `Prevents Predators from removing its animal when another target exists`() {
     val p2 = requireP2()
     p2.manual("$Pets")
     p1.manual("$Predators, Animal<$Predators>")
@@ -26,7 +26,7 @@ class PetsTest : CardTest() {
   }
 
   @Test
-  fun `Prevents Predators from acting when its animal is the only target`() {
+  internal fun `Prevents Predators from acting when its animal is the only target`() {
     val p2 = requireP2()
     p2.manual("$Pets")
     p1.manual("$Predators")
