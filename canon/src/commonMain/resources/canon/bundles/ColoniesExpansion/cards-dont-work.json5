@@ -8,11 +8,5 @@
       "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1]" ],
     },
 
-    {
-      "name": "StormcraftIncorporated",
-      "deck": "CORPORATION",
-      "tags": [ "JovianTag" ],
-    },
-
   ],
 }

@@ -71,6 +71,10 @@ that Action to its city owner, so the city owner is also the payer and recipient
 Standard projects use the same rule while retaining ordinary authored Actions such as
 `1 / cost -> OceanTile<>`; Action lowering supplies the invoice workflow.
 
+Stormcraft offers its floaters through ordinary heat `Billing`. Local Heat Trapping is the sole
+direct heat payment, so Stormcraft separately lets up to three floaters become the equivalent heat
+when that card enters play; LHT itself retains its ordinary immediate removal.
+
 ## Direct and costless Actions
 
 Card-resource removals, production transformations, selections, and other nonstandard costs remain
