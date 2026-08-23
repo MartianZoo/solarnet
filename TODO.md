@@ -4,6 +4,23 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Increase every solo opponent resource and production stock from 11 to 42; replenishment remains
+  the semantic guarantee, while the larger reserve reduces exposure to one oversized operation.
+- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion boundary
+  so derived scores can be evaluated after their source scores rather than relying on task order.
+- Replace Vitor and Philanthropist's positive-VP citation heuristic with an explicit representation
+  of the printed non-negative VP condition; distinguish intended VP icons from incidental text
+  references.
+- Remove `Tag`'s two-identical-tag maximum and prove a component can carry at least three copies of
+  one printed tag.
+- Give multiple wild tags on one card distinct occurrences, and prove that two occurrences can be
+  assigned either the same tag or different tags for one action.
+- Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
+  the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
+- Check Standard Technology affordability before its rebate is awarded; the rebate must not fund
+  the standard project that causes it.
+- Check Merchant's requirement before paying the milestone claim cost, not against the
+  post-payment resource count.
 - Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
   replacing the three deliberate structural acquisition points with narrower internal capabilities.
 - **Medium priority:** Reorganize the automated tests around the explicitly valued suites. Move
@@ -125,7 +142,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   unions while their factory deduplicates in first-occurrence order
   ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
 - Reduce the remaining custom Pets instructions only where behavior can become hand-authored Pets; start with the candidates and constraints in [`docs/agents/REDUCE_CUSTOM.md`](docs/agents/REDUCE_CUSTOM.md).
-- Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return from Generation into the Solar phase.
+- Revamp workflow behavior. Head Start must allow any first action and then grant an additional
+  second action. In the Colonies solar phase, return every trade fleet before advancing every
+  colony track, and prove that exact order. When building a colony, adjust the track before paying
+  the placement bonus rather than leaving them as unordered sibling reactions.
 - **Medium-high priority:** Consolidate exception cleanup
   ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain
   failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain
