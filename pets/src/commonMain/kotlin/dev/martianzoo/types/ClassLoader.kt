@@ -35,9 +35,8 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 
 /**
- * Builds a master [ClassTable] from an [Authority], or internally forms a projection from that
- * master. Freezing prevents additional classes from being loaded and enables features such as
- * [Class.allSubclasses] to work.
+ * Builds a master [ClassTable] from an [Authority], or internally forms an active-class view over
+ * that master. Freezing prevents additional classes from being loaded.
  */
 public class ClassLoader
 private constructor(
@@ -59,24 +58,27 @@ private constructor(
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public override val componentClass: Class =
-      Class(
-          validateCustomImplementation(knownDeclaration(COMPONENT)),
-          this,
-          directSuperclasses = emptyList(),
-      )
+      masterSource?.componentClass
+          ?: Class(
+              validateCustomImplementation(knownDeclaration(COMPONENT)),
+              this,
+              directSuperclasses = emptyList(),
+          )
 
   /** The `Class` class, the other class that is required to exist. */
   public override val classClass: Class =
-      Class(
-          validateCustomImplementation(knownDeclaration(CLASS)),
-          this,
-          directSuperclasses = listOf(componentClass),
-      )
+      masterSource?.classClass
+          ?: Class(
+              validateCustomImplementation(knownDeclaration(CLASS)),
+              this,
+              directSuperclasses = listOf(componentClass),
+          )
 
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
 
   override fun findClass(name: ClassName): Class? {
+    if (masterSource != null) return masterSource.findClass(name)
     return if (name in loadedClasses) {
       loadedClasses[name] ?: throw PetException("Class-loading cycle involving $name")
     } else {
@@ -86,6 +88,7 @@ private constructor(
 
   /** Returns the [Type] represented by [expression]. */
   override fun resolve(expression: Expression): Type {
+    if (masterSource != null) return masterSource.resolve(expression)
     if (expression.complement) {
       throw ExpressionException("complement type expression has no standalone type: $expression")
     }
@@ -103,7 +106,7 @@ private constructor(
 
   private val frozenClasses: Set<Class> by lazy {
     require(frozen)
-    loadedClasses.values.map { it!! }.filterNot(Class::phantom).toSet()
+    loadedClasses.keys.mapTo(linkedSetOf(), masterTable::getClass)
   }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
@@ -146,19 +149,21 @@ private constructor(
         else -> Truth.UNKNOWN
       }
 
-  /** Equivalent to calling [load] on every canonical class name in [names]. */
-  private fun loadAll(names: Collection<ClassName>) {
+  /** Loads [names] together, advancing their activation closure one complete frontier at a time. */
+  internal fun loadAll(names: Collection<ClassName>) {
     enqueue(names, requestedByClass = null)
     while (queue.isNotEmpty()) {
-      val next = queue.removeFirst()
-      blockedActivations[next]?.let { requirement ->
-        val source = requestedBy.getValue(next)
-        val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
-        throw IllegalArgumentException(
-            "broken game premise: $path; activation requirement is not met: $requirement"
-        )
+      while (queue.isNotEmpty()) {
+        val next = queue.removeFirst()
+        blockedActivations[next]?.let { requirement ->
+          val source = requestedBy.getValue(next)
+          val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
+          throw IllegalArgumentException(
+              "broken game premise: $path; activation requirement is not met: $requirement"
+          )
+        }
+        loadRelated(next, active = true)
       }
-      loadRelated(next, active = true)
       enqueueReachableActivationEdges()
     }
   }
@@ -171,18 +176,18 @@ private constructor(
   }
 
   internal fun loadRelated(next: ClassName, active: Boolean): Class {
+    if (masterSource != null) {
+      val klass = masterSource.getClass(next)
+      if (active && next !in loadedClasses) loadedClasses[next] = klass
+      return klass
+    }
     if (next in loadedClasses) {
-      val loaded = loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
-      if (active && loaded.phantom) {
-        throw PetException("Class $next was already loaded as inactive")
-      }
-      return loaded
+      return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
     }
     val declaration = knownDeclaration(next)
     validateClassLiterals(declaration)
     validateNoEffectCreatesClass(declaration)
-    val phantom = !active
-    return construct(declaration, phantom)
+    return construct(declaration)
   }
 
   private fun validateNoEffectCreatesClass(declaration: ClassDeclaration) {
@@ -221,12 +226,7 @@ private constructor(
    * Trigger or gate reachable. The closure is monotone: Classes only become active.
    */
   private fun enqueueReachableActivationEdges() {
-    val activeNames =
-        loadedClasses.values
-            .mapNotNull { klass ->
-              klass?.takeUnless(Class::phantom)?.className
-            }
-            .toSet()
+    val activeNames = loadedClasses.keys
     (activeNames - COMPONENT - CLASS).forEach { name ->
       enqueue(activationEdges(knownDeclaration(name), activeNames) - THIS, name)
     }
@@ -363,18 +363,18 @@ private constructor(
       loadedClasses[name] ?: loadRelated(name, active = true)
 
   // All classes are created here (aside from Component and Class, at top).
-  private fun construct(source: ClassDeclaration, phantom: Boolean): Class {
+  private fun construct(source: ClassDeclaration): Class {
+    check(masterSource == null) { "a projection must not construct Classes" }
     require(!frozen) { "Too late, this class table is frozen!" }
-    if (!phantom) validateCustomImplementation(source)
-    val decl = if (phantom) source.withoutDeclaredBehavior() else source
+    val decl = validateCustomImplementation(source)
 
     fun store(c: Class?) {
       loadedClasses[decl.className] = c
     }
     store(null) // to detect reentrancy
     try {
-      val klass = Class(decl, this, phantom)
-      if (!phantom && masterSource == null) validateCustomInheritance(klass)
+      val klass = Class(decl, this)
+      validateCustomInheritance(klass)
       store(klass)
       return klass
     } catch (e: Throwable) {
@@ -434,8 +434,12 @@ private constructor(
 
   public fun freeze(): ClassTable {
     require(!frozen)
+    if (masterSource != null) {
+      frozen = true
+      return this
+    }
     knownClassNames.forEach { name ->
-      if (name !in loadedClasses) construct(knownDeclaration(name), phantom = true)
+      if (name !in loadedClasses) construct(knownDeclaration(name))
     }
 
     val knownClasses = loadedClasses.values.map { checkNotNull(it) }
@@ -447,41 +451,28 @@ private constructor(
         }
       }
     }
-    if (masterSource == null) {
-      val bitBearingSuperclasses = knownClasses.flatMap(Class::directSuperclasses).distinct()
-      val superclassBits =
-          bitBearingSuperclasses
-              .sortedWith(
-                  compareByDescending<Class> { knownProperSubclasses[it]?.size ?: 0 }
-                      .thenBy(Class::className)
-              )
-              .withIndex()
-              .associate { (index, klass) -> klass to index }
-      knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
-    } else {
-      knownClasses.forEach { klass ->
-        klass.initializeSubclassBitsFrom(masterSource.getClass(klass.className))
-      }
+    val bitBearingSuperclasses = knownClasses.flatMap(Class::directSuperclasses).distinct()
+    val superclassBits =
+        bitBearingSuperclasses
+            .sortedWith(
+                compareByDescending<Class> { knownProperSubclasses[it]?.size ?: 0 }
+                    .thenBy(Class::className)
+            )
+            .withIndex()
+            .associate { (index, klass) -> klass to index }
+    knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
+
+    properSubclassesByClass = knownProperSubclasses.mapValues { (_, subclasses) ->
+      subclasses.toSet()
     }
 
-    val activeProperSubclasses = mutableMapOf<Class, Set<Class>>()
-    knownProperSubclasses.forEach { (superclass, subclasses) ->
-      if (!superclass.phantom) {
-        val activeSubclasses = subclasses.filterNotTo(linkedSetOf(), Class::phantom)
-        if (activeSubclasses.isNotEmpty()) {
-          activeProperSubclasses[superclass] = activeSubclasses.toSet()
-        }
-      }
-    }
-    properSubclassesByClass = activeProperSubclasses
-
-    val activeDirectSubclasses = mutableMapOf<Class, MutableSet<Class>>()
-    knownClasses.filterNot(Class::phantom).forEach { subclass ->
+    val directSubclasses = mutableMapOf<Class, MutableSet<Class>>()
+    knownClasses.forEach { subclass ->
       subclass.directSuperclasses.forEach { superclass ->
-        activeDirectSubclasses.getOrPut(superclass, ::linkedSetOf).add(subclass)
+        directSubclasses.getOrPut(superclass, ::linkedSetOf).add(subclass)
       }
     }
-    directSubclassesByClass = activeDirectSubclasses.mapValues { (_, subclasses) ->
+    directSubclassesByClass = directSubclasses.mapValues { (_, subclasses) ->
       subclasses.toSet()
     }
 
@@ -491,7 +482,7 @@ private constructor(
 
   public override val allClassNames: Set<ClassName> by lazy {
     require(frozen)
-    loadedClasses.filterValues { it?.phantom == false }.keys
+    loadedClasses.keys
   }
 
   override fun toString(): String = "loader$id"
@@ -520,10 +511,10 @@ private constructor(
 
     internal fun projection(
         authority: Authority,
+        masterTable: ClassTable,
         configuredModuleNames: Set<ClassName>,
         configuredClassSelections: Set<ClassSelection>,
     ): ClassLoader {
-      val masterTable = authority.classTable
       require(masterTable.masterTable === masterTable) {
         "Authority class table is not a master table"
       }

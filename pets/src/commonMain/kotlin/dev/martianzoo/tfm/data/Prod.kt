@@ -20,7 +20,7 @@ public object Prod {
   private fun findResourceClassNames(classTable: ClassTable): Set<ClassName> {
     val standardResource = classTable.findActiveClass(STANDARD_RESOURCE) ?: return emptySet()
     if (!classTable.isActive(PRODUCTION)) return emptySet()
-    return standardResource.allSubclasses().mapTo(mutableSetOf()) { it.className }
+    return classTable.allSubclasses(standardResource).mapTo(mutableSetOf()) { it.className }
   }
 
   /**

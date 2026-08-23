@@ -26,8 +26,8 @@ internal class AwardsTest : TfmTest() {
     game.reader.tfmAuthority.awardDefinitions
         .filter { game.classTable.isActive(it.className) }
         .shouldBeEmpty()
-    game.classTable.findClass(cn("ClaimMilestoneSA"))?.phantom shouldBe true
-    game.classTable.findClass(cn("FundAwardSA"))?.phantom shouldBe true
+    game.classTable.isActive(cn("ClaimMilestoneSA")) shouldBe false
+    game.classTable.isActive(cn("FundAwardSA")) shouldBe false
     engine.assertCounts(
         1 to "PlayCardSA",
         1 to "AquiferSP",

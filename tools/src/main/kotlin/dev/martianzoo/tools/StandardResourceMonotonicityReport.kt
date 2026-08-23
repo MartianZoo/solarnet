@@ -225,8 +225,7 @@ internal object StandardResourceMonotonicityReport {
 
   private fun quantities(table: ClassTable): List<Quantity> =
       table
-          .getClass(STANDARD_RESOURCE)
-          .allSubclasses()
+          .allSubclasses(table.getClass(STANDARD_RESOURCE))
           .filterNot(PetsClass::abstract)
           .sortedBy(PetsClass::className)
           .flatMap { resourceClass ->

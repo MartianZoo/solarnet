@@ -40,6 +40,8 @@ public open class TfmAuthority : Authority {
     ClassLoader(this).loadEverything().also(::validateCardTags)
   }
 
+  private val universe: ClassTable by lazy { classTable }
+
   private fun validateCardTags(table: ClassTable) {
     val tagClass = table.findClass(TAG_CLASS) ?: return
     cardDefinitions.forEach { card ->
@@ -92,7 +94,7 @@ public open class TfmAuthority : Authority {
       modules.keys
           .filter { moduleName -> moduleName !in included && moduleName !in explicitlyExcluded }
           .forEach { moduleName ->
-            val property = classTable.getClass(moduleName).properties[AUTO_SELECT_WHEN]
+            val property = universe.getClass(moduleName).properties[AUTO_SELECT_WHEN]
             val requirement = (property as? RequirementValue)?.value ?: return@forEach
             if (requirement.isMetBy { metric -> countConfigured(metric, included) }) {
               changed = included.add(moduleName) || changed
@@ -147,7 +149,7 @@ public open class TfmAuthority : Authority {
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(included, classTable) }
+            .filter { it.included && it.appliesTo(included, universe) }
             .mapTo(hashSetOf(), ClassSelection::className)
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "initial ColonyTiles must be provided by a selected Module"
@@ -166,7 +168,7 @@ public open class TfmAuthority : Authority {
       source: ClassName,
       configuredClassNames: Set<ClassName>,
   ): Set<ClassName> =
-      ModuleProvenance.gains(classTable.getClass(source).declaration)
+      ModuleProvenance.gains(universe.getClass(source).declaration)
           .filter { gain ->
             gain.target in modules &&
                 gain.requirements.all { requirement ->
@@ -179,9 +181,9 @@ public open class TfmAuthority : Authority {
     require(metric is Count && metric.expression.simple) {
       "Module defaults must count simple classes: $metric"
     }
-    val countedClass = classTable.getClass(metric.expression.className)
+    val countedClass = universe.getClass(metric.expression.className)
     return configuredClassNames.count { configuredName ->
-      classTable.getClass(configuredName).isSubtypeOf(countedClass)
+      universe.getClass(configuredName).isSubtypeOf(countedClass)
     }
   }
 
@@ -417,7 +419,7 @@ public open class TfmAuthority : Authority {
             .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
             .filter { it != definition.className && it in allClassNames }
     val derived = referencedClassNames.flatMap { className ->
-      val properties = classTable.getClass(className).properties
+      val properties = universe.getClass(className).properties
       listOfNotNull(
           (properties[AUTOMATIC_SELECTION_REQUIREMENT] as? RequirementValue)?.value,
           (properties[ACTIVATION_REQUIREMENT] as? RequirementValue)?.value,
@@ -456,7 +458,7 @@ public open class TfmAuthority : Authority {
     val selectedDefinitionNames =
         moduleNames
             .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(configuredClassNames, classTable) }
+            .filter { it.included && it.appliesTo(configuredClassNames, universe) }
             .mapTo(hashSetOf(), ClassSelection::className)
     validateSelectedReplacements(
         cardDefinitions.filter { it.className in selectedDefinitionNames },

@@ -102,7 +102,7 @@ public object Engine {
         val type = classTable.resolve(expression)
         require(
             !type.abstract &&
-                !type.phantom &&
+                classTable.isActive(type) &&
                 !type.rootClass.declaration.custom &&
                 !type.rootClass.isSingletonType()
         ) {

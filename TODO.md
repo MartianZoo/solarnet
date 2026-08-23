@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
+  replacing the three deliberate structural acquisition points with narrower internal capabilities.
 - **Medium priority:** Reorganize the automated tests around the explicitly valued suites. Move
   `CoreRulesTest` out of the `cards` package when the final functional-test layout is settled, and
   keep core-rule scenarios at the player-action and observation boundary.
@@ -65,10 +67,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Low priority:** Consider compiling Pets during the build into validated runtime artifacts, but
   only if one compiler can replace runtime parsing/validation without creating a second semantic
   model.
-- **High priority:** Replace projection-local Class and Type ownership with the Authority-wide identities and explicit
-  game-filtered views proposed in
-  [`docs/agents/CLASS_TABLES.md`](docs/agents/CLASS_TABLES.md); eliminate reverse navigation from
-  `Class` and `Type` to a game `ClassTable` and stop rebuilding every Class for every game.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
   and whether adding and then removing those steps has any other observable consequences.
 
@@ -159,6 +157,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
+  `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
+  so there is one implementation and one source of domain context.
 - Decide whether `Summarizer` should attribute invoice settlement back through `Payment` and
   `Owed` to the Action provider; standard-resource Action costs are currently attributed to the
   payment machinery rather than cards such as Search for Life.
@@ -185,9 +186,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.
-- Replace the implementation's `phantom` vocabulary with game-view inhabitation queries as part of
-  [`docs/agents/CLASS_TABLES.md`](docs/agents/CLASS_TABLES.md); avoid a standalone rename if that
-  ownership change is underway.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.

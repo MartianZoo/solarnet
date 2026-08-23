@@ -36,7 +36,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Component fanout through proposed `EACH` syntax | [EACHPLAYER.md](EACHPLAYER.md) | Proposal |
 | Flattening the engine workhorse and later client boundary | [API.md](API.md) | Proposal |
 | Autoexecution policy boundary, proofs, provenance, and performance | [AUTOEXEC.md](AUTOEXEC.md) | Settled design direction plus audit |
-| Authority-wide Class identity and game-filtered views | [CLASS_TABLES.md](CLASS_TABLES.md) | Proposal |
+| Authority-wide Class identity and game-filtered views | [CLASS_TABLES.md](CLASS_TABLES.md) | Current model |
 | Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
 | Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |
 | Remaining implicit-variable work | [LINKAGES.md](LINKAGES.md) | Focused implementation note |

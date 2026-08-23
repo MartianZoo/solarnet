@@ -180,7 +180,7 @@ private constructor(
               )
           val bound = checkedBinding.transformEffect(effect)
           try {
-            component.type.classTable.checkAllTypes(bound)
+            transformers.classTable.checkAllTypes(bound)
             bound
           } catch (e: ExpressionException) {
             throw ExpressionException(
@@ -200,7 +200,7 @@ private constructor(
         transformers.classEffects(component.type.rootClass).mapNotNull { effect ->
           val bound = uncheckedBinding.transformEffect(effect)
           try {
-            component.type.classTable.checkAllTypes(bound)
+            transformers.classTable.checkAllTypes(bound)
             bound
           } catch (e: ExpressionException) {
             // An Owner-only component can inherit an effect whose output is Player-bound. The
@@ -209,7 +209,7 @@ private constructor(
             val sourceEffect =
                 replaceThisExpressionsWith(component.type.rootClass.className.expression)
                     .transformEffect(effect)
-            component.type.classTable.checkAllTypes(sourceEffect)
+            transformers.classTable.checkAllTypes(sourceEffect)
             null
           }
         }
@@ -405,7 +405,7 @@ private constructor(
         // Player can be retained in the triggered instruction.
         if (!selector.complement && selector.simple && selector.className != ANYONE) {
           val selectorType = reader.resolve(selector)
-          val actorClass = selectorType.classTable.getClass(ACTOR)
+          val actorClass = reader.resolve(ACTOR.expression).rootClass
           if (selectorType.rootClass.abstract && selectorType.rootClass.isSubtypeOf(actorClass)) {
             val actorDomain = reader.resolve(ACTOR.expression)
             if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
@@ -447,7 +447,7 @@ private constructor(
 
         if (specializedSelector.complement) {
           val excludedType = reader.resolve(specializedSelector.copy(complement = false))
-          val actorClass = excludedType.classTable.getClass(ACTOR)
+          val actorClass = reader.resolve(ACTOR.expression).rootClass
           val abstractActorSupertypes =
               excludedType.rootClass.allSuperclasses().filter {
                 it.abstract && it.isSubtypeOf(actorClass)
@@ -461,9 +461,9 @@ private constructor(
                   ?: run {
                     // A passive Owner such as SoloOpponent is not an Actor. Its opposing Actors
                     // are Players, not the administrative Engine.
-                    val ownerClass = excludedType.classTable.getClass(OWNER)
+                    val ownerClass = reader.resolve(OWNER.expression).rootClass
                     if (!excludedType.rootClass.isSubtypeOf(ownerClass)) return null
-                    excludedType.classTable.getClass(PLAYER)
+                    reader.resolve(PLAYER.expression).rootClass
                   }
           if (!actorType.narrows(selectorDomain.defaultType, reader)) return null
           if (actorType.narrows(excludedType, reader)) return null
