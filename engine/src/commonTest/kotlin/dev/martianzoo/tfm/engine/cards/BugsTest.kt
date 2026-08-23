@@ -142,6 +142,28 @@ class BugsTest : CardTest() {
     p1.assertCounts(0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
   }
 
+  @Test
+  fun `Space Elevator incorrectly accepts payment that wastes one steel`() {
+    newGame()
+    engine.phase("Action")
+    p1.manual("10 Steel, 10 Titanium, ProjectCard")
+
+    p1.inTurn {
+      doTask("UseAction<PlayCardSA, First>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>>")
+      doTask("7 Pay<Class<Steel>> FROM Steel")
+      doTask("5 Pay<Class<Titanium>> FROM Titanium")
+      doTask("Ok")
+    }
+
+    p1.assertCounts(
+        3 to "Steel",
+        5 to "Titanium",
+        0 to "ProjectCard",
+        1 to "$SpaceElevator",
+    )
+  }
+
   private fun philaresReward(): Task =
       game.tasks
           .extract { it }
