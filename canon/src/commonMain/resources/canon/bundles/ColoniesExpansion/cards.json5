@@ -28,6 +28,22 @@
     },
 
     {
+      "name": "StormcraftIncorporated",
+      "deck": "CORPORATION",
+      "tags": [ "JovianTag" ],
+      "resourceType": "Floater",
+      "immediate": "48",
+      "actions": [ "-> Floater" ],
+      "effects": [
+        "Billing<HasActions, WhichAction, Class<Heat>>:: AcceptFromCard<This>",
+        "PayFromCard<This>:: -2 Owed<Class<Heat>>",
+        // Local Heat Trapping is the sole heat payment that does not use Billing. Converting the
+        // selected floaters during its resolution has the same net resource result.
+        "LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok"
+      ],
+    },
+
+    {
       "name": "Airliners",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",

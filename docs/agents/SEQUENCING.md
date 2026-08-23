@@ -228,6 +228,10 @@ Current strong examples are:
   `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
   the same concrete holder. The holder dependency distinguishes cards that use the same resource
   class, while each card's reaction to its own signal supplies its printed exchange rate.
+- Stormcraft uses that billing path for action costs. When Local Heat Trapping enters play, its
+  separate optional conversion may share the queue with LHT's immediate instructions; because heat
+  is fungible, resolving the conversion before or after the removal has the same final resource
+  totals.
 Two related families should not be described more strongly than the implementation supports:
 
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
