@@ -24,7 +24,7 @@ ABSTRACT CLASS ColonyTile {
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 FlownTradeFleet<This>
 
   This:: ColonyProduction<This>
-  Colony<This>: ColonyProduction<This> / Colony<This> - ColonyProduction<This>
+  Colony<This>:: ColonyProduction<This> / Colony<This> - ColonyProduction<This>
   ResetColonyProduction<This>: -ColonyProduction<This>. / ColonyProduction<This> - Colony<This, Anyone>
   AdvanceColonyTracks: ColonyProduction<This>.
 }

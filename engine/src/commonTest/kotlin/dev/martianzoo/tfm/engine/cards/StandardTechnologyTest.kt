@@ -1,28 +1,35 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.engine.cardnames.*
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.cardnames.StandardTechnology
+import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class StandardTechnologyTest : CardTest() {
-  @Test
-  internal fun `Rebates three megacredits without reducing the standard project payment`() {
+  @BeforeTest
+  internal fun initializeGame() {
     newGame()
     engine.phase("Action")
-    p1.manual("8 Megacredit, $StandardTechnology")
+    p1.manual("$StandardTechnology")
+  }
 
-    val result = p1.stdProject("PowerPlantSP")
-    val megacreditChanges =
-        result.changes.mapNotNull { event ->
-          when {
-            event.change.gaining?.let(game.reader::resolve) == p1.resolve("Megacredit") ->
-                event.change.count
-            event.change.removing?.let(game.reader::resolve) == p1.resolve("Megacredit") ->
-                -event.change.count
-            else -> null
-          }
-        }
+  @Test
+  internal fun `Rebate cannot fund the triggering standard project`() {
+    p1.manual("8 Megacredit")
 
-    megacreditChanges.shouldContainExactlyInAnyOrder(3, -11)
+    shouldThrow<LimitsException> { p1.stdProject("PowerPlantSP") }
+
+    p1.assertCounts(8 to "Megacredit", 0 to "Owed", 0 to "Invoice")
+    p1.assertProds(0 to "Energy")
+  }
+
+  @Test
+  internal fun `Awards the rebate after paying for a standard project`() {
+    p1.manual("11 Megacredit")
+
+    p1.stdProject("PowerPlantSP").expect("-8 Megacredit, PROD[Energy]")
   }
 }

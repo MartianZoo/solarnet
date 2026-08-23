@@ -327,8 +327,7 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      // TODO: Handle a proposed NoOp without leaking a ClassCastException.
-      proposed as Gated
+      proposed as? Gated ?: throw NarrowingException("$proposed does not preserve condition $gate")
       if (proposed.gate != gate) {
         throw NarrowingException("can't change the condition")
       }

@@ -6,21 +6,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Increase every solo opponent resource and production stock from 11 to 42; replenishment remains
   the semantic guarantee, while the larger reserve reduces exposure to one oversized operation.
-- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion boundary
-  so derived scores can be evaluated after their source scores rather than relying on task order.
-- Replace Vitor and Philanthropist's positive-VP citation heuristic with an explicit representation
-  of the printed non-negative VP condition; distinguish intended VP icons from incidental text
-  references.
-- Remove `Tag`'s two-identical-tag maximum and prove a component can carry at least three copies of
-  one printed tag.
-- Give multiple wild tags on one card distinct occurrences, and prove that two occurrences can be
-  assigned either the same tag or different tags for one action.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
-- Check Standard Technology affordability before its rebate is awarded; the rebate must not fund
-  the standard project that causes it.
-- Check Merchant's requirement before paying the milestone claim cost, not against the
-  post-payment resource count.
 - Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
   replacing the three deliberate structural acquisition points with narrower internal capabilities.
 - **Medium priority:** Reorganize the automated tests around the explicitly valued suites. Move
@@ -40,20 +27,15 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   resulting components.
 - Restrict `TfmGameplay.stdAction` to actual `StandardAction` providers; give other live
   `HasActions` components a correctly named gameplay operation instead.
-- **Medium priority:** Let a game include Valley Trust and the Prelude-card pool without selecting
-  `PreludeExpansion`; `PreludeCard` must be drawable and playable while `PreludePhase` remains
-  absent.
 - **Medium priority:** Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
-- Give players 20 TR in multiplayer setup and 14 TR in solo setup directly, instead of granting 20
-  and then removing 6 in solo; keep both grants causally attached to `SetupPhase`.
 - Replace the custom `ColoniesSetup` instruction with ordinary per-player setup signaling, then
   delete its custom declaration, registration, and Kotlin implementation.
 - **High priority:** Implement preparation-time delegated narrowing. The controller chooses when to
   prepare a parent task, the delegate alone narrows its child, and the controller remains blocked
-  until that child completes. Fix Philares first, then prove Engine narrowing for real-card deals
-  and Player delegation for Enceladus.
+  until that child completes. Prove Engine narrowing for real-card deals and Player delegation for
+  Enceladus.
 - **Low priority:** Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
 - **Low priority:** Support requirement adjustment when one part of a compound card requirement is
@@ -119,6 +101,17 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Compare players across identical random seeds so evaluation does not confuse luck with strength.
 - **Low priority:** Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and the remaining Prelude 2 cards; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
 
+### Hypothetical Card Behavior
+
+- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion boundary
+  if a future score depends on another score rather than directly on game state.
+- Give multiple wild tags on one card distinct occurrences if a future card has two wild tags, so
+  both can be assigned either the same tag or different tags for one action.
+- Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
+  `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
+- Give players 20 TR in multiplayer setup and 14 TR in solo setup directly if a future card can
+  observe the current 20-then-minus-6 solo sequence.
+
 ### Soon
 
 - **Medium priority:** Continue the unresolved sequencing work identified by the canon effect-mode
@@ -127,8 +120,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   including existing automatic effects triggered only by Engine workflow events. Before inventing
   an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and
   descendant-completion semantics.
-- **High priority:** Make Artificial Lake's concrete legal ocean placement refine and execute
-  normally, without the solo whole-game test's mandatory `!` override.
 - **Low priority:** When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - **Medium priority:** Model the solo setup choice that selects four colony tiles and removes one
   before assembling the playable Game World.
@@ -147,10 +138,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   unions while their factory deduplicates in first-occurrence order
   ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
 - Reduce the remaining custom Pets instructions only where behavior can become hand-authored Pets; start with the candidates and constraints in [`docs/agents/REDUCE_CUSTOM.md`](docs/agents/REDUCE_CUSTOM.md).
-- Revamp workflow behavior. Head Start must allow any first action and then grant an additional
-  second action. In the Colonies solar phase, return every trade fleet before advancing every
-  colony track, and prove that exact order. When building a colony, adjust the track before paying
-  the placement bonus rather than leaving them as unordered sibling reactions.
+- In the Colonies solar phase, return every trade fleet before advancing every colony track, and
+  prove that exact order.
 - **Medium-high priority:** Consolidate exception cleanup
   ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain
   failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain
@@ -158,7 +147,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
-- **Medium priority:** Model Prelude plays as explicit first and second turns.
 - Move autoexecution out of the engine into optional clients of `Gameplay`: remove implicit drains,
   replace modes with named policies, record the issuing agent, and initially provide only policies
   that prove they make no gameplay sacrifice; see
@@ -180,14 +168,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Low Priority
 
-- **Very low priority:** Fix Public Plans so “any number” cannot be zero and the card is unavailable
-  when the player has no other card to reveal; keep the current wrong behavior characterized in
-  `BugsTest` until fixed.
-- Prevent Solar Probe's event cleanup from preempting its card draw.
-- Implement the standard-game rule that starts every production at 1 when Corporate Era is disabled; this rounds out game modes and demonstrates replacements. Until then, keep canonical requirements at their printed values.
-- [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
-- [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
 - After `OverlayWorld`, consider retaining standalone Task preparation's successful speculative
   event suffix so later execution can fast-forward it when the backing Game World has not changed.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
@@ -201,26 +182,17 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
   `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
   so there is one implementation and one source of domain context.
-- Decide whether `Summarizer` should attribute invoice settlement through `Invoice` and
-  `Owed` to the Action provider; standard-resource Action costs are currently attributed to the
-  payment machinery rather than cards such as Search for Life.
 - Preserve and enforce the existing `GameReader` boundary that prevents game mechanics, including
   custom Classes, from reading `EventLog`; add an architectural check so event history remains
   diagnostic and gameplay-state equivalence can depend only on the `ComponentGraph` and
   gameplay-relevant `TaskQueues`.
-- Decide whether `Ok` narrows a gated instruction; `Gated.ensureIsNarrowedBy` currently throws a
-  `ClassCastException` instead of expressing the semantic result.
 - Filter inactive gated provenance from `Initializer` source ordering so false mutual gains cannot
   create a bootstrap cycle absent from the selected configuration.
 - Retain projection-decision provenance so premise diagnostics can explain automatic filtering and
   complete hard-reference paths, rather than only the selected Definition or immediate source.
-- Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately
-  incomplete substitute used by Game20260819.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone
   reconciliation for a patent sale taken beyond the normal action allowance.
-- Render conditional `End IF` scoring effects compositionally; they are now classified as bottom
-  text and fall back honestly, with Search for Life as the canonical example.
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.

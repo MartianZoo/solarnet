@@ -132,6 +132,18 @@ internal class TaskRevisionTest {
   }
 
   @Test
+  internal fun `doing only one instruction from a grouped arm is rejected atomically`() {
+    initiate("5 Plant OR (4 Heat, 2 Energy)")
+
+    shouldThrow<TaskException> { writer.doTask("4 Heat") }
+
+    writer.count("Heat") shouldBe 0
+    writer.count("Energy") shouldBe 0
+    tasksAsText()
+        .shouldContainExactly("5 Plant<Player1>! OR (4 Heat<Player1>!, 2 Energy<Player1>!)")
+  }
+
+  @Test
   internal fun `trying a task can select a grouped arm`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
@@ -163,6 +175,26 @@ internal class TaskRevisionTest {
     val discard = tasks.extract { it }.single()
     discard.instruction.toString() shouldBe "-ProjectCard<Player1>!"
     discard.then.toString() shouldBe "ProjectCard<Player1>!"
+  }
+
+  @Test
+  internal fun `doing an entire THEN instruction at once is rejected`() {
+    initiate("Plant THEN Heat")
+
+    shouldThrow<TaskException> { writer.doTask("Plant THEN Heat") }
+
+    writer.count("Plant") shouldBe 0
+    writer.count("Heat") shouldBe 0
+    tasksAsText().shouldContainExactly("Plant<Player1>!")
+  }
+
+  @Test
+  internal fun `narrowing a gated instruction to Ok throws NarrowingException`() {
+    initiate("10 TR: Plant")
+
+    shouldThrow<NarrowingException> { writer.reviseTask("10 TR: Plant", "Ok") }
+
+    tasksAsText().shouldContainExactly("10 TerraformRating<Player1>: Plant<Player1>!")
   }
 
   @Test

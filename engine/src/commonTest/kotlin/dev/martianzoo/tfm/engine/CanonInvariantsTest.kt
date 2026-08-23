@@ -39,8 +39,6 @@ internal class CanonInvariantsTest {
 
     checkComponentLimit("ActionUsedMarker<Player1, $Ants<Player1>>", 0..1)
     checkComponentLimit("TharsisRepublic_Mandate<Player1>", 0..1)
-    checkComponentLimit("PowerTag<Player1, $Ants<Player1>>", 0..2)
-    checkComponentLimit("VenusTag<Player1, $Ants<Player1>>", 0..2)
     checkComponentLimit("Accept<Player1, Class<Steel>>", 0..1)
     checkComponentLimit("Pass<Player1>", 0..1)
     checkComponentLimit("ColonyProduction<Callisto>", 0..6)
