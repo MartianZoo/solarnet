@@ -68,7 +68,7 @@ public data class GamePremise(
 
   /** The administrative Actor plus the seated Players. */
   public val actors: List<Actor>
-    get() = playerClassNames.map(::Player) + ENGINE
+    get() = playerClassNames.map { Player(it) } + ENGINE
 
   /** Builds presentation and input translation for this premise's projected class names. */
   public fun createVocabulary(

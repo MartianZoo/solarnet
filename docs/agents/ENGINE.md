@@ -53,7 +53,8 @@ ordinary concrete components they own.
 ## Component graph
 
 The component graph is only a multiset of concrete Types. Components have no fields or instance
-identity. Equal Types are indistinguishable copies.
+identity. Equal Types are indistinguishable copies. The Kotlin `Component` type is therefore an
+unboxed value wrapper when its use site permits, not an interned state object.
 
 A concrete component may depend on other concrete components through its Type. Every possible
 dependency target must have an applicable maximum-one invariant so the edge identifies one vertex.
