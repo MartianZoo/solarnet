@@ -376,7 +376,7 @@
       "cost": 18,
       "tags": [ "VenusTag", "SpaceTag" ],
       "actions": [
-        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard FROM ProjectCard<Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]",
+        "-> CARDS[2 ProjectCard<Revealed> THEN 2 ProjectCard(HAS VenusTag) FROM ProjectCard<Revealed>. THEN BuyCards]",
       ],
     },
 

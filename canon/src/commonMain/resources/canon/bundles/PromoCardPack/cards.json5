@@ -93,7 +93,7 @@
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "ScienceTag" ],
       "immediate": "42, PROD[Energy]",
-      "actions": [ "X Energy -> ProjectCard" ],
+      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard FROM ProjectCard<Selecting>]" ],
     },
 
     {

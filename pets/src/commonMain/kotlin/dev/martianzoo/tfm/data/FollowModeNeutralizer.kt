@@ -28,6 +28,7 @@ import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
 /** Removes real-card source knowledge while follow mode still delegates hidden card outcomes. */
 internal object FollowModeNeutralizer : PetTransformer() {
   private val BUY_CARD = cn("BuyCard")
+  private val BUY_CARDS = cn("BuyCards")
   private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
   private val EVENT_PILE = cn("EventPile")
   private val PLAYED_EVENT = cn("PlayedEvent")
@@ -47,8 +48,7 @@ internal object FollowModeNeutralizer : PetTransformer() {
         is InstructionGroup -> neutralizeSelection(source)
         is Then ->
             when {
-              source.first.gainingAt(SELECTING) -> neutralizeFilteredPurchase(source)
-              source.first.gainingAt(REVEALED) -> neutralizeReveal(source)
+              source.first.gainingAt(REVEALED) -> neutralizeRevealedOperation(source)
               else -> malformed(source)
             }
         is Transmute -> neutralizeEventRecovery(source)
@@ -98,21 +98,29 @@ internal object FollowModeNeutralizer : PetTransformer() {
     return Gain(scaledEx(BUY_CARD.expression, 1), OPTIONAL)
   }
 
-  private fun neutralizeFilteredPurchase(source: Then): InstructionTree {
-    if (source.instructions.size != 4) malformed(source)
-    val offered = source.first as? Gain ?: malformed(source)
+  private fun neutralizeRevealedOperation(source: Then): InstructionTree =
+      if (source.instructions.last().isMandatoryGainOf(BUY_CARDS)) {
+        neutralizeRevealedPurchase(source)
+      } else {
+        neutralizeReveal(source)
+      }
+
+  private fun neutralizeRevealedPurchase(source: Then): InstructionTree {
+    if (source.instructions.size != 3) malformed(source)
+    val revealed = source.first as? Gain ?: malformed(source)
     val retained = source.instructions[1] as? Transmute ?: malformed(source)
     if (
-        retained.gaining != PROJECT_CARD.expression ||
-            !retained.removing.isProjectCardAt(SELECTING) ||
-            retained.removing.refinement == null ||
+        retained.gaining.className != PROJECT_CARD ||
+            retained.gaining.arguments.any() ||
+            retained.gaining.refinement == null ||
+            !retained.removing.isProjectCardAt(REVEALED) ||
+            retained.removing.refinement != null ||
             retained.intensity != AMAP ||
-            !source.instructions[2].removingOptionallyAt(SELECTING) ||
-            !source.instructions.last().isMandatoryGainOf(BUY_SELECTED_CARDS)
+            !source.instructions.last().isMandatoryGainOf(BUY_CARDS)
     ) {
       malformed(source)
     }
-    val count = (offered.count as? ActualScalar)?.value ?: malformed(source)
+    val count = (revealed.count as? ActualScalar)?.value ?: malformed(source)
     return InstructionGroup(List(count) { followModeBuyOrFreeCard() })
   }
 
