@@ -127,6 +127,17 @@ internal class Describers(
 
   internal fun concrete(className: ClassName): Boolean = expressions.concrete(className)
 
+  internal fun nominallyDisjoint(classNames: List<ClassName>): Boolean {
+    val concreteSubclasses = classNames.map { className ->
+      classesByName.getValue(className).allSubclasses().filterNot(Class::abstract).toSet()
+    }
+    return concreteSubclasses.indices.all { first ->
+      (first + 1 until concreteSubclasses.size).all { second ->
+        concreteSubclasses[first].intersect(concreteSubclasses[second]).isEmpty()
+      }
+    }
+  }
+
   internal fun isStandardResource(className: ClassName): Boolean =
       expressions.isStandardResource(className)
 

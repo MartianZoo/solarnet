@@ -14,8 +14,11 @@ internal fun renderMetricPhrase(metric: Metric, describers: Describers): String?
     is Metric.Count -> renderCountPhrase(metric, describers)
     is Metric.Scaled -> renderScaledCountPhrase(metric, describers)
     is Metric.Max -> {
-      val maximum = (metric.maximum as? Metric.Constant)?.value ?: return null
-      renderMetricPhrase(metric.inner, describers)?.let { "$it (max $maximum)" }
+      renderPairedTagCounts(metric, describers)
+          ?: run {
+            val maximum = (metric.maximum as? Metric.Constant)?.value ?: return null
+            renderMetricPhrase(metric.inner, describers)?.let { "$it (max $maximum)" }
+          }
     }
     is Metric.Constant,
     is Metric.Eval,
@@ -24,6 +27,32 @@ internal fun renderMetricPhrase(metric: Metric, describers: Describers): String?
     is Metric.Transform,
     is Property -> null
   }
+}
+
+private fun renderPairedTagCounts(metric: Metric.Max, describers: Describers): String? {
+  val first = (metric.inner as? Metric.Count)?.expression ?: return null
+  val second = (metric.maximum as? Metric.Count)?.expression ?: return null
+  if (
+      first.refinement != null || second.refinement != null || first.complement || second.complement
+  ) {
+    return null
+  }
+  val firstTag = describers.tagName(first.className)?.first ?: return null
+  val secondTag = describers.tagName(second.className)?.first ?: return null
+  val firstResolved = describers.resolveExpression(first) ?: return null
+  val secondResolved = describers.resolveExpression(second) ?: return null
+  if (firstResolved.sourceDependencies != secondResolved.sourceDependencies) return null
+  val ownerKey = Key(OWNED, 0)
+  val ownership =
+      when {
+        firstResolved.sourceDependencies.isEmpty() -> "you have"
+        firstResolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) ->
+            "among all players"
+        firstResolved.hasOnlySourceDependency(ownerKey, describers.notOwnerExpression) ->
+            "your opponents have"
+        else -> return null
+      }
+  return "each pair of $firstTag and $secondTag tags $ownership"
 }
 
 private fun renderCountPhrase(metric: Metric.Count, describers: Describers): String? =
