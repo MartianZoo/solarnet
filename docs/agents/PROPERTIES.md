@@ -28,8 +28,8 @@ The implemented value families are:
 | Declaration | Meaning | Concrete form |
 | --- | --- | --- |
 | `Number` | non-negative, world-independent integer | `cost = 10` |
-| `Metric` | world-dependent numeric expression; `Number` narrows it | `score = COUNT TemperatureStep` |
-| `Requirement` | one required game condition | `requirement = HAS 3 ScienceTag` |
+| `Metric` | world-dependent numeric expression; `Number` narrows it | `score = COUNT "TemperatureStep"` |
+| `Requirement` | one required game condition | `requirement = HAS "3 ScienceTag"` |
 | `Requirement?` | currently, an absent or present Requirement | the declaration may be omitted by a concrete descendant |
 
 The Kotlin AST names are `Property`, `PropertyName`, and `PropertyValue`.
@@ -65,8 +65,8 @@ CardFront(HAS 20 cost)
 The first two forms have the same lookup meaning. An unqualified class property inside a refinement
 receives the candidate Type as its receiver.
 
-A stored Metric or Requirement is syntax, not an instruction to evaluate itself whenever read. A
-class effect expands it explicitly:
+A stored Metric or Requirement is quoted to distinguish its inert syntax from the surrounding class
+body; the quotes do not make it text. A class effect expands the parsed syntax explicitly:
 
 ```pets
 This:: Result / EVAL This.score

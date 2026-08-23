@@ -132,7 +132,7 @@ private object MetricPropertyProbeAuthority : TfmAuthority() {
               CLASS MetricPropertyResult
               CLASS FixedMetricPropertyResult
               CLASS MetricPropertyProbe : MetricPropertyHolder {
-                score = COUNT TemperatureStep
+                score = COUNT "TemperatureStep"
                 fixedScore = 8
                 This:: MetricPropertyResult / EVAL This.score
                 This:: FixedMetricPropertyResult / EVAL This.fixedScore
@@ -153,10 +153,10 @@ private object RequirementPropertyProbeAuthority : TfmAuthority() {
               }
               CLASS OptionalRequirementPropertyProbe : RequirementPropertyProbe
               CLASS RequiredRequirementPropertyProbe : RequirementPropertyProbe {
-                requirement = HAS This, RequirementPropertyMarker<Owner>
+                requirement = HAS "This, RequirementPropertyMarker<Owner>"
               }
               CLASS RecursiveRequirementPropertyProbe : RequirementPropertyProbe {
-                requirement = HAS EVAL This.requirement
+                requirement = HAS "EVAL This.requirement"
               }
               CLASS RequirementPropertyMarker : Owned<Player>
               CLASS RequirementPropertyStarted : Owned<Player>

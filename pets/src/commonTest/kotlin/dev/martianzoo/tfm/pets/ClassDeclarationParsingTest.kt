@@ -35,11 +35,11 @@ internal class ClassDeclarationParsingTest {
                   row = Number
                   column = 2
                   score = Metric
-                  scoreBasis = COUNT TemperatureStep OR VenusScaleStep
-                  scaledScore = COUNT 8 TemperatureStep
+                  scoreBasis = COUNT "TemperatureStep OR VenusScaleStep"
+                  scaledScore = COUNT "8 TemperatureStep"
                   requirement = Requirement
                   optionalRequirement = Requirement?
-                  specificRequirement = HAS 3 Plant, MAX 2 Steel
+                  specificRequirement = HAS "3 Plant, MAX 2 Steel"
                   This: Area
                 }
                 """
@@ -61,7 +61,9 @@ internal class ClassDeclarationParsingTest {
                 RequirementValue(parse<Requirement>("3 Plant, MAX 2 Steel")),
         )
     declaration.properties.getValue(PropertyName("scoreBasis")).toString() shouldBe
-        "COUNT TemperatureStep OR VenusScaleStep"
+        "COUNT \"TemperatureStep OR VenusScaleStep\""
+    declaration.properties.getValue(PropertyName("specificRequirement")).toString() shouldBe
+        "HAS \"3 Plant, MAX 2 Steel\""
   }
 
   @Test
@@ -74,6 +76,15 @@ internal class ClassDeclarationParsingTest {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { cost = -1 }") }
     shouldThrow<PetSyntaxException> {
       parseClasses("CLASS Foo { score = TemperatureStep }")
+    }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("CLASS Foo { score = COUNT TemperatureStep }")
+    }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("CLASS Foo { requirement = HAS TemperatureStep }")
+    }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("""CLASS Foo { requirement = HAS "Temperature\"Step" }""")
     }
   }
 

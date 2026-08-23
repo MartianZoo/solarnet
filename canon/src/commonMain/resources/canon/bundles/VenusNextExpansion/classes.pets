@@ -11,15 +11,15 @@ CLASS AirScrappingSP : StandardProject {
 
 "Adds World Government Terraforming to the solar phase"
 CLASS WorldGovernmentOption : Module {
-  autoSelectWhen = HAS VenusNextExpansion
+  autoSelectWhen = HAS "VenusNextExpansion"
 
   SolarPhase IF MAX 2 GpComplete OR (VenusNextExpansion, MAX 3 GpComplete):: WorldGovernmentTerraforming
 }
 
 "Represents a 2% increase in Venus... terraformedness"
 CLASS VenusStep : GlobalParameter {
-  automaticSelectionRequirement = HAS VenusNextExpansion
-  activationRequirement = HAS VenusNextExpansion
+  automaticSelectionRequirement = HAS "VenusNextExpansion"
+  activationRequirement = HAS "VenusNextExpansion"
 
   HAS MAX 15 This
 
@@ -29,7 +29,7 @@ CLASS VenusStep : GlobalParameter {
 }
 
 CLASS VenusTag : PlanetTag {
-  automaticSelectionRequirement = HAS VenusNextExpansion
+  automaticSelectionRequirement = HAS "VenusNextExpansion"
 }
 
 "Asks the first player where an ocean is placed while preserving the performing Player"

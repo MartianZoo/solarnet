@@ -5,6 +5,7 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTokenizer
 
 /** A value or abstract value type assigned to a class property. */
@@ -55,14 +56,14 @@ public sealed class PropertyValue : PetNode() {
     override fun toString(): String = "$value"
   }
 
-  /** One concrete metric-valued property, written with a `COUNT` prefix. */
+  /** One concrete metric-valued property, written as a quoted Metric after `COUNT`. */
   public data class MetricValue(public val value: Metric) : PropertyValue() {
-    override fun toString(): String = "COUNT $value"
+    override fun toString(): String = "COUNT \"$value\""
   }
 
-  /** One concrete requirement-valued property. */
+  /** One concrete requirement-valued property, written as a quoted Requirement after `HAS`. */
   public data class RequirementValue(public val value: Requirement) : PropertyValue() {
-    override fun toString(): String = "HAS $value"
+    override fun toString(): String = "HAS \"$value\""
   }
 
   /** Whether this abstract bound may be narrowed directly to [value]. */
@@ -95,9 +96,9 @@ public sealed class PropertyValue : PetNode() {
   private object Parsers : PetTokenizer() {
     val requirement: Parser<PropertyValue> =
         _has and
-            Requirement.parser() map
-            { (_, value) ->
-              RequirementValue(value)
+            quotedText map
+            { (_, source) ->
+              RequirementValue(parse<Requirement>(source))
             }
 
     val parser: Parser<PropertyValue> =
@@ -106,7 +107,7 @@ public sealed class PropertyValue : PetNode() {
             (_requirement and skipChar('?') map { OptionalRequirementType }) or
             (_requirement map { RequirementType }) or
             requirement or
-            (skip(_count) and Metric.parser() map { MetricValue(it) }) or
+            (skip(_count) and quotedText map { MetricValue(parse<Metric>(it)) }) or
             (rawScalar map { NumberValue(it) })
   }
 }

@@ -287,10 +287,10 @@ internal class AuthorityTest {
                         HAS =1 Class<ObservedState>, =1 Class<LockedState>
                       }
                       CLASS ObservedState {
-                        automaticSelectionRequirement = HAS Feature
+                        automaticSelectionRequirement = HAS "Feature"
                       }
                       CLASS LockedState {
-                        activationRequirement = HAS Feature
+                        activationRequirement = HAS "Feature"
                       }
                       """
                           .trimIndent()
