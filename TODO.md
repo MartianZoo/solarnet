@@ -71,6 +71,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   model.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
   and whether adding and then removing those steps has any other observable consequences.
+- Complete `Game20260820Test` beyond its current partial generation-6 boundary using the preserved
+  log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 
 ### Making Solarnet AI-player-ready
 
