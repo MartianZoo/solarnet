@@ -43,7 +43,7 @@ internal class SoloGenerationCountdownTest {
 
     player.count("Tr63SoloVariant") shouldBe 1
     player.count("StandardSoloVariant") shouldBe 0
-    game.classTable.getClass(cn("BufferGasSP")).phantom shouldBe false
+    game.classTable.isActive(cn("BufferGasSP")) shouldBe true
 
     player.godMode().manual("16 Megacredit")
     player.godMode().manual("UseAction<BufferGasSP, First>") {

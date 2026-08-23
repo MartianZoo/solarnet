@@ -48,9 +48,9 @@ internal class Initializer(
     val playerNames = premise.playerClassNames.toSet()
     createComponents(
         premise.playerClassNames.map(classTable::getClass).flatMap {
-          it.baseType.concreteSubtypesSameClass()
+          classTable.concreteSubtypesSameClass(it.baseType)
         } +
-            orderedModules.flatMap { it.baseType.concreteSubtypesSameClass() } +
+            orderedModules.flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
             classTable
                 .allClasses()
                 .filter {
@@ -58,7 +58,7 @@ internal class Initializer(
                       it.className !in playerNames &&
                       it.isSingletonType()
                 }
-                .flatMap { it.baseType.concreteSubtypesSameClass() },
+                .flatMap { classTable.concreteSubtypesSameClass(it.baseType) },
         cause,
         "singleton",
     )

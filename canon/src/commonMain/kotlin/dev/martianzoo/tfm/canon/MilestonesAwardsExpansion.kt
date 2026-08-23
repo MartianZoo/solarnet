@@ -20,7 +20,7 @@ private object MilestonesAwardsExpansion {
       val player = getPlayerOwner(game, type)
       val areas = mapDefinition(game).areas
       val areasByName = areas.associateBy { it.className }
-      val ownedTileClass = type.classTable.getClass(cn("OwnedTile"))
+      val ownedTileClass = game.resolve(cn("OwnedTile").expression).rootClass
       val components = game.getComponents(game.resolve(cn("Component").expression))
       val ownedAreas =
           components

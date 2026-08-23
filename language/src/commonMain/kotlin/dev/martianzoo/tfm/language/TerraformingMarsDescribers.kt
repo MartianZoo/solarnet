@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.Class
 
 private typealias RequirementCount = ComponentDescriber.Requirement.CountSyntax
@@ -9,7 +8,7 @@ private typealias RequirementCount = ComponentDescriber.Requirement.CountSyntax
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
   internal val descriptions: Map<Class, ComponentDescriber> by lazy {
-    Canon.classTable.allClasses().associateWith(::resolve)
+    canonClassUniverse.allClasses().associateWith(::resolve)
   }
 
   private val declarations: Map<Class, ComponentDescriber> by lazy {
@@ -292,7 +291,7 @@ internal object TerraformingMarsDescribers {
     return values.singleOrNull()
   }
 
-  private fun klass(name: String): Class = Canon.classTable.getClass(cn(name))
+  private fun klass(name: String): Class = canonClassUniverse.getClass(cn(name))
 
   private fun threshold(
       subject: String,

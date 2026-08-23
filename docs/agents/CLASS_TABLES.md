@@ -1,9 +1,8 @@
 # Authority classes and game class views
 
-**Status: proposal.** This describes the type/class ownership model we are trying to reach, not
-committed behavior. Current behavior remains documented in [TYPES.md](TYPES.md).
+**Status: current model.**
 
-## Target model
+## Ownership model
 
 An Authority owns one immutable master type universe. Within that universe there is exactly one
 `Class` instance for each known Class Name. `Type` values are likewise structural values from that
@@ -19,9 +18,8 @@ unexposed master-universe identity so operations can reject values from differen
 that identity is not a source of game context. In particular, removing `Class.classTable` must not
 be followed by adding a differently named projection backpointer.
 
-Consequently, inhabitation is not an intrinsic property of a `Class` or `Type`. The current
-projection-relative `phantom` properties disappear. A game class view answers whether a Class or
-Type is inhabited in that game.
+Consequently, inhabitation is not an intrinsic property of a `Class` or `Type`. A game class view
+answers whether a Class or Type is inhabited in that game.
 
 ## Structural operations versus game-domain operations
 
@@ -60,40 +58,39 @@ Unknown and uninhabited remain distinct. An Authority-known uninhabited Class re
 nominal relationships, but the game view gives it an empty domain. An unknown Class Name remains an
 error.
 
-## Resulting projection shape
+## Projection shape
 
-A game projection should contain only game-relative information, such as:
+A game projection contains only game-relative information, such as:
 
 - the inhabited Class set;
-- filtered direct/proper-subclass indexes;
 - selected Modules and premise validation results; and
-- any derived indexes whose contents vary with that set.
+- any filtered indexes whose contents vary with that set.
 
-It must not contain projection-local copies of all master `Class` objects. The exact representation
-of the inhabited set is an implementation choice, not part of the model.
+It does not contain projection-local copies of master `Class` objects. `findClass` and `resolve`
+delegate to the master universe, while `allClasses`, `allClassNames`, and the explicit enumeration
+operations filter through the view's inhabited-name set.
 
-## Current pressure
+The projection computes the premise's monotone activation closure but freezing it performs no Class
+construction or nominal-hierarchy compilation. Master compilation performs those tasks once for the
+Authority.
 
-The current `ClassLoader` builds projection-local `Class` objects because `Class.classTable`,
-`Type.classTable`, `phantom`, and no-context enumeration make game filtering implicit. In a traced
-whole-game test, the Canon master and one game projection each represented 1,191 Classes; the
-projection rebuilt all 1,191, including 395 uninhabited Classes. A traced engine JVM suite created
-621 game projections through `Engine`.
+## Access boundary
 
-Removing that repeated construction is the immediate performance motivation. The architectural
-goal is stronger: type values should describe authority-defined structure, while the World should
-be the explicit source of game-relative truth.
+Game runtime code receives the filtered table from `World.classTable`; it must not recover the
+master through `GameReader.authority`. Production master-table acquisition is concentrated at three
+structural boundaries:
 
-This change does not remove the need to compute the activation closure for a premise, and it does
-not by itself guarantee the whole-game performance target.
+- `TfmAuthority` compiles configuration and Module selection against its private `universe` handle;
+- `ClassTable.forPremise` acquires the Authority universe once to construct a filtered view; and
+- canonical language metadata uses one module-private `canonClassUniverse` handle.
 
-## Completion criteria
+`Authority.classTable` remains public even though ordinary game clients have no legitimate reason
+to use it. That is an API-boundary gap, not permission for additional callers.
 
-The target model is reached when:
+## Integrity requirements
 
 - no `Class`, `Type`, or dependency value exposes or retains a game-projection backpointer;
 - creating a game projection constructs no `Class` instances;
 - all game-relative enumeration and inhabitation checks receive an explicit view or reader;
 - structural operations give the same answer in every game using one master universe;
-- target-World validation prevents an uninhabited Type from entering that World; and
-- the existing activation, uninhabited-domain, and whole-game behavior remains otherwise unchanged.
+- target-World validation prevents an uninhabited Type from entering that World.

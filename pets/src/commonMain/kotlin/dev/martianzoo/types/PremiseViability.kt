@@ -71,8 +71,7 @@ internal object PremiseViability {
         is Change ->
             tree.removing?.takeIf {
               isUninhabited(it, table) &&
-                  (tree.intensity
-                      ?: table.masterTable.getClass(it.className).defaults.removeOnly.intensity) ==
+                  (tree.intensity ?: table.getClass(it.className).defaults.removeOnly.intensity) ==
                       MANDATORY
             }
         else ->

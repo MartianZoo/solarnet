@@ -273,19 +273,21 @@ whether Complements are genuine difference Types.
 
 ## 8. Class Tables
 
-Every Type belongs to one frozen Class Table. Values from different tables are not comparable.
-Freezing compiles nominal subtype masks and sparse active-subclass indexes.
+Every Type belongs to one immutable Authority-wide master universe. Values from different master
+universes are not comparable. Master compilation resolves the hierarchy and compiles nominal
+subtype masks once.
 
-[CLASS_TABLES.md](CLASS_TABLES.md) proposes replacing this committed ownership model with one
-Authority-wide Class/Type universe and explicit game-filtered views. It is not implemented.
-
-The Authority owns a master catalog. Each game projects it. A name has one of three states:
+Each game owns an explicit filtered Class Table view over that master. The view reuses the master
+Classes and Types and records the inhabited names selected by the premise's activation closure. A
+name has one of three states:
 
 - **active:** full behavior in this game;
 - **uninhabited:** nominally known to the Authority, with an empty domain here; or
 - **unknown:** an error in every context.
 
-A game's table is closed. No later declaration may change its hierarchy or set of concrete choices.
+A game's view is closed. No later declaration may change its inhabited set. Structural operations
+such as subtyping, `glb`, and `lub` use the master universe; active subclass and concrete-Type
+enumeration receive the game view explicitly. See [CLASS_TABLES.md](CLASS_TABLES.md).
 
 ## 9. Closed-world operations
 

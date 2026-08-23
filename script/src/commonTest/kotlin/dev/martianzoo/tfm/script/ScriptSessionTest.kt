@@ -35,6 +35,14 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  fun descDescribesAnAuthorityKnownInactiveType() {
+    val description = ScriptSession().command("desc VenusTag").single()
+
+    assertContains(description, "Class `VenusTag`:")
+    assertContains(description, "cmpt types:  0")
+  }
+
+  @Test
   fun execReportsThatOwnerLocalClassesCannotBeAddedToALiveGame() {
     assertEquals(
         listOf("New Class declarations are not allowed after the Class Table is frozen"),

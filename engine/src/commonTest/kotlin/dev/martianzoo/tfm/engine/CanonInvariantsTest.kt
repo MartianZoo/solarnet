@@ -79,7 +79,9 @@ internal class CanonInvariantsTest {
         declaringType: String = constrainedType,
     ) {
       val clazz = table.getClass(cn(declaringType))
-      restrictions(constrainedType)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
+      restrictions(constrainedType)!!.shouldContain(
+          UnboundRangeRestriction(expr, clazz, table, range)
+      )
     }
 
     checkSimple("$Ants", range = 0..1)

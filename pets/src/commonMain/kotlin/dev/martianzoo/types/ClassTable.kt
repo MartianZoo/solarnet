@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.ClassSelection
@@ -12,11 +13,12 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 
-/** One master class universe or a playable active/phantom projection backed by one. */
+/** One Authority master class universe or a playable active-class view backed by one. */
 public abstract class ClassTable {
   public companion object {
     /** Forms and freezes the playable projection selected by [premise]. */
     public fun forPremise(premise: GamePremise): ClassTable {
+      val masterTable = premise.authority.classTable
       val initialClassNames =
           premise.initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
       val configurationNames: Set<ClassName> =
@@ -29,7 +31,7 @@ public abstract class ClassTable {
       val moduleSelections = premise.modules.flatMap { premise.authority.modules.getValue(it) }
       val (applicableModuleSelections, inapplicableModuleSelections) =
           moduleSelections.partition { selection ->
-            selection.appliesTo(configurationNames, premise.authority.classTable)
+            selection.appliesTo(configurationNames, masterTable)
           }
       val moduleIncluded =
           applicableModuleSelections
@@ -60,8 +62,13 @@ public abstract class ClassTable {
               premise.actors.map(Actor::className)
 
       val table =
-          ClassLoader.projection(premise.authority, premise.modules, premise.classSelections)
-              .apply { roots.forEach(::load) }
+          ClassLoader.projection(
+                  premise.authority,
+                  masterTable,
+                  premise.modules,
+                  premise.classSelections,
+              )
+              .apply { loadAll(roots) }
               .freeze()
       val unexpectedModules =
           premise.authority.modules.keys.filterTo(linkedSetOf()) {
@@ -95,24 +102,89 @@ public abstract class ClassTable {
   /** The `Class` class, the other class that is required to exist. */
   public abstract val classClass: Class
 
-  /** Every active class in this table; phantom classes are deliberately not enumerated. */
+  /** Every class inhabited in this view. A master table contains its complete universe. */
   public abstract fun allClasses(): Set<Class>
 
-  /** Every active class's stable names; phantom names are excluded. */
+  /** Every class name inhabited in this view. */
   public abstract val allClassNames: Set<ClassName>
 
-  /** Returns the active or phantom [Class] having this canonical name. */
+  /** Returns the Authority-known [Class] having this canonical name. */
   public abstract fun findClass(name: ClassName): Class?
 
   /** Returns the [Class] having this canonical name, or throws. */
   public fun getClass(name: ClassName): Class =
       findClass(name) ?: throw Exceptions.classNotFound(name)
 
-  /** Returns the active [Class] having this canonical name; null if unknown or phantom. */
-  public fun findActiveClass(name: ClassName): Class? = findClass(name)?.takeUnless(Class::phantom)
+  /** Returns the inhabited [Class] having this canonical name; null if unknown or inactive. */
+  public fun findActiveClass(name: ClassName): Class? = findClass(name)?.takeIf(::isActive)
 
-  /** Whether [name] names a class that is active in this table (not unknown, not phantom). */
-  public fun isActive(name: ClassName): Boolean = findActiveClass(name) != null
+  /** Whether [name] names a class inhabited in this view. */
+  public fun isActive(name: ClassName): Boolean = name in allClassNames
+
+  /** Whether [klass] belongs to this Authority universe and is inhabited in this view. */
+  public fun isActive(klass: Class): Boolean =
+      klass.classTable === masterTable && klass.className in allClassNames
+
+  /** Whether [type] belongs to the Authority universe backing this table. */
+  public fun knows(type: Type): Boolean = type.classTable === masterTable
+
+  /** Whether [type] and every structural dependency it binds are inhabited in this view. */
+  public fun isActive(type: Type): Boolean =
+      knows(type) && isActive(type.rootClass) && type.dependencies.activeIn(this)
+
+  private val activeSubclassesByClass = mutableMapOf<Class, Set<Class>>()
+
+  /** Active subclasses of [klass], including [klass] itself when it is active. */
+  public fun allSubclasses(klass: Class): Set<Class> {
+    require(klass.classTable === masterTable) { "$klass belongs to a different Authority" }
+    if (this === masterTable) return klass.allSubclasses()
+    return activeSubclassesByClass.getOrPut(klass) {
+      klass.allSubclasses().filterTo(linkedSetOf(), ::isActive)
+    }
+  }
+
+  private val activeDirectSubclassesByClass = mutableMapOf<Class, Set<Class>>()
+
+  /** Active subclasses exactly one nominal step below [klass]. */
+  public fun directSubclasses(klass: Class): Set<Class> {
+    require(klass.classTable === masterTable) { "$klass belongs to a different Authority" }
+    if (this === masterTable) return klass.directSubclasses()
+    return activeDirectSubclassesByClass.getOrPut(klass) {
+      klass.directSubclasses().filterTo(linkedSetOf(), ::isActive)
+    }
+  }
+
+  /** Active concrete structural narrowings of [type]. */
+  public fun allConcreteSubtypes(type: Type): Sequence<Type> {
+    require(type.classTable === masterTable) { "$type belongs to a different Authority" }
+    return allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
+      val dependencies = type.dependencies glb klass.baseType.dependencies
+      if (dependencies == null) {
+        emptySequence()
+      } else {
+        concreteSubtypesSameClass(klass.withAllDependencies(dependencies))
+      }
+    }
+  }
+
+  /** Active concrete structural narrowings with the same root Class as [type]. */
+  public fun concreteSubtypesSameClass(type: Type): Sequence<Type> {
+    require(type.classTable === masterTable) { "$type belongs to a different Authority" }
+    if (type.rootClass.abstract || !isActive(type.rootClass)) return emptySequence()
+    return type.dependencies.concreteSubtypesSameClass(type, this).filter(::isActive)
+  }
+
+  /** The sole active concrete narrowing of [type] that satisfies [info], if there is one. */
+  public fun singleConcreteSubtype(type: Type, info: TypeInfo): Type? {
+    if (type.rootClass.className == CLASS && type.refinement != null) {
+      return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
+    }
+    val klass = allSubclasses(type.rootClass).singleOrNull { !it.abstract } ?: return null
+    val intersection = type glb klass.baseType ?: return null
+    val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null
+    val candidate = intersection.rootClass.withAllDependencies(dependencies)
+    return candidate.takeIf { !it.abstract && it.narrows(type, info) }
+  }
 
   /** Returns the [Type] represented by [expression]. */
   public abstract fun resolve(expression: Expression): Type
@@ -137,8 +209,8 @@ public abstract class ClassTable {
       domain: Type,
       info: TypeInfo,
   ): Boolean {
-    require(candidate.classTable === this && domain.classTable === this) {
-      "constraint types belong to a different class table"
+    require(candidate.classTable === masterTable && domain.classTable === masterTable) {
+      "constraint types belong to a different Authority"
     }
     val key = Key(domain.className, 0)
     val domainDependency = TypeDependency(key, domain)

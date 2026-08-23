@@ -39,7 +39,7 @@ internal class ApiTranslation(
     private val timeline: Timeline,
     private val impl: Implementations,
     private val tasks: TaskQueue,
-    classTable: ClassTable,
+    private val classTable: ClassTable,
     xers: Transformers,
     vocabulary: Vocabulary,
     private val atomicOperationBoundary: AtomicOperationBoundary,
@@ -66,7 +66,7 @@ internal class ApiTranslation(
     val allComponents: Multiset<Type> = reader.getComponents(typeToList)
 
     val result = HashMultiset<Expression>()
-    typeToList.rootClass.directSubclasses().forEach { sub ->
+    classTable.directSubclasses(typeToList.rootClass).forEach { sub ->
       val matches = allComponents.filter { it.isSubtypeOf(sub.baseType) }
       if (matches.any()) {
         @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<Type>

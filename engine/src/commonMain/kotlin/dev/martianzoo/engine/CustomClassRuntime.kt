@@ -17,7 +17,7 @@ internal class CustomClassRuntime(
 ) {
   internal fun prepare(component: Component, reader: GameReader): InstructionTree {
     require(component.isCustom)
-    require(component.type.classTable === transformers.classTable)
+    require(transformers.classTable.isActive(component.type))
 
     val type = component.type
     val implementation = authority.customClass(type.className)
@@ -62,11 +62,11 @@ internal class CustomClassRuntime(
 
   internal fun count(type: Type, reader: GameReader): Int {
     require(type.rootClass.declaration.custom)
-    require(type.classTable === transformers.classTable)
+    require(transformers.classTable.isActive(type))
 
     if (type.abstract) {
-      return type
-          .allConcreteSubtypes()
+      return transformers.classTable
+          .allConcreteSubtypes(type)
           .filter { it.narrows(type, reader) }
           .sumOf { count(it, reader) }
     }

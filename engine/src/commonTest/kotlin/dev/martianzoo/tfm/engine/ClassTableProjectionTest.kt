@@ -12,6 +12,7 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertSame
 
 /** Verifies which classes are active in game-specific class-table projections. */
 internal class ClassTableProjectionTest {
@@ -110,8 +111,9 @@ internal class ClassTableProjectionTest {
   fun `concrete award definitions stay unloaded in solo`() {
     val award = baseSolo.classTable.getClass(cn("Award"))
 
-    award.phantom shouldBe true
-    award.allSubclasses().shouldBeEmpty()
+    assertSame(Canon.classTable.getClass(cn("Award")), award)
+    baseSolo.classTable.isActive(award) shouldBe false
+    baseSolo.classTable.allSubclasses(award).shouldBeEmpty()
   }
 
   @Test

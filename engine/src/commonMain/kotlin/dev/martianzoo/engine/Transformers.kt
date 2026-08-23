@@ -69,7 +69,7 @@ public class Transformers(public val classTable: ClassTable) {
 
   /** Effects inherited by [klass], processed as far as possible without a concrete component. */
   internal fun classEffects(klass: Class): List<Effect> {
-    require(klass.classTable === classTable) { "$klass belongs to a different class table" }
+    require(classTable.isActive(klass)) { "$klass is not active in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
           source.declaration.effects.map(attachToClassTransformer(source)::transformEffect)
@@ -636,7 +636,7 @@ public class Transformers(public val classTable: ClassTable) {
                   specialized.gaining?.let(classTable::resolve),
                   specialized.removing?.let(classTable::resolve),
               )
-          if (types.any(Type::phantom)) {
+          if (types.any { !classTable.isActive(it) }) {
             return if (specialized.intensity == MANDATORY) {
               gain(DIE)
             } else {
