@@ -47,10 +47,11 @@ characterization. Refusal reasons identify the active boundary that could not in
 such as its change frame, effect trigger, action cost, gate, or scaling form. Nullable private
 matchers remain branch attempts inside those interpreters and do not create anonymous report rows.
 
-`english-filtered-draws.tsv` is a narrow transitional supplement for information that canonical Pets
-does not yet carry. It maps a card's Class name to a tag, card-resource icon, or printed-requirement
-filter. An unqualified `ProjectCard` gain is an ordinary project-card draw; distinct top-card
-procedures use their own described component construction.
+Canonical `CARDS` transforms carry the structure of filtered draws, card selection and purchase,
+reveal-and-test operations, and event recovery. The renderer decodes those structural families
+directly; card identity does not supply hidden rendering data. Ordinary card-handling conventions
+supply the discard of cards that were revealed or inspected but not drawn. An unqualified
+`ProjectCard` gain remains an ordinary project-card draw.
 
 Keep every structurally supported End-scoring sentence canonical in the goal data even when
 another part of that card remains bracketed. The goal row should already contain
@@ -73,8 +74,9 @@ than the structural rendering rules.
 
 `English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
 `InstructionTree`, or a `Requirement`. The public instruction and action overloads that accept a
-host `CardDefinition` remain, but current canonical wording does not vary by host card. Unsupported
-valid Pets shapes return bracketed canonical Pets rather than failing or consulting a card row.
+host `CardDefinition` remain so source declarations nested in that card are available as structural
+evidence. Unsupported valid Pets shapes return bracketed canonical Pets rather than failing or
+consulting a card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
 It has no canonical component registry or implicit Terraforming Mars description source; it only
@@ -389,10 +391,10 @@ in `CardDefinition` or for dividing one authored immediate group.
 
 Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
 Insurance shows why: its component declarations encode printed setup behavior that is absent from
-`immediate`. Do not infer a generic draw sentence from a plain `ProjectCard` gain. `CARDS` now
-distinguishes printed filtering, selection, and reveal procedures through its inner instruction
-tree in canonical Card Definitions. A renderer should interpret that source transform rather than
-the follow-mode-neutralized executable declarations.
+`immediate`. Do not infer a generic draw sentence from a plain `ProjectCard` gain. `CARDS`
+distinguishes printed filtering, selection, reveal, purchase, and event-recovery procedures through
+its inner instruction tree in canonical Card Definitions. The renderer interprets that source
+transform rather than the follow-mode-neutralized executable declarations.
 
 A plain mandatory placement of one greenery tile does not restate its automatic oxygen increase,
 consistent with other systemic placement consequences. A strict placement-site refinement can
@@ -405,8 +407,8 @@ described site and repeat the same consequence-free, one-component placement beh
 for that site; it renders as placing there when using a board that has such a site and otherwise
 placing normally. This board-qualified wording does not imply that occupied sites permit the
 normal-placement alternative.
-Experimental Forest now expresses its printed plant-tag filter, but remains bracketed until
-transform rendering exists.
+Experimental Forest's filtered draw is rendered from its `CARDS` transform as drawing two plant
+cards.
 
 An automatic effect triggered by gaining its own host component is part of that card's immediate
 region rather than its persistent effect region. Its supported instruction is rendered before the

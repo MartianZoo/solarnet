@@ -17,7 +17,6 @@ import dev.martianzoo.types.Dependency.Key
 internal fun renderChange(
     instruction: Instruction,
     describers: Describers,
-    drawFilter: EnglishDrawFilter? = null,
 ): Rendering<Clause?> {
   val expression =
       when (instruction) {
@@ -26,7 +25,7 @@ internal fun renderChange(
         is Transmute -> instruction.gaining
         else -> return Rendering.unresolved(instruction, RefusalReason.UNKNOWN_CHANGE_FRAME, null)
       }
-  val clause = renderChangeOrNull(instruction, expression, describers, drawFilter)
+  val clause = renderChangeOrNull(instruction, expression, describers)
   return if (clause != null) Rendering.resolved(clause)
   else
       Rendering.unresolved(
@@ -40,7 +39,6 @@ private fun renderChangeOrNull(
     instruction: Instruction,
     expression: Expression,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause? {
   if (instruction is Transmute) {
     renderCardResourceDrawExchange(instruction, describers)?.let {
@@ -57,10 +55,9 @@ private fun renderChangeOrNull(
       is ComponentDescriber.ChangeFrame.Positioned ->
           renderPlacement(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.Deck ->
-          renderDiscard(instruction, describers) ?: renderDraw(instruction, drawFilter, describers)
+          renderDiscard(instruction, describers) ?: renderDraw(instruction, describers)
       is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame)
-      is ComponentDescriber.ChangeFrame.Wrapper ->
-          renderWrapper(instruction, frame, describers, drawFilter)
+      is ComponentDescriber.ChangeFrame.Wrapper -> renderWrapper(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.Play -> renderCardPlay(instruction, describers)
     }
   }
@@ -113,7 +110,6 @@ private fun renderDiscard(
 
 private fun renderDraw(
     instruction: Instruction,
-    filter: EnglishDrawFilter?,
     describers: Describers,
 ): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
@@ -125,33 +121,9 @@ private fun renderDraw(
     return null
   }
   val count = gain.count.fixedQuantity() ?: return null
-  if (filter == null) {
-    val noun = describers.componentNoun(gain.gaining.className, count)
-    val amount = if (count == 1) "${describers.indefiniteArticle(noun)} $noun" else "$count $noun"
-    return clause("draw", NounPhrase.text(amount))
-  }
-  val cards =
-      when (filter) {
-        is EnglishDrawFilter.Tag -> {
-          val (tag) = describers.tagName(filter.className) ?: return null
-          NounPhrase.text(if (count == 1) "a $tag card" else "$count $tag cards")
-        }
-        is EnglishDrawFilter.Icon -> {
-          val resource = describers.cardResourceNoun(filter.className, 1) ?: return null
-          val text =
-              if (count == 1) {
-                "a card with ${describers.indefiniteArticle(resource)} $resource icon"
-              } else {
-                "$count cards with $resource icons"
-              }
-          NounPhrase.text(text)
-        }
-        EnglishDrawFilter.Requirements ->
-            NounPhrase.text(
-                if (count == 1) "a card with a requirement" else "$count cards with requirements"
-            )
-      }
-  return clause("draw", cards)
+  val noun = describers.componentNoun(gain.gaining.className, count)
+  val amount = if (count == 1) "${describers.indefiniteArticle(noun)} $noun" else "$count $noun"
+  return clause("draw", NounPhrase.text(amount))
 }
 
 internal fun isProductionChange(instruction: Instruction, describers: Describers): Boolean {
@@ -213,7 +185,6 @@ private fun renderWrapper(
     instruction: Instruction,
     frame: ComponentDescriber.ChangeFrame.Wrapper,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
@@ -235,8 +206,7 @@ private fun renderWrapper(
     return null
   }
   val result =
-      renderInstructions(effect.instruction, describers, drawFilter).clauses.singleOrNull()
-          ?: return null
+      renderInstructions(effect.instruction, describers).clauses.singleOrNull() ?: return null
   return Clause.Prefaced(frame.preface, result)
 }
 
@@ -250,7 +220,7 @@ private fun wrapperSubclassDeclaration(
   if (describers.changeFrame(superclass.className) !is ComponentDescriber.ChangeFrame.Wrapper) {
     return null
   }
-  val declaration = componentClass.declaration
+  val declaration = describers.sourceDeclaration(className)
   val supertype = declaration.supertypes.singleOrNull()
   if (
       declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||

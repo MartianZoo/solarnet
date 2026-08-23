@@ -4,21 +4,22 @@ import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.data.CardOperation
 import dev.martianzoo.types.Dependency.Key
 
 internal fun renderActions(
     actions: List<Action>,
     describers: Describers,
-    drawFilter: EnglishDrawFilter? = null,
 ): Rendering<String> {
   if (actions.isEmpty()) return Rendering.resolved("")
   val rendered = actions.map { action ->
-    renderAction(action, describers, drawFilter)
+    renderAction(action, describers)
         ?: return Rendering.unresolved(
             action,
             actionRefusalReason(action, describers),
@@ -80,7 +81,15 @@ private fun Describers.renderAlternativeCosts(costs: Set<Cost>): Predicate? {
 
 private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
   val expression = spend.scaledEx.expression
-  val count = spend.scaledEx.scalar.fixedQuantity() ?: return null
+  val count = spend.scaledEx.scalar.fixedQuantity()
+  if (count == null) {
+    val quantity = spend.scaledEx.scalar.variableQuantity() ?: return null
+    return renderResourceSpend(expression) { noun ->
+      NounPhrase.text(
+          if (quantity.multiple == 1) "one or more ${noun.plural}" else "$quantity ${noun.plural}"
+      )
+    }
+  }
   renderResourceSpend(expression) { it.copy(count = count) }
       ?.let {
         return it
@@ -195,7 +204,6 @@ private fun Describers.renderLinkedProductionResourceAction(action: Action): Ren
 
 private fun Describers.renderDeferredPaymentAction(
     action: Action,
-    drawFilter: EnglishDrawFilter?,
 ): RenderedAction? {
   if (action.cost != null) return null
   val sequence = action.instruction as? Then ?: return null
@@ -223,7 +231,7 @@ private fun Describers.renderDeferredPaymentAction(
   ) {
     return null
   }
-  val result = renderInstructions(gated.inner, this, drawFilter)
+  val result = renderInstructions(gated.inner, this)
   val cost =
       Predicate(
           "spend",
@@ -236,7 +244,6 @@ private fun Describers.renderDeferredPaymentAction(
 private fun renderAction(
     action: Action,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): RenderedAction? {
   val lowered = lowerProductionSyntax(action)
   describers.renderLinkedXAction(lowered)?.let {
@@ -245,7 +252,7 @@ private fun renderAction(
   describers.renderLinkedProductionResourceAction(lowered)?.let {
     return it
   }
-  describers.renderDeferredPaymentAction(lowered, drawFilter)?.let {
+  describers.renderDeferredPaymentAction(lowered)?.let {
     return it
   }
   val gatedCost = lowered.cost as? Cost.Gated
@@ -256,23 +263,30 @@ private fun renderAction(
       (gatedCost?.gate ?: gatedInstruction?.gate)?.let {
         describers.renderGateCondition(it) ?: return null
       }
-  val result =
-      renderInstructions(gatedInstruction?.inner ?: lowered.instruction, describers, drawFilter)
-  return RenderedAction(cost, result, condition)
+  val result = renderInstructions(gatedInstruction?.inner ?: lowered.instruction, describers)
+  val separateResultSentences =
+      (lowered.instruction as? Instruction.Transform)?.transformKind == CardOperation.TRANSFORM_KIND
+  return RenderedAction(cost, result, condition, separateResultSentences)
 }
 
 private data class RenderedAction(
     val cost: Predicate?,
     val result: RenderedInstructions,
     val condition: String? = null,
+    val separateResultSentences: Boolean = false,
 ) {
   val unresolved: List<Unresolved>
     get() = result.unresolved
 
   fun asSentences(): String {
     if (condition == null) {
-      return cost?.let { completeSentence("${it.linearize()} to ${result.asCoordinatedClause()}") }
-          ?: result.asSentences()
+      if (cost == null) return result.asSentences()
+      if (!separateResultSentences) {
+        return completeSentence("${cost.linearize()} to ${result.asCoordinatedClause()}")
+      }
+      val first = completeSentence("${cost.linearize()} to ${result.clauses.first().linearize()}")
+      val remaining = result.clauses.drop(1).joinToString(" ") { Sentence(it).linearize() }
+      return listOf(first, remaining).filter(String::isNotEmpty).joinToString(" ")
     }
     val clause =
         cost?.let { "${it.linearize()} to ${result.asCoordinatedClause()}" }

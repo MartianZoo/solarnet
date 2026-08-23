@@ -25,7 +25,6 @@ import dev.martianzoo.types.Dependency.Key
 internal fun renderEffect(
     effect: Effect,
     describers: Describers,
-    drawFilter: EnglishDrawFilter? = null,
 ): Rendering<String> {
   val lowered = lowerProductionSyntax(effect)
   val rendered =
@@ -38,9 +37,9 @@ internal fun renderEffect(
             ?: renderResourcePaymentValue(lowered, describers)
             ?: renderCardResourcePaymentValue(lowered, describers)
             ?: renderRequirementFlexibility(lowered, describers)
-            ?: renderLinkedPlayedTagResourceChoice(lowered, describers, drawFilter)
+            ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
             ?: renderLinkedProductionReward(lowered, describers)
-            ?: renderTriggeredInstructions(lowered, describers, drawFilter)
+            ?: renderTriggeredInstructions(lowered, describers)
       }
   return rendered?.let(Rendering.Companion::resolved)
       ?: Rendering.unresolved(
@@ -101,7 +100,6 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
 private fun renderLinkedPlayedTagResourceChoice(
     effect: Effect,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): String? {
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (trigger.refinement != null || trigger.complement) return null
@@ -116,9 +114,7 @@ private fun renderLinkedPlayedTagResourceChoice(
   val clauses = alternatives.map { alternative ->
     renderLinkedCardResourceGain(alternative, holder, describers)?.also {
       linkedDestination = true
-    }
-        ?: renderInstructions(alternative, describers, drawFilter).clauses.singleOrNull()
-        ?: return null
+    } ?: renderInstructions(alternative, describers).clauses.singleOrNull() ?: return null
   }
   if (!linkedDestination) return null
   val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
@@ -281,7 +277,6 @@ private fun protectedResourceNoun(expression: Expression, describers: Describers
 internal fun renderEffects(
     effects: List<Effect>,
     describers: Describers,
-    drawFilter: EnglishDrawFilter? = null,
     cardResourceType: ClassName? = null,
 ): Rendering<String> {
   val sentences = mutableListOf<String>()
@@ -303,7 +298,7 @@ internal fun renderEffects(
     val discount = paymentDiscount(effects[index], describers)
     if (discount == null) {
       val effect = effects[index]
-      val rendering = renderEffect(effect, describers, drawFilter)
+      val rendering = renderEffect(effect, describers)
       sentences += rendering.value
       unresolved += rendering.unresolved
       index++
@@ -976,10 +971,9 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
 private fun renderTriggeredInstructions(
     effect: Effect,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): String? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
-  val result = renderInstructions(effect.instruction, describers, drawFilter)
+  val result = renderInstructions(effect.instruction, describers)
   return completeSentence("when ${trigger.linearize()}, ${result.asCoordinatedClause()}")
 }
 

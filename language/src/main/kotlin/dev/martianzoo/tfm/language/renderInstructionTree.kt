@@ -13,23 +13,20 @@ import dev.martianzoo.pets.ast.Requirement
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
-    drawFilter: EnglishDrawFilter? = null,
 ): Rendering<String> {
-  val rendered = renderInstructions(instructionTree, describers, drawFilter)
+  val rendered = renderInstructions(instructionTree, describers)
   return Rendering(rendered.asSentences(), rendered.unresolved)
 }
 
 internal fun renderInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
-    drawFilter: EnglishDrawFilter? = null,
 ): RenderedInstructions =
-    renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers, drawFilter)
+    renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): RenderedInstructions {
   val instructions = InstructionGroup.of(instructionTree).instructions
   if (instructions.isEmpty()) {
@@ -37,18 +34,30 @@ private fun renderLoweredInstructions(
         listOf(Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing")))))
     )
   }
-  val rendered = instructions.map { instruction ->
-    val rendering = renderInstruction(instruction, describers, drawFilter)
-    val clause =
+  val rendered = instructions.flatMap { instruction ->
+    val rendering = renderInstructionClauses(instruction, describers)
+    val clauses =
         rendering.value
-            ?: Clause.RawPets(
-                rendering.unresolved.singleOrNull()
-                    ?: Unresolved(instruction, instructionRefusalReason(instruction))
+            ?: listOf(
+                Clause.RawPets(
+                    rendering.unresolved.singleOrNull()
+                        ?: Unresolved(instruction, instructionRefusalReason(instruction))
+                )
             )
-    instruction to clause
+    clauses.map { instruction to it }
   }
   return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
+
+private fun renderInstructionClauses(
+    instruction: Instruction,
+    describers: Describers,
+): Rendering<List<Clause>?> =
+    if (instruction is Instruction.Transform) {
+      Rendering.resolved(renderCardOperation(instruction, describers))
+    } else {
+      renderInstruction(instruction, describers).map { it?.let(::listOf) }
+    }
 
 private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
     when (instruction) {
@@ -67,60 +76,53 @@ private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
 private fun renderInstruction(
     instruction: Instruction,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Rendering<Clause?> =
     when (instruction) {
       is Gain,
       is Remove,
-      is Instruction.Transmute -> renderChange(instruction, describers, drawFilter)
-      is Instruction.Or ->
-          Rendering.resolved(renderAlternatives(instruction, describers, drawFilter))
-      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers, drawFilter))
-      is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers, drawFilter))
+      is Instruction.Transmute -> renderChange(instruction, describers)
+      is Instruction.Or -> Rendering.resolved(renderAlternatives(instruction, describers))
+      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers))
+      is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers))
       is Instruction.Then ->
           Rendering.resolved(
               renderPlacementBonusProductionSequence(instruction, describers)
                   ?: renderCardPlaySequence(instruction, describers)
-                  ?: renderDiscardCostSequence(instruction, describers, drawFilter)
-                  ?: renderCardResourceCostSequence(instruction, describers, drawFilter)
-                  ?: renderSequentialThen(instruction, describers, drawFilter)
+                  ?: renderDiscardCostSequence(instruction, describers)
+                  ?: renderCardResourceCostSequence(instruction, describers)
+                  ?: renderSequentialThen(instruction, describers)
           )
       is NoOp ->
           Rendering.resolved(
               Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing"))))
           )
-      is Instruction.By,
-      is Instruction.Transform -> Rendering.resolved(null)
+      is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
+      is Instruction.By -> Rendering.resolved(null)
     }
 
 private fun renderDiscardCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
-  val discarded =
-      renderChange(removal, describers, drawFilter).value as? Clause.Simple ?: return null
+  val discarded = renderChange(removal, describers).value as? Clause.Simple ?: return null
   if (describers.changeFrame(removal.removing.className) !is ComponentDescriber.ChangeFrame.Deck) {
     return null
   }
   val result =
-      renderLoweredInstructions(instruction.continuation, describers, drawFilter)
-          .clauses
-          .singleOrNull() ?: return null
+      renderLoweredInstructions(instruction.continuation, describers).clauses.singleOrNull()
+          ?: return null
   return discarded.withModifier(Modifier.Phrase("to ${result.linearize()}"))
 }
 
 private fun renderSequentialThen(
     instruction: Instruction.Then,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause? {
   // TODO: Preserve linked Type variables when later stages refer to a choice made earlier.
   val clauses =
       (instruction.stages + instruction.continuation).map { part ->
-        renderLoweredInstructions(part, describers, drawFilter).clauses.singleOrNull()
-            ?: return null
+        renderLoweredInstructions(part, describers).clauses.singleOrNull() ?: return null
       }
   return Clause.Coordinated(Coordination(clauses, Conjunction.THEN))
 }
@@ -231,7 +233,6 @@ private data class PlacementBonusProduction(
 private fun renderCardResourceCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   val resolved = describers.resolveCardResource(removal.removing) ?: return null
@@ -246,9 +247,8 @@ private fun renderCardResourceCostSequence(
   val count = removal.count.fixedQuantity() ?: return null
   val resource = describers.cardResourceNounPhrase(removal.removing.className, count) ?: return null
   val result =
-      renderLoweredInstructions(instruction.continuation, describers, drawFilter)
-          .clauses
-          .singleOrNull() ?: return null
+      renderLoweredInstructions(instruction.continuation, describers).clauses.singleOrNull()
+          ?: return null
   return Clause.Simple(
       Predicate(
           "remove",
@@ -311,11 +311,9 @@ private fun renderCardPlaySequence(
 private fun renderGated(
     instruction: Instruction.Gated,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers, drawFilter).clauses.singleOrNull()
-          ?: return null
+      renderLoweredInstructions(instruction.inner, describers).clauses.singleOrNull() ?: return null
   val selectedClass =
       (instruction.gate as? Requirement.Min)
           ?.takeIf { it.minimum == 1 }
@@ -337,11 +335,9 @@ private fun renderGated(
 private fun renderPer(
     instruction: Instruction.Per,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers, drawFilter).clauses.singleOrNull()
-          ?: return null
+      renderLoweredInstructions(instruction.inner, describers).clauses.singleOrNull() ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
 }
@@ -349,15 +345,13 @@ private fun renderPer(
 private fun renderAlternatives(
     instruction: Instruction.Or,
     describers: Describers,
-    drawFilter: EnglishDrawFilter?,
 ): Clause? {
   renderPlacementSiteFallback(instruction, describers)?.let {
     return it
   }
   val alternatives =
       instruction.instructions.map { option ->
-        renderLoweredInstructions(option, describers, drawFilter).clauses.singleOrNull()
-            ?: return null
+        renderLoweredInstructions(option, describers).clauses.singleOrNull() ?: return null
       }
   if (alternatives.size == 2) {
     val firstAction = alternatives.singleOrNull {
@@ -510,6 +504,13 @@ internal fun Describers.renderGateCondition(requirement: Requirement): String? {
           isGameParticipant(expression.className)
   ) {
     return "if this is a solo game"
+  }
+  if (
+      requirement is Requirement.Max &&
+          requirement.maximum == 0 &&
+          isStandardResource(expression.className)
+  ) {
+    return "if you have no ${componentNoun(expression.className, 2)}"
   }
   if (requirement !is Requirement.Min) return null
   fact(expression.className, ComponentDescriber::presenceCondition)?.let { condition ->

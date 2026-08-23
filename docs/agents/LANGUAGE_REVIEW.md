@@ -62,7 +62,7 @@ Recorded so later rounds don't relitigate them.
 | D14 | **Card ownership context is the renderer's law.** An omitted owner on a player-owned type means the card owner; explicit `<Anyone>` is required to opt out and address every player. The renderer need not support interpreting these source expressions outside ownership context. |
 | D15 | **`english-card-text-goals.tsv` is a fallible review aid, never authority.** Revise it for better wording and consistency, and pare back expectations that exceed the selected derivation boundary. |
 | D16 | Future iconographic generation should derive independently from Pets, whose syntax already follows the icon grammar. Do not complicate the English realizer's public boundary for it now. |
-| D17 | `english-filtered-draws.tsv` remains a narrow transitional supplement until the planned Pets representation replaces it; do not invest in generalizing it meanwhile. |
+| D17 | The former filtered-draw supplement was transitional. Canonical `CARDS` transforms now carry the operation structure, so the supplement and its card-specific context were deleted. |
 
 ---
 
@@ -310,9 +310,10 @@ why.
 ### Stage 8 · Card layout and context
 
 Give region assignment its own name (`CardLayout`) and get it out of the renderer core — under D3 the
-primary job is rendering arbitrary Pets, and card layout is one client of that. Collapse the
-`CardDefinition` overloads and the `drawFilter` parameter threaded through ~15 signatures into one
-explicit context, so it has a home now and deletes cleanly if Pets ever carries the filter itself.
+primary job is rendering arbitrary Pets, and card layout is one client of that. The obsolete
+filtered-draw parameter chain has been deleted now that Pets carries the operation structure.
+Card-aware entry points supply nested source declarations as structural context without changing
+the arbitrary-Pets renderer boundary.
 
 ### Where to stop
 
