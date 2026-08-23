@@ -17,6 +17,8 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.Companion.split
 import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
@@ -65,6 +67,12 @@ internal constructor(
   /** Every property bound or value supplied by this class and its supertypes. */
   public val properties: Map<PropertyName, PropertyValue> = resolvedProperties.mapValues {
     it.value.value
+  }
+
+  /** Every independently enforced invariant inherited by this concrete class. */
+  public val invariants: Set<Requirement> by lazy {
+    if (abstract) emptySet()
+    else allSuperclasses().flatMap { split(it.declaration.invariants) }.toSet()
   }
 
   init {

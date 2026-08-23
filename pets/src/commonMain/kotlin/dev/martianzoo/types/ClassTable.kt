@@ -96,6 +96,9 @@ public abstract class ClassTable {
   /** The Authority-scoped table whose compiled class universe backs this projection. */
   internal abstract val masterTable: ClassTable
 
+  /** Immutable component-count limits compiled for the classes active in this table. */
+  public val componentLimits: ClassLimitTable by lazy { ClassLimitTable.create(this) }
+
   /** The `Component` class, which is the root of the class hierarchy. */
   public abstract val componentClass: Class
 

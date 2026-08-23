@@ -173,6 +173,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Remeasure and configure a bounded `maxParallelForks` for the engine JVM tests after validating an
+  appropriate host/CI-aware cap; the earlier 2026-08-23 trials found 3.2x speedup with four workers
+  and 4.4x with eight, but shared class-model compilation has since cut the serial runtime by 55%.
+  See [`docs/agents/JVM_TEST_PERFORMANCE.md`](docs/agents/JVM_TEST_PERFORMANCE.md).
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
   `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
   so there is one implementation and one source of domain context.

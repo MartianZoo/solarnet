@@ -22,6 +22,18 @@ import kotlin.test.Test
 
 internal class GamePremiseTest {
   @Test
+  internal fun worldsFromOnePremiseShareTheClassModelButNotLiveState() {
+    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
+    val first = Engine.newGame(premise)
+    val second = Engine.newGame(premise)
+
+    first.classTable shouldBe second.classTable
+    TfmWorkflow.Manual(first).setupPhase()
+    first.gameplay(ENGINE).count("SetupPhase") shouldBe 1
+    second.gameplay(ENGINE).count("SetupPhase") shouldBe 0
+  }
+
+  @Test
   internal fun rawConfigResolvesToAffirmativeClassNames() {
     val config = GameConfig("-CorporateEraExpansion", "Player1", "Player2")
 
