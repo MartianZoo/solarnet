@@ -638,7 +638,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "NextCardEffect { PlayCard:: -This!; PlayCard:: -8 Owed<> }",
+      "immediate": "NextCardEffect { PlayCard:: -8 Owed<> }",
       "effects": [ "End: -VictoryPoint" ],
     },
 

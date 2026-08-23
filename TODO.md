@@ -10,9 +10,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   later participant as a structured reference rather than recognizing Flooding.
 - Finish the remaining English renderer Stage 3 work in `docs/agents/LANGUAGE_REVIEW.md`: move
   canonical English declarations into their owning bundles and remove `TerraformingMarsDescribers`.
-- **Medium priority:** Let a game include Valley Trust and the Prelude-card pool without selecting
-  `PreludeExpansion`; `PreludeCard` must be drawable and playable while `PreludePhase` remains
-  absent.
 - Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
   replacing the three deliberate structural acquisition points with narrower internal capabilities.
 - **Medium priority:** Reorganize the automated tests around the explicitly valued suites. Move

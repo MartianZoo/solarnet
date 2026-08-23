@@ -144,7 +144,7 @@ ImmigrantCity	Immigrant City	Decrease your energy production 1 step and your M�
 UndergroundDetonations	Underground Detonations		Action: Spend 10 M€ to increase your heat production 2 steps.
 Soletta	Soletta	Increase your heat production 7 steps.
 RadChemFactory	Rad-Chem Factory	Decrease your energy production 1 step. Raise your terraform rating 2 steps.
-SpecialDesign	Special Design	[SpecialDesignEffect].
+SpecialDesign	Special Design	[SpecialDesign_NextCardEffect].
 SaturnSystems	Saturn Systems	Gain 42 M€. Increase your titanium production 1 step.	Effect: When any Jovian tag is played, increase your M€ production 1 step.
 Teractor	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, pay 3 M€ less.
 AsteroidMiningConsortium	Asteroid Mining Consortium	Requires that you have titanium production. Decrease any player's titanium production 1 step and increase your titanium production 1 step. 1 VP.

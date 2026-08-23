@@ -408,7 +408,9 @@ CLASS Payment<HasActions, WhichAction> : Owned<Player>, Barrier {
 CLASS CostPaid<HasActions, WhichAction> : Owned<Player>, Signal
 
 "A card-owned adjustment that remains in play until the next card-play"
-ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational
+ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
+  PlayCard:: -This!
+}
 
 // PHASES
 

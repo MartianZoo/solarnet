@@ -74,7 +74,7 @@
       "requirement": "2 EarthTag",
       "cost": 5,
       "tags": [ "EarthTag" ],
-      "immediate": "NextCardEffect { PlayCard:: -This!; PlayCard:: -16 Owed<> }",
+      "immediate": "NextCardEffect { PlayCard:: -16 Owed<> }",
       "effects": [ "End: -VictoryPoint" ],
     },
 

@@ -1,6 +1,6 @@
 count	reason	examples
 29	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2] | Dirigibles: PayFromCard<This>:: -3 Owed<>
-26	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesignEffect
+26	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesign_NextCardEffect
 23	UNSUPPORTED_INSTRUCTION_KIND	SearchForLife: CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS MicrobeTag): Science<This>) OR Ok)] | InventorsGuild: CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]
 13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<Megacredit>> / 6 - Production<Class<Megacredit>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
 5	UNSUPPORTED_ACTION_COST	FloatingTradeHub: X Floater<This> -> X StandardResource | CeresTechMarket: X ProjectCard -> 2X
