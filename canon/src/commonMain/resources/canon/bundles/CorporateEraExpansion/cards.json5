@@ -34,7 +34,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "actions": [ "-> BuyCard?" ],
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
     },
 
     {
@@ -421,7 +421,7 @@
       "cost": 4,
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1]",
-      "actions": [ "-> BuyCard?" ],
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
     },
 
     {
@@ -430,7 +430,7 @@
       "projectKind": "EVENT",
       "cost": 7,
       "tags": [ "EarthTag" ],
-      "immediate": "2 ProjectCard",
+      "immediate": "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]",
     },
 
     {
@@ -621,7 +621,7 @@
       "projectKind": "EVENT",
       "cost": 2,
       "tags": [ "ScienceTag" ],
-      "immediate": "ProjectCard",
+      "immediate": "CARDS[3 ProjectCard<Selecting>, ProjectCard FROM ProjectCard<Selecting>]",
     },
 
     {

@@ -205,6 +205,89 @@ internal class CardDefinitionTest {
   }
 
   @Test
+  fun realCardOperationsRemainInSourceWhileExecutableEffectsUseFollowMode() {
+    val card =
+        CardDefinition(
+            CardData(
+                name = "RealCardSource",
+                immediate =
+                    "CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)], " +
+                        "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>], " +
+                        "CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): ProjectCard) OR Ok)], " +
+                        "CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]",
+            )
+        )
+
+    card.immediate.toString() shouldBe
+        "CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)], " +
+            "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>], " +
+            "CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): ProjectCard) OR Ok)], " +
+            "CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]"
+    card.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>(
+            "This: 2 ProjectCard, 2 ProjectCard, ProjectCard?, 2 ProjectCard FROM PlayedEvent?"
+        )
+    )
+  }
+
+  @Test
+  fun followModeNeutralizesRealCardOperationsInsideDerivedClassBodies() {
+    val card =
+        CardDefinition(
+            CardData(
+                name = "RealCardMandate",
+                immediate = "Mandate { -> CARDS[ProjectCard(HAS VenusTag)] }",
+            )
+        )
+
+    card.extraClasses
+        .single()
+        .effects
+        .shouldContainExactly(
+            parse<Effect>("UseAction<This, First>: CARDS[ProjectCard(HAS VenusTag)]")
+        )
+    card.executableExtraClasses
+        .single()
+        .effects
+        .shouldContainExactly(parse<Effect>("UseAction<This, First>: ProjectCard"))
+  }
+
+  @Test
+  fun followModeNeutralizesRealCardPurchaseActions() {
+    val single =
+        CardDefinition(
+            CardData(
+                name = "SingleCardPurchase",
+                deck = "PROJECT",
+                projectKind = "ACTIVE",
+                actions =
+                    listOf(
+                        "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]"
+                    ),
+            )
+        )
+    val filtered =
+        CardDefinition(
+            CardData(
+                name = "FilteredCardPurchase",
+                deck = "PROJECT",
+                projectKind = "ACTIVE",
+                actions =
+                    listOf(
+                        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard FROM ProjectCard<Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]"
+                    ),
+            )
+        )
+
+    single.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>("UseAction<This, First>: BuyCard?")
+    )
+    filtered.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>("UseAction<This, First>: ProjectCard OR BuyCard?, ProjectCard OR BuyCard?")
+    )
+  }
+
+  @Test
   fun repeatedUnnamedDerivedClassMustBeExplicit() {
     assertFailsWith<PetSyntaxException> {
       CardDefinition(
