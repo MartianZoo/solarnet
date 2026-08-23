@@ -56,8 +56,9 @@
       "name": "TharsisRepublic",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "40, Mandate { -> CityTile<> }, (=1 Player: PROD[2]) OR Ok",
+      "immediate": "40, Mandate { -> CityTile<> }",
       "effects": [
+        "This IF SoloMode: PROD[2]",
         "CityTile<Anyone, MarsArea>: PROD[1]",
         "CityTile: 3",
       ],

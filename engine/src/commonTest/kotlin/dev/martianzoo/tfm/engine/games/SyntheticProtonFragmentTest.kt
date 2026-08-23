@@ -22,7 +22,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           HellasMap
-          PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
+          PreludeExpansion, PromoCardPack
 
           Mayor, Diversifier, Trader, Sponsor, Tycoon10
           Biologist, SpaceBaron, Forecaster, Botanist, Collector

@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind
 import dev.martianzoo.tfm.data.AwardDefinition
@@ -267,7 +268,20 @@ public open class TfmAuthority : Authority {
         .filter { declaration ->
           !declaration.abstract && isSubtypeOf(declaration.className, MODULE_CLASS)
         }
-        .associate { declaration -> declaration.className to selectionsFor(declaration.className) }
+        .associate { declaration ->
+          val provenanceSelections =
+              ModuleProvenance.gains(declaration)
+                  .filter { gain -> isSubtypeOf(gain.target, MODULE_CLASS) }
+                  .mapTo(linkedSetOf()) { gain ->
+                    ClassSelection(
+                        gain.target,
+                        requirement =
+                            if (gain.requirements.isEmpty()) null
+                            else And.create(gain.requirements),
+                    )
+                  }
+          declaration.className to (selectionsFor(declaration.className) + provenanceSelections)
+        }
   }
 
   private fun selectionsFor(moduleName: ClassName): Set<ClassSelection> {

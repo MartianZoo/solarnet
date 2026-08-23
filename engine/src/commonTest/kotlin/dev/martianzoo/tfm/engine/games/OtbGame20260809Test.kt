@@ -23,7 +23,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
 
           Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord

@@ -53,8 +53,6 @@ internal class CanonClassesTest {
         .shouldContainExactlyInAnyOrder(
             ANYONE,
             cn("NoctisArea"),
-            cn("MilestonePoolOverride"),
-            cn("AwardPoolOverride"),
         )
   }
 

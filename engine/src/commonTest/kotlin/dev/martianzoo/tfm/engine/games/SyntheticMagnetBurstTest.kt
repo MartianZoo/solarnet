@@ -21,7 +21,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, MilestonesAwardsExpansion, Merger
+          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, Merger
 
           Energizer, Builder7, Generalist, Diversifier, Terraformer29, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator

@@ -18,7 +18,9 @@ public data class ClassSelection(
       classTable: ClassTable,
   ): Boolean =
       requirement?.isMetBy { metric ->
-        countConfigured(metric, configuredClassNames, classTable)
+        // A candidate selection must not satisfy or defeat its own condition merely by being the
+        // selection currently under consideration.
+        countConfigured(metric, configuredClassNames - className, classTable)
       } != false
 
   private fun countConfigured(

@@ -67,7 +67,6 @@ internal object OptionCodeTranslation {
   private val positiveOptions =
       mapOf(
           "R" to CORPORATE_ERA,
-          "M" to cn("MilestonesAwardsExpansion"),
           "V" to cn("VenusNextExpansion"),
           "P" to cn("PreludeExpansion"),
           "C" to cn("ColoniesExpansion"),
@@ -75,7 +74,7 @@ internal object OptionCodeTranslation {
           "X" to cn("PromoCardPack"),
       )
 
-  private val optionsByCode = linkedSetOf("B", "R", "M", "H", "U", "V", "P", "C", "T", "X")
+  private val optionsByCode = linkedSetOf("B", "R", "H", "U", "V", "P", "C", "T", "X")
 
   private val optionByCode = optionsByCode.associateWith { code ->
     when (code) {

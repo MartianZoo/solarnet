@@ -12,7 +12,7 @@ public object Canon :
         StandardFormBundle("UtopiaCimmeriaExpansion"),
         StandardFormBundle("VenusNextExpansion"),
         milestonesAwardsExpansionBundle,
-        StandardFormBundle("PreludeExpansion", preludeCustomClasses),
+        preludeExpansionBundle,
         StandardFormBundle("Prelude2Expansion"),
         StandardFormBundle("ColoniesExpansion", coloniesCustomClasses),
         StandardFormBundle("TurmoilCardPack"),

@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.Prelude2Expansion
-import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -36,7 +35,7 @@ class Prelude2CardsTest : CardTest() {
   // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
   @Test
   fun `Prelude and Prelude 2 share one setup and phase`() {
-    newGame(PreludeExpansion, Prelude2Expansion)
+    newGame(Prelude2Expansion)
 
     engine.phase("Prelude")
 
@@ -208,7 +207,7 @@ class Prelude2CardsTest : CardTest() {
   // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
   @Test
   fun `Suitable Infrastructure pays once for each action`() {
-    newGame(PreludeExpansion, Prelude2Expansion)
+    newGame(Prelude2Expansion)
     engine.phase("Prelude")
     p1.manual("$SuitableInfrastructure")
     val beforeTwoProductions = p1.count("Megacredit")
@@ -380,7 +379,7 @@ class Prelude2CardsTest : CardTest() {
   // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg
   @Test
   fun `A prelude remains playable when its global parameter is already maximized`() {
-    newGame(PreludeExpansion, Prelude2Expansion)
+    newGame(Prelude2Expansion)
     engine.phase("Prelude")
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
     p1.manual("5, 19 TemperatureStep, $oceans")

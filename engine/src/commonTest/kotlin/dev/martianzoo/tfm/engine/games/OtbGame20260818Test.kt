@@ -23,7 +23,7 @@ class OtbGame20260818Test : AbstractFullGameTest() {
       GameConfig(
           """
           UtopiaMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
 
           Ecologist, Merchant, Metallurgist, Tactician4, Hoverlord

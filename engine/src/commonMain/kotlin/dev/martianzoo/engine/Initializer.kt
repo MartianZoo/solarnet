@@ -45,11 +45,19 @@ internal class Initializer(
   private fun createSingletons(cause: Cause) {
     val orderedModules = orderModulesByActiveProvenance()
     val moduleNames = premise.modules.toSet()
+    val playerNames = premise.playerClassNames.toSet()
     createComponents(
-        orderedModules.flatMap { it.baseType.concreteSubtypesSameClass() } +
+        premise.playerClassNames.map(classTable::getClass).flatMap {
+          it.baseType.concreteSubtypesSameClass()
+        } +
+            orderedModules.flatMap { it.baseType.concreteSubtypesSameClass() } +
             classTable
                 .allClasses()
-                .filter { it.className !in moduleNames && it.isSingletonType() }
+                .filter {
+                  it.className !in moduleNames &&
+                      it.className !in playerNames &&
+                      it.isSingletonType()
+                }
                 .flatMap { it.baseType.concreteSubtypesSameClass() },
         cause,
         "singleton",
@@ -57,9 +65,9 @@ internal class Initializer(
   }
 
   /**
-   * Materializes provenance targets and Modules observed by provenance conditions before their
-   * sources. The source effects then confirm already-selected singleton state without leaving
-   * bootstrap tasks pending.
+   * Orders Modules needed to evaluate provenance conditions before the source whose condition
+   * observes them. A source gets the first opportunity to create its target; the ordinary singleton
+   * pass later supplies any target that remains absent.
    */
   private fun orderModulesByActiveProvenance(): List<Class> {
     val modules = premise.modules.associateWith(classTable::getClass)
@@ -71,9 +79,11 @@ internal class Initializer(
                 .filter { it != THIS && classTable.findClass(it) != null }
                 .flatMap { referencedName ->
                   val referenced = classTable.getClass(referencedName)
-                  modules.values.filter { candidate -> candidate.isSubtypeOf(referenced) }
+                  modules.values.filter { candidate ->
+                    candidate.className != gain.target && candidate.isSubtypeOf(referenced)
+                  }
                 }
-        observedModules + listOfNotNull(modules[gain.target])
+        observedModules
       } - source
     }
     val ordered = mutableListOf<Class>()
@@ -98,15 +108,46 @@ internal class Initializer(
   private fun createComponents(types: Collection<Type>, cause: Cause, description: String) {
     val remaining = types.toMutableList()
     val missingByType = mutableMapOf<Type, Collection<Type>>()
+    // TODO: Ignore inactive gated gains here; false mutual provenance can otherwise deadlock.
+    val moduleSourcesByTarget =
+        premise.modules
+            .flatMap { source ->
+              ModuleProvenance.gains(classTable.getClass(source).declaration)
+                  .filter { it.target in premise.modules }
+                  .map { it.target to source }
+            }
+            .groupBy({ it.first }, { it.second })
+    val sourcesByConstructiveType =
+        premise.modules
+            .flatMap { source ->
+              ModuleProvenance.gains(classTable.getClass(source).declaration)
+                  .filter { THIS !in it.expression.descendantsOfType<ClassName>() }
+                  .mapNotNull { gain ->
+                    runCatching { classTable.resolve(gain.expression) }
+                        .getOrNull()
+                        ?.let { it to source }
+                  }
+            }
+            .groupBy({ it.first }, { it.second })
 
     while (remaining.isNotEmpty()) {
       var progress = false
       val round = remaining.toList()
       for (type in round) {
+        if (
+            (moduleSourcesByTarget[type.className].orEmpty() +
+                    sourcesByConstructiveType[type].orEmpty())
+                .any { source ->
+                  gameplay.count("$source") == 0
+                }
+        ) {
+          continue
+        }
         if (gameplay.count("${type.expression}") > 0) {
           remaining.remove(type)
           missingByType.remove(type)
           progress = true
+          if (aBlockedTypeCanNowProceed(missingByType)) break
           continue
         }
         try {
@@ -114,6 +155,7 @@ internal class Initializer(
           remaining.remove(type)
           missingByType.remove(type)
           progress = true
+          if (aBlockedTypeCanNowProceed(missingByType)) break
         } catch (e: DependencyException) {
           missingByType[type] = e.dependencies
         }
@@ -122,8 +164,11 @@ internal class Initializer(
       if (!progress) {
         val diagnostic =
             remaining.joinToString(separator = "\n") { type ->
-              val missing = missingByType.getValue(type).joinToString { "${it.expressionFull}" }
-              "  ${type.expressionFull} requires $missing"
+              val reason =
+                  missingByType[type]?.let { dependencies ->
+                    "requires " + dependencies.joinToString { "${it.expressionFull}" }
+                  } ?: "is waiting for a constructive source"
+              "  ${type.expressionFull} $reason"
             }
         throw invalidPetDefinition(
             "Could not create $description components; dependencies remain missing:\n$diagnostic"
@@ -131,4 +176,11 @@ internal class Initializer(
       }
     }
   }
+
+  private fun aBlockedTypeCanNowProceed(
+      missingByType: Map<Type, Collection<Type>>,
+  ): Boolean =
+      missingByType.values.flatten().any { dependency ->
+        gameplay.count("${dependency.expression}") > 0
+      }
 }

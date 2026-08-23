@@ -19,7 +19,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           ElysiumMap
-          PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
+          PreludeExpansion, PromoCardPack
 
           Builder7, Philantropist, Spacefarer, Terraformer29, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
