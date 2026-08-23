@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.PetException
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -77,5 +78,29 @@ internal class AuthorityCompositionTest {
 
     failure.message.orEmpty().shouldInclude("BlockedBootstrap<MissingBootstrapDependency>")
     failure.message.orEmpty().shouldInclude("requires MissingBootstrapDependency")
+  }
+
+  @Test
+  internal fun `inactive gated provenance incorrectly creates a bootstrap cycle`() {
+    val extension =
+        object : TfmAuthority() {
+          override val explicitClassDeclarations =
+              parseClasses(
+                      """
+                      CLASS BootstrapSource<BootstrapTarget> : Module {
+                        This IF ColoniesExpansion: BootstrapTarget
+                      }
+                      CLASS BootstrapTarget { HAS =1 This }
+                      """
+                          .trimIndent()
+                  )
+                  .toSet()
+        }
+    val authority = TfmAuthority.compose(Canon, extension)
+    val premise = authority.gamePremise(GameConfig("BootstrapSource", "Player1", "Player2"))
+
+    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+
+    failure.message.orEmpty().shouldInclude("is waiting for a constructive source")
   }
 }

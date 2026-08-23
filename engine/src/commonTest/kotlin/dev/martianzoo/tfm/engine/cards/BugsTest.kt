@@ -2,10 +2,12 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.TaskException
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Task
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -93,6 +95,48 @@ internal class BugsTest : CardTest() {
       doTask("18 Pay<Class<Megacredit>> FROM Megacredit")
       placeTile(5, 5)
     }
+  }
+
+  @Test
+  internal fun `Philantropist incorrectly counts Vitor as a card with victory points`() {
+    newGame(GameConfig("PreludeExpansion, Philantropist", "Player1", "Player2"))
+    p1.manual("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals") {
+      // Decline Vitor's initial award funding.
+      declineTask()
+    }
+
+    p1.manual("Philantropist")
+
+    p1.count("Philantropist") shouldBe 1
+  }
+
+  @Test
+  internal fun `Prelude incorrectly allows discarding a playable card`() {
+    newGame(PreludeExpansion)
+    engine.phase("Prelude")
+    val moneyBefore = p1.count("Megacredit")
+
+    p1.startTurn()
+    p1.doTask("-PreludeCard")
+    p1.startTurn()
+    p1.doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
+
+    p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
+    p1.count("Megacredit") shouldBe moneyBefore + 15
+  }
+
+  @Test
+  internal fun `Standard game incorrectly starts every production at zero`() {
+    newGame(GameConfig("-CorporateEraExpansion", "Player1", "Player2"))
+
+    p1.assertProds(
+        0 to "Megacredit",
+        0 to "Steel",
+        0 to "Titanium",
+        0 to "Plant",
+        0 to "Energy",
+        0 to "Heat",
+    )
   }
 
   // Solar Probe should count its own science tag and draw one card for all three tags.

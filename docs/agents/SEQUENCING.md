@@ -223,7 +223,8 @@ Current strong examples are:
 - Every concrete `StandardProject` declares an ordinary `1 / cost -> result` Action. Standard-cost
   Action lowering creates M€ debt from the provider's `cost` property and then one qualified
   invoice. Discounts reduce `Owed`;
-  Standard Technology's separate 3 M€ reaction remains a rebate rather than reducing the debt.
+  Standard Technology's separate 3 M€ reaction follows invoice settlement, remaining a rebate
+  rather than reducing the debt or helping fund the triggering project.
 - `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose
   `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
   the same concrete holder. The holder dependency distinguishes cards that use the same resource

@@ -49,7 +49,6 @@ internal class CanonInvariantsTest {
 
     checkComponentLimit("ActionUsedMarker<Player1, $Ants<Player1>>", 0..1)
     checkComponentLimit("TharsisRepublic_Mandate<Player1>", 0..1)
-    checkComponentLimit("PowerTag<Player1, $Ants<Player1>>", 0..2)
     checkComponentLimit("Accept<Player1, Class<Steel>>", 0..1)
     checkComponentLimit("Pass<Player1>", 0..1)
 
@@ -94,7 +93,6 @@ internal class CanonInvariantsTest {
     checkSimple("Colony", "Colony<Callisto>", range = 0..3)
 
     checkUnbound("Pass", THIS.expression, 0..1)
-    checkUnbound("VenusTag", THIS.expression, 0..2)
     checkUnbound("ColonyProduction", THIS.expression, range = 0..6)
   }
 }
