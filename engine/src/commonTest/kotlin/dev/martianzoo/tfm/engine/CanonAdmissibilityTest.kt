@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.Elysium
 import dev.martianzoo.tfm.engine.TestOption.Hellas
-import dev.martianzoo.tfm.engine.TestOption.MilestonesAwardsExpansion
 import dev.martianzoo.tfm.engine.TestOption.Prelude2Expansion
 import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
@@ -53,7 +52,6 @@ internal class CanonAdmissibilityTest {
             CorporateEraExpansion,
             Cimmeria,
             VenusNextExpansion,
-            MilestonesAwardsExpansion,
             PreludeExpansion,
             Prelude2Expansion,
             ColoniesExpansion,
