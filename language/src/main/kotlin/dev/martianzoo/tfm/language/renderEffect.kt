@@ -36,6 +36,7 @@ internal fun renderEffect(
             ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
             ?: renderResourcePaymentValue(lowered, describers)
             ?: renderCardResourcePaymentValue(lowered, describers)
+            ?: renderAcceptedPaymentResource(lowered, describers)
             ?: renderRequirementFlexibility(lowered, describers)
             ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
             ?: renderLinkedProductionReward(lowered, describers)
@@ -188,20 +189,18 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
       return null
   val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   val change = effect.instruction as? Instruction.Change ?: return null
-  if (change.intensity.modality() != Modality.REQUIRED) return null
-  val expression = change.gaining ?: change.removing ?: return null
-  if (!expression.simple || !describers.concrete(expression.className)) return null
-  if (!describers.isStandardResource(expression.className)) {
-    return null
-  }
-  val adjustment = change.count.fixedQuantity() ?: return null
-  val direction =
+  val adjustment =
       when (change) {
-        is Gain -> "less"
-        is Remove -> "extra"
-        is Instruction.Transmute -> return null
-      }
-  val resource = describers.componentNoun(expression.className, adjustment)
+        is Gain ->
+            paymentResourceGain(
+                change,
+                ComponentDescriber.PaymentRole.OWED,
+                describers,
+            )
+        is Remove -> owedReduction(change, describers)
+        is Instruction.Transmute -> null
+      } ?: return null
+  val direction = if (change is Gain) "extra" else "less"
   return Sentence(
           Clause.Prefaced(
               "when ${triggerClause.linearize()}",
@@ -209,12 +208,49 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
                   predicate =
                       Predicate(
                           "pay",
-                          Coordination.one(NounPhrase.text("$adjustment $resource $direction")),
+                          Coordination.one(
+                              NounPhrase.text("${adjustment.count} ${adjustment.noun} $direction")
+                          ),
                       ),
               ),
           )
       )
       .linearize()
+}
+
+private fun renderAcceptedPaymentResource(effect: Effect, describers: Describers): String? {
+  val gain = effect.instruction as? Gain ?: return null
+  val acceptance =
+      paymentResourceGain(
+          gain,
+          ComponentDescriber.PaymentRole.ACCEPTANCE,
+          describers,
+      ) ?: return null
+  if (acceptance.count != 1) return null
+  val resource = describers.representedClass(gain.gaining) ?: return null
+  val noun = describers.plainGainCategoryNoun(resource.className, 2) ?: return null
+  val trigger =
+      describers.renderActionPaymentTrigger(effect.trigger)
+          ?: describers.renderEventTrigger(effect.trigger)
+          ?: return null
+  return completeSentence("when ${trigger.linearize()}, $noun may be used")
+}
+
+private fun Describers.renderActionPaymentTrigger(trigger: Trigger): Clause.Simple? {
+  val expression = (trigger as? OnGainOf)?.expression ?: return null
+  if (expression.refinement != null || expression.complement) return null
+  if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
+  val actionKey = Key(ClassName.cn("UseAction"), 0)
+  val resolved = resolveExpression(expression, actionKey) ?: return null
+  val action = resolved.sourceDependency(actionKey) ?: return null
+  if (!hasOnlyActionSelection(resolved, actionKey, action)) return null
+  val objectPhrase =
+      if (action == thisExpression) "this action" else renderActionUse(action) ?: return null
+  return eventTrigger(
+      subject = NounPhrase.text("you"),
+      verb = "pay for",
+      objectPhrase = NounPhrase.text(objectPhrase),
+  )
 }
 
 private fun renderRemovalPrevention(effect: Effect, describers: Describers): String? {
@@ -283,6 +319,11 @@ internal fun renderEffects(
   val unresolved = mutableListOf<Unresolved>()
   var index = 0
   while (index < effects.size) {
+    renderAcceptedResourcePayment(effects.drop(index), describers)?.let { (sentence, consumed) ->
+      sentences += sentence
+      index += consumed
+      continue
+    }
     renderAcceptedCardResourcePayment(effects.drop(index), cardResourceType, describers)?.let {
         (sentence, consumed) ->
       sentences += sentence
@@ -316,6 +357,36 @@ internal fun renderEffects(
     index += run.size
   }
   return Rendering(sentences.joinToString(" "), unresolved)
+}
+
+private fun renderAcceptedResourcePayment(
+    effects: List<Effect>,
+    describers: Describers,
+): Pair<String, Int>? {
+  val acceptance = effects.getOrNull(0) ?: return null
+  val payment = effects.getOrNull(1) ?: return null
+  val accepted =
+      paymentResourceGain(
+          acceptance.instruction,
+          ComponentDescriber.PaymentRole.ACCEPTANCE,
+          describers,
+      ) ?: return null
+  if (accepted.count != 1 || accepted.resource == null) return null
+  if (accepted.resource == STEEL || accepted.resource == TITANIUM) return null
+  val paymentTrigger = (payment.trigger as? OnGainOf)?.expression ?: return null
+  if (paymentTrigger.refinement != null || paymentTrigger.complement) return null
+  if (describers.fact(paymentTrigger.className, ComponentDescriber::spentResourceTrigger) != true) {
+    return null
+  }
+  val spent = describers.representedClass(paymentTrigger) ?: return null
+  if (spent.className != accepted.resource) return null
+  val reduction = owedReduction(payment.instruction, describers) ?: return null
+  val resource = describers.componentNoun(accepted.resource, 2)
+  val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
+  return completeSentence(
+      "when ${trigger.linearize()}, $resource may be used as " +
+          "${reduction.count} ${reduction.noun} each"
+  ) to 2
 }
 
 private fun renderAcceptedCardResourcePayment(
@@ -359,30 +430,18 @@ private fun renderAcceptedCardResourcePayment(
   ) {
     return null
   }
-  val removal = payment.instruction as? Remove ?: return null
-  if (
-      removal.intensity.modality() != Modality.REQUIRED ||
-          !removal.removing.simple ||
-          describers.fact(removal.removing.className, ComponentDescriber::paymentRole) !=
-              ComponentDescriber.PaymentRole.OWED
-  ) {
-    return null
-  }
-  val rate = removal.count.fixedQuantity() ?: return null
-  val currency =
-      describers.fact(removal.removing.className, ComponentDescriber::implicitPaymentResource)
-          ?: return null
-  val currencyNoun =
-      when (currency) {
-        is ComponentDescriber.Noun.Counted -> if (rate == 1) currency.singular else currency.plural
-        is ComponentDescriber.Noun.Fixed -> currency.text
-        ComponentDescriber.Noun.ClassName -> return null
-      }
+  val reduction = owedReduction(payment.instruction, describers) ?: return null
   val resource = describers.cardResourceNoun(cardResourceType, 2) ?: return null
+  val billing = describers.billingEvent(acceptance.trigger)
+  if (billing?.provider?.className == HAS_ACTIONS) {
+    return completeSentence(
+        "you may use $resource on this card as ${reduction.count} ${reduction.noun} each"
+    ) to 2
+  }
   val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
   return completeSentence(
       "when ${trigger.linearize()}, $resource on this card may be used as " +
-          "$rate $currencyNoun each"
+          "${reduction.count} ${reduction.noun} each"
   ) to 2
 }
 
@@ -442,8 +501,14 @@ private fun renderBarrierSequencedTrackChoice(
 }
 
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
+  completeOwedReduction(effect.instruction, describers)?.let { reduction ->
+    val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
+    if (!trigger.accepts(reduction)) return null
+    return PaymentDiscount(trigger.clause, reduction.copy(count = 0))
+  }
   owedReduction(effect.instruction, describers)?.let { reduction ->
-    val actionTrigger = describers.renderActionPaymentDiscountTrigger(effect.trigger)
+    val actionTrigger = describers.renderPaymentDiscountTrigger(effect.trigger)
+    if (actionTrigger?.accepts(reduction) == false) return null
     val trigger =
         actionTrigger?.clause
             ?: (describers.renderEventTrigger(effect.trigger) as? Clause.Simple ?: return null)
@@ -452,13 +517,12 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
         reduction,
     )
   }
-  val trigger = describers.renderActionPaymentDiscountTrigger(effect.trigger) ?: return null
+  val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
   val actualReduction = describers.renderPlainGainAmount(effect.instruction) ?: return null
   val reduction =
       trigger.refundDiscountNoun?.let { noun ->
-        ResourceAmount(
-            actualReduction.count,
-            if (actualReduction.count == 1) noun.singular else noun.plural,
+        actualReduction.copy(
+            noun = if (actualReduction.count == 1) noun.singular else noun.plural,
         )
       } ?: actualReduction
   return PaymentDiscount(
@@ -481,7 +545,9 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
       }
   val reduction = discounts.first().reduction
   val reductionPhrase =
-      if (discounts.first().categoryReduction) {
+      if (reduction.count == 0) {
+        return completeSentence("when $trigger, the cost is 0 ${reduction.noun}")
+      } else if (discounts.first().categoryReduction) {
         "${reduction.count} less ${reduction.noun}"
       } else {
         "${reduction.count} ${reduction.noun} less"
@@ -502,6 +568,9 @@ private fun renderResourcePaymentValue(effect: Effect, describers: Describers): 
 }
 
 private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
+  renderAbstractTagTrigger(trigger)?.let {
+    return it
+  }
   val events =
       when (trigger) {
         is Trigger.Or -> trigger.triggers.map { renderTriggerClause(it) ?: return null }
@@ -512,8 +581,54 @@ private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
       ?: Clause.Coordinated(Coordination(events, Conjunction.OR))
 }
 
+private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple? {
+  val expression = (trigger as? OnGainOf)?.expression ?: return null
+  if (expression.refinement != null || expression.complement) return null
+  if (
+      fact(expression.className, ComponentDescriber::playTrigger) !=
+          ComponentDescriber.PlayTrigger.TAG
+  ) {
+    return null
+  }
+  val represented = representedClass(expression) ?: return null
+  fact(represented.className, ComponentDescriber::playedTagPhrase)?.let { phrase ->
+    return eventTrigger(
+        subject = NounPhrase.text("you"),
+        verb = "play",
+        objectPhrase = NounPhrase.text(phrase),
+    )
+  }
+  val tags = expressions.concreteSubclassesOf(represented.className)
+  if (tags.size < 2) return null
+  val objects = tags.map { tag ->
+    val name = tagName(tag)?.first ?: return null
+    NounPhrase.text("${indefiniteArticle(name)} $name tag")
+  }
+  return Clause.Simple(
+      subject = NounPhrase.text("you"),
+      predicate = Predicate("play", Coordination(objects, Conjunction.OR)),
+  )
+}
+
+private val HAS_ACTIONS = ClassName.cn("HasActions")
+private val STEEL = ClassName.cn("Steel")
+private val TITANIUM = ClassName.cn("Titanium")
+
 private fun Describers.renderTriggerClause(trigger: Trigger): Clause.Simple? =
-    renderOperationTrigger(trigger) ?: renderEvent(trigger)?.renderTrigger()
+    renderBillingTrigger(trigger)
+        ?: renderOperationTrigger(trigger)
+        ?: renderEvent(trigger)?.renderTrigger()
+
+private fun Describers.renderBillingTrigger(trigger: Trigger): Clause.Simple? {
+  val billing = billingEvent(trigger) ?: return null
+  billing.card?.let { card ->
+    return playedCardEvent(card)?.renderTrigger()
+  }
+  val predicate =
+      fact(billing.provider.className, ComponentDescriber::actionUse)?.refundDiscountPredicate
+          ?: return null
+  return eventTrigger(subject = NounPhrase.text("you"), verb = predicate)
+}
 
 private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
@@ -533,24 +648,46 @@ private fun Describers.renderSpentResource(trigger: Trigger): String? {
   return plainGainCategoryNoun(resource.className, 1)
 }
 
-private data class ActionPaymentDiscountTrigger(
+private data class PaymentDiscountTrigger(
     val clause: Clause.Simple,
     val refundDiscountNoun: ComponentDescriber.Noun.Counted?,
-)
+    val billingResource: ClassName? = null,
+) {
+  fun accepts(reduction: ResourceAmount): Boolean =
+      billingResource == null || reduction.resource == null || billingResource == reduction.resource
+}
+
+private fun Describers.renderPaymentDiscountTrigger(
+    trigger: Trigger,
+): PaymentDiscountTrigger? =
+    renderActionPaymentDiscountTrigger(trigger) ?: renderBillingPaymentDiscountTrigger(trigger)
+
+private fun Describers.renderBillingPaymentDiscountTrigger(
+    trigger: Trigger,
+): PaymentDiscountTrigger? {
+  val billing = billingEvent(trigger) ?: return null
+  val use = fact(billing.provider.className, ComponentDescriber::actionUse) ?: return null
+  return PaymentDiscountTrigger(
+      renderBillingTrigger(trigger) ?: return null,
+      use.refundDiscountNoun,
+      billing.resource?.className,
+  )
+}
 
 private fun Describers.renderActionPaymentDiscountTrigger(
     trigger: Trigger,
-): ActionPaymentDiscountTrigger? {
+): PaymentDiscountTrigger? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
   val actionKey = Key(ClassName.cn("UseAction"), 0)
-  val resolved = resolveExpression(expression) ?: return null
+  val resolved = resolveExpression(expression, actionKey) ?: return null
   val action = resolved.sourceDependency(actionKey)?.takeIf { it.simple } ?: return null
-  if (!resolved.hasOnlySourceDependency(actionKey, action)) return null
+  if (!hasOnlyActionSelection(resolved, actionKey, action)) return null
+  if (action == thisExpression) return null
   val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
   val predicate = use.refundDiscountPredicate ?: return null
-  return ActionPaymentDiscountTrigger(
+  return PaymentDiscountTrigger(
       eventTrigger(subject = NounPhrase.text("you"), verb = predicate),
       use.refundDiscountNoun,
   )
@@ -559,7 +696,7 @@ private fun Describers.renderActionPaymentDiscountTrigger(
 private fun Describers.renderPlainGainAmount(instruction: InstructionTree): ResourceAmount? {
   val change = instruction as? Instruction ?: return null
   val (className, count) = standardResourceGain(change, this) ?: return null
-  return ResourceAmount(count, componentNoun(className, count))
+  return ResourceAmount(count, componentNoun(className, count), className)
 }
 
 private data class Event(
@@ -695,13 +832,13 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) == true) {
     val actionKey = Key(ClassName.cn("UseAction"), 0)
-    val resolved = resolveExpression(expression) ?: return null
+    val resolved = resolveExpression(expression, actionKey) ?: return null
     val action = resolved.sourceDependency(actionKey) ?: return null
-    if (!resolved.hasOnlySourceDependency(actionKey, action)) return null
+    if (!hasOnlyActionSelection(resolved, actionKey, action)) return null
     return Event(
         EventKind.USE_ACTION,
         EventActor.YOU,
-        renderActionUse(action) ?: return null,
+        if (action == thisExpression) "this action" else renderActionUse(action) ?: return null,
     )
   }
   val resolvedCardResource = resolveCardResource(expression)
@@ -738,6 +875,16 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   return null
 }
+
+private fun hasOnlyActionSelection(
+    resolved: ResolvedExpression,
+    actionKey: Key,
+    action: Expression,
+): Boolean =
+    resolved.sourceDependency(actionKey) == action &&
+        resolved.sourceDependencies.keys.all { it == actionKey || it == ACTION_SELECTOR }
+
+private val ACTION_SELECTOR = Key(ClassName.cn("UseAction"), 1)
 
 private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event? {
   if (expression.refinement != null || expression.complement) return null

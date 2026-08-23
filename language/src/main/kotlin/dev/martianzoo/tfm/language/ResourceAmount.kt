@@ -1,13 +1,20 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 
 /** A concrete standard-resource amount retained across payment constructions. */
-internal data class ResourceAmount(val count: Int, val noun: String)
+internal data class ResourceAmount(
+    val count: Int,
+    val noun: String,
+    val resource: ClassName?,
+)
 
 internal fun owedReduction(
     instruction: InstructionTree,
@@ -35,6 +42,24 @@ internal fun maximumOwedReduction(
       ComponentDescriber.PaymentRole.OWED,
       describers,
   )
+}
+
+internal fun completeOwedReduction(
+    instruction: InstructionTree,
+    describers: Describers,
+): ResourceAmount? {
+  val per = instruction as? Per ?: return null
+  val removal = per.inner as? Remove ?: return null
+  val counted = per.metric as? Metric.Count ?: return null
+  if (removal.removing != counted.expression) return null
+  if (removal.intensity.modality() != Modality.REQUIRED) return null
+  return paymentResourceAmount(
+          removal.removing,
+          removal.count,
+          ComponentDescriber.PaymentRole.OWED,
+          describers,
+      )
+      ?.takeIf { it.count == 1 }
 }
 
 internal fun paymentResourceGain(
@@ -69,5 +94,5 @@ private fun paymentResourceAmount(
                 ?: return null
         describers.describedNoun(expression.className, implicit, count)
       }
-  return ResourceAmount(count, noun)
+  return ResourceAmount(count, noun, represented?.className)
 }

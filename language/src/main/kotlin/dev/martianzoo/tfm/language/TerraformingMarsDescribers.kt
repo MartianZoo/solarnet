@@ -204,6 +204,7 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("BioTag") to ComponentDescriber(playedTagPhrase = "a bio tag"),
+        klass("PlanetTag") to ComponentDescriber(playedTagPhrase = "a planet tag"),
         klass("AnimalTag") to ComponentDescriber(playedTagPhrase = "an animal tag"),
         klass("PlantTag") to ComponentDescriber(playedTagPhrase = "a plant tag"),
         klass("MicrobeTag") to ComponentDescriber(playedTagPhrase = "a microbe tag"),
@@ -397,6 +398,22 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "use the Power Plant standard project",
                     )
             ),
+        klass("ClaimMilestoneSA") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "the Claim Milestone standard action",
+                        refundDiscountPredicate = "claim a milestone",
+                    )
+            ),
+        klass("FundAwardSA") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "the Fund Award standard action",
+                        refundDiscountPredicate = "fund an award",
+                    )
+            ),
         klass("TradeSA") to
             ComponentDescriber(
                 actionUse =
@@ -405,6 +422,30 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "use the Trade standard action",
                         refundDiscountNoun =
                             ComponentDescriber.Noun.Counted("resource", "resources"),
+                    )
+            ),
+        klass("HasActions") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "an action",
+                        refundDiscountPredicate = "use an action",
+                    )
+            ),
+        klass("BuyCards") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "a card",
+                        refundDiscountPredicate = "buy a card",
+                    )
+            ),
+        klass("PlayCards") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "a card",
+                        refundDiscountPredicate = "play a card",
                     )
             ),
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),

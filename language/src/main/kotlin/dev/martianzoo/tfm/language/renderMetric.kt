@@ -52,6 +52,9 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   renderTagMetric(expression, prefix, unit, this)?.let {
     return it
   }
+  renderUnrestrictedOwnedComponent(expression, prefix, count)?.let {
+    return it
+  }
   if (expression.simple) {
     cardResourceNoun(expression.className, count)?.let { noun ->
       return "$prefix $noun you have"
@@ -74,6 +77,19 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   }
   val noun = cardResourceNoun(expression.className, count) ?: return null
   return "$prefix $noun on this card"
+}
+
+private fun Describers.renderUnrestrictedOwnedComponent(
+    expression: Expression,
+    prefix: String,
+    count: Int,
+): String? {
+  if (expression.refinement != null || expression.complement) return null
+  if (changeFrame(expression.className) != null) return null
+  val resolved = resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  if (!resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)) return null
+  return "$prefix ANY ${componentNounPhrase(expression.className, count).noun()}"
 }
 
 internal fun distinctOwnedKinds(

@@ -162,6 +162,13 @@ internal class ExpressionResolver(classes: Set<Class>) {
 
   internal fun isEndTrigger(className: ClassName): Boolean = isSubtypeOf(className, END)
 
+  internal fun isBilling(className: ClassName): Boolean = isSubtypeOf(className, BILLING)
+
+  internal fun concreteSubclassesOf(className: ClassName): List<ClassName> =
+      classesByName.values
+          .filter { !it.abstract && isSubtypeOf(it.className, className) }
+          .map(Class::className)
+
   private fun isSubtypeOf(className: ClassName, superclassName: ClassName): Boolean =
       classesByName.getValue(className).isSubtypeOf(classesByName.getValue(superclassName))
 
@@ -172,6 +179,7 @@ internal class ExpressionResolver(classes: Set<Class>) {
   internal val thisExpression = cn("This").expression
 
   private companion object {
+    val BILLING = cn("Billing")
     val CARD_RESOURCE = cn("CardResource")
     val CLASS = cn("Class")
     val END = cn("End")

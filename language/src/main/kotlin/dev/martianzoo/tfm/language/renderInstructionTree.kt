@@ -268,10 +268,10 @@ private fun renderCardPlaySequence(
   val play = instruction.stages.singleOrNull() as? Gain ?: return null
   if (
       play.intensity.modality() != Modality.REQUIRED ||
-          !play.gaining.simple ||
           play.count.fixedQuantity() != 1 ||
           describers.fact(play.gaining.className, ComponentDescriber::playTrigger) !=
-              ComponentDescriber.PlayTrigger.CARD
+              ComponentDescriber.PlayTrigger.CARD ||
+          (!play.gaining.simple && describers.representedExpression(play.gaining)?.simple != true)
   ) {
     return null
   }

@@ -60,6 +60,22 @@ internal class EnglishTest {
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe
         "Requires that oxygen is 6% or lower."
+    english.describe(
+        parse<Effect>("Invoice<ConvertPlantsSA, First>:: -Owed<Class<Plant>>")
+    ) shouldBe "When you convert plants to greenery, pay 1 plant less."
+    english.describe(parse<Effect>("Billing<PlayCards>:: -2 Owed<>")) shouldBe
+        "When you play a card, pay 2 M€ less."
+    english.describe(
+        parse<Effect>("CardInvoice<Class<CardFront>(HAS requirement)>:: -2 Owed<>")
+    ) shouldBe "When you play a card with a requirement, pay 2 M€ less."
+    english.describe(parse<Effect>("BuyCard:: 2 Owed<>")) shouldBe
+        "When you buy a card, pay 2 M€ extra."
+    english.describe(parse<Effect>("UseAction<This, First>:: Accept<Class<Titanium>>")) shouldBe
+        "When you pay for this action, titanium may be used."
+    english.describe(parse<Effect>("PlayTag<Class<PlanetTag>>:: -2 Owed<>")) shouldBe
+        "When you play a planet tag, pay 2 M€ less."
+    english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
+        "1 VP per ANY cathedral."
 
     val animalCard =
         CardDefinition(

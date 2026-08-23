@@ -199,6 +199,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Bring the JVM English renderer under Detekt through the planned intermediate-representation
+  decomposition; avoid mechanical helper extraction or blanket suppression of the 46 legacy
+  complexity findings.
 - Resolve contextual placement-site `This` in the English renderer through its linked type source,
   then delete its remaining positional recognition.
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and

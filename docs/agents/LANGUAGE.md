@@ -239,6 +239,14 @@ constraint selects active `you` wording or unrestricted passive wording at linea
 Alternative event clauses with different verbs remain coordinated as complete clauses.
 Event triggers use the same structured clauses, predicates, noun phrases, and modifiers as
 instructions and requirements rather than assembling a separate partial-string representation.
+Billing-family triggers are resolved structurally through the `Billing` dependency keys. The
+resolved provider supplies the payment operation, an explicitly selected represented resource
+supplies its denomination, and `CardInvoice` additionally retains the selected played-card Class and refinement.
+The same interpretation drives action and card-play discounts, purchase surcharges, accepted
+alternate resources, and card-resource payment values; individual billing subclasses and cards do
+not have dedicated matchers. An explicitly selected action on the current card renders as `this
+action`, while canonical operation providers supply their ordinary action phrases through the
+lexicon.
 A played-tag trigger may bind its card argument to a generic card-resource result, retaining that
 shared destination as `that card`.
 An abstract production-resource trigger linked to a gain of the same resource renders as a per-step
