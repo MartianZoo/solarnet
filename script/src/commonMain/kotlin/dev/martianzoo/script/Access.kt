@@ -21,7 +21,7 @@ internal sealed class Access {
   public open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
   // PURPLE: Game integrity: the engine fully controls the workflow
-  internal class PurpleMode(private val gameplay: Gameplay) : Access() {
+  internal class PurpleMode : Access() {
     override fun phase(phase: String): TaskResult = error("not allowed in this mode")
 
     override fun newTurn(): TaskResult = error("not allowed in this mode")

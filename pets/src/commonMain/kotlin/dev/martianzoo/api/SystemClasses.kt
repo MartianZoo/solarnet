@@ -25,7 +25,6 @@ public object SystemClasses {
   public val DIE: ClassName = cn("Die")
   public val HIDDEN: ClassName = cn("Hidden")
   public val OK: ClassName = cn("Ok")
-  public val SIGNAL: ClassName = cn("Signal")
   public val SYSTEM: ClassName = cn("System")
   public val TEMPORARY: ClassName = cn("Temporary")
   public val ANYONE: ClassName = cn("Anyone")

@@ -19,6 +19,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   completion separate.
 - Give players 20 TR in multiplayer setup and 14 TR in solo setup directly, instead of granting 20
   and then removing 6 in solo; keep both grants causally attached to `SetupPhase`.
+- Replace the custom `ColoniesSetup` instruction with ordinary per-player setup signaling, then
+  delete its custom declaration, registration, and Kotlin implementation.
 - **High priority:** Implement preparation-time delegated narrowing. The controller chooses when to
   prepare a parent task, the delegate alone narrows its child, and the controller remains blocked
   until that child completes. Fix Philares first, then prove Engine narrowing for real-card deals
