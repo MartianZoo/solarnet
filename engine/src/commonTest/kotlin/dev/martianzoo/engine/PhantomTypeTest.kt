@@ -15,15 +15,15 @@ internal class PhantomTypeTest {
   private fun gameplay() = Engine.newGame(canonicalPremise()).gameplay(ENGINE).godMode()
 
   @Test
-  fun `phantom types and their class literals count zero`() {
+  fun `inactive types and their class literals count zero`() {
     val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(ENGINE).godMode()
     val venusTag = gameplay.resolve("VenusTag")
 
     gameplay.count("VenusTag") shouldBe 0
     gameplay.count("Class<VenusTag>") shouldBe 0
-    venusTag.phantom shouldBe true
-    gameplay.resolve("Class<VenusTag>").phantom shouldBe true
+    game.classTable.isActive(venusTag) shouldBe false
+    game.classTable.isActive(gameplay.resolve("Class<VenusTag>")) shouldBe false
     game.reader.count(venusTag) shouldBe 0
     game.reader.containsAny(venusTag) shouldBe false
     game.reader.countComponent(venusTag) shouldBe 0

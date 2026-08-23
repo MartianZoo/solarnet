@@ -3,8 +3,10 @@ package dev.martianzoo.pets
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.SystemClasses.USE_ACTION
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
@@ -15,6 +17,9 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE_CLASSES
 
 /**
  * Various functions for transforming Pets syntax trees. Many more interesting transformers require
@@ -48,17 +53,49 @@ public object Transforming {
         }
       }
 
+  /** Replaces every authored X scalar with [value], retaining written coefficients. */
+  public fun bindXTo(value: Int): PetTransformer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode =
+            if (node is Scalar) node.bindX(value) else transformChildren(node)
+      }
+
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
-    require(index1Ref >= 1) { index1Ref }
+    val whichAction = actionSelector(index1Ref)
     val instruction = action.toInstruction()
-    val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").of(THIS))
+    val trigger = OnGainOf.create(USE_ACTION.of(THIS, whichAction))
     return Effect(trigger, instruction, automatic = false)
   }
 
   internal fun actionListToEffects(actions: Collection<Action>): List<Effect> =
-      actions.withIndex().map { (index0Ref, action) ->
-        actionToEffect(action, index1Ref = index0Ref + 1)
+      actions.withIndex().flatMap { (index0Ref, action) ->
+        actionToEffects(action, index1Ref = index0Ref + 1)
       }
+
+  private fun actionToEffects(action: Action, index1Ref: Int): List<Effect> {
+    val spend = action.cost as? Action.Cost.Spend
+    if (spend == null || spend.scaledEx.expression.className !in STANDARD_RESOURCE_CLASSES) {
+      return listOf(actionToEffect(action, index1Ref))
+    }
+
+    val selector = actionSelector(index1Ref)
+    val chosenAmount = if (spend.scaledEx.scalar is XScalar) "X " else ""
+    return listOf(
+        parse(
+            "UseAction<This, $selector>: ${spend.scaledEx.scalar} " +
+                "Owed<Class<${spend.scaledEx.expression}>> THEN " +
+                "${chosenAmount}Payment<This, $selector>"
+        ),
+        parse("${chosenAmount}CostPaid<This, $selector>: ${action.instruction}"),
+    )
+  }
+
+  internal fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
+      actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
+
+  internal fun actionSelector(index1Ref: Int): ClassName =
+      listOf(cn("First"), cn("Second"), cn("Third")).getOrNull(index1Ref - 1)
+          ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
 
   internal fun immediateToEffect(
       instruction: InstructionTree,

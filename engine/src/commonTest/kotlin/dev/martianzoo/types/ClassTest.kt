@@ -22,8 +22,10 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.api.Bundle
+import dev.martianzoo.tfm.api.BundleContentSelection
+import dev.martianzoo.tfm.api.BundleContentSelection.Kind.MILESTONES
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.data.StandardActionDefinition
+import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -220,6 +222,13 @@ internal class ClassTest {
   }
 
   @Test
+  fun `effects cannot create class representatives`() {
+    shouldThrow<PetException> {
+      loader("CLASS Source { This:: Class<Target> }\nCLASS Target")
+    }
+  }
+
+  @Test
   fun `root classes reject unexpected custom implementations`() {
     val authority =
         object : TfmAuthority() {
@@ -263,11 +272,9 @@ internal class ClassTest {
     val foo = loader.load(cn("Foo"))
     loader.findClass(cn("Foo")) shouldBe foo
 
-    loader
-        .freeze()
-        .allClasses()
-        .classNames()
-        .shouldContainExactlyInAnyOrder(COMPONENT, cn("Class"), cn("Foo"))
+    val table = loader.freeze()
+    table.getClass(cn("Foo")) shouldBe foo
+    table.allClassNames shouldBe authority.allClassNames
   }
 
   @Test
@@ -291,11 +298,11 @@ internal class ClassTest {
           override val customClasses = setOf(implementation)
         }
 
-    val inactive = ClassLoader(authority).freeze().getClass(cn("RuntimeDependency"))
-    inactive.phantom shouldBe true
+    val inactive = project(authority)
+    inactive.isActive(cn("RuntimeDependency")) shouldBe false
 
-    val loaded = ClassLoader(authority).apply { load(cn("DependencySource")) }.freeze()
-    loaded.getClass(cn("RuntimeDependency")).phantom shouldBe false
+    val loaded = project(authority, "DependencySource")
+    loaded.isActive(cn("RuntimeDependency")) shouldBe true
   }
 
   @Test
@@ -324,7 +331,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `authority-known inactive classes resolve as phantoms but are not enumerated`() {
+  fun `authority-known inactive classes resolve structurally but are not enumerated`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active")
     val inactiveBundle =
         bundle(
@@ -335,20 +342,21 @@ internal class ClassTest {
             """,
         )
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
-    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val table = project(authority, "Active")
 
     val inactive = table.getClass(cn("Inactive"))
     val inactiveBase = table.getClass(cn("InactiveBase"))
-    inactive.phantom shouldBe true
-    inactiveBase.phantom shouldBe true
+    table.isActive(inactive) shouldBe false
+    table.isActive(inactiveBase) shouldBe false
     inactive.isSubtypeOf(inactiveBase) shouldBe true
     inactiveBase.isSubtypeOf(inactive) shouldBe false
-    inactive.allSubclasses() shouldBe emptySet()
-    inactiveBase.allSubclasses() shouldBe emptySet()
-    table.resolve(te("Inactive")).phantom shouldBe true
-    table.resolve(te("Class<Inactive>")).phantom shouldBe true
-    table.resolve(te("Inactive")).allConcreteSubtypes().toList() shouldBe emptyList()
-    table.allClasses().classNames() shouldBe setOf(COMPONENT, cn("Class"), cn("Active"))
+    table.allSubclasses(inactive) shouldBe emptySet()
+    table.allSubclasses(inactiveBase) shouldBe emptySet()
+    table.isActive(table.resolve(te("Inactive"))) shouldBe false
+    table.isActive(table.resolve(te("Class<Inactive>"))) shouldBe false
+    table.allConcreteSubtypes(table.resolve(te("Inactive"))).toList() shouldBe emptyList()
+    (inactive in table.allClasses()) shouldBe false
+    (inactiveBase in table.allClasses()) shouldBe false
   }
 
   @Test
@@ -362,13 +370,13 @@ internal class ClassTest {
             """,
         )
     val authority = TfmAuthority.compose(activeBundle)
-    val table = ClassLoader(authority).apply { load(cn("SelectedContent")) }.freeze()
+    val table = project(authority, "SelectedContent")
 
-    table.getClass(cn("AvailableVocabulary")).phantom shouldBe false
+    table.isActive(cn("AvailableVocabulary")) shouldBe true
   }
 
   @Test
-  fun `excluding an inactive type does not make a complement dependency phantom`() {
+  fun `excluding an inactive type does not make a complement dependency inactive`() {
     val activeBundle =
         bundle(
             "ActiveBundle",
@@ -379,9 +387,9 @@ internal class ClassTest {
         )
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive : Domain")
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
-    val table = ClassLoader(authority).apply { load(cn("Holder")) }.freeze()
+    val table = project(authority, "Holder")
 
-    table.resolve(te("Holder<!Inactive>")).phantom shouldBe false
+    table.isActive(table.resolve(te("Holder<!Inactive>"))) shouldBe true
   }
 
   @Test
@@ -390,9 +398,9 @@ internal class ClassTest {
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
 
-    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val table = project(authority, "Active")
 
-    table.getClass(cn("Inactive")).phantom shouldBe false
+    table.isActive(cn("Inactive")) shouldBe true
   }
 
   @Test
@@ -441,16 +449,27 @@ internal class ClassTest {
               parseClasses(
                       """
                       ABSTRACT CLASS Module
-                      ABSTRACT CLASS StandardAction
+                      ABSTRACT CLASS Milestone { requirement = Requirement }
                       CLASS Requested : Module { This:: Active }
-                      CLASS Active<ConditionalAction>
+                      CLASS Active<ConditionalMilestone>
                       CLASS Flag
                       """
                           .trimIndent()
                   )
                   .toSetStrict()
-          override val standardActionDefinitions =
-              setOf(StandardActionDefinition(cn("ConditionalAction"), emptyList(), "Flag"))
+          override val milestoneDefinitions =
+              setOf(
+                  MilestoneDefinition(
+                      cn("ConditionalMilestone"),
+                      requirementText = "MAX 0 Flag",
+                      automaticSelectionRequirementText = "Flag",
+                  )
+              )
+          override val moduleContentSelections =
+              mapOf(
+                  cn("Requested") to
+                      setOf(BundleContentSelection(cn("ConditionalBundle"), setOf(MILESTONES)))
+              )
         }
     val premise = authority.gamePremise(GameConfig("Requested"))
 
@@ -462,9 +481,9 @@ internal class ClassTest {
     val activeBundle = bundle("ActiveBundle", "CLASS Querying { HAS MAX 0 Class<Inactive> }")
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
-    val table = ClassLoader(authority).apply { load(cn("Querying")) }.freeze()
+    val table = project(authority, "Querying")
 
-    table.getClass(cn("Inactive")).phantom shouldBe true
+    table.isActive(cn("Inactive")) shouldBe false
   }
 
   @Test
@@ -478,13 +497,40 @@ internal class ClassTest {
             """,
         )
 
-    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val table = project(authority, "Active")
 
-    table.getClass(cn("Constructed")).phantom shouldBe false
+    table.isActive(cn("Constructed")) shouldBe true
   }
 
   @Test
-  fun `bare trigger activates its externally issued protocol`() {
+  fun `configuration counting does not treat a mixed hierarchy as Module-only`() {
+    val authority =
+        bundle(
+            "MixedBundle",
+            """
+            ABSTRACT CLASS Module
+            ABSTRACT CLASS Mixed
+            CLASS SelectedModule : Module, Mixed
+            CLASS Ordinary : Mixed
+            CLASS Source { This IF 2 Mixed: Constructed }
+            CLASS Constructed
+            """,
+        )
+    val premise =
+        GamePremise(
+            authority,
+            setOf(cn("SelectedModule")),
+            setOf(ClassSelection(cn("Ordinary")), ClassSelection(cn("Source"))),
+            emptySet(),
+        )
+
+    val table = ClassTable.forPremise(premise)
+
+    table.isActive(cn("Constructed")) shouldBe true
+  }
+
+  @Test
+  fun `bare trigger does not activate its externally issued protocol`() {
     val authority =
         bundle(
             "Bundle",
@@ -495,19 +541,19 @@ internal class ClassTest {
             """,
         )
 
-    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val table = project(authority, "Active")
 
-    table.getClass(cn("Protocol")).phantom shouldBe false
-    table.getClass(cn("Constructed")).phantom shouldBe false
+    table.isActive(cn("Protocol")) shouldBe false
+    table.isActive(cn("Constructed")) shouldBe false
   }
 
   @Test
   fun `positive invariants activate their required inhabitants`() {
     val authority = bundle("Bundle", "CLASS Active { HAS =1 Required }\nCLASS Required")
 
-    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val table = project(authority, "Active")
 
-    table.getClass(cn("Required")).phantom shouldBe false
+    table.isActive(cn("Required")) shouldBe true
   }
 
   @Test
@@ -528,22 +574,16 @@ internal class ClassTest {
             """,
         )
 
-    val dormant = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val dormant = project(authority, "Active")
     val reachable =
-        ClassLoader(authority)
-            .apply {
-              load(cn("Active"))
-              load(cn("InactiveTriggerArgument"))
-              load(cn("InactiveGate"))
-            }
-            .freeze()
+        project(authority, "Active", "InactiveTrigger", "InactiveTriggerArgument", "InactiveGate")
 
-    dormant.getClass(cn("Triggered")).phantom shouldBe true
-    dormant.getClass(cn("Gated")).phantom shouldBe true
-    dormant.getClass(cn("InactiveTrigger")).phantom shouldBe true
-    reachable.getClass(cn("Triggered")).phantom shouldBe false
-    reachable.getClass(cn("Gated")).phantom shouldBe false
-    reachable.getClass(cn("InactiveTrigger")).phantom shouldBe false
+    dormant.isActive(cn("Triggered")) shouldBe false
+    dormant.isActive(cn("Gated")) shouldBe false
+    dormant.isActive(cn("InactiveTrigger")) shouldBe false
+    reachable.isActive(cn("Triggered")) shouldBe true
+    reachable.isActive(cn("Gated")) shouldBe true
+    reachable.isActive(cn("InactiveTrigger")) shouldBe true
   }
 
   @Test
@@ -552,9 +592,9 @@ internal class ClassTest {
     val inactiveBundle = bundle("InactiveBundle", "ABSTRACT CLASS Inactive")
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
 
-    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val table = project(authority, "Active")
 
-    table.getClass(cn("Inactive")).phantom shouldBe false
+    table.isActive(cn("Inactive")) shouldBe true
   }
 
   @Test
@@ -853,6 +893,16 @@ internal class ClassTest {
     loaderWithOptionalClass.resolve(te("Foo<Class<AnyWordHere>>")).abstract shouldBe false
   }
 }
+
+private fun project(authority: TfmAuthority, vararg activeClassNames: String): ClassTable =
+    ClassTable.forPremise(
+        GamePremise(
+            authority,
+            emptySet(),
+            activeClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
+            emptySet(),
+        )
+    )
 
 private fun bundle(name: String, declarations: String): Bundle =
     object : Bundle(cn(name)) {

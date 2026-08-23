@@ -14,6 +14,7 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
@@ -168,9 +169,10 @@ private constructor(
           val triggerBindings =
               effect.linkedTypeSources.filterTo(mutableSetOf()) { it.className == ANYONE }
           val checkedBinding =
-              transformers.checkedSubstituterPreserving(
+              transformers.checkedEffectSubstituter(
                   component.type.rootClass.defaultType,
                   component.type,
+                  effect,
                   triggerBindings,
                   ownerBinding,
                   thisBinding,
@@ -178,7 +180,7 @@ private constructor(
               )
           val bound = checkedBinding.transformEffect(effect)
           try {
-            component.type.classTable.checkAllTypes(bound)
+            transformers.classTable.checkAllTypes(bound)
             bound
           } catch (e: ExpressionException) {
             throw ExpressionException(
@@ -198,7 +200,7 @@ private constructor(
         transformers.classEffects(component.type.rootClass).mapNotNull { effect ->
           val bound = uncheckedBinding.transformEffect(effect)
           try {
-            component.type.classTable.checkAllTypes(bound)
+            transformers.classTable.checkAllTypes(bound)
             bound
           } catch (e: ExpressionException) {
             // An Owner-only component can inherit an effect whose output is Player-bound. The
@@ -207,7 +209,7 @@ private constructor(
             val sourceEffect =
                 replaceThisExpressionsWith(component.type.rootClass.className.expression)
                     .transformEffect(effect)
-            component.type.classTable.checkAllTypes(sourceEffect)
+            transformers.classTable.checkAllTypes(sourceEffect)
             null
           }
         }
@@ -256,7 +258,7 @@ private constructor(
             when (trigger) {
               is ByTrigger -> Personal(inner, trigger.by)
               is IfTrigger -> Conditional(inner, trigger.condition)
-              is XTrigger -> Unscaled(inner)
+              is XTrigger -> CountBinding(inner)
               is Transform -> error("should have been transformed by now: $trigger")
             }
           }
@@ -332,8 +334,9 @@ private constructor(
         return if (changeType.narrows(matchType, reader)) {
           // TODO: Replace this compatibility binding with an explicit Pets representation for
           // contextual Owner.
-          // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
-          // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
+          // Resolving a Player-bounded expression such as UseAction<Owner, Foo, First> correctly
+          // intersects its type to UseAction<Player, Foo, First>. Keep the original Owner token's
+          // other
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerSubstitution =
               if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null
@@ -402,7 +405,7 @@ private constructor(
         // Player can be retained in the triggered instruction.
         if (!selector.complement && selector.simple && selector.className != ANYONE) {
           val selectorType = reader.resolve(selector)
-          val actorClass = selectorType.classTable.getClass(ACTOR)
+          val actorClass = reader.resolve(ACTOR.expression).rootClass
           if (selectorType.rootClass.abstract && selectorType.rootClass.isSubtypeOf(actorClass)) {
             val actorDomain = reader.resolve(ACTOR.expression)
             if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
@@ -444,7 +447,7 @@ private constructor(
 
         if (specializedSelector.complement) {
           val excludedType = reader.resolve(specializedSelector.copy(complement = false))
-          val actorClass = excludedType.classTable.getClass(ACTOR)
+          val actorClass = reader.resolve(ACTOR.expression).rootClass
           val abstractActorSupertypes =
               excludedType.rootClass.allSuperclasses().filter {
                 it.abstract && it.isSubtypeOf(actorClass)
@@ -458,9 +461,9 @@ private constructor(
                   ?: run {
                     // A passive Owner such as SoloOpponent is not an Actor. Its opposing Actors
                     // are Players, not the administrative Engine.
-                    val ownerClass = excludedType.classTable.getClass(OWNER)
+                    val ownerClass = reader.resolve(OWNER.expression).rootClass
                     if (!excludedType.rootClass.isSubtypeOf(ownerClass)) return null
-                    excludedType.classTable.getClass(PLAYER)
+                    reader.resolve(PLAYER.expression).rootClass
                   }
           if (!actorType.narrows(selectorDomain.defaultType, reader)) return null
           if (actorType.narrows(excludedType, reader)) return null
@@ -504,20 +507,15 @@ private constructor(
           )
     }
 
-    private data class Unscaled(val inner: Subscription) : Subscription() {
+    private data class CountBinding(val inner: Subscription) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        // Just fake it like only one happened.
-        return inner.checkForHit(
-            currentEvent.copy(change = currentEvent.change.copy(count = 1)),
-            contextualOwner,
-            isSelf,
-            reader,
-        )
+        val hit = inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
+        return hit.bindCount(currentEvent.change.count)
       }
 
       override val classToCheck = inner.classToCheck
@@ -535,6 +533,12 @@ private constructor(
         transformers.fold(instruction) { current, transformer ->
           transformer.transformInstructionTree(current)
         } * count
+
+    fun bindCount(value: Int): Hit =
+        Hit(
+            transformers + bindXTo(value),
+            count = 1,
+        )
 
     fun specialize(expression: Expression): Expression =
         transformers.fold(expression) { current, transformer ->

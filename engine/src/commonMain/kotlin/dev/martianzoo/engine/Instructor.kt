@@ -223,7 +223,7 @@ internal class Instructor(
   private fun hasPositiveExecution(change: Change): Boolean {
     val gaining = change.gaining?.let(reader::resolve)
     val removing = change.removing?.let(reader::resolve)
-    if (gaining?.phantom == true || removing?.phantom == true) return false
+    if (listOfNotNull(gaining, removing).any { !classTable.isActive(it) }) return false
     return when {
       gaining != null && removing == null ->
           if (gaining.abstract) {
@@ -328,11 +328,11 @@ internal class Instructor(
       // Independent auto-narrowing must not choose conflicting values for one atomic linkage.
       return change
     }
-    if (listOfNotNull(g, r).any(Type::phantom)) {
+    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
           "mandatory change uses inactive type: " +
-              listOfNotNull(g, r).filter(Type::phantom).joinToString()
+              listOfNotNull(g, r).filterNot(classTable::isActive).joinToString()
       )
     }
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
@@ -459,14 +459,14 @@ internal class Instructor(
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
 
-    if (listOfNotNull(g, r).any(Type::phantom)) return g to r
+    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) return g to r
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
       val missing = dependencyComponents.filterNot(reader::containsAny)
       if (missing.any()) throw DependencyException(missing)
 
-      g = g.singleConcreteSubtype(reader) ?: g
+      g = classTable.singleConcreteSubtype(g, reader) ?: g
     }
 
     val hasAbstractActorDependency =

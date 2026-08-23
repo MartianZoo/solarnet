@@ -34,8 +34,8 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
     if (totalCount == 0) return listOf("0 $displayType")
 
     val directSubclassTypes: List<Type> =
-        parentType.rootClass
-            .directSubclasses()
+        repl.game.classTable
+            .directSubclasses(parentType.rootClass)
             .map { (it.baseType glb parentType)!! }
             .ifEmpty { listOf(parentType) }
 

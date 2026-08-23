@@ -462,8 +462,11 @@ internal class TypeTest {
         override fun has(requirement: Requirement): Boolean = has(requirement)
       }
 
-  private fun findSubstitutions(type: Type): Map<ClassName, Expression> =
-      Transformers(type.classTable)
+  private fun findSubstitutions(
+      type: Type,
+      classTable: ClassTable,
+  ): Map<ClassName, Expression> =
+      Transformers(classTable)
           .findSubstitutions(
               type.rootClass.defaultType.dependencies,
               type.dependencies,
@@ -472,7 +475,7 @@ internal class TypeTest {
   @Test
   fun subs() {
     val pprod = CanonClassesTest.table.resolve(te("Production<Player1, Class<Plant>>"))
-    findSubstitutions(pprod) shouldBe
+    findSubstitutions(pprod, CanonClassesTest.table) shouldBe
         mapOf(
             cn("StandardResource") to cn("Plant").expression,
             OWNER to PLAYER1.expression,
@@ -482,7 +485,7 @@ internal class TypeTest {
   @Test
   fun subs2() {
     val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<$MediaGroup>>"))
-    findSubstitutions(pprod) shouldBe
+    findSubstitutions(pprod, CanonClassesTest.table) shouldBe
         mapOf(
             cn("CardFront") to MediaGroup.expression,
             OWNER to PLAYER1.expression,

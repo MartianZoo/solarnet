@@ -8,8 +8,8 @@
       "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
       "immediate": "30, PROD[Energy, Plant, Steel]",
       "effects": [
-        "UseAction<ClaimMilestoneSA>: -Owed / Owed",
-        "UseAction<FundAwardSA>: -Owed / Owed",
+        "UseAction<ClaimMilestoneSA>: -Owed<> / Owed<>",
+        "UseAction<FundAwardSA>: -Owed<> / Owed<>",
       ],
     },
 
@@ -27,7 +27,7 @@
     {
       "name": "SagittaFrontierServices",
       "deck": "CORPORATION",
-      "immediate": "31, PROD[Energy, 2], ProjectCard",
+      "immediate": "31, PROD[Energy, 2], CARDS[ProjectCard(HAS MAX 0 Tag)]",
       "effects": [
         "CardFront(HAS MAX 0 Tag): 4",
         "CardFront(HAS =1 Tag): 1",
@@ -53,7 +53,7 @@
       "effects": [
         "CardFront(HAS 2 Tag): Science<This>",
         "UseAction<StandardProject>: AcceptFromCard<This>",
-        "PayFromCard<This>:: -2 Owed<Class<Megacredit>>",
+        "PayFromCard<This>:: -2 Owed<>",
       ],
     },
 
@@ -69,10 +69,9 @@
     // Atmospheric Enhancers[F]
     {
       "name": "AtmosphericEnhancers",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "VenusTag" ],
-      "immediate": "(2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), 2 ProjectCard",
+      "immediate": "(2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)]",
     },
 
     // Board of Directors
@@ -90,7 +89,6 @@
     // Colony Trade Hub
     {
       "name": "ColonyTradeHub",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Energy], 2 Titanium",
@@ -100,7 +98,6 @@
     // Early Colonization
     {
       "name": "EarlyColonization",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "Colony<>, 3 Energy, 2 AdvanceColonyTracks",
@@ -158,14 +155,13 @@
     {
       "name": "NobelPrize",
       "deck": "PRELUDE",
-      "immediate": "WildTag<This>, 5, 2 ProjectCard",
+      "immediate": "WildTag<This>, 5, CARDS[2 ProjectCard(HAS requirement)]",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
     // Old Mining Colony
     {
       "name": "OldMiningColony",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Titanium], Colony<>, -ProjectCard",
@@ -174,10 +170,9 @@
     // Planetary Alliance[F]
     {
       "name": "PlanetaryAlliance",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
-      "immediate": "2 TerraformRating, ProjectCard, ProjectCard",
+      "immediate": "2 TerraformRating, CARDS[ProjectCard(HAS JovianTag)], CARDS[ProjectCard(HAS VenusTag)]",
     },
 
     // Project Eden
@@ -203,7 +198,7 @@
       "name": "SoilBacteria",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag" ],
-      "immediate": "2 ProjectCard, 3 Plant",
+      "immediate": "CARDS[2 ProjectCard(HAS MicrobeTag)], 3 Plant",
       "effects": [ "PlantTag<> OR MicrobeTag<>: Plant" ],
     },
 
@@ -214,7 +209,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "3 Titanium",
       "effects": [
-        "PlayTag<Class<PlanetTag>>:: -2 Owed",
+        "PlayTag<Class<PlanetTag>>:: -2 Owed<>",
       ],
     },
 
@@ -227,7 +222,7 @@
       "effects": [
         "UseAction<StandardAction>:: -SuitableInfrastructurePaid.",
         "NewTurn IF PreludePhase:: -SuitableInfrastructurePaid.",
-        "X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase: SuitableInfrastructurePaid.",
+        "X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.",
       ],
       "components": [
         "CLASS SuitableInfrastructurePaid : Owned<Player>, Hidden, Atomized { HAS MAX 1 This; This:: 2 }",
@@ -245,17 +240,15 @@
     // Venus Contract[F]
     {
       "name": "VenusContract",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "VenusTag" ],
-      "immediate": "ProjectCard, TerraformRating",
+      "immediate": "CARDS[ProjectCard(HAS VenusTag)], TerraformRating",
       "effects": [ "VenusStep: 3" ],
     },
 
     // Venus L1 Shade
     {
       "name": "VenusL1Shade",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "3 VenusStep",
@@ -273,7 +266,6 @@
     // Ceres Tech Market
     {
       "name": "CeresTechMarket",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 12,
@@ -286,7 +278,6 @@
     // Cloud Tourism
     {
       "name": "CloudTourism",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -300,7 +291,6 @@
     // Floating Refinery
     {
       "name": "FloatingRefinery",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 7,
@@ -316,19 +306,17 @@
     // Ishtar Expedition[F]
     {
       "name": "IshtarExpedition",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "5 VenusStep",
       "cost": 6,
       "tags": [ "VenusTag" ],
-      "immediate": "3 Titanium, 2 ProjectCard",
+      "immediate": "3 Titanium, CARDS[2 ProjectCard(HAS VenusTag)]",
     },
 
     // Microgravity Nutrition
     {
       "name": "MicrogravityNutrition",
-      "setupRequirement": "ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -340,7 +328,6 @@
     // Soil Studies
     {
       "name": "SoilStudies",
-      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "MAX 13 TemperatureStep",
@@ -352,19 +339,17 @@
     // Stratospheric Expedition[F]
     {
       "name": "StratosphericExpedition",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 12,
       "tags": [ "VenusTag", "SpaceTag" ],
-      "immediate": "2 Floater, 2 ProjectCard",
+      "immediate": "2 Floater, CARDS[2 ProjectCard(HAS VenusTag)]",
       "effects": [ "End: VictoryPoint" ],
     },
 
     // Unexpected Application
     {
       "name": "UnexpectedApplication",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 4,
@@ -375,7 +360,6 @@
     // Venus Allies
     {
       "name": "VenusAllies",
-      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 30,
@@ -387,18 +371,18 @@
     // Venus Orbital Survey[F]
     {
       "name": "VenusOrbitalSurvey",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 18,
       "tags": [ "VenusTag", "SpaceTag" ],
-      "actions": [ "-> ProjectCard OR BuyCard?, ProjectCard OR BuyCard?" ],
+      "actions": [
+        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard FROM ProjectCard<Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]",
+      ],
     },
 
     // Venus Shuttles
     {
       "name": "VenusShuttles",
-      "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 9,
@@ -412,7 +396,6 @@
     // Venus Trade Hub
     {
       "name": "VenusTradeHub",
-      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 VenusTag",

@@ -144,7 +144,7 @@ abstract class AbstractFullGameTest : TfmTest() {
         cities to "CityTile",
     )
     if (
-        game.classTable.findClass(cn("ColoniesExpansion"))?.phantom == false &&
+        game.classTable.isActive(cn("ColoniesExpansion")) &&
             game.reader.getComponents("ColoniesExpansion").isNotEmpty()
     ) {
       assertCounts(colonies to "Colony")

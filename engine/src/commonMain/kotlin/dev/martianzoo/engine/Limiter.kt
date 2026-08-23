@@ -41,7 +41,7 @@ internal class Limiter(
           }
         }
         .forEach { restriction ->
-          restriction.root.allSubclasses().forEach {
+          classTable.allSubclasses(restriction.root).forEach {
             val list = multimap.getOrPut(it) { mutableListOf() }
             list += restriction
           }
@@ -55,6 +55,7 @@ internal class Limiter(
         classTable.allClasses().mapNotNull { dependent ->
           dependent.dependencies
               .concreteDependencyTargets()
+              .filter(classTable::isActive)
               .firstOrNull { target ->
                 applicableRangeRestrictions(target).all { it.range.last > 1 }
               }
@@ -79,12 +80,12 @@ internal class Limiter(
             )
 
     // Simplify it if we can
-    if (klass.concreteTypes().drop(1).none()) {
+    if (classTable.allConcreteSubtypes(klass.baseType).drop(1).none()) {
       expr = replaceThisExpressionsWith(klass.className.expression).transformExpression(expr)
     }
 
     return if (THIS in expr.descendantsOfType<ClassName>()) {
-      UnboundRangeRestriction(expr, klass, it.range)
+      UnboundRangeRestriction(expr, klass, classTable, it.range)
     } else {
       SimpleRangeRestriction(classTable.resolve(expr), it.range)
     }
@@ -118,9 +119,8 @@ internal class Limiter(
   ): Boolean {
     require(type.abstract)
     require(minimum > 0)
-    return type.allConcreteSubtypes().any { candidate ->
-      !candidate.phantom &&
-          candidate.narrows(type, info) &&
+    return classTable.allConcreteSubtypes(type).any { candidate ->
+      candidate.narrows(type, info) &&
           try {
             findLimit(candidate.toComponent(), null) >= minimum
           } catch (_: DependencyException) {
@@ -181,11 +181,12 @@ internal class Limiter(
     internal data class UnboundRangeRestriction(
         private val expression: Expression,
         private val declaringClass: Class,
+        private val classTable: ClassTable,
         internal override val range: IntRange,
     ) : RangeRestriction() {
       internal override val root =
           if (expression.className == THIS) declaringClass
-          else declaringClass.classTable.getClass(expression.className)
+          else classTable.getClass(expression.className)
 
       internal override fun bindThisTo(type: Type): SimpleRangeRestriction? {
         val thisType =
@@ -193,7 +194,7 @@ internal class Limiter(
               it.rootClass.isSubtypeOf(declaringClass)
             } ?: return null
         val expr = replaceThisExpressionsWith(thisType.expression).transformExpression(expression)
-        return SimpleRangeRestriction(declaringClass.classTable.resolve(expr), range)
+        return SimpleRangeRestriction(classTable.resolve(expr), range)
       }
 
       override fun toString() = "$expression $declaringClass $range"

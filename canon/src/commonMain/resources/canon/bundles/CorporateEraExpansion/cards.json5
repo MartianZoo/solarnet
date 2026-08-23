@@ -14,7 +14,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "60",
-      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<>" ],
     },
 
     {
@@ -34,7 +34,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "actions": [ "-> BuyCard?" ],
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
     },
 
     {
@@ -64,7 +64,7 @@
       "cost": 10,
       "tags": [ "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed<>",
         "End: VictoryPoint"
       ],
     },
@@ -222,7 +222,7 @@
       "cost": 23,
       "tags": [ "EarthTag" ],
       "effects": [
-        "PlayCard: -2 Owed<Class<Megacredit>>",
+        "PlayCard:: -2 Owed<>",
         "End: 2 VictoryPoint"
       ],
     },
@@ -233,7 +233,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "effects": [ "Pay<Class<Metal>>:: -Owed<Class<Megacredit>>" ],
+      "effects": [ "Pay<Class<Metal>>:: -Owed<>" ],
     },
 
     {
@@ -265,7 +265,7 @@
       "cost": 13,
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[4 Energy]",
-      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<>" ],
     },
 
     {
@@ -345,7 +345,7 @@
       "cost": 8,
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[6 Energy]",
-      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<>" ],
     },
 
     {
@@ -384,7 +384,7 @@
       "projectKind": "ACTIVE",
       "cost": 1,
       "tags": [ "EarthTag" ],
-      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<>" ],
     },
 
     {
@@ -421,7 +421,7 @@
       "cost": 4,
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1]",
-      "actions": [ "-> BuyCard?" ],
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
     },
 
     {
@@ -430,7 +430,7 @@
       "projectKind": "EVENT",
       "cost": 7,
       "tags": [ "EarthTag" ],
-      "immediate": "2 ProjectCard",
+      "immediate": "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]",
     },
 
     {
@@ -514,7 +514,7 @@
       "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard: -2 Owed<Class<Megacredit>>",
+        "PlayCard:: -2 Owed<>",
         "End: 3 VictoryPoint"
       ],
     },
@@ -621,7 +621,7 @@
       "projectKind": "EVENT",
       "cost": 2,
       "tags": [ "ScienceTag" ],
-      "immediate": "ProjectCard",
+      "immediate": "CARDS[3 ProjectCard<Selecting>, ProjectCard FROM ProjectCard<Selecting>]",
     },
 
     {
@@ -638,11 +638,8 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "Card195Effect",
+      "immediate": "NextCardEffect { PlayCard:: -This!; PlayCard:: -8 Owed<> }",
       "effects": [ "End: -VictoryPoint" ],
-      "components": [
-        "CLASS Card195Effect : NextCardEffect { PlayCard:: -This!; PlayCard:: -8 Owed<Class<Megacredit>> }"
-      ],
     },
 
     {

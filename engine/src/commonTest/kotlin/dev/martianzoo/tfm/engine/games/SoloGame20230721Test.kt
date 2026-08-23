@@ -14,7 +14,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
-          ElysiumMapOption
+          ElysiumMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
           Tr63SoloVariant
           Ceres, Luna, Triton
@@ -83,7 +83,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       // me played Atmo Collectors
       playProject(AtmoCollectors, 15) {
         // me added 2 floater(s) to Atmo Collectors
-        doTask("2 Floater<$AtmoCollectors>")
+        addCardResources(AtmoCollectors)
       }
       // me used Atmo Collectors action
       cardAction2(AtmoCollectors) {
@@ -119,7 +119,8 @@ class SoloGame20230721Test : AbstractSoloTest() {
       // me played Project Inspection
       playProject(ProjectInspection, 0) {
         // me used United Nations Mars Initiative action with Project Inspection
-        doTask("UseAction1<$UnitedNationsMarsInitiative>")
+        doTask("UseAction<$UnitedNationsMarsInitiative, First>")
+        pay(3)
       }
       // me played Energy Tapping
       playProject(EnergyTapping, 3)
@@ -235,7 +236,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
                 .manual(
                     "-7 THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<$Conscription>> FROM ProjectCard"
                 ) {
-                  doTask("OceanTile<Elysium_4_6>!")
+                  placeTile(4, 6)
                   autoExecMode = FIRST
                 }
                 .expect("Plant, -3")
@@ -266,7 +267,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       // me played CEO's Favorite Project
       playProject(CeosFavoriteProject, 1) {
         // me added 1 asteroid(s) to Rotator Impacts
-        doTask("Asteroid<$RotatorImpacts>")
+        addCardResources(RotatorImpacts)
       }
       // me used Rotator Impacts action
       // me removed 1 resource(s) from me's Rotator Impacts
@@ -318,7 +319,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       // me placed greenery tile on row 3 position 7
       // me drew 3 card(s)
       // You drew Insects, Impactor Swarm and Solarnet
-      stdProject("GreenerySP") { doTask("GreeneryTile<Elysium_3_7>") }.expect("3 Card")
+      stdProject("GreenerySP") { placeTile(3, 7) }.expect("3 Card")
       // me played Solarnet
       // me drew 2 card(s)
       playProject(Solarnet, 7)
@@ -361,7 +362,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       stdProject("CitySP") {
         // me placed city tile on row 5 position 6
         // me's plants amount increased by 3
-        doTask("CityTile<Elysium_5_6>")
+        placeTile(5, 6)
       }
       // me spent 3 energy to trade with Luna
       // me's megacredits amount increased by 7
@@ -371,7 +372,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       stdProject("GreenerySP") {
         // me placed greenery tile on row 5 position 7
         // me's plants amount increased by 2
-        doTask("GreeneryTile<Elysium_5_7>")
+        placeTile(5, 7)
       }
 
       // me passed
@@ -413,19 +414,19 @@ class SoloGame20230721Test : AbstractSoloTest() {
         doTask("Colony<Triton>")
         // me placed ocean tile on row 4 position 4
         // me's plants amount increased by 2
-        doTask("OceanTile<Elysium_4_4>")
+        placeTile(4, 4)
       }
       // me used Aquifer standard project
       stdProject("AquiferSP") {
         // me placed ocean tile on row 5 position 4
         // me's plants amount increased by 2
-        doTask("OceanTile<Elysium_5_4>")
+        placeTile(5, 4)
       }
       // me used Convert Plants standard action
       convertPlants {
         // me placed greenery tile on row 5 position 5
         // me's plants amount increased by 2
-        doTask("GreeneryTile<Elysium_5_5>")
+        placeTile(5, 5)
       }
       // me played Insects
       // me's plants production increased by 1
@@ -474,17 +475,17 @@ class SoloGame20230721Test : AbstractSoloTest() {
       stdProject("AquiferSP") {
         // me placed ocean tile on row 3 position 5
         // me's plants amount increased by 1
-        doTask("OceanTile<Elysium_3_5>")
+        placeTile(3, 5)
       }
       // me used Convert Plants standard action
       convertPlants {
             // me placed greenery tile on row 4 position 5
             // me's plants amount increased by 1
-            doTask("GreeneryTile<Elysium_4_5>")
+            placeTile(4, 5)
             // me placed ocean tile on row 1 position 3
             // me drew 1 card(s)
             // You drew Interstellar Colony Ship
-            doTask("OceanTile<Elysium_1_3>")
+            placeTile(1, 3)
           }
           .expect("-7 Plant, 8, Card, 3 TR")
       // me used Rotator Impacts action1 2 ***
@@ -494,7 +495,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       stdProject("CitySP") {
         // me placed city tile on row 6 position 7
         // me's plants amount increased by 1
-        doTask("CityTile<Elysium_6_8>")
+        placeTile(6, 8)
       }
 
       // me passed
@@ -525,7 +526,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       convertPlants {
         // me placed greenery tile on row 6 position 6
         // me's plants amount increased by 1
-        doTask("GreeneryTile<Elysium_6_7>")
+        placeTile(6, 7)
       }
       // me spent 3 energy to trade with Luna
       stdAction("TradeSA", 2) {
@@ -547,19 +548,19 @@ class SoloGame20230721Test : AbstractSoloTest() {
       stdProject("GreenerySP") {
         // me placed greenery tile on row 5 position 8
         // me's plants amount increased by 2
-        doTask("GreeneryTile<Elysium_5_8>")
+        placeTile(5, 8)
       }
       // me used City standard project
       stdProject("CitySP") {
         // me placed city tile on row 7 position 5
         // me's steel amount increased by 1
-        doTask("CityTile<Elysium_7_7>")
+        placeTile(7, 7)
       }
       // me used Greenery standard project
       stdProject("GreenerySP") {
         // me placed greenery tile on row 6 position 5
         // me's plants amount increased by 1
-        doTask("GreeneryTile<Elysium_6_6>")
+        placeTile(6, 6)
       }
       // me used Sell Patents standard project
       // me sold 3 patents
@@ -573,9 +574,10 @@ class SoloGame20230721Test : AbstractSoloTest() {
       convertPlants {
         // me placed greenery tile on row 8 position 5
         // me's steel amount increased by 2
-        doTask("GreeneryTile<Elysium_8_8>")
+        placeTile(8, 8)
       }
-      doTask("Ok")
+      // Decline another final greenery placement.
+      declineTask()
       // This game id was gf33a06d07a1c
       // herokuapp results image: https://tinyurl.com/39xerd7w
 

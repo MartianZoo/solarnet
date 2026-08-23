@@ -1,14 +1,13 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.language.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.types.Class
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
   internal val descriptions: Map<Class, ComponentDescriber> by lazy {
-    Canon.classTable.allClasses().associateWith { declarations[it] ?: ComponentDescriber() }
+    canonClassUniverse.allClasses().associateWith { declarations[it] ?: ComponentDescriber() }
   }
 
   private val declarations: Map<Class, ComponentDescriber> by lazy {
@@ -367,7 +366,6 @@ internal object TerraformingMarsDescribers {
             ),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
         klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
-        klass("UseAction1") to ComponentDescriber(actionNumber = 1),
         klass("StandardProject") to
             ComponentDescriber(
                 actionUse =
@@ -436,7 +434,7 @@ internal object TerraformingMarsDescribers {
     }
   }
 
-  private fun klass(name: String): Class = Canon.classTable.getClass(cn(name))
+  private fun klass(name: String): Class = canonClassUniverse.getClass(cn(name))
 
   private fun threshold(
       subject: String,

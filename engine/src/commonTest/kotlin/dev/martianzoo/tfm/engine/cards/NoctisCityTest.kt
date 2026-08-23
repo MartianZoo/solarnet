@@ -10,10 +10,10 @@ import kotlin.test.Test
 class NoctisCityTest : CardTest() {
   @Test
   fun `Can be placed anywhere on Hellas`() {
-    newGame(HellasMapOption)
+    newGame(Hellas)
     p1.manual("PROD[Energy]")
     p1.manual("$NoctisCity") {
-          doTask("CityTile<Hellas_1_3>")
+          placeTile(1, 3)
         }
         .expect("PROD[3 Megacredit, -Energy]")
   }
@@ -27,7 +27,7 @@ class NoctisCityTest : CardTest() {
     p1.autoExecMode = NONE
     p1.manual("$NoctisCity") {
       shouldThrow<TaskException> { doTask("CityTile<Tharsis_1_3>") }
-      doTask("CityTile<Tharsis_5_3>")
+      placeTile(5, 3)
       doTask("PROD[-Energy]")
       doTask("PROD[3 Megacredit]")
       doTask("2 Plant")

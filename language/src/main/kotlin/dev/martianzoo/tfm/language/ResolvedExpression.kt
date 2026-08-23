@@ -15,7 +15,10 @@ internal data class ResolvedExpression(
   internal fun sourceDependency(key: Key): Expression? = sourceDependencies[key]
 
   internal fun hasOnlySourceDependency(key: Key, expression: Expression): Boolean =
-      sourceDependencies.size == 1 && sourceDependency(key) == expression
+      hasOnlySourceDependencies(mapOf(key to expression))
+
+  internal fun hasOnlySourceDependencies(expected: Map<Key, Expression>): Boolean =
+      sourceDependencies == expected
 
   internal fun dependency(key: Key): Type? {
     if (key !in type.dependencies.keys) return null

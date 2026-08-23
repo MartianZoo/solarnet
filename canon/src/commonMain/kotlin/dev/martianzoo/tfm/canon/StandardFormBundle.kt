@@ -6,6 +6,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.Bundle
+import dev.martianzoo.tfm.api.BundleContentSelection
 import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
@@ -27,6 +28,7 @@ import dev.martianzoo.util.toSetStrict
 public class StandardFormBundle(
     name: String,
     override val customClasses: Set<CustomClass> = emptySet(),
+    override val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap(),
     public val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,

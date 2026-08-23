@@ -16,7 +16,7 @@ class MassiveDiscountsTest : CardTest() {
             "$ResearchOutpost, $MassConverter, $QuantumExtractor, $Shuttles, $SpaceStation, " +
             "$AdvancedAlloys, $Phobolog, $MercurianAlloys, $RegoPlastics"
     ) {
-      doTask("CityTile<Tharsis_4_2>")
+      placeTile(4, 2)
     }
 
     p1.playProject(SpaceElevator, 4, steel = 1, titanium = 1).expect("-4, -Steel, -Titanium")

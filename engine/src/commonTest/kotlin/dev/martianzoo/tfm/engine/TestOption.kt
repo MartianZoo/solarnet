@@ -3,26 +3,26 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
-public enum class TestOption : TestSelection {
+public enum class TestOption(private val configuredName: String? = null) : TestSelection {
   TerraformingMars,
   SoloMode,
   MultiplayerMode,
   StandardSoloVariant,
   Tr63SoloVariant,
   CorporateEraExpansion,
-  TharsisMapOption,
-  HellasMapOption,
-  ElysiumMapOption,
-  UtopiaPlanitiaMapOption,
-  TerraCimmeriaMapOption,
+  Tharsis("TharsisMap"),
+  Hellas("HellasMap"),
+  Elysium("ElysiumMap"),
+  Utopia("UtopiaMap"),
+  Cimmeria("CimmeriaMap"),
   VenusNextExpansion,
-  MilestonesAwardsExpansion,
   PreludeExpansion,
+  Prelude1Deck,
   Prelude2Expansion,
   ColoniesExpansion,
   TurmoilCardPack,
   PromoCardPack,
   WorldGovernmentOption;
 
-  public val className: ClassName = cn(name)
+  public val className: ClassName = cn(configuredName ?: name)
 }

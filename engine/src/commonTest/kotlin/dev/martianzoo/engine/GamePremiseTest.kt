@@ -4,11 +4,15 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.api.Bundle
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.ColonizerTrainingCamp
+import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
@@ -30,14 +34,28 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun configCookingAppliesPetsAuthoredModuleDefaults() {
-    val premise = Canon.gamePremise(GameConfig("VenusNextExpansion", "Player1", "Player2"))
+  fun observationalModuleReferencesDoNotCreateBootstrapDependencies() {
+    val observers =
+        object : Bundle(cn("Observers")) {
+          override val explicitClassDeclarations =
+              parseClasses(
+                      """
+                      CLASS ObserverA : Module { ObserverB: ObservationFromA }
+                      CLASS ObserverB : Module { ObserverA: ObservationFromB }
+                      CLASS ObservationFromA
+                      CLASS ObservationFromB
+                      """
+                          .trimIndent()
+                  )
+                  .toSetStrict()
+        }
+    val authority = TfmAuthority.compose(Canon, observers)
+    val premise = authority.gamePremise(GameConfig("ObserverA, ObserverB", "Player1", "Player2"))
 
-    premise.modules shouldContain cn("TerraformingMars")
-    premise.modules shouldContain cn("TharsisMapOption")
-    premise.modules shouldContain cn("MultiplayerMode")
-    premise.modules shouldContain cn("CorporateEraExpansion")
-    premise.modules shouldContain cn("WorldGovernmentOption")
+    val game = Engine.newGame(premise)
+
+    game.classTable.isActive(cn("ObserverA")) shouldBe true
+    game.classTable.isActive(cn("ObserverB")) shouldBe true
   }
 
   @Test
@@ -68,32 +86,26 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun explicitSelectionsAndExclusionsOverrideConfigCooking() {
-    val premise =
-        Canon.gamePremise(
-            GameConfig(
-                "HellasMapOption, VenusNextExpansion, -WorldGovernmentOption",
-                "Player1",
-                "Player2",
+  fun preludeRulesCanUseOnlyThePrelude2CardPool() {
+    val table =
+        Engine.newGame(
+                Canon.gamePremise(
+                    GameConfig(
+                        "Prelude2Expansion, -Prelude1Deck",
+                        "Player1",
+                        "Player2",
+                    )
+                )
             )
-        )
+            .classTable
 
-    premise.modules shouldContain cn("HellasMapOption")
-    premise.modules.shouldNotContain(cn("TharsisMapOption"))
-    premise.modules.shouldNotContain(cn("WorldGovernmentOption"))
+    table.isActive(cn("PreludePhase")) shouldBe true
+    table.isActive(cn("AppliedScience")) shouldBe true
+    table.isActive(cn("MartianIndustries")) shouldBe false
   }
 
   @Test
-  fun invalidConfigurationFailsWhileBootstrappingAWorld() {
-    shouldThrow<IllegalArgumentException> {
-      Engine.newGame(Canon.gamePremise(GameConfig("WorldGovernmentOption", "Player1", "Player2")))
-    }
-    shouldThrow<IllegalArgumentException> {
-      Engine.newGame(Canon.gamePremise(GameConfig("ColoniesExpansion", "Player1", "Player2")))
-    }
-    shouldThrow<IllegalArgumentException> {
-      Engine.newGame(Canon.gamePremise(GameConfig("-TerraformingMars", "Player1", "Player2")))
-    }
+  fun malformedConfigurationFailsBeforeBootstrappingAWorld() {
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("TypoOption, VenusNextExpansion", "Player1"))
     }
@@ -129,8 +141,7 @@ internal class GamePremiseTest {
     val premise =
         Canon.gamePremise(
             GameConfig(
-                "HellasMapOption, MilestonesAwardsExpansion, " +
-                    "Coastguard, Landshaper, Botanist, Founder",
+                "HellasMap, Coastguard, Landshaper, Botanist, Founder",
                 "Player1",
                 "Player2",
             )
@@ -143,6 +154,39 @@ internal class GamePremiseTest {
     table.isActive(cn("Botanist")) shouldBe true
     table.isActive(cn("Founder")) shouldBe true
     table.isActive(cn("Cultivator")) shouldBe false
+  }
+
+  @Test
+  fun namedGoalsCanReplaceOneDefaultPoolWithoutSelectingTheExpansionModule() {
+    val premise =
+        Canon.gamePremise(
+            GameConfig(
+                "HellasMap, Landshaper",
+                "Player1",
+                "Player2",
+            )
+        )
+    val table = Engine.newGame(premise).classTable
+
+    premise.modules.shouldNotContain(cn("HellasDefaultMilestones"))
+    premise.modules shouldContain cn("HellasDefaultAwards")
+    table.isActive(cn("Landshaper")) shouldBe true
+    table.isActive(cn("Diversifier")) shouldBe false
+    table.isActive(cn("Cultivator")) shouldBe true
+  }
+
+  @Test
+  fun soloModeDoesNotActivateDefaultGoalsOrMultiplayerGoalActions() {
+    val table = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1"))).classTable
+
+    Canon.milestoneDefinitions.none { table.isActive(it.className) } shouldBe true
+    Canon.awardDefinitions.none { table.isActive(it.className) } shouldBe true
+    table.isActive(cn("ClaimMilestoneSA")) shouldBe false
+    table.isActive(cn("FundAwardSA")) shouldBe false
+
+    shouldThrow<IllegalArgumentException> {
+      Engine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))
+    }
   }
 
   @Test

@@ -11,15 +11,13 @@ class LavaFlowsTest : CardTest() {
   @Test
   fun `Can place its tile on Tharsis`() {
     newGame()
-    p1.manual("$LavaFlows") { doTask("LavaFlows_SpecialTile<Tharsis_2_2>") }
-        .expect("2 TemperatureStep")
+    p1.manual("$LavaFlows") { placeTile(2, 2) }.expect("2 TemperatureStep")
   }
 
   @Test
   fun `Can place its tile on Hellas`() {
-    newGame(HellasMapOption)
-    p1.manual("$LavaFlows") { doTask("LavaFlows_SpecialTile<Hellas_1_5>") }
-        .expect("2 TemperatureStep")
+    newGame(Hellas)
+    p1.manual("$LavaFlows") { placeTile(1, 5) }.expect("2 TemperatureStep")
   }
 
   @Test

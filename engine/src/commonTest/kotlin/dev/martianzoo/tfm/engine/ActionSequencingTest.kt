@@ -18,23 +18,23 @@ internal class ActionSequencingTest {
     p1.godMode().manual("25 Megacredit")
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
-    manual.beginManual("UseAction1<CitySP>")
-    p1.count("Owed<Class<Megacredit>>") shouldBe 25
+    manual.beginManual("UseAction<CitySP, First>")
+    p1.count("Owed<>") shouldBe 25
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("Production<") } shouldBe
         true
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
         true
 
-    manual.doTask("Payment<Class<CitySP>>")
-    p1.count("Payment<Class<CitySP>>") shouldBe 1
+    manual.doTask("Payment<CitySP, First>")
+    p1.count("Payment<CitySP, First>") shouldBe 1
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("Production<") } shouldBe
         true
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
         true
 
     manual.doTask("25 Pay<Class<Megacredit>> FROM Megacredit")
-    p1.count("Owed<Class<Megacredit>>") shouldBe 0
-    manual.doTask("CostPaid<Class<CitySP>> FROM Payment<Class<CitySP>>")
+    p1.count("Owed<>") shouldBe 0
+    p1.count("Payment<CitySP, First>") shouldBe 0
 
     val results =
         game.tasks
@@ -55,7 +55,7 @@ internal class ActionSequencingTest {
     val manual = game.tfm(PLAYER1).godMode().also { it.autoExecMode = NONE }
     manual.manual("$SymbioticFungus, $Ants")
 
-    manual.beginManual("UseAction1<UseCardActionSA>") {
+    manual.beginManual("UseAction<UseCardActionSA, First>") {
       doTask("ActionUsedMarker<$SymbioticFungus>")
       shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()

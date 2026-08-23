@@ -3,11 +3,13 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.data.ClassProperties.ACTIVATION_REQUIREMENT
 import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.DerivedClassLowerer
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Transforming.actionListToEffects
+import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.Transforming.immediateToEffect
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -61,11 +63,17 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val deck: Deck? = data.deck?.let(Deck::valueOf)
 
+  private val activationRequirement: Requirement? =
+      data.activationRequirement?.let { parseOwned<Requirement>(it) }
+
+  override val automaticSelectionRequirement: Requirement? =
+      Requirement.join(
+          if (deck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null,
+          activationRequirement,
+      )
+
   /** The card this card replaces, if any. For example, `DeimosDownPromo` replaces `DeimosDown`. */
   public val replaces: ClassName? = data.replaces?.let(::cn)
-
-  /** Configuration condition that must hold for this card to be active. */
-  override val setupRequirement: Requirement? = data.setupRequirement?.let(::parseOwned)
 
   public val projectInfo: ProjectInfo? =
       if (deck == PROJECT) {
@@ -147,6 +155,10 @@ public class CardDefinition(data: CardData) : Definition {
   public val extraClasses: List<ClassDeclaration> =
       componentClasses + derivedClasses.declarations + listOfNotNull(resourceClassDeclaration())
 
+  /** Follow-mode declarations with source-level real-card operations neutralized. */
+  internal val executableExtraClasses: List<ClassDeclaration> =
+      extraClasses.map(FollowModeNeutralizer::neutralize)
+
   override val asClassDeclaration: ClassDeclaration by lazy {
     val createTags =
         InstructionGroup.createTree(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
@@ -170,15 +182,20 @@ public class CardDefinition(data: CardData) : Definition {
         className = className,
         kind = CONCRETE,
         supertypes = supertypes,
-        effects = allEffects,
+        effects = allEffects.map(FollowModeNeutralizer::transformEffect),
         invariants = setOf(Max(scaledEx(className.expression, 1))),
         properties =
             buildMap {
               put(COST_PROPERTY, NumberValue(cost))
               requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
+              activationRequirement?.let {
+                put(ACTIVATION_REQUIREMENT, RequirementValue(it))
+              }
             },
         extraNodes =
-            setOfNotNull(deck?.className) + componentClasses.map(ClassDeclaration::className),
+            setOfNotNull(deck?.className) +
+                componentClasses.map(ClassDeclaration::className) +
+                actionSelectors(actions),
     )
   }
 
@@ -202,13 +219,13 @@ public class CardDefinition(data: CardData) : Definition {
       val name: String,
       val deck: String? = null,
       val replaces: String? = null,
-      val setupRequirement: String? = null,
       val tags: List<String> = emptyList(),
       val immediate: String? = null,
       val actions: List<String> = emptyList(),
       val effects: List<String> = emptyList(),
       val resourceType: String? = null,
       val components: Set<String> = emptySet(),
+      val activationRequirement: String? = null,
       val requirement: String? = null,
       val cost: Int = 0,
       val projectKind: String? = null,
@@ -216,8 +233,8 @@ public class CardDefinition(data: CardData) : Definition {
     init {
       cn(name)
       require(replaces?.isNotEmpty() != false)
-      require(setupRequirement?.isNotBlank() != false)
       require(resourceType?.isNotEmpty() != false)
+      require(activationRequirement?.isNotBlank() != false)
       require(requirement?.isNotEmpty() != false)
       require(cost >= 0)
 

@@ -10,15 +10,23 @@
     // Claim milestone
     {
       "name": "ClaimMilestoneSA",
-      "action": "-> Payment<Class<This>>",
-      "setupRequirement": "MAX 0 SoloMode"
+      "action": "-> Payment<This, First>",
+      "effects": [
+        "UseAction<This>:: 8 Owed<>",
+        "CostPaid<This>: Milestone"
+      ],
+      "automaticSelectionRequirement": "MAX 0 SoloMode"
     },
 
     // Fund award
     {
       "name": "FundAwardSA",
-      "action": "-> Payment<Class<This>>",
-      "setupRequirement": "MAX 0 SoloMode"
+      "action": "-> Payment<This, First>",
+      "effects": [
+        "UseAction<This>:: (=0 Award: 8 Owed<>) OR (=1 Award: 14 Owed<>) OR (=2 Award: 20 Owed<>)",
+        "CostPaid<This>: Award"
+      ],
+      "automaticSelectionRequirement": "MAX 0 SoloMode"
     },
 
     // Use card action
@@ -28,10 +36,16 @@
     },
 
     // Convert plants
-    { "name": "ConvertPlantsSA", "action": "-> 8 Owed<Class<Plant>> THEN Payment<Class<This>>" },
+    {
+      "name": "ConvertPlantsSA",
+      "action": "8 Plant -> GreeneryTile<>"
+    },
 
     // Convert heat
-    { "name": "ConvertHeatSA", "action": "-> 8 Owed<Class<Heat>> THEN Payment<Class<This>>" },
+    {
+      "name": "ConvertHeatSA",
+      "action": "8 Heat -> TemperatureStep"
+    },
 
     // Sell patents - yes, it's technically a project, but that makes things annoying
     { "name": "SellPatents", "action": "X ProjectCard -> X" },

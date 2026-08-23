@@ -45,7 +45,7 @@ class KuiperCooperativeTest : CardTest() {
     p1.cardAction1(KuiperCooperative)
 
     p1.stdProject("AquiferSP", payment = { payWithKuiperAsteroids(this) }) {
-          doTask("OceanTile<Tharsis_1_2>")
+          placeTile(1, 2)
         }
         .expect("-2 Asteroid<$KuiperCooperative>, -16 Megacredit, OceanTile, TerraformRating")
   }
@@ -75,6 +75,6 @@ class KuiperCooperativeTest : CardTest() {
 
   private fun payWithKuiperAsteroids(body: OperationBody) {
     body.doTask("2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>")
-    body.doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+    body.doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
   }
 }

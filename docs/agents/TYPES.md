@@ -277,19 +277,21 @@ whether Complements are genuine difference Types.
 
 ## 8. Class Tables
 
-Every Type belongs to one frozen Class Table. Values from different tables are not comparable.
-Freezing compiles nominal subtype masks and sparse active-subclass indexes.
+Every Type belongs to one immutable Authority-wide master universe. Values from different master
+universes are not comparable. Master compilation resolves the hierarchy and compiles nominal
+subtype masks once.
 
-[CLASS_TABLES.md](CLASS_TABLES.md) proposes replacing this committed ownership model with one
-Authority-wide Class/Type universe and explicit game-filtered views. It is not implemented.
-
-The Authority owns a master catalog. Each game projects it. A name has one of three states:
+Each game owns an explicit filtered Class Table view over that master. The view reuses the master
+Classes and Types and records the inhabited names selected by the premise's activation closure. A
+name has one of three states:
 
 - **active:** full behavior in this game;
 - **uninhabited:** nominally known to the Authority, with an empty domain here; or
 - **unknown:** an error in every context.
 
-A game's table is closed. No later declaration may change its hierarchy or set of concrete choices.
+A game's view is closed. No later declaration may change its inhabited set. Structural operations
+such as subtyping, `glb`, and `lub` use the master universe; active subclass and concrete-Type
+enumeration receive the game view explicitly. See [CLASS_TABLES.md](CLASS_TABLES.md).
 
 ## 9. Closed-world operations
 
@@ -437,11 +439,10 @@ An active Class cannot have an uninhabited direct supertype or dependency bound.
 Loading an active declaration activates structural supertypes, dependency and default Types,
 explicit ownership roots, Custom implementation dependencies, and destinations of reachable gains
 and transmutations. A positive Class invariant activates the inhabitants it explicitly requires;
-ordinary observational Requirements do not. Reachable Trigger roots with inhabited arguments
-currently remain compatibility activation edges for externally issued protocol signals; a Trigger
-with an uninhabited argument or false gate remains dormant. The loader rechecks every active
-declaration as the closure grows, so activating a Trigger domain can make its constructive body
-reachable later.
+ordinary observational Requirements and Trigger roots do not. Modules explicitly own protocol
+Classes issued by workflows or gameplay APIs. A Trigger with an uninhabited argument or false gate
+remains dormant. The loader rechecks every active declaration as the closure grows, so activating a
+Trigger domain can make its constructive body reachable later.
 
 Reachability currently proves exact facts from uninhabited Count domains through `AND` and `OR`
 Requirements. Thus Vitor can remain active in solo while its `Class<Award>`-gated Mandate and the
@@ -449,8 +450,10 @@ entire Award domain remain uninhabited. Anything the analysis cannot prove unrea
 conservatively reachable. Known declarations outside the closure become uninhabited when the
 projection freezes.
 
-Activation requirements and premise viability remain the next parts of the policy specified in
-[OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
+An activation requirement prevents a hard reference from activating its Class until the named
+Module condition holds. After closure, premise construction rejects selected Definitions whose
+Requirement-valued entry condition is exactly false or whose reachable mandatory removal targets
+an uninhabited Type. See [OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
 
 ## 12. Known divergences
 

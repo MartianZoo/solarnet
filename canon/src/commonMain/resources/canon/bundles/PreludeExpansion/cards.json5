@@ -6,7 +6,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "44, PROD[3]",
-      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed<>" ],
     },
 
     {
@@ -28,9 +28,10 @@
     {
       "name": "ValleyTrust",
       "deck": "CORPORATION",
+      "activationRequirement": "PreludeDeck",
       "tags": [ "EarthTag" ],
       "immediate": "37, Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }",
-      "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<>" ],
     },
 
     {
@@ -118,14 +119,14 @@
     {
       "name": "ExcentricSponsor",
       "deck": "PRELUDE",
-      "immediate": "PlayCard THEN -25 Owed<Class<Megacredit>>.",
+      "immediate": "PlayCard THEN -25 Owed<>.",
     },
 
     {
       "name": "ExperimentalForest",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "GreeneryTile<>, 2 ProjectCard",
+      "immediate": "GreeneryTile<>, CARDS[2 ProjectCard(HAS PlantTag)]",
     },
 
     {
@@ -276,7 +277,7 @@
     {
       "name": "AcquiredSpaceAgency",
       "deck": "PRELUDE",
-      "immediate": "6 Titanium, 2 ProjectCard",
+      "immediate": "6 Titanium, CARDS[2 ProjectCard(HAS SpaceTag)]",
     },
 
     {
@@ -320,7 +321,7 @@
       "actions": [ "-> Microbe<This>" ],
       "effects": [
         "PlayTag<Class<PlantTag>>: AcceptFromCard<This>",
-        "PayFromCard<This>:: -2 Owed"
+        "PayFromCard<This>:: -2 Owed<>"
       ],
     },
 

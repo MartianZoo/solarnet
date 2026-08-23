@@ -39,7 +39,7 @@ internal class ApiTranslation(
     private val timeline: Timeline,
     private val impl: Implementations,
     private val tasks: TaskQueue,
-    classTable: ClassTable,
+    private val classTable: ClassTable,
     xers: Transformers,
     vocabulary: Vocabulary,
     private val atomicOperationBoundary: AtomicOperationBoundary,
@@ -49,7 +49,7 @@ internal class ApiTranslation(
     set(newMode) {
       if (newMode != field) {
         field = newMode
-        autoExecNow()
+        autoExecAtomically()
       }
     }
 
@@ -66,7 +66,7 @@ internal class ApiTranslation(
     val allComponents: Multiset<Type> = reader.getComponents(typeToList)
 
     val result = HashMultiset<Expression>()
-    typeToList.rootClass.directSubclasses().forEach { sub ->
+    classTable.directSubclasses(typeToList.rootClass).forEach { sub ->
       val matches = allComponents.filter { it.isSubtypeOf(sub.baseType) }
       if (matches.any()) {
         @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<Type>
@@ -150,18 +150,23 @@ internal class ApiTranslation(
 
     override fun doTask(revised: String, taskNumber: Int?) {
       this@ApiTranslation.doTask(revised, taskNumber)
+      impl.autoExecNow(autoExecMode)
     }
 
     override fun tryTask(revised: String, taskNumber: Int?) {
       this@ApiTranslation.tryTask(revised, taskNumber)
+      impl.autoExecNow(autoExecMode)
     }
 
     override fun autoExecNow() {
-      atomic {}
+      impl.autoExecNow(autoExecMode)
     }
   }
 
   override fun autoExecNow() = atomic {}
+
+  private fun autoExecAtomically(): TaskResult =
+      atomicOperationBoundary.run({ impl.autoExecNow(autoExecMode) }) {}
 
   // TURNS
 
@@ -208,11 +213,9 @@ internal class ApiTranslation(
   override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
 
   // autoExecNow() and cross-Actor gameplay calls can re-enter this boundary. Its depth is shared
-  // by every Actor in the world so only the true outermost operation reports completion.
-  fun atomic(block: () -> Unit): TaskResult = atomicOperationBoundary.run {
-    block()
-    impl.autoExecNow(autoExecMode)
-  }
+  // by every Actor in the world so only the true outermost operation drains and reports completion.
+  fun atomic(block: () -> Unit): TaskResult =
+      atomicOperationBoundary.run(block) { impl.autoExecNow(autoExecMode) }
 
   private data class ParsedTaskRevision(
       val instruction: InstructionTree,

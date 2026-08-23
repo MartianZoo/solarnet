@@ -12,7 +12,7 @@ import kotlin.test.Test
 class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
   fun `MSL Curiosity bonus is inert without Colonies`() {
-    newGame(TerraCimmeriaMapOption)
+    newGame(Cimmeria)
     p1.manual("10")
 
     p1.manual("CityTile<Cimmeria_3_3>")
@@ -25,7 +25,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `MSL Curiosity bonus can buy a colony with Colonies`() {
     newGame(
         ColoniesExpansion,
-        TerraCimmeriaMapOption,
+        Cimmeria,
         colonyTiles = testColonyTiles(2),
     )
     p1.manual("10")
@@ -40,7 +40,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
 
   @Test
   fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
-    newGame(UtopiaPlanitiaMapOption)
+    newGame(Utopia)
     val p2 = requireP2()
     p1.manual("8, $Ecoline, $EarthCatapult, Asteroid")
     p2.manual("$Mine")
@@ -55,7 +55,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
 
   @Test
   fun `Suburbian rewards a tile on the map edge over an interior tile`() {
-    newGame(UtopiaPlanitiaMapOption)
+    newGame(Utopia)
     val p2 = requireP2()
     p1.manual("8, CityTile<Utopia_1_1>")
     p2.manual("CityTile<Utopia_5_5>")
@@ -70,7 +70,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
 
   @Test
   fun `Founder counts a tile once when it neighbors multiple opponents' special tiles`() {
-    newGame(TerraCimmeriaMapOption)
+    newGame(Cimmeria)
     val p2 = requireP2()
     p1.manual("8, CityTile<Cimmeria_3_3>")
     p2.manual("MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>")
@@ -88,7 +88,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
 
   @Test
   fun `Claims Metallurgist for combined metal production and Trader for three resource types`() {
-    newGame(UtopiaPlanitiaMapOption)
+    newGame(Utopia)
     p1.manual(
         "16, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
             "$Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
@@ -103,7 +103,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
 
   @Test
   fun `Fundraiser requires printed megacredit production of twelve`() {
-    newGame(TerraCimmeriaMapOption)
+    newGame(Cimmeria)
     p1.manual("PROD[11 Megacredit]")
 
     shouldThrow<RequirementException> { p1.manual("Fundraiser") }

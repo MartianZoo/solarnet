@@ -65,7 +65,7 @@ class Game20260619Test : AbstractFullGameTest() {
       // KB placed ocean tile at 13
       // KB drew 2 card(s)
       // You drew Physics Complex,Vesta Shipyard
-      playPrelude(AquiferTurbines) { doTask("OceanTile<Tharsis_2_6>") }.expect("2 ProjectCard, TR")
+      playPrelude(AquiferTurbines) { placeTile(2, 6) }.expect("2 ProjectCard, TR")
 
       // KB played Eccentric Sponsor
       // KB played Beam From A Thorium Asteroid
@@ -107,8 +107,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER placed ocean tile at 28
     // ER gained 2 plants
     ER.turn {
-      playProject(SubterraneanReservoir, 11) { doTask("OceanTile<Tharsis_4_8>") }
-          .expect("TR, 2 Plant")
+      playProject(SubterraneanReservoir, 11) { placeTile(4, 8) }.expect("TR, 2 Plant")
 
       // ER passed
       pass()
@@ -157,8 +156,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Immigrant City
     ER.turn {
-      playProject(RestrictedArea, 11) { doTask("RestrictedArea_SpecialTile<Tharsis_3_7>") }
-          .expect("-7, Steel")
+      playProject(RestrictedArea, 11) { placeTile(3, 7) }.expect("-7, Steel")
       cardAction1(RestrictedArea)
     }
 
@@ -227,7 +225,7 @@ class Game20260619Test : AbstractFullGameTest() {
       // ER placed greenery tile at 19
       // ER gained 2 M€ from 1 ocean(s)
       convertPlants {
-        doTask("GreeneryTile<Tharsis_3_6>")
+        placeTile(3, 6)
       }
     }
 
@@ -245,7 +243,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER gained 2 plants
     // ER gained 2 M€ from 1 ocean(s)
     ER.turn {
-      playProject(NuclearZone, 7) { doTask("NuclearZone_SpecialTile<Tharsis_5_9>") }
+      playProject(NuclearZone, 7) { placeTile(5, 9) }
 
       // ER played Lagrange Observatory
       // ER drew 1 card(s)
@@ -346,7 +344,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // You drew Large Convoy
     // ER ended turn
     ER.turn {
-      playProject(MoholeArea, 18, steel = 1) { doTask("MoholeArea_SpecialTile<Tharsis_1_4>") }
+      playProject(MoholeArea, 18, steel = 1) { placeTile(1, 4) }
     }
 
     // KB played Ore Processor

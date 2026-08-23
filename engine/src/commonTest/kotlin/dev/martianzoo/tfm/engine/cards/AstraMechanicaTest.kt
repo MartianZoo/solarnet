@@ -12,7 +12,11 @@ class AstraMechanicaTest : CardTest() {
     engine.phase("Action")
     p1.manual("7 Megacredit, ProjectCard")
 
-    p1.playProject(AstraMechanica, 7) { doTask("Ok") }.expect("-7, -ProjectCard")
+    p1.playProject(AstraMechanica, 7) {
+          // Decline retrieving played events.
+          declineTask()
+        }
+        .expect("-7, -ProjectCard")
 
     p1.assertCounts(1 to "$AstraMechanica", 0 to "PlayedEvent")
   }

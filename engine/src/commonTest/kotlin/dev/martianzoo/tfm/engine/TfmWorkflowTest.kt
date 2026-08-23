@@ -5,7 +5,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.HellasMapOption
+import dev.martianzoo.tfm.engine.TestOption.Hellas
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -15,7 +15,7 @@ import kotlin.test.Test
 class TfmWorkflowTest {
   @Test
   fun turnDeclinesAnUnusedSecondAction() {
-    val game = Engine.newGame(canonicalPremise(HellasMapOption, PromoCardPack, players = 2))
+    val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -34,7 +34,7 @@ class TfmWorkflowTest {
 
   @Test
   fun soleRemainingPlayerDoesNotReceiveSecondActions() {
-    val game = Engine.newGame(canonicalPremise(HellasMapOption, PromoCardPack, players = 2))
+    val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

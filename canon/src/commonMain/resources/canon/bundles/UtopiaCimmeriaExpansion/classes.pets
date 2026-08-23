@@ -1,10 +1,12 @@
-"Uses the Utopia Planitia board and its map-specific rules and content"
-CLASS UtopiaPlanitiaMapOption : MarsMapOption
-
-"Uses the Terra Cimmeria board and its map-specific rules and content"
-CLASS TerraCimmeriaMapOption : MarsMapOption
-
 "Terra Cimmeria's MSL Curiosity placement bonus; its colony branch exists only with Colonies"
 CLASS TcColonyBonus : Signal {
   This IF Class<ColoniesExpansion>: Colony<>, -5
 }
+
+CLASS UtopiaDefaultMilestones : Module
+
+CLASS UtopiaDefaultAwards : Module
+
+CLASS CimmeriaDefaultMilestones : Module
+
+CLASS CimmeriaDefaultAwards : Module

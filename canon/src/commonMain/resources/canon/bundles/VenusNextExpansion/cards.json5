@@ -14,7 +14,7 @@
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
       "resourceType": "Floater",
-      "immediate": "42, Mandate { -> 2 ProjectCard }",
+      "immediate": "42, Mandate { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }",
       "actions": [ "-> Floater" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
     },
@@ -31,8 +31,8 @@
       "name": "MorningStarInc",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
-      "immediate": "50, Mandate { -> 3 ProjectCard }",
-      "effects": [ "PlayCard: -2 Required<Class<VenusStep>>." ],
+      "immediate": "50, Mandate { -> CARDS[3 ProjectCard(HAS VenusTag)] }",
+      "effects": [ "PlayCard:: -2 Required<Class<VenusStep>>." ],
     },
 
     {
@@ -150,7 +150,7 @@
       "actions": [ "-> Floater" ],
       "effects": [
         "PlayTag<Class<VenusTag>>: AcceptFromCard<This>",
-        "PayFromCard<This>:: -3 Owed"
+        "PayFromCard<This>:: -3 Owed<>"
       ],
     },
 
@@ -378,7 +378,7 @@
       "resourceType": "Asteroid",
       "actions": [
         // 6[Titanium] -> Asteroid<This>
-        "-> 6 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
+        "-> 6 Owed<> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
     },
@@ -544,7 +544,7 @@
       "cost": 9,
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>:: -2 Owed<Class<Megacredit>>",
+        "PlayTag<Class<VenusTag>>:: -2 Owed<>",
         "End: VictoryPoint"
       ],
     },

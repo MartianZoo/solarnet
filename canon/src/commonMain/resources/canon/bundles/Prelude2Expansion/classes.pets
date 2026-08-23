@@ -1,4 +1,4 @@
 "Expansion adding active preludes and cards that combine Prelude with other expansions"
-CLASS Prelude2Expansion : Module {
-  HAS =1 Class<PreludeSetup>, =1 Class<PreludePhase>
+CLASS Prelude2Expansion : PreludeDeck {
+  This:: PreludeExpansion.
 }

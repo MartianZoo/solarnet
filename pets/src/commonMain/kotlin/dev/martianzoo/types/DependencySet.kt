@@ -94,12 +94,12 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   override val abstract: Boolean = deps.any { it.abstract }
 
-  internal val phantom: Boolean = deps.any {
-    it.boundClass.phantom ||
-        when (it) {
-          is TypeDependency -> it.boundType.phantom
-          is ComplementDependency -> it.domainType.phantom
-          else -> false
+  internal fun activeIn(table: ClassTable): Boolean = deps.all { dependency ->
+    table.isActive(dependency.boundClass) &&
+        when (dependency) {
+          is TypeDependency -> table.isActive(dependency.boundType)
+          is ComplementDependency -> table.isActive(dependency.domainType)
+          else -> true
         }
   }
 
@@ -255,6 +255,39 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     }
   }
 
+  internal fun concreteSubtypesSameClass(type: Type, table: ClassTable): Sequence<Type> {
+    return if (isForClassType(deps)) {
+      table.allSubclasses(getClassForClassType(deps)).asSequence().filterNot(Class::abstract).map {
+        it.classType
+      }
+    } else {
+      keys.fold(sequenceOf(type)) { types, key ->
+        types.flatMap { candidate ->
+          val dependency = candidate.dependencies.get(key)
+          if (!dependency.abstract) return@flatMap sequenceOf(candidate)
+          val concreteDependencies =
+              when (dependency) {
+                is TypeDependency ->
+                    table.allConcreteSubtypes(dependency.boundType).map {
+                      dependency.copy(boundType = it)
+                    }
+                is ComplementDependency ->
+                    table
+                        .allConcreteSubtypes(dependency.domainType)
+                        .filterNot { it.isSubtypeOf(dependency.excludedType) }
+                        .map { TypeDependency(dependency.key, it) }
+                else -> error("unexpected dependency: $dependency")
+              }
+          concreteDependencies.map { concrete ->
+            candidate.rootClass.withAllDependencies(
+                candidate.dependencies.replaceAt(DependencyPath(key), concrete)
+            )
+          }
+        }
+      }
+    }
+  }
+
   internal fun singleConcreteSubtype(info: TypeInfo): DependencySet? {
     if (isForClassType(deps)) {
       val abstractClass = getClassForClassType(deps)
@@ -272,6 +305,32 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
             is ComplementDependency ->
                 dependency.domainType
                     .allConcreteSubtypes()
+                    .filter { dependency.matches(it, info) }
+                    .map { TypeDependency(dependency.key, it) }
+                    .singleOrNull()
+            else -> error("unexpected dependency: $dependency")
+          } ?: return null
+        }
+    )
+  }
+
+  internal fun singleConcreteSubtype(info: TypeInfo, table: ClassTable): DependencySet? {
+    if (isForClassType(deps)) {
+      val abstractClass = getClassForClassType(deps)
+      val concreteClass = table.allSubclasses(abstractClass).singleOrNull { !it.abstract }
+      return concreteClass?.let { depsForClassType(it) }
+    }
+
+    return of(
+        deps.map { dependency ->
+          when (dependency) {
+            is TypeDependency ->
+                table.singleConcreteSubtype(dependency.boundType, info)?.let {
+                  dependency.copy(boundType = it)
+                }
+            is ComplementDependency ->
+                table
+                    .allConcreteSubtypes(dependency.domainType)
                     .filter { dependency.matches(it, info) }
                     .map { TypeDependency(dependency.key, it) }
                     .singleOrNull()

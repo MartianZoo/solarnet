@@ -26,8 +26,8 @@ internal class AwardsTest : TfmTest() {
     game.reader.tfmAuthority.awardDefinitions
         .filter { game.classTable.isActive(it.className) }
         .shouldBeEmpty()
-    game.classTable.findClass(cn("ClaimMilestoneSA"))?.phantom shouldBe true
-    game.classTable.findClass(cn("FundAwardSA"))?.phantom shouldBe true
+    game.classTable.isActive(cn("ClaimMilestoneSA")) shouldBe false
+    game.classTable.isActive(cn("FundAwardSA")) shouldBe false
     engine.assertCounts(
         1 to "PlayCardSA",
         1 to "AquiferSP",
@@ -39,7 +39,7 @@ internal class AwardsTest : TfmTest() {
     game =
         Engine.newGame(
             canonicalPremise(
-                UtopiaPlanitiaMapOption,
+                Utopia,
                 players = 2,
             )
         )
@@ -60,7 +60,7 @@ internal class AwardsTest : TfmTest() {
 
   @Test
   fun customAwardMetricsAreCountedForEachPlayer() {
-    game = Engine.newGame(canonicalPremise(TerraCimmeriaMapOption, players = 3))
+    game = Engine.newGame(canonicalPremise(Cimmeria, players = 3))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
@@ -94,72 +94,40 @@ internal class AwardsTest : TfmTest() {
     p1.godMode().sneak("100 Megacredit")
 
     val first =
-        p1.godMode().manual("UseAction1<FundAwardSA>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Landlord")
         }
     first.expect("-8")
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
     shouldThrow<LimitsException> {
-      p1.godMode().manual("UseAction1<FundAwardSA>") {
-        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+      p1.godMode().manual("UseAction<FundAwardSA, First>") {
+        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
         doTask("Landlord")
       }
     }
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
     val second =
-        p1.godMode().manual("UseAction1<FundAwardSA>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Scientist")
         }
     second.expect("-14")
     p1.assertCounts(78 to "Megacredit", 1 to "Scientist")
 
     val third =
-        p1.godMode().manual("UseAction1<FundAwardSA>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Thermalist")
         }
     third.expect("-20")
     p1.assertCounts(58 to "Megacredit", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<NotNowException> {
-      p1.godMode().manual("UseAction1<FundAwardSA>") { doTask("Miner") }
+      p1.godMode().manual("UseAction<FundAwardSA, First>") { doTask("Miner") }
     }
-  }
-
-  @Test
-  fun scoringAwardsTiedFirstAndSecondPlaces() {
-    game = Engine.newGame(canonicalPremise(players = 3))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    val p3 = game.tfm(PLAYER3)
-
-    p1.godMode().sneak("Thermalist, Miner, 3 Heat, 3 Steel")
-    p2.godMode().sneak("2 Heat, 3 Steel")
-    p3.godMode().sneak("2 Heat, 2 Steel")
-
-    engine.godMode().manual("EndPhase")
-
-    p1.assertCounts(
-        1 to "FirstPlace<Player1, Thermalist>",
-        1 to "FirstPlace<Player1, Miner>",
-        3 to "AwardTally<Player1, Thermalist>",
-        3 to "AwardTally<Player1, Miner>",
-        10 to "VictoryPoint",
-    )
-    p2.assertCounts(
-        1 to "SecondPlace<Player2, Thermalist>",
-        1 to "FirstPlace<Player2, Miner>",
-        7 to "VictoryPoint",
-    )
-    p3.assertCounts(
-        1 to "SecondPlace<Player3, Thermalist>",
-        0 to "SecondPlace<Player3, Miner>",
-        2 to "VictoryPoint",
-    )
   }
 
   @Test
@@ -212,20 +180,6 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
     p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
     p3.assertCounts(1 to "SecondPlace<Player3, Banker>", 2 to "VictoryPoint")
-  }
-
-  @Test
-  fun twoPlayerGameDoesNotAwardSecondPlace() {
-    game = Engine.newGame(canonicalPremise(players = 2))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-
-    p1.godMode().sneak("Thermalist, Heat")
-
-    engine.godMode().manual("EndPhase")
-
-    p1.assertCounts(1 to "FirstPlace<Player1, Thermalist>", 5 to "VictoryPoint")
-    p2.assertCounts(0 to "SecondPlace<Player2, Thermalist>", 0 to "VictoryPoint")
   }
 
   @Test

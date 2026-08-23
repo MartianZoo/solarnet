@@ -6,17 +6,22 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassProperties.ACTIVATION_REQUIREMENT
+import dev.martianzoo.data.ClassProperties.AUTOMATIC_SELECTION_REQUIREMENT
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.ModuleProperties.AUTO_SELECT_WHEN
+import dev.martianzoo.data.ModuleProvenance
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind
 import dev.martianzoo.tfm.data.AwardDefinition
@@ -34,6 +39,8 @@ public open class TfmAuthority : Authority {
   final override val classTable: ClassTable by lazy {
     ClassLoader(this).loadEverything().also(::validateCardTags)
   }
+
+  private val universe: ClassTable by lazy { classTable }
 
   private fun validateCardTags(table: ClassTable) {
     val tagClass = table.findClass(TAG_CLASS) ?: return
@@ -87,11 +94,20 @@ public open class TfmAuthority : Authority {
       modules.keys
           .filter { moduleName -> moduleName !in included && moduleName !in explicitlyExcluded }
           .forEach { moduleName ->
-            val property = classTable.getClass(moduleName).properties[AUTO_SELECT_WHEN]
+            val property = universe.getClass(moduleName).properties[AUTO_SELECT_WHEN]
             val requirement = (property as? RequirementValue)?.value ?: return@forEach
             if (requirement.isMetBy { metric -> countConfigured(metric, included) }) {
               changed = included.add(moduleName) || changed
             }
+          }
+      included
+          .filter { it in modules }
+          .flatMap { source -> constructivelySelectedModules(source, included) }
+          .forEach { target ->
+            require(target !in explicitlyExcluded) {
+              "active Module provenance selects excluded Module $target"
+            }
+            changed = included.add(target) || changed
           }
     } while (changed)
 
@@ -133,7 +149,7 @@ public open class TfmAuthority : Authority {
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(included) }
+            .filter { it.included && it.appliesTo(included, universe) }
             .mapTo(hashSetOf(), ClassSelection::className)
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "initial ColonyTiles must be provided by a selected Module"
@@ -147,13 +163,27 @@ public open class TfmAuthority : Authority {
     )
   }
 
+  /** Module gains on an active Module's own creation are forward selection provenance. */
+  private fun constructivelySelectedModules(
+      source: ClassName,
+      configuredClassNames: Set<ClassName>,
+  ): Set<ClassName> =
+      ModuleProvenance.gains(universe.getClass(source).declaration)
+          .filter { gain ->
+            gain.target in modules &&
+                gain.requirements.all { requirement ->
+                  requirement.isMetBy { metric -> countConfigured(metric, configuredClassNames) }
+                }
+          }
+          .mapTo(linkedSetOf()) { it.target }
+
   private fun countConfigured(metric: Metric, configuredClassNames: Set<ClassName>): Int {
     require(metric is Count && metric.expression.simple) {
       "Module defaults must count simple classes: $metric"
     }
-    val countedClass = classTable.getClass(metric.expression.className)
+    val countedClass = universe.getClass(metric.expression.className)
     return configuredClassNames.count { configuredName ->
-      classTable.getClass(configuredName).isSubtypeOf(countedClass)
+      universe.getClass(configuredName).isSubtypeOf(countedClass)
     }
   }
 
@@ -185,7 +215,7 @@ public open class TfmAuthority : Authority {
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
     explicitClassDeclarations.toList() +
         allDefinitions.map(Definition::asClassDeclaration) +
-        cardDefinitions.flatMap(CardDefinition::extraClasses)
+        cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
   }
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
@@ -240,7 +270,20 @@ public open class TfmAuthority : Authority {
         .filter { declaration ->
           !declaration.abstract && isSubtypeOf(declaration.className, MODULE_CLASS)
         }
-        .associate { declaration -> declaration.className to selectionsFor(declaration.className) }
+        .associate { declaration ->
+          val provenanceSelections =
+              ModuleProvenance.gains(declaration)
+                  .filter { gain -> isSubtypeOf(gain.target, MODULE_CLASS) }
+                  .mapTo(linkedSetOf()) { gain ->
+                    ClassSelection(
+                        gain.target,
+                        requirement =
+                            if (gain.requirements.isEmpty()) null
+                            else And.create(gain.requirements),
+                    )
+                  }
+          declaration.className to (selectionsFor(declaration.className) + provenanceSelections)
+        }
   }
 
   private fun selectionsFor(moduleName: ClassName): Set<ClassSelection> {
@@ -251,51 +294,104 @@ public open class TfmAuthority : Authority {
       "Module $moduleName has ambiguous bundle ownership: ${owners.map(Bundle::bundleName)}"
     }
     val owner = owners.singleOrNull() ?: return emptySet()
+    val groupedMilestones = owner.milestoneDefinitions.filter { it.selectionGroup == moduleName }
+    val groupedAwards = owner.awardDefinitions.filter { it.selectionGroup == moduleName }
+    if (groupedMilestones.isNotEmpty() || groupedAwards.isNotEmpty()) {
+      return buildSet {
+        addDefinitions(groupedMilestones)
+        addReplacementExclusions(
+            groupedMilestones,
+            milestoneDefinitions,
+            MilestoneDefinition::className,
+            MilestoneDefinition::replaces,
+        )
+        addDefinitions(groupedAwards)
+        addReplacementExclusions(
+            groupedAwards,
+            awardDefinitions,
+            AwardDefinition::className,
+            AwardDefinition::replaces,
+        )
+      }
+    }
+    owner.marsMapDefinitions
+        .singleOrNull { it.className == moduleName }
+        ?.let { map ->
+          return buildSet {
+            add(ClassSelection(map.className))
+            map.areas.forEach { area -> add(ClassSelection(area.className)) }
+          }
+        }
     val contentSelections =
-        owner.moduleContentSelections[moduleName] ?: setOf(BundleContentSelection(owner.bundleName))
+        owner.moduleContentSelections[moduleName]
+            ?: if (moduleName == owner.bundleName) {
+              setOf(
+                  BundleContentSelection(
+                      owner.bundleName,
+                      setOf(Kind.CARDS, Kind.COLONY_TILES),
+                  )
+              )
+            } else {
+              emptySet()
+            }
     val bundlesByName = bundles.associateByStrict(Bundle::bundleName)
     val selections =
         contentSelections.flatMapTo(linkedSetOf()) { content ->
           require(content.bundleName in bundlesByName) {
             "Module $moduleName selects unknown bundle ${content.bundleName}"
           }
-          selectionsFrom(bundlesByName.getValue(content.bundleName), content.kinds)
+          selectionsFrom(bundlesByName.getValue(content.bundleName), content)
         }
     return selections
   }
 
-  private fun selectionsFrom(bundle: Bundle, kinds: Set<Kind>): Set<ClassSelection> = buildSet {
+  private fun selectionsFrom(
+      bundle: Bundle,
+      selection: BundleContentSelection,
+  ): Set<ClassSelection> = buildSet {
+    val kinds = selection.kinds
     if (Kind.CARDS in kinds) {
-      addDefinitions(bundle.cardDefinitions)
+      val selectedCards =
+          bundle.cardDefinitions.filter { card ->
+            selection.cardDecks == null || card.deck in selection.cardDecks
+          }
+      addDefinitions(selectedCards)
       addReplacementExclusions(
-          bundle.cardDefinitions,
+          selectedCards,
           cardDefinitions,
           CardDefinition::className,
           CardDefinition::replaces,
       )
     }
-    if (Kind.STANDARD_ACTIONS in kinds) addDefinitions(bundle.standardActionDefinitions)
     if (Kind.MAPS in kinds) {
       bundle.marsMapDefinitions.forEach { map ->
-        add(ClassSelection(map.className, requirement = map.setupRequirement))
+        val requirement = automaticSelectionRequirement(map)
+        add(ClassSelection(map.className, requirement = requirement))
         map.areas.forEach { area ->
-          add(ClassSelection(area.className, requirement = map.setupRequirement))
+          add(
+              ClassSelection(
+                  area.className,
+                  requirement = Requirement.join(requirement, automaticSelectionRequirement(area)),
+              )
+          )
         }
       }
     }
     if (Kind.MILESTONES in kinds) {
-      addDefinitions(bundle.milestoneDefinitions)
+      val definitions = bundle.milestoneDefinitions.filter { it.selectionGroup == null }
+      addDefinitions(definitions)
       addReplacementExclusions(
-          bundle.milestoneDefinitions,
+          definitions,
           milestoneDefinitions,
           MilestoneDefinition::className,
           MilestoneDefinition::replaces,
       )
     }
     if (Kind.AWARDS in kinds) {
-      addDefinitions(bundle.awardDefinitions)
+      val definitions = bundle.awardDefinitions.filter { it.selectionGroup == null }
+      addDefinitions(definitions)
       addReplacementExclusions(
-          bundle.awardDefinitions,
+          definitions,
           awardDefinitions,
           AwardDefinition::className,
           AwardDefinition::replaces,
@@ -306,8 +402,30 @@ public open class TfmAuthority : Authority {
 
   private fun MutableSet<ClassSelection>.addDefinitions(definitions: Collection<Definition>) {
     definitions.mapTo(this) { definition ->
-      ClassSelection(definition.className, requirement = definition.setupRequirement)
+      ClassSelection(
+          definition.className,
+          requirement = automaticSelectionRequirement(definition),
+      )
     }
+  }
+
+  private fun automaticSelectionRequirement(definition: Definition): Requirement? {
+    val declarations =
+        listOf(definition.asClassDeclaration) +
+            if (definition is CardDefinition) definition.extraClasses else emptyList()
+    val referencedClassNames =
+        declarations
+            .flatMap { it.allNodes }
+            .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
+            .filter { it != definition.className && it in allClassNames }
+    val derived = referencedClassNames.flatMap { className ->
+      val properties = universe.getClass(className).properties
+      listOfNotNull(
+          (properties[AUTOMATIC_SELECTION_REQUIREMENT] as? RequirementValue)?.value,
+          (properties[ACTIVATION_REQUIREMENT] as? RequirementValue)?.value,
+      )
+    }
+    return derived.fold(definition.automaticSelectionRequirement, Requirement::join)
   }
 
   private fun <D : Definition> MutableSet<ClassSelection>.addReplacementExclusions(
@@ -325,7 +443,7 @@ public open class TfmAuthority : Authority {
             ClassSelection(
                 className = replaced.className,
                 included = false,
-                requirement = replacement.setupRequirement,
+                requirement = automaticSelectionRequirement(replacement),
             )
         )
         target = replaces(replaced)
@@ -340,7 +458,7 @@ public open class TfmAuthority : Authority {
     val selectedDefinitionNames =
         moduleNames
             .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(configuredClassNames) }
+            .filter { it.included && it.appliesTo(configuredClassNames, universe) }
             .mapTo(hashSetOf(), ClassSelection::className)
     validateSelectedReplacements(
         cardDefinitions.filter { it.className in selectedDefinitionNames },

@@ -69,8 +69,8 @@ class BugsTest : CardTest() {
         shouldThrow<AbstractException> {
           p1.playPrelude(FakeEstablishedMethods) {
             p1.manual("-20")
-            doTask("UseAction1<UseStandardProjectSA>")
-            doTask("UseAction1<GreenerySP>")
+            doTask("UseAction<UseStandardProjectSA, First>")
+            doTask("UseAction<GreenerySP, First>")
             p1.autoExecNow()
           }
         }
@@ -86,12 +86,12 @@ class BugsTest : CardTest() {
 
     p1.playPrelude(HeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
-      doTask("UseAction1<UseStandardProjectSA>")
-      doTask("UseAction1<ConvertHeatSA>")
+      doTask("UseAction<UseStandardProjectSA, First>")
+      doTask("UseAction<ConvertHeatSA, First>")
       doTask("8 Pay<Class<Heat>> FROM Heat")
-      doTask("UseAction1<AquiferSP>")
+      doTask("UseAction<AquiferSP, First>")
       doTask("18 Pay<Class<Megacredit>> FROM Megacredit")
-      doTask("OceanTile<Tharsis_5_5>")
+      placeTile(5, 5)
     }
   }
 
@@ -112,7 +112,10 @@ class BugsTest : CardTest() {
     p1.manual("$MonsInsurance, 10 Megacredit")
     p2.manual("5 Megacredit")
 
-    p1.manual("3 Megacredit FROM Megacredit<Player2>?") { doTask("Ok") }
+    p1.manual("3 Megacredit FROM Megacredit<Player2>?") {
+          // Decline taking Player 2's megacredits.
+          declineTask()
+        }
         .expect("0 Megacredit<Player1>, 0 Megacredit<Player2>")
   }
 
@@ -121,7 +124,7 @@ class BugsTest : CardTest() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     val p2 = requireP2()
     engine.phase("Action")
-    p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.manual("ProjectCard, 5 Megacredit")
 
     p1.playProject(AirRaid, 0).expect("-Floater<$AtmoCollectors>, 0 Megacredit<Player1>")

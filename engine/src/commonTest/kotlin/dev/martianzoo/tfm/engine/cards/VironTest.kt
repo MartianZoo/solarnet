@@ -13,7 +13,7 @@ class VironTest : CardTest() {
   fun `Can repeat an action used earlier in the generation`() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
-    p1.cardAction1(Viron) { doTask("UseAction1<$AtmoCollectors>") }.expect("Floater")
+    p1.cardAction1(Viron) { doTask("UseAction<$AtmoCollectors, First>") }.expect("Floater")
   }
 
   @Test
@@ -23,7 +23,7 @@ class VironTest : CardTest() {
     p1.cardAction1(AtmoCollectors)
 
     p1.cardAction1(Viron) {
-          doTask("UseAction2<$AtmoCollectors>")
+          doTask("UseAction<$AtmoCollectors, Second>")
           doTask("2 Titanium")
         }
         .expect("-Floater")
@@ -34,7 +34,7 @@ class VironTest : CardTest() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
     p1.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction1<$Viron>") }
+      shouldThrow<NarrowingException> { doTask("UseAction<$Viron, First>") }
       abort()
     }
   }
@@ -46,7 +46,7 @@ class VironTest : CardTest() {
     p1.cardAction1(AtmoCollectors)
 
     p1.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction1<$ExtractorBalloons>") }
+      shouldThrow<NarrowingException> { doTask("UseAction<$ExtractorBalloons, First>") }
       abort()
     }
   }
@@ -61,12 +61,12 @@ class VironTest : CardTest() {
     val p2 = requireP2()
     engine.phase("Action")
     p1.manual("$Viron, $ExtractorBalloons")
-    p2.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p2.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.cardAction1(ExtractorBalloons)
     p2.cardAction1(AtmoCollectors)
 
     p1.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction1<$AtmoCollectors<Player2>>") }
+      shouldThrow<NarrowingException> { doTask("UseAction<$AtmoCollectors<Player2>, First>") }
       abort()
     }
   }
@@ -77,11 +77,11 @@ class VironTest : CardTest() {
     engine.phase("Action")
     p1.manual("$Viron, $Celestic")
     p1.stdAction("HandleMandates").expect("2 ProjectCard")
-    p1.cardAction1(Celestic) { doTask("Floater<$Celestic>") }
+    p1.cardAction1(Celestic) { addCardResources(Celestic) }
 
     p1.cardAction1(Viron) {
-      doTask("UseAction1<$Celestic>")
-      doTask("Floater<$Celestic>")
+      doTask("UseAction<$Celestic, First>")
+      addCardResources(Celestic)
     }
     p1.count("Floater<$Celestic>") shouldBe 2
   }
@@ -93,6 +93,6 @@ class VironTest : CardTest() {
         colonyTiles = testColonyTiles(2),
     )
     engine.phase("Action")
-    p1.manual("$Viron, $AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("$Viron, $AtmoCollectors") { addCardResources(AtmoCollectors) }
   }
 }

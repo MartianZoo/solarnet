@@ -35,6 +35,14 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  fun descDescribesAnAuthorityKnownInactiveType() {
+    val description = ScriptSession().command("desc VenusTag").single()
+
+    assertContains(description, "Class `VenusTag`:")
+    assertContains(description, "cmpt types:  0")
+  }
+
+  @Test
   fun execReportsThatOwnerLocalClassesCannotBeAddedToALiveGame() {
     assertEquals(
         listOf("New Class declarations are not allowed after the Class Table is frozen"),
@@ -57,20 +65,16 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
 
     assertEquals(listOf("0 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
-    repl.command("newgame BRM 2")
+    repl.command("newgame BR 2")
     assertEquals(listOf("1 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
-    assertEquals(
-        listOf("1 MilestonesAwardsExpansion"),
-        repl.command("count MilestonesAwardsExpansion"),
-    )
-    assertEquals(listOf("1 Tharsis"), repl.command("count Tharsis"))
+    assertEquals(listOf("1 TharsisMap"), repl.command("count TharsisMap"))
   }
 
   @Test
   fun optionCodesRequireBaseAndDoNotAcceptSolo() {
     val repl = ScriptSession()
 
-    assertTrue(repl.command("newgame M 2").any { it.contains("include B") })
+    assertTrue(repl.command("newgame R 2").any { it.contains("include B") })
     assertTrue(repl.command("newgame BSEI 1").any { it.contains("supported option codes") })
   }
 
@@ -81,12 +85,12 @@ internal class ScriptSessionTest {
     assertEquals(
         listOf(
             "New 2-player game created with config: " +
-                "MultiplayerMode, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
+                "MultiplayerMode, TerraformingMars, TharsisMap, VenusNextExpansion, " +
                 "-CorporateEraExpansion, -WorldGovernmentOption; players: Player1, Player2",
             "Purple mode: workflow active",
         ),
         repl.command(
-            "newgame \"MultiplayerMode, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
+            "newgame \"MultiplayerMode, TerraformingMars, TharsisMap, VenusNextExpansion, " +
                 "-CorporateEraExpansion, -WorldGovernmentOption\" Player1 Player2 purple"
         ),
     )
@@ -222,7 +226,7 @@ internal class ScriptSessionTest {
             .trimIndent(),
     )
     command(
-        "task UseAction1<ConvertHeatSA>",
+        "task UseAction<ConvertHeatSA, First>",
         """
         New tasks pending:
         * [Player2] X Pay<Player2, Class<Heat>> FROM Heat<Player2>? (abstract)
@@ -239,7 +243,7 @@ internal class ScriptSessionTest {
         "tfm_pay 8 Heat",
         """
         0000: +8 Pay<Player2, Class<Heat>> FROM Heat<Player2> BY Player2 VIA Accept<Player2, Class<Heat>> BECAUSE 0000
-        0000: +TemperatureStep BY Player2 VIA TerraformingMars BECAUSE 0000
+        0000: +TemperatureStep BY Player2 VIA ConvertHeatSA BECAUSE 0000
         0000: +TerraformRating<Player2> BY Player2 VIA TemperatureStep BECAUSE 0000
         """
             .trimIndent(),
@@ -278,7 +282,7 @@ internal class ScriptSessionTest {
         phase Action
 
         become Player1
-        turn; task UseAction1<PlayCardSA>; tfm_play InventorsGuild; tfm_pay 9
+        turn; task UseAction<PlayCardSA, First>; tfm_play InventorsGuild; tfm_pay 9
         """
             .trimIndent()
             .split(Regex(" *[\n;] *"))

@@ -1,25 +1,21 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
-  HAS =1 MarsMap, =1 Mode
+  HAS =1 Mode
   HAS =1 Class<Production>
   HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
+  HAS =1 Class<UseAction>, =1 Class<NewTurn>, =1 Class<SecondAction>
   autoSelectWhen = HAS MAX 0 TerraformingMars
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
+  This:: PlayCardSA, UseStandardProjectSA, UseCardActionSA, ConvertPlantsSA, ConvertHeatSA, SellPatents, HandleMandates
+  This IF Mode, MAX 0 MarsMap:: TharsisMap
 
-  SetupPhase IF 2 Player:: BeginGame
+  SetupPhase IF MultiplayerMode:: BeginGame
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
-  Pay<Class<Steel>>:: -2 Owed<Class<Megacredit>>
-  Pay<Class<Titanium>>:: -3 Owed<Class<Megacredit>>
-
-  CostPaid<Class<ConvertPlantsSA>>: GreeneryTile<>
-  CostPaid<Class<ConvertHeatSA>>: TemperatureStep
-  UseAction<ClaimMilestoneSA>:: 8 Owed<Class<Megacredit>>
-  CostPaid<Class<ClaimMilestoneSA>>: Milestone
-  UseAction<FundAwardSA>:: (=0 Award: 8 Owed<Class<Megacredit>>) OR (=1 Award: 14 Owed<Class<Megacredit>>) OR (=2 Award: 20 Owed<Class<Megacredit>>)
-  CostPaid<Class<FundAwardSA>>: Award
+  Pay<Class<Steel>>:: -2 Owed<>
+  Pay<Class<Titanium>>:: -3 Owed<>
 }
 
 // PLAYERS AND OWNERSHIP
@@ -40,7 +36,10 @@ ABSTRACT CLASS Player : Owner, Actor {
 // MAPS AND AREAS
 
 "Every game must have exactly one of these (Tharsis Map, etc.)"
-ABSTRACT CLASS MarsMap { HAS =1 This }
+ABSTRACT CLASS MarsMap : Module {
+  HAS =1 MarsMap
+  This:: CreateMapAreas<This>
+}
 
 "A hexagonal area where a tile can go"
 ABSTRACT CLASS Area {
@@ -69,6 +68,9 @@ ABSTRACT CLASS Area {
   "An area not on Mars (yes, it includes one for Stanford Torus)"
   ABSTRACT CLASS RemoteArea
 }
+
+"Creates every Area belonging to the selected map"
+CLASS CreateMapAreas<MarsMap> : Custom
 
 "A player's reservation of one land area"
 CLASS LandClaimMarker<LandArea> : Owned<Player> {
@@ -108,7 +110,7 @@ ABSTRACT CLASS Tile<Area> {
     HAS MAX 9 OceanTile
     DEFAULT +OceanTile<WaterArea>
 
-    This IF =9 OceanTile: GpComplete<Class<OceanTile>>
+    This IF =9 OceanTile:: GpComplete<Class<This>>
     ForwardAdjacency<This, Tile>: 2
   }
 }
@@ -129,7 +131,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     This IF =3 This: PROD[Heat]
     This IF =5 This: PROD[Heat]
     This IF =15 This: OceanTile<>
-    This IF =19 This: GpComplete<Class<TemperatureStep>>
+    This IF =19 This:: GpComplete<Class<This>>
   }
 
   "Represents a 1% increase in oxygen level"
@@ -137,7 +139,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     HAS MAX 14 This
 
     This IF =8 This: TemperatureStep
-    This IF =14 This: GpComplete<Class<OxygenStep>>
+    This IF =14 This:: GpComplete<Class<This>>
   }
 }
 
@@ -285,17 +287,20 @@ CLASS SecondPlace<Award> : Owned<Player> {
 // Any component that responds to `UseAction` signals
 ABSTRACT CLASS HasActions
 
-"A Signal a player sends to indicate an action they want to perform"
-ABSTRACT CLASS UseAction<HasActions> : Owned<Player>, Signal {
-  This: MAX 0 Mandate: Ok
+"Identifies one of the actions offered by a component"
+ABSTRACT CLASS WhichAction {
+  HAS =1 This
+  CLASS First, Second, Third
+}
 
-  "A component can offer up to three actions; the digit (1, 2, 3) indicates which one"
-  CLASS UseAction1, UseAction2, UseAction3
+"A Signal a player sends to indicate an action they want to perform"
+CLASS UseAction<HasActions, WhichAction> : Owned<Player>, Signal {
+  This: MAX 0 Mandate: Ok
 }
 
 ABSTRACT CLASS Mandate : Owned<Player>, HasActions {
   HAS MAX 1 This
-  MandateSignal: UseAction1<This>
+  MandateSignal: UseAction<This, First>
   MandateSignal: -This!
 }
 
@@ -317,38 +322,38 @@ ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
 ABSTRACT CLASS StandardProject : HasActions {
   HAS MAX 1 This
   cost = Number
-  UseAction<This>:: Owed<Class<Megacredit>> / This.cost
-  -> Payment<Class<This>>
+  UseAction<This>:: Owed<> / This.cost
+  -> Payment<This, First>
 }
 
 CLASS PowerPlantSP : StandardProject {
   cost = 11
-  CostPaid<Class<This>>: PROD[Energy]
+  CostPaid<This>: PROD[Energy]
 }
 
 CLASS AsteroidSP : StandardProject {
   cost = 14
-  CostPaid<Class<This>>: TemperatureStep
+  CostPaid<This>: TemperatureStep
 }
 
 CLASS BufferGasSP : StandardProject {
   cost = 16
-  CostPaid<Class<This>>: TerraformRating
+  CostPaid<This>: TerraformRating
 }
 
 CLASS AquiferSP : StandardProject {
   cost = 18
-  CostPaid<Class<This>>: OceanTile<>
+  CostPaid<This>: OceanTile<>
 }
 
 CLASS GreenerySP : StandardProject {
   cost = 23
-  CostPaid<Class<This>>: GreeneryTile<>
+  CostPaid<This>: GreeneryTile<>
 }
 
 CLASS CitySP : StandardProject {
   cost = 25
-  CostPaid<Class<This>>: PROD[1], CityTile<>
+  CostPaid<This>: PROD[1], CityTile<>
 }
 
 // PAY AND PLAY
@@ -360,7 +365,7 @@ CLASS BuyCard : Owned<Player>, Signal {
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
   This:: (EVAL CardFront.requirement: Ok) OR HandlePossibleGpRequirement<Class<CardFront>>
-  This:: Owed<Class<Megacredit>> / CardFront.cost
+  This:: Owed<> / CardFront.cost
   This:: HandleCardTags<Class<CardFront>>
   This: MAX 0 Barrier: CardFront FROM CardBack
 }
@@ -369,7 +374,8 @@ CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
 ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Temporary {
   CLASS Owed : Barrier {
-    DEFAULT -Owed.
+    DEFAULT +Owed<Class<Megacredit>>
+    DEFAULT -Owed<Class<Megacredit>>.
     X This:: Accept<Class<StandardResource>>
   }
 
@@ -394,12 +400,12 @@ CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>,
 CLASS PayFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal
 
 "Becomes a payment-specific signal when the owner's final debt is removed"
-CLASS Payment<Class<HasActions>> : Owned<Player>, Barrier {
-  -X Owed IF MAX 0 Owed: CostPaid<Class<HasActions>> FROM This
+CLASS Payment<HasActions, WhichAction> : Owned<Player>, Barrier {
+  -X Owed IF MAX 0 Owed:: CostPaid<HasActions, WhichAction> FROM This
 }
 
-"Signals that a specific payment has been completed"
-CLASS CostPaid<Class<HasActions>> : Owned<Player>, Signal
+"Signals that payment for one action offered by a specific component has been completed"
+CLASS CostPaid<HasActions, WhichAction> : Owned<Player>, Signal
 
 "A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational
@@ -422,7 +428,7 @@ ABSTRACT CLASS Phase : System {
   CLASS ProductionPhase
   CLASS SolarPhase
   CLASS FinalGreeneryPhase {
-    NewTurn: UseAction1<ConvertPlantsSA>?
+    NewTurn: UseAction<ConvertPlantsSA, First>?
   }
   CLASS EndPhase
 }
@@ -475,11 +481,6 @@ ABSTRACT CLASS Module : System {
   -This:: Die!
 }
 
-"A mutually exclusive board selection Module"
-ABSTRACT CLASS MarsMapOption : Module {
-  premiseRequirement = HAS =1 TerraformingMars
-}
-
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS Mode : Module {
   HAS MAX 1 Mode
@@ -487,9 +488,12 @@ ABSTRACT CLASS Mode : Module {
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
+    HAS 2 Player
     autoSelectWhen = HAS 2 Player
 
-    GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
+    This:: ClaimMilestoneSA, FundAwardSA
+
+    GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>:: LastCall.
     EndPhase: End THEN FinalScore
     FinalScore: MultiplayerVictoryCheck
   }
@@ -501,10 +505,13 @@ CLASS MultiplayerVictoryCheck : Custom
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
-  HAS =1 SoloVariant, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>
+  HAS =1 Player
   autoSelectWhen = HAS =1 Player
 
+  HAS =1 SoloVariant, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>, =1 Class<SoloVictoryCheck>
+
   This:: SoloOpponent
+  This IF MAX 0 Tr63SoloVariant:: StandardSoloVariant.
   SetupPhase:: GenerationSetup THEN BeginGame
   GenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
@@ -515,12 +522,10 @@ CLASS SoloMode : Mode {
 
 "Exactly one solo objective Module active in a solo game"
 ABSTRACT CLASS SoloVariant : Module {
-  HAS MAX 1 SoloVariant
+  HAS MAX 1 SoloVariant, =1 SoloMode
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloVariant {
-    autoSelectWhen = HAS SoloMode, MAX 0 Tr63SoloVariant
-
     SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
   }
 
@@ -566,18 +571,18 @@ CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
   HAS =1 This
   SetupPhase: 11 StandardResource
   SetupPhase: PROD[11 StandardResource]
-  -StandardResource BY Player: StandardResource BY Engine
-  StandardResource BY Player: -StandardResource BY Engine
-  PROD[-StandardResource] BY Player: PROD[StandardResource] BY Engine
-  PROD[StandardResource] BY Player: PROD[-StandardResource] BY Engine
+  -StandardResource BY Player:: StandardResource BY Engine
+  StandardResource BY Player:: -StandardResource BY Engine
+  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Engine
+  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Engine
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
 CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent> {
   HAS =1 This
   SetupPhase: 11 CardResource<This>
-  -CardResource<This> BY Player: CardResource<This> BY Engine
-  CardResource<This> BY Player: -CardResource<This> BY Engine
+  -CardResource<This> BY Player:: CardResource<This> BY Engine
+  CardResource<This> BY Player:: -CardResource<This> BY Engine
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created

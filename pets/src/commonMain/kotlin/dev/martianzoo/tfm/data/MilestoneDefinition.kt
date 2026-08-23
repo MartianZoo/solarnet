@@ -15,15 +15,18 @@ public data class MilestoneDefinition(
     override val className: ClassName,
     val replaces: ClassName? = null,
     @SerialName("requirement") val requirementText: String,
-    @SerialName("setupRequirement") private val setupRequirementText: String? = null,
+    @SerialName("automaticSelectionRequirement")
+    private val automaticSelectionRequirementText: String? = null,
+    override val selectionGroup: ClassName? = null,
 ) : Definition {
 
   init {
     require(requirementText.isNotEmpty())
-    require(setupRequirementText?.isNotBlank() != false)
+    require(automaticSelectionRequirementText?.isNotBlank() != false)
   }
 
-  override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
+  override val automaticSelectionRequirement: Requirement? =
+      automaticSelectionRequirementText?.let(::parse)
 
   public val requirement: Requirement = parse(requirementText)
 

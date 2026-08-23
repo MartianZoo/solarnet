@@ -57,7 +57,8 @@ class PharmacyUnionTest : CardTest() {
 
     manual.manual("$Research") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
-      doTask("Ok")
+      // Decline the second science tag's attempt to flip Pharmacy Union again.
+      declineTask()
       doTask("2 ProjectCard")
     }
 
@@ -79,7 +80,8 @@ class PharmacyUnionTest : CardTest() {
     manual.manual("$RegolithEaters") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
       doTask("-4 Megacredit")
-      doTask("Ok")
+      // Decline placing disease after Pharmacy Union has left play.
+      declineTask()
     }
 
     p1.count("Megacredit") shouldBe moneyBefore - 4

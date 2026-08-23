@@ -1,16 +1,16 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
-  premiseRequirement = HAS (=2 Player, =5 ColonyTile) OR =2 (ColonyTile - Player)
+  premiseRequirement = HAS (=1 Player, =3 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))
 
-  This:: BuildColonySP
+  This:: TradeSA, BuildColonySP
   SetupPhase: ColoniesSetup
-  SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
+  SetupPhase IF SoloMode: PROD[-2 Megacredit<Player1>]
   SolarPhase: AdvanceColonyTracks
 }
 
 CLASS BuildColonySP : StandardProject {
   cost = 17
-  CostPaid<Class<This>>: Colony<>
+  CostPaid<This>: Colony<>
 }
 
 "Creates the colony tiles and one trade fleet for each player"
@@ -18,6 +18,9 @@ CLASS ColoniesSetup : Custom
 
 "A colony tile, such as Pluto"
 ABSTRACT CLASS ColonyTile {
+  automaticSelectionRequirement = HAS ColoniesExpansion
+  activationRequirement = HAS ColoniesExpansion
+
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 FlownTradeFleet<This>
 
   This:: ColonyProduction<This>
@@ -28,8 +31,11 @@ ABSTRACT CLASS ColonyTile {
 
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned<Player> {
+  automaticSelectionRequirement = HAS ColoniesExpansion
+  activationRequirement = HAS ColoniesExpansion
+
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses: GiveColonyBonus<ColonyTile>
+  FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses:: GiveColonyBonus<ColonyTile>
 }
 
 // A player's trade fleet, either in reserve or flown to a ColonyTile this generation
@@ -69,6 +75,6 @@ CLASS AddColonyTile<Class<ColonyTile>> : Custom
 "If a ColonyTile gives card resources, one of these is created first instead"
 CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
   HAS MAX 1 This
-  This IF ResourceCard<Class<CardResource>>: ColonyTile FROM This
-  ResourceCard<Class<CardResource>>: ColonyTile FROM This
+  This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This
+  ResourceCard<Class<CardResource>>:: ColonyTile FROM This
 }

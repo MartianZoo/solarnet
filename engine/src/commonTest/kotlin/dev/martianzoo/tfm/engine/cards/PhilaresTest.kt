@@ -14,7 +14,7 @@ class PhilaresTest : CardTest() {
     engine.phase("Action")
 
     p1.stdProject("GreenerySP") {
-      doTask("GreeneryTile<Tharsis_4_3>")
+      placeTile(4, 3)
       p2.doTask("Titanium").expect("Titanium")
     }
   }
@@ -54,8 +54,7 @@ class PhilaresTest : CardTest() {
     p1.manual("$Philares")
     p1.manual("23")
     engine.phase("Action")
-    p1.stdAction("HandleMandates") { doTask("GreeneryTile<Tharsis_4_2>") }
-    p1.stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_3_2>") }
-        .expect("0 Steel, 0 Titanium")
+    p1.stdAction("HandleMandates") { placeTile(4, 2) }
+    p1.stdProject("GreenerySP") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")
   }
 }

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.tfm.data.CardDefinition.Deck
 
 /**
  * Bundle-wide content selected by a Module; individual definitions are deliberately unsupported.
@@ -8,11 +9,16 @@ import dev.martianzoo.pets.ast.ClassName
 public data class BundleContentSelection(
     public val bundleName: ClassName,
     public val kinds: Set<Kind> = Kind.entries.toSet(),
+    public val cardDecks: Set<Deck>? = null,
 ) {
+  init {
+    require(cardDecks?.isNotEmpty() != false)
+    require(cardDecks == null || Kind.CARDS in kinds)
+  }
+
   /** Independently selectable kinds of content contributed by a bundle. */
   public enum class Kind {
     CARDS,
-    STANDARD_ACTIONS,
     MAPS,
     MILESTONES,
     AWARDS,

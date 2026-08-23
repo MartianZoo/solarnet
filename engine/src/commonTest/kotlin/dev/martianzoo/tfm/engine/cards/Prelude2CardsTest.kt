@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.Prelude2Expansion
-import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -36,7 +35,7 @@ class Prelude2CardsTest : CardTest() {
   // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
   @Test
   fun `Prelude and Prelude 2 share one setup and phase`() {
-    newGame(PreludeExpansion, Prelude2Expansion)
+    newGame(Prelude2Expansion)
 
     engine.phase("Prelude")
 
@@ -55,7 +54,7 @@ class Prelude2CardsTest : CardTest() {
 
     engine.phase("Action")
     p1.startTurn()
-    p1.doTask("PlantTag<WildTagUse<$AppliedScience>>")
+    p1.assignWildTag(AppliedScience, "PlantTag")
     p1.cardAction1(AppliedScience) { doTask("Plant") }.expect("Plant")
 
     p1.count("Science<$AppliedScience>") shouldBe 5
@@ -111,7 +110,7 @@ class Prelude2CardsTest : CardTest() {
     engine.phase("Action")
     val startingTr = p1.count("TerraformRating")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep! BY Engine") }
+    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
 
     engine.count("TemperatureStep") shouldBe 1
     p1.count("TerraformRating") shouldBe startingTr
@@ -130,7 +129,7 @@ class Prelude2CardsTest : CardTest() {
     engine.phase("Action")
     val startingTr = p1.count("TerraformRating")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep! BY Engine") }
+    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
 
     engine.count("VenusStep") shouldBe 1
     p1.count("TerraformRating") shouldBe startingTr
@@ -187,7 +186,7 @@ class Prelude2CardsTest : CardTest() {
             "PowerPlantSP",
             payment = {
               doTask("PayFromCard<$Spire> FROM Science<$Spire>")
-              doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+              doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
             },
         )
         .expect("-Science<$Spire>, -9 Megacredit, PROD[Energy]")
@@ -199,7 +198,7 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("$Spire, Science<$Spire>")
 
     shouldThrow<NarrowingException> {
-      p1.manual("10 Owed<Class<Megacredit>>") {
+      p1.manual("10 Owed<>") {
         doTask("PayFromCard<$Spire> FROM Science<$Spire>")
       }
     }
@@ -208,7 +207,7 @@ class Prelude2CardsTest : CardTest() {
   // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
   @Test
   fun `Suitable Infrastructure pays once for each action`() {
-    newGame(PreludeExpansion, Prelude2Expansion)
+    newGame(Prelude2Expansion)
     engine.phase("Prelude")
     p1.manual("$SuitableInfrastructure")
     val beforeTwoProductions = p1.count("Megacredit")
@@ -221,16 +220,16 @@ class Prelude2CardsTest : CardTest() {
     val startingMoney = p1.count("Megacredit")
 
     p1.manual("NewTurn") {
-      doTask("UseAction1<UseStandardProjectSA>")
-      doTask("UseAction1<PowerPlantSP>")
-      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+      doTask("UseAction<UseStandardProjectSA, First>")
+      doTask("UseAction<PowerPlantSP, First>")
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
     }
     p1.count("Megacredit") shouldBe startingMoney - 9
 
     p1.manual("SecondAction") {
-      doTask("UseAction1<UseStandardProjectSA>")
-      doTask("UseAction1<PowerPlantSP>")
-      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+      doTask("UseAction<UseStandardProjectSA, First>")
+      doTask("UseAction<PowerPlantSP, First>")
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
     }
 
     p1.count("Megacredit") shouldBe startingMoney - 18
@@ -349,7 +348,7 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("$SagittaFrontierServices")
     p1.count("Megacredit") shouldBe 35
 
-    p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.count("Megacredit") shouldBe 39
 
     p2.manual("7")
@@ -380,7 +379,7 @@ class Prelude2CardsTest : CardTest() {
   // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg
   @Test
   fun `A prelude remains playable when its global parameter is already maximized`() {
-    newGame(PreludeExpansion, Prelude2Expansion)
+    newGame(Prelude2Expansion)
     engine.phase("Prelude")
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
     p1.manual("5, 19 TemperatureStep, $oceans")
@@ -412,7 +411,7 @@ class Prelude2CardsTest : CardTest() {
   fun `Venus Shuttles action cost is reduced by Venus tags`() {
     newGame(Prelude2Expansion, VenusNextExpansion)
     p1.manual("$VenusGovernor, $VenusWaystation, $ForcedPrecipitation, $VenusMagnetizer, 20")
-    p1.manual("$VenusShuttles") { doTask("2 Floater<$ForcedPrecipitation>") }
+    p1.manual("$VenusShuttles") { addCardResources(ForcedPrecipitation) }
     engine.phase("Action")
     val startingMoney = p1.count("Megacredit")
     val startingVenus = engine.count("VenusStep")

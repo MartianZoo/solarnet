@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.TestOption.TerraCimmeriaMapOption
+import dev.martianzoo.tfm.engine.TestOption.Cimmeria
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -14,7 +14,7 @@ class MiningAreaTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     p1.manual("$MiningArea") {
-          doTask("MiningArea_SpecialTile<Tharsis_1_1>")
+          placeTile(1, 1)
         }
         .expect("2 Steel, PROD[Steel]")
   }
@@ -24,17 +24,17 @@ class MiningAreaTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_7_9>")
     p1.manual("$MiningArea") {
-          doTask("MiningArea_SpecialTile<Tharsis_8_9>")
+          placeTile(8, 9)
         }
         .expect("Titanium, PROD[Titanium]")
   }
 
   @Test
   fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
-    newGame(TerraCimmeriaMapOption)
+    newGame(Cimmeria)
     p1.manual("CityTile<Cimmeria_5_4>")
     p1.manual("$MiningArea") {
-          doTask("MiningArea_SpecialTile<Cimmeria_6_4>")
+          placeTile(6, 4)
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
@@ -52,7 +52,7 @@ class MiningAreaTest : CardTest() {
   fun `Cannot be played without an adjacent owned tile`() {
     newGame()
     shouldThrow<DependencyException> {
-      p1.manual("$MiningArea") { doTask("MiningArea_SpecialTile<Tharsis_1_1>") }
+      p1.manual("$MiningArea") { placeTile(1, 1) }
     }
   }
 
@@ -61,7 +61,7 @@ class MiningAreaTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     shouldThrow<NotNowException> {
-      p1.manual("$MiningArea") { doTask("MiningArea_SpecialTile<Tharsis_3_2>") }
+      p1.manual("$MiningArea") { placeTile(3, 2) }
     }
   }
 }

@@ -38,21 +38,26 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
                   .map { it.arguments.single() }
                   .random()
                   .let(repl.game.reader::resolve)
-                  .concreteSubtypesSameClass()
+                  .let(repl.game.classTable::concreteSubtypesSameClass)
                   .random()
           type.expressionFull to type
         } else {
           val expression: Expression = repl.gameplay.parse(args)
           expression to repl.gameplay.resolve(args)
         }
-    return listOf(TypeToText.describe(expression, type, repl.game.vocabulary))
+    return listOf(TypeToText.describe(expression, type, repl.game.classTable, repl.game.vocabulary))
   }
 
   object TypeToText {
     /** A detailed multi-line description of a type. */
-    internal fun describe(expression: Expression, type: Type, vocabulary: Vocabulary): String {
+    internal fun describe(
+        expression: Expression,
+        type: Type,
+        classTable: dev.martianzoo.types.ClassTable,
+        vocabulary: Vocabulary,
+    ): String {
 
-      val desc = TypeDescription(type)
+      val desc = TypeDescription(classTable, type)
 
       val long = type.className
       val altName = vocabulary.petsName(long)

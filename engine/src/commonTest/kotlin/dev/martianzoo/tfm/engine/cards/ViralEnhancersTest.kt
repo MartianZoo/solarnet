@@ -32,7 +32,7 @@ class ViralEnhancersTest : CardTest() {
   fun `Can choose a microbe when the entering card can hold it`() {
     newGame()
     p1.manual("$ViralEnhancers")
-    p1.manual("$NitriteReducingBacteria") { doTask("Microbe<$NitriteReducingBacteria>") }
+    p1.manual("$NitriteReducingBacteria") { addCardResources(NitriteReducingBacteria) }
         .expect("4 Microbe")
   }
 
@@ -48,7 +48,7 @@ class ViralEnhancersTest : CardTest() {
   @Test
   fun `Adds the chosen microbe to the entering card`() {
     initializeExistingMicrobeCard()
-    p1.manual("$RegolithEaters") { doTask("Microbe<$RegolithEaters>") }
+    p1.manual("$RegolithEaters") { addCardResources(RegolithEaters) }
         .expect("Microbe<$RegolithEaters>")
   }
 

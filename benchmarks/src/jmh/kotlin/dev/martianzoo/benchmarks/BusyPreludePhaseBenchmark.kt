@@ -37,7 +37,7 @@ public open class BusyPreludePhaseBenchmark {
         Engine.newGame(
             Canon.gamePremise(
                 GameConfig(
-                    "TerraformingMars, TharsisMapOption, PreludeExpansion, " +
+                    "TerraformingMars, TharsisMap, PreludeExpansion, " +
                         "ColoniesExpansion, PromoCardPack, Callisto, Ganymede, " +
                         "Luna",
                     "Me",
@@ -64,10 +64,10 @@ public open class BusyPreludePhaseBenchmark {
 
     workflow.preludePhase()
     me.playPrelude(cn("HeadStart")) {
-      doTask("UseAction1<PlayCardSA>")
+      doTask("UseAction<PlayCardSA, First>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>>")
       me.pay(0)
-      doTask("UseAction1<PlayCardSA>")
+      doTask("UseAction<PlayCardSA, First>")
       doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>>")
       me.pay(0)
     }
@@ -83,10 +83,10 @@ public open class BusyPreludePhaseBenchmark {
     me.stdAction("HandleMandates") {
       me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<HeadStart>")
-        doTask("UseAction1<PlayCardSA>")
+        doTask("UseAction<PlayCardSA, First>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>>")
         me.pay(0)
-        doTask("UseAction1<PlayCardSA>")
+        doTask("UseAction<PlayCardSA, First>")
         doTask("PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>>")
         me.pay(0)
       }

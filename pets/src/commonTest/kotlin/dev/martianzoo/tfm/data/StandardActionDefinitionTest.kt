@@ -1,6 +1,9 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -19,5 +22,63 @@ internal class StandardActionDefinitionTest {
 
     definition.className shouldBe cn("ExampleSA")
     definition.asClassDeclaration.className shouldBe cn("ExampleSA")
+  }
+
+  @Test
+  fun actionEffectsBelongToTheGeneratedClass() {
+    val definition =
+        JsonReader.readActions(
+                """
+                {
+                  actions: [{
+                    name: "ExampleSA",
+                    action: "-> Payment<This, First>",
+                    effects: ["CostPaid<This>: Plant"],
+                  }],
+                }
+                """
+            )
+            .single()
+
+    definition.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>("UseAction<This, First>: Payment<This, First>"),
+        parse<Effect>("CostPaid<This>: Plant"),
+    )
+  }
+
+  @Test
+  fun standardResourceCostsBecomeInvoices() {
+    val definition =
+        JsonReader.readActions(
+                """
+                {
+                  actions: [{ name: "ExampleSA", action: "4 Energy -> 2 Plant" }],
+                }
+                """
+            )
+            .single()
+
+    definition.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>("UseAction<This, First>: 4 Owed<Class<Energy>> THEN Payment<This, First>"),
+        parse<Effect>("CostPaid<This, First>: 2 Plant"),
+    )
+  }
+
+  @Test
+  fun variableStandardResourceCostsCarryTheChosenAmountAcrossPayment() {
+    val definition =
+        JsonReader.readActions(
+                """
+                {
+                  actions: [{ name: "ExampleSA", action: "2X Energy -> 3X Plant, Steel" }],
+                }
+                """
+            )
+            .single()
+
+    definition.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>("UseAction<This, First>: 2X Owed<Class<Energy>> THEN X Payment<This, First>"),
+        parse<Effect>("X CostPaid<This, First>: 3X Plant, Steel"),
+    )
   }
 }

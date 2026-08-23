@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
@@ -17,7 +16,6 @@ import dev.martianzoo.types.Type
 public class Component internal constructor(public val type: Type) : HasExpression by type {
   init {
     if (type.abstract) throw Exceptions.abstractComponent(type)
-    if (type.phantom) throw ExpressionException("inactive type has no components: $type")
   }
 
   internal val isCustom: Boolean = type.rootClass.declaration.custom
@@ -33,7 +31,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type? =
-      if (type.classTable.isActive(OWNER) && hasType(type.classTable.resolve(OWNER.expression))) {
+      if (type.rootClass.allSuperclasses().any { it.className == OWNER }) {
         type
       } else {
         type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType

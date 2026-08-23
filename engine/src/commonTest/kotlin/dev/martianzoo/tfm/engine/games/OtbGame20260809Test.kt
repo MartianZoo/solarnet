@@ -22,8 +22,8 @@ class OtbGame20260809Test : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
-          HellasMapOption
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion
+          HellasMap
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
 
           Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord
@@ -100,7 +100,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             pay(8)
             // "You had 30 and now you have four."
             assertCounts(4 to "M") // ledger entry 13
-            doTask("OceanTile<Hellas_5_7>")
+            placeTile(5, 7)
           }
           // "I'm gonna place in this nice little spot where I get four money and three heat."
           .expect("-4, 3 H, TR")
@@ -141,7 +141,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "We do production. World Government Terraforming is Ellie's choice."
     // "I'm boosting oxygen."
     // "You don't get the TR for that."
-    ellie.doTask("OxygenStep! BY Engine").expect("0 TR")
+    ellie.wgt("OxygenStep").expect("0 TR")
 
     // (11:36 am)
     // "We produced, we did World Government, now it's time for the colony Solar phase."
@@ -185,7 +185,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       cardAction1(AquiferPumping) {
             pay(8)
             assertCounts(14 to "M") // ledger entry 35
-            doTask("OceanTile<Hellas_4_7>")
+            placeTile(4, 7)
           }
           // "I will put it up here for the spot with one plant and four money."
           // "And one TR?"
@@ -212,7 +212,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "Then World Government Terraforming is my choice."
     // "Let's do Venus."
     // "Venus goes up to 2%."
-    dad.doTask("VenusStep! BY Engine")
+    dad.wgt("VenusStep")
 
     // "Then we raise all of our colonies again, of which we still have only three."
     // "I give the start marker to Ellie."
@@ -240,14 +240,14 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       cardAction1(AquiferPumping) {
             pay(8)
             // "I'm going on the one-one. I get two plants and a TR."
-            doTask("OceanTile<Hellas_1_1>")
+            placeTile(1, 1)
           }
           .expect("2 P, TR")
 
       // "I spend eight plants to place a greenery."
       convertPlants {
             // "Rightmost of row three."
-            doTask("GreeneryTile<Hellas_3_7>")
+            placeTile(3, 7)
           }
           // "That's two money, a plant, and a card."
           // "The oxygen goes up to 2%, and Ellie gets a TR."
@@ -272,7 +272,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       playProject(Comet, 21) {
             // "I raise the temperature one step and place an ocean tile."
             // "I'll go on the rightmost space in the ring for 4 money."
-            doTask("OceanTile<Hellas_5_8>")
+            placeTile(5, 8)
             // "I'll remove yours. And I'll pay you three from Mons Insurance."
             doTask("-3 Plant<Dad>")
           }
@@ -318,7 +318,10 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I pay three and then I'll pay one to use Search for Life."
       // "I flip up Business Contacts, so I do not get a science resource."
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
       assertCounts(8 to "M") // ledger entry 52
 
       // "I think we're at the point where I've done everything. So, I pass."
@@ -329,7 +332,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "We hit production. We do World Government Terraforming, and it's your turn."
     // "I increase the oxygen. Oxygen goes to 3%."
-    ellie.doTask("OxygenStep! BY Engine")
+    ellie.wgt("OxygenStep")
 
     // "Then the colonies each go up. This time there are four colony tracks to increase."
     // "The generation goes up to four. The start marker moves to Dad from Ellie."
@@ -371,7 +374,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             doTask("3 Plant")
             // "Place an ocean tile. On the steel spot, for four money and a steel. What a steal."
             // "And a TR."
-            doTask("OceanTile<Hellas_6_8>")
+            placeTile(6, 8)
           }
           // "Optimal Aerobraking gives me three money and three heat, bringing me up to 14 heat."
           .expect("-9, S, 3 H, PlayedEvent, TR")
@@ -382,7 +385,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             // "I'm gonna spend that steel and six real to place an ocean in the six-money
             // spot."
             pay(6, steel = 1)
-            doTask("OceanTile<Hellas_6_7>")
+            placeTile(6, 7)
           }
           // "That's another TR and six money."
           .expect("0 M, TR")
@@ -410,7 +413,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // (12:40 pm) "I will convert eight plants to a greenery."
     ellie.turn {
       convertPlants {
-            doTask("GreeneryTile<Hellas_3_6>")
+            placeTile(3, 6)
           }
           // "And that'll be on the 2-plants, 4-money spot."
           .expect("-6 P, 4, TR")
@@ -424,7 +427,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       playProject(CorporateStronghold, 11) {
             // "I place a city tile at row two, column six, right above my two greeneries, for a"
             // "plant."
-            doTask("CityTile<Hellas_2_6>")
+            placeTile(2, 6)
           }
           .expect("P, PROD[-E, 3]")
     }
@@ -441,7 +444,10 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use Search for Life, and I flip Potatoes, so I do not get a science resource."
     dad.turn {
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
 
       // "That appears to be the end of everything I can do except..."
       // HACK: Unlike the other narrated Search for Life actions, I never said that I paid the one
@@ -453,7 +459,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       playProject(IndustrialCenter, 4) {
             // "Let's just get in your business over here. So I'm placing row two, column five, and"
             // "getting just one plant."
-            doTask("IndustrialCenter_SpecialTile<Hellas_2_5>")
+            placeTile(2, 5)
           }
           .expect("P")
       assertCounts(1 to "M") // ledger entry 72
@@ -467,7 +473,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "Because we've both passed, we hit production."
     // "I will World Gov, and the thing that I will World Gov will be that I will Word Gov."
     // "I will World Gov. Wow. Venus, up to 10%."
-    dad.doTask("VenusStep! BY Engine")
+    dad.wgt("VenusStep")
 
     // "Then we move all the colony tracks up one."
     // "Most of them are on the penultimate space on the track, but Enceladus still generates only"
@@ -506,7 +512,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             pay(8)
             // "I get a TR."
             // "It'll go on the two-one space for two plants and two money."
-            doTask("OceanTile<Hellas_2_1>")
+            placeTile(2, 1)
           }
           .expect("2 P, -6, TR")
 
@@ -524,7 +530,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I spend six money to gain three energy."
     ellie.turn {
-      cardAction1(EnergyMarket) { doTask("-6 THEN 3 Energy") }
+      cardAction1(EnergyMarket, x = 3)
 
       // "And then I will use the three energy to trade with Callisto and get ten."
       stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }.expect("7 E")
@@ -565,7 +571,12 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I use Search for Life to spend one money and flip Forced Precipitation."
     // "That does not get me a science resource."
-    dad.turn { cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science") }
+    dad.turn {
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
+    }
 
     // "I will spend four energy on Ironworks to gain a steel."
     // "Oxygen goes to 5%. I get a TR."
@@ -580,7 +591,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       convertPlants {
             // "I get a TR."
             // "I put it at the top right on the one-plant spot."
-            doTask("GreeneryTile<Hellas_1_5>")
+            placeTile(1, 5)
           }
           .expect("-7 P, TR")
       assertCounts(6 to "OxygenStep")
@@ -604,7 +615,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "We do production."
     // "I use World Government Terraforming to raise Venus to 12%."
-    ellie.doTask("VenusStep! BY Engine")
+    ellie.wgt("VenusStep")
 
     // "I take the start player marker. Generation goes to six."
     with(dad) {
@@ -644,7 +655,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             // "I lose an energy production, and I gain three money production, and I place a shitty
             // tile."
             // "I'm going to place it on the one-steel space at row three, column three."
-            doTask("CityTile<Hellas_3_3>")
+            placeTile(3, 3)
           }
           // "I take a steel."
           .expect("S, PROD[-E, 3]")
@@ -655,7 +666,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             // "It holds animals, so Miranda finally comes into play."
             // "I place the tile adjacent to a greenery on the almost-rightmost space in the fourth"
             // "row. That's four money and a plant."
-            doTask("EcologicalZone_SpecialTile<Hellas_4_8>")
+            placeTile(4, 8)
             assertCounts(30 to "M") // ledger entry 169
           }
           .expect("-8, P, Miranda, 2 Animal")
@@ -676,7 +687,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "spot. I raise oxygen to 7% and get a TR."
     dad.turn {
       convertPlants {
-            doTask("GreeneryTile<Hellas_2_2>")
+            placeTile(2, 2)
           }
           .expect("-6 P, 4, TR")
       engine.assertCounts(7 to "OxygenStep")
@@ -686,7 +697,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn {
       convertPlants {
             // "I'm going to put it at row five, column nine."
-            doTask("GreeneryTile<Hellas_5_9>")
+            placeTile(5, 9)
           }
           // "I get a plant, two money, and an oxygen raise."
           // "I have to manually input the temperature raise and the extra TR."
@@ -721,7 +732,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // (1:15 pm) "Energy Market: pay four money, gain two energy."
     ellie.turn {
-      cardAction1(EnergyMarket) { doTask("-4 THEN 2 Energy") }
+      cardAction1(EnergyMarket, x = 2)
 
       // "I use Ironworks to pay four energy, gain a steel, and raise oxygen."
       // "Oxygen is at 9%. I get a TR."
@@ -741,7 +752,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             // (1:17 pm) "I meet the requirement of 16%. I raise Venus one step, which gives me one
             // TR."
             // "I put a microbe on Venusian Insects, which gives me one money."
-            doTask("Microbe<$VenusianInsects>")
+            addCardResources(VenusianInsects)
           }
           .expect("VenusStep, TR, -10")
 
@@ -756,7 +767,10 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I'm going to use Search for Life to pay one money and flip Titan Shuttles, which does not"
       // "get me a thing thing."
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
       assertCounts(1 to "M") // ledger entry 130
 
       // "I pass. We do production."
@@ -767,7 +781,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "For World Government Terraforming, I'm going to raise the temperature."
     // "The temperature is now −18°C."
-    dad.doTask("TemperatureStep! BY Engine")
+    dad.wgt("TemperatureStep")
 
     // "We raise the colonies one step each. We give you the start player marker."
     // "It becomes Generation 7. We take cubes off cards."
@@ -798,7 +812,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       // "I think I'm just gonna Standard Project City."
       stdProject("CitySP") {
             // "I put it at row one, column two, for two plants and two money."
-            doTask("CityTile<Hellas_1_2>")
+            placeTile(1, 2)
             assertCounts(21 to "M") // ledger entry 213
           }
           .expect("2 P, -23")
@@ -806,7 +820,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       // "I spend eight plants on a greenery at row one, column three, for two plants."
       // "Oxygen goes up to 10%. I get a TR."
       convertPlants {
-            doTask("GreeneryTile<Hellas_1_3>")
+            placeTile(1, 3)
           }
           .expect("-6 P, TR")
       engine.assertCounts(10 to "OxygenStep")
@@ -836,13 +850,13 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       playProject(TitanFloatingLaunchPad, 16) {
         // "It tells me to add two floaters to any Jovian card. I wonder which one I will pick."
         // "It'll be itself."
-        doTask("2 Floater<$TitanFloatingLaunchPad>")
+        addCardResources(TitanFloatingLaunchPad)
       }
       assertCounts(0 to "M") // ledger entry 145
     }
 
     // (6:27 pm) "I will spend four money to gain two energy using Energy Market."
-    ellie.turn { cardAction1(EnergyMarket) { doTask("-4 THEN 2 Energy") } }
+    ellie.turn { cardAction1(EnergyMarket, x = 2) }
 
     // "I will sell a card."
     dad.turn { sellPatents(1) }
@@ -880,7 +894,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     dad.turn {
       cardAction2(TitanFloatingLaunchPad) {
             doTask("Trade<Enceladus>")
-            doTask("4 Microbe<$VenusianInsects>")
+            addCardResources(VenusianInsects)
           }
           .expect("-Floater<$TitanFloatingLaunchPad>, 4")
 
@@ -891,7 +905,10 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I use Search for Life, spend one, and flip Research Coordination."
       // "Which, even though it's a wild tag, it does not count."
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
 
       // (6:33 pm) "I pass. We hit production."
       pass()
@@ -900,7 +917,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     dad.assertUnusedActionCards(IndustrialCenter)
 
     // "I use World Government Terraforming to raise the temperature to −12°C."
-    ellie.doTask("TemperatureStep! BY Engine")
+    ellie.wgt("TemperatureStep")
 
     // "Then we're gonna give me the start thingy. We're gonna raise the generation to eight."
     // "We're gonna take cubes off cards. Uncube. We're gonna uncube. And then we're gonna draft."
@@ -929,7 +946,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       // "But I can't use it now because I used two actions to both play Penguins and trade."
       stdAction("TradeSA", 3) {
         doTask("Trade<Miranda>")
-        doTask("2 Animal<$Penguins>")
+        addCardResources(Penguins)
       }
     }
 
@@ -954,7 +971,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn {
       stdProject("CitySP") {
             // "I place the city at row three, column five, for two money."
-            doTask("CityTile<Hellas_3_5>")
+            placeTile(3, 5)
           }
           .expect("-23")
       assertCounts(27 to "M") // ledger entry 257
@@ -962,7 +979,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       // "I convert eight plants to a greenery."
       convertPlants {
             // "I place it at row two, column four, where I get a plant and steel."
-            doTask("GreeneryTile<Hellas_2_4>")
+            placeTile(2, 4)
           }
           // "Oxygen is now at 13%. I get another TR."
           .expect("-7 P, S, TR")
@@ -982,7 +999,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       convertPlants {
             // "And that will be the four-five for a steel and four money."
             // "You're slaughtering me."
-            doTask("GreeneryTile<Hellas_4_5>")
+            placeTile(4, 5)
           }
           // "Oh man, you got the last oxygen. I never win this game."
           .expect("S, 4, TR")
@@ -1023,16 +1040,19 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       cardAction1(Birds).expect("Animal")
 
       // "I use Extremophiles to add a Venusian Insect and take a money."
-      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }.expect("1")
+      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1")
 
       // "I use Rotator Impacts to spend six money to add an asteroid."
       cardAction1(RotatorImpacts) { pay(6) }.expect("Asteroid")
 
       // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
-      cardAction1(TitanFloatingLaunchPad) { doTask("Floater<$TitanFloatingLaunchPad>") }
+      cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) }
 
       // "I use Search for Life to pay one and flip Deep Well Heating, which is not a microbe tag."
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
       assertCounts(5 to "M") // ledger entry 181
 
       // "I pass. We do production."
@@ -1042,7 +1062,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     dad.assertUnusedActionCards(IndustrialCenter)
 
     // "I use World Government Terraforming to raise the temperature to −10°C."
-    dad.doTask("TemperatureStep! BY Engine")
+    dad.wgt("TemperatureStep")
 
     // "I'm giving Ellie the start marker. It's now Generation 9. Cubes come off cards."
     with(dad) {
@@ -1065,7 +1085,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("10")
 
       // "I'm going to use the City standard project on the plant-and-steel space."
-      stdProject("CitySP") { doTask("CityTile<Hellas_1_4>") }.expect("P, S")
+      stdProject("CitySP") { placeTile(1, 4) }.expect("P, S")
       assertCounts(34 to "M") // ledger entry 288
     }
 
@@ -1074,7 +1094,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       playProject(EosChasmaNationalPark, 14) {
             // "It gives me three plants."
             // "It gives me an aminal, which I'm putting on Penguins."
-            doTask("Animal<$Penguins>")
+            addCardResources(Penguins)
             // "It gives me two money production. We meet the requirement."
           }
           .expect("3 P, PROD[2]")
@@ -1084,7 +1104,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       convertPlants {
             // "I'm going to place it at row three, column two, where I get one plant and two
             // money."
-            doTask("GreeneryTile<Hellas_3_2>")
+            placeTile(3, 2)
           }
           // "It does not give me a TR."
           .expect("-7 P, 2, 0 TR")
@@ -1125,7 +1145,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     engine.assertCounts(11 to "TemperatureStep")
 
     // "I use Maxwell Base to add a Stratospheric Bird."
-    dad.turn { cardAction1(MaxwellBase) { doTask("Animal<$StratosphericBirds>") } }
+    dad.turn { cardAction1(MaxwellBase) { addCardResources(StratosphericBirds) } }
 
     // "I play Nitrite Reducing Bacteria for 11. I get three free microbes on that."
     ellie.turn {
@@ -1143,7 +1163,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I use Extremophiles to add a Venusian Insect, which gives me one money."
     dad.turn {
-      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }
+      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }
       assertCounts(1 to "M") // ledger entry 201
     }
 
@@ -1162,13 +1182,16 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       // "animal. I'll put that on Penguins."
       cardAction2(TitanFloatingLaunchPad) {
             doTask("Trade<Miranda>")
-            doTask("Animal<$Penguins>")
+            addCardResources(Penguins)
           }
           .expect("-Floater")
 
       // (8:15 pm) "I use Search for Life to spend the only money I have and flip AI Central, which"
       // "does not have a microbe tag."
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
 
       // "I do a heat raise to −6°C. That gives me a TR, so I'm at 36 TR."
       convertHeat().expect("TR")
@@ -1180,7 +1203,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.assertUnusedActionCards(AquiferPumping, EnergyMarket, Ironworks)
     dad.assertUnusedActionCards(IndustrialCenter)
     // "We'll move the temperature. The temperature is now −4°C."
-    ellie.doTask("TemperatureStep! BY Engine")
+    ellie.wgt("TemperatureStep")
 
     // "We raise all the colony tracks and take the fleets back."
     // "The start player marker goes to me. The generation is now ten."
@@ -1204,7 +1227,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     dad.turn {
       stdAction("TradeSA", 2) {
             doTask("Trade<Enceladus>")
-            doTask("3 Microbe<$VenusianInsects>")
+            addCardResources(VenusianInsects)
           }
           .expect("3")
     }
@@ -1213,14 +1236,14 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn {
       stdProject("CitySP") {
             // "It'll go at row five, column five, for two money."
-            doTask("CityTile<Hellas_5_5>")
+            placeTile(5, 5)
           }
           .expect("-23")
       assertCounts(32 to "M") // ledger entry 322
 
       // "Then I'll convert plants to a greenery at row six, column six, for four money."
       convertPlants {
-            doTask("GreeneryTile<Hellas_6_6>")
+            placeTile(6, 6)
           }
           .expect("4, 0 TR")
     }
@@ -1232,7 +1255,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
             // "I'm going to place Restricted Area on the one-card space that is two above the south
             // pole"
             // "so that I can take a card."
-            doTask("RestrictedArea_SpecialTile<Hellas_7_6>")
+            placeTile(7, 6)
           }
           .expect("0 ProjectCard")
     }
@@ -1276,7 +1299,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "I increase plant production one step. I add two microbes to Nitrite Reducing Bacteria."
     // "I also add an animal to Ecological Zone."
     ellie.turn {
-      playProject(VenusSoils, 20) { doTask("2 Microbe<$NitriteReducingBacteria>") }
+      playProject(VenusSoils, 20) { addCardResources(NitriteReducingBacteria) }
           .expect("VenusStep, TR, PROD[P], Animal")
       assertCounts(10 to "M") // ledger entry 329
     }
@@ -1303,7 +1326,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm going to spend 23 and put a greenery at the only spot next to my city that isn't next"
     // "to one of yours. I get a steel."
     dad.turn {
-      stdProject("GreenerySP") { doTask("GreeneryTile<Hellas_4_3>") }.expect("S, 0 TR")
+      stdProject("GreenerySP") { placeTile(4, 3) }.expect("S, 0 TR")
     }
     ellie.assertCounts(7 to "M") // ledger entry 332
 
@@ -1321,7 +1344,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn {
       stdAction("TradeSA", 2) {
         doTask("Trade<Miranda>")
-        doTask("Animal<$SubZeroSaltFish>")
+        addCardResources(SubZeroSaltFish)
       }
     }
 
@@ -1329,11 +1352,11 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     dad.turn { playProject(FloatingHabs, 3) }
 
     // "I use Energy Market to pay six money for three energy."
-    ellie.turn { cardAction1(EnergyMarket) { doTask("-6 THEN 3 Energy") } }
+    ellie.turn { cardAction1(EnergyMarket, x = 3) }
 
     // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
     dad.turn {
-      cardAction1(TitanFloatingLaunchPad) { doTask("Floater<$TitanFloatingLaunchPad>") }
+      cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) }
     }
 
     // (8:30 pm) "I pass."
@@ -1348,18 +1371,18 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       cardAction1(Birds).expect("Animal")
 
       // "I'm going to pay two to Floating Habs to put a floater on Floating Habs."
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
       assertCounts(9 to "M") // ledger entry 229
 
       // "I'm going to use Maxwell Base to add an animal to Penguins."
       // Maxwell Base can only target a Venus card; no later resource assertion establishes that the
       // narrated illegal Penguins placement occurred, so retain the legal Stratospheric Birds
       // target.
-      cardAction1(MaxwellBase) { doTask("Animal<$StratosphericBirds>") }
+      cardAction1(MaxwellBase) { addCardResources(StratosphericBirds) }
 
       // "I'm going to use Extremophiles to add a microbe to Venusian Insects and give myself"
       // "another money."
-      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }.expect("1")
+      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1")
 
       // "I'm going to use Rotator Impacts to pay two titanium to put an asteroid on Rotator
       // Impacts."
@@ -1367,7 +1390,10 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I'm going to use Search for Life to spend one and flip this microbe tag right here, which"
       // "is Deimos Down, which is not a microbe tag. So I still do not get a science resource."
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
 
       // "I pass."
       pass()
@@ -1376,7 +1402,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     dad.assertUnusedActionCards(IndustrialCenter)
 
     // (8:32 pm) "We do production. I will World Gov temperature up to minus two."
-    dad.doTask("TemperatureStep! BY Engine")
+    dad.wgt("TemperatureStep")
 
     // "We will move all the dinguses on the colonies and send the fleets back."
     // "We move the generation to 11 and the start player marker to Ellie."
@@ -1431,15 +1457,14 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "I place it at row five, column four, and get two steel."
     ellie.turn {
       convertPlants {
-            doTask("GreeneryTile<Hellas_5_4>")
+            placeTile(5, 4)
           }
           .expect("2 S, 0 TR")
       // "And... Gyropolis. I pay... Wow. Free steel. What is going on, Ellie? Why do you have six
       // cities?"
       // "I place it in six-three." "Looks like you put it in five-three." "Five-three. Sorry."
       // "I get no placement bonuses, but it's next to two greeneries."
-      playProject(Gyropolis, 11, steel = 3) { doTask("CityTile<Hellas_5_3>") }
-          .expect("PROD[3, -2 E]")
+      playProject(Gyropolis, 11, steel = 3) { placeTile(5, 3) }.expect("PROD[3, -2 E]")
     }
     // HACK: Dad distracted Ellie into forgetting to make the production changes
     ellie.exMachina("PROD[-3, 2 E]")
@@ -1464,14 +1489,14 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn {
       stdAction("TradeSA", 2) {
         doTask("Trade<Enceladus>")
-        doTask("Microbe<$NitriteReducingBacteria>")
+        addCardResources(NitriteReducingBacteria)
       }
     }
 
     // "I hope this is not a mistake. Jovian Lanterns cost me 18 money."
     // "It gives me a TR and two floaters, which I put on Jovian Lanterns itself."
     dad.turn {
-      playProject(JovianLanterns, 18) { doTask("2 Floater<$JovianLanterns>") }.expect("TR")
+      playProject(JovianLanterns, 18) { addCardResources(JovianLanterns) }.expect("TR")
     }
     // HACK: It was a mistake: I only paid 17.
     dad.exMachina("1")
@@ -1530,8 +1555,8 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       // "I add two microbes to any card, which will be Nitrite."
       // "Then I get two animals for EcoZone."
       playProject(EcologyResearch, 21) {
-            doTask("Animal<$SubZeroSaltFish>")
-            doTask("2 Microbe<$NitriteReducingBacteria>")
+            addCardResources(SubZeroSaltFish)
+            addCardResources(NitriteReducingBacteria)
           }
           .expect("3 Animal")
       assertCounts(0 to "M") // ledger entry 376
@@ -1543,7 +1568,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "And, for zero, Project Inspection."
     // "I use Nitrite Reducing Bacteria to turn in three microbes and get another TR."
     ellie.turn {
-      playProject(ProjectInspection, 0) { doTask("UseAction2<$NitriteReducingBacteria>") }
+      playProject(ProjectInspection, 0) { doTask("UseAction<$NitriteReducingBacteria, Second>") }
           .expect("-3 Microbe, TR")
     }
 
@@ -1554,7 +1579,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "In other words, convert plants to greenery. To this four-two for a plant."
     ellie.turn {
       convertPlants {
-            doTask("GreeneryTile<Hellas_4_2>")
+            placeTile(4, 2)
           }
           .expect("-7 P, 0 TR")
     }
@@ -1562,7 +1587,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm going to use Birds to take a Bird."
     dad.turn {
       cardAction1(Birds).expect("Animal")
-      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }.expect("1")
+      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1")
     }
 
     // "Not that it would have helped me much, but I can use Energy Market to decrease"
@@ -1591,7 +1616,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "I might need the steel, so I'm going on four-four to get two steel."
     dad.turn {
       convertPlants {
-            doTask("GreeneryTile<Hellas_4_4>")
+            placeTile(4, 4)
           }
           .expect("2 S, 0 TR")
 
@@ -1603,16 +1628,19 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       // "I'm going to sell Stanford Torus to get a money."
       sellPatents(1)
       // "I'm going to pay two money to use Floating Habs to put a floater on Floating Habs."
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
       assertCounts(0 to "M") // ledger entry 274
 
       // "I'm gonna use Maxwell Base to put a microbe on Venusian Insects and give me a money back."
       // "Give me my money back."
-      cardAction1(MaxwellBase) { doTask("Microbe<$VenusianInsects>") }.expect("1")
+      cardAction1(MaxwellBase) { addCardResources(VenusianInsects) }.expect("1")
 
       // "I will try Search for Life. Wouldn't that be funny if this made all the difference"
       // "right here? Search for Life, Vesta Shipyard, no life. I got no life."
-      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+            declineTask()
+          }
+          .expect("0 Science")
 
       // I never narrated paying the action's one money; the ledger suggests I took one instead.
       exMachina("2")
@@ -1641,11 +1669,13 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "I don't understand why every game goes so well for you."
     ellie.convertPlants {
       // The final ledger's steel gain and the narrated city scores establish this placement.
-      doTask("GreeneryTile<Hellas_6_4>")
+      placeTile(6, 4)
     }
-    ellie.convertPlants { doTask("GreeneryTile<Hellas_5_2>") }
-    ellie.doTask("Ok")
-    dad.doTask("Ok")
+    ellie.convertPlants { placeTile(5, 2) }
+    // Decline another final greenery placement.
+    ellie.declineTask()
+    // Decline the final greenery placement.
+    dad.declineTask()
 
     // (9:02 pm) "Final scoring."
     val score = Summarizer(game)

@@ -38,7 +38,7 @@ internal class CanonInvariantsTest {
     checkComponentLimit("Class<Plant>", 1..1)
     checkComponentLimit("Engine", 0..1)
     checkComponentLimit("TerraformingMars", 1..1)
-    checkTypeLimits("Tharsis", "MarsMap" to 1..1, "Tharsis" to 1..1)
+    checkTypeLimits("TharsisMap", "MarsMap" to 1..1, "TharsisMap" to 1..1)
     checkComponentLimit("Tharsis_5_5", 1..1)
     checkComponentLimit("PlayCardSA", 1..1)
     checkComponentLimit("PowerPlantSP", 0..1)
@@ -79,7 +79,9 @@ internal class CanonInvariantsTest {
         declaringType: String = constrainedType,
     ) {
       val clazz = table.getClass(cn(declaringType))
-      restrictions(constrainedType)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
+      restrictions(constrainedType)!!.shouldContain(
+          UnboundRangeRestriction(expr, clazz, table, range)
+      )
     }
 
     checkSimple("$Ants", range = 0..1)

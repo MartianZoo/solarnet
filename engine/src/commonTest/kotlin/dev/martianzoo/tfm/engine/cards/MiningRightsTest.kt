@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.TestOption.TerraCimmeriaMapOption
+import dev.martianzoo.tfm.engine.TestOption.Cimmeria
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -18,7 +18,7 @@ class MiningRightsTest : CardTest() {
     manual
         .manual("$MiningRights") {
           shouldThrow<TaskException> { doTask("PROD[Steel]") }
-          doTask("MiningRights_SpecialTile<Tharsis_1_1>")
+          placeTile(1, 1)
           doTask("2 Steel")
           doTask("PROD[Steel]")
         }
@@ -29,10 +29,10 @@ class MiningRightsTest : CardTest() {
   @Test
   fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
-    newGame(TerraCimmeriaMapOption)
+    newGame(Cimmeria)
 
     p1.manual("$MiningRights") {
-          doTask("MiningRights_SpecialTile<Cimmeria_6_4>")
+          placeTile(6, 4)
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
@@ -50,7 +50,7 @@ class MiningRightsTest : CardTest() {
   fun `Cannot select a card-bonus area`() {
     newGame()
     shouldThrow<NotNowException> {
-      p1.manual("$MiningRights") { doTask("MiningRights_SpecialTile<Tharsis_2_1>") }
+      p1.manual("$MiningRights") { placeTile(2, 1) }
     }
   }
 }

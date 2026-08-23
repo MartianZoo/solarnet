@@ -29,18 +29,18 @@ class EffectActorCharacterizationTest {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
-    assertFailsWith<LimitsException> { player.manual("-TharsisMapOption") }
-    player.count("TharsisMapOption") shouldBe 1
+    assertFailsWith<LimitsException> { player.manual("-TharsisMap") }
+    player.count("TharsisMap") shouldBe 1
 
     assertFailsWith<LimitsException> {
-      game.gameplay(ENGINE).godMode().manual("-TharsisMapOption")
+      game.gameplay(ENGINE).godMode().manual("-TharsisMap")
     }
-    player.count("TharsisMapOption") shouldBe 1
+    player.count("TharsisMap") shouldBe 1
   }
 
   @Test
   fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, players = 2))
+    val game = Engine.newGame(canonicalPremise(Elysium, players = 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 

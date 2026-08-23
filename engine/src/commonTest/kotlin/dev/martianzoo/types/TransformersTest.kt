@@ -64,25 +64,29 @@ class TransformersTest {
     )
 
     checkApplyDefaults(
-        "Heat FROM Owed<Class<Megacredit>>!",
+        "Heat FROM Owed<>!",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
     checkApplyDefaults(
-        "Heat FROM Owed<Class<Megacredit>>.",
+        "Heat FROM Owed<>.",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>.",
     )
     checkApplyDefaults(
-        "Heat FROM Owed<Class<Megacredit>>",
+        "Heat FROM Owed<>",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
-    checkApplyDefaults("Owed", "Owed<Owner>!")
-    checkApplyDefaults("-Owed", "-Owed<Owner>.")
+    checkApplyDefaults("Owed<>", "Owed<Owner, Class<Megacredit>>!")
+    checkApplyDefaults("-Owed<>", "-Owed<Owner, Class<Megacredit>>.")
   }
 
   @Test
   fun dependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
     shouldThrow<PetSyntaxException> { applyDefaults("OceanTile") }.message shouldBe
         "`OceanTile` has gain dependency defaults; write `OceanTile<>` to accept them or provide dependency arguments"
+    shouldThrow<PetSyntaxException> { applyDefaults("Owed") }.message shouldBe
+        "`Owed` has gain dependency defaults; write `Owed<>` to accept them or provide dependency arguments"
+    shouldThrow<PetSyntaxException> { applyDefaults("-Owed") }.message shouldBe
+        "`Owed` has removal dependency defaults; write `Owed<>` to accept them or provide dependency arguments"
     checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
   }

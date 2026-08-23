@@ -11,12 +11,10 @@ import kotlin.test.Test
 
 class ValleyTrustTest : CardTest() {
   @Test
-  fun `Valley Trust activates its card back without the Prelude phase`() {
-    val game = newGame(GameConfig("ValleyTrust", "Player1", "Player2"))
-
-    game.classTable.isActive(cn("PreludeExpansion")) shouldBe false
-    game.classTable.isActive(cn("PreludePhase")) shouldBe false
-    game.classTable.isActive(cn("PreludeCard")) shouldBe true
+  fun `Valley Trust requires a Prelude deck`() {
+    shouldThrow<IllegalArgumentException> {
+      newGame(GameConfig("ValleyTrust", "Player1", "Player2"))
+    }
   }
 
   @Test
@@ -29,6 +27,22 @@ class ValleyTrustTest : CardTest() {
           p1.playPrelude(MartianIndustries)
         }
         .expect("PROD[Steel, Energy]")
+  }
+
+  @Test
+  fun `Valley Trust uses an already selected Prelude generation`() {
+    val game =
+        newGame(
+            GameConfig(
+                "ValleyTrust, Prelude2Expansion, -Prelude1Deck",
+                "Player1",
+                "Player2",
+            )
+        )
+
+    game.classTable.isActive(cn("PreludePhase")) shouldBe true
+    game.classTable.isActive(cn("AppliedScience")) shouldBe true
+    game.classTable.isActive(MartianIndustries) shouldBe false
   }
 
   @Test

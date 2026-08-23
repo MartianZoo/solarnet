@@ -221,13 +221,16 @@ private fun renderWrapper(
   val effect = declaration.effects.singleOrNull() ?: return null
   if (effect.automatic) return null
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
-  if (describers.fact(trigger.className, ComponentDescriber::actionNumber) != 1) return null
   val actionKey = Key(ClassName.cn("UseAction"), 0)
+  val whichActionKey = Key(ClassName.cn("UseAction"), 1)
   val resolvedTrigger = describers.resolveExpression(trigger, actionKey) ?: return null
   if (
-      !resolvedTrigger.hasOnlySourceDependency(actionKey, describers.thisExpression) ||
-          trigger.refinement != null ||
-          trigger.complement
+      !resolvedTrigger.hasOnlySourceDependencies(
+          mapOf(
+              actionKey to describers.thisExpression,
+              whichActionKey to ClassName.cn("First").expression,
+          )
+      ) || trigger.refinement != null || trigger.complement
   ) {
     return null
   }

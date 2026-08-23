@@ -9,7 +9,11 @@ class MarsUniversityTest : CardTest() {
   @Test
   fun `Two tag effects can discard twice before drawing twice`() {
     newGame(CorporateEraExpansion)
-    p1.manual("5 ProjectCard, $MarsUniversity") { doTask("Ok") }
+    p1.manual(
+        "5 ProjectCard, $MarsUniversity"
+    ) { /* Decline Mars University's discard-and-draw effect. */
+      declineTask()
+    }
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual
@@ -26,7 +30,11 @@ class MarsUniversityTest : CardTest() {
   @Test
   fun `Two tag effects can each draw before the next discard`() {
     newGame(CorporateEraExpansion)
-    p1.manual("5 ProjectCard, $MarsUniversity") { doTask("Ok") }
+    p1.manual(
+        "5 ProjectCard, $MarsUniversity"
+    ) { /* Decline Mars University's discard-and-draw effect. */
+      declineTask()
+    }
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual

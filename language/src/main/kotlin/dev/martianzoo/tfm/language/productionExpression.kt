@@ -8,7 +8,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Type
@@ -25,7 +24,7 @@ internal fun lowerProductionSyntax(effect: Effect): Effect =
 internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
     productionSyntaxLowerer.transformRequirement(requirement)
 
-private val productionSyntaxLowerer by lazy { Prod.deprodify(Canon.classTable) }
+private val productionSyntaxLowerer by lazy { Prod.deprodify(canonClassUniverse) }
 
 internal fun productionExpression(
     expression: Expression,

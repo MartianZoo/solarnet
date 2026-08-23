@@ -8,26 +8,27 @@ import kotlin.test.Test
 
 internal class MilestoneDefinitionTest {
   @Test
-  fun nestedGroupAndIndividualSetupRequirementsAreCombined() {
+  fun nestedGroupAndIndividualAutomaticSelectionRequirementsAreCombined() {
     val milestones =
         JsonReader.readMilestones(
             """
             {
               "groups": [{
-                "setupRequirement": "DemoMapOption",
+                "group": "DemoDefaultMilestones",
+                "automaticSelectionRequirement": "DemoMap",
                 "milestones": [
                   { "name": "Terraformer35", "requirement": "35 TerraformRating" },
                 ],
                 "groups": [{
-                  "setupRequirement": "VenusNextExpansion",
+                  "automaticSelectionRequirement": "VenusNextExpansion",
                   "milestones": [{ "name": "Hoverlord", "requirement": "3 VenusTag" }],
                 }],
               }, {
-                "setupRequirement": "UtopiaPlanitiaMapOption",
+                "automaticSelectionRequirement": "Utopia",
                 "milestones": [
                 {
                   "name": "Pioneer3",
-                  "setupRequirement": "ColoniesExpansion",
+                  "automaticSelectionRequirement": "ColoniesExpansion",
                   "requirement": "3 Colony",
                 },
                 ],
@@ -37,12 +38,18 @@ internal class MilestoneDefinitionTest {
         )
 
     val terraformer = milestones.single { it.className == cn("Terraformer35") }
-    terraformer.setupRequirement.toString() shouldBe "DemoMapOption"
+    terraformer.selectionGroup shouldBe cn("DemoDefaultMilestones")
+    terraformer.automaticSelectionRequirement.toString() shouldBe "DemoMap"
     terraformer.asClassDeclaration.properties[PropertyName("requirement")] shouldBe
         RequirementValue(terraformer.requirement)
-    milestones.single { it.className == cn("Hoverlord") }.setupRequirement.toString() shouldBe
-        "DemoMapOption, VenusNextExpansion"
-    milestones.single { it.className == cn("Pioneer3") }.setupRequirement.toString() shouldBe
-        "UtopiaPlanitiaMapOption, ColoniesExpansion"
+    milestones
+        .single { it.className == cn("Hoverlord") }
+        .also { it.selectionGroup shouldBe cn("DemoDefaultMilestones") }
+        .automaticSelectionRequirement
+        .toString() shouldBe "DemoMap, VenusNextExpansion"
+    milestones
+        .single { it.className == cn("Pioneer3") }
+        .automaticSelectionRequirement
+        .toString() shouldBe "Utopia, ColoniesExpansion"
   }
 }

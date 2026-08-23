@@ -26,7 +26,7 @@ class LocalHeatTrappingTest : CardTest() {
   @Test
   fun `Can add animals to Pets`() {
     p1.manual("6 Heat, $Pets")
-    p1.manual("$LocalHeatTrapping") { doTask("2 Animal<$Pets>") }.expect("-5 Heat, 2 Animal")
+    p1.manual("$LocalHeatTrapping") { addCardResources(Pets) }.expect("-5 Heat, 2 Animal")
   }
 
   @Test
@@ -42,7 +42,11 @@ class LocalHeatTrappingTest : CardTest() {
   fun `Can choose animals without a holder and gain nothing`() {
     p1.manual("6 Heat")
 
-    p1.manual("$LocalHeatTrapping") { doTask("Ok") }.expect("-5 Heat, 0 Plant")
+    p1.manual("$LocalHeatTrapping") {
+          // Decline gaining plants by choosing animals when no animal holder exists.
+          declineTask()
+        }
+        .expect("-5 Heat, 0 Plant")
   }
 
   @Test
@@ -50,7 +54,7 @@ class LocalHeatTrappingTest : CardTest() {
     p1.manual("6 Heat, $Pets")
     p1.manual("$LocalHeatTrapping") {
           shouldThrow<NarrowingException> { doTask("2 Animal<$Fish>") }
-          doTask("2 Animal<$Pets>")
+          addCardResources(Pets)
         }
         .expect("-5 Heat, 2 Animal<$Pets>")
   }

@@ -16,14 +16,11 @@ import dev.martianzoo.types.DependencySet.DependencyPath
  * Resolves authored expressions and answers structural Class questions for the English renderer.
  */
 internal class ExpressionResolver(classes: Set<Class>) {
-  private val classTable =
-      requireNotNull(classes.firstOrNull()?.classTable) {
-        "English descriptions must include at least one Class"
-      }
+  private val classTable = canonClassUniverse
   internal val classesByName = classTable.allClasses().associateBy(Class::className)
 
   init {
-    require(classes.all { it.classTable === classTable })
+    require(classes.all(classTable::isActive))
   }
 
   internal fun resolve(expression: Expression): ResolvedExpression? =

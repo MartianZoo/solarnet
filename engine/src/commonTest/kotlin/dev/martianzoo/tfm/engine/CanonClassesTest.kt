@@ -48,7 +48,12 @@ internal class CanonClassesTest {
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
-    anomalies.classNames().shouldContainExactlyInAnyOrder(ANYONE, cn("NoctisArea"))
+    anomalies
+        .classNames()
+        .shouldContainExactlyInAnyOrder(
+            ANYONE,
+            cn("NoctisArea"),
+        )
   }
 
   @Test
@@ -90,7 +95,7 @@ internal class CanonClassesTest {
 
   @Test
   fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
-    val maps = TestOption.entries.filter { it.name.endsWith("MapOption") }
+    val maps = listOf(Tharsis, Hellas, Elysium, Utopia, Cimmeria)
 
     maps.forEach { map ->
       val game =
@@ -247,7 +252,7 @@ internal class CanonClassesTest {
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val type = table.resolve(te(expr))
-      type.allConcreteSubtypes().toList().shouldHaveSize(size)
+      table.allConcreteSubtypes(type).toList().shouldHaveSize(size)
     }
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)
@@ -279,11 +284,11 @@ internal class CanonClassesTest {
 
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
-    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 2) + (61 * 2) + specialTileTypes
+    table.allConcreteSubtypes(type).count() shouldBe 61 + (63 * 2) + (61 * 2) + specialTileTypes
   }
 
   @Test
-  fun phantomClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
+  fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(PLAYER1) as GodMode
     val withVenus =

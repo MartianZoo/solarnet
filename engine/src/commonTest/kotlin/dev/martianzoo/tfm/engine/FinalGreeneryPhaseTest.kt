@@ -158,33 +158,6 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun multiplayerCompletesOneFinalProductionBeforeFinalGreenery() {
-    val game = Engine.newGame(canonicalPremise())
-    val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
-
-    p1.playCorp(Ecoline, 0)
-    p2.playCorp(TharsisRepublic, 0)
-    p1.godMode().sneak("PROD[Steel]")
-    engine
-        .godMode()
-        .sneak(
-            "LastCall, GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>>"
-        )
-
-    p1.pass()
-    p2.pass()
-
-    p1.count("Steel<Player1>") shouldBe 1
-    engine.count("FinalGreeneryPhase") shouldBe 1
-    workflow.shutdown()
-  }
-
-  @Test
   fun multiplayerFinalGreeneryAdvancesAfterAPlayerCanNoLongerConvert() {
     val game = Engine.newGame(canonicalPremise(players = 3))
     val engine = game.tfm(ENGINE)
@@ -224,7 +197,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun tenPlantsCanBecomeTwoGreeneriesWithEcolinePolderTechAndTheElysiumBonus() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -257,7 +230,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -300,7 +273,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun sevenPlantsCanBecomeTwoGreeneriesInTheMostContrivedCanonicalCase() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

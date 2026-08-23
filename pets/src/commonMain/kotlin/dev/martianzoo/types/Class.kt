@@ -26,10 +26,9 @@ import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
 
 /**
- * A class that has been loaded by a [ClassLoader] based on a [ClassDeclaration]. Each loader has
- * its own separate table of [Class]es. While a declaration is inert data, this type provides its
- * resolved hierarchy, dependencies, and types. The source [declaration] remains available for
- * non-type-system consumers.
+ * An Authority-scoped class compiled from a [ClassDeclaration]. While a declaration is inert data,
+ * this type provides its resolved hierarchy, dependencies, and types. The source [declaration]
+ * remains available for non-type-system consumers.
  */
 public class Class
 internal constructor(
@@ -39,26 +38,17 @@ internal constructor(
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
-    /** Whether this authority-known class is inactive in this particular class table. */
-    public val phantom: Boolean = false,
-
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    public val directSuperclasses: List<Class> = superclasses(declaration, loader, phantom),
+    public val directSuperclasses: List<Class> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<Class> {
 
-  /** The table containing this class. */
-  public val classTable: ClassTable = loader
+  /** The master universe containing this class. */
+  internal val classTable: ClassTable = loader
 
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   init {
-    if (!phantom && directSuperclasses.any(Class::phantom)) {
-      throw PetException(
-          "$className cannot extend inactive class(es): " +
-              directSuperclasses.filter(Class::phantom).joinToString { "${it.className}" }
-      )
-    }
     if (directSuperclasses.any { !it.abstract }) {
       throw PetException(
           "$className cannot extend concrete class(es): " +
@@ -190,19 +180,6 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
-  /** Reuses hierarchy compilation from the corresponding class in an Authority master table. */
-  internal fun initializeSubclassBitsFrom(masterClass: Class) {
-    check(abstractSupertypeBits == null)
-    check(className == masterClass.className)
-    check(abstract == masterClass.abstract)
-    check(
-        directSuperclasses.map(Class::className) ==
-            masterClass.directSuperclasses.map(Class::className)
-    )
-    superclassBit = masterClass.superclassBit
-    abstractSupertypeBits = checkNotNull(masterClass.abstractSupertypeBits)
-  }
-
   override fun glb(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
@@ -260,7 +237,7 @@ internal constructor(
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
   private val allSubclasses: Set<Class> by lazy {
-    if (phantom) emptySet() else loader.properSubclassesOf(this) + this
+    loader.properSubclassesOf(this) + this
   }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
@@ -367,9 +344,6 @@ internal constructor(
         } else {
           inheritedDeps.merge(declaredDeps) { _, _ -> error("unexpected") }
         }
-    if (!phantom && result.phantom) {
-      throw PetException("$className has an inactive dependency type")
-    }
     result
   }
 
@@ -502,13 +476,12 @@ internal constructor(
     fun superclasses(
         declaration: ClassDeclaration,
         loader: ClassLoader,
-        phantom: Boolean,
     ): List<Class> {
       return declaration.supertypes
           .classNames()
           .also { require(COMPONENT !in it) }
           .ifEmpty { listOf(COMPONENT) }
-          .map { loader.loadRelated(it, active = !phantom) }
+          .map { loader.loadRelated(it, active = true) }
     }
   }
 }

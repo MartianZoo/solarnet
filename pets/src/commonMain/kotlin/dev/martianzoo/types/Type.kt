@@ -37,7 +37,7 @@ public data class Type(
     val refinement: Refinement? = null,
 ) : HasExpression, Hierarchical<Type>, Reifiable<Type>, HasClassName by rootClass {
 
-  public val classTable: ClassTable = rootClass.classTable
+  internal val classTable: ClassTable = rootClass.classTable
   public val typeDependencies: Set<Dependency.TypeDependency> = dependencies.typeDependencies()
 
   /** The class represented by this `Class<Foo>` type, or null when this is not a class literal. */
@@ -58,13 +58,6 @@ public data class Type(
   }
 
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
-
-  /**
-   * Whether this type names an authority-known class that is inactive in this class table. A
-   * [refinement] is deliberately not consulted: it is state-dependent, and a refinement that
-   * mentions an inactive class is simply unsatisfiable rather than making the type phantom.
-   */
-  public val phantom: Boolean = rootClass.phantom || dependencies.phantom
 
   /** Returns the concrete numeric value of the class property named [propertyName]. */
   public fun getNumberPropertyValue(propertyName: String): Int =

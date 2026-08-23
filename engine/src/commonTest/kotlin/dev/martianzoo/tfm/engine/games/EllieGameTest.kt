@@ -7,7 +7,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.HellasMapOption
+import dev.martianzoo.tfm.engine.TestOption.Hellas
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -20,7 +20,7 @@ class EllieGameTest : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
-          HellasMapOption
+          HellasMap
           PromoCardPack, PreludeExpansion
           """,
           "Player1",
@@ -52,14 +52,19 @@ class EllieGameTest : AbstractFullGameTest() {
     }
     p2.turn {
       playProject(Research, 11) // 1 VP<Player2>, 2 TR<Player2>
-      playProject(MartianSurvey, 9) { doTask("Ok") } // ain't gon flip; 1 VP<Player2>
+      playProject(MartianSurvey, 9) {
+        // Decline flipping Pharmacy Union after its diseases are gone.
+        declineTask()
+      } // 1 VP<Player2>
     }
     p1.pass()
     p2.turn {
       playProject(SearchForLife, 3) {
         doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TR") // 3 TR<Player2>
       }
-      cardAction1(SearchForLife) { doTask("Ok") } // no microbe
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+        declineTask()
+      }
     }
     p2.pass()
 
@@ -95,8 +100,8 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.turn {
       cardAction1(DevelopmentCenter)
       playProject(ImmigrantCity, 1, steel = 5) {
-        doTask("CityTile<Hellas_9_7>")
-        doTask("OceanTile<Hellas_5_6>") // 1 TR<Player1>
+        placeTile(9, 7)
+        placeTile(5, 6) // 1 TR<Player1>
       }
     }
     workflow.shutdown()
@@ -143,7 +148,7 @@ class EllieGameTest : AbstractFullGameTest() {
 
   @Test
   fun earlyGameWithNoPrelude() {
-    val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
+    val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

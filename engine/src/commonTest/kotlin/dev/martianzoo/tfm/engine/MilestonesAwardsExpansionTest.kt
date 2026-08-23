@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.data.GameConfig
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.cards.CardTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -9,7 +11,7 @@ import kotlin.test.Test
 internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
   fun `Geologist counts owned tiles with owned neighbors`() {
-    newGame(TestOption.MilestonesAwardsExpansion)
+    newGame(GameConfig("Geologist", "Player1", "Player2"))
     p1.manual("CommercialDistrict_SpecialTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>")
 
     shouldThrow<RequirementException> { p1.manual("Geologist") }
@@ -21,7 +23,8 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   fun `Landscaper counts the largest contiguous map group and ignores remote tiles`() {
-    newGame(TestOption.MilestonesAwardsExpansion)
+    val game = newGame(GameConfig("Landscaper", "Player1", "Player2"))
+    game.classTable.isActive(cn("Landscaper")) shouldBe true
     val p2 = requireP2()
     p1.manual(
         "CommercialDistrict_SpecialTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>, NaturalPreserve_SpecialTile<Tharsis_2_3>, " +
@@ -37,19 +40,20 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
     p1.manual("8 M")
     engine.phase("Action")
-    p1.stdAction("ClaimMilestoneSA") { doTask("Landshaper") }
+    p1.stdAction("FundAwardSA")
 
-    p1.count("Landshaper") shouldBe 1
+    p1.count("Landscaper") shouldBe 1
     p1.count("OwnedTile") shouldBe 5
   }
 
   @Test
   fun `Merchant checks resources after the normal claim cost`() {
-    newGame(TestOption.MilestonesAwardsExpansion)
+    val game = newGame(GameConfig("Merchant", "Player1", "Player2"))
+    game.classTable.isActive(cn("Merchant")) shouldBe true
     p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
     engine.phase("Action")
 
-    p1.stdAction("ClaimMilestoneSA") { doTask("Merchant") }
+    p1.stdAction("ClaimMilestoneSA")
 
     p1.count("Merchant") shouldBe 1
   }

@@ -12,7 +12,7 @@ internal class GameConfigTest {
     val config =
         GameConfig(
             """
-            TerraformingMars, TharsisMapOption
+            TerraformingMars, TharsisMap
 
             VenusNextExpansion, -WorldGovernmentOption
             """
@@ -23,13 +23,13 @@ internal class GameConfigTest {
 
     config.includedClassNames.shouldContainExactly(
         cn("TerraformingMars"),
-        cn("TharsisMapOption"),
+        cn("TharsisMap"),
         cn("VenusNextExpansion"),
     )
     config.excludedClassNames.shouldContainExactly(cn("WorldGovernmentOption"))
     config.playerNames.shouldContainExactly(cn("Player1"), cn("Player2"))
     config.toString() shouldBe
-        "TerraformingMars, TharsisMapOption, VenusNextExpansion, -WorldGovernmentOption"
+        "TerraformingMars, TharsisMap, VenusNextExpansion, -WorldGovernmentOption"
   }
 
   @Test

@@ -205,7 +205,7 @@ public class ScriptSession(
         YELLOW -> YellowMode(gameplay.godMode())
         GREEN -> GreenMode(gameplay.godMode())
         BLUE -> BlueMode(gameplay.godMode())
-        PURPLE -> PurpleMode(gameplay.godMode())
+        PURPLE -> PurpleMode()
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {

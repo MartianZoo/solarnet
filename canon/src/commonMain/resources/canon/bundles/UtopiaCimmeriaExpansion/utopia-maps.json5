@@ -12,8 +12,10 @@
 
   "maps": [
     {
-      "name": "Utopia",
-      "setupRequirement": "UtopiaPlanitiaMapOption",
+      "name": "UtopiaMap",
+      "areaPrefix": "Utopia",
+      "defaultMilestones": "UtopiaDefaultMilestones",
+      "defaultAwards": "UtopiaDefaultAwards",
       "rows": [
         [
                                    "L"  ,  "L"  , "LEE" ,  "L"  ,   "L"

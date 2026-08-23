@@ -387,12 +387,12 @@ Immediate instructions are printed below the artwork. The goal rows that split P
 Raid, or Stratospheric Birds across regions were data errors, not evidence for a layout distinction
 in `CardDefinition` or for dividing one authored immediate group.
 
-Filtered project-card draws still require the narrow supplemental table because Pets does not carry
-their filter. Tag filters render as adjective card names, while card-resource filters retain the
-explicit icon wording. A mandatory transmutation can say that card resources are removed from this
-card to draw a declared drawable component; a same-component transmutation instead renders the
-directional transfer as stealing from or paying to its other participant. This deliberately does
-not cover optional `PlayedEvent` retrieval.
+Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
+Insurance shows why: its component declarations encode printed setup behavior that is absent from
+`immediate`. Do not infer a generic draw sentence from a plain `ProjectCard` gain. `CARDS` now
+distinguishes printed filtering, selection, and reveal procedures through its inner instruction
+tree in canonical Card Definitions. A renderer should interpret that source transform rather than
+the follow-mode-neutralized executable declarations.
 
 A plain mandatory placement of one greenery tile does not restate its automatic oxygen increase,
 consistent with other systemic placement consequences. A strict placement-site refinement can
@@ -405,8 +405,8 @@ described site and repeat the same consequence-free, one-component placement beh
 for that site; it renders as placing there when using a board that has such a site and otherwise
 placing normally. This board-qualified wording does not imply that occupied sites permit the
 normal-placement alternative.
-Filtered draws such as Experimental Forest obtain only their missing filter from the transitional
-card-Class mapping. The ordinary instruction shape still supplies the count and draw operation.
+Experimental Forest now expresses its printed plant-tag filter, but remains bracketed until
+transform rendering exists.
 
 An automatic effect triggered by gaining its own host component is part of that card's immediate
 region rather than its persistent effect region. Its supported instruction is rendered before the

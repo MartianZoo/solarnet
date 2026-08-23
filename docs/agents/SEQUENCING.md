@@ -144,7 +144,7 @@ is the stronger form for restoring an invariant before player work appears.
 
 `THEN` is appropriate when only particular authored A operations require B, no honest trigger or
 state gate distinguishes them, and that instruction conceptually owns the pair. A direct Pets
-Action cost followed by its numbered `CostPaid` signal, or a placement followed by a marker
+Action cost followed by its action-qualified `CostPaid` signal, or a placement followed by a marker
 identifying that selected place, are normal examples. The Action payoff itself responds to
 `CostPaid`; see [ACTIONS.md](ACTIONS.md).
 
@@ -219,8 +219,8 @@ Current strong examples are:
   the corresponding `Pay` removes the owner's final `Owed`, the barrier is transmuted into that
   conversion's `CostPaid` signal and only that conversion's result responds.
 - Every concrete `StandardProject` inherits the same payment protocol: one automatic rule creates
-  M€ debt from its `cost` property, and its shared action creates `Payment<Class<This>>`. The
-  concrete project says only how it responds to `CostPaid<Class<This>>`. Discounts reduce `Owed`;
+  M€ debt from its `cost` property, and its shared action creates `Payment<This>`. The concrete
+  project says only how it responds to `CostPaid<This>`. Discounts reduce `Owed`;
   Standard Technology's separate 3 M€ reaction remains a rebate rather than reducing the debt.
 - `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose
   `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
@@ -229,7 +229,7 @@ Current strong examples are:
 Two related families should not be described more strongly than the implementation supports:
 
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
-  Docks use the numbered Trade action signals to supply the selected payment resource. This is
+  Docks use the action-qualified Trade signals to supply the selected payment resource. This is
   generic action dispatch, however, not a promise of one uniform later component Type.
 - `BuyCard` distinguishes a purchase from any other `ProjectCard` gain, allowing Polyphemos and
   Terralabs Research to change the purchase cost. Its intrinsic cost and card gain are queued
@@ -281,7 +281,30 @@ Settled uses include:
 - hidden adjacency creation before area bonuses and tile reactions;
 - old energy-to-heat conversion before production payouts;
 - fixed card requirement/cost/payment bookkeeping before gated choices; and
-- invisible marker creation that users should never execute manually.
+- invisible marker creation that users should never execute manually;
+- completion and last-call flags derived from already-committed state changes that players can
+  cause; and
+- helper Signals caused by player activity whose only purpose is to fan out later gameplay work.
+
+Effects triggered only by Engine workflow events, such as `SetupPhase`, use queued `:` by default.
+The workflow already determines when those effects become available, and there is no end-user
+decision whose queue entry must be suppressed. Use `::` there only when exposing the World between
+the trigger and its consequence would violate a concrete invariant.
+
+The canon single-colon audit leaves queued effects only when their right side is a recognizable
+gameplay event or choice, or when current sequencing semantics require a task boundary. Several
+implementation-shaped cases are intentionally still queued:
+
+- moving an EventCard to PlayedEvent must wait for the event's immediate work and tags;
+- removing a Mandate must not destroy the context that supplies its selected action;
+- End and played-event scoring must remain reorderable until all score-producing work is present;
+- action-cost adjustments must wait for the base action's Owed components, because sibling
+  automatic effects have no order; and
+- the solo production correction must wait for production payouts before removing M€.
+
+These are limitations of the current completion model, not evidence that those operations are
+meaningful user decisions. Do not turn them automatic until their required lifetime or dependency
+is expressed directly.
 
 Trade Envoys and Trading Colony deliberately create a `TradeBarrier` automatically while their
 queued optional production decision later removes it.
@@ -453,9 +476,9 @@ Mons Insurance. Any implementation must therefore test the three dimensions abov
 
 ## Settled families
 
-Pets Action lowering is under redesign. The settled direction separates cost satisfaction from the
-payoff with numbered `CostPaid` signals; the current generated cost-then-payoff chain is not a
-settled family. See [ACTIONS.md](ACTIONS.md).
+Pets Action lowering is partly normalized. Fixed and X-scaled standard-resource costs now separate
+invoice settlement from the payoff with action-qualified `CostPaid` signals; costless and direct
+costs still use the older generated chain. See [ACTIONS.md](ACTIONS.md).
 
 These current encodings are considered principled:
 

@@ -23,7 +23,7 @@ internal class TfmActionCommandTest {
     repl.command("become Player1")
     repl.gameplay.godMode().manual("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.gameplay.godMode().beginManual("UseAction1<UseCardActionSA>")
+    repl.gameplay.godMode().beginManual("UseAction<UseCardActionSA, First>")
     repl.command("auto safe")
 
     val output = repl.command("tfm_action AiCentral 1")
@@ -64,7 +64,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action binds a variable direct removal cost`() {
+  fun `tfm action binds a variable invoice cost`() {
     val repl = actionGame("PowerInfrastructure, 5 Energy")
 
     val output = repl.command("tfm_action PowerInfrastructure 1, 5 Energy")
@@ -79,7 +79,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action binds a multiplied variable direct removal cost`() {
+  fun `tfm action binds a multiplied variable invoice cost`() {
     val repl = actionGame("EnergyMarket, 6", "BRPX")
 
     val output = repl.command("tfm_action EnergyMarket 1, 6")
@@ -94,7 +94,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action verifies a fixed direct removal cost`() {
+  fun `tfm action pays a fixed invoice cost`() {
     val repl = actionGame("DevelopmentCenter, Energy")
 
     val output = repl.command("tfm_action DevelopmentCenter 1, 1 Energy")

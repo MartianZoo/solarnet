@@ -25,7 +25,7 @@ import dev.martianzoo.util.suf
  * `Mandate`.
  *
  * Actions eventually get converted into triggered [Effect]s; the example above would become
- * `UseAction1<ElectroCatapult>: (-Steel OR -Plant) THEN 7`.
+ * `UseAction<ElectroCatapult, First>: (-Steel OR -Plant) THEN 7`.
  */
 public data class Action(val cost: Cost?, val instruction: InstructionTree) : PetElement() {
   override val kind: kotlin.reflect.KClass<out PetNode> = Action::class

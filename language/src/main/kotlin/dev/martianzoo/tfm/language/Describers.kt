@@ -56,7 +56,6 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
             ComponentDescriber::playedTagPhrase,
             ComponentDescriber::presenceCondition,
             ComponentDescriber::usedActionTrigger,
-            ComponentDescriber::actionNumber,
             ComponentDescriber::actionUse,
             ComponentDescriber::spentResourceTrigger,
             ComponentDescriber::paymentRole,

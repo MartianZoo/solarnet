@@ -19,7 +19,6 @@ public data class ComponentDescriber(
     public val playedTagPhrase: String? = null,
     public val presenceCondition: String? = null,
     public val usedActionTrigger: Boolean? = null,
-    public val actionNumber: Int? = null,
     public val actionUse: ActionUse? = null,
     public val spentResourceTrigger: Boolean? = null,
     public val paymentRole: PaymentRole? = null,

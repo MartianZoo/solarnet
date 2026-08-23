@@ -62,6 +62,13 @@ internal constructor(
 
     internal abstract operator fun times(multiple: Int): Scalar
 
+    /** Replaces an authored X with [value], retaining its written coefficient. */
+    public fun bindX(value: Int): Scalar =
+        when (this) {
+          is ActualScalar -> this
+          is XScalar -> ActualScalar(value * multiple)
+        }
+
     internal companion object {
       internal fun checkNonzero(s: Scalar) {
         if (s == ActualScalar(0)) throw PetSyntaxException("Can't do zero")

@@ -108,7 +108,7 @@ class NewPromoCardsTest : CardTest() {
     engine.phase("Action")
     p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
     p1.playProject(Mine, 1) {
-          doTask("-Plant! THEN -3 Owed<Class<Megacredit>>.")
+          doTask("-Plant! THEN -3 Owed<>.")
         }
         .expect("-Plant")
   }
@@ -151,7 +151,8 @@ class NewPromoCardsTest : CardTest() {
     p2.manual("CityTile<Player2, Tharsis_4_2>") { doTask("Plant") }
 
     p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>")
-    p2.doTask("Ok")
+    // Decline paying two megacredits to draw a card from the Cathedral.
+    p2.declineTask()
     p1.autoExecMode = FIRST
     p2.autoExecMode = FIRST
     engine.phase("End")
