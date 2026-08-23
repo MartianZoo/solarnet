@@ -89,7 +89,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   surface.
 - **Medium priority:** Finish disposable Game World forks and overlays: overlay components and
   live effects, copy the small task queues, extend event history from a captured prefix, and
-  preserve one clear revision boundary for prepared tasks.
+  preserve one clear revision boundary for prepared tasks. Once overlays carry speculative changes,
+  reconsider `ComponentGraph` as a custom read-mostly structure whose base changes only when the
+  game moves forward.
+- Do not intern every structurally possible Type without a retention policy; families such as
+  `Neighbor` can produce a very large domain. If repeated type algebra remains expensive, first
+  measure whether an overlay-scoped or otherwise bounded cache can help without becoming state.
 - **Medium priority:** Move more expansion-specific knowledge out of Kotlin and into Module/Pets
   data, starting with workflow phase insertion and Terraforming Mars registries that enumerate
   expansions directly.

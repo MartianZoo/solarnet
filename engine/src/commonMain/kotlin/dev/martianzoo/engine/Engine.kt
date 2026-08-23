@@ -30,7 +30,7 @@ public object Engine {
       locale: String,
       inputOnlySynonyms: Iterable<Pair<String, String>>,
   ) {
-    private val classTable: ClassTable = ClassTable.forPremise(premise).also(::validatePremise)
+    private val classTable = premise.classTable.also(::validatePremise)
     private val vocabulary: Vocabulary =
         premise.createVocabulary(
             classTable.allClassNames,
@@ -142,7 +142,7 @@ public object Engine {
       fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)
 
       premise.modules
-          .flatMap { moduleName -> classTable.getClass(moduleName).invariants() }
+          .flatMap { moduleName -> classTable.getClass(moduleName).invariants }
           .filter { requirement ->
             THIS !in requirement.descendantsOfType<ClassName>()
           }

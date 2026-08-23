@@ -22,6 +22,10 @@ policy, and validation to produce an immutable `GamePremise`. The premise
 contains one Authority, selected Modules, signed class selections, seat-ordered display names, and
 exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 
+A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
+from that premise shares the projection and its compiled class metadata while retaining independent
+component, effect, task, event, timeline, and gameplay state.
+
 Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
 are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
 `Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
@@ -49,7 +53,8 @@ ordinary concrete components they own.
 ## Component graph
 
 The component graph is only a multiset of concrete Types. Components have no fields or instance
-identity. Equal Types are indistinguishable copies.
+identity. Equal Types are indistinguishable copies. The Kotlin `Component` type is therefore an
+unboxed value wrapper when its use site permits, not an interned state object.
 
 A concrete component may depend on other concrete components through its Type. Every possible
 dependency target must have an applicable maximum-one invariant so the edge identifies one vertex.
@@ -237,9 +242,11 @@ until trigger specialization, and then receives normal defaults, `Owner` binding
 lowering. Map bonuses and other computed metadata remain honest custom metrics. Distinct live tag or
 resource kinds use refined `Class<...>` Types instead.
 
-`Limiter` computes a maximum from class invariants. Invariants may use `This` and are compiled to a
-per-class lookup after table construction. [QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete
-limits, abstract domains, dependencies, and instruction composition determine the result.
+Each `Class` retains its effective inherited invariants, and each active `ClassTable` projection
+compiles them once into an immutable per-class component-limit lookup. A World's `Limiter` combines
+that shared lookup with the live component graph to compute current headroom and footroom.
+[QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete limits, abstract domains, dependencies, and
+instruction composition determine the result.
 
 ## Recoverable dead ends
 

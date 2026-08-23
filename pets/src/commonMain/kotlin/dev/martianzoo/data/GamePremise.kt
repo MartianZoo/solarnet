@@ -4,6 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.types.ClassTable
 
 /** The complete immutable input from which equivalent playable worlds are constructed. */
 public data class GamePremise(
@@ -14,6 +15,9 @@ public data class GamePremise(
     /** User-facing player names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
 ) {
+  /** The immutable active-class projection shared by every World built from this premise. */
+  public val classTable: ClassTable by lazy { ClassTable.forPremise(this) }
+
   /** Canonical Player1 through Player5 class names for the occupied seats. */
   public val playerClassNames: List<ClassName> =
       Player.players(playerNames.size).map(Player::className)
@@ -64,7 +68,7 @@ public data class GamePremise(
 
   /** The administrative Actor plus the seated Players. */
   public val actors: List<Actor>
-    get() = playerClassNames.map(::Player) + ENGINE
+    get() = playerClassNames.map { Player(it) } + ENGINE
 
   /** Builds presentation and input translation for this premise's projected class names. */
   public fun createVocabulary(

@@ -284,11 +284,9 @@ internal class Instructor(
     if (reader.countComponent(type) != 1) {
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }
-    return when {
-      type.className == ENGINE.className -> ENGINE
-      Player.isValid(type.className) -> Player(type.className)
-      else -> throw ExpressionException("unsupported Actor: ${type.expression}")
-    }
+    if (type.className == ENGINE.className) return ENGINE
+    return Player.fromClassNameOrNull(type.className)
+        ?: throw ExpressionException("unsupported Actor: ${type.expression}")
   }
 
   // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.

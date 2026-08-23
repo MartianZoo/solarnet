@@ -30,7 +30,7 @@ public constructor(
   public val classEffects: List<Effect> =
       if (active) transformers.classEffects(rootClass) else emptyList()
 
-  public val classInvariants: Set<Requirement> = rootClass.invariants()
+  public val classInvariants: Set<Requirement> = rootClass.invariants
 
   public val baseType: Type by rootClass::baseType
 

@@ -23,6 +23,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Task ordering, completion, `THEN`, automatic effects, and barriers | [SEQUENCING.md](SEQUENCING.md) | Working rules and audit |
 | Pets `Action` costs and invoices | [ACTIONS.md](ACTIONS.md) | Current model |
 | Commands and test design | [TESTING.md](TESTING.md) | Current procedure |
+| JVM test performance baseline and hotspots | [JVM_TEST_PERFORMANCE.md](JVM_TEST_PERFORMANCE.md) | Research note |
 | Kotlin declaration accessibility | [VISIBILITY.md](VISIBILITY.md) | Working rules and current procedure |
 | Reconstructing herokuapp game logs | [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md) | Current procedure |
 | Reconstructing recorded physical games | [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md) | Current procedure |
