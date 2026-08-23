@@ -31,7 +31,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
           )
           .map()
 
-  internal class MapToText(
+  private class MapToText(
       private val game: GameReader,
       private val players: List<Player>,
       private val useColors: Boolean = true,

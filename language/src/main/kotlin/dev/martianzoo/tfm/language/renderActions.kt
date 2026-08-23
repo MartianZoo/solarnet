@@ -69,15 +69,9 @@ private fun actionRefusalReason(action: Action, describers: Describers): Refusal
 
 private fun Describers.renderCost(cost: Cost): Predicate? =
     when (cost) {
-      is Cost.Or -> renderAlternativeCosts(cost.costs)
       is Cost.Spend -> renderSpendCost(cost)
       else -> null
     }
-
-private fun Describers.renderAlternativeCosts(costs: Set<Cost>): Predicate? {
-  val alternatives = costs.map { renderCost(it) ?: return null }
-  return coordinatePredicateObjects(alternatives, Conjunction.OR)
-}
 
 private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
   val expression = spend.scaledEx.expression

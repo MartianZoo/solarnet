@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 internal class ApiUtilsTest {
   @Test
-  fun componentOwnershipUsesTheOwnerRole() {
+  internal fun componentOwnershipUsesTheOwnerRole() {
     val game = Engine.newGame(canonicalPremise())
     val plant = game.gameplay(PLAYER1).resolve("Plant")
 
@@ -25,7 +25,7 @@ internal class ApiUtilsTest {
   }
 
   @Test
-  fun testLookUpProdLevelsUsingCanon() {
+  internal fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(canonicalPremise())
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods
@@ -54,7 +54,7 @@ internal class ApiUtilsTest {
   }
 
   @Test
-  fun stdResNamesInCanon() {
+  internal fun stdResNamesInCanon() {
     val game = Engine.newGame(canonicalPremise())
     standardResourceNames(game.reader)
         .toStrings()

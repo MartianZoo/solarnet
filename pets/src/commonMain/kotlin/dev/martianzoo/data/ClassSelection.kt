@@ -13,7 +13,7 @@ public data class ClassSelection(
     public val requirement: Requirement? = null,
 ) {
   /** Whether this selection applies to the complete set of configured class names. */
-  public fun appliesTo(
+  internal fun appliesTo(
       configuredClassNames: Set<ClassName>,
       classTable: ClassTable,
   ): Boolean =

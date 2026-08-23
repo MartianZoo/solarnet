@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
-abstract class TfmTest {
+internal abstract class TfmTest {
   protected lateinit var game: World
 
   protected val engine: TfmGameplay
@@ -23,11 +23,22 @@ abstract class TfmTest {
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
-  protected fun TfmGameplay.buyCards(count: Int): TaskResult =
-      doTask(if (count == 0) "Ok" else "$count BuyCard")
-
   protected fun OperationBody.buyCards(count: Int) {
     doTask(if (count == 0) "Ok" else "$count BuyCard")
+    if (count > 0) {
+      if (
+          tasks
+              .extract { it }
+              .any {
+                it.instruction.toString().let { text ->
+                  text.startsWith("Invoice<") && "BuyCards" in text
+                }
+              }
+      ) {
+        doTask("Invoice<BuyCards, First>")
+      }
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+    }
   }
 
   protected fun TfmGameplay.placeTile(row: Int, column: Int): TaskResult =

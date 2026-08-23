@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class Game20260619Test : AbstractFullGameTest() {
+internal class Game20260619Test : AbstractFullGameTest() {
 
   override val config =
       GameConfig(
@@ -18,7 +18,7 @@ class Game20260619Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun gameThroughGeneration5() {
+  internal fun gameThroughGeneration5() {
     val workflow = TfmWorkflow.Auto(game).launch()
 
     // Game id: peae6273d6b33

@@ -75,18 +75,18 @@ internal class EffectTest {
           .trimIndent()
 
   @Test
-  fun testSampleStrings() {
+  internal fun testSampleStrings() {
     testSampleStrings<Effect>(inputs)
   }
 
   @Test
-  fun nodeCount() {
+  internal fun nodeCount() {
     val effect: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     effect.descendantCount() shouldBe 20
   }
 
   @Test
-  fun classTypesCannotBeTriggers() {
+  internal fun classTypesCannotBeTriggers() {
     assertFailsWith<PetSyntaxException> { parse<Effect>("Class<Foo>: Bar") }
     assertFailsWith<PetSyntaxException> { parse<Effect>("-Class<Foo>: Bar") }
     assertFailsWith<PetSyntaxException> { parse<Effect>("PROD[Class<Foo>]: Bar") }
@@ -95,13 +95,13 @@ internal class EffectTest {
   }
 
   @Test
-  fun bySelectorsAreExpressions() {
+  internal fun bySelectorsAreExpressions() {
     parse<Effect>("Foo BY !Owner: Bar").toString() shouldBe "Foo BY !Owner: Bar"
     parse<Effect>("Foo BY !Player2: Bar").toString() shouldBe "Foo BY !Player2: Bar"
   }
 
   @Test
-  fun complementedExpressionsCanLinkAcrossATriggerAndItsInstruction() {
+  internal fun complementedExpressionsCanLinkAcrossATriggerAndItsInstruction() {
     parse<Effect>("-Foo<!Player> BY Player: Bar<Player, !Player>")
         .linkedTypeSources
         .map { it.toString() }
@@ -109,12 +109,12 @@ internal class EffectTest {
   }
 
   @Test
-  fun triggerAlternativesNeedNoParentheses() {
+  internal fun triggerAlternativesNeedNoParentheses() {
     parse<Effect>("Foo OR -Bar BY Anyone:: Qux").toString() shouldBe "Foo OR -Bar BY Anyone:: Qux"
   }
 
   @Test
-  fun orBindsMoreTightlyThanByAndIf() {
+  internal fun orBindsMoreTightlyThanByAndIf() {
     val trigger = parse<Effect>("Foo OR -Bar BY Anyone IF Qux: Eep").trigger as IfTrigger
 
     ((trigger.inner as ByTrigger).inner is Or) shouldBe true
@@ -122,24 +122,24 @@ internal class EffectTest {
   }
 
   @Test
-  fun groupingAllowsBranchSpecificQualifiers() {
+  internal fun groupingAllowsBranchSpecificQualifiers() {
     parse<Effect>("(Foo BY Player IF Qux) OR (-Bar BY Anyone IF Abc): Eep").toString() shouldBe
         "(Foo BY Player IF Qux) OR (-Bar BY Anyone IF Abc): Eep"
   }
 
   @Test
-  fun groupingAllowsQualifiersAtDifferentLevels() {
+  internal fun groupingAllowsQualifiersAtDifferentLevels() {
     parse<Effect>("(Foo IF Qux) OR Bar BY Anyone IF Abc: Eep").toString() shouldBe
         "(Foo IF Qux) OR Bar BY Anyone IF Abc: Eep"
   }
 
   @Test
-  fun triggerAlternativesCannotMixSelfAndSubscriptions() {
+  internal fun triggerAlternativesCannotMixSelfAndSubscriptions() {
     assertFailsWith<PetSyntaxException> { parse<Effect>("This OR Foo: Qux") }
   }
 
   @Test
-  fun conditionalTriggerRequirementsNeedNoParentheses() {
+  internal fun conditionalTriggerRequirementsNeedNoParentheses() {
     parse<Effect>("This IF =3 This OR =5 This: PROD[Heat]").toString() shouldBe
         "This IF =3 This OR =5 This: PROD[Heat]"
   }

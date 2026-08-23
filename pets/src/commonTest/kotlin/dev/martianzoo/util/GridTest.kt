@@ -8,7 +8,7 @@ internal class GridTest {
   private val grid = Grid.grid(cells, Cell::row, Cell::column)
 
   @Test
-  fun largestContiguousGroupSize() {
+  internal fun largestContiguousGroupSize() {
     grid.largestContiguousGroupSize(emptySet(), Cell::row, Cell::column) shouldBe 0
 
     val ringAroundCenter =

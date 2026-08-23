@@ -7,7 +7,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class ThorgateTest : CardTest() {
+internal class ThorgateTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
@@ -17,7 +17,7 @@ class ThorgateTest : CardTest() {
   }
 
   @Test
-  fun `Discounts power-production standard projects`() {
+  internal fun `Discounts power-production standard projects`() {
     val result = p1.stdProject("PowerPlantSP")
     result.expect("-8, PROD[Energy]")
 
@@ -33,7 +33,7 @@ class ThorgateTest : CardTest() {
   }
 
   @Test
-  fun `Cannot buy power production with only seven megacredits`() {
+  internal fun `Cannot buy power production with only seven megacredits`() {
     p1.manual("-Megacredit")
     shouldThrow<LimitsException> { p1.stdProject("PowerPlantSP") }
   }

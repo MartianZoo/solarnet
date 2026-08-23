@@ -24,5 +24,5 @@ public enum class TestOption(private val configuredName: String? = null) : TestS
   PromoCardPack,
   WorldGovernmentOption;
 
-  public val className: ClassName = cn(configuredName ?: name)
+  internal val className: ClassName = cn(configuredName ?: name)
 }

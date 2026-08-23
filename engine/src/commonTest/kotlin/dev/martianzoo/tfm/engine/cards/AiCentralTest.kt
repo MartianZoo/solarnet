@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class AiCentralTest : CardTest() {
+internal class AiCentralTest : CardTest() {
   @Test
-  fun `Can be played with three science tags`() {
+  internal fun `Can be played with three science tags`() {
     newGame()
     engine.phase("Action")
     p1.manual(
@@ -19,7 +19,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `Can use its action`() {
+  internal fun `Can use its action`() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], $AiCentral")
@@ -27,7 +27,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `Can use its action again next generation`() {
+  internal fun `Can use its action again next generation`() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], $AiCentral")
@@ -37,7 +37,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be played with only two science tags`() {
+  internal fun `Cannot be played with only two science tags`() {
     newGame()
     engine.phase("Action")
     p1.manual("21, ProjectCard, $SearchForLife, $InventorsGuild, PROD[Energy]")
@@ -45,7 +45,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be played without energy production`() {
+  internal fun `Cannot be played without energy production`() {
     newGame()
     engine.phase("Action")
     p1.manual("21, ProjectCard, $SearchForLife, $InventorsGuild, $DesignedMicroorganisms")
@@ -53,7 +53,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `Cannot use its action twice in one generation`() {
+  internal fun `Cannot use its action twice in one generation`() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], $AiCentral")

@@ -508,7 +508,7 @@ public open class TfmAuthority : Authority {
 
   private val cardsByClassName by lazy { cardDefinitions.associateByStrict(Definition::className) }
 
-  public fun action(name: ClassName): StandardActionDefinition = standardActionDefinitions.first {
+  private fun action(name: ClassName): StandardActionDefinition = standardActionDefinitions.first {
     it.className == name
   }
 
@@ -520,13 +520,13 @@ public open class TfmAuthority : Authority {
 
   public open val marsMapDefinitions: Set<MarsMapDefinition> = emptySet()
 
-  public fun milestone(name: ClassName): MilestoneDefinition = milestoneDefinitions.first {
+  private fun milestone(name: ClassName): MilestoneDefinition = milestoneDefinitions.first {
     it.className == name
   }
 
   public open val milestoneDefinitions: Set<MilestoneDefinition> = emptySet()
 
-  public fun award(name: ClassName): AwardDefinition = awardDefinitions.first {
+  private fun award(name: ClassName): AwardDefinition = awardDefinitions.first {
     it.className == name
   }
 
@@ -579,7 +579,7 @@ public open class TfmAuthority : Authority {
 
   /** One Authority assembled from several providers before it is exposed to callers. */
   public open class Composite(vararg authorities: TfmAuthority) : TfmAuthority() {
-    public val authorities: List<TfmAuthority> = authorities.toList()
+    private val authorities: List<TfmAuthority> = authorities.toList()
 
     final override val bundles: List<Bundle> = authorities.flatMap(TfmAuthority::bundles)
 

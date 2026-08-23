@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 internal class BootstrapLifecycleTest {
   @Test
-  fun newGameReturnsCommittedCausallyCleanPreSetupBaseline() {
+  internal fun newGameReturnsCommittedCausallyCleanPreSetupBaseline() {
     val game = Engine.newGame(canonicalPremise())
     val engine = game.gameplay(ENGINE)
 
@@ -43,7 +43,7 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  fun soloModeCreatesItsOpponent() {
+  internal fun soloModeCreatesItsOpponent() {
     val game = Engine.newGame(canonicalPremise(players = 1))
     val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
     val soloMode = changes.single { it.change.gaining?.className == cn("SoloMode") }
@@ -57,7 +57,7 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  fun selectedSourcesCreateTheirRuntimeBootstrapComponents() {
+  internal fun selectedSourcesCreateTheirRuntimeBootstrapComponents() {
     val game = Engine.newGame(canonicalPremise())
     val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
     val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
@@ -73,7 +73,7 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  fun selectedNondefaultMapsExistBeforeTheDefaultMapIsEvaluated() {
+  internal fun selectedNondefaultMapsExistBeforeTheDefaultMapIsEvaluated() {
     listOf(Hellas, Elysium, Utopia, Cimmeria).forEach { selectedMap ->
       val game = Engine.newGame(canonicalPremise(selectedMap))
       val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
@@ -86,7 +86,7 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
+  internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = Engine.newGame(canonicalPremise())
     val checkpoint = game.timeline.checkpoint()
 
@@ -110,7 +110,7 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  fun automaticWorkflowWaitsForSoloSetupChoices() {
+  internal fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val workflow = TfmWorkflow.Auto(game).launch()

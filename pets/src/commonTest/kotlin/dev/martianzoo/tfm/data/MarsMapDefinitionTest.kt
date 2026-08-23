@@ -35,7 +35,7 @@ internal class MarsMapDefinitionTest {
         }"""
 
   @Test
-  fun testDemoMapFromJson() {
+  internal fun testDemoMapFromJson() {
     val map: MarsMapDefinition = JsonReader.readMaps(demoMapJson).single()
     map.className shouldBe cn("DemoMap")
     map.defaultMilestones shouldBe cn("DemoDefaultMilestones")

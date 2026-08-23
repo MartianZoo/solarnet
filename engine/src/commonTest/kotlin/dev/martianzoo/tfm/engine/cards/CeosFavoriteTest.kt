@@ -7,10 +7,10 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class CeosFavoriteTest : CardTest() {
+internal class CeosFavoriteTest : CardTest() {
   // FAQ: "This card can be played to add an additional resource to 'Search for Life'."
   @Test
-  fun `Can add a resource to Search for Life`() {
+  internal fun `Can add a resource to Search for Life`() {
     newGame(VenusNextExpansion)
     p1.manual("$SearchForLife, Science<$SearchForLife>")
     p1.manual("$CeosFavoriteProject") { doTask("Science<$SearchForLife>") }
@@ -20,7 +20,7 @@ class CeosFavoriteTest : CardTest() {
 
   // FAQ: "this card can still be played without effect."
   @Test
-  fun `Can be played without a resource-bearing card`() {
+  internal fun `Can be played without a resource-bearing card`() {
     newGame(VenusNextExpansion)
     p1.manual("$Tardigrades")
     p1.manual("$CeosFavoriteProject")
@@ -28,7 +28,7 @@ class CeosFavoriteTest : CardTest() {
   }
 
   @Test
-  fun `Cannot skip its resource choice when an eligible card exists`() {
+  internal fun `Cannot skip its resource choice when an eligible card exists`() {
     newGame(VenusNextExpansion)
     p1.manual("$SearchForLife, Science<$SearchForLife>")
     shouldThrow<NarrowingException> { p1.manual("$CeosFavoriteProject") { doTask("Ok") } }

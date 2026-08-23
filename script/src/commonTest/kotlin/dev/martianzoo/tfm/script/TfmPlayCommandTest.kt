@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 internal class TfmPlayCommandTest {
   @Test
-  fun `tfm play works within the automatic solo workflow`() {
+  internal fun `tfm play works within the automatic solo workflow`() {
     val repl = ScriptSession()
     repl.command(
         "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, " +
@@ -19,6 +19,7 @@ internal class TfmPlayCommandTest {
     repl.command("become Me")
     repl.command("tfm_play SaturnSystems")
     repl.command("task 10 BuyCard")
+    repl.command("task 30 Pay<Class<Megacredit>> FROM Megacredit")
     repl.command("tfm_play Biolab")
     repl.command("tfm_play AcquiredSpaceAgency")
 
@@ -29,7 +30,7 @@ internal class TfmPlayCommandTest {
   }
 
   @Test
-  fun `tfm play selects the play card action and forwards inline payment`() {
+  internal fun `tfm play selects the play card action and forwards inline payment`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("auto safe")
@@ -38,6 +39,7 @@ internal class TfmPlayCommandTest {
     repl.command("turn")
     repl.command("tfm_play SaturnSystems")
     repl.command("task 10 BuyCard")
+    repl.command("task 30 Pay<Class<Megacredit>> FROM Megacredit")
     repl.command("exec 2 Steel")
     repl.command("phase Action")
     repl.command("turn")

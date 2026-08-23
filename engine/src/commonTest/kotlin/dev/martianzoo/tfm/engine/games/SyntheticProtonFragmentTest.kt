@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 // Complete archive replay: Synthetic Proton Fragment (g9ea8656f1c7e)
 // https://terraforming-mars.herokuapp.com/the-end?id=p9d6d3ff25b39
-class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
+internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, no Venus/Colonies/Turmoil, and these full-random milestone and award pools.
   override val config =
@@ -34,7 +34,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
-  fun game20260811() {
+  internal fun game20260811() {
     TfmWorkflow.Auto(game).launch()
 
     val mom = p1
@@ -513,7 +513,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.cardAction1(Ants) {
       doTask("-Microbe<Player1, $Recyclon<Player1>>")
     }
-    dad.stdAction("FundAwardSA") { doTask("Forecaster") }
+    dad.stdAction("FundAwardSA", which = 2) { doTask("Forecaster") }
 
     mom.stdProject("AquiferSP") {
       placeTile(5, 6)
@@ -690,7 +690,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
     dad.cardAction1(WeatherBalloons)
 
-    mom.stdAction("FundAwardSA") { doTask("Botanist") }
+    mom.stdAction("FundAwardSA", which = 3) { doTask("Botanist") }
     mom.cardAction1(IndustrialCenter)
 
     ellie.pass()

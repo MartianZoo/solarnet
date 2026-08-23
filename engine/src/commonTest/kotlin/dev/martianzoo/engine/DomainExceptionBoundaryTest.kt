@@ -18,7 +18,7 @@ internal class DomainExceptionBoundaryTest {
   private fun gameplay() = Engine.newGame(canonicalPremise()).gameplay(PLAYER1).godMode()
 
   @Test
-  fun unhandledTransformsAreExpressionFailures() {
+  internal fun unhandledTransformsAreExpressionFailures() {
     val gameplay = gameplay()
 
     shouldThrow<ExpressionException> { gameplay.count("WAT[Plant]") }
@@ -28,12 +28,12 @@ internal class DomainExceptionBoundaryTest {
   }
 
   @Test
-  fun preprocessingKindChangesUseKindExceptions() {
+  internal fun preprocessingKindChangesUseKindExceptions() {
     shouldThrow<KindException> { gameplay().parse<Instruction>("2 OxygenStep!") }
   }
 
   @Test
-  fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
+  internal fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
     val gameplay = gameplay()
 
     shouldThrow<NoNewClassDeclarationsException> {
@@ -43,7 +43,7 @@ internal class DomainExceptionBoundaryTest {
   }
 
   @Test
-  fun directChangesRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
+  internal fun directChangesRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
     val gameplay = gameplay()
 
     shouldThrow<AbstractException> { gameplay.sneak("Plant OR Heat") }
@@ -52,7 +52,7 @@ internal class DomainExceptionBoundaryTest {
   }
 
   @Test
-  fun taskBoundaryFailuresUseTaskOrDeadEndExceptions() {
+  internal fun taskBoundaryFailuresUseTaskOrDeadEndExceptions() {
     val gameplay = gameplay()
 
     shouldThrow<TaskException> { gameplay.prepareTask("Plant") }

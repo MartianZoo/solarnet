@@ -19,7 +19,7 @@ import kotlin.test.Test
 
 internal class TypeTest {
   @Test
-  fun getsInheritedConcretePropertyValues() {
+  internal fun getsInheritedConcretePropertyValues() {
     val table =
         loadTypes(
             "ABSTRACT CLASS TemperatureStep",
@@ -34,8 +34,8 @@ internal class TypeTest {
             """
             CLASS ConcreteArea : Area {
               row = 8
-              score = COUNT TemperatureStep
-              requirement = HAS TemperatureStep
+              score = COUNT "TemperatureStep"
+              requirement = HAS "TemperatureStep"
             }
             """
                 .trimIndent(),
@@ -48,7 +48,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun getsAbsentOptionalRequirementPropertyValue() {
+  internal fun getsAbsentOptionalRequirementPropertyValue() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Goal { requirement = Requirement? }",
@@ -59,7 +59,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun classTablesCannotBeMixed() {
+  internal fun classTablesCannotBeMixed() {
     fun universe() = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar<Foo>")
 
     val left = universe()
@@ -82,7 +82,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun testCardboundWeirdness() {
+  internal fun testCardboundWeirdness() {
     val table: ClassTable =
         loadTypes(
             """
@@ -135,7 +135,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun inheritedThisRetainsItsIdentity() {
+  internal fun inheritedThisRetainsItsIdentity() {
     val table =
         loadTypes(
             """
@@ -174,7 +174,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun anyoneMeansUnrestrictedWithinTheDeclaredDependencyBound() {
+  internal fun anyoneMeansUnrestrictedWithinTheDeclaredDependencyBound() {
     val table =
         loadTypes(
             """
@@ -193,7 +193,7 @@ internal class TypeTest {
     assertFails { table.resolve(te("Badge<SoloOpponent>")) }
   }
 
-  val table =
+  private val table =
       loadTypes(
           "ABSTRACT CLASS Foo1",
           "ABSTRACT CLASS Foo2 : Foo1",
@@ -211,7 +211,7 @@ internal class TypeTest {
       )
 
   @Test
-  fun subtypes() {
+  internal fun subtypes() {
     fun checkProperSubtypes(subb: String, supper: String) {
       type(subb).isSubtypeOf(type(supper)) shouldBe true
       type(supper).isSubtypeOf(type(subb)) shouldBe false
@@ -237,7 +237,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun refinementsParticipateInStaticHierarchyOperations() {
+  internal fun refinementsParticipateInStaticHierarchyOperations() {
     val plain = type("Foo1")
     val narrower = type("Foo2(HAS Complex1)")
     val refined = type("Foo1(HAS Complex1)")
@@ -260,7 +260,7 @@ internal class TypeTest {
   private fun type(s: String) = table.resolve(te(s))
 
   @Test
-  fun partial() {
+  internal fun partial() {
     val base = type("Complex1")
     base.expressionFull.toString() shouldBe "Complex1<Foo1, Bar1, Qux1>"
     base.expression.toString() shouldBe "Complex1"
@@ -285,7 +285,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun outOfOrder() {
+  internal fun outOfOrder() {
     val base = type("Complex1")
     type("Complex1<Bar1, Foo1>") shouldBe base
     type("Complex1<Qux1, Foo1>") shouldBe base
@@ -307,7 +307,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun twoSame() {
+  internal fun twoSame() {
     type("TwoSame") shouldBe type("TwoSame<Foo2, Foo2>")
     type("TwoSame<Foo1>") shouldBe type("TwoSame<Foo2, Foo2>")
     type("TwoSame<Foo2>") shouldBe type("TwoSame<Foo2, Foo2>")
@@ -324,7 +324,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun complementDependencies() {
+  internal fun complementDependencies() {
     val table =
         loadTypes(
             """
@@ -341,7 +341,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun complementConstraintWithExplicitDomain() {
+  internal fun complementConstraintWithExplicitDomain() {
     val table =
         loadTypes(
             """
@@ -369,7 +369,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun roundTrip() {
+  internal fun roundTrip() {
     fun checkMinimal(typeIn: String, typeOut: String = typeIn) {
       type(typeIn).expression shouldBe te(typeOut)
     }
@@ -391,7 +391,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun automaticNarrowingHonorsConstraints() {
+  internal fun automaticNarrowingHonorsConstraints() {
     val narrowingTable =
         loadTypes(
             """
@@ -449,6 +449,20 @@ internal class TypeTest {
                 .trimIndent()
         )
     incompatibleTable.resolve(te("General<Right>")).singleConcreteSubtype(met) shouldBe null
+
+    val specializedTable =
+        loadTypes(
+            """
+            ABSTRACT CLASS Choice { CLASS Left, Right }
+            ABSTRACT CLASS Holder<Choice> {
+              CLASS LeftHolder : Holder<Left>
+              CLASS RightHolder : Holder<Right>
+            }
+            """
+                .trimIndent()
+        )
+    specializedTable.resolve(te("Holder<Left>")).singleConcreteSubtype(met) shouldBe
+        specializedTable.resolve(te("LeftHolder"))
   }
 
   private fun typeInfo(has: Boolean): TypeInfo = typeInfo { has }
@@ -473,7 +487,7 @@ internal class TypeTest {
           )
 
   @Test
-  fun subs() {
+  internal fun subs() {
     val pprod = CanonClassesTest.table.resolve(te("Production<Player1, Class<Plant>>"))
     findSubstitutions(pprod, CanonClassesTest.table) shouldBe
         mapOf(
@@ -483,7 +497,7 @@ internal class TypeTest {
   }
 
   @Test
-  fun subs2() {
+  internal fun subs2() {
     val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<$MediaGroup>>"))
     findSubstitutions(pprod, CanonClassesTest.table) shouldBe
         mapOf(

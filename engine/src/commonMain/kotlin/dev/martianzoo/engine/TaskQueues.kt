@@ -99,7 +99,7 @@ private constructor(
   }
 
   /** Applies and records one task event. This is also the task-history replay boundary. */
-  internal fun <E : TaskEvent> apply(entry: E): E =
+  private fun <E : TaskEvent> apply(entry: E): E =
       events.record(entry) {
         when (entry) {
           is TaskAddedEvent -> addToTaskSet(entry.task)

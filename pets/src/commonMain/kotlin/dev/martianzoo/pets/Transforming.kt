@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
+import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE_CLASSES
@@ -73,27 +74,50 @@ public object Transforming {
       }
 
   private fun actionToEffects(action: Action, index1Ref: Int): List<Effect> {
-    val spend = action.cost as? Action.Cost.Spend
-    if (spend == null || spend.scaledEx.expression.className !in STANDARD_RESOURCE_CLASSES) {
+    val (spend, metric) =
+        when (val cost = action.cost) {
+          is Action.Cost.Spend -> cost to null
+          is Action.Cost.Per -> (cost.cost as? Action.Cost.Spend)?.let { it to cost.metric }
+          else -> null
+        } ?: return listOf(actionToEffect(action, index1Ref))
+    if (spend.scaledEx.expression.className !in STANDARD_RESOURCE_CLASSES) {
       return listOf(actionToEffect(action, index1Ref))
     }
 
     val selector = actionSelector(index1Ref)
-    val chosenAmount = if (spend.scaledEx.scalar is XScalar) "X " else ""
+    val metricText =
+        when (metric) {
+          is Property -> if (metric.receiver == null) "This.$metric" else "$metric"
+          else -> "$metric"
+        }
+    val owed =
+        "${spend.scaledEx.scalar} Owed<Class<${spend.scaledEx.expression}>>" +
+            if (metric == null) "" else " / $metricText"
+    val invoiceResource =
+        if (spend.scaledEx.expression.className == cn("Megacredit")) ""
+        else ", Class<${spend.scaledEx.expression}>"
+    if (spend.scaledEx.scalar is XScalar) {
+      return listOf(
+          parse(
+              "UseAction<This, $selector>: $owed THEN " +
+                  "Invoice<This, $selector$invoiceResource> THEN " +
+                  "MAX 0 Invoice: (${action.instruction})"
+          )
+      )
+    }
+
     return listOf(
         parse(
-            "UseAction<This, $selector>: ${spend.scaledEx.scalar} " +
-                "Owed<Class<${spend.scaledEx.expression}>> THEN " +
-                "${chosenAmount}Payment<This, $selector>"
+            "UseAction<This, $selector>: $owed THEN " + "Invoice<This, $selector$invoiceResource>"
         ),
-        parse("${chosenAmount}CostPaid<This, $selector>: ${action.instruction}"),
+        parse("-Invoice<This, $selector>: " + action.instruction),
     )
   }
 
   internal fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
-  internal fun actionSelector(index1Ref: Int): ClassName =
+  private fun actionSelector(index1Ref: Int): ClassName =
       listOf(cn("First"), cn("Second"), cn("Third")).getOrNull(index1Ref - 1)
           ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
 

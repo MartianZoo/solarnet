@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class CredicorTest : CardTest() {
+internal class CredicorTest : CardTest() {
   @Test
-  fun `Discounts both an expensive card and an expensive standard project`() {
+  internal fun `Discounts both an expensive card and an expensive standard project`() {
     newGame()
     engine.phase("Action")
     p1.manual("40, 2 ProjectCard, $CrediCor")

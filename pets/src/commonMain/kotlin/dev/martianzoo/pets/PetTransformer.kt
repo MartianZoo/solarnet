@@ -89,10 +89,10 @@ public abstract class PetTransformer protected constructor() {
   public fun transformAction(node: Action): Action = transformAsKind(node, Action::class)
 
   /** Transforms an action cost while preserving the [Cost] kind. */
-  public fun transformCost(node: Cost): Cost = transformAsKind(node, Cost::class)
+  private fun transformCost(node: Cost): Cost = transformAsKind(node, Cost::class)
 
   /** Transforms a class name while preserving the [ClassName] kind. */
-  public fun transformClassName(node: ClassName): ClassName =
+  private fun transformClassName(node: ClassName): ClassName =
       transformAsKind(node, ClassName::class)
 
   /** Transforms an effect while preserving the [Effect] kind. */
@@ -110,11 +110,11 @@ public abstract class PetTransformer protected constructor() {
       transformAsKind(node, Expression::class)
 
   /** Transforms a refinement while preserving the [Refinement] kind. */
-  public fun transformRefinement(node: Refinement): Refinement =
+  internal fun transformRefinement(node: Refinement): Refinement =
       transformAsKind(node, Refinement::class)
 
   /** Transforms a from-expression while preserving the [FromExpression] kind. */
-  public fun transformFromExpression(node: FromExpression): FromExpression =
+  private fun transformFromExpression(node: FromExpression): FromExpression =
       transformAsKind(node, FromExpression::class)
 
   /**
@@ -137,11 +137,11 @@ public abstract class PetTransformer protected constructor() {
   public fun transformProperty(node: Property): Property = transformAsKind(node, Property::class)
 
   /** Transforms a property name while preserving the [PropertyName] kind. */
-  public fun transformPropertyName(node: PropertyName): PropertyName =
+  internal fun transformPropertyName(node: PropertyName): PropertyName =
       transformAsKind(node, PropertyName::class)
 
   /** Transforms a property value while preserving the [PropertyValue] kind. */
-  public fun transformPropertyValue(node: PropertyValue): PropertyValue =
+  internal fun transformPropertyValue(node: PropertyValue): PropertyValue =
       transformAsKind(node, PropertyValue::class)
 
   /** Transforms a requirement while preserving the [Requirement] kind. */
@@ -149,11 +149,11 @@ public abstract class PetTransformer protected constructor() {
       transformAsKind(node, Requirement::class)
 
   /** Transforms a scaled expression while preserving the [ScaledExpression] kind. */
-  public fun transformScaledExpression(node: ScaledExpression): ScaledExpression =
+  private fun transformScaledExpression(node: ScaledExpression): ScaledExpression =
       transformAsKind(node, ScaledExpression::class)
 
   /** Transforms a scalar while preserving the [Scalar] kind. */
-  public fun transformScalar(node: Scalar): Scalar = transformAsKind(node, Scalar::class)
+  private fun transformScalar(node: Scalar): Scalar = transformAsKind(node, Scalar::class)
 
   /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
   internal fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
@@ -323,7 +323,6 @@ public abstract class PetTransformer protected constructor() {
             is Cost.Spend -> Cost.Spend(transformScaledExpression(node.scaledEx))
             is Cost.Gated -> Cost.Gated(transformRequirement(node.gate), transformCost(node.cost))
             is Cost.Per -> Cost.Per(transformCost(node.cost), transformMetric(node.metric))
-            is Cost.Or -> Cost.Or(node.costs.map(::transformCost).toSetStrict())
             is Cost.Multi -> Cost.Multi(node.costs.map(::transformCost))
             is Cost.Transform -> Cost.Transform(transformCost(node.cost), node.transformKind)
           }

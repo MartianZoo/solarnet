@@ -7,14 +7,14 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class CoreRulesTest : CardTest() {
+internal class CoreRulesTest : CardTest() {
   @Test
-  fun `Research cards cost three megacredits each`() {
+  internal fun `Research cards cost three megacredits each`() {
     newGame()
     p1.manual("12 Megacredit")
 
     engine.phase("Research") {
-      p1.doTask("3 BuyCard")
+      p1.buyCards(3)
       requireP2().doTask("Ok")
     }
 
@@ -23,7 +23,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Selling patents returns one megacredit per card`() {
+  internal fun `Selling patents returns one megacredit per card`() {
     newGame()
     p1.manual("3 ProjectCard")
     engine.phase("Action")
@@ -32,7 +32,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Eight heat raises temperature and terraform rating`() {
+  internal fun `Eight heat raises temperature and terraform rating`() {
     newGame()
     p1.manual("8 Heat")
     engine.phase("Action")
@@ -41,7 +41,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Temperature track bonuses are resolved during heat conversion`() {
+  internal fun `Temperature track bonuses are resolved during heat conversion`() {
     newGame()
     p1.manual("8 Heat, 2 TemperatureStep")
     engine.phase("Action")
@@ -50,7 +50,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Reaching zero degrees also places an ocean`() {
+  internal fun `Reaching zero degrees also places an ocean`() {
     newGame()
     p1.manual("8 Heat, 14 TemperatureStep")
     engine.phase("Action")
@@ -60,7 +60,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Eight plants place greenery and raise oxygen and terraform rating`() {
+  internal fun `Eight plants place greenery and raise oxygen and terraform rating`() {
     newGame()
     p1.manual("8 Plant")
     engine.phase("Action")
@@ -70,7 +70,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Greenery can still be placed after oxygen is maximized`() {
+  internal fun `Greenery can still be placed after oxygen is maximized`() {
     newGame()
     p1.manual("8 Plant, 14 OxygenStep")
     engine.phase("Action")
@@ -80,7 +80,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Reaching eight percent oxygen also raises temperature`() {
+  internal fun `Reaching eight percent oxygen also raises temperature`() {
     newGame()
     p1.manual("8 Plant, 7 OxygenStep")
     engine.phase("Action")
@@ -90,7 +90,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Tile placement grants both area and ocean adjacency bonuses`() {
+  internal fun `Tile placement grants both area and ocean adjacency bonuses`() {
     newGame()
     p1.manual("8 Plant, OceanTile<Tharsis_4_8>")
     engine.phase("Action")
@@ -100,7 +100,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Standard projects perform their advertised effects`() {
+  internal fun `Standard projects perform their advertised effects`() {
     newGame()
     p1.manual("100 Megacredit")
     engine.phase("Action")
@@ -115,7 +115,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `A qualified player can claim a milestone`() {
+  internal fun `A qualified player can claim a milestone`() {
     newGame()
     p1.manual("8 Megacredit, 15 TerraformRating")
     engine.phase("Action")
@@ -124,18 +124,18 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `Funding successive awards costs eight fourteen and twenty`() {
+  internal fun `Funding successive awards costs eight fourteen and twenty`() {
     newGame()
     p1.manual("42 Megacredit")
     engine.phase("Action")
 
     p1.stdAction("FundAwardSA") { doTask("Landlord") }.expect("-8 Megacredit, Award")
-    p1.stdAction("FundAwardSA") { doTask("Scientist") }.expect("-14 Megacredit, Award")
-    p1.stdAction("FundAwardSA") { doTask("Thermalist") }.expect("-20 Megacredit, Award")
+    p1.stdAction("FundAwardSA", which = 2) { doTask("Scientist") }.expect("-14 Megacredit, Award")
+    p1.stdAction("FundAwardSA", which = 3) { doTask("Thermalist") }.expect("-20 Megacredit, Award")
   }
 
   @Test
-  fun `Production converts existing energy before producing new resources`() {
+  internal fun `Production converts existing energy before producing new resources`() {
     newGame()
     p1.manual("2 Energy, PROD[Energy], PROD[2 Steel]")
 
@@ -147,7 +147,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `A colony trade can be paid for with three energy`() {
+  internal fun `A colony trade can be paid for with three energy`() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(players = 2, "Ceres"),
@@ -159,7 +159,7 @@ class CoreRulesTest : CardTest() {
   }
 
   @Test
-  fun `World Government terraforming gives no terraform rating`() {
+  internal fun `World Government terraforming gives no terraform rating`() {
     newGame(VenusNextExpansion)
 
     TfmWorkflow.Manual(game).solarPhase()

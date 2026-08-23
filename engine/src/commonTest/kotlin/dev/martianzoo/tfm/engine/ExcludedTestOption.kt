@@ -1,3 +1,3 @@
 package dev.martianzoo.tfm.engine
 
-public data class ExcludedTestOption(public val option: TestOption) : TestSelection
+internal data class ExcludedTestOption(public val option: TestOption) : TestSelection

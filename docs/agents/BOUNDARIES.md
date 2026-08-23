@@ -28,9 +28,9 @@ translation, while the foundational declarations live in Terraforming Mars canon
 documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
 under Terraforming Mars. The half-generic placement is the defect.
 
-The desired [Pets Action model](ACTIONS.md) makes this seam more explicit: every Action should use a
-provider- and action-qualified `CostPaid` bridge, but only fixed and X-scaled Terraforming Mars
-`StandardResource` costs open invoices. The generic Action transformer now recognizes those six
+The [Pets Action model](ACTIONS.md) makes this seam more explicit: fixed and X-scaled Terraforming
+Mars `StandardResource` costs use provider- and action-qualified invoices, while direct and
+costless Actions keep ordinary Pets sequencing. The generic Action transformer recognizes those six
 resource names directly, alongside its existing Terraforming Mars meaning for bare numbers. Treat
 both leaks as one boundary debt rather than adding a broad extension framework for this rule.
 

@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class ProductionPhaseTest {
   @Test
-  fun existingEnergyBecomesHeatBeforeNewEnergyIsProduced() {
+  internal fun existingEnergyBecomesHeatBeforeNewEnergyIsProduced() {
     val game = setUpGame()
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)

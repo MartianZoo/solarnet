@@ -351,6 +351,7 @@ Canonical card Definitions now preserve hidden card procedures in one ordinary
 CARDS[2 ProjectCard(HAS VenusTag)]
 CARDS[7 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
+CARDS[2 ProjectCard<Revealed> THEN 2 ProjectCard(HAS VenusTag) FROM ProjectCard<Revealed>. THEN BuyCards]
 CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]
 ```
 
@@ -363,22 +364,25 @@ A gain in `Selecting` offers cards, and a `FROM Selecting` instruction retains e
 Automatic cleanup discards anything left there when the operation completes. `Revealed` has the
 corresponding cleanup rule. A purchase procedure first removes unwanted cards and then invokes one
 unquantified `BuySelectedCards`, which buys every card remaining in that selection and charges for
-each. `THEN` is reserved for actual causal boundaries, such as reveal-before-test or
-discard-before-purchase; `FROM Selecting` already prevents retention before the offer exists.
+each. After a reveal has retained matching cards, `BuyCards` offers the remaining revealed cards at
+the ordinary purchase cost and cleanup discards the declined cards. `THEN` is reserved for actual
+causal boundaries, such as reveal-before-test or discard-before-purchase; `FROM Selecting` already
+prevents retention before the offer exists.
 
 Follow mode currently neutralizes `CARDS` before Class loading according to that inner shape. A
 search becomes the old plain `ProjectCard` gain; a retained-card movement becomes the old gain;
 purchase selection becomes the old optional `BuyCard` result; a conditional reveal becomes its old
-optional outcome; and Event recovery becomes recovery from `PlayedEvent`. Consequently the source
-contains the printed knowledge while current execution needs no `CardArea` declarations. This
-neutralization is temporary executable compilation, not real-card behavior.
+optional outcome; reveal-retain-purchase becomes one free-or-buy outcome per revealed card; and Event
+recovery becomes recovery from `PlayedEvent`. Consequently the source contains the printed knowledge
+while current execution needs no `CardArea` declarations. This neutralization is temporary
+executable compilation, not real-card behavior.
 
 The current source-level operation inventory is:
 
 | Family | Cards |
 | --- | --- |
 | Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Nobel Prize, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
-| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab |
+| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics |
 | Inspect one, buy or discard | Inventors' Guild, Business Network |
 | Reveal and test | Search for Life, Asteroid Deflection System |
 | Reveal two, retain matches, buy or discard the rest | Venus Orbital Survey |

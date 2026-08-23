@@ -15,9 +15,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
-class FirstPartialGameTest : TfmTest() {
+internal class FirstPartialGameTest : TfmTest() {
   @Test
-  fun fourWholeGenerations() {
+  internal fun fourWholeGenerations() {
     repeat(1) {
       val setup =
           canonicalPremise(
@@ -110,7 +110,7 @@ class FirstPartialGameTest : TfmTest() {
       p1.pass()
 
       p2.turn {
-        cardAction1(ElectroCatapult)
+        cardAction2(ElectroCatapult)
         playProject(SpaceHotels, 7, titanium = 1)
 
         playProject(MarsUniversity, 6) {
@@ -132,7 +132,7 @@ class FirstPartialGameTest : TfmTest() {
       p2.buyCards(2)
 
       p2.turn {
-        cardAction1(ElectroCatapult)
+        cardAction2(ElectroCatapult)
         cardAction1(SpaceElevator)
       }
 

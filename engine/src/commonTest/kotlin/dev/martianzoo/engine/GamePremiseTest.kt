@@ -22,7 +22,7 @@ import kotlin.test.Test
 
 internal class GamePremiseTest {
   @Test
-  fun rawConfigResolvesToAffirmativeClassNames() {
+  internal fun rawConfigResolvesToAffirmativeClassNames() {
     val config = GameConfig("-CorporateEraExpansion", "Player1", "Player2")
 
     val premise = Canon.gamePremise(config)
@@ -34,7 +34,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun observationalModuleReferencesDoNotCreateBootstrapDependencies() {
+  internal fun observationalModuleReferencesDoNotCreateBootstrapDependencies() {
     val observers =
         object : Bundle(cn("Observers")) {
           override val explicitClassDeclarations =
@@ -59,7 +59,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun configuredPlayerNamesBecomeVocabularyAliasesForCanonicalPlayers() {
+  internal fun configuredPlayerNamesBecomeVocabularyAliasesForCanonicalPlayers() {
     val mom = cn("Mom")
     val ellie = cn("Ellie")
     val config = GameConfig("-CorporateEraExpansion", "Mom", "Ellie")
@@ -86,7 +86,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun preludeRulesCanUseOnlyThePrelude2CardPool() {
+  internal fun preludeRulesCanUseOnlyThePrelude2CardPool() {
     val table =
         Engine.newGame(
                 Canon.gamePremise(
@@ -105,7 +105,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun malformedConfigurationFailsBeforeBootstrappingAWorld() {
+  internal fun malformedConfigurationFailsBeforeBootstrappingAWorld() {
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("TypoOption, VenusNextExpansion", "Player1"))
     }
@@ -121,7 +121,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun unseatedCanonicalPlayerCannotBeActivatedAsAnOrdinaryClass() {
+  internal fun unseatedCanonicalPlayerCannotBeActivatedAsAnOrdinaryClass() {
     val premise =
         Canon.gamePremise(GameConfig("", "Player1", "Player2"))
             .copy(classSelections = setOf(ClassSelection(cn("Player3"), included = true)))
@@ -130,14 +130,14 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun individualClassExclusionOverridesAModule() {
+  internal fun individualClassExclusionOverridesAModule() {
     val premise = Canon.gamePremise(GameConfig("-$ColonizerTrainingCamp", "Player1", "Player2"))
 
     Engine.newGame(premise).classTable.isActive(ColonizerTrainingCamp) shouldBe false
   }
 
   @Test
-  fun namedGoalConfigurationSelectsExactMilestoneAndAwardPools() {
+  internal fun namedGoalConfigurationSelectsExactMilestoneAndAwardPools() {
     val premise =
         Canon.gamePremise(
             GameConfig(
@@ -157,7 +157,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun namedGoalsCanReplaceOneDefaultPoolWithoutSelectingTheExpansionModule() {
+  internal fun namedGoalsCanReplaceOneDefaultPoolWithoutSelectingTheExpansionModule() {
     val premise =
         Canon.gamePremise(
             GameConfig(
@@ -176,7 +176,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun soloModeDoesNotActivateDefaultGoalsOrMultiplayerGoalActions() {
+  internal fun soloModeDoesNotActivateDefaultGoalsOrMultiplayerGoalActions() {
     val table = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1"))).classTable
 
     Canon.milestoneDefinitions.none { table.isActive(it.className) } shouldBe true
@@ -190,7 +190,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun initialComponentTypesMustBeConcreteAndNonSingleton() {
+  internal fun initialComponentTypesMustBeConcreteAndNonSingleton() {
     val premise =
         Canon.gamePremise(GameConfig("", "Player1", "Player2"))
             .copy(initialComponentTypes = setOf(cn("Card").expression))

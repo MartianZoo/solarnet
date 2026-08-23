@@ -5,10 +5,10 @@ import dev.martianzoo.pets.ast.PetNode
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 
-internal inline fun <reified T : PetNode> checkBothWays(asText: String, node: T) =
+private inline fun <reified T : PetNode> checkBothWays(asText: String, node: T) =
     checkBothWays(T::class, asText, node)
 
-internal fun <T : PetNode> checkBothWays(type: KClass<T>, asText: String, node: T) {
+private fun <T : PetNode> checkBothWays(type: KClass<T>, asText: String, node: T) {
   node.toString() shouldBe asText
   parse(type, asText) shouldBe node
 }

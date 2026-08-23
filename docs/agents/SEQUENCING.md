@@ -144,9 +144,9 @@ is the stronger form for restoring an invariant before player work appears.
 
 `THEN` is appropriate when only particular authored A operations require B, no honest trigger or
 state gate distinguishes them, and that instruction conceptually owns the pair. A direct Pets
-Action cost followed by its action-qualified `CostPaid` signal, or a placement followed by a marker
-identifying that selected place, are normal examples. The Action payoff itself responds to
-`CostPaid`; see [ACTIONS.md](ACTIONS.md).
+Action cost followed by its payoff, or a placement followed by a marker identifying that selected
+place, are normal examples. Standard-resource Actions instead use the removal of their finalized
+invoice as the completion event; see [ACTIONS.md](ACTIONS.md).
 
 Completing A enqueues B in A's place. B is not immediate and receives no priority over unrelated
 tasks. `A1, A2, B1, B2` may be a legal order for two `A THEN B` chains. `THEN` waits for the A
@@ -212,29 +212,35 @@ Current strong examples are:
   subscribe to `Trade`, establish a `TradeBarrier`, and finish their optional track decision before
   the already-selected fleet movement can occur.
 - `PlayCard<Class<CardBack>, Class<CardFront>>` is the broader precursor to moving that selected
-  card into its `CardFront` state. Card-wide discounts and next-card effects modify `Owed` from this
-  signal; gated card entry is mandatory in every successful play operation.
+  card into its `CardFront` state. After printed debt and tags exist, generic discounts and
+  next-card effects respond to `Billing<PlayCards>`. The concrete `CardInvoice` retains the card
+  Class only for filters that inspect it; gated card entry is mandatory in every successful play
+  operation.
 - `UseAction<ConvertPlantsSA>` and `UseAction<ConvertHeatSA>` create their standard-resource `Owed`
-  payments and a payment-specific `Payment` barrier. Ecoline reduces the plant debt by one. Once
-  the corresponding `Pay` removes the owner's final `Owed`, the barrier is transmuted into that
-  conversion's `CostPaid` signal and only that conversion's result responds.
-- Every concrete `StandardProject` inherits the same payment protocol: one automatic rule creates
-  M€ debt from its `cost` property, and its shared action creates `Payment<This>`. The concrete
-  project says only how it responds to `CostPaid<This>`. Discounts reduce `Owed`;
+  amounts and a qualified `Invoice` barrier. Ecoline reduces the plant debt by one. Once the
+  corresponding `Pay` removes the owner's final matching `Owed`, the invoice removes itself and
+  only that conversion's result responds.
+- Every concrete `StandardProject` declares an ordinary `1 / cost -> result` Action. Standard-cost
+  Action lowering creates M€ debt from the provider's `cost` property and then one qualified
+  invoice. Discounts reduce `Owed`;
   Standard Technology's separate 3 M€ reaction remains a rebate rather than reducing the debt.
 - `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose
   `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
   the same concrete holder. The holder dependency distinguishes cards that use the same resource
   class, while each card's reaction to its own signal supplies its printed exchange rate.
+- Stormcraft uses that billing path for action costs. When Local Heat Trapping enters play, its
+  separate optional conversion may share the queue with LHT's immediate instructions; because heat
+  is fungible, resolving the conversion before or after the removal has the same final resource
+  totals.
 Two related families should not be described more strongly than the implementation supports:
 
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
   Docks use the action-qualified Trade signals to supply the selected payment resource. This is
   generic action dispatch, however, not a promise of one uniform later component Type.
-- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain, allowing Polyphemos and
-  Terralabs Research to change the purchase cost. Its intrinsic cost and card gain are queued
-  together, so it promises both in a successful operation but does not currently prove a strict
-  cost-before-`ProjectCard` observation boundary.
+- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. It creates the base `Owed`
+  amount; Polyphemos and Terralabs Research modify that same debt automatically. Only then does it
+  create an invoice hosted by the live `BuyCards` component, which exposes payment and gates the
+  `ProjectCard` gain until settlement.
 
 `Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
 not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
@@ -476,9 +482,9 @@ Mons Insurance. Any implementation must therefore test the three dimensions abov
 
 ## Settled families
 
-Pets Action lowering is partly normalized. Fixed and X-scaled standard-resource costs now separate
-invoice settlement from the payoff with action-qualified `CostPaid` signals; costless and direct
-costs still use the older generated chain. See [ACTIONS.md](ACTIONS.md).
+Fixed and X-scaled standard-resource Action costs use provider- and action-qualified invoices whose
+removal unlocks the payoff. Costless and direct costs retain ordinary Pets sequencing. See
+[ACTIONS.md](ACTIONS.md).
 
 These current encodings are considered principled:
 

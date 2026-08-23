@@ -52,7 +52,7 @@ internal object ClassParsing : PetTokenizer() {
    * fine-grained details never needed again.
    */
 
-  internal object Signatures {
+  private object Signatures {
 
     private val dependencies: Parser<List<Expression>> =
         optionalList(
@@ -77,7 +77,7 @@ internal object ClassParsing : PetTokenizer() {
         zeroOrMore(skipChar(',') and signature) map ClassParsing::MoreSignatures
   }
 
-  internal object BodyElements {
+  private object BodyElements {
     private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
@@ -160,7 +160,7 @@ internal object ClassParsing : PetTokenizer() {
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
 
-    private val docstring: Parser<String> = _docString map { it.text.removeSurrounding("\"") }
+    private val docstring: Parser<String> = quotedText
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
@@ -235,7 +235,7 @@ internal object ClassParsing : PetTokenizer() {
     ): NestableDeclGroup
   }
 
-  internal class MoreSignatures(private val moreSignatures: List<Signature>) :
+  private class MoreSignatures(private val moreSignatures: List<Signature>) :
       MoreSignaturesOrBody() {
     override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
         NestableDeclGroup(
@@ -290,7 +290,7 @@ internal object ClassParsing : PetTokenizer() {
         body: Body,
     ) : this(create(kind, signature, body))
 
-    fun unnestAllFrom(container: ClassName): List<NestableDecl> = declList.map {
+    private fun unnestAllFrom(container: ClassName): List<NestableDecl> = declList.map {
       it.unnestOneFrom(container)
     }
 
@@ -322,7 +322,7 @@ internal object ClassParsing : PetTokenizer() {
 
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
-    data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
+    private data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
       override fun unnestOneFrom(container: ClassName) = this
     }
 

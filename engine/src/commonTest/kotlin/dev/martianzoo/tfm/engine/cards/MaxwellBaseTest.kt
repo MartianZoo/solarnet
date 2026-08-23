@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class MaxwellBaseTest : CardTest() {
+internal class MaxwellBaseTest : CardTest() {
   @Test
-  fun `Can add a floater to another Venus card`() {
+  internal fun `Can add a floater to another Venus card`() {
     newGame(VenusNextExpansion)
     engine.phase("Action")
     p1.manual("PROD[Energy], $ForcedPrecipitation")

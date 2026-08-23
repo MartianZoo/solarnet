@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class SoloGame20230710Test : AbstractSoloTest() {
+internal class SoloGame20230710Test : AbstractSoloTest() {
   // Miranda was removed because solo Colonies uses only three selected tiles.
   override val config =
       GameConfig(
@@ -24,7 +24,7 @@ class SoloGame20230710Test : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_5_1" to "Tharsis_5_7"
 
   @Test
-  fun soloGame20230710() {
+  internal fun soloGame20230710() {
     with(me) {
       playCorp(PharmacyUnion, 10).expect("16, 11 ProjectCard")
 

@@ -18,4 +18,4 @@ internal fun <T : Any> T?.pre(prefix: Any, transform: (T) -> Any = { it }) =
 internal fun <T : Any> T?.suf(suffix: Any, transform: (T) -> Any = { it }) =
     wrap("", suffix, transform)
 
-public fun Any.iff(b: Boolean): String = if (b) toString() else ""
+internal fun Any.iff(b: Boolean): String = if (b) toString() else ""

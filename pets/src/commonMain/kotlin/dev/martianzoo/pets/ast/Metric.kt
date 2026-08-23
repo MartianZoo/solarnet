@@ -20,7 +20,7 @@ import kotlin.math.min
 public sealed class Metric : PetElement() {
   public companion object {
     /** Returns [inner] scaled by [unit], omitting the meaningless wrapper when [unit] is one. */
-    public fun scaled(inner: Metric, unit: Int): Metric {
+    internal fun scaled(inner: Metric, unit: Int): Metric {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")
       return if (unit == 1) inner else Scaled(inner, unit)
     }

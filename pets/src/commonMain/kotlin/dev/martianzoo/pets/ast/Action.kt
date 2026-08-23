@@ -4,7 +4,6 @@ import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
@@ -20,12 +19,10 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
 
 /**
- * Classes can offer actions like `Steel OR Plant -> 7` for players to manually trigger. In practice
- * these are used by the Pets classes `StandardAction`, `StandardProject`, `ActionCard`, and
- * `Mandate`.
+ * Classes can offer actions like `Plant -> 7` for players to manually trigger. In practice these
+ * are used by the Pets classes `StandardAction`, `StandardProject`, `ActionCard`, and `Mandate`.
  *
- * Actions eventually get converted into triggered [Effect]s; the example above would become
- * `UseAction<ElectroCatapult, First>: (-Steel OR -Plant) THEN 7`.
+ * Actions eventually get converted into triggered [Effect]s.
  */
 public data class Action(val cost: Cost?, val instruction: InstructionTree) : PetElement() {
   override val kind: kotlin.reflect.KClass<out PetNode> = Action::class
@@ -84,7 +81,6 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
     internal data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
         when (cost) {
-          is Cost.Or,
           is Cost.Multi -> throw PetSyntaxException("Break into separate Per instructions")
           is Per -> throw PetSyntaxException("Might support in future?")
           else -> {}
@@ -101,25 +97,8 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
           Instruction.Per(cost.toInstruction() as Instruction, metric)
     }
 
-    @ConsistentCopyVisibility
-    public data class Or internal constructor(val costs: Set<Cost>) : Cost() {
-      internal constructor(vararg costs: Cost) : this(costs.toSet())
-
-      init {
-        require(costs.size >= 2)
-      }
-
-      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(costs)
-
-      override fun toString(): String = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
-
-      override fun precedence(): Int = 3
-
-      override fun toInstruction() = Or(costs.map { it.toInstruction() })
-    }
-
     internal data class Multi(var costs: List<Cost>) : Cost() {
-      internal constructor(vararg costs: Cost) : this(costs.toList())
+      private constructor(vararg costs: Cost) : this(costs.toList())
 
       init {
         require(costs.size >= 2)
@@ -160,16 +139,9 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
                     if (met == null) cost else Per(cost, met)
                   }
 
-          val orCost =
-              separatedTerms(perCost or group(parser()), _or) map
-                  {
-                    val set = it.toSet()
-                    if (set.size == 1) set.first() else Or(set)
-                  }
-
           val gatedCost =
               optional(Requirement.atomParser() and skipChar(':')) and
-                  orCost map
+                  (perCost or group(parser())) map
                   { (gate, cost) ->
                     if (gate == null) cost else Gated(gate, cost)
                   }

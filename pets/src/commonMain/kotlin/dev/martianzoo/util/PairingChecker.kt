@@ -91,7 +91,7 @@ internal object PairingChecker {
   }
 }
 
-internal object Tokenizer {
+private object Tokenizer {
   private val tokens = mutableListOf<Token>()
 
   private val toker by lazy { DefaultTokenizer(tokens) }

@@ -20,7 +20,7 @@ import dev.martianzoo.util.Reifiable
 /** The combination of a positive integer (or `X`) with an [Expression]. */
 @ConsistentCopyVisibility
 public data class ScaledExpression
-internal constructor(
+private constructor(
     val expression: Expression = MEGACREDIT.of(),
     val scalar: Scalar,
 ) : PetNode() {
@@ -46,7 +46,7 @@ internal constructor(
 
   internal operator fun times(multiple: Int) = copy(scalar = scalar * multiple)
 
-  internal fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
+  private fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
       when {
         !forceExpression && expression == MEGACREDIT.of() -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
@@ -63,7 +63,7 @@ internal constructor(
     internal abstract operator fun times(multiple: Int): Scalar
 
     /** Replaces an authored X with [value], retaining its written coefficient. */
-    public fun bindX(value: Int): Scalar =
+    internal fun bindX(value: Int): Scalar =
         when (this) {
           is ActualScalar -> this
           is XScalar -> ActualScalar(value * multiple)

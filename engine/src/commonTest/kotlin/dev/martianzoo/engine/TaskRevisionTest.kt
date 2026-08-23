@@ -21,7 +21,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
-class TaskRevisionTest {
+internal class TaskRevisionTest {
   private val game = Engine.newGame(canonicalPremise(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
 
   // Kinda gross
@@ -31,7 +31,7 @@ class TaskRevisionTest {
   private val start = game.timeline.checkpoint()
 
   @Test
-  fun `initiating NoOp does nothing`() {
+  internal fun `initiating NoOp does nothing`() {
     val tasks = initiate("Ok")
 
     tasks.shouldBeEmpty()
@@ -40,7 +40,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `initiating an abstract task works as expected`() {
+  internal fun `initiating an abstract task works as expected`() {
     initiate("2 Plant?")
 
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
@@ -48,7 +48,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing an instruction to itself has no effect`() {
+  internal fun `narrowing an instruction to itself has no effect`() {
     initiate("2 Plant?")
     val before = game.timeline.checkpoint()
 
@@ -58,7 +58,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `a normal case of narrowing works normally`() {
+  internal fun `a normal case of narrowing works normally`() {
     val originalId = initiate("2 Plant?").single()
 
     writer.reviseTask("2 Plant?", "Plant!")
@@ -69,7 +69,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `an invalid narrowing fails, atomically`() {
+  internal fun `an invalid narrowing fails, atomically`() {
     initiate("2 Plant?")
     history().shouldHaveSize(1)
     shouldThrow<NarrowingException> { writer.reviseTask("2 Plant?", "3 Plant!") }
@@ -77,7 +77,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `repeated narrowing`() {
+  internal fun `repeated narrowing`() {
     initiate("3 StandardResource?")
 
     writer.reviseTask("3 StandardResource?", "2 StandardResource?")
@@ -89,7 +89,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing an OR works normally`() {
+  internal fun `narrowing an OR works normally`() {
     initiate("5 Plant OR 4 Heat")
     tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>! OR 4 Heat<Player1>!")
 
@@ -99,7 +99,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing an OR can enqueue multiple instructions`() {
+  internal fun `narrowing an OR can enqueue multiple instructions`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
     writer.reviseTask("5 Plant OR (4 Heat, 2 Energy)", "4 Heat, 2 Energy")
@@ -114,14 +114,14 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `an OR with only one live grouped arm starts each grouped task`() {
+  internal fun `an OR with only one live grouped arm starts each grouped task`() {
     initiate("(4 Heat, 2 Energy) OR Die")
 
     tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
   }
 
   @Test
-  fun `doing a task can select a grouped arm`() {
+  internal fun `doing a task can select a grouped arm`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
     writer.doTask("4 Heat, 2 Energy")
@@ -132,7 +132,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `trying a task can select a grouped arm`() {
+  internal fun `trying a task can select a grouped arm`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
     writer.tryTask("4 Heat, 2 Energy")
@@ -143,7 +143,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing an OR can narrow each instruction in a grouped arm`() {
+  internal fun `narrowing an OR can narrow each instruction in a grouped arm`() {
     initiate("5 Plant OR (4 StandardResource, 2 StandardResource)")
 
     writer.reviseTask(
@@ -155,7 +155,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing to the first stage selects a THEN arm of an OR`() {
+  internal fun `narrowing to the first stage selects a THEN arm of an OR`() {
     initiate("(-ProjectCard THEN ProjectCard) OR Ok")
 
     writer.reviseTask("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
@@ -166,7 +166,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `changing a grouped instruction is a narrowing failure`() {
+  internal fun `changing a grouped instruction is a narrowing failure`() {
     initiate("TR: (Plant, Heat)")
 
     shouldThrow<NarrowingException> {
@@ -175,7 +175,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing to Ok automatically handles the task`() {
+  internal fun `narrowing to Ok automatically handles the task`() {
     initiate("2 Plant?")
 
     writer.reviseTask("2 Plant?", "Ok")
@@ -184,7 +184,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing to something impossible is not prevented`() {
+  internal fun `narrowing to something impossible is not prevented`() {
     initiate("-30 TerraformRating?")
 
     writer.reviseTask("-30 TerraformRating?", "-21 TerraformRating!")
@@ -199,7 +199,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `selecting an AMAP target early locks its domain and rejects a zero target`() {
+  internal fun `selecting an AMAP target early locks its domain and rejects a zero target`() {
     writer.godMode().manual("OceanTile<Tharsis_1_2>")
     initiate("OceanTile<>")
 
@@ -213,7 +213,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `an omitted selection intensity preserves a stronger pending intensity`() {
+  internal fun `an omitted selection intensity preserves a stronger pending intensity`() {
     initiate("OceanTile<LandArea>!")
 
     shouldThrow<TaskException> { writer.doTask("OceanTile<Tharsis_2_3>.") }
@@ -224,7 +224,17 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `selecting a PER-wrapped AMAP target early locks the evaluated instruction`() {
+  internal fun `an omitted selection intensity inherits from the selected OR arm`() {
+    initiate("OceanTile<LandArea>! OR Plant!")
+
+    writer.doTask("OceanTile<Tharsis_2_3>")
+
+    writer.count("OceanTile<Tharsis_2_3>") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `selecting a PER-wrapped AMAP target early locks the evaluated instruction`() {
     writer.godMode().manual("Plant")
     initiate("OceanTile<> / Plant")
 
@@ -235,7 +245,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `selecting a PER-wrapped AMAP target with a zero metric resolves to NoOp`() {
+  internal fun `selecting a PER-wrapped AMAP target with a zero metric resolves to NoOp`() {
     initiate("OceanTile<> / Steel")
 
     writer.reviseTask("OceanTile<> / Steel", "OceanTile<Tharsis_1_4> / Steel")
@@ -244,7 +254,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `doing a task evaluates a PER revision before matching`() {
+  internal fun `doing a task evaluates a PER revision before matching`() {
     writer.godMode().manual("3 Heat")
     initiate("X Plant?")
 
@@ -255,7 +265,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing to NoOp enqueues the THEN instructions`() {
+  internal fun `narrowing to NoOp enqueues the THEN instructions`() {
     initiate("Plant? THEN (Steel, Heat)")
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("Plant<Player1>?")
     tasks.extract { "${it.then}" }.shouldContainExactlyInAnyOrder("Steel<Player1>!, Heat<Player1>!")
@@ -266,7 +276,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `a chain of 4 THEN clauses has the head sliced off one by one`() {
+  internal fun `a chain of 4 THEN clauses has the head sliced off one by one`() {
     initiate("Plant? THEN Steel? THEN Heat? THEN Energy")
 
     writer.reviseTask("Plant?", "Ok")
@@ -287,7 +297,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `a lone X does not keep otherwise independent THEN stages together`() {
+  internal fun `a lone X does not keep otherwise independent THEN stages together`() {
     initiate("Plant? THEN X StandardResource?")
 
     val task = tasks.extract { it }.single()
@@ -296,7 +306,16 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `executing a THEN head creates independent abstract tail tasks`() {
+  internal fun `selecting a THEN head carries its X into the continuation`() {
+    initiate("X Plant? THEN X Heat?")
+
+    writer.doTask("3 Plant")
+
+    tasksAsText().shouldContainExactly("3 Heat<Player1>?")
+  }
+
+  @Test
+  internal fun `executing a THEN head creates independent abstract tail tasks`() {
     initiate("Plant! THEN (Steel?, Heat?)")
 
     writer.doTask("Plant!")
@@ -314,7 +333,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
+  internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
     game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
     initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
 
@@ -326,7 +345,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
+  internal fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
     game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
     initiate("3 Megacredit FROM Megacredit<Player>.")
 
@@ -337,7 +356,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `selecting a zero-count AMAP actor after autoexec still binds the continuation`() {
+  internal fun `selecting a zero-count AMAP actor after autoexec still binds the continuation`() {
     writer.godMode().manual("3 Megacredit")
     initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
     writer.autoExecNow()
@@ -351,7 +370,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `selecting an AMAP source binds the later stage before preparation`() {
+  internal fun `selecting an AMAP source binds the later stage before preparation`() {
     game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
     writer.autoExecMode = NONE
     initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")

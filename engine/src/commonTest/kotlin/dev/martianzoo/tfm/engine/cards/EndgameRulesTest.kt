@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class EndgameRulesTest : CardTest() {
+internal class EndgameRulesTest : CardTest() {
   @Test
-  fun `Final production occurs before players place their final greeneries`() {
+  internal fun `Final production occurs before players place their final greeneries`() {
     newGame()
     p1.manual("PROD[Steel], 8 Plant")
     engine.manual(
@@ -29,7 +29,7 @@ class EndgameRulesTest : CardTest() {
   }
 
   @Test
-  fun `Standard solo victory requires completing all base global parameters`() {
+  internal fun `Standard solo victory requires completing all base global parameters`() {
     newGame(players = 1)
     exhaustSoloCountdown()
     engine.manual("SoloVictoryCheck")
@@ -47,7 +47,7 @@ class EndgameRulesTest : CardTest() {
   }
 
   @Test
-  fun `Prelude shortens the solo countdown by two generations`() {
+  internal fun `Prelude shortens the solo countdown by two generations`() {
     newGame(players = 1)
     engine.count("SoloGenerationsLeft") shouldBe 13
 
@@ -56,7 +56,7 @@ class EndgameRulesTest : CardTest() {
   }
 
   @Test
-  fun `TR 63 solo ignores completed parameters below 63 and wins at 63`() {
+  internal fun `TR 63 solo ignores completed parameters below 63 and wins at 63`() {
     newGame(VenusNextExpansion, Tr63SoloVariant, players = 1)
     p1.manual("48 TerraformRating")
     engine.manual(

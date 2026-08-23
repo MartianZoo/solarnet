@@ -19,7 +19,7 @@ private constructor(
     public val locale: String,
     private val displayNames: Map<ClassName, String>,
     private val petsNames: Map<ClassName, ClassName>,
-    public val inputOnlySynonyms: Map<ClassName, ClassName>,
+    private val inputOnlySynonyms: Map<ClassName, ClassName>,
     private val inputNames: Map<ClassName, ClassName>,
 ) {
   /** Resolves a localized Pets name or input-only synonym to its stable canonical name. */
@@ -251,7 +251,7 @@ private constructor(
     }
 
     /** Derives the sole Pets-compatible spelling allowed for the ASCII [displayName]. */
-    public fun petsClassName(displayName: String): ClassName {
+    internal fun petsClassName(displayName: String): ClassName {
       requireAscii(displayName)
       var atWordStart = true
       var wordStartedUppercase = false

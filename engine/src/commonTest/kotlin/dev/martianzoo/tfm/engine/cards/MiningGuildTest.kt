@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class MiningGuildTest : CardTest() {
+internal class MiningGuildTest : CardTest() {
   @Test
-  fun `Raises steel production for metal areas but not card-bonus areas`() {
+  internal fun `Raises steel production for metal areas but not card-bonus areas`() {
     newGame()
     p1.manual("$MiningGuild")
     p1.count("PROD[Steel]") shouldBe 1

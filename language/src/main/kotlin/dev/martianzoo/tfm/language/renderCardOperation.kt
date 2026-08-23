@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.data.CardOperation
-import dev.martianzoo.tfm.data.CardOperation.FilteredPurchase
 import dev.martianzoo.tfm.data.CardOperation.RecoverEvents
+import dev.martianzoo.tfm.data.CardOperation.RevealAndPurchase
 import dev.martianzoo.tfm.data.CardOperation.RevealAndTest
 import dev.martianzoo.tfm.data.CardOperation.Search
 import dev.martianzoo.tfm.data.CardOperation.SelectAndKeep
@@ -15,7 +15,7 @@ internal fun renderCardOperation(transform: Transform, describers: Describers): 
     is Search -> renderSearch(operation, describers)?.let(::listOf)
     is SelectAndKeep -> renderSelection(operation)
     is SelectAndPurchase -> renderPurchaseSelection()
-    is FilteredPurchase -> renderFilteredPurchase(operation, describers)
+    is RevealAndPurchase -> renderRevealAndPurchase(operation, describers)
     is RevealAndTest -> renderRevealAndTest(operation, describers)
     is RecoverEvents -> renderEventRecovery(operation)?.let(::listOf)
   }
@@ -45,15 +45,15 @@ private fun renderPurchaseSelection(): List<Clause> =
         ),
     )
 
-private fun renderFilteredPurchase(
-    operation: FilteredPurchase,
+private fun renderRevealAndPurchase(
+    operation: RevealAndPurchase,
     describers: Describers,
 ): List<Clause>? {
   val criterion = describers.cardCriterion(operation.filter) ?: return null
-  val offered = countedProjectCards(operation.offered.count.quantity())
+  val revealed = countedProjectCards(operation.revealed.count.quantity())
   val matching = anyMatchingCards(criterion, describers)
   return listOf(
-      clause("look at", offered),
+      clause("reveal", revealed),
       clause("draw", matching, Modifier.Phrase("for free")),
       Clause.Simple(
           Predicate("may buy", Coordination.one(NounPhrase.text("each other card"))),

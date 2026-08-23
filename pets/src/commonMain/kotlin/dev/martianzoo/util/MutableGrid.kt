@@ -1,7 +1,7 @@
 package dev.martianzoo.util
 
 // TODO: Replace this fixed-size mutable set/grid hybrid with a collection whose contracts match.
-public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
+internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
 
   override val rowCount: Int by rows::size
   override val columnCount: Int by rows[0]::size

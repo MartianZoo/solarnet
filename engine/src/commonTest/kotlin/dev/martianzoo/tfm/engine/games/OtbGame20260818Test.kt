@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
-class OtbGame20260818Test : AbstractFullGameTest() {
+internal class OtbGame20260818Test : AbstractFullGameTest() {
   private val colonyTiles = listOf("Enceladus", "Miranda", "Europa", "Io", "Pluto")
 
   // "We are playing on the Utopia Planitia board."
@@ -35,7 +35,7 @@ class OtbGame20260818Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun otbGame20260818() {
+  internal fun otbGame20260818() {
     TfmWorkflow.Auto(game).launch()
     val dad = game.tfm(Player.PLAYER1)
     val ellie = game.tfm(Player.PLAYER2)
@@ -937,7 +937,7 @@ class OtbGame20260818Test : AbstractFullGameTest() {
       cardAction1(MartianZoo).expect("5")
       // Dad: "It appears I never used Business Network. So I'm going to use Business Network to
       // look at a card. I think that makes me want to take it more, so I will pay three for it."
-      cardAction1(BusinessNetwork) { buyCards(1) }.expect("-3, ProjectCard")
+      cardAction1(BusinessNetwork) { dad.buyCards(1) }.expect("-3, ProjectCard")
       pass()
     }
 
@@ -1456,7 +1456,7 @@ class OtbGame20260818Test : AbstractFullGameTest() {
 
     dad.turn {
       // "I pay fourteen... Mogul." "Yeah. I think I got that one."
-      stdAction("FundAwardSA") { doTask("Mogul") }
+      stdAction("FundAwardSA", which = 2) { doTask("Mogul") }
       // "Listen, all of y'all. It's sabotage. So... You lose... Seven money, and that's it."
       playProject(Sabotage, 1) { doTask("-7 M<Ellie>") }.expect("-ProjectCard")
     }

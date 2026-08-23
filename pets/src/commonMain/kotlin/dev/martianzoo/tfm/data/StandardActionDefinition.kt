@@ -13,9 +13,9 @@ import dev.martianzoo.tfm.data.TfmClasses.STANDARD_ACTION
 
 public data class StandardActionDefinition(
     override val className: ClassName,
-    val actions: List<String>,
+    private val actions: List<String>,
     private val automaticSelectionRequirementText: String? = null,
-    val effects: List<String> = emptyList(),
+    private val effects: List<String> = emptyList(),
 ) : Definition {
   init {
     require(automaticSelectionRequirementText?.isNotBlank() != false)

@@ -39,7 +39,7 @@ internal class CardDefinitionTest {
       )
 
   @Test
-  fun realCardDefinitionFromApi() {
+  internal fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
     birds.className shouldBe cn("Birds")
     birds.deck shouldBe PROJECT
@@ -58,7 +58,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun cardWithoutRequirementOmitsThePropertyValue() {
+  internal fun cardWithoutRequirementOmitsThePropertyValue() {
     val card =
         CardDefinition(
             CardData(
@@ -72,7 +72,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun eventTagIsDerivedOnlyForEventCards() {
+  internal fun eventTagIsDerivedOnlyForEventCards() {
     val prelude = CardDefinition(CardData(name = "ExamplePrelude", deck = "PRELUDE"))
     val event =
         CardDefinition(CardData(name = "ExampleEvent", deck = "PROJECT", projectKind = "EVENT"))
@@ -99,7 +99,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun cardTagsMustActuallyBeTags() {
+  internal fun cardTagsMustActuallyBeTags() {
     val badCard = CardDefinition(CardData(name = "BadCard", tags = listOf("WildTag")))
     val badSource =
         object : TfmAuthority() {
@@ -112,7 +112,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun realCardFromJson() {
+  internal fun realCardFromJson() {
     val json =
         """
       {
@@ -137,7 +137,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun derivedClassAtPointOfUseLowersToAnOrdinaryCardLocalClass() {
+  internal fun derivedClassAtPointOfUseLowersToAnOrdinaryCardLocalClass() {
     val card =
         CardDefinition(CardData(name = "TestCard1", immediate = "Mandate { -> 3 ProjectCard }"))
 
@@ -149,7 +149,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun derivedClassSuffixPreservesUseSiteRefinementsAndSpecializesItsSupertype() {
+  internal fun derivedClassSuffixPreservesUseSiteRefinementsAndSpecializesItsSupertype() {
     val card =
         CardDefinition(
             CardData(
@@ -177,7 +177,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun derivedClassBodyMustFollowTheCompleteExpressionAndCannotContainDefaults() {
+  internal fun derivedClassBodyMustFollowTheCompleteExpressionAndCannotContainDefaults() {
     assertFailsWith<PetSyntaxException> {
       CardDefinition(CardData(name = "TestCard3", immediate = "SpecialTile {}<LandArea>"))
     }
@@ -192,7 +192,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun assignedDerivedClassNameMayBeReferencedElsewhereInTheParentInstruction() {
+  internal fun assignedDerivedClassNameMayBeReferencedElsewhereInTheParentInstruction() {
     val card =
         CardDefinition(
             CardData(
@@ -205,7 +205,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun realCardOperationsRemainInSourceWhileExecutableEffectsUseFollowMode() {
+  internal fun realCardOperationsRemainInSourceWhileExecutableEffectsUseFollowMode() {
     val card =
         CardDefinition(
             CardData(
@@ -231,7 +231,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun followModeNeutralizesRealCardOperationsInsideDerivedClassBodies() {
+  internal fun followModeNeutralizesRealCardOperationsInsideDerivedClassBodies() {
     val card =
         CardDefinition(
             CardData(
@@ -253,7 +253,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun followModeNeutralizesRealCardPurchaseActions() {
+  internal fun followModeNeutralizesRealCardPurchaseActions() {
     val single =
         CardDefinition(
             CardData(
@@ -266,15 +266,15 @@ internal class CardDefinitionTest {
                     ),
             )
         )
-    val filtered =
+    val revealed =
         CardDefinition(
             CardData(
-                name = "FilteredCardPurchase",
+                name = "RevealedCardPurchase",
                 deck = "PROJECT",
                 projectKind = "ACTIVE",
                 actions =
                     listOf(
-                        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard FROM ProjectCard<Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]"
+                        "-> CARDS[2 ProjectCard<Revealed> THEN 2 ProjectCard(HAS VenusTag) FROM ProjectCard<Revealed>. THEN BuyCards]"
                     ),
             )
         )
@@ -282,13 +282,13 @@ internal class CardDefinitionTest {
     single.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>("UseAction<This, First>: BuyCard?")
     )
-    filtered.asClassDeclaration.effects.shouldContainExactly(
+    revealed.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>("UseAction<This, First>: ProjectCard OR BuyCard?, ProjectCard OR BuyCard?")
     )
   }
 
   @Test
-  fun repeatedUnnamedDerivedClassMustBeExplicit() {
+  internal fun repeatedUnnamedDerivedClassMustBeExplicit() {
     assertFailsWith<PetSyntaxException> {
       CardDefinition(
           CardData(
@@ -302,7 +302,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun derivedClassesCannotContainDerivedClasses() {
+  internal fun derivedClassesCannotContainDerivedClasses() {
     listOf(
             "Mandate { -> NextCardEffect {} }",
             "Mandate<NextCardEffect {}> {}",
@@ -318,7 +318,7 @@ internal class CardDefinitionTest {
   private val card: CardData = CardData("TestCard")
 
   @Test
-  fun emptyStrings() {
+  internal fun emptyStrings() {
     assertFails { CardData("") }
     assertFails { card.copy(replaces = "") }
     assertFails { card.copy(resourceType = "") }
@@ -326,27 +326,27 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun badCost() {
+  internal fun badCost() {
     assertFails { card.copy(cost = -1) }
     assertFails { card.copy(deck = "PRELUDE", cost = 1) }
     assertFails { card.copy(deck = "CORPORATION", cost = 1) }
   }
 
   @Test
-  fun badProjectKind() {
+  internal fun badProjectKind() {
     assertFails { card.copy(deck = "CORPORATION", projectKind = "ACTIVE") }
     assertFails { card.copy(deck = "PRELUDE", projectKind = "AUTOMATED") }
     assertFails { card.copy(deck = "PROJECT") }
   }
 
   @Test
-  fun badRequirement() {
+  internal fun badRequirement() {
     assertFails { card.copy(deck = "CORPORATION", projectKind = "ACTIVE") }
     assertFails { card.copy(deck = "PRELUDE", projectKind = "AUTOMATED") }
   }
 
   @Test
-  fun badActiveCard() {
+  internal fun badActiveCard() {
     assertFails { card.copy(projectKind = "EVENT", effects = listOf("Foo: Bar")) }
     assertFails { card.copy(projectKind = "AUTOMATED", effects = listOf("Bar: Qux")) }
     assertFails { card.copy(projectKind = "EVENT", actions = listOf("Foo -> Bar")) }
@@ -356,7 +356,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun testRoundTripForAllCanonCardData() { // move to canon
+  internal fun testRoundTripForAllCanonCardData() { // move to canon
     val oops =
         Canon.cardDefinitions
             .flatMap { it.asClassDeclaration.allNodes }

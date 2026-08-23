@@ -5,8 +5,8 @@ import kotlin.test.Test
 
 internal class StringHelpersTest {
   @Test
-  fun testWrap() {
-    class Ennie(val stringForm: String) {
+  internal fun testWrap() {
+    class Ennie(private val stringForm: String) {
       override fun toString() = stringForm
     }
 

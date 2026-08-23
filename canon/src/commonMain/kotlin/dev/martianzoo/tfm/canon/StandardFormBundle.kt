@@ -25,11 +25,11 @@ import dev.martianzoo.util.toSetStrict
  * no declaration is required or synthesized for it. Callers whose resources are not in Canon's
  * generated index can provide [resourceFilenames] and [resourceReader] directly.
  */
-public class StandardFormBundle(
+internal class StandardFormBundle(
     name: String,
     override val customClasses: Set<CustomClass> = emptySet(),
     override val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap(),
-    public val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
+    private val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,
 ) : Bundle(cn(name)) {
@@ -97,12 +97,12 @@ public class StandardFormBundle(
           filename.endsWith("-$MAPS_FILENAME")
 
   public companion object {
-    public const val ACTIONS_FILENAME: String = "actions.json5"
-    public const val CARDS_FILENAME: String = "cards.json5"
-    public const val COLONIES_FILENAME: String = "colonies.json5"
-    public const val MAPS_FILENAME: String = "maps.json5"
-    public const val MILESTONES_FILENAME: String = "milestones.json5"
-    public const val AWARDS_FILENAME: String = "awards.json5"
+    private const val ACTIONS_FILENAME: String = "actions.json5"
+    private const val CARDS_FILENAME: String = "cards.json5"
+    private const val COLONIES_FILENAME: String = "colonies.json5"
+    internal const val MAPS_FILENAME: String = "maps.json5"
+    private const val MILESTONES_FILENAME: String = "milestones.json5"
+    private const val AWARDS_FILENAME: String = "awards.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CLASSES_FILENAME = "classes.pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")

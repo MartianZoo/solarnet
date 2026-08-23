@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
@@ -20,7 +19,7 @@ import kotlin.test.Test
 
 internal class AwardsTest : TfmTest() {
   @Test
-  fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
+  internal fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = Engine.newGame(canonicalPremise(players = 1))
 
     game.reader.tfmAuthority.awardDefinitions
@@ -35,7 +34,7 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  fun incorporatorCountsOnlyCheapActiveAndAutomatedProjects() {
+  internal fun incorporatorCountsOnlyCheapActiveAndAutomatedProjects() {
     game =
         Engine.newGame(
             canonicalPremise(
@@ -59,7 +58,7 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  fun customAwardMetricsAreCountedForEachPlayer() {
+  internal fun customAwardMetricsAreCountedForEachPlayer() {
     game = Engine.newGame(canonicalPremise(Cimmeria, players = 3))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -88,7 +87,7 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
+  internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
     game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.tfm(PLAYER1)
     p1.godMode().sneak("100 Megacredit")
@@ -101,7 +100,7 @@ internal class AwardsTest : TfmTest() {
     first.expect("-8")
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
-    shouldThrow<LimitsException> {
+    shouldThrow<RequirementException> {
       p1.godMode().manual("UseAction<FundAwardSA, First>") {
         doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
         doTask("Landlord")
@@ -110,7 +109,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
     val second =
-        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+        p1.godMode().manual("UseAction<FundAwardSA, Second>") {
           doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Scientist")
         }
@@ -118,20 +117,24 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(78 to "Megacredit", 1 to "Scientist")
 
     val third =
-        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+        p1.godMode().manual("UseAction<FundAwardSA, Third>") {
           doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Thermalist")
         }
     third.expect("-20")
     p1.assertCounts(58 to "Megacredit", 1 to "Thermalist", 3 to "Award")
 
-    shouldThrow<NotNowException> {
-      p1.godMode().manual("UseAction<FundAwardSA, First>") { doTask("Miner") }
+    shouldThrow<RequirementException> {
+      p1.godMode().manual("UseAction<FundAwardSA, Third>") {
+        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+        doTask("Miner")
+      }
     }
+    p1.assertCounts(58 to "Megacredit", 3 to "Award", 0 to "Miner")
   }
 
   @Test
-  fun zeroTalliesCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
+  internal fun zeroTalliesCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
     game = Engine.newGame(canonicalPremise(players = 3))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -162,7 +165,7 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  fun negativeBankerProductionCanEarnFirstAndSecond() {
+  internal fun negativeBankerProductionCanEarnFirstAndSecond() {
     game = Engine.newGame(canonicalPremise(players = 3))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -183,7 +186,7 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  fun awardPointsArePaidBeforeMultiplayerVictoryIsChecked() {
+  internal fun awardPointsArePaidBeforeMultiplayerVictoryIsChecked() {
     game = Engine.newGame(canonicalPremise())
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

@@ -1,15 +1,14 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class MergerTest : CardTest() {
+internal class MergerTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
@@ -20,12 +19,12 @@ class MergerTest : CardTest() {
   }
 
   @Test
-  fun `Can choose Celestic after Valley Trust`() {
+  internal fun `Can choose Celestic after Valley Trust`() {
     p1.assertCounts(0 to "PreludeCard", 6 to "ProjectCard")
   }
 
   @Test
-  fun `Resolves both corporations' starting benefits`() {
+  internal fun `Resolves both corporations' starting benefits`() {
     engine.phase("Action")
 
     p1.stdAction("HandleMandates") {
@@ -52,22 +51,34 @@ class MergerTest : CardTest() {
   }
 
   @Test
-  fun `Can pay for Merger before playing the second corporation`() {
+  internal fun `Can resolve Merger payment and the second corporation`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
     p1.playCorp(CrediCor, 0)
     engine.phase("Prelude")
     p1.manual("PreludeCard")
-    p1.autoExecMode = NONE
 
     p1.playPrelude(Merger) {
-      doTask("$Merger FROM PreludeCard")
-      doTask("4 CorporationCard")
-      doTask("-3 CorporationCard")
-      doTask("-42 Megacredit")
       doTask("PlayCard<Class<CorporationCard>, Class<$Celestic>>")
-      p1.autoExecMode = FIRST
     }
 
     p1.assertCounts(1 to "$Celestic")
+  }
+
+  @Test
+  fun `Polyphemos then Merger into TerraLabs still buys cards for three`() {
+    newGame(
+        ColoniesExpansion,
+        TurmoilCardPack,
+        PreludeExpansion,
+        PromoCardPack,
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.playCorp(Polyphemos, 0)
+    engine.phase("Prelude")
+    p1.playPrelude(Merger) {
+      doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>")
+    }
+
+    p1.manual("BuyCard") { p1.pay(megacredits = 3) }.expect("ProjectCard, -3 Megacredit")
   }
 }

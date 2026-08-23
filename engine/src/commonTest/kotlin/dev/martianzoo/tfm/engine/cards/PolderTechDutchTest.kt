@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class PolderTechDutchTest : CardTest() {
+internal class PolderTechDutchTest : CardTest() {
   @Test
-  fun `Initial action places adjacent ocean and greenery without an existing owned tile`() {
+  internal fun `Initial action places adjacent ocean and greenery without an existing owned tile`() {
     newGame(PromoCardPack)
     p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")
@@ -26,7 +26,7 @@ class PolderTechDutchTest : CardTest() {
   }
 
   @Test
-  fun `Later ocean and greenery placements grant their resources`() {
+  internal fun `Later ocean and greenery placements grant their resources`() {
     newGame(PromoCardPack)
     p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")

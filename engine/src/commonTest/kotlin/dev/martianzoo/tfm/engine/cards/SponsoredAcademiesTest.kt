@@ -7,7 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class SponsoredAcademiesTest : CardTest() {
+internal class SponsoredAcademiesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion, players = 3)
@@ -18,7 +18,7 @@ class SponsoredAcademiesTest : CardTest() {
   }
 
   @Test
-  fun `Owner discards one and draws two while every opponent draws one`() {
+  internal fun `Owner discards one and draws two while every opponent draws one`() {
     p1.manual("ProjectCard")
 
     p1.playProject(SponsoredAcademies, 9)
@@ -26,7 +26,7 @@ class SponsoredAcademiesTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be played with only one card in hand`() {
+  internal fun `Cannot be played with only one card in hand`() {
     shouldThrow<LimitsException> { p1.playProject(SponsoredAcademies, 9) }
   }
 }

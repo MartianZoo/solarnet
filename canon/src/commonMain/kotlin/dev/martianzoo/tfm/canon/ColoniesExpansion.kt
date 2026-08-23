@@ -19,7 +19,7 @@ internal val coloniesCustomClasses: Set<CustomClass> =
     )
 
 /** Namespace for Colonies' custom Pets implementations. */
-internal object ColoniesExpansion {
+private object ColoniesExpansion {
   private val ADD_COLONY_TILE = cn("AddColonyTile")
   private val DELAYED_COLONY_TILE = cn("DelayedColonyTile")
   private val RESERVE_TRADE_FLEET = cn("ReserveTradeFleet")

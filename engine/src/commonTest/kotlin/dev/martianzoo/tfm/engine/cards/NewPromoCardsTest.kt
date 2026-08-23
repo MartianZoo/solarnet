@@ -3,9 +3,8 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER3
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -13,9 +12,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class NewPromoCardsTest : CardTest() {
+internal class NewPromoCardsTest : CardTest() {
   @Test
-  fun `Solar Logistics draws for space events played by its owner and either opponent`() {
+  internal fun `Solar Logistics draws for space events played by its owner and either opponent`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -31,7 +30,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Icy Impactors lets the first player choose an ocean placed by the card owner`() {
+  internal fun `Icy Impactors lets the first player choose an ocean placed by the card owner`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     val oceanArea = "Tharsis_2_6"
@@ -48,7 +47,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Icy Impactors owner chooses their own ocean when they are first player`() {
+  internal fun `Icy Impactors owner chooses their own ocean when they are first player`() {
     newGame(PromoCardPack)
     p1.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
@@ -60,7 +59,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Icy Impactors suspends its owner while a third-player start player chooses`() {
+  internal fun `Icy Impactors suspends its owner while a third-player start player chooses`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     engine.manual("StartToken<Player3> FROM StartToken<Player1>")
@@ -77,7 +76,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Floyd Continuum pays for every completed parameter`() {
+  internal fun `Floyd Continuum pays for every completed parameter`() {
     newGame(PromoCardPack, VenusNextExpansion)
     engine.phase("Action")
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
@@ -87,7 +86,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Carbon Nanosystems graphene can pay for a space card`() {
+  internal fun `Carbon Nanosystems graphene can pay for a space card`() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
@@ -102,19 +101,36 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Martian Lumber Corporation plants can pay for a building card`() {
+  internal fun `Martian Lumber Corporation plants can pay for a building card`() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
     p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
     p1.playProject(Mine, 1) {
-          doTask("-Plant! THEN -3 Owed<>.")
+          doTask("Pay<Class<Plant>> FROM Plant")
         }
         .expect("-Plant")
   }
 
   @Test
-  fun `Homeostasis Bureau lets each actor raise temperature`() {
+  internal fun `Neptunian Power Consultants may pay for its ocean bonus with steel`() {
+    newGame(PromoCardPack)
+    engine.phase("Action")
+    p1.manual("50 Megacredit, 2 ProjectCard")
+    p1.playProject(NeptunianPowerConsultants, 14)
+
+    p1.stdProject("AquiferSP") {
+      doTask("OceanTile<Tharsis_1_2>")
+      doTask("UseAction<NeptunianOption, First>")
+      p1.pay(megacredits = 1, steel = 2)
+    }
+
+    p1.assertCounts(17 to "Megacredit", 0 to "Steel", 1 to "Hydroelectric")
+    p1.assertProds(1 to "Energy")
+  }
+
+  @Test
+  internal fun `Homeostasis Bureau lets each actor raise temperature`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$HomeostasisBureau")
@@ -128,7 +144,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Kaguya Tech can replace a greenery with its city`() {
+  internal fun `Kaguya Tech can replace a greenery with its city`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
@@ -142,26 +158,44 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `St Joseph of Cupertino Mission scores beside an opponent's city`() {
+  internal fun `St Joseph of Cupertino Mission offers the city owner a paid draw and scores`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.autoExecMode = NONE
-    p2.autoExecMode = NONE
-    p1.manual("$StJosephOfCupertinoMission")
-    p2.manual("CityTile<Player2, Tharsis_4_2>") { doTask("Plant") }
+    p1.manual("12 Megacredit, ProjectCard")
+    p2.manual("2 Megacredit")
+    p2.manual("CityTile<Player2, Tharsis_4_2>")
+    engine.phase("Action")
 
-    p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>")
-    // Decline paying two megacredits to draw a card from the Cathedral.
-    p2.declineTask()
-    p1.autoExecMode = FIRST
-    p2.autoExecMode = FIRST
+    p1.playProject(StJosephOfCupertinoMission, 7)
+    p1.cardAction1(StJosephOfCupertinoMission) {
+      p1.pay(5)
+      doTask("Cathedral<CityTile<Player2, Tharsis_4_2>>")
+      p2.stdAction("CathedralAction")
+    }
+
+    p2.assertCounts(0 to "Megacredit", 1 to "ProjectCard")
     engine.phase("End")
     p1.assertCounts(21 to "VictoryPoint")
-    p2.assertCounts(20 to "VictoryPoint")
   }
 
   @Test
-  fun `Red Ships counts each city or special tile beside an ocean`() {
+  internal fun `St Joseph of Cupertino Mission can place a Cathedral on a neutral solo city`() {
+    newGame(PromoCardPack, players = 1)
+    p1.manual("12 Megacredit, ProjectCard")
+    engine.phase("Action")
+
+    p1.playProject(StJosephOfCupertinoMission, 7)
+    p1.cardAction1(StJosephOfCupertinoMission) {
+      p1.pay(5)
+      doTask("Cathedral<CityTile<SoloOpponent, Tharsis_4_1>>")
+    }
+
+    p1.assertCounts(1 to "Cathedral<SoloOpponent, CityTile<SoloOpponent, Tharsis_4_1>>")
+    game.isIdle() shouldBe true
+  }
+
+  @Test
+  internal fun `Red Ships counts each city or special tile beside an ocean`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$RedShips, CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")

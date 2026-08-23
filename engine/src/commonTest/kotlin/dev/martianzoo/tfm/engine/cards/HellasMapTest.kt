@@ -8,9 +8,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class HellasMapTest : CardTest() {
+internal class HellasMapTest : CardTest() {
   @Test
-  fun `An unaffordable south pole remains a structurally available adjacent greenery area`() {
+  internal fun `An unaffordable south pole remains a structurally available adjacent greenery area`() {
     newGame(Hellas)
     val p2 = requireP2()
     engine.phase("Action")
@@ -25,7 +25,7 @@ class HellasMapTest : CardTest() {
   }
 
   @Test
-  fun `Ocean income from the south pole bonus can fund its payment`() {
+  internal fun `Ocean income from the south pole bonus can fund its payment`() {
     newGame(Hellas, TurmoilCardPack)
     engine.phase("Action")
     p1.manual("$LakefrontResorts")

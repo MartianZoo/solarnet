@@ -18,7 +18,7 @@ internal class ScriptSessionTest {
       line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
 
   @Test
-  fun ansiColorsCanBeEnabledByTheHost() {
+  internal fun ansiColorsCanBeEnabledByTheHost() {
     val repl = ScriptSession(useAnsiColors = true)
 
     assertTrue(repl.prompt().contains("\u001B["))
@@ -27,7 +27,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun descIncludesCanonicalAndAlternateClassNames() {
+  internal fun descIncludesCanonicalAndAlternateClassNames() {
     val description = ScriptSession().command("desc Birds").single()
 
     assertContains(description, "Class `Birds`:")
@@ -35,7 +35,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun descDescribesAnAuthorityKnownInactiveType() {
+  internal fun descDescribesAnAuthorityKnownInactiveType() {
     val description = ScriptSession().command("desc VenusTag").single()
 
     assertContains(description, "Class `VenusTag`:")
@@ -43,7 +43,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun execReportsThatOwnerLocalClassesCannotBeAddedToALiveGame() {
+  internal fun execReportsThatOwnerLocalClassesCannotBeAddedToALiveGame() {
     assertEquals(
         listOf("New Class declarations are not allowed after the Class Table is frozen"),
         ScriptSession().command("exec Mandate { -> 3 ProjectCard }"),
@@ -51,7 +51,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun `as Engine temporarily selects the Engine actor`() {
+  internal fun `as Engine temporarily selects the Engine actor`() {
     val repl = ScriptSession()
     repl.command("newgame B 2")
     repl.command("become Player1")
@@ -61,7 +61,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun optionCodesSelectCanonicalOptionsDirectly() {
+  internal fun optionCodesSelectCanonicalOptionsDirectly() {
     val repl = ScriptSession()
 
     assertEquals(listOf("0 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
@@ -71,7 +71,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun optionCodesRequireBaseAndDoNotAcceptSolo() {
+  internal fun optionCodesRequireBaseAndDoNotAcceptSolo() {
     val repl = ScriptSession()
 
     assertTrue(repl.command("newgame R 2").any { it.contains("include B") })
@@ -79,7 +79,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun quotedSignedClassNamesConfigureTheGame() {
+  internal fun quotedSignedClassNamesConfigureTheGame() {
     val repl = ScriptSession()
 
     assertEquals(
@@ -99,7 +99,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun shortPlayerNamesAliasCanonicalPlayerClasses() {
+  internal fun shortPlayerNamesAliasCanonicalPlayerClasses() {
     val repl = ScriptSession()
 
     assertEquals(
@@ -112,7 +112,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun countReadsCountProperties() {
+  internal fun countReadsCountProperties() {
     val repl = ScriptSession()
     repl.command("newgame BH 2")
 
@@ -123,7 +123,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun failedNewGameLeavesTheCurrentGameUntouched() {
+  internal fun failedNewGameLeavesTheCurrentGameUntouched() {
     val repl = ScriptSession()
     val originalGame = repl.game
     val originalOptionCodes = repl.optionCodes
@@ -139,7 +139,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun newGameCollectsColonySelectionBeforeCreatingTheGame() {
+  internal fun newGameCollectsColonySelectionBeforeCreatingTheGame() {
     val repl = ScriptSession()
 
     assertEquals(
@@ -158,7 +158,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun purpleModeUsesColoniesSelectedBeforeGameplaySetup() {
+  internal fun purpleModeUsesColoniesSelectedBeforeGameplaySetup() {
     val repl = ScriptSession()
 
     assertEquals(
@@ -188,7 +188,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun testBasicRunthrough() {
+  internal fun testBasicRunthrough() {
     val repl = ScriptSession()
 
     fun command(c: String, expected: String) {
@@ -260,14 +260,14 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun game20230521() {
+  internal fun game20230521() {
     val repl = ScriptSession()
     val commands =
         """
         newgame BRVPX 2; mode blue; auto safe; phase Corporation
 
-        become Player1; turn; tfm_play Manutech; task 5 BuyCard
-        become Player2; turn; tfm_play Factorum; task 4 BuyCard
+        become Player1; turn; tfm_play Manutech; task 5 BuyCard; task 15 Pay<Class<Megacredit>> FROM Megacredit
+        become Player2; turn; tfm_play Factorum; task 4 BuyCard; task 12 Pay<Class<Megacredit>> FROM Megacredit
 
         phase Prelude
 
@@ -305,7 +305,10 @@ internal class ScriptSessionTest {
         0000: +35 Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +Production<Player1, Class<Steel>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +Steel<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        0000: -15 Megacredit<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
+        New tasks pending:
+        * [Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
+        [Player1] MAX 0 Invoice<Player1>: 5 ProjectCard<Player1>!
+        0000: +15 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> BY Player1 VIA Accept<Player1, Class<Megacredit>> BECAUSE 0000
         0000: +5 ProjectCard<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
         Hi, Player2
         New tasks pending:
@@ -316,7 +319,10 @@ internal class ScriptSessionTest {
         0000: +BuildingTag<Player2, Factorum<Player2>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
         0000: +37 Megacredit<Player2> BY Player2 VIA Factorum<Player2> BECAUSE 0000
         0000: +Production<Player2, Class<Steel>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
-        0000: -12 Megacredit<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
+        New tasks pending:
+        * [Player2] X Pay<Player2, Class<Megacredit>> FROM Megacredit<Player2>? (abstract)
+        [Player2] MAX 0 Invoice<Player2>: 4 ProjectCard<Player2>!
+        0000: +12 Pay<Player2, Class<Megacredit>> FROM Megacredit<Player2> BY Player2 VIA Accept<Player2, Class<Megacredit>> BECAUSE 0000
         0000: +4 ProjectCard<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
         0000: +PreludePhase FROM CorporationPhase BY Engine (manual)
         0000: +2 PreludeCard<Player1> BY Player1 VIA PreludeSetup<Player1> BECAUSE 0000
@@ -380,7 +386,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun test() {
+  internal fun test() {
     val repl = ScriptSession()
     repl.command("become Player2")
     repl.command("exec ProjectCard")
@@ -419,7 +425,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun testBoard() {
+  internal fun testBoard() {
     val repl = ScriptSession()
     repl.command("become Player1")
     repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
@@ -447,7 +453,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun testMap() {
+  internal fun testMap() {
     val repl = ScriptSession()
     repl.command("become Player1")
     repl.command(
@@ -492,7 +498,7 @@ internal class ScriptSessionTest {
   }
 }
 
-fun strip(strings: Iterable<String>): List<String> {
+private fun strip(strings: Iterable<String>): List<String> {
   return strings.map { endRegex.replace(startRegex.replace(it, ""), "") }
 }
 

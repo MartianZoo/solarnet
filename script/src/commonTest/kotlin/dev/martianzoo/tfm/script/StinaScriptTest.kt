@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 
 internal class StinaScriptTest {
   @Test
-  fun `Stina Saturn Systems game`() {
+  internal fun `Stina Saturn Systems game`() {
     val repl = ScriptSession()
     val script =
         """
@@ -28,6 +28,7 @@ internal class StinaScriptTest {
 
         tfm_play SaturnSystems
         task 10 BuyCard
+        task 30 Pay<Class<Megacredit>> FROM Megacredit
 
         tfm_play Biolab
         tfm_play AcquiredSpaceAgency

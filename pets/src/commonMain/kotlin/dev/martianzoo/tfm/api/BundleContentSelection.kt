@@ -8,8 +8,8 @@ import dev.martianzoo.tfm.data.CardDefinition.Deck
  */
 public data class BundleContentSelection(
     public val bundleName: ClassName,
-    public val kinds: Set<Kind> = Kind.entries.toSet(),
-    public val cardDecks: Set<Deck>? = null,
+    internal val kinds: Set<Kind> = Kind.entries.toSet(),
+    internal val cardDecks: Set<Deck>? = null,
 ) {
   init {
     require(cardDecks?.isNotEmpty() != false)

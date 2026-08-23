@@ -184,7 +184,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               9 to Cost.Spend::class,
               2 to Cost.Gated::class,
               3 to Cost.Per::class,
-              3 to Cost.Or::class,
               2 to Cost.Multi::class,
               2 to Cost.Transform::class,
           )
@@ -192,7 +191,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Cost.Spend(scaledEx = recurse()) }
       register { Cost.Gated(recurse(), recurse()) }
       register { Cost.Per(recurse(), recurse()) }
-      register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
       register { Cost.Transform(recurse(), PROD) }
 
@@ -238,7 +236,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     }
   }
 
-  inline fun <reified T : PetNode> printTestStringOfEachLength(maxLength: Int) {
+  private inline fun <reified T : PetNode> printTestStringOfEachLength(maxLength: Int) {
     getTestStringOfEachLength<T>(maxLength).forEach(::println)
   }
 
@@ -283,7 +281,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   }
 }
 
-fun scaling(greed: Double, backoff: Double): (Int) -> Double {
+private fun scaling(greed: Double, backoff: Double): (Int) -> Double {
   require(backoff >= 0)
   require(greed > -1.0)
   require(greed < 1.0)

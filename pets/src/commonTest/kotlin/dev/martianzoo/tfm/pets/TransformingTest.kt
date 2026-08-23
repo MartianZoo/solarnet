@@ -31,7 +31,7 @@ import kotlin.test.Test
 
 internal class TransformingTest {
   @Test
-  fun testActionToEffect() {
+  internal fun testActionToEffect() {
     fun checkActionToEffect(action: String, index: Int, effect: String) {
       val parsedA: Action = parse(action)
       val parsedE: Effect = parse(effect)
@@ -52,7 +52,7 @@ internal class TransformingTest {
   }
 
   @Test
-  fun testActionsToEffects() {
+  internal fun testActionsToEffects() {
     val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parse)
     actionListToEffects(actions)
         .shouldContainExactly(
@@ -62,7 +62,7 @@ internal class TransformingTest {
   }
 
   @Test
-  fun testImmediateToEffect() {
+  internal fun testImmediateToEffect() {
     fun checkImmediateToEffect(immediate: String, effect: String) {
       val immed: InstructionTree = parse(immediate)
       val fx: Effect = parse(effect)
@@ -75,14 +75,14 @@ internal class TransformingTest {
   }
 
   @Test
-  fun instructionTransformPreservesTheKindNotTheConcreteType() {
+  internal fun instructionTransformPreservesTheKindNotTheConcreteType() {
     val original = parse<Instruction>("Plant") as Gain
 
     replacer(original, NoOp).transformInstruction(original) shouldBe NoOp
   }
 
   @Test
-  fun instructionTransformDeduplicatesCollapsedOrArms() {
+  internal fun instructionTransformDeduplicatesCollapsedOrArms() {
     val transformed =
         replaceOwnerWith(cn("Player1").expression)
             .transformInstructionTree(parse("Foo<Owner> OR Foo<Player1>"))
@@ -91,7 +91,7 @@ internal class TransformingTest {
   }
 
   @Test
-  fun expressionReplacementTraversesDeepCompositeTreesAndPropertyValues() {
+  internal fun expressionReplacementTraversesDeepCompositeTreesAndPropertyValues() {
     val foo = te("Foo")
     val player2 = te("Player2")
     val original =
@@ -125,7 +125,7 @@ internal class TransformingTest {
   }
 
   @Test
-  fun cardinalityExpansionRequiresTheInstructionTreeEntryPoint() {
+  internal fun cardinalityExpansionRequiresTheInstructionTreeEntryPoint() {
     val original = parse<Instruction>("Foo")
     val expanded = parse<InstructionTree>("Bar, Qux")
     val transformer = replacer(original, expanded)
@@ -135,7 +135,7 @@ internal class TransformingTest {
   }
 
   @Test
-  fun testResolveSpecialThisType() {
+  internal fun testResolveSpecialThisType() {
     checkResolveThis<Instruction>("Foo<This>", cn("Bar").expression, "Foo<Bar>")
     checkResolveThis<Instruction>("Foo<This>", cn("Bar").expression, "Foo<Bar>")
 

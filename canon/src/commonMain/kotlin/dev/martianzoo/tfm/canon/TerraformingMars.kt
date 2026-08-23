@@ -61,7 +61,7 @@ internal val baseCustomClasses: Set<CustomClass> =
     )
 
 /** Namespace for the core game's custom Pets implementations. */
-internal object TerraformingMars {
+private object TerraformingMars {
   internal object CreateMapAreas : CustomClass() {
     override fun translate(reader: GameReader, mapType: Type): InstructionTree {
       val map = reader.tfmAuthority.marsMap(mapType.className)

@@ -8,7 +8,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class VirusTest : CardTest() {
+internal class VirusTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
@@ -20,7 +20,7 @@ class VirusTest : CardTest() {
 
   // FAQ: "you must choose a single card from which to remove animals."
   @Test
-  fun `Cannot split animal removal across two cards`() {
+  internal fun `Cannot split animal removal across two cards`() {
     shouldThrow<NarrowingException> {
       p1.manual("$Virus") {
         doTask("-Animal<Player2, $Birds<Player2>>, -Animal<Player2, $Fish<Player2>>")
@@ -29,7 +29,7 @@ class VirusTest : CardTest() {
   }
 
   @Test
-  fun `Can remove animals from one of multiple eligible cards`() {
+  internal fun `Can remove animals from one of multiple eligible cards`() {
     p1.manual("$Virus") { doTask("-Animal<Player2, $Birds<Player2>>") }
         .expect("-Animal<Player2, $Birds<Player2>>")
     requireP2().assertCounts(0 to "Animal<$Birds>", 1 to "Animal<$Fish>")

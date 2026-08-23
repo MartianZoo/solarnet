@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class CapitalTest : CardTest() {
+internal class CapitalTest : CardTest() {
   @Test
-  fun `Requires at least four oceans`() {
+  internal fun `Requires at least four oceans`() {
     newGame()
     p1.manual(
         "26 Megacredit, ProjectCard, PROD[2 Energy], " +
@@ -24,7 +24,7 @@ class CapitalTest : CardTest() {
   }
 
   @Test
-  fun `Places a city under normal restrictions and scores adjacent oceans`() {
+  internal fun `Places a city under normal restrictions and scores adjacent oceans`() {
     newGame()
     p1.manual(
         "26 Megacredit, ProjectCard, PROD[2 Energy], " +
@@ -44,7 +44,7 @@ class CapitalTest : CardTest() {
   }
 
   @Test
-  fun `Does not count toward the Manager milestone`() {
+  internal fun `Does not count toward the Manager milestone`() {
     newGame(Utopia)
     p1.manual("8, PROD[2 Energy]")
     p1.manual("EcologicalZone_SpecialTile<Utopia_2_2>, NaturalPreserve_SpecialTile<Utopia_3_3>")

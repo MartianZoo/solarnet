@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class MilestoneDefinitionTest {
   @Test
-  fun nestedGroupAndIndividualAutomaticSelectionRequirementsAreCombined() {
+  internal fun nestedGroupAndIndividualAutomaticSelectionRequirementsAreCombined() {
     val milestones =
         JsonReader.readMilestones(
             """

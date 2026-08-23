@@ -7,9 +7,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class SpliceTacticalGenomicsTest : CardTest() {
+internal class SpliceTacticalGenomicsTest : CardTest() {
   @Test
-  fun `Splice pays itself four megacredits`() {
+  internal fun `Splice pays itself four megacredits`() {
     newGame(PromoCardPack)
 
     p1.playCorp(SpliceTacticalGenomics, 0) {
@@ -22,7 +22,7 @@ class SpliceTacticalGenomicsTest : CardTest() {
   }
 
   @Test
-  fun `When another player plays a microbe tag, Splice pays both players`() {
+  internal fun `When another player plays a microbe tag, Splice pays both players`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
@@ -32,7 +32,7 @@ class SpliceTacticalGenomicsTest : CardTest() {
   }
 
   @Test
-  fun `Pharmacy Union triggers Splice twice`() {
+  internal fun `Pharmacy Union triggers Splice twice`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
@@ -44,7 +44,7 @@ class SpliceTacticalGenomicsTest : CardTest() {
   }
 
   @Test
-  fun `Can take a microbe instead of megacredits`() {
+  internal fun `Can take a microbe instead of megacredits`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
@@ -54,7 +54,7 @@ class SpliceTacticalGenomicsTest : CardTest() {
   }
 
   @Test
-  fun `Must add the microbe to the card just played`() {
+  internal fun `Must add the microbe to the card just played`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }

@@ -9,9 +9,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class MiningRightsTest : CardTest() {
+internal class MiningRightsTest : CardTest() {
   @Test
-  fun `Links production to its prior area choice without prioritizing it`() {
+  internal fun `Links production to its prior area choice without prioritizing it`() {
     newGame()
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
@@ -27,7 +27,7 @@ class MiningRightsTest : CardTest() {
   }
 
   @Test
-  fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
+  internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
     newGame(Cimmeria)
 
@@ -47,7 +47,7 @@ class MiningRightsTest : CardTest() {
   }
 
   @Test
-  fun `Cannot select a card-bonus area`() {
+  internal fun `Cannot select a card-bonus area`() {
     newGame()
     shouldThrow<NotNowException> {
       p1.manual("$MiningRights") { placeTile(2, 1) }

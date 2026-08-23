@@ -18,7 +18,7 @@ public data class GamePremise(
   public val playerClassNames: List<ClassName> =
       Player.players(playerNames.size).map(Player::className)
 
-  internal val petsNameAliases: Map<ClassName, ClassName> =
+  private val petsNameAliases: Map<ClassName, ClassName> =
       playerClassNames
           .zip(playerNames)
           .filter { (canonical, configured) -> canonical != configured }

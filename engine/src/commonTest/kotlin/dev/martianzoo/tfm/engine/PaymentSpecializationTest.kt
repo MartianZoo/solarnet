@@ -8,9 +8,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class PaymentSpecializationTest {
+internal class PaymentSpecializationTest {
   @Test
-  fun `card deck check accepts the matching deck and rejects another`() {
+  internal fun `card deck check accepts the matching deck and rejects another`() {
     val player = setUpGame().tfm(PLAYER1).godMode()
 
     player.manual("CheckCardDeck<Class<ProjectCard>, Class<$AcquiredCompany>>")
@@ -20,11 +20,11 @@ class PaymentSpecializationTest {
   }
 
   @Test
-  fun `an Accept can pay only with its specialized resource`() {
+  internal fun `an Accept can pay only with its specialized resource`() {
     val p1 = setUpGame().tfm(PLAYER1)
     p1.godMode().manual("Steel, Titanium")
 
-    p1.godMode().beginManual("Owed<Class<Steel>>") {
+    p1.godMode().beginManual("Owed<Class<Steel>> THEN Invoice<BuyCards, First, Class<Steel>>") {
       shouldThrow<NarrowingException> {
         doTask("Pay<Class<Titanium>> FROM Titanium")
       }

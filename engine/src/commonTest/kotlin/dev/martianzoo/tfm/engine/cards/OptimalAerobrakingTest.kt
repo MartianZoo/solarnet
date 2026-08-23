@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class OptimalAerobrakingTest : CardTest() {
+internal class OptimalAerobrakingTest : CardTest() {
 
   @Test
-  fun `Pays when its owner plays an asteroid event`() {
+  internal fun `Pays when its owner plays an asteroid event`() {
     newGame()
     engine.phase("Action")
     p1.manual("ProjectCard, $OptimalAerobraking, 14")

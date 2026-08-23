@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.cardnames.ForcedPrecipitation
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class TfmTaskHelpersTest : CardTest() {
+internal class TfmTaskHelpersTest : CardTest() {
   @Test
-  fun `Tile placement rejects multiple pending placements`() {
+  internal fun `Tile placement rejects multiple pending placements`() {
     newGame()
 
     p1.godMode().addTasks("OceanTile<WaterArea>, OceanTile<WaterArea>")
@@ -16,7 +16,7 @@ class TfmTaskHelpersTest : CardTest() {
   }
 
   @Test
-  fun `Declining rejects multiple declinable tasks`() {
+  internal fun `Declining rejects multiple declinable tasks`() {
     newGame()
 
     p1.godMode().addTasks("Plant?, Steel?")
@@ -25,7 +25,7 @@ class TfmTaskHelpersTest : CardTest() {
   }
 
   @Test
-  fun `Card resources reject multiple pending placements`() {
+  internal fun `Card resources reject multiple pending placements`() {
     newGame(VenusNextExpansion)
     p1.manual("$ForcedPrecipitation")
 

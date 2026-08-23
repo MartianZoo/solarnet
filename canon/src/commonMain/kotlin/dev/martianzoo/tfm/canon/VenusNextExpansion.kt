@@ -23,4 +23,4 @@ internal val venusNextExpansionBundle: StandardFormBundle by lazy {
 }
 
 /** Namespace for Venus Next-specific implementations. */
-internal object VenusNextExpansion
+private object VenusNextExpansion

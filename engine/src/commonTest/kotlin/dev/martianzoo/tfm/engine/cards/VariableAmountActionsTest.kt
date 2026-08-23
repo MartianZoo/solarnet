@@ -9,9 +9,9 @@ import dev.martianzoo.tfm.engine.cardnames.PowerInfrastructure
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class VariableAmountActionsTest : CardTest() {
+internal class VariableAmountActionsTest : CardTest() {
   @Test
-  fun `Power Infrastructure cannot choose zero energy`() {
+  internal fun `Power Infrastructure cannot choose zero energy`() {
     newGame(CorporateEraExpansion)
     engine.phase("Action")
     p1.manual("$PowerInfrastructure")
@@ -20,7 +20,7 @@ class VariableAmountActionsTest : CardTest() {
   }
 
   @Test
-  fun `Hi-Tech Lab cannot choose zero energy`() {
+  internal fun `Hi-Tech Lab cannot choose zero energy`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$HiTechLab")
@@ -29,7 +29,7 @@ class VariableAmountActionsTest : CardTest() {
   }
 
   @Test
-  fun `Sell Patents cannot choose zero cards`() {
+  internal fun `Sell Patents cannot choose zero cards`() {
     newGame()
     engine.phase("Action")
 

@@ -9,7 +9,7 @@ internal class JlineReplCompleterTest {
   private val completer = JlineReplCompleter(ScriptSession())
 
   @Test
-  fun adaptsNeutralCompletionToJlineCandidate() {
+  internal fun adaptsNeutralCompletionToJlineCandidate() {
     val candidate = candidates("mode b").single()
 
     assertThat(candidate.value()).isEqualTo("blue")

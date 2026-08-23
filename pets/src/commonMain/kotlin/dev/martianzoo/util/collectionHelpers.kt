@@ -21,7 +21,7 @@ internal fun <T, K, V> Collection<T>.associateStrict(x: (T) -> Pair<K, V>): Map<
 
 public fun <C : Iterable<Any?>> C.toStrings(): List<String> = map { it?.toString() ?: "null" }
 
-internal fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toString() ?: "null" }
+private fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toString() ?: "null" }
 
 public fun <T> Sequence<T>.random(): T {
   var i = 0

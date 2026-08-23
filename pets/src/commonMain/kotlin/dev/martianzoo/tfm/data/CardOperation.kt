@@ -34,9 +34,9 @@ public sealed interface CardOperation {
   /** Inspect one card and either buy or discard it. */
   public data class SelectAndPurchase(public val offered: Gain) : CardOperation
 
-  /** Inspect cards, retain matching cards for free, and buy or discard the remainder. */
-  public data class FilteredPurchase(
-      public val offered: Gain,
+  /** Reveal cards, retain matching cards for free, and buy or discard the remainder. */
+  public data class RevealAndPurchase(
+      public val revealed: Gain,
       public val retained: Transmute,
       public val filter: Requirement,
   ) : CardOperation
@@ -66,8 +66,7 @@ public sealed interface CardOperation {
           is InstructionGroup -> decodeSelection(source)
           is Then ->
               when {
-                source.first.gainingAt(SELECTING) -> decodeFilteredPurchase(source)
-                source.first.gainingAt(REVEALED) -> decodeReveal(source)
+                source.first.gainingAt(REVEALED) -> decodeRevealedOperation(source)
                 else -> malformed(source)
               }
           is Transmute -> decodeEventRecovery(source)
@@ -124,27 +123,34 @@ public sealed interface CardOperation {
       return SelectAndPurchase(offered)
     }
 
-    private fun decodeFilteredPurchase(source: Then): FilteredPurchase {
-      if (source.instructions.size != 4) malformed(source)
-      val offered = source.first as? Gain ?: malformed(source)
+    private fun decodeRevealedOperation(source: Then): CardOperation =
+        if (source.instructions.last().isMandatoryGainOf(BUY_CARDS)) {
+          decodeRevealAndPurchase(source)
+        } else {
+          decodeRevealAndTest(source)
+        }
+
+    private fun decodeRevealAndPurchase(source: Then): RevealAndPurchase {
+      if (source.instructions.size != 3) malformed(source)
+      val revealed = source.first as? Gain ?: malformed(source)
       val retained = source.instructions[1] as? Transmute ?: malformed(source)
       if (
-          !offered.gaining.isUnfilteredProjectCardAt(SELECTING) ||
-              !offered.mandatory ||
-              retained.gaining != PROJECT_CARD.expression ||
-              !retained.removing.isProjectCardAt(SELECTING) ||
-              retained.intensity != AMAP ||
-              !source.instructions[2].removingOptionallyAt(SELECTING) ||
-              !source.instructions.last().isMandatoryGainOf(BUY_SELECTED_CARDS)
+          !revealed.gaining.isUnfilteredProjectCardAt(REVEALED) ||
+              !revealed.mandatory ||
+              retained.gaining.className != PROJECT_CARD ||
+              retained.gaining.arguments.any() ||
+              !retained.removing.isProjectCardAt(REVEALED) ||
+              retained.removing.refinement != null ||
+              retained.intensity != AMAP
       ) {
         malformed(source)
       }
-      val filter = retained.removing.refinement?.requirement ?: malformed(source)
-      if (offered.count !is ActualScalar) malformed(source)
-      return FilteredPurchase(offered, retained, filter)
+      val filter = retained.gaining.refinement?.requirement ?: malformed(source)
+      if (revealed.count !is ActualScalar) malformed(source)
+      return RevealAndPurchase(revealed, retained, filter)
     }
 
-    private fun decodeReveal(source: Then): RevealAndTest {
+    private fun decodeRevealAndTest(source: Then): RevealAndTest {
       if (source.instructions.size != 2) malformed(source)
       val revealed = source.first as? Gain ?: malformed(source)
       if (
@@ -199,6 +205,7 @@ public sealed interface CardOperation {
         throw PetSyntaxException("Unsupported $TRANSFORM_KIND card operation: $source")
 
     private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
+    private val BUY_CARDS = cn("BuyCards")
     private val EVENT_PILE = cn("EventPile")
     private val SELECTING = cn("Selecting")
     private val REVEALED = cn("Revealed")

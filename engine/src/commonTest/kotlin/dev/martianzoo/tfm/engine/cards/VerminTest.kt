@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class VerminTest : CardTest() {
+internal class VerminTest : CardTest() {
   @Test
-  fun `City placement and both card actions add the appropriate resources`() {
+  internal fun `City placement and both card actions add the appropriate resources`() {
     newGame(PromoCardPack)
     p1.manual("$Vermin, $Decomposers")
     engine.phase("Action")
@@ -23,7 +23,7 @@ class VerminTest : CardTest() {
   }
 
   @Test
-  fun `Ten animals make every player lose one point per owned city`() {
+  internal fun `Ten animals make every player lose one point per owned city`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -39,7 +39,7 @@ class VerminTest : CardTest() {
   }
 
   @Test
-  fun `Fewer than ten animals do not impose the city penalty`() {
+  internal fun `Fewer than ten animals do not impose the city penalty`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$Vermin, 7 Animal<$Vermin>, CityTile<Tharsis_2_1>")

@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 internal class CustomClassTest {
   @Test
-  fun classNameDefaultsToKotlinSimpleName() {
+  internal fun classNameDefaultsToKotlinSimpleName() {
     assertEquals(cn("AutomaticallyNamed"), AutomaticallyNamed.className)
   }
 

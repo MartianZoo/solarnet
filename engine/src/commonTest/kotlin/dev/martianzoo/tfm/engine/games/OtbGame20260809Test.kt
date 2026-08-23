@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Game played Sun 2026-08-09 11:19 am. Quotes are transcript-derived and sometimes normalized. */
-class OtbGame20260809Test : AbstractFullGameTest() {
+internal class OtbGame20260809Test : AbstractFullGameTest() {
   // "This is a two-player game on the Hellas board."
   // "Our colonies are Callisto, Luna, Triton, Miranda, and Enceladus."
   // "We're using the Venus expansion. We're using promo cards. We're using the Prelude
@@ -35,7 +35,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun otbGame20260809() {
+  internal fun otbGame20260809() {
     TfmWorkflow.Auto(game).launch()
     val ellie = game.tfm(Player.PLAYER1)
     val dad = game.tfm(Player.PLAYER2)
@@ -1023,7 +1023,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     }
 
     // (7:59 pm) "I'm going to pay 14 for Botanist. Botanist is funded."
-    ellie.turn { stdAction("FundAwardSA") { doTask("Botanist") } }
+    ellie.turn { stdAction("FundAwardSA", which = 2) { doTask("Botanist") } }
 
     // "I am going to play Satellites."
     // "It would cost eight, but I'm spending six worth of titanium and two money."
@@ -1126,7 +1126,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to pay 20 to fund the only award that I have a chance at, which is
     // Magnate."
-    dad.turn { stdAction("FundAwardSA") { doTask("Magnate") } }
+    dad.turn { stdAction("FundAwardSA", which = 3) { doTask("Magnate") } }
 
     // "I will pay four titanium for 16 and 12 money for Methane from Titan."
     ellie.turn {

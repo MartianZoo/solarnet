@@ -13,8 +13,8 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.CardOperation.FilteredPurchase
 import dev.martianzoo.tfm.data.CardOperation.RecoverEvents
+import dev.martianzoo.tfm.data.CardOperation.RevealAndPurchase
 import dev.martianzoo.tfm.data.CardOperation.RevealAndTest
 import dev.martianzoo.tfm.data.CardOperation.Search
 import dev.martianzoo.tfm.data.CardOperation.SelectAndKeep
@@ -46,8 +46,8 @@ internal object FollowModeNeutralizer : PetTransformer() {
                 operation.retained.intensity,
             )
         is SelectAndPurchase -> Gain(scaledEx(BUY_CARD.expression, 1), OPTIONAL)
-        is FilteredPurchase -> {
-          val count = (operation.offered.count as ActualScalar).value
+        is RevealAndPurchase -> {
+          val count = (operation.revealed.count as ActualScalar).value
           InstructionGroup(List(count) { followModeBuyOrFreeCard() })
         }
         is RevealAndTest -> Gain(operation.outcome.scaledEx, OPTIONAL)

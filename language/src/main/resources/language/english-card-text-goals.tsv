@@ -23,6 +23,7 @@ Vitor	Vitor	Gain 45 M€. As your first action, fund an award for free.	Effect: 
 Arklight	Arklight	Gain 45 M€. Increase your M€ production 2 steps. 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
 Polyphemos	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: When you buy a card, pay 2 M€ extra.
 Poseidon	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: When any colony is placed, increase your M€ production 1 step.
+StormcraftIncorporated	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to any card. / Effect: Each floater on this card may be used as 2 heat.
 LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you create an adjacency between a tile and an existing ocean tile, gain 1 M€.
 Pristar	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card.	Effect: In the production phase, if your terraform rating has not been raised this generation, add 1 preservation resource to this card and gain 6 M€.
 TerraLabsResearch	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card, pay 2 M€ less.
@@ -263,7 +264,7 @@ MiningArea	Mining Area	Place this tile on a land area with a steel or titanium p
 BuildingIndustries	Building Industries	Decrease your energy production 1 step and increase your steel production 2 steps.
 LandClaim	Land Claim	Place your marker on a non-reserved area. Only you may place a tile here.
 Sponsors	Sponsors	Increase your M€ production 2 steps.
-ElectroCatapult	Electro Catapult	Requires that oxygen is 8% or lower. Decrease your energy production 1 step. 1 VP.	Action: Spend 1 plant or 1 steel to gain 7 M€.
+ElectroCatapult	Electro Catapult	Requires that oxygen is 8% or lower. Decrease your energy production 1 step. 1 VP.	Action: Spend 1 plant to gain 7 M€, or spend 1 steel to gain 7 M€.
 EarthCatapult	Earth Catapult	2 VPs.	Effect: When you play a card, pay 2 M€ less.
 AdvancedAlloys	Advanced Alloys		Effect: Each titanium or steel you spend is worth 1 M€ extra.
 MarsUniversity	Mars University	1 VP.	Effect: When you play a science tag, you may discard a card from hand to draw 1 card.

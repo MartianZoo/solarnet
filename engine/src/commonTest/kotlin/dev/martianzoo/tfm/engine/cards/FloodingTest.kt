@@ -7,20 +7,20 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class FloodingTest : CardTest() {
+internal class FloodingTest : CardTest() {
   @Test
-  fun `Can charge either neighboring owner`() {
+  internal fun `Can charge either neighboring owner`() {
     playFlooding("Player2", "-4 Megacredit<Player2>")
     playFlooding("Player3", "-4 Megacredit<Player3>")
   }
 
   @Test
-  fun `Can charge no one`() {
+  internal fun `Can charge no one`() {
     playFlooding(null, null)
   }
 
   @Test
-  fun `Cannot charge a non-neighboring owner`() {
+  internal fun `Cannot charge a non-neighboring owner`() {
     arrangeFlooding()
     p1.playProject(Flooding, 7) {
       shouldThrow<NarrowingException> {

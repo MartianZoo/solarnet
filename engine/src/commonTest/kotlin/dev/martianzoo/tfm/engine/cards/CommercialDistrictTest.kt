@@ -9,9 +9,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class CommercialDistrictTest : CardTest() {
+internal class CommercialDistrictTest : CardTest() {
   @Test
-  fun `Can be placed between two cities`() {
+  internal fun `Can be placed between two cities`() {
     newGame()
     val p2 = requireP2()
 
@@ -25,7 +25,7 @@ class CommercialDistrictTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be placed on a water area`() {
+  internal fun `Cannot be placed on a water area`() {
     newGame()
     p1.manual("PROD[Energy]")
 
@@ -40,7 +40,7 @@ class CommercialDistrictTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be placed in a nonadjacent area`() {
+  internal fun `Cannot be placed in a nonadjacent area`() {
     newGame()
     p1.manual("PROD[Energy]")
 

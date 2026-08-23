@@ -11,7 +11,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class KuiperCooperativeTest : CardTest() {
+internal class KuiperCooperativeTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
@@ -20,17 +20,17 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `Starts with money and titanium production`() {
+  internal fun `Starts with money and titanium production`() {
     p1.assertCounts(33 to "Megacredit", 1 to "PROD[Titanium]")
   }
 
   @Test
-  fun `Action adds one asteroid per space tag`() {
+  internal fun `Action adds one asteroid per space tag`() {
     p1.cardAction1(KuiperCooperative).expect("2 Asteroid<$KuiperCooperative>")
   }
 
   @Test
-  fun `Asteroids can help pay for an asteroid standard project`() {
+  internal fun `Asteroids can help pay for an asteroid standard project`() {
     p1.cardAction1(KuiperCooperative)
 
     p1.stdProject(
@@ -41,7 +41,7 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `Asteroids can help pay for an aquifer standard project`() {
+  internal fun `Asteroids can help pay for an aquifer standard project`() {
     p1.cardAction1(KuiperCooperative)
 
     p1.stdProject("AquiferSP", payment = { payWithKuiperAsteroids(this) }) {
@@ -51,7 +51,7 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `Asteroids cannot pay for another standard project`() {
+  internal fun `Asteroids cannot pay for another standard project`() {
     p1.cardAction1(KuiperCooperative)
 
     shouldThrow<NarrowingException> {
@@ -60,7 +60,7 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `An asteroid on another card cannot make a Kuiper payment`() {
+  internal fun `An asteroid on another card cannot make a Kuiper payment`() {
     p1.manual("$AstroDrill, Asteroid<$AstroDrill>")
 
     shouldThrow<TaskException> {

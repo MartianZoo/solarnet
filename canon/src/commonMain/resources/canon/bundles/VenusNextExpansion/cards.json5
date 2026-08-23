@@ -149,7 +149,7 @@
       "resourceType": "Floater",
       "actions": [ "-> Floater" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>: AcceptFromCard<This>",
+        "PlayTag<Class<VenusTag>>:: AcceptFromCard<This>",
         "PayFromCard<This>:: -3 Owed<>"
       ],
     },
@@ -377,10 +377,10 @@
       "tags": [ "SpaceTag" ],
       "resourceType": "Asteroid",
       "actions": [
-        // 6[Titanium] -> Asteroid<This>
-        "-> 6 Owed<> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
+        "6 -> Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
+      "effects": [ "UseAction<This, First>:: Accept<Class<Titanium>>" ],
     },
 
     {

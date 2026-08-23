@@ -12,9 +12,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class TfmWorkflowTest {
+internal class TfmWorkflowTest {
   @Test
-  fun turnDeclinesAnUnusedSecondAction() {
+  internal fun turnDeclinesAnUnusedSecondAction() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -33,7 +33,7 @@ class TfmWorkflowTest {
   }
 
   @Test
-  fun soleRemainingPlayerDoesNotReceiveSecondActions() {
+  internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -55,7 +55,7 @@ class TfmWorkflowTest {
   }
 
   @Test
-  fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
+  internal fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

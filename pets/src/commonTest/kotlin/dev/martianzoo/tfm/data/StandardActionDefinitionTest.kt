@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class StandardActionDefinitionTest {
   @Test
-  fun jsonNameIsTheCanonicalClassName() {
+  internal fun jsonNameIsTheCanonicalClassName() {
     val definition =
         JsonReader.readActions(
                 """
@@ -25,15 +25,15 @@ internal class StandardActionDefinitionTest {
   }
 
   @Test
-  fun actionEffectsBelongToTheGeneratedClass() {
+  internal fun actionEffectsBelongToTheGeneratedClass() {
     val definition =
         JsonReader.readActions(
                 """
                 {
                   actions: [{
                     name: "ExampleSA",
-                    action: "-> Payment<This, First>",
-                    effects: ["CostPaid<This>: Plant"],
+                    action: "-> Plant",
+                    effects: ["End: VictoryPoint"],
                   }],
                 }
                 """
@@ -41,13 +41,13 @@ internal class StandardActionDefinitionTest {
             .single()
 
     definition.asClassDeclaration.effects.shouldContainExactly(
-        parse<Effect>("UseAction<This, First>: Payment<This, First>"),
-        parse<Effect>("CostPaid<This>: Plant"),
+        parse<Effect>("UseAction<This, First>: Plant"),
+        parse<Effect>("End: VictoryPoint"),
     )
   }
 
   @Test
-  fun standardResourceCostsBecomeInvoices() {
+  internal fun standardResourceCostsBecomeInvoices() {
     val definition =
         JsonReader.readActions(
                 """
@@ -59,13 +59,37 @@ internal class StandardActionDefinitionTest {
             .single()
 
     definition.asClassDeclaration.effects.shouldContainExactly(
-        parse<Effect>("UseAction<This, First>: 4 Owed<Class<Energy>> THEN Payment<This, First>"),
-        parse<Effect>("CostPaid<This, First>: 2 Plant"),
+        parse<Effect>(
+            "UseAction<This, First>: 4 Owed<Class<Energy>> THEN " +
+                "Invoice<This, First, Class<Energy>>"
+        ),
+        parse<Effect>("-Invoice<This, First>: 2 Plant"),
     )
   }
 
   @Test
-  fun variableStandardResourceCostsCarryTheChosenAmountAcrossPayment() {
+  fun standardResourceCostsMayBeReadFromAProperty() {
+    val definition =
+        JsonReader.readActions(
+                """
+                {
+                  actions: [{ name: "ExampleSA", action: "1 / cost -> 2 Plant" }],
+                }
+                """
+            )
+            .single()
+
+    definition.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>(
+            "UseAction<This, First>: Owed<Class<Megacredit>> / This.cost THEN " +
+                "Invoice<This, First>"
+        ),
+        parse<Effect>("-Invoice<This, First>: 2 Plant"),
+    )
+  }
+
+  @Test
+  internal fun variableStandardResourceCostsCarryTheChosenAmountAcrossPayment() {
     val definition =
         JsonReader.readActions(
                 """
@@ -77,8 +101,11 @@ internal class StandardActionDefinitionTest {
             .single()
 
     definition.asClassDeclaration.effects.shouldContainExactly(
-        parse<Effect>("UseAction<This, First>: 2X Owed<Class<Energy>> THEN X Payment<This, First>"),
-        parse<Effect>("X CostPaid<This, First>: 3X Plant, Steel"),
+        parse<Effect>(
+            "UseAction<This, First>: 2X Owed<Class<Energy>> THEN " +
+                "Invoice<This, First, Class<Energy>> THEN " +
+                "MAX 0 Invoice: (3X Plant, Steel)"
+        )
     )
   }
 }

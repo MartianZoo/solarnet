@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class HeadStartTest : CardTest() {
+internal class HeadStartTest : CardTest() {
   @Test
-  fun `Head Start grants two mandatory actions`() {
+  internal fun `Head Start grants two mandatory actions`() {
     newGame(PreludeExpansion, PromoCardPack)
     engine.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard")
@@ -29,7 +29,7 @@ class HeadStartTest : CardTest() {
   }
 
   @Test
-  fun `Head Start must use its first granted action to resolve a mandate`() {
+  internal fun `Head Start must use its first granted action to resolve a mandate`() {
     newGame(PreludeExpansion, PromoCardPack)
     p1.playCorp(ValleyTrust, 5)
     engine.phase("Prelude")

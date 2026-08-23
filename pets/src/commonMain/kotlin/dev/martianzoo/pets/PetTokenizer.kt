@@ -23,7 +23,10 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 /** A base class for parsing objects. */
 internal abstract class PetTokenizer {
 
-  internal val _docString = regex(Regex("""  "[^"]*"  """.trim()))
+  private val _quotedText = regex(Regex("""  "[^"]*"  """.trim()))
+
+  /** Parses quote-delimited text. Quotes cannot appear in the contents. */
+  internal val quotedText: Parser<String> = _quotedText map { it.text.removeSurrounding("\"") }
 
   internal val _arrow = literal("->", "arrow")
   internal val _doubleColon = literal("::", "doubleColon")

@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class VictoryTest {
 
   @Test
-  fun exactMultiplayerTiesProduceJointVictories() {
+  internal fun exactMultiplayerTiesProduceJointVictories() {
     val game = setUpGame()
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
