@@ -13,7 +13,7 @@
 | Class             | Example Pets syntax                                         |
 |-------------------|-------------------------------------------------------------|
 | `LargeConvoy`     | `This: OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal`       |
-| `ElectroCatapult` | `Plant OR Steel -> 7`                                       |
+| `ElectroCatapult` | `Plant -> 7`, `Steel -> 7`                                  |
 | `ArcticAlgae`     | `OceanTile BY Anyone: 2 Plant`                              |
 | `Insulation`      | `This: PROD[X Megacredit FROM Heat]`                        |
 | `EarthCatapult`   | `PlayCard: -2 Owed<Class<Megacredit>>`                      |

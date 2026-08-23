@@ -368,6 +368,22 @@ public class TfmGameplay(
   public fun cardAction2(cardName: ClassName, x: Int, body: BodyLambda = {}): TaskResult =
       cardAction(2, cardName, x, body)
 
+  public fun OperationBody.cardAction1(cardName: ClassName, body: BodyLambda = {}) {
+    useCardAction(1, cardName, body = body)
+  }
+
+  public fun OperationBody.cardAction1(cardName: ClassName, x: Int, body: BodyLambda = {}) {
+    useCardAction(1, cardName, x, body)
+  }
+
+  public fun OperationBody.cardAction2(cardName: ClassName, body: BodyLambda = {}) {
+    useCardAction(2, cardName, body = body)
+  }
+
+  public fun OperationBody.cardAction2(cardName: ClassName, x: Int, body: BodyLambda = {}) {
+    useCardAction(2, cardName, x, body)
+  }
+
   private fun cardAction(
       which: Int,
       cardName: ClassName,
@@ -376,11 +392,20 @@ public class TfmGameplay(
   ): TaskResult {
     return stdAction("UseCardActionSA") {
       doTask("ActionUsedMarker<$cardName>")
-      doTask("UseAction<$cardName, ${whichAction(which)}>")
-      x?.let { chooseVariableInvoiceAmount(this, it) }
-      payInvoiceFromItsResourceIfOffered()
-      body()
+      useCardAction(which, cardName, x, body)
     }
+  }
+
+  private fun OperationBody.useCardAction(
+      which: Int,
+      cardName: ClassName,
+      x: Int? = null,
+      body: BodyLambda = {},
+  ) {
+    doTask("UseAction<$cardName, ${whichAction(which)}>")
+    x?.let { chooseVariableInvoiceAmount(this, it) }
+    payInvoiceFromItsResourceIfOffered()
+    body()
   }
 
   private fun chooseVariableInvoiceAmount(operation: OperationBody, x: Int) {

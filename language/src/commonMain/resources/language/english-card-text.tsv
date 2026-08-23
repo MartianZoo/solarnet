@@ -270,7 +270,7 @@ MiningArea	Mining Area	Place this tile on an area with a steel or titanium place
 BuildingIndustries	Building Industries	Decrease your energy production 1 step and increase your steel production 2 steps.
 LandClaim	Land Claim	Place your marker on a non-reserved area. Only you may place a tile here.
 Sponsors	Sponsors	Increase your M€ production 2 steps.
-ElectroCatapult	Electro Catapult	Oxygen must be 8% or less. Decrease your energy production 1 step. 1 VP.	Action: Spend 1 plant or 1 steel to gain 7 M€.
+ElectroCatapult	Electro Catapult	Oxygen must be 8% or less. Decrease your energy production 1 step. 1 VP.	Action: Spend 1 plant to gain 7 M€, or spend 1 steel to gain 7 M€.
 EarthCatapult	Earth Catapult	2 VPs.	Effect: When you play a card, you pay 2 M€ less for it.
 AdvancedAlloys	Advanced Alloys		Effect: Each titanium or steel you spend is worth 1 M€ extra.
 MarsUniversity	Mars University	1 VP.	Effect: When you play a science tag, you may discard a card from hand to draw 1 card.

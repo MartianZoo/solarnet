@@ -323,7 +323,6 @@ public abstract class PetTransformer protected constructor() {
             is Cost.Spend -> Cost.Spend(transformScaledExpression(node.scaledEx))
             is Cost.Gated -> Cost.Gated(transformRequirement(node.gate), transformCost(node.cost))
             is Cost.Per -> Cost.Per(transformCost(node.cost), transformMetric(node.metric))
-            is Cost.Or -> Cost.Or(node.costs.map(::transformCost).toSetStrict())
             is Cost.Multi -> Cost.Multi(node.costs.map(::transformCost))
             is Cost.Transform -> Cost.Transform(transformCost(node.cost), node.transformKind)
           }
