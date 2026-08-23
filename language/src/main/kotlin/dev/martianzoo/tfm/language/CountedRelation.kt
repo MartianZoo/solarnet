@@ -17,14 +17,16 @@ internal data class CountedRelation(
       val determiner: String,
       val ownedByYou: Boolean,
   ) {
-    fun linearize(): String = "$determiner $singular"
+    fun linearize(uppercaseAny: Boolean = false): String =
+        "${if (uppercaseAny && determiner == "any") "ANY" else determiner} $singular"
 
     fun noun(count: Int): String = if (count == 1) singular else plural
   }
 
   fun countedObject(count: Int): String = "${target.noun(count)} $phrase ${source.linearize()}"
 
-  fun asRequirement(): String = "${source.linearize()} $phrase ${target.linearize()}"
+  fun asRequirement(): String =
+      "${source.linearize(uppercaseAny = true)} $phrase ${target.linearize(uppercaseAny = true)}"
 }
 
 internal fun renderCountedRelation(

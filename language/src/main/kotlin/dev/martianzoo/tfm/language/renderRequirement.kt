@@ -47,8 +47,8 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
     if (target != 1) return null
     val objectPhrase =
         if (relation.source.ownedByYou) {
-          "that you have ${indefiniteArticle(relation.source.singular)} ${relation.source.singular} " +
-              "${relation.phrase} ${relation.target.linearize()}"
+          "${indefiniteArticle(relation.source.singular)} ${relation.source.singular} " +
+              "${relation.phrase} ${relation.target.linearize(uppercaseAny = true)}"
         } else {
           relation.asRequirement()
         }
@@ -69,7 +69,10 @@ private fun Describers.renderDistinctKindsRequirement(
   val metric = requirement.metric as? Metric.Count ?: return null
   val noun = distinctOwnedKinds(metric.expression, this) ?: return null
   val kinds = if (requirement.target == 1) noun.singular else noun.plural
-  return requirementClause("requires", "that you have ${requirement.target} $kinds")
+  val amount =
+      if (requirement.target == 1) "${indefiniteArticle(kinds)} $kinds"
+      else "${requirement.target} $kinds"
+  return requirementClause("requires", amount)
 }
 
 private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
@@ -102,7 +105,10 @@ private fun Describers.renderCardResourceRequirement(requirement: Requirement.Mi
   val metric = requirement.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
   val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
-  return requirementClause("requires", "that you have ${requirement.target} $noun")
+  val amount =
+      if (requirement.target == 1) "${indefiniteArticle(noun)} $noun"
+      else "${requirement.target} $noun"
+  return requirementClause("requires", amount)
 }
 
 private fun Describers.renderTagRequirement(requirement: Requirement.Min): Clause? {
@@ -143,10 +149,10 @@ private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Require
         if (minimum.target == 1) {
           "${indefiniteArticle(noun.singular)} ${noun.singular}"
         } else {
-          "${minimum.target} or more ${noun.plural}"
+          "${minimum.target} ${noun.plural}"
         }
       }
-  return requirementClause("requires", "that you have ${englishList(nouns)}")
+  return requirementClause("requires", englishList(nouns))
 }
 
 private fun Describers.renderRequirementBound(
@@ -184,27 +190,32 @@ private fun Describers.renderCountBound(
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   if (expression.refinement != null) return null
+  val explicitlyAnyOwner = resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)
   val owned =
       when {
         resolved.sourceDependencies.isEmpty() -> isPlayerOwned(expression.className)
-        resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) -> false
+        explicitlyAnyOwner -> false
         else -> return null
       }
   val noun = if (target == 1) bound.noun.singular else bound.noun.plural
   return when (direction) {
     BoundDirection.MINIMUM ->
-        if (owned) {
-          val amount =
-              if (target == 1) "${indefiniteArticle(noun)} $noun" else "$target or more $noun"
-          requirementClause("requires", "that you have $amount")
-        } else {
-          requirementClause("requires", "$target $noun")
+        when {
+          owned -> {
+            val amount = if (target == 1) "${indefiniteArticle(noun)} $noun" else "$target $noun"
+            requirementClause("requires", amount)
+          }
+          explicitlyAnyOwner -> {
+            val amount = if (target == 1) "ANY $noun" else "ANY $target $noun"
+            requirementClause("requires", amount)
+          }
+          else -> requirementClause("requires", "$target $noun")
         }
     BoundDirection.MAXIMUM ->
-        if (owned) {
-          requirementClause("requires", "that you have $target or fewer ${bound.noun.plural}")
-        } else {
-          requirementClause("requires", "that there are $target or fewer ${bound.noun.plural}")
+        when {
+          owned -> requirementClause("requires", "$target or fewer ${bound.noun.plural}")
+          else ->
+              requirementClause("requires", "that there are $target or fewer ${bound.noun.plural}")
         }
   }
 }

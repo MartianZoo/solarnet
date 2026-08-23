@@ -185,8 +185,10 @@ may happen alongside derivation or in focused data-cleanup passes, whichever kee
 clearest and the implementation simplest.
 
 Numeric track thresholds use `Requires that <subject> is <value> or higher/lower`, without `at`.
-Minimum owned counts above one use `N or more`; a minimum owned count of one uses an indefinite
-article. Maximum counts use `N or fewer`.
+Minimum count requirements use a bare number above one and an indefinite article for one; `requires
+N` already expresses a minimum. Maximum counts use `N or fewer`. Player ownership is implicit in a
+player-owned component, while an explicit `<Anyone>` owner renders as uppercase `ANY`. A production
+requirement retains `that you have`, because omitting it makes the English unnaturally terse.
 
 Corporation definitions must author starting money before their other immediate instructions so
 the ordinary authored-order renderer puts that gain first. Correct the canonical card definition
@@ -361,16 +363,16 @@ An unrestricted gain says `any card`. The `<name> card` contraction applies when
 a minimum threshold of one tag; wording whose meaning depends on tag cardinality retains that
 cardinality explicitly.
 
-Any-player city-tile requirements name the required tiles without `in play`, while unqualified
-player-owned requirements say that you have the components. A compound owned city-and-colony
-requirement follows the same ownership rule. Solarnet components outside the game do not exist, so
-the published `in play` wording adds no existence state or scope.
+Explicit-any-player city-tile requirements use uppercase `ANY` and name the required tiles without
+`in play`, while unqualified player-owned requirements omit the owner. A compound owned
+city-and-colony requirement follows the same ownership rule. Solarnet components outside the game
+do not exist, so the published `in play` wording adds no existence state or scope.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Larger placement quantities remain numeric. A singular owned-count requirement likewise
-says that you have `a colony` or `a city tile`; tag counts remain numeric. Resource quantities and
-track or production steps remain numeric even when the count is one. Attach a step count to every
-production named; do not move a shared count after several productions with `each`.
+says `a colony` or `a city tile`; tag counts remain numeric. Resource quantities and track or
+production steps remain numeric even when the count is one. Attach a step count to every production
+named; do not move a shared count after several productions with `each`.
 
 An unsupported requirement or unsupported fixed part of an End-triggered scoring effect renders as
 one bracketed Pets element.
