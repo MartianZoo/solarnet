@@ -1,6 +1,6 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
-  premiseRequirement = HAS (=1 Player, =3 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))
+  premiseRequirement = HAS "(=1 Player, =3 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))"
 
   This:: TradeSA, BuildColonySP
   SetupPhase: ColoniesSetup
@@ -18,8 +18,8 @@ CLASS ColoniesSetup : Custom
 
 "A colony tile, such as Pluto"
 ABSTRACT CLASS ColonyTile {
-  automaticSelectionRequirement = HAS ColoniesExpansion
-  activationRequirement = HAS ColoniesExpansion
+  automaticSelectionRequirement = HAS "ColoniesExpansion"
+  activationRequirement = HAS "ColoniesExpansion"
 
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 FlownTradeFleet<This>
 
@@ -31,8 +31,8 @@ ABSTRACT CLASS ColonyTile {
 
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned<Player> {
-  automaticSelectionRequirement = HAS ColoniesExpansion
-  activationRequirement = HAS ColoniesExpansion
+  automaticSelectionRequirement = HAS "ColoniesExpansion"
+  activationRequirement = HAS "ColoniesExpansion"
 
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
   FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses:: GiveColonyBonus<ColonyTile>

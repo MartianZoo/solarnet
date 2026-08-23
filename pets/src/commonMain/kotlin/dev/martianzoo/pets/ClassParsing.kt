@@ -160,7 +160,7 @@ internal object ClassParsing : PetTokenizer() {
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
 
-    private val docstring: Parser<String> = _docString map { it.text.removeSurrounding("\"") }
+    private val docstring: Parser<String> = quotedText
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and

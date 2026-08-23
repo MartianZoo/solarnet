@@ -50,7 +50,7 @@ internal class ClassTest {
               score = 8
             }
             CLASS TemperatureArea : Area {
-              score = COUNT TemperatureStep
+              score = COUNT "TemperatureStep"
             }
             CLASS SevenPointArea : Area {
               score = 7
@@ -76,7 +76,7 @@ internal class ClassTest {
               requirement = Requirement
             }
             CLASS Gardener : Goal {
-              requirement = HAS 3 Plant, MAX 2 Steel
+              requirement = HAS "3 Plant, MAX 2 Steel"
             }
             """
                 .trimIndent()
@@ -97,13 +97,13 @@ internal class ClassTest {
             }
             CLASS OptionalGoal : Goal
             CLASS SpecificGoal : Goal {
-              requirement = HAS 3 Plant
+              requirement = HAS "3 Plant"
             }
             ABSTRACT CLASS RequiredGoal : Goal {
               requirement = Requirement
             }
             CLASS SpecificRequiredGoal : RequiredGoal {
-              requirement = HAS 2 Steel
+              requirement = HAS "2 Steel"
             }
             """
                 .trimIndent()
@@ -164,7 +164,7 @@ internal class ClassTest {
       loader(
           "ABSTRACT CLASS Area { score = Metric }\n" +
               "ABSTRACT CLASS FirstArea : Area { score = Number }\n" +
-              "ABSTRACT CLASS SecondArea : Area { score = COUNT TemperatureStep }\n" +
+              "ABSTRACT CLASS SecondArea : Area { score = COUNT \"TemperatureStep\" }\n" +
               "CLASS ConcreteArea : FirstArea, SecondArea"
       )
     }

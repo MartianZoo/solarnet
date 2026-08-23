@@ -34,8 +34,8 @@ internal class TypeTest {
             """
             CLASS ConcreteArea : Area {
               row = 8
-              score = COUNT TemperatureStep
-              requirement = HAS TemperatureStep
+              score = COUNT "TemperatureStep"
+              requirement = HAS "TemperatureStep"
             }
             """
                 .trimIndent(),

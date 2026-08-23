@@ -9,8 +9,8 @@ ABSTRACT CLASS PreludeDeck : Module
 
 "The original Prelude card pool, selected by default with the Prelude rules"
 CLASS Prelude1Deck : PreludeDeck {
-  autoSelectWhen = HAS PreludeExpansion
-  premiseRequirement = HAS PreludeExpansion
+  autoSelectWhen = HAS "PreludeExpansion"
+  premiseRequirement = HAS "PreludeExpansion"
 }
 
 "Deals each player the two generic card backs consumed during PreludePhase"
