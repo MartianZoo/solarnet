@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class StateChangeTest {
 
   @Test
-  fun bad() {
+  internal fun bad() {
     val valid = StateChange(42, cn("Foo").expression, cn("Bar").expression)
 
     assertFails { valid.copy(count = 0) }

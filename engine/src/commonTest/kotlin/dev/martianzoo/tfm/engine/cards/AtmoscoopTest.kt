@@ -4,10 +4,10 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class AtmoscoopTest : CardTest() {
+internal class AtmoscoopTest : CardTest() {
   // FAQ: "you can choose to raise Temperature or Venus even if that parameter is maxed"
   @Test
-  fun `Can choose Venus when it is already maxed`() {
+  internal fun `Can choose Venus when it is already maxed`() {
     newGame(VenusNextExpansion)
     p1.manual("15 VenusStep, $AerialMappers")
 
@@ -19,7 +19,7 @@ class AtmoscoopTest : CardTest() {
   }
 
   @Test
-  fun `Can raise Venus once when it is at 28 percent`() {
+  internal fun `Can raise Venus once when it is at 28 percent`() {
     newGame(VenusNextExpansion)
     p1.manual("14 VenusStep, $AerialMappers")
 
@@ -31,7 +31,7 @@ class AtmoscoopTest : CardTest() {
   }
 
   @Test
-  fun `Can raise Venus two steps`() {
+  internal fun `Can raise Venus two steps`() {
     newGame(VenusNextExpansion)
     p1.manual("$AerialMappers")
 

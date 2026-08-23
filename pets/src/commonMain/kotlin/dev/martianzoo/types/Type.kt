@@ -105,7 +105,7 @@ public data class Type(
   internal fun specialize(specs: List<Expression>): Type =
       rootClass.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
 
-  public fun refine(newRef: Refinement?): Type =
+  internal fun refine(newRef: Refinement?): Type =
       copy(
           refinement =
               when {

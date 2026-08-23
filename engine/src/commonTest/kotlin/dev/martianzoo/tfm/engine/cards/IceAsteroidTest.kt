@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class IceAsteroidTest : CardTest() {
+internal class IceAsteroidTest : CardTest() {
   @Test
-  fun `Cannot select an occupied area when eight oceans are in play`() {
+  internal fun `Cannot select an occupied area when eight oceans are in play`() {
     newGame()
     val waterAreas = p1.list("WaterArea")
     val existingOceans = waterAreas.take(8).joinToString { "OceanTile<$it>" }

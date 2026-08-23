@@ -31,12 +31,12 @@ import dev.martianzoo.types.ClassTable
  * Conservative static report of rules that may make a solo player's resource quantity nonmonotonic.
  */
 internal object StandardResourceMonotonicityReport {
-  enum class QuantityKind {
+  private enum class QuantityKind {
     RESOURCE,
     PRODUCTION,
   }
 
-  data class Quantity(
+  private data class Quantity(
       val label: String,
       val resourceClass: PetsClass,
       val kind: QuantityKind,

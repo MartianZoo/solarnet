@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class DependencyMultiplicityTest {
   @Test
-  fun rejectsDependencyTargetsWithoutAnUpperBoundOfOne() {
+  internal fun rejectsDependencyTargetsWithoutAnUpperBoundOfOne() {
     val table =
         load(
             """
@@ -24,7 +24,7 @@ internal class DependencyMultiplicityTest {
   }
 
   @Test
-  fun acceptsExactPerTypeAndStrongerAggregateBounds() {
+  internal fun acceptsExactPerTypeAndStrongerAggregateBounds() {
     val table =
         load(
             """
@@ -41,7 +41,7 @@ internal class DependencyMultiplicityTest {
   }
 
   @Test
-  fun rejectsNonCountingClassInvariantsWithAPetsException() {
+  internal fun rejectsNonCountingClassInvariantsWithAPetsException() {
     val table =
         load(
             """

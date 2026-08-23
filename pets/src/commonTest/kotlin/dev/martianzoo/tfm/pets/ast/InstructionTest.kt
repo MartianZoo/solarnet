@@ -24,7 +24,7 @@ import kotlin.test.Test
 // Most testing is done by AutomatedTest
 internal class InstructionTest {
   @Test
-  fun gainAndRemoveConvenienceFactories() {
+  internal fun gainAndRemoveConvenienceFactories() {
     gain(cn("Foo")) shouldBe parse<Instruction>("Foo!")
     gain(cn("Foo"), count = 3, intensity = AMAP) shouldBe parse<Instruction>("3 Foo.")
     remove(cn("Foo")) shouldBe parse<Instruction>("-Foo!")
@@ -32,7 +32,7 @@ internal class InstructionTest {
   }
 
   @Test
-  fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
+  internal fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> {
       parse<Instruction>("999999999999999999999999999999 Plant")
     }
@@ -41,14 +41,14 @@ internal class InstructionTest {
   }
 
   @Test
-  fun commaSyntaxIsATreeAndNotAnInstruction() {
+  internal fun commaSyntaxIsATreeAndNotAnInstruction() {
     parse<InstructionTree>("Plant, Heat") shouldBe
         InstructionGroup(listOf(parse("Plant"), parse("Heat")))
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant, Heat") }
   }
 
   @Test
-  fun thenIsRightAssociativeAndRejectsSequencesOnTheLeft() {
+  internal fun thenIsRightAssociativeAndRejectsSequencesOnTheLeft() {
     val then = parse<Instruction>("Plant THEN Heat THEN Steel") as Then
 
     then.stages shouldBe listOf(parse<Instruction>("Plant"), parse<Instruction>("Heat"))
@@ -61,7 +61,7 @@ internal class InstructionTest {
   }
 
   @Test
-  fun groupedShapesRoundTripWithoutChangingTheirTree() {
+  internal fun groupedShapesRoundTripWithoutChangingTheirTree() {
     testRoundTrip<InstructionTree>("(Foo FROM This) / This", "Foo FROM This / This")
     testRoundTrip<InstructionTree>("1: (1, -5 Bar)")
     testRoundTrip<InstructionTree>("(Foo, Bar) OR Qux")
@@ -143,12 +143,12 @@ internal class InstructionTest {
           .trimIndent()
 
   @Test
-  fun testSampleStrings() {
+  internal fun testSampleStrings() {
     testSampleStrings<InstructionTree>(inputs)
   }
 
   @Test
-  fun from() {
+  internal fun from() {
     testRoundTrip("Foo FROM Bar")
     testRoundTrip("Foo FROM Bar?")
     testRoundTrip("3 Foo FROM Bar")
@@ -179,12 +179,12 @@ internal class InstructionTest {
   }
 
   @Test
-  fun backslashCrLfContinuesAnElement() {
+  internal fun backslashCrLfContinuesAnElement() {
     testRoundTrip("Foo\\\r\n OR Bar", "Foo OR Bar")
   }
 
   @Test
-  fun gatingBindsLessTightlyThanOr() {
+  internal fun gatingBindsLessTightlyThanOr() {
     val gated = parse<Instruction>("Foo: Bar OR Baz") as Gated
 
     (gated.inner is Or) shouldBe true
@@ -193,7 +193,7 @@ internal class InstructionTest {
   }
 
   @Test
-  fun aGatedAlternativeRequiresParentheses() {
+  internal fun aGatedAlternativeRequiresParentheses() {
     val alternatives = parse<Instruction>("(Foo: Bar) OR Baz") as Or
 
     (alternatives.instructions.first() is Gated) shouldBe true

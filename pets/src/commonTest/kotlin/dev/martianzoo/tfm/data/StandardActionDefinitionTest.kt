@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class StandardActionDefinitionTest {
   @Test
-  fun jsonNameIsTheCanonicalClassName() {
+  internal fun jsonNameIsTheCanonicalClassName() {
     val definition =
         JsonReader.readActions(
                 """
@@ -25,7 +25,7 @@ internal class StandardActionDefinitionTest {
   }
 
   @Test
-  fun actionEffectsBelongToTheGeneratedClass() {
+  internal fun actionEffectsBelongToTheGeneratedClass() {
     val definition =
         JsonReader.readActions(
                 """
@@ -47,7 +47,7 @@ internal class StandardActionDefinitionTest {
   }
 
   @Test
-  fun standardResourceCostsBecomeInvoices() {
+  internal fun standardResourceCostsBecomeInvoices() {
     val definition =
         JsonReader.readActions(
                 """
@@ -89,7 +89,7 @@ internal class StandardActionDefinitionTest {
   }
 
   @Test
-  fun variableStandardResourceCostsCarryTheChosenAmountAcrossPayment() {
+  internal fun variableStandardResourceCostsCarryTheChosenAmountAcrossPayment() {
     val definition =
         JsonReader.readActions(
                 """

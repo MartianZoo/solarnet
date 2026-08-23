@@ -8,17 +8,17 @@ import kotlin.test.Test
 // Most testing is done by AutomatedTest
 internal class ActionTest {
   @Test
-  fun stupid() {
+  internal fun stupid() {
     testRoundTrip<Action>("-> Ok")
   }
 
   @Test
-  fun requirementGatedCost() {
+  internal fun requirementGatedCost() {
     testRoundTrip<Action>("=0 Award: 8 -> Award")
   }
 
   @Test
-  fun perCostsParenthesizeNestedGates() {
+  internal fun perCostsParenthesizeNestedGates() {
     testRoundTrip<Action>("(Bar: 1 / Foo) / Abc -> X Xyz")
   }
 
@@ -82,7 +82,7 @@ internal class ActionTest {
           .trimIndent()
 
   @Test
-  fun testSampleStrings() {
+  internal fun testSampleStrings() {
     testSampleStrings<Action>(inputs)
   }
 }

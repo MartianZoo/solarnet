@@ -15,14 +15,14 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ByTriggerCharacterizationTest {
+internal class ByTriggerCharacterizationTest {
   @Test
-  fun byAnyoneAcceptsPlayer() {
+  internal fun byAnyoneAcceptsPlayer() {
     assertByAnyone(PLAYER1)
   }
 
   @Test
-  fun byAnyoneAcceptsEngine() {
+  internal fun byAnyoneAcceptsEngine() {
     assertByAnyone(ENGINE)
   }
 
@@ -39,7 +39,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byPlayerAcceptsPlayer() {
+  internal fun byPlayerAcceptsPlayer() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     p1.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
@@ -52,7 +52,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
+  internal fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
     val game = newGame()
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
     p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
@@ -68,7 +68,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byPlayerRejectsEngine() {
+  internal fun byPlayerRejectsEngine() {
     val game = newGame()
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     engine.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
@@ -79,7 +79,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
+  internal fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -96,7 +96,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun anUnownedTriggerDefaultsToTheEffectOwner() {
+  internal fun anUnownedTriggerDefaultsToTheEffectOwner() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -124,7 +124,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
+  internal fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -138,7 +138,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
+  internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
     val game = newGame()
     val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -157,7 +157,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun orTriggerMatchesItsRemovalAlternative() {
+  internal fun orTriggerMatchesItsRemovalAlternative() {
     val game = newGame()
     val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }

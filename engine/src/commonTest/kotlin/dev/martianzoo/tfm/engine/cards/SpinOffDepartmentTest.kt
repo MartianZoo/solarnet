@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class SpinOffDepartmentTest : CardTest() {
+internal class SpinOffDepartmentTest : CardTest() {
   @Test
-  fun `Triggers on a 20-cost card but not cheaper cards`() {
+  internal fun `Triggers on a 20-cost card but not cheaper cards`() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),

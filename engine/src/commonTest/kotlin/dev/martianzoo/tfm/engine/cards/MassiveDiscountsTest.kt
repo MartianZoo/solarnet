@@ -4,10 +4,10 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class MassiveDiscountsTest : CardTest() {
+internal class MassiveDiscountsTest : CardTest() {
 
   @Test
-  fun `Stacks with other card discounts`() {
+  internal fun `Stacks with other card discounts`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
 
     engine.phase("Action")

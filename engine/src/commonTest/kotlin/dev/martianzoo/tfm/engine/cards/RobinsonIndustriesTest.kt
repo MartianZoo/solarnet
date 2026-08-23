@@ -7,7 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RobinsonIndustriesTest : CardTest() {
+internal class RobinsonIndustriesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PreludeExpansion)
@@ -16,25 +16,25 @@ class RobinsonIndustriesTest : CardTest() {
   }
 
   @Test
-  fun `Can raise uniquely lowest megacredit production`() {
+  internal fun `Can raise uniquely lowest megacredit production`() {
     p1.manual("PROD[Steel, Titanium, Plant, Energy, Heat]")
     p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Megacredit]")
   }
 
   @Test
-  fun `Can raise megacredit production from below the production floor`() {
+  internal fun `Can raise megacredit production from below the production floor`() {
     p1.manual("PROD[-Megacredit]")
     p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Megacredit]")
   }
 
   @Test
-  fun `Can raise uniquely lowest titanium production`() {
+  internal fun `Can raise uniquely lowest titanium production`() {
     p1.manual("PROD[Megacredit, Steel, Plant, Energy, Heat]")
     p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Titanium]")
   }
 
   @Test
-  fun `Can choose megacredit production when tied for lowest`() {
+  internal fun `Can choose megacredit production when tied for lowest`() {
     seedProductionTie()
 
     p1.cardAction1(RobinsonIndustries) {
@@ -44,13 +44,13 @@ class RobinsonIndustriesTest : CardTest() {
   }
 
   @Test
-  fun `Can choose titanium production when tied for lowest`() {
+  internal fun `Can choose titanium production when tied for lowest`() {
     seedProductionTie()
     p1.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }.expect("-4, PROD[Titanium]")
   }
 
   @Test
-  fun `Cannot choose a production that is higher than the minimum`() {
+  internal fun `Cannot choose a production that is higher than the minimum`() {
     seedProductionTie()
 
     listOf("Steel", "Plant", "Energy", "Heat").forEach { resource ->

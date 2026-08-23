@@ -11,7 +11,7 @@ import kotlin.test.Test
 // Partial archive replay through the generation-10 World Government action:
 // Synthetic Magnet Burst (ga5237bd2fb08)
 // https://terraforming-mars.herokuapp.com/the-end?id=pa9f45e80d897
-class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
+internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
   // Government, two players, and these full-random milestone and award pools.
   // Unsupported component: Builder7 and Sponsor substitute for unsupported Thawer and Briber.
@@ -32,7 +32,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
-  fun gameThroughGeneration10() {
+  internal fun gameThroughGeneration10() {
     TfmWorkflow.Auto(game).launch()
 
     val pink = p1

@@ -8,16 +8,16 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class VironTest : CardTest() {
+internal class VironTest : CardTest() {
   @Test
-  fun `Can repeat an action used earlier in the generation`() {
+  internal fun `Can repeat an action used earlier in the generation`() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
     p1.cardAction1(Viron) { doTask("UseAction<$AtmoCollectors, First>") }.expect("Floater")
   }
 
   @Test
-  fun `Can choose a different action on the previously used card`() {
+  internal fun `Can choose a different action on the previously used card`() {
     initializeGame()
 
     p1.cardAction1(AtmoCollectors)
@@ -30,7 +30,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `Cannot use Viron to repeat Viron's own action`() {
+  internal fun `Cannot use Viron to repeat Viron's own action`() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
     p1.cardAction1(Viron) {
@@ -40,7 +40,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `Cannot choose an action card that has not been used`() {
+  internal fun `Cannot choose an action card that has not been used`() {
     initializeGame()
     p1.manual("$ExtractorBalloons")
     p1.cardAction1(AtmoCollectors)
@@ -52,7 +52,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `Cannot repeat another player's action`() {
+  internal fun `Cannot repeat another player's action`() {
     newGame(
         VenusNextExpansion,
         ColoniesExpansion,
@@ -72,7 +72,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `Repeats an action on another corporation`() {
+  internal fun `Repeats an action on another corporation`() {
     newGame(VenusNextExpansion)
     engine.phase("Action")
     p1.manual("$Viron, $Celestic")

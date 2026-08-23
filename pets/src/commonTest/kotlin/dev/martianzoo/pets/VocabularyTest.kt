@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 internal class VocabularyTest {
   @Test
-  fun englishDisplayNamesSeparateClassNameWords() {
+  internal fun englishDisplayNamesSeparateClassNameWords() {
     defaultEnglishDisplayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"
     defaultEnglishDisplayName(cn("BeamFromAThoriumAsteroid")) shouldBe "Beam From AThorium Asteroid"
     defaultEnglishDisplayName(cn("Builder7")) shouldBe "Builder 7"
@@ -24,7 +24,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun petsNamesUseOneCamelCaseDerivation() {
+  internal fun petsNamesUseOneCamelCaseDerivation() {
     petsClassName("XML HTTP request") shouldBe cn("XmlHttpRequest")
     petsClassName("supports IPv6 on iOS?") shouldBe cn("SupportsIpv6OnIos")
     petsClassName("YouTube importer") shouldBe cn("YouTubeImporter")
@@ -37,7 +37,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun requestedLocaleFallsBackToEnglishPerEntry() {
+  internal fun requestedLocaleFallsBackToEnglishPerEntry() {
     val vocabulary =
         Vocabulary.create(
             setOf(cn("ColonizerTrainingCamp"), cn("AsteroidMiningConsortium")),
@@ -57,7 +57,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun localizedNamesAreAcceptedAndRenderedForTheirContext() {
+  internal fun localizedNamesAreAcceptedAndRenderedForTheirContext() {
     val vocabulary =
         Vocabulary.create(
             setOf(cn("Birds")),
@@ -71,7 +71,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun explicitPetsNamesAreAliasesForCanonicalClasses() {
+  internal fun explicitPetsNamesAreAliasesForCanonicalClasses() {
     val vocabulary =
         Vocabulary.create(
             setOf(cn("Player1")),
@@ -86,7 +86,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun localizedNameCollisionsAreRejected() {
+  internal fun localizedNameCollisionsAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
           setOf(cn("ColonizerTrainingCamp"), cn("AsteroidMiningConsortium")),
@@ -103,7 +103,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun nonAsciiDisplayNamesAreRejected() {
+  internal fun nonAsciiDisplayNamesAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
           setOf(cn("ColonizerTrainingCamp")),
@@ -113,7 +113,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun duplicateInputSynonymsAreRejected() {
+  internal fun duplicateInputSynonymsAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
           setOf(cn("Titanium"), cn("Temperature")),
@@ -125,7 +125,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun inputOnlySynonymsAreAcceptedButNeverRendered() {
+  internal fun inputOnlySynonymsAreAcceptedButNeverRendered() {
     val vocabulary =
         Vocabulary.create(
             setOf(cn("Titanium"), cn("TerraformRating")),

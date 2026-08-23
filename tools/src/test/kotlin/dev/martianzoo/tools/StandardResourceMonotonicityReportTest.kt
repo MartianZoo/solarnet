@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 
 internal class StandardResourceMonotonicityReportTest {
   @Test
-  fun scansCountScaledInstructionsAfterDeprodification() {
+  internal fun scansCountScaledInstructionsAfterDeprodification() {
     val probe =
         object : TfmAuthority() {
           override val explicitClassDeclarations =
@@ -51,7 +51,7 @@ internal class StandardResourceMonotonicityReportTest {
   }
 
   @Test
-  fun separatesSoloResourceAndProductionHazards() {
+  internal fun separatesSoloResourceAndProductionHazards() {
     val premise = StandardResourceMonotonicityReport.maximalSoloPremise()
     Engine.newGame(premise)
     val analysis = StandardResourceMonotonicityReport.analyze(premise)

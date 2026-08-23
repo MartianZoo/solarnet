@@ -52,13 +52,13 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Shuffle the Colony Tiles and draw the number of players plus 2, and place them next to the
   // main game board. Exception: use 5 tiles if playing a 2 player game.
   @Test
-  fun `number of colony tiles`() {
+  internal fun `number of colony tiles`() {
     engine.count("ColonyTile") shouldBe 6
   }
 
   // Place a white cube on the highlighted second step of each Colony Tile track.
   @Test
-  fun `starting colony production`() {
+  internal fun `starting colony production`() {
     engine.assertCounts(
         1 to "ColonyProduction<Luna>",
         1 to "ColonyProduction<Io>",
@@ -68,7 +68,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   // TITAN, ENCELADUS, and MIRANDA start with their white marker on the moon picture itself,
   @Test
-  fun `card resource colonies start not in play`() {
+  internal fun `card resource colonies start not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val premise =
         canonicalPremise(
@@ -103,7 +103,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   // You can not place a colony there, or trade there, until that happens.
   @Test
-  fun `cant do anything with colony not in play`() {
+  internal fun `cant do anything with colony not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val premise =
         canonicalPremise(
@@ -135,7 +135,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // standard project that costs 17 M€: place your player marker on the lowest available spot on
   // the Colony Tile track
   @Test
-  fun `build a colony`() {
+  internal fun `build a colony`() {
     engine.godMode().sneak("-ColonyProduction<Luna>")
     engine.assertCounts(0 to "ColonyProduction<Luna>")
 
@@ -151,7 +151,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   // Only 3 colonies total per Colony Tile are allowed - no exceptions!
   @Test
-  fun `three colonies max`() {
+  internal fun `three colonies max`() {
     engine.godMode().manual("Colony<Player1, Luna>")
     engine.godMode().manual("Colony<Player2, Luna>")
     engine.godMode().manual("Colony<Player3, Luna>")
@@ -160,7 +160,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
   @Test
-  fun `duplicate colony`() {
+  internal fun `duplicate colony`() {
     p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
     p1.assertCounts(1 to "Colony<Luna>")
     shouldThrow<NarrowingException> { p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") } }
@@ -171,7 +171,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // actions to trade with a Colony Tile. Pay the cost: 9 M€, or 3 energy, or 3 titanium, and move
   // your Trade Fleet from the Trade Fleets Tile to an available Colony Tile.
   @Test
-  fun `basic trading`() {
+  internal fun `basic trading`() {
     engine
         .godMode()
         .sneak(
@@ -208,7 +208,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   }
 
   @Test
-  fun `trade fleet cannot be reused`() {
+  internal fun `trade fleet cannot be reused`() {
     p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
 
     shouldThrow<LimitsException> {

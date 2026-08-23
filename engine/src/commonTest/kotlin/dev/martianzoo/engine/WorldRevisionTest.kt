@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class WorldRevisionTest {
   @Test
-  fun rollbackRestoresTheCheckpointWithoutReusingItsRevision() {
+  internal fun rollbackRestoresTheCheckpointWithoutReusingItsRevision() {
     val world = Engine.newGame(canonicalPremise()) as WholeWorld
     val p1 = world.gameplay(PLAYER1).godMode()
     val checkpoint = world.timeline.checkpoint()

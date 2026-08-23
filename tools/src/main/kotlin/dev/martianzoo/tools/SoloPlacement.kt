@@ -16,7 +16,7 @@ internal enum class SoloTile {
   GREENERY,
 }
 
-internal enum class PlacementMode {
+private enum class PlacementMode {
   STANDARD,
   COMPATIBILITY,
 }
@@ -29,7 +29,7 @@ internal data class Placement(
     val drawOrdinal: Int,
 )
 
-internal class SoloPlacementCalculator(
+private class SoloPlacementCalculator(
     private val map: MarsMapDefinition,
     private val mode: PlacementMode,
 ) {

@@ -13,7 +13,7 @@ import kotlin.test.Test
 
 internal class EventLogPrefixTest {
   @Test
-  fun capturesAStartingSequenceAndAppendsLocally() {
+  internal fun capturesAStartingSequenceAndAppendsLocally() {
     val parent = EventLog()
     recordGain(parent, "Energy")
     parent.markSetupStart()
@@ -32,7 +32,7 @@ internal class EventLogPrefixTest {
   }
 
   @Test
-  fun failedStateUpdateDoesNotAdvanceHistoryOrRevision() {
+  internal fun failedStateUpdateDoesNotAdvanceHistoryOrRevision() {
     val events = EventLog()
     val revision = events.revision
     val entry = gainEvent(events, "Energy")

@@ -8,7 +8,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class AirScrappingExpeditionTest : CardTest() {
+internal class AirScrappingExpeditionTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(
@@ -19,14 +19,14 @@ class AirScrappingExpeditionTest : CardTest() {
   }
 
   @Test
-  fun `Can add floaters to another floater card`() {
+  internal fun `Can add floaters to another floater card`() {
     p1.manual("$ForcedPrecipitation")
     p1.manual("$AirScrappingExpedition") { addCardResources(ForcedPrecipitation) }
         .expect("3 Floater")
   }
 
   @Test
-  fun `Cannot add more floaters than the target card can hold`() {
+  internal fun `Cannot add more floaters than the target card can hold`() {
     p1.manual("$ForcedPrecipitation")
     p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     shouldThrow<NarrowingException> {

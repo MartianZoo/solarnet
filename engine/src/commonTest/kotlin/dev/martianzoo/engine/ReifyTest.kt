@@ -9,11 +9,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ReifyTest {
-  val game = Engine.newGame(canonicalPremise())
+internal class ReifyTest {
+  private val game = Engine.newGame(canonicalPremise())
 
   @Test
-  fun testVarious() {
+  internal fun testVarious() {
     test("5 OxygenStep!", "5 OxygenStep!")
     test("5 OxygenStep.", "5 OxygenStep.")
     test("5 OxygenStep?", "5 OxygenStep!")
@@ -47,7 +47,7 @@ class ReifyTest {
   }
 
   @Test
-  fun refinedTypeNarrowingNeedsGameContext() {
+  internal fun refinedTypeNarrowingNeedsGameContext() {
     val concrete = game.reader.resolve(parse<Expression>("Tharsis_5_5"))
     val refined = game.reader.resolve(parse<Expression>("WaterArea(HAS MAX 0 Tile)"))
 
@@ -55,7 +55,7 @@ class ReifyTest {
     concrete.narrows(refined, game.reader) shouldBe true
   }
 
-  fun test(original: String, replacement: String) {
+  private fun test(original: String, replacement: String) {
     val narrower: Instruction = parse(replacement)
     val wider: Instruction = parse(original)
     narrower.ensureNarrows(wider, game.reader)

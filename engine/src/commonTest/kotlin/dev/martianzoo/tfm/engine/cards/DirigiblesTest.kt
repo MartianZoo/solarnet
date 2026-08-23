@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class DirigiblesTest : CardTest() {
+internal class DirigiblesTest : CardTest() {
   @Test
-  fun `Can pay for a Venus card with two floaters`() {
+  internal fun `Can pay for a Venus card with two floaters`() {
     newGame(VenusNextExpansion)
 
     engine.phase("Action")

@@ -7,9 +7,9 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class DefaultsTest {
+internal class DefaultsTest {
   @Test
-  fun testIntensities() {
+  internal fun testIntensities() {
     val classTable =
         loader(
             """

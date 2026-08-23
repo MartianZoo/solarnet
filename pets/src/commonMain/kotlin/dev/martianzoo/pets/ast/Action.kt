@@ -98,7 +98,7 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
     }
 
     internal data class Multi(var costs: List<Cost>) : Cost() {
-      internal constructor(vararg costs: Cost) : this(costs.toList())
+      private constructor(vararg costs: Cost) : this(costs.toList())
 
       init {
         require(costs.size >= 2)

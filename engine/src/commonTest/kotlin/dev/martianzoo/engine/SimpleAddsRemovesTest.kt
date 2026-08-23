@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 internal class SimpleAddsRemovesTest {
   @Test
-  fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
+  internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
 
@@ -26,14 +26,14 @@ internal class SimpleAddsRemovesTest {
   }
 
   @Test
-  fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
+  internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
     val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2).godMode()
 
     shouldThrow<LimitsException> { p2.manual("-Plant") }
   }
 
   @Test
-  fun manualPreservesTasksThatWereAlreadyPending() {
+  internal fun manualPreservesTasksThatWereAlreadyPending() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
     val pendingTask = p2.addTasks("StandardResource").single()
@@ -45,7 +45,7 @@ internal class SimpleAddsRemovesTest {
   }
 
   @Test
-  fun manualRejectsAPreparedTask() {
+  internal fun manualRejectsAPreparedTask() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
     val pendingTask = p2.addTasks("StandardResource").single()
@@ -55,7 +55,7 @@ internal class SimpleAddsRemovesTest {
   }
 
   @Test
-  fun basicByApi() {
+  internal fun basicByApi() {
     val game = Engine.newGame(canonicalPremise())
 
     val checkpoint = game.timeline.checkpoint()

@@ -23,7 +23,7 @@ import kotlin.test.Test
 
 internal class CustomMetricTest {
   @Test
-  fun instructionAndMetricCapabilitiesCanShareOrSplitImplementations() {
+  internal fun instructionAndMetricCapabilitiesCanShareOrSplitImplementations() {
     val game = Engine.newGame(customClassSetup())
     val p1 = game.tfm(PLAYER1)
 
@@ -39,7 +39,7 @@ internal class CustomMetricTest {
   }
 
   @Test
-  fun abstractArgumentsSumTheirConcreteSpecializations() {
+  internal fun abstractArgumentsSumTheirConcreteSpecializations() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     val invocationsBefore = ConcreteOnlyMetric.invocations
@@ -56,7 +56,7 @@ internal class CustomMetricTest {
   }
 
   @Test
-  fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
+  internal fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     shouldThrow<ExpressionException> {
@@ -71,7 +71,7 @@ internal class CustomMetricTest {
   }
 
   @Test
-  fun changingACustomMetricDoesNotProduceAnEventForItsName() {
+  internal fun changingACustomMetricDoesNotProduceAnEventForItsName() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     p1.count("MetricTriggerObserver") shouldBe 1
@@ -82,7 +82,7 @@ internal class CustomMetricTest {
   }
 
   @Test
-  fun customImplementationRuntimeFailuresHaveTheirOwnDomain() {
+  internal fun customImplementationRuntimeFailuresHaveTheirOwnDomain() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     shouldThrow<CustomCodeException> { p1.count("BrokenMetric") }

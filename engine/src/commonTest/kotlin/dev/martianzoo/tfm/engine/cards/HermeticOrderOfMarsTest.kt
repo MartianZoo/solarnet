@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class HermeticOrderOfMarsTest : CardTest() {
+internal class HermeticOrderOfMarsTest : CardTest() {
   @Test
-  fun `Gains money for each empty area adjacent to its own tiles`() {
+  internal fun `Gains money for each empty area adjacent to its own tiles`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual(

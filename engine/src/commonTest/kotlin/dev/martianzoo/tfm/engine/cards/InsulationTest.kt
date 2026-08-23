@@ -7,7 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class InsulationTest : CardTest() {
+internal class InsulationTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
@@ -16,19 +16,19 @@ class InsulationTest : CardTest() {
   }
 
   @Test
-  fun `Can be played with heat production`() {
+  internal fun `Can be played with heat production`() {
     p1.playProject(Insulation, 2) { doTask("PROD[Megacredit FROM Heat]") }
         .expect("PROD[Megacredit, -Heat]")
   }
 
   @Test
-  fun `Can convert two of three heat production`() {
+  internal fun `Can convert two of three heat production`() {
     p1.playProject(Insulation, 2) { doTask("PROD[2 Megacredit FROM Heat]") }
         .expect("PROD[2 Megacredit, -2 Heat]")
   }
 
   @Test
-  fun `Cannot convert zero heat production`() {
+  internal fun `Cannot convert zero heat production`() {
     p1.playProject(Insulation, 2) {
       shouldThrow<PetSyntaxException> { doTask("PROD[0 Megacredit FROM Heat]") }
       abort()
@@ -36,7 +36,7 @@ class InsulationTest : CardTest() {
   }
 
   @Test
-  fun `Cannot skip its production conversion`() {
+  internal fun `Cannot skip its production conversion`() {
     p1.playProject(Insulation, 2) {
       shouldThrow<NarrowingException> { doTask("Ok") }
       abort()
@@ -44,7 +44,7 @@ class InsulationTest : CardTest() {
   }
 
   @Test
-  fun `Cannot convert another player's production`() {
+  internal fun `Cannot convert another player's production`() {
     p1.playProject(Insulation, 2) {
       shouldThrow<NarrowingException> {
         doTask("PROD[2 Megacredit<Player2> FROM Heat<Player2>]")

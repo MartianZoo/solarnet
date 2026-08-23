@@ -17,7 +17,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
-class TaskPreparingTest {
+internal class TaskPreparingTest {
   private val game = setUpGame()
   private val tasks = game.tasks
   private val events = game.events
@@ -25,7 +25,7 @@ class TaskPreparingTest {
   private val gameplay = game.gameplay(PLAYER1)
 
   @Test
-  fun `can prepare an abstract task`() {
+  internal fun `can prepare an abstract task`() {
     initiate("2 Plant?")
     gameplay.prepareTask("2 Plant?")
 
@@ -36,7 +36,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing to NoOp automatically handles the task 1`() {
+  internal fun `preparing to NoOp automatically handles the task 1`() {
     initiate("-2 Plant?")
     gameplay.prepareTask("-2 Plant?").also { it shouldBe null }
 
@@ -45,7 +45,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing to NoOp automatically handles the task 2`() {
+  internal fun `preparing to NoOp automatically handles the task 2`() {
     initiate("Plant / Heat")
     gameplay.prepareTask("Plant / Heat").also { it shouldBe null }
 
@@ -54,7 +54,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing adjusts for limits 1`() {
+  internal fun `preparing adjusts for limits 1`() {
     initiate("-30 TerraformRating?")
     gameplay.reviseTask("-30 TerraformRating?", "-25 TerraformRating?")
     gameplay.prepareTask("-25 TerraformRating?")
@@ -63,7 +63,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing adjusts for limits 2`() {
+  internal fun `preparing adjusts for limits 2`() {
     initiate("-30 TerraformRating.")
     gameplay.prepareTask("-30 TerraformRating.")
 
@@ -71,7 +71,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing fails due to limit`() {
+  internal fun `preparing fails due to limit`() {
     initiate("-Plant!")
     history().shouldHaveSize(1)
     shouldThrow<LimitsException> { gameplay.prepareTask("-Plant!") }
@@ -80,7 +80,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing then narrowing results in automatic re-preparing`() {
+  internal fun `preparing then narrowing results in automatic re-preparing`() {
     initiate("PROD[-2 StandardResource]")
     gameplay.prepareTask("PROD[-2 StandardResource]")
 
@@ -92,7 +92,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing an OR prunes the options`() {
+  internal fun `preparing an OR prunes the options`() {
     initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!")
     gameplay.prepareTask("-TR OR -Plant OR Heat OR Tharsis_5_5!")
 
@@ -100,7 +100,7 @@ class TaskPreparingTest {
   }
 
   @Test
-  fun `preparing to NoOp enqueues the THEN instructions`() {
+  internal fun `preparing to NoOp enqueues the THEN instructions`() {
     initiate("Plant / Heat THEN Steel / 2 OxygenStep THEN Heat")
     gameplay.prepareTask("Plant / Heat").also { it shouldBe null }
 

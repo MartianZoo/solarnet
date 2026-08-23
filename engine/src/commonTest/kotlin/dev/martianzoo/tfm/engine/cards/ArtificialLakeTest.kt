@@ -9,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class ArtificialLakeTest : CardTest() {
+internal class ArtificialLakeTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
@@ -17,7 +17,7 @@ class ArtificialLakeTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be played when every land area is occupied`() {
+  internal fun `Cannot be played when every land area is occupied`() {
     val landAreas =
         p1.list("LandArea").filterNot { it.toString() == "VolcanicArea" } + p1.list("VolcanicArea")
     seedGame(
@@ -29,20 +29,20 @@ class ArtificialLakeTest : CardTest() {
   }
 
   @Test
-  fun `Can be played with eight oceans`() {
+  internal fun `Can be played with eight oceans`() {
     seedGame("12 TemperatureStep", oceanTiles(8))
     p1.playProject(ArtificialLake, 15) { placeTile(2, 3) }.expect("Tile")
   }
 
   @Test
-  fun `Can be played with nine oceans without placing another ocean`() {
+  internal fun `Can be played with nine oceans without placing another ocean`() {
     seedGame("12 TemperatureStep", oceanTiles(9))
     p1.playProject(ArtificialLake, 15)
     p1.assertCounts(9 to "OceanTile")
   }
 
   @Test
-  fun `Cannot place its ocean on a water area`() {
+  internal fun `Cannot place its ocean on a water area`() {
     seedGame("12 TemperatureStep")
     p1.playProject(ArtificialLake, 15) {
       shouldThrow<NarrowingException> { doTask("OceanTile<Tharsis_1_2>") }
@@ -51,7 +51,7 @@ class ArtificialLakeTest : CardTest() {
   }
 
   @Test
-  fun `Cannot be played below -6 °C`() {
+  internal fun `Cannot be played below -6 °C`() {
     seedGame("11 TemperatureStep")
     shouldThrow<RequirementException> { p1.playProject(ArtificialLake, 15) }
   }

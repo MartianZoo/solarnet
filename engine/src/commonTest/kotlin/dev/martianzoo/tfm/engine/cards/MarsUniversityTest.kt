@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class MarsUniversityTest : CardTest() {
+internal class MarsUniversityTest : CardTest() {
   @Test
-  fun `Two tag effects can discard twice before drawing twice`() {
+  internal fun `Two tag effects can discard twice before drawing twice`() {
     newGame(CorporateEraExpansion)
     p1.manual(
         "5 ProjectCard, $MarsUniversity"
@@ -28,7 +28,7 @@ class MarsUniversityTest : CardTest() {
   }
 
   @Test
-  fun `Two tag effects can each draw before the next discard`() {
+  internal fun `Two tag effects can each draw before the next discard`() {
     newGame(CorporateEraExpansion)
     p1.manual(
         "5 ProjectCard, $MarsUniversity"

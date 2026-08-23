@@ -5,16 +5,16 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class UnmiTest : CardTest() {
+internal class UnmiTest : CardTest() {
   @Test
-  fun `Can use its action after raising TR`() {
+  internal fun `Can use its action after raising TR`() {
     initializeUnmi()
     p1.stdProject("AsteroidSP").expect("-14, TerraformRating")
     p1.cardAction1(UnitedNationsMarsInitiative).expect("-3, TerraformRating")
   }
 
   @Test
-  fun `Can choose UNMI after raising TR earlier in the generation`() {
+  internal fun `Can choose UNMI after raising TR earlier in the generation`() {
     newGame()
     p1.manual("TemperatureStep")
     p1.playCorp(UnitedNationsMarsInitiative, 0)
@@ -23,7 +23,7 @@ class UnmiTest : CardTest() {
   }
 
   @Test
-  fun `Cannot use its action without raising TR`() {
+  internal fun `Cannot use its action without raising TR`() {
     initializeUnmi()
     shouldThrow<RequirementException> { p1.cardAction1(UnitedNationsMarsInitiative) }
   }

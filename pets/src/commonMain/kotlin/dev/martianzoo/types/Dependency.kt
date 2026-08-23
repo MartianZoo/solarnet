@@ -24,7 +24,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
       private val declaringClass: ClassName,
 
       /** The ordinal of this dependency within that list, 0-referenced. */
-      val index: Int,
+      private val index: Int,
   ) {
     init {
       require(index >= 0)

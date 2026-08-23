@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class TradeEnvoysTest : ColoniesCardTest() {
+internal class TradeEnvoysTest : ColoniesCardTest() {
   @Test
-  fun `Raises the track before trade income`() {
+  internal fun `Raises the track before trade income`() {
     p1.manual("ProjectCard, 15")
     p1.playProject(TradeEnvoys, 6)
     engine.manual("3 ColonyProduction<Luna>")
@@ -24,7 +24,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Raises the track when Titan Floating Launch-Pad trades`() {
+  internal fun `Raises the track when Titan Floating Launch-Pad trades`() {
     p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") {
       addCardResources(TitanFloatingLaunchPad)
     }
@@ -42,7 +42,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Does not increase a maxed track`() {
+  internal fun `Does not increase a maxed track`() {
     p1.manual("$TradeEnvoys, 9")
     engine.manual("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
@@ -56,7 +56,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Trading Colony may decline the shared track increase`() {
+  internal fun `Trading Colony may decline the shared track increase`() {
     p1.manual("ProjectCard, 30")
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
@@ -77,7 +77,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `All track decisions precede the trade when both cards are active`() {
+  internal fun `All track decisions precede the trade when both cards are active`() {
     p1.manual("2 ProjectCard, 50")
     p1.playProject(TradeEnvoys, 6)
     p1.playProject(TradingColony, 18) {

@@ -40,7 +40,7 @@ import dev.martianzoo.pets.ast.Requirement
  */
 public class ClassLoader
 private constructor(
-    internal val authority: Authority,
+    private val authority: Authority,
     private val masterSource: ClassTable?,
     private val blockedActivations: Map<ClassName, Requirement> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),

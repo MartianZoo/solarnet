@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 internal class ActorTest {
   @Test
-  fun actorOwnerAndPlayerRolesAreDistinct() {
+  internal fun actorOwnerAndPlayerRolesAreDistinct() {
     val player: Actor = PLAYER1
     Player.players(2).shouldContainExactly(PLAYER1, PLAYER2)
     (player is Owner) shouldBe true

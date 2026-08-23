@@ -4,16 +4,16 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class IndenturedWorkersTest : CardTest() {
+internal class IndenturedWorkersTest : CardTest() {
   @Test
-  fun `Discounts the next card played`() {
+  internal fun `Discounts the next card played`() {
     initializeGame("27, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     p1.playProject(Soletta, 27).expect("-27")
   }
 
   @Test
-  fun `Keeps its discount available through other actions`() {
+  internal fun `Keeps its discount available through other actions`() {
     initializeGame("39, 4 ProjectCard, 8 Heat")
     p1.playProject(IndenturedWorkers, 0)
     p1.stdProject("AsteroidSP")
@@ -23,7 +23,7 @@ class IndenturedWorkersTest : CardTest() {
   }
 
   @Test
-  fun `Discounts only one card`() {
+  internal fun `Discounts only one card`() {
     initializeGame("36, 3 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     p1.playProject(Soletta, 27)
@@ -31,7 +31,7 @@ class IndenturedWorkersTest : CardTest() {
   }
 
   @Test
-  fun `Expires at the end of the generation`() {
+  internal fun `Expires at the end of the generation`() {
     initializeGame("35, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     engine.manual("Generation")

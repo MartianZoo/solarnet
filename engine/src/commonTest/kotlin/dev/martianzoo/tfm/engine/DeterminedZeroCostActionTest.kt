@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class DeterminedZeroCostActionTest : TfmTest() {
   @Test
-  fun `an action remains usable when its determined cost is zero`() {
+  internal fun `an action remains usable when its determined cost is zero`() {
     val extension =
         object : TfmAuthority() {
           override val explicitClassDeclarations =

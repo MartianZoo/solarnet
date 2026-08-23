@@ -9,16 +9,16 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ValleyTrustTest : CardTest() {
+internal class ValleyTrustTest : CardTest() {
   @Test
-  fun `Valley Trust requires a Prelude deck`() {
+  internal fun `Valley Trust requires a Prelude deck`() {
     shouldThrow<IllegalArgumentException> {
       newGame(GameConfig("ValleyTrust", "Player1", "Player2"))
     }
   }
 
   @Test
-  fun `Resolves Valley Trust's starting prelude`() {
+  internal fun `Resolves Valley Trust's starting prelude`() {
     newGame(PreludeExpansion)
     p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22")
 
@@ -30,7 +30,7 @@ class ValleyTrustTest : CardTest() {
   }
 
   @Test
-  fun `Valley Trust uses an already selected Prelude generation`() {
+  internal fun `Valley Trust uses an already selected Prelude generation`() {
     val game =
         newGame(
             GameConfig(
@@ -46,7 +46,7 @@ class ValleyTrustTest : CardTest() {
   }
 
   @Test
-  fun `Must resolve mandate before another standard action`() {
+  internal fun `Must resolve mandate before another standard action`() {
     newGame(PreludeExpansion)
     p1.playCorp(ValleyTrust, 5)
     engine.phase("Action")

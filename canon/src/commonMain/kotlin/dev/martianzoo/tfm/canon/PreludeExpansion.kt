@@ -27,7 +27,7 @@ internal val preludeExpansionBundle: StandardFormBundle by lazy {
 }
 
 /** Namespace for Prelude's custom Pets implementations. */
-internal object PreludeExpansion {
+private object PreludeExpansion {
   internal object LowestProduction : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val resourceClass = type.expressionFull.arguments.single { it.className == CLASS }

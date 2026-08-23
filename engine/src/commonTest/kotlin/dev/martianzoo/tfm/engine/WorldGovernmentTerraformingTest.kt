@@ -12,7 +12,7 @@ import kotlin.test.Test
 
 internal class WorldGovernmentTerraformingTest {
   @Test
-  fun `start player chooses an Engine increase that triggers Aphrodite`() {
+  internal fun `start player chooses an Engine increase that triggers Aphrodite`() {
     val game = setUpGame(VenusNextExpansion, players = 3)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -40,7 +40,7 @@ internal class WorldGovernmentTerraformingTest {
   }
 
   @Test
-  fun `World Government is skipped after every parameter is complete`() {
+  internal fun `World Government is skipped after every parameter is complete`() {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
     engine
@@ -59,7 +59,7 @@ internal class WorldGovernmentTerraformingTest {
   }
 
   @Test
-  fun `Solar phase is skipped when production ends the game`() {
+  internal fun `Solar phase is skipped when production ends the game`() {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
     engine.godMode().sneak("LastCall")

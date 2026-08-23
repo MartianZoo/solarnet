@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Game played Sun 2026-08-09 11:19 am. Quotes are transcript-derived and sometimes normalized. */
-class OtbGame20260809Test : AbstractFullGameTest() {
+internal class OtbGame20260809Test : AbstractFullGameTest() {
   // "This is a two-player game on the Hellas board."
   // "Our colonies are Callisto, Luna, Triton, Miranda, and Enceladus."
   // "We're using the Venus expansion. We're using promo cards. We're using the Prelude
@@ -35,7 +35,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun otbGame20260809() {
+  internal fun otbGame20260809() {
     TfmWorkflow.Auto(game).launch()
     val ellie = game.tfm(Player.PLAYER1)
     val dad = game.tfm(Player.PLAYER2)

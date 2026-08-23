@@ -7,7 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class CelesticTest : CardTest() {
+internal class CelesticTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion)
@@ -17,30 +17,30 @@ class CelesticTest : CardTest() {
   }
 
   @Test
-  fun `Can pass the first generation and draw two cards in the second`() {
+  internal fun `Can pass the first generation and draw two cards in the second`() {
     advanceToStartingCardDraw()
     p1.stdAction("HandleMandates").expect("2 ProjectCard")
   }
 
   @Test
-  fun `Can play a project after resolving its mandatory card draw`() {
+  internal fun `Can play a project after resolving its mandatory card draw`() {
     advanceToStartingCardDraw()
     p1.stdAction("HandleMandates")
     p1.playProject(Mine, 4).expect("PROD[Steel]")
   }
 
   @Test
-  fun `Cannot play a project before resolving its mandatory card draw`() {
+  internal fun `Cannot play a project before resolving its mandatory card draw`() {
     shouldThrow<RequirementException> { p1.playProject(Mine, 4) }
   }
 
   @Test
-  fun `Cannot buy a standard project before resolving its mandatory card draw`() {
+  internal fun `Cannot buy a standard project before resolving its mandatory card draw`() {
     shouldThrow<RequirementException> { p1.stdProject("AsteroidSP") }
   }
 
   @Test
-  fun `Cannot use a standard action before resolving its mandatory card draw`() {
+  internal fun `Cannot use a standard action before resolving its mandatory card draw`() {
     shouldThrow<RequirementException> { p1.convertHeat() }
   }
 

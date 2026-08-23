@@ -36,7 +36,7 @@ import kotlin.test.Test
 
 internal class ClassTest {
   @Test
-  fun `metric properties narrow through number bounds literals and metric expressions`() {
+  internal fun `metric properties narrow through number bounds literals and metric expressions`() {
     val table =
         loader(
             """
@@ -68,7 +68,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `requirement properties narrow to requirement expressions`() {
+  internal fun `requirement properties narrow to requirement expressions`() {
     val table =
         loader(
             """
@@ -88,7 +88,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `optional requirement properties may be absent present or narrowed to required`() {
+  internal fun `optional requirement properties may be absent present or narrowed to required`() {
     val table =
         loader(
             """
@@ -122,7 +122,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `property inheritance rejects incomplete concrete classes overrides and conflicts`() {
+  internal fun `property inheritance rejects incomplete concrete classes overrides and conflicts`() {
     shouldThrow<PetException> {
       loader("ABSTRACT CLASS Area { row = Number }\nCLASS ConcreteArea : Area")
     }
@@ -177,7 +177,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `diamond inheritance coalesces the selfsame property fact`() {
+  internal fun `diamond inheritance coalesces the selfsame property fact`() {
     val table =
         loader(
             """
@@ -193,7 +193,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `a narrower property fact wins when a broader inheritance path rejoins it`() {
+  internal fun `a narrower property fact wins when a broader inheritance path rejoins it`() {
     val table =
         loader(
             """
@@ -211,7 +211,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun classLoadingUsesCanonicalNamesOnly() {
+  internal fun classLoadingUsesCanonicalNamesOnly() {
     val classes = parseClasses("CLASS Foo").toSetStrict()
     val authority =
         object : TfmAuthority() {
@@ -222,14 +222,14 @@ internal class ClassTest {
   }
 
   @Test
-  fun `effects cannot create class representatives`() {
+  internal fun `effects cannot create class representatives`() {
     shouldThrow<PetException> {
       loader("CLASS Source { This:: Class<Target> }\nCLASS Target")
     }
   }
 
   @Test
-  fun `root classes reject unexpected custom implementations`() {
+  internal fun `root classes reject unexpected custom implementations`() {
     val authority =
         object : TfmAuthority() {
           override val customClasses = setOf(object : CustomClass(COMPONENT) {})
@@ -239,7 +239,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun nothingness() {
+  internal fun nothingness() {
     val loader = loadTypes()
     val cpt = loader.componentClass
     cpt.abstract shouldBe true
@@ -249,7 +249,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun onethingness() {
+  internal fun onethingness() {
     val loader = loadTypes("CLASS Foo")
     val foo = loader.getClass(cn("Foo"))
     foo.abstract shouldBe false
@@ -259,7 +259,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun classTableEnumerationRequiresFreezeWithoutCapturingAnEarlySnapshot() {
+  internal fun classTableEnumerationRequiresFreezeWithoutCapturingAnEarlySnapshot() {
     val classes = parseClasses("CLASS Foo").toSetStrict()
     val authority =
         object : TfmAuthority() {
@@ -278,7 +278,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `custom class requirements load with the custom class only`() {
+  internal fun `custom class requirements load with the custom class only`() {
     val declarations =
         parseClasses(
                 """
@@ -306,7 +306,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `custom classes cannot inherit Pets behavior and failed validation is not cached`() {
+  internal fun `custom classes cannot inherit Pets behavior and failed validation is not cached`() {
     listOf(
             "ABSTRACT CLASS BehavioralParent { Trigger: Result }\nCLASS Trigger, Result",
             "ABSTRACT CLASS BehavioralParent { HAS MAX 1 This }",
@@ -331,7 +331,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `authority-known inactive classes resolve structurally but are not enumerated`() {
+  internal fun `authority-known inactive classes resolve structurally but are not enumerated`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active")
     val inactiveBundle =
         bundle(
@@ -360,7 +360,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `dependency signatures activate available vocabulary`() {
+  internal fun `dependency signatures activate available vocabulary`() {
     val activeBundle =
         bundle(
             "ActiveBundle",
@@ -376,7 +376,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `excluding an inactive type does not make a complement dependency inactive`() {
+  internal fun `excluding an inactive type does not make a complement dependency inactive`() {
     val activeBundle =
         bundle(
             "ActiveBundle",
@@ -393,7 +393,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `structural dependencies activate authority-known classes`() {
+  internal fun `structural dependencies activate authority-known classes`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active<Inactive>")
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
@@ -404,7 +404,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `premise rejects a structurally activated unrequested Module`() {
+  internal fun `premise rejects a structurally activated unrequested Module`() {
     val authority =
         object : TfmAuthority() {
           override val explicitClassDeclarations =
@@ -424,7 +424,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `premise rejects structural reactivation of an excluded class`() {
+  internal fun `premise rejects structural reactivation of an excluded class`() {
     val authority =
         object : TfmAuthority() {
           override val explicitClassDeclarations =
@@ -442,7 +442,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `premise rejects structural reactivation of a conditionally excluded class`() {
+  internal fun `premise rejects structural reactivation of a conditionally excluded class`() {
     val authority =
         object : Bundle(cn("ConditionalBundle")) {
           override val explicitClassDeclarations =
@@ -477,7 +477,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `class metrics do not activate the represented class`() {
+  internal fun `class metrics do not activate the represented class`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Querying { HAS MAX 0 Class<Inactive> }")
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
@@ -487,7 +487,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `reachable constructive instructions activate their destination`() {
+  internal fun `reachable constructive instructions activate their destination`() {
     val authority =
         bundle(
             "Bundle",
@@ -503,7 +503,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `configuration counting does not treat a mixed hierarchy as Module-only`() {
+  internal fun `configuration counting does not treat a mixed hierarchy as Module-only`() {
     val authority =
         bundle(
             "MixedBundle",
@@ -530,7 +530,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `bare trigger does not activate its externally issued protocol`() {
+  internal fun `bare trigger does not activate its externally issued protocol`() {
     val authority =
         bundle(
             "Bundle",
@@ -548,7 +548,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `positive invariants activate their required inhabitants`() {
+  internal fun `positive invariants activate their required inhabitants`() {
     val authority = bundle("Bundle", "CLASS Active { HAS =1 Required }\nCLASS Required")
 
     val table = project(authority, "Active")
@@ -557,7 +557,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `constructive instructions activate only when their trigger and gate can be reached`() {
+  internal fun `constructive instructions activate only when their trigger and gate can be reached`() {
     val authority =
         bundle(
             "Bundle",
@@ -587,7 +587,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `structural supertypes become active`() {
+  internal fun `structural supertypes become active`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active : Inactive")
     val inactiveBundle = bundle("InactiveBundle", "ABSTRACT CLASS Inactive")
     val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
@@ -598,7 +598,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun subclass() {
+  internal fun subclass() {
     val loader = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar : Foo")
     val component = loader.componentClass
     val foo = loader.getClass(cn("Foo"))
@@ -617,7 +617,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun `frozen subclass masks cross machine-word boundaries`() {
+  internal fun `frozen subclass masks cross machine-word boundaries`() {
     val levels =
         (0 until 70).map { index ->
           if (index == 0) "ABSTRACT CLASS Level0"
@@ -640,7 +640,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun forwardReference() {
+  internal fun forwardReference() {
     val loader = loadTypes("CLASS Bar : Foo", "ABSTRACT CLASS Foo")
     val bar = loader.getClass(cn("Bar"))
     bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
@@ -651,7 +651,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun concreteSuperclassRejected() {
+  internal fun concreteSuperclassRejected() {
     shouldThrow<PetException> { loadTypes("CLASS Foo", "CLASS Bar : Foo") }
     shouldThrow<PetException> {
       loadTypes("CLASS Foo", "ABSTRACT CLASS Bar : Foo")
@@ -659,7 +659,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun cycle() {
+  internal fun cycle() {
     val s =
         """
       CLASS Foo : Bar
@@ -669,7 +669,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun trivialCycle() {
+  internal fun trivialCycle() {
     val s =
         """
       CLASS Foo : Foo
@@ -678,7 +678,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun dependency() {
+  internal fun dependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(COMPONENT)
@@ -686,7 +686,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun inheritedDependency() {
+  internal fun inheritedDependency() {
     val loader = loadTypes("CLASS Foo", "ABSTRACT CLASS Bar<Foo>", "CLASS Qux : Bar")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
@@ -698,7 +698,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun restatedDependency() {
+  internal fun restatedDependency() {
     val loader = loadTypes("CLASS Foo", "ABSTRACT CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
@@ -710,7 +710,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun addedDependency() {
+  internal fun addedDependency() {
     val loader =
         loadTypes("CLASS Foo", "ABSTRACT CLASS Bar<Foo>", "CLASS Baz", "CLASS Qux<Baz> : Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
@@ -724,7 +724,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun refinedDependency() {
+  internal fun refinedDependency() {
     val loader =
         loadTypes(
             "ABSTRACT CLASS Foo",
@@ -742,12 +742,12 @@ internal class ClassTest {
   }
 
   @Test
-  fun cycleDependency() {
+  internal fun cycleDependency() {
     loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
   }
 
   @Test
-  fun depsAndSpecs() {
+  internal fun depsAndSpecs() {
     val table =
         loadTypes(
             "ABSTRACT CLASS SuperFoo",
@@ -811,7 +811,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun testLubOne() {
+  internal fun testLubOne() {
     val (cpt, foo) = loadAndGetClasses("Foo")
     cpt.lub(cpt) shouldBe cpt
     cpt.lub(foo) shouldBe cpt
@@ -820,13 +820,13 @@ internal class ClassTest {
   }
 
   @Test
-  fun testLubSibling() {
+  internal fun testLubSibling() {
     val (cpt, foo, bar) = loadAndGetClasses("Foo", "Bar")
     foo.lub(bar) shouldBe cpt
   }
 
   @Test
-  fun testLubParent() {
+  internal fun testLubParent() {
     val table = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar : Foo")
     val cpt = table.componentClass
     val foo = table.getClass(cn("Foo"))
@@ -843,7 +843,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun testLubNibling() {
+  internal fun testLubNibling() {
     val table = loadTypes("CLASS Foo", "ABSTRACT CLASS Bar", "CLASS Qux : Bar")
     val cpt = table.componentClass
     val foo = table.getClass(cn("Foo"))
@@ -861,7 +861,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun classTypes() {
+  internal fun classTypes() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar", "CLASS Qux")
 
     assertFails { loader.resolve(te("Class<Class<Class>>")) }
@@ -874,7 +874,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun unknownClassTypes() {
+  internal fun unknownClassTypes() {
     val declarations =
         arrayOf(
             "CLASS Foo<Class<Component>>",
@@ -918,9 +918,9 @@ internal fun loader(petsText: String): ClassTable {
   return ClassLoader(authority).loadEverything()
 }
 
-val regex = Regex("^(\\w+).*")
+private val regex = Regex("^(\\w+).*")
 
-internal fun loadAndGetClasses(vararg decl: String): List<Class> {
+private fun loadAndGetClasses(vararg decl: String): List<Class> {
   val all =
       """
         ${decl.joinToString("") { "CLASS $it\n" }}

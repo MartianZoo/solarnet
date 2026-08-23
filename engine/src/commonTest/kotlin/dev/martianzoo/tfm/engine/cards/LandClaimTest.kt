@@ -8,9 +8,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class LandClaimTest : CardTest() {
+internal class LandClaimTest : CardTest() {
   @Test
-  fun `Places a claim marker on an empty land area`() {
+  internal fun `Places a claim marker on an empty land area`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
 
@@ -22,7 +22,7 @@ class LandClaimTest : CardTest() {
   }
 
   @Test
-  fun `Artificial Lake respects a claim according to its owner`() {
+  internal fun `Artificial Lake respects a claim according to its owner`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
     p1.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_3>") }
@@ -35,7 +35,7 @@ class LandClaimTest : CardTest() {
   }
 
   @Test
-  fun `Another player's claim on the only adjacent area enables greenery fallback`() {
+  internal fun `Another player's claim on the only adjacent area enables greenery fallback`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
     p1.manual("GreeneryTile<Tharsis_1_1>")
@@ -48,7 +48,7 @@ class LandClaimTest : CardTest() {
   }
 
   @Test
-  fun `Cannot claim an occupied or reserved area`() {
+  internal fun `Cannot claim an occupied or reserved area`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
     p1.manual("GreeneryTile<Tharsis_1_1>")

@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class NoctisCityTest : CardTest() {
+internal class NoctisCityTest : CardTest() {
   @Test
-  fun `Can be placed anywhere on Hellas`() {
+  internal fun `Can be placed anywhere on Hellas`() {
     newGame(Hellas)
     p1.manual("PROD[Energy]")
     p1.manual("$NoctisCity") {
@@ -19,7 +19,7 @@ class NoctisCityTest : CardTest() {
   }
 
   @Test
-  fun `Must be placed on Noctis on Tharsis`() {
+  internal fun `Must be placed on Noctis on Tharsis`() {
     newGame()
     p1.manual("PROD[Energy]")
 

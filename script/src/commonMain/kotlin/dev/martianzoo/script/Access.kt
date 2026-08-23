@@ -9,16 +9,16 @@ import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
 
 internal sealed class Access {
-  public abstract fun exec(instruction: String): TaskResult
+  internal abstract fun exec(instruction: String): TaskResult
 
-  public abstract fun newTurn(): TaskResult
+  internal abstract fun newTurn(): TaskResult
 
   public abstract fun phase(phase: String): TaskResult
 
   internal fun doPhase(gameplay: OperationLayer, phase: String): TaskResult =
       gameplay.beginManual("${phase}Phase FROM Phase")
 
-  public open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
+  internal open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
   // PURPLE: Game integrity: the engine fully controls the workflow
   internal class PurpleMode : Access() {

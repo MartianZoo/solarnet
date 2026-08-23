@@ -7,21 +7,21 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class LavaFlowsTest : CardTest() {
+internal class LavaFlowsTest : CardTest() {
   @Test
-  fun `Can place its tile on Tharsis`() {
+  internal fun `Can place its tile on Tharsis`() {
     newGame()
     p1.manual("$LavaFlows") { placeTile(2, 2) }.expect("2 TemperatureStep")
   }
 
   @Test
-  fun `Can place its tile on Hellas`() {
+  internal fun `Can place its tile on Hellas`() {
     newGame(Hellas)
     p1.manual("$LavaFlows") { placeTile(1, 5) }.expect("2 TemperatureStep")
   }
 
   @Test
-  fun `Cannot be played when every volcanic area is occupied`() {
+  internal fun `Cannot be played when every volcanic area is occupied`() {
     newGame()
     p1.manual(
         "GreeneryTile<Tharsis_2_2>, GreeneryTile<Tharsis_3_1>, " +

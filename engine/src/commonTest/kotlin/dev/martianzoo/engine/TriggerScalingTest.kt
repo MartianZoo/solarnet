@@ -9,9 +9,9 @@ import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
-class TriggerScalingTest {
+internal class TriggerScalingTest {
   @Test
-  fun `ordinary triggers scale their result while X triggers produce one result`() {
+  internal fun `ordinary triggers scale their result while X triggers produce one result`() {
     val game = Engine.newGame(canonicalPremise(authority = authority))
     val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
 

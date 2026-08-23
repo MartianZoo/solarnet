@@ -17,7 +17,7 @@ internal class CanonMapsTest {
   @Test fun testElysium() = checkMap(Canon.marsMap(cn("ElysiumMap")))
 
   @Test
-  fun testUtopia() {
+  internal fun testUtopia() {
     val map = Canon.marsMap(cn("UtopiaMap"))
     map.className shouldBe cn("UtopiaMap")
     map.areas.single { it.className == cn("Utopia_3_3") }.bonusText shouldBe "Steel"
@@ -25,7 +25,7 @@ internal class CanonMapsTest {
   }
 
   @Test
-  fun testCimmeria() {
+  internal fun testCimmeria() {
     val map = Canon.marsMap(cn("CimmeriaMap"))
     map.className shouldBe cn("CimmeriaMap")
     map.areas.single { it.className == cn("Cimmeria_3_3") }.bonusText shouldBe "TcColonyBonus"

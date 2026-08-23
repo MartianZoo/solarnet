@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class PharmacyUnionTest : CardTest() {
+internal class PharmacyUnionTest : CardTest() {
   @Test
-  fun `Starting money precedes both mandatory microbe-tag losses`() {
+  internal fun `Starting money precedes both mandatory microbe-tag losses`() {
     newGame(PromoCardPack)
 
     p1.manual("$PharmacyUnion").expect("46 Megacredit, ProjectCard, 2 Disease<$PharmacyUnion>")
@@ -18,7 +18,7 @@ class PharmacyUnionTest : CardTest() {
   }
 
   @Test
-  fun `A science tag must remove one disease and raise TR`() {
+  internal fun `A science tag must remove one disease and raise TR`() {
     newGame(PromoCardPack)
     p1.manual("$PharmacyUnion")
 
@@ -26,7 +26,7 @@ class PharmacyUnionTest : CardTest() {
   }
 
   @Test
-  fun `Two science tags with one disease remove it and then flip Pharmacy Union`() {
+  internal fun `Two science tags with one disease remove it and then flip Pharmacy Union`() {
     newGame(PromoCardPack)
     p1.manual("$PharmacyUnion")
     p1.manual("-Disease<$PharmacyUnion>")
@@ -48,7 +48,7 @@ class PharmacyUnionTest : CardTest() {
   }
 
   @Test
-  fun `Two science tags can flip Pharmacy Union only once`() {
+  internal fun `Two science tags can flip Pharmacy Union only once`() {
     newGame(PromoCardPack)
     p1.manual("$PharmacyUnion")
     p1.manual("-2 Disease<$PharmacyUnion>")
@@ -69,7 +69,7 @@ class PharmacyUnionTest : CardTest() {
   // FAQ: a microbe trigger that was already pending when Pharmacy Union flips still loses 4 M€,
   // but places no disease because the corporation is no longer in play.
   @Test
-  fun `Pending disease placement becomes its explicit fallback after Pharmacy Union flips`() {
+  internal fun `Pending disease placement becomes its explicit fallback after Pharmacy Union flips`() {
     newGame(PromoCardPack)
     p1.manual("$PharmacyUnion")
     p1.manual("-2 Disease<$PharmacyUnion>")

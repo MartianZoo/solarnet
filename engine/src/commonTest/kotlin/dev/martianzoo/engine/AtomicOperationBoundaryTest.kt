@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class AtomicOperationBoundaryTest {
+internal class AtomicOperationBoundaryTest {
   @Test
-  fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
+  internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val player1 = game.gameplay(PLAYER1).godMode()
     val player2 = game.gameplay(PLAYER2).godMode()
@@ -26,7 +26,7 @@ class AtomicOperationBoundaryTest {
   }
 
   @Test
-  fun nestedGameplayCallsDoNotStartAutomaticAdvancement() {
+  internal fun nestedGameplayCallsDoNotStartAutomaticAdvancement() {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val player1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val player2 = game.gameplay(PLAYER2).godMode()

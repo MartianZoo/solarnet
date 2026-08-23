@@ -8,7 +8,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class DoubleDownTest : CardTest() {
+internal class DoubleDownTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PreludeExpansion, PromoCardPack)
@@ -18,13 +18,13 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `Can copy Biosphere Support`() {
+  internal fun `Can copy Biosphere Support`() {
     p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BiosphereSupport>") }
         .expect("PROD[-Megacredit, 0 Steel, 0 Titanium, 2 Plant, 0 Energy, 0 Heat]")
   }
 
   @Test
-  fun `Cannot copy an absent Prelude`() {
+  internal fun `Cannot copy an absent Prelude`() {
     p1.playPrelude(DoubleDown) {
       shouldThrow<DependencyException> { doTask("CopyPrelude<$MartianIndustries>") }
       abort()
@@ -32,7 +32,7 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `Cannot copy another player's Prelude`() {
+  internal fun `Cannot copy another player's Prelude`() {
     requireP2().playPrelude(UnmiContractor)
     p1.playPrelude(DoubleDown) {
       shouldThrow<DependencyException> { doTask("CopyPrelude<$UnmiContractor>") }
@@ -41,7 +41,7 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `Cannot copy a corporation`() {
+  internal fun `Cannot copy a corporation`() {
     p1.playPrelude(DoubleDown) {
       shouldThrow<NarrowingException> { doTask("CopyPrelude<$PharmacyUnion>") }
       abort()
@@ -49,7 +49,7 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `Cannot copy itself`() {
+  internal fun `Cannot copy itself`() {
     p1.playPrelude(DoubleDown) {
       shouldThrow<NarrowingException> { doTask("CopyPrelude<$DoubleDown>") }
       abort()

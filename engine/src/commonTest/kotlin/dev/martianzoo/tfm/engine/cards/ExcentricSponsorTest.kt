@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class ExcentricSponsorTest : CardTest() {
+internal class ExcentricSponsorTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion, PreludeExpansion)
@@ -14,13 +14,13 @@ class ExcentricSponsorTest : CardTest() {
   }
 
   @Test
-  fun `Can apply its full discount to the next card`() {
+  internal fun `Can apply its full discount to the next card`() {
     p1.playPrelude(ExcentricSponsor) { p1.playProject(NitrogenRichAsteroid, 6) }
         .expect("-6 Megacredit, PROD[Plant], 3 TerraformRating")
   }
 
   @Test
-  fun `Can play a card costing less than its full discount`() {
+  internal fun `Can play a card costing less than its full discount`() {
     p1.playPrelude(ExcentricSponsor) { p1.playProject(GhgImportFromVenus, 0) }
         .expect("PROD[3 Heat], TerraformRating")
   }

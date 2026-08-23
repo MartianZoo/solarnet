@@ -107,7 +107,7 @@ public sealed class Instruction : InstructionTree() {
 
     private val amount: Amount by lazy { Amount(count, intensity) }
 
-    internal data class Amount(val scalar: Scalar, val intensity: Intensity?) : Reifiable<Amount> {
+    private data class Amount(val scalar: Scalar, val intensity: Intensity?) : Reifiable<Amount> {
       override val abstract: Boolean = scalar.abstract || intensity?.abstract != false
 
       override fun ensureNarrows(that: Amount, info: TypeInfo) {
@@ -383,7 +383,7 @@ public sealed class Instruction : InstructionTree() {
     }
 
     /** Replaces the sequence parts while preserving this `THEN`'s linkage identities. */
-    public fun withParts(stages: List<Instruction>, continuation: InstructionTree): Then =
+    internal fun withParts(stages: List<Instruction>, continuation: InstructionTree): Then =
         Then(stages, continuation).withLinkedTypeSources(linkedTypeSources)
 
     override fun precedence(): Int = 2
@@ -673,7 +673,7 @@ public sealed class Instruction : InstructionTree() {
     }
 
     internal companion object {
-      internal fun from(symbol: String) = entries.first { it.symbol == symbol }
+      private fun from(symbol: String) = entries.first { it.symbol == symbol }
     }
   }
 

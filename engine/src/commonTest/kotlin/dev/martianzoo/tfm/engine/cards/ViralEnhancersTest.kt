@@ -6,22 +6,22 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class ViralEnhancersTest : CardTest() {
+internal class ViralEnhancersTest : CardTest() {
   @Test
-  fun `When Viral Enhancers enters play, adds a plant`() {
+  internal fun `When Viral Enhancers enters play, adds a plant`() {
     newGame()
     p1.manual("$ViralEnhancers").expect("Plant")
   }
 
   @Test
-  fun `Forces a plant when a bio card cannot hold resources`() {
+  internal fun `Forces a plant when a bio card cannot hold resources`() {
     newGame()
     p1.manual("$ViralEnhancers")
     p1.manual("$IndustrialMicrobes").expect("Plant")
   }
 
   @Test
-  fun `Triggers once for each bio tag on a card`() {
+  internal fun `Triggers once for each bio tag on a card`() {
     newGame()
     p1.manual("$ViralEnhancers")
 
@@ -29,7 +29,7 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  fun `Can choose a microbe when the entering card can hold it`() {
+  internal fun `Can choose a microbe when the entering card can hold it`() {
     newGame()
     p1.manual("$ViralEnhancers")
     p1.manual("$NitriteReducingBacteria") { addCardResources(NitriteReducingBacteria) }
@@ -37,7 +37,7 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  fun `Cannot add a microbe to a different card`() {
+  internal fun `Cannot add a microbe to a different card`() {
     initializeExistingMicrobeCard()
     p1.manual("$RegolithEaters") {
       shouldThrow<NarrowingException> { doTask("Microbe<$NitriteReducingBacteria>") }
@@ -46,7 +46,7 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  fun `Adds the chosen microbe to the entering card`() {
+  internal fun `Adds the chosen microbe to the entering card`() {
     initializeExistingMicrobeCard()
     p1.manual("$RegolithEaters") { addCardResources(RegolithEaters) }
         .expect("Microbe<$RegolithEaters>")

@@ -84,7 +84,7 @@ public data class Task(
     whyPending?.let { append(" ($it)") }
   }
 
-  public fun toStringWithoutCause(displayId: String = id.toString()): String = buildString {
+  private fun toStringWithoutCause(displayId: String = id.toString()): String = buildString {
     append(displayId)
     append(if (next) "* " else "  ")
     appendAssigneeLabel()

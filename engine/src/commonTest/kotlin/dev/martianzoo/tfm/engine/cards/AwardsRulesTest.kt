@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class AwardsRulesTest : CardTest() {
+internal class AwardsRulesTest : CardTest() {
   @Test
-  fun `Tied players receive the appropriate first and second place award points`() {
+  internal fun `Tied players receive the appropriate first and second place award points`() {
     newGame(players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -24,7 +24,7 @@ class AwardsRulesTest : CardTest() {
   }
 
   @Test
-  fun `A two-player game awards no second-place points`() {
+  internal fun `A two-player game awards no second-place points`() {
     newGame()
     val p2 = requireP2()
     p1.manual("Thermalist, Heat")
@@ -36,7 +36,7 @@ class AwardsRulesTest : CardTest() {
   }
 
   @Test
-  fun `Megacredits break a multiplayer victory-point tie`() {
+  internal fun `Megacredits break a multiplayer victory-point tie`() {
     newGame()
     val p2 = requireP2()
     p1.manual("2 VictoryPoint, 5 Megacredit")

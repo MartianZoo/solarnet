@@ -8,9 +8,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class VitorTest : CardTest() {
+internal class VitorTest : CardTest() {
   @Test
-  fun `Funds an award for free in multiplayer`() {
+  internal fun `Funds an award for free in multiplayer`() {
     val game = newGame(PreludeExpansion, players = 2)
     val p1 = game.tfm(PLAYER1)
 
@@ -23,20 +23,20 @@ class VitorTest : CardTest() {
   }
 
   @Test
-  fun `In solo mode, plays Vitor without award funding`() {
+  internal fun `In solo mode, plays Vitor without award funding`() {
     newGame(PreludeExpansion, players = 1)
     p1.playCorp(Vitor, 5).expect("5 ProjectCard, 33")
     p1.assertCounts(0 to "Award")
   }
 
   @Test
-  fun `Rebates a card with positive victory points`() {
+  internal fun `Rebates a card with positive victory points`() {
     initializeVitor()
     p1.manual("$SearchForLife").expect("3")
   }
 
   @Test
-  fun `Does not rebate a card without victory points`() {
+  internal fun `Does not rebate a card without victory points`() {
     initializeVitor()
     p1.count("Megacredit") shouldBe 48
     p1.manual("$Mine")
@@ -44,7 +44,7 @@ class VitorTest : CardTest() {
   }
 
   @Test
-  fun `Does not rebate a card with negative victory points`() {
+  internal fun `Does not rebate a card with negative victory points`() {
     initializeVitor()
     p1.count("Megacredit") shouldBe 48
     p1.manual("$BribedCommittee")

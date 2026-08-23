@@ -12,9 +12,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class NewPromoCardsTest : CardTest() {
+internal class NewPromoCardsTest : CardTest() {
   @Test
-  fun `Solar Logistics draws for space events played by its owner and either opponent`() {
+  internal fun `Solar Logistics draws for space events played by its owner and either opponent`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -30,7 +30,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Icy Impactors lets the first player choose an ocean placed by the card owner`() {
+  internal fun `Icy Impactors lets the first player choose an ocean placed by the card owner`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     val oceanArea = "Tharsis_2_6"
@@ -47,7 +47,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Icy Impactors owner chooses their own ocean when they are first player`() {
+  internal fun `Icy Impactors owner chooses their own ocean when they are first player`() {
     newGame(PromoCardPack)
     p1.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
@@ -59,7 +59,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Icy Impactors suspends its owner while a third-player start player chooses`() {
+  internal fun `Icy Impactors suspends its owner while a third-player start player chooses`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     engine.manual("StartToken<Player3> FROM StartToken<Player1>")
@@ -76,7 +76,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Floyd Continuum pays for every completed parameter`() {
+  internal fun `Floyd Continuum pays for every completed parameter`() {
     newGame(PromoCardPack, VenusNextExpansion)
     engine.phase("Action")
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
@@ -86,7 +86,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Carbon Nanosystems graphene can pay for a space card`() {
+  internal fun `Carbon Nanosystems graphene can pay for a space card`() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
@@ -101,7 +101,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Martian Lumber Corporation plants can pay for a building card`() {
+  internal fun `Martian Lumber Corporation plants can pay for a building card`() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
@@ -113,7 +113,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Neptunian Power Consultants may pay for its ocean bonus with steel`() {
+  internal fun `Neptunian Power Consultants may pay for its ocean bonus with steel`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("50 Megacredit, 2 ProjectCard")
@@ -130,7 +130,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Homeostasis Bureau lets each actor raise temperature`() {
+  internal fun `Homeostasis Bureau lets each actor raise temperature`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$HomeostasisBureau")
@@ -144,7 +144,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Kaguya Tech can replace a greenery with its city`() {
+  internal fun `Kaguya Tech can replace a greenery with its city`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
@@ -158,7 +158,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `St Joseph of Cupertino Mission offers the city owner a paid draw and scores`() {
+  internal fun `St Joseph of Cupertino Mission offers the city owner a paid draw and scores`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("12 Megacredit, ProjectCard")
@@ -179,7 +179,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `St Joseph of Cupertino Mission can place a Cathedral on a neutral solo city`() {
+  internal fun `St Joseph of Cupertino Mission can place a Cathedral on a neutral solo city`() {
     newGame(PromoCardPack, players = 1)
     p1.manual("12 Megacredit, ProjectCard")
     engine.phase("Action")
@@ -195,7 +195,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `Red Ships counts each city or special tile beside an ocean`() {
+  internal fun `Red Ships counts each city or special tile beside an ocean`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$RedShips, CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")

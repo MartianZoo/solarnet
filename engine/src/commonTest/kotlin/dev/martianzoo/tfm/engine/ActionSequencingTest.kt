@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 internal class ActionSequencingTest {
   @Test
-  fun `invoice settlement unlocks only its matching action selector`() {
+  internal fun `invoice settlement unlocks only its matching action selector`() {
     listOf(
             Triple("First", "Megacredit", 9),
             Triple("Second", "Energy", 3),
@@ -42,7 +42,7 @@ internal class ActionSequencingTest {
   }
 
   @Test
-  fun `invoice settlement belongs to the action provider's owner`() {
+  internal fun `invoice settlement belongs to the action provider's owner`() {
     val game = setUpGame()
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -58,7 +58,7 @@ internal class ActionSequencingTest {
   }
 
   @Test
-  fun `city standard project creates independent production and placement tasks after payment`() {
+  internal fun `city standard project creates independent production and placement tasks after payment`() {
     val game = setUpGame()
     val p1 = game.tfm(PLAYER1)
     p1.godMode().manual("25 Megacredit")
@@ -97,7 +97,7 @@ internal class ActionSequencingTest {
   }
 
   @Test
-  fun `card purchase waits for its complete adjusted debt to be paid`() {
+  internal fun `card purchase waits for its complete adjusted debt to be paid`() {
     val game = setUpGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     val p1 = game.tfm(PLAYER1)
     p1.godMode().manual("$Polyphemos, 5 Megacredit")
@@ -114,7 +114,7 @@ internal class ActionSequencingTest {
   }
 
   @Test
-  fun `use-card action rejects a different card after placing the marker`() {
+  internal fun `use-card action rejects a different card after placing the marker`() {
     val game = setUpGame()
     val manual = game.tfm(PLAYER1).godMode().also { it.autoExecMode = NONE }
     manual.manual("$SymbioticFungus, $Ants")

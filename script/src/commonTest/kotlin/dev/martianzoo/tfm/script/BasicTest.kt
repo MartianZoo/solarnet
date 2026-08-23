@@ -21,7 +21,7 @@ internal fun setUpGame(
 
 internal class BasicTest {
   @Test
-  fun configuredInputOnlySynonyms() {
+  internal fun configuredInputOnlySynonyms() {
     val game = setUpGame()
     val session = game.tfm(PLAYER2).godMode()
 
@@ -38,7 +38,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun removeAmap() {
+  internal fun removeAmap() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
@@ -49,7 +49,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun rollback() {
+  internal fun rollback() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
@@ -66,7 +66,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun dependencies() {
+  internal fun dependencies() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
@@ -86,7 +86,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun counting() {
+  internal fun counting() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
     session.manual("42 Heat")
@@ -104,7 +104,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun tempTrigger() {
+  internal fun tempTrigger() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
     assertEquals(20, session.count("TerraformRating"))

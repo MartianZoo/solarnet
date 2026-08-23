@@ -133,8 +133,8 @@ private constructor(
   }
 
   internal data class RegistryKey(
-      val automatic: Boolean,
-      val triggerClass: ClassName?,
+      private val automatic: Boolean,
+      private val triggerClass: ClassName?,
   )
 
   internal companion object {

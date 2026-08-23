@@ -73,18 +73,18 @@ internal class MetricTest {
           .trimIndent()
 
   @Test
-  fun testSampleStrings() {
+  internal fun testSampleStrings() {
     testSampleStrings<Metric>(inputs)
   }
 
   @Test
-  fun subtractionIsLeftAssociativeAndPreservesNecessaryGrouping() {
+  internal fun subtractionIsLeftAssociativeAndPreservesNecessaryGrouping() {
     parse<Metric>("Foo - Bar - Qux").toString() shouldBe "Foo - Bar - Qux"
     parse<Metric>("Foo - (Bar - Qux)").toString() shouldBe "Foo - (Bar - Qux)"
   }
 
   @Test
-  fun subtractionEvaluationRemainsNonnegative() {
+  internal fun subtractionEvaluationRemainsNonnegative() {
     val counts = mapOf("Ore" to 12, "Fleet" to 3)
     fun evaluate(text: String): Int =
         parse<Metric>(text)
@@ -101,7 +101,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun orAcceptsOnlyDistinctComponentCounts() {
+  internal fun orAcceptsOnlyDistinctComponentCounts() {
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo MAX 5 OR Bar") }
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo - Bar OR Qux") }
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo OR Foo") }
@@ -112,7 +112,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun constantsAreMetricValuesAndMinuends() {
+  internal fun constantsAreMetricValuesAndMinuends() {
     shouldThrow<PetSyntaxException> { parse<Metric>("2 5") }
     shouldThrow<PetSyntaxException> { parse<Metric>("0 Foo") }
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo + Bar") }
@@ -126,7 +126,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun unitScalingIsCanonicalizedAway() {
+  internal fun unitScalingIsCanonicalizedAway() {
     val count = Metric.Count(cn("Foo").expression)
 
     Metric.scaled(count, 1) shouldBe count
@@ -134,7 +134,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun unexpandedEvalIsAProgrammerError() {
+  internal fun unexpandedEvalIsAProgrammerError() {
     shouldThrow<IllegalStateException> {
       parse<Metric>("EVAL Foo.score").evaluate({ 0 }, { 0 }, { 0 })
     }

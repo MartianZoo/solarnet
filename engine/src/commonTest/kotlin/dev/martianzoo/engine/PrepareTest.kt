@@ -22,7 +22,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PrepareTest {
-  val game: World = setUpGame(canonicalPremise())
+  private val game: World = setUpGame(canonicalPremise())
   private val instructor: Instructor =
       Instructor(
           game.reader,
@@ -59,7 +59,7 @@ internal class PrepareTest {
   }
 
   @Test
-  fun testPrepareChange() {
+  internal fun testPrepareChange() {
     checkPrepare("Ok", "Ok")
     checkPrepare("2 Plant", "2 Plant<Player1>!")
     checkPrepare("2 Plant.", "2 Plant<Player1>!")
@@ -98,7 +98,7 @@ internal class PrepareTest {
   }
 
   @Test
-  fun testPreparePer() {
+  internal fun testPreparePer() {
     checkPrepare("Plant / TerraformRating", "20 Plant<Player1>!")
     checkPrepare("Plant / 3 TerraformRating", "6 Plant<Player1>!")
     checkPrepare("Plant / 3 TerraformRating MAX 2", "2 Plant<Player1>!")
@@ -109,7 +109,7 @@ internal class PrepareTest {
   }
 
   @Test
-  fun testPrepareGated() {
+  internal fun testPrepareGated() {
     checkPrepare("10 TR: Plant", "Plant<Player1>!")
     checkPrepare("10 TR: Plant / TerraformRating", "20 Plant<Player1>!")
     // TODO I'm nervous about the <Anyone> disappearing
@@ -122,7 +122,7 @@ internal class PrepareTest {
   }
 
   @Test
-  fun testPrepareOr() {
+  internal fun testPrepareOr() {
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +
             "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
@@ -154,7 +154,7 @@ internal class PrepareTest {
   }
 
   @Test
-  fun `an unavailable choice preserves requirement failure when every option is gated`() {
+  internal fun `an unavailable choice preserves requirement failure when every option is gated`() {
     val failure =
         shouldThrow<RequirementException> {
           preprocessAndPrepare("(30 TR: Plant) OR (15 OxygenStep: Steel)")
@@ -165,7 +165,7 @@ internal class PrepareTest {
   }
 
   @Test
-  fun testPrepareGroups() {
+  internal fun testPrepareGroups() {
     shouldThrow<AbstractException> { preprocessAndPrepare("Plant, Heat") }
     shouldThrow<AbstractException> { preprocessAndPrepare("(TR: Plant), Heat") }
     checkPrepare("TR: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")

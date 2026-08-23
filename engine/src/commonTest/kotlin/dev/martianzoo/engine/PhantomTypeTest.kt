@@ -15,7 +15,7 @@ internal class PhantomTypeTest {
   private fun gameplay() = Engine.newGame(canonicalPremise()).gameplay(ENGINE).godMode()
 
   @Test
-  fun `inactive types and their class literals count zero`() {
+  internal fun `inactive types and their class literals count zero`() {
     val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(ENGINE).godMode()
     val venusTag = gameplay.resolve("VenusTag")
@@ -31,7 +31,7 @@ internal class PhantomTypeTest {
   }
 
   @Test
-  fun `unknown names remain errors`() {
+  internal fun `unknown names remain errors`() {
     val gameplay = gameplay()
 
     shouldThrow<ExpressionException> { gameplay.count("Typo") }
@@ -39,7 +39,7 @@ internal class PhantomTypeTest {
   }
 
   @Test
-  fun `optional and amap phantom changes do nothing while mandatory changes die`() {
+  internal fun `optional and amap phantom changes do nothing while mandatory changes die`() {
     val gameplay = gameplay()
 
     gameplay.manual("VenusTag?")
@@ -52,7 +52,7 @@ internal class PhantomTypeTest {
   }
 
   @Test
-  fun `choices discard mandatory phantom branches`() {
+  internal fun `choices discard mandatory phantom branches`() {
     val gameplay = gameplay()
 
     gameplay.manual("VenusTag! OR Plant<Player1>!")
@@ -61,7 +61,7 @@ internal class PhantomTypeTest {
   }
 
   @Test
-  fun `optional phantom changes in component effects normalize to no-op`() {
+  internal fun `optional phantom changes in component effects normalize to no-op`() {
     val probeAuthority =
         object : TfmAuthority() {
           override val explicitClassDeclarations =

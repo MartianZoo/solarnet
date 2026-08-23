@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class TollStationTest : CardTest() {
+internal class TollStationTest : CardTest() {
   @Test
-  fun `Counts opponents' space tags for its production gain`() {
+  internal fun `Counts opponents' space tags for its production gain`() {
     newGame()
     val p2 = requireP2()
     // Tags must be added with the cards they depend on.
@@ -16,7 +16,7 @@ class TollStationTest : CardTest() {
   }
 
   @Test
-  fun `Adds no production without an opponent's space tags`() {
+  internal fun `Adds no production without an opponent's space tags`() {
     newGame()
 
     p1.manual("$TollStation").expect("PROD[0 Megacredit]")

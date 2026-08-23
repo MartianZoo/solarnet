@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.engine.cards.CardTest
 import dev.martianzoo.util.toSetStrict
 import kotlin.test.BeforeTest
 
-abstract class ColoniesCardTest : CardTest() {
+internal abstract class ColoniesCardTest : CardTest() {
   private val colonyTiles: Set<ClassName> =
       setOf(
               "Luna",

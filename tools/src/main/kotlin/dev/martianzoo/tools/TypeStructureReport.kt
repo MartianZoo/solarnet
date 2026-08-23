@@ -21,7 +21,7 @@ import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
 @Suppress("LargeClass") // Keeping the report calculations and formatting together aids comparison.
-internal object TypeStructureReport {
+private object TypeStructureReport {
   private val selectedOptions: Set<ClassName> =
       setOf(
           cn("TerraformingMars"),

@@ -5,10 +5,10 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class FreyjaBiodomesTest : CardTest() {
+internal class FreyjaBiodomesTest : CardTest() {
   // FAQ: "you can still choose to take microbes"
   @Test
-  fun `Can be played without another eligible Venus card`() {
+  internal fun `Can be played without another eligible Venus card`() {
     newGame(VenusNextExpansion)
     p1.manual("PROD[Energy]")
     p1.manual("$VenusianAnimals")

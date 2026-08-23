@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class LakefrontResortsTest : CardTest() {
+internal class LakefrontResortsTest : CardTest() {
   @Test
-  fun `Pays when its owner places a tile adjacent to an ocean`() {
+  internal fun `Pays when its owner places a tile adjacent to an ocean`() {
     newGame(TurmoilCardPack)
     val p2 = requireP2()
 
@@ -19,7 +19,7 @@ class LakefrontResortsTest : CardTest() {
   }
 
   @Test
-  fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
+  internal fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
     newGame(TurmoilCardPack)
     val p2 = requireP2()
     engine.phase("Action")
@@ -29,7 +29,7 @@ class LakefrontResortsTest : CardTest() {
   }
 
   @Test
-  fun `Pays once for each ocean adjacency`() {
+  internal fun `Pays once for each ocean adjacency`() {
     newGame(TurmoilCardPack)
     engine.phase("Action")
     p1.manual("$LakefrontResorts, 54")

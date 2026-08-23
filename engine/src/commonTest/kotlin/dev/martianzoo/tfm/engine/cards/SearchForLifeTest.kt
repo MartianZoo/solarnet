@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class SearchForLifeTest : CardTest() {
+internal class SearchForLifeTest : CardTest() {
   @Test
-  fun `Scores three points when it has a science resource`() {
+  internal fun `Scores three points when it has a science resource`() {
     newGame()
     engine.phase("Action")
     p1.manual("$SearchForLife, 1")

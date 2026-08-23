@@ -9,13 +9,13 @@ import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.types.Type
 
-public class Summarizer
+internal class Summarizer
 internal constructor(
-    internal val events: EventLog,
-    internal val reader: GameReader,
+    private val events: EventLog,
+    private val reader: GameReader,
     private val vocabulary: Vocabulary,
 ) {
-  public constructor(game: World) : this(game.events, game.reader, game.vocabulary)
+  internal constructor(game: World) : this(game.events, game.reader, game.vocabulary)
 
   public fun net(byType: String, ofType: String): Int =
       net(
@@ -43,7 +43,7 @@ internal constructor(
 
   private fun Type.narrows(supertype: Type): Boolean = narrows(supertype, reader)
 
-  internal fun allTypesEver(): List<Expression> {
+  private fun allTypesEver(): List<Expression> {
     return events
         .changesSinceSetup()
         .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }

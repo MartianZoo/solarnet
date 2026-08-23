@@ -5,7 +5,7 @@ import kotlin.test.Test
 
 internal class PairingCheckerTest {
   @Test
-  fun testStuff() {
+  internal fun testStuff() {
     PairingChecker.check("")
     PairingChecker.check("(x)")
     PairingChecker.check("x(x)")
@@ -13,7 +13,7 @@ internal class PairingCheckerTest {
   }
 
   @Test
-  fun testInvalid() {
+  internal fun testInvalid() {
     PairingChecker.isValid("(") shouldBe false
     PairingChecker.isValid("x()") shouldBe false
     PairingChecker.isValid("x((yx))") shouldBe false

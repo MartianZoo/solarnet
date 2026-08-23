@@ -12,9 +12,9 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class EffectActorCharacterizationTest {
+internal class EffectActorCharacterizationTest {
   @Test
-  fun playersCannotCreateSystemComponents() {
+  internal fun playersCannotCreateSystemComponents() {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
@@ -25,7 +25,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun noActorCanRemoveModules() {
+  internal fun noActorCanRemoveModules() {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
@@ -39,7 +39,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
+  internal fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(Elysium, players = 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
@@ -57,7 +57,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
+  internal fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
@@ -74,7 +74,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun byOwnerEffectDoesNotTreatEngineAsAnOwner() {
+  internal fun byOwnerEffectDoesNotTreatEngineAsAnOwner() {
     val game = Engine.newGame(canonicalPremise())
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = engine.count("TerraformRating")

@@ -41,7 +41,7 @@ public class TfmGameplay(
   private var allowUnderpayment = false
   private var allowOverpayment = false
 
-  internal fun asActor(actor: Actor) =
+  private fun asActor(actor: Actor) =
       TfmGameplay(game, actor).also {
         if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
       }
@@ -96,7 +96,7 @@ public class TfmGameplay(
    * every other player has passed, the workflow offers `NewTurn` rather than a second action; that
    * offer is deliberately left in place so this block can contain the rest of the generation.
    */
-  public fun turn(body: TfmGameplay.() -> Unit) {
+  internal fun turn(body: TfmGameplay.() -> Unit) {
     body()
     if (secondActionOffer() != null) declineSecondAction()
   }
@@ -331,12 +331,12 @@ public class TfmGameplay(
   }
 
   /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */
-  public fun intentionalUnderpay() {
+  internal fun intentionalUnderpay() {
     allowUnderpayment = true
   }
 
   /** Allows the next [pay] call to spend a non-money resource for less than its full value. */
-  public fun intentionalOverpay() {
+  internal fun intentionalOverpay() {
     allowOverpayment = true
   }
 
@@ -450,11 +450,11 @@ public class TfmGameplay(
   public fun production(kind: ClassName): Int =
       count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
 
-  public fun oxygenPercent(): Int = count("OxygenStep")
+  internal fun oxygenPercent(): Int = count("OxygenStep")
 
-  public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
+  internal fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
 
-  public fun venusPercent(): Int = count("VenusStep") * 2
+  internal fun venusPercent(): Int = count("VenusStep") * 2
 
   public companion object {
     public fun World.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)

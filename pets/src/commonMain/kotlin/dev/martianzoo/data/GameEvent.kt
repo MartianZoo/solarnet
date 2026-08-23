@@ -10,7 +10,7 @@ public sealed class GameEvent {
     public abstract val task: Task
 
     /** The assignment recorded by this task lifecycle event. */
-    internal val assignee: Actor
+    private val assignee: Actor
       get() = task.assignee
 
     internal fun taskToString() = buildString {

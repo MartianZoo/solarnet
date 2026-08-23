@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class SoloGame20230611Test : AbstractSoloTest() {
+internal class SoloGame20230611Test : AbstractSoloTest() {
   // @Test // for profiling
-  fun fifty() {
+  private fun fifty() {
     repeat(50) {
       commonSetup()
       letsPlay()
@@ -30,7 +30,7 @@ class SoloGame20230611Test : AbstractSoloTest() {
       )
 
   @Test
-  fun letsPlay() {
+  internal fun letsPlay() {
     with(me) {
       playCorp(ValleyTrust, 5).expect("5 ProjectCard")
 

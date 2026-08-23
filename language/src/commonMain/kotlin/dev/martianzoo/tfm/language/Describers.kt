@@ -33,7 +33,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal fun plainGainCategoryNoun(className: ClassName, count: Int): String? =
       componentNoun(className, count).takeIf { isPlainGain(className) }
 
-  internal fun isPlainGain(className: ClassName): Boolean {
+  private fun isPlainGain(className: ClassName): Boolean {
     return this[className].standardResource == true
   }
 

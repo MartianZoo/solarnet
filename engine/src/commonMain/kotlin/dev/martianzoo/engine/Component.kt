@@ -26,7 +26,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [Class.dependencies].
    */
-  public val dependencyComponents: List<Component> =
+  internal val dependencyComponents: List<Component> =
       type.typeDependencies.map { it.boundType.toComponent() }
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */

@@ -13,9 +13,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
-class StartTokenTest {
+internal class StartTokenTest {
   @Test
-  fun startsWithPlayer1AndPassesLeftEachGeneration() {
+  internal fun startsWithPlayer1AndPassesLeftEachGeneration() {
     val engine = setUpGame(players = 3).tfm(ENGINE)
 
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
@@ -32,7 +32,7 @@ class StartTokenTest {
   }
 
   @Test
-  fun staysWithMeInAnActualOnePlayerSetup() {
+  internal fun staysWithMeInAnActualOnePlayerSetup() {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
 
@@ -46,7 +46,7 @@ class StartTokenTest {
   }
 
   @Test
-  fun `solo setup links each greenery to its own city`() {
+  internal fun `solo setup links each greenery to its own city`() {
     val engine = setUpGame(players = 1).tfm(ENGINE)
 
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -60,7 +60,7 @@ class StartTokenTest {
   }
 
   @Test
-  fun autoWorkflowReadsTheTokenOwner() {
+  internal fun autoWorkflowReadsTheTokenOwner() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)

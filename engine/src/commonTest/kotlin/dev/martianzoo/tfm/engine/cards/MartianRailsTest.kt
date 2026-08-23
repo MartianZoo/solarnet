@@ -4,10 +4,10 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class MartianRailsTest : CardTest() {
+internal class MartianRailsTest : CardTest() {
   // FAQ: "even if there are NO cities on Mars (earning you 0 M€)."
   @Test
-  fun `Can be used when every city is off Mars`() {
+  internal fun `Can be used when every city is off Mars`() {
     newGame()
     p1.manual("$MartianRails, Energy")
     p1.manual("$GanymedeColony").expect("CityTile<GanymedeColony_RemoteArea>")

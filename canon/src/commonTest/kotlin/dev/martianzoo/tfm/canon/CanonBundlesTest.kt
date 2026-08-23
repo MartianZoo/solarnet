@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 internal class CanonBundlesTest {
   @Test
-  fun oneAuthorityKnowsEveryMapWhileOneModuleSelectsOneMap() {
+  internal fun oneAuthorityKnowsEveryMapWhileOneModuleSelectsOneMap() {
     Canon.marsMapDefinitions.map { it.className }.toSet() shouldBe
         setOf(
             cn("TharsisMap"),
@@ -31,7 +31,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun modulesInOneBundleRemainIndependent() {
+  internal fun modulesInOneBundleRemainIndependent() {
     val utopia = table(cn("UtopiaMap"))
     val cimmeria = table(cn("CimmeriaMap"))
 
@@ -42,7 +42,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun definitionConditionsUseTheCompleteModuleSelection() {
+  internal fun definitionConditionsUseTheCompleteModuleSelection() {
     val withoutColonies = table(cn("UtopiaMap"))
     val withColonies = table(cn("UtopiaMap"), cn("ColoniesExpansion"))
 
@@ -51,7 +51,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun expansionModuleCanAddDefinitionsToAnotherSelectedMap() {
+  internal fun expansionModuleCanAddDefinitionsToAnotherSelectedMap() {
     val base = table(cn("TharsisMap"))
     val venus = table(cn("TharsisMap"), cn("VenusNextExpansion"))
 
@@ -60,13 +60,13 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun goalCatalogDoesNotRequireASelectableBundleModule() {
+  internal fun goalCatalogDoesNotRequireASelectableBundleModule() {
     Canon.allClassNames.contains(cn("MilestonesAwardsExpansion")) shouldBe false
     Canon.allClassNames.contains(cn("Landscaper")) shouldBe true
   }
 
   @Test
-  fun promoModuleReplacesCardsWithoutRemovingEitherFromTheAuthority() {
+  internal fun promoModuleReplacesCardsWithoutRemovingEitherFromTheAuthority() {
     val relevant =
         setOf(
             cn("DeimosDown"),
@@ -87,18 +87,18 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun authorityRetainsEveryCustomImplementation() {
+  internal fun authorityRetainsEveryCustomImplementation() {
     Canon.customClasses.map { it.className.toString() } shouldContain "LowestProduction"
   }
 
   @Test
-  fun entireAuthorityCatalogLoadsTogether() {
+  internal fun entireAuthorityCatalogLoadsTogether() {
     Canon.classTable.allClassNames shouldBe Canon.allClassNames
     (Canon.classTable === Canon.classTable) shouldBe true
   }
 
   @Test
-  fun playableTablesProjectTheAuthorityMasterTable() {
+  internal fun playableTablesProjectTheAuthorityMasterTable() {
     val tharsis = table(cn("TharsisMap"))
     val hellas = table(cn("HellasMap"))
 
@@ -121,7 +121,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun standardFormBundleWithoutPetsDoesNotSynthesizeAComponent() {
+  internal fun standardFormBundleWithoutPetsDoesNotSynthesizeAComponent() {
     val bundle =
         StandardFormBundle(
             name = "MapProvider",
@@ -134,7 +134,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun standardFormBundleLoadsLanguageFiles() {
+  internal fun standardFormBundleLoadsLanguageFiles() {
     val bundle =
         StandardFormBundle(
             name = "LocalizedBundle",

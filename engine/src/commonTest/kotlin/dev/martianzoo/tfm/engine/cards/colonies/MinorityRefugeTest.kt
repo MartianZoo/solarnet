@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class MinorityRefugeTest : ColoniesCardTest() {
+internal class MinorityRefugeTest : ColoniesCardTest() {
   @Test
-  fun `Cannot place its colony on Io at minimum megacredit production`() {
+  internal fun `Cannot place its colony on Io at minimum megacredit production`() {
     initializeCard()
     p1.playProject(MinorityRefuge, 5) {
       shouldThrow<LimitsException> { doTask("Colony<Io>") }
@@ -18,7 +18,7 @@ class MinorityRefugeTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Cannot place its colony on Triton at minimum megacredit production`() {
+  internal fun `Cannot place its colony on Triton at minimum megacredit production`() {
     initializeCard()
     p1.playProject(MinorityRefuge, 5) {
       shouldThrow<LimitsException> { doTask("Colony<Triton>") }
@@ -27,7 +27,7 @@ class MinorityRefugeTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Luna placement can enable Minority Refuge's production decrease`() {
+  internal fun `Luna placement can enable Minority Refuge's production decrease`() {
     initializeCard()
     p1.playProject(MinorityRefuge, 5) {
           p1.autoExecMode = NONE
