@@ -10,21 +10,17 @@
     // Claim milestone
     {
       "name": "ClaimMilestoneSA",
-      "action": "-> Payment<This, First>",
-      "effects": [
-        "UseAction<This>:: 8 Owed<>",
-        "CostPaid<This>: Milestone"
-      ],
+      "action": "8 -> Milestone",
       "automaticSelectionRequirement": "MAX 0 SoloMode"
     },
 
     // Fund award
     {
       "name": "FundAwardSA",
-      "action": "-> Payment<This, First>",
-      "effects": [
-        "UseAction<This>:: (=0 Award: 8 Owed<>) OR (=1 Award: 14 Owed<>) OR (=2 Award: 20 Owed<>)",
-        "CostPaid<This>: Award"
+      "actions": [
+        "8 -> (=0 Award: Award)",
+        "14 -> (=1 Award: Award)",
+        "20 -> (=2 Award: Award)"
       ],
       "automaticSelectionRequirement": "MAX 0 SoloMode"
     },

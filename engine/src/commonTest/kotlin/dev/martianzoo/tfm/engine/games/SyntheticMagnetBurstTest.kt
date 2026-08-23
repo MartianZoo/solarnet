@@ -1080,7 +1080,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       // Pink funded Landscaper award
-      stdAction("FundAwardSA") { doTask("Landscaper") }
+      stdAction("FundAwardSA", which = 2) { doTask("Landscaper") }
       // Pink ended turn
     }
     // Green passed
@@ -1149,7 +1149,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
         draw(TollStation, FueledGenerators)
       }
       // Pink funded Founder award
-      stdAction("FundAwardSA") { doTask("Founder") }.expect("Award")
+      stdAction("FundAwardSA", which = 3) { doTask("Founder") }.expect("Award")
     }
     green.turn {
       // Green used Ironworks action

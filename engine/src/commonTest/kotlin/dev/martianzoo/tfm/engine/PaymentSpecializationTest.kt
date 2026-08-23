@@ -24,7 +24,7 @@ class PaymentSpecializationTest {
     val p1 = setUpGame().tfm(PLAYER1)
     p1.godMode().manual("Steel, Titanium")
 
-    p1.godMode().beginManual("Owed<Class<Steel>>") {
+    p1.godMode().beginManual("Owed<Class<Steel>> THEN Invoice<BuyCards, First, Class<Steel>>") {
       shouldThrow<NarrowingException> {
         doTask("Pay<Class<Titanium>> FROM Titanium")
       }

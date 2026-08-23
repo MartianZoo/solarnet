@@ -6,7 +6,7 @@ CLASS VenusNextExpansion : Module {
 
 CLASS AirScrappingSP : StandardProject {
   cost = 15
-  CostPaid<This>: VenusStep
+  1 / cost -> VenusStep
 }
 
 "Adds World Government Terraforming to the solar phase"

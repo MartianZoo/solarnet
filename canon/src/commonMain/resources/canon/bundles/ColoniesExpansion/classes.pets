@@ -10,7 +10,7 @@ CLASS ColoniesExpansion : Module {
 
 CLASS BuildColonySP : StandardProject {
   cost = 17
-  CostPaid<This>: Colony<>
+  1 / cost -> Colony<>
 }
 
 "Creates the colony tiles and one trade fleet for each player"

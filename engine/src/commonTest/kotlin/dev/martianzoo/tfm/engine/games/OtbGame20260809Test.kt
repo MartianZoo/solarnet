@@ -1023,7 +1023,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     }
 
     // (7:59 pm) "I'm going to pay 14 for Botanist. Botanist is funded."
-    ellie.turn { stdAction("FundAwardSA") { doTask("Botanist") } }
+    ellie.turn { stdAction("FundAwardSA", which = 2) { doTask("Botanist") } }
 
     // "I am going to play Satellites."
     // "It would cost eight, but I'm spending six worth of titanium and two money."
@@ -1126,7 +1126,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to pay 20 to fund the only award that I have a chance at, which is
     // Magnate."
-    dad.turn { stdAction("FundAwardSA") { doTask("Magnate") } }
+    dad.turn { stdAction("FundAwardSA", which = 3) { doTask("Magnate") } }
 
     // "I will pay four titanium for 16 and 12 money for Methane from Titan."
     ellie.turn {

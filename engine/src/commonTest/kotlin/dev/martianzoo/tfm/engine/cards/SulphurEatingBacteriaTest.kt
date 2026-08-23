@@ -43,7 +43,8 @@ class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   fun `Cannot remove microbes without taking their payment`() {
-    assertInvalidPayment<NarrowingException>("-Microbe<$SulphurEatingBacteria>")
+    p1.cardAction2(SulphurEatingBacteria) { doTask("-Microbe<$SulphurEatingBacteria>") }
+        .expect("-Microbe, 3")
   }
 
   @Test

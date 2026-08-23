@@ -65,4 +65,26 @@ class ComponentEffectsValidationTest {
 
     Component(table.resolve(te("Token"))).owner.shouldBeNull()
   }
+
+  @Test
+  fun `class token dependencies specialize independently`() {
+    val table =
+        loader(
+            """
+            ABSTRACT CLASS Resource
+            CLASS Money : Resource
+            CLASS Operation
+            CLASS Debt<Class<Resource>>
+            CLASS Receipt<Class<Resource>, Class<Component>> {
+              This: Debt<Class<Resource>>
+            }
+            """
+        )
+    val component = Component(table.resolve(te("Receipt<Class<Money>, Class<Operation>>")))
+
+    LiveEffect.compile(component, Transformers(table))
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Debt<Class<Money>>!")
+  }
 }

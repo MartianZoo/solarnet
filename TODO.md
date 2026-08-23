@@ -14,6 +14,18 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Low priority:** Extend premise viability beyond exact uninhabited-domain facts; Law Suit being
   unviable in solo because no opponent-dependent attack record can inhabit the projected Type
   universe is the canonical stronger proof.
+- Replace the artificial persistent `PlayCards` invoice host in a later, dedicated lifecycle
+  redesign. Distinguish the early card-play attempt from the later live payable card play; keep
+  tag enumeration internal and let generic card behavior respond to the live operation without
+  naming its `Class<CardFront>` data.
+- In card and action behavior tests that can leave optional or delegated work behind, explicitly
+  verify that the operation completes and the game returns to idle instead of checking only the
+  resulting components.
+- Restrict `TfmGameplay.stdAction` to actual `StandardAction` providers; give other live
+  `HasActions` components a correctly named gameplay operation instead.
+- **Medium priority:** Let a game include Valley Trust and the Prelude-card pool without selecting
+  `PreludeExpansion`; `PreludeCard` must be drawable and playable while `PreludePhase` remains
+  absent.
 - **Medium priority:** Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
@@ -29,12 +41,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
 - **Low priority:** Support requirement adjustment when one part of a compound card requirement is
   a global-parameter requirement.
-- **Medium-high priority:** Complete the Pets Action semantics settled in
-  [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): standard-resource costs now become invoices;
-  lower costless and direct-cost Actions through their provider- and action-qualified
-  `CostPaid` signals. Keep Head Start completion scopes and action-use marker behavior separate.
-- Convert card purchases to the payment workflow so BuyCard price modifiers adjust Owed instead of
-  creating separate money changes.
+- Prototype the bidirectional represented-family link in
+  [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact
+  `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
+- Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
+- **High priority:** Identify the signal Classes that workflows or APIs can create directly even
+  though no selected Module activates them. Make their owning Modules activate them explicitly,
+  then remove the `ClassLoader` rule that activates every reachable Trigger root.
 - **High priority:** Allow a partial instruction to narrow the matching portion of exactly one
   pending task while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
@@ -154,7 +167,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
 - Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
-- Document the `BuyCard`/payment protocol and verify delayed 3 M€ payment cannot be exploited.
 - Move Pets AST generation to Kotest property tests only if domain-aware shrinking improves failures.
 
 ## Autonomous Follow-ups
@@ -162,12 +174,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
   `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
   so there is one implementation and one source of domain context.
-- Decide whether `Summarizer` should attribute invoice settlement back through `Payment` and
+- Decide whether `Summarizer` should attribute invoice settlement through `Invoice` and
   `Owed` to the Action provider; standard-resource Action costs are currently attributed to the
   payment machinery rather than cards such as Search for Life.
-- Let invoice lowering compose a fixed base with a per-component increment as one exact debt;
-  `FundAwardSA` must retain its gated 8/14/20 gains until separate `Owed` gains cannot expose
-  payment and `CostPaid` between invoice parts.
 - Preserve and enforce the existing `GameReader` boundary that prevents game mechanics, including
   custom Classes, from reading `EventLog`; add an architectural check so event history remains
   diagnostic and gameplay-state equivalence can depend only on the `ComponentGraph` and

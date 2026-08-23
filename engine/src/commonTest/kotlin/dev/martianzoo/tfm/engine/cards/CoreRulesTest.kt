@@ -14,7 +14,7 @@ class CoreRulesTest : CardTest() {
     p1.manual("12 Megacredit")
 
     engine.phase("Research") {
-      p1.doTask("3 BuyCard")
+      p1.buyCards(3)
       requireP2().doTask("Ok")
     }
 
@@ -130,8 +130,8 @@ class CoreRulesTest : CardTest() {
     engine.phase("Action")
 
     p1.stdAction("FundAwardSA") { doTask("Landlord") }.expect("-8 Megacredit, Award")
-    p1.stdAction("FundAwardSA") { doTask("Scientist") }.expect("-14 Megacredit, Award")
-    p1.stdAction("FundAwardSA") { doTask("Thermalist") }.expect("-20 Megacredit, Award")
+    p1.stdAction("FundAwardSA", which = 2) { doTask("Scientist") }.expect("-14 Megacredit, Award")
+    p1.stdAction("FundAwardSA", which = 3) { doTask("Thermalist") }.expect("-20 Megacredit, Award")
   }
 
   @Test

@@ -8,8 +8,8 @@
       "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
       "immediate": "30, PROD[Energy, Plant, Steel]",
       "effects": [
-        "UseAction<ClaimMilestoneSA>: -Owed<> / Owed<>",
-        "UseAction<FundAwardSA>: -Owed<> / Owed<>",
+        "Invoice<ClaimMilestoneSA>:: -Owed<> / Owed<>",
+        "Invoice<FundAwardSA>:: -Owed<> / Owed<>",
       ],
     },
 
@@ -52,7 +52,7 @@
       "immediate": "50, Mandate { -> 4 ProjectCard THEN -3 ProjectCard }",
       "effects": [
         "CardFront(HAS 2 Tag): Science<This>",
-        "UseAction<StandardProject>: AcceptFromCard<This>",
+        "UseAction<StandardProject>:: AcceptFromCard<This>",
         "PayFromCard<This>:: -2 Owed<>",
       ],
     },

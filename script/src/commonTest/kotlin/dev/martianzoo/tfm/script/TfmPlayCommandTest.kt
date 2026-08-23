@@ -19,6 +19,7 @@ internal class TfmPlayCommandTest {
     repl.command("become Me")
     repl.command("tfm_play SaturnSystems")
     repl.command("task 10 BuyCard")
+    repl.command("task 30 Pay<Class<Megacredit>> FROM Megacredit")
     repl.command("tfm_play Biolab")
     repl.command("tfm_play AcquiredSpaceAgency")
 
@@ -38,6 +39,7 @@ internal class TfmPlayCommandTest {
     repl.command("turn")
     repl.command("tfm_play SaturnSystems")
     repl.command("task 10 BuyCard")
+    repl.command("task 30 Pay<Class<Megacredit>> FROM Megacredit")
     repl.command("exec 2 Steel")
     repl.command("phase Action")
     repl.command("turn")

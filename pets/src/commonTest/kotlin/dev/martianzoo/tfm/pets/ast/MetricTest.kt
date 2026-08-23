@@ -12,6 +12,7 @@ import kotlin.test.Test
 internal class MetricTest {
   private val inputs =
       """
+      This
       Xyz
       !Ahh
       3 Bar

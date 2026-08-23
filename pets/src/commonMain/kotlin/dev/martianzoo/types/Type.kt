@@ -191,8 +191,9 @@ public data class Type(
     if (rootClass.className == CLASS && refinement != null) {
       return allConcreteSubtypes().filter { it.narrows(this, info) }.take(2).singleOrNull()
     }
-    val klass = concreteSubclasses(rootClass).singleOrNull() ?: return null
-    val intersection = this glb klass.baseType ?: return null
+    val intersection =
+        concreteSubclasses(rootClass).mapNotNull { klass -> this glb klass.baseType }.singleOrNull()
+            ?: return null
     val deps = intersection.dependencies.singleConcreteSubtype(info) ?: return null
     val candidate = intersection.rootClass.withAllDependencies(deps)
     return candidate.takeIf { !it.abstract && it.narrows(this, info) }

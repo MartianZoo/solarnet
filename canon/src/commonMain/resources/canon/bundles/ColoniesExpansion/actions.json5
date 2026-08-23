@@ -5,17 +5,9 @@
     {
       "name": "TradeSA",
       "actions": [
-        "-> Payment<This, First>",
-        "-> Payment<This, Second>",
-        "-> Payment<This, Third>"
-      ],
-      "effects": [
-        "UseAction<This, First>:: 9 Owed<>",
-        "UseAction<This, Second>:: 3 Owed<Class<Energy>>",
-        "UseAction<This, Third>:: 3 Owed<Class<Titanium>>",
-        "CostPaid<This, First>: Trade",
-        "CostPaid<This, Second>: Trade",
-        "CostPaid<This, Third>: Trade"
+        "9 -> Trade",
+        "3 Energy -> Trade",
+        "3 Titanium -> Trade"
       ]
     },
   ],

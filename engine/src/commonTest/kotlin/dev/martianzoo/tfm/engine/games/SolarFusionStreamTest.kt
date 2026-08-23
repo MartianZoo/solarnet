@@ -418,7 +418,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       doTask("CopyProductionBox<$GhgFactories>")
     }
     JR.playProject(PhobosSpaceHaven, 22, titanium = 1)
-    JR.stdAction("FundAwardSA") { doTask("Founder") }
+    JR.stdAction("FundAwardSA", which = 2) { doTask("Founder") }
     KB.sellPatents(DomedCrater)
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
@@ -481,7 +481,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(RedShips)
     ER.playProject(PublicBaths, megacredits = 0, steel = 2)
     KB.cardAction1(Ants)
-    KB.stdAction("FundAwardSA") { doTask("Benefactor") }
+    KB.stdAction("FundAwardSA", which = 3) { doTask("Benefactor") }
     ER.sellPatents(SpecialDesign)
     ER.sellPatents(Trees)
     KB.assignWildTag(ResearchNetwork, "ScienceTag")

@@ -34,7 +34,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
+      "actions": [ "-> BuyCard?" ],
     },
 
     {
@@ -222,7 +222,7 @@
       "cost": 23,
       "tags": [ "EarthTag" ],
       "effects": [
-        "PlayCard:: -2 Owed<>",
+        "Billing<PlayCards>:: -2 Owed<>",
         "End: 2 VictoryPoint"
       ],
     },
@@ -421,7 +421,7 @@
       "cost": 4,
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1]",
-      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
+      "actions": [ "-> BuyCard?" ],
     },
 
     {
@@ -430,7 +430,7 @@
       "projectKind": "EVENT",
       "cost": 7,
       "tags": [ "EarthTag" ],
-      "immediate": "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]",
+      "immediate": "2 ProjectCard",
     },
 
     {
@@ -514,7 +514,7 @@
       "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard:: -2 Owed<>",
+        "Billing<PlayCards>:: -2 Owed<>",
         "End: 3 VictoryPoint"
       ],
     },
@@ -621,7 +621,7 @@
       "projectKind": "EVENT",
       "cost": 2,
       "tags": [ "ScienceTag" ],
-      "immediate": "CARDS[3 ProjectCard<Selecting>, ProjectCard FROM ProjectCard<Selecting>]",
+      "immediate": "ProjectCard",
     },
 
     {
@@ -638,7 +638,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "NextCardEffect { PlayCard:: -8 Owed<> }",
+      "immediate": "NextCardEffect { Billing<PlayCards>:: -8 Owed<> }",
       "effects": [ "End: -VictoryPoint" ],
     },
 

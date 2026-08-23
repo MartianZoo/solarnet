@@ -15,6 +15,7 @@ import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
@@ -402,26 +403,7 @@ public sealed class Instruction : InstructionTree() {
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      if (hasLinkedX) {
-        val wideScalars = descendantsOfType<Scalar>()
-        val narrowScalars = proposed.descendantsOfType<Scalar>()
-        if (wideScalars.size != narrowScalars.size) {
-          throw NarrowingException("Can't match X occurrences in $proposed")
-        }
-        val xValues =
-            wideScalars.zip(narrowScalars).mapNotNull { (wide, narrow) ->
-              if (wide !is XScalar) return@mapNotNull null
-              narrow as? ActualScalar
-                  ?: throw NarrowingException("Can't bind X occurrence in $proposed")
-              if (narrow.value % wide.multiple != 0) {
-                throw NarrowingException("${narrow.value} isn't a multiple of ${wide.multiple}")
-              }
-              narrow.value / wide.multiple
-            }
-        if (xValues.distinct().size > 1) {
-          throw NarrowingException("Can't set different values for X: ${xValues.toSet()}")
-        }
-      }
+      if (hasLinkedX) linkedXValue(this, proposed)
     }
 
     private fun bindTypeLinksFrom(
@@ -512,13 +494,41 @@ public sealed class Instruction : InstructionTree() {
           )
       val specialized =
           bindTypeLinksFrom(partial, info, PetTransformer.chain(loweredBinding, authoredBinding))
-      if (requireBinding && specialized == this) {
+      val selectedX = if (hasLinkedX) linkedXValue(first, proposed) else null
+      val fullySpecialized =
+          selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
+      if (requireBinding && fullySpecialized == this) {
         throw NarrowingException("The first stage does not bind this THEN's type linkage")
       }
-      return specialized.withParts(
-          listOf(proposed) + specialized.stages.drop(1),
-          specialized.continuation,
+      return fullySpecialized.withParts(
+          listOf(proposed) + fullySpecialized.stages.drop(1),
+          fullySpecialized.continuation,
       )
+    }
+
+    private fun linkedXValue(wide: PetNode, narrow: PetNode): Int? {
+      val wideScalars = wide.descendantsOfType<Scalar>()
+      val narrowScalars = narrow.descendantsOfType<Scalar>()
+      if (wideScalars.none { it is XScalar }) return null
+      if (wideScalars.size != narrowScalars.size) {
+        throw NarrowingException("Can't match X occurrences in $narrow")
+      }
+      val xValues =
+          wideScalars.zip(narrowScalars).mapNotNull { (wideScalar, narrowScalar) ->
+            if (wideScalar !is XScalar) return@mapNotNull null
+            narrowScalar as? ActualScalar
+                ?: throw NarrowingException("Can't bind X occurrence in $narrow")
+            if (narrowScalar.value % wideScalar.multiple != 0) {
+              throw NarrowingException(
+                  "${narrowScalar.value} isn't a multiple of ${wideScalar.multiple}"
+              )
+            }
+            narrowScalar.value / wideScalar.multiple
+          }
+      if (xValues.distinct().size > 1) {
+        throw NarrowingException("Can't set different values for X: ${xValues.toSet()}")
+      }
+      return xValues.singleOrNull()
     }
 
     internal fun keepLinked(isAbstract: ((Expression) -> Boolean)?) =
@@ -707,7 +717,7 @@ public sealed class Instruction : InstructionTree() {
 
         val maybeTransform: Parser<InstructionTree> = transform or maybePer
 
-        val atomBase: Parser<InstructionTree> = group(parser()) or maybeTransform
+        val atomBase: Parser<InstructionTree> = maybeTransform or group(parser())
 
         val atom: Parser<InstructionTree> =
             atomBase and

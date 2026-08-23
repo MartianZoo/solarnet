@@ -224,6 +224,16 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `an omitted selection intensity inherits from the selected OR arm`() {
+    initiate("OceanTile<LandArea>! OR Plant!")
+
+    writer.doTask("OceanTile<Tharsis_2_3>")
+
+    writer.count("OceanTile<Tharsis_2_3>") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   fun `selecting a PER-wrapped AMAP target early locks the evaluated instruction`() {
     writer.godMode().manual("Plant")
     initiate("OceanTile<> / Plant")
@@ -293,6 +303,15 @@ class TaskRevisionTest {
     val task = tasks.extract { it }.single()
     task.instruction.toString() shouldBe "Plant<Player1>?"
     task.then.toString() shouldBe "X StandardResource<Player1>?"
+  }
+
+  @Test
+  fun `selecting a THEN head carries its X into the continuation`() {
+    initiate("X Plant? THEN X Heat?")
+
+    writer.doTask("3 Plant")
+
+    tasksAsText().shouldContainExactly("3 Heat<Player1>?")
   }
 
   @Test

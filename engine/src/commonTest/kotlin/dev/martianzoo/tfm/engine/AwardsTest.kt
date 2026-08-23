@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
@@ -101,7 +100,7 @@ internal class AwardsTest : TfmTest() {
     first.expect("-8")
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
-    shouldThrow<LimitsException> {
+    shouldThrow<RequirementException> {
       p1.godMode().manual("UseAction<FundAwardSA, First>") {
         doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
         doTask("Landlord")
@@ -110,7 +109,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
     val second =
-        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+        p1.godMode().manual("UseAction<FundAwardSA, Second>") {
           doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Scientist")
         }
@@ -118,16 +117,20 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(78 to "Megacredit", 1 to "Scientist")
 
     val third =
-        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+        p1.godMode().manual("UseAction<FundAwardSA, Third>") {
           doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Thermalist")
         }
     third.expect("-20")
     p1.assertCounts(58 to "Megacredit", 1 to "Thermalist", 3 to "Award")
 
-    shouldThrow<NotNowException> {
-      p1.godMode().manual("UseAction<FundAwardSA, First>") { doTask("Miner") }
+    shouldThrow<RequirementException> {
+      p1.godMode().manual("UseAction<FundAwardSA, Third>") {
+        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+        doTask("Miner")
+      }
     }
+    p1.assertCounts(58 to "Megacredit", 3 to "Award", 0 to "Miner")
   }
 
   @Test

@@ -33,7 +33,7 @@ abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   protected fun TfmGameplay.buyCards(vararg cardClasses: ClassName): TaskResult {
     draw(*cardClasses)
-    return doTask(if (cardClasses.isEmpty()) "Ok" else "${cardClasses.size} BuyCard")
+    return buyCards(cardClasses.size)
   }
 
   protected fun TfmGameplay.discard(vararg cardClasses: ClassName) {

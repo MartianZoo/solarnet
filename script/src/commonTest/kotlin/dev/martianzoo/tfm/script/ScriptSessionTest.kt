@@ -266,8 +266,8 @@ internal class ScriptSessionTest {
         """
         newgame BRVPX 2; mode blue; auto safe; phase Corporation
 
-        become Player1; turn; tfm_play Manutech; task 5 BuyCard
-        become Player2; turn; tfm_play Factorum; task 4 BuyCard
+        become Player1; turn; tfm_play Manutech; task 5 BuyCard; task 15 Pay<Class<Megacredit>> FROM Megacredit
+        become Player2; turn; tfm_play Factorum; task 4 BuyCard; task 12 Pay<Class<Megacredit>> FROM Megacredit
 
         phase Prelude
 
@@ -305,7 +305,10 @@ internal class ScriptSessionTest {
         0000: +35 Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +Production<Player1, Class<Steel>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +Steel<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        0000: -15 Megacredit<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
+        New tasks pending:
+        * [Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
+        [Player1] MAX 0 Invoice<Player1>: 5 ProjectCard<Player1>!
+        0000: +15 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> BY Player1 VIA Accept<Player1, Class<Megacredit>> BECAUSE 0000
         0000: +5 ProjectCard<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
         Hi, Player2
         New tasks pending:
@@ -316,7 +319,10 @@ internal class ScriptSessionTest {
         0000: +BuildingTag<Player2, Factorum<Player2>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
         0000: +37 Megacredit<Player2> BY Player2 VIA Factorum<Player2> BECAUSE 0000
         0000: +Production<Player2, Class<Steel>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
-        0000: -12 Megacredit<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
+        New tasks pending:
+        * [Player2] X Pay<Player2, Class<Megacredit>> FROM Megacredit<Player2>? (abstract)
+        [Player2] MAX 0 Invoice<Player2>: 4 ProjectCard<Player2>!
+        0000: +12 Pay<Player2, Class<Megacredit>> FROM Megacredit<Player2> BY Player2 VIA Accept<Player2, Class<Megacredit>> BECAUSE 0000
         0000: +4 ProjectCard<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
         0000: +PreludePhase FROM CorporationPhase BY Engine (manual)
         0000: +2 PreludeCard<Player1> BY Player1 VIA PreludeSetup<Player1> BECAUSE 0000

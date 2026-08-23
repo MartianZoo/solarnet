@@ -126,7 +126,10 @@ internal class Implementations(
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
     if (!reader.has(parse("MAX 0 $TEMPORARY"))) {
-      throw DeadEndException("temporary components remained after the operation")
+      throw DeadEndException(
+          "temporary components remained after the operation: " +
+              reader.getComponents("Temporary").elements
+      )
     }
   }
 
@@ -449,16 +452,28 @@ internal class Implementations(
       existing: InstructionTree,
       intensityOmitted: Boolean,
   ): InstructionTree {
-    if (!intensityOmitted || revised !is Change || existing !is Change) return revised
+    if (!intensityOmitted || revised !is Change) return revised
     if (revised.narrows(existing, reader)) return revised
 
-    val inherited =
+    fun inheritIntensity(change: Change): InstructionTree =
         when (revised) {
-          is Gain -> Gain.gain(revised.scaledEx, existing.intensity)
-          is Remove -> Remove.remove(revised.scaledEx, existing.intensity)
-          is Transmute -> revised.copy(intensity = existing.intensity)
+          is Gain -> Gain.gain(revised.scaledEx, change.intensity)
+          is Remove -> Remove.remove(revised.scaledEx, change.intensity)
+          is Transmute -> revised.copy(intensity = change.intensity)
         }
-    return if (inherited.narrows(existing, reader)) inherited else revised
+
+    val choices =
+        when (existing) {
+          is Change -> listOf(existing)
+          is Or -> existing.instructions.filterIsInstance<Change>()
+          else -> emptyList()
+        }
+    return choices
+        .mapNotNull { choice ->
+          inheritIntensity(choice).takeIf { inherited -> inherited.narrows(choice, reader) }
+        }
+        .distinct()
+        .singleOrNull() ?: revised
   }
 
   private fun selectFirstStageOrNull(

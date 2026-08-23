@@ -10,6 +10,7 @@ import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.TaskResult
+import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.OperationBody
@@ -19,6 +20,7 @@ import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
@@ -51,7 +53,7 @@ public class TfmGameplay(
     asActor(ENGINE).godMode().manual("Generation")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
-        asPlayer(player).doTask(if (cards > 0) "$cards BuyCard" else "Ok")
+        asPlayer(player).buyCards(cards)
       }
     }
     phase("Action")
@@ -61,9 +63,31 @@ public class TfmGameplay(
     return inTurn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
+      if (buyCards > 0) {
+        if (hasPendingBuyCardsInvoice()) doTask("Invoice<BuyCards, First>")
+        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+      }
       body()
     }
   }
+
+  /** Buys the selected number of offered project cards and settles their M€ invoice. */
+  public fun buyCards(count: Int): TaskResult {
+    val purchase = doTask(if (count == 0) "Ok" else "$count BuyCard")
+    if (count == 0) return purchase
+    if (hasPendingBuyCardsInvoice()) doTask("Invoice<BuyCards, First>")
+    return doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+  }
+
+  private fun hasPendingBuyCardsInvoice(): Boolean =
+      game.tasks
+          .extract { it }
+          .any { task ->
+            task.assignee == actor &&
+                task.instruction.toString().let {
+                  it.startsWith("Invoice<") && "BuyCards" in it
+                }
+          }
 
   public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
 
@@ -109,6 +133,7 @@ public class TfmGameplay(
       },
       body: BodyLambda = {},
   ): TaskResult {
+    // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
     return inTfmTurn {
       doTask("UseAction<$stdAction, ${whichAction(which)}>")
       payment()
@@ -182,6 +207,13 @@ public class TfmGameplay(
 
       pay(megacredits, steel, titanium)
       body()
+      if (this@TfmGameplay.count("Owed") == 0) {
+        tasks
+            .matching {
+              it.cause?.context?.className in setOf(cn("Accept"), cn("AcceptFromCard"))
+            }
+            .forEach { reviseTask(it, "Ok") }
+      }
       autoExecNow()
     }
   }
@@ -229,61 +261,72 @@ public class TfmGameplay(
     val overpaymentAllowed = allowOverpayment
     allowUnderpayment = false
     allowOverpayment = false
+    // Billing effects are queued; safely advance them until the payment choices are available.
+    val previousAutoExecMode = autoExecMode
+    autoExecMode = SAFE
 
-    return godMode().continueManual {
-      fun payNonMoneyResource(cost: Int, currency: String) {
-        val accepted =
-            tasks
-                .extract { it }
-                .any {
-                  val context = it.cause?.context
-                  context?.className == cn("Accept") && "Class<$currency>" in context.toString()
-                }
-        if (!accepted) {
+    return try {
+      godMode().continueManual {
+        fun payNonMoneyResource(cost: Int, currency: String) {
+          val accepted =
+              tasks
+                  .extract { it }
+                  .any {
+                    val context = it.cause?.context
+                    context?.className == cn("Accept") && "Class<$currency>" in context.toString()
+                  }
+          if (!accepted) {
+            if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
+            return@payNonMoneyResource
+          }
+
+          val value = paymentValue(currency)
+          val owed = count("Owed")
+          val available = count(currency)
+          val maximumFullValuePayment = minOf(available, owed / value)
+          if (
+              explicitPaymentChoicesRequired &&
+                  cost < maximumFullValuePayment &&
+                  !underpaymentAllowed
+          ) {
+            throw IllegalArgumentException(
+                "$actor paid $cost $currency but could pay $maximumFullValuePayment at full value; " +
+                    "call intentionalUnderpay() immediately before paying if this is sourced"
+            )
+          }
+          if (explicitPaymentChoicesRequired && cost * value > owed && !overpaymentAllowed) {
+            throw IllegalArgumentException(
+                "$actor paid $cost $currency worth ${cost * value} against $owed owed; " +
+                    "call intentionalOverpay() immediately before paying if this is sourced"
+            )
+          }
           if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
-          return@payNonMoneyResource
         }
 
-        val value = paymentValue(currency)
+        payNonMoneyResource(plant, "Plant")
+        payNonMoneyResource(energy, "Energy")
+        payNonMoneyResource(heat, "Heat")
+        payNonMoneyResource(titanium, "Titanium")
+        payNonMoneyResource(steel, "Steel")
+
         val owed = count("Owed")
-        val available = count(currency)
-        val maximumFullValuePayment = minOf(available, owed / value)
-        if (
-            explicitPaymentChoicesRequired && cost < maximumFullValuePayment && !underpaymentAllowed
-        ) {
-          throw IllegalArgumentException(
-              "$actor paid $cost $currency but could pay $maximumFullValuePayment at full value; " +
-                  "call intentionalUnderpay() immediately before paying if this is sourced"
-          )
+        if (megacredits > owed) {
+          throw LimitsException("Overpaying $megacredits MC when only $owed is owed")
         }
-        if (explicitPaymentChoicesRequired && cost * value > owed && !overpaymentAllowed) {
-          throw IllegalArgumentException(
-              "$actor paid $cost $currency worth ${cost * value} against $owed owed; " +
-                  "call intentionalOverpay() immediately before paying if this is sourced"
-          )
+        if (megacredits > 0) {
+          doTask("$megacredits Pay<Class<Megacredit>> FROM Megacredit")
         }
-        if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
-      }
 
-      payNonMoneyResource(plant, "Plant")
-      payNonMoneyResource(energy, "Energy")
-      payNonMoneyResource(heat, "Heat")
-      payNonMoneyResource(titanium, "Titanium")
-      payNonMoneyResource(steel, "Steel")
-
-      val owed = count("Owed")
-      if (megacredits > owed) {
-        throw LimitsException("Overpaying $megacredits MC when only $owed is owed")
+        if (count("Owed") == 0) {
+          // Take care of other Accepts we didn't need
+          tasks
+              .matching { it.cause?.context?.className == cn("Accept") }
+              .forEach { reviseTask(it, "Ok") } // "executes" automatically
+          autoExecNow()
+        }
       }
-      if (megacredits > 0) {
-        doTask("$megacredits Pay<Class<Megacredit>> FROM Megacredit")
-      }
-
-      // Take care of other Accepts we didn't need
-      tasks
-          .matching { it.cause?.context?.className == cn("Accept") }
-          .forEach { reviseTask(it, "Ok") } // "executes" automatically
-      autoExecNow()
+    } finally {
+      autoExecMode = previousAutoExecMode
     }
   }
 
@@ -351,7 +394,9 @@ public class TfmGameplay(
                 change.gaining?.className == cn("Owed")
               } && task.instruction.descendantsOfType<Scalar>().any(Scalar::abstract)
             }
-    operation.doTask(bindXTo(x).transformInstructionTree(invoice.instruction).toString())
+    val bound = bindXTo(x).transformInstructionTree(invoice.instruction)
+    val firstStage = if (bound is Then) bound.first else bound
+    operation.doTask(firstStage.toString())
   }
 
   private fun whichAction(which: Int): String =

@@ -60,8 +60,11 @@ internal class ClassDeclarationTest {
     val inv: Requirement = Requirement.Exact(scaledEx(THIS.expression, 1))
     val eff: Effect = parse<Effect>("This: DoStuff")
     val invoice =
-        parse<Effect>("UseAction<This, First>: Owed<Class<Steel>> THEN Payment<This, First>")
-    val result = parse<Effect>("CostPaid<This, First>: 5")
+        parse<Effect>(
+            "UseAction<This, First>: Owed<Class<Steel>> THEN " +
+                "Invoice<This, First, Class<Steel>>"
+        )
+    val paid = parse<Effect>("-Invoice<This, First>: 5")
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
     val trigger = cn("Trigger").expression
@@ -72,7 +75,7 @@ internal class ClassDeclarationTest {
     decl.dependencies.shouldContainExactlyInAnyOrder(dep)
     decl.supertypes.shouldContainExactlyInAnyOrder(sup)
     decl.invariants.shouldContainExactlyInAnyOrder(inv)
-    decl.effects.shouldContainExactlyInAnyOrder(eff, invoice, result)
+    decl.effects.shouldContainExactlyInAnyOrder(eff, invoice, paid)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
     decl.defaultsDeclaration.triggerOnly.specs.shouldContainExactlyInAnyOrder(trigger)
@@ -88,7 +91,7 @@ internal class ClassDeclarationTest {
         inv,
         eff,
         invoice,
-        result,
+        paid,
         gain,
         univ,
         trigger,
