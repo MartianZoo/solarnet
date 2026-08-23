@@ -125,7 +125,7 @@
       "name": "ExperimentalForest",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "GreeneryTile<>, 2 ProjectCard",
+      "immediate": "GreeneryTile<>, CARDS[2 ProjectCard(HAS PlantTag)]",
     },
 
     {
@@ -276,7 +276,7 @@
     {
       "name": "AcquiredSpaceAgency",
       "deck": "PRELUDE",
-      "immediate": "6 Titanium, 2 ProjectCard",
+      "immediate": "6 Titanium, CARDS[2 ProjectCard(HAS SpaceTag)]",
     },
 
     {

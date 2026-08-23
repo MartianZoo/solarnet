@@ -15,7 +15,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "resourceType": "Microbe",
-      "immediate": "44, Mandate { -> ProjectCard }",
+      "immediate": "44, Mandate { -> CARDS[ProjectCard(HAS MicrobeTag)] }",
       "effects": [ "MicrobeTag<Anyone, CardFront<Anyone>>: 2" ],
       "components": [
         "CLASS SpliceTacticalGenomicsWatcher : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 }"
@@ -29,7 +29,7 @@
       "immediate": "37, PROD[Steel]",
       "actions": [
         "-> MAX 0 Energy: PROD[Energy]",
-        "3 -> ProjectCard"
+        "3 -> CARDS[ProjectCard(HAS BuildingTag)]"
       ],
     },
 
@@ -72,7 +72,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "MicrobeTag" ],
       "resourceType": "Disease",
-      "immediate": "ProjectCard",
+      "immediate": "CARDS[ProjectCard(HAS ScienceTag)]",
       "effects": [
         // This is the only card I know of that has a double-colon effect. Without it, the engine
         // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
@@ -124,7 +124,7 @@
       "name": "CorporateArchives",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
-      "immediate": "13, 2 ProjectCard",
+      "immediate": "13, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]",
     },
 
     {
@@ -255,7 +255,7 @@
       "projectKind": "ACTIVE",
       "cost": 17,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "actions": [ "X Energy -> ProjectCard" ],
+      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard FROM ProjectCard<Selecting>]" ],
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -350,7 +350,7 @@
       "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
       "resourceType": "Asteroid",
       "immediate": "PROD[-Energy]",
-      "actions": [ "-> Asteroid<This>?" ], // follow mode: the client supplies the reveal outcome
+      "actions": [ "-> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]" ],
       "effects": [
         "-Plant BY !Owner:: Die",
         "End: VictoryPoint / Asteroid<This>"
@@ -662,7 +662,7 @@
       "requirement": "Adjacency<CityTile, OceanTile>",
       "cost": 9,
       "tags": [ "BuildingTag" ],
-      "immediate": "3 ProjectCard",
+      "immediate": "CARDS[3 ProjectCard(HAS BuildingTag)]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -672,7 +672,7 @@
       "projectKind": "AUTOMATED",
       "cost": 7,
       "tags": [ "ScienceTag" ],
-      "immediate": "2 ProjectCard FROM PlayedEvent?",
+      "immediate": "CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]",
     },
 
     {

@@ -148,6 +148,10 @@ public class CardDefinition(data: CardData) : Definition {
   public val extraClasses: List<ClassDeclaration> =
       componentClasses + derivedClasses.declarations + listOfNotNull(resourceClassDeclaration())
 
+  /** Follow-mode declarations with source-level real-card operations neutralized. */
+  internal val executableExtraClasses: List<ClassDeclaration> =
+      extraClasses.map(FollowModeNeutralizer::neutralize)
+
   override val asClassDeclaration: ClassDeclaration by lazy {
     val createTags =
         InstructionGroup.createTree(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
@@ -171,7 +175,7 @@ public class CardDefinition(data: CardData) : Definition {
         className = className,
         kind = CONCRETE,
         supertypes = supertypes,
-        effects = allEffects,
+        effects = allEffects.map(FollowModeNeutralizer::transformEffect),
         invariants = setOf(Max(scaledEx(className.expression, 1))),
         properties =
             buildMap {

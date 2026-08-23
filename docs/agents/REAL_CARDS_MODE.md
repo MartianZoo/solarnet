@@ -57,7 +57,7 @@ CLASS Hand : CardArea
 CLASS InPlay : CardArea
 CLASS EventPile : CardArea
 CLASS Drafting : CardArea
-CLASS Choosing : CardArea
+CLASS Selecting : CardArea
 CLASS Revealed : CardArea
 
 ABSTRACT CLASS Card<CardArea> : Owned<Owner>
@@ -111,7 +111,7 @@ by Player.
 | `InPlay` | front | active, automated, corporation, or temporarily live Event |
 | `EventPile` | back | completed Event retained for scoring or recovery |
 | `Drafting` | back | card in the current Player-associated draft packet |
-| `Choosing` | back | temporary Player-associated selection pool |
+| `Selecting` | back | temporary Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
 
 Direct ownership is intentionally present even in temporary areas. It identifies whose draft,
@@ -129,7 +129,7 @@ Once an exact card is in the World, area changes remain ordinary atomic transmut
 
 | Operation | State change |
 | --- | --- |
-| Move into a choice pool | exact `Choosing FROM Hand` |
+| Move into a selection pool | exact `Selecting FROM Hand` |
 | Keep a revealed card | exact `Hand FROM Revealed` |
 | Pass a draft packet | exact next-Player `Drafting FROM Drafting` |
 | Finish drafting | exact `Hand FROM Drafting` |
@@ -165,7 +165,7 @@ the World for the derived discard.
 | Draw | exact gain at `Hand` | consume next face from deck |
 | Reveal | exact gain at `Revealed` | consume next face from deck |
 | Deal draft card | exact gain at `Drafting` | consume next face from deck |
-| Offer cards | exact gain at `Choosing` | consume next face from deck |
+| Offer cards | exact gain at `Selecting` | consume next face from deck |
 | Discard from an area | exact pure removal | add that face to discard |
 
 Nothing ever moves directly from deck to discard. Even a rejected card from Search for Life first
@@ -325,9 +325,10 @@ repeat until one hit:
 perform that one-hit operation three times
 ```
 
-The eventual authoring form should be one generic card-search operation parameterized by deck
-family and printed predicate, not a Kotlin implementation per printed card. Deck exhaustion behavior
-must be explicit: fail, accept fewer, or reshuffle according to the actual rule.
+The canonical authoring form for this family is a filtered card gain inside `CARDS`, parameterized
+by deck family and printed predicate, not a Kotlin implementation per printed card. Its real-mode
+lowering still has to make deck exhaustion explicit: fail, accept fewer, or reshuffle according to
+the actual rule.
 
 A back has no live tag Components. Printed predicates inspect immutable front-Class metadata, for
 example through a property or honest represented-Class refinement:
@@ -340,6 +341,51 @@ ProjectCard<
 
 Do not make ordinary `HAS` silently traverse every represented Class, and do not create live tag
 Components for cards outside `InPlay`.
+
+## Canonical card-operation source
+
+Canonical card Definitions now preserve hidden card procedures in one ordinary
+`Instruction.Transform`, `CARDS[...]`. The inner instruction tree carries the operation family:
+
+```pets
+CARDS[2 ProjectCard(HAS VenusTag)]
+CARDS[7 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]
+CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
+CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]
+```
+
+A filtered plain gain means sequentially search for the requested matches. Its predicate is source
+shorthand over the represented front's immutable printed metadata. It does not change ordinary
+`HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
+reveal every inspected card in order and discard nonmatches.
+
+A gain in `Selecting` offers cards, and a `FROM Selecting` instruction retains exact cards.
+Automatic cleanup discards anything left there when the operation completes. `Revealed` has the
+corresponding cleanup rule. A purchase procedure first removes unwanted cards and then invokes one
+unquantified `BuySelectedCards`, which buys every card remaining in that selection and charges for
+each. `THEN` is reserved for actual causal boundaries, such as reveal-before-test or
+discard-before-purchase; `FROM Selecting` already prevents retention before the offer exists.
+
+Follow mode currently neutralizes `CARDS` before Class loading according to that inner shape. A
+search becomes the old plain `ProjectCard` gain; a retained-card movement becomes the old gain;
+purchase selection becomes the old optional `BuyCard` result; a conditional reveal becomes its old
+optional outcome; and Event recovery becomes recovery from `PlayedEvent`. Consequently the source
+contains the printed knowledge while current execution needs no `CardArea` declarations. This
+neutralization is temporary executable compilation, not real-card behavior.
+
+The current source-level operation inventory is:
+
+| Family | Cards |
+| --- | --- |
+| Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Nobel Prize, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
+| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab |
+| Inspect one, buy or discard | Inventors' Guild, Business Network |
+| Reveal and test | Search for Life, Asteroid Deflection System |
+| Reveal two, retain matches, buy or discard the rest | Venus Orbital Survey |
+| Recover Events | Astra Mechanica |
+
+Public Plans remains an observation-family problem rather than one of these operations. Valley Trust
+and Spire already preserve their relevant source quantities and procedure without a new transform.
 
 ## Conservation
 
@@ -385,7 +431,7 @@ Exact visibility policy, irreversible publication, and rollback knowledge remain
 now:
 
 - Engine rules and dealer projection use the exact master history;
-- a Player sees exact own-Hand, own-Drafting, and own-Choosing faces when the rules permit;
+- a Player sees exact own-Hand, own-Drafting, and own-Selecting faces when the rules permit;
 - `Revealed`, `InPlay`, and `EventPile` are normally public; and
 - no observation API exposes future derived deck order.
 
@@ -470,10 +516,10 @@ exceptions specific to ProjectCard.
 ## Remaining decisions
 
 - final dependency and rendered-argument order;
-- final generic card-search authoring form;
+- final real-mode lowering of `CARDS`;
 - exact shuffle, seed derivation, and canonical ordering algorithms;
 - whether a derived reshuffle deserves an explicit diagnostic event;
-- how `Choosing` scopes overlapping selections;
+- how `Selecting` scopes overlapping selections;
 - the precise visibility matrix and irreversible knowledge boundary; and
 - whether any supported future variant truly needs repeated or distinguishable copies.
 

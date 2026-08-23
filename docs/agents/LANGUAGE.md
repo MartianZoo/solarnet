@@ -221,14 +221,14 @@ in `CardDefinition` or for dividing one authored immediate group.
 
 Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
 Insurance shows why: its component declarations encode printed setup behavior that is absent from
-`immediate`. Likewise,
-do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
-draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
-not structurally sufficient.
+`immediate`. Do not infer a generic draw sentence from a plain `ProjectCard` gain.
+`CARDS` now distinguishes printed filtering, selection, and reveal procedures through its inner
+instruction tree in canonical Card Definitions. A renderer should interpret that source transform
+rather than the follow-mode-neutralized executable declarations.
 
 A plain mandatory placement of one greenery tile renders its implicit oxygen increase. Restricted
-greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
-because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
+greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed. Experimental Forest now
+expresses its printed plant-tag filter, but remains data-backed until transform rendering exists.
 
 An unrestricted gain of a concrete card resource says `any card`. Other narrowed card-resource
 targets remain data-backed.

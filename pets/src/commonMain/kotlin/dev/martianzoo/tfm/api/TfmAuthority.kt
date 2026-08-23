@@ -213,7 +213,7 @@ public open class TfmAuthority : Authority {
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
     explicitClassDeclarations.toList() +
         allDefinitions.map(Definition::asClassDeclaration) +
-        cardDefinitions.flatMap(CardDefinition::extraClasses)
+        cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
   }
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
