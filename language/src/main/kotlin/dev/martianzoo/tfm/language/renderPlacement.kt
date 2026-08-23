@@ -25,11 +25,13 @@ internal fun renderPlacement(
   val count = gain.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
   val noun =
-      if (count == 1) {
-        NounPhrase(description.singular, description.plural, determiner = description.article)
-      } else {
-        NounPhrase(description.singular, description.plural, count = count)
-      }
+      describers.quantifiedComponentNounPhrase(
+          gain.gaining.className,
+          count,
+          description.singular,
+          description.plural,
+          description.article,
+      )
   return placementClause(noun, siteModifiers)
 }
 

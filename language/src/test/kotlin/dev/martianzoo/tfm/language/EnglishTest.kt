@@ -74,6 +74,14 @@ internal class EnglishTest {
         "When you pay for this action, titanium may be used."
     english.describe(parse<Effect>("PlayTag<Class<PlanetTag>>:: -2 Owed<>")) shouldBe
         "When you play a planet tag, pay 2 M€ less."
+    english.describe(parse<Effect>("PlayTag<Class<EarthTag>>:: -2 Owed<>")) shouldBe
+        "When you play an Earth tag, pay 2 M€ less."
+    english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
+    english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place 1 ocean tile."
+    english.describe(parse<InstructionTree>("CityTile")) shouldBe "Place a city tile."
+    english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
+    english.describe(parse<Requirement>("VenusTag, EarthTag, JovianTag")) shouldBe
+        "Requires a Venus tag, an Earth tag, and a Jovian tag."
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
         "1 VP per ANY cathedral."
 
@@ -88,6 +96,23 @@ internal class EnglishTest {
         )
     english.describe(parse<InstructionTree>("Animal"), animalCard) shouldBe
         "Add 1 animal to any card."
+  }
+
+  @Test
+  fun integratesPaymentPermissionIntoItsActionCost() {
+    val card =
+        CardDefinition(
+            CardData(
+                name = "TitaniumAction",
+                deck = "PROJECT",
+                projectKind = "ACTIVE",
+                actions = listOf("12 -> OceanTile", "Asteroid<This> -> VenusStep"),
+                effects = listOf("UseAction<This, First>:: Accept<Class<Titanium>>"),
+            )
+        )
+
+    english.topText(card) shouldBe
+        "Action: Spend 12 M€ (titanium may be used) to place 1 ocean tile, or remove 1 asteroid from this card to raise Venus 1 step."
   }
 
   @Test

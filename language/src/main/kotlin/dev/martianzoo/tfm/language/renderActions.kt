@@ -16,10 +16,19 @@ import dev.martianzoo.types.Dependency.Key
 internal fun renderActions(
     actions: List<Action>,
     describers: Describers,
+    firstActionPaymentResource: String? = null,
 ): Rendering<String> {
   if (actions.isEmpty()) return Rendering.resolved("")
-  val rendered = actions.map { action ->
-    renderAction(action, describers)
+  val rendered = actions.mapIndexed { index, action ->
+    renderAction(action, describers)?.let { renderedAction ->
+      if (index == 0 && firstActionPaymentResource != null) {
+        renderedAction.withCostModifier(
+            Modifier.Parenthetical("$firstActionPaymentResource may be used")
+        )
+      } else {
+        renderedAction
+      }
+    }
         ?: return Rendering.unresolved(
             action,
             actionRefusalReason(action, describers),
@@ -271,6 +280,10 @@ private data class RenderedAction(
 ) {
   val unresolved: List<Unresolved>
     get() = result.unresolved
+
+  fun withCostModifier(modifier: Modifier): RenderedAction? = cost?.let {
+    copy(cost = it.withModifier(modifier))
+  }
 
   fun asSentences(): String {
     if (condition == null) {

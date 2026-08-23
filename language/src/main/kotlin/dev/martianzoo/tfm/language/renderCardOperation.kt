@@ -90,8 +90,7 @@ private fun matchingCards(
   val singular = count == 1
   val prefix =
       when (quantity) {
-        Quantity.Fixed(1) ->
-            "${describers.indefiniteArticle(matchingCardNoun(criterion, true, describers))} "
+        Quantity.Fixed(1) -> "1 "
         is Quantity.Fixed -> "${quantity.count} "
         is Quantity.Variable -> "$quantity "
       }

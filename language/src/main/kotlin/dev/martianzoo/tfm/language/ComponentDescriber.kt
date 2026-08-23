@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.language
 /** Sparse English-language facts declared for one component Class. */
 public data class ComponentDescriber(
     public val noun: Noun? = null,
+    public val numericSingularChange: Boolean? = null,
     public val changeFrame: ChangeFrame? = null,
     public val cardResourceHolder: Noun.Counted? = null,
     public val metricLocation: String? = null,

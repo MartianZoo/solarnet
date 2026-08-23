@@ -106,8 +106,9 @@ private fun Describers.renderCardResourceRequirement(requirement: Requirement.Mi
   if (!metric.expression.simple) return null
   val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
   val amount =
-      if (requirement.target == 1) "${indefiniteArticle(noun)} $noun"
-      else "${requirement.target} $noun"
+      if (requirement.target == 1) {
+        "${indefiniteArticle(noun)} $noun"
+      } else "${requirement.target} $noun"
   return requirementClause("requires", amount)
 }
 
@@ -117,7 +118,7 @@ private fun Describers.renderTagRequirement(requirement: Requirement.Min): Claus
       if (requirement.target == 1) {
         "${indefiniteArticle(name)} $name tag"
       } else {
-        "${requirement.target} $name tags"
+        "${requirement.target} $name ${if (requirement.target == 1) "tag" else "tags"}"
       }
   return requirementClause("requires", objectPhrase)
 }
@@ -131,10 +132,8 @@ private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): 
       }
   val allPlanetTags = tags.all { (_, planet) -> planet }
   if (!allPlanetTags && tags.any { (_, planet) -> planet }) return null
-  val nouns =
-      if (allPlanetTags) tags.map { (name) -> name }
-      else tags.map { (name) -> "${indefiniteArticle(name)} $name tag" }
-  return requirementClause("requires", "${englishList(nouns)}${if (allPlanetTags) " tags" else ""}")
+  val nouns = tags.map { (name) -> "${indefiniteArticle(name)} $name tag" }
+  return requirementClause("requires", englishList(nouns))
 }
 
 private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Requirement.And): Clause? {
@@ -202,7 +201,12 @@ private fun Describers.renderCountBound(
     BoundDirection.MINIMUM ->
         when {
           owned -> {
-            val amount = if (target == 1) "${indefiniteArticle(noun)} $noun" else "$target $noun"
+            val amount =
+                if (target == 1) {
+                  "${indefiniteArticle(noun)} $noun"
+                } else {
+                  "$target $noun"
+                }
             requirementClause("requires", amount)
           }
           explicitlyAnyOwner -> {

@@ -108,8 +108,7 @@ private fun renderLinkedPlayedTagResourceChoice(
   val resolvedTrigger = describers.resolveExpression(trigger) ?: return null
   val holder = resolvedTrigger.sourceDependency(holderKey)?.takeIf { it.simple } ?: return null
   if (!resolvedTrigger.hasOnlySourceDependency(holderKey, holder)) return null
-  val tagPhrase =
-      describers.fact(trigger.className, ComponentDescriber::playedTagPhrase) ?: return null
+  val tagPhrase = describers.playedTagPhrase(trigger.className) ?: return null
   val alternatives = (effect.instruction as? Instruction.Or)?.instructions ?: return null
   var linkedDestination = false
   val clauses = alternatives.map { alternative ->
@@ -234,6 +233,36 @@ private fun renderAcceptedPaymentResource(effect: Effect, describers: Describers
           ?: describers.renderEventTrigger(effect.trigger)
           ?: return null
   return completeSentence("when ${trigger.linearize()}, $noun may be used")
+}
+
+internal fun acceptedFirstActionPaymentResource(
+    effect: Effect,
+    describers: Describers,
+): String? {
+  val gain = effect.instruction as? Gain ?: return null
+  val acceptance =
+      paymentResourceGain(
+          gain,
+          ComponentDescriber.PaymentRole.ACCEPTANCE,
+          describers,
+      ) ?: return null
+  if (acceptance.count != 1) return null
+
+  val expression = (effect.trigger as? OnGainOf)?.expression ?: return null
+  if (expression.refinement != null || expression.complement) return null
+  if (describers.fact(expression.className, ComponentDescriber::usedActionTrigger) != true) {
+    return null
+  }
+  val actionKey = Key(ClassName.cn("UseAction"), 0)
+  val resolved = describers.resolveExpression(expression, actionKey) ?: return null
+  if (
+      resolved.sourceDependency(actionKey) != describers.thisExpression ||
+          resolved.sourceDependencies.keys.any { it != actionKey && it != ACTION_SELECTOR }
+  ) {
+    return null
+  }
+  if (resolved.sourceDependency(ACTION_SELECTOR) != ClassName.cn("First").expression) return null
+  return acceptance.noun
 }
 
 private fun Describers.renderActionPaymentTrigger(trigger: Trigger): Clause.Simple? {
@@ -578,7 +607,17 @@ private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
       }
   if (events.size == 1) return events.single()
   return coordinateClauseObjects(events, Conjunction.OR)
+      ?: coordinateSharedSubjectPredicates(events)
       ?: Clause.Coordinated(Coordination(events, Conjunction.OR))
+}
+
+private fun coordinateSharedSubjectPredicates(clauses: List<Clause.Simple>): Clause.SharedSubject? {
+  val subject = clauses.firstOrNull()?.subject ?: return null
+  if (clauses.any { it.subject != subject }) return null
+  return Clause.SharedSubject(
+      subject,
+      Coordination(clauses.map(Clause.Simple::predicate), Conjunction.COMMA_OR),
+  )
 }
 
 private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple? {
@@ -591,7 +630,7 @@ private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple
     return null
   }
   val represented = representedClass(expression) ?: return null
-  fact(represented.className, ComponentDescriber::playedTagPhrase)?.let { phrase ->
+  playedTagPhrase(represented.className)?.let { phrase ->
     return eventTrigger(
         subject = NounPhrase.text("you"),
         verb = "play",
@@ -825,7 +864,7 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     }
     null -> Unit
   }
-  fact(expression.className, ComponentDescriber::playedTagPhrase)?.let {
+  playedTagPhrase(expression.className)?.let {
     val resolved = resolveExpression(expression) ?: return null
     if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) return null
     return Event(EventKind.PLAY, EventActor.YOU, it)

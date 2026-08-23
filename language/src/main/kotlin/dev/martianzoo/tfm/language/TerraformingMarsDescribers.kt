@@ -18,7 +18,8 @@ internal object TerraformingMarsDescribers {
             ),
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
-        klass("StandardResource") to ComponentDescriber(changeFrame = Frame.Countable),
+        klass("StandardResource") to
+            ComponentDescriber(numericSingularChange = true, changeFrame = Frame.Countable),
         klass("Metal") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("titanium or steel")),
         klass("Steel") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
@@ -29,11 +30,13 @@ internal object TerraformingMarsDescribers {
         klass("ProjectCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                numericSingularChange = true,
                 changeFrame = Frame.Deck,
             ),
         klass("PreludeCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("prelude card", "prelude cards"),
+                numericSingularChange = true,
                 changeFrame = Frame.Deck,
             ),
         klass("PlayedEvent") to
@@ -48,6 +51,7 @@ internal object TerraformingMarsDescribers {
         klass("CardResource") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
+                numericSingularChange = true,
                 changeFrame = Frame.Held,
                 distinctKinds =
                     ComponentDescriber.Noun.Counted(
@@ -272,6 +276,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("OceanTile") to
             ComponentDescriber(
+                numericSingularChange = true,
                 changeFrame = Frame.Positioned("an", "ocean tile", "ocean tiles"),
                 requirement =
                     ComponentDescriber.Requirement(

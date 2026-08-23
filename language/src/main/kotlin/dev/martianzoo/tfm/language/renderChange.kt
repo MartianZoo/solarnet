@@ -101,10 +101,9 @@ private fun renderDiscard(
   if (removal.intensity.modality() != Modality.REQUIRED) return null
   if (!removal.removing.simple) return null
   val count = removal.count.fixedQuantity() ?: return null
-  val discarded = describers.componentNounPhrase(removal.removing.className, count)
   return clause(
       "discard",
-      if (count == 1) discarded.copy(count = null, determiner = "a") else discarded,
+      describers.quantifiedComponentNounPhrase(removal.removing.className, count),
   )
 }
 
@@ -121,9 +120,7 @@ private fun renderDraw(
     return null
   }
   val count = gain.count.fixedQuantity() ?: return null
-  val noun = describers.componentNoun(gain.gaining.className, count)
-  val amount = if (count == 1) "${describers.indefiniteArticle(noun)} $noun" else "$count $noun"
-  return clause("draw", NounPhrase.text(amount))
+  return clause("draw", describers.quantifiedComponentNounPhrase(gain.gaining.className, count))
 }
 
 internal fun isProductionChange(instruction: Instruction, describers: Describers): Boolean {
@@ -256,9 +253,7 @@ private fun renderCardResourceDrawExchange(
   }
   val resource = describers.cardResourceNounPhrase(removing.className, count) ?: return null
   if (describers.changeFrame(gaining.className) !is ComponentDescriber.ChangeFrame.Deck) return null
-  val cards = describers.componentNounPhrase(gaining.className, count)
-  val drawPhrase =
-      if (count == 1) cards.copy(count = null, determiner = "a").linearize() else cards.linearize()
+  val drawPhrase = describers.quantifiedComponentNounPhrase(gaining.className, count).linearize()
   return clause(
       "remove",
       resource,

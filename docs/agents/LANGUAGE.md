@@ -192,6 +192,17 @@ N` already expresses a minimum. Maximum counts use `N or fewer`. Player ownershi
 player-owned component, while an explicit `<Anyone>` owner renders as uppercase `ANY`. A production
 requirement retains `that you have`, because omitting it makes the English unnaturally terse.
 
+Counted component descriptions declare whether a singular change uses `1` or an article. Use `1`
+when the reviewed corpus quantifies that component above one in the same instruction construction,
+and otherwise use the applicable article. Thus card draws and ocean placement use `1`, while city,
+greenery, and colony placement use an article. This is stable component-keyed English knowledge;
+production rendering does not inspect the corpus.
+
+A singular minimum requirement always uses an article, because `Requires 1` can misleadingly imply
+exactness. Compound tag requirements repeat the complete singular phrase, as in `Requires a Venus
+tag, an Earth tag, and a Jovian tag`; do not collapse them to `Requires Venus, Earth, and Jovian
+tags`. Non-quantified references such as `play an Earth tag` likewise use an article.
+
 Corporation definitions must author starting money before their other immediate instructions so
 the ordinary authored-order renderer puts that gain first. Correct the canonical card definition
 when this order is wrong; do not teach the renderer to reorder corporations.
@@ -237,6 +248,8 @@ effects retain bracketed Pets at the narrowest safe effect boundary.
 Event interpretation retains the event kind and actor constraint independently; the actor
 constraint selects active `you` wording or unrestricted passive wording at linearization.
 Alternative event clauses with different verbs remain coordinated as complete clauses.
+When they have the same expressed subject, emit that subject once and separate their predicates
+with comma-or coordination.
 Event triggers use the same structured clauses, predicates, noun phrases, and modifiers as
 instructions and requirements rather than assembling a separate partial-string representation.
 Billing-family triggers are resolved structurally through the `Billing` dependency keys. The
@@ -247,6 +260,9 @@ alternate resources, and card-resource payment values; individual billing subcla
 not have dedicated matchers. An explicitly selected action on the current card renders as `this
 action`, while canonical operation providers supply their ordinary action phrases through the
 lexicon.
+A payment-resource acceptance effect structurally linked to the first action on the current card is
+rendered as a parenthetical on that action's cost, such as `Spend 8 M€ (steel may be used)`, rather
+than as a separate effect sentence.
 A played-tag trigger may bind its card argument to a generic card-resource result, retaining that
 shared destination as `that card`.
 An abstract production-resource trigger linked to a gain of the same resource renders as a per-step
@@ -373,16 +389,19 @@ An unrestricted gain says `any card`. The `<name> card` contraction applies when
 a minimum threshold of one tag; wording whose meaning depends on tag cardinality retains that
 cardinality explicitly.
 
+Concrete tag triggers derive their phrase from the concrete tag name before consulting inheritable
+category wording. Inherited phrases such as `a planet tag` and `a bio tag` apply only when the
+selected tag type is itself abstract; they do not mask `Earth`, `Venus`, or other concrete names.
+
 Explicit-any-player city-tile requirements use uppercase `ANY` and name the required tiles without
 `in play`, while unqualified player-owned requirements omit the owner. A compound owned
 city-and-colony requirement follows the same ownership rule. Solarnet components outside the game
 do not exist, so the published `in play` wording adds no existence state or scope.
 
-Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
-ocean tile`. Larger placement quantities remain numeric. A singular owned-count requirement likewise
-says `a colony` or `a city tile`; tag counts remain numeric. Resource quantities and track or
-production steps remain numeric even when the count is one. Attach a step count to every production
-named; do not move a shared count after several productions with `each`.
+Singular placed objects follow the component-keyed change rule above; singular minimum requirements
+always use articles. Resource quantities and track or production steps remain numeric even when the
+count is one. Attach a step count to every production named; do not move a shared count after
+several productions with `each`.
 
 An unsupported requirement or unsupported fixed part of an End-triggered scoring effect renders as
 one bracketed Pets element.

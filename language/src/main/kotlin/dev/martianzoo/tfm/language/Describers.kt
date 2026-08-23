@@ -51,6 +51,7 @@ internal class Describers(
     val facts: List<(ComponentDescriber) -> Any?> =
         listOf(
             ComponentDescriber::noun,
+            ComponentDescriber::numericSingularChange,
             ComponentDescriber::changeFrame,
             ComponentDescriber::cardResourceHolder,
             ComponentDescriber::metricLocation,
@@ -152,6 +153,9 @@ internal class Describers(
   internal fun componentNoun(className: ClassName, count: Int): String =
       describedNoun(className, fact(className, ComponentDescriber::noun), count)
 
+  internal fun usesNumericSingularChange(className: ClassName): Boolean =
+      fact(className, ComponentDescriber::numericSingularChange) == true
+
   internal fun describedNoun(
       className: ClassName,
       noun: ComponentDescriber.Noun?,
@@ -196,6 +200,19 @@ internal class Describers(
     }
   }
 
+  internal fun quantifiedComponentNounPhrase(
+      className: ClassName,
+      count: Int,
+      singular: String = componentNoun(className, 1),
+      plural: String = componentNoun(className, 2),
+      article: String = indefiniteArticle(singular),
+  ): NounPhrase =
+      if (count != 1 || usesNumericSingularChange(className)) {
+        NounPhrase(singular, plural, count = count)
+      } else {
+        NounPhrase(singular, plural, determiner = article)
+      }
+
   internal fun cardResourceNoun(className: ClassName, count: Int): String? {
     return cardResourceNounPhrase(className, count)?.noun()
   }
@@ -212,6 +229,13 @@ internal class Describers(
     val metric = requirement.metric as? Metric.Count ?: return null
     if (!metric.expression.simple) return null
     return tagName(metric.expression.className)
+  }
+
+  internal fun playedTagPhrase(className: ClassName): String? {
+    tagName(className)?.let { (name) ->
+      return "${indefiniteArticle(name)} $name tag"
+    }
+    return fact(className, ComponentDescriber::playedTagPhrase)
   }
 
   internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {

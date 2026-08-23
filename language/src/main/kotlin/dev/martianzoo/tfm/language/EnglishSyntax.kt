@@ -24,6 +24,14 @@ internal sealed interface Clause {
     override fun linearize(): String = clauses.linearize(Clause::linearize)
   }
 
+  data class SharedSubject(
+      val subject: NounPhrase,
+      val predicates: Coordination<Predicate>,
+  ) : Clause {
+    override fun linearize(): String =
+        "${subject.linearize()} ${predicates.linearize(Predicate::linearize)}"
+  }
+
   data class Prefaced(val preface: String, val clause: Clause) : Clause {
     override fun linearize(): String = "$preface, ${clause.linearize()}"
   }
@@ -34,6 +42,7 @@ internal fun Clause.unresolved(): List<Unresolved> =
       is Clause.RawPets -> listOf(unresolved)
       is Clause.Simple -> emptyList()
       is Clause.Coordinated -> clauses.members.flatMap(Clause::unresolved)
+      is Clause.SharedSubject -> emptyList()
       is Clause.Prefaced -> clause.unresolved()
     }
 

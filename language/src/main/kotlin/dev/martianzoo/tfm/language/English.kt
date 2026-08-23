@@ -81,15 +81,26 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
       card: CardDefinition,
       cardDescribers: Describers,
   ): Rendering<String> {
-    val actions =
+    val persistentEffects =
+        card.effects.filterNot { isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it) }
+    val integratedPayment =
+        persistentEffects
+            .mapIndexedNotNull { index, effect ->
+              acceptedFirstActionPaymentResource(effect, cardDescribers)?.let { index to it }
+            }
+            .singleOrNull()
+            ?.takeIf { card.actions.firstOrNull()?.cost != null }
+    val actionsWithPayment =
         card.actions
             .takeIf { it.isNotEmpty() }
-            ?.let {
-              renderActions(it, cardDescribers).map { text -> "Action: $text" }
-            }
+            ?.let { renderActions(it, cardDescribers, integratedPayment?.second) }
+    val paymentWasIntegrated = integratedPayment != null
+    val actions = actionsWithPayment?.map { text -> "Action: $text" }
     val effects =
-        card.effects
-            .filterNot { isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it) }
+        persistentEffects
+            .filterIndexed { index, _ ->
+              !paymentWasIntegrated || index != integratedPayment?.first
+            }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
               renderEffects(list, cardDescribers, cardResourceType = card.resourceType).map { text
