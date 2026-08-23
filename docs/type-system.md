@@ -115,6 +115,7 @@ CLASS PlantProduction<Player> {
 ```
 
 Inside a class declaration, lines of the form `<trigger>: <instruction>` are effects. They express that component's behaviors.
+Triggers on the root `Component` class must be qualified with `IF` or `BY`.
 
 The type `PlantProduction<Player>` is abstract, meaning that no component of that exact type can exist. That's because, even though `PlantProduction` is concrete, `Player` is not, and *all* types seen must be concrete for the whole type to be.
 

@@ -10,6 +10,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.TypeLinking
@@ -25,6 +26,12 @@ public data class Effect(
     val instruction: InstructionTree,
     val automatic: Boolean = false,
 ) : PetElement() {
+  init {
+    trigger.unqualifiedBroadSubscription()?.let {
+      throw PetSyntaxException("$it trigger requires IF or BY")
+    }
+  }
+
   public val linkedTypeSources: Set<Expression>
     get() = recordedLinkedTypeSources
 
@@ -258,3 +265,16 @@ public data class Effect(
     }
   }
 }
+
+private fun Effect.Trigger.unqualifiedBroadSubscription(qualified: Boolean = false): Expression? =
+    when (this) {
+      is Effect.Trigger.OnGainOf -> expression.takeIf { !qualified && it.className == COMPONENT }
+      is Effect.Trigger.OnRemoveOf -> expression.takeIf { !qualified && it.className == COMPONENT }
+      is Effect.Trigger.SelfTrigger -> null
+      is Effect.Trigger.Or ->
+          triggers.firstNotNullOfOrNull { it.unqualifiedBroadSubscription(qualified) }
+      is Effect.Trigger.ByTrigger,
+      is Effect.Trigger.IfTrigger -> inner.unqualifiedBroadSubscription(qualified = true)
+      is Effect.Trigger.XTrigger,
+      is Effect.Trigger.Transform -> inner.unqualifiedBroadSubscription(qualified)
+    }
