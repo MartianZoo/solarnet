@@ -25,13 +25,11 @@
 - **Cause:** Attribution attached to non-manual Tasks and copied to the resulting Change Events. It pairs the context Component Type whose Effect fired with the ordinal of the triggering Change Event. Those pointers explain the causal chain but do not uniquely identify which of several matching Effects fired, so a Cause is attribution rather than a complete derivation proof.
 - **Change Event:** A Game Event recording one State Change together with its ordinal, Performer, and optional Cause. Task lifecycle changes are recorded separately as Task Events.
 - **Change Instruction:** An Instruction requesting a Component gain, removal, or Transmutation. Its execution produces one or more State Changes.
-- **Checkpoint:** A remembered Event Log position to which the Timeline may roll back.
 - **Class:** The loaded, behavior-bearing entity created from a Class Declaration. A Class defines a family of Pets Types through its hierarchy, Dependencies, defaults, Invariants, and Effects.
 - **Class Declaration:** The inert description of a Class, either as Pets source or as a parsed `ClassDeclaration`, before Class Loading gives it Type-system behavior.
 - **Class Effect:** An Effect inherited by and transformed for a loaded Class, but not yet specialized for a concrete Component Type.
 - **Class Header:** The Class Name, declared supertypes, and newly introduced Dependencies, excluding body elements such as defaults, Invariants, and Effects.
 - **Class Literal:** A Type such as `Class<Steel>` that denotes the Class `Steel` without depending on a `Steel` Component; its angle-bracketed argument is represented data, not a Dependency target.
-- **Class Loading:** The process that validates Class Declarations and creates an immutable Type universe of mutually compatible Classes with Type-system behavior.
 - **Class Name:** A Class's sole stable engine identity within an Authority. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer29`. Configuration never changes the Declaration denoted by a given Class Name.
 - **Class Synonym:** A configured, input-only convenience spelling such as `TR` for `TerraformRating`. It is never rendered or stored.
 - **Class Table:** An immutable set of mutually compatible Classes that resolves Type Expressions into Types. An Authority has one universal catalog; each Game World uses a Class-table Projection containing Active Classes plus Authority-known Uninhabited Classes.
@@ -62,14 +60,12 @@
 - **Drain:** To become empty. A Task Queue draining can advance Workflow.
 - **Effect:** A Trigger, an Instruction, and the choice between automatic and queued dispatch, attached to a Class or specialized for a Component.
 - **Engine:** The non-Player Actor that performs administrative operations.
-- **Engine Module:** The Kotlin module that executes Pets Instructions, maintains Game Worlds, fires Effects, and coordinates Tasks and history. It is distinct from a gameplay Module.
 - **Event Log:** The ordered history of State Changes and Task lifecycle events in a Game World.
 - **Expression:** A Pets source or AST representation of a Type. Distinct Expressions may resolve to the same Type, and one Expression may resolve differently in different Contexts.
 - **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A Definition whose implementation specifically depends on that trust model has an identifier ending in `F`.
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
 - **Game Config:** An unresolved, signed expression of user intent from which defaults, selection policies, and validation produce one exact Game Premise.
 - **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Authority, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
-- **Game Reader:** The read-only interface for querying a Game World.
 - **Game World:** The complete live state of a game: its Component Graph, Task Queues, Event Log, Timeline, Class Table, Vocabulary, and Actor-scoped Gameplay, together with the Authority and immutable premise behind them.
 - **Game World Revision:**
 - **Gated Instruction:** An Instruction guarded by a Requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that Task uncompletable unless its Quantifier or enclosing choice permits another result.
@@ -79,8 +75,6 @@
 - **Invariant:** A Class-declared Requirement that every committed Game World state must satisfy. The current engine supports only Limits and checks them while preparing Component changes.
 - **Limit:** A counting Invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. The Limiter uses applicable Limits to calculate how much of a Change Instruction is currently legal.
 - **Live Effect:** A Component Effect paired with its existing context Component, compiled into a subscription, and registered with the Effector. The registry counts it according to the multiplicity of that Component Type.
-- **Loaded Class:** See **Class**; the longer term is used only in contrast with Class Declaration.
-- **Lowering:** Rewriting a higher-level Pets construct into more primitive ordinary Pets with the same intended behavior, before the ordinary preparation and execution machinery handles it.
 - **Manual:** Initiated by a Solarnet client rather than caused by an Effect or Workflow. Resolving or narrowing an already pending Task is not a new manual action. With fully automatic Workflow, a game can contain no manual operations.
 - **Metric:** A Pets expression that computes a nonnegative integer from a Game World.
 - **Minimal Form:** The shortest canonical Type Expression that reliably resolves back to the same Type. It omits inherited Bounds that equal the root Class's defaults, retaining a Bound only when omission would make Dependency matching ambiguous.
@@ -98,13 +92,10 @@
 - **Performer:** The Actor credited on an Instruction's State Changes. Normally this is the Gameplay Actor, but an Instruction-level `BY` can override the Performer without changing the Task's Assignee.
 - **Pets:** Solarnet's specification language for Component Types, rules, and Game World changes.
 - **Pets Name:**
-- **Uninhabited Class:** An Authority-known Class whose domain is empty in one game-specific Class-table Projection. It retains its name, hierarchy, and Dependency shape for resolution and nominal subtyping, but contributes no Components, behavior, enumeration candidates, or generated choices. Antonym: Active Class.
-- **Uninhabited Type:** A Type whose root Class or a Dependency bound is uninhabited. It counts zero, cannot satisfy a Trigger or participate in automatic narrowing, and remains resolvable so inactive concepts can appear safely in queries. A Class Literal representing an Uninhabited Class is itself uninhabited and likewise counts zero.
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **Player-relative Observation:**
 - **Prepared Task:** A Task simplified using facts from the current Game World and therefore locked as the next Task to finish. It may still require narrowing that does not invalidate those facts.
 - **Prepared-Task Lock:**
-- **Preprocessing:** The Transformer pipeline that canonicalizes input names and resolves Class Names, atomization, defaults, contextual ownership, and production notation.
 - **Production Box:** Terraforming Mars-specific `PROD[...]` notation that Preprocessing lowers into production-Component operations.
 - **Quantifier:** The policy on a Change Instruction: mandatory (`!`), optional (`?`), or AMAP (`.`).
 - **Queue Position:**
@@ -115,7 +106,6 @@
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
 - **Represented-Type linkage:** Inside a refined Class literal such as `Class<Tag>(HAS Tag<Player1>)`, the represented Class argument links to matching root-Class occurrences in the Requirement. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the Class token as an owned Component.
 - **Requirement:** A Pets predicate evaluated against a Game World, used for queries, gates, Invariants, and Refinements.
-- **Rollback:** Reversing Game Events after a Checkpoint to restore an earlier state.
 - **Root Type:** The Class at the head of a Type Expression, before its written Dependency bounds.
 - **Rule Class:** A Class whose Declaration is authored directly in Pets to express the game's reusable structure or rules, such as `GreeneryTile`. This describes provenance only; after Class Loading, a Rule Class behaves like a Content Class. Antonym: Content Class.
 - **Scalar:**
@@ -140,8 +130,6 @@
 - **Task Revision:**
 - **Temporary:** A Component Type that must not remain after its operation's Task Queue drains.
 - **This:** A built-in contextual binding. In a Class Declaration it remains late-bound through inheritance and is fixed from the exact context Component; in an Effect Trigger it denotes that Component's own gain or removal event.
-- **Timeline:** The service coordinating Checkpoints, Rollback, commits, and failure-atomic operations across a Game World.
-- **Transformer:** A pass that rewrites Pets AST nodes before loading, preparing, or executing them.
 - **Transmutation:** One State Change that removes copies of one Component Type and gains the same number of another without exposing an intermediate state.
 - **Trigger:** The part of an Effect that selects the State Changes to which it responds.
 - **Trigger Scaling:**
@@ -149,6 +137,8 @@
 - **Type:** The resolved identity of a Component kind, independent of the Type Expression used to write it.
 - **Type Expression:** Pets syntax naming a Type through a Class, optional written Dependency bounds, and an optional Refinement.
 - **Type Variable:**
+- **Uninhabited Class:** An Authority-known Class whose domain is empty in one game-specific Class-table Projection. It retains its name, hierarchy, and Dependency shape for resolution and nominal subtyping, but contributes no Components, behavior, enumeration candidates, or generated choices. Antonym: Active Class.
+- **Uninhabited Type:** A Type whose root Class or a Dependency bound is uninhabited. It counts zero, cannot satisfy a Trigger or participate in automatic narrowing, and remains resolvable so inactive concepts can appear safely in queries. A Class Literal representing an Uninhabited Class is itself uninhabited and likewise counts zero.
 - **Unknown Class:**
 - **Upper Bound:**
 - **Variable Scope:**
