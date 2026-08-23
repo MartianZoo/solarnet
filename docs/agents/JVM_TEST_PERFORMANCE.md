@@ -98,12 +98,33 @@ the earlier parallel trials. The original whole-suite baseline was taken under h
 so the focused immediate comparison is the cleaner speedup measurement; both show the same large
 effect.
 
+## Four-fork result after class-model compilation
+
+All JVM `Test` tasks were configured with `maxParallelForks = 4`, then the complete JVM command was
+run twice. Both runs passed. The first rebuilt the changed convention plugin and stored a new
+configuration-cache entry; it took 1m20.62s overall and 1m05.93s for `:engine:jvmTest`. The clean
+repeat reused the configuration cache and produced these measurements:
+
+| Measurement | Serial after class-model change | Four forks | Reduction |
+| --- | ---: | ---: | ---: |
+| Build wall time | 3m04.76s | 1m17.09s | 58.3% |
+| `:engine:jvmTest` task | 2m58.69s | 1m05.50s | 63.3% |
+| Engine XML suite total | 177.67s | 209.96s | -18.2% |
+| `:script:jvmTest` task | 35.37s | 26.27s | 25.7% |
+
+The engine repeat passed 765 cases in 188 classes with no failures or errors. Its 2.73x elapsed-time
+speedup corresponds to 68.2% parallel efficiency. Aggregate engine suite time increased by 18.2%,
+which is the expected throughput tradeoff from running isolated test processes concurrently. The
+smaller suites also paid fork and host-contention overhead, but engine remained the critical path
+and the complete build still finished 1m47.67s sooner.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
    sharing live World state.
-2. Configure a bounded number of engine test workers. Four was already a large, efficient gain;
-   remeasure the appropriate cap now that each worker's serial workload is much smaller.
+2. Keep the four-fork bound unless memory-constrained CI evidence shows it is too aggressive. It
+   retained a large elapsed-time win after class-model compilation without an unbounded host-based
+   worker count.
 3. Treat isolated slow-test cleanup as secondary. Whole-game scenarios are not the main cost, and
    even deleting the single 15.1s outlier would save under 4% of engine CPU.
 4. Do not prioritize Gradle configuration, compilation, or merely increasing worker heap from this

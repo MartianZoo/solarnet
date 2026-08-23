@@ -35,6 +35,9 @@ signal first, then review static-analysis findings.
 
 `./gradlew dokkaGenerateHtml` generates the local API site at `docs/api/index.html`.
 
+JVM test tasks use at most four parallel forks. This keeps the dominant engine suite substantially
+faster while bounding the additional CPU and memory demand from concurrent test processes.
+
 ## Build configuration
 
 Convention plugins under `build-logic` are layered by responsibility. `solarnet.kotlin-base` owns

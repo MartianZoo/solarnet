@@ -77,6 +77,7 @@ dokka {
 
 tasks.withType<Test>().configureEach {
   useJUnitPlatform()
+  maxParallelForks = 4
   testLogging {
     exceptionFormat = FULL
     showExceptions = true
