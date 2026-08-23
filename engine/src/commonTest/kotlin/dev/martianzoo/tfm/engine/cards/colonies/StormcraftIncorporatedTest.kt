@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.engine.cards.CardTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class StormcraftIncorporatedTest : CardTest() {
+internal class StormcraftIncorporatedTest : CardTest() {
   @Test
-  fun `Starts with 48 megacredits and can add a floater to another card`() {
+  internal fun `Starts with 48 megacredits and can add a floater to another card`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.playCorp(StormcraftIncorporated, 0).expect("48")
 
@@ -20,7 +20,7 @@ class StormcraftIncorporatedTest : CardTest() {
   }
 
   @Test
-  fun `Can spend a floater as two heat for an action cost`() {
+  internal fun `Can spend a floater as two heat for an action cost`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     engine.phase("Action")
     p1.manual("$StormcraftIncorporated, Floater<$StormcraftIncorporated>, 6 Heat")
@@ -36,7 +36,7 @@ class StormcraftIncorporatedTest : CardTest() {
   }
 
   @Test
-  fun `Can spend no floaters on Local Heat Trapping`() {
+  internal fun `Can spend no floaters on Local Heat Trapping`() {
     initializeStormcraftGame(floaters = 1, heat = 5)
 
     p1.playProject(LocalHeatTrapping, 1) {
@@ -48,7 +48,7 @@ class StormcraftIncorporatedTest : CardTest() {
   }
 
   @Test
-  fun `Can spend two floaters after Local Heat Trapping removes heat`() {
+  internal fun `Can spend two floaters after Local Heat Trapping removes heat`() {
     initializeStormcraftGame(floaters = 2, heat = 5)
 
     p1.playProject(LocalHeatTrapping, 1) {
@@ -59,7 +59,7 @@ class StormcraftIncorporatedTest : CardTest() {
   }
 
   @Test
-  fun `Can spend three floaters before Local Heat Trapping removes heat`() {
+  internal fun `Can spend three floaters before Local Heat Trapping removes heat`() {
     initializeStormcraftGame(floaters = 3, heat = 0)
 
     p1.playProject(LocalHeatTrapping, 1) {
