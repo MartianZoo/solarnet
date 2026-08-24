@@ -54,7 +54,6 @@ Teeechnically what Solarnet implements is a variant rule set. The differences ar
 
 ### Contradictions of official rules
 
-* In solo TR63 mode, during final greenery placement, oxygen raises DO still happen.
 * If EcologyExperts plays Decomposers, you get 1 microbe, not 3.
 
 ### Our interpretations

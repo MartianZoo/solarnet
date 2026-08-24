@@ -296,6 +296,7 @@ internal class ScriptSessionTest {
         0000: +CorporationPhase FROM SetupPhase BY Engine (manual)
         0000: +CorporationCard<Player1> BY Player1 VIA Player1 BECAUSE 0000
         0000: +CorporationCard<Player2> BY Player2 VIA Player2 BECAUSE 0000
+        0000: +Photosynthesis BY Engine VIA TerraformingMars BECAUSE 0000
         Hi, Player1
         New tasks pending:
         [Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
