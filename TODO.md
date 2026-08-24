@@ -4,30 +4,20 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
-- Derive map topology, bonuses, and grouping from the experimental canonical map Pets resources,
-  then remove the redundant JSON map files and move generation below Canon if it remains useful.
-- Establish authoritative Quick Start handling for Industrial Complex; its production top-up is
-  redundant in that variant, but no replacement behavior has been established.
+- Get away from JSON entirely and create everything as pets code.
+- IndustrialComplex should top up to 2 production if in QuickStartVariant (add to BugsTest anytime).
 - Preserve linked Type variables through English sequence rendering. Flooding's repeated `Anyone`
   already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
   stages currently lose that shared identity. Expose the existing semantic link and represent the
   later participant as a structured reference rather than recognizing Flooding.
-- Finish the remaining English renderer Stage 3 work in `docs/agents/LANGUAGE_REVIEW.md`: move
-  canonical English declarations into their owning bundles and remove `TerraformingMarsDescribers`.
-- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion boundary
-  so derived scores can be evaluated after their source scores rather than relying on task order.
-- Replace Vitor and Philanthropist's positive-VP citation heuristic with an explicit representation
-  of the printed non-negative VP condition; distinguish intended VP icons from incidental text
-  references.
-- Give multiple wild tags on one card distinct occurrences, and prove that two occurrences can be
-  assigned either the same tag or different tags for one action.
+- Finish the remaining English renderer work in `docs/agents/LANGUAGE_REVIEW.md` and `LANGUAGE_GUIDEBOOK.md` (it exists... somewhere)
+- Try making `VictoryPoint` depend on the scoring `Component` for the fun of it.
+- Philanthropist's metric is not the same as Vitor's (add BugsTest).
+- See if two wild tags on one card is feasible to support, else add to limitations doc.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
 - Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
   replacing the three deliberate structural acquisition points with narrower internal capabilities.
-- **Medium priority:** Reorganize the automated tests around the explicitly valued suites. Move
-  `CoreRulesTest` out of the `cards` package when the final functional-test layout is settled, and
-  keep core-rule scenarios at the player-action and observation boundary.
 - Derive `CardDefinition.resourceType` from the card's authored content instead of storing it as
   independent imported data.
 - **Low priority:** Extend premise viability beyond exact uninhabited-domain facts; Law Suit being

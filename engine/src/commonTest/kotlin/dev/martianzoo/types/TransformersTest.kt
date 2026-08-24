@@ -10,7 +10,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.tfm.engine.CanonClassesTest
+import dev.martianzoo.tfm.canon.Canon
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -102,7 +102,7 @@ internal class TransformersTest {
   }
 
   private companion object {
-    val transformers = Transformers(CanonClassesTest.table)
+    val transformers = Transformers(Canon.classTable)
   }
 
   private fun checkApplyDefaults(
@@ -171,8 +171,8 @@ internal class TransformersTest {
 
   @Test
   internal fun `invalid atomic change after trigger specialization becomes Die`() {
-    val general = CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)"))
-    val specific = CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>"))
+    val general = Canon.classTable.resolve(parse<Expression>("CardFront(HAS BioTag)"))
+    val specific = Canon.classTable.resolve(parse<Expression>("IndustrialMicrobes<Player1>"))
     val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
 
     transformers
@@ -184,11 +184,9 @@ internal class TransformersTest {
   @Test
   internal fun `nested abstract dependency specializes to the concrete changed component`() {
     val general =
-        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
+        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
-        CanonClassesTest.table.resolve(
-            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
-        )
+        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>"))
     val instruction = parse<Instruction>("Microbe<CardFront<Player1>>")
 
     transformers
@@ -200,13 +198,11 @@ internal class TransformersTest {
   @Test
   internal fun `specialization reaches a nested dependency when its containing class also specializes`() {
     val general =
-        CanonClassesTest.table.resolve(
+        Canon.classTable.resolve(
             parse<Expression>("AcceptFromCard<Player1, ResourceCard<Player1, Class<CardResource>>>")
         )
     val specific =
-        CanonClassesTest.table.resolve(
-            parse<Expression>("AcceptFromCard<Player1, Dirigibles<Player1>>")
-        )
+        Canon.classTable.resolve(parse<Expression>("AcceptFromCard<Player1, Dirigibles<Player1>>"))
     val instruction = parse<Instruction>("CardResource<ResourceCard>")
 
     transformers
@@ -218,11 +214,9 @@ internal class TransformersTest {
   @Test
   internal fun `linkage specialization leaves an unlinked occurrence of the same class independent`() {
     val general =
-        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
+        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
-        CanonClassesTest.table.resolve(
-            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
-        )
+        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>"))
     val instruction =
         parse<Instruction>("Microbe<CardFront<Player1>> OR Microbe<CardFront<Player2>>")
 
@@ -238,8 +232,8 @@ internal class TransformersTest {
 
   @Test
   internal fun `linked complemented dependency specializes to the concrete event dependency`() {
-    val general = CanonClassesTest.table.resolve(parse<Expression>("Resource<!Player2>"))
-    val specific = CanonClassesTest.table.resolve(parse<Expression>("Plant<Player3>"))
+    val general = Canon.classTable.resolve(parse<Expression>("Resource<!Player2>"))
+    val specific = Canon.classTable.resolve(parse<Expression>("Plant<Player3>"))
     val instruction = parse<Instruction>("Steel<!Player2>")
 
     transformers

@@ -95,6 +95,11 @@ in a test merely to detect that the list changed. Test observable behavior throu
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
 exact intermediate task text, or other implementation detail.
 
+Do not inspect Canon declarations or definitions and assert their exact Pets trees or rendered
+strings. Do not assert card totals by bundle, deck, expansion, or other content group. Canon
+admissibility is intentionally a compact loading and composition gate; card and rule behavior
+belongs in player-level scenarios.
+
 Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead

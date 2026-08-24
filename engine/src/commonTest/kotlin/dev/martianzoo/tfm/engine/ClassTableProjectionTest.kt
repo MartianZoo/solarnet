@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
@@ -9,7 +8,6 @@ import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
-import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertSame
@@ -17,48 +15,6 @@ import kotlin.test.assertSame
 /** Verifies which classes are active in game-specific class-table projections. */
 internal class ClassTableProjectionTest {
   // Deliberate expansion-specific omissions
-
-  // Stop deleting this test when cards are added; update the expected totals instead.
-  @Test
-  internal fun contentChangeDetectorTestThatIAmNotGoingToDeleteSoPleaseStopSuggestingIt() {
-    val corporateEra = cn("CorporateEraExpansion")
-    val colonies = cn("ColoniesExpansion")
-    val selected = linkedSetOf<ClassName>()
-    val totals = linkedMapOf<String, Int>()
-    for ((label, option) in
-        listOf(
-            "Base" to null,
-            "CorporateEraExpansion" to corporateEra,
-            "VenusNextExpansion" to cn("VenusNextExpansion"),
-            "PreludeExpansion" to cn("PreludeExpansion"),
-            "ColoniesExpansion" to colonies,
-            "TurmoilCardPack" to cn("TurmoilCardPack"),
-            "PromoCardPack" to cn("PromoCardPack"),
-        )) {
-      option?.let(selected::add)
-      val colonyTiles = if (colonies in selected) TestHelpers.testColonyTiles(2) else emptySet()
-      val config =
-          GameConfig.create(
-              included = selected + colonyTiles,
-              excluded = if (corporateEra in selected) emptySet() else setOf(corporateEra),
-              playerNames = listOf(cn("Player1"), cn("Player2")),
-          )
-      totals[label] =
-          Engine.newGame(Canon.gamePremise(config)).gameplay(ENGINE).count("Class<CardFront>")
-    }
-
-    totals.shouldContainExactly(
-        mapOf(
-            "Base" to 146, // 148 minus BegCorp and Helion
-            "CorporateEraExpansion" to 146 + 73,
-            "VenusNextExpansion" to 219 + 54,
-            "PreludeExpansion" to 273 + 47,
-            "ColoniesExpansion" to 320 + 54, // 54 minus Aridor, plus FakeAridor
-            "TurmoilCardPack" to 374 + 4,
-            "PromoCardPack" to 378 + 88,
-        )
-    )
-  }
 
   @Test
   internal fun `Colonies classes stay unloaded without Colonies`() {
