@@ -14,8 +14,8 @@
     {
       "name": "UtopiaMap",
       "areaPrefix": "Utopia",
-      "defaultMilestones": "UtopiaDefaultMilestones",
-      "defaultAwards": "UtopiaDefaultAwards",
+      "defaultMilestones": "UtopiaMilestone",
+      "defaultAwards": "UtopiaAward",
       "rows": [
         [
                                    "L"  ,  "L"  , "LEE" ,  "L"  ,   "L"

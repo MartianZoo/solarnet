@@ -15,8 +15,8 @@
     {
       "name": "CimmeriaMap",
       "areaPrefix": "Cimmeria",
-      "defaultMilestones": "CimmeriaDefaultMilestones",
-      "defaultAwards": "CimmeriaDefaultAwards",
+      "defaultMilestones": "CimmeriaMilestone",
+      "defaultAwards": "CimmeriaAward",
       "rows": [
         [
                                                "W"  ,  "LP" ,  "VS" ,  "LP" , "WPP"

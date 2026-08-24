@@ -41,6 +41,11 @@ World. Ambient Class ownership derives compatibility conditions from lowered Def
 availability locks ambient Classes behind their owning Modules, and exact uninhabited-domain
 viability checks reject impossible selected content before World construction.
 
+Milestone requirements and award metrics are authored as Pets properties. Map-default pools are
+abstract milestone or award superclasses whose nested concrete subclasses form the selected pool.
+An invariant authored directly on a goal constrains both its live usability and its automatic
+selection from a pool; Quick Start goal variants use complementary Module-count invariants.
+
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.
 Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful operation.

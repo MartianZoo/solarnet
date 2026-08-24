@@ -13,6 +13,7 @@ import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.ModuleProperties.AUTO_SELECT_WHEN
 import dev.martianzoo.data.ModuleProvenance
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -88,6 +89,8 @@ public open class TfmAuthority : Authority {
             if (availabilityModules.isNotEmpty()) {
               // Content declarations retain Definition-driven selection even when authored in Pets.
               val definitionNames = bundle.allDefinitions.mapTo(hashSetOf(), Definition::className)
+              bundle.milestoneDefinitions.mapNotNullTo(definitionNames, Definition::selectionGroup)
+              bundle.awardDefinitions.mapNotNullTo(definitionNames, Definition::selectionGroup)
               val ambientClassNames =
                   bundle.explicitClassDeclarations
                       .map(ClassDeclaration::className)
@@ -295,12 +298,6 @@ public open class TfmAuthority : Authority {
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     validateReplacements(cardDefinitions, CardDefinition::className, CardDefinition::replaces)
-    validateReplacements(
-        milestoneDefinitions,
-        MilestoneDefinition::className,
-        MilestoneDefinition::replaces,
-    )
-    validateReplacements(awardDefinitions, AwardDefinition::className, AwardDefinition::replaces)
     try {
       (systemClassDeclarations.toList() + contributedClassDeclarations)
           .distinct()
@@ -368,32 +365,26 @@ public open class TfmAuthority : Authority {
       "Module $moduleName has ambiguous bundle ownership: ${owners.map(Bundle::bundleName)}"
     }
     val owner = owners.singleOrNull() ?: return emptySet()
-    val groupedMilestones = owner.milestoneDefinitions.filter { it.selectionGroup == moduleName }
-    val groupedAwards = owner.awardDefinitions.filter { it.selectionGroup == moduleName }
-    if (groupedMilestones.isNotEmpty() || groupedAwards.isNotEmpty()) {
-      return buildSet {
-        addDefinitions(groupedMilestones)
-        addReplacementExclusions(
-            groupedMilestones,
-            milestoneDefinitions,
-            MilestoneDefinition::className,
-            MilestoneDefinition::replaces,
-        )
-        addDefinitions(groupedAwards)
-        addReplacementExclusions(
-            groupedAwards,
-            awardDefinitions,
-            AwardDefinition::className,
-            AwardDefinition::replaces,
-        )
-      }
-    }
     owner.marsMapDefinitions
         .singleOrNull { it.className == moduleName }
         ?.let { map ->
           return buildSet {
             add(ClassSelection(map.className))
             map.areas.forEach { area -> add(ClassSelection(area.className)) }
+            map.defaultMilestones?.let { group ->
+              val definitions = owner.milestoneDefinitions.filter { it.selectionGroup == group }
+              addDefinitions(
+                  definitions,
+                  parse("MultiplayerMode, MAX 0 Milestone"),
+              )
+            }
+            map.defaultAwards?.let { group ->
+              val definitions = owner.awardDefinitions.filter { it.selectionGroup == group }
+              addDefinitions(
+                  definitions,
+                  parse("MultiplayerMode, MAX 0 Award"),
+              )
+            }
           }
         }
     val contentSelections =
@@ -454,31 +445,23 @@ public open class TfmAuthority : Authority {
     if (Kind.MILESTONES in kinds) {
       val definitions = bundle.milestoneDefinitions.filter { it.selectionGroup == null }
       addDefinitions(definitions)
-      addReplacementExclusions(
-          definitions,
-          milestoneDefinitions,
-          MilestoneDefinition::className,
-          MilestoneDefinition::replaces,
-      )
     }
     if (Kind.AWARDS in kinds) {
       val definitions = bundle.awardDefinitions.filter { it.selectionGroup == null }
       addDefinitions(definitions)
-      addReplacementExclusions(
-          definitions,
-          awardDefinitions,
-          AwardDefinition::className,
-          AwardDefinition::replaces,
-      )
     }
     if (Kind.COLONY_TILES in kinds) addDefinitions(bundle.colonyTileDefinitions)
   }
 
-  private fun MutableSet<ClassSelection>.addDefinitions(definitions: Collection<Definition>) {
+  private fun MutableSet<ClassSelection>.addDefinitions(
+      definitions: Collection<Definition>,
+      sharedRequirement: Requirement? = null,
+  ) {
     definitions.mapTo(this) { definition ->
       ClassSelection(
           definition.className,
-          requirement = automaticSelectionRequirement(definition),
+          requirement =
+              Requirement.join(sharedRequirement, automaticSelectionRequirement(definition)),
       )
     }
   }
@@ -552,16 +535,6 @@ public open class TfmAuthority : Authority {
         cardDefinitions.filter { it.className in selectedDefinitionNames },
         CardDefinition::className,
         CardDefinition::replaces,
-    )
-    validateSelectedReplacements(
-        milestoneDefinitions.filter { it.className in selectedDefinitionNames },
-        MilestoneDefinition::className,
-        MilestoneDefinition::replaces,
-    )
-    validateSelectedReplacements(
-        awardDefinitions.filter { it.className in selectedDefinitionNames },
-        AwardDefinition::className,
-        AwardDefinition::replaces,
     )
   }
 

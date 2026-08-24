@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.ColonizerTrainingCamp
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -180,8 +179,8 @@ internal class GamePremiseTest {
         )
     val table = Engine.newGame(premise).classTable
 
-    premise.modules.shouldNotContain(cn("HellasDefaultMilestones"))
-    premise.modules shouldContain cn("HellasDefaultAwards")
+    premise.modules.shouldNotContain(cn("HellasMilestone"))
+    premise.modules.shouldNotContain(cn("HellasAward"))
     table.isActive(cn("Landshaper")) shouldBe true
     table.isActive(cn("Diversifier")) shouldBe false
     table.isActive(cn("Cultivator")) shouldBe true

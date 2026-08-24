@@ -27,3 +27,10 @@ CLASS VenusStep : GlobalParameter {
 
 CLASS VenusTag : PlanetTag {
 }
+
+CLASS Hoverlord : Milestone {
+  HAS MultiplayerMode
+  requirement = HAS "7 Floater"
+}
+
+CLASS Venuphile : Award { metric = COUNT "VenusTag" }

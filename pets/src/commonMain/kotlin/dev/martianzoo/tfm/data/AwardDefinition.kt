@@ -14,7 +14,6 @@ import kotlinx.serialization.SerialName
 
 public data class AwardDefinition(
     override val className: ClassName,
-    val replaces: ClassName? = null,
     @SerialName("metric") val metricText: String,
     @SerialName("automaticSelectionRequirement")
     private val automaticSelectionRequirementText: String? = null,
@@ -44,8 +43,28 @@ public data class AwardDefinition(
     )
   }
 
-  private companion object {
+  public companion object {
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
     private val METRIC_PROPERTY = PropertyName("metric")
+
+    /** Derives award metadata; direct invariants also gate automatic pool selection. */
+    public fun fromClassDeclaration(
+        declaration: ClassDeclaration,
+        selectionGroup: ClassName? = null,
+    ): AwardDefinition {
+      val metric =
+          (declaration.properties[METRIC_PROPERTY] as? MetricValue)?.value
+              ?: error("Award ${declaration.className} must declare a metric property")
+      val automatic =
+          declaration.invariants
+              .fold<Requirement, Requirement?>(null, Requirement::join)
+              ?.toString()
+      return AwardDefinition(
+          declaration.className,
+          metricText = metric.toString(),
+          automaticSelectionRequirementText = automatic,
+          selectionGroup = selectionGroup,
+      )
+    }
   }
 }

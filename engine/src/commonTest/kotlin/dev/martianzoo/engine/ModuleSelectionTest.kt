@@ -29,7 +29,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
+                    TharsisMap
                     """,
             ),
             Configuration(
@@ -50,7 +50,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    HellasMap, HellasDefaultMilestones, HellasDefaultAwards
+                    HellasMap
                     """,
             ),
             Configuration(
@@ -59,7 +59,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    ElysiumMap, ElysiumDefaultMilestones, ElysiumDefaultAwards
+                    ElysiumMap
                     """,
             ),
             Configuration(
@@ -68,7 +68,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    UtopiaMap, UtopiaDefaultMilestones, UtopiaDefaultAwards
+                    UtopiaMap
                     """,
             ),
             Configuration(
@@ -77,7 +77,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    CimmeriaMap, CimmeriaDefaultMilestones, CimmeriaDefaultAwards
+                    CimmeriaMap
                     """,
             ),
             Configuration(
@@ -86,7 +86,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    HellasMap, HellasDefaultAwards
+                    HellasMap
                     """,
             ),
 
@@ -97,7 +97,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     VenusNextExpansion, WorldGovernmentOption
                     """,
             ),
@@ -107,7 +107,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     VenusNextExpansion
                     """,
             ),
@@ -117,7 +117,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     WorldGovernmentOption
                     """,
             ),
@@ -148,7 +148,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     PreludeExpansion, Prelude1Deck
                     """,
             ),
@@ -158,7 +158,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     PreludeExpansion, Prelude1Deck, Prelude2Expansion
                     """,
             ),
@@ -168,7 +168,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     PreludeExpansion, Prelude2Expansion
                     """,
             ),
@@ -180,7 +180,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     TurmoilCardPack, PromoCardPack
                     """,
             ),
@@ -190,7 +190,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards,
+                    TharsisMap,
                     ColoniesExpansion
                     """,
             ),
@@ -200,7 +200,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, QuickStartVariant, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
+                    TharsisMap
                     """,
             ),
             Configuration(
@@ -208,8 +208,7 @@ internal class ModuleSelectionTest {
                 config = "-CorporateEraExpansion, -QuickStartVariant",
                 selectsExactly =
                     """
-                    TerraformingMars, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
+                    TerraformingMars, MultiplayerMode, TharsisMap
                     """,
             ),
             Configuration(
@@ -218,7 +217,7 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, QuickStartVariant, MultiplayerMode,
-                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
+                    TharsisMap
                     """,
             ),
             Configuration(

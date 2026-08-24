@@ -62,13 +62,9 @@ internal class BootstrapLifecycleTest {
     val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
     val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
     val map = changes.single { it.change.gaining?.className == cn("TharsisMap") }
-    val milestones = changes.single {
-      it.change.gaining?.className == cn("TharsisDefaultMilestones")
-    }
     val area = changes.single { it.change.gaining?.className == cn("Tharsis_1_1") }
 
     map.cause shouldBe Cause(cn("TerraformingMars").expression, terraform.ordinal)
-    milestones.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)
     area.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)
   }
 

@@ -181,8 +181,6 @@ private val soloPlacementAuthority: TfmAuthority = Canon
 private val soloPlacementVocabulary: Vocabulary by lazy {
   val replacedClasses = buildSet {
     soloPlacementAuthority.cardDefinitions.mapNotNullTo(this) { it.replaces }
-    soloPlacementAuthority.milestoneDefinitions.mapNotNullTo(this) { it.replaces }
-    soloPlacementAuthority.awardDefinitions.mapNotNullTo(this) { it.replaces }
   }
   Vocabulary.create(
       soloPlacementAuthority,

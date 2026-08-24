@@ -30,15 +30,6 @@ public data class MarsMapDefinition(
           className = className,
           kind = CONCRETE,
           supertypes = setOf(MARS_MAP.expression),
-          effects =
-              listOfNotNull(
-                  defaultMilestones?.let {
-                    parse<Effect>("This IF MultiplayerMode, MAX 0 Milestone, MAX 0 $it:: $it.")
-                  },
-                  defaultAwards?.let {
-                    parse<Effect>("This IF MultiplayerMode, MAX 0 Award, MAX 0 $it:: $it.")
-                  },
-              ),
       )
 
   public data class AreaDefinition(

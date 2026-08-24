@@ -16,109 +16,11 @@ public object JsonReader {
   public fun readDisplayNames(json5: String): Map<dev.martianzoo.pets.ast.ClassName, String> =
       fromJson5<Map<String, String>>(json5).mapKeys { (className) -> cn(className) }
 
-  // AWARDS
-
-  public fun readAwards(json5: String): List<AwardDefinition> =
-      fromJson5<AwardList>(json5).complete()
-
-  @Serializable
-  private data class AwardList(
-      val group: String? = null,
-      val automaticSelectionRequirement: String? = null,
-      val awards: List<AwardImport> = emptyList(),
-      val groups: List<AwardList> = emptyList(),
-  ) {
-    init {
-      require(awards.isNotEmpty() || groups.isNotEmpty())
-      require(automaticSelectionRequirement?.isNotBlank() != false)
-    }
-
-    fun complete(
-        inheritedRequirement: String? = null,
-        inheritedGroup: String? = null,
-    ): List<AwardDefinition> {
-      val requirement = combineRequirements(inheritedRequirement, automaticSelectionRequirement)
-      val selectionGroup = group ?: inheritedGroup
-      return awards.map { it.complete(requirement, selectionGroup) } +
-          groups.flatMap { it.complete(requirement, selectionGroup) }
-    }
-  }
-
-  @Serializable
-  private data class AwardImport(
-      val name: String,
-      val replaces: String? = null,
-      val metric: String,
-      val automaticSelectionRequirement: String? = null,
-  ) {
-    fun complete(groupAutomaticRequirement: String?, group: String?): AwardDefinition =
-        AwardDefinition(
-            cn(name),
-            replaces?.let(::cn),
-            metric,
-            listOfNotNull(groupAutomaticRequirement, automaticSelectionRequirement)
-                .joinToString()
-                .ifEmpty { null },
-            group?.let(::cn),
-        )
-  }
-
   // CARDS
 
   public fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
 
   @Serializable private data class CardList(val cards: List<CardData>)
-
-  // MILESTONES
-
-  public fun readMilestones(json5: String): List<MilestoneDefinition> =
-      fromJson5<MilestoneList>(json5).definitions()
-
-  @Serializable
-  private data class MilestoneList(
-      val group: String? = null,
-      val milestones: List<MilestoneImport> = emptyList(),
-      val automaticSelectionRequirement: String? = null,
-      val groups: List<MilestoneList> = emptyList(),
-  ) {
-    init {
-      require(milestones.isNotEmpty() || groups.isNotEmpty())
-      require(automaticSelectionRequirement?.isNotBlank() != false)
-    }
-
-    fun definitions(
-        inheritedRequirement: String? = null,
-        inheritedGroup: String? = null,
-    ): List<MilestoneDefinition> {
-      val requirement = combineRequirements(inheritedRequirement, automaticSelectionRequirement)
-      val selectionGroup = group ?: inheritedGroup
-      return milestones.map { it.complete(requirement, selectionGroup) } +
-          groups.flatMap { it.definitions(requirement, selectionGroup) }
-    }
-  }
-
-  @Serializable
-  private data class MilestoneImport(
-      val name: String,
-      val replaces: String? = null,
-      val requirement: String,
-      val automaticSelectionRequirement: String? = null,
-  ) {
-    init {
-      require(automaticSelectionRequirement?.isNotBlank() != false)
-    }
-
-    fun complete(groupAutomaticRequirement: String?, group: String?): MilestoneDefinition =
-        MilestoneDefinition(
-            cn(name),
-            replaces?.let(::cn),
-            requirement,
-            listOfNotNull(groupAutomaticRequirement, automaticSelectionRequirement)
-                .joinToString()
-                .ifEmpty { null },
-            group?.let(::cn),
-        )
-  }
 
   // MAPS
 
@@ -212,9 +114,6 @@ public object JsonReader {
   // HELPERS
 
   private inline fun <reified T : Any> fromJson5(input: String): T = JSON5.decodeFromString(input)
-
-  private fun combineRequirements(first: String?, second: String?): String? =
-      listOfNotNull(first, second).joinToString().ifEmpty { null }
 
   private fun String.toLegendKey(): Char {
     require(length == 1) { "bad legend key: $this" }

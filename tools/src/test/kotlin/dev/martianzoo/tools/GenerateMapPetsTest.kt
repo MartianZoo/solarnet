@@ -10,10 +10,7 @@ internal class GenerateMapPetsTest {
   internal fun rendersEveryCanonicalMapAndAreaAsPets() {
     val sources = canonicalMapPetsFiles(alignedAreas = true).values
     val generated = sources.flatMap(::parseClasses)
-    assertEquals(
-        canonicalMapDeclarations().map { it.className }.sorted(),
-        generated.map { it.className }.sorted(),
-    )
+    assertEquals(canonicalMapDeclarations(), generated)
     assertTrue(
         sources.all { source ->
           val sections = source.split("$GENERATED_AREAS_COMMENT\n", limit = 2)
