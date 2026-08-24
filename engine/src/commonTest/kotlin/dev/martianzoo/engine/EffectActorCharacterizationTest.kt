@@ -42,6 +42,7 @@ internal class EffectActorCharacterizationTest {
   internal fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(Elysium, players = 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    engine.manual("Photosynthesis")
     val checkpoint = game.timeline.checkpoint()
 
     engine.beginManual("GreeneryTile<Player1, Elysium_9_8>") {

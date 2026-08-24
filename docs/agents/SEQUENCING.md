@@ -134,8 +134,8 @@ the component that owns the ambient rule. Use `IF` when state distinguishes whic
 Examples:
 
 - `GlobalParameter` owns its TR reaction because every qualifying parameter step uses it.
-- `GreeneryTile` owns its oxygen reaction because every greenery raises oxygen. Solo setup cancels
-  the oxygen locally after each neutral placement.
+- `GreeneryTile` owns its oxygen reaction, conditioned on `Photosynthesis`; the corporation phase
+  creates that ambient state and the final-greenery phase removes it.
 
 Use queued `:` by default. [Automatic `::`](#use-automatic-effects-to-preserve-player-visible-invariants)
 is the stronger form for restoring an invariant before player work appears.

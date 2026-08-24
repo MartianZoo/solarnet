@@ -583,21 +583,21 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
 
       assertProduction(m = 8, s = 0, t = 0, p = 5, e = 7, h = 10)
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
-      assertCounts(0 to "ProjectCard", 70 to "TR", 32 to "CardFront OR PlayedEvent")
+      assertCounts(0 to "ProjectCard", 69 to "TR", 32 to "CardFront OR PlayedEvent")
       assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
-      assertSidebar(gen = 12, temp = 4, oxygen = 13, oceans = 8, venus = 30)
+      assertSidebar(gen = 12, temp = 4, oxygen = 12, oceans = 8, venus = 30)
 
       assertTags(5, 7, 0, 5, 5, 1, 3, 2, 1, 0, 0)
 
       val sum = Summarizer(game)
-      assertCounts(70 to "TerraformRating")
+      assertCounts(69 to "TerraformRating")
       sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 8
       sum.net("CityTile", "VictoryPoint<Me>") shouldBe 13
       sum.net("Card", "VictoryPoint<Me>") shouldBe 5
-      assertCounts(96 to "VictoryPoint")
+      assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
-      // Under Solarnet's final-greenery variant it's really 100, but we faked Flooding. Note
+      // The score is really 99, but we faked Flooding. Note
       // herokuapp says 111.
       sum.net("ActionPhase", "UseAction<Me>") shouldBe 98
     }

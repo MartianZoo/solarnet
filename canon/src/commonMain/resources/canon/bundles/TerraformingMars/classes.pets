@@ -11,6 +11,7 @@ CLASS TerraformingMars : Module {
   This IF Mode, MAX 0 MarsMap:: TharsisMap
 
   SetupPhase IF MultiplayerMode:: BeginGame
+  CorporationPhase: Photosynthesis
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
@@ -89,7 +90,7 @@ ABSTRACT CLASS Tile<Area> {
     CLASS GreeneryTile : Tile<MarsArea> {
       DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>, MAX 0 Tile)>
 
-      This: OxygenStep
+      This IF Photosynthesis: OxygenStep
       End: VictoryPoint
     }
 
@@ -458,6 +459,12 @@ ABSTRACT CLASS Generational {
   Generation:: -This.
 }
 
+"Indicates that greenery placement raises oxygen"
+CLASS Photosynthesis {
+  HAS MAX 1 This
+  FinalGreeneryPhase: -This!
+}
+
 "Starts generation one after mode-specific setup is complete"
 CLASS BeginGame : Signal, System {
   This:: Generation THEN StartToken<Player1>
@@ -575,10 +582,10 @@ CLASS SoloOpponent : Owner {
 }
 
 "Creates the two independent city-and-greenery placement tasks in solo setup"
-CLASS SoloStartingPlacement : Signal, System {
+CLASS SoloStartingPlacement : Signal, System, Owned<SoloOpponent> {
   HAS MAX 1 This
-  This: CityTile<LandArea, SoloOpponent> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea, SoloOpponent>>), SoloOpponent> THEN -OxygenStep
-  This: CityTile<LandArea, SoloOpponent> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea, SoloOpponent>>), SoloOpponent> THEN -OxygenStep
+  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
+  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
