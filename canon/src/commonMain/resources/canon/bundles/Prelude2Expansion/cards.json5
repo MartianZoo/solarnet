@@ -1,7 +1,6 @@
 {
   "cards": [
 
-    // Nirgal Enterprises
     {
       "name": "NirgalEnterprises",
       "deck": "CORPORATION",
@@ -13,7 +12,6 @@
       ],
     },
 
-    // Palladin Shipping
     {
       "name": "PalladinShipping",
       "deck": "CORPORATION",
@@ -23,7 +21,6 @@
       "effects": [ "EventCard(HAS SpaceTag): Titanium" ],
     },
 
-    // Sagitta Frontier Services[F]
     {
       "name": "SagittaFrontierServices",
       "deck": "CORPORATION",
@@ -34,7 +31,6 @@
       ],
     },
 
-    // EcoTec
     {
       "name": "EcoTec",
       "deck": "CORPORATION",
@@ -43,7 +39,6 @@
       "effects": [ "BioTag<>: Plant OR Microbe" ],
     },
 
-    // Spire
     {
       "name": "Spire",
       "deck": "CORPORATION",
@@ -57,7 +52,6 @@
       ],
     },
 
-    // Applied Science
     {
       "name": "AppliedScience",
       "deck": "PRELUDE",
@@ -66,7 +60,6 @@
       "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
     },
 
-    // Atmospheric Enhancers[F]
     {
       "name": "AtmosphericEnhancers",
       "deck": "PRELUDE",
@@ -74,7 +67,6 @@
       "immediate": "(2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)]",
     },
 
-    // Board of Directors
     {
       "name": "BoardOfDirectors",
       "deck": "PRELUDE",
@@ -86,7 +78,6 @@
       ],
     },
 
-    // Colony Trade Hub
     {
       "name": "ColonyTradeHub",
       "deck": "PRELUDE",
@@ -95,7 +86,6 @@
       "effects": [ "Colony<Anyone>: 2" ],
     },
 
-    // Early Colonization
     {
       "name": "EarlyColonization",
       "deck": "PRELUDE",
@@ -103,7 +93,6 @@
       "immediate": "Colony<>, 3 Energy, 2 AdvanceColonyTracks",
     },
 
-    // Floating Trade Hub
     {
       "name": "FloatingTradeHub",
       "deck": "PRELUDE",
@@ -115,7 +104,6 @@
       ],
     },
 
-    // Focused Organization
     {
       "name": "FocusedOrganization",
       "deck": "PRELUDE",
@@ -128,7 +116,6 @@
       ],
     },
 
-    // Industrial Complex
     {
       "name": "IndustrialComplex",
       "deck": "PRELUDE",
@@ -137,7 +124,6 @@
       "immediate": "-18, PROD[1 / 6 - Megacredit, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]",
     },
 
-    // Main Belt Asteroids
     {
       "name": "MainBeltAsteroids",
       "deck": "PRELUDE",
@@ -151,7 +137,6 @@
       ],
     },
 
-    // Nobel Prize[F]
     {
       "name": "NobelPrize",
       "deck": "PRELUDE",
@@ -159,7 +144,6 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Old Mining Colony
     {
       "name": "OldMiningColony",
       "deck": "PRELUDE",
@@ -167,7 +151,6 @@
       "immediate": "PROD[Titanium], Colony<>, -ProjectCard",
     },
 
-    // Planetary Alliance[F]
     {
       "name": "PlanetaryAlliance",
       "deck": "PRELUDE",
@@ -175,7 +158,6 @@
       "immediate": "2 TerraformRating, CARDS[ProjectCard(HAS JovianTag)], CARDS[ProjectCard(HAS VenusTag)]",
     },
 
-    // Project Eden
     {
       "name": "ProjectEden",
       "deck": "PRELUDE",
@@ -183,7 +165,6 @@
       "immediate": "OceanTile<>, CityTile<>, GreeneryTile<>, -3 ProjectCard",
     },
 
-    // Recession
     {
       "name": "Recession",
       "deck": "PRELUDE",
@@ -193,7 +174,6 @@
       ],
     },
 
-    // Soil Bacteria[F]
     {
       "name": "SoilBacteria",
       "deck": "PRELUDE",
@@ -202,7 +182,6 @@
       "effects": [ "PlantTag<> OR MicrobeTag<>: Plant" ],
     },
 
-    // Space Lanes
     {
       "name": "SpaceLanes",
       "deck": "PRELUDE",
@@ -213,7 +192,6 @@
       ],
     },
 
-    // Suitable Infrastructure
     {
       "name": "SuitableInfrastructure",
       "deck": "PRELUDE",
@@ -229,7 +207,6 @@
       ],
     },
 
-    // Terraforming Deal
     {
       "name": "TerraformingDeal",
       "deck": "PRELUDE",
@@ -237,7 +214,6 @@
       "effects": [ "TerraformRating: 2" ],
     },
 
-    // Venus Contract[F]
     {
       "name": "VenusContract",
       "deck": "PRELUDE",
@@ -246,7 +222,6 @@
       "effects": [ "VenusStep: 3" ],
     },
 
-    // Venus L1 Shade
     {
       "name": "VenusL1Shade",
       "deck": "PRELUDE",
@@ -254,7 +229,6 @@
       "immediate": "3 VenusStep",
     },
 
-    // World Government Advisor
     {
       "name": "WorldGovernmentAdvisor",
       "deck": "PRELUDE",
@@ -263,7 +237,6 @@
       "actions": [ "-> WorldGovernmentTerraforming BY Engine" ],
     },
 
-    // Ceres Tech Market
     {
       "name": "CeresTechMarket",
       "deck": "PROJECT",
@@ -275,7 +248,6 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Cloud Tourism
     {
       "name": "CloudTourism",
       "deck": "PROJECT",
@@ -288,7 +260,6 @@
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
     },
 
-    // Floating Refinery
     {
       "name": "FloatingRefinery",
       "deck": "PROJECT",
@@ -303,7 +274,6 @@
       ],
     },
 
-    // Ishtar Expedition[F]
     {
       "name": "IshtarExpedition",
       "deck": "PROJECT",
@@ -314,7 +284,6 @@
       "immediate": "3 Titanium, CARDS[2 ProjectCard(HAS VenusTag)]",
     },
 
-    // Microgravity Nutrition
     {
       "name": "MicrogravityNutrition",
       "deck": "PROJECT",
@@ -325,7 +294,6 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Soil Studies
     {
       "name": "SoilStudies",
       "deck": "PROJECT",
@@ -336,7 +304,6 @@
       "immediate": "Plant / (VenusTag OR PlantTag OR Colony)",
     },
 
-    // Stratospheric Expedition[F]
     {
       "name": "StratosphericExpedition",
       "deck": "PROJECT",
@@ -347,7 +314,6 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Unexpected Application
     {
       "name": "UnexpectedApplication",
       "deck": "PROJECT",
@@ -357,7 +323,6 @@
       "immediate": "-ProjectCard THEN VenusStep",
     },
 
-    // Venus Allies
     {
       "name": "VenusAllies",
       "deck": "PROJECT",
@@ -368,7 +333,6 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Venus Orbital Survey[F]
     {
       "name": "VenusOrbitalSurvey",
       "deck": "PROJECT",
@@ -380,7 +344,6 @@
       ],
     },
 
-    // Venus Shuttles
     {
       "name": "VenusShuttles",
       "deck": "PROJECT",
@@ -393,7 +356,6 @@
       ],
     },
 
-    // Venus Trade Hub
     {
       "name": "VenusTradeHub",
       "deck": "PROJECT",

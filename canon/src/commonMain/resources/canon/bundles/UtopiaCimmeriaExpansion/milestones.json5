@@ -3,33 +3,23 @@
     {
       "group": "UtopiaDefaultMilestones",
       "milestones": [
-        // Manager
         { "name": "Manager", "requirement": "3 SpecialTile" },
-        // Pioneer
         { "name": "Pioneer3", "requirement": "3 Colony" },
-        // Trader
         { "name": "Trader", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
-        // Metallurgist
         { "name": "Metallurgist", "requirement": "6 PROD[Metal]" },
-        // Researcher
         { "name": "Researcher", "requirement": "4 ScienceTag" },
       ],
     },
     {
       "group": "CimmeriaDefaultMilestones",
       "milestones": [
-        // Planetologist
         {
           "name": "Planetologist",
           "requirement": "2 EarthTag, 2 VenusTag, 2 JovianTag",
         },
-        // Architect
         { "name": "Architect", "requirement": "3 CityTag" },
-        // Coastguard
         { "name": "Coastguard", "requirement": "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
-        // Forester
         { "name": "Forester", "requirement": "PROD[3 Plant]" },
-        // Fundraiser
         // Search for GrossHack to understand this nonsense
         { "name": "Fundraiser", "requirement": "PROD[12 (Megacredit - 5)]" },
       ],
