@@ -322,7 +322,40 @@ CLASS SecondAction : Owned<Player>, Signal
 CLASS Pass : Owned<Player>, Generational { HAS MAX 1 This }
 
 "Any of the basic choices a player can make on their turn"
-ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
+ABSTRACT CLASS StandardAction : HasActions {
+  HAS =1 This
+
+  "Play a project card from hand"
+  CLASS PlayCardSA { -> PlayCard<Class<ProjectCard>> }
+
+  "Use a standard project"
+  CLASS UseStandardProjectSA { -> UseAction<StandardProject> }
+
+  "Claim an available milestone"
+  CLASS ClaimMilestoneSA { 8 -> Milestone }
+
+  "Fund an available award"
+  CLASS FundAwardSA {
+    8 -> (=0 Award: Award)
+    14 -> (=1 Award: Award)
+    20 -> (=2 Award: Award)
+  }
+
+  "Use an action on a card"
+  CLASS UseCardActionSA { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
+
+  "Convert plants into a greenery tile"
+  CLASS ConvertPlantsSA { 8 Plant -> GreeneryTile<> }
+
+  "Convert heat into a temperature increase"
+  CLASS ConvertHeatSA { 8 Heat -> TemperatureStep }
+
+  "Sell any number of patents"
+  CLASS SellPatents { X ProjectCard -> X }
+
+  "Resolve a mandatory action before taking another standard action"
+  CLASS HandleMandates { -> Mandate: MandateSignal }
+}
 
 "The persistent operation that owns research-phase and corporation-setup card purchases"
 CLASS BuyCards : HasActions { HAS =1 This }

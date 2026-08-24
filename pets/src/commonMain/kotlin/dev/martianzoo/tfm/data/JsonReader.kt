@@ -120,43 +120,6 @@ public object JsonReader {
         )
   }
 
-  // ACTIONS
-
-  public fun readActions(json5: String): List<StandardActionDefinition> =
-      fromJson5<ActionsImport>(json5).actions.map { it.complete() }
-
-  @Serializable
-  private data class ActionsImport(
-      val actions: List<IncompleteActionDef>,
-  ) {
-
-    @Serializable
-    data class IncompleteActionDef(
-        val name: String,
-        val action: String? = null,
-        val actions: List<String>? = null,
-        val effects: List<String> = emptyList(),
-        val automaticSelectionRequirement: String? = null,
-    ) {
-      fun complete(): StandardActionDefinition {
-        val realActions =
-            if (action == null) {
-              require(!actions.isNullOrEmpty())
-              actions
-            } else {
-              require(actions == null)
-              listOf(action)
-            }
-        return StandardActionDefinition(
-            className = cn(name),
-            actions = realActions,
-            automaticSelectionRequirementText = automaticSelectionRequirement,
-            effects = effects,
-        )
-      }
-    }
-  }
-
   // MAPS
 
   public fun readMaps(json5: String): List<MarsMapDefinition> =

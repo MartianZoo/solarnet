@@ -30,7 +30,6 @@ import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.FollowModeNeutralizer
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.associateByStrict
@@ -78,8 +77,7 @@ public open class TfmAuthority : Authority {
             }
             if (availabilityModules.isNotEmpty()) {
               val ambientClassNames =
-                  bundle.explicitClassDeclarations.map(ClassDeclaration::className) +
-                      bundle.standardActionDefinitions.map(Definition::className)
+                  bundle.explicitClassDeclarations.map(ClassDeclaration::className)
               ambientClassNames
                   .filterNot { isSubtypeOf(it, MODULE_CLASS) }
                   .forEach { className ->
@@ -302,7 +300,6 @@ public open class TfmAuthority : Authority {
         awardDefinitions +
         milestoneDefinitions +
         colonyTileDefinitions +
-        standardActionDefinitions +
         marsMapDefinitions +
         marsMapDefinitions.flatMap(MarsMapDefinition::areas)
   }
@@ -580,12 +577,6 @@ public open class TfmAuthority : Authority {
 
   private val cardsByClassName by lazy { cardDefinitions.associateByStrict(Definition::className) }
 
-  private fun action(name: ClassName): StandardActionDefinition = standardActionDefinitions.first {
-    it.className == name
-  }
-
-  public open val standardActionDefinitions: Set<StandardActionDefinition> = emptySet()
-
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.firstOrNull { it.className == name }
           ?: throw IllegalArgumentException("No `$name` in this Authority")
@@ -697,10 +688,6 @@ public open class TfmAuthority : Authority {
 
     override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
       authorities.flatMapTo(linkedSetOf(), TfmAuthority::colonyTileDefinitions)
-    }
-
-    override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
-      authorities.flatMapTo(linkedSetOf(), TfmAuthority::standardActionDefinitions)
     }
 
     override val customClasses: Set<CustomClass> by lazy {

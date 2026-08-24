@@ -13,7 +13,6 @@ import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -59,10 +58,6 @@ internal class StandardFormBundle(
     readIfPresent(CARDS_FILENAME, JsonReader::readCards).toSetStrict(::CardDefinition)
   }
 
-  override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
-    readIfPresent(ACTIONS_FILENAME, JsonReader::readActions).toSetStrict()
-  }
-
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
     mapResourceFiles().flatMapTo(linkedSetOf()) { filename ->
       JsonReader.readMaps(read(filename))
@@ -97,7 +92,6 @@ internal class StandardFormBundle(
           filename.endsWith("-$MAPS_FILENAME")
 
   public companion object {
-    private const val ACTIONS_FILENAME: String = "actions.json5"
     private const val CARDS_FILENAME: String = "cards.json5"
     private const val COLONIES_FILENAME: String = "colonies.json5"
     internal const val MAPS_FILENAME: String = "maps.json5"
@@ -108,7 +102,6 @@ internal class StandardFormBundle(
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
     private val KNOWN_JSON_FILENAMES =
         setOf(
-            ACTIONS_FILENAME,
             AWARDS_FILENAME,
             CARDS_FILENAME,
             COLONIES_FILENAME,

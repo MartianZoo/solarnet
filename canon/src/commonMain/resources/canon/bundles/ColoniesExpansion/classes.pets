@@ -8,6 +8,13 @@ CLASS ColoniesExpansion : Module {
   SolarPhase: AdvanceColonyTracks
 }
 
+"Trade with a colony tile"
+CLASS TradeSA : StandardAction {
+  9 -> Trade
+  3 Energy -> Trade
+  3 Titanium -> Trade
+}
+
 CLASS BuildColonySP : StandardProject {
   cost = 17
   1 / cost -> Colony<>
