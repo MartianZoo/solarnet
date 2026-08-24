@@ -290,7 +290,13 @@ Actor-scoped string input passes through this order:
 3. atomization of counted `Atomized` components;
 4. dependency defaults;
 5. contextual `Owner` replacement for Player scopes; and
-6. Terraforming Mars `PROD[...]` lowering.
+6. marked-syntax handlers registered by the World's Authority.
+
+An Authority maps transform names to handlers bound to an active `ClassTable`. The generic
+dispatcher traverses the AST, prevents same-kind nesting, and preserves unregistered transforms so
+an earlier compilation stage can handle only the syntax it owns. Terraforming Mars registers
+`PROD` lowering and follow-mode `CARDS` lowering. Card-source compilation invokes the same
+dispatcher with only `CARDS`, leaving `PROD` for the active-table stage.
 
 AST values created inside the engine skip parsing but may use relevant transforms explicitly.
 Transform entry points preserve their declared AST `kind`; a cardinality-changing caller must

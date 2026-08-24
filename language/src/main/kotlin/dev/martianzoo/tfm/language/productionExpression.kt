@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.Prod
+import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Type
 
@@ -24,7 +24,8 @@ internal fun lowerProductionSyntax(effect: Effect): Effect =
 internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
     productionSyntaxLowerer.transformRequirement(requirement)
 
-private val productionSyntaxLowerer by lazy { Prod.deprodify(canonClassUniverse) }
+// TODO: The dispatcher has mutable traversal state, so sharing it may be unsafe across threads.
+private val productionSyntaxLowerer by lazy { canonClassUniverse.transformDispatcher(setOf(PROD)) }
 
 internal fun productionExpression(
     expression: Expression,

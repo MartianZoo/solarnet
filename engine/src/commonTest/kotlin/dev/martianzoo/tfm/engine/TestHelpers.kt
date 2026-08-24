@@ -24,7 +24,6 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -141,7 +140,7 @@ object TestHelpers {
               canonicalize(game.vocabulary),
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
-              Prod.deprodify(classTable),
+              transformMarkedSyntax(),
               inferredOwner?.let(::replaceOwnerWith),
           )
         }

@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -126,22 +125,30 @@ internal class TransformersTest {
   internal fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
-    val ep: Effect = Prod.deprodify(transformers.classTable).transformEffect(e)
+    val ep: Effect = transformers.transformMarkedSyntax().transformEffect(e)
     ep.toString() shouldBe s
   }
 
   @Test
   internal fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = Prod.deprodify(setOf(cn("Plant"))).transformEffect(prodden)
+    val deprodden: Effect = transformers.transformMarkedSyntax().transformEffect(prodden)
     deprodden.toString() shouldBe "This: Production<Class<Plant>> / PlantTag"
+  }
+
+  @Test
+  internal fun configuredDispatcherAlsoLowersCardSyntax() {
+    val source: Instruction = parse("CARDS[2 ProjectCard(HAS VenusTag)]")
+
+    transformers.transformMarkedSyntax().transformInstruction(source).toString() shouldBe
+        "2 ProjectCard"
   }
 
   @Test
   internal fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
     val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
 
-    Prod.deprodify(setOf(cn("StandardResource"))).transformInstruction(prodden).toString() shouldBe
+    transformers.transformMarkedSyntax().transformInstruction(prodden).toString() shouldBe
         "Production<Class<StandardResource>(HAS LowestProduction)>"
   }
 
@@ -158,7 +165,7 @@ internal class TransformersTest {
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz> FROM Foo<Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
         )
-    val deprodden: Effect = Prod.deprodify(transformers.classTable).transformEffect(prodden)
+    val deprodden: Effect = transformers.transformMarkedSyntax().transformEffect(prodden)
     deprodden shouldBe expected
   }
 

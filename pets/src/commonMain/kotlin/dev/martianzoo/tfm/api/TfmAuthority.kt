@@ -13,6 +13,7 @@ import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.ModuleProperties.AUTO_SELECT_WHEN
 import dev.martianzoo.data.ModuleProvenance
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
@@ -26,16 +27,25 @@ import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind
 import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.data.CardOperation
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.FollowModeNeutralizer
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
+import dev.martianzoo.tfm.data.Prod
+import dev.martianzoo.tfm.data.TfmClasses
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.associateByStrict
 
 /** A Terraforming Mars Authority with typed registries for its structured definitions. */
 public open class TfmAuthority : Authority {
+  final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
+      mapOf(
+          TfmClasses.PROD to Prod::handler,
+          CardOperation.TRANSFORM_KIND to { FollowModeNeutralizer },
+      )
+
   final override val classTable: ClassTable by lazy {
     ClassLoader(this).loadEverything().also(::validateCardTags)
   }

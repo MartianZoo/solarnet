@@ -21,7 +21,6 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
@@ -86,7 +85,7 @@ internal class ApiTranslation(
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(::replaceOwnerWith),
-          Prod.deprodify(classTable),
+          xers.transformMarkedSyntax(),
       )
 
   override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =

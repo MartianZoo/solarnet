@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -17,7 +18,6 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
-import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -30,7 +30,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
 
 /** Compiles identity-bearing card source into follow mode's delegated, count-based operations. */
-internal object FollowModeNeutralizer : PetTransformer() {
+internal object FollowModeNeutralizer : TransformHandler {
   private val BUY_CARD = cn("BuyCard")
   private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
   private val CARD_BACK = cn("CardBack")
@@ -45,14 +45,21 @@ internal object FollowModeNeutralizer : PetTransformer() {
   internal fun neutralize(source: ClassDeclaration): ClassDeclaration =
       source.copy(effects = source.effects.map(::transformEffect))
 
-  override fun transformNode(node: PetNode): PetNode =
-      when {
-        node is Transform && node.transformKind == CARDS -> neutralizeCards(node.instruction)
-        node is Metric.Transform && node.transformKind == CARDS -> neutralizeCardMetric(node.inner)
-        node is Requirement.Transform && node.transformKind == CARDS ->
-            neutralizeCardRequirement(node.requirement)
-        else -> transformChildren(node)
+  override fun transform(inner: PetNode): PetNode =
+      when (inner) {
+        is InstructionTree -> neutralizeCards(inner)
+        is Metric -> neutralizeCardMetric(inner)
+        is Requirement -> neutralizeCardRequirement(inner)
+        else -> malformed(inner)
       }
+
+  internal fun transformEffect(source: dev.martianzoo.pets.ast.Effect) =
+      transformer.transformEffect(source)
+
+  internal fun transformMetric(source: Metric): Metric = transformer.transformMetric(source)
+
+  internal fun transformRequirement(source: Requirement): Requirement =
+      transformer.transformRequirement(source)
 
   private fun neutralizeCards(source: InstructionTree): InstructionTree =
       when (source) {
@@ -275,7 +282,9 @@ internal object FollowModeNeutralizer : PetTransformer() {
   }
 
   private fun malformed(source: PetNode): Nothing =
-      throw PetSyntaxException("Unsupported $CARDS card operation: $source")
+      throw PetSyntaxException(
+          "Unsupported ${CardOperation.TRANSFORM_KIND} card operation: $source"
+      )
 
   private val cardReferenceNeutralizer =
       object : PetTransformer() {
@@ -299,7 +308,7 @@ internal object FollowModeNeutralizer : PetTransformer() {
             )
       }
 
-  private const val CARDS = "CARDS"
+  private val transformer = TransformHandler.dispatcher(mapOf(CardOperation.TRANSFORM_KIND to this))
   private val SELECTING = cn("Selecting")
   private val REVEALED = cn("Revealed")
 }

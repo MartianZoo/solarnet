@@ -46,7 +46,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Defaults
@@ -58,7 +57,10 @@ import dev.martianzoo.types.Type
 public class Transformers(public val classTable: ClassTable) {
 
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
-  private val deprodifier by lazy { Prod.deprodify(classTable) }
+  private val transformDispatcher by lazy { classTable.transformDispatcher() }
+
+  /** Expands the marked Pets syntax configured by this game's Authority. */
+  internal fun transformMarkedSyntax(): PetTransformer = transformDispatcher
 
   /** Rewrites session-localized input names to their canonical engine names. */
   public fun canonicalize(vocabulary: Vocabulary): PetTransformer =
@@ -190,7 +192,7 @@ public class Transformers(public val classTable: ClassTable) {
                 atomizer(),
                 insertDefaults(context),
                 owner?.let(::replaceOwnerWith),
-                Prod.deprodify(classTable),
+                transformDispatcher,
             )
         return when (expanded) {
           is Metric -> finishing.transformMetric(expanded)
@@ -206,7 +208,7 @@ public class Transformers(public val classTable: ClassTable) {
     return chain(
         insertDefaults(context),
         atomizer(),
-        deprodifier,
+        transformDispatcher,
         fixEffectForUnownedContext(klass),
     )
   }

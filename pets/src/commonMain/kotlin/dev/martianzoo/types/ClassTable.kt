@@ -4,9 +4,12 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.Actor
+import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
@@ -91,6 +94,20 @@ public abstract class ClassTable {
       PremiseViability.validate(premise.authority, table, selectedDefinitionNames)
       return table
     }
+  }
+
+  /** The Authority whose compiled class universe backs this table. */
+  internal abstract val authority: Authority
+
+  /** Creates a dispatcher for the selected marked syntax configured by this table's Authority. */
+  public fun transformDispatcher(
+      kinds: Set<String> = authority.transformHandlerFactories.keys,
+  ): PetTransformer {
+    val handlers =
+        authority.transformHandlerFactories.filterKeys(kinds::contains).mapValues { (_, factory) ->
+          factory(this)
+        }
+    return TransformHandler.dispatcher(handlers)
   }
 
   /** The Authority-scoped table whose compiled class universe backs this projection. */
