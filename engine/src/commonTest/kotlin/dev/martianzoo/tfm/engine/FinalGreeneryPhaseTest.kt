@@ -34,7 +34,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  internal fun finalGreeneryRaisesOxygen() {
+  internal fun finalGreeneryDoesNotRaiseOxygen() {
     val game = Engine.newGame(canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -47,7 +47,7 @@ internal class FinalGreeneryPhaseTest {
     p1.startTurn()
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
 
-    engine.oxygenPercent() shouldBe 1
+    engine.oxygenPercent() shouldBe 0
   }
 
   @Test

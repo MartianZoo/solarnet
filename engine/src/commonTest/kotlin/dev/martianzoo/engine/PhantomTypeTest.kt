@@ -61,7 +61,7 @@ internal class PhantomTypeTest {
   }
 
   @Test
-  internal fun `optional phantom changes in component effects normalize to no-op`() {
+  internal fun `component effects cannot quietly lose locked expansion classes`() {
     val probeAuthority =
         object : TfmAuthority() {
           override val explicitClassDeclarations =
@@ -80,10 +80,6 @@ internal class PhantomTypeTest {
         }
     val premise = canonicalPremise(authority = TfmAuthority.Composite(Canon, probeAuthority))
 
-    val gameplay = Engine.newGame(premise).gameplay(ENGINE).godMode()
-
-    gameplay.count("PhantomEffectProbe") shouldBe 1
-    gameplay.count("VenusTag") shouldBe 0
-    gameplay.count("Plant<Player1>") shouldBe 0
+    shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }
 }

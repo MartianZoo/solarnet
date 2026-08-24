@@ -11,6 +11,7 @@ CLASS TerraformingMars : Module {
   This IF Mode, MAX 0 MarsMap:: TharsisMap
 
   SetupPhase IF MultiplayerMode:: BeginGame
+  CorporationPhase: Photosynthesis
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
@@ -89,7 +90,7 @@ ABSTRACT CLASS Tile<Area> {
     CLASS GreeneryTile : Tile<MarsArea> {
       DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>, MAX 0 Tile)>
 
-      This: OxygenStep
+      This IF Photosynthesis: OxygenStep
       End: VictoryPoint
     }
 
@@ -420,7 +421,7 @@ CLASS Invoice : Billing {
 "The finalized debt for playing a particular card"
 CLASS CardInvoice<Class<CardFront>> : Billing<PlayCards, First, Class<Megacredit>>
 
-"Cards like Indentured Workers leave this in play until the next card-play"
+"A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
   Billing<PlayCards>:: -This!
 }
@@ -458,6 +459,12 @@ ABSTRACT CLASS Generational {
   Generation:: -This.
 }
 
+"Indicates that greenery placement raises oxygen"
+CLASS Photosynthesis {
+  HAS MAX 1 This
+  FinalGreeneryPhase: -This!
+}
+
 "Starts generation one after mode-specific setup is complete"
 CLASS BeginGame : Signal, System {
   This:: Generation THEN StartToken<Player1>
@@ -477,6 +484,9 @@ CLASS FinalScore : Signal, System
 
 "Asks the first player to choose one mandatory global-parameter increase performed by Engine"
 CLASS WorldGovernmentTerraforming : Signal, System
+
+"Asks the first player where an ocean is placed while preserving the performing Player"
+CLASS FirstPlayerOcean<Player> : Signal
 
 "Marks the player who takes the first turn; passes one seat left with each new generation"
 CLASS StartToken : Owned<Player> {
@@ -575,17 +585,17 @@ CLASS SoloOpponent : Owner {
 }
 
 "Creates the two independent city-and-greenery placement tasks in solo setup"
-CLASS SoloStartingPlacement : Signal, System {
+CLASS SoloStartingPlacement : Signal, System, Owned<SoloOpponent> {
   HAS MAX 1 This
-  This: CityTile<LandArea, SoloOpponent> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea, SoloOpponent>>), SoloOpponent> THEN -OxygenStep
-  This: CityTile<LandArea, SoloOpponent> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea, SoloOpponent>>), SoloOpponent> THEN -OxygenStep
+  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
+  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
 CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
   HAS =1 This
-  SetupPhase: 11 StandardResource
-  SetupPhase: PROD[11 StandardResource]
+  SetupPhase: 42 StandardResource
+  SetupPhase: PROD[42 StandardResource]
   -StandardResource BY Player:: StandardResource BY Engine
   StandardResource BY Player:: -StandardResource BY Engine
   PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Engine
@@ -595,7 +605,7 @@ CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
 "A neutral solo-mode holder for each kind of removable card resource"
 CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent> {
   HAS =1 This
-  SetupPhase: 11 CardResource<This>
+  SetupPhase: 42 CardResource<This>
   -CardResource<This> BY Player:: CardResource<This> BY Engine
   CardResource<This> BY Player:: -CardResource<This> BY Engine
 }

@@ -6,8 +6,6 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassProperties.ACTIVATION_REQUIREMENT
-import dev.martianzoo.data.ClassProperties.AUTOMATIC_SELECTION_REQUIREMENT
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
@@ -22,6 +20,8 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.And
+import dev.martianzoo.pets.ast.Requirement.Min
+import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind
 import dev.martianzoo.tfm.data.AwardDefinition
@@ -63,6 +63,33 @@ public open class TfmAuthority : Authority {
 
   /** Organizational bundles from which this Authority is assembled. */
   public open val bundles: List<Bundle> = emptyList()
+
+  final override val classAvailabilityModules: Map<ClassName, Set<ClassName>> by lazy {
+    buildMap<ClassName, MutableSet<ClassName>> {
+          bundles.forEach { bundle ->
+            val availabilityModules = buildSet {
+              val sameNamedModule =
+                  bundle.bundleName in allClassNames && isSubtypeOf(bundle.bundleName, MODULE_CLASS)
+              if (sameNamedModule) {
+                add(bundle.bundleName)
+              } else {
+                bundle.marsMapDefinitions.mapTo(this, Definition::className)
+              }
+            }
+            if (availabilityModules.isNotEmpty()) {
+              val ambientClassNames =
+                  bundle.explicitClassDeclarations.map(ClassDeclaration::className) +
+                      bundle.standardActionDefinitions.map(Definition::className)
+              ambientClassNames
+                  .filterNot { isSubtypeOf(it, MODULE_CLASS) }
+                  .forEach { className ->
+                    getOrPut(className, ::linkedSetOf).addAll(availabilityModules)
+                  }
+            }
+          }
+        }
+        .mapValues { (_, modules) -> modules.toSet() }
+  }
 
   /**
    * Cooks user-facing Module and setup selections into an exact game premise by applying Authority
@@ -111,6 +138,20 @@ public open class TfmAuthority : Authority {
             changed = included.add(target) || changed
           }
     } while (changed)
+
+    allDefinitions
+        .filter { it.className in explicitlyIncluded }
+        .forEach { definition ->
+          compatibilityRequirement(definition)?.let { requirement ->
+            require(
+                requirement.isMetBy { metric ->
+                  countConfigured(metric, included - definition.className)
+                }
+            ) {
+              "configured definition ${definition.className} is unavailable: $requirement"
+            }
+          }
+        }
 
     val moduleNames = included.filterTo(linkedSetOf()) { it in modules }
     val colonyNames = colonyTileDefinitions.mapTo(hashSetOf(), Definition::className)
@@ -411,6 +452,19 @@ public open class TfmAuthority : Authority {
   }
 
   private fun automaticSelectionRequirement(definition: Definition): Requirement? {
+    return Requirement.join(
+        definition.automaticSelectionRequirement,
+        bundleCompatibilityRequirement(definition),
+    )
+  }
+
+  private fun compatibilityRequirement(definition: Definition): Requirement? =
+      Requirement.join(
+          definition.compatibilityRequirement,
+          bundleCompatibilityRequirement(definition),
+      )
+
+  private fun bundleCompatibilityRequirement(definition: Definition): Requirement? {
     val declarations =
         listOf(definition.asClassDeclaration) +
             if (definition is CardDefinition) definition.extraClasses else emptyList()
@@ -419,15 +473,16 @@ public open class TfmAuthority : Authority {
             .flatMap { it.allNodes }
             .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
             .filter { it != definition.className && it in allClassNames }
-    val derived = referencedClassNames.flatMap { className ->
-      val properties = universe.getClass(className).properties
-      listOfNotNull(
-          (properties[AUTOMATIC_SELECTION_REQUIREMENT] as? RequirementValue)?.value,
-          (properties[ACTIVATION_REQUIREMENT] as? RequirementValue)?.value,
-      )
-    }
-    return derived.fold(definition.automaticSelectionRequirement, Requirement::join)
+    val derived =
+        listOfNotNull(availabilityRequirement(definition.className)) +
+            referencedClassNames.mapNotNull(::availabilityRequirement)
+    return derived.fold<Requirement, Requirement?>(null, Requirement::join)
   }
+
+  private fun availabilityRequirement(className: ClassName): Requirement? =
+      classAvailabilityModules[className]
+          ?.map { moduleName -> Min(1, Count(moduleName.expression)) }
+          ?.let(Or::create)
 
   private fun <D : Definition> MutableSet<ClassSelection>.addReplacementExclusions(
       selected: Collection<D>,

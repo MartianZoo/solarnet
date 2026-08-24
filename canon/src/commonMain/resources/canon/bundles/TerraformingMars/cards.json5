@@ -1478,10 +1478,7 @@
       "projectKind": "EVENT",
       "cost": 4,
       "tags": [ "ScienceTag" ],
-      "immediate": "SpecialDesignEffect",
-      "components": [
-        "CLASS SpecialDesignEffect : Owned, Generational { PlayCard:: -This!; PlayCard:: -2 Required<Class<GlobalParameter>>. }"
-      ],
+      "immediate": "NextCardEffect { PlayCard:: -2 Required<Class<GlobalParameter>>. }",
     },
   ],
 }

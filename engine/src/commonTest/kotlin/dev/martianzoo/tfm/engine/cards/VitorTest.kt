@@ -14,7 +14,7 @@ internal class VitorTest : CardTest() {
     val game = newGame(PreludeExpansion, players = 2)
     val p1 = game.tfm(PLAYER1)
 
-    p1.playCorp(Vitor, 5) { doTask("Vitor_Mandate") }.expect("5 ProjectCard, 33")
+    p1.playCorp(Vitor, 5).expect("5 ProjectCard, 33")
     p1.phase("Action")
     p1.assertCounts(0 to "Award", 33 to "Megacredit")
 

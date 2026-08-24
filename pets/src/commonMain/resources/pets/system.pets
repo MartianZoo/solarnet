@@ -1,8 +1,5 @@
 "The single root of the class hierarchy"
 ABSTRACT CLASS Component {
-  automaticSelectionRequirement = Requirement?
-  activationRequirement = Requirement?
-
   DEFAULT +Component!
   DEFAULT -Component!
 }

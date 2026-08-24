@@ -1,18 +1,26 @@
-plugins { id("solarnet.kmp-jvm-js") }
+plugins { id("solarnet.jvm") }
 
-kotlin {
-  sourceSets {
-    commonMain {
-      dependencies {
-        implementation(project(":pets"))
-        implementation(project(":canon"))
-      }
-    }
-    commonTest { dependencies { implementation(libs.kotest.assertions.core) } }
-  }
+dependencies {
+  implementation(project(":pets"))
+  implementation(project(":canon"))
+  testImplementation(libs.kotest.assertions.core)
 }
 
-tasks.named<Copy>("copyResourcesForKarma") {
-  dependsOn("jsProcessResources")
-  from(layout.buildDirectory.dir("processedResources/js/main"))
+tasks.register<JavaExec>("writeEnglishCardTextCurrent") {
+  group = "verification"
+  description = "Writes the English renderer's current canonical-card output snapshot."
+  dependsOn("testClasses")
+  classpath = sourceSets.test.get().runtimeClasspath
+  mainClass = "dev.martianzoo.tfm.language.EnglishCardTextCurrentGenerator"
+  args(
+      layout.projectDirectory
+          .file("src/main/resources/language/english-card-text-current.tsv")
+          .asFile
+          .absolutePath,
+      layout.projectDirectory
+          .file("src/main/resources/language/english-card-text-refusals.tsv")
+          .asFile
+          .absolutePath,
+  )
+  outputs.upToDateWhen { false }
 }

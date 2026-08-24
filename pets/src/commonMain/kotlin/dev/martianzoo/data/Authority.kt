@@ -14,6 +14,10 @@ public interface Authority {
   public val modules: Map<ClassName, Set<ClassSelection>>
     get() = emptyMap()
 
+  /** Modules whose selection makes each otherwise bundle-local ambient Class available. */
+  public val classAvailabilityModules: Map<ClassName, Set<ClassName>>
+    get() = emptyMap()
+
   /** ASCII display names keyed first by language tag and then by canonical class name. */
   public val displayNamesByLanguage: Map<String, Map<ClassName, String>>
     get() = emptyMap()

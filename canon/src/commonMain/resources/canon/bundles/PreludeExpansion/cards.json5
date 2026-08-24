@@ -28,7 +28,6 @@
     {
       "name": "ValleyTrust",
       "deck": "CORPORATION",
-      "activationRequirement": "PreludeDeck",
       "tags": [ "EarthTag" ],
       "immediate": "37, Mandate { -> CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>] }",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<>" ],
@@ -38,8 +37,9 @@
       "name": "Vitor",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "45, (Class<Award>: Mandate { -> Award }) OR Ok",
+      "immediate": "45",
       "effects": [
+        "This IF Class<Award>: Mandate { -> Award }",
         "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
       ],
       "components": [

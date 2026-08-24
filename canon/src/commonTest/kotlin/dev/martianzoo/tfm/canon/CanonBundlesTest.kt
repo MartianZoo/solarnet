@@ -4,6 +4,7 @@ import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.types.ClassTable
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -39,6 +40,61 @@ internal class CanonBundlesTest {
     utopia.isActive(cn("CimmeriaMap")) shouldBe false
     cimmeria.isActive(cn("CimmeriaMap")) shouldBe true
     cimmeria.isActive(cn("UtopiaMap")) shouldBe false
+    utopia.isActive(cn("TcColonyBonus")) shouldBe false
+    cimmeria.isActive(cn("TcColonyBonus")) shouldBe true
+  }
+
+  @Test
+  internal fun independentColoniesCardCanBeSelectedWithoutColonies() {
+    table(cn("Arklight")).isActive(cn("Arklight")) shouldBe true
+  }
+
+  @Test
+  internal fun coloniesDependentCardsCannotBeSelectedWithoutColonies() {
+    // These cover an observed standard action, a count, a direct fleet gain, and an optional trade.
+    listOf("CryoSleep", "EcologyResearch", "SkyDocks", "TitanFloatingLaunchPad").forEach { cardName
+      ->
+      shouldThrow<IllegalArgumentException> { table(cn(cardName)) }
+    }
+  }
+
+  @Test
+  internal fun otherCardPacksDeriveColoniesCompatibilityFromTheirInstructions() {
+    val promosWithoutColonies = table(cn("PromoCardPack"), cn("PreludeExpansion"))
+    val promosWithColonies =
+        table(cn("PromoCardPack"), cn("PreludeExpansion"), cn("ColoniesExpansion"))
+    promosWithoutColonies.isActive(cn("StrategicBasePlanning")) shouldBe false
+    promosWithColonies.isActive(cn("StrategicBasePlanning")) shouldBe true
+
+    val prelude2VenusWithoutColonies = table(cn("Prelude2Expansion"), cn("VenusNextExpansion"))
+    val prelude2VenusWithColonies =
+        table(cn("Prelude2Expansion"), cn("VenusNextExpansion"), cn("ColoniesExpansion"))
+    prelude2VenusWithoutColonies.isActive(cn("VenusTradeHub")) shouldBe false
+    prelude2VenusWithColonies.isActive(cn("VenusTradeHub")) shouldBe true
+  }
+
+  @Test
+  internal fun secondaryModuleDoesNotEnableItsOwningExpansionBundle() {
+    val worldGovernmentOnly = table(cn("WorldGovernmentOption"))
+
+    worldGovernmentOnly.isActive(cn("WorldGovernmentOption")) shouldBe true
+    worldGovernmentOnly.isActive(cn("VenusTag")) shouldBe false
+    worldGovernmentOnly.isActive(cn("VenusStep")) shouldBe false
+  }
+
+  @Test
+  internal fun modeConditionalCardsRemainAvailableOutsideThatMode() {
+    val premise =
+        Canon.gamePremise(
+            GameConfig.create(
+                setOf(cn("TerraformingMars"), cn("SoloMode"), cn("Vitor")),
+                playerNames = listOf(cn("Player1")),
+            )
+        )
+    val solo = ClassTable.forPremise(premise)
+
+    solo.isActive(cn("Vitor")) shouldBe true
+    solo.isActive(cn("MultiplayerMode")) shouldBe false
   }
 
   @Test

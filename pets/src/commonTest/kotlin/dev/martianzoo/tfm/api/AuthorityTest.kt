@@ -282,37 +282,40 @@ internal class AuthorityTest {
             cardBundle("Cards", CardDefinition(CardData(name = "ExampleCard"))),
         )
 
-    val premise = source.gamePremise(GameConfig("ExampleCard"))
+    val premise = source.gamePremise(GameConfig("Base, ExampleCard"))
 
     ClassTable.forPremise(premise).isActive(cn("ExampleCard")) shouldBe true
   }
 
   @Test
-  internal fun classPoliciesFilterAutomaticContentButPermitViableExplicitComposition() {
-    val policyBundle =
-        object : Bundle(cn("PolicyBundle")) {
+  internal fun bundleOwnershipFiltersAndRejectsDependentContent() {
+    val base =
+        bundle(
+            "Base",
+            """
+            ABSTRACT CLASS Module
+            ABSTRACT CLASS CardBack
+            ABSTRACT CLASS CardFront
+            ABSTRACT CLASS AutomatedCard : CardFront
+            CLASS ProjectCard : CardBack
+            CLASS Base : Module
+            """
+                .trimIndent(),
+        )
+    val feature =
+        bundle(
+            "Feature",
+            """
+            CLASS Feature : Module { HAS =1 Class<ObservedState>, =1 Class<LockedState> }
+            CLASS ObservedState
+            CLASS LockedState
+            """
+                .trimIndent(),
+        )
+    val contentPack =
+        object : Bundle(cn("ContentPack")) {
           override val explicitClassDeclarations =
-              parseClasses(
-                      """
-                      ABSTRACT CLASS Module
-                      ABSTRACT CLASS CardBack
-                      ABSTRACT CLASS CardFront
-                      ABSTRACT CLASS AutomatedCard : CardFront
-                      CLASS ProjectCard : CardBack
-                      CLASS ContentPack : Module
-                      CLASS Feature : Module {
-                        HAS =1 Class<ObservedState>, =1 Class<LockedState>
-                      }
-                      CLASS ObservedState {
-                        automaticSelectionRequirement = HAS "Feature"
-                      }
-                      CLASS LockedState {
-                        activationRequirement = HAS "Feature"
-                      }
-                      """
-                          .trimIndent()
-                  )
-                  .toSet()
+              parseClasses("CLASS ContentPack : Module").toSet()
           override val moduleContentSelections =
               mapOf(cn("ContentPack") to setOf(BundleContentSelection(cn("Cards"), setOf(CARDS))))
         }
@@ -352,51 +355,56 @@ internal class AuthorityTest {
                 immediate = "-LockedState.",
             )
         )
+    val independentCard =
+        CardDefinition(
+            CardData(
+                name = "IndependentCard",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+            )
+        )
     val source =
         TfmAuthority.compose(
-            policyBundle,
+            base,
+            feature,
+            contentPack,
             cardBundle(
                 "Cards",
                 observingCard,
                 constructingCard,
                 observingMaximumCard,
                 observingRemovalCard,
+                independentCard,
             ),
         )
 
-    val filtered = ClassTable.forPremise(source.gamePremise(GameConfig("ContentPack")))
+    val filtered = ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack")))
     filtered.isActive(observingCard.className) shouldBe false
     filtered.isActive(constructingCard.className) shouldBe false
     filtered.isActive(observingMaximumCard.className) shouldBe false
     filtered.isActive(observingRemovalCard.className) shouldBe false
+    filtered.isActive(independentCard.className) shouldBe true
 
-    val automatic = ClassTable.forPremise(source.gamePremise(GameConfig("ContentPack, Feature")))
+    val automatic =
+        ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack, Feature")))
     automatic.isActive(observingCard.className) shouldBe true
     automatic.isActive(constructingCard.className) shouldBe true
     automatic.isActive(observingMaximumCard.className) shouldBe true
     automatic.isActive(observingRemovalCard.className) shouldBe true
+    automatic.isActive(independentCard.className) shouldBe true
 
-    val viableMaximum =
-        ClassTable.forPremise(source.gamePremise(GameConfig("ObservingMaximumCard")))
-    viableMaximum.isActive(observingMaximumCard.className) shouldBe true
-    viableMaximum.isActive(cn("ObservedState")) shouldBe false
+    listOf(observingCard, constructingCard, observingMaximumCard, observingRemovalCard).forEach {
+        card ->
+      val unavailable =
+          shouldThrow<IllegalArgumentException> {
+            source.gamePremise(GameConfig("Base, ${card.className}"))
+          }
+      unavailable.message.orEmpty() shouldContain "configured definition"
+    }
 
-    val viableRemoval =
-        ClassTable.forPremise(source.gamePremise(GameConfig("ObservingRemovalCard")))
-    viableRemoval.isActive(observingRemovalCard.className) shouldBe true
-    viableRemoval.isActive(cn("LockedState")) shouldBe false
-
-    val unviable =
-        shouldThrow<IllegalArgumentException> {
-          ClassTable.forPremise(source.gamePremise(GameConfig("ObservingCard")))
-        }
-    unviable.message.orEmpty() shouldContain "unviable game premise"
-
-    val broken =
-        shouldThrow<IllegalArgumentException> {
-          ClassTable.forPremise(source.gamePremise(GameConfig("ConstructingCard")))
-        }
-    broken.message.orEmpty() shouldContain "broken game premise"
+    val explicitIndependent =
+        ClassTable.forPremise(source.gamePremise(GameConfig("Base, ${independentCard.className}")))
+    explicitIndependent.isActive(independentCard.className) shouldBe true
   }
 
   private fun authority(vararg declarations: ClassDeclaration): TfmAuthority =
