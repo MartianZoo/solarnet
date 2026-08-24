@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
@@ -24,6 +25,16 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 internal class CardDefinitionTest {
+  private val resourceDeclarations =
+      parseClasses(
+          """
+          CLASS Animal : CardResource
+          CLASS Floater : CardResource
+          CLASS Microbe : CardResource
+          """
+              .trimIndent()
+      )
+
   private val birds =
       CardData(
           name = "Birds",
@@ -32,7 +43,6 @@ internal class CardDefinitionTest {
           immediate = "PROD[-2 Plant<Anyone>]",
           actions = listOf("-> Animal<This>"),
           effects = listOf("End: VictoryPoint / Animal<This>"),
-          resourceType = "Animal",
           requirement = "13 OxygenStep",
           cost = 10,
           projectKind = "ACTIVE",
@@ -41,6 +51,7 @@ internal class CardDefinitionTest {
   @Test
   internal fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
+    val authority = authority(setOf(birds))
     birds.className shouldBe cn("Birds")
     birds.deck shouldBe PROJECT
     birds.tags.toStrings().shouldContainExactlyInAnyOrder("AnimalTag")
@@ -48,7 +59,7 @@ internal class CardDefinitionTest {
     birds.actions.toStrings().shouldContainExactlyInAnyOrder("-> Animal<This>")
     birds.effects.toStrings().shouldContainExactlyInAnyOrder("End: VictoryPoint / Animal<This>")
     birds.replaces shouldBe null
-    birds.resourceType shouldBe cn("Animal")
+    authority.cardResourceType(cn("Birds")) shouldBe cn("Animal")
     birds.requirement?.toString() shouldBe "13 OxygenStep"
     birds.cost shouldBe 10
     birds.asClassDeclaration.properties[PropertyName("cost")] shouldBe NumberValue(10)
@@ -124,7 +135,6 @@ internal class CardDefinitionTest {
             "immediate": "PROD[-2 Plant<Anyone>]",
             "actions": [ "-> Animal<This>" ],
             "effects": [ "End: VictoryPoint / Animal<This>" ],
-            "resourceType": "Animal",
             "requirement": "13 OxygenStep",
             "cost": 10,
             "projectKind": "ACTIVE"
@@ -383,7 +393,6 @@ internal class CardDefinitionTest {
   internal fun emptyStrings() {
     assertFails { CardData("") }
     assertFails { card.copy(replaces = "") }
-    assertFails { card.copy(resourceType = "") }
     assertFails { card.copy(requirement = "") }
   }
 
@@ -413,7 +422,78 @@ internal class CardDefinitionTest {
     assertFails { card.copy(projectKind = "AUTOMATED", effects = listOf("Bar: Qux")) }
     assertFails { card.copy(projectKind = "EVENT", actions = listOf("Foo -> Bar")) }
     assertFails { card.copy(projectKind = "AUTOMATED", actions = listOf("Bar -> Qux")) }
-    assertFails { card.copy(projectKind = "AUTOMATED", resourceType = "Whatever") }
+    assertFails {
+      card.copy(
+          projectKind = "AUTOMATED",
+          effects = listOf("End: VictoryPoint / Animal<This>"),
+      )
+    }
     assertFails { card.copy(projectKind = "ACTIVE", immediate = "Whatever") }
+  }
+
+  @Test
+  internal fun cardResourceTypeIsDerivedFromAuthoredOperations() {
+    val paymentCard =
+        CardDefinition(
+            CardData(
+                name = "PaymentCard",
+                actions = listOf("-> Floater"),
+                effects =
+                    listOf(
+                        "PlayTag<Class<VenusTag>>:: AcceptFromCard<This>",
+                        "PayFromCard<This>:: -3 Owed<>",
+                    ),
+            )
+        )
+    val wildTagCard = CardDefinition(CardData(name = "WildTagCard", immediate = "WildTag<This>"))
+    val genericMicrobeCard =
+        CardDefinition(
+            CardData(
+                name = "GenericMicrobeCard",
+                effects = listOf("MicrobeTag<CardFront>: Microbe<CardFront> OR 2"),
+            )
+        )
+
+    val authority = authority(setOf(paymentCard, wildTagCard, genericMicrobeCard))
+    authority.cardResourceType(cn("PaymentCard")) shouldBe cn("Floater")
+    authority.cardResourceType(cn("WildTagCard")) shouldBe null
+    authority.cardResourceType(cn("GenericMicrobeCard")) shouldBe null
+  }
+
+  @Test
+  internal fun multipleDerivedCardResourceTypesAreRejected() {
+    val card =
+        CardDefinition(
+            CardData(
+                name = "AmbiguousResourceCard",
+                effects =
+                    listOf(
+                        "End: VictoryPoint / Animal<This>",
+                        "End: VictoryPoint / Microbe<This>",
+                    ),
+            )
+        )
+    assertFailsWith<IllegalArgumentException> {
+      authority(setOf(card)).cardResourceType(card.className)
+    }
+  }
+
+  private fun authority(cards: Set<CardDefinition>): TfmAuthority =
+      TfmAuthority.compose(
+          object : TfmAuthority() {
+            override val explicitClassDeclarations = resourceDeclarations.toSet()
+          },
+          object : TfmAuthority() {
+            override val cardDefinitions = cards
+          },
+      )
+
+  @Test
+  internal fun testRoundTripForAllCanonCardData() { // move to canon
+    val oops =
+        Canon.cardDefinitions
+            .flatMap { it.asClassDeclaration.allNodes }
+            .filter { it != parse(it.kind, "$it") }
+    oops.shouldBeEmpty()
   }
 }

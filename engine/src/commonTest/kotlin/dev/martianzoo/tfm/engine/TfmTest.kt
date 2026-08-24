@@ -117,7 +117,7 @@ internal abstract class TfmTest {
       card: ClassName,
   ): String {
     val resourceType =
-        requireNotNull(reader.tfmAuthority.card(card).resourceType) {
+        requireNotNull(reader.tfmAuthority.cardResourceType(card)) {
           "$card does not hold card resources"
         }
     val gain =

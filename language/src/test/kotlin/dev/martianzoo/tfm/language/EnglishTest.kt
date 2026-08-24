@@ -91,7 +91,7 @@ internal class EnglishTest {
                 name = "AnimalHolder",
                 deck = "PROJECT",
                 projectKind = "ACTIVE",
-                resourceType = "Animal",
+                effects = listOf("End: VictoryPoint / Animal<This>"),
             )
         )
     english.describe(parse<InstructionTree>("Animal"), animalCard) shouldBe

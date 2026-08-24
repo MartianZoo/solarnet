@@ -317,7 +317,6 @@
       "requirement": "MAX 5 TemperatureStep",
       "cost": 2,
       "tags": [ "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [ "-> Microbe<This>" ],
       "effects": [
         "PlayTag<Class<PlantTag>>:: AcceptFromCard<This>",

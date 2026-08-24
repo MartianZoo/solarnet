@@ -18,8 +18,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
 - Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
   replacing the three deliberate structural acquisition points with narrower internal capabilities.
-- Derive `CardDefinition.resourceType` from the card's authored content instead of storing it as
-  independent imported data.
+- Make an omitted concrete `CardResource` holder bound specialize to that resource class; today
+  `CLASS Animal : CardResource` leaves the holder generic, so declarations must repeat
+  `CardResource<ResourceHolder<Class<Animal>>>` to prevent animals from inhabiting other resource
+  cards.
+- **Medium priority:** Reorganize the automated tests around the explicitly valued suites. Move
+  `CoreRulesTest` out of the `cards` package when the final functional-test layout is settled, and
+  keep core-rule scenarios at the player-action and observation boundary.
 - **Low priority:** Extend premise viability beyond exact uninhabited-domain facts; Law Suit being
   unviable in solo because no opponent-dependent attack record can inhabit the projected Type
   universe is the canonical stronger proof.

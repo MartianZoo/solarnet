@@ -30,7 +30,7 @@ internal class EcologyExpertsTest : CardTest() {
   internal fun `Splice money from Ecology Experts tags can pay for Decomposers`() {
     newGame(PreludeExpansion, PromoCardPack)
     val p2 = requireP2()
-    p2.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
+    p2.manual("$SpliceTacticalGenomics")
     engine.phase("Prelude")
     p1.manual("4 Megacredit, ProjectCard, PreludeCard")
     val spliceMoney = p2.count("Megacredit")

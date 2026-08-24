@@ -122,7 +122,6 @@
       "requirement": "MAX 6 OxygenStep",
       "cost": 3,
       "tags": [ "ScienceTag" ],
-      "resourceType": "Science",
       "actions": [ "1 -> Science<This>?" ], // follow mode: the client supplies the reveal outcome
       "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
     },
@@ -290,7 +289,6 @@
       "requirement": "11 OxygenStep",
       "cost": 14,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "actions": [ "Animal<Anyone> -> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
@@ -351,7 +349,6 @@
       "projectKind": "ACTIVE",
       "cost": 13,
       "tags": [ "ScienceTag", "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [
         "-> Microbe<This>",
         "2 Microbe<This> -> OxygenStep"
@@ -365,7 +362,6 @@
       "requirement": "4 OxygenStep",
       "cost": 8,
       "tags": [ "ScienceTag", "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [
         "-> Microbe<This>",
         "2 Microbe<This> -> TemperatureStep"
@@ -379,7 +375,6 @@
       "requirement": "4 OxygenStep",
       "cost": 9,
       "tags": [ "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [ "Microbe<Anyone> -> Microbe<This>" ],
       "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
     },
@@ -508,7 +503,6 @@
       "requirement": "16 TemperatureStep",
       "cost": 9,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "PROD[-Plant<Anyone>]",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
@@ -531,7 +525,6 @@
       "requirement": "6 OxygenStep",
       "cost": 6,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "PROD[-Plant<Anyone>]",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
@@ -605,7 +598,6 @@
       "requirement": "13 OxygenStep",
       "cost": 10,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "PROD[-2 Plant<Anyone>]",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
@@ -901,7 +893,6 @@
       "requirement": "GreeneryTile",
       "cost": 12,
       "tags": [ "AnimalTag", "PlantTag" ],
-      "resourceType": "Animal",
       "immediate": "SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)> {}",
       "effects": [
         "AnimalTag<> OR PlantTag<>: Animal<This>",
@@ -936,7 +927,6 @@
       "requirement": "3 OxygenStep",
       "cost": 5,
       "tags": [ "MicrobeTag" ],
-      "resourceType": "Microbe",
       "effects": [
         "BioTag<>: Microbe<This>",
         "End: VictoryPoint / 3 Microbe<This>"
@@ -1082,7 +1072,6 @@
       "requirement": "8 OxygenStep",
       "cost": 12,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "Animal<This>, PROD[-Plant<Anyone>]",
       "effects": [
         "GreeneryTile: Animal<This>",
@@ -1136,7 +1125,6 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "MicrobeTag" ],
-      "resourceType": "Microbe",
       "immediate": "3 Microbe<This>",
       "actions": [
         "-> Microbe<This>",
@@ -1276,7 +1264,6 @@
       "projectKind": "ACTIVE",
       "cost": 10,
       "tags": [ "EarthTag", "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "Animal<This>",
       "effects": [
         "CityTile<Anyone>: Animal<This>",
@@ -1362,7 +1349,6 @@
       "requirement": "9 OxygenStep",
       "cost": 13,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "PROD[-Plant, 2]",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],

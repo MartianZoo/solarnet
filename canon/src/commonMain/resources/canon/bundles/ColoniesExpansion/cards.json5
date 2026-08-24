@@ -11,7 +11,6 @@
       "name": "Arklight",
       "deck": "CORPORATION",
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "45, PROD[2]",
       "effects" : [
         "AnimalTag<> OR PlantTag<>: Animal<This>",
@@ -37,7 +36,6 @@
       "name": "StormcraftIncorporated",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
-      "resourceType": "Floater",
       "immediate": "48",
       "actions": [ "-> Floater" ],
       "effects": [
@@ -72,7 +70,6 @@
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 15,
-      "resourceType": "Floater",
       "immediate": "2 Floater",
       "actions": [
         "-> Floater<This>",
@@ -221,7 +218,6 @@
       "requirement": "JovianTag",
       "cost": 20,
       "tags": [ "JovianTag" ],
-      "resourceType": "Floater",
       "immediate": "TerraformRating, 2 Floater",
       "actions": [ "Titanium -> 2 Floater<This>" ],
       "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
@@ -234,7 +230,6 @@
       "requirement": "3 ScienceTag",
       "cost": 9,
       "tags": [ "JovianTag" ],
-      "resourceType": "Floater",
       "actions": [
         "-> Floater<CardFront(HAS JovianTag)>",
         "-> 1 / Floater<This> MAX 4"
@@ -286,7 +281,6 @@
       "requirement": "2 CityTile<Anyone>",
       "cost": 12,
       "tags": [ "AnimalTag", "BuildingTag" ],
-      "resourceType": "Animal",
       "actions": [ "-> 1 / Animal<This>" ],
       "effects": [
         "EarthTag<>: Animal<This>",
@@ -368,7 +362,6 @@
       "requirement": "3 ScienceTag",
       "cost": 17,
       "tags": [ "ScienceTag", "JovianTag" ],
-      "resourceType": "Floater",
       "immediate": "2 ProjectCard",
       "actions": [
         "-> Floater<This>",
@@ -383,9 +376,9 @@
       "projectKind": "ACTIVE",
       "cost": 10,
       "tags": [ "EarthTag" ],
-      "resourceType": "Camp",
       "actions": [ "PROD[1] -> Camp<This>" ],
       "effects": [ "End: VictoryPoint / Camp<This>" ],
+      "components": [ "CLASS Camp : CardResource<ResourceHolder<Class<Camp>>>" ],
     },
 
     {
@@ -477,7 +470,6 @@
       "requirement": "12 TemperatureStep",
       "cost": 5,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "PROD[-Plant<Anyone>]",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
@@ -489,7 +481,6 @@
       "projectKind": "ACTIVE",
       "cost": 21,
       "tags": [ "JovianTag" ],
-      "resourceType": "Floater",
       "actions": [
         "Titanium -> 2 Floater<This>",
         "2 Floater<This> -> TerraformRating"
@@ -503,7 +494,6 @@
       "projectKind": "ACTIVE",
       "cost": 18,
       "tags": [ "JovianTag" ],
-      "resourceType": "Floater",
       "immediate": "2 Floater<CardFront(HAS JovianTag)>",
       "actions": [
         "-> Floater<CardFront(HAS JovianTag)>",
@@ -518,7 +508,6 @@
       "projectKind": "ACTIVE",
       "cost": 23,
       "tags": [ "JovianTag", "SpaceTag" ],
-      "resourceType": "Floater",
       "actions": [
         "-> 2 Floater<CardFront(HAS JovianTag)>",
         "X Floater<This> -> X Titanium",

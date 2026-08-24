@@ -15,13 +15,13 @@
     {
       "name": "Pristar",
       "deck": "CORPORATION",
-      "resourceType": "Preservation",
       "immediate": "53, -2 TerraformRating",
       "effects": [
         "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6",
         "End: VictoryPoint / Preservation<This>"
       ],
       "components": [
+        "CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>",
         // Must be exact copies of UNMI's
         "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
         "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating IF MAX 0 SetupPhase:: HasRaisedTr. }"

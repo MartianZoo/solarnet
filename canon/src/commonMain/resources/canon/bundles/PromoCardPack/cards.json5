@@ -5,7 +5,6 @@
       "name": "Recyclon",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "BuildingTag" ],
-      "resourceType": "Microbe",
       "immediate": "38, PROD[Steel]",
       "effects": [ "BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
     },
@@ -14,7 +13,6 @@
       "name": "SpliceTacticalGenomics",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
-      "resourceType": "Microbe",
       "immediate": "44, Mandate { -> CARDS[ProjectCard(HAS MicrobeTag)] }",
       "effects": [ "MicrobeTag<Anyone, CardFront<Anyone>>: 2" ],
       "components": [
@@ -59,7 +57,6 @@
       "name": "AstroDrill",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
-      "resourceType": "Asteroid",
       "immediate": "35, 3 Asteroid<This>",
       "actions": [
         "-> Asteroid OR StandardResource",
@@ -71,8 +68,8 @@
       "name": "PharmacyUnion",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "MicrobeTag" ],
-      "resourceType": "Disease",
       "immediate": "CARDS[ProjectCard(HAS ScienceTag)]",
+      "components": [ "CLASS Disease : CardResource<ResourceHolder<Class<Disease>>>" ],
       "effects": [
         // This is the only card I know of that has a double-colon effect. Without it, the engine
         // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
@@ -100,7 +97,6 @@
       "name": "KuiperCooperative",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag", "SpaceTag" ],
-      "resourceType": "Asteroid",
       "immediate": "33, PROD[Titanium]",
       "actions": [ "-> Asteroid<This> / SpaceTag" ],
       "effects": [
@@ -214,7 +210,6 @@
       "requirement": "8 OceanTile",
       "cost": 7,
       "tags": [ "AnimalTag" ],
-      "resourceType": "Animal",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
@@ -317,7 +312,6 @@
       "projectKind": "ACTIVE",
       "cost": 13,
       "tags": [ "JovianTag", "EarthTag" ],
-      "resourceType": "Floater",
       "immediate": "Floater<This> / EarthTag",
       "actions": [ "Floater<This> -> 1 / Floater<This> MAX 4, 1" ],
       "effects": [ "End: VictoryPoint" ],
@@ -348,7 +342,6 @@
       "projectKind": "ACTIVE",
       "cost": 13,
       "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
-      "resourceType": "Asteroid",
       "immediate": "PROD[-Energy]",
       "actions": [ "-> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]" ],
       "effects": [
@@ -363,7 +356,6 @@
       "projectKind": "ACTIVE",
       "cost": 16,
       "tags": [ "SpaceTag" ],
-      "resourceType": "Asteroid",
       "actions": [ "Titanium -> Asteroid<This>, PROD[1]" ],
       "effects": [ "End: VictoryPoint / 2 Asteroid<This>" ],
     },
@@ -374,7 +366,6 @@
       "projectKind": "ACTIVE",
       "cost": 17,
       "tags": [ "SpaceTag" ],
-      "resourceType": "Asteroid",
       "actions": [
         "Titanium -> Asteroid",
         "Asteroid<This> -> OceanTile<>"
@@ -409,7 +400,6 @@
       "projectKind": "ACTIVE",
       "cost": 8,
       "tags": [ "SpaceTag" ],
-      "resourceType": "Asteroid",
       "actions": [
         "6 -> Asteroid",
         "Asteroid<This> -> TemperatureStep"
@@ -561,7 +551,6 @@
       "projectKind": "ACTIVE",
       "cost": 10,
       "tags": [ "EarthTag", "SpaceTag" ],
-      "resourceType": "Asteroid",
       "immediate": "2 Asteroid<This>",
       "actions": [
         "1 -> Asteroid",
@@ -641,7 +630,6 @@
       "projectKind": "ACTIVE",
       "cost": 15,
       "tags": [ "SpaceTag" ],
-      "resourceType": "Asteroid",
       "actions": [
         "10 -> 2 Asteroid<This>",
         "Asteroid<This> -> FirstPlayerOcean<Owner>"
@@ -683,13 +671,13 @@
       "projectKind": "ACTIVE",
       "cost": 14,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "resourceType": "Graphene",
       "effects": [
         "ScienceTag<>: Graphene<This>",
         "PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>:: AcceptFromCard<This>",
         "PayFromCard<This>:: -4 Owed<>",
         "End: VictoryPoint"
       ],
+      "components": [ "CLASS Graphene : CardResource<ResourceHolder<Class<Graphene>>>" ],
     },
 
     {
@@ -752,13 +740,13 @@
       "projectKind": "ACTIVE",
       "cost": 14,
       "tags": [ "PowerTag" ],
-      "resourceType": "Hydroelectric",
       "immediate": "NeptunianOption",
       "effects": [
         "OceanTile BY Anyone: UseAction<NeptunianOption>?",
         "End: VictoryPoint / Hydroelectric<This>"
       ],
       "components": [
+        "CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>",
         "CLASS NeptunianOption : Owned, HasActions { 5 -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accept<Class<Steel>> }"
       ],
     },
@@ -842,7 +830,6 @@
       "projectKind": "ACTIVE",
       "cost": 8,
       "tags": [ "BuildingTag" ],
-      "resourceType": "Disease",
       "immediate": "PROD[-Energy]",
       "actions": [ "Disease -> 1 / CityTile<Anyone>" ],
       "effects": [
@@ -909,7 +896,6 @@
       "projectKind": "ACTIVE",
       "cost": 8,
       "tags": [ "MicrobeTag", "AnimalTag" ],
-      "resourceType": "Animal",
       "actions": [ "-> Animal<This> OR Microbe" ],
       "effects": [ "CityTile<Anyone>: Animal<This>" ],
       "components": [
@@ -923,7 +909,6 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "ScienceTag" ],
-      "resourceType": "Floater",
       "immediate": "ProjectCard",
       "actions": [
         "-> Floater<This>",

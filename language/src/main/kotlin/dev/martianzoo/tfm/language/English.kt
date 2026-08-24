@@ -103,8 +103,9 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
             }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
-              renderEffects(list, cardDescribers, cardResourceType = card.resourceType).map { text
-                ->
+              val resourceType =
+                  card.resourceTypeCandidates.filter(cardDescribers::isCardResource).singleOrNull()
+              renderEffects(list, cardDescribers, cardResourceType = resourceType).map { text ->
                 "Effect: $text"
               }
             }

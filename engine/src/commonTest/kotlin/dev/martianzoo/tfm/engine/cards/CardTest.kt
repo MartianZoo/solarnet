@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
@@ -9,7 +11,9 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.engine.TestOption as Option
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -17,7 +21,10 @@ import dev.martianzoo.tfm.engine.TfmTest
 import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.tfm.engine.setUpGame as setUpTfmGame
 
-internal abstract class CardTest : TfmTest() {
+internal abstract class CardTest(
+    private val additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
+    private val additionalCardDefinitions: Set<CardDefinition> = emptySet(),
+) : TfmTest() {
   protected lateinit var p1: TfmGameplay
     private set
 
@@ -25,15 +32,58 @@ internal abstract class CardTest : TfmTest() {
     private set
 
   protected fun newGame(config: GameConfig): World =
-      setUpTfmGame(Canon.gamePremise(config)).initializeCardTestGame()
+      setUpTfmGame(premise(config)).initializeCardTestGame()
 
   protected fun newGame(
       vararg selectedOptions: Option,
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
   ): World {
-    return setUpTfmGame(cachedSetup(selectedOptions.toSet(), players, colonyTiles))
-        .initializeCardTestGame()
+    val premise =
+        if (!hasAdditionalContent) {
+          cachedSetup(selectedOptions.toSet(), players, colonyTiles)
+        } else {
+          withAdditionalSelections(
+              canonicalPremise(
+                  *selectedOptions,
+                  players = players,
+                  colonyTiles = colonyTiles,
+                  authority = authority,
+              )
+          )
+        }
+    return setUpTfmGame(premise).initializeCardTestGame()
+  }
+
+  private val authority: TfmAuthority by lazy {
+    if (!hasAdditionalContent) {
+      Canon
+    } else {
+      val additions =
+          object : TfmAuthority() {
+            override val explicitClassDeclarations = additionalClassDeclarations
+            override val cardDefinitions = additionalCardDefinitions
+          }
+      TfmAuthority.compose(Canon, additions)
+    }
+  }
+
+  private val hasAdditionalContent: Boolean
+    get() = additionalClassDeclarations.isNotEmpty() || additionalCardDefinitions.isNotEmpty()
+
+  private fun premise(config: GameConfig): GamePremise {
+    val premise = authority.gamePremise(config)
+    if (!hasAdditionalContent) return premise
+    return withAdditionalSelections(premise)
+  }
+
+  private fun withAdditionalSelections(premise: GamePremise): GamePremise {
+    val additionalClassNames =
+        additionalClassDeclarations.map(ClassDeclaration::className) +
+            additionalCardDefinitions.map(CardDefinition::className)
+    return premise.copy(
+        classSelections = premise.classSelections + additionalClassNames.map(::ClassSelection)
+    )
   }
 
   protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }

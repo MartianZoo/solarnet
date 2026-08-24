@@ -301,8 +301,32 @@ public open class TfmAuthority : Authority {
     explicit +
         allDefinitions
             .filterNot { it.className in explicitNames }
-            .map(Definition::asClassDeclaration) +
+            .map { definition ->
+              if (definition is CardDefinition) {
+                definition.toClassDeclaration(cardResourceType(definition.className))
+              } else {
+                definition.asClassDeclaration
+              }
+            } +
         cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
+  }
+
+  private val declaredCardResourceClassNames: Set<ClassName> by lazy {
+    (explicitClassDeclarations + cardDefinitions.flatMap(CardDefinition::extraClasses))
+        .filter { declaration ->
+          declaration.supertypes.any { supertype -> supertype.className == CARD_RESOURCE_CLASS }
+        }
+        .mapTo(linkedSetOf(), ClassDeclaration::className)
+  }
+
+  private val cardResourceTypes: Map<ClassName, ClassName?> by lazy {
+    cardDefinitions.associate { card ->
+      val declared = card.resourceTypeCandidates intersect declaredCardResourceClassNames
+      require(declared.size <= 1) {
+        "${card.className} content implies multiple card resource types: $declared"
+      }
+      card.className to declared.singleOrNull()
+    }
   }
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
@@ -581,6 +605,12 @@ public open class TfmAuthority : Authority {
   public fun card(name: ClassName): CardDefinition =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
+  /** The resource type implied by [name]'s content and explicit resource declarations, if any. */
+  public fun cardResourceType(name: ClassName): ClassName? {
+    card(name)
+    return cardResourceTypes.getValue(name)
+  }
+
   public open val cardDefinitions: Set<CardDefinition> = emptySet()
 
   private val cardsByClassName by lazy { cardDefinitions.associateByStrict(Definition::className) }
@@ -614,6 +644,7 @@ public open class TfmAuthority : Authority {
     public fun compose(vararg authorities: TfmAuthority): TfmAuthority = Composite(*authorities)
 
     private val MODULE_CLASS = cn("Module")
+    private val CARD_RESOURCE_CLASS = cn("CardResource")
     private val PLAYER_CLASS = cn("Player")
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")
@@ -664,10 +695,6 @@ public open class TfmAuthority : Authority {
         }
       }
       combined
-    }
-
-    internal override val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-      authorities.flatMap(TfmAuthority::contributedClassDeclarations)
     }
 
     override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {

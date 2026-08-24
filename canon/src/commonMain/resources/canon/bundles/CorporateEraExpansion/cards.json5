@@ -85,9 +85,9 @@
       "projectKind": "ACTIVE",
       "cost": 12,
       "tags": [ "SpaceTag" ],
-      "resourceType": "Fighter",
       "actions": [ "Titanium -> Fighter<This>" ],
       "effects": [ "End: VictoryPoint / Fighter<This>" ],
+      "components": [ "CLASS Fighter : CardResource<ResourceHolder<Class<Fighter>>>" ],
     },
 
     {
@@ -107,7 +107,6 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [ "-> Microbe<This>" ],
       "effects": [ "End: VictoryPoint / 4 Microbe<This>" ],
     },
@@ -353,7 +352,6 @@
       "projectKind": "ACTIVE",
       "cost": 12,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "resourceType": "Science",
       "actions": [ "6 Energy -> Science<This>" ],
       "effects": [ "End: 2 VictoryPoint / Science<This>" ],
     },
@@ -597,7 +595,6 @@
       "projectKind": "ACTIVE",
       "cost": 10,
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
-      "resourceType": "Science",
       "effects": [
         "ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)",
         "End: VictoryPoint"

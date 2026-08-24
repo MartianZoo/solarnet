@@ -109,8 +109,8 @@ Effects:
 - The printed tags become an Automatic Effect on Recyclon's creation.
 - The `immediate` field becomes a queued Immediate Instruction.
 
-The `resourceType` field makes Recyclon inherit from `ResourceCard<Class<Microbe>>`. It also
-contributes the declaration that makes `Microbe` an appropriate Card Resource. The Definition adds
+Recyclon's authored use of `Microbe<This>`, together with the explicit declaration of `Microbe` as
+a `CardResource`, makes it inherit from `ResourceCard<Class<Microbe>>`. The Definition adds
 Recyclon's one-copy Invariant and card properties as well. It does not silently merge, remove, or
 reorder authored Effects. `FollowModeNeutralizer` removes hidden real-card operations which follow
 mode delegates to its client. Recyclon's Effect contains no such operation and is unchanged.

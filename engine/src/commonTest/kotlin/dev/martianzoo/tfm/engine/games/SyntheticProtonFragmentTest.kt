@@ -65,18 +65,16 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // User recollection recorded in _local/Game20260811/sources.md: Dad's otherwise-unidentified
     // seventh project was Cyberia Systems; the player record and later plays identify the other
     // six.
-    dad.playCorp(SpliceTacticalGenomics) {
-      doTask("2")
-      dad.buyCards(
-          Lichen,
-          MercurianAlloys,
-          Archaebacteria,
-          RoboticWorkforce,
-          HeatTrappers,
-          IceAsteroid,
-          CyberiaSystems,
-      )
-    }
+    dad.draw(
+        Lichen,
+        MercurianAlloys,
+        Archaebacteria,
+        RoboticWorkforce,
+        HeatTrappers,
+        IceAsteroid,
+        CyberiaSystems,
+    )
+    dad.playCorp(SpliceTacticalGenomics, 7)
 
     mom.turn {
       playPrelude(AlbedoPlants).expect("PROD[Plant], Plant, 3 Heat")

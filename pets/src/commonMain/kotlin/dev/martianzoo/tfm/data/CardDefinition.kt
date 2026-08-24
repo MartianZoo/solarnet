@@ -15,9 +15,13 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
@@ -108,6 +112,8 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val effects: List<Effect> = data.effects.map(::parseOwned)
 
+  private val componentClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
+
   /** The card's printed play requirement, if any. */
   public val requirement: Requirement? = projectInfo?.requirement
 
@@ -125,34 +131,29 @@ public class CardDefinition(data: CardData) : Definition {
     public val cost: Int by data::cost
   }
 
-  /**
-   * The type of `CardResource` this card can hold, if any. If this is non-null, then the class this
-   * card is converted into will have a supertype of `ResourceCard<ThatResourceType>`. Of course,
-   * that will fail if the class named here does not extend `CardResource`.
-   */
-  public val resourceType: ClassName? = data.resourceType?.let(::cn)
+  /** Class names whose authored use suggests that this card holds that kind of component. */
+  public val resourceTypeCandidates: Set<ClassName> = deriveResourceTypeCandidates()
 
   init {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
               effects.any { it.trigger != OnGainOf.create(END.expression) } ||
-              resourceType != null
+              resourceTypeCandidates.isNotEmpty()
       require((projectInfo?.kind == ACTIVE) == shouldBeActive)
     }
   }
 
-  private val componentClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
-
   /** Additional class declarations that come along with this card. */
-  public val extraClasses: List<ClassDeclaration> =
-      componentClasses + derivedClasses.declarations + listOfNotNull(resourceClassDeclaration())
+  public val extraClasses: List<ClassDeclaration> = componentClasses + derivedClasses.declarations
 
   /** Follow-mode declarations with source-level real-card operations neutralized. */
   internal val executableExtraClasses: List<ClassDeclaration> =
       extraClasses.map(FollowModeNeutralizer::neutralize)
 
-  override val asClassDeclaration: ClassDeclaration by lazy {
+  override val asClassDeclaration: ClassDeclaration by lazy { toClassDeclaration(null) }
+
+  internal fun toClassDeclaration(resourceType: ClassName?): ClassDeclaration {
     val createTags =
         InstructionGroup.createTree(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
 
@@ -171,7 +172,7 @@ public class CardDefinition(data: CardData) : Definition {
             )
             .ifEmpty { setOf(CARD_FRONT.expression) }
 
-    ClassDeclaration(
+    return ClassDeclaration(
         className = className,
         kind = CONCRETE,
         supertypes = supertypes,
@@ -213,7 +214,6 @@ public class CardDefinition(data: CardData) : Definition {
       val immediate: String? = null,
       val actions: List<String> = emptyList(),
       val effects: List<String> = emptyList(),
-      val resourceType: String? = null,
       val components: Set<String> = emptySet(),
       val requirement: String? = null,
       val cost: Int = 0,
@@ -222,7 +222,6 @@ public class CardDefinition(data: CardData) : Definition {
     init {
       cn(name)
       require(replaces?.isNotEmpty() != false)
-      require(resourceType?.isNotEmpty() != false)
       require(requirement?.isNotEmpty() != false)
       require(cost >= 0)
 
@@ -236,11 +235,65 @@ public class CardDefinition(data: CardData) : Definition {
     }
   }
 
-  private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
-    parseOneLinerClass("CLASS $type : CardResource<ResourceHolder<Class<$type>, Owner>>")
+  private fun deriveResourceTypeCandidates(): Set<ClassName> {
+    val cardNodes = listOfNotNull<PetNode>(immediate) + actions + effects
+    val authoredNodes = cardNodes + componentClasses.flatMap(ClassDeclaration::allNodes)
+    fun isHeldByCard(expression: Expression): Boolean =
+        expression.arguments == listOf(THIS.expression)
+
+    val heldByThis =
+        cardNodes
+            .flatMap { it.descendantsOfType<Expression>() }
+            .filter(::isHeldByCard)
+            .mapTo(linkedSetOf(), Expression::className)
+
+    // A held component becomes a card resource only when the card consumes or counts it. Merely
+    // adding a bound component, such as WildTag<This>, does not make the card a resource card.
+    val used = buildSet {
+      actions
+          .mapNotNull(Action::cost)
+          .flatMap { it.descendantsOfType<Action.Cost.Spend>() }
+          .mapTo(this) { it.scaledEx.expression.className }
+      authoredNodes
+          .flatMap { it.descendantsOfType<Change>() }
+          .mapNotNull(Change::removing)
+          .mapTo(this, Expression::className)
+      authoredNodes
+          .flatMap { it.descendantsOfType<Count>() }
+          .mapTo(this) { it.expression.className }
+    }
+    val candidates = (heldByThis intersect used).toMutableSet()
+
+    val acceptsFromThis =
+        effects
+            .flatMap { it.instruction.descendantsOfType<Gain>() }
+            .any {
+              it.gaining.className == ACCEPT_FROM_CARD && isHeldByCard(it.gaining)
+            }
+    if (acceptsFromThis) {
+      // AcceptFromCard<This> consumes the card's stocked resource through a linked type rather
+      // than naming that resource directly at the use site.
+      val stocked =
+          (actions.flatMap { it.instruction.descendantsOfType<Gain>() } +
+                  effects.flatMap { it.instruction.descendantsOfType<Gain>() })
+              .mapTo(linkedSetOf()) { it.gaining.className }
+              .minus(ACCEPT_FROM_CARD)
+      val explicitlyStocked = heldByThis intersect stocked
+      candidates += explicitlyStocked.ifEmpty {
+        actions
+            .flatMap { it.instruction.descendantsOfType<Gain>() }
+            .mapTo(linkedSetOf()) { it.gaining.className }
+      }
+      require(candidates.isNotEmpty()) {
+        "$className accepts payment from itself but does not identify its stocked resource"
+      }
+    }
+
+    return candidates
   }
 
   private companion object {
+    val ACCEPT_FROM_CARD = cn("AcceptFromCard")
     val COST_PROPERTY = PropertyName("cost")
     val REQUIREMENT_PROPERTY = PropertyName("requirement")
   }

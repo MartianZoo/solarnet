@@ -43,7 +43,6 @@
       "name": "Spire",
       "deck": "CORPORATION",
       "tags": [ "CityTag", "EarthTag" ],
-      "resourceType": "Science",
       "immediate": "50, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }",
       "effects": [
         "CardFront(HAS 2 Tag): Science<This>",
@@ -55,7 +54,6 @@
     {
       "name": "AppliedScience",
       "deck": "PRELUDE",
-      "resourceType": "Science",
       "immediate": "WildTag<This>, 6 Science<This>",
       "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
     },
@@ -71,11 +69,11 @@
       "name": "BoardOfDirectors",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "resourceType": "Director",
       "immediate": "4 Director<This>",
       "actions": [
         "-> PreludeCard, -PreludeCard OR (-12 THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)",
       ],
+      "components": [ "CLASS Director : CardResource<ResourceHolder<Class<Director>>>" ],
     },
 
     {
@@ -97,7 +95,6 @@
       "name": "FloatingTradeHub",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
-      "resourceType": "Floater",
       "actions": [
         "-> 2 Floater",
         "X Floater<This> -> X StandardResource",
@@ -128,7 +125,6 @@
       "name": "MainBeltAsteroids",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
-      "resourceType": "Asteroid",
       "immediate": "-5",
       "actions": [ "-> Asteroid" ],
       "effects": [
@@ -254,7 +250,6 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "JovianTag", "VenusTag" ],
-      "resourceType": "Floater",
       "immediate": "PROD[1 / EarthTag MAX VenusTag]",
       "actions": [ "-> Floater<This>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
@@ -266,7 +261,6 @@
       "projectKind": "ACTIVE",
       "cost": 7,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "immediate": "Floater<This> / VenusTag",
       "actions": [
         "-> Floater<This>",

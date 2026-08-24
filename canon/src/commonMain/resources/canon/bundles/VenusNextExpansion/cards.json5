@@ -13,7 +13,6 @@
       "name": "Celestic",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "immediate": "42, Mandate { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }",
       "actions": [ "-> Floater" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
@@ -49,7 +48,6 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "actions": [
         "-> Floater",
         "Floater<This> -> ProjectCard"
@@ -133,7 +131,6 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "VenusTag", "PowerTag", "SpaceTag" ],
-      "resourceType": "Floater",
       "actions": [
         "-> Floater<This>",
         "Floater<This> -> PROD[Energy]"
@@ -146,7 +143,6 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "actions": [ "-> Floater" ],
       "effects": [
         "PlayTag<Class<VenusTag>>:: AcceptFromCard<This>",
@@ -160,7 +156,6 @@
       "projectKind": "ACTIVE",
       "cost": 21,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "immediate": "3 Floater<This>",
       "actions": [
         "-> Floater<This>",
@@ -175,7 +170,6 @@
       "requirement": "2 ScienceTag",
       "cost": 3,
       "tags": [ "VenusTag", "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [ "-> Microbe" ],
       "effects": [ "End: VictoryPoint / 3 Microbe<This>" ],
     },
@@ -187,7 +181,6 @@
       "requirement": "2 ScienceTag",
       "cost": 5,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "actions": [ "2 -> Floater" ],
       "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
     },
@@ -198,7 +191,6 @@
       "projectKind": "ACTIVE",
       "cost": 8,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "actions": [
         "2 -> Floater<This>",
         "2 Floater<This> -> VenusStep"
@@ -278,7 +270,6 @@
       "projectKind": "ACTIVE",
       "cost": 12,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "actions": [
         "Titanium -> 2 Floater<This>",
         "2 Floater<This> -> VenusStep"
@@ -291,7 +282,6 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "VenusTag" ],
-      "resourceType": "Floater",
       "actions": [
         "-> Floater<This>",
         "Floater<This> -> PROD[1]"
@@ -375,7 +365,6 @@
       "requirement": "MAX 7 VenusStep",
       "cost": 6,
       "tags": [ "SpaceTag" ],
-      "resourceType": "Asteroid",
       "actions": [
         "6 -> Asteroid<This>",
         "Asteroid<This> -> VenusStep"
@@ -433,7 +422,6 @@
       "requirement": "2 ScienceTag",
       "cost": 22,
       "tags": [ "VenusTag", "CityTag" ],
-      "resourceType": "Floater",
       "immediate": "PROD[2], CityTile<RemoteArea {}>",
       "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
@@ -446,7 +434,6 @@
       "requirement": "6 VenusStep",
       "cost": 12,
       "tags": [ "VenusTag", "AnimalTag" ],
-      "resourceType": "Animal",
       "immediate": "-Floater",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
@@ -468,7 +455,6 @@
       "requirement": "3 VenusStep",
       "cost": 6,
       "tags": [ "VenusTag", "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [
         "-> Microbe<This>",
         "X Microbe<This> -> 3X"
@@ -492,7 +478,6 @@
       "requirement": "3 VenusStep",
       "cost": 9,
       "tags": [ "VenusTag", "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [
         "-> Microbe<CardFront(HAS VenusTag)>",
         "2 Microbe<This> -> VenusStep"
@@ -556,7 +541,6 @@
       "requirement": "9 VenusStep",
       "cost": 15,
       "tags": [ "VenusTag", "ScienceTag", "AnimalTag" ],
-      "resourceType": "Animal",
       "effects": [
         "ScienceTag<>: Animal<This>",
         "End: VictoryPoint / Animal<This>"
@@ -570,7 +554,6 @@
       "requirement": "6 VenusStep",
       "cost": 5,
       "tags": [ "VenusTag", "MicrobeTag" ],
-      "resourceType": "Microbe",
       "actions": [ "-> Microbe<This>" ],
       "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
     },
