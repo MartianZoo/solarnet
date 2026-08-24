@@ -33,6 +33,8 @@ public data class AwardDefinition(
 
   public val metric: Metric = parse(metricText)
 
+  private val executableMetric: Metric = FollowModeNeutralizer.transformMetric(metric)
+
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
         className,
@@ -40,7 +42,7 @@ public data class AwardDefinition(
         supertypes = setOf(AWARD.expression),
         properties =
             mapOf(
-                METRIC_PROPERTY to MetricValue(metric),
+                METRIC_PROPERTY to MetricValue(executableMetric),
                 ACTIVATION_REQUIREMENT to RequirementValue(MULTIPLAYER_ONLY),
             ),
     )

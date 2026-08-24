@@ -53,6 +53,23 @@ internal class AuthorityTest {
   }
 
   @Test
+  internal fun explicitDeclarationsAreNeutralizedForFollowMode() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Buyer {
+                  ResearchPhase: CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected = parseClasses("ABSTRACT CLASS Buyer { ResearchPhase: 4 BuyCard? }").single()
+
+    authority(source).allClassDeclarations.getValue(cn("Buyer")) shouldBe expected
+  }
+
+  @Test
   internal fun compositionRejectsAmbiguousModuleOwnership() {
     val declarations =
         "ABSTRACT CLASS Module\nCLASS SharedModule : Module"

@@ -114,6 +114,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Soon
 
+- Preserve Merger's printed pay-after-play order when its real-card operation becomes executable;
+  the follow-mode declaration still keeps the 42 M€ payment as an independent sibling to preserve
+  current behavior.
 - **Medium priority:** Continue the unresolved sequencing work identified by the canon effect-mode
   audit: settle the action-marker/Viron tension, event and Mandate context lifetime, scoring
   completion, same-trigger action-cost dependencies, and the remaining mixed phase triggers,

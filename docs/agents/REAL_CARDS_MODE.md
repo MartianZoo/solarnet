@@ -344,15 +344,20 @@ Components for cards outside `InPlay`.
 
 ## Canonical card-operation source
 
-Canonical card Definitions now preserve hidden card procedures in one ordinary
+Canonical sources now preserve hidden card procedures in one ordinary
 `Instruction.Transform`, `CARDS[...]`. The inner instruction tree carries the operation family:
 
 ```pets
 CARDS[2 ProjectCard(HAS VenusTag)]
-CARDS[7 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]
+CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>]
+CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
-CARDS[2 ProjectCard<Revealed> THEN 2 ProjectCard(HAS VenusTag) FROM ProjectCard<Revealed>. THEN BuyCards]
-CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]
+CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
+CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]
+CARDS[2 / ProjectCard<Hand>]
+CARDS[CardBack<EventPile>]
+CARDS[CardBack<EventPile, Class<This>> FROM This]
+CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
 ```
 
 A filtered plain gain means sequentially search for the requested matches. Its predicate is source
@@ -360,36 +365,54 @@ shorthand over the represented front's immutable printed metadata. It does not c
 `HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
 reveal every inspected card in order and discard nonmatches.
 
-A gain in `Selecting` offers cards, and a `FROM Selecting` instruction retains exact cards.
+A gain in `Selecting` offers cards, and a `Hand FROM Selecting` instruction retains exact cards.
 Automatic cleanup discards anything left there when the operation completes. `Revealed` has the
 corresponding cleanup rule. A purchase procedure first removes unwanted cards and then invokes one
-unquantified `BuySelectedCards`, which buys every card remaining in that selection and charges for
-each. After a reveal has retained matching cards, `BuyCards` offers the remaining revealed cards at
-the ordinary purchase cost and cleanup discards the declined cards. `THEN` is reserved for actual
-causal boundaries, such as reveal-before-test or discard-before-purchase; `FROM Selecting` already
-prevents retention before the offer exists.
+unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's selection
+and broadcasts the same multiplicity of `BuyCard`; those per-card signals create the base debt and
+let Polyphemos and Terralabs Research react by adding or removing `Owed`. Once the resulting invoice
+is fully paid, the purchase operation moves those exact selected cards to `Hand`. Its optional
+removal count is the offered count, so the player may discard any subset before buying the
+remainder; corporation setup uses ten, Research uses four, Venus Orbital Survey uses whatever
+non-Venus cards remain from two, and single-card purchase actions use one. `THEN` is reserved for
+actual causal boundaries, such as reveal-before-test, discard-before-purchase, or selecting a card
+before playing it; `FROM Selecting` already prevents retention before the offer exists.
+
+Area-qualified card observations use the same transform. `ProjectCard<Hand>` counts only project
+cards in the Player's hand, while `CardBack<EventPile>` counts completed Events in that Player's
+event pile. Public Plans moves one linked quantity from `Hand` to `Revealed`, returns those exact
+cards to `Hand`, and awards that quantity.
 
 Follow mode currently neutralizes `CARDS` before Class loading according to that inner shape. A
 search becomes the old plain `ProjectCard` gain; a retained-card movement becomes the old gain;
-purchase selection becomes the old optional `BuyCard` result; a conditional reveal becomes its old
-optional outcome; reveal-retain-purchase becomes one free-or-buy outcome per revealed card; and Event
-recovery becomes recovery from `PlayedEvent`. Consequently the source contains the printed knowledge
-while current execution needs no `CardArea` declarations. This neutralization is temporary
-executable compilation, not real-card behavior.
+purchase selection becomes the corresponding optional counted `BuyCard` result; a conditional
+reveal becomes its old optional outcome; retain-matches-then-purchase becomes one free-or-buy outcome
+per offered card; and Event
+recovery becomes recovery from `PlayedEvent`. Selected Prelude and corporation play returns to its
+former draw-discard-play chain. Hand and event-pile observations become the former `ProjectCard` and
+`PlayedEvent` metrics, and Public Plans becomes its former optional per-card gain. Consequently the
+source contains the printed knowledge while follow-mode execution needs no `CardArea` declarations.
+This neutralization is the current compilation boundary between two permanent modes; the boundary
+mechanism may change, but follow mode is not a migration state to eliminate.
 
 The current source-level operation inventory is:
 
 | Family | Cards |
 | --- | --- |
 | Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Nobel Prize, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
-| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics |
-| Inspect one, buy or discard | Inventors' Guild, Business Network |
+| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics, Spire |
+| Inspect N, select and play one | Valley Trust, Merger, New Partner |
+| Choose cards to buy from an offer | Corporation setup, Research phase, Inventors' Guild, Business Network |
 | Reveal and test | Search for Life, Asteroid Deflection System |
 | Reveal two, retain matches, buy or discard the rest | Venus Orbital Survey |
 | Recover Events | Astra Mechanica |
+| Observe cards in hand | Head Start, Planner, Visionary |
+| Observe completed Events | Media Archives, Legend, Promoter |
+| Finish or transfer Events | Event cards, Pharmacy Union, Law Suit |
+| Reveal chosen hand cards temporarily | Public Plans |
 
-Public Plans remains an observation-family problem rather than one of these operations. Valley Trust
-and Spire already preserve their relevant source quantities and procedure without a new transform.
+The remaining ordinary card gains and removals still use the follow-mode shorthand directly; they
+do not preserve deck or hand-area procedure yet.
 
 ## Conservation
 
@@ -441,12 +464,13 @@ now:
 
 Do not add `KnownTo` Components, fake playable unknown fronts, or ownership-based visibility rules.
 
-## Follow mode and migration
+## Follow mode and operation lowering
 
 Real-card mode is an affirmative Module fixed in the premise and mutually exclusive with follow
-mode. Follow mode remains the default while a client supplies card outcomes.
+mode. Both modes are permanent supported behavior; follow mode remains the default and delegates
+card outcomes to a client.
 
-Migrate by operation family:
+Develop real-card lowering by operation family while preserving the corresponding follow lowering:
 
 1. ordinary draws and deals;
 2. reveal one and optionally keep or buy;

@@ -212,20 +212,67 @@ internal class CardDefinitionTest {
                 name = "RealCardSource",
                 immediate =
                     "CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)], " +
-                        "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>], " +
+                        "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>], " +
                         "CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): ProjectCard) OR Ok)], " +
-                        "CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]",
+                        "CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]",
             )
         )
 
     card.immediate.toString() shouldBe
         "CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)], " +
-            "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>], " +
+            "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>], " +
             "CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): ProjectCard) OR Ok)], " +
-            "CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]"
+            "CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]"
     card.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>(
             "This: 2 ProjectCard, 2 ProjectCard, ProjectCard?, 2 ProjectCard FROM PlayedEvent?"
+        )
+    )
+  }
+
+  @Test
+  internal fun followModeNeutralizesCardAreaObservationsAndSelectedCardPlay() {
+    val card =
+        CardDefinition(
+            CardData(
+                name = "CardAreaSource",
+                immediate =
+                    "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>], " +
+                        "CARDS[2 / ProjectCard<Hand>], " +
+                        "CARDS[X ProjectCard<Revealed> FROM ProjectCard<Hand> THEN X ProjectCard<Hand> FROM ProjectCard<Revealed> THEN X], " +
+                        "CARDS[1 / CardBack<EventPile, Anyone>]",
+            )
+        )
+
+    card.immediate.toString() shouldBe
+        "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>], " +
+            "CARDS[2 / ProjectCard<Hand>], " +
+            "CARDS[X ProjectCard<Revealed> FROM ProjectCard<Hand> THEN X ProjectCard<Hand> FROM ProjectCard<Revealed> THEN X], " +
+            "CARDS[1 / CardBack<EventPile, Anyone>]"
+    card.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>(
+            "This: (3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>>), " +
+                "2 / ProjectCard, 1? / ProjectCard, 1 / PlayedEvent<Anyone>"
+        )
+    )
+  }
+
+  @Test
+  internal fun followModeNeutralizesEventPileMovements() {
+    val card =
+        CardDefinition(
+            CardData(
+                name = "EventPileSource",
+                immediate =
+                    "CARDS[CardBack<EventPile, Class<This>> FROM This], " +
+                        "CARDS[CardBack<Player, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>]",
+            )
+        )
+
+    card.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>(
+            "This: PlayedEvent<Class<This>> FROM This, " +
+                "PlayedEvent<Player, Class<This>> FROM PlayedEvent<Class<This>>"
         )
     )
   }
@@ -274,13 +321,28 @@ internal class CardDefinitionTest {
                 projectKind = "ACTIVE",
                 actions =
                     listOf(
-                        "-> CARDS[2 ProjectCard<Revealed> THEN 2 ProjectCard(HAS VenusTag) FROM ProjectCard<Revealed>. THEN BuyCards]"
+                        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]"
+                    ),
+            )
+        )
+    val fourCards =
+        CardDefinition(
+            CardData(
+                name = "FourCardPurchase",
+                deck = "PROJECT",
+                projectKind = "ACTIVE",
+                actions =
+                    listOf(
+                        "-> CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]"
                     ),
             )
         )
 
     single.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>("UseAction<This, First>: BuyCard?")
+    )
+    fourCards.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>("UseAction<This, First>: 4 BuyCard?")
     )
     revealed.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>("UseAction<This, First>: ProjectCard OR BuyCard?, ProjectCard OR BuyCard?")

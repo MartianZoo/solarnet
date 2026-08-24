@@ -49,7 +49,7 @@
       "deck": "CORPORATION",
       "tags": [ "CityTag", "EarthTag" ],
       "resourceType": "Science",
-      "immediate": "50, Mandate { -> 4 ProjectCard THEN -3 ProjectCard }",
+      "immediate": "50, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand> FROM ProjectCard<Selecting>] }",
       "effects": [
         "CardFront(HAS 2 Tag): Science<This>",
         "UseAction<StandardProject>:: AcceptFromCard<This>",
@@ -376,7 +376,7 @@
       "cost": 18,
       "tags": [ "VenusTag", "SpaceTag" ],
       "actions": [
-        "-> CARDS[2 ProjectCard<Revealed> THEN 2 ProjectCard(HAS VenusTag) FROM ProjectCard<Revealed>. THEN BuyCards]",
+        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]",
       ],
     },
 

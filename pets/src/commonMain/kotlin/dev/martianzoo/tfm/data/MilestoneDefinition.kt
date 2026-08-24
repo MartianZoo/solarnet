@@ -30,12 +30,15 @@ public data class MilestoneDefinition(
 
   public val requirement: Requirement = parse(requirementText)
 
+  private val executableRequirement: Requirement =
+      FollowModeNeutralizer.transformRequirement(requirement)
+
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
         className,
         kind = CONCRETE,
         supertypes = setOf(MILESTONE.expression),
-        properties = mapOf(REQUIREMENT_PROPERTY to RequirementValue(requirement)),
+        properties = mapOf(REQUIREMENT_PROPERTY to RequirementValue(executableRequirement)),
     )
   }
 

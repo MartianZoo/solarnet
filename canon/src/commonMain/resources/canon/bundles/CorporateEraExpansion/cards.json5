@@ -34,7 +34,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "actions": [ "-> BuyCard?" ],
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
     },
 
     {
@@ -402,7 +402,7 @@
       "projectKind": "AUTOMATED",
       "cost": 8,
       "tags": [ "EarthTag" ],
-      "immediate": "1 / PlayedEvent<Anyone>",
+      "immediate": "CARDS[1 / CardBack<EventPile, Anyone>]",
     },
 
     {
@@ -421,7 +421,7 @@
       "cost": 4,
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1]",
-      "actions": [ "-> BuyCard?" ],
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
     },
 
     {

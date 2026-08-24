@@ -238,10 +238,12 @@ Two related families should not be described more strongly than the implementati
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
   Docks use the action-qualified Trade signals to supply the selected payment resource. This is
   generic action dispatch, however, not a promise of one uniform later component Type.
-- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. It creates the base `Owed`
-  amount; Polyphemos and Terralabs Research modify that same debt automatically. Only then does it
-  create an invoice hosted by the live `BuyCards` component, which exposes payment and gates the
-  `ProjectCard` gain until settlement.
+- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. Each signal creates the base
+  `Owed` amount; Polyphemos and Terralabs Research react to that signal by adding or removing their
+  own `Owed`. Only then does it create an invoice hosted by the live `BuyCards` component, which
+  exposes payment and gates the follow-mode `ProjectCard` gain until settlement. In real-card mode,
+  `BuySelectedCards` broadcasts one `BuyCard` per remaining selected card and moves those exact
+  cards to `Hand` only after the invoice is paid.
 
 `Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
 not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,

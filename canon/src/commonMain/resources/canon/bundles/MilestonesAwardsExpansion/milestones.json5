@@ -27,7 +27,7 @@
     { "name": "Landshaper", "requirement": "CityTile, GreeneryTile, SpecialTile" },
 
     // Legend
-    { "name": "Legend4", "replaces": "Legend5", "requirement": "4 PlayedEvent" },
+    { "name": "Legend4", "replaces": "Legend5", "requirement": "CARDS[4 CardBack<EventPile>]" },
 
     // Lobbyist needs the unimplemented Turmoil delegate and party-leader rules.
     // { "name": "Lobbyist", "requirement": "..." },
