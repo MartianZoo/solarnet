@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Establish authoritative Quick Start handling for Industrial Complex; its production top-up is
+  redundant in that variant, but no replacement behavior has been established.
 - Preserve linked Type variables through English sequence rendering. Flooding's repeated `Anyone`
   already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
   stages currently lose that shared identity. Expose the existing semantic link and represent the

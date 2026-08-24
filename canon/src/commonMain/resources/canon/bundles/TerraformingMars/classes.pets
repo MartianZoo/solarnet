@@ -19,6 +19,11 @@ CLASS TerraformingMars : Module {
   Pay<Class<Titanium>>:: -3 Owed<>
 }
 
+"Starts each player with one production of every standard resource"
+CLASS QuickStartVariant : Module {
+  autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
+}
+
 // PLAYERS AND OWNERSHIP
 
 "One of the actual people or bots playing Terraforming Mars"
@@ -27,6 +32,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   This:: GrossHack<This> BY Engine
   SetupPhase:: 20 TerraformRating<This>
+  SetupPhase IF QuickStartVariant: PROD[Megacredit, Steel, Titanium, Plant, Energy, Heat]
   CorporationPhase:: CorporationCard
   ResearchPhase: CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
   MeasureAward<Award>:: AwardTally<Award> / EVAL Award.metric

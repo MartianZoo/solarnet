@@ -57,4 +57,18 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
     p1.count("Merchant") shouldBe 1
   }
+
+  @Test
+  internal fun `Producer22 requires combined production of twenty two`() {
+    newGame(GameConfig("Producer22, -CorporateEraExpansion", "Player1", "Player2"))
+    p1.manual("8 M")
+    engine.phase("Action")
+
+    shouldThrow<RequirementException> { p1.manual("Producer22") }
+
+    p1.manual("PROD[6 Megacredit, Steel, Titanium, Plant, Energy, Heat]")
+    p1.count("PROD[StandardResource]") shouldBe 22
+    p1.stdAction("ClaimMilestoneSA")
+    p1.count("Milestone") shouldBe 1
+  }
 }

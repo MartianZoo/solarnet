@@ -115,29 +115,43 @@ public open class TfmAuthority : Authority {
       "a game configuration cannot include and exclude the same class"
     }
 
-    val included = explicitlyIncluded.toMutableSet()
-    var changed: Boolean
-    do {
-      changed = false
+    var included = explicitlyIncluded
+    val seenSelections = mutableSetOf<Set<ClassName>>()
+    while (seenSelections.add(included)) {
+      val next = explicitlyIncluded.toMutableSet()
       modules.keys
-          .filter { moduleName -> moduleName !in included && moduleName !in explicitlyExcluded }
+          .filter { moduleName -> moduleName !in explicitlyExcluded }
           .forEach { moduleName ->
             val property = universe.getClass(moduleName).properties[AUTO_SELECT_WHEN]
             val requirement = (property as? RequirementValue)?.value ?: return@forEach
-            if (requirement.isMetBy { metric -> countConfigured(metric, included) }) {
-              changed = included.add(moduleName) || changed
+            if (
+                requirement.isMetBy { metric ->
+                  countConfigured(metric, included - moduleName)
+                }
+            ) {
+              next.add(moduleName)
             }
           }
       included
           .filter { it in modules }
           .flatMap { source -> constructivelySelectedModules(source, included) }
-          .forEach { target ->
-            require(target !in explicitlyExcluded) {
-              "active Module provenance selects excluded Module $target"
-            }
-            changed = included.add(target) || changed
+          .filter { target -> target !in explicitlyExcluded }
+          .forEach(next::add)
+      if (next == included) break
+      included = next
+    }
+    require(seenSelections.last() == included) {
+      "Module defaults do not converge: ${seenSelections.joinToString(" -> ")}"
+    }
+
+    included
+        .filter { it in modules }
+        .flatMap { source -> constructivelySelectedModules(source, included) }
+        .forEach { target ->
+          require(target !in explicitlyExcluded) {
+            "active Module provenance selects excluded Module $target"
           }
-    } while (changed)
+        }
 
     allDefinitions
         .filter { it.className in explicitlyIncluded }
@@ -214,7 +228,9 @@ public open class TfmAuthority : Authority {
           .filter { gain ->
             gain.target in modules &&
                 gain.requirements.all { requirement ->
-                  requirement.isMetBy { metric -> countConfigured(metric, configuredClassNames) }
+                  requirement.isMetBy { metric ->
+                    countConfigured(metric, configuredClassNames - gain.target)
+                  }
                 }
           }
           .mapTo(linkedSetOf()) { it.target }

@@ -417,11 +417,11 @@ internal class ScriptSessionTest {
         strip(repl.command("exec StripMine")).sorted(),
     )
 
-    val check1 = "has PROD[=2 Energy, =2 Steel]"
+    val check1 = "has PROD[=3 Energy, =3 Steel]"
     assertTrue(repl.command(check1).first().startsWith("true"))
 
     repl.command("become Player1")
-    val check2 = "has PROD[=0 Energy, =0 Steel]"
+    val check2 = "has PROD[=1 Energy, =1 Steel]"
     assertTrue(repl.command(check2).first().startsWith("true"))
   }
 
@@ -443,10 +443,10 @@ internal class ScriptSessionTest {
             "  Player1   TR: 20   Tiles: 0",
             "+---------+---------+---------+",
             "|  M:   8 |  S:   6 |  T:   7 |",
-            "| prod  9 | prod  8 | prod  7 |",
+            "| prod 10 | prod  9 | prod  8 |",
             "+---------+---------+---------+",
             "|  P:   5 |  E:   3    H:   9 |",
-            "| prod  6 | prod  5 | prod  4 |",
+            "| prod  7 | prod  6 | prod  5 |",
             "+---------+---------+---------+",
         ),
         board,

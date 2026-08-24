@@ -195,11 +195,29 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Corporate Era is a removable base-game default",
+                description = "removing Corporate Era selects Quick Start by default",
                 config = "-CorporateEraExpansion",
                 selectsExactly =
                     """
+                    TerraformingMars, QuickStartVariant, MultiplayerMode,
+                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
+                    """,
+            ),
+            Configuration(
+                description = "Quick Start can be removed with Corporate Era",
+                config = "-CorporateEraExpansion, -QuickStartVariant",
+                selectsExactly =
+                    """
                     TerraformingMars, MultiplayerMode,
+                    TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
+                    """,
+            ),
+            Configuration(
+                description = "Quick Start can be combined with Corporate Era",
+                config = "QuickStartVariant",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, QuickStartVariant, MultiplayerMode,
                     TharsisMap, TharsisDefaultMilestones, TharsisDefaultAwards
                     """,
             ),

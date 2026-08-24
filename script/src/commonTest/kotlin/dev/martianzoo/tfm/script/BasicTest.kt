@@ -30,11 +30,11 @@ internal class BasicTest {
     session.manual("StripMine")
     session.manual("PROD[-2 E, 2 S, T]")
 
-    assertEquals(0, session.count("PROD[E]"))
-    assertEquals(4, session.count("PROD[S]"))
-    assertEquals(2, session.count("PROD[T]"))
+    assertEquals(1, session.count("PROD[E]"))
+    assertEquals(5, session.count("PROD[S]"))
+    assertEquals(3, session.count("PROD[T]"))
 
-    assertTrue(game.tfm(PLAYER1).has("PROD[=0 E, =0 S]"))
+    assertTrue(game.tfm(PLAYER1).has("PROD[=1 E, =1 S]"))
   }
 
   @Test
@@ -112,14 +112,14 @@ internal class BasicTest {
     session.manual("2 TemperatureStep")
     assertEquals(2, session.count("TemperatureStep"))
     assertEquals(22, session.count("TerraformRating"))
-    assertEquals(0, session.count("Production<Class<Heat>>"))
+    assertEquals(1, session.count("Production<Class<Heat>>"))
 
     session.manual("2 TemperatureStep")
     assertEquals(24, session.count("TerraformRating"))
-    assertEquals(1, session.count("Production<Class<Heat>>"))
+    assertEquals(2, session.count("Production<Class<Heat>>"))
 
     session.manual("8 OxygenStep")
     assertEquals(33, session.count("TerraformRating"))
-    assertEquals(2, session.count("Production<Class<Heat>>"))
+    assertEquals(3, session.count("Production<Class<Heat>>"))
   }
 }

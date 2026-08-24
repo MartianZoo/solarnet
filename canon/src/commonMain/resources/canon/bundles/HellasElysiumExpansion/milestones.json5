@@ -20,6 +20,12 @@
       "milestones": [
         // Generalist
         { "name": "Generalist", "requirement": "PROD[6, Steel, Titanium, Plant, Energy, Heat]" },
+        {
+          "name": "Generalist2",
+          "replaces": "Generalist",
+          "requirement": "PROD[7, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat]",
+          "automaticSelectionRequirement": "QuickStartVariant",
+        },
         // Specialist
         // Search for GrossHack to understand this nonsense
         {

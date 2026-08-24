@@ -47,7 +47,8 @@ Authority reads them. There is no separate Kotlin Module object or special compo
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. A constructive self-gain in an active Module is also **active provenance** for a
 target Module: `A { This:: B }` lets A select B. A gated gain does so only when its Requirement is
-true over the growing selection. This closure is resolved before class projection. Initialization
+true in the settled selection after disregarding its own target. This selection is resolved before
+class projection. Initialization
 creates sources before their constructively selected targets, while still creating Modules needed
 to evaluate a source's gates first. Thus the declaration of A, rather than B or a central registry,
 owns “A causes B.” Other structural reachability may
@@ -56,8 +57,11 @@ exclusion.
 
 Module premise policy is authored with ordinary Requirement-valued Pets properties.
 `autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
-resolve to a fixed point and an explicit exclusion wins. By contrast, an explicit exclusion that
-contradicts an active constructive provenance edge makes the configuration invalid.
+resolve to an order-independent fixed point and an explicit exclusion wins. Each candidate's
+condition is evaluated without counting that candidate itself, and an automatic selection is
+retracted when later selections make its condition false. A nonconverging set of defaults is
+invalid. By contrast, an explicit exclusion that contradicts an active constructive provenance
+edge makes the configuration invalid.
 `premiseRequirement` is checked against the completed projection when that Module is selected.
 Module invariants provide the ordinary exact-count rules that are also meaningful in the live
 World. `Class<T>` representatives describe that already-fixed projection: required representatives
