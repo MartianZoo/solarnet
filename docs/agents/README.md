@@ -40,6 +40,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Autoexecution policy boundary, proofs, provenance, and performance | [AUTOEXEC.md](AUTOEXEC.md) | Settled design direction plus audit |
 | Authority-wide Class identity and game-filtered views | [CLASS_TABLES.md](CLASS_TABLES.md) | Current model |
 | Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
+| Target Gradle module and package ownership | [REORG.md](REORG.md) | Proposal |
 | Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |
 | Remaining implicit-variable work | [LINKAGES.md](LINKAGES.md) | Focused implementation note |
 | Integrating the `work1` AMAP model with `wildtag` | [WILDTAG_INTEGRATION.md](WILDTAG_INTEGRATION.md) | Temporary branch integration record |
