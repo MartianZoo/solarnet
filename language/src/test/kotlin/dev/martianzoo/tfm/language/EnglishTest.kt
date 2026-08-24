@@ -99,6 +99,12 @@ internal class EnglishTest {
   }
 
   @Test
+  fun compactAndExpandedTransmutationsRenderIdentically() {
+    english.describe(parse<InstructionTree>("2 Steel<Owner FROM Anyone>?")) shouldBe
+        english.describe(parse<InstructionTree>("2 Steel<Owner> FROM Steel<Anyone>?"))
+  }
+
+  @Test
   fun integratesPaymentPermissionIntoItsActionCost() {
     val card =
         CardDefinition(
