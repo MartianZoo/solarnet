@@ -1,4 +1,4 @@
-pluginManagement { includeBuild("build-logic") }
+pluginManagement { includeBuild("gradle/build-logic") }
 
 // Enable Build Scans
 // https://docs.gradle.org/current/userguide/github-actions.html#enable_build_scan_publishing

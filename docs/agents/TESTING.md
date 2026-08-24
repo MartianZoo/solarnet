@@ -40,7 +40,7 @@ faster while bounding the additional CPU and memory demand from concurrent test 
 
 ## Build configuration
 
-Convention plugins under `build-logic` are layered by responsibility. `solarnet.kotlin-base` owns
+Convention plugins under `gradle/build-logic` are layered by responsibility. `solarnet.kotlin-base` owns
 the policy shared by every Kotlin target: compilation, explicit API mode, dependency alignment,
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
