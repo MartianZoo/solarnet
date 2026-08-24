@@ -37,7 +37,8 @@ concrete expression.
 Module defaults, constructive active-provenance edges, and premise requirements are authored in
 Pets. The Authority resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
 requirement and configuration-facing invariants against the resolved projection before creating the
-World. Ambient Class ownership derives compatibility conditions from lowered Definitions. Bundle
+World. Ambient Class ownership derives compatibility conditions from source declarations and
+lowered structured data. Bundle
 availability locks ambient Classes behind their owning Modules, and exact uninhabited-domain
 viability checks reject impossible selected content before World construction.
 
@@ -45,6 +46,8 @@ Milestone requirements and award metrics are authored as Pets properties. Map-de
 abstract milestone or award superclasses whose nested concrete subclasses form the selected pool.
 An invariant authored directly on a goal constrains both its live usability and its automatic
 selection from a pool; Quick Start goal variants use complementary Module-count invariants.
+Canon derives goal names, pool membership, selection requirements, and compatibility directly from
+those declarations; there are no parallel goal metadata objects.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.

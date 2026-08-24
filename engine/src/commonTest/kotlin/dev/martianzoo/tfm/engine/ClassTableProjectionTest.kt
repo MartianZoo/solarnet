@@ -64,7 +64,7 @@ internal class ClassTableProjectionTest {
   }
 
   @Test
-  internal fun `concrete award definitions stay unloaded in solo`() {
+  internal fun `concrete award classes stay unloaded in solo`() {
     val award = baseSolo.classTable.getClass(cn("Award"))
 
     assertSame(Canon.classTable.getClass(cn("Award")), award)

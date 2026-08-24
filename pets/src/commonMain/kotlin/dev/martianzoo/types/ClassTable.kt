@@ -89,9 +89,7 @@ public abstract class ClassTable {
       require(reactivated.isEmpty()) {
         "structural activation conflicts with excluded classes: $reactivated"
       }
-      val selectedDefinitionNames =
-          roots intersect premise.authority.allDefinitions.mapTo(hashSetOf()) { it.className }
-      PremiseViability.validate(premise.authority, table, selectedDefinitionNames)
+      PremiseViability.validate(premise.authority, table, roots)
       return table
     }
   }

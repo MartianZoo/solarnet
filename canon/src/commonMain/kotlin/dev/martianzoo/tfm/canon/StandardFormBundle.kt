@@ -7,11 +7,9 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.api.BundleContentSelection
-import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -61,39 +59,6 @@ internal class StandardFormBundle(
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
     mapJsonResourceFiles().flatMapTo(linkedSetOf()) { filename ->
       JsonReader.readMaps(read(filename))
-    }
-  }
-
-  override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
-    goalDeclarations(cn("Milestone"))
-        .map { (declaration, group) ->
-          MilestoneDefinition.fromClassDeclaration(declaration, group)
-        }
-        .toSetStrict()
-  }
-
-  override val awardDefinitions: Set<AwardDefinition> by lazy {
-    goalDeclarations(cn("Award"))
-        .map { (declaration, group) -> AwardDefinition.fromClassDeclaration(declaration, group) }
-        .toSetStrict()
-  }
-
-  private fun goalDeclarations(
-      goalClass: ClassName,
-  ): List<Pair<ClassDeclaration, ClassName?>> {
-    val groups =
-        explicitClassDeclarations
-            .filter { declaration ->
-              declaration.abstract && declaration.supertypes.any { it.className == goalClass }
-            }
-            .mapTo(linkedSetOf(), ClassDeclaration::className)
-    return explicitClassDeclarations.mapNotNull { declaration ->
-      if (declaration.abstract) return@mapNotNull null
-      val superclasses = declaration.supertypes.map { it.className }
-      when {
-        goalClass in superclasses -> declaration to null
-        else -> superclasses.singleOrNull { it in groups }?.let { declaration to it }
-      }
     }
   }
 

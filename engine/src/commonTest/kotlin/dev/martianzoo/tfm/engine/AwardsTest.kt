@@ -6,7 +6,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestOption.*
@@ -22,8 +21,10 @@ internal class AwardsTest : TfmTest() {
   internal fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = Engine.newGame(canonicalPremise(players = 1))
 
-    game.reader.tfmAuthority.awardDefinitions
-        .filter { game.classTable.isActive(it.className) }
+    game.classTable
+        .getClass(cn("Award"))
+        .allSubclasses()
+        .filter { !it.abstract && game.classTable.isActive(it.className) }
         .shouldBeEmpty()
     game.classTable.isActive(cn("ClaimMilestoneSA")) shouldBe false
     game.classTable.isActive(cn("FundAwardSA")) shouldBe false

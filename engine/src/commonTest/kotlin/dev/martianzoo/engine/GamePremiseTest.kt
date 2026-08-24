@@ -190,8 +190,12 @@ internal class GamePremiseTest {
   internal fun soloModeDoesNotActivateDefaultGoalsOrMultiplayerGoalActions() {
     val table = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1"))).classTable
 
-    Canon.milestoneDefinitions.none { table.isActive(it.className) } shouldBe true
-    Canon.awardDefinitions.none { table.isActive(it.className) } shouldBe true
+    Canon.classTable.getClass(cn("Milestone")).allSubclasses().none {
+      table.isActive(it.className)
+    } shouldBe true
+    Canon.classTable.getClass(cn("Award")).allSubclasses().none {
+      table.isActive(it.className)
+    } shouldBe true
     table.isActive(cn("ClaimMilestoneSA")) shouldBe false
     table.isActive(cn("FundAwardSA")) shouldBe false
 

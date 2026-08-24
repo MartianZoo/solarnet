@@ -27,19 +27,19 @@ import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind
-import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardOperation
 import dev.martianzoo.tfm.data.FollowModeNeutralizer
 import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.tfm.data.TfmClasses
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.associateByStrict
 
-/** A Terraforming Mars Authority with typed registries for its structured definitions. */
+/**
+ * A Terraforming Mars Authority with declarations, structured card/map data, and selection rules.
+ */
 public open class TfmAuthority : Authority {
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
@@ -65,9 +65,12 @@ public open class TfmAuthority : Authority {
   }
 
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
-    (cardDefinitions + milestoneDefinitions + awardDefinitions)
-        .mapTo(linkedSetOf(), Definition::className)
-        .apply { addAll(colonyTileClassNames) }
+    buildSet {
+      cardDefinitions.mapTo(this, Definition::className)
+      addAll(goalClassNames(TfmClasses.MILESTONE))
+      addAll(goalClassNames(TfmClasses.AWARD))
+      addAll(colonyTileClassNames)
+    }
   }
 
   /** Organizational bundles from which this Authority is assembled. */
@@ -86,10 +89,11 @@ public open class TfmAuthority : Authority {
               }
             }
             if (availabilityModules.isNotEmpty()) {
-              // Content declarations retain Definition-driven selection even when authored in Pets.
               val definitionNames = bundle.allDefinitions.mapTo(hashSetOf(), Definition::className)
-              bundle.milestoneDefinitions.mapNotNullTo(definitionNames, Definition::selectionGroup)
-              bundle.awardDefinitions.mapNotNullTo(definitionNames, Definition::selectionGroup)
+              bundleClassesBelow(bundle, TfmClasses.MILESTONE, includeAbstract = true)
+                  .mapTo(definitionNames, ClassDeclaration::className)
+              bundleClassesBelow(bundle, TfmClasses.AWARD, includeAbstract = true)
+                  .mapTo(definitionNames, ClassDeclaration::className)
               val ambientClassNames =
                   bundle.explicitClassDeclarations
                       .map(ClassDeclaration::className)
@@ -180,6 +184,15 @@ public open class TfmAuthority : Authority {
             }
           }
         }
+    listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).forEach { goalClass ->
+      (explicitlyIncluded intersect goalClassNames(goalClass)).forEach { goalName ->
+        goalCompatibilityRequirement(goalName, goalClass)?.let { requirement ->
+          require(requirement.isMetBy { metric -> countConfigured(metric, included - goalName) }) {
+            "configured class $goalName is unavailable: $requirement"
+          }
+        }
+      }
+    }
 
     val moduleNames = included.filterTo(linkedSetOf()) { it in modules }
     val colonyNames = colonyTileClassNames
@@ -189,14 +202,14 @@ public open class TfmAuthority : Authority {
     val individualSelections = linkedMapOf<ClassName, Boolean>()
     individualNames.forEach { individualSelections[it] = true }
     (explicitlyExcluded - modules.keys).forEach { individualSelections[it] = false }
-    addExactDefinitionSelections(
+    addExactGoalSelections(
         individualSelections,
-        milestoneDefinitions,
+        goalClassNames(TfmClasses.MILESTONE),
         explicitlyIncluded,
     )
-    addExactDefinitionSelections(
+    addExactGoalSelections(
         individualSelections,
-        awardDefinitions,
+        goalClassNames(TfmClasses.AWARD),
         explicitlyIncluded,
     )
     val classSelections =
@@ -281,16 +294,32 @@ public open class TfmAuthority : Authority {
     return configuredName.takeIf { it in allClassNames }
   }
 
-  private fun addExactDefinitionSelections(
+  private fun addExactGoalSelections(
       selections: MutableMap<ClassName, Boolean>,
-      definitions: Set<Definition>,
+      goalNames: Set<ClassName>,
       explicitlyIncluded: Set<ClassName>,
   ) {
-    val definitionNames = definitions.mapTo(linkedSetOf(), Definition::className)
-    val selectedNames = explicitlyIncluded intersect definitionNames
+    val selectedNames = explicitlyIncluded intersect goalNames
     if (selectedNames.isEmpty()) return
-    definitionNames.forEach { selections[it] = it in selectedNames }
+    goalNames.forEach { selections[it] = it in selectedNames }
   }
+
+  private fun goalClassNames(goalClass: ClassName): Set<ClassName> =
+      bundles
+          .flatMap { bundle -> bundleClassesBelow(bundle, goalClass) }
+          .mapTo(linkedSetOf(), ClassDeclaration::className)
+
+  private fun bundleClassesBelow(
+      bundle: Bundle,
+      superclass: ClassName,
+      directOnly: Boolean = false,
+      includeAbstract: Boolean = false,
+  ): List<ClassDeclaration> =
+      bundle.explicitClassDeclarations.filter { declaration ->
+        (includeAbstract || !declaration.abstract) &&
+            if (directOnly) declaration.supertypes.any { it.className == superclass }
+            else isSubtypeOf(declaration.className, superclass)
+      }
 
   // CLASS DECLARATIONS
 
@@ -322,8 +351,6 @@ public open class TfmAuthority : Authority {
   final override val allDefinitions: Set<Definition> by lazy {
     setOf<Definition>() +
         cardDefinitions +
-        awardDefinitions +
-        milestoneDefinitions +
         marsMapDefinitions +
         marsMapDefinitions.flatMap(MarsMapDefinition::areas)
   }
@@ -380,16 +407,18 @@ public open class TfmAuthority : Authority {
             add(ClassSelection(map.className))
             map.areas.forEach { area -> add(ClassSelection(area.className)) }
             map.defaultMilestones?.let { group ->
-              val definitions = owner.milestoneDefinitions.filter { it.selectionGroup == group }
-              addDefinitions(
-                  definitions,
+              val goals = bundleClassesBelow(owner, group)
+              addGoals(
+                  goals,
+                  TfmClasses.MILESTONE,
                   parse("MultiplayerMode, MAX 0 Milestone"),
               )
             }
             map.defaultAwards?.let { group ->
-              val definitions = owner.awardDefinitions.filter { it.selectionGroup == group }
-              addDefinitions(
-                  definitions,
+              val goals = bundleClassesBelow(owner, group)
+              addGoals(
+                  goals,
+                  TfmClasses.AWARD,
                   parse("MultiplayerMode, MAX 0 Award"),
               )
             }
@@ -451,12 +480,12 @@ public open class TfmAuthority : Authority {
       }
     }
     if (Kind.MILESTONES in kinds) {
-      val definitions = bundle.milestoneDefinitions.filter { it.selectionGroup == null }
-      addDefinitions(definitions)
+      val goals = bundleClassesBelow(bundle, TfmClasses.MILESTONE, directOnly = true)
+      addGoals(goals, TfmClasses.MILESTONE)
     }
     if (Kind.AWARDS in kinds) {
-      val definitions = bundle.awardDefinitions.filter { it.selectionGroup == null }
-      addDefinitions(definitions)
+      val goals = bundleClassesBelow(bundle, TfmClasses.AWARD, directOnly = true)
+      addGoals(goals, TfmClasses.AWARD)
     }
     if (Kind.COLONY_TILES in kinds) {
       bundle.explicitClassDeclarations
@@ -482,12 +511,50 @@ public open class TfmAuthority : Authority {
     }
   }
 
+  private fun MutableSet<ClassSelection>.addGoals(
+      goals: Collection<ClassDeclaration>,
+      goalClass: ClassName,
+      sharedRequirement: Requirement? = null,
+  ) {
+    goals.mapTo(this) { declaration ->
+      ClassSelection(
+          declaration.className,
+          requirement =
+              Requirement.join(
+                  sharedRequirement,
+                  goalAutomaticSelectionRequirement(declaration, goalClass),
+              ),
+      )
+    }
+  }
+
   private fun automaticSelectionRequirement(definition: Definition): Requirement? {
     return Requirement.join(
         definition.automaticSelectionRequirement,
         bundleCompatibilityRequirement(definition),
     )
   }
+
+  private fun goalAutomaticSelectionRequirement(
+      declaration: ClassDeclaration,
+      goalClass: ClassName,
+  ): Requirement? =
+      Requirement.join(
+          Requirement.join(
+              if (goalClass == TfmClasses.AWARD) MULTIPLAYER_ONLY else null,
+              declaration.invariants.fold<Requirement, Requirement?>(null, Requirement::join),
+          ),
+          bundleCompatibilityRequirement(declaration.className, listOf(declaration)),
+      )
+
+  private fun goalCompatibilityRequirement(
+      className: ClassName,
+      goalClass: ClassName,
+  ): Requirement? =
+      Requirement.join(
+          if (goalClass == TfmClasses.AWARD) MULTIPLAYER_ONLY else null,
+          bundleCompatibilityRequirement(className, listOf(classDeclaration(className))),
+      )
 
   private fun compatibilityRequirement(definition: Definition): Requirement? =
       Requirement.join(
@@ -499,13 +566,20 @@ public open class TfmAuthority : Authority {
     val declarations =
         listOf(definition.asClassDeclaration) +
             if (definition is CardDefinition) definition.extraClasses else emptyList()
+    return bundleCompatibilityRequirement(definition.className, declarations)
+  }
+
+  private fun bundleCompatibilityRequirement(
+      className: ClassName,
+      declarations: List<ClassDeclaration>,
+  ): Requirement? {
     val referencedClassNames =
         declarations
             .flatMap { it.allNodes }
             .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
-            .filter { it != definition.className && it in allClassNames }
+            .filter { it != className && it in allClassNames }
     val derived =
-        listOfNotNull(availabilityRequirement(definition.className)) +
+        listOfNotNull(availabilityRequirement(className)) +
             referencedClassNames.mapNotNull(::availabilityRequirement)
     return derived.fold<Requirement, Requirement?>(null, Requirement::join)
   }
@@ -591,18 +665,6 @@ public open class TfmAuthority : Authority {
 
   public open val marsMapDefinitions: Set<MarsMapDefinition> = emptySet()
 
-  private fun milestone(name: ClassName): MilestoneDefinition = milestoneDefinitions.first {
-    it.className == name
-  }
-
-  public open val milestoneDefinitions: Set<MilestoneDefinition> = emptySet()
-
-  private fun award(name: ClassName): AwardDefinition = awardDefinitions.first {
-    it.className == name
-  }
-
-  public open val awardDefinitions: Set<AwardDefinition> = emptySet()
-
   // CUSTOM CLASSES
 
   override val explicitClassDeclarations: Set<ClassDeclaration> = emptySet()
@@ -619,6 +681,7 @@ public open class TfmAuthority : Authority {
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
+    private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
 
     private fun <D : Definition> validateReplacements(
         definitions: Collection<D>,
@@ -680,14 +743,6 @@ public open class TfmAuthority : Authority {
 
     override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
       authorities.flatMapTo(linkedSetOf(), TfmAuthority::marsMapDefinitions)
-    }
-
-    override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
-      authorities.flatMapTo(linkedSetOf(), TfmAuthority::milestoneDefinitions)
-    }
-
-    override val awardDefinitions: Set<AwardDefinition> by lazy {
-      authorities.flatMapTo(linkedSetOf(), TfmAuthority::awardDefinitions)
     }
 
     override val customClasses: Set<CustomClass> by lazy {

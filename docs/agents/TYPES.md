@@ -455,8 +455,9 @@ conservatively reachable. Known declarations outside the closure become uninhabi
 projection freezes.
 
 An ambient Class owned by an unavailable Bundle cannot be activated by a hard reference. After
-closure, premise construction rejects selected Definitions whose Requirement-valued entry
-condition is exactly false or whose reachable mandatory removal targets an uninhabited Type. See
+closure, premise construction rejects selected root Classes whose `requirement` entry condition is
+exactly false, and rejects selected structured content whose reachable mandatory removal targets an
+uninhabited Type. See
 [OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
 
 ## 12. Known divergences
