@@ -37,6 +37,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   resulting components.
 - Restrict `TfmGameplay.stdAction` to actual `StandardAction` providers; give other live
   `HasActions` components a correctly named gameplay operation instead.
+- Represent a payment as one auditable allocation: record every tender and every rule's full value,
+  reject excess that is not smaller than every payment-unit value used, and only then consume the
+  exact `Owed` amount. Confirm the precise excess-payment rule from an authoritative Jacob
+  Fryxelius ruling before committing that legality test; do not derive attribution from automatic
+  effect order. See [`PAYMENTS.md`](docs/agents/PAYMENTS.md) for the concerns and candidate designs.
 - **Medium priority:** Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.

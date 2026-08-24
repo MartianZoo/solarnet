@@ -5,6 +5,29 @@ official game, but whose Pets meaning is technically different. Each creates an 
 content that ignores the rule can expose the representation. Known incorrect behavior and intended
 repairs belong in [`TODO.md`](TODO.md), not here.
 
+## Known incorrect behavior
+
+### Payment may spend more value than the remaining debt permits
+
+`Pay` and `PayFromCard` remove the selected resources immediately. Their automatic effects then
+remove as much `Owed` as remains. A same-denomination `Pay` removes one per resource; substitute
+rules provide their exchange values, such as two for Steel and three for Titanium; and Advanced
+Alloys, Phobolog, Psychrophiles, and Kuiper Cooperative supply further value. Once the debt reaches
+zero, later value simply has no component to remove. The invoice settles successfully even when the
+selected resource combination therefore spends more value than the rules permit.
+
+The event history retains the resource spend and each actual `Owed` removal, but it contains no
+explicit amount of excess value and no gameplay state that can reject the complete allocation.
+`TfmGameplay.pay` rejects common excess payments before submitting them, but direct task selection
+can bypass that client check. The known Space Elevator scenario in `BugsTest` demonstrates this.
+
+Attribution is also unreliable at the final units of debt. A signal's self-effect, where applicable,
+is handled before effects owned by other components; multiple exchange-value effects receive only
+whatever `Owed` remains when each happens to execute. Automatic-effect registration order is not a
+game rule. A future payment model should record every contribution in full and validate the
+completed allocation before consuming the exact debt. The concerns and candidate designs are
+developed in [`PAYMENTS.md`](PAYMENTS.md).
+
 ## Cross-cutting representations
 
 ### 1. M€ production is stored five above the printed value

@@ -22,6 +22,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Authorities, Modules, configuration, and premises | [OPTIONS.md](OPTIONS.md) | Current model |
 | Task ordering, completion, `THEN`, automatic effects, and barriers | [SEQUENCING.md](SEQUENCING.md) | Working rules and audit |
 | Pets `Action` costs and invoices | [ACTIONS.md](ACTIONS.md) | Current model |
+| Payment allocation, excess, attribution, and candidate repairs | [PAYMENTS.md](PAYMENTS.md) | Audit and proposal |
 | Commands and test design | [TESTING.md](TESTING.md) | Current procedure |
 | JVM test performance baseline and hotspots | [JVM_TEST_PERFORMANCE.md](JVM_TEST_PERFORMANCE.md) | Research note |
 | Kotlin declaration accessibility | [VISIBILITY.md](VISIBILITY.md) | Working rules and current procedure |
