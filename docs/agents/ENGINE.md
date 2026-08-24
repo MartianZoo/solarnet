@@ -37,9 +37,9 @@ concrete expression.
 Module defaults, constructive active-provenance edges, and premise requirements are authored in
 Pets. The Authority resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
 requirement and configuration-facing invariants against the resolved projection before creating the
-World. Class automatic-selection requirements derive bundle-content conditions from lowered
-Definitions. Activation requirements lock ambient Classes behind their Modules, and exact
-uninhabited-domain viability checks reject impossible selected content before World construction.
+World. Ambient Class ownership derives compatibility conditions from lowered Definitions. Bundle
+availability locks ambient Classes behind their owning Modules, and exact uninhabited-domain
+viability checks reject impossible selected content before World construction.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.

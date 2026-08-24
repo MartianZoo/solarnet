@@ -446,10 +446,10 @@ entire Award domain remain uninhabited. Anything the analysis cannot prove unrea
 conservatively reachable. Known declarations outside the closure become uninhabited when the
 projection freezes.
 
-An activation requirement prevents a hard reference from activating its Class until the named
-Module condition holds. After closure, premise construction rejects selected Definitions whose
-Requirement-valued entry condition is exactly false or whose reachable mandatory removal targets
-an uninhabited Type. See [OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
+An ambient Class owned by an unavailable Bundle cannot be activated by a hard reference. After
+closure, premise construction rejects selected Definitions whose Requirement-valued entry
+condition is exactly false or whose reachable mandatory removal targets an uninhabited Type. See
+[OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
 
 ## 12. Known divergences
 

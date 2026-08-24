@@ -18,9 +18,6 @@ CLASS WorldGovernmentOption : Module {
 
 "Represents a 2% increase in Venus... terraformedness"
 CLASS VenusStep : GlobalParameter {
-  automaticSelectionRequirement = HAS "VenusNextExpansion"
-  activationRequirement = HAS "VenusNextExpansion"
-
   HAS MAX 15 This
 
   This IF =15 This:: GpComplete<Class<This>>
@@ -29,8 +26,4 @@ CLASS VenusStep : GlobalParameter {
 }
 
 CLASS VenusTag : PlanetTag {
-  automaticSelectionRequirement = HAS "VenusNextExpansion"
 }
-
-"Asks the first player where an ocean is placed while preserving the performing Player"
-CLASS FirstPlayerOcean<Player> : Signal

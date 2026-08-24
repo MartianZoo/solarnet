@@ -20,6 +20,10 @@ public interface Definition : HasClassName {
   public val automaticSelectionRequirement: Requirement?
     get() = null
 
+  /** Non-bundle condition that explicit and automatic selection must both satisfy. */
+  public val compatibilityRequirement: Requirement?
+    get() = null
+
   /**
    * Converts this definition to a class declaration. As much information as possible should be
    * represented appropriately as properties or effects of the class, so that custom behavior does

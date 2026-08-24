@@ -18,9 +18,6 @@ CLASS ColoniesSetup : Custom
 
 "A colony tile, such as Pluto"
 ABSTRACT CLASS ColonyTile {
-  automaticSelectionRequirement = HAS "ColoniesExpansion"
-  activationRequirement = HAS "ColoniesExpansion"
-
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 FlownTradeFleet<This>
 
   This:: ColonyProduction<This>
@@ -31,9 +28,6 @@ ABSTRACT CLASS ColonyTile {
 
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned<Player> {
-  automaticSelectionRequirement = HAS "ColoniesExpansion"
-  activationRequirement = HAS "ColoniesExpansion"
-
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
   FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses:: GiveColonyBonus<ColonyTile>
 }

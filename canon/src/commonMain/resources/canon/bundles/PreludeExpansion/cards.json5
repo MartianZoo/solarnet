@@ -28,7 +28,6 @@
     {
       "name": "ValleyTrust",
       "deck": "CORPORATION",
-      "activationRequirement": "PreludeDeck",
       "tags": [ "EarthTag" ],
       "immediate": "37, Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<>" ],

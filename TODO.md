@@ -179,6 +179,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- If real content ever references a helper belonging only to the other map in a two-map Bundle,
+  split that Bundle at the selection boundary instead of adding per-Class availability metadata.
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
   `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
   so there is one implementation and one source of domain context.

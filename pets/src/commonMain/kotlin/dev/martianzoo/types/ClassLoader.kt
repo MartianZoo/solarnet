@@ -10,7 +10,6 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.data.ClassProperties.ACTIVATION_REQUIREMENT
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -31,7 +30,6 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 
 /**
@@ -42,7 +40,7 @@ public class ClassLoader
 private constructor(
     private val authority: Authority,
     private val masterSource: ClassTable?,
-    private val blockedActivations: Map<ClassName, Requirement> = emptyMap(),
+    private val blockedActivations: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
 ) : ClassTable() {
@@ -155,11 +153,11 @@ private constructor(
     while (queue.isNotEmpty()) {
       while (queue.isNotEmpty()) {
         val next = queue.removeFirst()
-        blockedActivations[next]?.let { requirement ->
+        blockedActivations[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
           val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
           throw IllegalArgumentException(
-              "broken game premise: $path; activation requirement is not met: $requirement"
+              "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
           )
         }
         loadRelated(next, active = true)
@@ -518,21 +516,12 @@ private constructor(
       require(masterTable.masterTable === masterTable) {
         "Authority class table is not a master table"
       }
-      fun countConfigured(metric: Metric): Int {
-        require(metric is Count && metric.expression.simple) {
-          "Class activation requirements must count simple classes: $metric"
-        }
-        val countedClass = masterTable.getClass(metric.expression.className)
-        return configuredModuleNames.count { configuredName ->
-          masterTable.getClass(configuredName).isSubtypeOf(countedClass)
-        }
-      }
       val blocked =
-          authority.allClassNames
-              .mapNotNull { className ->
-                val property = masterTable.getClass(className).properties[ACTIVATION_REQUIREMENT]
-                val requirement = (property as? RequirementValue)?.value ?: return@mapNotNull null
-                (className to requirement).takeUnless { requirement.isMetBy(::countConfigured) }
+          authority.classAvailabilityModules
+              .mapNotNull { (className, availabilityModules) ->
+                (className to availabilityModules).takeIf {
+                  availabilityModules.intersect(configuredModuleNames).isEmpty()
+                }
               }
               .toMap()
       return ClassLoader(

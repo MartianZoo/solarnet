@@ -131,8 +131,9 @@ registry to restate their ownership.
 
 ## Settled projection-policy direction
 
-**Status: current.** Constructive reachability, the two Class policies, exact-uninhabited premise
-viability, and explicit Module ownership of externally issued protocols are implemented.
+**Status: current.** Constructive reachability, bundle-derived ambient compatibility,
+exact-uninhabited premise viability, and explicit Module ownership of externally issued protocols
+are implemented.
 
 ### Goals
 
@@ -144,8 +145,8 @@ Projection is premise semantics, not dead-code optimization. It must simultaneou
    game without importing the feature that introduced it.
 3. **Derived content compatibility.** Cards, milestones, awards, and similar Definitions should not
    repeat expansion prerequisites already implied by the Classes they reference.
-4. **Deliberate composition.** A user may manually include automatically filtered content when it
-   remains meaningful under the resulting projection.
+4. **Faithful content.** Explicit selection must not bypass an expansion dependency and leave a
+   card executable but materially unlike itself.
 5. **Early explanation.** Premise construction should distinguish content that is incompatible from
    content that is merely impossible to instantiate.
 
@@ -154,63 +155,49 @@ known but its domain is provably empty in this game. Because that is genuine pre
 Active Classes to enumerate the selected milestone or award pool is principled rather than an
 optimization leak.
 
-### Two independent Class policies
+### Bundle-derived ambient compatibility
 
-"From an expansion" is not bundle provenance and cannot be one Boolean property. A Class may carry
-two independent Module conditions:
+A Bundle with a same-named Module makes its ambient declarations available through that Module. A
+map Bundle without a same-named Module uses the disjunction of its map Modules. A data-only Bundle
+with neither has no implicit availability boundary. This convention covers ordinary expansions,
+single-map Bundles, and the two-map Hellas/Elysium and Utopia/Cimmeria Bundles without per-Class
+properties.
 
-- Its **automatic-selection requirement** says which Module must be selected before ordinary bundle
-  policy includes content that semantically references the Class.
-- Its **activation requirement** says which Module must be selected before a hard reference may make
-  the Class active at all.
+Availability is not activation. Selecting `TerraformingMars` makes its ambient vocabulary,
+including `MultiplayerMode`, available, while the selected player-count Module still decides which
+mode is active. A nonconstructive gate or Trigger may mention an available but uninhabited Class and
+go silent intentionally. This keeps mode-conditional cards such as Vitor available in Solo;
+compatibility does not promise that every conditional branch executes in every game.
 
-An activation requirement always contributes the same condition to automatic selection. The
-converse does not hold: a Class can filter ordinary content selection while remaining pullable by
-an explicit composition. Generated Content Classes do not acquire either condition merely from the
-Bundle that stores them; otherwise individual content could never be composed deliberately.
+The boundary applies to hand-authored Class declarations and structured standard-action
+declarations. Cards, maps, areas, milestones, awards, colony tiles, and card-local generated
+Classes remain independently selectable content; merely residing in an expansion Bundle does not
+make a Definition expansion-dependent. Module Classes are never availability-locked: premise
+selection alone decides whether a Module is active.
 
-| Class | Automatic-selection requirement | Activation requirement | Without Venus Next |
-|---|---|---|---|
-| `WorldGovernmentTerraforming` | none | none | A hard reference activates the shared mechanism. |
-| `VenusTag` | `VenusNextExpansion` | none | Automatic content is filtered, but a manual hard reference may activate the tag. |
-| `VenusStep` | `VenusNextExpansion` | `VenusNextExpansion` | It remains uninhabited; no reference may manufacture the Venus track. |
+For content compatibility, inspect every semantic Class reference in the Definition's lowered
+declaration. Ordinary Module selection conjoins the owning Bundle Modules of those ambient Classes
+with the Definition's authored automatic-selection condition. An explicit individual inclusion
+must satisfy the derived Bundle condition and any separate non-Bundle compatibility condition, but
+may still override ordinary pool-selection policy. Thus a Colonies card that only counts colonies
+is just as Colonies-dependent as one that places a colony.
 
-`PreludeCard` needs no authored selection property. Either published Prelude Module owns its Bundle
-cards, whose deck declarations naturally activate their shared card back. Valley Trust carries an
-activation requirement for `PreludeDeck`, so selecting it without either published deck rejects the
-premise instead of creating a mandate with no concrete Prelude front to choose.
+`VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make
+referencing content Venus-dependent. `WorldGovernmentTerraforming` and `FirstPlayerOcean` are shared
+protocols in the base Bundle, so `WorldGovernmentOption` and non-Venus cards may use them without
+enabling Venus Next. `PreludeCard` belongs to the Prelude Bundle; Valley Trust's mandate reference
+therefore derives its Prelude dependency without a card property.
 
-Concrete award Definitions have automatic- and activation requirements for `MultiplayerMode`.
-Solo projection therefore leaves every concrete award class uninhabited, and explicit selection
-cannot bypass that boundary.
+Concrete awards retain their authored multiplayer-only condition. Explicit selection checks that
+condition too, so solo cannot bypass the boundary.
 
-This classification is semantic. `WorldGovernmentTerraforming` was first used by Venus but works
-over whichever Global Parameters the projection supplies; `WorldGovernmentOption` can therefore be
-selected without Venus Next, and Prelude 2 can use the shared mechanism. `VenusTag` is meaningful
-as standalone card vocabulary. `VenusStep` represents one part
-of the Venus expansion's ambient game state and is not meaningful without that Module.
-
-### Two analyses of a Definition
-
-Automatic selection and projection closure ask different questions and must not share one coarse
-"mentions" test.
-
-For **automatic content selection**, inspect every semantic Class reference in the Definition's
-lowered declaration. Conjoin the referenced Classes' automatic-selection requirements with the
-Definition's authored automatic-selection condition. This derives today's repeated `VenusTag`,
-`VenusStep`, and `Colony` expansion conditions. Named content groups and their source Module effects
-express default-pool facts such as which map prints a milestone or award. Authored automatic-
-selection conditions record only remaining nonderivable availability facts; they do not restate an
-expansion condition already implied by referenced Classes.
-
-An explicit individual inclusion overrides this automatic content filter. It does not override a
-Class's activation requirement.
+### Projection closure
 
 For **projection closure**, classify references by what execution demands:
 
 - Structural positions such as supertypes and Dependency bounds, constructive positions such as a
   gain or transmutation destination, deck identity, and Custom implementation dependencies are hard
-  references. A hard reference activates a pullable Class.
+  references. A hard reference activates an available Class.
 - Counts, Metrics, Requirements, Triggers, Complements, and nonconstructive changes do not by
   themselves activate their referenced Classes. An uninhabited Class contributes an exactly empty
   domain.
@@ -222,7 +209,7 @@ The loader applies this systemic role-and-reachability rule instead of treating 
 activation edge. It rechecks the closure as Classes activate and proves false gates from exact zero
 counts over uninhabited Types. Trigger positions are wholly nonconstructive: Terraforming Mars and
 Solo mode explicitly own the protocol Classes issued by workflow and gameplay APIs. A hard
-reference to a Class whose activation requirement is false rejects the premise as broken.
+reference to an ambient Class whose owning Bundle is unavailable rejects the premise as broken.
 
 The important cases then fall out without card-specific rules:
 
@@ -230,13 +217,12 @@ The important cases then fall out without card-specific rules:
 |---|---|---|
 | Count, `MAX 5`, or Trigger | Does not activate it | Exact zero, true upper bound, or permanently silent Trigger; still viable |
 | Positive `MIN` needed to instantiate or play the content | Does not activate it | Lawful but impossible; unviable |
-| Reachable gain or other constructive use | Activates it if pullable | Broken if an activation requirement keeps it uninhabited |
+| Reachable gain or other constructive use | Activates it if available | Broken if its owning Bundle keeps it unavailable |
 | Constructive use below a provably false Trigger | Does not activate it | Unreachable and therefore harmless |
 
 ### Viable, unviable, and broken content
 
-Manual inclusion can bypass automatic filtering, after which premise validation assigns one of
-three outcomes:
+Compatible selected content can still have one of three projection outcomes:
 
 - **Viable:** the Definition can participate faithfully. References to uninhabited Types may count
   zero, make a `MAX 5` Requirement true, or make a Trigger permanently silent.
@@ -244,8 +230,7 @@ three outcomes:
   complete a reachable mandatory entry point. A positive `MIN` play Requirement over uninhabited
   `VenusStep` is the canonical case. A reachable mandatory removal from a permanently empty domain
   has the same character.
-- **Broken:** reachable behavior demands a Class whose activation requirement is unsatisfied. An
-  unconditional `VenusStep` gain without `VenusNextExpansion` is the canonical case.
+- **Broken:** reachable behavior demands an ambient Class whose owning Bundle is unavailable.
 
 Premise construction rejects both unviable and broken selected content, with different diagnostics.
 It must not silently activate a locked Class or defer an inevitable failure until gameplay.
@@ -261,18 +246,18 @@ projection change.
 The premise pipeline is:
 
 1. Resolve Modules, defaults, and explicit exclusions.
-2. Derive automatic Definition conditions from all semantic references and filter bundle-selected
+2. Derive Definition compatibility from all semantic references and filter bundle-selected
    content.
-3. Apply explicit individual content inclusions and exclusions.
-4. Form the active closure from roots and reachable hard references, respecting activation
-   requirements and exclusions.
+3. Apply explicit individual content inclusions and exclusions, rejecting incompatible inclusions.
+4. Form the active closure from roots and reachable hard references, respecting Bundle availability
+   and exclusions.
 5. Leave every other Authority-known Class uninhabited.
 6. Validate selected content for viability and report unviable and broken paths separately.
 
 A future retained analysis result should explain every decision, including which reference derived
 an automatic exclusion and the complete hard-reference path that activated or rejected a Class.
-Current failures identify the selected Definition or immediate hard-reference source and the exact
-false requirement.
+Current failures identify the selected Definition or immediate hard-reference source and the
+missing owning Module.
 
 ## Non-Canon Kotlin expansion-coupling audit
 
