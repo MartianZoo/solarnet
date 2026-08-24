@@ -350,6 +350,8 @@ internal object TerraformingMarsDescribers {
             ),
         klass("GiveColonyBonuses") to
             ComponentDescriber(changeFrame = Frame.Procedure("gain", "all your colony bonuses")),
+        klass("ColonyTileSelection") to
+            ComponentDescriber(changeFrame = Frame.Procedure("add", "a colony tile")),
         klass("Mandate") to ComponentDescriber(changeFrame = Frame.Wrapper("as your first action")),
         klass("Award") to
             ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),

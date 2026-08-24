@@ -40,7 +40,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     val ellie = game.tfm(Player.PLAYER1)
     val dad = game.tfm(Player.PLAYER2)
     // "Miranda and Enceladus are currently out of play."
-    engine.assertCounts(3 to "ColonyTile", 2 to "DelayedColonyTile")
+    engine.assertCounts(3 to "ColonyTile", 5 to "ColonyTileSelection")
 
     // (11:28 am) "The game is beginning. It is Generation 1."
     engine.assertCounts(1 to "Generation")

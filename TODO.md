@@ -195,6 +195,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Replace the remaining colony-specific premise plumbing (`COLONY_TILES` and initial tile discovery)
+  only when one general configured-starting-component model can preserve both selected starting
+  tiles and unselected tiles available for mid-game addition.
+
 - Make `FollowModeNeutralizer` consume the shared `CardOperation` semantic view; it currently keeps
   a separate recognizer because it also handles transformed card metrics and requirements.
 - If real content ever references a helper belonging only to the other map in a two-map Bundle,

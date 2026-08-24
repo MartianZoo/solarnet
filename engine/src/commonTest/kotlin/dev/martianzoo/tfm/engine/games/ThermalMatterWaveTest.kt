@@ -16,7 +16,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       GameConfig(
           """
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack, Tr63SoloVariant
-          Ceres, Io, Triton
+          Ceres, Io, Miranda, Triton
           """,
           "Player1",
       )
@@ -28,6 +28,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
   @Test
   internal fun game20260730() {
     with(me) {
+      doTask("-ColonyTileSelection<Class<Miranda>>")
+
       playCorp(CrediCor) {
         buyCards(
             CryoSleep,

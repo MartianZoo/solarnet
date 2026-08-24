@@ -4,6 +4,7 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassSelection
@@ -26,7 +27,6 @@ import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind
 import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.FollowModeNeutralizer
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
@@ -54,10 +54,9 @@ public open class TfmAuthority : Authority {
   }
 
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
-    (cardDefinitions + milestoneDefinitions + awardDefinitions + colonyTileDefinitions).mapTo(
-        linkedSetOf(),
-        Definition::className,
-    )
+    (cardDefinitions + milestoneDefinitions + awardDefinitions)
+        .mapTo(linkedSetOf(), Definition::className)
+        .apply { addAll(colonyTileClassNames) }
   }
 
   /** Organizational bundles from which this Authority is assembled. */
@@ -166,7 +165,7 @@ public open class TfmAuthority : Authority {
         }
 
     val moduleNames = included.filterTo(linkedSetOf()) { it in modules }
-    val colonyNames = colonyTileDefinitions.mapTo(hashSetOf(), Definition::className)
+    val colonyNames = colonyTileClassNames
     val individualNames = included - moduleNames
     validateSelectedReplacements(moduleNames, included)
 
@@ -190,16 +189,10 @@ public open class TfmAuthority : Authority {
               ClassSelection(className, included)
             }
     val initialTypes =
-        individualNames
-            .filter { it in colonyNames }
-            .mapTo(linkedSetOf()) { className ->
-              val resourceType = colonyTile(className).resourceType
-              if (resourceType == null) {
-                className.expression
-              } else {
-                DELAYED_COLONY_TILE.of(className.classExpression(), resourceType.classExpression())
-              }
-            }
+        individualNames.filter { it in colonyNames }.mapTo(linkedSetOf(), ::initialColonyTileType)
+    if (canonicalPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
+      initialTypes.add(SOLO_COLONIES_SETUP.of(canonicalPlayerNames.single().expression))
+    }
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }
@@ -242,6 +235,22 @@ public open class TfmAuthority : Authority {
       universe.getClass(configuredName).isSubtypeOf(countedClass)
     }
   }
+
+  /** Authority-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
+  public val colonyTileClassNames: Set<ClassName> by lazy {
+    val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
+    colonyTile.allSubclasses().filterNot { it.abstract }.mapTo(linkedSetOf()) { it.className }
+  }
+
+  private fun initialColonyTileType(className: ClassName) =
+      requireNotNull(
+              universe
+                  .resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
+                  .singleConcreteSubtype(NoGameState)
+          ) {
+            "ColonyTileSelection<Class<$className>> must have exactly one concrete representation"
+          }
+          .expression
 
   private fun resolveConfigurationNames(names: Iterable<ClassName>): Set<ClassName> =
       names.mapTo(linkedSetOf()) { configuredName ->
@@ -299,7 +308,6 @@ public open class TfmAuthority : Authority {
         cardDefinitions +
         awardDefinitions +
         milestoneDefinitions +
-        colonyTileDefinitions +
         marsMapDefinitions +
         marsMapDefinitions.flatMap(MarsMapDefinition::areas)
   }
@@ -452,7 +460,15 @@ public open class TfmAuthority : Authority {
           AwardDefinition::replaces,
       )
     }
-    if (Kind.COLONY_TILES in kinds) addDefinitions(bundle.colonyTileDefinitions)
+    if (Kind.COLONY_TILES in kinds) {
+      bundle.explicitClassDeclarations
+          .filter { declaration ->
+            !declaration.abstract &&
+                (isSubtypeOf(declaration.className, COLONY_TILE) ||
+                    isSubtypeOf(declaration.className, COLONY_TILE_SELECTION))
+          }
+          .mapTo(this) { declaration -> ClassSelection(declaration.className) }
+    }
   }
 
   private fun MutableSet<ClassSelection>.addDefinitions(definitions: Collection<Definition>) {
@@ -595,12 +611,6 @@ public open class TfmAuthority : Authority {
 
   public open val awardDefinitions: Set<AwardDefinition> = emptySet()
 
-  public fun colonyTile(name: ClassName): ColonyTileDefinition = colonyTileDefinitions.first {
-    it.className == name
-  }
-
-  public open val colonyTileDefinitions: Set<ColonyTileDefinition> = emptySet()
-
   // CUSTOM CLASSES
 
   override val explicitClassDeclarations: Set<ClassDeclaration> = emptySet()
@@ -614,7 +624,9 @@ public open class TfmAuthority : Authority {
     private val MODULE_CLASS = cn("Module")
     private val PLAYER_CLASS = cn("Player")
     private val TAG_CLASS = cn("Tag")
-    private val DELAYED_COLONY_TILE = cn("DelayedColonyTile")
+    private val COLONY_TILE = cn("ColonyTile")
+    private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
+    private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
 
     private fun <D : Definition> validateReplacements(
         definitions: Collection<D>,
@@ -684,10 +696,6 @@ public open class TfmAuthority : Authority {
 
     override val awardDefinitions: Set<AwardDefinition> by lazy {
       authorities.flatMapTo(linkedSetOf(), TfmAuthority::awardDefinitions)
-    }
-
-    override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-      authorities.flatMapTo(linkedSetOf(), TfmAuthority::colonyTileDefinitions)
     }
 
     override val customClasses: Set<CustomClass> by lazy {

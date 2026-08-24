@@ -86,7 +86,9 @@ Occupied seats activate canonical `Player1` through `PlayerN`. Configured player
 Vocabulary aliases, not Class identities. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
-so effects can select them, while setup creates only the chosen starting colony components.
+so effects can select them, while premise construction creates only the chosen starting selection
+representations. In solo play four are selected; setup asks the player to remove one
+`ColonyTileSelection` before continuing.
 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
@@ -273,14 +275,14 @@ named domain concept should become generic.
    `PreludeExpansion`, and grants the two Prelude plays itself. This is the clearest architectural
    leak: the base Kotlin workflow knows how one optional Module changes phase topology. The native
    workflow direction in `WORKFLOW.md` should remove this dependency.
-2. **Significant — Colonies is privileged throughout premise infrastructure.**
-   `pets/.../TfmAuthority.kt` recognizes colony definitions during naming, configuration,
-   validation, initial-Type construction, lookup, bundle selection, and Authority composition.
-   `pets/.../BundleContentSelection.kt` adds `COLONY_TILES` as a dedicated content kind;
-   `pets/.../ColonyTileDefinition.kt` generates Colonies-specific declarations; and
-   `pets/.../JsonReader.kt` has a dedicated colony format. Some structured colony metadata is an
-   honest domain boundary, but selection and premise assembly should not acquire an expansion
-   exception merely because that metadata produces initial components.
+2. **Moderate — Colonies remains privileged in premise infrastructure.**
+   Concrete colony tiles and their immediate or delayed `ColonyTileSelection` representations are
+   ordinary Pets classes. `pets/.../TfmAuthority.kt` still recognizes the `ColonyTile` hierarchy when
+   constructing initial component Types; `pets/.../BundleContentSelection.kt` retains
+   `COLONY_TILES` as a dedicated content kind so every available tile remains active for mid-game
+   additions. These are premise responsibilities rather than a parallel class-definition format,
+   but a future general model for configured starting components could remove the remaining
+   expansion names.
 3. **Moderate — expansion concepts appear in engine and card APIs.**
    `engine/.../TfmGameplay.kt` publishes `playPrelude` and `venusPercent`.
    `pets/.../CardDefinition.kt` and `pets/.../TfmClasses.kt` make Prelude a built-in deck kind and

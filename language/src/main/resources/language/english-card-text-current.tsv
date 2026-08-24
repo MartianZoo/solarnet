@@ -357,6 +357,7 @@ VenusAllies	Venus Allies	Raise Venus 2 steps. Gain 4 M€ for each colony you ow
 VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal 2 project cards. Draw any Venus cards for free. You may buy each other card.
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: [1 / 12 - VenusTag -> VenusStep].
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags. 1 VP.	Effect: When you trade, gain 3 M€.
+FakeAridor	Fake Aridor	Gain 40 M€. As your first action, add a colony tile.
 Arklight	Arklight	Gain 45 M€. Increase your M€ production 2 steps. 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
 Polyphemos	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: When you buy a card, pay 2 M€ extra.
 Poseidon	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: When any colony is placed, increase your M€ production 1 step.

@@ -17,7 +17,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
           ElysiumMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
           Tr63SoloVariant
-          Ganymede, Luna, Pluto
+          Ganymede, Luna, Miranda, Pluto
           """,
           "Me",
       )
@@ -33,6 +33,8 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
   @Test
   internal fun thermalPlasmaState() {
     with(me) {
+      doTask("-ColonyTileSelection<Class<Miranda>>")
+
       playCorp(TerraLabsResearch) {
         buyCards(
             RadSuits,

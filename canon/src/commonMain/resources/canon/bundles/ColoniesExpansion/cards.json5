@@ -2,6 +2,12 @@
   "cards": [
 
     {
+      "name": "FakeAridor",
+      "deck": "CORPORATION",
+      "immediate": "40, Mandate { -> ColonyTileSelection }",
+    },
+
+    {
       "name": "Arklight",
       "deck": "CORPORATION",
       "tags": [ "AnimalTag" ],
