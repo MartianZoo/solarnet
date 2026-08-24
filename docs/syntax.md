@@ -121,13 +121,21 @@ perInst      := perableInst ['/' subtractionMetric]
 perableInst  := gainInst | removeInst | fromInst | ('(' fromInst ')')
 gainInst     := scalarAndType [quantifier]
 removeInst   := '-' scalarAndType [quantifier]
-fromInst     := [scalar] dependentTypeExpr 'FROM' dependentTypeExpr [quantifier]
+fromInst     := [scalar] from [quantifier]
+from         := fullFrom | compactFrom
+fullFrom     := dependentTypeExpr 'FROM' dependentTypeExpr
+compactFrom  := className '<' fromArgs '>'
+fromArgs     := (typeExpression ',')* from (',' typeExpression)*
 groupedInst  := '(' instruction ')'
 ```
 
 Instructions are the meat of the language, as you can see. The elementary instructions are to gain some amount of a
 component (`4 Plant<Player2>`), remove some amount of a component (`-8 Heat<Player1>`), or even transmute some amount of
-one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Player2>`).
+one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Player2>`). When both
+sides have the same Class and differ in exactly one nested argument, the shared structure can be
+written once: `Foo<Same, Here, NotSame FROM Different>` means
+`Foo<Same, Here, NotSame> FROM Foo<Same, Here, Different>`. The unchanged arguments are linked and
+must narrow to the same Types on both sides.
 
 Commas separate multiple independent instructions. The comma has the lowest precedence of all instruction operators.
 Within each comma-separated section, you might find instructions separated by `THEN`; this is similar to the comma, but

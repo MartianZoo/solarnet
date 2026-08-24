@@ -349,11 +349,11 @@ Canonical sources now preserve hidden card procedures in one ordinary
 
 ```pets
 CARDS[2 ProjectCard(HAS VenusTag)]
-CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>]
-CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>]
+CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
+CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
 CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
-CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]
+CARDS[2 ProjectCard<Hand FROM EventPile>?]
 CARDS[2 / ProjectCard<Hand>]
 CARDS[CardBack<EventPile>]
 CARDS[CardBack<EventPile, Class<This>> FROM This]

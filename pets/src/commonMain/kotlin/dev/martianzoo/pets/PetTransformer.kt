@@ -284,10 +284,20 @@ public abstract class PetTransformer protected constructor() {
                 )
           }
       is FromExpression ->
-          FromExpression(
-              transformExpression(node.toExpression),
-              transformExpression(node.fromExpression),
-          )
+          when (node) {
+            is FromExpression.Unchanged ->
+                FromExpression.Unchanged(transformExpression(node.expression))
+            is FromExpression.Full ->
+                FromExpression.Full(
+                    transformExpression(node.toExpression),
+                    transformExpression(node.fromExpression),
+                )
+            is FromExpression.Compact ->
+                FromExpression.Compact(
+                    transformClassName(node.className),
+                    node.arguments.map(::transformFromExpression),
+                )
+          }
       is Effect ->
           node
               .copy(

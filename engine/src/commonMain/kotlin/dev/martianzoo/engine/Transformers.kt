@@ -24,7 +24,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -340,7 +340,7 @@ public class Transformers(public val classTable: ClassTable) {
             node.intensity ?: intersectIntensities(gainDefault?.intensity, removeDefault?.intensity)
 
         return Transmute(
-            FromExpression(
+            Full(
                 applyDefault(node.gaining, gainDefault, context, gain = true),
                 applyDefault(node.removing, removeDefault, context, gain = false),
             ),

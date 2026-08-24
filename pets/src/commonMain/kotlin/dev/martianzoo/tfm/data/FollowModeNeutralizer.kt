@@ -6,6 +6,7 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -220,13 +221,7 @@ internal object FollowModeNeutralizer : PetTransformer() {
         if (it == source) malformed(source)
       }
     }
-    return source.copy(
-        fromEx =
-            source.fromEx.copy(
-                toExpression = PROJECT_CARD.expression,
-                fromExpression = PLAYED_EVENT.expression,
-            )
-    )
+    return source.copy(fromEx = Full(PROJECT_CARD.expression, PLAYED_EVENT.expression))
   }
 
   private fun followModeBuyOrFreeCard(): Instruction {

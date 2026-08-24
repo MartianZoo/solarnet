@@ -55,6 +55,22 @@ internal class ReifyTest {
     concrete.narrows(refined, game.reader) shouldBe true
   }
 
+  @Test
+  internal fun compactTransmutationLinksItsUnchangedArguments() {
+    val wide = "Production<Player, Class<Steel FROM Heat>>?"
+
+    test(
+        wide,
+        "Production<Player1, Class<Steel>> FROM Production<Player1, Class<Heat>>!",
+    )
+    shouldThrow<NarrowingException> {
+      test(
+          wide,
+          "Production<Player1, Class<Steel>> FROM Production<Player2, Class<Heat>>!",
+      )
+    }
+  }
+
   private fun test(original: String, replacement: String) {
     val narrower: Instruction = parse(replacement)
     val wider: Instruction = parse(original)

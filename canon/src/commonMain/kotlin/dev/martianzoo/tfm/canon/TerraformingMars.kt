@@ -16,7 +16,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Compact
+import dev.martianzoo.pets.ast.FromExpression.Full
+import dev.martianzoo.pets.ast.FromExpression.Unchanged
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
@@ -267,15 +269,12 @@ private object TerraformingMars {
       val current = players.indexOf(currentOwner)
       check(current >= 0) { "StartToken owner is not a seated Player: $currentOwner" }
       val nextOwner = players[(current + 1) % players.size]
-      val fromExpression = component.className.of(component.expressionFull.arguments)
-      val toExpression =
-          component.className.of(
-              component.expressionFull.arguments.map {
-                if (it == currentOwner.expression) nextOwner.expression else it
-              }
-          )
+      val arguments =
+          component.expressionFull.arguments.map {
+            if (it == currentOwner.expression) Full(nextOwner.expression, it) else Unchanged(it)
+          }
       return Transmute(
-          FromExpression(toExpression, fromExpression),
+          Compact(component.className, arguments),
           ActualScalar(reader.countComponent(component)),
       )
     }

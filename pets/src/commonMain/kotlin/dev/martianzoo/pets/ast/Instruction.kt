@@ -17,6 +17,7 @@ import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.TypeLinking
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -87,7 +88,7 @@ public sealed class Instruction : InstructionTree() {
           count == 0 -> NoOp
           removing == null -> Gain.gain(gaining!!, count, intensity)
           gaining == null -> Remove.remove(removing, count, intensity)
-          else -> Transmute(FromExpression(gaining, removing), ActualScalar(count), intensity)
+          else -> Transmute(Full(gaining, removing), ActualScalar(count), intensity)
         }
       }
     }
@@ -230,16 +231,18 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun safeToNestIn(container: PetNode): Boolean =
-        super.safeToNestIn(container) && container !is Or
+        super.safeToNestIn(container) && (fromEx !is Full || container !is Or)
 
-    override fun precedence(): Int = 7
+    override fun precedence(): Int = if (fromEx is Full) 7 else 10
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       super.ensureIsNarrowedBy(proposed, info)
       if (proposed == NoOp) return
       proposed as Transmute
       for (source in TypeLinking.atomicSources(this, info::isAbstract)) {
-        val bindings = TypeLinking.bindings(this, proposed, source)
+        val bindings =
+            TypeLinking.bindings(gaining, proposed.gaining, source) +
+                TypeLinking.bindings(removing, proposed.removing, source)
         if (bindings.distinct().size > 1) {
           throw NarrowingException("Can't set linked type $source differently: ${bindings.toSet()}")
         }

@@ -93,7 +93,7 @@
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "ScienceTag" ],
       "immediate": "42, PROD[Energy]",
-      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand> FROM ProjectCard<Selecting>]" ],
+      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]" ],
     },
 
     {
@@ -124,7 +124,7 @@
       "name": "CorporateArchives",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
-      "immediate": "13, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>]",
+      "immediate": "13, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]",
     },
 
     {
@@ -137,13 +137,13 @@
     {
       "name": "Merger",
       "deck": "PRELUDE",
-      "immediate": "CARDS[4 CorporationCard<Selecting> THEN CorporationCard<Hand> FROM CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>>], -42",
+      "immediate": "CARDS[4 CorporationCard<Selecting> THEN CorporationCard<Hand FROM Selecting> THEN PlayCard<Class<CorporationCard>>], -42",
     },
 
     {
       "name": "NewPartner",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], CARDS[2 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>]",
+      "immediate": "PROD[1], CARDS[2 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>]",
     },
 
     {
@@ -255,7 +255,7 @@
       "projectKind": "ACTIVE",
       "cost": 17,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand> FROM ProjectCard<Selecting>]" ],
+      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]" ],
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -674,7 +674,7 @@
       "projectKind": "AUTOMATED",
       "cost": 7,
       "tags": [ "ScienceTag" ],
-      "immediate": "CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]",
+      "immediate": "CARDS[2 ProjectCard<Hand FROM EventPile>?]",
     },
 
     {
@@ -936,7 +936,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
-      "immediate": "CARDS[X ProjectCard<Revealed> FROM ProjectCard<Hand> THEN X ProjectCard<Hand> FROM ProjectCard<Revealed> THEN X]",
+      "immediate": "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X]",
       "effects": [ "End: VictoryPoint" ],
     },
 

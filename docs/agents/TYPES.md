@@ -336,6 +336,10 @@ Narrowing one occurrence substitutes the same concrete Type at all occurrence pa
 Variables are inferred from authored syntax before defaults and lowering. They do not add a new kind
 of choice; they link existing choices.
 
+Within one atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
+`Foo<Same, Here, To> FROM Foo<Same, Here, From>`. Each unchanged argument belongs to both roles and
+therefore introduces the same linkage as repeating that authored Expression in the full spelling.
+
 ### Dependency keys and paths
 
 A dependency key combines the Class that first declared it with its zero-based slot:

@@ -4,7 +4,7 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -33,7 +33,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
       val sex = (it as Gain).scaledEx
       val currency = sex.expression
       val pay = cn("Pay").of(CLASS.of(currency))
-      currency.toString() to Transmute(FromExpression(pay, currency), sex.scalar).toString()
+      currency.toString() to Transmute(Full(pay, currency), sex.scalar).toString()
     }
     val previousAutoExecMode = repl.gameplay.autoExecMode
     val result =

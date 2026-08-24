@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Compact
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -157,25 +158,39 @@ internal class InstructionTest {
 
     parse<Instruction>("1 Foo FROM Bar.") shouldBe
         Transmute(
-            FromExpression(cn("Foo").expression, cn("Bar").expression),
+            Full(cn("Foo").expression, cn("Bar").expression),
             ActualScalar(1),
             AMAP,
         )
     testRoundTrip("Foo<Bar> FROM Foo<Qux>")
     testRoundTrip("Foo<Bar> FROM Foo<Qux>.")
+    testRoundTrip("Foo<Bar FROM Qux>")
+    testRoundTrip("Foo<Same, Here, NotSame FROM Different>")
 
     val instr =
         Transmute(
-            FromExpression(
-                cn("Foo").of(cn("Bar").of(cn("Qux"))),
-                cn("Foo").of(cn("Bar").of(cn("Abc").of(cn("Eep")))),
+            Compact(
+                cn("Foo"),
+                listOf(
+                    Compact(
+                        cn("Bar"),
+                        listOf(Full(cn("Qux").expression, cn("Abc").of(cn("Eep")))),
+                    )
+                ),
             ),
             ActualScalar(1),
             null,
         )
-    instr.toString() shouldBe "Foo<Bar<Qux>> FROM Foo<Bar<Abc<Eep>>>"
-    parse<Instruction>("Foo<Bar<Qux>> FROM Foo<Bar<Abc<Eep>>>") shouldBe instr
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Bar FROM Qux>") }
+    instr.toString() shouldBe "Foo<Bar<Qux FROM Abc<Eep>>>"
+    parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>") shouldBe instr
+
+    val retained = parse<Instruction>("Foo<Same, Here, NotSame FROM Different>") as Transmute
+    retained.gaining shouldBe cn("Foo").of(cn("Same"), cn("Here"), cn("NotSame"))
+    retained.removing shouldBe cn("Foo").of(cn("Same"), cn("Here"), cn("Different"))
+
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo<Bar FROM Qux, Abc FROM Eep>")
+    }
   }
 
   @Test

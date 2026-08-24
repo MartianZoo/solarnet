@@ -212,17 +212,17 @@ internal class CardDefinitionTest {
                 name = "RealCardSource",
                 immediate =
                     "CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)], " +
-                        "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>], " +
+                        "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>], " +
                         "CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): ProjectCard) OR Ok)], " +
-                        "CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]",
+                        "CARDS[2 ProjectCard<Hand FROM EventPile>?]",
             )
         )
 
     card.immediate.toString() shouldBe
         "CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)], " +
-            "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>], " +
+            "CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>], " +
             "CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): ProjectCard) OR Ok)], " +
-            "CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]"
+            "CARDS[2 ProjectCard<Hand FROM EventPile>?]"
     card.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>(
             "This: 2 ProjectCard, 2 ProjectCard, ProjectCard?, 2 ProjectCard FROM PlayedEvent?"
@@ -237,17 +237,17 @@ internal class CardDefinitionTest {
             CardData(
                 name = "CardAreaSource",
                 immediate =
-                    "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>], " +
+                    "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>], " +
                         "CARDS[2 / ProjectCard<Hand>], " +
-                        "CARDS[X ProjectCard<Revealed> FROM ProjectCard<Hand> THEN X ProjectCard<Hand> FROM ProjectCard<Revealed> THEN X], " +
+                        "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X], " +
                         "CARDS[1 / CardBack<EventPile, Anyone>]",
             )
         )
 
     card.immediate.toString() shouldBe
-        "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>], " +
+        "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>], " +
             "CARDS[2 / ProjectCard<Hand>], " +
-            "CARDS[X ProjectCard<Revealed> FROM ProjectCard<Hand> THEN X ProjectCard<Hand> FROM ProjectCard<Revealed> THEN X], " +
+            "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X], " +
             "CARDS[1 / CardBack<EventPile, Anyone>]"
     card.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>(

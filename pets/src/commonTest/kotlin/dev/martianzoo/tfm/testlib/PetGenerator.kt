@@ -12,6 +12,9 @@ import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Compact
+import dev.martianzoo.pets.ast.FromExpression.Full
+import dev.martianzoo.pets.ast.FromExpression.Unchanged
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -141,7 +144,20 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Transform(recurse(), PROD) }
 
       register(FromExpression::class) {
-        FromExpression(recurse(), recurse())
+        chooseS(
+            1 to { Full(recurse(), recurse()) },
+            1 to
+                {
+                  Compact(
+                      cn(randomName()),
+                      listOf(
+                          Unchanged(recurse()),
+                          Full(recurse(), recurse()),
+                          Unchanged(recurse()),
+                      ),
+                  )
+                },
+        )
       }
 
       val basicTriggerTypes =

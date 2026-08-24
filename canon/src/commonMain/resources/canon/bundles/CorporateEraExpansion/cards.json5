@@ -466,7 +466,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
-      "immediate": "2 Steel<Owner> FROM Steel<Anyone>? OR 3 Megacredit<Owner> FROM Megacredit<Anyone>?",
+      "immediate": "2 Steel<Owner FROM Anyone>? OR 3 Megacredit<Owner FROM Anyone>?",
     },
 
     {
