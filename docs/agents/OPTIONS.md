@@ -92,12 +92,12 @@ representations. In solo play four are selected; setup asks the player to remove
 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
-multiplayer, each map constructively selects its printed milestone and award groups. Venus Next
-selects its single published milestone and award directly as conditional bundle content rather than
-creating one-item pool Modules. Explicitly naming any milestones or awards makes that category an
-exact pool, so named goals replace only their own category. Selecting colony tiles also requests
-their initial components. Solo Colonies uses three tiles, two-player Colonies uses five, and games
-with at least three players use two more tiles than players.
+multiplayer, each map selects the concrete members of its printed milestone and award pool
+superclasses. Venus Next selects its single published milestone and award directly as conditional
+bundle content. Explicitly naming any milestones or awards makes that category an exact pool, so
+named goals replace only their own category. Selecting colony tiles also requests their initial
+components. Solo Colonies uses three tiles, two-player Colonies uses five, and games with at least
+three players use two more tiles than players.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
@@ -118,10 +118,10 @@ declarations, definitions, and custom implementations. It is not selected direct
 becomes a live component.
 
 A Module named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map
-Module selects only its own map definition, even when its Bundle contains multiple maps. A named
-definition-group Module selects definitions carrying that group. Exceptional cross-Bundle or
-narrowed selections remain expressible, but Canon's ordinary expansions do not require a central
-registry to restate their ownership.
+Module selects its own map definition, areas, and the concrete milestone and award Classes under
+the pool superclasses named by its map metadata. Exceptional cross-Bundle or narrowed selections
+remain expressible, but Canon's ordinary expansions do not require a central registry to restate
+their ownership.
 
 ## Invariants
 

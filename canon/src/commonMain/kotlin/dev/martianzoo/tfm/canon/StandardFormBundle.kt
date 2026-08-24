@@ -17,11 +17,12 @@ import dev.martianzoo.util.toSetStrict
 /**
  * An internal Authority-provider bundle loaded from conventionally named Pets and JSON resources.
  *
- * `classes.pets`, when present, supplies the Pets declarations. The supported JSON filenames are
- * exposed as constants below. Files for unsupported canonical data are recognized but ignored;
- * other files produce a warning. A bundle identity is raw source provenance, not a Pets class, so
- * no declaration is required or synthesized for it. Callers whose resources are not in Canon's
- * generated index can provide [resourceFilenames] and [resourceReader] directly.
+ * `classes.pets`, when present, supplies the Pets declarations, including milestones and awards.
+ * The supported JSON filenames are exposed as constants below. Files for unsupported canonical data
+ * are recognized but ignored; other files produce a warning. A bundle identity is raw source
+ * provenance, not a Pets class, so no declaration is required or synthesized for it. Callers whose
+ * resources are not in Canon's generated index can provide [resourceFilenames] and [resourceReader]
+ * directly.
  */
 internal class StandardFormBundle(
     name: String,
@@ -64,11 +65,36 @@ internal class StandardFormBundle(
   }
 
   override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
-    readIfPresent(MILESTONES_FILENAME, JsonReader::readMilestones).toSetStrict()
+    goalDeclarations(cn("Milestone"))
+        .map { (declaration, group) ->
+          MilestoneDefinition.fromClassDeclaration(declaration, group)
+        }
+        .toSetStrict()
   }
 
   override val awardDefinitions: Set<AwardDefinition> by lazy {
-    readIfPresent(AWARDS_FILENAME, JsonReader::readAwards).toSetStrict()
+    goalDeclarations(cn("Award"))
+        .map { (declaration, group) -> AwardDefinition.fromClassDeclaration(declaration, group) }
+        .toSetStrict()
+  }
+
+  private fun goalDeclarations(
+      goalClass: ClassName,
+  ): List<Pair<ClassDeclaration, ClassName?>> {
+    val groups =
+        explicitClassDeclarations
+            .filter { declaration ->
+              declaration.abstract && declaration.supertypes.any { it.className == goalClass }
+            }
+            .mapTo(linkedSetOf(), ClassDeclaration::className)
+    return explicitClassDeclarations.mapNotNull { declaration ->
+      if (declaration.abstract) return@mapNotNull null
+      val superclasses = declaration.supertypes.map { it.className }
+      when {
+        goalClass in superclasses -> declaration to null
+        else -> superclasses.singleOrNull { it in groups }?.let { declaration to it }
+      }
+    }
   }
 
   private fun read(filename: String): String = resourceReader("$resourceDirectory/$filename")
@@ -88,17 +114,13 @@ internal class StandardFormBundle(
   public companion object {
     private const val CARDS_FILENAME: String = "cards.json5"
     internal const val MAPS_FILENAME: String = "maps.json5"
-    private const val MILESTONES_FILENAME: String = "milestones.json5"
-    private const val AWARDS_FILENAME: String = "awards.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CLASSES_FILENAME = "classes.pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
     private val KNOWN_JSON_FILENAMES =
         setOf(
-            AWARDS_FILENAME,
             CARDS_FILENAME,
             MAPS_FILENAME,
-            MILESTONES_FILENAME,
         )
   }
 }

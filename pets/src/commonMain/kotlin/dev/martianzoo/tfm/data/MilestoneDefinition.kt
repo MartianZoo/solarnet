@@ -13,7 +13,6 @@ import kotlinx.serialization.SerialName
 
 public data class MilestoneDefinition(
     override val className: ClassName,
-    val replaces: ClassName? = null,
     @SerialName("requirement") val requirementText: String,
     @SerialName("automaticSelectionRequirement")
     private val automaticSelectionRequirementText: String? = null,
@@ -42,7 +41,27 @@ public data class MilestoneDefinition(
     )
   }
 
-  private companion object {
+  public companion object {
     private val REQUIREMENT_PROPERTY = PropertyName("requirement")
+
+    /** Derives milestone metadata; direct invariants also gate automatic pool selection. */
+    public fun fromClassDeclaration(
+        declaration: ClassDeclaration,
+        selectionGroup: ClassName? = null,
+    ): MilestoneDefinition {
+      val requirement =
+          (declaration.properties[REQUIREMENT_PROPERTY] as? RequirementValue)?.value
+              ?: error("Milestone ${declaration.className} must declare a requirement property")
+      val automatic =
+          declaration.invariants
+              .fold<Requirement, Requirement?>(null, Requirement::join)
+              ?.toString()
+      return MilestoneDefinition(
+          declaration.className,
+          requirementText = requirement.toString(),
+          automaticSelectionRequirementText = automatic,
+          selectionGroup = selectionGroup,
+      )
+    }
   }
 }

@@ -1,11 +1,20 @@
-CLASS TharsisDefaultMilestones : Module
-
-CLASS TharsisDefaultAwards : Module
-
-CLASS TharsisMap : MarsMap {
-  This IF (MultiplayerMode, =0 Milestone):: TharsisDefaultMilestones.
-  This IF (MultiplayerMode, =0 Award):: TharsisDefaultAwards.
+ABSTRACT CLASS TharsisMilestone : Milestone {
+  CLASS Terraformer35 { requirement = HAS "35 TerraformRating" }
+  CLASS Mayor { requirement = HAS "3 CityTile" }
+  CLASS Gardener { requirement = HAS "3 GreeneryTile" }
+  CLASS Builder8 { requirement = HAS "8 BuildingTag" }
+  CLASS Planner { requirement = HAS "CARDS[16 ProjectCard<Hand>]" }
 }
+
+ABSTRACT CLASS TharsisAward : Award {
+  CLASS Landlord { metric = COUNT "OwnedTile" }
+  CLASS Banker { metric = COUNT "PROD[Megacredit]" }
+  CLASS Scientist { metric = COUNT "ScienceTag" }
+  CLASS Thermalist { metric = COUNT "Heat" }
+  CLASS Miner { metric = COUNT "Metal" }
+}
+
+CLASS TharsisMap : MarsMap
 
 // The map area declarations below are code generated.
 CLASS Tharsis_1_1 :     LandArea { row = 1; column = 1; Tile<This>: 2 Steel }

@@ -1,6 +1,0 @@
-{
-  "automaticSelectionRequirement": "VenusNextExpansion, MultiplayerMode, MAX 0 Milestone",
-  "milestones": [
-    { "name": "Hoverlord", "requirement": "7 Floater" },
-  ],
-}

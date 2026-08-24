@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -70,5 +71,15 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.count("PROD[StandardResource]") shouldBe 22
     p1.stdAction("ClaimMilestoneSA")
     p1.count("Milestone") shouldBe 1
+  }
+
+  @Test
+  internal fun `Producer versions belong to opposite Quick Start modes`() {
+    shouldThrow<LimitsException> {
+      newGame(GameConfig("Producer, -CorporateEraExpansion", "Player1", "Player2"))
+    }
+    shouldThrow<IllegalArgumentException> {
+      newGame(GameConfig("Producer22", "Player1", "Player2"))
+    }
   }
 }

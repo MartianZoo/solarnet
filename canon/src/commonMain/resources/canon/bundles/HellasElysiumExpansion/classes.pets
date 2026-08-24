@@ -1,20 +1,46 @@
-CLASS HellasDefaultMilestones : Module
-
-CLASS HellasDefaultAwards : Module
-
-CLASS ElysiumDefaultMilestones : Module
-
-CLASS ElysiumDefaultAwards : Module
-
-CLASS HellasMap : MarsMap {
-  This IF (MultiplayerMode, =0 Milestone):: HellasDefaultMilestones.
-  This IF (MultiplayerMode, =0 Award):: HellasDefaultAwards.
+ABSTRACT CLASS HellasMilestone : Milestone {
+  CLASS Diversifier { requirement = HAS "8 Class<Tag>(HAS Tag<Owner>)" }
+  CLASS Tactician5 { requirement = HAS "5 CardFront(HAS requirement)" }
+  CLASS PolarExplorer { requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>" }
+  CLASS Energizer { requirement = HAS "PROD[6 Energy]" }
+  CLASS RimSettler { requirement = HAS "3 JovianTag" }
 }
 
-CLASS ElysiumMap : MarsMap {
-  This IF (MultiplayerMode, =0 Milestone):: ElysiumDefaultMilestones.
-  This IF (MultiplayerMode, =0 Award):: ElysiumDefaultAwards.
+ABSTRACT CLASS HellasAward : Award {
+  CLASS Cultivator { metric = COUNT "GreeneryTile" }
+  CLASS Magnate { metric = COUNT "AutomatedCard" }
+  CLASS SpaceBaron { metric = COUNT "SpaceTag" }
+  CLASS Excentric { metric = COUNT "CardResource" }
+  CLASS Contractor { metric = COUNT "BuildingTag" }
 }
+
+ABSTRACT CLASS ElysiumMilestone : Milestone {
+  CLASS Generalist {
+    HAS MAX 0 QuickStartVariant
+    requirement = HAS "PROD[6, Steel, Titanium, Plant, Energy, Heat]"
+  }
+  CLASS Generalist2 {
+    HAS QuickStartVariant
+    requirement = HAS "PROD[7, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat]"
+  }
+  // Search for GrossHack to understand this nonsense.
+  CLASS Specialist { requirement = HAS "PROD[10 (Megacredit - 5) OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" }
+  CLASS Ecologist { requirement = HAS "4 BioTag" }
+  CLASS Tycoon15 { requirement = HAS "15 (ActiveCard OR AutomatedCard)" }
+  CLASS Legend5 { requirement = HAS "CARDS[5 CardBack<EventPile>]" }
+}
+
+ABSTRACT CLASS ElysiumAward : Award {
+  CLASS Celebrity { metric = COUNT "CardFront(HAS 20 cost)" }
+  CLASS Industrialist { metric = COUNT "Steel OR Energy" }
+  CLASS DesertSettler { metric = COUNT "OwnedTile<MarsArea(HAS 6 row)>" }
+  CLASS EstateDealer { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
+  CLASS Benefactor { metric = COUNT "TerraformRating" }
+}
+
+CLASS HellasMap : MarsMap
+
+CLASS ElysiumMap : MarsMap
 
 // The map area declarations below are code generated.
 CLASS Hellas_1_1 :    WaterArea { row = 1; column = 1; Tile<This>: 2 Plant }

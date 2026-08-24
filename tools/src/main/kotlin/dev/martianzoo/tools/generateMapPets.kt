@@ -55,20 +55,17 @@ internal fun renderMapPets(maps: List<MarsMapDefinition>, alignedAreas: Boolean)
   check(parsed.map { it.className } == declarations.map { it.className }) {
     "Generated map Pets changed declaration identities"
   }
+  check(parsed.take(maps.size) == declarations.take(maps.size)) {
+    "Generated maps did not round-trip"
+  }
   check(parsed.drop(maps.size) == declarations.drop(maps.size)) {
     "Generated map areas did not round-trip"
   }
   return source
 }
 
-private fun renderAlignedMap(map: MarsMapDefinition): String = buildString {
-  append("CLASS ${map.className} : MarsMap {\n")
-  map.defaultMilestones?.let {
-    append("  This IF (MultiplayerMode, =0 Milestone):: $it.\n")
-  }
-  map.defaultAwards?.let { append("  This IF (MultiplayerMode, =0 Award):: $it.\n") }
-  append("}\n")
-}
+private fun renderAlignedMap(map: MarsMapDefinition): String =
+    map.asClassDeclaration.toString() + "\n"
 
 private fun renderAlignedAreas(map: MarsMapDefinition): String = buildString {
   map.areas

@@ -15,8 +15,8 @@
     {
       "name": "ElysiumMap",
       "areaPrefix": "Elysium",
-      "defaultMilestones": "ElysiumDefaultMilestones",
-      "defaultAwards": "ElysiumDefaultAwards",
+      "defaultMilestones": "ElysiumMilestone",
+      "defaultAwards": "ElysiumAward",
       "rows": [
         [
                                       "W", "WT", "WC", "WS", "LC"

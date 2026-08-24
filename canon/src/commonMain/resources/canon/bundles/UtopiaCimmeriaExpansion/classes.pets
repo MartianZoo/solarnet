@@ -3,23 +3,42 @@ CLASS TcColonyBonus : Signal {
   This IF Class<ColoniesExpansion>: Colony<>, -5
 }
 
-CLASS UtopiaDefaultMilestones : Module
-
-CLASS UtopiaDefaultAwards : Module
-
-CLASS CimmeriaDefaultMilestones : Module
-
-CLASS CimmeriaDefaultAwards : Module
-
-CLASS UtopiaMap : MarsMap {
-  This IF (MultiplayerMode, =0 Milestone):: UtopiaDefaultMilestones.
-  This IF (MultiplayerMode, =0 Award):: UtopiaDefaultAwards.
+ABSTRACT CLASS UtopiaMilestone : Milestone {
+  CLASS Manager { requirement = HAS "3 SpecialTile" }
+  CLASS Pioneer3 { requirement = HAS "3 Colony" }
+  CLASS Trader { requirement = HAS "3 Class<CardResource>(HAS CardResource<Owner>)" }
+  CLASS Metallurgist { requirement = HAS "6 PROD[Metal]" }
+  CLASS Researcher { requirement = HAS "4 ScienceTag" }
 }
 
-CLASS CimmeriaMap : MarsMap {
-  This IF (MultiplayerMode, =0 Milestone):: CimmeriaDefaultMilestones.
-  This IF (MultiplayerMode, =0 Award):: CimmeriaDefaultAwards.
+ABSTRACT CLASS UtopiaAward : Award {
+  CLASS Suburbian { metric = COUNT "OwnedTile(HAS MAX 5 Neighbor)" }
+  CLASS Investor { metric = COUNT "EarthTag" }
+  CLASS Botanist { metric = COUNT "PROD[Plant]" }
+  CLASS Incorporator { metric = COUNT "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" }
+  CLASS Metropolist { metric = COUNT "CityTile" }
 }
+
+ABSTRACT CLASS CimmeriaMilestone : Milestone {
+  CLASS Planetologist { requirement = HAS "2 EarthTag, 2 VenusTag, 2 JovianTag" }
+  CLASS Architect { requirement = HAS "3 CityTag" }
+  CLASS Coastguard { requirement = HAS "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
+  CLASS Forester { requirement = HAS "PROD[3 Plant]" }
+  // Search for GrossHack to understand this nonsense.
+  CLASS Fundraiser { requirement = HAS "PROD[12 (Megacredit - 5)]" }
+}
+
+ABSTRACT CLASS CimmeriaAward : Award {
+  CLASS Electrician { metric = COUNT "PowerTag" }
+  CLASS Founder { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<SpecialTile<Anyone>>)>" }
+  CLASS Mogul { metric = COUNT "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" }
+  CLASS Zoologist { metric = COUNT "Animal OR Microbe" }
+  CLASS Forecaster { metric = COUNT "CardFront(HAS requirement)" }
+}
+
+CLASS UtopiaMap : MarsMap
+
+CLASS CimmeriaMap : MarsMap
 
 // The map area declarations below are code generated.
 CLASS Utopia_1_1 :     LandArea { row = 1; column = 1 }

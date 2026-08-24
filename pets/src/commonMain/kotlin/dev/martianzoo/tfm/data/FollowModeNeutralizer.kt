@@ -23,6 +23,8 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -43,7 +45,17 @@ internal object FollowModeNeutralizer : TransformHandler {
   private val PRELUDE_CARD = cn("PreludeCard")
 
   internal fun neutralize(source: ClassDeclaration): ClassDeclaration =
-      source.copy(effects = source.effects.map(::transformEffect))
+      source.copy(
+          effects = source.effects.map(::transformEffect),
+          properties =
+              source.properties.mapValues { (_, value) ->
+                when (value) {
+                  is MetricValue -> MetricValue(transformMetric(value.value))
+                  is RequirementValue -> RequirementValue(transformRequirement(value.value))
+                  else -> value
+                }
+              },
+      )
 
   override fun transform(inner: PetNode): PetNode =
       when (inner) {
