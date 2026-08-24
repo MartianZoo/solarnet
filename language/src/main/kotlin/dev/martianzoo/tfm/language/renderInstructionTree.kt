@@ -53,10 +53,10 @@ private fun renderInstructionClauses(
     instruction: Instruction,
     describers: Describers,
 ): Rendering<List<Clause>?> =
-    when (instruction) {
-      is Instruction.Transform -> Rendering.resolved(renderCardOperation(instruction, describers))
-      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers))
-      else -> renderInstruction(instruction, describers).map { it?.let(::listOf) }
+    if (instruction is Instruction.Transform) {
+      Rendering.resolved(renderCardOperation(instruction, describers))
+    } else {
+      renderInstruction(instruction, describers).map { it?.let(::listOf) }
     }
 
 private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
@@ -82,7 +82,7 @@ private fun renderInstruction(
       is Remove,
       is Instruction.Transmute -> renderChange(instruction, describers)
       is Instruction.Or -> Rendering.resolved(renderAlternatives(instruction, describers))
-      is Instruction.Per -> error("Per is expanded before ordinary instructions")
+      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers))
       is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers))
       is Instruction.Then ->
           Rendering.resolved(
@@ -335,27 +335,11 @@ private fun renderGated(
 private fun renderPer(
     instruction: Instruction.Per,
     describers: Describers,
-): List<Clause>? {
+): Clause? {
   val clause =
       renderLoweredInstructions(instruction.inner, describers).clauses.singleOrNull() ?: return null
-  val simple = clause as? Clause.Simple ?: return null
-  val metrics =
-      when (val metric = instruction.metric) {
-        is Metric.Or -> {
-          if (
-              metric.metrics.any { !it.expression.simple } ||
-                  !describers.nominallyDisjoint(metric.metrics.map { it.expression.className })
-          ) {
-            return null
-          }
-          metric.metrics
-        }
-        else -> listOf(metric)
-      }
-  return metrics.map { metric ->
-    val phrase = renderMetricPhrase(metric, describers) ?: return null
-    simple.withModifier(Modifier.Phrase("for $phrase"))
-  }
+  val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
+  return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
 }
 
 private fun renderAlternatives(

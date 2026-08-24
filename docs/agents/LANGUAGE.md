@@ -105,12 +105,6 @@ Pets scalars are resolved once into fixed or variable `Quantity` values, and int
 required, best-effort, or optional `Modality` values. Family renderers do not inspect the Pets
 scalar or intensity variants.
 
-A per-count instruction whose metric is an `OR` repeats the complete rendered instruction for each
-counted alternative only when the Class hierarchy proves that the alternatives have no concrete
-subclass in common; otherwise the union must remain intact. A metric capped by a second tag count
-describes complete matched pairs of the two tags. These rules preserve the metric structure rather
-than teaching either construction as card wording.
-
 Structural renderers only identify the component Class, ask `Describers` for the applicable
 inherited phrase or capability, and compose the answer. Change rendering uses one inherited
 `ChangeFrame`: countable, held, scale, positioned, deck, procedure, wrapper, or play. Production is
@@ -456,6 +450,13 @@ placements use a numeric plural. A placement narrowed to a colony tile remains b
 Research Colony and Space Port Colony print additional permission to reuse an occupied colony tile.
 
 ## Review cadence
+
+Treat corpus coverage as evidence, not authorization for new machinery. Do not add structural
+renderer APIs, Class-hierarchy analysis, or new grammar representations to improve only one or two
+canonical cards. A systemic iteration should simplify the model or cover a meaningfully recurring
+family; otherwise retain the honest bracketed Pets and wait for a smaller general rule. In
+particular, do not distribute an `OR` metric into repeated instructions by proving its alternatives
+disjoint. Render the metric composition directly when it has a compact general representation.
 
 When asking Kevin to judge possible wording canonicalizations, use concrete sentence pairs rather
 than architectural descriptions. For each candidate, show two actual current outputs, then show both

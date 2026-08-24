@@ -346,11 +346,11 @@ VenusContract	Venus Contract	Draw 1 Venus card. Raise your terraform rating 1 st
 VenusL1Shade	Venus L1 Shade	Raise Venus 3 steps.
 WorldGovernmentAdvisor	World Government Advisor	Raise your terraform rating 2 steps. Draw 1 card.	Action: [WorldGovernmentTerraforming BY Engine].
 CeresTechMarket	Ceres Tech Market	Gain 2 M€ for each colony you own. 1 VP.	Action: [X ProjectCard -> 2X].
-CloudTourism	Cloud Tourism	Increase your M€ production 1 step for each pair of Earth and Venus tags you have. 1 VP per 3 floaters on this card.	Action: Add 1 floater to this card.
+CloudTourism	Cloud Tourism	[Production<Class<Megacredit>> / EarthTag MAX VenusTag]. 1 VP per 3 floaters on this card.	Action: Add 1 floater to this card.
 FloatingRefinery	Floating Refinery	Add 1 floater to this card for each Venus tag you have.	Action: Add 1 floater to this card, or remove 2 floaters from any of your cards to gain 1 titanium and 2 M€.
 IshtarExpedition	Ishtar Expedition	Requires that Venus is 10% or higher. Gain 3 titanium. Draw 2 Venus cards.
 MicrogravityNutrition	Microgravity Nutrition	Increase your M€ production 1 step for each colony you own. 1 VP.
-SoilStudies	Soil Studies	Requires that temperature is -4°C or lower. Gain 1 plant for each Venus tag you have. Gain 1 plant for each plant tag you have. Gain 1 plant for each colony you own.
+SoilStudies	Soil Studies	Requires that temperature is -4°C or lower. [Plant / (VenusTag OR PlantTag OR Colony)].
 StratosphericExpedition	Stratospheric Expedition	Add 2 floaters to any card. Draw 2 Venus cards. 1 VP.
 UnexpectedApplication	Unexpected Application	Discard 1 card to raise Venus 1 step.
 VenusAllies	Venus Allies	Raise Venus 2 steps. Gain 4 M€ for each colony you own. 2 VPs.
