@@ -49,7 +49,7 @@ spotless {
     ktfmt(libs.versions.ktfmt.get())
   }
   kotlinGradle {
-    target("*.gradle.kts", "*/*.gradle.kts", "build-logic/src/main/kotlin/*.gradle.kts")
+    target("*.gradle.kts", "*/*.gradle.kts", "gradle/build-logic/src/main/kotlin/*.gradle.kts")
     ktfmt(libs.versions.ktfmt.get())
   }
 }
