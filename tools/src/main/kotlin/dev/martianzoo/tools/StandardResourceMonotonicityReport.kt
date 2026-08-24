@@ -568,6 +568,7 @@ internal object StandardResourceMonotonicityReport {
                           "PromoCardPack",
                           "Callisto",
                           "Ceres",
+                          "Luna",
                           "Triton",
                       )
                       .map(::cn),

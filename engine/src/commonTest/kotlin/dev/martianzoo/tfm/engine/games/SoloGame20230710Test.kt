@@ -8,13 +8,12 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SoloGame20230710Test : AbstractSoloTest() {
-  // Miranda was removed because solo Colonies uses only three selected tiles.
   override val config =
       GameConfig(
           """
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
           Tr63SoloVariant
-          Callisto, Ganymede, Luna
+          Callisto, Ganymede, Luna, Miranda
           """,
           "Me",
       )
@@ -26,6 +25,8 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
   @Test
   internal fun soloGame20230710() {
     with(me) {
+      doTask("-ColonyTileSelection<Class<Miranda>>")
+
       playCorp(PharmacyUnion, 10).expect("16, 11 ProjectCard")
 
       playPrelude(Merger) {

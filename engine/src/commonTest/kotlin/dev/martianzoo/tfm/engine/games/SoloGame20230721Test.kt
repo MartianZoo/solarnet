@@ -10,14 +10,13 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SoloGame20230721Test : AbstractSoloTest() {
-  // Enceladus was removed because solo Colonies uses only three selected tiles.
   override val config =
       GameConfig(
           """
           ElysiumMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
           Tr63SoloVariant
-          Ceres, Luna, Triton
+          Ceres, Enceladus, Luna, Triton
           """,
           "Me",
       )
@@ -35,6 +34,9 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
   @Test
   internal fun soloGame20230721() {
     with(me) {
+      // You discarded Enceladus
+      doTask("-ColonyTileSelection<Class<Enceladus>>")
+
       // The id of this game is gf33a06d07a1c
       // Good luck me!
       // Generation 1
@@ -42,8 +44,6 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me played PhoboLog
       // me kept 4 project cards
       playCorp(Phobolog, 4).expect("11, 10 T")
-
-      // You discarded Enceladus
 
       // me played Merger
       playPrelude(Merger) {

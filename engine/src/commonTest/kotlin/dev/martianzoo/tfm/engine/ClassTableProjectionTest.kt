@@ -53,9 +53,9 @@ internal class ClassTableProjectionTest {
             "CorporateEraExpansion" to 146 + 73,
             "VenusNextExpansion" to 219 + 54,
             "PreludeExpansion" to 273 + 47,
-            "ColoniesExpansion" to 320 + 53, // 54 minus Aridor
-            "TurmoilCardPack" to 373 + 4,
-            "PromoCardPack" to 377 + 88,
+            "ColoniesExpansion" to 320 + 54, // 54 minus Aridor, plus FakeAridor
+            "TurmoilCardPack" to 374 + 4,
+            "PromoCardPack" to 378 + 88,
         )
     )
   }

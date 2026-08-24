@@ -315,7 +315,7 @@ public class ScriptSession(
         Canon,
         locale,
         TFM_SCRIPT_CLASS_SYNONYMS,
-        activeClassNames = Canon.colonyTileDefinitions.mapTo(linkedSetOf()) { it.className },
+        activeClassNames = Canon.colonyTileClassNames,
     )
   }
 }

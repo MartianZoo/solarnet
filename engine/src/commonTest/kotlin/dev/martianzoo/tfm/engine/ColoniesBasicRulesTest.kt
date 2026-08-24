@@ -6,6 +6,7 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
@@ -98,6 +99,32 @@ internal class ColoniesBasicRulesTest : TfmTest() {
         1 to "Miranda", // now it exists / is in play
         1 to "ColonyProduction<Miranda>",
         0 to "Enceladus",
+    )
+  }
+
+  @Test
+  internal fun `solo discards one selected colony tile before setup continues`() {
+    val premise =
+        canonicalPremise(
+            ColoniesExpansion,
+            players = 1,
+            colonyTiles = setOf("Callisto", "Luna", "Miranda", "Titan").mapTo(linkedSetOf(), ::cn),
+        )
+    val game = Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
+    val engine = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+
+    engine.assertCounts(2 to "ColonyTile", 4 to "ColonyTileSelection")
+    TfmWorkflow.Manual(game).setupPhase()
+    p1.doTask("-ColonyTileSelection<Class<Luna>>")
+    engine.assertCounts(
+        1 to "ColonyTile",
+        3 to "ColonyTileSelection",
+        1 to "Callisto",
+        0 to "Luna",
+        0 to "ColonyProduction<Luna>",
+        1 to "DelayedMiranda",
+        1 to "DelayedTitan",
     )
   }
 

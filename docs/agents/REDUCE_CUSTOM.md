@@ -19,8 +19,6 @@ creates one reserve fleet per player. It could become ordinary setup signaling:
 - base player setup emits `PlayerSetup<This>`; and
 - the live Colonies Module responds by creating that player's `ReserveTradeFleet`.
 
-`AddColonyTile` should remain custom because it interprets colony-definition metadata.
-
 ### `PassLeft`
 
 A shared seat-topology model such as `LeftOf<From, To>` could let ordinary Pets move a
@@ -37,11 +35,10 @@ These honestly bridge Pets to canonical metadata absent from the component graph
 - `CheckCardDeck`
 - `HandlePossibleGpRequirement`
 - `HandleCardTags`
-- `AddColonyTile`
 - `CreateAdjacencies`
 
-Generating card- or colony-specific Pets responders would only move these to the worse generation
-tier. Hand-authoring copies of canonical facts would create two authorities for the same rule.
+Generating card-specific Pets responders would only move these to the worse generation tier.
+Colony class declarations and the three resource-delay selections are hand-authored in Pets.
 
 These perform general selections Pets cannot currently express:
 

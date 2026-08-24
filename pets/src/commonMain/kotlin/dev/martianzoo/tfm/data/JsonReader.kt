@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition.CardData
-import dev.martianzoo.tfm.data.ColonyTileDefinition.ColonyTileData
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.util.Grid
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -201,13 +200,6 @@ public object JsonReader {
       private fun lookUp(c: Char) = table[c] ?: "not found: $c"
     }
   }
-
-  // COLONIES
-
-  public fun readColonyTiles(json5: String): List<ColonyTileData> =
-      fromJson5<ColonyTileList>(json5).colonyTiles
-
-  @Serializable private data class ColonyTileList(val colonyTiles: List<ColonyTileData>)
 
   // HELPERS
 

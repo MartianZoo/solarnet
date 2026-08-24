@@ -35,9 +35,8 @@ private object TypeStructureReport {
       )
 
   fun createGame(): World {
-    val colonyCount = if (PLAYERS == 1) 3 else if (PLAYERS == 2) 5 else PLAYERS + 2
-    val colonies =
-        Canon.colonyTileDefinitions.map { it.className }.sorted().take(colonyCount).toSet()
+    val colonyCount = if (PLAYERS == 1) 4 else if (PLAYERS == 2) 5 else PLAYERS + 2
+    val colonies = Canon.colonyTileClassNames.sorted().take(colonyCount).toSet()
     return Engine.newGame(
         Canon.gamePremise(
             GameConfig.create(

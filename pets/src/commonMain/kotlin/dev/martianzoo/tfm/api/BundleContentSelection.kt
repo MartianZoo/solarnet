@@ -3,9 +3,7 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.data.CardDefinition.Deck
 
-/**
- * Bundle-wide content selected by a Module; individual definitions are deliberately unsupported.
- */
+/** Bundle-wide content selected by a Module; individual entries are deliberately unsupported. */
 public data class BundleContentSelection(
     public val bundleName: ClassName,
     internal val kinds: Set<Kind> = Kind.entries.toSet(),

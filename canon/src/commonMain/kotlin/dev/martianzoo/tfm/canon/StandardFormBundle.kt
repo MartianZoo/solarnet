@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.api.BundleContentSelection
 import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
@@ -72,11 +71,6 @@ internal class StandardFormBundle(
     readIfPresent(AWARDS_FILENAME, JsonReader::readAwards).toSetStrict()
   }
 
-  override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-    readIfPresent(COLONIES_FILENAME, JsonReader::readColonyTiles)
-        .toSetStrict(::ColonyTileDefinition)
-  }
-
   private fun read(filename: String): String = resourceReader("$resourceDirectory/$filename")
 
   private fun <T> readIfPresent(filename: String, parse: (String) -> List<T>): List<T> =
@@ -93,7 +87,6 @@ internal class StandardFormBundle(
 
   public companion object {
     private const val CARDS_FILENAME: String = "cards.json5"
-    private const val COLONIES_FILENAME: String = "colonies.json5"
     internal const val MAPS_FILENAME: String = "maps.json5"
     private const val MILESTONES_FILENAME: String = "milestones.json5"
     private const val AWARDS_FILENAME: String = "awards.json5"
@@ -104,7 +97,6 @@ internal class StandardFormBundle(
         setOf(
             AWARDS_FILENAME,
             CARDS_FILENAME,
-            COLONIES_FILENAME,
             MAPS_FILENAME,
             MILESTONES_FILENAME,
         )

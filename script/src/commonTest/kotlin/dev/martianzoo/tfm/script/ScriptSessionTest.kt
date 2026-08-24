@@ -151,8 +151,8 @@ internal class ScriptSessionTest {
     assertEquals(listOf("1 Luna"), repl.command("count Luna"))
     assertEquals(listOf("1 Pluto"), repl.command("count Pluto"))
     assertEquals(
-        listOf("1 DelayedColonyTile<Class<Titan>>"),
-        repl.command("count DelayedColonyTile<Class<Titan>>"),
+        listOf("1 DelayedTitan"),
+        repl.command("count DelayedTitan"),
     )
     repl.command("phase Corporation")
   }
@@ -166,8 +166,9 @@ internal class ScriptSessionTest {
             "New 1-player game created with options: BRC",
             "Purple mode: workflow active",
         ),
-        repl.command("newgame BRC 1 Ceres Io Titan purple"),
+        repl.command("newgame BRC 1 Ceres Io Luna Titan purple"),
     )
+    repl.command("as Me task -ColonyTileSelection<Class<Luna>>")
     repl.command("task -6 TerraformRating<Me>")
     assertEquals(
         2,
@@ -182,8 +183,8 @@ internal class ScriptSessionTest {
     assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
     assertEquals(listOf("1 Io"), repl.command("count Io"))
     assertEquals(
-        listOf("1 DelayedColonyTile<Class<Titan>>"),
-        repl.command("count DelayedColonyTile<Class<Titan>>"),
+        listOf("1 DelayedTitan"),
+        repl.command("count DelayedTitan"),
     )
   }
 

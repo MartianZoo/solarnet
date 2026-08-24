@@ -113,7 +113,7 @@ private val MAP_OPTIONS =
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     require(players in 1..5)
-    val count = if (players == 1) 3 else if (players == 2) 5 else players + 2
+    val count = if (players == 1) 4 else if (players == 2) 5 else players + 2
     val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
     TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
         .filterNotTo(selected) {
@@ -214,5 +214,5 @@ object TestHelpers {
 private val TEST_ENGLISH_VOCABULARY =
     Vocabulary.create(
         Canon,
-        activeClassNames = Canon.colonyTileDefinitions.mapTo(linkedSetOf()) { it.className },
+        activeClassNames = Canon.colonyTileClassNames,
     )
