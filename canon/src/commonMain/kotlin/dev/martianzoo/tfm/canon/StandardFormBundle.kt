@@ -59,7 +59,7 @@ internal class StandardFormBundle(
   }
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-    mapResourceFiles().flatMapTo(linkedSetOf()) { filename ->
+    mapJsonResourceFiles().flatMapTo(linkedSetOf()) { filename ->
       JsonReader.readMaps(read(filename))
     }
   }
@@ -82,7 +82,7 @@ internal class StandardFormBundle(
   private fun <T> readIfPresent(filename: String, parse: (String) -> List<T>): List<T> =
       if (filename in resourceFilenames) parse(read(filename)) else emptyList()
 
-  private fun mapResourceFiles(): List<String> =
+  private fun mapJsonResourceFiles(): List<String> =
       resourceFilenames.filter { it == MAPS_FILENAME || it.endsWith("-$MAPS_FILENAME") }.sorted()
 
   private fun isExpected(filename: String): Boolean =

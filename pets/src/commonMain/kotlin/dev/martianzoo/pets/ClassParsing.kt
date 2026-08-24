@@ -160,6 +160,10 @@ internal object ClassParsing : PetTokenizer() {
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
 
+    private val oneLineBody: Parser<Body> by lazy {
+      oneLineBodyParser(bodyElementExceptNestedClasses, acceptZero = false)
+    }
+
     private val docstring: Parser<String> = quotedText
 
     private val nestableGroup: Parser<NestableDeclGroup> =
@@ -167,7 +171,7 @@ internal object ClassParsing : PetTokenizer() {
             optional(docstring and skip(nls)) and
             kind and
             signature and
-            (multilineBody or moreSignatures) map
+            (multilineBody or oneLineBody or moreSignatures) map
             { (doc, kind, sig, bodyOrSigs) ->
               bodyOrSigs.convert(kind, sig, doc)
             }
@@ -194,10 +198,6 @@ internal object ClassParsing : PetTokenizer() {
 
     val derivedClassBody: Parser<Body> by lazy {
       oneLineBodyParser(derivedClassBodyElement, acceptZero = true)
-    }
-
-    private val oneLineBody: Parser<Body> by lazy {
-      oneLineBodyParser(bodyElementExceptNestedClasses, acceptZero = false)
     }
 
     val oneLineDecl: Parser<ClassDeclaration> =
@@ -249,7 +249,7 @@ internal object ClassParsing : PetTokenizer() {
     constructor(list: List<BodyElement> = emptyList()) : this(KClassMultimap(list))
 
     override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
-        NestableDeclGroup(kind, firstSignature, this)
+        NestableDeclGroup(kind, firstSignature, this, docstring)
 
     private inline fun <reified E : BodyElement> getAll() = elements.get<E>()
 
@@ -288,7 +288,8 @@ internal object ClassParsing : PetTokenizer() {
         kind: ClassKind,
         signature: Signature,
         body: Body,
-    ) : this(create(kind, signature, body))
+        docstring: String? = null,
+    ) : this(create(kind, signature, body, docstring))
 
     private fun unnestAllFrom(container: ClassName): List<NestableDecl> = declList.map {
       it.unnestOneFrom(container)
@@ -299,7 +300,12 @@ internal object ClassParsing : PetTokenizer() {
     fun finishAll() = declList.map { it.decl }
 
     private companion object {
-      fun create(kind: ClassKind, signature: Signature, body: Body): List<NestableDecl> {
+      fun create(
+          kind: ClassKind,
+          signature: Signature,
+          body: Body,
+          docstring: String?,
+      ): List<NestableDecl> {
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
         require(mergedDefaults.forClass in setOf(null, signature.className))
         val newDecl =
@@ -310,6 +316,7 @@ internal object ClassParsing : PetTokenizer() {
                 defaultsDeclaration = mergedDefaults,
                 properties = body.properties,
                 extraNodes = actionSelectors(body.actions),
+                docstring = docstring,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested

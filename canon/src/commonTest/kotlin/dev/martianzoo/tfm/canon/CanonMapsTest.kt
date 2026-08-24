@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.util.Grid
@@ -10,6 +12,12 @@ import kotlin.test.Test
 
 /** Tests for the Canon data set. */
 internal class CanonMapsTest {
+  @Test
+  internal fun mapClassDeclarationsComeFromPets() {
+    Canon.classDeclaration(cn("CimmeriaMap")).effects.first() shouldBe
+        parse<Effect>("This IF (MultiplayerMode, =0 Milestone):: CimmeriaDefaultMilestones.")
+  }
+
   @Test fun testTharsis() = checkMap(Canon.marsMap(cn("TharsisMap")))
 
   @Test fun testHellas() = checkMap(Canon.marsMap(cn("HellasMap")))

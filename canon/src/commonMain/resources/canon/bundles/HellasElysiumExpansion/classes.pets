@@ -5,3 +5,154 @@ CLASS HellasDefaultAwards : Module
 CLASS ElysiumDefaultMilestones : Module
 
 CLASS ElysiumDefaultAwards : Module
+
+CLASS HellasMap : MarsMap {
+  This IF (MultiplayerMode, =0 Milestone):: HellasDefaultMilestones.
+  This IF (MultiplayerMode, =0 Award):: HellasDefaultAwards.
+}
+
+CLASS ElysiumMap : MarsMap {
+  This IF (MultiplayerMode, =0 Milestone):: ElysiumDefaultMilestones.
+  This IF (MultiplayerMode, =0 Award):: ElysiumDefaultAwards.
+}
+
+// The map area declarations below are code generated.
+CLASS Hellas_1_1 :    WaterArea { row = 1; column = 1; Tile<This>: 2 Plant }
+CLASS Hellas_1_2 :     LandArea { row = 1; column = 2; Tile<This>: 2 Plant }
+CLASS Hellas_1_3 :     LandArea { row = 1; column = 3; Tile<This>: 2 Plant }
+CLASS Hellas_1_4 :     LandArea { row = 1; column = 4; Tile<This>: Plant, Steel }
+CLASS Hellas_1_5 :     LandArea { row = 1; column = 5; Tile<This>: Plant }
+
+CLASS Hellas_2_1 :    WaterArea { row = 2; column = 1; Tile<This>: 2 Plant }
+CLASS Hellas_2_2 :     LandArea { row = 2; column = 2; Tile<This>: 2 Plant }
+CLASS Hellas_2_3 :     LandArea { row = 2; column = 3; Tile<This>: Plant }
+CLASS Hellas_2_4 :     LandArea { row = 2; column = 4; Tile<This>: Plant, Steel }
+CLASS Hellas_2_5 :     LandArea { row = 2; column = 5; Tile<This>: Plant }
+CLASS Hellas_2_6 :     LandArea { row = 2; column = 6; Tile<This>: Plant }
+
+CLASS Hellas_3_1 :    WaterArea { row = 3; column = 1; Tile<This>: Plant }
+CLASS Hellas_3_2 :     LandArea { row = 3; column = 2; Tile<This>: Plant }
+CLASS Hellas_3_3 :     LandArea { row = 3; column = 3; Tile<This>: Steel }
+CLASS Hellas_3_4 :     LandArea { row = 3; column = 4; Tile<This>: Steel }
+CLASS Hellas_3_5 :     LandArea { row = 3; column = 5 }
+CLASS Hellas_3_6 :     LandArea { row = 3; column = 6; Tile<This>: 2 Plant }
+CLASS Hellas_3_7 :     LandArea { row = 3; column = 7; Tile<This>: Plant, ProjectCard }
+
+CLASS Hellas_4_1 :    WaterArea { row = 4; column = 1; Tile<This>: Plant }
+CLASS Hellas_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Plant }
+CLASS Hellas_4_3 :     LandArea { row = 4; column = 3; Tile<This>: Steel }
+CLASS Hellas_4_4 :     LandArea { row = 4; column = 4; Tile<This>: 2 Steel }
+CLASS Hellas_4_5 :     LandArea { row = 4; column = 5; Tile<This>: Steel }
+CLASS Hellas_4_6 :    WaterArea { row = 4; column = 6; Tile<This>: Plant }
+CLASS Hellas_4_7 :    WaterArea { row = 4; column = 7; Tile<This>: Plant }
+CLASS Hellas_4_8 :     LandArea { row = 4; column = 8; Tile<This>: Plant }
+
+CLASS Hellas_5_1 :     LandArea { row = 5; column = 1; Tile<This>: ProjectCard }
+CLASS Hellas_5_2 :     LandArea { row = 5; column = 2 }
+CLASS Hellas_5_3 :     LandArea { row = 5; column = 3 }
+CLASS Hellas_5_4 :     LandArea { row = 5; column = 4; Tile<This>: 2 Steel }
+CLASS Hellas_5_5 :     LandArea { row = 5; column = 5 }
+CLASS Hellas_5_6 :    WaterArea { row = 5; column = 6; Tile<This>: ProjectCard }
+CLASS Hellas_5_7 :    WaterArea { row = 5; column = 7; Tile<This>: 3 Heat }
+CLASS Hellas_5_8 :    WaterArea { row = 5; column = 8 }
+CLASS Hellas_5_9 :     LandArea { row = 5; column = 9; Tile<This>: Plant }
+
+CLASS Hellas_6_2 :     LandArea { row = 6; column = 2; Tile<This>: Titanium }
+CLASS Hellas_6_3 :     LandArea { row = 6; column = 3 }
+CLASS Hellas_6_4 :     LandArea { row = 6; column = 4; Tile<This>: Steel }
+CLASS Hellas_6_5 :     LandArea { row = 6; column = 5 }
+CLASS Hellas_6_6 :     LandArea { row = 6; column = 6 }
+CLASS Hellas_6_7 :    WaterArea { row = 6; column = 7 }
+CLASS Hellas_6_8 :    WaterArea { row = 6; column = 8; Tile<This>: Steel }
+CLASS Hellas_6_9 :     LandArea { row = 6; column = 9 }
+
+CLASS Hellas_7_3 :    WaterArea { row = 7; column = 3; Tile<This>: 2 Titanium }
+CLASS Hellas_7_4 :     LandArea { row = 7; column = 4 }
+CLASS Hellas_7_5 :     LandArea { row = 7; column = 5 }
+CLASS Hellas_7_6 :     LandArea { row = 7; column = 6; Tile<This>: ProjectCard }
+CLASS Hellas_7_7 :     LandArea { row = 7; column = 7 }
+CLASS Hellas_7_8 :     LandArea { row = 7; column = 8 }
+CLASS Hellas_7_9 :     LandArea { row = 7; column = 9; Tile<This>: Titanium }
+
+CLASS Hellas_8_4 :     LandArea { row = 8; column = 4; Tile<This>: Steel }
+CLASS Hellas_8_5 :     LandArea { row = 8; column = 5; Tile<This>: ProjectCard }
+CLASS Hellas_8_6 :     LandArea { row = 8; column = 6; Tile<This>: 2 Heat }
+CLASS Hellas_8_7 :     LandArea { row = 8; column = 7; Tile<This>: 2 Heat }
+CLASS Hellas_8_8 :     LandArea { row = 8; column = 8; Tile<This>: Titanium }
+CLASS Hellas_8_9 :     LandArea { row = 8; column = 9; Tile<This>: Titanium }
+
+CLASS Hellas_9_5 :     LandArea { row = 9; column = 5 }
+CLASS Hellas_9_6 :     LandArea { row = 9; column = 6; Tile<This>: 2 Heat }
+CLASS Hellas_9_7 :     LandArea { row = 9; column = 7; Tile<This>: OceanTile<>, -6 }
+CLASS Hellas_9_8 :     LandArea { row = 9; column = 8; Tile<This>: 2 Heat }
+CLASS Hellas_9_9 :     LandArea { row = 9; column = 9 }
+
+CLASS Elysium_1_1 :    WaterArea { row = 1; column = 1 }
+CLASS Elysium_1_2 :    WaterArea { row = 1; column = 2; Tile<This>: Titanium }
+CLASS Elysium_1_3 :    WaterArea { row = 1; column = 3; Tile<This>: ProjectCard }
+CLASS Elysium_1_4 :    WaterArea { row = 1; column = 4; Tile<This>: Steel }
+CLASS Elysium_1_5 :     LandArea { row = 1; column = 5; Tile<This>: ProjectCard }
+
+CLASS Elysium_2_1 : VolcanicArea { row = 2; column = 1; Tile<This>: Titanium }
+CLASS Elysium_2_2 :     LandArea { row = 2; column = 2 }
+CLASS Elysium_2_3 :     LandArea { row = 2; column = 3 }
+CLASS Elysium_2_4 :    WaterArea { row = 2; column = 4 }
+CLASS Elysium_2_5 :    WaterArea { row = 2; column = 5 }
+CLASS Elysium_2_6 :     LandArea { row = 2; column = 6; Tile<This>: 2 Steel }
+
+CLASS Elysium_3_1 : VolcanicArea { row = 3; column = 1; Tile<This>: 2 Titanium }
+CLASS Elysium_3_2 :     LandArea { row = 3; column = 2 }
+CLASS Elysium_3_3 :     LandArea { row = 3; column = 3; Tile<This>: ProjectCard }
+CLASS Elysium_3_4 :     LandArea { row = 3; column = 4 }
+CLASS Elysium_3_5 :    WaterArea { row = 3; column = 5; Tile<This>: Plant }
+CLASS Elysium_3_6 :    WaterArea { row = 3; column = 6 }
+CLASS Elysium_3_7 : VolcanicArea { row = 3; column = 7; Tile<This>: 3 ProjectCard }
+
+CLASS Elysium_4_1 :     LandArea { row = 4; column = 1; Tile<This>: Plant }
+CLASS Elysium_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Plant }
+CLASS Elysium_4_3 :     LandArea { row = 4; column = 3; Tile<This>: Plant }
+CLASS Elysium_4_4 :    WaterArea { row = 4; column = 4; Tile<This>: 2 Plant }
+CLASS Elysium_4_5 :     LandArea { row = 4; column = 5; Tile<This>: Plant }
+CLASS Elysium_4_6 :    WaterArea { row = 4; column = 6; Tile<This>: Plant }
+CLASS Elysium_4_7 :    WaterArea { row = 4; column = 7; Tile<This>: Plant }
+CLASS Elysium_4_8 :     LandArea { row = 4; column = 8; Tile<This>: Plant, Steel }
+
+CLASS Elysium_5_1 :     LandArea { row = 5; column = 1; Tile<This>: 2 Plant }
+CLASS Elysium_5_2 :     LandArea { row = 5; column = 2; Tile<This>: 2 Plant }
+CLASS Elysium_5_3 :     LandArea { row = 5; column = 3; Tile<This>: 2 Plant }
+CLASS Elysium_5_4 :    WaterArea { row = 5; column = 4; Tile<This>: 2 Plant }
+CLASS Elysium_5_5 :     LandArea { row = 5; column = 5; Tile<This>: 2 Plant }
+CLASS Elysium_5_6 :     LandArea { row = 5; column = 6; Tile<This>: 3 Plant }
+CLASS Elysium_5_7 :     LandArea { row = 5; column = 7; Tile<This>: 2 Plant }
+CLASS Elysium_5_8 :     LandArea { row = 5; column = 8; Tile<This>: 2 Plant }
+CLASS Elysium_5_9 : VolcanicArea { row = 5; column = 9; Tile<This>: Plant, Titanium }
+
+CLASS Elysium_6_2 :     LandArea { row = 6; column = 2; Tile<This>: Steel }
+CLASS Elysium_6_3 :     LandArea { row = 6; column = 3; Tile<This>: Plant }
+CLASS Elysium_6_4 :     LandArea { row = 6; column = 4; Tile<This>: Plant }
+CLASS Elysium_6_5 :     LandArea { row = 6; column = 5; Tile<This>: Plant }
+CLASS Elysium_6_6 :     LandArea { row = 6; column = 6; Tile<This>: Plant }
+CLASS Elysium_6_7 :     LandArea { row = 6; column = 7; Tile<This>: Plant }
+CLASS Elysium_6_8 :     LandArea { row = 6; column = 8; Tile<This>: Plant }
+CLASS Elysium_6_9 :     LandArea { row = 6; column = 9 }
+
+CLASS Elysium_7_3 :     LandArea { row = 7; column = 3; Tile<This>: Titanium }
+CLASS Elysium_7_4 :     LandArea { row = 7; column = 4; Tile<This>: Steel }
+CLASS Elysium_7_5 :     LandArea { row = 7; column = 5 }
+CLASS Elysium_7_6 :     LandArea { row = 7; column = 6 }
+CLASS Elysium_7_7 :     LandArea { row = 7; column = 7; Tile<This>: Steel }
+CLASS Elysium_7_8 :     LandArea { row = 7; column = 8 }
+CLASS Elysium_7_9 :     LandArea { row = 7; column = 9 }
+
+CLASS Elysium_8_4 :     LandArea { row = 8; column = 4; Tile<This>: 2 Steel }
+CLASS Elysium_8_5 :     LandArea { row = 8; column = 5 }
+CLASS Elysium_8_6 :     LandArea { row = 8; column = 6 }
+CLASS Elysium_8_7 :     LandArea { row = 8; column = 7 }
+CLASS Elysium_8_8 :     LandArea { row = 8; column = 8; Tile<This>: 2 Steel }
+CLASS Elysium_8_9 :     LandArea { row = 8; column = 9 }
+
+CLASS Elysium_9_5 :     LandArea { row = 9; column = 5; Tile<This>: Steel }
+CLASS Elysium_9_6 :     LandArea { row = 9; column = 6 }
+CLASS Elysium_9_7 :     LandArea { row = 9; column = 7; Tile<This>: ProjectCard }
+CLASS Elysium_9_8 :     LandArea { row = 9; column = 8; Tile<This>: ProjectCard }
+CLASS Elysium_9_9 :     LandArea { row = 9; column = 9; Tile<This>: 2 Steel }

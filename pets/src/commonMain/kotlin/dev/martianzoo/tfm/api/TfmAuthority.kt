@@ -76,8 +76,12 @@ public open class TfmAuthority : Authority {
               }
             }
             if (availabilityModules.isNotEmpty()) {
+              // Content declarations retain Definition-driven selection even when authored in Pets.
+              val definitionNames = bundle.allDefinitions.mapTo(hashSetOf(), Definition::className)
               val ambientClassNames =
-                  bundle.explicitClassDeclarations.map(ClassDeclaration::className)
+                  bundle.explicitClassDeclarations
+                      .map(ClassDeclaration::className)
+                      .filterNot(definitionNames::contains)
               ambientClassNames
                   .filterNot { isSubtypeOf(it, MODULE_CLASS) }
                   .forEach { className ->
@@ -269,8 +273,13 @@ public open class TfmAuthority : Authority {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    explicitClassDeclarations.map(FollowModeNeutralizer::neutralize) +
-        allDefinitions.map(Definition::asClassDeclaration) +
+    val explicit = explicitClassDeclarations.map(FollowModeNeutralizer::neutralize)
+    val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
+    // An explicit Pets declaration owns the Class when its structured Definition remains metadata.
+    explicit +
+        allDefinitions
+            .filterNot { it.className in explicitNames }
+            .map(Definition::asClassDeclaration) +
         cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
   }
 

@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.testlib.te
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -17,6 +18,44 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ClassDeclarationTest {
+  @Test
+  internal fun everyCanonicalDeclarationRendersAsParseablePets() {
+    Canon.allClassDeclarations.values.forEach { Parsing.parseClasses(it.toString()).single() }
+  }
+
+  @Test
+  internal fun rendersAsParseablePets() {
+    val source =
+        """
+        "A useful class"
+        ABSTRACT CLASS Foo<Bar, Qux> : Baz, Eep {
+          HAS =1 This
+          DEFAULT Foo<Xyz>
+          DEFAULT +Foo<Abc>?
+          DEFAULT -Foo<Def>!
+          DEFAULT Foo<Trigger>:
+          row = Number
+          column = 2
+          This: DoStuff
+        }
+        """
+            .trimIndent()
+    val declaration = Parsing.parseClasses(source).single()
+
+    Parsing.parseClasses(declaration.toString()).single() shouldBe declaration
+    declaration.toString() shouldBe source
+  }
+
+  @Test
+  internal fun rendersOneLineBodiesForDeclarationFiles() {
+    val declaration =
+        Parsing.parseClasses("CLASS Foo {\n  row = 1\n  column = 2\n  This: Bar\n}").single()
+    val oneLine = "CLASS Foo { row = 1; column = 2; This: Bar }"
+
+    declaration.toString(oneLine = true) shouldBe oneLine
+    Parsing.parseClasses(oneLine).single() shouldBe declaration
+  }
+
   @Test
   internal fun duplicateEffectsArePreserved() {
     val effects =

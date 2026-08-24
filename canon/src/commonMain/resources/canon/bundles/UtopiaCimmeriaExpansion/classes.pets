@@ -10,3 +10,154 @@ CLASS UtopiaDefaultAwards : Module
 CLASS CimmeriaDefaultMilestones : Module
 
 CLASS CimmeriaDefaultAwards : Module
+
+CLASS UtopiaMap : MarsMap {
+  This IF (MultiplayerMode, =0 Milestone):: UtopiaDefaultMilestones.
+  This IF (MultiplayerMode, =0 Award):: UtopiaDefaultAwards.
+}
+
+CLASS CimmeriaMap : MarsMap {
+  This IF (MultiplayerMode, =0 Milestone):: CimmeriaDefaultMilestones.
+  This IF (MultiplayerMode, =0 Award):: CimmeriaDefaultAwards.
+}
+
+// The map area declarations below are code generated.
+CLASS Utopia_1_1 :     LandArea { row = 1; column = 1 }
+CLASS Utopia_1_2 :     LandArea { row = 1; column = 2 }
+CLASS Utopia_1_3 :     LandArea { row = 1; column = 3; Tile<This>: 2 Energy }
+CLASS Utopia_1_4 :     LandArea { row = 1; column = 4 }
+CLASS Utopia_1_5 :     LandArea { row = 1; column = 5 }
+
+CLASS Utopia_2_1 :     LandArea { row = 2; column = 1 }
+CLASS Utopia_2_2 :     LandArea { row = 2; column = 2; Tile<This>: 2 Steel }
+CLASS Utopia_2_3 :     LandArea { row = 2; column = 3; Tile<This>: 2 Energy }
+CLASS Utopia_2_4 :     LandArea { row = 2; column = 4; Tile<This>: 2 Energy, ProjectCard }
+CLASS Utopia_2_5 :     LandArea { row = 2; column = 5 }
+CLASS Utopia_2_6 :     LandArea { row = 2; column = 6 }
+
+CLASS Utopia_3_1 :    WaterArea { row = 3; column = 1; Tile<This>: 3 Plant }
+CLASS Utopia_3_2 :     LandArea { row = 3; column = 2 }
+CLASS Utopia_3_3 :     LandArea { row = 3; column = 3; Tile<This>: Steel }
+CLASS Utopia_3_4 :     LandArea { row = 3; column = 4 }
+CLASS Utopia_3_5 :     LandArea { row = 3; column = 5 }
+CLASS Utopia_3_6 :     LandArea { row = 3; column = 6; Tile<This>: 2 ProjectCard, Titanium }
+CLASS Utopia_3_7 :     LandArea { row = 3; column = 7; Tile<This>: 2 Titanium }
+
+CLASS Utopia_4_1 :    WaterArea { row = 4; column = 1; Tile<This>: Plant, ProjectCard }
+CLASS Utopia_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Plant }
+CLASS Utopia_4_3 :     LandArea { row = 4; column = 3; Tile<This>: Plant }
+CLASS Utopia_4_4 :     LandArea { row = 4; column = 4; Tile<This>: 2 Plant }
+CLASS Utopia_4_5 :    WaterArea { row = 4; column = 5; Tile<This>: 2 Plant }
+CLASS Utopia_4_6 :    WaterArea { row = 4; column = 6; Tile<This>: Plant }
+CLASS Utopia_4_7 :    WaterArea { row = 4; column = 7; Tile<This>: Plant }
+CLASS Utopia_4_8 :     LandArea { row = 4; column = 8; Tile<This>: Plant }
+
+CLASS Utopia_5_1 :     LandArea { row = 5; column = 1 }
+CLASS Utopia_5_2 :     LandArea { row = 5; column = 2 }
+CLASS Utopia_5_3 :     LandArea { row = 5; column = 3 }
+CLASS Utopia_5_4 :     LandArea { row = 5; column = 4; Tile<This>: Plant }
+CLASS Utopia_5_5 :     LandArea { row = 5; column = 5; Tile<This>: Plant }
+CLASS Utopia_5_6 :     LandArea { row = 5; column = 6; Tile<This>: 2 Plant }
+CLASS Utopia_5_7 :     LandArea { row = 5; column = 7 }
+CLASS Utopia_5_8 :    WaterArea { row = 5; column = 8 }
+CLASS Utopia_5_9 :     LandArea { row = 5; column = 9; Tile<This>: Plant, Titanium }
+
+CLASS Utopia_6_2 :     LandArea { row = 6; column = 2; Tile<This>: Steel }
+CLASS Utopia_6_3 :     LandArea { row = 6; column = 3; Tile<This>: 2 Steel }
+CLASS Utopia_6_4 :    WaterArea { row = 6; column = 4; Tile<This>: 2 Plant }
+CLASS Utopia_6_5 :     LandArea { row = 6; column = 5; Tile<This>: 2 Plant }
+CLASS Utopia_6_6 :     LandArea { row = 6; column = 6 }
+CLASS Utopia_6_7 :     LandArea { row = 6; column = 7 }
+CLASS Utopia_6_8 :     LandArea { row = 6; column = 8; Tile<This>: 2 Steel }
+CLASS Utopia_6_9 :     LandArea { row = 6; column = 9 }
+
+CLASS Utopia_7_3 :     LandArea { row = 7; column = 3; Tile<This>: Steel }
+CLASS Utopia_7_4 :     LandArea { row = 7; column = 4 }
+CLASS Utopia_7_5 :    WaterArea { row = 7; column = 5 }
+CLASS Utopia_7_6 :    WaterArea { row = 7; column = 6; Tile<This>: 2 Plant }
+CLASS Utopia_7_7 :     LandArea { row = 7; column = 7 }
+CLASS Utopia_7_8 :     LandArea { row = 7; column = 8 }
+CLASS Utopia_7_9 :     LandArea { row = 7; column = 9 }
+
+CLASS Utopia_8_4 :     LandArea { row = 8; column = 4 }
+CLASS Utopia_8_5 :     LandArea { row = 8; column = 5; Tile<This>: 2 ProjectCard }
+CLASS Utopia_8_6 :    WaterArea { row = 8; column = 6 }
+CLASS Utopia_8_7 :    WaterArea { row = 8; column = 7; Tile<This>: 2 Plant }
+CLASS Utopia_8_8 :     LandArea { row = 8; column = 8; Tile<This>: Steel, Titanium }
+CLASS Utopia_8_9 :     LandArea { row = 8; column = 9; Tile<This>: 2 Plant }
+
+CLASS Utopia_9_5 :     LandArea { row = 9; column = 5 }
+CLASS Utopia_9_6 :     LandArea { row = 9; column = 6 }
+CLASS Utopia_9_7 :     LandArea { row = 9; column = 7; Tile<This>: 2 Steel }
+CLASS Utopia_9_8 :    WaterArea { row = 9; column = 8; Tile<This>: Plant }
+CLASS Utopia_9_9 :     LandArea { row = 9; column = 9; Tile<This>: Plant }
+
+CLASS Cimmeria_1_1 :    WaterArea { row = 1; column = 1 }
+CLASS Cimmeria_1_2 :     LandArea { row = 1; column = 2; Tile<This>: Plant }
+CLASS Cimmeria_1_3 : VolcanicArea { row = 1; column = 3; Tile<This>: Steel }
+CLASS Cimmeria_1_4 :     LandArea { row = 1; column = 4; Tile<This>: Plant }
+CLASS Cimmeria_1_5 :    WaterArea { row = 1; column = 5; Tile<This>: 2 Plant }
+
+CLASS Cimmeria_2_1 :    WaterArea { row = 2; column = 1; Tile<This>: 2 Titanium }
+CLASS Cimmeria_2_2 :     LandArea { row = 2; column = 2 }
+CLASS Cimmeria_2_3 :     LandArea { row = 2; column = 3 }
+CLASS Cimmeria_2_4 :     LandArea { row = 2; column = 4 }
+CLASS Cimmeria_2_5 :     LandArea { row = 2; column = 5; Tile<This>: Plant, Steel }
+CLASS Cimmeria_2_6 :    WaterArea { row = 2; column = 6; Tile<This>: Plant }
+
+CLASS Cimmeria_3_1 :     LandArea { row = 3; column = 1 }
+CLASS Cimmeria_3_2 :     LandArea { row = 3; column = 2 }
+CLASS Cimmeria_3_3 :     LandArea { row = 3; column = 3; Tile<This>: TcColonyBonus }
+CLASS Cimmeria_3_4 :     LandArea { row = 3; column = 4 }
+CLASS Cimmeria_3_5 :     LandArea { row = 3; column = 5 }
+CLASS Cimmeria_3_6 :     LandArea { row = 3; column = 6; Tile<This>: Plant }
+CLASS Cimmeria_3_7 :     LandArea { row = 3; column = 7 }
+
+CLASS Cimmeria_4_1 : VolcanicArea { row = 4; column = 1; Tile<This>: Steel }
+CLASS Cimmeria_4_2 :     LandArea { row = 4; column = 2 }
+CLASS Cimmeria_4_3 :     LandArea { row = 4; column = 3; Tile<This>: Steel }
+CLASS Cimmeria_4_4 :     LandArea { row = 4; column = 4 }
+CLASS Cimmeria_4_5 :     LandArea { row = 4; column = 5; Tile<This>: 2 Steel }
+CLASS Cimmeria_4_6 :     LandArea { row = 4; column = 6 }
+CLASS Cimmeria_4_7 : VolcanicArea { row = 4; column = 7; Tile<This>: 2 Titanium }
+CLASS Cimmeria_4_8 :     LandArea { row = 4; column = 8; Tile<This>: ProjectCard }
+
+CLASS Cimmeria_5_1 :     LandArea { row = 5; column = 1 }
+CLASS Cimmeria_5_2 :     LandArea { row = 5; column = 2 }
+CLASS Cimmeria_5_3 :     LandArea { row = 5; column = 3 }
+CLASS Cimmeria_5_4 :     LandArea { row = 5; column = 4; Tile<This>: Steel }
+CLASS Cimmeria_5_5 :     LandArea { row = 5; column = 5; Tile<This>: Steel }
+CLASS Cimmeria_5_6 :     LandArea { row = 5; column = 6; Tile<This>: ProjectCard }
+CLASS Cimmeria_5_7 :     LandArea { row = 5; column = 7 }
+CLASS Cimmeria_5_8 :     LandArea { row = 5; column = 8; Tile<This>: Steel, ProjectCard }
+CLASS Cimmeria_5_9 :    WaterArea { row = 5; column = 9 }
+
+CLASS Cimmeria_6_2 : VolcanicArea { row = 6; column = 2; Tile<This>: 2 ProjectCard }
+CLASS Cimmeria_6_3 :     LandArea { row = 6; column = 3 }
+CLASS Cimmeria_6_4 :     LandArea { row = 6; column = 4; Tile<This>: Titanium, 2 Steel }
+CLASS Cimmeria_6_5 :     LandArea { row = 6; column = 5 }
+CLASS Cimmeria_6_6 :     LandArea { row = 6; column = 6; Tile<This>: Titanium }
+CLASS Cimmeria_6_7 :     LandArea { row = 6; column = 7; Tile<This>: 2 Steel }
+CLASS Cimmeria_6_8 :     LandArea { row = 6; column = 8 }
+CLASS Cimmeria_6_9 :     LandArea { row = 6; column = 9; Tile<This>: 2 Steel }
+
+CLASS Cimmeria_7_3 :     LandArea { row = 7; column = 3; Tile<This>: 2 Plant }
+CLASS Cimmeria_7_4 :     LandArea { row = 7; column = 4; Tile<This>: Titanium }
+CLASS Cimmeria_7_5 :     LandArea { row = 7; column = 5 }
+CLASS Cimmeria_7_6 :     LandArea { row = 7; column = 6; Tile<This>: Plant, 2 Steel }
+CLASS Cimmeria_7_7 :     LandArea { row = 7; column = 7; Tile<This>: 2 Plant }
+CLASS Cimmeria_7_8 :     LandArea { row = 7; column = 8; Tile<This>: Plant }
+CLASS Cimmeria_7_9 :    WaterArea { row = 7; column = 9; Tile<This>: 2 Plant }
+
+CLASS Cimmeria_8_4 :    WaterArea { row = 8; column = 4 }
+CLASS Cimmeria_8_5 :     LandArea { row = 8; column = 5; Tile<This>: Plant }
+CLASS Cimmeria_8_6 :     LandArea { row = 8; column = 6; Tile<This>: Titanium }
+CLASS Cimmeria_8_7 :     LandArea { row = 8; column = 7; Tile<This>: ProjectCard }
+CLASS Cimmeria_8_8 :     LandArea { row = 8; column = 8; Tile<This>: 2 Plant }
+CLASS Cimmeria_8_9 :    WaterArea { row = 8; column = 9; Tile<This>: 2 Plant }
+
+CLASS Cimmeria_9_5 :    WaterArea { row = 9; column = 5; Tile<This>: 2 Plant }
+CLASS Cimmeria_9_6 :    WaterArea { row = 9; column = 6; Tile<This>: Plant }
+CLASS Cimmeria_9_7 :    WaterArea { row = 9; column = 7; Tile<This>: Plant }
+CLASS Cimmeria_9_8 :     LandArea { row = 9; column = 8; Tile<This>: Plant }
+CLASS Cimmeria_9_9 :    WaterArea { row = 9; column = 9; Tile<This>: Plant }
