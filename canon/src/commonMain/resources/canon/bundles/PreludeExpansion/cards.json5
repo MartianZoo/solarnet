@@ -37,8 +37,9 @@
       "name": "Vitor",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "45, (Class<Award>: Mandate { -> Award }) OR Ok",
+      "immediate": "45",
       "effects": [
+        "This IF Class<Award>: Mandate { -> Award }",
         "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
       ],
       "components": [

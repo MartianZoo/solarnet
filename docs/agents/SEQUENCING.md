@@ -249,6 +249,24 @@ not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentT
 current subscribers that need a before-A modification. `Accept` is not a committed precursor at
 all: it exposes an optional payment choice.
 
+### Do not make proposed changes triggerable
+
+A generic `PRE A:: B` would fire after an `A` change had been concretely prepared but before it was
+applied. Do not add this. Preparation is allowed to read the current World only because its result
+must be the next mutation. Letting B mutate first makes the prepared A stale: B could consume A's
+removal target, fill its gain limit, remove one of its dependencies, or otherwise make the exact
+change impossible. Executing A anyway can violate the component model; preparing it again permits B
+to happen in response to an A that then changes or disappears. Making either outcome roll back
+requires a new speculative-change contract rather than ordinary Effect semantics.
+
+PRE would also subscribe to an intention rather than a component fact. There is no earlier
+`ChangeEvent` for B's Cause to name, and honest history would need a second event kind plus rules for
+listener snapshots, atomization, multiplicity, and nested PRE cycles. A committed precursor keeps
+all of that in the existing model: record a real P only after the operation commits to producing A,
+make A mandatory for successful completion, and roll both back if the operation reaches a dead end.
+The extra P Type is visible conceptual cost, but it is narrower and more truthful than making every
+prepared change observable before it exists.
+
 ## Use automatic effects to preserve player-visible invariants
 
 For one concrete change, the engine recursively executes all matching automatic effects before
@@ -322,6 +340,28 @@ admission, or as a substitute for a scope that must wait for transitive descenda
 
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
 scope may be wider than its payment transaction.
+
+### Choose condition time explicitly
+
+These Effects test their Requirements at different times:
+
+```pets
+A IF R: B
+A: (R: B) OR Ok
+```
+
+The first tests R when A's exact Change Event fires. If R is false, no task is created; if it is
+true, later changes to R do not cancel B. The second always creates a task and tests R when that task
+is prepared against the later World. It also makes B optional when R is true because `Ok` remains a
+valid arm. The forms are therefore not interchangeable.
+
+Prefer trigger-side `IF` when R cannot change in the interval or when R qualifies the original
+event. Global-parameter threshold bonuses, trade income measured before the colony track resets,
+and Recession's test for another Player all deliberately freeze trigger-time state. Use the gated
+form only when later sibling work is meant to decide availability and declining B is legal.
+Pharmacy Union is the current model: each queued Science-tag consequence checks the then-current
+Disease count, allowing one consequence to remove the last Disease before another offers the
+corporation flip.
 
 ## Proposed fanout composes as siblings, not a loop or join
 

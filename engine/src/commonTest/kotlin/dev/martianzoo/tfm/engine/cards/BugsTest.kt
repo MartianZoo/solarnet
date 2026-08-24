@@ -100,10 +100,7 @@ internal class BugsTest : CardTest() {
   @Test
   internal fun `Philantropist incorrectly counts Vitor as a card with victory points`() {
     newGame(GameConfig("PreludeExpansion, Philantropist", "Player1", "Player2"))
-    p1.manual("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals") {
-      // Decline Vitor's initial award funding.
-      declineTask()
-    }
+    p1.manual("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
 
     p1.manual("Philantropist")
 
