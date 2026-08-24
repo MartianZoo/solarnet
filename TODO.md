@@ -4,8 +4,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
-- Increase every solo opponent resource and production stock from 11 to 42; replenishment remains
-  the semantic guarantee, while the larger reserve reduces exposure to one oversized operation.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
 - Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
