@@ -31,7 +31,7 @@
         // Tycoon
         { "name": "Tycoon15", "requirement": "15 (ActiveCard OR AutomatedCard)" },
         // Legend
-        { "name": "Legend5", "requirement": "5 PlayedEvent" },
+        { "name": "Legend5", "requirement": "CARDS[5 CardBack<EventPile>]" },
       ],
     },
   ],

@@ -84,7 +84,7 @@
         "MicrobeTag<Anyone, CardFront<Anyone>>: (Disease<This>! OR (MAX 0 This: Ok)), -4.",
         // Check the disease count when each tag consequence executes, so two simultaneous science
         // tags can remove the last disease and then offer the flip.
-        "ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
+        "ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok)"
       ],
     },
 
@@ -93,7 +93,7 @@
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "ScienceTag" ],
       "immediate": "42, PROD[Energy]",
-      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard FROM ProjectCard<Selecting>]" ],
+      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand> FROM ProjectCard<Selecting>]" ],
     },
 
     {
@@ -124,7 +124,7 @@
       "name": "CorporateArchives",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
-      "immediate": "13, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard FROM ProjectCard<Selecting>]",
+      "immediate": "13, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand> FROM ProjectCard<Selecting>]",
     },
 
     {
@@ -137,20 +137,20 @@
     {
       "name": "Merger",
       "deck": "PRELUDE",
-      "immediate": "4 CorporationCard THEN -3 CorporationCard THEN PlayCard<Class<CorporationCard>>, -42",
+      "immediate": "CARDS[4 CorporationCard<Selecting> THEN CorporationCard<Hand> FROM CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>>], -42",
     },
 
     {
       "name": "NewPartner",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], 2 PreludeCard THEN -PreludeCard THEN PlayCard<Class<PreludeCard>>",
+      "immediate": "PROD[1], CARDS[2 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>]",
     },
 
     {
       "name": "HeadStart",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
-      "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!",
+      "immediate": "2 Steel, CARDS[2 / ProjectCard<Hand>], UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
     {
@@ -255,7 +255,7 @@
       "projectKind": "ACTIVE",
       "cost": 17,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard FROM ProjectCard<Selecting>]" ],
+      "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand> FROM ProjectCard<Selecting>]" ],
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -274,7 +274,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 2,
-      "immediate": "3 Megacredit FROM Megacredit<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): PlayedEvent<Player, Class<This>> FROM PlayedEvent<Class<This>>)",
+      "immediate": "3 Megacredit FROM Megacredit<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): CARDS[CardBack<Player, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>])",
       "effects": [ "End: -VictoryPoint" ],
     },
 
@@ -674,7 +674,7 @@
       "projectKind": "AUTOMATED",
       "cost": 7,
       "tags": [ "ScienceTag" ],
-      "immediate": "CARDS[2 ProjectCard FROM ProjectCard<EventPile>?]",
+      "immediate": "CARDS[2 ProjectCard<Hand> FROM ProjectCard<EventPile>?]",
     },
 
     {
@@ -934,10 +934,9 @@
     {
       "name": "PublicPlans",
       "deck": "PROJECT",
-      // NOTE: The player chooses how many cards to reveal and gains that much.
       "projectKind": "EVENT",
       "cost": 7,
-      "immediate": "1? / ProjectCard",
+      "immediate": "CARDS[X ProjectCard<Revealed> FROM ProjectCard<Hand> THEN X ProjectCard<Hand> FROM ProjectCard<Revealed> THEN X]",
       "effects": [ "End: VictoryPoint" ],
     },
 

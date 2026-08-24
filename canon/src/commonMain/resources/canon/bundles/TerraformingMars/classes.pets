@@ -27,7 +27,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   This:: GrossHack<This> BY Engine
   SetupPhase:: 20 TerraformRating<This>
   CorporationPhase:: CorporationCard
-  ResearchPhase: 4 BuyCard<This>?
+  ResearchPhase: CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
   MeasureAward<Award>:: AwardTally<Award> / EVAL Award.metric
 
   CLASS Player1, Player2, Player3, Player4, Player5
@@ -167,7 +167,7 @@ ABSTRACT CLASS Card : Owned<Player> {
     "A red *project* card"
     ABSTRACT CLASS EventCard {
       HAS =1 EventTag<This>
-      This: PlayedEvent<Class<This>> FROM This.
+      This: CARDS[CardBack<EventPile, Class<This>> FROM This.]
     }
   }
 
@@ -433,7 +433,7 @@ ABSTRACT CLASS Phase : System {
 
   CLASS SetupPhase
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>>, 10 BuyCard?
+    NewTurn: PlayCard<Class<CorporationCard>>, CARDS[10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards]
   }
   CLASS ResearchPhase
   CLASS ActionPhase {

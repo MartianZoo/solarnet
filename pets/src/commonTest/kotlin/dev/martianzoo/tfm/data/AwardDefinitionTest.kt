@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import io.kotest.matchers.shouldBe
@@ -23,6 +25,8 @@ internal class AwardDefinitionTest {
                     "metric": "VenusTag",
                     "automaticSelectionRequirement": "VenusNextExpansion",
                   },
+                  { "name": "Visionary", "metric": "CARDS[ProjectCard<Hand>]" },
+                  { "name": "Promoter", "metric": "CARDS[CardBack<EventPile>]" },
                 ],
               }],
             }
@@ -35,6 +39,15 @@ internal class AwardDefinitionTest {
     replacement.automaticSelectionRequirement.toString() shouldBe "MultiplayerMode, DemoMap"
     replacement.asClassDeclaration.properties[PropertyName("metric")] shouldBe
         MetricValue(replacement.metric)
+    awards
+        .single { it.className == cn("Visionary") }
+        .also { it.metric.toString() shouldBe "CARDS[ProjectCard<Hand>]" }
+        .asClassDeclaration
+        .properties[PropertyName("metric")] shouldBe MetricValue(parse<Metric>("ProjectCard"))
+    awards
+        .single { it.className == cn("Promoter") }
+        .asClassDeclaration
+        .properties[PropertyName("metric")] shouldBe MetricValue(parse<Metric>("PlayedEvent"))
     awards
         .single { it.className == cn("SpaceBaron") }
         .automaticSelectionRequirement

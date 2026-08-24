@@ -10,6 +10,6 @@
     // Builder
     { "name": "Builder8", "requirement": "8 BuildingTag" },
     // Planner
-    { "name": "Planner", "requirement": "16 ProjectCard" },
+    { "name": "Planner", "requirement": "CARDS[16 ProjectCard<Hand>]" },
   ],
 }

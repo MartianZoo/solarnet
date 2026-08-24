@@ -29,7 +29,7 @@
       "name": "ValleyTrust",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "37, Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }",
+      "immediate": "37, Mandate { -> CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand> FROM PreludeCard<Selecting> THEN PlayCard<Class<PreludeCard>>] }",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<>" ],
     },
 

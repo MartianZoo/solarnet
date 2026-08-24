@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
+import dev.martianzoo.pets.ast.Requirement
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -18,6 +20,8 @@ internal class MilestoneDefinitionTest {
                 "automaticSelectionRequirement": "DemoMap",
                 "milestones": [
                   { "name": "Terraformer35", "requirement": "35 TerraformRating" },
+                  { "name": "Planner", "requirement": "CARDS[16 ProjectCard<Hand>]" },
+                  { "name": "Legend", "requirement": "CARDS[5 CardBack<EventPile>]" },
                 ],
                 "groups": [{
                   "automaticSelectionRequirement": "VenusNextExpansion",
@@ -42,6 +46,17 @@ internal class MilestoneDefinitionTest {
     terraformer.automaticSelectionRequirement.toString() shouldBe "DemoMap"
     terraformer.asClassDeclaration.properties[PropertyName("requirement")] shouldBe
         RequirementValue(terraformer.requirement)
+    milestones
+        .single { it.className == cn("Planner") }
+        .also { it.requirement.toString() shouldBe "CARDS[16 ProjectCard<Hand>]" }
+        .asClassDeclaration
+        .properties[PropertyName("requirement")] shouldBe
+        RequirementValue(parse<Requirement>("16 ProjectCard"))
+    milestones
+        .single { it.className == cn("Legend") }
+        .asClassDeclaration
+        .properties[PropertyName("requirement")] shouldBe
+        RequirementValue(parse<Requirement>("5 PlayedEvent"))
     milestones
         .single { it.className == cn("Hoverlord") }
         .also { it.selectionGroup shouldBe cn("DemoDefaultMilestones") }

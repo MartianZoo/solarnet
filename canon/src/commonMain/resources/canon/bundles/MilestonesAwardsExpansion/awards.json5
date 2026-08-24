@@ -27,12 +27,12 @@
     // { "name": "Politician", "metric": "..." },
 
     // Promoter
-    { "name": "Promoter", "metric": "PlayedEvent" },
+    { "name": "Promoter", "metric": "CARDS[CardBack<EventPile>]" },
 
     // Traveller
     { "name": "Traveller", "metric": "JovianTag OR EarthTag" },
 
     // Visionary
-    { "name": "Visionary", "metric": "ProjectCard" },
+    { "name": "Visionary", "metric": "CARDS[ProjectCard<Hand>]" },
   ],
 }

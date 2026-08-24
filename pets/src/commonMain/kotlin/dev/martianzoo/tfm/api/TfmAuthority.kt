@@ -27,6 +27,7 @@ import dev.martianzoo.tfm.api.BundleContentSelection.Kind
 import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
+import dev.martianzoo.tfm.data.FollowModeNeutralizer
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
@@ -254,7 +255,7 @@ public open class TfmAuthority : Authority {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    explicitClassDeclarations.toList() +
+    explicitClassDeclarations.map(FollowModeNeutralizer::neutralize) +
         allDefinitions.map(Definition::asClassDeclaration) +
         cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
   }
