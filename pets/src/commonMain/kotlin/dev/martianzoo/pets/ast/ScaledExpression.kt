@@ -96,12 +96,13 @@ private constructor(
       override fun toString(): String = "$value"
     }
 
-    internal data class XScalar(val multiple: Int) : Scalar() {
+    @ConsistentCopyVisibility
+    public data class XScalar internal constructor(val multiple: Int) : Scalar() {
       init {
         require(multiple > 0)
       }
 
-      override val abstract = true
+      override val abstract: Boolean = true
 
       override fun ensureNarrows(that: Scalar, info: TypeInfo) {
         if (this != that) throw NarrowingException("$this / $that")
@@ -109,7 +110,7 @@ private constructor(
 
       override fun times(multiple: Int) = copy(multiple = this.multiple * multiple)
 
-      override fun toString() = if (multiple == 1) "X" else "${multiple}X"
+      override fun toString(): String = if (multiple == 1) "X" else "${multiple}X"
     }
   }
 

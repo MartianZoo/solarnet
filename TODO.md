@@ -4,6 +4,19 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Preserve linked Type variables through English sequence rendering. Flooding's repeated `Anyone`
+  already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
+  stages currently lose that shared identity. Expose the existing semantic link and represent the
+  later participant as a structured reference rather than recognizing Flooding.
+- Finish the remaining English renderer Stage 3 work in `docs/agents/LANGUAGE_REVIEW.md`: move
+  canonical English declarations into their owning bundles and remove `TerraformingMarsDescribers`.
+- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion boundary
+  so derived scores can be evaluated after their source scores rather than relying on task order.
+- Replace Vitor and Philanthropist's positive-VP citation heuristic with an explicit representation
+  of the printed non-negative VP condition; distinguish intended VP icons from incidental text
+  references.
+- Give multiple wild tags on one card distinct occurrences, and prove that two occurrences can be
+  assigned either the same tag or different tags for one action.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
 - Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
@@ -180,8 +193,15 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Make `FollowModeNeutralizer` consume the shared `CardOperation` semantic view; it currently keeps
+  a separate recognizer because it also handles transformed card metrics and requirements.
 - If real content ever references a helper belonging only to the other map in a two-map Bundle,
   split that Bundle at the selection boundary instead of adding per-Class availability metadata.
+- Bring the JVM English renderer under Detekt through the planned intermediate-representation
+  decomposition; avoid mechanical helper extraction or blanket suppression of the 47 legacy
+  complexity findings.
+- Resolve contextual placement-site `This` in the English renderer through its linked type source,
+  then delete its remaining positional recognition.
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
   `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
   so there is one implementation and one source of domain context.
@@ -202,6 +222,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
+- Derive ocean-reserved greenery placements only after the language model can express the waiver of
+  a placed component's normal restrictions as a relationship between that component and its site;
+  do not attach a generic "disregard restrictions" phrase to `WaterArea`.
 - Present other pre-payment resource refunds, especially reduced trade costs, as player-facing
   discounts once their action effects become structurally derivable.
 - Keep the `Award` base class's scoring effect inherited while avoiding loading its scoring

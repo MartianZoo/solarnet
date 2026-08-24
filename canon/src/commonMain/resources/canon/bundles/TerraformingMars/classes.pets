@@ -421,7 +421,7 @@ CLASS Invoice : Billing {
 "The finalized debt for playing a particular card"
 CLASS CardInvoice<Class<CardFront>> : Billing<PlayCards, First, Class<Megacredit>>
 
-"Cards like Indentured Workers leave this in play until the next card-play"
+"A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
   Billing<PlayCards>:: -This!
 }
