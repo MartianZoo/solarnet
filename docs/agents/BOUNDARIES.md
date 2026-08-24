@@ -34,15 +34,17 @@ costless Actions keep ordinary Pets sequencing. The generic Action transformer r
 resource names directly, alongside its existing Terraforming Mars meaning for bare numbers. Treat
 both leaks as one boundary debt rather than adding a broad extension framework for this rule.
 
-### `PROD[...]` is installed by generic pipelines
+### Configured marked-syntax transforms
 
-**Priority when boundary work is selected: P1.**
+**Resolved.**
 
-`Prod` belongs to Terraforming Mars and lives with the Terraforming Mars Pets data so both language
-and engine code can use the same syntax lowering. Generic input, class-effect, and custom-output
-processing still invoke it directly. If another configured transformer is needed, introduce one
-small Authority- or application-supplied pipeline. Do not build a general plugin framework
-preemptively.
+Authorities register handlers by the explicit marker before `[...]`; handlers that need the active
+class universe are factories bound through `ClassTable`. Generic input, class-effect, and
+custom-output processing use the complete resulting dispatcher without naming Terraforming Mars
+syntax. Terraforming Mars registers both `PROD` and `CARDS`; its language layer selects the
+registered `PROD` handler while retaining `CARDS` for structural rendering. Earlier card-source
+compilation uses the same dispatcher with only the follow-mode `CARDS` handler, so unregistered
+syntax is deliberately preserved for a later stage.
 
 ### The script application is mostly REgo/Terraforming Mars
 
@@ -111,13 +113,11 @@ cleanup, the dependencies suggest this order:
    game-specific language profile.
 2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, and
    move the narrow standard-resource lowering with it.
-3. Replace hard-coded `Prod` calls with the smallest configured transformer seam that the selected
-   design needs.
-4. Split generic Authority assembly/validation from Terraforming Mars registries.
-5. Separate the reusable script command shell from Terraforming Mars application wiring.
-6. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
-7. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
-8. Clean up dependency directions made visible by those moves.
+3. Split generic Authority assembly/validation from Terraforming Mars registries.
+4. Separate the reusable script command shell from Terraforming Mars application wiring.
+5. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
+6. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
+7. Clean up dependency directions made visible by those moves.
 
 Do not perform this sequence merely to make an unrelated board game theoretically possible. Each
 step must be independently valuable to Solarnet.

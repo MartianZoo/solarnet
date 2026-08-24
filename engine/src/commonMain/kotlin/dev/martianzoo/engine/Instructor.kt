@@ -38,7 +38,6 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import kotlin.math.min
@@ -55,6 +54,7 @@ internal class Instructor(
         CustomClassRuntime(reader.authority, Transformers(classTable)),
 ) {
   private val automaticEffectStack = mutableListOf<PendingTask>()
+  private val transformDispatcher by lazy { classTable.transformDispatcher() }
 
   internal fun execute(
       instruction: Instruction,
@@ -418,8 +418,7 @@ internal class Instructor(
         throw ExpressionException("custom class instructions can only be pure gains: $change")
       }
       val translated =
-          Prod.deprodify(classTable)
-              .transformInstructionTree(customClasses.prepare(gaining!!, reader))
+          transformDispatcher.transformInstructionTree(customClasses.prepare(gaining!!, reader))
       return prepareTree(translated)
     }
 

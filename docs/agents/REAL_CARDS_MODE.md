@@ -383,7 +383,8 @@ cards in the Player's hand, while `CardBack<EventPile>` counts completed Events 
 event pile. Public Plans moves one linked quantity from `Hand` to `Revealed`, returns those exact
 cards to `Hand`, and awards that quantity.
 
-Follow mode currently neutralizes `CARDS` before Class loading according to that inner shape. A
+Follow mode neutralizes `CARDS` through the Authority's shared marked-syntax handler before Class
+loading according to that inner shape. A
 search becomes the old plain `ProjectCard` gain; a retained-card movement becomes the old gain;
 purchase selection becomes the corresponding optional counted `BuyCard` result; a conditional
 reveal becomes its old optional outcome; retain-matches-then-purchase becomes one free-or-buy outcome
@@ -392,8 +393,8 @@ recovery becomes recovery from `PlayedEvent`. Selected Prelude and corporation p
 former draw-discard-play chain. Hand and event-pile observations become the former `ProjectCard` and
 `PlayedEvent` metrics, and Public Plans becomes its former optional per-card gain. Consequently the
 source contains the printed knowledge while follow-mode execution needs no `CardArea` declarations.
-This neutralization is the current compilation boundary between two permanent modes; the boundary
-mechanism may change, but follow mode is not a migration state to eliminate.
+This neutralization is the compilation boundary between two permanent modes; follow mode is not a
+migration state to eliminate.
 
 The current source-level operation inventory is:
 

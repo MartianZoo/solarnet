@@ -21,7 +21,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.Prod
+import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class as PetsClass
@@ -82,7 +82,7 @@ internal object StandardResourceMonotonicityReport {
 
   fun analyze(premise: GamePremise = maximalSoloPremise()): Analysis {
     val table = ClassTable.forPremise(premise)
-    val deprodifier = Prod.deprodify(table)
+    val productionLowerer = table.transformDispatcher(setOf(PROD))
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()
     val opaqueUsages = linkedSetOf<OpaqueUsage>()
@@ -118,7 +118,7 @@ internal object StandardResourceMonotonicityReport {
         val location = ruleLocation(authoredRoot, declaration, playRequirement)
         val root =
             if (authoredRoot is PetElement) {
-              deprodifier.transformElement(authoredRoot)
+              productionLowerer.transformElement(authoredRoot)
             } else {
               authoredRoot
             }
@@ -146,7 +146,7 @@ internal object StandardResourceMonotonicityReport {
         .forEach { award ->
           val subjectName = displayName(premise, award.className)
           val subjectClass = table.getClass(award.className)
-          val metric = deprodifier.transformMetric(award.metric)
+          val metric = productionLowerer.transformMetric(award.metric)
           quantities.forEach { quantity ->
             if (metricCouldCount(metric, quantity, subjectClass, table)) {
               findings +=

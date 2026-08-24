@@ -2,6 +2,7 @@ package dev.martianzoo.data
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
+import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.types.ClassTable
 
@@ -9,6 +10,10 @@ import dev.martianzoo.types.ClassTable
 public interface Authority {
   /** The one fully compiled class universe from which playable projections are formed. */
   public val classTable: ClassTable
+
+  /** Handlers for this game's explicitly marked Pets syntax, bound to one active class table. */
+  public val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler>
+    get() = emptyMap()
 
   /** The available Modules and the class selections each one contributes. */
   public val modules: Map<ClassName, Set<ClassSelection>>
