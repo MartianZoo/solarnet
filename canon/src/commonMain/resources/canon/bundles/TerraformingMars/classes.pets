@@ -584,8 +584,8 @@ CLASS SoloStartingPlacement : Signal, System {
 "Creates the neutral solo stock of each standard resource and its production"
 CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
   HAS =1 This
-  SetupPhase: 11 StandardResource
-  SetupPhase: PROD[11 StandardResource]
+  SetupPhase: 42 StandardResource
+  SetupPhase: PROD[42 StandardResource]
   -StandardResource BY Player:: StandardResource BY Engine
   StandardResource BY Player:: -StandardResource BY Engine
   PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Engine
@@ -595,7 +595,7 @@ CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
 "A neutral solo-mode holder for each kind of removable card resource"
 CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent> {
   HAS =1 This
-  SetupPhase: 11 CardResource<This>
+  SetupPhase: 42 CardResource<This>
   -CardResource<This> BY Player:: CardResource<This> BY Engine
   CardResource<This> BY Player:: -CardResource<This> BY Engine
 }
