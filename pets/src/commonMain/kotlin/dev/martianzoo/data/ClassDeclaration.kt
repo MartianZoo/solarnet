@@ -6,6 +6,7 @@ import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMOVE_ONLY
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.TRIGGER_ONLY
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -109,7 +110,7 @@ public data class ClassDeclaration(
             gainOnly = merge(defs.map { it.gainOnly }),
             removeOnly = merge(defs.map { it.removeOnly }),
             triggerOnly = merge(defs.map { it.triggerOnly }),
-            forClass = defs.mapNotNull { it.forClass }.singleOrNull(),
+            forClass = defs.mapNotNull { it.forClass }.distinct().singleOrNull(),
         )
       }
 
@@ -135,5 +136,49 @@ public data class ClassDeclaration(
         properties.keys +
         properties.values +
         extraNodes
+  }
+
+  /** Returns this declaration as standalone, parseable Pets source. */
+  override fun toString(): String = toString(oneLine = false)
+
+  /** Returns this declaration as parseable Pets source, optionally on one line. */
+  public fun toString(oneLine: Boolean): String = buildString {
+    docstring?.let { append('"').append(it).append("\"\n") }
+    if (abstract) append("ABSTRACT ")
+    append("CLASS ").append(className)
+    if (dependencies.isNotEmpty()) dependencies.joinTo(this, ", ", "<", ">")
+    if (supertypes.isNotEmpty()) {
+      supertypes.sortedBy(Expression::toString).joinTo(this, ", ", " : ")
+    }
+
+    val body = buildList {
+      invariants.sortedBy(Requirement::toString).mapTo(this) { "HAS $it" }
+      addAll(defaultsDeclaration.toPets())
+      properties.mapTo(this) { (name, value) -> "$name = $value" }
+      effects.mapTo(this, Effect::toString)
+    }
+    if (body.isNotEmpty()) {
+      if (oneLine) body.joinTo(this, separator = "; ", prefix = " { ", postfix = " }")
+      else body.joinTo(this, separator = "\n  ", prefix = " {\n  ", postfix = "\n}")
+    }
+  }
+
+  private fun DefaultsDeclaration.toPets(): List<String> {
+    val owner = forClass ?: return emptyList()
+
+    fun OneDefault.expression(): String =
+        if (specs.isEmpty()) "$owner" else specs.joinToString(", ", "$owner<", ">")
+
+    return buildList {
+      if (universal.specs.isNotEmpty()) add("DEFAULT ${universal.expression()}")
+      if (gainOnly.specs.isNotEmpty() || gainOnly.intensity != null) {
+        add("DEFAULT +${gainOnly.expression()}${gainOnly.intensity?.symbol.orEmpty()}")
+      }
+      if (removeOnly.specs.isNotEmpty() || removeOnly.intensity != null) {
+        add("DEFAULT -${removeOnly.expression()}${removeOnly.intensity?.symbol.orEmpty()}")
+      }
+      if (triggerOnly.specs.isNotEmpty()) add("DEFAULT ${triggerOnly.expression()}:")
+      if (isEmpty()) add("DEFAULT $owner")
+    }
   }
 }

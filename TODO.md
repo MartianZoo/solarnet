@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Derive map topology, bonuses, and grouping from the experimental canonical map Pets resources,
+  then remove the redundant JSON map files and move generation below Canon if it remains useful.
 - Establish authoritative Quick Start handling for Industrial Complex; its production top-up is
   redundant in that variant, but no replacement behavior has been established.
 - Preserve linked Type variables through English sequence rendering. Flooding's repeated `Anyone`
