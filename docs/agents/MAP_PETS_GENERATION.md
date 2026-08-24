@@ -8,9 +8,9 @@ bonus metadata used by custom behavior and tools.
 Pets block per bundle under `tools/build/generated/mapPets/canon/bundles/`. The selected format
 puts every map declaration first, followed by one commented generated-area section. Each area stays
 on one line, area kinds are aligned, and map rows are separated with blank lines. This block is
-maintained at the end of each bundle's sole `classes.pets`. When a structured Definition and an
+maintained at the end of each bundle's sole `classes.pets`. When structured map data and an
 explicit declaration share a Class Name, the explicit declaration supplies the Class while the
-Definition remains available as metadata.
+map data remains available as metadata.
 
 Because the `tools` module depends on `canon`, generation is still an explicit maintenance step and
 cannot feed Canon's own resource processing without a build dependency cycle. Removing JSON at

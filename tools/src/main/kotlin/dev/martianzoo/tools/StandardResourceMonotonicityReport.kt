@@ -17,9 +17,10 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
@@ -140,13 +141,16 @@ internal object StandardResourceMonotonicityReport {
       }
     }
 
-    premise.authority.allDefinitions
-        .filterIsInstance<AwardDefinition>()
-        .filter { table.isActive(it.className) }
-        .forEach { award ->
-          val subjectName = displayName(premise, award.className)
-          val subjectClass = table.getClass(award.className)
-          val metric = productionLowerer.transformMetric(award.metric)
+    val awardClass = table.getClass(cn("Award"))
+    table
+        .allClasses()
+        .filter { !it.abstract && it.isSubtypeOf(awardClass) }
+        .forEach { subjectClass ->
+          val subjectName = displayName(premise, subjectClass.className)
+          val metric =
+              productionLowerer.transformMetric(
+                  (subjectClass.properties.getValue(AWARD_METRIC_PROPERTY) as MetricValue).value
+              )
           quantities.forEach { quantity ->
             if (metricCouldCount(metric, quantity, subjectClass, table)) {
               findings +=
@@ -185,6 +189,8 @@ internal object StandardResourceMonotonicityReport {
             ),
     )
   }
+
+  private val AWARD_METRIC_PROPERTY = PropertyName("metric")
 
   fun render(analysis: Analysis): String = buildString {
     appendLine("Solo resource and production monotonicity suspicion report")

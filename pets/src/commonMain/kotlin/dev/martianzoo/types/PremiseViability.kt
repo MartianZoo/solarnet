@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 
@@ -29,29 +30,33 @@ internal object PremiseViability {
   fun validate(
       authority: Authority,
       table: ClassTable,
-      selectedDefinitionNames: Set<ClassName>,
+      selectedClassNames: Set<ClassName>,
   ) {
-    authority.allDefinitions
-        .filter { it.className in selectedDefinitionNames }
-        .forEach { definition ->
-          val declaration = definition.asClassDeclaration
-          declaration.properties.values.filterIsInstance<RequirementValue>().forEach { property ->
-            if (truthOf(property.value, table) == Truth.FALSE) {
-              unviable(definition.className, "impossible requirement ${property.value}")
-            }
-          }
-          declaration.effects
-              .filter { triggerReachable(it.trigger, table) }
-              .forEach { effect ->
-                impossibleRemoval(effect.instruction, table)?.let { removal ->
-                  unviable(definition.className, "reachable mandatory removal $removal")
-                }
-              }
+    val definitionsByName = authority.allDefinitions.associateBy { it.className }
+    selectedClassNames.forEach { className ->
+      val definition = definitionsByName[className]
+      val declaration = definition?.asClassDeclaration ?: table.getClass(className).declaration
+      (declaration.properties[REQUIREMENT_PROPERTY] as? RequirementValue)?.let { property ->
+        if (truthOf(property.value, table) == Truth.FALSE) {
+          unviable(className, "impossible requirement ${property.value}")
         }
+      }
+      if (definition != null) {
+        declaration.effects
+            .filter { triggerReachable(it.trigger, table) }
+            .forEach { effect ->
+              impossibleRemoval(effect.instruction, table)?.let { removal ->
+                unviable(className, "reachable mandatory removal $removal")
+              }
+            }
+      }
+    }
   }
 
   private fun unviable(className: ClassName, reason: String): Nothing =
       throw IllegalArgumentException("unviable game premise: $className has $reason")
+
+  private val REQUIREMENT_PROPERTY = PropertyName("requirement")
 
   private fun impossibleRemoval(tree: InstructionTree, table: ClassTable): Expression? =
       when (tree) {

@@ -149,8 +149,9 @@ Projection is premise semantics, not dead-code optimization. It must simultaneou
    singleton, or subtype choice there.
 2. **Optional reference.** An active declaration may observe a concept that is uninhabited in this
    game without importing the feature that introduced it.
-3. **Derived content compatibility.** Cards, milestones, awards, and similar Definitions should not
-   repeat expansion prerequisites already implied by the Classes they reference.
+3. **Derived content compatibility.** Content Classes should not repeat expansion prerequisites
+   already implied by the Classes they reference, whether their declarations come directly from
+   Pets or from structured card/map data.
 4. **Faithful content.** Explicit selection must not bypass an expansion dependency and leave a
    card executable but materially unlike itself.
 5. **Early explanation.** Premise construction should distinguish content that is incompatible from

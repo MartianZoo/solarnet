@@ -25,7 +25,6 @@ import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.api.BundleContentSelection
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind.MILESTONES
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -451,20 +450,16 @@ internal class ClassTest {
                       ABSTRACT CLASS Module
                       ABSTRACT CLASS Milestone { requirement = Requirement }
                       CLASS Requested : Module { This:: Active }
+                      CLASS ConditionalMilestone : Milestone {
+                        HAS Flag
+                        requirement = HAS "MAX 0 Flag"
+                      }
                       CLASS Active<ConditionalMilestone>
                       CLASS Flag
                       """
                           .trimIndent()
                   )
                   .toSetStrict()
-          override val milestoneDefinitions =
-              setOf(
-                  MilestoneDefinition(
-                      cn("ConditionalMilestone"),
-                      requirementText = "MAX 0 Flag",
-                      automaticSelectionRequirementText = "Flag",
-                  )
-              )
           override val moduleContentSelections =
               mapOf(
                   cn("Requested") to
