@@ -1,20 +1,16 @@
 {
   "actions": [
 
-    // Play card from hand
     { "name": "PlayCardSA", "action": "-> PlayCard<Class<ProjectCard>>" },
 
-    // Use standard project
     { "name": "UseStandardProjectSA", "action": "-> UseAction<StandardProject>" },
 
-    // Claim milestone
     {
       "name": "ClaimMilestoneSA",
       "action": "8 -> Milestone",
       "automaticSelectionRequirement": "MAX 0 SoloMode"
     },
 
-    // Fund award
     {
       "name": "FundAwardSA",
       "actions": [
@@ -25,19 +21,16 @@
       "automaticSelectionRequirement": "MAX 0 SoloMode"
     },
 
-    // Use card action
     {
       "name": "UseCardActionSA",
       "action": "-> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard>"
     },
 
-    // Convert plants
     {
       "name": "ConvertPlantsSA",
       "action": "8 Plant -> GreeneryTile<>"
     },
 
-    // Convert heat
     {
       "name": "ConvertHeatSA",
       "action": "8 Heat -> TemperatureStep"

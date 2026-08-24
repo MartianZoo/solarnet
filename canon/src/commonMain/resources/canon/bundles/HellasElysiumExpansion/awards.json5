@@ -3,30 +3,20 @@
     {
       "group": "HellasDefaultAwards",
       "awards": [
-        // Cultivator
         { "name": "Cultivator", "metric": "GreeneryTile" },
-        // Magnate
         { "name": "Magnate", "metric": "AutomatedCard" },
-        // Space Baron
         { "name": "SpaceBaron", "metric": "SpaceTag" },
-        // Excentric
         { "name": "Excentric", "metric": "CardResource" },
-        // Contractor
         { "name": "Contractor", "metric": "BuildingTag" },
       ],
     },
     {
       "group": "ElysiumDefaultAwards",
       "awards": [
-        // Celebrity
         { "name": "Celebrity", "metric": "CardFront(HAS 20 cost)" },
-        // Industrialist
         { "name": "Industrialist", "metric": "Steel OR Energy" },
-        // Desert Settler
         { "name": "DesertSettler", "metric": "OwnedTile<MarsArea(HAS 6 row)>" },
-        // Estate Dealer
         { "name": "EstateDealer", "metric": "OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
-        // Benefactor
         { "name": "Benefactor", "metric": "TerraformRating" },
       ],
     },

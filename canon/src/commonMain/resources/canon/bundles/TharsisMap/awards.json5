@@ -1,15 +1,10 @@
 {
   "group": "TharsisDefaultAwards",
   "awards": [
-    // Landlord
     { "name": "Landlord", "metric": "OwnedTile" },
-    // Banker
     { "name": "Banker", "metric": "PROD[Megacredit]" },
-    // Scientist
     { "name": "Scientist", "metric": "ScienceTag" },
-    // Thermalist
     { "name": "Thermalist", "metric": "Heat" },
-    // Miner
     { "name": "Miner", "metric": "Metal" },
   ]
 }

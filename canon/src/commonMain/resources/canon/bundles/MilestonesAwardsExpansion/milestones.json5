@@ -5,16 +5,12 @@
     // Briber needs a claim cost that differs for this milestone.
     // { "name": "Briber", "requirement": "..." },
 
-    // Builder
     { "name": "Builder7", "replaces": "Builder8", "requirement": "7 BuildingTag" },
 
-    // Engineer
     { "name": "Engineer", "requirement": "10 PROD[Energy OR Heat]" },
 
-    // Farmer
     { "name": "Farmer", "requirement": "5 (Animal OR Microbe)" },
 
-    // Geologist
     {
       "name": "Geologist",
       "requirement": "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))",
@@ -23,10 +19,8 @@
     // Hydrologist needs player markers that track who placed each ocean.
     // { "name": "Hydrologist", "requirement": "..." },
 
-    // Landshaper
     { "name": "Landshaper", "requirement": "CityTile, GreeneryTile, SpecialTile" },
 
-    // Legend
     { "name": "Legend4", "replaces": "Legend5", "requirement": "CARDS[4 CardBack<EventPile>]" },
 
     // Lobbyist needs the unimplemented Turmoil delegate and party-leader rules.
@@ -46,7 +40,6 @@
       "requirement": "5 CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>)",
     },
 
-    // Pioneer
     {
       "name": "Pioneer4",
       "replaces": "Pioneer3",
@@ -57,29 +50,23 @@
     // the printed combined production threshold of 16.
     { "name": "Producer", "requirement": "21 PROD[StandardResource]" },
 
-    // Spacefarer
     { "name": "Spacefarer", "requirement": "4 SpaceTag" },
 
-    // Sponsor
     { "name": "Sponsor", "requirement": "3 CardFront(HAS 20 cost)" },
 
-    // Tactician
     {
       "name": "Tactician4",
       "replaces": "Tactician5",
       "requirement": "4 CardFront(HAS requirement)",
     },
 
-    // Terraformer
     { "name": "Terraformer29", "replaces": "Terraformer35", "requirement": "29 TerraformRating" },
 
-    // Terran
     { "name": "Terran", "requirement": "5 EarthTag" },
 
     // Thawer needs player markers that track who raised each temperature step.
     // { "name": "Thawer", "requirement": "..." },
 
-    // Tycoon
     {
       "name": "Tycoon10",
       "replaces": "Tycoon15",

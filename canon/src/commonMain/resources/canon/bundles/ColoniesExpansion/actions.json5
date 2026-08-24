@@ -1,7 +1,6 @@
 {
   "actions": [
 
-    // Trade
     {
       "name": "TradeSA",
       "actions": [

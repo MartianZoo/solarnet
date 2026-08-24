@@ -3,30 +3,20 @@
     {
       "group": "UtopiaDefaultAwards",
       "awards": [
-        // Suburbian
         { "name": "Suburbian", "metric": "OwnedTile(HAS MAX 5 Neighbor)" },
-        // Investor
         { "name": "Investor", "metric": "EarthTag" },
-        // Botanist
         { "name": "Botanist", "metric": "PROD[Plant]" },
-        // Incorporator
         { "name": "Incorporator", "metric": "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" },
-        // Metropolist
         { "name": "Metropolist", "metric": "CityTile" },
       ],
     },
     {
       "group": "CimmeriaDefaultAwards",
       "awards": [
-        // Electrician
         { "name": "Electrician", "metric": "PowerTag" },
-        // Founder
         { "name": "Founder", "metric": "OwnedTile<MarsArea(HAS Neighbor<SpecialTile<Anyone>>)>" },
-        // Mogul
         { "name": "Mogul", "metric": "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" },
-        // Zoologist
         { "name": "Zoologist", "metric": "Animal OR Microbe" },
-        // Forecaster
         { "name": "Forecaster", "metric": "CardFront(HAS requirement)" },
       ],
     },

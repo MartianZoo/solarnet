@@ -1,15 +1,10 @@
 {
   "group": "TharsisDefaultMilestones",
   "milestones": [
-    // Terraformer
     { "name": "Terraformer35", "requirement": "35 TerraformRating" },
-    // Mayor
     { "name": "Mayor", "requirement": "3 CityTile" },
-    // Gardener
     { "name": "Gardener", "requirement": "3 GreeneryTile" },
-    // Builder
     { "name": "Builder8", "requirement": "8 BuildingTag" },
-    // Planner
     { "name": "Planner", "requirement": "CARDS[16 ProjectCard<Hand>]" },
   ],
 }
