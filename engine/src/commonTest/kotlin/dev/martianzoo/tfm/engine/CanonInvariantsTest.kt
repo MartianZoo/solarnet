@@ -31,7 +31,7 @@ internal class CanonInvariantsTest {
     checkTypeLimits("TharsisMap", "MarsMap" to 1..1, "TharsisMap" to 1..1)
     checkComponentLimit("Tharsis_5_5", 1..1)
     checkComponentLimit("PlayCardSA", 1..1)
-    checkComponentLimit("PowerPlantSP", 0..1)
+    checkComponentLimit("PowerPlantSP", 1..1)
 
     checkComponentLimit("OxygenStep", 0..14)
     checkComponentLimit("TemperatureStep", 0..19)

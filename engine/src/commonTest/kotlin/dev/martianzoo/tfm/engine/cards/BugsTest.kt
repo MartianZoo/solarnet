@@ -70,7 +70,6 @@ internal class BugsTest : CardTest() {
         shouldThrow<AbstractException> {
           p1.playPrelude(FakeEstablishedMethods) {
             p1.manual("-20")
-            doTask("UseAction<UseStandardProjectSA, First>")
             doTask("UseAction<GreenerySP, First>")
             p1.autoExecNow()
           }
@@ -87,7 +86,6 @@ internal class BugsTest : CardTest() {
 
     p1.playPrelude(HeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
-      doTask("UseAction<UseStandardProjectSA, First>")
       doTask("UseAction<ConvertHeatSA, First>")
       doTask("8 Pay<Class<Heat>> FROM Heat")
       doTask("UseAction<AquiferSP, First>")

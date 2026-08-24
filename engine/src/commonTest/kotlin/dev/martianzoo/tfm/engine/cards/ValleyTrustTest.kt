@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestOption.*
@@ -51,6 +51,6 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5)
     engine.phase("Action")
 
-    shouldThrow<AbstractException> { p1.stdAction("UseStandardProjectSA") }
+    shouldThrow<RequirementException> { p1.stdAction("PowerPlantSP") }
   }
 }

@@ -32,7 +32,6 @@ internal class WildTagTest : CardTest() {
       offers.size shouldBe 2
 
       repeat(2) { projectIndex ->
-        doTask("UseAction<UseStandardProjectSA, First>")
         doTask("UseAction<PowerPlantSP, First>")
 
         tasks

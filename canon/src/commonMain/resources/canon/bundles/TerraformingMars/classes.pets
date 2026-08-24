@@ -7,7 +7,7 @@ CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
-  This:: PlayCardSA, UseStandardProjectSA, UseCardActionSA, ConvertPlantsSA, ConvertHeatSA, SellPatents, HandleMandates
+  This:: PlayCardSA, UseCardActionSA, ConvertPlantsSA, ConvertHeatSA, SellPatents, HandleMandates
   This IF Mode, MAX 0 MarsMap:: TharsisMap
 
   SetupPhase IF MultiplayerMode:: BeginGame
@@ -328,9 +328,6 @@ ABSTRACT CLASS StandardAction : HasActions {
   "Play a project card from hand"
   CLASS PlayCardSA { -> PlayCard<Class<ProjectCard>> }
 
-  "Use a standard project"
-  CLASS UseStandardProjectSA { -> UseAction<StandardProject> }
-
   "Claim an available milestone"
   CLASS ClaimMilestoneSA { 8 -> Milestone }
 
@@ -365,8 +362,7 @@ CLASS BuyCards : HasActions { HAS =1 This }
 CLASS PlayCards : HasActions { HAS =1 This }
 
 "A standard project, as the game defines it (but excluding Sell Patents)"
-ABSTRACT CLASS StandardProject : HasActions {
-  HAS MAX 1 This
+ABSTRACT CLASS StandardProject : StandardAction {
   cost = Number
 }
 

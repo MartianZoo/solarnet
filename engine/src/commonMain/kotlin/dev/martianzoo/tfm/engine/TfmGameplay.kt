@@ -173,11 +173,7 @@ public class TfmGameplay(
       },
       body: BodyLambda = {},
   ): TaskResult {
-    return stdAction("UseStandardProjectSA") {
-      doTask("UseAction<$stdProject, First>")
-      payment()
-      body()
-    }
+    return stdAction(stdProject, payment = payment, body = body)
   }
 
   public fun playPrelude(cardName: ClassName, body: BodyLambda = {}): TaskResult {
