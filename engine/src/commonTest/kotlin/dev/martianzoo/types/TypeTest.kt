@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.engine.CanonClassesTest
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.cardnames.MediaGroup
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -488,8 +488,8 @@ internal class TypeTest {
 
   @Test
   internal fun subs() {
-    val pprod = CanonClassesTest.table.resolve(te("Production<Player1, Class<Plant>>"))
-    findSubstitutions(pprod, CanonClassesTest.table) shouldBe
+    val pprod = Canon.classTable.resolve(te("Production<Player1, Class<Plant>>"))
+    findSubstitutions(pprod, Canon.classTable) shouldBe
         mapOf(
             cn("StandardResource") to cn("Plant").expression,
             OWNER to PLAYER1.expression,
@@ -498,8 +498,8 @@ internal class TypeTest {
 
   @Test
   internal fun subs2() {
-    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<$MediaGroup>>"))
-    findSubstitutions(pprod, CanonClassesTest.table) shouldBe
+    val pprod = Canon.classTable.resolve(te("PlayCard<Player1, Class<$MediaGroup>>"))
+    findSubstitutions(pprod, Canon.classTable) shouldBe
         mapOf(
             cn("CardFront") to MediaGroup.expression,
             OWNER to PLAYER1.expression,

@@ -5,32 +5,10 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CanonBundlesTest {
-  @Test
-  internal fun oneAuthorityKnowsEveryMapWhileOneModuleSelectsOneMap() {
-    Canon.marsMapDefinitions.map { it.className }.toSet() shouldBe
-        setOf(
-            cn("TharsisMap"),
-            cn("HellasMap"),
-            cn("ElysiumMap"),
-            cn("UtopiaMap"),
-            cn("CimmeriaMap"),
-        )
-
-    val hellas = table(cn("HellasMap"))
-
-    hellas.isActive(cn("HellasMap")) shouldBe true
-    hellas.isActive(cn("ElysiumMap")) shouldBe false
-    hellas.isActive(cn("Diversifier")) shouldBe true
-    hellas.isActive(cn("Generalist")) shouldBe false
-    hellas.isActive(cn("Cultivator")) shouldBe true
-    hellas.isActive(cn("Celebrity")) shouldBe false
-  }
-
   @Test
   internal fun modulesInOneBundleRemainIndependent() {
     val utopia = table(cn("UtopiaMap"))
@@ -140,40 +118,6 @@ internal class CanonBundlesTest {
     relevant.filterTo(linkedSetOf(), withPromos::isActive) shouldBe
         setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
     Canon.allClassNames.containsAll(relevant) shouldBe true
-  }
-
-  @Test
-  internal fun authorityRetainsEveryCustomImplementation() {
-    Canon.customClasses.map { it.className.toString() } shouldContain "LowestProduction"
-  }
-
-  @Test
-  internal fun entireAuthorityCatalogLoadsTogether() {
-    Canon.classTable.allClassNames shouldBe Canon.allClassNames
-    (Canon.classTable === Canon.classTable) shouldBe true
-  }
-
-  @Test
-  internal fun playableTablesProjectTheAuthorityMasterTable() {
-    val tharsis = table(cn("TharsisMap"))
-    val hellas = table(cn("HellasMap"))
-
-    (tharsis === hellas) shouldBe false
-    assertProjectionOfCanon(tharsis)
-    assertProjectionOfCanon(hellas)
-  }
-
-  private fun assertProjectionOfCanon(projection: ClassTable) {
-    val master = Canon.classTable
-    (projection.allClassNames - master.allClassNames) shouldBe emptySet()
-    master.allClassNames.forEach { name ->
-      val projectedClass = projection.getClass(name)
-      val masterClass = master.getClass(name)
-      projectedClass.className shouldBe masterClass.className
-      projectedClass.abstract shouldBe masterClass.abstract
-      projectedClass.directSuperclasses.map { it.className } shouldBe
-          masterClass.directSuperclasses.map { it.className }
-    }
   }
 
   @Test

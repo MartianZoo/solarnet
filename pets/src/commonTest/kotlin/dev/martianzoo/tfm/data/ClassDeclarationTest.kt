@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.testlib.te
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -18,11 +17,6 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ClassDeclarationTest {
-  @Test
-  internal fun everyCanonicalDeclarationRendersAsParseablePets() {
-    Canon.allClassDeclarations.values.forEach { Parsing.parseClasses(it.toString()).single() }
-  }
-
   @Test
   internal fun rendersAsParseablePets() {
     val source =

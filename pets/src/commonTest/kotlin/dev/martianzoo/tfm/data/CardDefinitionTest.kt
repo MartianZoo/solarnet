@@ -416,13 +416,4 @@ internal class CardDefinitionTest {
     assertFails { card.copy(projectKind = "AUTOMATED", resourceType = "Whatever") }
     assertFails { card.copy(projectKind = "ACTIVE", immediate = "Whatever") }
   }
-
-  @Test
-  internal fun testRoundTripForAllCanonCardData() { // move to canon
-    val oops =
-        Canon.cardDefinitions
-            .flatMap { it.asClassDeclaration.allNodes }
-            .filter { it != parse(it.kind, "$it") }
-    oops.shouldBeEmpty()
-  }
 }

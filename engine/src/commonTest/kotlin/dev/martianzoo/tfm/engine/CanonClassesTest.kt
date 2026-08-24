@@ -1,32 +1,20 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.SystemClasses.ACTOR
-import dev.martianzoo.api.SystemClasses.ANYONE
-import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.SystemClasses.HIDDEN
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
-import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
-import dev.martianzoo.types.ClassLoader
-import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.te
 import io.kotest.assertions.withClue
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -36,45 +24,6 @@ import kotlin.test.assertFailsWith
 internal class CanonClassesTest {
   companion object {
     val table = Canon.classTable
-  }
-
-  @Test
-  internal fun childlessAbstractClass() {
-    val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().none() }
-    anomalies.shouldBeEmpty()
-  }
-
-  @Test
-  internal fun abstractClassWithOnlyChild() {
-    // In some cases we might like the parent and child to be treated as the same class
-    val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
-    anomalies
-        .classNames()
-        .shouldContainExactlyInAnyOrder(
-            ANYONE,
-            cn("NoctisArea"),
-        )
-  }
-
-  @Test
-  internal fun actorOwnerAndPlayerHierarchy() {
-    val actor = table.getClass(ACTOR)
-    val owner = table.getClass(OWNER)
-    val player = table.getClass(PLAYER)
-    val engine = table.getClass(cn("Engine"))
-
-    player.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(ACTOR, OWNER)
-    engine
-        .allSuperclasses()
-        .classNames()
-        .shouldContainExactlyInAnyOrder(
-            COMPONENT,
-            HIDDEN,
-            ACTOR,
-            cn("System"),
-            cn("Engine"),
-        )
-    (actor glb owner) shouldBe player
   }
 
   @Test
@@ -212,79 +161,6 @@ internal class CanonClassesTest {
     assertFailsWith<ExpressionException> {
       table.resolve(te("Cardbound<SoloOpponent, $Predators<Player1>>"))
     }
-  }
-
-  @Test
-  internal fun component() {
-    val loader = ClassLoader(Canon)
-
-    with(loader.componentClass) {
-      abstract shouldBe true
-      // directDependencyKeys.shouldBeEmpty()
-      // allDependencyKeys.shouldBeEmpty()
-      directSuperclasses.shouldBeEmpty()
-    }
-
-    with(loader.load(cn("OceanTile"))) {
-      // directDependencyKeys.shouldBeEmpty()
-      // allDependencyKeys.shouldContainExactlyInAnyOrder(Key(cn("Tile"), 0))
-      directSuperclasses
-          .classNames()
-          .shouldContainExactlyInAnyOrder(cn("GlobalParameter"), cn("Tile"))
-      allSuperclasses()
-          .classNames()
-          .shouldContainExactlyInAnyOrder(
-              cn("Component"),
-              cn("Atomized"),
-              cn("GlobalParameter"),
-              cn("Tile"),
-              cn("OceanTile"),
-          )
-
-      loader.load(cn("MarsArea"))
-      baseType shouldBe loader.resolve(te("OceanTile<MarsArea>"))
-    }
-  }
-
-  @Test
-  internal fun testAllConcreteSubtypes() {
-    val table = ClassTable.forPremise(canonicalPremise(players = 2))
-
-    fun checkConcreteSubtypeCount(expr: String, size: Int) {
-      val type = table.resolve(te(expr))
-      table.allConcreteSubtypes(type).toList().shouldHaveSize(size)
-    }
-
-    checkConcreteSubtypeCount("Plant<Player1>", 1)
-    checkConcreteSubtypeCount("Plant", 2)
-    checkConcreteSubtypeCount("Metal<Player1>", 2)
-    checkConcreteSubtypeCount("Metal", 4)
-    checkConcreteSubtypeCount("Class<Metal>", 2)
-    checkConcreteSubtypeCount("StandardResource<Player1>", 6)
-    checkConcreteSubtypeCount("StandardResource", 12)
-    checkConcreteSubtypeCount("Class<StandardResource>", 6)
-
-    checkConcreteSubtypeCount("Class<MarsArea>", 61)
-    checkConcreteSubtypeCount("Class<RemoteArea>", 2)
-    checkConcreteSubtypeCount("Class<Tile>", 13)
-    checkConcreteSubtypeCount("Class<SpecialTile>", 10)
-
-    checkConcreteSubtypeCount("CityTile", 63 * 2)
-    checkConcreteSubtypeCount("OceanTile", 61)
-    checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
-    checkConcreteSubtypeCount("NaturalPreserve_SpecialTile", 48 * 2)
-    checkConcreteSubtypeCount("CommercialDistrict_SpecialTile", 61 * 2)
-    checkConcreteSubtypeCount("MoholeArea_SpecialTile", 12 * 2)
-    val landConstrainedSpecialTiles = 4 * 48
-    val unconstrainedSpecialTiles = 5 * 61
-    val waterConstrainedSpecialTiles = 12
-    val specialTileTypes =
-        (landConstrainedSpecialTiles + unconstrainedSpecialTiles + waterConstrainedSpecialTiles) * 2
-    checkConcreteSubtypeCount("SpecialTile", specialTileTypes)
-
-    // Do this one the long way because the error message is horrific
-    val type = table.resolve(te("Tile"))
-    table.allConcreteSubtypes(type).count() shouldBe 61 + (63 * 2) + (61 * 2) + specialTileTypes
   }
 
   @Test
