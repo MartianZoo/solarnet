@@ -30,6 +30,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Opportunistically replace Canon-backed engine characterizations with small
   generic declarations when the substitution is straightforward; keep core-rule scenarios at the
   player-action and observation boundary.
+- **Low priority:** Replace incidental Terraforming Mars vocabulary in generic Pets tests with small
+  synthetic declarations where straightforward. Move a test only when its actual purpose is to verify
+  Terraforming Mars behavior; domain words used as test data do not decide ownership by themselves.
+- Decide whether generic script and Terraforming Mars script packages eventually warrant separate
+  Gradle modules. Preserve their sibling domain package roots until that split has concrete value.
 - **Low priority:** Extend premise viability beyond exact uninhabited-domain facts; Law Suit being
   unviable in solo because no opponent-dependent attack record can inhabit the projected Type
   universe is the canonical stronger proof.

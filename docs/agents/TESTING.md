@@ -61,9 +61,12 @@ spell out `public` and their public types; declarations used only within one mod
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
 component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
 contains whole-game chronologies. Shared integrated-test support remains directly in the parent
-package. Tests that need no Terraforming Mars code belong to the lower module whose behavior they
-exercise, with small declarations owned by the test suite. Engine tests may still use Canon as
-test-only scaffolding when replacing the integrated world is not straightforward.
+package. Test placement follows purpose: a test of engine behavior belongs with engine even when it
+uses Terraforming Mars declarations to construct its scenario, while a test of Terraforming Mars
+rules or content belongs in the Terraforming Mars suites. Test-only dependencies may cross that
+direction; production dependencies may not. Small generic declarations remain preferable when they
+make a test clearer, but replacing domain examples is independent cleanup rather than a prerequisite
+for correct ownership.
 
 ### Test categories we care about
 

@@ -45,21 +45,21 @@ import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
-import dev.martianzoo.script.tfm.TFM_SCRIPT_CLASS_SYNONYMS
-import dev.martianzoo.script.tfm.TfmColor
-import dev.martianzoo.script.tfm.TfmColor.ENERGY
-import dev.martianzoo.script.tfm.TfmColor.HEAT
-import dev.martianzoo.script.tfm.TfmColor.MEGACREDIT
-import dev.martianzoo.script.tfm.TfmColor.OCEAN_TILE
-import dev.martianzoo.script.tfm.TfmColor.PLANT
-import dev.martianzoo.script.tfm.commands.TfmActionCommand
-import dev.martianzoo.script.tfm.commands.TfmBoardCommand
-import dev.martianzoo.script.tfm.commands.TfmMapCommand
-import dev.martianzoo.script.tfm.commands.TfmPayCommand
-import dev.martianzoo.script.tfm.commands.TfmPlayCommand
-import dev.martianzoo.script.tfm.commands.TfmSampleCommand
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.script.TFM_SCRIPT_CLASS_SYNONYMS
+import dev.martianzoo.tfm.script.TfmColor
+import dev.martianzoo.tfm.script.TfmColor.ENERGY
+import dev.martianzoo.tfm.script.TfmColor.HEAT
+import dev.martianzoo.tfm.script.TfmColor.MEGACREDIT
+import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
+import dev.martianzoo.tfm.script.TfmColor.PLANT
+import dev.martianzoo.tfm.script.commands.TfmActionCommand
+import dev.martianzoo.tfm.script.commands.TfmBoardCommand
+import dev.martianzoo.tfm.script.commands.TfmMapCommand
+import dev.martianzoo.tfm.script.commands.TfmPayCommand
+import dev.martianzoo.tfm.script.commands.TfmPlayCommand
+import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 
 /** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(
