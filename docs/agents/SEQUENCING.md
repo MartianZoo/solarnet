@@ -88,8 +88,9 @@ When evaluating an “atomic” rule, specify separately:
 2. whether intermediate component changes fire or observe effects; and
 3. what multiplicity a trigger sees as one effect.
 
-Do not infer those answers from an unanswered community post. For disputed rules, find the linked
-Jacob Fryxelius ruling or preserve the uncertainty.
+Do not initiate rule research during ordinary implementation work. When the user explicitly asks
+for it, do not infer these answers from an unanswered community post: find the linked Jacob
+Fryxelius ruling or preserve the uncertainty.
 
 ## Put facts in components and future work in tasks
 

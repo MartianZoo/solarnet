@@ -32,9 +32,9 @@ incoherent exception, parallel mechanism, or disproportionate framework is still
 - Prefer hand-authored Pets plus general runtime semantics. A custom instruction is honest when it
   bridges metadata or a capability Pets does not have; Kotlin-generated Pets is not automatically
   simpler.
-- Verify disputed data and rules against primary evidence. For a Terraforming Mars ruling, only a
-  post by Jacob Fryxelius is authoritative; rulebooks and physical components remain primary evidence
-  for their printed content.
+- When the user explicitly asks for Terraforming Mars rule research, verify disputed rulings against
+  a post by Jacob Fryxelius; rulebooks and physical components remain primary evidence for their
+  printed content. Do not initiate rule research during ordinary implementation work.
 
 ## Minimize permanent concepts
 

@@ -34,8 +34,12 @@ The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 t
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
 Kotlin 2.2. Contributors do not need another JDK installed.
 
-- `./gradlew build` is the normal repository-wide check. It runs every JVM test plus one
-  representative multi-generation engine game in Chrome as the browser smoke suite.
+Start with the smallest test or build task that verifies the changed behavior. Expand verification
+only when the change crosses a wider boundary or the narrower result leaves a material risk.
+
+- `./gradlew build` checks the whole repository: every JVM test plus one representative
+  multi-generation engine game in Chrome. Use it only when repository-wide verification is
+  warranted by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
 - `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
@@ -46,7 +50,7 @@ Kotlin 2.2. Contributors do not need another JDK installed.
   both the JVM and browser.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
-  sources.
+  sources. A benchmark error fails the task rather than producing an empty successful report.
 - `./gradlew :repl:realTerminalSmokeTest` runs the separate Expect-based real-terminal test.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.

@@ -235,6 +235,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Make `FollowModeNeutralizer` consume the shared `CardOperation` semantic view; it currently keeps
   a separate recognizer because it also handles transformed card metrics and requirements.
+- Make copied card effects use their executable follow-mode form; copying Head Start currently
+  replays its authored card-area operation and tries to resolve inactive `Hand`.
 - If real content ever references a helper belonging only to the other map in a two-map Bundle,
   split that Bundle at the selection boundary instead of adding per-Class availability metadata.
 - Bring the JVM English renderer under Detekt through the planned intermediate-representation

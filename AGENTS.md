@@ -9,7 +9,8 @@ records, not stronger evidence than committed behavior.
 
 Human documentation lives directly in `docs/`. Read it freely, but propose at most slight
 correctness edits unless the user explicitly asks for more. Agent-maintained documentation lives in
-`docs/agents/` and should stay synchronized with the model it describes.
+`docs/agents/`; when a change makes one inaccurate, update the smallest owning document selected by
+the router.
 
 ## Always apply these principles
 
@@ -22,8 +23,6 @@ correctness edits unless the user explicitly asks for more. Agent-maintained doc
   interpretation.
 - Preserve scope. Do not turn a local request into general cleanup or restore adjacent behavior
   without authorization.
-- Read the relevant code, tests, current diff, and selectively routed agent documentation before
-  deciding what the request means.
 
 ### Protect the design
 
@@ -62,6 +61,6 @@ a behavior or architecture change.
 | --- | --- |
 | Editing or running tests, Gradle, formatting, or benchmarks | [`docs/agents/TESTING.md`](docs/agents/TESTING.md) |
 | Reconstructing a digital or physical game | The appropriate replay guide selected by [`docs/agents/README.md`](docs/agents/README.md#reconstruct-a-game) |
-| Investigating a Terraforming Mars rule | Only a post by Jacob Fryxelius is authoritative. The FAQ PDF is useful only as an index to those posts. |
+| The user explicitly asks for Terraforming Mars rule research | Only a post by Jacob Fryxelius is authoritative for a disputed ruling. The FAQ PDF is useful only as an index to those posts. Do not initiate rule research merely because a task touches game behavior. |
 | Changing a public API | Preserve no obsolete API for compatibility; there are no known clients. Also read the API/model route in the handbook. |
 | Merging branches or synchronizing work | [`docs/agents/WORKTREES.md`](docs/agents/WORKTREES.md) |

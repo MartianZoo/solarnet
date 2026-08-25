@@ -38,7 +38,7 @@ public open class BusyPreludePhaseBenchmark {
             Canon.gamePremise(
                 GameConfig(
                     "TerraformingMars, TharsisMap, PreludeExpansion, " +
-                        "ColoniesExpansion, PromoCardPack, Callisto, Ganymede, " +
+                        "ColoniesExpansion, PromoCardPack, Callisto, Ceres, Ganymede, " +
                         "Luna",
                     "Me",
                 )
@@ -49,10 +49,12 @@ public open class BusyPreludePhaseBenchmark {
     workflow = TfmWorkflow.Manual(game)
 
     workflow.setupPhase()
-    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    me.doTask("-ColonyTileSelection<Class<Ceres>>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>", taskNumber = 1)
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     engine.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_7, SoloOpponent>")
+    check(game.tasks.isEmpty()) { "benchmark setup left pending tasks:\n${game.tasks}" }
 
     beforeCorporationPhase = game.timeline.checkpoint()
   }
@@ -63,7 +65,7 @@ public open class BusyPreludePhaseBenchmark {
     me.playCorp(cn("Teractor"), 10)
 
     workflow.preludePhase()
-    me.playPrelude(cn("HeadStart")) {
+    me.playPrelude(cn("FakeEstablishedMethods")) {
       doTask("UseAction<PlayCardSA, First>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>>")
       me.pay(0)
@@ -82,7 +84,7 @@ public open class BusyPreludePhaseBenchmark {
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("HandleMandates") {
       me.playPrelude(cn("DoubleDown")) {
-        doTask("CopyPrelude<HeadStart>")
+        doTask("CopyPrelude<FakeEstablishedMethods>")
         doTask("UseAction<PlayCardSA, First>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>>")
         me.pay(0)
@@ -98,7 +100,8 @@ public open class BusyPreludePhaseBenchmark {
   public fun rollBack() {
     // Teractor + Valley Trust, four Preludes, and four projects.
     check(me.count("CardFront") == 10)
-    check(me.count("Megacredit") == 65)
+    val megacredits = me.count("Megacredit")
+    check(megacredits == 89) { "expected 89 Megacredit, found $megacredits" }
     game.timeline.rollBack(beforeCorporationPhase)
   }
 }
