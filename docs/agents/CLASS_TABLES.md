@@ -1,20 +1,20 @@
-# Authority classes and game class views
+# Catalog classes and game class views
 
 **Status: current model.**
 
 ## Ownership model
 
-An Authority owns one immutable master type universe. Within that universe there is exactly one
+A Catalog owns one immutable master type universe. Within that universe there is exactly one
 `Class` instance for each known Class Name. `Type` values are likewise structural values from that
 master universe.
 
-A game owns a filtered view of the master universe. The view records which authority-known Classes
+A game owns a filtered view of the master universe. The view records which catalog-known Classes
 are inhabited in that game and owns any indexes that enumerate the inhabited domain. It references
 the master Classes; it does not reconstruct them, their Types, their properties, or their nominal
 hierarchy.
 
 `Class` and `Type` must not provide a path back to a game-filtered `ClassTable`. They may retain an
-unexposed master-universe identity so operations can reject values from different Authorities, but
+unexposed master-universe identity so operations can reject values from different Catalogs, but
 that identity is not a source of game context. In particular, removing `Class.classTable` must not
 be followed by adding a differently named projection backpointer.
 
@@ -30,8 +30,8 @@ Operations whose answers come entirely from authored declarations belong to the 
 - structural `glb` and `lub`; and
 - expression-to-Type resolution that does not inspect a live World.
 
-Structural `glb` combines constraints in the Authority universe. It may return a Type that is
-uninhabited in a particular game. `null` means that the Authority defines no compatible Type;
+Structural `glb` combines constraints in the Catalog universe. It may return a Type that is
+uninhabited in a particular game. `null` means that the Catalog defines no compatible Type;
 inhabitation is a separate question asked of the game view.
 
 Operations whose answers depend on the selected game must receive that context explicitly:
@@ -54,7 +54,7 @@ World mutation therefore validates both that an incoming Type belongs to the Wor
 universe and that the Type is inhabited in that World's view. Projection identity must not stand in
 for either check.
 
-Unknown and uninhabited remain distinct. An Authority-known uninhabited Class resolves and keeps its
+Unknown and uninhabited remain distinct. A Catalog-known uninhabited Class resolves and keeps its
 nominal relationships, but the game view gives it an empty domain. An unknown Class Name remains an
 error.
 
@@ -72,19 +72,19 @@ operations filter through the view's inhabited-name set.
 
 The projection computes the premise's monotone activation closure but freezing it performs no Class
 construction or nominal-hierarchy compilation. Master compilation performs those tasks once for the
-Authority.
+Catalog.
 
 ## Access boundary
 
 Game runtime code receives the filtered table from `World.classTable`; it must not recover the
-master through `GameReader.authority`. Production master-table acquisition is concentrated at three
+master through `GameReader.catalog`. Production master-table acquisition is concentrated at three
 structural boundaries:
 
-- `TfmAuthority` compiles configuration and Module selection against its private `universe` handle;
-- `ClassTable.forPremise` acquires the Authority universe once to construct a filtered view; and
+- `TfmCatalog` compiles configuration and Module selection against its private `universe` handle;
+- `ClassTable.forPremise` acquires the Catalog universe once to construct a filtered view; and
 - canonical language metadata uses one module-private `canonClassUniverse` handle.
 
-`Authority.classTable` remains public even though ordinary game clients have no legitimate reason
+`Catalog.classTable` remains public even though ordinary game clients have no legitimate reason
 to use it. That is an API-boundary gap, not permission for additional callers.
 
 ## Integrity requirements

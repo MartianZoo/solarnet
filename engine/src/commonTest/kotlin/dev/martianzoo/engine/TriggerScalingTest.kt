@@ -4,7 +4,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
@@ -12,7 +12,7 @@ import kotlin.test.Test
 internal class TriggerScalingTest {
   @Test
   internal fun `ordinary triggers scale their result while X triggers produce one result`() {
-    val game = Engine.newGame(canonicalPremise(authority = authority))
+    val game = Engine.newGame(canonicalPremise(catalog = catalog))
     val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
 
     gameplay.beginManual("5 ScalingSignal!") {
@@ -29,7 +29,7 @@ internal class TriggerScalingTest {
 
   private companion object {
     val declarations =
-        object : TfmAuthority() {
+        object : TfmCatalog() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
@@ -51,6 +51,6 @@ internal class TriggerScalingTest {
                   .toSet()
         }
 
-    val authority = TfmAuthority.Composite(Canon, declarations)
+    val catalog = TfmCatalog.Composite(Canon, declarations)
   }
 }

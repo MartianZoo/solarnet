@@ -7,7 +7,7 @@ import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.Definition
@@ -37,16 +37,16 @@ internal fun assertFails(message: String = "(no message)", shouldFail: () -> Uni
 internal fun loadTypes(vararg declarations: String): ClassTable =
     loader(declarations.joinToString("\n"))
 
-internal fun loader(petsText: String): ClassTable = testAuthority(petsText).classTable
+internal fun loader(petsText: String): ClassTable = testCatalog(petsText).classTable
 
-internal fun testAuthority(
+internal fun testCatalog(
     petsText: String,
     customImplementations: Set<CustomClass> = emptySet(),
     moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
-): Authority {
+): Catalog {
   val explicitDeclarations = parseClasses(petsText).toSet()
   val declarations = systemClassDeclarations + explicitDeclarations
-  return object : Authority {
+  return object : Catalog {
     override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
     override val allClassDeclarations: Map<ClassName, ClassDeclaration> =
         declarations.associateBy(ClassDeclaration::className).also {

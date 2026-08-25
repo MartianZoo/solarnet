@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.GameEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
@@ -104,9 +104,9 @@ private constructor(
   public companion object {
     public const val ENGLISH: String = "en"
 
-    /** Builds one vocabulary from the names and language files in [authority]. */
+    /** Builds one vocabulary from the names and language files in [catalog]. */
     public fun create(
-        authority: Authority,
+        catalog: Catalog,
         locale: String = ENGLISH,
         inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
         activeClassNames: Set<ClassName>,
@@ -115,10 +115,9 @@ private constructor(
       val canonicalByAlias =
           petsNameAliases.entries.associate { (canonical, alias) -> alias to canonical }
       return create(
-          canonicalNames = authority.allClassNames,
-          displayNamesByLanguage = authority.displayNamesByLanguage,
-          derivedPetsNameClassNames =
-              authority.derivedPetsNameClassNames intersect activeClassNames,
+          canonicalNames = catalog.allClassNames,
+          displayNamesByLanguage = catalog.displayNamesByLanguage,
+          derivedPetsNameClassNames = catalog.derivedPetsNameClassNames intersect activeClassNames,
           locale = locale,
           inputOnlySynonyms =
               inputOnlySynonyms.map { (synonym, target) ->

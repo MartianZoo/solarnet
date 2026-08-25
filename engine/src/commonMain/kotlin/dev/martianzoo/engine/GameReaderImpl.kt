@@ -30,7 +30,7 @@ internal class GameReaderImpl(
 ) : GameReader {
   override val actors = premise.actors
 
-  override val authority = premise.authority
+  override val catalog = premise.catalog
 
   override fun resolve(expression: Expression) = classTable.resolve(expression)
 

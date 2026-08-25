@@ -24,7 +24,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.shouldBe
 
@@ -56,7 +56,7 @@ internal fun canonicalPremise(
     vararg selectedOptions: TestSelection,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-    authority: TfmAuthority? = null,
+    catalog: TfmCatalog? = null,
 ): GamePremise {
   val included = selectedOptions.filterIsInstance<TestOption>()
   val excluded = selectedOptions.filterIsInstance<ExcludedTestOption>().map { it.option }.toSet()
@@ -64,7 +64,7 @@ internal fun canonicalPremise(
       canonicalOptions(*included.toTypedArray()),
       players,
       colonyTiles,
-      authority,
+      catalog,
       excluded,
   )
 }
@@ -73,7 +73,7 @@ internal fun canonicalPremise(
     options: Set<TestOption>,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-    authority: TfmAuthority? = null,
+    catalog: TfmCatalog? = null,
     excludedOptions: Set<TestOption> = emptySet(),
 ): GamePremise {
   val config =
@@ -86,12 +86,12 @@ internal fun canonicalPremise(
               if (players == 1) listOf(cn("Me")) else (1..players).map { cn("Player$it") },
       )
   val base = Canon.gamePremise(config)
-  if (authority == null) return base
+  if (catalog == null) return base
   val extensionClassNames =
-      authority.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
+      catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
           Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
   return base.copy(
-      authority = authority,
+      catalog = catalog,
       classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) },
   )
 }

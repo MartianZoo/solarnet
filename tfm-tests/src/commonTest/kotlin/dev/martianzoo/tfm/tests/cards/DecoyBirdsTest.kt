@@ -4,7 +4,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.CardDefinition
 import dev.martianzoo.tfm.canon.CardDefinition.CardData
-import dev.martianzoo.tfm.canon.tfmAuthority
+import dev.martianzoo.tfm.canon.tfmCatalog
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -33,7 +33,7 @@ internal class DecoyBirdsTest :
   @Test
   internal fun `cardbound cubes do not make a resource card`() {
     val game = newGame()
-    game.reader.tfmAuthority.cardResourceType(cn("DecoyBirds")) shouldBe null
+    game.reader.tfmCatalog.cardResourceType(cn("DecoyBirds")) shouldBe null
     val decoyBirdsClass = game.classTable.getClass(cn("DecoyBirds"))
     val resourceCardClass = game.classTable.getClass(cn("ResourceCard"))
 

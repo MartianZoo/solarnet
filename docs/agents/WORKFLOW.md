@@ -79,7 +79,7 @@ A generic runtime needs only:
 - span-scoped forward precedence among active steps; and
 - a transient completion signal after a step's control scope drains.
 
-Compile topology from active Authority data. Precedence endpoints are weak references: a constraint
+Compile topology from active Catalog data. Precedence endpoints are weak references: a constraint
 participates only when its span and both endpoint Classes are independently active. It must never
 activate an endpoint.
 
@@ -137,7 +137,7 @@ CLASS PreludeBeforeAction : WorkflowPrecedence<
 
 These references are intentionally weak. The precedence declarations participate only if the span
 and both endpoint Classes were activated independently. The runner compiles them from active
-Authority data; it does not create precedence components in the World.
+Catalog data; it does not create precedence components in the World.
 
 After a step and its delegated control scope drain, the runner emits
 `StepComplete<current-step>`. An ordinary Effect may consume that signal to make a dynamic branch.
@@ -155,7 +155,7 @@ proposal. Player-controlled work still requires the delegation model in
 1. Prove a generic runner with a synthetic linear span, one inactive/active insertion, one
    requirement-selected branch, and termination.
 2. Extract only lifecycle, checkpoint, cancellation, and wakeup mechanics from `TfmWorkflow.Auto`.
-3. Move coarse Terraforming Mars topology and expansion insertions into Authority/Pets data.
+3. Move coarse Terraforming Mars topology and expansion insertions into Catalog/Pets data.
 4. Implement Player control-until-drain with parent/child assignment tests.
 5. Express Corporation, Prelude, Action, and Final Greenery turns using that control mechanism.
 6. Migrate callers, then delete both Kotlin Terraforming Mars workflow variants.

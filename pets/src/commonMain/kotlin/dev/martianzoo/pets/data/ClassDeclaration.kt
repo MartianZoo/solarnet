@@ -49,7 +49,7 @@ public data class ClassDeclaration(
     /** Actions authored directly in this class body. */
     public val authoredActions: List<Action> = emptyList(),
 
-    /** An authority-specific executable form, when it differs from the authored form. */
+    /** An catalog-specific executable form, when it differs from the authored form. */
     internal val executableEffects: List<Effect>? = null,
 
     /** The merged contents of any `DEFAULT` clauses in the class body. */

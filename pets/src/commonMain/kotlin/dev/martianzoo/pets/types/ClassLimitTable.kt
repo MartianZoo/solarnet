@@ -38,7 +38,7 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
 
   /** Every strongest applicable limit for [type], including its unconstrained fallback. */
   public fun limitsFor(type: Type): Set<Limit> {
-    require(classTable.knows(type)) { "$type belongs to a different Authority" }
+    require(classTable.knows(type)) { "$type belongs to a different Catalog" }
     val bound = restrictionsByClass[type.rootClass].orEmpty().mapNotNull { it.bindThisTo(type) }
     val applicable = bound.filter { type.isSubtypeOf(it.type) }.toSet() + Limit(type, 0..MAX_VALUE)
     return applicable.filterTo(linkedSetOf()) { candidate ->

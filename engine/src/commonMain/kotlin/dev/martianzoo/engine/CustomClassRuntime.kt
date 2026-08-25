@@ -7,12 +7,12 @@ import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.Type
 
 /** Engine runtime for Kotlin-provided instruction and metric behavior of Pets custom classes. */
 internal class CustomClassRuntime(
-    private val authority: Authority,
+    private val catalog: Catalog,
     private val transformers: Transformers,
 ) {
   internal fun prepare(component: Component, reader: GameReader): InstructionTree {
@@ -20,7 +20,7 @@ internal class CustomClassRuntime(
     require(transformers.classTable.isActive(component.type))
 
     val type = component.type
-    val implementation = authority.customClass(type.className)
+    val implementation = catalog.customClass(type.className)
     val args = type.expressionFull.arguments.map(reader::resolve)
     val missing = args.filter { reader.countComponent(it) == 0 }
     if (missing.any()) throw DependencyException(missing)
@@ -72,7 +72,7 @@ internal class CustomClassRuntime(
     }
 
     val implementation =
-        authority.customMetric(type.className)
+        catalog.customMetric(type.className)
             ?: throw CustomCodeException(
                 "Custom class `${type.className}` has no metric implementation"
             )

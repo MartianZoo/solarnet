@@ -16,7 +16,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.Definition
@@ -31,10 +31,8 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.util.associateByStrict
 import dev.martianzoo.tfm.canon.BundleContentSelection.Kind
 
-/**
- * A Terraforming Mars Authority with declarations, structured card/map data, and selection rules.
- */
-public open class TfmAuthority : Authority {
+/** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
+public open class TfmCatalog : Catalog {
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
           TfmClasses.PROD to Prod::handler,
@@ -67,7 +65,7 @@ public open class TfmAuthority : Authority {
     }
   }
 
-  /** Organizational bundles from which this Authority is assembled. */
+  /** Organizational bundles from which this Catalog is assembled. */
   public open val bundles: List<Bundle> = emptyList()
 
   final override val classAvailabilityModules: Map<ClassName, Set<ClassName>> by lazy {
@@ -107,11 +105,11 @@ public open class TfmAuthority : Authority {
   }
 
   /**
-   * Cooks user-facing Module and setup selections into an exact game premise by applying Authority
+   * Cooks user-facing Module and setup selections into an exact game premise by applying Catalog
    * defaults and selection policies.
    *
    * Structured definitions may use unambiguous English Pets names. Naming any milestones or awards
-   * selects the exact configured pool for that category. A playable Terraforming Mars Authority
+   * selects the exact configured pool for that category. A playable Terraforming Mars Catalog
    * requires one to five player names in seat order. These become vocabulary aliases for the
    * canonical `Player1` through `Player5` classes.
    */
@@ -263,7 +261,7 @@ public open class TfmAuthority : Authority {
     }
   }
 
-  /** Authority-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
+  /** Catalog-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
   public val colonyTileClassNames: Set<ClassName> by lazy {
     val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
     colonyTile.allSubclasses().filterNot { it.abstract }.mapTo(linkedSetOf()) { it.className }
@@ -715,7 +713,7 @@ public open class TfmAuthority : Authority {
 
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.firstOrNull { it.className == name }
-          ?: throw IllegalArgumentException("No `$name` in this Authority")
+          ?: throw IllegalArgumentException("No `$name` in this Catalog")
 
   public open val marsMapDefinitions: Set<MarsMapDefinition> = emptySet()
 
@@ -726,8 +724,8 @@ public open class TfmAuthority : Authority {
   override val customClasses: Set<CustomClass> = emptySet()
 
   public companion object {
-    /** Returns one Authority containing the unique contributions from [authorities]. */
-    public fun compose(vararg authorities: TfmAuthority): TfmAuthority = Composite(*authorities)
+    /** Returns one Catalog containing the unique contributions from [catalogs]. */
+    public fun compose(vararg catalogs: TfmCatalog): TfmCatalog = Composite(*catalogs)
 
     private val MODULE_CLASS = cn("Module")
     private val CARD_RESOURCE_CLASS = cn("CardResource")
@@ -762,16 +760,16 @@ public open class TfmAuthority : Authority {
     }
   }
 
-  /** One Authority assembled from several providers before it is exposed to callers. */
-  public open class Composite(vararg authorities: TfmAuthority) : TfmAuthority() {
-    private val authorities: List<TfmAuthority> = authorities.toList()
+  /** One Catalog assembled from several providers before it is exposed to callers. */
+  public open class Composite(vararg catalogs: TfmCatalog) : TfmCatalog() {
+    private val catalogs: List<TfmCatalog> = catalogs.toList()
 
-    final override val bundles: List<Bundle> = authorities.flatMap(TfmAuthority::bundles)
+    final override val bundles: List<Bundle> = catalogs.flatMap(TfmCatalog::bundles)
 
     override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
       val combined = mutableMapOf<String, MutableMap<ClassName, String>>()
-      authorities.forEach { authority ->
-        authority.displayNamesByLanguage.forEach { (language, names) ->
+      catalogs.forEach { catalog ->
+        catalog.displayNamesByLanguage.forEach { (language, names) ->
           val languageNames = combined.getOrPut(language, ::linkedMapOf)
           names.forEach { (className, displayName) ->
             val previous = languageNames.put(className, displayName)
@@ -785,19 +783,19 @@ public open class TfmAuthority : Authority {
     }
 
     override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-      authorities.flatMapTo(linkedSetOf(), Authority::explicitClassDeclarations)
+      catalogs.flatMapTo(linkedSetOf(), Catalog::explicitClassDeclarations)
     }
 
     override val cardDefinitions: Set<CardDefinition> by lazy {
-      authorities.flatMapTo(linkedSetOf(), TfmAuthority::cardDefinitions)
+      catalogs.flatMapTo(linkedSetOf(), TfmCatalog::cardDefinitions)
     }
 
     override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-      authorities.flatMapTo(linkedSetOf(), TfmAuthority::marsMapDefinitions)
+      catalogs.flatMapTo(linkedSetOf(), TfmCatalog::marsMapDefinitions)
     }
 
     override val customClasses: Set<CustomClass> by lazy {
-      authorities.flatMapTo(linkedSetOf(), Authority::customClasses)
+      catalogs.flatMapTo(linkedSetOf(), Catalog::customClasses)
     }
   }
 }

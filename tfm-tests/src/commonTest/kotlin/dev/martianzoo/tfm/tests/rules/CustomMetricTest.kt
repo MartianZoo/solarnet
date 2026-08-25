@@ -16,7 +16,7 @@ import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
@@ -137,7 +137,7 @@ private object BrokenInstruction : CustomClass() {
   override fun translate(game: GameReader): InstructionTree = error("broken instruction")
 }
 
-private object CustomClassDeclarations : TfmAuthority() {
+private object CustomClassDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """
@@ -170,5 +170,5 @@ private object CustomClassDeclarations : TfmAuthority() {
 
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
-        authority = TfmAuthority.compose(Canon, CustomClassDeclarations),
+        catalog = TfmCatalog.compose(Canon, CustomClassDeclarations),
     )

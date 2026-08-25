@@ -44,7 +44,7 @@ claim: adding more `E` can leave the optimum unchanged or raise it, but cannot l
 
 There are three useful strengths of this claim:
 
-- **Catalog-wide:** it holds for every relevant premise and state in the Authority.
+- **Catalog-wide:** it holds for every relevant premise and state in the Catalog.
 - **Premise-wide:** it holds after fixing one `GamePremise`; excluded classes can no longer supply
   counterexamples.
 - **State-conditional:** it holds from one state because every remaining way to create a problematic
@@ -183,10 +183,10 @@ The current canon contains exactly four card effects whose Pets expression creat
 - **Corroder Suits** requires a Venus-tagged target.
 - **Maxwell Base** also requires a Venus-tagged target.
 
-Thus **no card in the currently modeled Solarnet Authority** meets all three requested conditions:
+Thus **no card in the currently modeled Solarnet Catalog** meets all three requested conditions:
 generic resource type, freely chosen target card, and neither an existing-resource nor Venus-tag
 requirement. This is deliberately scoped to modeled content; Prelude 2 and any later official
-material cannot be claimed from an Authority that does not contain them. Applied Science would not
+material cannot be claimed from a Catalog that does not contain them. Applied Science would not
 fill the gap in any event because its target must already have a resource.
 
 ## Safe simplification of the decision tree
@@ -208,7 +208,7 @@ have been taken first.
 
 For each component type, a useful report should contain:
 
-1. the scope: Authority-wide, premise-wide, or one current state;
+1. the scope: Catalog-wide, premise-wide, or one current state;
 2. the status: certified, conditional, counterexample, or not yet certified;
 3. every remaining blocker and the rule that makes it hazardous;
 4. why each discharged blocker is impossible;

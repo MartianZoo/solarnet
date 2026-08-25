@@ -125,7 +125,7 @@ private constructor(
   }
 
   private fun requireOwnClassTable(type: Type) {
-    require(classTable.knows(type)) { "$type belongs to a different Authority" }
+    require(classTable.knows(type)) { "$type belongs to a different Catalog" }
   }
 
   private fun queryShardClasses(klass: Class): Set<Class> =

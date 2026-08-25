@@ -9,19 +9,19 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
-/** One Authority master class universe or a playable active-class view backed by one. */
+/** One Catalog master class universe or a playable active-class view backed by one. */
 public abstract class ClassTable {
   public companion object {
     /** Forms and freezes the playable projection selected by [premise]. */
     public fun forPremise(premise: GamePremise): ClassTable {
-      val masterTable = premise.authority.classTable
+      val masterTable = premise.catalog.classTable
       val initialClassNames =
           premise.initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
       val configurationNames: Set<ClassName> =
@@ -31,7 +31,7 @@ public abstract class ClassTable {
                   .map(ClassSelection::className) +
               premise.playerClassNames +
               initialClassNames
-      val moduleSelections = premise.modules.flatMap { premise.authority.modules.getValue(it) }
+      val moduleSelections = premise.modules.flatMap { premise.catalog.modules.getValue(it) }
       val (applicableModuleSelections, inapplicableModuleSelections) =
           moduleSelections.partition { selection ->
             selection.appliesTo(configurationNames, masterTable)
@@ -66,7 +66,7 @@ public abstract class ClassTable {
 
       val table =
           ClassLoader.projection(
-                  premise.authority,
+                  premise.catalog,
                   masterTable,
                   premise.modules,
                   premise.classSelections,
@@ -74,7 +74,7 @@ public abstract class ClassTable {
               .apply { loadAll(roots) }
               .freeze()
       val unexpectedModules =
-          premise.authority.modules.keys.filterTo(linkedSetOf()) {
+          premise.catalog.modules.keys.filterTo(linkedSetOf()) {
             table.isActive(it)
           } - premise.modules
       require(unexpectedModules.isEmpty()) {
@@ -89,26 +89,26 @@ public abstract class ClassTable {
       require(reactivated.isEmpty()) {
         "structural activation conflicts with excluded classes: $reactivated"
       }
-      PremiseViability.validate(premise.authority, table, roots)
+      PremiseViability.validate(premise.catalog, table, roots)
       return table
     }
   }
 
-  /** The Authority whose compiled class universe backs this table. */
-  internal abstract val authority: Authority
+  /** The Catalog whose compiled class universe backs this table. */
+  internal abstract val catalog: Catalog
 
-  /** Creates a dispatcher for the selected marked syntax configured by this table's Authority. */
+  /** Creates a dispatcher for the selected marked syntax configured by this table's Catalog. */
   public fun transformDispatcher(
-      kinds: Set<String> = authority.transformHandlerFactories.keys,
+      kinds: Set<String> = catalog.transformHandlerFactories.keys,
   ): PetTransformer {
     val handlers =
-        authority.transformHandlerFactories.filterKeys(kinds::contains).mapValues { (_, factory) ->
+        catalog.transformHandlerFactories.filterKeys(kinds::contains).mapValues { (_, factory) ->
           factory(this)
         }
     return TransformHandler.dispatcher(handlers)
   }
 
-  /** The Authority-scoped table whose compiled class universe backs this projection. */
+  /** The Catalog-scoped table whose compiled class universe backs this projection. */
   internal abstract val masterTable: ClassTable
 
   /** Immutable component-count limits compiled for the classes active in this table. */
@@ -126,7 +126,7 @@ public abstract class ClassTable {
   /** Every class name inhabited in this view. */
   public abstract val allClassNames: Set<ClassName>
 
-  /** Returns the Authority-known [Class] having this canonical name. */
+  /** Returns the Catalog-known [Class] having this canonical name. */
   public abstract fun findClass(name: ClassName): Class?
 
   /** Returns the [Class] having this canonical name, or throws. */
@@ -139,11 +139,11 @@ public abstract class ClassTable {
   /** Whether [name] names a class inhabited in this view. */
   public fun isActive(name: ClassName): Boolean = name in allClassNames
 
-  /** Whether [klass] belongs to this Authority universe and is inhabited in this view. */
+  /** Whether [klass] belongs to this Catalog universe and is inhabited in this view. */
   public fun isActive(klass: Class): Boolean =
       klass.classTable === masterTable && klass.className in allClassNames
 
-  /** Whether [type] belongs to the Authority universe backing this table. */
+  /** Whether [type] belongs to the Catalog universe backing this table. */
   public fun knows(type: Type): Boolean = type.classTable === masterTable
 
   /** Whether [type] and every structural dependency it binds are inhabited in this view. */
@@ -154,7 +154,7 @@ public abstract class ClassTable {
 
   /** Active subclasses of [klass], including [klass] itself when it is active. */
   public fun allSubclasses(klass: Class): Set<Class> {
-    require(klass.classTable === masterTable) { "$klass belongs to a different Authority" }
+    require(klass.classTable === masterTable) { "$klass belongs to a different Catalog" }
     if (this === masterTable) return klass.allSubclasses()
     return activeSubclassesByClass.getOrPut(klass) {
       klass.allSubclasses().filterTo(linkedSetOf(), ::isActive)
@@ -165,7 +165,7 @@ public abstract class ClassTable {
 
   /** Active subclasses exactly one nominal step below [klass]. */
   public fun directSubclasses(klass: Class): Set<Class> {
-    require(klass.classTable === masterTable) { "$klass belongs to a different Authority" }
+    require(klass.classTable === masterTable) { "$klass belongs to a different Catalog" }
     if (this === masterTable) return klass.directSubclasses()
     return activeDirectSubclassesByClass.getOrPut(klass) {
       klass.directSubclasses().filterTo(linkedSetOf(), ::isActive)
@@ -174,7 +174,7 @@ public abstract class ClassTable {
 
   /** Active concrete structural narrowings of [type]. */
   public fun allConcreteSubtypes(type: Type): Sequence<Type> {
-    require(type.classTable === masterTable) { "$type belongs to a different Authority" }
+    require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
     return allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
       val dependencies = type.dependencies glb klass.baseType.dependencies
       if (dependencies == null) {
@@ -187,7 +187,7 @@ public abstract class ClassTable {
 
   /** Active concrete structural narrowings with the same root Class as [type]. */
   public fun concreteSubtypesSameClass(type: Type): Sequence<Type> {
-    require(type.classTable === masterTable) { "$type belongs to a different Authority" }
+    require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
     if (type.rootClass.abstract || !isActive(type.rootClass)) return emptySequence()
     return type.dependencies.concreteSubtypesSameClass(type, this).filter(::isActive)
   }
@@ -228,7 +228,7 @@ public abstract class ClassTable {
       info: TypeInfo,
   ): Boolean {
     require(candidate.classTable === masterTable && domain.classTable === masterTable) {
-      "constraint types belong to a different Authority"
+      "constraint types belong to a different Catalog"
     }
     val key = Key(domain.className, 0)
     val domainDependency = TypeDependency(key, domain)

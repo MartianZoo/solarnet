@@ -126,7 +126,7 @@ Use `declineTask()` only when exactly one pending task accepts `Ok`, and comment
 than any individual card. Its scenarios should reproduce only the important preconditions observed
 in whole games and should use the ordinary `TfmGameplay` actions and result expectations.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
-indented multiline string followed by player-name varargs. Authority-backed premise resolution adds
+indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
 entry, so these literals do not need `trimIndent()`. Solo tests conventionally give canonical
 `Player1` the vocabulary alias `Me` and use `Player.PLAYER1` in Kotlin. The raw-configuration

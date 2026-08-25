@@ -27,30 +27,29 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 
 /**
- * Builds a master [ClassTable] from an [Authority], or internally forms an active-class view over
- * that master. Freezing prevents additional classes from being loaded.
+ * Builds a master [ClassTable] from a [Catalog], or internally forms an active-class view over that
+ * master. Freezing prevents additional classes from being loaded.
  */
 public class ClassLoader
 private constructor(
-    internal override val authority: Authority,
+    internal override val catalog: Catalog,
     private val masterSource: ClassTable?,
     private val blockedActivations: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
 ) : ClassTable() {
-  /** Compiles the master table that an [Authority] implementation retains and exposes. */
-  public constructor(authority: Authority) : this(authority, null)
+  /** Compiles the master table that a [Catalog] implementation retains and exposes. */
+  public constructor(catalog: Catalog) : this(catalog, null)
 
   internal override val masterTable: ClassTable = masterSource ?: this
 
-  private val knownClassNames: Set<ClassName> =
-      masterSource?.allClassNames ?: authority.allClassNames
+  private val knownClassNames: Set<ClassName> = masterSource?.allClassNames ?: catalog.allClassNames
 
   private val cache = mutableMapOf<Expression, Type>()
 
@@ -118,7 +117,7 @@ private constructor(
     return getClass(name)
   }
 
-  /** Loads every class known to this class loader's backing [Authority], and freezes. */
+  /** Loads every class known to this class loader's backing [Catalog], and freezes. */
   public fun loadEverything(): ClassTable {
     knownClassNames.forEach(::loadSingle)
     return freeze()
@@ -332,7 +331,7 @@ private constructor(
       node.descendantsOfType<ClassName>().forEach(::add)
     }
     if (declaration.custom) {
-      addAll(authority.customClass(declaration.className).requiredClassNames)
+      addAll(catalog.customClass(declaration.className).requiredClassNames)
     }
   }
 
@@ -345,7 +344,7 @@ private constructor(
             .filterNot(Class::abstract)
             .mapTo(linkedSetOf(), Class::className)
     if (concreteSubclassNames.isEmpty()) return null
-    if (authority.modules.keys.containsAll(concreteSubclassNames)) {
+    if (catalog.modules.keys.containsAll(concreteSubclassNames)) {
       return configuredModuleNames.count { moduleName ->
         masterSource.getClass(moduleName).isSubtypeOf(countedClass)
       }
@@ -487,15 +486,15 @@ private constructor(
 
   private fun knownDeclaration(name: ClassName): ClassDeclaration =
       masterSource?.getClass(name)?.declaration
-          ?: authority.allClassDeclarations[name]
+          ?: catalog.allClassDeclarations[name]
           ?: throw Exceptions.classNotFound(name)
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
     if (masterSource != null) return decl
     if (decl.custom) {
-      authority.customClass(decl.className)
+      catalog.customClass(decl.className)
     } else {
-      if (authority.customClasses.any { it.className == decl.className }) {
+      if (catalog.customClasses.any { it.className == decl.className }) {
         throw PetException("Non-custom class ${decl.className} has a custom implementation")
       }
     }
@@ -508,16 +507,16 @@ private constructor(
     private var nextId: Int = 0
 
     internal fun projection(
-        authority: Authority,
+        catalog: Catalog,
         masterTable: ClassTable,
         configuredModuleNames: Set<ClassName>,
         configuredClassSelections: Set<ClassSelection>,
     ): ClassLoader {
       require(masterTable.masterTable === masterTable) {
-        "Authority class table is not a master table"
+        "Catalog class table is not a master table"
       }
       val blocked =
-          authority.classAvailabilityModules
+          catalog.classAvailabilityModules
               .mapNotNull { (className, availabilityModules) ->
                 (className to availabilityModules).takeIf {
                   availabilityModules.intersect(configuredModuleNames).isEmpty()
@@ -525,7 +524,7 @@ private constructor(
               }
               .toMap()
       return ClassLoader(
-          authority,
+          catalog,
           masterTable,
           blocked,
           configuredModuleNames,

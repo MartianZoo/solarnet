@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.canon.CardDefinition
 import dev.martianzoo.tfm.canon.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.canon.MarsMapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.system.exitProcess
 
 internal enum class SoloTile {
@@ -147,9 +147,9 @@ internal fun calculateSoloPlacements(arguments: List<String>): List<Placement> {
   val names = namesInOrder.map(::cn).map(soloPlacementVocabulary::canonicalName)
   val requestedMap = names.first()
   val mapName =
-      cn("${requestedMap}Map").takeIf { it in soloPlacementAuthority.allClassNames } ?: requestedMap
-  val map = soloPlacementAuthority.marsMap(mapName)
-  val cards = names.drop(1).map(soloPlacementAuthority::card)
+      cn("${requestedMap}Map").takeIf { it in soloPlacementCatalog.allClassNames } ?: requestedMap
+  val map = soloPlacementCatalog.marsMap(mapName)
+  val cards = names.drop(1).map(soloPlacementCatalog::card)
   val mode = if (compatibility) PlacementMode.COMPATIBILITY else PlacementMode.STANDARD
   return SoloPlacementCalculator(map, mode).calculate(cards)
 }
@@ -176,15 +176,15 @@ internal fun formatPlacements(placements: List<Placement>): String {
       .trimEnd()
 }
 
-private val soloPlacementAuthority: TfmAuthority = Canon
+private val soloPlacementCatalog: TfmCatalog = Canon
 
 private val soloPlacementVocabulary: Vocabulary by lazy {
   val replacedClasses = buildSet {
-    soloPlacementAuthority.cardDefinitions.mapNotNullTo(this) { it.replaces }
+    soloPlacementCatalog.cardDefinitions.mapNotNullTo(this) { it.replaces }
   }
   Vocabulary.create(
-      soloPlacementAuthority,
-      activeClassNames = soloPlacementAuthority.allClassNames - replacedClasses,
+      soloPlacementCatalog,
+      activeClassNames = soloPlacementCatalog.allClassNames - replacedClasses,
   )
 }
 

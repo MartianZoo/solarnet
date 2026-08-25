@@ -76,7 +76,7 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
 private object TerraformingMars {
   internal object CreateMapAreas : CustomClass() {
     override fun translate(reader: GameReader, mapType: Type): InstructionTree {
-      val map = reader.tfmAuthority.marsMap(mapType.className)
+      val map = reader.tfmCatalog.marsMap(mapType.className)
       return Then.create(
           map.areas.mapNotNull { area ->
             gain(area.className.expression).takeIf {
@@ -89,7 +89,7 @@ private object TerraformingMars {
 
   internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-      val card: CardDefinition = reader.tfmAuthority.card(cardType.className)
+      val card: CardDefinition = reader.tfmCatalog.card(cardType.className)
       val immediate =
           card.immediate
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")
@@ -349,7 +349,7 @@ private object TerraformingMars {
       AWARD_TALLY.of(player.className.expression, awardType.expression)
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
-    return reader.tfmAuthority.card(representedType(cardClassType, reader).className)
+    return reader.tfmCatalog.card(representedType(cardClassType, reader).className)
   }
 
   private fun representedType(classType: Type, reader: GameReader): Type {
@@ -358,7 +358,7 @@ private object TerraformingMars {
   }
 
   private fun card(type: HasClassName, reader: GameReader): CardDefinition =
-      reader.tfmAuthority.card(type.className)
+      reader.tfmCatalog.card(type.className)
 
   private fun cardRequirement(cardType: Type): Requirement? =
       cardType.getRequirementPropertyValue("requirement")

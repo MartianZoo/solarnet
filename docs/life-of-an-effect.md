@@ -125,7 +125,7 @@ behavior or received Class-level defaults.
 `replaceThisExpressionsWith` while resolving certain Class-owned Type Expressions, but does not run
 it over Recyclon's Source Effect.
 
-The Authority collects Recyclon's generated declaration with the Rule Classes and other Content
+The Catalog collects Recyclon's generated declaration with the Rule Classes and other Content
 Classes. Class Loading turns that mutually referring set into a Class Table. Recyclon thereby
 becomes a Class with a resolved hierarchy through `ResourceCard`, `CardFront`, `TagHolder`, `Card`,
 and `Owned`.
@@ -137,7 +137,7 @@ name and hierarchy remain meaningful, but its Effect cannot become live.
 Loading does not yet bind one owner or one Recyclon Component. `Owner` and `This` therefore remain
 meaningful unresolved Context.
 
-**Postcondition:** every referenced Class has one Authority-scoped identity; Recyclon's inherited
+**Postcondition:** every referenced Class has one Catalog-scoped identity; Recyclon's inherited
 Classes, Dependencies, defaults, properties, and Invariants form one compatible hierarchy; and the
 game knows whether Recyclon is Active. These facts may now be used to form its Class Effects.
 

@@ -17,17 +17,17 @@ A live Game World is a `World` containing:
 | `ClassTable` | The closed vocabulary and type relationships |
 | Actor-scoped `Gameplay` | The supported mutation/query facade |
 
-`GameConfig` is unresolved user intent. Authority-specific resolution applies defaults, selection
+`GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise
-contains one Authority, selected Modules, signed class selections, seat-ordered display names, and
+contains one Catalog, selected Modules, signed class selections, seat-ordered display names, and
 exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 
 A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
 from that premise shares the projection and its compiled class metadata while retaining independent
 component, effect, task, event, timeline, and gameplay state.
 
-Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
-are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
+Each Catalog owns one validated master `ClassTable`. A game's table projects it: selected Classes
+are active and every other Catalog-known Class is uninhabited. Occupied seats activate canonical
 `Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
 an explicit projection root. Trigger positions are observational and do not activate their
 protocol Classes. Modules create the concrete standard actions and other protocols they issue; an
@@ -35,7 +35,7 @@ exact-Class invariant remains the fallback for generic families that cannot be c
 concrete expression.
 
 Module defaults, constructive active-provenance edges, and premise requirements are authored in
-Pets. The Authority resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
+Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
 requirement and configuration-facing invariants against the resolved projection before creating the
 World. Ambient Class ownership derives compatibility conditions from source declarations and
 lowered structured data. Bundle
@@ -52,7 +52,7 @@ those declarations; there are no parallel goal metadata objects.
 Canonical card classes are loaded from each bundle's generated `cards.pets` alongside
 `classes.pets`. A loaded card declaration retains authored actions and authored effects while its
 ordinary `effects` contain the follow-mode compilation used for activation and execution.
-`TfmAuthority.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
+`TfmCatalog.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
 so deck, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
 come from Pets. JSON-backed definitions remain temporarily for generation, pre-load content
 selection and replacement metadata, tag validation, and card-to-supporting-declaration activation
@@ -307,9 +307,9 @@ Actor-scoped string input passes through this order:
 3. atomization of counted `Atomized` components;
 4. dependency defaults;
 5. contextual `Owner` replacement for Player scopes; and
-6. marked-syntax handlers registered by the World's Authority.
+6. marked-syntax handlers registered by the World's Catalog.
 
-An Authority maps transform names to handlers bound to an active `ClassTable`. The generic
+A Catalog maps transform names to handlers bound to an active `ClassTable`. The generic
 dispatcher traverses the AST, prevents same-kind nesting, and preserves unregistered transforms so
 an earlier compilation stage can handle only the syntax it owns. Terraforming Mars registers
 `PROD` lowering and follow-mode `CARDS` lowering. Card-source compilation invokes the same

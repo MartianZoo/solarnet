@@ -4,7 +4,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.Definition
@@ -13,7 +13,7 @@ import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 
-internal fun testClassTable(source: String): ClassTable = testAuthority(source).classTable
+internal fun testClassTable(source: String): ClassTable = testCatalog(source).classTable
 
 internal fun testGamePremise(source: String = "CLASS Token", players: Int = 1): GamePremise {
   require(players in 0..5)
@@ -26,10 +26,10 @@ internal fun testGamePremise(source: String = "CLASS Token", players: Int = 1): 
             CLASS ${(1..players).joinToString { "Player$it" }}
           }
           """
-  val authority = testAuthority("$playerDeclarations\n$source")
+  val catalog = testCatalog("$playerDeclarations\n$source")
   val selections = parseClasses(source.trimIndent()).map { ClassSelection(it.className) }.toSet()
   return GamePremise(
-      authority = authority,
+      catalog = catalog,
       modules = emptySet(),
       classSelections = selections,
       initialComponentTypes = emptySet(),
@@ -37,11 +37,11 @@ internal fun testGamePremise(source: String = "CLASS Token", players: Int = 1): 
   )
 }
 
-private fun testAuthority(source: String): Authority {
+private fun testCatalog(source: String): Catalog {
   val explicitDeclarations = parseClasses(source.trimIndent()).toSet()
   val declarations = systemClassDeclarations + explicitDeclarations
-  val authority =
-      object : Authority {
+  val catalog =
+      object : Catalog {
         override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
         override val allClassDeclarations: Map<ClassName, ClassDeclaration> =
             declarations.associateBy(ClassDeclaration::className).also {
@@ -51,5 +51,5 @@ private fun testAuthority(source: String): Authority {
         override val customClasses: Set<CustomClass> = emptySet()
         override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
       }
-  return authority
+  return catalog
 }

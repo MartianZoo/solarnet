@@ -21,7 +21,7 @@ private val promoCardPackCustomClasses: Set<CustomClass> = setOf(PromoCardPack.C
 private object PromoCardPack {
   internal object CopyPrelude : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): InstructionTree {
-      val card = reader.tfmAuthority.card(cardType.className)
+      val card = reader.tfmCatalog.card(cardType.className)
       if (card.deck != PRELUDE) {
         throw NarrowingException("Card ${card.className} is not a prelude card")
       }

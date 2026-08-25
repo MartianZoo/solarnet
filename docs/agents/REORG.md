@@ -3,9 +3,9 @@
 **Status: active target.** The named module and package boundaries through `tfm-canon`,
 `tfm-engine`, `tfm-text`, and `tfm-tests` are committed. Every Kotlin module now owns one recognizable
 package subtree, and lower-layer tests live with the behavior they exercise, with Canon retained only
-as permitted test scaffolding. The `Catalog` replacement and remaining ownership refinements are
-still proposed. Current behavior remains documented by [ENGINE.md](ENGINE.md), [OPTIONS.md](OPTIONS.md),
-and [NAMING.md](NAMING.md) where they differ from this target.
+as permitted test scaffolding. The generic static contract is now `Catalog`; remaining ownership
+refinements are still proposed. Current behavior remains documented by [ENGINE.md](ENGINE.md),
+[OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they differ from this target.
 
 ## Governing rule
 
@@ -86,9 +86,9 @@ out of scope for this design.
 
 ### Catalog
 
-`Catalog` is the current preferred replacement for the overloaded static meaning of `Authority`.
-A catalog is a composable universe of declarations, transformations, custom implementations, and
-associated content metadata from which premises select.
+`Catalog` replaces the overloaded former static meaning of `Authority`. A catalog is a composable
+universe of declarations, transformations, custom implementations, and associated content metadata
+from which premises select.
 
 Examples of distinct catalogs include:
 
@@ -97,9 +97,9 @@ Examples of distinct catalogs include:
 - a rebalanced replacement of official content; and
 - official content plus selected fan expansions.
 
-The generic interface should be named `Catalog`, not `PetCatalog`: Pets is the language, not every
-piece of generic game data. `Canon` is the standard Terraforming Mars catalog. Client permission
-authority is a separate concern and should not reuse this term.
+The generic interface is named `Catalog`, not `PetCatalog`: Pets is the language, not every piece of
+generic game data. `Canon` is the standard Terraforming Mars catalog. Client permission authority is
+a separate concern and does not reuse this term.
 
 ## Terraforming Mars Canon
 
@@ -114,7 +114,7 @@ authority is a separate concern and should not reuse this term.
 - custom instruction and metric implementations required by the content.
 
 Most current `dev.martianzoo.tfm.data` and `dev.martianzoo.tfm.api` declarations are actually Canon
-types. `TfmAuthority`, `Bundle`, content selection, `CardDefinition`, `MarsMapDefinition`, and their
+types. `TfmCatalog`, `Bundle`, content selection, `CardDefinition`, `MarsMapDefinition`, and their
 peers should move under `dev.martianzoo.tfm.canon` or subordinate packages. The future
 `dev.martianzoo.tfm.api` must not inherit static catalog ownership from today's misleading package
 name.
@@ -200,13 +200,13 @@ application must not acquire engine merely because it shares a module with dynam
 | --- | --- |
 | `dev.martianzoo.pets` and its subpackages | `pets` |
 | `ClassDeclaration`, class selection, projection, pure premise | `pets` |
-| `Authority`'s generic static contract | `pets` as a catalog contract |
+| `Catalog`'s generic static contract | `pets` |
 | `CustomClass`, `CustomMetric`, minimal read contract | `pets` |
 | Syntax/type exceptions and generic system Class Names | `pets` |
 | Live Actor, task queues, preparation, World, timeline | `engine` |
 | Immutable decisions, task descriptions, and events | `pets` |
 | Terraforming Mars config, Definitions, JSON models, bundles | `tfm-canon` |
-| Current `TfmAuthority` registries and composition | `tfm-canon` |
+| Current `TfmCatalog` registries and composition | `tfm-canon` |
 | Current generic API packages | remain in `engine` until a module split has concrete value |
 | Current `TfmGameplay` and `TfmWorkflow` | `tfm-engine` |
 | Current `Vocabulary` | destination pending consumer audit |
@@ -232,7 +232,7 @@ application must not acquire engine merely because it shares a module with dynam
 
 1. Enumerate the methods every current custom implementation actually calls. The generic evaluation
    boundary should expose only those needs, ideally through one interface.
-2. Classify each current `Authority` responsibility as declaration aggregation, transformation,
+2. Classify each current `Catalog` responsibility as declaration aggregation, transformation,
    implementation lookup, projection, or Terraforming Mars content selection. That concrete list
    will determine the smallest useful `Catalog` contract.
 3. Trace consumers of the generic client-facing packages. Keep them in `engine` unless an actual

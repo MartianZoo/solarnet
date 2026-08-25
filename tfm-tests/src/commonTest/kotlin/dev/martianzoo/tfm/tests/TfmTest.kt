@@ -12,7 +12,7 @@ import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.tfm.canon.tfmAuthority
+import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
@@ -118,7 +118,7 @@ internal abstract class TfmTest {
       card: ClassName,
   ): String {
     val resourceType =
-        requireNotNull(reader.tfmAuthority.cardResourceType(card)) {
+        requireNotNull(reader.tfmCatalog.cardResourceType(card)) {
           "$card does not hold card resources"
         }
     val gain =

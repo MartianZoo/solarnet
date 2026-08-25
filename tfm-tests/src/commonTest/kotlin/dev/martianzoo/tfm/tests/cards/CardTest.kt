@@ -13,7 +13,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.CardDefinition
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestOption as Option
@@ -48,23 +48,23 @@ internal abstract class CardTest(
                   *selectedOptions,
                   players = players,
                   colonyTiles = colonyTiles,
-                  authority = authority,
+                  catalog = catalog,
               )
           )
         }
     return setUpTfmGame(premise).initializeCardTestGame()
   }
 
-  private val authority: TfmAuthority by lazy {
+  private val catalog: TfmCatalog by lazy {
     if (!hasAdditionalContent) {
       Canon
     } else {
       val additions =
-          object : TfmAuthority() {
+          object : TfmCatalog() {
             override val explicitClassDeclarations = additionalClassDeclarations
             override val cardDefinitions = additionalCardDefinitions
           }
-      TfmAuthority.compose(Canon, additions)
+      TfmCatalog.compose(Canon, additions)
     }
   }
 
@@ -72,7 +72,7 @@ internal abstract class CardTest(
     get() = additionalClassDeclarations.isNotEmpty() || additionalCardDefinitions.isNotEmpty()
 
   private fun premise(config: GameConfig): GamePremise {
-    val premise = authority.gamePremise(config)
+    val premise = catalog.gamePremise(config)
     if (!hasAdditionalContent) return premise
     return withAdditionalSelections(premise)
   }

@@ -46,7 +46,7 @@ incoherent exception, parallel mechanism, or disproportionate framework is still
   identity, timing, and choice.
 - Components have types and multiplicity, not fields or incidental object identity. Add another
   representation only when the rules truly distinguish it.
-- An Authority supplies coherent data. Modules select ambient rules. A GamePremise describes one
+- A Catalog supplies coherent data. Modules select ambient rules. A GamePremise describes one
   exact game. Do not blur these roles.
 - Load only the vocabulary a game needs. Mentioning an inactive optional type in a safe query must
   not activate its expansion.

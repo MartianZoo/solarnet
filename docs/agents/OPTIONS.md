@@ -1,11 +1,11 @@
-# Authorities, Modules, and game premises
+# Catalogs, Modules, and game premises
 
 **Status: current model through "Resolution order". Stronger closed-world viability proofs and
 durable projection-decision explanations remain future work.**
 
-## Authority
+## Catalog
 
-An **Authority** is one coherent namespace containing everything Solarnet may know about a game:
+An **Catalog** is one coherent namespace containing everything Solarnet may know about a game:
 
 - authored Rule-Class declarations;
 - structured definitions that generate Content-Class declarations;
@@ -13,24 +13,24 @@ An **Authority** is one coherent namespace containing everything Solarnet may kn
 - premise defaults and validity rules; and
 - the exceptional custom metrics and instructions that cannot be expressed as data.
 
-An Authority is principally a data provider. It does not make live game-state decisions. Published
-Terraforming Mars is one Authority; a variant that changes fundamental meanings is another.
-Authorities may reuse Class Names because their namespaces never mix.
+A Catalog is principally a data provider. It does not make live game-state decisions. Published
+Terraforming Mars is one Catalog; a variant that changes fundamental meanings is another.
+Catalogs may reuse Class Names because their namespaces never mix.
 
-An Authority may be assembled from internal bundles, but callers and playable games still use
-exactly one Authority. Identical declarations may coalesce. Conflicting declarations for one Class
+A Catalog may be assembled from internal bundles, but callers and playable games still use
+exactly one Catalog. Identical declarations may coalesce. Conflicting declarations for one Class
 Name or ambiguous ownership of a Module are invalid.
 
-## One class catalog, projected per game
+## One master Class Table, projected per game
 
-Within an Authority, every Class Name has one meaning. The Authority loads and validates one master
+Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
 
 - selected classes are active;
-- Authority-known inactive classes are uninhabited; and
+- Catalog-known inactive classes are uninhabited; and
 - unknown names remain errors.
 
-The universal catalog is a schema, not a playable Game World. It is never instantiated because it
+The master table is a schema, not a playable Game World. It is never instantiated because it
 contains mutually exclusive maps, modes, and replacement classes.
 
 ## Module
@@ -42,7 +42,7 @@ exact live Module set is the complete statement of a game's general rules.
 `Module` is an ordinary Pets superclass except where premise construction and initialization ask
 whether a Class is its subtype. Its inherited rules make each concrete Module a permanent
 singleton; its `autoSelectWhen` and `premiseRequirement` properties have meaning because the
-Authority reads them. There is no separate Kotlin Module object or special component storage.
+Catalog reads them. There is no separate Kotlin Module object or special component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. A constructive self-gain in an active Module is also **active provenance** for a
@@ -76,9 +76,9 @@ names in seat order. Defaults, selection policy, and validation resolve it to a
 A `GamePremise` is the complete immutable input needed to construct equivalent Game Worlds. It
 contains only:
 
-1. one Authority;
+1. one Catalog;
 2. selected Module Class Names;
-3. signed selections for other Authority classes;
+3. signed selections for other Catalog classes;
 4. user-facing player names in seat order; and
 5. exact concrete non-singleton types to instantiate once.
 
@@ -126,15 +126,15 @@ ownership.
 
 ## Invariants
 
-- One game uses one Authority.
-- One Class Name has one meaning inside that Authority.
-- Every game table projects the Authority's validated master table.
+- One game uses one Catalog.
+- One Class Name has one meaning inside that Catalog.
+- Every game table projects the Catalog's validated master table.
 - Modules, signed class selections, seats, and exact requested initial types fully determine the
   premise.
 - Structural activation cannot select an unrequested Module or override an exclusion.
 - Eligible availability and initial existence remain separate.
 - Multiple active replacements for one definition are invalid.
-- Given an Authority, ambient behavior is a deterministic function of the live Module components.
+- Given a Catalog, ambient behavior is a deterministic function of the live Module components.
 
 ## Settled projection-policy direction
 
@@ -259,7 +259,7 @@ The premise pipeline is:
 3. Apply explicit individual content inclusions and exclusions, rejecting incompatible inclusions.
 4. Form the active closure from roots and reachable hard references, respecting Bundle availability
    and exclusions.
-5. Leave every other Authority-known Class uninhabited.
+5. Leave every other Catalog-known Class uninhabited.
 6. Validate selected content for viability and report unviable and broken paths separately.
 
 A future retained analysis result should explain every decision, including which reference derived
@@ -279,7 +279,7 @@ named domain concept should become generic.
    workflow direction in `WORKFLOW.md` should remove this dependency.
 2. **Moderate — Colonies remains privileged in premise infrastructure.**
    Concrete colony tiles and their immediate or delayed `ColonyTileSelection` representations are
-   ordinary Pets classes. `pets/.../TfmAuthority.kt` still recognizes the `ColonyTile` hierarchy when
+   ordinary Pets classes. `pets/.../TfmCatalog.kt` still recognizes the `ColonyTile` hierarchy when
    constructing initial component Types; `pets/.../BundleContentSelection.kt` retains
    `COLONY_TILES` as a dedicated content kind so every available tile remains active for mid-game
    additions. These are premise responsibilities rather than a parallel class-definition format,

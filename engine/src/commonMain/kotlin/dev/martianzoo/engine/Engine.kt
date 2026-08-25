@@ -38,7 +38,7 @@ public object Engine {
             inputOnlySynonyms,
         )
     private val transformers: Transformers = Transformers(classTable)
-    private val customClasses = CustomClassRuntime(premise.authority, transformers)
+    private val customClasses = CustomClassRuntime(premise.catalog, transformers)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is

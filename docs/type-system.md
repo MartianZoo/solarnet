@@ -20,7 +20,7 @@ As expected, we *declare* named classes (like `Player1`, `Animal`, or `Ecologica
 
 A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
-An Authority has one master Class Table containing every Class it knows. Before a game begins, that
+A Catalog has one master Class Table containing every Class it knows. Before a game begins, that
 table is projected into the Class Table for this particular game and then frozen. The projection
 preserves every known Class identity but gives it one of two roles: active or uninhabited. Its
 Active Classes are the ones that might be needed in the game. For any Active Class, we know the
@@ -28,14 +28,14 @@ complete set of its active subclasses.
 
 This explains, for example, how we can tell which five milestones are available to be claimed even
 though no `Milestone` Component exists in the Game World until one is claimed: we inspect the Active
-Classes. A milestone Class excluded from this game's pool is still known to the Authority, but it is
+Classes. A milestone Class excluded from this game's pool is still known to the Catalog, but it is
 uninhabited and does not appear among those choices. (This scheme works out well in many ways,
 while creating just one headache, called Aridor.)
 
 ### Uninhabited classes: the jackalope example
 
 Imagine that the master Class Table contains `Jackalope : Rabbit`. A jackalope is not an unknown
-animal: the Authority understands the name and knows exactly what kind of animal it would be. But
+animal: the Catalog understands the name and knows exactly what kind of animal it would be. But
 suppose the premise for one game makes `Jackalope` uninhabited. In that game we know something
 stronger than "we have not seen one yet": there cannot be a Jackalope Component at all.
 

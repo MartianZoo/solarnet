@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.types.ClassTable
 
 /** One coherent catalog of everything the engine may know about a game. */
-public interface Authority {
+public interface Catalog {
   /** The one fully compiled class universe from which playable projections are formed. */
   public val classTable: ClassTable
 
@@ -31,20 +31,20 @@ public interface Authority {
   public val derivedPetsNameClassNames: Set<ClassName>
     get() = emptySet()
 
-  /** The unique declaration for every class in this Authority's namespace. */
+  /** The unique declaration for every class in this Catalog's namespace. */
   public val allClassDeclarations: Map<ClassName, ClassDeclaration>
 
-  /** Every canonical class name in this Authority's namespace. */
+  /** Every canonical class name in this Catalog's namespace. */
   public val allClassNames: Set<ClassName>
     get() = allClassDeclarations.keys
 
   /** Direct source declarations, before structured definitions are converted to declarations. */
   public val explicitClassDeclarations: Set<ClassDeclaration>
 
-  /** Every structured component definition known to this Authority. */
+  /** Every structured component definition known to this Catalog. */
   public val allDefinitions: Set<Definition>
 
-  /** Every exceptional Kotlin implementation for this Authority's `Custom` classes. */
+  /** Every exceptional Kotlin implementation for this Catalog's `Custom` classes. */
   public val customClasses: Set<CustomClass>
 
   /** Returns the unique declaration having [name]. */

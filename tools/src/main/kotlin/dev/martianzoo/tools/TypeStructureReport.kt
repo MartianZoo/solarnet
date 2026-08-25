@@ -50,10 +50,10 @@ private object TypeStructureReport {
   @Suppress("CyclomaticComplexMethod") // The branches compute independent report statistics.
   fun render(game: World): String {
     val table = game.classTable
-    val authority = game.reader.authority
+    val catalog = game.reader.catalog
     val active = table.allClasses().sortedBy { it.className }
     val known =
-        (authority.allClassDeclarations.keys.mapNotNull(table::findClass) + active)
+        (catalog.allClassDeclarations.keys.mapNotNull(table::findClass) + active)
             .distinct()
             .sortedBy { it.className }
     val phantom = known.filterNot(table::isActive)
@@ -229,7 +229,7 @@ private object TypeStructureReport {
       section("Class universe")
       line("active classes", active.size)
       line("active abstract / concrete", "${abstract.size} / ${concrete.size}")
-      line("authority-known classes", known.size)
+      line("catalog-known classes", known.size)
       line("phantom classes", phantom.size)
       line("direct inheritance edges", directEdges)
       line("multiple-inheritance classes", multipleInheritance.size)

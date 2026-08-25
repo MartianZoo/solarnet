@@ -23,7 +23,7 @@ import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.Class as PetsClass
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
@@ -87,10 +87,10 @@ internal object StandardResourceMonotonicityReport {
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()
     val opaqueUsages = linkedSetOf<OpaqueUsage>()
-    val tfmAuthority = premise.authority as TfmAuthority
+    val tfmCatalog = premise.catalog as TfmCatalog
     val playRequirements =
-        tfmAuthority.cardDefinitions.associate { sourceCard ->
-          sourceCard.className to tfmAuthority.card(sourceCard.className).requirement
+        tfmCatalog.cardDefinitions.associate { sourceCard ->
+          sourceCard.className to tfmCatalog.card(sourceCard.className).requirement
         }
 
     table.allClasses().sortedBy(PetsClass::className).forEach { subjectClass ->
@@ -559,7 +559,7 @@ internal object StandardResourceMonotonicityReport {
       )
 
   private fun displayName(premise: GamePremise, className: ClassName): String =
-      premise.authority.displayNamesByLanguage["en"]?.get(className)
+      premise.catalog.displayNamesByLanguage["en"]?.get(className)
           ?: defaultEnglishDisplayName(className)
 
   fun maximalSoloPremise(): GamePremise =

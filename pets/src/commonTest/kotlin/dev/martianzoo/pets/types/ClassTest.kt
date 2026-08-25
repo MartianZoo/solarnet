@@ -17,7 +17,7 @@ import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.Dependency.Key
@@ -205,9 +205,9 @@ internal class ClassTest {
 
   @Test
   internal fun classLoadingUsesCanonicalNamesOnly() {
-    val authority = testAuthority("CLASS Foo")
+    val catalog = testCatalog("CLASS Foo")
 
-    shouldThrow<PetException> { ClassLoader(authority).load(cn("F")) }
+    shouldThrow<PetException> { ClassLoader(catalog).load(cn("F")) }
   }
 
   @Test
@@ -219,9 +219,9 @@ internal class ClassTest {
 
   @Test
   internal fun `root classes reject unexpected custom implementations`() {
-    val authority = testAuthority("", setOf(object : CustomClass(COMPONENT) {}))
+    val catalog = testCatalog("", setOf(object : CustomClass(COMPONENT) {}))
 
-    shouldThrow<PetException> { ClassLoader(authority) }
+    shouldThrow<PetException> { ClassLoader(catalog) }
   }
 
   @Test
@@ -246,8 +246,8 @@ internal class ClassTest {
 
   @Test
   internal fun classTableEnumerationRequiresFreezeWithoutCapturingAnEarlySnapshot() {
-    val authority = testAuthority("CLASS Foo")
-    val loader = ClassLoader(authority)
+    val catalog = testCatalog("CLASS Foo")
+    val loader = ClassLoader(catalog)
 
     loader.findClass(cn("Foo")) shouldBe null
     shouldThrow<IllegalArgumentException> { loader.allClasses() }
@@ -256,7 +256,7 @@ internal class ClassTest {
 
     val table = loader.freeze()
     table.getClass(cn("Foo")) shouldBe foo
-    table.allClassNames shouldBe authority.allClassNames
+    table.allClassNames shouldBe catalog.allClassNames
   }
 
   @Test
@@ -271,16 +271,16 @@ internal class ClassTest {
         object : CustomClass(cn("DependencySource")) {
           override val requiredClassNames = setOf(cn("RuntimeDependency"))
         }
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             declarations,
             setOf(implementation),
         )
 
-    val inactive = project(authority)
+    val inactive = project(catalog)
     inactive.isActive(cn("RuntimeDependency")) shouldBe false
 
-    val loaded = project(authority, "DependencySource")
+    val loaded = project(catalog, "DependencySource")
     loaded.isActive(cn("RuntimeDependency")) shouldBe true
   }
 
@@ -292,13 +292,13 @@ internal class ClassTest {
             "ABSTRACT CLASS BehavioralParent { DEFAULT +BehavioralParent. }",
         )
         .forEach { parentDeclaration ->
-          val authority =
-              testAuthority(
+          val catalog =
+              testCatalog(
                   "$parentDeclaration\nCLASS CustomChild : BehavioralParent, Custom",
                   setOf(object : CustomClass(cn("CustomChild")) {}),
               )
 
-          val loader = ClassLoader(authority)
+          val loader = ClassLoader(catalog)
           repeat(2) {
             shouldThrow<PetException> { loader.load(cn("CustomChild")) }
             loader.findClass(cn("CustomChild")) shouldBe null
@@ -307,9 +307,9 @@ internal class ClassTest {
   }
 
   @Test
-  internal fun `authority-known inactive classes resolve structurally but are not enumerated`() {
-    val authority =
-        testAuthority(
+  internal fun `catalog-known inactive classes resolve structurally but are not enumerated`() {
+    val catalog =
+        testCatalog(
             """
             CLASS Active
             ABSTRACT CLASS InactiveBase
@@ -317,7 +317,7 @@ internal class ClassTest {
             """
                 .trimIndent()
         )
-    val table = project(authority, "Active")
+    val table = project(catalog, "Active")
 
     val inactive = table.getClass(cn("Inactive"))
     val inactiveBase = table.getClass(cn("InactiveBase"))
@@ -336,23 +336,23 @@ internal class ClassTest {
 
   @Test
   internal fun `dependency signatures activate available vocabulary`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             CLASS SelectedContent<AvailableVocabulary>
             CLASS AvailableVocabulary
             """
                 .trimIndent()
         )
-    val table = project(authority, "SelectedContent")
+    val table = project(catalog, "SelectedContent")
 
     table.isActive(cn("AvailableVocabulary")) shouldBe true
   }
 
   @Test
   internal fun `excluding an inactive type does not make a complement dependency inactive`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             ABSTRACT CLASS Domain
             ABSTRACT CLASS Holder<Domain>
@@ -360,24 +360,24 @@ internal class ClassTest {
             """
                 .trimIndent()
         )
-    val table = project(authority, "Holder")
+    val table = project(catalog, "Holder")
 
     table.isActive(table.resolve(te("Holder<!Inactive>"))) shouldBe true
   }
 
   @Test
-  internal fun `structural dependencies activate authority-known classes`() {
-    val authority = testAuthority("CLASS Active<Inactive>\nCLASS Inactive")
+  internal fun `structural dependencies activate catalog-known classes`() {
+    val catalog = testCatalog("CLASS Active<Inactive>\nCLASS Inactive")
 
-    val table = project(authority, "Active")
+    val table = project(catalog, "Active")
 
     table.isActive(cn("Inactive")) shouldBe true
   }
 
   @Test
   internal fun `premise rejects a structurally activated unrequested Module`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             ABSTRACT CLASS Module
             CLASS Requested<Other> : Module
@@ -390,17 +390,17 @@ internal class ClassTest {
                     cn("Other") to emptySet(),
                 ),
         )
-    val premise = GamePremise(authority, setOf(cn("Requested")), emptySet(), emptySet())
+    val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
     shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
   }
 
   @Test
   internal fun `premise rejects structural reactivation of an excluded class`() {
-    val authority = testAuthority("CLASS Active<Excluded>\nCLASS Excluded")
+    val catalog = testCatalog("CLASS Active<Excluded>\nCLASS Excluded")
     val premise =
         GamePremise(
-            authority,
+            catalog,
             emptySet(),
             setOf(ClassSelection(cn("Active")), ClassSelection(cn("Excluded"), included = false)),
             emptySet(),
@@ -411,8 +411,8 @@ internal class ClassTest {
 
   @Test
   internal fun `premise rejects structural reactivation of a conditionally excluded class`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             ABSTRACT CLASS Module
             CLASS Requested : Module { This:: Active }
@@ -427,23 +427,23 @@ internal class ClassTest {
                         setOf(ClassSelection(cn("Conditional"), requirement = parse("Flag")))
                 ),
         )
-    val premise = GamePremise(authority, setOf(cn("Requested")), emptySet(), emptySet())
+    val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
     shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
   }
 
   @Test
   internal fun `class metrics do not activate the represented class`() {
-    val authority = testAuthority("CLASS Querying { HAS MAX 0 Class<Inactive> }\nCLASS Inactive")
-    val table = project(authority, "Querying")
+    val catalog = testCatalog("CLASS Querying { HAS MAX 0 Class<Inactive> }\nCLASS Inactive")
+    val table = project(catalog, "Querying")
 
     table.isActive(cn("Inactive")) shouldBe false
   }
 
   @Test
   internal fun `reachable constructive instructions activate their destination`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             CLASS Active { This:: Constructed }
             CLASS Constructed
@@ -451,15 +451,15 @@ internal class ClassTest {
                 .trimIndent()
         )
 
-    val table = project(authority, "Active")
+    val table = project(catalog, "Active")
 
     table.isActive(cn("Constructed")) shouldBe true
   }
 
   @Test
   internal fun `configuration counting does not treat a mixed hierarchy as Module-only`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             ABSTRACT CLASS Module
             ABSTRACT CLASS Mixed
@@ -473,7 +473,7 @@ internal class ClassTest {
         )
     val premise =
         GamePremise(
-            authority,
+            catalog,
             setOf(cn("SelectedModule")),
             setOf(ClassSelection(cn("Ordinary")), ClassSelection(cn("Source"))),
             emptySet(),
@@ -486,8 +486,8 @@ internal class ClassTest {
 
   @Test
   internal fun `bare trigger does not activate its externally issued protocol`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             CLASS Active { Protocol: Constructed }
             CLASS Protocol
@@ -496,7 +496,7 @@ internal class ClassTest {
                 .trimIndent()
         )
 
-    val table = project(authority, "Active")
+    val table = project(catalog, "Active")
 
     table.isActive(cn("Protocol")) shouldBe false
     table.isActive(cn("Constructed")) shouldBe false
@@ -504,17 +504,17 @@ internal class ClassTest {
 
   @Test
   internal fun `positive invariants activate their required inhabitants`() {
-    val authority = testAuthority("CLASS Active { HAS =1 Required }\nCLASS Required")
+    val catalog = testCatalog("CLASS Active { HAS =1 Required }\nCLASS Required")
 
-    val table = project(authority, "Active")
+    val table = project(catalog, "Active")
 
     table.isActive(cn("Required")) shouldBe true
   }
 
   @Test
   internal fun `constructive instructions activate only when their trigger and gate can be reached`() {
-    val authority =
-        testAuthority(
+    val catalog =
+        testCatalog(
             """
             CLASS Active {
               InactiveTrigger<InactiveTriggerArgument>: Triggered
@@ -529,9 +529,9 @@ internal class ClassTest {
                 .trimIndent()
         )
 
-    val dormant = project(authority, "Active")
+    val dormant = project(catalog, "Active")
     val reachable =
-        project(authority, "Active", "InactiveTrigger", "InactiveTriggerArgument", "InactiveGate")
+        project(catalog, "Active", "InactiveTrigger", "InactiveTriggerArgument", "InactiveGate")
 
     dormant.isActive(cn("Triggered")) shouldBe false
     dormant.isActive(cn("Gated")) shouldBe false
@@ -543,9 +543,9 @@ internal class ClassTest {
 
   @Test
   internal fun `structural supertypes become active`() {
-    val authority = testAuthority("CLASS Active : Inactive\nABSTRACT CLASS Inactive")
+    val catalog = testCatalog("CLASS Active : Inactive\nABSTRACT CLASS Inactive")
 
-    val table = project(authority, "Active")
+    val table = project(catalog, "Active")
 
     table.isActive(cn("Inactive")) shouldBe true
   }
@@ -847,10 +847,10 @@ internal class ClassTest {
   }
 }
 
-private fun project(authority: Authority, vararg activeClassNames: String): ClassTable =
+private fun project(catalog: Catalog, vararg activeClassNames: String): ClassTable =
     ClassTable.forPremise(
         GamePremise(
-            authority,
+            catalog,
             emptySet(),
             activeClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
             emptySet(),

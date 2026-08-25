@@ -53,7 +53,7 @@ internal constructor(
     private val classTable: ClassTable,
     private val defaultActor: Actor? = null,
     private val customClasses: CustomClassRuntime =
-        CustomClassRuntime(reader.authority, Transformers(classTable)),
+        CustomClassRuntime(reader.catalog, Transformers(classTable)),
 ) {
   public constructor(
       reader: GameReader,

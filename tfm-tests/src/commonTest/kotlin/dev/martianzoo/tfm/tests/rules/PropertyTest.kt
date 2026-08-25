@@ -10,7 +10,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
@@ -61,8 +61,8 @@ internal class PropertyTest {
 
   @Test
   internal fun metricPropertiesAreEvaluatedExplicitlyInsideClassEffects() {
-    val authority = TfmAuthority.Composite(Canon, MetricPropertyProbeAuthority)
-    val game = Engine.newGame(canonicalPremise(authority = authority, players = 2))
+    val catalog = TfmCatalog.Composite(Canon, MetricPropertyProbeCatalog)
+    val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.tfm(PLAYER1).godMode()
 
     p1.manual("3 TemperatureStep!, MetricPropertyProbe")
@@ -76,8 +76,8 @@ internal class PropertyTest {
 
   @Test
   internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
-    val authority = TfmAuthority.Composite(Canon, RequirementPropertyProbeAuthority)
-    val game = Engine.newGame(canonicalPremise(authority = authority, players = 2))
+    val catalog = TfmCatalog.Composite(Canon, RequirementPropertyProbeCatalog)
+    val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.tfm(PLAYER1).godMode()
     val p2 = game.tfm(PLAYER2).godMode()
 
@@ -124,7 +124,7 @@ internal class PropertyTest {
   }
 }
 
-private object MetricPropertyProbeAuthority : TfmAuthority() {
+private object MetricPropertyProbeCatalog : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """
@@ -146,7 +146,7 @@ private object MetricPropertyProbeAuthority : TfmAuthority() {
           .toSet()
 }
 
-private object RequirementPropertyProbeAuthority : TfmAuthority() {
+private object RequirementPropertyProbeCatalog : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """

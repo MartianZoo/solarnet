@@ -17,7 +17,7 @@ reference for `dev.martianzoo.pets.types`. The human tutorial is
 - Each World has one frozen closed Class Table, allowing concrete enumeration and automatic
   narrowing.
 - Repeated authored abstract Expressions can form implicit Type variables inside defined regions.
-- Authority-known inactive Classes are uninhabited: nominally resolvable, with provably empty domains.
+- Catalog-known inactive Classes are uninhabited: nominally resolvable, with provably empty domains.
 
 ## 1. Components and Classes
 
@@ -282,7 +282,7 @@ whether Complements are genuine difference Types.
 
 ## 8. Class Tables
 
-Every Type belongs to one immutable Authority-wide master universe. Values from different master
+Every Type belongs to one immutable Catalog-wide master universe. Values from different master
 universes are not comparable. Master compilation resolves the hierarchy and compiles nominal
 subtype masks once.
 
@@ -291,7 +291,7 @@ Classes and Types and records the inhabited names selected by the premise's acti
 name has one of three states:
 
 - **active:** full behavior in this game;
-- **uninhabited:** nominally known to the Authority, with an empty domain here; or
+- **uninhabited:** nominally known to the Catalog, with an empty domain here; or
 - **unknown:** an error in every context.
 
 A game's view is closed. No later declaration may change its inhabited set. Structural operations
@@ -416,7 +416,7 @@ regions until earlier work chooses its Type.
 
 ## 11. Uninhabited Classes and Types
 
-The Authority's master table establishes one nominal universe. A game projection preserves every
+The Catalog's master table establishes one nominal universe. A game projection preserves every
 master Class identity in one of two states: active or uninhabited. Unknown names remain errors. An
 uninhabited Class retains its name, declared hierarchy, and Dependency shape so resolution and
 nominal subtyping remain meaningful, but it contributes no live behavior or inhabitants.

@@ -8,7 +8,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -171,13 +171,13 @@ internal class ByTriggerCharacterizationTest {
   }
 
   private fun newGame(): World {
-    return Engine.newGame(canonicalPremise(authority = ProbeAuthority))
+    return Engine.newGame(canonicalPremise(catalog = ProbeCatalog))
   }
 }
 
-private object ProbeAuthority : TfmAuthority.Composite(Canon, ProbeDeclarations)
+private object ProbeCatalog : TfmCatalog.Composite(Canon, ProbeDeclarations)
 
-private object ProbeDeclarations : TfmAuthority() {
+private object ProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """

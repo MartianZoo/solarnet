@@ -11,7 +11,7 @@ import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
@@ -63,8 +63,8 @@ internal class GamePremiseTest {
                   )
                   .toSetStrict()
         }
-    val authority = TfmAuthority.compose(Canon, observers)
-    val premise = authority.gamePremise(GameConfig("ObserverA, ObserverB", "Player1", "Player2"))
+    val catalog = TfmCatalog.compose(Canon, observers)
+    val premise = catalog.gamePremise(GameConfig("ObserverA, ObserverB", "Player1", "Player2"))
 
     val game = Engine.newGame(premise)
 

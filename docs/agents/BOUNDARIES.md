@@ -38,7 +38,7 @@ both leaks as one boundary debt rather than adding a broad extension framework f
 
 **Resolved.**
 
-Authorities register handlers by the explicit marker before `[...]`; handlers that need the active
+Catalogs register handlers by the explicit marker before `[...]`; handlers that need the active
 class universe are factories bound through `ClassTable`. Generic input, class-effect, and
 custom-output processing use the complete resulting dispatcher without naming Terraforming Mars
 syntax. Terraforming Mars registers both `PROD` and `CARDS`; its language layer selects the
@@ -61,14 +61,14 @@ when another caller needs them.
 
 ## Reusable behavior inside `tfm`
 
-### `TfmAuthority` contains a generic Authority implementation
+### `TfmCatalog` contains a generic Catalog implementation
 
 **Priority when boundary work is selected: P1.**
 
 Declaration aggregation, duplicate checking, core validation, definition lowering, indexes, custom
-lookup, and test providers are generic Authority responsibilities. Card, milestone, award, map,
+lookup, and test providers are generic Catalog responsibilities. Card, milestone, award, map,
 standard-action, and colony registries are Terraforming Mars responsibilities. Split them when work
-already touches Authority ownership; do not redesign premise resolution at the same time.
+already touches Catalog ownership; do not redesign premise resolution at the same time.
 
 ### Workflow runner mechanics are general
 
@@ -113,7 +113,7 @@ cleanup, the dependencies suggest this order:
    game-specific language profile.
 2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, and
    move the narrow standard-resource lowering with it.
-3. Split generic Authority assembly/validation from Terraforming Mars registries.
+3. Split generic Catalog assembly/validation from Terraforming Mars registries.
 4. Separate the reusable script command shell from Terraforming Mars application wiring.
 5. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
 6. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.

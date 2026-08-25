@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
 
@@ -14,8 +14,8 @@ public interface GameReader : TypeInfo {
   /** Every Actor participating in this game, with seated Players in seat order. */
   public val actors: List<Actor>
 
-  /** The Authority used by the world. */
-  public val authority: Authority
+  /** The Catalog used by the world. */
+  public val catalog: Catalog
 
   /** Returns the type represented by the (fully-prepared) [expression]. */
   public fun resolve(expression: Expression): Type

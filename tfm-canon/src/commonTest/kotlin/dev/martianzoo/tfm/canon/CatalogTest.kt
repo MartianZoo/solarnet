@@ -17,16 +17,16 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
-internal class AuthorityTest {
+internal class CatalogTest {
   @Test
-  internal fun everyAuthorityIncludesThePetsRuntimeDeclarations() {
-    TfmAuthority().classDeclaration(COMPONENT)
+  internal fun everyCatalogIncludesThePetsRuntimeDeclarations() {
+    TfmCatalog().classDeclaration(COMPONENT)
   }
 
   @Test
   internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossOwners() {
     val table =
-        authority(
+        catalog(
                 *parseClasses(
                         """
                         ABSTRACT CLASS Player : Owner {
@@ -53,8 +53,8 @@ internal class AuthorityTest {
 
   @Test
   internal fun definitionsAndTheirExtraClassesBecomeDeclarations() {
-    val authority =
-        object : TfmAuthority() {
+    val catalog =
+        object : TfmCatalog() {
           override val cardDefinitions =
               setOf(
                   CardDefinition(
@@ -68,14 +68,14 @@ internal class AuthorityTest {
               )
         }
 
-    authority.classDeclaration(cn("ExampleCard")).abstract shouldBe false
-    authority.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
+    catalog.classDeclaration(cn("ExampleCard")).abstract shouldBe false
+    catalog.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
   }
 
   @Test
   internal fun compositionCoalescesIdenticalClassDeclarations() {
     val declaration = parseOneLinerClass("CLASS Shared")
-    val composed = TfmAuthority.compose(authority(declaration), authority(declaration))
+    val composed = TfmCatalog.compose(catalog(declaration), catalog(declaration))
 
     composed.classDeclaration(cn("Shared")) shouldBe declaration
   }
@@ -94,7 +94,7 @@ internal class AuthorityTest {
             .single()
     val expected = parseClasses("ABSTRACT CLASS Buyer { ResearchPhase: 4 BuyCard? }").single()
 
-    val loaded = authority(source).allClassDeclarations.getValue(cn("Buyer"))
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Buyer"))
 
     loaded.effects shouldBe expected.effects
     loaded.authoredEffects shouldBe source.effects
@@ -117,7 +117,7 @@ internal class AuthorityTest {
         }
 
     shouldThrow<IllegalArgumentException> {
-      TfmAuthority.compose(first, second).modules
+      TfmCatalog.compose(first, second).modules
     }
   }
 
@@ -127,19 +127,19 @@ internal class AuthorityTest {
     val abstract = parseOneLinerClass("ABSTRACT CLASS Shared")
 
     shouldThrow<PetException> {
-      TfmAuthority.compose(authority(concrete), authority(abstract)).allClassDeclarations
+      TfmCatalog.compose(catalog(concrete), catalog(abstract)).allClassDeclarations
     }
   }
 
   @Test
   internal fun compositionRejectsConflictingDisplayNames() {
     fun named(displayName: String) =
-        object : TfmAuthority() {
+        object : TfmCatalog() {
           override val displayNamesByLanguage = mapOf("en" to mapOf(cn("Shared") to displayName))
         }
 
     shouldThrow<IllegalArgumentException> {
-      TfmAuthority.compose(named("First"), named("Second")).displayNamesByLanguage
+      TfmCatalog.compose(named("First"), named("Second")).displayNamesByLanguage
     }
   }
 
@@ -167,7 +167,7 @@ internal class AuthorityTest {
           override val explicitClassDeclarations = setOf(unrelated)
           override val cardDefinitions = setOf(card)
         }
-    val source = TfmAuthority.compose(moduleBundle, contentBundle)
+    val source = TfmCatalog.compose(moduleBundle, contentBundle)
 
     val table = ClassTable.forPremise(source.gamePremise(GameConfig("ExampleModule")))
 
@@ -218,7 +218,7 @@ internal class AuthorityTest {
                       )
               )
         }
-    val source = TfmAuthority.compose(configuredModuleBundle, baseCards, replacementCards)
+    val source = TfmCatalog.compose(configuredModuleBundle, baseCards, replacementCards)
 
     val table = ClassTable.forPremise(source.gamePremise(GameConfig("Base")))
 
@@ -256,7 +256,7 @@ internal class AuthorityTest {
         CardDefinition(CardData(name = "IntermediateCard", replaces = "OriginalCard"))
     val latest = CardDefinition(CardData(name = "LatestCard", replaces = "IntermediateCard"))
     val source =
-        TfmAuthority.compose(
+        TfmCatalog.compose(
             moduleBundle,
             cardBundle("OriginalCards", original),
             cardBundle("IntermediateCards", intermediate),
@@ -297,7 +297,7 @@ internal class AuthorityTest {
     val first = CardDefinition(CardData(name = "FirstReplacement", replaces = "OriginalCard"))
     val second = CardDefinition(CardData(name = "SecondReplacement", replaces = "OriginalCard"))
     val source =
-        TfmAuthority.compose(
+        TfmCatalog.compose(
             moduleBundle,
             cardBundle("OriginalCards", original),
             cardBundle("FirstCards", first),
@@ -312,7 +312,7 @@ internal class AuthorityTest {
   @Test
   internal fun individualCardConfigurationIsSupported() {
     val source =
-        TfmAuthority.compose(
+        TfmCatalog.compose(
             bundle(
                 "Base",
                 "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
@@ -402,7 +402,7 @@ internal class AuthorityTest {
             )
         )
     val source =
-        TfmAuthority.compose(
+        TfmCatalog.compose(
             base,
             feature,
             contentPack,
@@ -445,8 +445,8 @@ internal class AuthorityTest {
     explicitIndependent.isActive(independentCard.className) shouldBe true
   }
 
-  private fun authority(vararg declarations: ClassDeclaration): TfmAuthority =
-      object : TfmAuthority() {
+  private fun catalog(vararg declarations: ClassDeclaration): TfmCatalog =
+      object : TfmCatalog() {
         override val explicitClassDeclarations = declarations.toSet()
       }
 

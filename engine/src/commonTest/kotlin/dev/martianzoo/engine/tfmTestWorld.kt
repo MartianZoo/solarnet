@@ -6,13 +6,13 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 
 internal fun canonicalPremise(
     vararg included: ClassName,
     players: Int = 2,
-    authority: TfmAuthority? = null,
+    catalog: TfmCatalog? = null,
 ): GamePremise {
   val config =
       GameConfig.create(
@@ -20,12 +20,12 @@ internal fun canonicalPremise(
           playerNames = (1..players).map { cn("Player$it") },
       )
   val base = Canon.gamePremise(config)
-  if (authority == null) return base
+  if (catalog == null) return base
   val extensionClassNames =
-      authority.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
+      catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
           Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
   return base.copy(
-      authority = authority,
+      catalog = catalog,
       classSelections = base.classSelections + extensionClassNames.map(::ClassSelection),
   )
 }

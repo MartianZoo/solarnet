@@ -60,7 +60,7 @@ public class Transformers(public val classTable: ClassTable) {
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
   private val transformDispatcher by lazy { classTable.transformDispatcher() }
 
-  /** Expands the marked Pets syntax configured by this game's Authority. */
+  /** Expands the marked Pets syntax configured by this game's Catalog. */
   public fun transformMarkedSyntax(): PetTransformer = transformDispatcher
 
   /** Rewrites session-localized input names to their canonical engine names. */

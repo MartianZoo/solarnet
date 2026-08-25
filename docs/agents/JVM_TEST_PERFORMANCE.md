@@ -76,7 +76,7 @@ Because the parallel runs performed more observed test work, it does not explain
 ## Compiled class-model result
 
 `GamePremise` now retains one active `ClassTable` projection, effective inherited invariants are
-cached on the Authority-owned Classes, and each projection compiles its immutable component limits
+cached on the Catalog-owned Classes, and each projection compiles its immutable component limits
 once. Independent Worlds share that class model while each `Limiter` applies it only to the World's
 live component graph.
 

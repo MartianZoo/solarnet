@@ -23,16 +23,16 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.Catalog
 
 /** Exact premise checks whose proofs depend only on uninhabited Types. */
 internal object PremiseViability {
   fun validate(
-      authority: Authority,
+      catalog: Catalog,
       table: ClassTable,
       selectedClassNames: Set<ClassName>,
   ) {
-    val definitionsByName = authority.allDefinitions.associateBy { it.className }
+    val definitionsByName = catalog.allDefinitions.associateBy { it.className }
     selectedClassNames.forEach { className ->
       val definition = definitionsByName[className]
       val declaration = definition?.asClassDeclaration ?: table.getClass(className).declaration

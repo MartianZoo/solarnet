@@ -21,7 +21,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - See if two wild tags on one card is feasible to support, else add to limitations doc.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
-- Complete the master-Class-universe access boundary: remove public `Authority.classTable` after
+- Complete the master-Class-universe access boundary: remove public `Catalog.classTable` after
   replacing the three deliberate structural acquisition points with narrower internal capabilities.
 - Make an omitted concrete `CardResource` holder bound specialize to that resource class; today
   `CLASS Animal : CardResource` leaves the holder generic, so declarations must repeat
@@ -102,7 +102,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   expansions directly.
 - Replace negative `ClassSelection` exclusions for definition replacements with one positive
   systemic rule: selecting a replacement chooses that provider for the definition slot while the
-  Authority continues to retain every known variant.
+  Catalog continues to retain every known variant.
 - **Low priority:** Consider compiling Pets during the build into validated runtime artifacts, but
   only if one compiler can replace runtime parsing/validation without creating a second semantic
   model.
@@ -173,9 +173,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   replace modes with named policies, record the issuing agent, and initially provide only policies
   that prove they make no gameplay sacrifice; see
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **Medium priority:** Separate Authority data from premise resolution, and split `TfmAuthority`'s
-  generic declaration aggregation/validation into `Authority` from the Terraforming Mars registries
-  in `TfmAuthority`.
+- **Medium priority:** Separate Catalog data from premise resolution, and split `TfmCatalog`'s
+  generic declaration aggregation/validation into `Catalog` from the Terraforming Mars registries
+  in `TfmCatalog`.
 - Extract shared `Definition`-to-`ClassDeclaration` assembly without hiding category-specific behavior.
 - Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`, and `script` APIs.

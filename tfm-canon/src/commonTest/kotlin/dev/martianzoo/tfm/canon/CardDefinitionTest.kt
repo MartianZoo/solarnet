@@ -48,7 +48,7 @@ internal class CardDefinitionTest {
   @Test
   internal fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
-    val authority = authority(setOf(birds))
+    val catalog = catalog(setOf(birds))
     birds.className shouldBe cn("Birds")
     birds.deck shouldBe PROJECT
     birds.tags.toStrings().shouldContainExactlyInAnyOrder("AnimalTag")
@@ -56,7 +56,7 @@ internal class CardDefinitionTest {
     birds.actions.toStrings().shouldContainExactlyInAnyOrder("-> Animal<This>")
     birds.effects.toStrings().shouldContainExactlyInAnyOrder("End: VictoryPoint / Animal<This>")
     birds.replaces shouldBe null
-    authority.cardResourceType(cn("Birds")) shouldBe cn("Animal")
+    catalog.cardResourceType(cn("Birds")) shouldBe cn("Animal")
     birds.requirement?.toString() shouldBe "13 OxygenStep"
     birds.cost shouldBe 10
     birds.asClassDeclaration.properties[PropertyName("cost")] shouldBe NumberValue(10)
@@ -132,12 +132,12 @@ internal class CardDefinitionTest {
   internal fun cardTagsMustActuallyBeTags() {
     val badCard = CardDefinition(CardData(name = "BadCard", tags = listOf("WildTag")))
     val badSource =
-        object : TfmAuthority() {
+        object : TfmCatalog() {
           override val cardDefinitions = setOf(badCard)
         }
 
     assertFailsWith<IllegalArgumentException> {
-      TfmAuthority.compose(Canon, badSource).classTable
+      TfmCatalog.compose(Canon, badSource).classTable
     }
   }
 
@@ -483,10 +483,10 @@ internal class CardDefinitionTest {
             )
         )
 
-    val authority = authority(setOf(paymentCard, wildTagCard, genericMicrobeCard))
-    authority.cardResourceType(cn("PaymentCard")) shouldBe cn("Floater")
-    authority.cardResourceType(cn("WildTagCard")) shouldBe null
-    authority.cardResourceType(cn("GenericMicrobeCard")) shouldBe null
+    val catalog = catalog(setOf(paymentCard, wildTagCard, genericMicrobeCard))
+    catalog.cardResourceType(cn("PaymentCard")) shouldBe cn("Floater")
+    catalog.cardResourceType(cn("WildTagCard")) shouldBe null
+    catalog.cardResourceType(cn("GenericMicrobeCard")) shouldBe null
   }
 
   @Test
@@ -503,16 +503,16 @@ internal class CardDefinitionTest {
             )
         )
     assertFailsWith<IllegalArgumentException> {
-      authority(setOf(card)).cardResourceType(card.className)
+      catalog(setOf(card)).cardResourceType(card.className)
     }
   }
 
-  private fun authority(cards: Set<CardDefinition>): TfmAuthority =
-      TfmAuthority.compose(
-          object : TfmAuthority() {
+  private fun catalog(cards: Set<CardDefinition>): TfmCatalog =
+      TfmCatalog.compose(
+          object : TfmCatalog() {
             override val explicitClassDeclarations = resourceDeclarations.toSet()
           },
-          object : TfmAuthority() {
+          object : TfmCatalog() {
             override val cardDefinitions = cards
           },
       )

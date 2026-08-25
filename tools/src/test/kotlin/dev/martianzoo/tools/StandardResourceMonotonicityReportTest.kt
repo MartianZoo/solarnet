@@ -4,7 +4,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -12,7 +12,7 @@ internal class StandardResourceMonotonicityReportTest {
   @Test
   internal fun scansCountScaledInstructionsAfterDeprodification() {
     val probe =
-        object : TfmAuthority() {
+        object : TfmCatalog() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
@@ -28,7 +28,7 @@ internal class StandardResourceMonotonicityReportTest {
     val basePremise = StandardResourceMonotonicityReport.maximalSoloPremise()
     val premise =
         basePremise.copy(
-            authority = TfmAuthority.Composite(Canon, probe),
+            catalog = TfmCatalog.Composite(Canon, probe),
             classSelections =
                 basePremise.classSelections + ClassSelection(cn("ProductionPerProbe")),
         )

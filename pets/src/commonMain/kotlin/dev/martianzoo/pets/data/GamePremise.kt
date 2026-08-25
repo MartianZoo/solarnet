@@ -8,7 +8,7 @@ import dev.martianzoo.pets.types.ClassTable
 
 /** The complete immutable input from which equivalent playable worlds are constructed. */
 public data class GamePremise(
-    public val authority: Authority,
+    public val catalog: Catalog,
     public val modules: Set<ClassName>,
     public val classSelections: Set<ClassSelection>,
     public val initialComponentTypes: Set<Expression>,
@@ -30,21 +30,21 @@ public data class GamePremise(
 
   init {
     val selectedNames = classSelections.map(ClassSelection::className)
-    require(playerClassNames.all { it in authority.allClassNames }) {
-      "Authority lacks player classes: ${playerClassNames - authority.allClassNames}"
+    require(playerClassNames.all { it in catalog.allClassNames }) {
+      "Catalog lacks player classes: ${playerClassNames - catalog.allClassNames}"
     }
     require(playerNames.distinct().size == playerNames.size) {
       "a game premise cannot seat the same player name more than once"
     }
     require(
         playerClassNames.zip(playerNames).all { (canonical, configured) ->
-          configured == canonical || configured !in authority.allClassNames
+          configured == canonical || configured !in catalog.allClassNames
         }
     ) {
-      "player name collides with an Authority class"
+      "player name collides with a Catalog class"
     }
-    require(modules.all { it in authority.modules }) {
-      "unknown Modules: ${modules - authority.modules.keys}"
+    require(modules.all { it in catalog.modules }) {
+      "unknown Modules: ${modules - catalog.modules.keys}"
     }
     require(selectedNames.distinct().size == selectedNames.size) {
       "a game premise cannot select the same individual class more than once"
@@ -52,17 +52,17 @@ public data class GamePremise(
     require(classSelections.all { it.requirement == null }) {
       "individual class selections must be exact, not conditional"
     }
-    require(selectedNames.all { it in authority.allClassNames }) {
-      "individual class selections must belong to the premise Authority: " +
-          (selectedNames - authority.allClassNames)
+    require(selectedNames.all { it in catalog.allClassNames }) {
+      "individual class selections must belong to the premise Catalog: " +
+          (selectedNames - catalog.allClassNames)
     }
-    require(selectedNames.none { it in authority.modules }) {
-      "Modules must use the premise's Module selection: ${selectedNames.filter { it in authority.modules }}"
+    require(selectedNames.none { it in catalog.modules }) {
+      "Modules must use the premise's Module selection: ${selectedNames.filter { it in catalog.modules }}"
     }
     val initialClassNames =
         initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
-    require(initialClassNames.all { it in authority.allClassNames }) {
-      "initial component types must belong to the premise Authority"
+    require(initialClassNames.all { it in catalog.allClassNames }) {
+      "initial component types must belong to the premise Catalog"
     }
   }
 
@@ -77,7 +77,7 @@ public data class GamePremise(
       inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
   ): Vocabulary =
       Vocabulary.create(
-          authority,
+          catalog,
           locale,
           inputOnlySynonyms,
           activeClassNames,

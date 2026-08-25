@@ -35,7 +35,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  internal fun descDescribesAnAuthorityKnownInactiveType() {
+  internal fun descDescribesAnCatalogKnownInactiveType() {
     val description = ScriptSession().command("desc VenusTag").single()
 
     assertContains(description, "Class `VenusTag`:")

@@ -6,7 +6,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -23,10 +23,10 @@ internal class ClassTableProjectionTest {
   internal fun `Colonies classes stay unloaded without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
     val bundle = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
-    fun contributedNames(authority: TfmAuthority): Set<ClassName> = buildSet {
-      authority.explicitClassDeclarations.mapTo(this) { it.className }
-      authority.allDefinitions.mapTo(this) { it.className }
-      authority.cardDefinitions.flatMapTo(this) { card -> card.extraClasses.map { it.className } }
+    fun contributedNames(catalog: TfmCatalog): Set<ClassName> = buildSet {
+      catalog.explicitClassDeclarations.mapTo(this) { it.className }
+      catalog.allDefinitions.mapTo(this) { it.className }
+      catalog.cardDefinitions.flatMapTo(this) { card -> card.extraClasses.map { it.className } }
     }
     val namesUniqueToColonies =
         contributedNames(bundle) -

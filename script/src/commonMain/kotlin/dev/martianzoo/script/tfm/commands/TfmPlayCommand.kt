@@ -6,7 +6,7 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.commands.TaskCommand
-import dev.martianzoo.tfm.canon.tfmAuthority
+import dev.martianzoo.tfm.canon.tfmCatalog
 
 internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("tfm_play") {
   override val usage: String = "tfm_play <CardName>[, <payment>...]"
@@ -23,7 +23,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
   override fun withArgs(args: String): List<String> {
     val cardText = args.substringBefore(',').trim()
     val cardName = repl.game.vocabulary.canonicalName(cn(cardText))
-    val kind = repl.game.reader.tfmAuthority.card(cardName).deck!!.className
+    val kind = repl.game.reader.tfmCatalog.card(cardName).deck!!.className
     val payment = args.substringAfter(',', missingDelimiterValue = "").trim()
     val result =
         repl.game.timeline.atomic {

@@ -383,7 +383,7 @@ cards in the Player's hand, while `CardBack<EventPile>` counts completed Events 
 event pile. Public Plans moves one linked quantity from `Hand` to `Revealed`, returns those exact
 cards to `Hand`, and awards that quantity.
 
-Follow mode neutralizes `CARDS` through the Authority's shared marked-syntax handler before Class
+Follow mode neutralizes `CARDS` through the Catalog's shared marked-syntax handler before Class
 loading according to that inner shape. A
 search becomes the old plain `ProjectCard` gain; a retained-card movement becomes the old gain;
 purchase selection becomes the corresponding optional counted `BuyCard` result; a conditional

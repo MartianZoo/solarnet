@@ -100,7 +100,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun promoModuleReplacesCardsWithoutRemovingEitherFromTheAuthority() {
+  internal fun promoModuleReplacesCardsWithoutRemovingEitherFromTheCatalog() {
     val relevant =
         setOf(
             cn("DeimosDown"),

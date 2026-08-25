@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.canon
 
-/** Published Terraforming Mars Authority with typed Terraforming Mars definition registries. */
+/** Published Terraforming Mars Catalog with typed Terraforming Mars definition registries. */
 public object Canon :
-    TfmAuthority.Composite(
+    TfmCatalog.Composite(
         terraformingMarsBundle, // 2016
         hellasElysiumExpansionBundle, // 2017
         venusNextExpansionBundle, // 2017

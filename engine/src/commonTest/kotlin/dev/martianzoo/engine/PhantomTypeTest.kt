@@ -5,7 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -62,8 +62,8 @@ internal class PhantomTypeTest {
 
   @Test
   internal fun `component effects cannot quietly lose locked expansion classes`() {
-    val probeAuthority =
-        object : TfmAuthority() {
+    val probeCatalog =
+        object : TfmCatalog() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
@@ -78,7 +78,7 @@ internal class PhantomTypeTest {
                   )
                   .toSet()
         }
-    val premise = canonicalPremise(authority = TfmAuthority.Composite(Canon, probeAuthority))
+    val premise = canonicalPremise(catalog = TfmCatalog.Composite(Canon, probeCatalog))
 
     shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }

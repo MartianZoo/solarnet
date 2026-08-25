@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.ClassName
 /** An organizational provider of declarations, definitions, metadata, and custom code. */
 public abstract class Bundle(
     public val bundleName: ClassName,
-) : TfmAuthority() {
+) : TfmCatalog() {
   /**
    * Exceptional cross-bundle or narrowed content selections. A Module named for its owning bundle
    * selects that bundle's ordinary cards and colony tiles without an entry here; a map Module

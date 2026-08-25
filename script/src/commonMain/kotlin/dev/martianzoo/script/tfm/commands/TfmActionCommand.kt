@@ -21,7 +21,7 @@ import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
 import dev.martianzoo.script.commands.TaskCommand
-import dev.martianzoo.tfm.canon.tfmAuthority
+import dev.martianzoo.tfm.canon.tfmCatalog
 
 internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand("tfm_action") {
   override val usage: String = "tfm_action <CardName> <1|2|3>[, <payment>...]"
@@ -46,7 +46,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val actionNumber = match.groupValues[2]
     val whichAction = listOf("First", "Second", "Third")[actionNumber.toInt() - 1]
     val action =
-        repl.game.reader.tfmAuthority.card(cardName).actions.getOrNull(actionNumber.toInt() - 1)
+        repl.game.reader.tfmCatalog.card(cardName).actions.getOrNull(actionNumber.toInt() - 1)
             ?: throw UsageException("$cardName has no action $actionNumber")
     val pauseForWrittenCost = payment.isNotEmpty() && action.cost != null
     val previousAutoExecMode = repl.gameplay.autoExecMode

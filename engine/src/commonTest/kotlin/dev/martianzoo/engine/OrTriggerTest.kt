@@ -4,7 +4,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -53,13 +53,13 @@ internal class OrTriggerTest {
   }
 
   private fun newGame(): World {
-    return Engine.newGame(canonicalPremise(authority = OrProbeAuthority))
+    return Engine.newGame(canonicalPremise(catalog = OrProbeCatalog))
   }
 }
 
-private object OrProbeAuthority : TfmAuthority.Composite(Canon, OrProbeDeclarations)
+private object OrProbeCatalog : TfmCatalog.Composite(Canon, OrProbeDeclarations)
 
-private object OrProbeDeclarations : TfmAuthority() {
+private object OrProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """

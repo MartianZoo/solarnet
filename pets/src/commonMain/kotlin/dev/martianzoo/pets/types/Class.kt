@@ -28,7 +28,7 @@ import dev.martianzoo.pets.util.Hierarchical.Companion.glb
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
- * An Authority-scoped class compiled from a [ClassDeclaration]. While a declaration is inert data,
+ * A Catalog-scoped class compiled from a [ClassDeclaration]. While a declaration is inert data,
  * this type provides its resolved hierarchy, dependencies, and types. The source [declaration]
  * remains available for non-type-system consumers.
  */
@@ -173,7 +173,7 @@ internal constructor(
   private var superclassBit: Int = -1
   private var abstractSupertypeBits: BigInt? = null
 
-  /** Compiles the hierarchy after the complete authority-known class table has been loaded. */
+  /** Compiles the hierarchy after the complete catalog-known class table has been loaded. */
   internal fun initializeSubclassBits(superclassBits: Map<Class, Int>) {
     if (abstractSupertypeBits != null) return
 

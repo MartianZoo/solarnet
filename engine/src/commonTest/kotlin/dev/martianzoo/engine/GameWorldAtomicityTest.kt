@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -39,8 +39,8 @@ internal class GameWorldAtomicityTest {
   }
 
   private companion object {
-    val authority =
-        object : TfmAuthority() {
+    val catalog =
+        object : TfmCatalog() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
@@ -55,7 +55,7 @@ internal class GameWorldAtomicityTest {
 
     val premise =
         GamePremise(
-            authority = authority,
+            catalog = catalog,
             modules = emptySet(),
             classSelections =
                 setOf(
