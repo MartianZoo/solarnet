@@ -12,7 +12,11 @@ import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.types.Type
 
-internal val promoCardPackCustomClasses: Set<CustomClass> = setOf(PromoCardPack.CopyPrelude)
+internal val promoCardPackBundle: StandardFormBundle by lazy {
+  StandardFormBundle("PromoCardPack", promoCardPackCustomClasses)
+}
+
+private val promoCardPackCustomClasses: Set<CustomClass> = setOf(PromoCardPack.CopyPrelude)
 
 /** Namespace for the promotional cards' custom Pets implementations. */
 private object PromoCardPack {
