@@ -10,7 +10,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.pets.testlib.te
+import dev.martianzoo.tfm.testlib.te
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe

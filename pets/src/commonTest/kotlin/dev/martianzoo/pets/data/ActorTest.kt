@@ -4,7 +4,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
-import dev.martianzoo.pets.testlib.assertFails
+import dev.martianzoo.tfm.testlib.assertFails
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

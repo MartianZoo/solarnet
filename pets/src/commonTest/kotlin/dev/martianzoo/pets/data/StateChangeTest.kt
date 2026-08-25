@@ -2,7 +2,7 @@ package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.pets.testlib.assertFails
+import dev.martianzoo.tfm.testlib.assertFails
 import kotlin.test.Test
 
 internal class StateChangeTest {

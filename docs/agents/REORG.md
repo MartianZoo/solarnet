@@ -1,9 +1,9 @@
 # Module organization
 
 **Status: active target.** The named module and package boundaries through `tfm-canon`,
-`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. Every Kotlin module now owns one recognizable
-package subtree, and lower-layer tests live with the behavior they exercise, with Canon retained only
-as permitted test scaffolding. The generic static contract is now `Catalog`; remaining ownership
+`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. Core production ownership now has recognizable
+package boundaries, and lower-layer tests live with the behavior they exercise, with Canon retained
+only as permitted test scaffolding. The generic static contract is now `Catalog`; remaining ownership
 refinements are still proposed. Current behavior remains documented by [ENGINE.md](ENGINE.md),
 [OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they differ from this target.
 
@@ -18,6 +18,10 @@ Module names should normally follow their principal `dev.martianzoo.*` package. 
 enforced boundary over minimizing module count; consider recombination only after the dependency
 directions are clean. Keep each Gradle module's physical source roots separate: merging them into a
 shared package-shaped tree would obscure the ownership that the module split now makes explicit.
+Package names express domain ownership, not merely physical Gradle ownership. A mixed leaf module may
+therefore contain sibling roots such as `dev.martianzoo.script` and `dev.martianzoo.tfm.script` until
+a concrete dependency split justifies separate modules; do not nest one beneath the other merely to
+force a single package root.
 
 ## Initial dependency graph
 
@@ -29,9 +33,10 @@ tfm-text ───> tfm-canon, pets
 tfm-tests ──> tfm-engine, tfm-canon
 ```
 
-Engine tests may use `tfm-canon` and `tfm-engine` as test-only scaffolding when the behavior under
-test belongs to engine and replacing the integrated world would be substantial. This does not add a
-production dependency or change production ownership.
+Engine tests may depend on `tfm-canon` and `tfm-engine` as test-only scaffolding whenever the behavior
+under test belongs to engine. Test ownership follows the behavior being proved, not the domain
+vocabulary used to construct the scenario. This does not add a production dependency or change
+production ownership; engine production code must never acquire the reciprocal dependency.
 
 This is the first enforced boundary, not a claim that every eventual production module is already
 known. Generic client APIs remain packages within `engine` unless a concrete dependency reason
