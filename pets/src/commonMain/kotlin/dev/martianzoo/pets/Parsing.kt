@@ -6,11 +6,10 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.api.Exceptions.NoNewClassDeclarationsException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ClassParsing.Declarations
 import dev.martianzoo.pets.PetTokenizer.TokenCache
+import dev.martianzoo.pets.api.Exceptions.NoNewClassDeclarationsException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -26,7 +25,8 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
-import dev.martianzoo.util.ParserGroup
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.util.ParserGroup
 import kotlin.reflect.KClass
 
 /** Various functions for parsing [PetElement]s or [ClassDeclaration]s from text. */
@@ -36,13 +36,15 @@ public object Parsing {
    * examples can be reviewed in `global.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
-    return rejectOwnerLocalClasses(
+    val declarations =
         parse(
             Declarations.declarationFile,
             declarationsSource,
             expectedTypeDesc = "Pets class declarations",
         )
-    )
+    return declarations.flatMap { declaration ->
+      DerivedClassLowerer(declaration.className).lowerDeclaration(declaration)
+    }
   }
 
   /**
@@ -84,7 +86,8 @@ public object Parsing {
     return pet
   }
 
-  internal fun <P : PetNode> parse(
+  // TODO: Contract this temporary tfm-canon seam.
+  public fun <P : PetNode> parse(
       expectedType: KClass<P>,
       elementSource: String,
       derivedClasses: DerivedClassLowerer,

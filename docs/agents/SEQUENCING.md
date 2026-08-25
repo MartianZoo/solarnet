@@ -1,8 +1,40 @@
 # Sequencing and completion
 
-**Status: working rules and audit.** This document defines when work may run, when an operation is
-complete, and which freedoms agents should preserve. Current known defects remain defects even when
-tests characterize them.
+> **Read when:** changing task eligibility/order, `THEN`, automatic effects, barriers, precursors,
+> completion, recoverable dead ends, or phase precedence.
+>
+> **Skip when:** changing only Actor/assignee identity ([IDENTITY.md](IDENTITY.md)) or the count
+> executed by one change ([QUANTIFIERS.md](QUANTIFIERS.md)).
+>
+> **Status:** working rules, explicit hypotheses, and audit. A passing characterization does not
+> turn a known defect into intended behavior.
+
+## Read only the relevant rule family
+
+| Question | Read |
+| --- | --- |
+| Is pending work ordered at all? | Mental model; Ask which kind of ordering; Rules that deliberately impose no order |
+| Which mechanism should express A-before-B? | Put facts in components; Recoverable dead ends; Choose the weakest honest mechanism |
+| Must a modifier precede the event it changes? | Model before-trigger effects with a committed precursor |
+| Must reactions complete before the user sees the next choice? | Use automatic effects to preserve player-visible invariants |
+| Does this concern `EACH`, continuations, priority, or atomicity? | Read only the matching explicitly proposed/exploratory section |
+| Is this a known family, defect, or phase rule? | Settled families through Workflow precedence |
+| How should a new ordering claim be researched? | Audit method |
+
+## Source map
+
+- [`TaskQueue.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueue.kt) and
+  [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) — inspect
+  task pooling, revision, and the prepared-task lock.
+- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — inspect
+  splitting, `THEN`, barriers, and prepared forms.
+- [`Effector.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Effector.kt) — search for
+  `automatic` when changing immediate reaction ordering.
+- [`AtomicOperationBoundary.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AtomicOperationBoundary.kt)
+  and [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — read only
+  for commit/rollback atomicity.
+- [`ActionSequencingTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt)
+  — read when changing player-visible action ordering.
 
 ## Mental model: preserve the whole valid decision tree
 
@@ -56,8 +88,9 @@ When evaluating an “atomic” rule, specify separately:
 2. whether intermediate component changes fire or observe effects; and
 3. what multiplicity a trigger sees as one effect.
 
-Do not infer those answers from an unanswered community post. For disputed rules, find the linked
-Jacob Fryxelius ruling or preserve the uncertainty.
+Do not initiate rule research during ordinary implementation work. When the user explicitly asks
+for it, do not infer these answers from an unanswered community post: find the linked Jacob
+Fryxelius ruling or preserve the uncertainty.
 
 ## Put facts in components and future work in tasks
 
@@ -65,7 +98,7 @@ The component graph says what **is** or what **is happening**. This includes tra
 an operation when their identity, cardinality, or individual changes matter. `Owed` records the
 current debt and lets the event history attribute each reduction to Earth Catapult, Advanced
 Alloys, a payment, or another cause. `Required` similarly records a quantitative global-parameter
-shortfall. `CardX53FirstChoice` carries one selected card identity into a later choice, and
+shortfall. `CyberiaSystemsFirstChoice` carries one selected card identity into a later choice, and
 `AwardTally` carries measured values into award comparison. Their temporary or process-local nature
 does not make them task metadata.
 
@@ -134,8 +167,8 @@ the component that owns the ambient rule. Use `IF` when state distinguishes whic
 Examples:
 
 - `GlobalParameter` owns its TR reaction because every qualifying parameter step uses it.
-- `GreeneryTile` owns its oxygen reaction because every greenery raises oxygen. Solo setup cancels
-  the oxygen locally after each neutral placement.
+- `GreeneryTile` owns its oxygen reaction, conditioned on `Photosynthesis`; the corporation phase
+  creates that ambient state and the final-greenery phase removes it.
 
 Use queued `:` by default. [Automatic `::`](#use-automatic-effects-to-preserve-player-visible-invariants)
 is the stronger form for restoring an invariant before player work appears.
@@ -143,8 +176,10 @@ is the stronger form for restoring an invariant before player work appears.
 ### 3. Use source-local `A THEN B` when that source owns both stages
 
 `THEN` is appropriate when only particular authored A operations require B, no honest trigger or
-state gate distinguishes them, and that instruction conceptually owns the pair. Costs and payoffs,
-or a placement and a marker identifying that selected place, are normal examples.
+state gate distinguishes them, and that instruction conceptually owns the pair. A direct Pets
+Action cost followed by its payoff, or a placement followed by a marker identifying that selected
+place, are normal examples. Standard-resource Actions instead use the removal of their finalized
+invoice as the completion event; see [ACTIONS.md](ACTIONS.md).
 
 Completing A enqueues B in A's place. B is not immediate and receives no priority over unrelated
 tasks. `A1, A2, B1, B2` may be a legal order for two `A THEN B` chains. `THEN` waits for the A
@@ -210,35 +245,62 @@ Current strong examples are:
   subscribe to `Trade`, establish a `TradeBarrier`, and finish their optional track decision before
   the already-selected fleet movement can occur.
 - `PlayCard<Class<CardBack>, Class<CardFront>>` is the broader precursor to moving that selected
-  card into its `CardFront` state. Card-wide discounts and next-card effects modify `Owed` from this
-  signal; gated card entry is mandatory in every successful play operation.
+  card into its `CardFront` state. After printed debt and tags exist, generic discounts and
+  next-card effects respond to `Billing<PlayCards>`. The concrete `CardInvoice` retains the card
+  Class only for filters that inspect it; gated card entry is mandatory in every successful play
+  operation.
 - `UseAction<ConvertPlantsSA>` and `UseAction<ConvertHeatSA>` create their standard-resource `Owed`
-  payments and a payment-specific `Payment` barrier. Ecoline reduces the plant debt by one. Once
-  the corresponding `Pay` removes the owner's final `Owed`, the barrier is transmuted into that
-  conversion's `CostPaid` signal and only that conversion's result responds.
-- Every concrete `StandardProject` inherits the same payment protocol: one automatic rule creates
-  M€ debt from its `cost` property, and its shared action creates `Payment<Class<This>>`. The
-  concrete project says only how it responds to `CostPaid<Class<This>>`. Discounts reduce `Owed`;
-  Standard Technology's separate 3 M€ reaction remains a rebate rather than reducing the debt.
+  amounts and a qualified `Invoice` barrier. Ecoline reduces the plant debt by one. Once the
+  corresponding `Pay` removes the owner's final matching `Owed`, the invoice removes itself and
+  only that conversion's result responds.
+- Every concrete `StandardProject` declares an ordinary `1 / cost -> result` Action. Standard-cost
+  Action lowering creates M€ debt from the provider's `cost` property and then one qualified
+  invoice. Discounts reduce `Owed`;
+  Standard Technology's separate 3 M€ reaction follows invoice settlement, remaining a rebate
+  rather than reducing the debt or helping fund the triggering project.
 - `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose
   `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
   the same concrete holder. The holder dependency distinguishes cards that use the same resource
   class, while each card's reaction to its own signal supplies its printed exchange rate.
+- Stormcraft uses that billing path for action costs. When Local Heat Trapping enters play, its
+  separate optional conversion may share the queue with LHT's immediate instructions; because heat
+  is fungible, resolving the conversion before or after the removal has the same final resource
+  totals.
 Two related families should not be described more strongly than the implementation supports:
 
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
-  Docks use the numbered Trade action signals to supply the selected payment resource. This is
+  Docks use the action-qualified Trade signals to supply the selected payment resource. This is
   generic action dispatch, however, not a promise of one uniform later component Type.
-- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain, allowing Polyphemos and
-  Terralabs Research to change the purchase cost. Its intrinsic cost and card gain are queued
-  together, so it promises both in a successful operation but does not currently prove a strict
-  cost-before-`ProjectCard` observation boundary.
+- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. Each signal creates the base
+  `Owed` amount; Polyphemos and Terralabs Research react to that signal by adding or removing their
+  own `Owed`. Only then does it create an invoice hosted by the live `BuyCards` component, which
+  exposes payment and gates the follow-mode `ProjectCard` gain until settlement. In real-card mode,
+  `BuySelectedCards` broadcasts one `BuyCard` per remaining selected card and moves those exact
+  cards to `Hand` only after the invoice is paid.
 
 `Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
 not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
 `ResetColonyProduction`, and the colony-bonus Signals have the request/continuation shape but no
 current subscribers that need a before-A modification. `Accept` is not a committed precursor at
 all: it exposes an optional payment choice.
+
+### Do not make proposed changes triggerable
+
+A generic `PRE A:: B` would fire after an `A` change had been concretely prepared but before it was
+applied. Do not add this. Preparation is allowed to read the current World only because its result
+must be the next mutation. Letting B mutate first makes the prepared A stale: B could consume A's
+removal target, fill its gain limit, remove one of its dependencies, or otherwise make the exact
+change impossible. Executing A anyway can violate the component model; preparing it again permits B
+to happen in response to an A that then changes or disappears. Making either outcome roll back
+requires a new speculative-change contract rather than ordinary Effect semantics.
+
+PRE would also subscribe to an intention rather than a component fact. There is no earlier
+`ChangeEvent` for B's Cause to name, and honest history would need a second event kind plus rules for
+listener snapshots, atomization, multiplicity, and nested PRE cycles. A committed precursor keeps
+all of that in the existing model: record a real P only after the operation commits to producing A,
+make A mandatory for successful completion, and roll both back if the operation reaches a dead end.
+The extra P Type is visible conceptual cost, but it is narrower and more truthful than making every
+prepared change observable before it exists.
 
 ## Use automatic effects to preserve player-visible invariants
 
@@ -279,7 +341,30 @@ Settled uses include:
 - hidden adjacency creation before area bonuses and tile reactions;
 - old energy-to-heat conversion before production payouts;
 - fixed card requirement/cost/payment bookkeeping before gated choices; and
-- invisible marker creation that users should never execute manually.
+- invisible marker creation that users should never execute manually;
+- completion and last-call flags derived from already-committed state changes that players can
+  cause; and
+- helper Signals caused by player activity whose only purpose is to fan out later gameplay work.
+
+Effects triggered only by Engine workflow events, such as `SetupPhase`, use queued `:` by default.
+The workflow already determines when those effects become available, and there is no end-user
+decision whose queue entry must be suppressed. Use `::` there only when exposing the World between
+the trigger and its consequence would violate a concrete invariant.
+
+The canon single-colon audit leaves queued effects only when their right side is a recognizable
+gameplay event or choice, or when current sequencing semantics require a task boundary. Several
+implementation-shaped cases are intentionally still queued:
+
+- moving an EventCard to PlayedEvent must wait for the event's immediate work and tags;
+- removing a Mandate must not destroy the context that supplies its selected action;
+- End and played-event scoring must remain reorderable until all score-producing work is present;
+- action-cost adjustments must wait for the base action's Owed components, because sibling
+  automatic effects have no order; and
+- the solo production correction must wait for production payouts before removing M€.
+
+These are limitations of the current completion model, not evidence that those operations are
+meaningful user decisions. Do not turn them automatic until their required lifetime or dependency
+is expressed directly.
 
 Trade Envoys and Trading Colony deliberately create a `TradeBarrier` automatically while their
 queued optional production decision later removes it.
@@ -290,6 +375,28 @@ admission, or as a substitute for a scope that must wait for transitive descenda
 
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
 scope may be wider than its payment transaction.
+
+### Choose condition time explicitly
+
+These Effects test their Requirements at different times:
+
+```pets
+A IF R: B
+A: (R: B) OR Ok
+```
+
+The first tests R when A's exact Change Event fires. If R is false, no task is created; if it is
+true, later changes to R do not cancel B. The second always creates a task and tests R when that task
+is prepared against the later World. It also makes B optional when R is true because `Ok` remains a
+valid arm. The forms are therefore not interchangeable.
+
+Prefer trigger-side `IF` when R cannot change in the interval or when R qualifies the original
+event. Global-parameter threshold bonuses, trade income measured before the colony track resets,
+and Recession's test for another Player all deliberately freeze trigger-time state. Use the gated
+form only when later sibling work is meant to decide availability and declining B is legal.
+Pharmacy Union is the current model: each queued Science-tag consequence checks the then-current
+Disease count, allowing one consequence to remove the last Disease before another offers the
+corporation flip.
 
 ## Proposed fanout composes as siblings, not a loop or join
 
@@ -326,7 +433,7 @@ different needs that should not be collapsed into one vague “automatic `THEN`�
 
 Marking an action card before `UseAction` prevents a second use but makes Viron's own marker visible
 to Viron's target Requirement, producing the awkward
-`ActionUsedMarker<!CardVC5>` Complement. Marking it afterward as ordinary queued work makes the
+`ActionUsedMarker<!Viron>` Complement. Marking it afterward as ordinary queued work makes the
 marker deferrable and can permit another use.
 
 An author-local automatic tail might help with hidden bookkeeping, but it would not by itself solve
@@ -451,11 +558,14 @@ Mons Insurance. Any implementation must therefore test the three dimensions abov
 
 ## Settled families
 
+Fixed and X-scaled standard-resource Action costs use provider- and action-qualified invoices whose
+removal unlocks the payoff. Costless and direct costs retain ordinary Pets sequencing. See
+[ACTIONS.md](ACTIONS.md).
+
 These current encodings are considered principled:
 
 - Global-parameter change before TR and threshold reactions.
 - Tile placement before adjacency, bonuses, and placement reactions; the reactions remain siblings.
-- Action costs before payoffs through generated `THEN`.
 - Direct spend-to-benefit offers on Olympus Conference, Recyclon, and St. Joseph of Cupertino
   Mission.
 - Neptunian Power Consultants using a named optional signal before creating its spend-to-benefit
@@ -519,9 +629,9 @@ These are domain constraints even where the current workflow approximates them:
    all players pass.
 3. Existing energy converts before new production; production payouts are simultaneous for game
    rules unless evidence says otherwise.
-4. Solar checks game end before World Government Terraforming, Colonies, or Turmoil.
-5. Colonies fleet return and track advance follow World Government Terraforming. Current Canon does
-   them in Production/Generation and is incomplete.
+4. Solar checks game end before triggering World Government Terraforming, Colonies, and Turmoil
+   together; their relative order has no game significance.
+5. Colonies fleet return still happens in Generation and should move to the Solar trigger.
 6. Solo victory is tested before final greeneries.
 7. Final greenery fully drains one player before the next; scoring follows all consequences.
 

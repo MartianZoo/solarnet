@@ -1,6 +1,6 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric

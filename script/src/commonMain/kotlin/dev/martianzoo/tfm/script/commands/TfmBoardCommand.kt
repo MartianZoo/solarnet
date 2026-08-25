@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.tfm.api.ApiUtils
+import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY

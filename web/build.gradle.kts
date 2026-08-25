@@ -25,8 +25,8 @@ kotlin {
 // The served app reads Canon and Pets data at runtime, so fold their resources into this module's
 // own resource processing; everything downstream of it then picks them up automatically.
 tasks.named<ProcessResources>("jsProcessResources") {
-  dependsOn(":canon:jsProcessResources", ":pets:jsProcessResources")
-  from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
+  dependsOn(":tfm-canon:jsProcessResources", ":pets:jsProcessResources")
+  from(project(":tfm-canon").layout.buildDirectory.dir("processedResources/js/main"))
   from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets")) {
     into("pets")
   }

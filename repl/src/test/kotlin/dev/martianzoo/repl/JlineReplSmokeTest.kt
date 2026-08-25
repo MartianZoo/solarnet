@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 internal class JlineReplSmokeTest {
 
   @Test
-  fun smokeTestRealTerminalSessionWithExpect() {
+  internal fun smokeTestRealTerminalSessionWithExpect() {
     val expect = Path.of("/usr/bin/expect")
     assertWithMessage("Expect must be installed for the REPL smoke test")
         .that(Files.isExecutable(expect))

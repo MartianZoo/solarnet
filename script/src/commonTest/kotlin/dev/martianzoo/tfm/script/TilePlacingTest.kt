@@ -1,17 +1,17 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class TilePlacingTest {
+internal class TilePlacingTest {
   @Test
-  fun citiesRepel() {
+  internal fun citiesRepel() {
     val game = setUpGame()
     with(game.tfm(PLAYER2)) {
       phase("Action")
@@ -23,7 +23,7 @@ class TilePlacingTest {
   }
 
   @Test
-  fun cantStack() {
+  internal fun cantStack() {
     val game = setUpGame()
     val p2 = game.tfm(PLAYER2)
 
@@ -32,7 +32,7 @@ class TilePlacingTest {
   }
 
   @Test
-  fun greeneryCanBePlacedAnywhereWhenOwnedTilesAreSurrounded() {
+  internal fun greeneryCanBePlacedAnywhereWhenOwnedTilesAreSurrounded() {
     val game = setUpGame()
 
     with(game.tfm(PLAYER1)) {
@@ -56,7 +56,7 @@ class TilePlacingTest {
   }
 
   @Test
-  fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
+  internal fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
     val game = setUpGame("BH", 2)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -94,7 +94,7 @@ class TilePlacingTest {
   }
 
   @Test
-  fun greeneryNextToOwned_possible() {
+  internal fun greeneryNextToOwned_possible() {
     val game = setUpGame()
 
     with(game.tfm(PLAYER1)) {

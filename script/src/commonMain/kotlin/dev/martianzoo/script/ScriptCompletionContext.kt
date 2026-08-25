@@ -13,7 +13,7 @@ private constructor(
   ) : this(repl, ScriptCompletionArgs(args))
 
   internal val args: String = parsedArgs.text
-  internal val words: List<String> = parsedArgs.words
+  private val words: List<String> = parsedArgs.words
   internal val argIndex: Int = parsedArgs.argIndex
   public val currentWord: String = parsedArgs.currentWord
   internal val firstWord: String = parsedArgs.firstWord
@@ -97,7 +97,7 @@ internal data class ScriptCompletionArgs(val text: String) {
     return ScriptCompletionArgs(rest)
   }
 
-  companion object {
+  private companion object {
     private val WHITESPACE = Regex("\\s+")
   }
 }
@@ -120,13 +120,13 @@ public data class ScriptCompletion(
     val value: String,
     val group: String? = null,
     val description: String? = null,
-    val replaceFragment: Boolean = true,
+    private val replaceFragment: Boolean = true,
     val complete: Boolean = true,
 ) {
-  public fun startsWith(prefix: String, ignoreCase: Boolean): Boolean =
+  internal fun startsWith(prefix: String, ignoreCase: Boolean): Boolean =
       value.startsWith(prefix, ignoreCase)
 
-  public fun replacingFragment(parsedWord: String): ScriptCompletion {
+  internal fun replacingFragment(parsedWord: String): ScriptCompletion {
     val candidateValue =
         if (replaceFragment) ScriptCompletionContext.replaceFragment(parsedWord, value) else value
     return copy(value = candidateValue, replaceFragment = false)

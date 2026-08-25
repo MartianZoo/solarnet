@@ -13,53 +13,53 @@ import kotlin.test.Test
 
 internal class AutomatedTest {
   @Test
-  fun expressions() {
+  internal fun expressions() {
     PetGenerator().goNuts<Expression>()
   }
 
   @Test
-  fun scaledExpressions() {
+  internal fun scaledExpressions() {
     PetGenerator().goNuts<ScaledExpression>()
   }
 
   @Test
-  fun metrics() {
+  internal fun metrics() {
     PetGenerator(0.7).goNuts<Metric>()
   }
 
   @Test
-  fun triggers() {
+  internal fun triggers() {
     PetGenerator(0.6).goNuts<Trigger>()
   }
 
   @Test
-  fun requirements() {
+  internal fun requirements() {
     val gen = PetGenerator()
     gen.goNuts<Requirement>()
     // gen.printTestStringOfEachLength<Requirement>(60)
   }
 
   @Test
-  fun instructionTrees() {
+  internal fun instructionTrees() {
     val gen = PetGenerator()
     gen.goNuts<InstructionTree>()
     // gen.printTestStringOfEachLength<InstructionTree>(60)
   }
 
   @Test
-  fun effects() {
+  internal fun effects() {
     val gen = PetGenerator(0.9)
     gen.goNuts<Effect>()
     // gen.printTestStringOfEachLength<Effect>(60)
   }
 
   @Test
-  fun costs() {
+  internal fun costs() {
     PetGenerator().goNuts<Action.Cost>()
   }
 
   @Test
-  fun actions() {
+  internal fun actions() {
     val gen = PetGenerator()
     gen.goNuts<Action>()
     // gen.printTestStringOfEachLength<Action>(60)

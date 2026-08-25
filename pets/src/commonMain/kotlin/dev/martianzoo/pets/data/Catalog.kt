@@ -1,0 +1,65 @@
+package dev.martianzoo.pets.data
+
+import dev.martianzoo.pets.TransformHandler
+import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomMetric
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.types.ClassTable
+
+/** One coherent catalog of everything the engine may know about a game. */
+public interface Catalog {
+  /** The one fully compiled class universe from which playable projections are formed. */
+  public val classTable: ClassTable
+
+  /** Handlers for this game's explicitly marked Pets syntax, bound to one active class table. */
+  public val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler>
+    get() = emptyMap()
+
+  /** The available Modules and the class selections each one contributes. */
+  public val modules: Map<ClassName, Set<ClassSelection>>
+    get() = emptyMap()
+
+  /** Modules whose selection makes each otherwise bundle-local ambient Class available. */
+  public val classAvailabilityModules: Map<ClassName, Set<ClassName>>
+    get() = emptyMap()
+
+  /** ASCII display names keyed first by language tag and then by canonical class name. */
+  public val displayNamesByLanguage: Map<String, Map<ClassName, String>>
+    get() = emptyMap()
+
+  /** Classes whose localized Pets names are derived from their natural display names. */
+  public val derivedPetsNameClassNames: Set<ClassName>
+    get() = emptySet()
+
+  /** The unique declaration for every class in this Catalog's namespace. */
+  public val allClassDeclarations: Map<ClassName, ClassDeclaration>
+
+  /** Every canonical class name in this Catalog's namespace. */
+  public val allClassNames: Set<ClassName>
+    get() = allClassDeclarations.keys
+
+  /**
+   * Direct source declarations, before transitional structured data is converted to declarations.
+   */
+  public val explicitClassDeclarations: Set<ClassDeclaration>
+
+  /** Every exceptional Kotlin implementation for this Catalog's `Custom` classes. */
+  public val customClasses: Set<CustomClass>
+
+  /** Returns the unique declaration having [name]. */
+  public fun classDeclaration(name: ClassName): ClassDeclaration =
+      allClassDeclarations[name]
+          ?: throw IllegalArgumentException("no class declaration by name $name")
+
+  /** Returns the custom instruction implementation having [className]. */
+  public fun customClass(className: ClassName): CustomClass =
+      customClasses.firstOrNull { it.className == className && it !is CustomMetric }
+          ?: customClasses.firstOrNull { it.className == className }
+          ?: throw IllegalArgumentException(
+              "Custom class implementation for `$className` not found"
+          )
+
+  /** Returns the custom metric implementation having [className], if any. */
+  public fun customMetric(className: ClassName): CustomMetric? =
+      customClasses.filterIsInstance<CustomMetric>().firstOrNull { it.className == className }
+}

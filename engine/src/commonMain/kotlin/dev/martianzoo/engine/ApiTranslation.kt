@@ -1,11 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.Gameplay.GodMode
@@ -14,18 +8,24 @@ import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.tfm.data.Prod
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.HashMultiset
-import dev.martianzoo.util.Hierarchical.Companion.lub
-import dev.martianzoo.util.Multiset
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.Hierarchical.Companion.lub
+import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
 /**
@@ -38,7 +38,7 @@ internal class ApiTranslation(
     private val timeline: Timeline,
     private val impl: Implementations,
     private val tasks: TaskQueue,
-    classTable: ClassTable,
+    private val classTable: ClassTable,
     xers: Transformers,
     vocabulary: Vocabulary,
     private val atomicOperationBoundary: AtomicOperationBoundary,
@@ -48,7 +48,7 @@ internal class ApiTranslation(
     set(newMode) {
       if (newMode != field) {
         field = newMode
-        autoExecNow()
+        autoExecAtomically()
       }
     }
 
@@ -65,7 +65,7 @@ internal class ApiTranslation(
     val allComponents: Multiset<Type> = reader.getComponents(typeToList)
 
     val result = HashMultiset<Expression>()
-    typeToList.rootClass.directSubclasses().forEach { sub ->
+    classTable.directSubclasses(typeToList.rootClass).forEach { sub ->
       val matches = allComponents.filter { it.isSubtypeOf(sub.baseType) }
       if (matches.any()) {
         @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<Type>
@@ -85,13 +85,21 @@ internal class ApiTranslation(
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(::replaceOwnerWith),
-          Prod.deprodify(classTable),
+          xers.transformMarkedSyntax(),
       )
 
   override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =
       preprocessor.transformElement(Parsing.parse(type, text))
 
   private fun parseInstructionTree(text: String): InstructionTree = parse(text)
+
+  private fun parseTaskRevision(text: String): ParsedTaskRevision {
+    val parsed = Parsing.parse<InstructionTree>(text)
+    return ParsedTaskRevision(
+        preprocessor.transformInstructionTree(parsed),
+        intensityOmitted = parsed is Change && parsed.intensity == null,
+    )
+  }
 
   private fun parseInstructionGroup(text: String): InstructionGroup =
       InstructionGroup.of(parseInstructionTree(text))
@@ -141,18 +149,23 @@ internal class ApiTranslation(
 
     override fun doTask(revised: String, taskNumber: Int?) {
       this@ApiTranslation.doTask(revised, taskNumber)
+      impl.autoExecNow(autoExecMode)
     }
 
     override fun tryTask(revised: String, taskNumber: Int?) {
       this@ApiTranslation.tryTask(revised, taskNumber)
+      impl.autoExecNow(autoExecMode)
     }
 
     override fun autoExecNow() {
-      atomic {}
+      impl.autoExecNow(autoExecMode)
     }
   }
 
   override fun autoExecNow() = atomic {}
+
+  private fun autoExecAtomically(): TaskResult =
+      atomicOperationBoundary.run({ impl.autoExecNow(autoExecMode) }) {}
 
   // TURNS
 
@@ -171,11 +184,13 @@ internal class ApiTranslation(
   // task in their queue at any given time
 
   override fun reviseTask(taskId: TaskId, revised: String) = timeline.atomic {
-    impl.reviseTask(taskId, parseInstructionTree(revised))
+    val parsed = parseTaskRevision(revised)
+    impl.reviseTask(taskId, parsed.instruction, parsed.intensityOmitted)
   }
 
   override fun reviseTask(current: String, revised: String) = timeline.atomic {
-    impl.reviseTask(parse<Instruction>(current), parseInstructionTree(revised))
+    val parsed = parseTaskRevision(revised)
+    impl.reviseTask(parse<Instruction>(current), parsed.instruction, parsed.intensityOmitted)
   }
 
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
@@ -185,19 +200,24 @@ internal class ApiTranslation(
   override fun prepareTask(instruction: String) = impl.prepareTask(parse<Instruction>(instruction))
 
   override fun doTask(revised: String, taskNumber: Int?) = atomic {
-    impl.doTask(parseInstructionTree(revised), taskNumber)
+    val parsed = parseTaskRevision(revised)
+    impl.doTask(parsed.instruction, taskNumber, parsed.intensityOmitted)
   }
 
   override fun tryTask(revised: String, taskNumber: Int?) = atomic {
-    impl.tryTask(parseInstructionTree(revised), taskNumber)
+    val parsed = parseTaskRevision(revised)
+    impl.tryTask(parsed.instruction, taskNumber, parsed.intensityOmitted)
   }
 
   override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
 
   // autoExecNow() and cross-Actor gameplay calls can re-enter this boundary. Its depth is shared
-  // by every Actor in the world so only the true outermost operation reports completion.
-  fun atomic(block: () -> Unit): TaskResult = atomicOperationBoundary.run {
-    block()
-    impl.autoExecNow(autoExecMode)
-  }
+  // by every Actor in the world so only the true outermost operation drains and reports completion.
+  private fun atomic(block: () -> Unit): TaskResult =
+      atomicOperationBoundary.run(block) { impl.autoExecNow(autoExecMode) }
+
+  private data class ParsedTaskRevision(
+      val instruction: InstructionTree,
+      val intensityOmitted: Boolean,
+  )
 }

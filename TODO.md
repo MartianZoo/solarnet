@@ -9,118 +9,210 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   slice now executes its supported moves in Solarnet follow mode and streams the event feed; add the
   independent app projector and comparison next while the app continues owning chance and hidden
   cards.
-- Let a game include Valley Trust and the Prelude-card pool without selecting `PreludeExpansion`;
-  `PreludeCard` must be drawable and playable while `PreludePhase` remains absent.
-- Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
-  the ordinary unspecialized type name instead of an unresolved argument list.
-- Replace the `English` card-text data-file fallback incrementally with derivation from Pets
-  instructions, reviewing each resulting wording change against the data-file characterization.
-- Settle and prototype the generic `EACH Type { ... }` fanout proposed in
+- Get away from JSON entirely and create everything as pets code.
+- Implement abstract class-property defaults, beginning with `CardFront.cost = Number DEFAULT 0`;
+  let the project-card families clear that default while retaining the `Number` bound so every
+  project card must still state its cost explicitly, including zero.
+- Try moving the automatic `This:: EventTag<This>` gain from every generated event card onto
+  `EventCard`; ensure class-backed tag inspection sees the inherited authored behavior.
+- IndustrialComplex should top up to 2 production if in QuickStartVariant (add to BugsTest anytime).
+- Preserve linked Type variables through English sequence rendering. Flooding's repeated `Anyone`
+  already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
+  stages currently lose that shared identity. Expose the existing semantic link and represent the
+  later participant as a structured reference rather than recognizing Flooding.
+- Finish the remaining English renderer architecture work routed by `docs/agents/LANGUAGE_REVIEW.md`;
+  keep current output coverage and ordinary renderer rules in `docs/agents/LANGUAGE.md`.
+- Try making `VictoryPoint` depend on the scoring `Component` for the fun of it.
+- Philanthropist's metric is not the same as Vitor's (add BugsTest).
+- See if two wild tags on one card is feasible to support, else add to limitations doc.
+- Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
+  the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
+- Complete the master-Class-universe access boundary: remove public `Catalog.classTable` after
+  replacing the three deliberate structural acquisition points with narrower internal capabilities.
+- Make an omitted concrete `CardResource` holder bound specialize to that resource class; today
+  `CLASS Animal : CardResource` leaves the holder generic, so declarations must repeat
+  `CardResource<ResourceHolder<Class<Animal>>>` to prevent animals from inhabiting other resource
+  cards.
+- **Medium priority:** Opportunistically replace Canon-backed engine characterizations with small
+  generic declarations when the substitution is straightforward; keep core-rule scenarios at the
+  player-action and observation boundary.
+- **Low priority:** Replace incidental Terraforming Mars vocabulary in generic Pets tests with small
+  synthetic declarations where straightforward. Move a test only when its actual purpose is to verify
+  Terraforming Mars behavior; domain words used as test data do not decide ownership by themselves.
+- Decide whether generic script and Terraforming Mars script packages eventually warrant separate
+  Gradle modules. Preserve their sibling domain package roots until that split has concrete value.
+- **Low priority:** Extend premise viability beyond exact uninhabited-domain facts; Law Suit being
+  unviable in solo because no opponent-dependent attack record can inhabit the projected Type
+  universe is the canonical stronger proof.
+- Replace the artificial persistent `PlayCards` invoice host in a later, dedicated lifecycle
+  redesign. Distinguish the early card-play attempt from the later live payable card play; keep
+  tag enumeration internal and let generic card behavior respond to the live operation without
+  naming its `Class<CardFront>` data.
+- In card and action behavior tests that can leave optional or delegated work behind, explicitly
+  verify that the operation completes and the game returns to idle instead of checking only the
+  resulting components.
+- Restrict `TfmGameplay.stdAction` to actual `StandardAction` providers; give other live
+  `HasActions` components a correctly named gameplay operation instead.
+- Represent a payment as one auditable allocation: record every tender and every rule's full value,
+  reject excess that is not smaller than every payment-unit value used, and only then consume the
+  exact `Owed` amount. Confirm the precise excess-payment rule from an authoritative Jacob
+  Fryxelius ruling before committing that legality test; do not derive attribution from automatic
+  effect order. See [`PAYMENTS.md`](docs/agents/PAYMENTS.md) for the concerns and candidate designs.
+- **Medium priority:** Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
-- Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
+- Replace the custom `ColoniesSetup` instruction with ordinary per-player setup signaling, then
+  delete its custom declaration, registration, and Kotlin implementation.
+- **High priority:** Implement preparation-time delegated narrowing. The controller chooses when to
+  prepare a parent task, the delegate alone narrows its child, and the controller remains blocked
+  until that child completes. Prove Engine narrowing for real-card deals and Player delegation for
+  Enceladus.
+- **Low priority:** Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
-- Support requirement adjustment when one part of a compound card requirement is a global-parameter
-  requirement.
-- Decide whether `CardFront` should depend on `Class<CardBack>`, with types such as `ActiveCard`
-  extending `CardFront<Class<ProjectCard>>`, so the front-to-back relationship is represented in
-  the type model and may subsume the separate deck check.
+- **Low priority:** Support requirement adjustment when one part of a compound card requirement is
+  a global-parameter requirement.
+- Prototype the bidirectional represented-family link in
+  [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact
+  `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
-- Let Modules directly own the protocol Classes currently kept active by compatibility Trigger
-  roots, then delete that compatibility activation edge.
-- After the first projection-policy change in
-  [`docs/agents/OPTIONS.md`](docs/agents/OPTIONS.md#settled-projection-policy-direction) is coherent,
-  extend premise viability beyond exact uninhabited-domain facts; Law Suit in solo is the canonical
-  proof that no opponent-dependent attack record can inhabit the projected Type universe.
-- Audit `system.pets` and retain only the System Types the generic engine genuinely requires.
-- Make the turn/action boundary coherent: `UseAction` is generated by generic Pets code, but its declaration is player-bound Terraforming Mars behavior; do not move it into `system.pets` until that ownership boundary has a principled model.
-- Determine whether Gated Instructions are a special form of `THEN` rather than a separate construct.
-- Explore whether one dynamic `::` chain may suspend at a single abstract instruction: drain its
-  other automatic effects, admit and immediately prepare one forced choice, then let that choice
-  and its own automatic effects execute normally. Prefer this only if it removes more
-  barrier/continuation machinery than it adds.
-- Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
+- **High priority:** Identify the signal Classes that workflows or APIs can create directly even
+  though no selected Module activates them. Make their owning Modules activate them explicitly,
+  then remove the `ClassLoader` rule that activates every reachable Trigger root.
+- **High priority:** Allow a partial instruction to narrow the matching portion of exactly one
+  pending task while preserving the task's untouched structure
+  ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
+- **High priority:** Make task queues semantically unordered: remove positional task selection and
+  stable-order autoexec precedence, remove `FIRST`, require an id or unambiguous instruction match,
+  and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
+  dependencies. Autoexecution policy belongs outside the engine as specified in
+  [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
+- **Medium priority:** Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
   highest occupied priority in their control scope, without task-targeting effects or mutation.
   Test whether Trade can delete its pure scheduling barrier and whether PlayCard can directly create
   reduced-priority card-entry and event-cleanup work while preserving auditable `Owed` and
   `Required` components. Keep this distinct from `THEN`, state gates, and scoped drain.
-- Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.
-- Move test-only action helpers such as `playCorp` and `playProject` out of production
-  `TfmGameplay`; remove or replace `SampleGames` and give benchmarks explicit harness utilities.
-- Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
+- **Medium-high priority:** Finish replacing the legacy “linkage” terminology and machinery with the
+  Type-variable model, including unifying Class-header Type-variable recognition with ordinary
+  scopes: bind whole abstract Expressions, keep sibling argument branches independent, propagate
+  variables into Effects only at their named Expressions, and reject conflicting replacements
+  (`docs/agents/TYPES.md` §12.1, §12.3, §12.4).
+- **Medium-high priority:** Heavily revamp the `TfmGameplay` and test-helper APIs: move test-only
+  actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
+  and give benchmarks explicit harness utilities rather than inheriting the test convenience
+  surface.
+- **Medium priority:** Finish disposable Game World forks and overlays: overlay components and
+  live effects, copy the small task queues, extend event history from a captured prefix, and
+  preserve one clear revision boundary for prepared tasks. Once overlays carry speculative changes,
+  reconsider `ComponentGraph` as a custom read-mostly structure whose base changes only when the
+  game moves forward.
+- Do not intern every structurally possible Type without a retention policy; families such as
+  `Neighbor` can produce a very large domain. If repeated type algebra remains expensive, first
+  measure whether an overlay-scoped or otherwise bounded cache can help without becoming state.
+- **Medium priority:** Move more expansion-specific knowledge out of Kotlin and into Module/Pets
+  data, starting with workflow phase insertion and Terraforming Mars registries that enumerate
+  expansions directly.
+- Replace negative `ClassSelection` exclusions for definition replacements with one positive
+  systemic rule: selecting a replacement chooses that provider for the definition slot while the
+  Catalog continues to retain every known variant.
+- **Low priority:** Consider compiling Pets during the build into validated runtime artifacts, but
+  only if one compiler can replace runtime parsing/validation without creating a second semantic
+  model.
+- **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
   and whether adding and then removing those steps has any other observable consequences.
+- **Low priority:** Investigate why `GlobalParameter`'s `This: TerraformRating` silently produces no
+  task for World Government Terraforming. Decide whether the authored rule should explicitly say
+  `This BY Player: TerraformRating`, whether World Government should otherwise fail for its missing
+  Player-bound destination, and whether AMAP is a coherent alternative. Preserve the settled AMAP
+  distinction between an existing destination with zero invariant headroom and a missing
+  dependency; see [`TURMOIL.md`](docs/agents/TURMOIL.md#multiplicity-and-amap).
+- Complete `Game20260820Test` beyond its current partial generation-6 boundary using the preserved
+  log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 
 ### Making Solarnet AI-player-ready
 
-- Move beyond follow-along mode by modeling shuffled decks, deals, draws, and actual private hands.
-- Provide one strict player-relative observation and visible-history interface that cannot expose opponents' cards, hidden deck order, or private events; use that same boundary for training, evaluation, and live play.
-- Provide a stable, machine-learning-friendly action interface that enumerates or scores complete legal choices while preserving the relationship among the engine's lower-level card, payment, target, quantity, and placement tasks.
-- Add reproducible randomness, cheap disposable state forks, parallel or batched simulation, and throughput benchmarks suitable for self-play and online search.
-- Add a standard training-environment adapter, baseline player population, replay format or dataset pipeline, and duplicated-seed evaluation harness.
-- Extend the standard-resource monotonicity scan from premise-wide candidates to state-conditional
-  certificates; classify triggered consequences and define contracts or simulations for relevant
-  custom operations.
-- Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and Prelude 2; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
+- **Medium-high priority:** Move beyond follow-along mode by modeling shuffled decks, deals, draws, and actual private hands. Include the bidirectional represented-family link from [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family. Replace the temporary follow-mode neutralizer with real-mode lowering for the canonical `CARDS` operation.
+- **Low priority:** Provide one strict player-relative observation and visible-history interface that cannot expose opponents' cards, hidden deck order, or private events; use that same boundary for training, evaluation, and live play.
+- **Low priority:** Provide a stable, machine-learning-friendly action interface that enumerates or scores complete legal choices while preserving the relationship among the engine's lower-level card, payment, target, quantity, and placement tasks.
+- Support parallel or batched game simulation for AI search and training.
+- Add a replay format or dataset pipeline.
+- Compare players across identical random seeds so evaluation does not confuse luck with strength.
+- **Low priority:** Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and the remaining Prelude 2 cards; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
+
+### Hypothetical Card Behavior
+
+- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion boundary
+  if a future score depends on another score rather than directly on game state.
+- Give multiple wild tags on one card distinct occurrences if a future card has two wild tags, so
+  both can be assigned either the same tag or different tags for one action.
+- Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
+  `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
+- Give players 20 TR in multiplayer setup and 14 TR in solo setup directly if a future card can
+  observe the current 20-then-minus-6 solo sequence.
 
 ### Soon
 
-- Use [`docs/agents/SEQUENCING.md`](docs/agents/SEQUENCING.md) to audit and normalize real A-before-B rules; next settle the action-marker/Viron tension and the mixed automatic/queued phase triggers, and keep the verdict buckets current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and descendant-completion semantics.
-- Confirm whether each Mars University discard-to-draw activation is indivisible, then replace the two-discards-first characterization if the official rule permits ordering only whole effects.
-- Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game tests.
-- Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game test to decline one action early.
-- Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game test's mandatory `!` override.
-- Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game test can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
-- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
-- Fix Public Plans so “any number” cannot be zero and the card is unavailable when the player has no other card to reveal; keep the current wrong behavior characterized in `BugsTest` until fixed.
-- When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
-- Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
-- [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
-- Finish unifying `OR` semantics and construction across the non-Metric AST families: reject duplicate authored arms; let programmatic factories deduplicate in first-occurrence order; and preserve significant trigger order. Metrics now reject duplicate authored arms and non-component unions while their factory deduplicates in first-occurrence order ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
-- [#30: Task refinement](https://github.com/MartianZoo/solarnet/issues/30) — Narrow tasks without repeating the full instruction.
-- Determine whether gated preparation's loss of `<Anyone>` is harmless canonicalization or an invalid target; document or test the result.
-- Stop nested bounds in sibling branches of one `<...>` list from linking, so a declaration like `Adjacency<Tile<MarsArea>, Tile<MarsArea>>`, or one repeating the same class literal in two slots, resolves with differing arguments; only a class's own repeated writing of a bound at distinct positions of the same inherited dependency should link, and the shared `Class_0` key makes the class-literal case easy to miss (`docs/agents/TYPES.md` §12.1).
-- Tighten complement narrowing so a candidate whose relevant dependency is still abstract is rejected; `SpaceTag` counts as narrowing `SpaceTag<!Player1>` today even though it admits `SpaceTag<Player1>` (`docs/agents/TYPES.md` §12.2).
-- Give Class headers the same Type-variable recognition every other scope uses, so a repeated bound carrying arguments, a Refinement, or a `!` binds as a unit rather than only its innermost bare Class Names, and so only abstract occurrences bind; the same shared mechanism should subsume the sibling-branch fix above (`docs/agents/TYPES.md` §12.3, §12.1).
-- Replace Class-header-to-Effect Class-name substitution with real Type-variable recognition, so Effects narrow only at the Expressions a variable names, and one name mapping to two replacements reports a disagreement instead of being silently skipped (`docs/agents/TYPES.md` §12.4).
-- Rethink Complement Types properly rather than patching them. Treating `!X` as a bound-plus-exclusion that is "simpler than a difference type" does not hold up: the domain is dropped from both written forms so a `glb`- or Type-variable-narrowed Complement does not survive re-resolution (§12.5); narrowing accepts candidates whose relevant Dependency is still abstract (§12.2); two Complements combine only on exact excluded-Type equality; `Owned<!Anyone>` resolves but `Owned<Anyone, !Anyone>` has no `glb`; `ComplementDependency.ensureNarrows` throws `ClassCastException` when the other side is also a Complement; a root-marked Complement cannot be a Type-variable source outside a Class header, while a composite Expression containing a nested Complement still can (§12.6). Decide whether these are genuine difference Types before fixing them one at a time.
-- Consider modeling multiplicity in the type system itself. The rule that every concrete type a dependency bound admits must have an applicable `MAX 1` or `=1` invariant is what makes a dependency edge designate one component (`docs/agents/TYPES.md` §5), yet the type system never checks it; `Limiter` does, once, at game construction, over active classes only. A type system that knew about multiplicity could reject such a table at load and could express `Atomized` and the `HAS =1 This` idiom directly.
+- Preserve Merger's printed pay-after-play order when its real-card operation becomes executable;
+  the follow-mode declaration still keeps the 42 M€ payment as an independent sibling to preserve
+  current behavior.
+- **Medium priority:** Continue the unresolved sequencing work identified by the canon effect-mode
+  audit: settle the action-marker/Viron tension, event and Mandate context lifetime, scoring
+  completion, same-trigger action-cost dependencies, and the remaining mixed phase triggers,
+  including existing automatic effects triggered only by Engine workflow events. Before inventing
+  an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and
+  descendant-completion semantics.
+- **Low priority:** When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
+- **Medium priority:** Model the solo setup choice that selects four colony tiles and removes one
+  before assembling the playable Game World.
 
 ### Medium Soon
 
-- Add a diagnostic engine/test mode that chooses otherwise executable tasks in reverse or reproducibly randomized order, then run the suites under it to expose accidental queue-order dependencies.
+- **Low priority:** Rethink Complement Types as one design problem, including domain preservation, abstract-candidate
+  narrowing, Complement combination, and nested-variable behavior, before patching the individual
+  failures (`docs/agents/TYPES.md` §12.2, §12.5, §12.6).
+- Generalize corporation-play support so Merger can play its second corporation without also
+  assuming corporation-phase card buying or a separate full turn; then remove the raw
+  `PlayCard<CorporationCard>` calls from the solo whole-game tests.
+- Finish unifying `OR` semantics and construction across the non-Metric AST families: reject
+  duplicate authored arms; let programmatic factories deduplicate in first-occurrence order; and
+  preserve significant trigger order. Metrics now reject duplicate authored arms and non-component
+  unions while their factory deduplicates in first-occurrence order
+  ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
 - Reduce the remaining custom Pets instructions only where behavior can become hand-authored Pets; start with the candidates and constraints in [`docs/agents/REDUCE_CUSTOM.md`](docs/agents/REDUCE_CUSTOM.md).
-- Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return and colony-track advancement from Production into its Solar subphase after the game-end check.
-- Consolidate exception cleanup ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain boundaries, and narrow `Instruction.narrows`.
-- [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54) — Resolve contextual ownership correctly and display the resolved player.
-- Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
-- Model Prelude plays as explicit first and second turns.
-- Derive `Owed` / `Payment` / `CostPaid` flows automatically from paid action instructions before applying that protocol to Water Import from Europa and similar cards; rewrite the resource removals needed before enabling Helion or Stormcraft.
-- Rethink task selection holistically; queue order has no domain meaning, so require an id or explicit match unless exactly one task applies.
-- Rethink autoexec as a coherent project: distinguish expected domain failures from defects and simplify `autoExecNext`.
-- Separate Authority data from premise resolution, and split `TfmAuthority`'s generic declaration aggregation/validation into `Authority` from the Terraforming Mars registries in `TfmAuthority`.
-- Extract shared `Definition`-to-`ClassDeclaration` assembly without hiding category-specific behavior.
-- Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately. Then replace rollback speculation with disposable game-state forks that overlay components and live effects, copy the small task queues, and extend event history from a captured prefix.
-- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `canon`, and `script` APIs.
+- In the Colonies solar phase, return every trade fleet before advancing every colony track, and
+  prove that exact order.
+- **Medium-high priority:** Consolidate exception cleanup
+  ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain
+  failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain
+  boundaries, and narrow `Instruction.narrows`.
+- **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
+  — Resolve contextual ownership correctly and display the resolved player.
+- Move autoexecution out of the engine into optional clients of `Gameplay`: remove implicit drains,
+  replace modes with named policies, record the issuing agent, and initially provide only policies
+  that prove they make no gameplay sacrifice; see
+  [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
+- **Medium priority:** Separate Catalog data from premise resolution, and split `TfmCatalog`'s
+  generic declaration aggregation/validation into `Catalog` from the Terraforming Mars registries
+  in `TfmCatalog`.
+- Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately.
+- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated dependency/refinement construction without risking correctness.
 
 ### Medium Priority
 
-- [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define a small set of rules for unique choices without removing real choices.
+- **Medium-high priority:**
+  [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define small,
+  independently selectable autoexecution policies that can prove and submit forced task narrowings
+  without making raw preparation search through player choices.
 
 ### Low Priority
 
-- Prevent Solar Probe's event cleanup from preempting its card draw.
-- Implement the standard-game rule that starts every production at 1 when Corporate Era is disabled; this rounds out game modes and demonstrates replacements. Until then, keep canonical requirements at their printed values.
-- [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
-- [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
-- After `OverlayWorld`, revisit Task preparation so a Prepared Task remains authoritative for its Game World revision instead of being repeatedly prepared, executed speculatively, rolled back, and prepared again.
-- [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer; `WildTagUse` should not depend on `TfmGameplay`-specific settlement.
+- After `OverlayWorld`, consider retaining standalone Task preparation's successful speculative
+  event suffix so later execution can fast-forward it when the backing Game World has not changed.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
 - Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
-- Document the `BuyCard`/payment protocol and verify delayed 3 M€ payment cannot be exploited.
 - Move Pets AST generation to Kotest property tests only if domain-aware shrinking improves failures.
 
 ## Autonomous Follow-ups
@@ -129,25 +221,65 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   `CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4` even though the development
   executable and Node test pass; use development output for the parity prototype until this is
   understood.
+- Move Terraforming Mars payment/action lowering and the omitted-expression Megacredit convention
+  out of generic Pets; their remaining string-level implementation no longer creates a module
+  dependency, but it is still domain ownership in the wrong layer.
+- Contract the temporary public engine and TFM-engine test seams after Canon-dependent lower-layer
+  tests use self-contained declarations and return to their owning modules.
+- Contract the temporary public Pets-to-Canon construction and lowering seams around the eventual
+  generic `Catalog` boundary.
+- Contract the temporary public `EventLog.entryAt` boundary after `tfm-engine` receives a narrow
+  event query for identifying the origin of an action-phase second-action offer.
+
+- Teach the English renderer to consolidate repeated identical optional card transfers, so Astra
+  Mechanica's two independent choices render as “return up to 2” rather than two sentences.
+- Finish making `cards.pets` the sole card authority: express card-to-supporting-declaration
+  contribution links and replacement relationships in Pets, then derive pre-load deck selection,
+  tag validation, and compatibility without JSON-backed `CardDefinition` metadata.
+
+- Make bundled Class declarations mandatory for maps and cards, then restrict the remaining
+  structured card and map records to offline generation and category-specific metadata.
+
+- Replace the remaining colony-specific premise plumbing (`COLONY_TILES` and initial tile discovery)
+  only when one general configured-starting-component model can preserve both selected starting
+  tiles and unselected tiles available for mid-game addition.
+
+- Make `FollowModeNeutralizer` consume the shared `CardOperation` semantic view; it currently keeps
+  a separate recognizer because it also handles transformed card metrics and requirements.
+- Make copied card effects use their executable follow-mode form; copying Head Start currently
+  replays its authored card-area operation and tries to resolve inactive `Hand`.
+- If real content ever references a helper belonging only to the other map in a two-map Bundle,
+  split that Bundle at the selection boundary instead of adding per-Class availability metadata.
+- Bring the JVM English renderer under Detekt through the planned intermediate-representation
+  decomposition; avoid mechanical helper extraction or blanket suppression of the 47 legacy
+  complexity findings.
+- Resolve contextual placement-site `This` in the English renderer through its linked type source,
+  then delete its remaining positional recognition.
+- Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
+  `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
+  so there is one implementation and one source of domain context.
+- Preserve and enforce the existing `GameReader` boundary that prevents game mechanics, including
+  custom Classes, from reading `EventLog`; add an architectural check so event history remains
+  diagnostic and gameplay-state equivalence can depend only on the `ComponentGraph` and
+  gameplay-relevant `TaskQueues`.
+- Filter inactive gated provenance from `Initializer` source ordering so false mutual gains cannot
+  create a bootstrap cycle absent from the selected configuration.
+- Retain projection-decision provenance so premise diagnostics can explain automatic filtering and
+  complete hard-reference paths, rather than only the selected content Class or immediate source.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone
   reconciliation for a patent sale taken beyond the normal action allowance.
-- Render conditional `End IF` scoring effects compositionally; they are now classified as bottom
-  text and fall back honestly, with Search for Life as the canonical example.
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.
-- Rename the implementation's `phantom` vocabulary to the official `uninhabited` terminology,
-  keeping that API migration separate from the documentation change that settled the model.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
+- Derive ocean-reserved greenery placements only after the language model can express the waiver of
+  a placed component's normal restrictions as a relationship between that component and its site;
+  do not attach a generic "disregard restrictions" phrase to `WaterArea`.
 - Present other pre-payment resource refunds, especially reduced trade costs, as player-facing
   discounts once their action effects become structurally derivable.
-- Revisit a Pets-element English fallback table only after making every host context that affects
-  wording explicit. Equal `InstructionTree`s currently inherit card-specific variants such as “including this” from the
-  golden text, so either compute those variants from the host card or canonicalize the redundant
-  wording away; do not harvest one card region's string by AST key and apply it blindly.
 - Keep the `Award` base class's scoring effect inherited while avoiding loading its scoring
   machinery in solo games, where no concrete Award definitions are active.
 - Break `PetTransformer.transformChildren` into focused rebuild helpers; its instruction-tree
@@ -157,19 +289,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
-- Delete or replace `ClassTableProjectionTest`'s exact cumulative card-count assertion; it is a
-  pure content change detector and currently requires manual updates whenever a card is added.
 - Make class-literal parameters specialize inherited generic effects through a subclass, so solo
   resource helpers can share replenishment behavior without a holder/resource dependency cycle.
 - Define the `script` command's relative-path policy and correct its help text, which currently
   promises paths relative to the repository while `File(args)` actually uses the process working
   directory.
-- Resolve Floyd Continuum's printed `007` collision with Martian Rails and decide whether the Dutch Open card belongs in canonical scope before replacing its provisional `XM1` identifier.
-- Enforce global uniqueness for canonical identifiers during canon loading or in CI, across all object kinds.
 - Separate `Instructor`'s preparation-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `PrepareTest`.
-- Remove `Task.newTask`'s unused private `automatic` parameter; it is leftover scaffolding that only
-  maps to `next` and has no caller.
 - Canonicalize unambiguous authored dependency arguments by key before implicit-variable matching, so equivalent argument orders share a variable as intended (`docs/agents/TYPES.md` §12.7).
 - Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

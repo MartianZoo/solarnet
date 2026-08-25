@@ -79,7 +79,7 @@ subtraction. Thus `A MAX 5 - B` caps `A` before subtracting `B`, while `(A - B) 
 Where a Metric is nested, its container determines how much grouping is needed. A counting Requirement accepts one
 `metricAtom`, so subtraction and unions must be grouped: `9 (Plant - Steel)`. After `/` in an Instruction or Action cost,
 subtraction can be written directly (`Heat / Plant MAX 5 - Steel`), but a Metric union must be grouped because bare `OR`
-belongs to the surrounding Instruction or cost (`Heat / (Plant OR Steel)`).
+begins an Instruction alternative (`Heat / (Plant OR Steel)`).
 
 ## Requirements
 
@@ -121,13 +121,21 @@ perInst      := perableInst ['/' subtractionMetric]
 perableInst  := gainInst | removeInst | fromInst | ('(' fromInst ')')
 gainInst     := scalarAndType [quantifier]
 removeInst   := '-' scalarAndType [quantifier]
-fromInst     := [scalar] dependentTypeExpr 'FROM' dependentTypeExpr [quantifier]
+fromInst     := [scalar] from [quantifier]
+from         := fullFrom | compactFrom
+fullFrom     := dependentTypeExpr 'FROM' dependentTypeExpr
+compactFrom  := className '<' fromArgs '>'
+fromArgs     := (typeExpression ',')* from (',' typeExpression)*
 groupedInst  := '(' instruction ')'
 ```
 
 Instructions are the meat of the language, as you can see. The elementary instructions are to gain some amount of a
 component (`4 Plant<Player2>`), remove some amount of a component (`-8 Heat<Player1>`), or even transmute some amount of
-one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Player2>`).
+one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Player2>`). When both
+sides have the same Class and differ in exactly one nested argument, the shared structure can be
+written once: `Foo<Same, Here, NotSame FROM Different>` means
+`Foo<Same, Here, NotSame> FROM Foo<Same, Here, Different>`. The unchanged arguments are linked and
+must narrow to the same Types on both sides.
 
 Commas separate multiple independent instructions. The comma has the lowest precedence of all instruction operators.
 Within each comma-separated section, you might find instructions separated by `THEN`; this is similar to the comma, but
@@ -157,8 +165,7 @@ for every three complete EarthTags.
 
 ```
 action      := [cost] '->' instruction
-cost        := orCost (',' orCost)*
-orCost      := atomCost ('OR' atomCost)*
+cost        := atomCost (',' atomCost)*
 atomCost    := perCost | groupedCost
 perCost     := prodCost ['/' subtractionMetric]
 prodCost    := spendCost | ('PROD[' cost ']')
@@ -166,11 +173,11 @@ spendCost   := scalarAndType
 groupedCost := '(' cost ')'
 ```
 
-An actions have an optional cost followed by an "arrow" and then an instruction. Costs resemble instructions, but are
-assumed negative without need for a minus sign.
+An action has an optional cost followed by an "arrow" and then an instruction. Costs resemble instructions, but are
+assumed negative without need for a minus sign. Alternative costs are written as separate actions.
 
-The engine actually translates these into triggered effects (if the second action on `ElectroCatapult` is `Plant -> 7`,
-that gets translated to `UseAction2<ElectroCatapult>: -Plant THEN 7`).
+The engine translates actions into triggered effects. Standard-resource costs open an invoice; direct costs become
+removal instructions.
 
 ### Effects
 

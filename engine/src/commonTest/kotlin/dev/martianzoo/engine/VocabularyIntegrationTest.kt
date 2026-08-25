@@ -1,24 +1,23 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class VocabularyIntegrationTest {
   @Test
-  fun worldCanonicalizesSessionInputBeforeEngineResolution() {
+  internal fun worldCanonicalizesSessionInputBeforeEngineResolution() {
     val world =
         Engine.newGame(
-            canonicalPremise(),
+            testGamePremise(),
             locale = "EN_us",
-            inputOnlySynonyms = listOf("Cash" to "Megacredit"),
+            inputOnlySynonyms = listOf("Counter" to "Token"),
         )
     val player = world.gameplay(PLAYER1).godMode()
 
-    player.manual("Cash")
+    player.manual("Counter")
 
     world.vocabulary.locale shouldBe "en-us"
-    player.count("Cash") shouldBe 1
+    player.count("Counter") shouldBe 1
   }
 }

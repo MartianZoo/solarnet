@@ -144,7 +144,9 @@ try {
   );
   const standardProjectEvents = printNewEvents();
   check(
-    standardProjectEvents.lines.some((line) => line.includes("-18 Megacredit<Player1>")),
+    standardProjectEvents.lines.some((line) =>
+      line.includes("+18 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>"),
+    ),
     "Aquifer did not charge Player 1",
   );
   check(

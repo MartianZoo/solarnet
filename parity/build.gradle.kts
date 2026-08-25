@@ -17,9 +17,10 @@ kotlin {
   sourceSets {
     jsMain {
       dependencies {
-        implementation(project(":canon"))
+        implementation(project(":tfm-canon"))
         implementation(project(":engine"))
         implementation(project(":pets"))
+        implementation(project(":tfm-engine"))
         implementation(libs.kotlinx.serialization.json)
       }
     }
@@ -29,8 +30,8 @@ kotlin {
 
 // A parity session reads the same runtime Canon and Pets resources as the browser app.
 tasks.named<Copy>("jsProcessResources") {
-  dependsOn(":canon:jsProcessResources", ":pets:jsProcessResources")
-  from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
+  dependsOn(":tfm-canon:jsProcessResources", ":pets:jsProcessResources")
+  from(project(":tfm-canon").layout.buildDirectory.dir("processedResources/js/main"))
   from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets")) {
     into("pets")
   }

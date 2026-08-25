@@ -1,11 +1,29 @@
 # Native Pets workflow
 
-**Status:** Phase requirements below are settled domain behavior. The native vocabulary and runner
-are a proposal. Committed `TfmWorkflow.Auto` still sequences phases in Kotlin and waits for
-whole-world idleness.
+> **Read when:** changing phase topology/end conditions, moving workflow into Pets, introducing a
+> generic workflow runner, or deciding whether whole-world idleness is the right completion rule.
+>
+> **Skip when:** changing an ordinary card effect or existing workflow-created choice without
+> changing phase ownership.
+>
+> **Status:** domain requirements are settled. Native vocabulary and runner are proposed. Committed
+> `TfmWorkflow.Auto` sequences phases in Kotlin and waits for whole-world idleness.
 
-This project is an architectural replacement, not a prerequisite for currently working Philares,
-Splice, Icy Impactors, Enceladus, or World Government Terraforming behavior.
+## Source map
+
+- [`TfmWorkflow.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
+  — search for `public object TfmWorkflow` and the named phase methods for current behavior.
+- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+  — search for `ABSTRACT CLASS Phase`, `CLASS Generation`, and `CLASS EndPhase` for current domain
+  vocabulary.
+- [`TfmWorkflowTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/TfmWorkflowTest.kt)
+  and [`EndgameRulesTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/EndgameRulesTest.kt)
+  — select only scenarios matching the changed phase/end boundary.
+
+This project is an architectural replacement, not a prerequisite for current Splice, Icy
+Impactors, Enceladus, or World Government Terraforming behavior. Philares is not a working
+precedent: its required preparation-time delegation remains a known gap described in
+[IDENTITY.md](IDENTITY.md).
 
 ## Domain requirements
 
@@ -77,7 +95,7 @@ A generic runtime needs only:
 - span-scoped forward precedence among active steps; and
 - a transient completion signal after a step's control scope drains.
 
-Compile topology from active Authority data. Precedence endpoints are weak references: a constraint
+Compile topology from active Catalog data. Precedence endpoints are weak references: a constraint
 participates only when its span and both endpoint Classes are independently active. It must never
 activate an endpoint.
 
@@ -135,7 +153,7 @@ CLASS PreludeBeforeAction : WorkflowPrecedence<
 
 These references are intentionally weak. The precedence declarations participate only if the span
 and both endpoint Classes were activated independently. The runner compiles them from active
-Authority data; it does not create precedence components in the World.
+Catalog data; it does not create precedence components in the World.
 
 After a step and its delegated control scope drain, the runner emits
 `StepComplete<current-step>`. An ordinary Effect may consume that signal to make a dynamic branch.
@@ -153,7 +171,7 @@ proposal. Player-controlled work still requires the delegation model in
 1. Prove a generic runner with a synthetic linear span, one inactive/active insertion, one
    requirement-selected branch, and termination.
 2. Extract only lifecycle, checkpoint, cancellation, and wakeup mechanics from `TfmWorkflow.Auto`.
-3. Move coarse Terraforming Mars topology and expansion insertions into Authority/Pets data.
+3. Move coarse Terraforming Mars topology and expansion insertions into Catalog/Pets data.
 4. Implement Player control-until-drain with parent/child assignment tests.
 5. Express Corporation, Prelude, Action, and Final Greenery turns using that control mechanism.
 6. Migrate callers, then delete both Kotlin Terraforming Mars workflow variants.

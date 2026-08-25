@@ -1,8 +1,42 @@
 # Engine model
 
-**Status: current model.** This is the architectural map for committed code. Follow links to source
-and tests when exact signatures or edge behavior matter. Future API and workflow directions live in
-[API.md](API.md) and [WORKFLOW.md](WORKFLOW.md).
+> **Read when:** changing live World construction, components, events, tasks, effects, rollback,
+> recoverable dead ends, input transformation, or the current `Gameplay` surface.
+>
+> **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
+> [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
+> resolution.
+>
+> **Status:** current-model map. Follow the source pointers for exact behavior. Future facade and
+> workflow directions live in [API.md](API.md) and [WORKFLOW.md](WORKFLOW.md).
+
+## Read only the relevant sections
+
+| If changing | Read |
+| --- | --- |
+| Game creation or premise activation | Game construction, then Wiring details |
+| Component state, event history, rollback, or forks | Component graph; Events and timeline; Recoverable dead ends |
+| Tasks, assignment, preparation, or execution | Tasks are an unordered choice pool through Execution |
+| Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
+| Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
+| Engine API or autoexecution | Current Gameplay surface; Auto-execution and workflow |
+| Parsing or lowering submitted Pets | Input transformation |
+
+## Source map
+
+- [`World.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/World.kt) and
+  [`WholeWorld.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/WholeWorld.kt) — search
+  for `public interface World` and `public class WholeWorld` for the read surface and live assembly.
+- [`ComponentGraph.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/ComponentGraph.kt) —
+  inspect for component multiplicity and indexes.
+- [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) and
+  [`PendingTask.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/PendingTask.kt) — inspect
+  only for deferred work and preparation.
+- [`EventLog.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/EventLog.kt) and
+  [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — inspect only
+  for history, atomicity, rollback, or revisions.
+- [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt) — search for
+  `public interface Gameplay` before changing caller-facing operations.
 
 ## Game construction
 
@@ -17,36 +51,63 @@ A live Game World is a `World` containing:
 | `ClassTable` | The closed vocabulary and type relationships |
 | Actor-scoped `Gameplay` | The supported mutation/query facade |
 
-`GameConfig` is unresolved user intent. Authority-specific resolution applies defaults, selection
+`GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise
-contains one Authority, selected Modules, signed class selections, seat-ordered display names, and
+contains one Catalog, selected Modules, signed class selections, seat-ordered display names, and
 exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 
-Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
-are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
-`Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
-an explicit projection root. Trigger protocols with inhabited arguments currently remain activation
-edges because external workflow creates signals such as `NewTurn`, concrete `UseAction` Types, and
-`SoloVictoryCheck`; Module ownership should eventually replace that compatibility rule.
+A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
+from that premise shares the projection and its compiled class metadata while retaining independent
+component, effect, task, event, timeline, and gameplay state.
 
-Module defaults and premise requirements are authored as Requirement-valued Pets properties. The
-Authority resolves defaults to a fixed point; the engine checks each selected Module's premise
+Each Catalog owns one validated master `ClassTable`. A game's table projects it: selected Classes
+are active and every other Catalog-known Class is uninhabited. Occupied seats activate canonical
+`Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
+an explicit projection root. Trigger positions are observational and do not activate their
+protocol Classes. Modules create the concrete standard actions and other protocols they issue; an
+exact-Class invariant remains the fallback for generic families that cannot be constructed as one
+concrete expression.
+
+Module defaults, constructive active-provenance edges, and premise requirements are authored in
+Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
 requirement and configuration-facing invariants against the resolved projection before creating the
-World.
+World. Ambient Class ownership derives compatibility conditions from source declarations and
+lowered structured data. Bundle
+availability locks ambient Classes behind their owning Modules, and exact uninhabited-domain
+viability checks reject impossible selected content before World construction.
+
+Milestone requirements and award metrics are authored as Pets properties. Map-default pools are
+abstract milestone or award superclasses whose nested concrete subclasses form the selected pool.
+An invariant authored directly on a goal constrains both its live usability and its automatic
+selection from a pool; Quick Start goal variants use complementary Module-count invariants.
+Canon derives goal names, pool membership, selection requirements, and compatibility directly from
+those declarations; there are no parallel goal metadata objects.
+
+Canonical card classes are loaded from each bundle's generated `cards.pets` alongside
+`classes.pets`. A loaded card declaration retains authored actions and authored effects while its
+ordinary `effects` contain the follow-mode compilation used for activation and execution. That
+compilation preserves generic `CardLocation` movements, delegates printed-face predicates to the
+client, and temporarily represents exact Event-pile links with `PlayedEvent`.
+`TfmCatalog.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
+so deck, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
+come from Pets. JSON-backed card data remains temporarily for generation, pre-load content
+selection and replacement metadata, tag validation, and card-to-supporting-declaration activation
+links.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.
 Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful operation.
 
 In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
-selected data families, Class representatives, and generic specialization fanout. A concrete
-component introduced by a live Module is instead created by that Module's effect and ordinarily has
-a maximum-one invariant; its event history then records the Module as its cause.
+selected data families, Class representatives, and generic specialization fanout. Initialization
+materializes Modules in an order consistent with active provenance, then Module effects create the
+ordinary concrete components they own.
 
 ## Component graph
 
 The component graph is only a multiset of concrete Types. Components have no fields or instance
-identity. Equal Types are indistinguishable copies.
+identity. Equal Types are indistinguishable copies. The Kotlin `Component` type is therefore an
+unboxed value wrapper when its use site permits, not an interned state object.
 
 A concrete component may depend on other concrete components through its Type. Every possible
 dependency target must have an applicable maximum-one invariant so the edge identifies one vertex.
@@ -105,7 +166,8 @@ task per member. Selecting a grouped `OR` branch can likewise replace one task w
 
 `A THEN B` stores A as current work and B as a continuation. Completing A enqueues B in its place;
 B is not immediate and receives no priority over unrelated pending work. Open implicit variables can
-prevent splitting until an earlier stage fixes their shared Type.
+prevent splitting until an earlier stage fixes their shared Type. Revision and preparation normalize
+the task again, so the sequence splits once those shared values become concrete.
 
 ### Assignment and Actor
 
@@ -121,6 +183,12 @@ stored Actor. See [IDENTITY.md](IDENTITY.md).
 There is no parent/child queue suspension or delegated control scope. One prepared task globally
 locks preparation of competitors. `TfmWorkflow.Auto` starts Player operations directly and waits
 for whole-world idleness instead.
+
+This is a known correctness gap for Philares. The current trigger-time assignment gives the
+Philares owner its resource choice immediately and does not let the active Player choose when to
+prepare that reward. The target preparation-time handoff and its blocking requirement are specified
+in [IDENTITY.md](IDENTITY.md); `BugsTest` preserves the two current incorrect behaviors until that
+handoff exists.
 
 ### Preparation
 
@@ -140,12 +208,19 @@ operation. Preparation reads the current World and:
 Preparation may replace one task with several group members. Once preparation has read state, the
 result is marked `next` and must execute before any other mutation.
 
+Explicit preparation checks a concrete result's complete execution in a reversible atomic preview.
+Immediate task execution skips that preview because the encompassing operation already provides
+failure atomicity. A task already marked `next` retains its prepared first stage rather than deriving
+it again; later linked stages still prepare when reached, against the state produced by earlier
+stages.
+
 ### Execution
 
-Execution accepts prepared concrete work. A `Change` goes through `Changer`, logging, automatic
-effects, and queued effects. `By` selects an Actor. A normalized `Then` inside inline execution
-runs its concrete stages; queued `THEN` tails were separated when the task was created. `NoOp`
-does nothing. An unresolved gate, `OR`, scalar, Type, or instruction group is an error.
+Execution accepts prepared concrete work without preparing its first stage again. A `Change` goes
+through `Changer`, logging, automatic effects, and queued effects. `By` selects an Actor. A
+normalized `Then` inside inline execution runs its concrete stages; queued `THEN` tails were
+separated when the task was created. `NoOp` does nothing. An unresolved gate, `OR`, scalar, Type, or
+instruction group is an error.
 
 Queued effects return `PendingTask` values and receive ids only when admitted. Inline automatic
 effects never receive task ids.
@@ -176,8 +251,10 @@ instruction. Type-variable occurrence paths likewise carry a concrete trigger na
 instruction positions without rewriting coincidental equal Class Names.
 
 `::` effects execute inline, recursively, before queued effects from the same concrete change are
-admitted. `:` effects become tasks. Use [SEQUENCING.md](SEQUENCING.md) before depending on that
-difference.
+admitted. A causal chain may contain at most eight nested automatic effects; exceeding that limit
+fails the operation atomically with `RunawayEffectChainException`, which carries the attempted
+chain. `:` effects become tasks. Use
+[SEQUENCING.md](SEQUENCING.md) before depending on that difference.
 
 ### Terraforming Mars wild tags
 
@@ -221,9 +298,11 @@ until trigger specialization, and then receives normal defaults, `Owner` binding
 lowering. Map bonuses and other computed metadata remain honest custom metrics. Distinct live tag or
 resource kinds use refined `Class<...>` Types instead.
 
-`Limiter` computes a maximum from class invariants. Invariants may use `This` and are compiled to a
-per-class lookup after table construction. [QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete
-limits, abstract domains, dependencies, and instruction composition determine the result.
+Each `Class` retains its effective inherited invariants, and each active `ClassTable` projection
+compiles them once into an immutable per-class component-limit lookup. A World's `Limiter` combines
+that shared lookup with the live component graph to compute current headroom and footroom.
+[QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete limits, abstract domains, dependencies, and
+instruction composition determine the result.
 
 ## Recoverable dead ends
 
@@ -265,7 +344,13 @@ Actor-scoped string input passes through this order:
 3. atomization of counted `Atomized` components;
 4. dependency defaults;
 5. contextual `Owner` replacement for Player scopes; and
-6. Terraforming Mars `PROD[...]` lowering.
+6. marked-syntax handlers registered by the World's Catalog.
+
+A Catalog maps transform names to handlers bound to an active `ClassTable`. The generic
+dispatcher traverses the AST, prevents same-kind nesting, and preserves unregistered transforms so
+an earlier compilation stage can handle only the syntax it owns. Terraforming Mars registers
+`PROD` lowering and follow-mode `CARDS` lowering. Card-source compilation invokes the same
+dispatcher with only `CARDS`, leaving `PROD` for the active-table stage.
 
 AST values created inside the engine skip parsing but may use relevant transforms explicitly.
 Transform entry points preserve their declared AST `kind`; a cardinality-changing caller must
@@ -303,7 +388,8 @@ Auto-execution modes are:
 - `FIRST`: choose the first preparable task in stable iteration order.
 
 Scanning is global. Assignee selects the queue; stored Actor controls attribution. Failed candidates
-receive `whyPending`.
+receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplication in the current
+scheduling boundaries and the proposed direction; it does not describe committed behavior.
 
 `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
 layers. Treat it as transitional; test conveniences and player-facing domain actions need not

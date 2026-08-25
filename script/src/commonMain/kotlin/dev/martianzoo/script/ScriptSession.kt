@@ -1,12 +1,5 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.Task
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
@@ -14,6 +7,14 @@ import dev.martianzoo.engine.isHiddenFromLog
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
 import dev.martianzoo.script.Access.PurpleMode
@@ -57,7 +58,6 @@ import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
-import dev.martianzoo.types.Type
 
 /** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(
@@ -203,7 +203,7 @@ public class ScriptSession(
         YELLOW -> YellowMode(gameplay.godMode())
         GREEN -> GreenMode(gameplay.godMode())
         BLUE -> BlueMode(gameplay.godMode())
-        PURPLE -> PurpleMode(gameplay.godMode())
+        PURPLE -> PurpleMode()
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
@@ -286,7 +286,7 @@ public class ScriptSession(
   }
 
   internal fun player(name: String): Player {
-    // In case a configured synonym or definition id was used
+    // In case a configured synonym was used
     val type: Type = gameplay.resolve(name)
     return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
         ?: throw UsageException("not a participating Player: $name")
@@ -300,7 +300,7 @@ public class ScriptSession(
         Canon,
         locale,
         TFM_SCRIPT_CLASS_SYNONYMS,
-        activeClassNames = Canon.colonyTileDefinitions.mapTo(linkedSetOf()) { it.className },
+        activeClassNames = Canon.colonyTileClassNames,
     )
   }
 }

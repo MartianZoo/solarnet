@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext

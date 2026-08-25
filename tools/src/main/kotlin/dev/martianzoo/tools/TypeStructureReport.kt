@@ -1,19 +1,19 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.types.Class as PetsClass
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.DependencySet.DependencyPath
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.types.Class as PetsClass
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.DependencySet.DependencyPath
-import dev.martianzoo.types.Type
 import java.math.BigInteger
 import java.util.Locale
 import kotlin.math.ceil
@@ -21,12 +21,12 @@ import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
 @Suppress("LargeClass") // Keeping the report calculations and formatting together aids comparison.
-internal object TypeStructureReport {
+private object TypeStructureReport {
   private val selectedOptions: Set<ClassName> =
       setOf(
           cn("TerraformingMars"),
           cn("CorporateEraExpansion"),
-          cn("TharsisMapOption"),
+          cn("TharsisMap"),
           cn("VenusNextExpansion"),
           cn("PreludeExpansion"),
           cn("ColoniesExpansion"),
@@ -35,9 +35,8 @@ internal object TypeStructureReport {
       )
 
   fun createGame(): World {
-    val colonyCount = if (PLAYERS == 1) 3 else if (PLAYERS == 2) 5 else PLAYERS + 2
-    val colonies =
-        Canon.colonyTileDefinitions.map { it.className }.sorted().take(colonyCount).toSet()
+    val colonyCount = if (PLAYERS == 1) 4 else if (PLAYERS == 2) 5 else PLAYERS + 2
+    val colonies = Canon.colonyTileClassNames.sorted().take(colonyCount).toSet()
     return Engine.newGame(
         Canon.gamePremise(
             GameConfig.create(
@@ -51,13 +50,13 @@ internal object TypeStructureReport {
   @Suppress("CyclomaticComplexMethod") // The branches compute independent report statistics.
   fun render(game: World): String {
     val table = game.classTable
-    val authority = game.reader.authority
+    val catalog = game.reader.catalog
     val active = table.allClasses().sortedBy { it.className }
     val known =
-        (authority.allClassDeclarations.keys.mapNotNull(table::findClass) + active)
+        (catalog.allClassDeclarations.keys.mapNotNull(table::findClass) + active)
             .distinct()
             .sortedBy { it.className }
-    val phantom = known.filter(PetsClass::phantom)
+    val phantom = known.filterNot(table::isActive)
     val concrete = active.filterNot(PetsClass::abstract)
     val abstract = active.filter(PetsClass::abstract)
     val bitBearingSuperclassesUnsorted = known.flatMap(PetsClass::directSuperclasses).distinct()
@@ -66,7 +65,7 @@ internal object TypeStructureReport {
     }
     val bitBearingSuperclasses =
         bitBearingSuperclassesUnsorted.sortedWith(
-            compareBy<PetsClass>(PetsClass::phantom)
+            compareBy<PetsClass> { !table.isActive(it) }
                 .thenByDescending { properSubclassCounts.getValue(it) }
                 .thenBy(PetsClass::className)
         )
@@ -92,33 +91,37 @@ internal object TypeStructureReport {
 
     val directEdges = active.sumOf { it.directSuperclasses.size }
     val ancestorCounts = active.map { it.allSuperclasses().size }
-    val descendantCounts = active.map { it.allSubclasses().size }
+    val descendantCounts = active.map { table.allSubclasses(it).size }
     val subtypePairs = ancestorCounts.sumOf(Int::toLong)
     val dependencyCounts = active.map { it.dependencies.keys.size }
     val declaredDependencyCounts = active.map { it.declaration.dependencies.size }
     val dependencyPathCounts = active.map { it.dependencies.flatten().size }
     val dependencyDepths = active.map { typeDepth(it.baseType) }
     val concreteDescendantCounts = active.map { klass ->
-      klass.allSubclasses().count { !it.abstract }
+      table.allSubclasses(klass).count { !it.abstract }
     }
 
     val intersectionTypes = active.filter(PetsClass::isIntersectionType)
     val multipleInheritance = active.filter { it.directSuperclasses.size > 1 }
-    val emptyAbstract = abstract.filter { klass -> klass.allSubclasses().none { !it.abstract } }
+    val emptyAbstract = abstract.filter { klass ->
+      table.allSubclasses(klass).none { !it.abstract }
+    }
     val equalConcreteExtensions =
         active
             .groupBy { klass ->
-              klass.allSubclasses().filterNot(PetsClass::abstract).map { it.className }.toSet()
+              table.allSubclasses(klass).filterNot(PetsClass::abstract).map { it.className }.toSet()
             }
             .values
             .filter { it.size > 1 }
 
-    val flattenedChoiceProducts = concrete.associateWith(::flattenedChoiceProduct)
+    val flattenedChoiceProducts = concrete.associateWith { flattenedChoiceProduct(it, table) }
     val dependencyLinks = dependencyLinks(active, table)
     val concreteTypeCounter = ConcreteTypeCounter(table, dependencyLinks)
     val rootCounts = linkedMapOf<PetsClass, RootCount>()
     val groundMillis = measureTimeMillis {
-      concrete.forEach { klass -> rootCounts[klass] = countRootTypes(klass, concreteTypeCounter) }
+      concrete.forEach { klass ->
+        rootCounts[klass] = countRootTypes(klass, concreteTypeCounter, table)
+      }
     }
     val flattenedGroundProduct =
         flattenedChoiceProducts.values.fold(BigInteger.ZERO, BigInteger::add)
@@ -226,7 +229,7 @@ internal object TypeStructureReport {
       section("Class universe")
       line("active classes", active.size)
       line("active abstract / concrete", "${abstract.size} / ${concrete.size}")
-      line("authority-known classes", known.size)
+      line("catalog-known classes", known.size)
       line("phantom classes", phantom.size)
       line("direct inheritance edges", directEdges)
       line("multiple-inheritance classes", multipleInheritance.size)
@@ -240,7 +243,7 @@ internal object TypeStructureReport {
       line("reflexive subtype pairs", subtypePairs)
       line("subtype relation density", percent(subtypePairs, active.size.toLong() * active.size))
       line("equal concrete-extension class groups", equalConcreteExtensions.size)
-      appendTop("largest class families", active, { it.allSubclasses().size })
+      appendTop("largest class families", active, { table.allSubclasses(it).size })
       appendTop("most ancestors", active, { it.allSuperclasses().size })
 
       section("Class bitmap costs")
@@ -249,7 +252,7 @@ internal object TypeStructureReport {
       line("classes requiring a superclass bit", bitBearingSuperclasses.size)
       line(
           "active / phantom superclass bits",
-          "${bitBearingSuperclasses.count { !it.phantom }} / ${bitBearingSuperclasses.count(PetsClass::phantom)}",
+          "${bitBearingSuperclasses.count(table::isActive)} / ${bitBearingSuperclasses.count { !table.isActive(it) }}",
       )
       line("compiled active mask words", distribution(activeCompiledMaskWords))
       line("compiled known mask words", distribution(knownCompiledMaskWords))
@@ -450,19 +453,20 @@ internal object TypeStructureReport {
       val samples: List<Type>,
   )
 
-  private fun flattenedChoiceProduct(klass: PetsClass): BigInteger =
+  private fun flattenedChoiceProduct(klass: PetsClass, table: ClassTable): BigInteger =
       klass.dependencies.flatten().values.fold(BigInteger.ONE) { product, boundClass ->
-        val choices = boundClass.allSubclasses().count { !it.abstract }
+        val choices = table.allSubclasses(boundClass).count { !it.abstract }
         product * BigInteger.valueOf(choices.toLong())
       }
 
   private fun countRootTypes(
       klass: PetsClass,
       counter: ConcreteTypeCounter,
+      table: ClassTable,
   ): RootCount {
     val count = counter.countSameClass(klass.baseType)
     val streamCrossChecked = count <= BigInteger.valueOf(STREAM_CHECK_CAP.toLong())
-    val iterator = klass.concreteTypes().iterator()
+    val iterator = table.concreteSubtypesSameClass(klass.baseType).iterator()
     val samples = mutableListOf<Type>()
     var streamedCount = BigInteger.ZERO
     while (iterator.hasNext() && (streamCrossChecked || samples.size < GROUND_SAMPLES_PER_ROOT)) {
@@ -497,11 +501,11 @@ internal object TypeStructureReport {
             type.rootClass.abstract -> BigInteger.ZERO
             type.rootClass == table.classClass -> {
               val represented = table.getClass(type.expressionFull.arguments.single().className)
-              BigInteger.valueOf(represented.allSubclasses().count { !it.abstract }.toLong())
+              BigInteger.valueOf(table.allSubclasses(represented).count { !it.abstract }.toLong())
             }
             !isPlain(type) || dependencyLinks.getValue(type.rootClass).isNotEmpty() -> {
               streamedSubproblems++
-              type.concreteSubtypesSameClass().fold(BigInteger.ZERO) { count, _ ->
+              table.concreteSubtypesSameClass(type).fold(BigInteger.ZERO) { count, _ ->
                 count + BigInteger.ONE
               }
             }
@@ -514,8 +518,8 @@ internal object TypeStructureReport {
 
     fun countAllConcrete(type: Type): BigInteger =
         allConcreteMemo.getOrPut(type) {
-          type.rootClass
-              .allSubclasses()
+          table
+              .allSubclasses(type.rootClass)
               .asSequence()
               .filterNot(PetsClass::abstract)
               .mapNotNull { concreteClass -> type glb concreteClass.baseType }

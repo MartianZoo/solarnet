@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.TaskResult
+import dev.martianzoo.pets.data.TaskResult
 
 /** Executes gameplay operations atomically and reports the outermost successful completion. */
 internal class AtomicOperationBoundary(
@@ -9,10 +9,15 @@ internal class AtomicOperationBoundary(
 ) {
   private var depth: Int = 0
 
-  internal fun run(block: () -> Unit): TaskResult {
+  internal fun run(block: () -> Unit, beforeOutermostCompletion: () -> Unit): TaskResult {
     depth++
     return try {
-      timeline.atomic(block).also { if (depth == 1) onComplete() }
+      timeline
+          .atomic {
+            block()
+            if (depth == 1) beforeOutermostCompletion()
+          }
+          .also { if (depth == 1) onComplete() }
     } finally {
       depth--
     }

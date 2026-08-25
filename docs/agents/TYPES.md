@@ -1,8 +1,25 @@
 # Pets type system
 
-**Status: current model with explicit divergences in section 12.** This is the implementation-facing
-reference for `dev.martianzoo.types`. The human tutorial is
-[type-system.md](../type-system.md).
+> **Read when:** changing a specific Pets type-system concept. Start with Quick model, then read only
+> its numbered section; read Known divergences only when diagnosing or deliberately fixing one.
+>
+> **Skip when:** changing live component/task execution without changing static Type meaning; use
+> [ENGINE.md](ENGINE.md).
+>
+> **Status:** current implementation-facing model with explicit defects in section 12. The human
+> tutorial is [type-system.md](../type-system.md).
+
+## Source map by concept
+
+| Concept | Source entry point |
+| --- | --- |
+| Class identity and nominal hierarchy | [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt), search `public class Class` |
+| Type arguments, dependency lookup, complements | [`Type.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Type.kt), search `public data class Type` |
+| Dependency declarations and keys | [`Dependency.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Dependency.kt) and [`DependencySet.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/DependencySet.kt) |
+| Class loading, inheritance, defaults, and inhabitation | [`ClassLoader.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassLoader.kt) |
+| Closed-world lookup and bounds | [`ClassTable.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassTable.kt) |
+| Authored implicit variables and regions | [`TypeLinking.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/TypeLinking.kt), search `Region` |
+| Foundational declaration vocabulary | [`system.pets`](../../pets/src/commonMain/resources/pets/system.pets), search for the named Class |
 
 ## Quick model
 
@@ -17,7 +34,7 @@ reference for `dev.martianzoo.types`. The human tutorial is
 - Each World has one frozen closed Class Table, allowing concrete enumeration and automatic
   narrowing.
 - Repeated authored abstract Expressions can form implicit Type variables inside defined regions.
-- Authority-known inactive Classes are uninhabited: nominally resolvable, with provably empty domains.
+- Catalog-known inactive Classes are uninhabited: nominally resolvable, with provably empty domains.
 
 ## 1. Components and Classes
 
@@ -44,13 +61,13 @@ negative.
 A card definition can declare a component Class at its point of use without choosing its canonical
 name explicitly. For example, a card instruction can gain `Mandate { -> 3 ProjectCard }`, or use
 `CityTile<RemoteArea {}>`. Card-definition construction lowers these to ordinary declarations with
-stable owner-derived names such as `CardB05_Mandate` and `Card021_RemoteArea` before building the
+stable owner-derived names such as `Inventrix_Mandate` and `PhobosSpaceHaven_RemoteArea` before building the
 Class Table. They have exactly the existing Class and component semantics; there is no runtime
 anonymous identity.
 
 The body follows the complete expression. For example,
 `SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}` becomes the use-site expression
-`Card064_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>` and declares its superclass as
+`MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>` and declares its superclass as
 `SpecialTile<LandArea>`. Arguments therefore specialize both the occurrence and the generated
 Class's superclass. Refinements constrain only the occurrence and are removed recursively from the
 declared superclass because refinement types cannot be supertypes.
@@ -127,6 +144,11 @@ New dependencies follow inherited ones. `Cardbound<CardFront<Player>> : Owned<Pl
 `Owned_0` and adds the card dependency. The repeated `Player` links card and owner through an
 implicit variable described in section 10.
 
+When `This` has explicit arguments, replacement keeps those arguments while substituting the
+concrete context Class. Thus an invariant `HAS MAX 1 This<Player>` inherited by `Birds` constrains
+`Birds<Player>` as a whole, rather than separately constraining `Birds<Player1>`,
+`Birds<Player2>`, and so on. Bare `This` still denotes the fully bound context Type.
+
 ### Dependency targets must be unique
 
 An edge identifies its target only by exact Type, so every concrete Type admitted by a dependency
@@ -145,6 +167,9 @@ GreeneryTile<Tharsis_2_3, Player1>
 
 Order remains meaningful when dependency bounds overlap, as in `Adjacency<Tile, Tile>`. An
 unmatched extra argument is an error.
+
+`Class.matchDependencyKeys()` exposes the key matched by each authored argument when a consumer
+must retain which dependencies were supplied rather than only the fully resolved Type.
 
 A full form states every bound. A minimal form omits bounds equal to the root Class defaults while
 retaining placeholders needed for greedy matching to round-trip. Rendering uses minimal form. A
@@ -165,6 +190,7 @@ component exists for each active concrete Class.
 The literal accepts one bare Class Name. `Class<Steel<Player1>>` and nested Class literals are
 invalid. Class literals are covariant. Their concreteness depends only on the represented Class, not
 that Class's dependencies: `Class<CityTile>` is concrete even when bare `CityTile<Area>` is not.
+The resolved `Type.representedClass` exposes that Class directly.
 
 ## 5. Defaults
 
@@ -273,16 +299,21 @@ whether Complements are genuine difference Types.
 
 ## 8. Class Tables
 
-Every Type belongs to one frozen Class Table. Values from different tables are not comparable.
-Freezing compiles nominal subtype masks and sparse active-subclass indexes.
+Every Type belongs to one immutable Catalog-wide master universe. Values from different master
+universes are not comparable. Master compilation resolves the hierarchy and compiles nominal
+subtype masks once.
 
-The Authority owns a master catalog. Each game projects it. A name has one of three states:
+Each game owns an explicit filtered Class Table view over that master. The view reuses the master
+Classes and Types and records the inhabited names selected by the premise's activation closure. A
+name has one of three states:
 
 - **active:** full behavior in this game;
-- **uninhabited:** nominally known to the Authority, with an empty domain here; or
+- **uninhabited:** nominally known to the Catalog, with an empty domain here; or
 - **unknown:** an error in every context.
 
-A game's table is closed. No later declaration may change its hierarchy or set of concrete choices.
+A game's view is closed. No later declaration may change its inhabited set. Structural operations
+such as subtyping, `glb`, and `lub` use the master universe; active subclass and concrete-Type
+enumeration receive the game view explicitly. See [CLASS_TABLES.md](CLASS_TABLES.md).
 
 ## 9. Closed-world operations
 
@@ -330,6 +361,10 @@ Narrowing one occurrence substitutes the same concrete Type at all occurrence pa
 
 Variables are inferred from authored syntax before defaults and lowering. They do not add a new kind
 of choice; they link existing choices.
+
+Within one atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
+`Foo<Same, Here, To> FROM Foo<Same, Here, From>`. Each unchanged argument belongs to both roles and
+therefore introduces the same linkage as repeating that authored Expression in the full spelling.
 
 ### Dependency keys and paths
 
@@ -398,7 +433,7 @@ regions until earlier work chooses its Type.
 
 ## 11. Uninhabited Classes and Types
 
-The Authority's master table establishes one nominal universe. A game projection preserves every
+The Catalog's master table establishes one nominal universe. A game projection preserves every
 master Class identity in one of two states: active or uninhabited. Unknown names remain errors. An
 uninhabited Class retains its name, declared hierarchy, and Dependency shape so resolution and
 nominal subtyping remain meaningful, but it contributes no live behavior or inhabitants.
@@ -430,11 +465,10 @@ An active Class cannot have an uninhabited direct supertype or dependency bound.
 Loading an active declaration activates structural supertypes, dependency and default Types,
 explicit ownership roots, Custom implementation dependencies, and destinations of reachable gains
 and transmutations. A positive Class invariant activates the inhabitants it explicitly requires;
-ordinary observational Requirements do not. Reachable Trigger roots with inhabited arguments
-currently remain compatibility activation edges for externally issued protocol signals; a Trigger
-with an uninhabited argument or false gate remains dormant. The loader rechecks every active
-declaration as the closure grows, so activating a Trigger domain can make its constructive body
-reachable later.
+ordinary observational Requirements and Trigger roots do not. Modules explicitly own protocol
+Classes issued by workflows or gameplay APIs. A Trigger with an uninhabited argument or false gate
+remains dormant. The loader rechecks every active declaration as the closure grows, so activating a
+Trigger domain can make its constructive body reachable later.
 
 Reachability currently proves exact facts from uninhabited Count domains through `AND` and `OR`
 Requirements. Thus Vitor can remain active in solo while its `Class<Award>`-gated Mandate and the
@@ -442,7 +476,10 @@ entire Award domain remain uninhabited. Anything the analysis cannot prove unrea
 conservatively reachable. Known declarations outside the closure become uninhabited when the
 projection freezes.
 
-Activation requirements and premise viability remain the next parts of the policy specified in
+An ambient Class owned by an unavailable Bundle cannot be activated by a hard reference. After
+closure, premise construction rejects selected root Classes whose `requirement` entry condition is
+exactly false, and rejects selected structured content whose reachable mandatory removal targets an
+uninhabited Type. See
 [OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
 
 ## 12. Known divergences

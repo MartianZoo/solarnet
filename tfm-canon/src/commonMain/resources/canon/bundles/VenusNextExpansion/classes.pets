@@ -1,0 +1,36 @@
+CLASS VenusNextExpansion : Module {
+  This:: AirScrappingSP
+  SetupPhase IF SoloMode: SoloVictoryRequirement
+  SoloVictoryCheck IF SoloMode, MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
+}
+
+CLASS AirScrappingSP : StandardProject {
+  cost = 15
+  1 / cost -> VenusStep
+}
+
+"Adds World Government Terraforming to the solar phase"
+CLASS WorldGovernmentOption : Module {
+  autoSelectWhen = HAS "VenusNextExpansion"
+
+  SolarPhase IF MAX 2 GpComplete OR (VenusNextExpansion, MAX 3 GpComplete):: WorldGovernmentTerraforming
+}
+
+"Represents a 2% increase in Venus... terraformedness"
+CLASS VenusStep : GlobalParameter {
+  HAS MAX 15 This
+
+  This IF =15 This:: GpComplete<Class<This>>
+  This IF =4 This: ProjectCard
+  This IF =8 This: TerraformRating
+}
+
+CLASS VenusTag : PlanetTag {
+}
+
+CLASS Hoverlord : Milestone {
+  HAS MultiplayerMode
+  requirement = HAS "7 Floater"
+}
+
+CLASS Venuphile : Award { metric = COUNT "VenusTag" }

@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 internal class ShardedMultisetTest {
   @Test
-  fun satisfiesMultisetContractWhileRestrictingQueriesToSelectedShards() {
+  internal fun satisfiesMultisetContractWhileRestrictingQueriesToSelectedShards() {
     val multiset =
         ShardedMultiset<String, Set<Int>, Int>(
             shardFor = String::length,

@@ -14,26 +14,26 @@ internal class ScriptCompletionEngineTest {
   private val completer = ScriptCompletionEngine(repl)
 
   @Test
-  fun completesCommandNames() {
+  internal fun completesCommandNames() {
     assertTrue("count" in values("co"))
     assertTrue("count" in values("tasks;co"))
     assertEquals("count <Metric>", candidates("co").single { it.value == "count" }.description)
   }
 
   @Test
-  fun completesFixedCommandArguments() {
+  internal fun completesFixedCommandArguments() {
     assertEquals(listOf("blue"), values("mode b"))
     assertEquals(listOf("safe"), values("auto s"))
     assertEquals(listOf("full"), values("log f"))
   }
 
   @Test
-  fun completesParticipatingPlayers() {
+  internal fun completesParticipatingPlayers() {
     assertContainsAll(values("become P"), "Player1", "Player2")
   }
 
   @Test
-  fun completesConfiguredPlayerNames() {
+  internal fun completesConfiguredPlayerNames() {
     repl.command("newgame \"TerraformingMars\" Mom Ellie")
 
     assertContainsAll(values("become "), "Mom", "Ellie")
@@ -41,7 +41,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun completesCardsInTheCurrentSetup() {
+  internal fun completesCardsInTheCurrentSetup() {
     repl.command("newgame BRVPX 2")
 
     assertContainsAll(values("tfm_play Man"), "Mangrove", "Manutech")
@@ -52,14 +52,14 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun completesPetsClassNamesInsideExpressions() {
+  internal fun completesPetsClassNamesInsideExpressions() {
     assertContainsAll(values("exec PROD[Pla"), "PROD[Plant", "PROD[PlantTag")
     assertTrue("Class<ProjectCard" in values("count Class<Pro"))
     assertEquals(listOf("Megacredit"), values("tfm_pay M"))
   }
 
   @Test
-  fun narrowsPetsCompletionsWithPetsParser() {
+  internal fun narrowsPetsCompletionsWithPetsParser() {
     assertContainsAll(values("exec Plant "), "FROM", "OR", "THEN")
     assertFalse("Player1" in values("exec Plant "))
 
@@ -72,7 +72,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun completesTaskInstructionsAndSingletonTaskActions() {
+  internal fun completesTaskInstructionsAndSingletonTaskActions() {
     (repl.gameplay.godMode() as TaskLayer).addTasks("2 Plant?")
     (repl.gameplay.godMode() as TaskLayer).addTasks("3 Heat?")
 
@@ -83,7 +83,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
+  internal fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
     taskLayer.addTasks("2 Plant?")
     assertTrue(repl.command("tasks").single().startsWith("[Engine] "))
@@ -99,7 +99,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun prepareAndDropRejectMultipleTasks() {
+  internal fun prepareAndDropRejectMultipleTasks() {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
     taskLayer.addTasks("2 Plant?")
     taskLayer.addTasks("3 Heat?")
@@ -122,7 +122,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun treatsAnUnassignedUppercaseTokenAsAnInstruction() {
+  internal fun treatsAnUnassignedUppercaseTokenAsAnInstruction() {
     (repl.gameplay.godMode() as TaskLayer).addTasks("StandardAction?")
     assertEquals(listOf(null), repl.game.tasks.extract { it.whyPending })
 
@@ -133,7 +133,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun disambiguatesAnInstructionWithItsCurrentTaskPosition() {
+  internal fun disambiguatesAnInstructionWithItsCurrentTaskPosition() {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
     taskLayer.addTasks("Plant? OR Ok")
     taskLayer.addTasks("Heat? OR Ok")
@@ -147,7 +147,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun taskPositionsAreDerivedAgainAfterRollback() {
+  internal fun taskPositionsAreDerivedAgainAfterRollback() {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
     taskLayer.addTasks("Plant? OR Ok")
     taskLayer.addTasks("Heat? OR Ok")
@@ -161,7 +161,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun delegatesAsCommandCompletion() {
+  internal fun delegatesAsCommandCompletion() {
     assertContainsAll(values("as P"), "Player1")
     assertTrue("mode" in values("as Player1 mo"))
     assertEquals(listOf("blue"), values("as Player1 mode b"))

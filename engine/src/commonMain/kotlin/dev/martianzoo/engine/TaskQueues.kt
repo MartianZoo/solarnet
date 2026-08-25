@@ -1,18 +1,18 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.DeadEndException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.GameEvent.TaskEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Task
-import dev.martianzoo.data.Task.TaskId
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskEvent
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.types.ClassTable
 
 /**
  * With any change to the task queue, a set of normalizations is *always* applied. Here, the
@@ -32,7 +32,8 @@ import dev.martianzoo.types.ClassTable
  * * New tasks created have the same assignee, Actor, and cause as the original. Prepared tasks
  *   cannot be split
  */
-internal class TaskQueues
+// TODO: Contract this temporary tfm-tests seam.
+public class TaskQueues
 private constructor(
     private val events: EventLog,
     private val classTable: ClassTable?,
@@ -42,7 +43,7 @@ private constructor(
     require(initialTasks.all { it.id.ordinal < events.size })
   }
 
-  internal constructor(
+  public constructor(
       events: EventLog,
       classTable: ClassTable? = null,
   ) : this(events, classTable, emptyList())
@@ -53,11 +54,11 @@ private constructor(
   }
 
   /** Copies current tasks without recording their existing additions in [events]. */
-  internal fun copy(events: EventLog) = TaskQueues(events, classTable, taskSet)
+  public fun copy(events: EventLog): TaskQueues = TaskQueues(events, classTable, taskSet)
 
   internal fun all(): TaskQueue = TaskQueue(this, assignee = null) { true }
 
-  internal operator fun get(assignee: Actor): TaskQueue =
+  public operator fun get(assignee: Actor): TaskQueue =
       TaskQueue(this, assignee = assignee) { it.assignee == assignee }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
@@ -99,7 +100,7 @@ private constructor(
   }
 
   /** Applies and records one task event. This is also the task-history replay boundary. */
-  internal fun <E : TaskEvent> apply(entry: E): E =
+  private fun <E : TaskEvent> apply(entry: E): E =
       events.record(entry) {
         when (entry) {
           is TaskAddedEvent -> addToTaskSet(entry.task)
@@ -140,5 +141,5 @@ private constructor(
     require(taskSet.remove(task))
   }
 
-  override fun toString() = taskSet.joinToString("\n")
+  override fun toString(): String = taskSet.joinToString("\n")
 }

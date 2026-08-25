@@ -1,8 +1,24 @@
 # `EACH` fanout
 
-**Status: proposal.** Nothing in this document is implemented. The historical filename reflects
-the Player-focused discussion that exposed the need; the proposed construct is generic enough to
-fan out over `ResourceCard` and other component Types.
+> **Read when:** explicitly designing or implementing the proposed `EACH Type { ... }` fanout, or
+> comparing repeated per-component listeners with one snapshot-based instruction.
+>
+> **Skip when:** changing ordinary quantified gain/removal, task delegation, or a single card's
+> listener. Those are separate mechanisms.
+>
+> **Status:** proposal; nothing here is implemented. The construct is generic despite the
+> historical filename.
+
+## Implementation entry points
+
+- [`Instruction.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Instruction.kt) —
+  inspect the sealed instruction model before choosing syntax shape.
+- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
+  for `instruct` to understand preparation and sibling task production.
+- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+  — search for `SetupPhase` to compare current setup-time per-Player effects.
+- [Venus Next `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/cards.pets)
+  — search for `SponsoredAcademiesWatcher` for a current per-Player watcher example.
 
 ## Goal
 
@@ -62,7 +78,7 @@ delegation mechanism exists.
 ## Multiplicity
 
 Fanout selects concrete Types, not component occurrences. If the snapshot contains three equal
-`Animal<Player1, CardX75<Player1>>` components, `EACH Animal { -Animal }` produces one branch whose
+`Animal<Player1, Vermin<Player1>>` components, `EACH Animal { -Animal }` produces one branch whose
 selected exact Animal Type is removed three times. There are not three occurrence branches, and
 Pets gains no synthetic component identity.
 
@@ -97,7 +113,7 @@ An automatic triggering Effect already provides the automatic form of fanout. Do
 | `PreludeSetup<Player>` singleton listeners | `EACH Player { 2 PreludeCard<Player> }` | Pure recipient fanout |
 | Award tallying through every `Player` | `EACH Player { AwardTally<Player, This> / EVAL This.metric }` | Pure scoring fanout |
 | Sponsored Academies' owner-local `Signal` and Player watchers | `-ProjectCard THEN (3 ProjectCard, EACH (Player except Owner) { ProjectCard<Player> })` | Schematic opponent fanout; difference-selector syntax unresolved |
-| Mons Insurance setup watchers | `EACH Player { MAX 0 CardXC05<Player>: PROD[-2 Megacredit<Player>] BY Player }` | Must name Player so solo opponent is excluded |
+| Mons Insurance setup watchers | `EACH Player { MAX 0 MonsInsurance<Player>: PROD[-2 Megacredit<Player>] BY Player }` | Must name Player so solo opponent is excluded |
 | Vermin's end-game Player watchers | `EACH Player { -VictoryPoint<Player> / CityTile<Player> }` | Pure scoring fanout |
 | Kotlin `ColoniesSetup` fleet loop | `EACH Player { ReserveTradeFleet<Player> }` | Pure setup fanout |
 | Turmoil Global Events affecting Resource Cards | `EACH ResourceCard { ... ResourceCard ... }` | Confirms the selector cannot be Player-specific |

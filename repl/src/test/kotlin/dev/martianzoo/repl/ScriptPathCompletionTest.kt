@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 internal class ScriptPathCompletionTest {
   @Test
-  fun runsScriptFile() {
+  internal fun runsScriptFile() {
     val script = Files.createTempFile("solarnet-script", ".rego")
     try {
       script.toFile().writeText("count Steel\ncount Plant\nstop\ncount Heat\n")
@@ -29,7 +29,7 @@ internal class ScriptPathCompletionTest {
   }
 
   @Test
-  fun rejectsExitCommandInScriptFile() {
+  internal fun rejectsExitCommandInScriptFile() {
     val script = Files.createTempFile("solarnet-script", ".rego")
     try {
       script
@@ -44,7 +44,7 @@ internal class ScriptPathCompletionTest {
   }
 
   @Test
-  fun completesScriptPaths() {
+  internal fun completesScriptPaths() {
     val tempDir = Files.createTempDirectory("solarnet-script-completion")
     try {
       val file = tempDir.resolve("completion-test.rego").toFile()

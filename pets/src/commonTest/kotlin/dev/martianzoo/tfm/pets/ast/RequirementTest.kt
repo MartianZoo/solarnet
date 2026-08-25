@@ -81,28 +81,28 @@ internal class RequirementTest {
           .trimIndent()
 
   @Test
-  fun testSampleStrings() {
+  internal fun testSampleStrings() {
     testSampleStrings<Requirement>(inputs)
   }
 
   private val fooEx = cn("Foo").expression
 
   @Test
-  fun simpleSourceToApi() {
+  internal fun simpleSourceToApi() {
     parse<Requirement>("Foo") shouldBe Min(scaledEx(fooEx, 1))
     parse<Requirement>("3 Foo") shouldBe Min(scaledEx(fooEx, 3))
     parse<Requirement>("MAX 3 Foo") shouldBe Max(scaledEx(fooEx, 3))
   }
 
   @Test
-  fun requirementTargetsAreNotPartOfTheirMetrics() {
+  internal fun requirementTargetsAreNotPartOfTheirMetrics() {
     val metric = Metric.Count(fooEx)
     parse<Requirement>("8 Foo") shouldBe Min(8, metric)
     parse<Requirement>("MAX 8 Foo") shouldBe Max(8, metric)
   }
 
   @Test
-  fun simpleApiToSource() {
+  internal fun simpleApiToSource() {
     Min(scaledEx(fooEx, 1)).toString() shouldBe "Foo"
     Min(scaledEx(fooEx, 3)).toString() shouldBe "3 Foo"
     Min(scaledEx(count = 3)).toString() shouldBe "3"
@@ -117,7 +117,7 @@ internal class RequirementTest {
       testRoundTrip<Requirement>(start, end)
 
   @Test
-  fun roundTrips() {
+  internal fun roundTrips() {
     testRoundTrip("1", "1")
     testRoundTrip("Megacredit", "1")
     testRoundTrip("1 Megacredit", "1")
@@ -137,7 +137,7 @@ internal class RequirementTest {
   }
 
   @Test
-  fun testProd() {
+  internal fun testProd() {
     testRoundTrip("PROD[2]")
     testRoundTrip("Steel, PROD[1]")
     testRoundTrip("PROD[Steel, 1]")
@@ -145,7 +145,7 @@ internal class RequirementTest {
   }
 
   @Test
-  fun unexpandedEvalIsAProgrammerError() {
+  internal fun unexpandedEvalIsAProgrammerError() {
     kotlin.test.assertFailsWith<IllegalStateException> {
       parse<Requirement>("EVAL Foo.requirement").isMetBy { 0 }
     }

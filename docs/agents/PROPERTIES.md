@@ -1,8 +1,36 @@
 # Class properties
 
-**Status:** The core class-property mechanism is implemented. This document separates that current
-model from settled semantic decisions and open extensions. Proposed syntax is illustrative unless
-explicitly identified as current.
+> **Read when:** changing class-property syntax, storage, inheritance/narrowing, cardinality,
+> defaults, `RequirementGroup`, printed tags, or a property-backed scalar.
+>
+> **Skip when:** changing component state or Type dependencies; class properties are immutable
+> Class facts.
+>
+> **Status:** core mechanism implemented. Later sections distinguish settled rules from open
+> extensions; proposed syntax is illustrative unless marked current.
+
+## Read only the relevant sections
+
+| Task | Read |
+| --- | --- |
+| Parse/store/read a property | Current model through Reading and evaluating |
+| Decide where a property applies | Applicability is primarily structural |
+| Cost, optional values, or groups | Total values; Cardinality types; Requirement versus RequirementGroup |
+| Inheritance/default behavior | Narrowing and inheritance; Abstract defaults are not overrides |
+| Printed tags or instruction collections | `Instruction*` and printed tags |
+| Add a new property capability | Design constraints for future extensions |
+
+## Source map
+
+- [`Property.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Property.kt) and
+  [`PropertyValue.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/PropertyValue.kt) —
+  inspect AST forms.
+- [`ClassDeclaration.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/ClassDeclaration.kt)
+  — search for `properties` for stored declarations and defaults.
+- [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt) — search for
+  `private fun resolveProperties` for validation and inheritance behavior.
+- [`PropertyTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PropertyTest.kt)
+  — read when behavior crosses Pets declarations and Terraforming Mars content.
 
 Class properties record immutable facts about a Class. They are not fields on component
 occurrences: every component of one concrete Type sees the same class-property facts. A class
@@ -28,8 +56,8 @@ The implemented value families are:
 | Declaration | Meaning | Concrete form |
 | --- | --- | --- |
 | `Number` | non-negative, world-independent integer | `cost = 10` |
-| `Metric` | world-dependent numeric expression; `Number` narrows it | `score = COUNT TemperatureStep` |
-| `Requirement` | one required game condition | `requirement = HAS 3 ScienceTag` |
+| `Metric` | world-dependent numeric expression; `Number` narrows it | `score = COUNT "TemperatureStep"` |
+| `Requirement` | one required game condition | `requirement = HAS "3 ScienceTag"` |
 | `Requirement?` | currently, an absent or present Requirement | the declaration may be omitted by a concrete descendant |
 
 The Kotlin AST names are `Property`, `PropertyName`, and `PropertyValue`.
@@ -57,16 +85,16 @@ property is a fact about the Class, and inheritance accumulates and narrows fact
 A numeric class-property read is a Metric:
 
 ```text
-Card001.cost
-Class<Card001>.cost
+ColonizerTrainingCamp.cost
+Class<ColonizerTrainingCamp>.cost
 CardFront(HAS 20 cost)
 ```
 
 The first two forms have the same lookup meaning. An unqualified class property inside a refinement
 receives the candidate Type as its receiver.
 
-A stored Metric or Requirement is syntax, not an instruction to evaluate itself whenever read. A
-class effect expands it explicitly:
+A stored Metric or Requirement is quoted to distinguish its inert syntax from the surrounding class
+body; the quotes do not make it text. A class effect expands the parsed syntax explicitly:
 
 ```pets
 This:: Result / EVAL This.score
@@ -83,8 +111,8 @@ A class property should be declared at the highest Class for which asking the qu
 not at a broader Class with a dummy value.
 
 `row` and `column` belong to `MarsArea`, not `Area`. Phobos Space Haven's derived
-`Card021_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
-`Card021_RemoteArea.row` is a nonsense question and fails
+`PhobosSpaceHaven_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
+`PhobosSpaceHaven_RemoteArea.row` is a nonsense question and fails
 because the class property does not exist; it does not return zero or an absent value.
 
 Use a cardinality type only when the question applies to every member of the declaring Class but a

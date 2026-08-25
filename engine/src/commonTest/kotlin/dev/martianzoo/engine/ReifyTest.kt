@@ -1,19 +1,19 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ReifyTest {
-  val game = Engine.newGame(canonicalPremise())
+internal class ReifyTest {
+  private val game = Engine.newGame(canonicalPremise())
 
   @Test
-  fun testVarious() {
+  internal fun testVarious() {
     test("5 OxygenStep!", "5 OxygenStep!")
     test("5 OxygenStep.", "5 OxygenStep.")
     test("5 OxygenStep?", "5 OxygenStep!")
@@ -36,7 +36,6 @@ class ReifyTest {
     test("Plant: 2 StandardResource?", "Plant: 2 Heat!")
     test("Plant: 2 StandardResource?", "Plant: Heat!")
     test("Plant: 2 StandardResource?", "Plant: Ok")
-    // test("Plant: 2 StandardResource?", "Ok") TODO
     test("Plant: 2 StandardResource?", "Plant: StandardResource!")
     test("5 OxygenStep! / Plant<Anyone>", "5 OxygenStep! / Plant<Anyone>")
     test("5 OxygenStep. / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
@@ -48,7 +47,7 @@ class ReifyTest {
   }
 
   @Test
-  fun refinedTypeNarrowingNeedsGameContext() {
+  internal fun refinedTypeNarrowingNeedsGameContext() {
     val concrete = game.reader.resolve(parse<Expression>("Tharsis_5_5"))
     val refined = game.reader.resolve(parse<Expression>("WaterArea(HAS MAX 0 Tile)"))
 
@@ -56,7 +55,23 @@ class ReifyTest {
     concrete.narrows(refined, game.reader) shouldBe true
   }
 
-  fun test(original: String, replacement: String) {
+  @Test
+  internal fun compactTransmutationLinksItsUnchangedArguments() {
+    val wide = "Production<Player, Class<Steel FROM Heat>>?"
+
+    test(
+        wide,
+        "Production<Player1, Class<Steel>> FROM Production<Player1, Class<Heat>>!",
+    )
+    shouldThrow<NarrowingException> {
+      test(
+          wide,
+          "Production<Player1, Class<Steel>> FROM Production<Player2, Class<Heat>>!",
+      )
+    }
+  }
+
+  private fun test(original: String, replacement: String) {
     val narrower: Instruction = parse(replacement)
     val wider: Instruction = parse(original)
     narrower.ensureNarrows(wider, game.reader)

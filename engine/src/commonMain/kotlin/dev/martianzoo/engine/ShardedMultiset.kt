@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.util.HashMultiset
-import dev.martianzoo.util.Multiset
+import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.Multiset
 import kotlin.collections.Map.Entry
 
 /** A multiset partitioned into disjoint storage shards, with routing for broader query keys. */

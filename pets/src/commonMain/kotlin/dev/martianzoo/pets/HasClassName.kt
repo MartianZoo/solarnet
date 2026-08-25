@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 
 /** Any object that has a class name. */
 public interface HasClassName {

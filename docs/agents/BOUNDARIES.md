@@ -1,7 +1,23 @@
 # Generic and Terraforming Mars boundary audit
 
-**Status: audit, not a mandate to support unrelated games.** The useful goal is coherent ownership
-inside Solarnet. Do not perform heroic extraction for hypothetical clients.
+> **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number or
+> Action lowering, splitting Catalog responsibilities, or separating script/workflow mechanics.
+>
+> **Skip when:** doing a move whose ownership is already explicit in [REORG.md](REORG.md), or when
+> the only motivation is support for a hypothetical unrelated game.
+>
+> **Status:** audit, not a mandate to generalize Solarnet.
+
+## Source map
+
+- [`ScaledExpression.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ScaledExpression.kt)
+  — search for `Megacredit` only for the omitted-unit seam.
+- [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
+  search for `transformAction` only for the Action/turn seam.
+- [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
+  inspect when splitting generic Catalog assembly from Terraforming Mars registries.
+- [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
+  inspect only for the script application seam.
 
 The generic runtime is mostly reusable, but a few seams still mix Pets/engine mechanics with
 Terraforming Mars or REgo application policy. `TODO.md` decides whether any seam is worth changing.
@@ -23,20 +39,16 @@ profile system unless this seam is actually being fixed.
 
 **Priority when boundary work is selected: P0.**
 
-Generic Pets and engine code know `Action`, `UseAction1..3`, `NewTurn`, and turn-start
+Generic Pets and engine code know `Action`, `UseAction`, `WhichAction`, `NewTurn`, and turn-start
 translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
 documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
 under Terraforming Mars. The half-generic placement is the defect.
 
-### `PROD[...]` is installed by generic pipelines
-
-**Priority when boundary work is selected: P1.**
-
-`Prod` belongs to Terraforming Mars and lives with the Terraforming Mars Pets data so both language
-and engine code can use the same syntax lowering. Generic input, class-effect, and custom-output
-processing still invoke it directly. If another configured transformer is needed, introduce one
-small Authority- or application-supplied pipeline. Do not build a general plugin framework
-preemptively.
+The [Pets Action model](ACTIONS.md) makes this seam more explicit: fixed and X-scaled Terraforming
+Mars `StandardResource` costs use provider- and action-qualified invoices, while direct and
+costless Actions keep ordinary Pets sequencing. The generic Action transformer recognizes those six
+resource names directly, alongside its existing Terraforming Mars meaning for bare numbers. Treat
+both leaks as one boundary debt rather than adding a broad extension framework for this rule.
 
 ### The script application is mostly REgo/Terraforming Mars
 
@@ -53,14 +65,14 @@ when another caller needs them.
 
 ## Reusable behavior inside `tfm`
 
-### `TfmAuthority` contains a generic Authority implementation
+### `TfmCatalog` contains a generic Catalog implementation
 
 **Priority when boundary work is selected: P1.**
 
 Declaration aggregation, duplicate checking, core validation, definition lowering, indexes, custom
-lookup, and test providers are generic Authority responsibilities. Card, milestone, award, map,
+lookup, and test providers are generic Catalog responsibilities. Card, milestone, award, map,
 standard-action, and colony registries are Terraforming Mars responsibilities. Split them when work
-already touches Authority ownership; do not redesign premise resolution at the same time.
+already touches Catalog ownership; do not redesign premise resolution at the same time.
 
 ### Workflow runner mechanics are general
 
@@ -103,15 +115,13 @@ cleanup, the dependencies suggest this order:
 
 1. Decide whether bare-number currency is preserved in the AST or supplied by one small
    game-specific language profile.
-2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, then
-   colocate its code and declarations.
-3. Replace hard-coded `Prod` calls with the smallest configured transformer seam that the selected
-   design needs.
-4. Split generic Authority assembly/validation from Terraforming Mars registries.
-5. Separate the reusable script command shell from Terraforming Mars application wiring.
-6. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
-7. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
-8. Clean up dependency directions made visible by those moves.
+2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, and
+   move the narrow standard-resource lowering with it.
+3. Split generic Catalog assembly/validation from Terraforming Mars registries.
+4. Separate the reusable script command shell from Terraforming Mars application wiring.
+5. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
+6. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
+7. Clean up dependency directions made visible by those moves.
 
 Do not perform this sequence merely to make an unrelated board game theoretically possible. Each
 step must be independently valuable to Solarnet.

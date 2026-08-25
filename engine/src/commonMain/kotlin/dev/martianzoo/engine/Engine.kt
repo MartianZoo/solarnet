@@ -1,18 +1,18 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
+import dev.martianzoo.pets.types.ClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -25,12 +25,12 @@ public object Engine {
   ): World = Wiring(premise, locale, inputOnlySynonyms).createWorld()
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
-  internal class Wiring(
+  private class Wiring(
       private val premise: GamePremise,
       locale: String,
       inputOnlySynonyms: Iterable<Pair<String, String>>,
   ) {
-    private val classTable: ClassTable = ClassTable.forPremise(premise).also(::validatePremise)
+    private val classTable = premise.classTable.also(::validatePremise)
     private val vocabulary: Vocabulary =
         premise.createVocabulary(
             classTable.allClassNames,
@@ -38,7 +38,7 @@ public object Engine {
             inputOnlySynonyms,
         )
     private val transformers: Transformers = Transformers(classTable)
-    private val customClasses = CustomClassRuntime(premise.authority, transformers)
+    private val customClasses = CustomClassRuntime(premise.catalog, transformers)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
@@ -102,7 +102,7 @@ public object Engine {
         val type = classTable.resolve(expression)
         require(
             !type.abstract &&
-                !type.phantom &&
+                classTable.isActive(type) &&
                 !type.rootClass.declaration.custom &&
                 !type.rootClass.isSingletonType()
         ) {
@@ -142,7 +142,7 @@ public object Engine {
       fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)
 
       premise.modules
-          .flatMap { moduleName -> classTable.getClass(moduleName).invariants() }
+          .flatMap { moduleName -> classTable.getClass(moduleName).invariants }
           .filter { requirement ->
             THIS !in requirement.descendantsOfType<ClassName>()
           }

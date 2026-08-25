@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
 
 /** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(

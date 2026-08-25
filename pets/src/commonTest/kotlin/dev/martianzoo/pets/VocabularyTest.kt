@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -10,7 +11,20 @@ import kotlin.test.Test
 
 internal class VocabularyTest {
   @Test
-  fun petsNamesUseOneCamelCaseDerivation() {
+  internal fun englishDisplayNamesSeparateClassNameWords() {
+    defaultEnglishDisplayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"
+    defaultEnglishDisplayName(cn("BeamFromAThoriumAsteroid")) shouldBe "Beam From AThorium Asteroid"
+    defaultEnglishDisplayName(cn("Builder7")) shouldBe "Builder 7"
+    defaultEnglishDisplayName(cn("NaturalPreserve_SpecialTile")) shouldBe
+        "Natural Preserve Special Tile"
+    defaultEnglishDisplayName(cn("UseCardActionSA")) shouldBe "Use Card Action SA"
+
+    val vocabulary = Vocabulary.create(setOf(cn("ColonizerTrainingCamp")), emptyMap())
+    vocabulary.displayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"
+  }
+
+  @Test
+  internal fun petsNamesUseOneCamelCaseDerivation() {
     petsClassName("XML HTTP request") shouldBe cn("XmlHttpRequest")
     petsClassName("supports IPv6 on iOS?") shouldBe cn("SupportsIpv6OnIos")
     petsClassName("YouTube importer") shouldBe cn("YouTubeImporter")
@@ -19,40 +33,45 @@ internal class VocabularyTest {
     petsClassName("UNMI Contractor") shouldBe cn("UnmiContractor")
     petsClassName("PolderTECH Dutch") shouldBe cn("PolderTechDutch")
     petsClassName("Asteroid (Card)") shouldBe cn("AsteroidCard")
+    petsClassName("L1 Trade Terminal") shouldBe cn("L_1TradeTerminal")
   }
 
   @Test
-  fun requestedLocaleFallsBackToEnglishPerEntry() {
+  internal fun requestedLocaleFallsBackToEnglishPerEntry() {
     val vocabulary =
         Vocabulary.create(
-            setOf(cn("Card001"), cn("Card002")),
+            setOf(cn("ColonizerTrainingCamp"), cn("AsteroidMiningConsortium")),
             mapOf(
-                "en" to mapOf(cn("Card001") to "First Card", cn("Card002") to "Second Card"),
-                "fr" to mapOf(cn("Card001") to "Premiere carte"),
+                "en" to
+                    mapOf(
+                        cn("ColonizerTrainingCamp") to "First Card",
+                        cn("AsteroidMiningConsortium") to "Second Card",
+                    ),
+                "fr" to mapOf(cn("ColonizerTrainingCamp") to "Premiere carte"),
             ),
             locale = "fr-CA",
         )
 
-    vocabulary.displayName(cn("Card001")) shouldBe "Premiere carte"
-    vocabulary.displayName(cn("Card002")) shouldBe "Second Card"
+    vocabulary.displayName(cn("ColonizerTrainingCamp")) shouldBe "Premiere carte"
+    vocabulary.displayName(cn("AsteroidMiningConsortium")) shouldBe "Second Card"
   }
 
   @Test
-  fun localizedNamesAreAcceptedAndRenderedForTheirContext() {
+  internal fun localizedNamesAreAcceptedAndRenderedForTheirContext() {
     val vocabulary =
         Vocabulary.create(
-            setOf(cn("Card072")),
-            mapOf("fr" to mapOf(cn("Card072") to "Oiseaux d'ete")),
+            setOf(cn("Birds")),
+            mapOf("fr" to mapOf(cn("Birds") to "Oiseaux d'ete")),
             locale = "fr",
         )
 
-    vocabulary.canonicalName(cn("OiseauxDete")) shouldBe cn("Card072")
-    vocabulary.displayName(cn("Card072")) shouldBe "Oiseaux d'ete"
-    vocabulary.renderPets(parse<Expression>("Card072")) shouldBe "OiseauxDete"
+    vocabulary.canonicalName(cn("OiseauxDete")) shouldBe cn("Birds")
+    vocabulary.displayName(cn("Birds")) shouldBe "Oiseaux d'ete"
+    vocabulary.renderPets(parse<Expression>("Birds")) shouldBe "OiseauxDete"
   }
 
   @Test
-  fun explicitPetsNamesAreAliasesForCanonicalClasses() {
+  internal fun explicitPetsNamesAreAliasesForCanonicalClasses() {
     val vocabulary =
         Vocabulary.create(
             setOf(cn("Player1")),
@@ -67,33 +86,34 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun collisionsAreRejected() {
+  internal fun localizedNameCollisionsAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
-          setOf(cn("Card001"), cn("Card002")),
+          setOf(cn("ColonizerTrainingCamp"), cn("AsteroidMiningConsortium")),
           mapOf(
-              "en" to
+              "fr" to
                   mapOf(
-                      cn("Card001") to "Same name",
-                      cn("Card002") to "Same-name",
+                      cn("ColonizerTrainingCamp") to "Same name",
+                      cn("AsteroidMiningConsortium") to "Same-name",
                   )
           ),
+          locale = "fr",
       )
     }
   }
 
   @Test
-  fun nonAsciiDisplayNamesAreRejected() {
+  internal fun nonAsciiDisplayNamesAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
-          setOf(cn("Card001")),
-          mapOf("en" to mapOf(cn("Card001") to "Premi\u00e8re carte")),
+          setOf(cn("ColonizerTrainingCamp")),
+          mapOf("en" to mapOf(cn("ColonizerTrainingCamp") to "Premi\u00e8re carte")),
       )
     }
   }
 
   @Test
-  fun duplicateInputSynonymsAreRejected() {
+  internal fun duplicateInputSynonymsAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
           setOf(cn("Titanium"), cn("Temperature")),
@@ -105,7 +125,7 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun inputOnlySynonymsAreAcceptedButNeverRendered() {
+  internal fun inputOnlySynonymsAreAcceptedButNeverRendered() {
     val vocabulary =
         Vocabulary.create(
             setOf(cn("Titanium"), cn("TerraformRating")),

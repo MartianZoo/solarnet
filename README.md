@@ -13,7 +13,7 @@
 | Class             | Example Pets syntax                                         |
 |-------------------|-------------------------------------------------------------|
 | `LargeConvoy`     | `This: OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal`       |
-| `ElectroCatapult` | `Plant OR Steel -> 7`                                       |
+| `ElectroCatapult` | `Plant -> 7`, `Steel -> 7`                                  |
 | `ArcticAlgae`     | `OceanTile BY Anyone: 2 Plant`                              |
 | `Insulation`      | `This: PROD[X Megacredit FROM Heat]`                        |
 | `EarthCatapult`   | `PlayCard: -2 Owed<Class<Megacredit>>`                      |
@@ -71,7 +71,7 @@ I haven't written too much yet. There are too many things I could write down nex
 
 ### Browse?
 
-Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/canon/src/commonMain/resources/canon/bundles) how the game components are defined?
+Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/tfm-canon/src/commonMain/resources/canon/bundles) how the game components are defined?
 
 The cards are also here in [spreadsheet form](https://docs.google.com/spreadsheets/d/1A3Gt_X_0Y-6DodJNJN1C2pvy75zOnVEJgQN-dGITKDk/edit?usp=sharing) which can be easier to read.
 

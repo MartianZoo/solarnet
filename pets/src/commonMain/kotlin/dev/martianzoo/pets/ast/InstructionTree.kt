@@ -1,8 +1,8 @@
 package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.TypeInfo
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 

@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Compact
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -24,7 +25,7 @@ import kotlin.test.Test
 // Most testing is done by AutomatedTest
 internal class InstructionTest {
   @Test
-  fun gainAndRemoveConvenienceFactories() {
+  internal fun gainAndRemoveConvenienceFactories() {
     gain(cn("Foo")) shouldBe parse<Instruction>("Foo!")
     gain(cn("Foo"), count = 3, intensity = AMAP) shouldBe parse<Instruction>("3 Foo.")
     remove(cn("Foo")) shouldBe parse<Instruction>("-Foo!")
@@ -32,7 +33,7 @@ internal class InstructionTest {
   }
 
   @Test
-  fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
+  internal fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> {
       parse<Instruction>("999999999999999999999999999999 Plant")
     }
@@ -41,14 +42,14 @@ internal class InstructionTest {
   }
 
   @Test
-  fun commaSyntaxIsATreeAndNotAnInstruction() {
+  internal fun commaSyntaxIsATreeAndNotAnInstruction() {
     parse<InstructionTree>("Plant, Heat") shouldBe
         InstructionGroup(listOf(parse("Plant"), parse("Heat")))
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant, Heat") }
   }
 
   @Test
-  fun thenIsRightAssociativeAndRejectsSequencesOnTheLeft() {
+  internal fun thenIsRightAssociativeAndRejectsSequencesOnTheLeft() {
     val then = parse<Instruction>("Plant THEN Heat THEN Steel") as Then
 
     then.stages shouldBe listOf(parse<Instruction>("Plant"), parse<Instruction>("Heat"))
@@ -61,7 +62,8 @@ internal class InstructionTest {
   }
 
   @Test
-  fun groupedShapesRoundTripWithoutChangingTheirTree() {
+  internal fun groupedShapesRoundTripWithoutChangingTheirTree() {
+    testRoundTrip<InstructionTree>("(Foo FROM This) / This", "Foo FROM This / This")
     testRoundTrip<InstructionTree>("1: (1, -5 Bar)")
     testRoundTrip<InstructionTree>("(Foo, Bar) OR Qux")
     testRoundTrip<InstructionTree>(
@@ -105,6 +107,7 @@ internal class InstructionTest {
       (MAX 0 Foo, MAX 1 Foo): Ok
       (1: 1, -1!, Xyz, -1) OR Foo
       (5 Xyz FROM Bar) BY Ooh<Wau>
+      Foo FROM This / This
       Ahh<Abc> THEN Qux, PROD[-Qux]
       Foo, Foo(HAS 2 Bar) / Bar<Foo>
       2 Abc(HAS 1) FROM Foo, 5, 5 Bar
@@ -141,12 +144,12 @@ internal class InstructionTest {
           .trimIndent()
 
   @Test
-  fun testSampleStrings() {
+  internal fun testSampleStrings() {
     testSampleStrings<InstructionTree>(inputs)
   }
 
   @Test
-  fun from() {
+  internal fun from() {
     testRoundTrip("Foo FROM Bar")
     testRoundTrip("Foo FROM Bar?")
     testRoundTrip("3 Foo FROM Bar")
@@ -155,34 +158,49 @@ internal class InstructionTest {
 
     parse<Instruction>("1 Foo FROM Bar.") shouldBe
         Transmute(
-            FromExpression(cn("Foo").expression, cn("Bar").expression),
+            Full(cn("Foo").expression, cn("Bar").expression),
             ActualScalar(1),
             AMAP,
         )
     testRoundTrip("Foo<Bar> FROM Foo<Qux>")
     testRoundTrip("Foo<Bar> FROM Foo<Qux>.")
+    testRoundTrip("Foo<Bar FROM Qux>")
+    testRoundTrip("Foo<Bar FROM Qux>(HAS Baz)")
+    testRoundTrip("Foo<Same, Here, NotSame FROM Different>")
 
     val instr =
         Transmute(
-            FromExpression(
-                cn("Foo").of(cn("Bar").of(cn("Qux"))),
-                cn("Foo").of(cn("Bar").of(cn("Abc").of(cn("Eep")))),
+            Compact(
+                cn("Foo"),
+                listOf(
+                    Compact(
+                        cn("Bar"),
+                        listOf(Full(cn("Qux").expression, cn("Abc").of(cn("Eep")))),
+                    )
+                ),
             ),
             ActualScalar(1),
             null,
         )
-    instr.toString() shouldBe "Foo<Bar<Qux>> FROM Foo<Bar<Abc<Eep>>>"
-    parse<Instruction>("Foo<Bar<Qux>> FROM Foo<Bar<Abc<Eep>>>") shouldBe instr
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Bar FROM Qux>") }
+    instr.toString() shouldBe "Foo<Bar<Qux FROM Abc<Eep>>>"
+    parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>") shouldBe instr
+
+    val retained = parse<Instruction>("Foo<Same, Here, NotSame FROM Different>") as Transmute
+    retained.gaining shouldBe cn("Foo").of(cn("Same"), cn("Here"), cn("NotSame"))
+    retained.removing shouldBe cn("Foo").of(cn("Same"), cn("Here"), cn("Different"))
+
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo<Bar FROM Qux, Abc FROM Eep>")
+    }
   }
 
   @Test
-  fun backslashCrLfContinuesAnElement() {
+  internal fun backslashCrLfContinuesAnElement() {
     testRoundTrip("Foo\\\r\n OR Bar", "Foo OR Bar")
   }
 
   @Test
-  fun gatingBindsLessTightlyThanOr() {
+  internal fun gatingBindsLessTightlyThanOr() {
     val gated = parse<Instruction>("Foo: Bar OR Baz") as Gated
 
     (gated.inner is Or) shouldBe true
@@ -191,7 +209,7 @@ internal class InstructionTest {
   }
 
   @Test
-  fun aGatedAlternativeRequiresParentheses() {
+  internal fun aGatedAlternativeRequiresParentheses() {
     val alternatives = parse<Instruction>("(Foo: Bar) OR Baz") as Or
 
     (alternatives.instructions.first() is Gated) shouldBe true

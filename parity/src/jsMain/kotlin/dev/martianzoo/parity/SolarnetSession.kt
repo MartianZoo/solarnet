@@ -1,10 +1,11 @@
 package dev.martianzoo.parity
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.Player
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline.Checkpoint
@@ -12,15 +13,14 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.engine.isHiddenFromLog
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
-import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.tfmAuthority
+import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.isActionPhaseSecondAction
-import dev.martianzoo.types.Type
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlinx.serialization.json.Json
@@ -258,15 +258,14 @@ public class SolarnetSession(
         } else {
           component.className
         }
-    return printedCardId(game.reader.tfmAuthority.card(cardName).id)
+    game.reader.tfmCatalog.card(cardName)
+    return APP_CARD_ID_BY_CLASS.getValue(cardName)
   }
 
   private fun cardClassForPrintedId(printedId: String): ClassName =
-      game.reader.tfmAuthority.cardDefinitions
-          .single { printedCardId(it.id) == printedId }
-          .className
-
-  private fun printedCardId(canonId: String): String = canonId.removeSuffix("F")
+      APP_CARD_CLASS_BY_ID[printedId]
+          ?.also(game.reader.tfmCatalog::card)
+          ?: error("Unsupported app card ID: $printedId")
 
   private fun tilesSnapshot() = buildJsonArray {
     val areas = mapDefinition(game.reader).areas.rows().flatten().filterNotNull()
@@ -322,10 +321,10 @@ public class SolarnetSession(
           "greenery" -> "GreenerySP"
           "city" -> "CitySP"
           else -> error("Unknown standard project: $semanticName")
-        }
+    }
     moveOperation(move).continueManual {
-      doTask("UseAction1<UseStandardProjectSA>")
-      doTask("UseAction1<$project>")
+      doTask("UseAction<$project, First>")
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
     }
   }
 
@@ -333,17 +332,17 @@ public class SolarnetSession(
     require(currentPhase() == "research") { "Cards can be bought here only during Research" }
     val count = move.getValue("count").jsonPrimitive.int
     require(count in 0..4) { "Research purchase count must be between 0 and 4: $count" }
-    game.tfm(movePlayer(move)).doTask(if (count == 0) "Ok" else "$count BuyCard")
+    game.tfm(movePlayer(move)).buyCards(count)
   }
 
   private fun convertHeat(move: JsonObject) {
-    moveOperation(move).continueManual { doTask("UseAction1<ConvertHeatSA>") }
+    game.tfm(movePlayer(move)).convertHeat()
   }
 
   private fun convertPlants(move: JsonObject) {
     val gameplay = game.tfm(movePlayer(move))
     moveOperation(move).continueManual {
-      doTask("UseAction1<ConvertPlantsSA>")
+      doTask("UseAction<ConvertPlantsSA, First>")
       val plantsOwed = gameplay.count("Owed<Class<Plant>>")
       doTask("$plantsOwed Pay<Class<Plant>> FROM Plant")
     }
@@ -353,7 +352,7 @@ public class SolarnetSession(
     val count = move.getValue("count").jsonPrimitive.int
     require(count > 0) { "Patent sale count must be positive: $count" }
     moveOperation(move).finish {
-      doTask("UseAction1<SellPatents>")
+      doTask("UseAction<SellPatents, First>")
       doTask("-$count ProjectCard THEN $count")
     }
   }
@@ -392,6 +391,18 @@ public class SolarnetSession(
     const val FIRST_APP_SPACE_ID = 3
 
     private val PLAYED_EVENT: ClassName = cn("PlayedEvent")
+    private val APP_CARD_CLASS_BY_ID: Map<String, ClassName> =
+        mapOf(
+            "B01" to cn("CrediCor"),
+            "B04" to cn("InterplanetaryCinematics"),
+            "B12" to cn("Teractor"),
+            "013" to cn("SpaceElevator"),
+            "105" to cn("EarthOffice"),
+            "110" to cn("BusinessNetwork"),
+            "112" to cn("BribedCommittee"),
+        )
+    private val APP_CARD_ID_BY_CLASS: Map<ClassName, String> =
+        APP_CARD_CLASS_BY_ID.entries.associate { (id, className) -> className to id }
     private val RESOURCE_KINDS: List<Pair<String, ClassName>> =
         listOf(
             "megacredits" to cn("Megacredit"),

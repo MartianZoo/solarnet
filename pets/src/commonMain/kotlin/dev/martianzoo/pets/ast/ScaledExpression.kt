@@ -7,27 +7,30 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.util.Reifiable
+import dev.martianzoo.pets.util.Reifiable
+
+// TODO: Move Terraforming Mars's omitted-expression currency convention into tfm-canon.
+private val defaultScaledExpression: Expression = cn("Megacredit").expression
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
 @ConsistentCopyVisibility
 public data class ScaledExpression
-internal constructor(
-    val expression: Expression = MEGACREDIT.of(),
+private constructor(
+    val expression: Expression = defaultScaledExpression,
     val scalar: Scalar,
 ) : PetNode() {
   public companion object {
     /** Returns [expression] scaled by [scalar], defaulting the expression to `Megacredit`. */
     public fun scaledEx(expression: HasExpression? = null, scalar: Scalar): ScaledExpression =
-        ScaledExpression(expression?.expression ?: MEGACREDIT.of(), scalar)
+        ScaledExpression(expression?.expression ?: defaultScaledExpression, scalar)
 
     /** Returns [expression] scaled by [count], defaulting to one `Megacredit`. */
     public fun scaledEx(expression: HasExpression? = null, count: Int = 1): ScaledExpression =
@@ -46,9 +49,9 @@ internal constructor(
 
   internal operator fun times(multiple: Int) = copy(scalar = scalar * multiple)
 
-  internal fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
+  private fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
       when {
-        !forceExpression && expression == MEGACREDIT.of() -> "$scalar"
+        !forceExpression && expression == defaultScaledExpression -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
         else -> "$scalar $expression"
       }
@@ -61,6 +64,13 @@ internal constructor(
     override fun visitChildren(visitor: Visitor): Unit = Unit
 
     internal abstract operator fun times(multiple: Int): Scalar
+
+    /** Replaces an authored X with [value], retaining its written coefficient. */
+    internal fun bindX(value: Int): Scalar =
+        when (this) {
+          is ActualScalar -> this
+          is XScalar -> ActualScalar(value * multiple)
+        }
 
     internal companion object {
       internal fun checkNonzero(s: Scalar) {
@@ -89,12 +99,13 @@ internal constructor(
       override fun toString(): String = "$value"
     }
 
-    internal data class XScalar(val multiple: Int) : Scalar() {
+    @ConsistentCopyVisibility
+    public data class XScalar internal constructor(val multiple: Int) : Scalar() {
       init {
         require(multiple > 0)
       }
 
-      override val abstract = true
+      override val abstract: Boolean = true
 
       override fun ensureNarrows(that: Scalar, info: TypeInfo) {
         if (this != that) throw NarrowingException("$this / $that")
@@ -102,7 +113,7 @@ internal constructor(
 
       override fun times(multiple: Int) = copy(multiple = this.multiple * multiple)
 
-      override fun toString() = if (multiple == 1) "X" else "${multiple}X"
+      override fun toString(): String = if (multiple == 1) "X" else "${multiple}X"
     }
   }
 

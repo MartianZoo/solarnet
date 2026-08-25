@@ -1,19 +1,19 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Player
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.tfm.api.ApiUtils
-import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.data.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.ApiUtils
+import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.script.TfmColor.GREENERY_TILE
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.SPECIAL_TILE
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.Grid
 
 internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tfm_map") {
   override val usage = "map"
@@ -31,7 +31,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
           )
           .map()
 
-  internal class MapToText(
+  private class MapToText(
       private val game: GameReader,
       private val players: List<Player>,
       private val useColors: Boolean = true,

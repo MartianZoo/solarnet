@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Actor
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.types.ClassTable
 
 /**
  * A live Pets world with transactional mutation, pending tasks, and event history. A world is the

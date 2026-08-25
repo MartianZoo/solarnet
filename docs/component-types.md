@@ -2,10 +2,10 @@
 
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to the source code as you read:
 
-* [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
-* [modes.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/modes.pets)
-* [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
-* [maps-tiles.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/maps-tiles.pets)
+* [global.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
+* [modes.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/modes.pets)
+* [player.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
+* [maps-tiles.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/maps-tiles.pets)
 
 ## Communal / non-player-owned
 
@@ -109,7 +109,7 @@ We discussed the `Phase` types above. As much as possible, these types do nothin
 
 It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; the base game has the two subtypes `ProjectCard` and `CorporationCard`, and Prelude adds `PreludeCard`. That's about it. (Remember these things have no attributes either.)
 
-The most important thing to understand about cards is that the engine supports only "follow mode". A client supplies the concrete history to process, including draws, reveals, discards, and plays, and the engine calculates the resulting state. It neither owns hidden information nor tries to authenticate that history against a separate physical or online game. Thus, if the client says that `EarthCatapult` was played, the engine applies that play and subtracts one generic `ProjectCard` from the hand. Definitions with an `F`-suffixed identifier are specifically complete for this mode; a future real-play mode that owns the deck and hands would use different definitions for those cards.
+The most important thing to understand about cards is that the engine supports only "follow mode". A client supplies the concrete history to process, including draws, reveals, discards, and plays, and the engine calculates the resulting state. It neither owns hidden information nor tries to authenticate that history against a separate physical or online game. Thus, if the client says that `EarthCatapult` was played, the engine applies that play and subtracts one generic `ProjectCard` from the hand. Canonical card data retains hidden search, selection, and reveal procedures in a source-level `CARDS` transform, but the current executable declarations neutralize them to the follow-mode outcomes supplied by the client.
 
 Even with this simplification, the whole play-a-card process is a bit complex to go into here and now.
 

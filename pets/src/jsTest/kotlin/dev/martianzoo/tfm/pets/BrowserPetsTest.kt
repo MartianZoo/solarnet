@@ -5,9 +5,9 @@ import dev.martianzoo.pets.ast.Expression
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class BrowserPetsTest {
+internal class BrowserPetsTest {
   @Test
-  fun parsesPetsExpressionInBrowser() {
+  internal fun parsesPetsExpressionInBrowser() {
     assertEquals("Foo<Bar, Baz>", parse<Expression>("Foo<Bar, Baz>").toString())
   }
 }

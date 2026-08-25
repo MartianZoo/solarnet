@@ -1,16 +1,16 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.DeadEndException
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.Exceptions.KindException
-import dev.martianzoo.api.Exceptions.NoNewClassDeclarationsException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.KindException
+import dev.martianzoo.pets.api.Exceptions.NoNewClassDeclarationsException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -18,7 +18,7 @@ internal class DomainExceptionBoundaryTest {
   private fun gameplay() = Engine.newGame(canonicalPremise()).gameplay(PLAYER1).godMode()
 
   @Test
-  fun unhandledTransformsAreExpressionFailures() {
+  internal fun unhandledTransformsAreExpressionFailures() {
     val gameplay = gameplay()
 
     shouldThrow<ExpressionException> { gameplay.count("WAT[Plant]") }
@@ -28,12 +28,12 @@ internal class DomainExceptionBoundaryTest {
   }
 
   @Test
-  fun preprocessingKindChangesUseKindExceptions() {
+  internal fun preprocessingKindChangesUseKindExceptions() {
     shouldThrow<KindException> { gameplay().parse<Instruction>("2 OxygenStep!") }
   }
 
   @Test
-  fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
+  internal fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
     val gameplay = gameplay()
 
     shouldThrow<NoNewClassDeclarationsException> {
@@ -43,7 +43,7 @@ internal class DomainExceptionBoundaryTest {
   }
 
   @Test
-  fun directChangesRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
+  internal fun directChangesRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
     val gameplay = gameplay()
 
     shouldThrow<AbstractException> { gameplay.sneak("Plant OR Heat") }
@@ -52,7 +52,7 @@ internal class DomainExceptionBoundaryTest {
   }
 
   @Test
-  fun taskBoundaryFailuresUseTaskOrDeadEndExceptions() {
+  internal fun taskBoundaryFailuresUseTaskOrDeadEndExceptions() {
     val gameplay = gameplay()
 
     shouldThrow<TaskException> { gameplay.prepareTask("Plant") }

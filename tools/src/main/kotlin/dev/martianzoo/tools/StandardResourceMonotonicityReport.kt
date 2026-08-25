@@ -1,11 +1,9 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.SystemClasses.USE_ACTION
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GamePremise
+import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -16,26 +14,30 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.types.Class as PetsClass
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.AwardDefinition
-import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.Prod
-import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.types.Class as PetsClass
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
+import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 
 /**
  * Conservative static report of rules that may make a solo player's resource quantity nonmonotonic.
  */
 internal object StandardResourceMonotonicityReport {
-  enum class QuantityKind {
+  private enum class QuantityKind {
     RESOURCE,
     PRODUCTION,
   }
 
-  data class Quantity(
+  private data class Quantity(
       val label: String,
       val resourceClass: PetsClass,
       val kind: QuantityKind,
@@ -81,13 +83,14 @@ internal object StandardResourceMonotonicityReport {
 
   fun analyze(premise: GamePremise = maximalSoloPremise()): Analysis {
     val table = ClassTable.forPremise(premise)
-    val deprodifier = Prod.deprodify(table)
+    val productionLowerer = table.transformDispatcher(setOf(PROD))
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()
     val opaqueUsages = linkedSetOf<OpaqueUsage>()
+    val tfmCatalog = premise.catalog as TfmCatalog
     val playRequirements =
-        premise.authority.allDefinitions.filterIsInstance<CardDefinition>().associate {
-          it.className to it.requirement
+        tfmCatalog.cardDefinitions.associate { sourceCard ->
+          sourceCard.className to tfmCatalog.card(sourceCard.className).requirement
         }
 
     table.allClasses().sortedBy(PetsClass::className).forEach { subjectClass ->
@@ -117,7 +120,7 @@ internal object StandardResourceMonotonicityReport {
         val location = ruleLocation(authoredRoot, declaration, playRequirement)
         val root =
             if (authoredRoot is PetElement) {
-              deprodifier.transformElement(authoredRoot)
+              productionLowerer.transformElement(authoredRoot)
             } else {
               authoredRoot
             }
@@ -139,13 +142,16 @@ internal object StandardResourceMonotonicityReport {
       }
     }
 
-    premise.authority.allDefinitions
-        .filterIsInstance<AwardDefinition>()
-        .filter { table.isActive(it.className) }
-        .forEach { award ->
-          val subjectName = displayName(premise, award.className)
-          val subjectClass = table.getClass(award.className)
-          val metric = deprodifier.transformMetric(award.metric)
+    val awardClass = table.getClass(cn("Award"))
+    table
+        .allClasses()
+        .filter { !it.abstract && it.isSubtypeOf(awardClass) }
+        .forEach { subjectClass ->
+          val subjectName = displayName(premise, subjectClass.className)
+          val metric =
+              productionLowerer.transformMetric(
+                  (subjectClass.properties.getValue(AWARD_METRIC_PROPERTY) as MetricValue).value
+              )
           quantities.forEach { quantity ->
             if (metricCouldCount(metric, quantity, subjectClass, table)) {
               findings +=
@@ -184,6 +190,8 @@ internal object StandardResourceMonotonicityReport {
             ),
     )
   }
+
+  private val AWARD_METRIC_PROPERTY = PropertyName("metric")
 
   fun render(analysis: Analysis): String = buildString {
     appendLine("Solo resource and production monotonicity suspicion report")
@@ -224,8 +232,7 @@ internal object StandardResourceMonotonicityReport {
 
   private fun quantities(table: ClassTable): List<Quantity> =
       table
-          .getClass(STANDARD_RESOURCE)
-          .allSubclasses()
+          .allSubclasses(table.getClass(STANDARD_RESOURCE))
           .filterNot(PetsClass::abstract)
           .sortedBy(PetsClass::className)
           .flatMap { resourceClass ->
@@ -350,13 +357,17 @@ internal object StandardResourceMonotonicityReport {
   }
 
   private fun effectLocation(effect: Effect, index: Int): RuleLocation {
+    val action =
+        (effect.trigger as? Effect.Trigger.OnGainOf)?.expression?.takeIf {
+          it.className == USE_ACTION
+        }
     val actionIndex =
-        (effect.trigger as? Effect.Trigger.OnGainOf)
-            ?.expression
-            ?.className
-            ?.toString()
-            ?.removePrefix(USE_ACTION.toString())
-            ?.toIntOrNull()
+        when (action?.arguments?.lastOrNull()?.className?.toString()) {
+          "First" -> 1
+          "Second" -> 2
+          "Third" -> 3
+          else -> null
+        }
     return if (actionIndex == null) {
       RuleLocation(RuleLocationKind.EFFECT, index)
     } else {
@@ -412,8 +423,9 @@ internal object StandardResourceMonotonicityReport {
               scaledUpperBound(upperBound, metric.unit),
           )
       is Metric.Max ->
-          (upperBound == null || metric.maximum > upperBound) &&
-              metricCouldCount(metric.inner, quantity, subjectClass, table, upperBound)
+          (maximumCanExceed(metric.maximum, upperBound) &&
+              metricCouldCount(metric.inner, quantity, subjectClass, table, upperBound)) ||
+              metricCouldCount(metric.maximum, quantity, subjectClass, table)
       is Metric.Subtract ->
           metricCouldCount(metric.minuend, quantity, subjectClass, table) ||
               metricCouldCount(metric.subtrahend, quantity, subjectClass, table)
@@ -451,14 +463,14 @@ internal object StandardResourceMonotonicityReport {
               scaledUpperBound(upperBound, metric.unit),
           )
       is Metric.Max ->
-          (upperBound == null || metric.maximum > upperBound) &&
+          (maximumCanExceed(metric.maximum, upperBound) &&
               metricCouldCountAsResource(
                   metric.inner,
                   quantity,
                   subjectClass,
                   table,
                   upperBound,
-              )
+              )) || metricCouldCountAsResource(metric.maximum, quantity, subjectClass, table)
       is Metric.Subtract ->
           metricCouldCountAsResource(metric.minuend, quantity, subjectClass, table) ||
               metricCouldCountAsResource(metric.subtrahend, quantity, subjectClass, table)
@@ -471,6 +483,12 @@ internal object StandardResourceMonotonicityReport {
 
   private fun scaledUpperBound(upperBound: Int?, unit: Int): Int? = upperBound?.let {
     (((it.toLong() + 1) * unit) - 1).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+  }
+
+  private fun maximumCanExceed(maximum: Metric, upperBound: Int?): Boolean {
+    if (upperBound == null) return true
+    val constant = maximum as? Metric.Constant ?: return true
+    return constant.value > upperBound
   }
 
   private fun expressionCouldCount(
@@ -541,7 +559,8 @@ internal object StandardResourceMonotonicityReport {
       )
 
   private fun displayName(premise: GamePremise, className: ClassName): String =
-      premise.authority.displayNamesByLanguage["en"]?.get(className) ?: className.toString()
+      premise.catalog.displayNamesByLanguage["en"]?.get(className)
+          ?: defaultEnglishDisplayName(className)
 
   fun maximalSoloPremise(): GamePremise =
       Canon.gamePremise(
@@ -554,10 +573,10 @@ internal object StandardResourceMonotonicityReport {
                           "ColoniesExpansion",
                           "TurmoilCardPack",
                           "PromoCardPack",
-                          "MilestonesAwardsExpansion",
-                          "ColonyTile01",
-                          "ColonyTile02",
-                          "ColonyTile11",
+                          "Callisto",
+                          "Ceres",
+                          "Luna",
+                          "Triton",
                       )
                       .map(::cn),
               playerNames = listOf(cn("SoloPlayer")),

@@ -1,7 +1,24 @@
 # Engine workhorse and client API direction
 
-**Status: proposal.** Some read/write data-structure pairs have already been collapsed. The
-`Gameplay` power hierarchy and `godMode()` remain committed behavior; see [ENGINE.md](ENGINE.md).
+> **Read when:** flattening `Gameplay`, removing a power interface or `godMode()`, changing command
+> transaction boundaries, or designing a real client/observation API.
+>
+> **Skip when:** adding an ordinary gameplay operation without changing facade ownership; use the
+> Gameplay section of [ENGINE.md](ENGINE.md#current-gameplay-surface).
+>
+> **Status:** proposal. Some read/write data-structure pairs have been collapsed; the `Gameplay`
+> power hierarchy and `godMode()` remain committed behavior.
+
+## Source map
+
+- [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt) — search for
+  `public interface Gameplay` to see the current power hierarchy.
+- [`ApiTranslation.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/ApiTranslation.kt) —
+  search for `internal class ApiTranslation` before moving string/value adaptation.
+- [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
+  — search for `internal class Implementations` before changing command lifecycle ownership.
+- [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
+  read only when the change also touches the temporary REPL policy boundary.
 
 ## Decision
 
@@ -40,7 +57,7 @@ One Actor-scoped engine facade should expose the supported trusted operations:
 - contextual parsing and queries;
 - task revision, preparation, execution, insertion, and removal;
 - manual operations and turns;
-- auto-execution control; and
+- read-only task analysis usable by explicit clients and optional autoexecution policies; and
 - conspicuously named rules-bypassing changes.
 
 `godMode()` and the intermediate power interfaces disappear. Keep dangerous primitives internal;
@@ -66,20 +83,20 @@ Public command-like operations should eventually use one explicit lifecycle:
 ```text
 checkpoint
 run requested operation
-run configured auto-exec
 collect TaskResult
 rollback on failure
 publish one outermost completion notification
 return
 ```
 
-Do not assume every method should auto-execute. First characterize the current transaction,
-auto-exec, result, and notification behavior of task revision/preparation, insertion/removal, manual
-operations, turns, and raw changes. Normalize only deliberate differences.
+First characterize the current transaction, result, and notification behavior of task
+revision/preparation, insertion/removal, manual operations, turns, and raw changes. Normalize only
+deliberate differences. Autoexecution is an optional client of this raw command lifecycle, as
+specified in [AUTOEXEC.md](AUTOEXEC.md), not a stage inside it.
 
 `ApiTranslation` should remain a value/string adapter rather than the owner of all engine policy.
-A focused command runner can own atomicity, result collection, auto-exec coordination, and
-completion notification.
+A focused command runner can own atomicity, result collection, agent provenance, and completion
+notification.
 
 ## Temporary script policy
 
@@ -118,10 +135,10 @@ engine as speculative scaffolding.
 should accumulate every policy:
 
 - `ApiTranslation` should become only the string/value adapter for the flat surface.
-- A named command runner should own atomicity, result collection, auto-exec coordination, and the
-  one outermost completion notification.
+- A named command runner should own atomicity, result collection, agent provenance, and the one
+  outermost completion notification.
 - The generically named `Implementations` should disappear or become a plainly named facade over
-  focused task lifecycle, task selection/auto-exec, operation completion, and raw-change services.
+  focused task lifecycle, task selection, operation completion, and raw-change services.
   Terraforming Mars turn signaling does not belong in those generic services.
 - `ScriptSession` should retain interactive session state and command dispatch. An injected
   application profile should contribute Terraforming Mars construction, commands, completion
@@ -135,8 +152,8 @@ authorize building the later permission API at the same time.
 
 ## Safe sequence
 
-1. Add behavior tests for script modes, rollback, `TaskResult`, auto-exec inclusion, outermost
-   notification, and reversibility.
+1. Add behavior tests for script modes, rollback, `TaskResult`, current autoexecution coupling,
+   outermost notification, and reversibility.
 2. Move operations onto one `Gameplay` workhorse and remove `godMode()` plus the intermediate
    interfaces without changing behavior.
 3. Replace script casts with centralized checks.

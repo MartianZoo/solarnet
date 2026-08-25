@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -11,12 +11,12 @@ import kotlin.test.assertEquals
 
 internal class StinaScriptTest {
   @Test
-  fun `Stina Saturn Systems game`() {
+  internal fun `Stina Saturn Systems game`() {
     val repl = ScriptSession()
     val script =
         """
         // Stina's Saturn Systems solo game
-        newgame "TerraformingMars, CorporateEraExpansion, ElysiumMapOption, PreludeExpansion" Me purple
+        newgame "TerraformingMars, CorporateEraExpansion, ElysiumMap, PreludeExpansion" Me purple
 
         // Neutral tiles for solo setup
         task CityTile<Elysium_5_6, SoloOpponent>
@@ -27,7 +27,8 @@ internal class StinaScriptTest {
         become Me
 
         tfm_play SaturnSystems
-        task 10 BuyCard
+        task Ok
+        task 30 Pay<Class<Megacredit>> FROM Megacredit
 
         tfm_play Biolab
         tfm_play AcquiredSpaceAgency
