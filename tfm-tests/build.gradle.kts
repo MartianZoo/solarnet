@@ -26,7 +26,7 @@ val fullBrowserTestsRequested =
 tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
   if (!fullBrowserTestsRequested) {
     filter.includeTestsMatching(
-        "dev.martianzoo.tfm.engine.games.Game20260619Test.gameThroughGeneration5"
+        "dev.martianzoo.tfm.tests.replays.Game20260619Test.gameThroughGeneration5"
     )
   }
 }

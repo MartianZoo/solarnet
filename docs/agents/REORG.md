@@ -8,8 +8,8 @@ differ from this target.
 
 ## Governing rule
 
-No non-Terraforming-Mars module may depend on a Terraforming-Mars module. The generic Pets and
-engine layers must make sense without Canon or any other Terraforming Mars code.
+No non-Terraforming-Mars production source set may depend on a Terraforming-Mars module. The generic
+Pets and engine layers must make sense without Canon or any other Terraforming Mars code.
 The boundary should be strong enough that all `tfm` modules could later move to another source tree
 or repository without reversing a dependency.
 
@@ -26,6 +26,10 @@ tfm-engine ─> engine, tfm-canon
 tfm-text ───> tfm-canon, pets
 tfm-tests ──> tfm-engine, tfm-canon
 ```
+
+Engine tests may use `tfm-canon` and `tfm-engine` as test-only scaffolding when the behavior under
+test belongs to engine and replacing the integrated world would be substantial. This does not add a
+production dependency or change production ownership.
 
 This is the first enforced boundary, not a claim that every eventual production module is already
 known. Generic client APIs remain packages within `engine` unless a concrete dependency reason
@@ -160,8 +164,9 @@ change gives reason to redesign them.
 workflows, and whole games. It is a leaf module depending on `tfm-engine` and Canon.
 
 Tests genuinely about Pets, the type system, or the generic engine remain with their production
-module and define their own small declarations. They must not depend on Canon merely to obtain
-convenient real content.
+module. Prefer small declarations owned by the test when that substitution is straightforward, but
+keep an engine test with engine when Canon provides nontrivial practical scaffolding; module
+ownership should describe the behavior being tested rather than the purity of its setup.
 
 ## Vocabulary and human text
 

@@ -8,6 +8,12 @@ kotlin {
         implementation(project(":pets"))
       }
     }
-    commonTest { dependencies { implementation(libs.kotest.assertions.core) } }
+    commonTest {
+      dependencies {
+        implementation(libs.kotest.assertions.core)
+        implementation(project(":tfm-canon"))
+        implementation(project(":tfm-engine"))
+      }
+    }
   }
 }
