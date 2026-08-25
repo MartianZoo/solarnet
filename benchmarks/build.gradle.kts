@@ -7,6 +7,7 @@ dependencies {
   implementation(project(":tfm-canon"))
   implementation(project(":engine"))
   implementation(project(":pets"))
+  implementation(project(":tfm-engine"))
 }
 
 jmh {

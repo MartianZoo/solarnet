@@ -157,8 +157,9 @@ private constructor(
     }
   }
 
-  internal companion object {
-    internal fun empty(classTable: ClassTable): ComponentGraph =
+  // TODO: Contract this temporary tfm-tests constructor seam.
+  public companion object {
+    public fun empty(classTable: ClassTable): ComponentGraph =
         ComponentGraph(classTable, addEffects = { _, _ -> }, removeEffects = { _, _ -> })
   }
 }

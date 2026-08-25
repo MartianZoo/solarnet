@@ -43,7 +43,9 @@ import dev.martianzoo.types.Type
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-internal class Instructor(
+// TODO: Contract this temporary preparation-only tfm-tests seam.
+public class Instructor
+internal constructor(
     private val reader: GameReader,
     private val limiter: Limiter,
     private val changer: Changer?,
@@ -53,6 +55,12 @@ internal class Instructor(
     private val customClasses: CustomClassRuntime =
         CustomClassRuntime(reader.authority, Transformers(classTable)),
 ) {
+  public constructor(
+      reader: GameReader,
+      limiter: Limiter,
+      classTable: ClassTable,
+  ) : this(reader, limiter, null, null, classTable)
+
   private val automaticEffectStack = mutableListOf<PendingTask>()
   private val transformDispatcher by lazy { classTable.transformDispatcher() }
 
@@ -175,7 +183,7 @@ internal class Instructor(
    * * Prepares each option of an [Or]
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
    */
-  internal fun prepare(unprepared: Instruction) = doPrepare(unprepared)
+  public fun prepare(unprepared: Instruction): InstructionTree = doPrepare(unprepared)
 
   /**
    * Validates a concrete target selected from an abstract pure AMAP gain or removal. Returns true

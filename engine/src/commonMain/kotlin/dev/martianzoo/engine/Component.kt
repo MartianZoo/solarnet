@@ -15,7 +15,8 @@ import kotlin.jvm.JvmInline
 
 /** One concrete [Type] used as a value in a [ComponentGraph]. */
 @JvmInline
-public value class Component internal constructor(public val type: Type) : HasExpression {
+// TODO: Contract the temporary constructor and playerOwner tfm-tests seams.
+public value class Component public constructor(public val type: Type) : HasExpression {
   init {
     if (type.abstract) throw Exceptions.abstractComponent(type)
   }
@@ -42,7 +43,7 @@ public value class Component internal constructor(public val type: Type) : HasEx
         }
 
   /** This component's owner when that owner is a seated Player. */
-  internal val playerOwner: Player?
+  public val playerOwner: Player?
     get() = owner?.className?.let(Player::fromClassNameOrNull)
 
   override val expression: Expression

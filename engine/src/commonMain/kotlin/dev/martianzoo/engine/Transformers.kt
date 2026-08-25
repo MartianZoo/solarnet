@@ -55,12 +55,13 @@ import dev.martianzoo.types.DependencySet
 import dev.martianzoo.types.Type
 
 public class Transformers(public val classTable: ClassTable) {
+  // TODO: Contract temporary tfm-tests transformation seams.
 
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
   private val transformDispatcher by lazy { classTable.transformDispatcher() }
 
   /** Expands the marked Pets syntax configured by this game's Authority. */
-  internal fun transformMarkedSyntax(): PetTransformer = transformDispatcher
+  public fun transformMarkedSyntax(): PetTransformer = transformDispatcher
 
   /** Rewrites session-localized input names to their canonical engine names. */
   public fun canonicalize(vocabulary: Vocabulary): PetTransformer =
@@ -70,7 +71,7 @@ public class Transformers(public val classTable: ClassTable) {
       }
 
   /** Effects inherited by [klass], processed as far as possible without a concrete component. */
-  internal fun classEffects(klass: Class): List<Effect> {
+  public fun classEffects(klass: Class): List<Effect> {
     require(classTable.isActive(klass)) { "$klass is not active in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
@@ -238,7 +239,7 @@ public class Transformers(public val classTable: ClassTable) {
       }
 
   @Suppress("ComplexCondition") // TODO: fix that
-  internal fun atomizer(): PetTransformer {
+  public fun atomizer(): PetTransformer {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 
     return object : PetTransformer() {
@@ -261,9 +262,9 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
-  internal fun insertDefaults() = insertDefaults(THIS.expression)
+  public fun insertDefaults(): PetTransformer = insertDefaults(THIS.expression)
 
-  internal fun insertDefaults(context: Expression) =
+  public fun insertDefaults(context: Expression): PetTransformer =
       chain(
           insertTriggerDefaults(context),
           insertGainRemoveDefaults(context),
@@ -527,7 +528,7 @@ public class Transformers(public val classTable: ClassTable) {
    * specialization. Optional phantom changes become `Ok`; dead changes become `Die` so enclosing
    * choices can discard them.
    */
-  internal fun checkedSubstituter(
+  public fun checkedSubstituter(
       general: Type,
       specific: Type,
       vararg afterSubstitution: PetTransformer?,
@@ -593,7 +594,7 @@ public class Transformers(public val classTable: ClassTable) {
   }
 
   /** Applies trigger narrowing only to the source expressions declared by linkages. */
-  internal fun checkedLinkageSubstituter(
+  public fun checkedLinkageSubstituter(
       general: Type,
       specific: Type,
       linkedSources: Set<Expression>,
@@ -660,7 +661,7 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
-  internal fun findSubstitutions(
+  public fun findSubstitutions(
       gendeps: DependencySet,
       specdeps: DependencySet,
   ): Map<ClassName, Expression> {

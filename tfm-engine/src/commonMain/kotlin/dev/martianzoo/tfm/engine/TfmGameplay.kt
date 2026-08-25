@@ -96,7 +96,8 @@ public class TfmGameplay(
    * every other player has passed, the workflow offers `NewTurn` rather than a second action; that
    * offer is deliberately left in place so this block can contain the rest of the generation.
    */
-  internal fun turn(body: TfmGameplay.() -> Unit) {
+  // TODO: Contract temporary tfm-tests gameplay seams.
+  public fun turn(body: TfmGameplay.() -> Unit) {
     body()
     if (secondActionOffer() != null) declineSecondAction()
   }
@@ -327,16 +328,16 @@ public class TfmGameplay(
   }
 
   /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */
-  internal fun intentionalUnderpay() {
+  public fun intentionalUnderpay() {
     allowUnderpayment = true
   }
 
   /** Allows the next [pay] call to spend a non-money resource for less than its full value. */
-  internal fun intentionalOverpay() {
+  public fun intentionalOverpay() {
     allowOverpayment = true
   }
 
-  internal fun requireExplicitPaymentChoices(): TfmGameplay = apply {
+  public fun requireExplicitPaymentChoices(): TfmGameplay = apply {
     explicitPaymentChoicesRequired = true
   }
 
@@ -440,17 +441,17 @@ public class TfmGameplay(
     asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
   }
 
-  internal fun production(): Map<ClassName, Int> =
+  public fun production(): Map<ClassName, Int> =
       standardResourceNames(reader).associateWith { production(it) }
 
   public fun production(kind: ClassName): Int =
       count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
 
-  internal fun oxygenPercent(): Int = count("OxygenStep")
+  public fun oxygenPercent(): Int = count("OxygenStep")
 
-  internal fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
+  public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
 
-  internal fun venusPercent(): Int = count("VenusStep") * 2
+  public fun venusPercent(): Int = count("VenusStep") * 2
 
   public companion object {
     public fun World.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)

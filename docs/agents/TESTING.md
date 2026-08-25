@@ -14,11 +14,12 @@ Kotlin 2.2. Contributors do not need another JDK installed.
   representative multi-generation engine game in Chrome as the browser smoke suite.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
-- `./gradlew :engine:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
+- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
 - `./gradlew jsBrowserTest` runs every module's full browser suite.
   `./gradlew build -PincludeBrowserTests=true` includes those suites in the normal repository-wide
   check.
-- `./gradlew :engine:allTestsIncludingBrowser` runs every engine test on both the JVM and browser.
+- `./gradlew :tfm-tests:allTestsIncludingBrowser` runs every Terraforming Mars functional test on
+  both the JVM and browser.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources.

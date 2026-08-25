@@ -194,4 +194,4 @@ public interface Gameplay {
   }
 }
 
-internal typealias BodyLambda = OperationBody.() -> Unit
+public typealias BodyLambda = OperationBody.() -> Unit

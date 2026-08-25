@@ -13,7 +13,8 @@ import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import kotlin.Int.Companion.MAX_VALUE
 
-internal class Limiter(
+// TODO: Contract this temporary tfm-tests seam.
+public class Limiter(
     private val classTable: ClassTable,
     private val components: ComponentGraph,
 ) {

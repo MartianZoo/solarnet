@@ -37,10 +37,11 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 
 /** One specialized component effect ready for subscription matching and firing. */
-internal class LiveEffect
+// TODO: Contract this temporary tfm-tests seam.
+public class LiveEffect
 private constructor(
     private val subscription: Subscription,
-    internal val effect: Effect,
+    public val effect: Effect,
     private val context: Component,
     private val triggerClass: ClassName?,
     private val transformers: Transformers,
@@ -137,8 +138,8 @@ private constructor(
       private val triggerClass: ClassName?,
   )
 
-  internal companion object {
-    internal fun compile(
+  public companion object {
+    public fun compile(
         component: Component,
         transformers: Transformers,
     ): List<LiveEffect> =

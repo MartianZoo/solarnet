@@ -16,9 +16,9 @@ val fullBrowserTestsRequested =
         }
 
 // JVM tests provide the exhaustive routine signal. Browser tests are opt-in except for the one
-// representative engine smoke scenario configured in engine/build.gradle.kts.
+// representative Terraforming Mars smoke scenario configured in tfm-tests/build.gradle.kts.
 subprojects {
-  if (name != "engine") {
+  if (name != "tfm-tests") {
     tasks
         .matching { it.name == "jsBrowserTest" }
         .configureEach {
@@ -66,6 +66,7 @@ dependencies {
   dokka(project(":pets"))
   dokka(project(":tfm-text"))
   dokka(project(":engine"))
+  dokka(project(":tfm-engine"))
   dokka(project(":script"))
   dokka(project(":repl"))
   dokka(project(":tfm-canon"))

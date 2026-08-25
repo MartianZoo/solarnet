@@ -202,6 +202,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Contract the temporary public engine and TFM-engine test seams after Canon-dependent lower-layer
+  tests use self-contained declarations and return to their owning modules.
+- Contract the temporary public `EventLog.entryAt` boundary after `tfm-engine` receives a narrow
+  event query for identifying the origin of an action-phase second-action offer.
+
 - Finish making `cards.pets` the sole card authority: express card-to-supporting-declaration
   contribution links and replacement relationships in Pets, then derive pre-load deck selection,
   tag validation, and compatibility without JSON-backed `CardDefinition` metadata.

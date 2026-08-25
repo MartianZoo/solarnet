@@ -20,7 +20,8 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  * supply the corresponding state mutation, which succeeds before the history and [revision] advance
  * together.
  */
-public class EventLog internal constructor(private val prefixSource: EventLog? = null) {
+// TODO: Contract temporary tfm-tests construction and query seams.
+public class EventLog public constructor(private val prefixSource: EventLog? = null) {
   private val prefixSize: Int = prefixSource?.size ?: 0
   private val events: MutableList<GameEvent> = mutableListOf()
 
@@ -68,12 +69,14 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
   public fun changesSinceSetup(): List<ChangeEvent> =
       entriesSinceSetup().filterIsInstance<ChangeEvent>()
 
-  internal fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
+  public fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
 
-  internal fun entryAt(ordinal: Int): GameEvent = entriesSince(Checkpoint(ordinal)).first()
+  // TODO: Replace this temporary cross-module exposure with the narrow event query TfmGameplay
+  // needs.
+  public fun entryAt(ordinal: Int): GameEvent = entriesSince(Checkpoint(ordinal)).first()
 
   /** Returns all change events since [checkpoint]. */
-  internal fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
+  public fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
   public fun entriesSince(checkpoint: Checkpoint): List<GameEvent> {
@@ -101,7 +104,7 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
     return TaskResult(changes, newTasks)
   }
 
-  internal fun markSetupStart() {
+  public fun markSetupStart() {
     setupStart = Checkpoint(size)
   }
 }

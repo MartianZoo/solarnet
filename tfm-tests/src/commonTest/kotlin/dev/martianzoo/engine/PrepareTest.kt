@@ -26,8 +26,6 @@ internal class PrepareTest {
       Instructor(
           game.reader,
           Limiter(game.classTable, game.components),
-          null,
-          null,
           game.classTable,
       )
 

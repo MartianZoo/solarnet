@@ -32,7 +32,8 @@ import dev.martianzoo.types.ClassTable
  * * New tasks created have the same assignee, Actor, and cause as the original. Prepared tasks
  *   cannot be split
  */
-internal class TaskQueues
+// TODO: Contract this temporary tfm-tests seam.
+public class TaskQueues
 private constructor(
     private val events: EventLog,
     private val classTable: ClassTable?,
@@ -42,7 +43,7 @@ private constructor(
     require(initialTasks.all { it.id.ordinal < events.size })
   }
 
-  internal constructor(
+  public constructor(
       events: EventLog,
       classTable: ClassTable? = null,
   ) : this(events, classTable, emptyList())
@@ -53,11 +54,11 @@ private constructor(
   }
 
   /** Copies current tasks without recording their existing additions in [events]. */
-  internal fun copy(events: EventLog) = TaskQueues(events, classTable, taskSet)
+  public fun copy(events: EventLog): TaskQueues = TaskQueues(events, classTable, taskSet)
 
   internal fun all(): TaskQueue = TaskQueue(this, assignee = null) { true }
 
-  internal operator fun get(assignee: Actor): TaskQueue =
+  public operator fun get(assignee: Actor): TaskQueue =
       TaskQueue(this, assignee = assignee) { it.assignee == assignee }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
@@ -140,5 +141,5 @@ private constructor(
     require(taskSet.remove(task))
   }
 
-  override fun toString() = taskSet.joinToString("\n")
+  override fun toString(): String = taskSet.joinToString("\n")
 }

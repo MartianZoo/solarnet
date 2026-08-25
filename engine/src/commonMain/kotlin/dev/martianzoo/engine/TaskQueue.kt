@@ -74,7 +74,8 @@ internal constructor(
     return taskQueues.addTasks(instruction, inferredAssignee, cause, actor ?: inferredAssignee)
   }
 
-  internal fun addTasks(task: PendingTask): List<TaskAddedEvent> {
+  // TODO: Contract temporary tfm-tests task mutation seams.
+  public fun addTasks(task: PendingTask): List<TaskAddedEvent> {
     if (assignee != null && task.assignee != assignee) {
       throw TaskException(
           "$assignee's queue can't contain pending work assigned to ${task.assignee}: $task"
@@ -88,13 +89,13 @@ internal constructor(
     return taskQueues.removeTask(id)
   }
 
-  internal fun editTask(newTask: Task): TaskEditedEvent? {
+  public fun editTask(newTask: Task): TaskEditedEvent? {
     validateAssignee(newTask)
     validateAssignee(getTaskData(newTask.id))
     return taskQueues.editTask(newTask)
   }
 
-  internal fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
+  public fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
 
   internal fun queueFor(assignee: Actor): TaskQueue = taskQueues[assignee]
 
