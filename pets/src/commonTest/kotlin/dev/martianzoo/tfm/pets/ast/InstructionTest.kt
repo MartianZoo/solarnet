@@ -34,9 +34,7 @@ internal class InstructionTest {
 
   @Test
   internal fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
-    shouldThrow<PetSyntaxException> {
-      parse<Instruction>("999999999999999999999999999999 Plant")
-    }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("999999999999999999999999999999 Plant") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant OR Plant") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("X Plant, X Heat") }
   }
@@ -189,9 +187,7 @@ internal class InstructionTest {
     retained.gaining shouldBe cn("Foo").of(cn("Same"), cn("Here"), cn("NotSame"))
     retained.removing shouldBe cn("Foo").of(cn("Same"), cn("Here"), cn("Different"))
 
-    shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo<Bar FROM Qux, Abc FROM Eep>")
-    }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Bar FROM Qux, Abc FROM Eep>") }
   }
 
   @Test

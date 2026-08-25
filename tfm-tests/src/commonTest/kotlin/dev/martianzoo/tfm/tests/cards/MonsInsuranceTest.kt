@@ -42,9 +42,7 @@ internal class MonsInsuranceTest : CardTest() {
     engine.phase("Prelude")
     val moneyBefore = p1.count("Megacredit")
 
-    p1.playPrelude(Merger) {
-      doTask("PlayCard<Class<CorporationCard>, Class<$MonsInsurance>>")
-    }
+    p1.playPrelude(Merger) { doTask("PlayCard<Class<CorporationCard>, Class<$MonsInsurance>>") }
 
     p1.count("Megacredit") shouldBe moneyBefore + 10 // -42 + 48 starting money + 4 from Manutech
     p1.assertProds(4 to "Megacredit")
@@ -160,9 +158,7 @@ internal class MonsInsuranceTest : CardTest() {
     p2.count("Megacredit") shouldBe pharmacyMoneyBefore - 4
     game.events
         .changesSince(checkpoint)
-        .single {
-          it.change.removing?.let(game.reader::resolve) == p2.resolve("Megacredit")
-        }
+        .single { it.change.removing?.let(game.reader::resolve) == p2.resolve("Megacredit") }
         .actor shouldBe p2.actor
   }
 
@@ -186,9 +182,7 @@ internal class MonsInsuranceTest : CardTest() {
     engine.phase("Action")
     p1.manual("$MonsInsurance, ProjectCard")
 
-    p1.playProject(HiredRaiders, 1) {
-          doTask("3 Megacredit<Me> FROM Megacredit<SoloOpponent>")
-        }
+    p1.playProject(HiredRaiders, 1) { doTask("3 Megacredit<Me> FROM Megacredit<SoloOpponent>") }
         .expect("-1 Megacredit<Me>")
     p1.manual("PROD[-2 Plant<SoloOpponent>]").expect("-3 Megacredit<Me>")
   }

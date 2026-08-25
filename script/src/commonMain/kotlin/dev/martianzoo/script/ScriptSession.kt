@@ -212,9 +212,7 @@ public class ScriptSession(
     val changes =
         result.changes
             .filterNot { isHidden(it, game.reader) }
-            .map { event ->
-              game.vocabulary.renderPets(event)
-            }
+            .map { event -> game.vocabulary.renderPets(event) }
 
     val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
@@ -235,9 +233,7 @@ public class ScriptSession(
   internal fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
       game.tasks
           .extract { it }
-          .filter {
-            it.assignee == gameplay.actor && (ids == null || it.id in ids)
-          }
+          .filter { it.assignee == gameplay.actor && (ids == null || it.id in ids) }
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
       selectableTasks(ids).map { task -> game.vocabulary.renderPets(task, displayId = null) }

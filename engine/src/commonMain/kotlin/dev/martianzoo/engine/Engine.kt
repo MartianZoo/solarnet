@@ -52,9 +52,7 @@ public object Engine {
     private val timeline = TimelineImpl(reader, components, events, taskQueues)
     private val limiter = Limiter(classTable, components)
     private val atomicOperationBoundary: AtomicOperationBoundary =
-        AtomicOperationBoundary(timeline) {
-          world.onAtomicComplete()
-        }
+        AtomicOperationBoundary(timeline) { world.onAtomicComplete() }
     private val changerByActor: Map<Actor, Changer> =
         premise.actors.associateWith { Changer(reader, components, events, it) }
     private val instructorByActor: Map<Actor, Instructor> =
@@ -118,9 +116,7 @@ public object Engine {
           }
           return if (classTable.isActive(representedClass.className)) 1 else 0
         }
-        require(count.expression.simple) {
-          "Module invariants must count a simple class: $count"
-        }
+        require(count.expression.simple) { "Module invariants must count a simple class: $count" }
         val type = classTable.findActiveClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
           !klass.abstract &&
@@ -143,21 +139,15 @@ public object Engine {
 
       premise.modules
           .flatMap { moduleName -> classTable.getClass(moduleName).invariants }
-          .filter { requirement ->
-            THIS !in requirement.descendantsOfType<ClassName>()
-          }
+          .filter { requirement -> THIS !in requirement.descendantsOfType<ClassName>() }
           .forEach { requirement ->
-            require(holds(requirement)) {
-              "game premise fails Module invariant: $requirement"
-            }
+            require(holds(requirement)) { "game premise fails Module invariant: $requirement" }
           }
 
       premise.modules.forEach { moduleName ->
         val property = classTable.getClass(moduleName).properties[PREMISE_REQUIREMENT]
         val requirement = (property as? RequirementValue)?.value ?: return@forEach
-        require(holds(requirement)) {
-          "game premise fails $moduleName requirement: $requirement"
-        }
+        require(holds(requirement)) { "game premise fails $moduleName requirement: $requirement" }
       }
     }
 

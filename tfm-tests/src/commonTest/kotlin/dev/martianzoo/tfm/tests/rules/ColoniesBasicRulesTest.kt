@@ -221,9 +221,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     p1.assertCounts(2 to "ColonyProduction<Luna>")
 
     // A Colony Tile may only hold 1 trade fleet at a time.
-    shouldThrow<LimitsException> {
-      p1.asPlayer(PLAYER2).godMode().manual("Trade<Luna>")
-    }
+    shouldThrow<LimitsException> { p1.asPlayer(PLAYER2).godMode().manual("Trade<Luna>") }
 
     // When the generation ends, all trade fleets move back from the Colony Tiles to the Trade
     // Fleets Tile, and all white markers moves 1 step up the Colony track.
@@ -241,8 +239,6 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   internal fun `trade fleet cannot be reused`() {
     p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
 
-    shouldThrow<LimitsException> {
-      p1.godMode().manual("Trade<Triton>")
-    }
+    shouldThrow<LimitsException> { p1.godMode().manual("Trade<Triton>") }
   }
 }

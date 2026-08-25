@@ -52,9 +52,7 @@ internal class ActionSequencingTest {
     p1.godMode().manual("$Steelworks, 4 Energy")
     game.tfm(ENGINE).phase("Action")
 
-    p1.godMode().manual("UseAction<$Steelworks, First>") {
-      p1.pay(energy = 4)
-    }
+    p1.godMode().manual("UseAction<$Steelworks, First>") { p1.pay(energy = 4) }
 
     p1.count("Steel") shouldBe 2
     p2.count("Steel") shouldBe 0

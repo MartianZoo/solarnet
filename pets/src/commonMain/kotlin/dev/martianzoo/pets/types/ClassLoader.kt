@@ -320,16 +320,12 @@ private constructor(
     declaration.invariants.forEach(::collectRequiredInhabitants)
     declaration.effects
         .filter { triggerReachable(it.trigger) }
-        .forEach {
-          collectInstruction(it.instruction)
-        }
+        .forEach { collectInstruction(it.instruction) }
     declaration.allNodes
         .flatMap { it.descendantsOfType<ClassName>() }
         .filter { it != THIS && it in knownClassNames && knownDeclaration(it).custom }
         .forEach(::add)
-    declaration.extraNodes.forEach { node ->
-      node.descendantsOfType<ClassName>().forEach(::add)
-    }
+    declaration.extraNodes.forEach { node -> node.descendantsOfType<ClassName>().forEach(::add) }
     if (declaration.custom) {
       addAll(catalog.customClass(declaration.className).requiredClassNames)
     }
@@ -469,9 +465,7 @@ private constructor(
         directSubclasses.getOrPut(superclass, ::linkedSetOf).add(subclass)
       }
     }
-    directSubclassesByClass = directSubclasses.mapValues { (_, subclasses) ->
-      subclasses.toSet()
-    }
+    directSubclassesByClass = directSubclasses.mapValues { (_, subclasses) -> subclasses.toSet() }
 
     frozen = true
     return this

@@ -251,9 +251,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green played Rotator Impacts
       playProject(RotatorImpacts, titanium = 2)
       // Green used Rotator Impacts action
-      cardAction1(RotatorImpacts) {
-        pay(6)
-      }
+      cardAction1(RotatorImpacts) { pay(6) }
       // Green added 1 Asteroid to Rotator Impacts
     }
     // Green passed
@@ -851,10 +849,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink placed Industrial Center tile at 62
       // Pink gained 2 heat
       // Pink gained 1 M€ for playing Industrial Center, which has exactly 1 tag.
-      playProject(IndustrialCenter, steel = 1) {
-            placeTile(9, 8)
-          }
-          .expect("2 Heat")
+      playProject(IndustrialCenter, steel = 1) { placeTile(9, 8) }.expect("2 Heat")
       // Pink used Convert Heat standard action
       convertHeat()
     }
@@ -1144,9 +1139,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink played Technology Demonstration
       // Pink drew 2 card(s)
       // You drew Toll Station,Fueled Generators
-      playProject(TechnologyDemonstration, titanium = 1) {
-        draw(TollStation, FueledGenerators)
-      }
+      playProject(TechnologyDemonstration, titanium = 1) { draw(TollStation, FueledGenerators) }
       // Pink funded Founder award
       stdAction("FundAwardSA", which = 3) { doTask("Founder") }.expect("Award")
     }
@@ -1161,9 +1154,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green placed Commercial District tile at 11
       // Green gained 1 plant
       // Green gained 1 steel
-      playProject(CommercialDistrict, 10, steel = 3) {
-        placeTile(2, 4)
-      }
+      playProject(CommercialDistrict, 10, steel = 3) { placeTile(2, 4) }
     }
     pink.turn {
       // Pink used Space Elevator action

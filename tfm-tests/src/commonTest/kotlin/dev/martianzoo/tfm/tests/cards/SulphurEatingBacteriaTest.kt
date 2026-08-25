@@ -25,9 +25,7 @@ internal class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   internal fun `Can convert three microbes into nine megacredits`() {
-    p1.cardAction2(SulphurEatingBacteria) {
-          doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9")
-        }
+    p1.cardAction2(SulphurEatingBacteria) { doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9") }
         .expect("-3 Microbe, 9")
   }
 
@@ -79,17 +77,13 @@ internal class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   internal fun `Can convert one microbe into three megacredits`() {
-    p1.cardAction2(SulphurEatingBacteria) {
-          doTask("-Microbe<$SulphurEatingBacteria> THEN 3")
-        }
+    p1.cardAction2(SulphurEatingBacteria) { doTask("-Microbe<$SulphurEatingBacteria> THEN 3") }
         .expect("-Microbe, 3")
   }
 
   @Test
   internal fun `Can convert all four microbes into twelve megacredits`() {
-    p1.cardAction2(SulphurEatingBacteria) {
-          doTask("-4 Microbe<$SulphurEatingBacteria> THEN 12")
-        }
+    p1.cardAction2(SulphurEatingBacteria) { doTask("-4 Microbe<$SulphurEatingBacteria> THEN 12") }
         .expect("-4 Microbe, 12")
   }
 

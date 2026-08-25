@@ -117,9 +117,7 @@ object TestHelpers {
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2
     val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
     TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
-        .filterNotTo(selected) {
-          it in selected
-        }
+        .filterNotTo(selected) { it in selected }
     return selected.take(count).toSet()
   }
 

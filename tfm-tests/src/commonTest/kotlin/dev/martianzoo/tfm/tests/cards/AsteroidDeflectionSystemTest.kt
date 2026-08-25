@@ -22,9 +22,7 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
         .expect("-Microbe<Player1, $Tardigrades<Player1>>")
     p1.manual("-Plant<Player1>").expect("-Plant")
 
-    p1.cardAction1(AsteroidDeflectionSystem) {
-      addCardResources(AsteroidDeflectionSystem)
-    }
+    p1.cardAction1(AsteroidDeflectionSystem) { addCardResources(AsteroidDeflectionSystem) }
     engine.phase("End")
     p1.assertCounts(21 to "VictoryPoint")
   }

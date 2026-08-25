@@ -117,9 +117,7 @@ private constructor(
     get() = data.immediate
 
   private val sourceImmediate: InstructionGroup? =
-      data.immediate?.let {
-        InstructionGroup.of(parseOwned<InstructionTree>(it))
-      }
+      data.immediate?.let { InstructionGroup.of(parseOwned<InstructionTree>(it)) }
 
   public val immediate: InstructionGroup?
     get() = loadedClass?.loadedImmediate() ?: sourceImmediate
@@ -154,9 +152,9 @@ private constructor(
   /** The card's non-negative cost in megacredits. */
   public val cost: Int
     get() =
-        loadedClass?.properties?.get(COST_PROPERTY)?.let { value ->
-          (value as NumberValue).value
-        } ?: projectInfo?.cost ?: 0
+        loadedClass?.properties?.get(COST_PROPERTY)?.let { value -> (value as NumberValue).value }
+            ?: projectInfo?.cost
+            ?: 0
 
   /** Extra information that only project cards have. */
   internal class ProjectInfo internal constructor(data: CardData, requirement: Requirement?) {
@@ -197,9 +195,7 @@ private constructor(
   internal val executableExtraClasses: List<ClassDeclaration> =
       extraClasses.map(FollowModeNeutralizer::neutralize)
 
-  public val asClassDeclaration: ClassDeclaration by lazy {
-    toClassDeclaration(sourceResourceType)
-  }
+  public val asClassDeclaration: ClassDeclaration by lazy { toClassDeclaration(sourceResourceType) }
 
   internal fun toClassDeclaration(resourceType: ClassName?): ClassDeclaration {
     return loadedClass?.declaration
@@ -298,14 +294,10 @@ private constructor(
     val instructions =
         loadedNonActionEffects()
             .filter { !it.automatic && it.trigger == WhenGain }
-            .map {
-              it.instruction
-            }
+            .map { it.instruction }
     return instructions
         .takeIf { it.isNotEmpty() }
-        ?.let {
-          InstructionGroup.of(InstructionGroup.createTree(it))
-        }
+        ?.let { InstructionGroup.of(InstructionGroup.createTree(it)) }
   }
 
   private fun PetClass.loadedAuthoredEffects(): List<Effect> =
@@ -398,9 +390,7 @@ private constructor(
     val acceptsFromThis =
         sourceEffects
             .flatMap { it.instruction.descendantsOfType<Gain>() }
-            .any {
-              it.gaining.className == ACCEPT_FROM_CARD && isHeldByCard(it.gaining)
-            }
+            .any { it.gaining.className == ACCEPT_FROM_CARD && isHeldByCard(it.gaining) }
     if (acceptsFromThis) {
       val stocked =
           (sourceActions.flatMap { it.instruction.descendantsOfType<Gain>() } +

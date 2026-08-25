@@ -253,9 +253,7 @@ public data class Type(
   }
 
   private fun requireSameClassTable(that: Type) {
-    require(classTable === that.classTable) {
-      "$this and $that belong to different class tables"
-    }
+    require(classTable === that.classTable) { "$this and $that belong to different class tables" }
   }
 
   private fun formRequirement(narrow: Expression, wide: Expression): Requirement {

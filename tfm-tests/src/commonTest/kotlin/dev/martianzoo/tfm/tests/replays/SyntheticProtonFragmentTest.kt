@@ -86,9 +86,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     }
 
     dad.turn {
-      playPrelude(Merger) {
-        doTask("PlayCard<Class<CorporationCard>, Class<$Inventrix>>")
-      }
+      playPrelude(Merger) { doTask("PlayCard<Class<CorporationCard>, Class<$Inventrix>>") }
       playPrelude(MoholeExcavation).expect("PROD[Steel, 2 Heat], 2 Heat")
     }
 
@@ -128,11 +126,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.buyCards(MedicalLab, AiCentral, AsteroidRights)
 
     ellie.playProject(MediaGroup, 4)
-    ellie
-        .playProject(Sabotage, 0) {
-          doTask("-7 Megacredit<Player1>")
-        }
-        .expect("3")
+    ellie.playProject(Sabotage, 0) { doTask("-7 Megacredit<Player1>") }.expect("3")
 
     dad.playProject(AsteroidRights, 2, titanium = 2)
     dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
@@ -145,9 +139,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     ellie.playProject(SolarWindPower, 6, titanium = 1).expect("PROD[Energy], Titanium")
     ellie
-        .playProject(HiredRaiders, 0) {
-          doTask("3 Megacredit<Player2> FROM Megacredit<Player3>")
-        }
+        .playProject(HiredRaiders, 0) { doTask("3 Megacredit<Player2> FROM Megacredit<Player3>") }
         .expect("6")
 
     dad.playProject(Archaebacteria, 6)
@@ -158,9 +150,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }
     // (Dad already passed early)
     dad.pass()
-    ellie.playProject(MiningRights, 5, steel = 1) {
-      placeTile(8, 8)
-    }
+    ellie.playProject(MiningRights, 5, steel = 1) { placeTile(8, 8) }
     ellie.playProject(DirectedImpactors, 3, titanium = 1)
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(6)
@@ -192,9 +182,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     shouldThrow<RequirementException> {
       dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
     }
-    dad.playProject(CorporateStronghold, 7, steel = 2) {
-          placeTile(2, 4)
-        }
+    dad.playProject(CorporateStronghold, 7, steel = 2) { placeTile(2, 4) }
         .expect("Disease<Player1>")
     mom.assertCounts(7 to "Plant")
     dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
@@ -204,9 +192,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
     }
     mom.assertCounts(8 to "Plant")
-    mom.convertPlants {
-      placeTile(1, 2)
-    }
+    mom.convertPlants { placeTile(1, 2) }
 
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(titanium = 2)
@@ -215,10 +201,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.declineSecondAction()
     dad.pass()
 
-    mom.playProject(EcologicalZone, 12) {
-          placeTile(1, 3)
-        }
-        .expect("2 Plant")
+    mom.playProject(EcologicalZone, 12) { placeTile(1, 3) }.expect("2 Plant")
     mom.convertHeat()
     // (Ellie already passed early)
     ellie.pass()
@@ -235,12 +218,8 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.buyCards(TollStation, NaturalPreserve)
     dad.buyCards(LunarBeam, WeatherBalloons)
 
-    mom.stdProject("AquiferSP") {
-      placeTile(2, 1)
-    }
-    mom.convertPlants {
-      placeTile(3, 3)
-    }
+    mom.stdProject("AquiferSP") { placeTile(2, 1) }
+    mom.convertPlants { placeTile(3, 3) }
 
     ellie.convertHeat()
     ellie
@@ -279,9 +258,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.playProject(MercurianAlloys, 3)
 
     mom.cardAction1(Hospitals)
-    mom.playProject(Psychrophiles, 2) {
-          addCardResources(Psychrophiles)
-        }
+    mom.playProject(Psychrophiles, 2) { addCardResources(Psychrophiles) }
         .expect("2 Megacredit<Player3>")
 
     ellie.playProject(Mine, steel = 1)
@@ -306,16 +283,12 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.buyCards(AntiGravityTechnology, Hackers, CallistoPenalMines)
 
     // Ellie does not meet Tycoon before Hermetic Order of Mars enters play.
-    shouldThrow<RequirementException> {
-      ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
-    }
+    shouldThrow<RequirementException> { ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") } }
     ellie.playProject(HermeticOrderOfMars, 8).expect("PROD[2], -2")
     ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
 
     dad.playProject(Ants, 9) { doTask("2") }
-    dad.cardAction1(Ants) {
-      doTask("-Microbe<Player1, $Recyclon<Player1>>")
-    }
+    dad.cardAction1(Ants) { doTask("-Microbe<Player1, $Recyclon<Player1>>") }
 
     mom.cardAction1(Psychrophiles)
     mom.stdProject("PowerPlantSP")
@@ -327,9 +300,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.cardAction1(WeatherBalloons)
 
     mom.playProject(TollStation, 12).expect("PROD[7]")
-    mom.convertPlants {
-      placeTile(4, 4)
-    }
+    mom.convertPlants { placeTile(4, 4) }
 
     ellie.playProject(BribedCommittee, 5)
     // Test inference: the log gives only the count; Meat Industry is never played later.
@@ -351,9 +322,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.pass()
     // (Ellie already passed early)
     ellie.pass()
-    dad.convertPlants {
-      placeTile(1, 4)
-    }
+    dad.convertPlants { placeTile(1, 4) }
     dad.doTask("Pass")
 
     // Game20260811-dashboards-gen6.png was taken before cards were bought.
@@ -367,12 +336,8 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.buyCards(FusionPower, ViralEnhancers)
     ellie.buyCards(RadChemFactory, SaturnSurfing, IoMiningIndustries)
 
-    dad.playProject(CupolaCity, 10, steel = 3) {
-      placeTile(4, 3)
-    }
-    dad.cardAction1(Ants) {
-      doTask("-Microbe<Player1, $Psychrophiles<Player1>>")
-    }
+    dad.playProject(CupolaCity, 10, steel = 3) { placeTile(4, 3) }
+    dad.cardAction1(Ants) { doTask("-Microbe<Player1, $Psychrophiles<Player1>>") }
 
     mom.stdAction("ClaimMilestoneSA") { doTask("Trader") }
     mom.playProject(ProtectedValley, 9, steel = 5) {
@@ -381,36 +346,26 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         }
         .expect("2 Plant, -5 Steel")
 
-    ellie.playProject(LavaFlows, 16) {
-      placeTile(2, 2)
-    }
-    ellie.convertPlants {
-      placeTile(8, 7)
-    }
+    ellie.playProject(LavaFlows, 16) { placeTile(2, 2) }
+    ellie.convertPlants { placeTile(8, 7) }
 
     dad.cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
     dad.playProject(Hackers, 3) { doTask("PROD[-2 Megacredit<Player2>]") }
 
     mom.convertHeat()
-    mom.stdProject("AquiferSP") {
-      placeTile(4, 7)
-    }
+    mom.stdProject("AquiferSP") { placeTile(4, 7) }
 
     ellie.convertHeat()
     ellie.cardAction1(RobinsonIndustries) { doTask("PROD[Plant]") }
 
     // The temperature is now too high for Designed Microorganisms.
-    shouldThrow<RequirementException> {
-      dad.playProject(DesignedMicroorganisms, 9)
-    }
+    shouldThrow<RequirementException> { dad.playProject(DesignedMicroorganisms, 9) }
     // Viral Enhancers reacts to its own tag.
     dad.playProject(ViralEnhancers, 9).expect("Plant")
     dad.cardAction2(WeatherBalloons)
 
     mom.cardAction1(Psychrophiles)
-    mom.convertPlants {
-      placeTile(3, 6)
-    }
+    mom.convertPlants { placeTile(3, 6) }
 
     ellie.cardAction2(DirectedImpactors)
     ellie.playProject(RadChemFactory, megacredits = 0, steel = 3)
@@ -431,19 +386,13 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.buyCards(Supercapacitors)
     dad.buyCards(Algae, BactoviralResearch)
 
-    mom.stdProject("CitySP") {
-      placeTile(4, 5)
-    }
-    mom.convertPlants {
-      placeTile(5, 5)
-    }
+    mom.stdProject("CitySP") { placeTile(4, 5) }
+    mom.convertPlants { placeTile(5, 5) }
 
     ellie.cardAction1(RobinsonIndustries)
     ellie.playProject(DuskLaserMining, titanium = 2).expect("PROD[Titanium, -Energy], 2 Titanium")
 
-    dad.cardAction1(Ants) {
-      doTask("-Microbe<Player1, $Recyclon<Player1>>")
-    }
+    dad.cardAction1(Ants) { doTask("-Microbe<Player1, $Recyclon<Player1>>") }
     dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
     mom.cardAction1(Psychrophiles)
@@ -455,9 +404,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       doTask("-3 Plant<Player3>")
     }
     dad.stdProject("AsteroidSP")
-    dad.convertHeat() {
-      placeTile(3, 1)
-    }
+    dad.convertHeat() { placeTile(3, 1) }
 
     mom.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
     mom.playProject(ImportedNutrients, 14) {
@@ -471,10 +418,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.playProject(SterlingVents, 1, steel = 2).expect("PROD[2 Energy, -2 Heat]")
     dad.playProject(Algae, 10).expect("PROD[2 Plant], 2 Plant")
 
-    mom.playProject(Supercapacitors, 4) {
-          doTask("-2 Microbe<$Recyclon>")
-        }
-        .expect("PROD[1, Plant]")
+    mom.playProject(Supercapacitors, 4) { doTask("-2 Microbe<$Recyclon>") }.expect("PROD[1, Plant]")
     mom.cardAction1(Hospitals)
 
     ellie.playProject(IoMiningIndustries, 12, titanium = 9).expect("PROD[2, 2 Titanium]")
@@ -489,9 +433,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     mom.pass()
     ellie.pass()
-    dad.convertPlants {
-      placeTile(3, 2)
-    }
+    dad.convertPlants { placeTile(3, 2) }
     dad.cardAction1(WeatherBalloons)
     dad.doTask("Pass")
 
@@ -508,18 +450,14 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.buyCards(EnergyTapping, InventionContest, FieldCappedCity)
     ellie.convertHeat()
     ellie.cardAction2(DirectedImpactors)
-    dad.cardAction1(Ants) {
-      doTask("-Microbe<Player1, $Recyclon<Player1>>")
-    }
+    dad.cardAction1(Ants) { doTask("-Microbe<Player1, $Recyclon<Player1>>") }
     dad.stdAction("FundAwardSA", which = 2) { doTask("Forecaster") }
 
     mom.stdProject("AquiferSP") {
       placeTile(5, 6)
       mom.draw(ProjectInspection)
     }
-    mom.convertPlants {
-      placeTile(6, 6)
-    }
+    mom.convertPlants { placeTile(6, 6) }
 
     ellie
         .playProject(LakeMarineris, 16) {
@@ -527,11 +465,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
           doTask("OceanTile<Hellas_5_7>")
         }
         .expect("Plant, -6, 3 Heat")
-    ellie
-        .playProject(MiningExpedition, 10) {
-          doTask("-2 Plant<Player3>")
-        }
-        .expect("2 Steel, -7")
+    ellie.playProject(MiningExpedition, 10) { doTask("-2 Plant<Player3>") }.expect("2 Steel, -7")
 
     dad.playProject(IceAsteroid, 15, titanium = 2) {
           dad.draw(RobotPollinators)
@@ -568,14 +502,10 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.playProject(SaturnSurfing, 11).expect("3 Floater")
 
     dad.playProject(RobotPollinators, 9)
-    dad.convertPlants {
-      placeTile(4, 2)
-    }
+    dad.convertPlants { placeTile(4, 2) }
 
     mom.playProject(InventionContest, 2) { mom.draw(WaterImportFromEuropa) }
-    mom.playProject(ProjectInspection, megacredits = 0) {
-      doTask("UseAction<$Hospitals, First>")
-    }
+    mom.playProject(ProjectInspection, megacredits = 0) { doTask("UseAction<$Hospitals, First>") }
 
     ellie.cardAction1(SaturnSurfing)
     ellie.declineSecondAction()
@@ -612,12 +542,8 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.buyCards(ProtectedHabitats, PhysicsComplex, AdaptedLichen)
     ellie.buyCards(HousePrinting, BeamFromAThoriumAsteroid)
 
-    dad.stdProject("GreenerySP") {
-      placeTile(2, 5)
-    }
-    dad.convertPlants {
-      placeTile(5, 3)
-    }
+    dad.stdProject("GreenerySP") { placeTile(2, 5) }
+    dad.convertPlants { placeTile(5, 3) }
 
     mom.convertPlants {
           placeTile(7, 6)
@@ -626,11 +552,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         .expect("0 TerraformRating")
     mom.playProject(ProtectedHabitats, 5)
 
-    ellie
-        .stdProject("CitySP") {
-          placeTile(7, 7)
-        }
-        .expect("Disease<Player1>")
+    ellie.stdProject("CitySP") { placeTile(7, 7) }.expect("Disease<Player1>")
     ellie.playProject(HousePrinting, steel = 4)
 
     dad.playProject(TechnologyDemonstration, 1, titanium = 1) {
@@ -676,9 +598,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     // Test inference: the log gives only the count; none of these cards is played later.
     mom.sellPatents(WaterImportFromEuropa, PhysicsComplex, LightningHarvest)
-    mom.stdProject("CitySP") {
-      placeTile(1, 5)
-    }
+    mom.stdProject("CitySP") { placeTile(1, 5) }
 
     // Test inference: the log gives only the count; Methane From Titan is never played later.
     ellie.sellPatents(MethaneFromTitan)

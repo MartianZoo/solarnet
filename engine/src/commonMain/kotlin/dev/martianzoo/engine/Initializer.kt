@@ -137,9 +137,7 @@ internal class Initializer(
         if (
             (moduleSourcesByTarget[type.className].orEmpty() +
                     sourcesByConstructiveType[type].orEmpty())
-                .any { source ->
-                  gameplay.count("$source") == 0
-                }
+                .any { source -> gameplay.count("$source") == 0 }
         ) {
           continue
         }

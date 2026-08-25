@@ -382,9 +382,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       // Been placed Mining Rights tile at 38
       // Been gained 1 titanium
       // Been ended turn
-      playProject(MiningRights, 9) {
-        placeTile(6, 2)
-      }
+      playProject(MiningRights, 9) { placeTile(6, 2) }
     }
     // Keen spent 2 M€ as payment
     // Keen played Research Coordination

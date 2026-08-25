@@ -30,9 +30,7 @@ private object ColoniesExpansion {
       val fleetInstructions =
           reader
               .getComponents("Player")
-              .map { player ->
-                gain(RESERVE_TRADE_FLEET.of(player.expression))
-              }
+              .map { player -> gain(RESERVE_TRADE_FLEET.of(player.expression)) }
               .toList()
       return Then.create(fleetInstructions)
     }

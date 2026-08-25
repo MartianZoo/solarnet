@@ -62,15 +62,9 @@ internal class CustomMetricTest {
   internal fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
-    shouldThrow<ExpressionException> {
-      p1.godMode().manual("ConcreteOnlyMetric<Player1>")
-    }
-    shouldThrow<ExpressionException> {
-      p1.godMode().sneak("ConcreteOnlyMetric<Player1>")
-    }
-    shouldThrow<ExpressionException> {
-      p1.godMode().sneak("-ConcreteOnlyMetric<Player1>")
-    }
+    shouldThrow<ExpressionException> { p1.godMode().manual("ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.godMode().sneak("ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.godMode().sneak("-ConcreteOnlyMetric<Player1>") }
   }
 
   @Test

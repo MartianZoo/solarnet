@@ -49,9 +49,7 @@ internal object SampleGames {
     engine.nextGeneration(2, 2)
 
     p2.cardAction2(cn("Factorum"))
-    p2.playProject(cn("MarsUniversity"), 6, steel = 1) {
-      doTask("-ProjectCard")
-    }
+    p2.playProject(cn("MarsUniversity"), 6, steel = 1) { doTask("-ProjectCard") }
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p1.playProject(cn("EarthOffice"), 1)
     p2.cardAction2(cn("RotatorImpacts"))
@@ -71,9 +69,7 @@ internal object SampleGames {
     p2.playProject(cn("AsteroidCard"), 2, steel = 0, titanium = 4) { doTask("Ok") }
     p1.playProject(cn("CorporateStronghold"), 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
     p1.playProject(cn("OptimalAerobraking"), 7)
-    p2.playProject(cn("TransNeptuneProbe"), 0, titanium = 2) {
-      doTask("-ProjectCard")
-    }
+    p2.playProject(cn("TransNeptuneProbe"), 0, titanium = 2) { doTask("-ProjectCard") }
     p2.cardAction1(cn("RotatorImpacts")) { p2.pay(6) }
     p1.cardAction2(cn("DeuteriumExport"))
     p1.playProject(cn("ImportedGhg"), 4)
@@ -89,9 +85,7 @@ internal object SampleGames {
       p2.pay(8)
       doTask("OceanTile<Tharsis_2_6>")
     }
-    p2.playProject(cn("SearchForLife"), 3) {
-      doTask("-ProjectCard")
-    }
+    p2.playProject(cn("SearchForLife"), 3) { doTask("-ProjectCard") }
     p1.cardAction1(cn("DeuteriumExport"))
     p1.playProject(cn("TectonicStressPower"), 12, steel = 3)
     p2.cardAction2(cn("RotatorImpacts"))
@@ -128,9 +122,7 @@ internal object SampleGames {
     if (gens-- == 0) return game
     engine.nextGeneration(4, 2)
 
-    p2.convertPlants {
-      doTask("GreeneryTile<Tharsis_8_7>")
-    }
+    p2.convertPlants { doTask("GreeneryTile<Tharsis_8_7>") }
     p2.cardAction2(cn("Factorum"))
     p1.cardAction1(cn("DevelopmentCenter"))
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
@@ -168,9 +160,7 @@ internal object SampleGames {
     p1.stdAction("ClaimMilestoneSA") { doTask("Builder8") }
     p1.cardAction1(cn("DevelopmentCenter"))
     p2.playProject(cn("EarthCatapult"), 23)
-    p2.playProject(cn("InventionContest"), 0) {
-      doTask("-ProjectCard")
-    }
+    p2.playProject(cn("InventionContest"), 0) { doTask("-ProjectCard") }
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(0) }
     p1.playProject(cn("QuantumExtractor"), 13)
     p2.playProject(cn("BioPrintingFacility"), 1, steel = 2)
@@ -189,12 +179,8 @@ internal object SampleGames {
     if (gens-- == 0) return game
     engine.nextGeneration(2, 2)
 
-    p2.playProject(cn("AdvancedAlloys"), 7) {
-      doTask("-ProjectCard")
-    }
-    p2.playProject(cn("AiCentral"), 13, steel = 2) {
-      doTask("-ProjectCard")
-    }
+    p2.playProject(cn("AdvancedAlloys"), 7) { doTask("-ProjectCard") }
+    p2.playProject(cn("AiCentral"), 13, steel = 2) { doTask("-ProjectCard") }
     p1.playProject(cn("ExtractorBalloons"), 21)
     p1.cardAction1(cn("DevelopmentCenter"))
     p2.cardAction1(cn("AiCentral"))
@@ -209,16 +195,12 @@ internal object SampleGames {
     p1.playProject(cn("MoholeLake"), 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
     p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }
     p2.convertHeat()
-    p2.convertPlants {
-      doTask("GreeneryTile<Tharsis_8_6>")
-    }
+    p2.convertPlants { doTask("GreeneryTile<Tharsis_8_6>") }
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p1.cardAction1(cn("DeuteriumExport"))
     p2.cardAction1(cn("BioPrintingFacility")) { doTask("2 Plant") }
     p1.convertHeat()
-    p1.convertPlants {
-      doTask("GreeneryTile<Tharsis_3_5>")
-    }
+    p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
     p1.cardAction1(cn("StratosphericBirds"))
     p1.cardAction1(cn("MoholeLake")) { doTask("Animal<StratosphericBirds>") }
 
@@ -239,9 +221,7 @@ internal object SampleGames {
       p2.pay(steel = 3)
       doTask("OceanTile<Tharsis_5_6>")
     }
-    p2.convertPlants {
-      doTask("GreeneryTile<Tharsis_9_7>")
-    }
+    p2.convertPlants { doTask("GreeneryTile<Tharsis_9_7>") }
     p1.playProject(cn("RegoPlastics"), 10)
     p1.playProject(cn("SfMemorial"), 1, steel = 2)
     p2.stdAction("ClaimMilestoneSA") { doTask("Gardener") }

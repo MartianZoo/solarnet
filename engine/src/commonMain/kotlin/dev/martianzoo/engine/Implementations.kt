@@ -203,9 +203,7 @@ internal class Implementations(
    * automatically enqueued.
    */
   private fun handleTask(queue: TaskQueue, task: Task) {
-    task.then?.let {
-      queue.queueFor(task.assignee).addTasks(it, task.cause, task.actor)
-    }
+    task.then?.let { queue.queueFor(task.assignee).addTasks(it, task.cause, task.actor) }
     queue.removeTask(task.id)
   }
 
@@ -541,9 +539,7 @@ internal class Implementations(
 
   internal fun tryTask(id: TaskId) {
     try {
-      timeline.atomic {
-        doTask(id)
-      }
+      timeline.atomic { doTask(id) }
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {

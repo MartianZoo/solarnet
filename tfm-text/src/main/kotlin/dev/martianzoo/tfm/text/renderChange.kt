@@ -290,9 +290,7 @@ private fun renderCountableChange(
   val player =
       resolved
           .sourceDependency(ownerKey)
-          ?.takeIf {
-            resolved.sourceDependencies.size == 1
-          }
+          ?.takeIf { resolved.sourceDependencies.size == 1 }
           ?.let { describers.renderEligiblePlayer(it) }
   if (player != null && removal.intensity.modality() == Modality.OPTIONAL) {
     val noun = describers.componentNoun(expression.className, count)

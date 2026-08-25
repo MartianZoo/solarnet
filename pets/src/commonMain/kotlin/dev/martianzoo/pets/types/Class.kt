@@ -245,9 +245,7 @@ internal constructor(
 
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
-  private val allSubclasses: Set<Class> by lazy {
-    loader.properSubclassesOf(this) + this
-  }
+  private val allSubclasses: Set<Class> by lazy { loader.properSubclassesOf(this) + this }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   public fun allSubclasses(): Set<Class> = allSubclasses

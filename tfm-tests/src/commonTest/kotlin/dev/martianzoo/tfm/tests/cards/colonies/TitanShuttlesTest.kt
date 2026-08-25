@@ -9,9 +9,7 @@ internal class TitanShuttlesTest : ColoniesCardTest() {
   @Test
   internal fun `Can convert five floaters into five titanium`() {
     initializeCard()
-    p1.cardAction2(TitanShuttles) {
-          doTask("-5 Floater<$TitanShuttles> THEN 5 Titanium")
-        }
+    p1.cardAction2(TitanShuttles) { doTask("-5 Floater<$TitanShuttles> THEN 5 Titanium") }
         .expect("-5 Floater<$TitanShuttles>, 5 Titanium")
   }
 
@@ -20,9 +18,7 @@ internal class TitanShuttlesTest : ColoniesCardTest() {
     initializeCard()
 
     p1.cardAction2(TitanShuttles) {
-      shouldThrow<NarrowingException> {
-        doTask("-4 Floater<$TitanShuttles> THEN 5 Titanium")
-      }
+      shouldThrow<NarrowingException> { doTask("-4 Floater<$TitanShuttles> THEN 5 Titanium") }
       abort()
     }
   }

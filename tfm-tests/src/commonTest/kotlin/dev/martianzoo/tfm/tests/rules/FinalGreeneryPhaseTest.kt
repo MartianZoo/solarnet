@@ -28,9 +28,7 @@ internal class FinalGreeneryPhaseTest {
     game.tfm(PLAYER2).playCorp(TharsisRepublic, 0)
     p1.godMode().sneak("8 Plant")
 
-    p1.convertPlants {
-      doTask("GreeneryTile<Tharsis_3_6>")
-    }
+    p1.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
 
     engine.oxygenPercent() shouldBe 1
     workflow.shutdown()

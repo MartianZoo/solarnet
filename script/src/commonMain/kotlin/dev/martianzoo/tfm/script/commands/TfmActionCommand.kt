@@ -154,9 +154,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val supplied = directRemoval.scaledEx.scalar.toString().toInt()
     val authored = variableCost.scaledEx.scalar.toString()
     val authoredMultiple = authored.removeSuffix("X").ifEmpty { "1" }.toInt()
-    check(supplied % authoredMultiple == 0) {
-      "$supplied isn't a multiple of $authoredMultiple"
-    }
+    check(supplied % authoredMultiple == 0) { "$supplied isn't a multiple of $authoredMultiple" }
     val x = supplied / authoredMultiple
     return bindXTo(x).transformInstruction(task)
   }
@@ -170,7 +168,5 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
           .canonicalize(Parsing.parse<InstructionTree>(payment))
           .let(InstructionGroup::of)
           .instructions
-          .map {
-            it as? Gain ?: throw UsageException("payment must contain positive resources")
-          }
+          .map { it as? Gain ?: throw UsageException("payment must contain positive resources") }
 }

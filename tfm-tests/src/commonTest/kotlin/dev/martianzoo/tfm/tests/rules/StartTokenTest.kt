@@ -57,9 +57,7 @@ internal class StartTokenTest {
     engine.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
 
     // This area neighbors the first city, but not the selected second city.
-    shouldThrow<NarrowingException> {
-      engine.doTask("GreeneryTile<Tharsis_3_1, SoloOpponent>")
-    }
+    shouldThrow<NarrowingException> { engine.doTask("GreeneryTile<Tharsis_3_1, SoloOpponent>") }
   }
 
   @Test

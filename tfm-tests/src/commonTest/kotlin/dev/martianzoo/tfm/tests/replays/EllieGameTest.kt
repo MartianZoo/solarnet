@@ -162,8 +162,6 @@ internal class EllieGameTest : AbstractFullGameTest() {
       playProject(Sabotage, 1) { doTask("-7 M<Player2>") }
     }
 
-    p2.turn {
-      playProject(Research, 11)
-    }
+    p2.turn { playProject(Research, 11) }
   }
 }

@@ -143,9 +143,7 @@ internal class CatalogTest {
           override val explicitClassDeclarations = declarations
         }
 
-    shouldThrow<IllegalArgumentException> {
-      TfmCatalog.compose(first, second).modules
-    }
+    shouldThrow<IllegalArgumentException> { TfmCatalog.compose(first, second).modules }
   }
 
   @Test
@@ -331,9 +329,7 @@ internal class CatalogTest {
             cardBundle("SecondCards", second),
         )
 
-    shouldThrow<IllegalArgumentException> {
-      source.gamePremise(GameConfig("First, Second"))
-    }
+    shouldThrow<IllegalArgumentException> { source.gamePremise(GameConfig("First, Second")) }
   }
 
   @Test

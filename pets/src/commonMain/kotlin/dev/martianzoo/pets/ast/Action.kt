@@ -146,10 +146,7 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
                     if (gate == null) cost else Gated(gate, cost)
                   }
 
-          commaSeparated(gatedCost) map
-              {
-                if (it.size == 1) it.first() else Multi(it)
-              }
+          commaSeparated(gatedCost) map { if (it.size == 1) it.first() else Multi(it) }
         }
       }
     }

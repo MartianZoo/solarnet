@@ -191,7 +191,5 @@ internal class BugsTest : CardTest() {
   private fun philaresReward(): Task =
       game.tasks
           .extract { it }
-          .single {
-            it.instruction.toString().startsWith("StandardResource<Player2>")
-          }
+          .single { it.instruction.toString().startsWith("StandardResource<Player2>") }
 }

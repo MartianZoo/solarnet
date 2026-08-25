@@ -13,8 +13,6 @@ internal class StateChangeTest {
 
     assertFails { valid.copy(count = 0) }
     assertFails { valid.copy(gaining = null, removing = null) }
-    assertFails {
-      valid.copy(gaining = cn("Same").expression, removing = cn("Same").expression)
-    }
+    assertFails { valid.copy(gaining = cn("Same").expression, removing = cn("Same").expression) }
   }
 }

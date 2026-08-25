@@ -102,10 +102,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       convertHeat().expect("PROD[Heat]")
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
-      convertPlants {
-            placeTile(6, 3)
-          }
-          .expect("-6 Plant, TR")
+      convertPlants { placeTile(6, 3) }.expect("-6 Plant, TR")
 
       playProject(MineralDeposit, 5)
       playProject(FieldCappedCity, 5, steel = 8) { placeTile(7, 4) }
@@ -138,9 +135,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
         doTask("OceanTile<Tharsis_5_4>")
         doTask("OceanTile<Tharsis_5_6>")
       }
-      convertPlants {
-        placeTile(6, 4)
-      }
+      convertPlants { placeTile(6, 4) }
       playProject(MagneticShield, 22)
 
       nextRound("OxygenStep", 3)
@@ -165,9 +160,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       sellPatents(3)
-      convertPlants {
-        placeTile(8, 7)
-      }
+      convertPlants { placeTile(8, 7) }
       playProject(PermafrostExtraction, 7) { placeTile(9, 9) }
 
       nextRound("OxygenStep", 2)
@@ -193,9 +186,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       cardAction2(GhgProducingBacteria) { placeTile(1, 2) }
 
       playProject(ArtificialLake, 2, steel = 4) { placeTile(6, 6) }
-      convertPlants {
-        placeTile(5, 2)
-      }
+      convertPlants { placeTile(5, 2) }
 
       playProject(RefugeeCamps, 9)
       cardAction1(RefugeeCamps)
@@ -219,9 +210,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science<$OlympusConference>") }
       stdProject("CitySP") { placeTile(6, 5) }
       playProject(UrbanizedArea, steel = 3) { placeTile(7, 5) }
-      convertPlants {
-        placeTile(8, 5)
-      }
+      convertPlants { placeTile(8, 5) }
       cardAction1(SubZeroSaltFish)
       cardAction1(GhgProducingBacteria)
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
@@ -255,9 +244,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playProject(SpacePort, 3, steel = 6) { placeTile(6, 2) }
       sellPatents(1)
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
-      convertPlants {
-        placeTile(7, 6)
-      }
+      convertPlants { placeTile(7, 6) }
       stdProject("GreenerySP") { placeTile(7, 3) }
       stdProject("AirScrappingSP")
 

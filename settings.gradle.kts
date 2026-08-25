@@ -2,9 +2,7 @@ pluginManagement { includeBuild("gradle/build-logic") }
 
 // Enable Build Scans
 // https://docs.gradle.org/current/userguide/github-actions.html#enable_build_scan_publishing
-plugins {
-  id("com.gradle.develocity") version ("4.2.2")
-}
+plugins { id("com.gradle.develocity") version ("4.2.2") }
 
 develocity {
   buildScan {

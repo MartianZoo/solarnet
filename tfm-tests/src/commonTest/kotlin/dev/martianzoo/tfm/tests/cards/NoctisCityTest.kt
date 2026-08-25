@@ -12,10 +12,7 @@ internal class NoctisCityTest : CardTest() {
   internal fun `Can be placed anywhere on Hellas`() {
     newGame(Hellas)
     p1.manual("PROD[Energy]")
-    p1.manual("$NoctisCity") {
-          placeTile(1, 3)
-        }
-        .expect("PROD[3 Megacredit, -Energy]")
+    p1.manual("$NoctisCity") { placeTile(1, 3) }.expect("PROD[3 Megacredit, -Energy]")
   }
 
   @Test

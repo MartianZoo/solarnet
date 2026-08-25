@@ -123,9 +123,7 @@ internal class GamePremiseTest {
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("TypoOption, VenusNextExpansion", "Player1"))
     }
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(GameConfig("VenusNextExpansion"))
-    }
+    shouldThrow<IllegalArgumentException> { Canon.gamePremise(GameConfig("VenusNextExpansion")) }
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("Mom, Ellie, VenusNextExpansion", "Player1"))
     }

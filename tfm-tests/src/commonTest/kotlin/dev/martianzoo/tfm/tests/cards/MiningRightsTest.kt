@@ -49,8 +49,6 @@ internal class MiningRightsTest : CardTest() {
   @Test
   internal fun `Cannot select a card-bonus area`() {
     newGame()
-    shouldThrow<NotNowException> {
-      p1.manual("$MiningRights") { placeTile(2, 1) }
-    }
+    shouldThrow<NotNowException> { p1.manual("$MiningRights") { placeTile(2, 1) } }
   }
 }

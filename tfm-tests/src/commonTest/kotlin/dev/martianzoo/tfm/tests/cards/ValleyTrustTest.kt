@@ -23,9 +23,7 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22")
 
     engine.phase("Action")
-    p1.stdAction("HandleMandates") {
-          p1.playPrelude(MartianIndustries)
-        }
+    p1.stdAction("HandleMandates") { p1.playPrelude(MartianIndustries) }
         .expect("PROD[Steel, Energy]")
   }
 

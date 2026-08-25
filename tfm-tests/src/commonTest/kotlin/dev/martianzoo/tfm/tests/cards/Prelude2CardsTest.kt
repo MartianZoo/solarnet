@@ -224,9 +224,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.manual("$Spire, Science<$Spire>")
 
     shouldThrow<TaskException> {
-      p1.manual("10 Owed<>") {
-        doTask("PayFromCard<$Spire> FROM Science<$Spire>")
-      }
+      p1.manual("10 Owed<>") { doTask("PayFromCard<$Spire> FROM Science<$Spire>") }
     }
   }
 

@@ -102,9 +102,7 @@ public class TfmGameplay(
       tasks
           .extract { it }
           .any { task ->
-            task.instruction.toString().let {
-              it.startsWith("Invoice<") && "BuyCards" in it
-            }
+            task.instruction.toString().let { it.startsWith("Invoice<") && "BuyCards" in it }
           }
 
   public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
@@ -147,9 +145,7 @@ public class TfmGameplay(
   public fun stdAction(
       stdAction: String,
       which: Int = 1,
-      payment: BodyLambda = {
-        payInvoiceFromItsResourceIfOffered()
-      },
+      payment: BodyLambda = { payInvoiceFromItsResourceIfOffered() },
       body: BodyLambda = {},
   ): TaskResult {
     // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
@@ -187,9 +183,7 @@ public class TfmGameplay(
 
   public fun stdProject(
       stdProject: String,
-      payment: BodyLambda = {
-        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
-      },
+      payment: BodyLambda = { doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>") },
       body: BodyLambda = {},
   ): TaskResult {
     return stdAction(stdProject, payment = payment, body = body)
@@ -224,9 +218,7 @@ public class TfmGameplay(
       body()
       if (this@TfmGameplay.count("Owed") == 0) {
         tasks
-            .matching {
-              it.cause?.context?.className in setOf(cn("Accept"), cn("AcceptFromCard"))
-            }
+            .matching { it.cause?.context?.className in setOf(cn("Accept"), cn("AcceptFromCard")) }
             .forEach { reviseTask(it, "Ok") }
       }
       autoExecNow()

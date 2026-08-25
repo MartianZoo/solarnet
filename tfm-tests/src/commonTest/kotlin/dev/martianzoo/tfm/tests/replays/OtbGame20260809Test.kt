@@ -363,9 +363,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use Venusian Insects to take a microbe on Venusian Insects and gain one money"
     // "and forgo my second action."
-    dad.turn {
-      cardAction1(VenusianInsects).expect("Microbe, 1")
-    }
+    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1") }
 
     // "I'm gonna pay 16 for Imported Hydrogen. I'm gonna gain three plants."
     ellie.turn {
@@ -411,9 +409,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // (12:40 pm) "I will convert eight plants to a greenery."
     ellie.turn {
-      convertPlants {
-            placeTile(3, 6)
-          }
+      convertPlants { placeTile(3, 6) }
           // "And that'll be on the 2-plants, 4-money spot."
           .expect("-6 P, 4, TR")
 
@@ -685,10 +681,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'll spend the eight plants. I'm going to put the greenery on the two-plants, four-money"
     // "spot. I raise oxygen to 7% and get a TR."
     dad.turn {
-      convertPlants {
-            placeTile(2, 2)
-          }
-          .expect("-6 P, 4, TR")
+      convertPlants { placeTile(2, 2) }.expect("-6 P, 4, TR")
       engine.assertCounts(7 to "OxygenStep")
     }
 
@@ -818,10 +811,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I spend eight plants on a greenery at row one, column three, for two plants."
       // "Oxygen goes up to 10%. I get a TR."
-      convertPlants {
-            placeTile(1, 3)
-          }
-          .expect("-6 P, TR")
+      convertPlants { placeTile(1, 3) }.expect("-6 P, TR")
       engine.assertCounts(10 to "OxygenStep")
     }
 
@@ -1241,10 +1231,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       assertCounts(32 to "M") // ledger entry 322
 
       // "Then I'll convert plants to a greenery at row six, column six, for four money."
-      convertPlants {
-            placeTile(6, 6)
-          }
-          .expect("4, 0 TR")
+      convertPlants { placeTile(6, 6) }.expect("4, 0 TR")
     }
 
     // "What I'm going to do is play Restricted Area for nine."
@@ -1311,9 +1298,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "For my second action, I play Lawsuit for free. You lowered my production this generation."
       // "So you lose three money and I gain three money?"
       // "My Mons doesn't activate for that. I would just pay myself."
-      playProject(LawSuit, 0) {
-            doTask("3 Megacredit<Dad> FROM Megacredit<Ellie>.")
-          }
+      playProject(LawSuit, 0) { doTask("3 Megacredit<Dad> FROM Megacredit<Ellie>.") }
           .expect("3 M<Dad>, -3 M<Ellie>")
     }
     dad.assertCounts(26 to "M") // ledger entry 222
@@ -1324,9 +1309,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to spend 23 and put a greenery at the only spot next to my city that isn't next"
     // "to one of yours. I get a steel."
-    dad.turn {
-      stdProject("GreenerySP") { placeTile(4, 3) }.expect("S, 0 TR")
-    }
+    dad.turn { stdProject("GreenerySP") { placeTile(4, 3) }.expect("S, 0 TR") }
     ellie.assertCounts(7 to "M") // ledger entry 332
 
     // (8:28 pm) "I add a Nitrite Reducing Bacterium."
@@ -1354,9 +1337,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn { cardAction1(EnergyMarket, x = 3) }
 
     // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
-    dad.turn {
-      cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) }
-    }
+    dad.turn { cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) } }
 
     // (8:30 pm) "I pass."
     ellie.pass()
@@ -1455,10 +1436,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm going to convert eight plants to a greenery."
     // "I place it at row five, column four, and get two steel."
     ellie.turn {
-      convertPlants {
-            placeTile(5, 4)
-          }
-          .expect("2 S, 0 TR")
+      convertPlants { placeTile(5, 4) }.expect("2 S, 0 TR")
       // "And... Gyropolis. I pay... Wow. Free steel. What is going on, Ellie? Why do you have six
       // cities?"
       // "I place it in six-three." "Looks like you put it in five-three." "Five-three. Sorry."
@@ -1494,9 +1472,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I hope this is not a mistake. Jovian Lanterns cost me 18 money."
     // "It gives me a TR and two floaters, which I put on Jovian Lanterns itself."
-    dad.turn {
-      playProject(JovianLanterns, 18) { addCardResources(JovianLanterns) }.expect("TR")
-    }
+    dad.turn { playProject(JovianLanterns, 18) { addCardResources(JovianLanterns) }.expect("TR") }
     // HACK: It was a mistake: I only paid 17.
     dad.exMachina("1")
     dad.assertCounts(27 to "M") // ledger entry 249
@@ -1576,12 +1552,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "There is one thing I can do. Not that I really need to. Do a plant forest."
     // "In other words, convert plants to greenery. To this four-two for a plant."
-    ellie.turn {
-      convertPlants {
-            placeTile(4, 2)
-          }
-          .expect("-7 P, 0 TR")
-    }
+    ellie.turn { convertPlants { placeTile(4, 2) }.expect("-7 P, 0 TR") }
 
     // "I'm going to use Birds to take a Bird."
     dad.turn {
@@ -1614,10 +1585,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "go next to your city. Whatever. I did it."
     // "I might need the steel, so I'm going on four-four to get two steel."
     dad.turn {
-      convertPlants {
-            placeTile(4, 4)
-          }
-          .expect("2 S, 0 TR")
+      convertPlants { placeTile(4, 4) }.expect("2 S, 0 TR")
 
       // (8:58 pm) "Mining Quota cost three, so I'll spend two steel on it."
       // "It gives me two steel production. Yay, my very first steel production."

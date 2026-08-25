@@ -60,9 +60,7 @@ internal class EcologyExpertsTest : CardTest() {
     engine.phase("Prelude")
     p1.manual("9 Megacredit, ProjectCard, PreludeCard")
 
-    p1.playPrelude(EcologyExperts) {
-      p1.playProject(ViralEnhancers, 9)
-    }
+    p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
 
     p1.assertCounts(1 to "Plant")
   }
@@ -73,9 +71,7 @@ internal class EcologyExpertsTest : CardTest() {
     engine.phase("Prelude")
     p1.manual("12 Megacredit, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
-    p1.playPrelude(EcologyExperts) {
-      p1.playProject(EcologicalZone, 12) { placeTile(4, 5) }
-    }
+    p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
 
     p1.assertCounts(2 to "Animal<$EcologicalZone>")
   }

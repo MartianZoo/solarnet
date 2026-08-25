@@ -69,9 +69,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
     val scoring =
         card.effects
             .filter { isEndEffect(it, cardDescribers) }
-            .map {
-              renderEffect(it, cardDescribers)
-            }
+            .map { renderEffect(it, cardDescribers) }
     return joinRenderings(
         listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring
     )

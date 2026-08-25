@@ -82,9 +82,7 @@ internal class TfmGameplayTest : CardTest() {
     engine.phase("Action")
     p1.manual("30 Megacredit, 5 Steel, ProjectCard")
 
-    shouldThrow<LimitsException> {
-      p1.playProject(AquiferPumping, megacredits = 18, steel = 5)
-    }
+    shouldThrow<LimitsException> { p1.playProject(AquiferPumping, megacredits = 18, steel = 5) }
 
     p1.count("Megacredit") shouldBe 30
     p1.count("Steel") shouldBe 5

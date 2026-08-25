@@ -103,9 +103,7 @@ internal class PropertyTest {
       val gatedResult =
           tasks
               .extract { it }
-              .single {
-                "RequirementPropertyPassed<Player2>" in it.instruction.toString()
-              }
+              .single { "RequirementPropertyPassed<Player2>" in it.instruction.toString() }
       gatedResult.instruction.toString() shouldBe
           "(RequiredRequirementPropertyProbe<Player2>, RequirementPropertyMarker<Player2>): RequirementPropertyPassed<Player2>?"
       p2.dropTask(gatedResult.id)

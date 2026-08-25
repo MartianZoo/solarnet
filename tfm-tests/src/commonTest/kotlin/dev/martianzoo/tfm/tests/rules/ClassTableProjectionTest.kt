@@ -122,9 +122,7 @@ internal class ClassTableProjectionTest {
           .filter { Regex(pattern, RegexOption.IGNORE_CASE).containsMatchIn(it.toString()) }
 
   private class Projection(private val config: GameConfig) {
-    val classTable by lazy {
-      Engine.newGame(Canon.gamePremise(config)).classTable
-    }
+    val classTable by lazy { Engine.newGame(Canon.gamePremise(config)).classTable }
     val classNames by lazy { classTable.allClassNames }
   }
 

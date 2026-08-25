@@ -70,9 +70,8 @@ private constructor(
             buildString {
               append("${event.ordinal}: ${renderPets(event.change)} BY ${petsName(event.actor)}")
               append(
-                  event.cause?.let {
-                    " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}"
-                  } ?: " (manual)"
+                  event.cause?.let { " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}" }
+                      ?: " (manual)"
               )
             }
       }
@@ -217,9 +216,7 @@ private constructor(
       }
       normalizedInputOnlySynonyms
           .filterValues { it in canonicalNames }
-          .forEach { (synonym, canonical) ->
-            register(synonym, canonical, "input-only synonym")
-          }
+          .forEach { (synonym, canonical) -> register(synonym, canonical, "input-only synonym") }
 
       return Vocabulary(
           normalizedLocale,

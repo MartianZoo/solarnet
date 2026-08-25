@@ -68,9 +68,7 @@ internal constructor(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor = checkNotNull(defaultActor),
-  ): List<PendingTask> = buildList {
-    doExecute(instruction, cause, this, actor)
-  }
+  ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor) }
 
   /**
    * Executes a prepared first stage; later linked stages prepare against the state they inherit.
@@ -79,9 +77,7 @@ internal constructor(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor = checkNotNull(defaultActor),
-  ): List<PendingTask> = buildList {
-    doExecutePrepared(instruction, cause, this, actor)
-  }
+  ): List<PendingTask> = buildList { doExecutePrepared(instruction, cause, this, actor) }
 
   private fun doExecute(
       instruction: Instruction,
@@ -504,9 +500,8 @@ internal constructor(
     if (r?.abstract == true && !(preserveAbstractActor && hasAbstractActorDependency)) {
       // Infer a type if there IS only one kind of component that has it
       r =
-          reader.getComponents(r).elements.singleOrNull()?.let {
-            classTable.resolve(it.expression)
-          } ?: r
+          reader.getComponents(r).elements.singleOrNull()?.let { classTable.resolve(it.expression) }
+              ?: r
     }
     return g to r
   }

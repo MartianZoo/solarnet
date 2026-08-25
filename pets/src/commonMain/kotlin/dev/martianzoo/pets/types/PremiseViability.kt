@@ -57,9 +57,7 @@ internal object PremiseViability {
         is InstructionOr ->
             tree.instructions
                 .map { impossibleRemoval(it, table) }
-                .takeIf { results ->
-                  results.all { it != null }
-                }
+                .takeIf { results -> results.all { it != null } }
                 ?.first()
         is Per ->
             if (metricIsExactlyZero(tree.metric, table)) null

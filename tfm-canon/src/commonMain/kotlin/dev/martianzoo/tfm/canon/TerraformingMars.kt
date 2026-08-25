@@ -119,9 +119,7 @@ private object TerraformingMars {
         when {
           node is Instruction.Change -> {
             count +=
-                node.gaining?.descendantsOfType<Expression>()?.count {
-                  it.className == target
-                } ?: 0
+                node.gaining?.descendantsOfType<Expression>()?.count { it.className == target } ?: 0
             false
           }
           node is Expression && node.className == target -> {
@@ -299,9 +297,7 @@ private object TerraformingMars {
 
     override fun translate(reader: GameReader, awardType: Type): Instruction {
       val players = reader.getComponents("Player").elements
-      val scores = players.associateWith {
-        reader.count(reader.resolve(tally(it, awardType)))
-      }
+      val scores = players.associateWith { reader.count(reader.resolve(tally(it, awardType))) }
       val firstScore = scores.values.maxOrNull() ?: return NoOp
 
       val first = scores.filterValues { it == firstScore }.keys
@@ -313,9 +309,7 @@ private object TerraformingMars {
             val secondScore = scores.filterKeys { it !in first }.values.maxOrNull() ?: 0
             val runnersUp =
                 scores
-                    .filter { (player, score) ->
-                      player !in first && score == secondScore
-                    }
+                    .filter { (player, score) -> player !in first && score == secondScore }
                     .keys
                     .map { SECOND_PLACE.of(it.expression, awardType.expression) }
             winners + runnersUp

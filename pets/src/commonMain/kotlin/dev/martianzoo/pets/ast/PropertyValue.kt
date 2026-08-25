@@ -95,11 +95,7 @@ public sealed class PropertyValue : PetNode() {
 
   private object Parsers : PetTokenizer() {
     val requirement: Parser<PropertyValue> =
-        _has and
-            quotedText map
-            { (_, source) ->
-              RequirementValue(parse<Requirement>(source))
-            }
+        _has and quotedText map { (_, source) -> RequirementValue(parse<Requirement>(source)) }
 
     val parser: Parser<PropertyValue> =
         (_metric map { MetricType }) or
