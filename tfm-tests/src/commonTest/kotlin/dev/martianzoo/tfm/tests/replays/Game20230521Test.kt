@@ -1088,7 +1088,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Aquifer Pumping action
     p2.turn {
       cardAction1(AquiferPumping) {
-        p2.intentionalOverpay()
+        p2.intentionalOverpay(1)
         p2.pay(steel = 3)
         // Player2 placed ocean tile on row 5 position 6
         // Player2's plants amount increased by 2
@@ -1457,12 +1457,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2's megacredits production decreased by 2
     // Player2's energy production increased by 3
     p2.turn {
-      intentionalOverpay()
+      intentionalOverpay(1)
       playProject(NuclearPower, steel = 3)
       // Player2 played Biomass Combustors
       // Player2's energy production increased by 2
       // Player1's plants production decreased by 1 by Player2
-      intentionalOverpay()
+      intentionalOverpay(1)
       playProject(BiomassCombustors, steel = 1) { doTask("PROD[-Plant<Player1>]") }
     }
     // Player1 passed

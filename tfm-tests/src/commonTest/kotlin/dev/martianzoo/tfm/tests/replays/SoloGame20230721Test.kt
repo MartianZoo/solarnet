@@ -172,7 +172,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
       // me played Solar Reflectors
       // me's heat production increased by 5
-      intentionalOverpay()
+      intentionalOverpay(1)
       playProject(SolarReflectors, titanium = 6) // "overpay" 1
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
@@ -541,7 +541,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(ExtractorBalloons)
       // me played Solar Power
       // me's energy production increased by 1
-      intentionalOverpay()
+      intentionalOverpay(1)
       playProject(SolarPower, 0, steel = 6) // "overpay" 1
       // me used Greenery standard project
       stdProject("GreenerySP") {

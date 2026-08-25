@@ -207,7 +207,8 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Source-backed full-game fixtures enforce that assumption. A payment that leaves an accepted
   non-money resource unused despite its still receiving full value fails unless the player calls
   `intentionalUnderpay()` immediately before that payment. A payment that spends a non-money
-  resource beyond the remaining owed amount likewise requires `intentionalOverpay()`. Each call is
+  resource beyond the remaining owed amount likewise requires `intentionalOverpay(amountSquandered)`,
+  with the exact lost monetary value. Each call is
   permission for one payment only; explain the sourced later payment or checkpoint that requires an
   underpayment, and prefer correcting an unsupported allocation over declaring intent. For a
   recorded physical game, first search the transcript and player-board logs for an explicit payment
