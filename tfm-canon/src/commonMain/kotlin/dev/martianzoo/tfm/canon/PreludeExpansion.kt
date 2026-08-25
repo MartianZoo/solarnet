@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.api.BundleContentSelection
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind.CARDS
 import dev.martianzoo.types.Type
 
-internal val preludeCustomClasses: Set<CustomClass> = setOf(PreludeExpansion.LowestProduction)
+private val preludeCustomClasses: Set<CustomClass> = setOf(PreludeExpansion.LowestProduction)
 
 internal val preludeExpansionBundle: StandardFormBundle by lazy {
   StandardFormBundle(

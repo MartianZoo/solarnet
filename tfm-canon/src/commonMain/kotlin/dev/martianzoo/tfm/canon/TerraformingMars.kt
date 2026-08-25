@@ -46,7 +46,19 @@ import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.Grid
 
-internal val baseCustomClasses: Set<CustomClass> =
+internal val terraformingMarsBundle: StandardFormBundle by lazy {
+  StandardFormBundle(
+      "TerraformingMars",
+      terraformingMarsCustomClasses,
+      additionalResourceDirectories =
+          setOf(
+              "bundles/CorporateEraExpansion",
+              "bundles/TharsisMap",
+          ),
+  )
+}
+
+private val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
         TerraformingMars.CreateAdjacencies,
         TerraformingMars.CreateMapAreas,

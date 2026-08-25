@@ -199,7 +199,11 @@ private constructor(
       extraClasses.map(FollowModeNeutralizer::neutralize)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
-    loadedClass?.declaration
+    toClassDeclaration(sourceResourceType)
+  }
+
+  internal fun toClassDeclaration(resourceType: ClassName?): ClassDeclaration {
+    return loadedClass?.declaration
         ?: run {
           val createTags =
               InstructionGroup.createTree(
@@ -220,7 +224,7 @@ private constructor(
           val cardRolesBySpecificity =
               listOfNotNull(
                   projectInfo?.kind?.className?.expression,
-                  sourceResourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
+                  resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
                   ACTION_CARD.expression.takeIf { sourceActions.any() },
               )
           val supertypes = buildSet {

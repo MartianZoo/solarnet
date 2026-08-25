@@ -176,8 +176,9 @@ needs to inspect, so `coordinateClauseObjects` can only factor clauses whose wor
 strings. A half-built IR already exists in the wrong place: `renderEffect.kt`'s private `EventKind`
 enum, which is a semantic trigger IR with the verbs baked in and destination mistaken for kind.
 
-**Registry placement.** `tfm-canon` is organized as twelve per-expansion bundles, each already shipping a
-`language/en.json5` consumed by `Vocabulary`. Meanwhile all descriptions for all expansions live in
+**Registry placement.** `tfm-canon` is organized as ten bundles; the Terraforming Mars bundle also owns
+the Corporate Era and Tharsis resource sets, each of which already ships a `language/en.json5`
+consumed by `Vocabulary`. Meanwhile all descriptions for all expansions live in
 one 526-line `internal object` in a different module — so shipping an expansion means editing a core
 file. Two sources currently disagree about the same nouns (`en.json5` says `"Megacredit":
 "megacredit"`; the describer says `M€`), which is precisely the inconsistency D7 targets.

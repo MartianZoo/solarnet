@@ -327,9 +327,12 @@ public open class TfmAuthority : Authority {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val generatedCardsByName = cardDefinitions.associateBy(CardDefinition::className)
+    val generatedCardsByName =
+        cardDefinitions.associateBy(CardDefinition::className).mapValues { (name, card) ->
+          card.toClassDeclaration(cardResourceType(name))
+        }
     val explicit = explicitClassDeclarations.map { declaration ->
-      val generated = generatedCardsByName[declaration.className]?.asClassDeclaration
+      val generated = generatedCardsByName[declaration.className]
       val withContributionLinks =
           if (generated == null) declaration
           else declaration.copy(extraNodes = declaration.extraNodes + generated.extraNodes)
@@ -340,7 +343,13 @@ public open class TfmAuthority : Authority {
     explicit +
         allDefinitions
             .filterNot { it.className in explicitNames }
-            .map(Definition::asClassDeclaration) +
+            .map { definition ->
+              if (definition is CardDefinition) {
+                definition.toClassDeclaration(cardResourceType(definition.className))
+              } else {
+                definition.asClassDeclaration
+              }
+            } +
         cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
   }
 
@@ -452,13 +461,17 @@ public open class TfmAuthority : Authority {
             }
           }
         }
+    val ordinaryCards =
+        if (moduleName in owner.moduleContentSelections) null
+        else owner.moduleCardDefinitions[moduleName]
     val contentSelections =
         owner.moduleContentSelections[moduleName]
             ?: if (moduleName == owner.bundleName) {
               setOf(
                   BundleContentSelection(
                       owner.bundleName,
-                      setOf(Kind.CARDS, Kind.COLONY_TILES),
+                      if (ordinaryCards == null) setOf(Kind.CARDS, Kind.COLONY_TILES)
+                      else setOf(Kind.COLONY_TILES),
                   )
               )
             } else {
@@ -472,6 +485,15 @@ public open class TfmAuthority : Authority {
           }
           selectionsFrom(bundlesByName.getValue(content.bundleName), content)
         }
+    ordinaryCards?.let { cards ->
+      selections.addDefinitions(cards)
+      selections.addReplacementExclusions(
+          cards,
+          cardDefinitions,
+          CardDefinition::className,
+          CardDefinition::replaces,
+      )
+    }
     return selections
   }
 

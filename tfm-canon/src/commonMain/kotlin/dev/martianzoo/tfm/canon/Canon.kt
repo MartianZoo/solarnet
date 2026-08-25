@@ -5,16 +5,14 @@ import dev.martianzoo.tfm.api.TfmAuthority
 /** Published Terraforming Mars Authority with typed Terraforming Mars definition registries. */
 public object Canon :
     TfmAuthority.Composite(
-        StandardFormBundle("TerraformingMars", baseCustomClasses),
-        StandardFormBundle("CorporateEraExpansion", corporateEraCustomClasses),
-        StandardFormBundle("TharsisMap"),
-        StandardFormBundle("HellasElysiumExpansion"),
-        StandardFormBundle("UtopiaCimmeriaExpansion"),
-        venusNextExpansionBundle,
-        milestonesAwardsExpansionBundle,
-        preludeExpansionBundle,
-        StandardFormBundle("Prelude2Expansion"),
-        StandardFormBundle("ColoniesExpansion", coloniesCustomClasses),
-        StandardFormBundle("TurmoilCardPack"),
-        StandardFormBundle("PromoCardPack", promoCardPackCustomClasses),
+        terraformingMarsBundle, // 2016
+        hellasElysiumExpansionBundle, // 2017
+        venusNextExpansionBundle, // 2017
+        preludeExpansionBundle, // 2018
+        coloniesExpansionBundle, // 2018
+        turmoilCardPackBundle, // 2019
+        prelude2ExpansionBundle, // 2024
+        milestonesAwardsExpansionBundle, // 2024
+        utopiaCimmeriaExpansionBundle, // 2024
+        promoCardPackBundle,
     )

@@ -117,11 +117,12 @@ A **Bundle** is an internal unit of ownership, provenance, distribution, and loa
 declarations, definitions, and custom implementations. It is not selected directly and never
 becomes a live component.
 
-A Module named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map
-Module selects its own map definition, areas, and the concrete milestone and award Classes under
-the pool superclasses named by its map metadata. Exceptional cross-Bundle or narrowed selections
-remain expressible, but Canon's ordinary expansions do not require a central registry to restate
-their ownership.
+A Bundle may contain several Modules while retaining their separate ordinary card pools. A Module
+named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map Module
+selects its own map definition, areas, and the concrete milestone and award Classes under the pool
+superclasses named by its map metadata. Exceptional cross-Bundle or narrowed selections remain
+expressible, but Canon's ordinary expansions do not require a central registry to restate their
+ownership.
 
 ## Invariants
 
