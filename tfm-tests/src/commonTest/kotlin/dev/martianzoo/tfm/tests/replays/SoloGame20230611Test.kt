@@ -200,9 +200,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       cardAction1(AiCentral)
       cardAction1(SubCrustMeasurements)
       cardAction2(ForcedPrecipitation)
-      convertPlants {
-        placeTile(6, 6)
-      }
+      convertPlants { placeTile(6, 6) }
 
       playProject(WaterSplittingPlant, 5, steel = 3)
       cardAction1(WaterSplittingPlant)
@@ -235,9 +233,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       stdProject("AirScrappingSP").expect("2 TR")
       sellPatents(3)
       playProject(TransNeptuneProbe, 1)
-      convertPlants {
-        placeTile(6, 5)
-      }
+      convertPlants { placeTile(6, 5) }
 
       assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
       assertResources(m = 8, s = 1, t = 0, p = 0, e = 0, h = 1)

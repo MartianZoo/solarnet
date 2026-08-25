@@ -125,9 +125,7 @@ internal class WildTagTest : CardTest() {
     p1.startTurn()
     p1.assignWildTag(ResearchNetwork, "BuildingTag")
 
-    p1.playProject(RoboticWorkforce, 9) {
-          doTask("CopyProductionBox<$ResearchNetwork>")
-        }
+    p1.playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$ResearchNetwork>") }
         .expect("PROD[1]")
 
     p1.count("BuildingTag") shouldBe 0

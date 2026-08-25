@@ -83,9 +83,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
 
     KB.turn {
-      playPrelude(ResearchNetwork) {
-            draw(ResearchOutpost, RestrictedArea, AcquiredCompany)
-          }
+      playPrelude(ResearchNetwork) { draw(ResearchOutpost, RestrictedArea, AcquiredCompany) }
           .expect("PROD[1], WildTag")
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
@@ -244,10 +242,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       ER.pay(titanium = 4)
       placeTile(5, 4)
     }
-    ER.playProject(CommercialDistrict, 0, steel = 8) {
-          placeTile(4, 3)
-        }
-        .expect("4, Plant")
+    ER.playProject(CommercialDistrict, 0, steel = 8) { placeTile(4, 3) }.expect("4, Plant")
     JR.pass()
     KB.cardAction1(EquatorialMagnetizer)
     KB.declineSecondAction()

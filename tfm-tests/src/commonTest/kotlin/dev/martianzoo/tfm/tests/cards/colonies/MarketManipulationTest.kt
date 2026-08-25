@@ -56,9 +56,7 @@ internal class MarketManipulationTest : ColoniesCardTest() {
   internal fun `Cannot raise Titan's delayed colony track`() {
     p1.manual("ProjectCard, Megacredit")
     p1.playProject(MarketManipulation, 1) {
-      shouldThrow<NotNowException> {
-        doTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>")
-      }
+      shouldThrow<NotNowException> { doTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>") }
       abort()
     }
   }
@@ -67,9 +65,7 @@ internal class MarketManipulationTest : ColoniesCardTest() {
   internal fun `Cannot lower Titan's delayed colony track`() {
     p1.manual("ProjectCard, Megacredit")
     p1.playProject(MarketManipulation, 1) {
-      shouldThrow<NotNowException> {
-        doTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>")
-      }
+      shouldThrow<NotNowException> { doTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>") }
       abort()
     }
   }

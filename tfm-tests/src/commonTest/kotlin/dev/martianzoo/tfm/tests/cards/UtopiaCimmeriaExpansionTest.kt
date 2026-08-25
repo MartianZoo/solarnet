@@ -30,9 +30,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     )
     p1.manual("10")
 
-    p1.manual("CityTile<Cimmeria_3_3>") {
-      doTask("Colony<Luna>")
-    }
+    p1.manual("CityTile<Cimmeria_3_3>") { doTask("Colony<Luna>") }
 
     p1.count("Megacredit") shouldBe 5
     p1.count("Colony<Luna>") shouldBe 1

@@ -81,16 +81,12 @@ internal class PrepareTest {
     shouldThrow<LimitsException> { preprocessAndPrepare("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndPrepare("Plant FROM Heat") }
     shouldThrow<LimitsException> { preprocessAndPrepare("2 Heat FROM Plant") }
-    shouldThrow<LimitsException> {
-      preprocessAndPrepare("2 Plant<Player2> FROM Plant<Player1>")
-    }
+    shouldThrow<LimitsException> { preprocessAndPrepare("2 Plant<Player2> FROM Plant<Player1>") }
     checkPrepare(
         "OxygenStep FROM TerraformRating!",
         "OxygenStep FROM TerraformRating<Player1>!",
     )
-    shouldThrow<ExpressionException> {
-      preprocessAndPrepare("2 OxygenStep FROM TerraformRating!")
-    }
+    shouldThrow<ExpressionException> { preprocessAndPrepare("2 OxygenStep FROM TerraformRating!") }
   }
 
   @Test

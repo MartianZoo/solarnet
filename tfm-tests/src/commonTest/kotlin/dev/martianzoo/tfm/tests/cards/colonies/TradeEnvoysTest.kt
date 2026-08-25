@@ -25,9 +25,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
   @Test
   internal fun `Raises the track when Titan Floating Launch-Pad trades`() {
-    p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") {
-      addCardResources(TitanFloatingLaunchPad)
-    }
+    p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") { addCardResources(TitanFloatingLaunchPad) }
     engine.manual("3 ColonyProduction<Luna>")
 
     p1.cardAction2(TitanFloatingLaunchPad) {

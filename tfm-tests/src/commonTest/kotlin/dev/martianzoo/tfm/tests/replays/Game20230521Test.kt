@@ -71,16 +71,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 played Inventors' Guild
     // Player1 ended turn
-    p1.turn {
-      playProject(InventorsGuild, 9)
-    }
+    p1.turn { playProject(InventorsGuild, 9) }
 
     // Player2 played Arctic Algae
     // Player2's plants amount increased by 1
     // Player2 ended turn
-    p2.turn {
-      playProject(ArcticAlgae, 12).expect("-12, Plant, PlantTag")
-    }
+    p2.turn { playProject(ArcticAlgae, 12).expect("-12, Plant, PlantTag") }
 
     // Player1 used Inventors' Guild action
     p1.turn {
@@ -94,9 +90,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Factorum action
     // Player2's energy production increased by 1
-    p2.turn {
-      cardAction1(Factorum).expect("PROD[E]")
-    }
+    p2.turn { cardAction1(Factorum).expect("PROD[E]") }
     // Player2 ended turn
 
     // Player1 used Power Plant:SP standard project
@@ -185,9 +179,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Rotator Impacts action
     // Player2 removed 1 resource(s) from Player2's Rotator Impacts
     // Player2 removed an asteroid resource to increase Venus scale 1 step
-    p2.turn {
-      cardAction2(RotatorImpacts).expect("VenusStep, TR<Player2>")
-    }
+    p2.turn { cardAction2(RotatorImpacts).expect("VenusStep, TR<Player2>") }
     // Player2 ended turn
 
     // Player1 played Development Center
@@ -538,9 +530,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1 played Fueled Generators
     // Player1's megacredits production decreased by 1
     // Player1's energy production increased by 1
-    p1.turn {
-      playProject(FueledGenerators, 1).expect("PROD[-1, E], E")
-    }
+    p1.turn { playProject(FueledGenerators, 1).expect("PROD[-1, E], E") }
     // Player1 ended turn
 
     // Player2 used Convert Heat standard action
@@ -686,9 +676,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Player2 used Convert Heat standard action
-    p2.turn {
-      convertHeat()
-    }
+    p2.turn { convertHeat() }
 
     // Player1 used Convert Heat standard action
     p1.turn {
@@ -836,9 +824,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 played Titanium Mine
     // Player2's titanium production increased by 1
-    p2.turn {
-      playProject(TitaniumMine, 5).expect("PROD[T], BuildingTag")
-    }
+    p2.turn { playProject(TitaniumMine, 5).expect("PROD[T], BuildingTag") }
 
     // Player1 used Convert Heat standard action
     p1.turn {
@@ -849,9 +835,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Player2 passed
-    p2.turn {
-      pass().expect("Pass")
-    }
+    p2.turn { pass().expect("Pass") }
 
     // Player1 used Stratospheric Birds action
     p1.turn {
@@ -992,9 +976,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Bio Printing Facility action
     // Player2's plants amount increased by 2
-    p2.turn {
-      cardAction1(BioPrintingFacility) { doTask("2 Plant") }.expect("2 Plant, -2 E")
-    }
+    p2.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") }.expect("2 Plant, -2 E") }
 
     // Player1 used Convert Heat standard action
     p1.turn {
@@ -1377,9 +1359,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           .expect("3 Heat")
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile on row 3 position 3
-      convertPlants {
-        placeTile(3, 3)
-      }
+      convertPlants { placeTile(3, 3) }
     }
     // Player2 used Bio Printing Facility action
     // Player2 added 1 animal(s) to Ecological Zone
@@ -1512,9 +1492,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Convert Plants standard action
     // Player1 placed greenery tile on row 2 position 4
     p1.turn {
-      convertPlants {
-        placeTile(2, 4)
-      }
+      convertPlants { placeTile(2, 4) }
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
       // You drew no cards
@@ -1561,9 +1539,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used City standard project
     // Player2 placed city tile on row 8 position 2
     p2.turn {
-      stdProject("CitySP") {
-        placeTile(8, 5)
-      }
+      stdProject("CitySP") { placeTile(8, 5) }
       // Player2 used Convert Plants standard action
       convertPlants {
             // Player2 placed greenery tile on row 8 position 1
@@ -1629,9 +1605,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1 removed 1 resource(s) from Player1's Olympus Conference
       // Player1 drew 1 card(s)
       // You drew Zeppelins
-      playProject(StandardTechnology, 6) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
-      }
+      playProject(StandardTechnology, 6) { doTask("ProjectCard FROM Science<$OlympusConference>") }
     }
     // Player2 played Atalanta Planitia Lab
     // Player2 drew 2 card(s)
@@ -1656,9 +1630,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 4 animal(s) to Stratospheric Birds
     p1.turn {
-      playProject(LargeConvoy, 31) {
-            addCardResources(StratosphericBirds)
-          }
+      playProject(LargeConvoy, 31) { addCardResources(StratosphericBirds) }
           .expect("ProjectCard, 3 Heat, 4 Animal")
       // Player1 played Water Splitting Plant
       playProject(WaterSplittingPlant, steel = 4)
@@ -1670,9 +1642,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(RobotPollinators, 7).expect("PROD[Plant], 4 Plant")
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 7 position 2
-      convertPlants {
-        placeTile(7, 4)
-      }
+      convertPlants { placeTile(7, 4) }
     }
     // Player1 played Media Archives
     // Player1's megacredits amount increased by 16
@@ -1693,9 +1663,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(Greenhouses, 4).expect("6 Plant, Animal")
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 9 position 4
-      convertPlants {
-        placeTile(9, 8)
-      }
+      convertPlants { placeTile(9, 8) }
     }
     // Player1 funded Thermalist award
     p1.turn {
@@ -1724,14 +1692,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
       sellPatents(4)
     }
     // Player2 used Penguins action
-    p2.turn {
-      cardAction1(Penguins)
-    }
+    p2.turn { cardAction1(Penguins) }
     // Player1 played Gene Repair
     // Player1's megacredits production increased by 2
-    p1.turn {
-      playProject(GeneRepair, 12).expect("PROD[2]")
-    }
+    p1.turn { playProject(GeneRepair, 12).expect("PROD[2]") }
     // Player2 passed
     p2.pass()
     // Player1 passed

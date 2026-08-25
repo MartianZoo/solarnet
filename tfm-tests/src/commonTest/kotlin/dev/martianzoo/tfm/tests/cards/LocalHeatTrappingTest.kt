@@ -17,10 +17,7 @@ internal class LocalHeatTrappingTest : CardTest() {
   @Test
   internal fun `Can take plants when enough heat is available`() {
     p1.manual("6 Heat, $Pets")
-    p1.manual("$LocalHeatTrapping") {
-          doTask("4 Plant")
-        }
-        .expect("-5 Heat, 4 Plant")
+    p1.manual("$LocalHeatTrapping") { doTask("4 Plant") }.expect("-5 Heat, 4 Plant")
   }
 
   @Test

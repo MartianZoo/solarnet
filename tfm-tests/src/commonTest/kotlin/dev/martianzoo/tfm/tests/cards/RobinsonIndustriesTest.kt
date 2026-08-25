@@ -37,10 +37,7 @@ internal class RobinsonIndustriesTest : CardTest() {
   internal fun `Can choose megacredit production when tied for lowest`() {
     seedProductionTie()
 
-    p1.cardAction1(RobinsonIndustries) {
-          doTask("PROD[Megacredit]")
-        }
-        .expect("-4, PROD[Megacredit]")
+    p1.cardAction1(RobinsonIndustries) { doTask("PROD[Megacredit]") }.expect("-4, PROD[Megacredit]")
   }
 
   @Test

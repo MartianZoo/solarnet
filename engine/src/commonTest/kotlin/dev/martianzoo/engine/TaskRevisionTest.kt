@@ -200,9 +200,7 @@ internal class TaskRevisionTest {
   internal fun `changing a grouped instruction is a narrowing failure`() {
     initiate("TR: (Plant, Heat)")
 
-    shouldThrow<NarrowingException> {
-      writer.reviseTask("TR: (Plant, Heat)", "TR: (Plant, Steel)")
-    }
+    shouldThrow<NarrowingException> { writer.reviseTask("TR: (Plant, Heat)", "TR: (Plant, Steel)") }
   }
 
   @Test
@@ -234,9 +232,7 @@ internal class TaskRevisionTest {
     writer.godMode().manual("OceanTile<Tharsis_1_2>")
     initiate("OceanTile<>")
 
-    shouldThrow<NarrowingException> {
-      writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_2>")
-    }
+    shouldThrow<NarrowingException> { writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_2>") }
     writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_4>")
 
     tasks.extract { it.next }.shouldContainExactly(true)

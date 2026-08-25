@@ -27,9 +27,7 @@ internal class LandClaimTest : CardTest() {
     val p2 = requireP2()
     p1.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_3>") }
 
-    shouldThrow<DeadEndException> {
-      p2.manual("$ArtificialLake") { placeTile(1, 3) }
-    }
+    shouldThrow<DeadEndException> { p2.manual("$ArtificialLake") { placeTile(1, 3) } }
     p1.manual("$ArtificialLake") { placeTile(1, 3) }
     p1.assertCounts(1 to "OceanTile<Tharsis_1_3>")
   }

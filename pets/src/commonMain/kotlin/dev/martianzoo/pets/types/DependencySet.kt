@@ -151,9 +151,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   @PublishedApi
   internal fun requireSameClassTable(that: DependencySet) {
     if (classTable != null && that.classTable != null) {
-      require(classTable === that.classTable) {
-        "dependencies belong to different class tables"
-      }
+      require(classTable === that.classTable) { "dependencies belong to different class tables" }
     }
   }
 

@@ -74,9 +74,8 @@ public abstract class ClassTable {
               .apply { loadAll(roots) }
               .freeze()
       val unexpectedModules =
-          premise.catalog.modules.keys.filterTo(linkedSetOf()) {
-            table.isActive(it)
-          } - premise.modules
+          premise.catalog.modules.keys.filterTo(linkedSetOf()) { table.isActive(it) } -
+              premise.modules
       require(unexpectedModules.isEmpty()) {
         "structural activation selected unrequested Modules: $unexpectedModules"
       }

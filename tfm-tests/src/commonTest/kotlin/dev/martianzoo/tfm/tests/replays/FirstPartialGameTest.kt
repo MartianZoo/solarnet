@@ -46,14 +46,8 @@ internal class FirstPartialGameTest : TfmTest() {
       }
 
       // Generation 1 (Player1 first)
-      p1.turn {
-        playProject(AsteroidMining, 30)
-      }
-      p2.turn {
-        playProject(NaturalPreserve, 1, steel = 4) {
-          placeTile(3, 7)
-        }
-      }
+      p1.turn { playProject(AsteroidMining, 30) }
+      p2.turn { playProject(NaturalPreserve, 1, steel = 4) { placeTile(3, 7) } }
       p1.pass()
       p2.turn {
         playProject(SpaceElevator, 1, steel = 13)
@@ -83,9 +77,7 @@ internal class FirstPartialGameTest : TfmTest() {
         playProject(TechnologyDemonstration, titanium = 1)
       }
 
-      p1.turn {
-        playProject(Sponsors, 6)
-      }
+      p1.turn { playProject(Sponsors, 6) }
 
       p2.turn {
         playProject(EnergyTapping, 1) { doTask("PROD[-E<Player1>]") }
@@ -99,9 +91,7 @@ internal class FirstPartialGameTest : TfmTest() {
       p1.buyCards(3)
       p2.buyCards(2)
 
-      p1.turn {
-        playProject(Mine, 2, steel = 1)
-      }
+      p1.turn { playProject(Mine, 2, steel = 1) }
 
       p2.turn {
         cardAction1(SpaceElevator)
@@ -114,9 +104,7 @@ internal class FirstPartialGameTest : TfmTest() {
         cardAction2(ElectroCatapult)
         playProject(SpaceHotels, 7, titanium = 1)
 
-        playProject(MarsUniversity, 6) {
-          doTask("-ProjectCard<Hand>! THEN ProjectCard<Hand>")
-        }
+        playProject(MarsUniversity, 6) { doTask("-ProjectCard<Hand>! THEN ProjectCard<Hand>") }
         playProject(ArtificialPhotosynthesis, 10) {
           doTask("PROD[2 Energy]")
           // Decline Mars University's discard-and-draw effect for the science tag.
@@ -150,9 +138,7 @@ internal class FirstPartialGameTest : TfmTest() {
         playProject(Hackers, 1) { doTask("PROD[-2 M<Player1>]") }
       }
 
-      p1.turn {
-        sellPatents(1)
-      }
+      p1.turn { sellPatents(1) }
 
       p2.turn {
         playProject(SolarPower, 1, steel = 4)

@@ -143,11 +143,7 @@ public open class TfmCatalog : Catalog {
           .forEach { moduleName ->
             val property = universe.getClass(moduleName).properties[AUTO_SELECT_WHEN]
             val requirement = (property as? RequirementValue)?.value ?: return@forEach
-            if (
-                requirement.isMetBy { metric ->
-                  countConfigured(metric, included - moduleName)
-                }
-            ) {
+            if (requirement.isMetBy { metric -> countConfigured(metric, included - moduleName) }) {
               next.add(moduleName)
             }
           }
@@ -177,9 +173,7 @@ public open class TfmCatalog : Catalog {
         .forEach { card ->
           cardCompatibilityRequirement(card)?.let { requirement ->
             require(
-                requirement.isMetBy { metric ->
-                  countConfigured(metric, included - card.className)
-                }
+                requirement.isMetBy { metric -> countConfigured(metric, included - card.className) }
             ) {
               "configured content ${card.className} is unavailable: $requirement"
             }
@@ -229,9 +223,7 @@ public open class TfmCatalog : Catalog {
     val classSelections =
         individualSelections
             .filterKeys { it !in canonicalPlayerNames }
-            .mapTo(linkedSetOf()) { (className, included) ->
-              ClassSelection(className, included)
-            }
+            .mapTo(linkedSetOf()) { (className, included) -> ClassSelection(className, included) }
     val initialTypes =
         individualNames.filter { it in colonyNames }.mapTo(linkedSetOf(), ::initialColonyTileType)
     if (canonicalPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
@@ -734,9 +726,7 @@ public open class TfmCatalog : Catalog {
       val knownByName = cards.associateByStrict(CardDefinition::className)
       cards.forEach { card ->
         card.replaces?.let { target ->
-          require(target in knownByName) {
-            "${card.className} replaces unknown card $target"
-          }
+          require(target in knownByName) { "${card.className} replaces unknown card $target" }
         }
       }
       cards.forEach { start ->

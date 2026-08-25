@@ -136,9 +136,7 @@ internal class CardDefinitionTest {
           override val cardDefinitions = setOf(badCard)
         }
 
-    assertFailsWith<IllegalArgumentException> {
-      TfmCatalog.compose(Canon, badSource).classTable
-    }
+    assertFailsWith<IllegalArgumentException> { TfmCatalog.compose(Canon, badSource).classTable }
   }
 
   @Test
@@ -470,9 +468,7 @@ internal class CardDefinitionTest {
           effects = listOf("End: VictoryPoint / Animal<This>"),
       )
     }
-    assertFailsWith<RuntimeException> {
-      card.copy(projectKind = "ACTIVE", immediate = "Whatever")
-    }
+    assertFailsWith<RuntimeException> { card.copy(projectKind = "ACTIVE", immediate = "Whatever") }
   }
 
   @Test

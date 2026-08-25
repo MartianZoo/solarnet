@@ -32,13 +32,9 @@ internal class StinaGameTest : AbstractSoloTest() {
           }
           .expect("PROD[1, Titanium], 12, 10 ProjectCard")
 
-      playPrelude(Biolab) {
-            draw(InventionContest, BusinessContacts, QuantumExtractor)
-          }
+      playPrelude(Biolab) { draw(InventionContest, BusinessContacts, QuantumExtractor) }
           .expect("PROD[Plant], 3 ProjectCard")
-      playPrelude(AcquiredSpaceAgency) {
-            draw(SpaceStation, OptimalAerobraking)
-          }
+      playPrelude(AcquiredSpaceAgency) { draw(SpaceStation, OptimalAerobraking) }
           .expect("6 Titanium, 2 ProjectCard")
 
       playProject(EarthOffice, 1)
@@ -46,10 +42,7 @@ internal class StinaGameTest : AbstractSoloTest() {
       playProject(InvestmentLoan, 0).expect("PROD[-1], 13")
       playProject(IndenturedWorkers, 0).expect("3")
       playProject(EarthCatapult, 12)
-      playProject(HiredRaiders, 0) {
-            doTask("2 Steel<Me> FROM Steel<SoloOpponent>")
-          }
-          .expect("3")
+      playProject(HiredRaiders, 0) { doTask("2 Steel<Me> FROM Steel<SoloOpponent>") }.expect("3")
       playProject(OlympusConference, 1, steel = 2)
       playProject(AdvancedAlloys, 7) {
             draw(TechnologyDemonstration)
@@ -67,9 +60,7 @@ internal class StinaGameTest : AbstractSoloTest() {
             doTask("ProjectCard FROM Science<OlympusConference>")
           }
           .expect("ProjectCard, 3")
-      playProject(BusinessContacts, 1) {
-            draw(TowingAComet, AdaptationTechnology)
-          }
+      playProject(BusinessContacts, 1) { draw(TowingAComet, AdaptationTechnology) }
           .expect("ProjectCard, 2")
       playProject(QuantumExtractor, 10).expect("PROD[4 Energy]")
       playProject(SpaceStation, 1, titanium = 1)
@@ -85,13 +76,9 @@ internal class StinaGameTest : AbstractSoloTest() {
       playProject(ImportOfAdvancedGhg, 0).expect("PROD[2 Heat], 6, 3 Heat")
       playProject(ImportedGhg, 0).expect("PROD[Heat], 6, 6 Heat")
       playProject(MassConverter, 5).expect("PROD[6 Energy]")
-      playProject(TowingAComet, 2, titanium = 3) {
-            placeTile(1, 2)
-          }
+      playProject(TowingAComet, 2, titanium = 3) { placeTile(1, 2) }
           .expect("4, 2 Plant, OxygenStep, 3 Heat, 2 TR, OceanTile")
-      playProject(AdaptationTechnology, 9) {
-        addCardResources(OlympusConference)
-      }
+      playProject(AdaptationTechnology, 9) { addCardResources(OlympusConference) }
       playProject(SpecialDesign, 1) {
             draw(ConvoyFromEuropa)
             doTask("ProjectCard FROM Science<OlympusConference>")

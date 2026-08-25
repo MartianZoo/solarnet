@@ -160,9 +160,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(ForcedPrecipitation)
       playProject(InvestmentLoan, 3).expect("PROD[-M], 10 M")
       playProject(Solarnet, 7) { draw(AirScrappingExpedition, VenusGovernor) }
-      cardAction2(SulphurEatingBacteria) {
-            doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9 M")
-          }
+      cardAction2(SulphurEatingBacteria) { doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9 M") }
           .expect("9 M")
       playProject(BigAsteroid, 21, titanium = 2) { /* Decline removing an opponent's plants. */
             declineTask()
@@ -187,9 +185,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       playProject(OlympusConference, steel = 5)
       playProject(StaticHarvesting, 5).expect("0 M")
       playProject(ProtectedGrowth, 2).expect("1 M")
-      convertPlants {
-        placeTile(4, 8)
-      }
+      convertPlants { placeTile(4, 8) }
       playProject(AtalantaPlanitiaLab, 10) {
         draw(Trees, MinorityRefuge)
         doTask("ProjectCard FROM Science<$OlympusConference>")
@@ -217,21 +213,14 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       playProject(BusinessNetwork, 4).expect("PROD[-M], -4 M")
       cardAction1(BusinessNetwork) { buyCards(Thermophiles) }
       cardAction1(RotatorImpacts) { pay(titanium = 2) }
-      playProject(AirScrappingExpedition, 13) {
-            addCardResources(ForcedPrecipitation)
-          }
+      playProject(AirScrappingExpedition, 13) { addCardResources(ForcedPrecipitation) }
           .expect("-10 M")
       cardAction2(ForcedPrecipitation)
       cardAction2(RegolithEaters)
       cardAction1(Extremophiles) { addCardResources(RegolithEaters) }
       cardAction1(SulphurEatingBacteria)
-      playProject(SoilEnrichment, 6) {
-            doTask("-Microbe<$Extremophiles>")
-          }
-          .expect("-3 M")
-      convertPlants {
-        placeTile(5, 8)
-      }
+      playProject(SoilEnrichment, 6) { doTask("-Microbe<$Extremophiles>") }.expect("-3 M")
+      convertPlants { placeTile(5, 8) }
       sellPatents(FuelFactory)
       playProject(Thermophiles, 9)
       cardAction1(Thermophiles) { addCardResources(Thermophiles) }
@@ -299,10 +288,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       playProject(TowingAComet, 5, titanium = 6) { placeTile(4, 6) }.expect("0 M")
       playProject(LavaFlows, 18) { placeTile(3, 1) }.expect("-15 M")
       stdProject("AsteroidSP") { placeTile(4, 7) }.expect("-10 M")
-      convertPlants {
-            placeTile(5, 7)
-          }
-          .expect("4 M")
+      convertPlants { placeTile(5, 7) }.expect("4 M")
       cardAction1(BusinessNetwork) { buyCards(NuclearPower) }
       cardAction2(ForcedPrecipitation)
       cardAction1(RegolithEaters)
@@ -322,10 +308,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       buyCards(InventorsGuild)
 
       convertHeat()
-      convertPlants {
-            placeTile(5, 6)
-          }
-          .expect("2 M")
+      convertPlants { placeTile(5, 6) }.expect("2 M")
       convertHeat()
       convertHeat()
       cardAction1(AiCentral) { draw(MartianRails, Supercapacitors) }
@@ -367,9 +350,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
         addCardResources(SulphurEatingBacteria)
       }
       sellPatents(VenusMagnetizer, Advertising, Insulation)
-      cardAction2(SulphurEatingBacteria) {
-            doTask("-19 Microbe<$SulphurEatingBacteria> THEN 57 M")
-          }
+      cardAction2(SulphurEatingBacteria) { doTask("-19 Microbe<$SulphurEatingBacteria> THEN 57 M") }
           .expect("57 M")
       playProject(ReleaseOfInertGases, 14).expect("-11 M")
       stdProject("AquiferSP") { placeTile(2, 5) }.expect("-14 M")
@@ -378,14 +359,8 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       playProject(Algae, 10)
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       stdProject("AquiferSP") { placeTile(5, 4) }.expect("-16 M")
-      convertPlants {
-            placeTile(5, 5)
-          }
-          .expect("4 M")
-      convertPlants {
-            placeTile(3, 4)
-          }
-          .expect("4 M")
+      convertPlants { placeTile(5, 5) }.expect("4 M")
+      convertPlants { placeTile(3, 4) }.expect("4 M")
       stdProject("AsteroidSP")
       assertCounts(3 to "M")
       pass()

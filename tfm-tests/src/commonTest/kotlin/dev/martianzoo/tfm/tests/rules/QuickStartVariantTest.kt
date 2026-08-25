@@ -93,9 +93,7 @@ internal class QuickStartVariantTest : CardTest() {
     p1.manual("8 Megacredit")
     engine.phase("Action")
 
-    shouldThrow<RequirementException> {
-      p1.stdAction("ClaimMilestoneSA") { doTask("Generalist2") }
-    }
+    shouldThrow<RequirementException> { p1.stdAction("ClaimMilestoneSA") { doTask("Generalist2") } }
 
     p1.manual("PROD[Megacredit, Steel, Titanium, Plant, Energy, Heat]")
     p1.stdAction("ClaimMilestoneSA") { doTask("Generalist2") }

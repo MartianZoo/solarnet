@@ -46,9 +46,7 @@ internal class InsulationTest : CardTest() {
   @Test
   internal fun `Cannot convert another player's production`() {
     p1.playProject(Insulation, 2) {
-      shouldThrow<NarrowingException> {
-        doTask("PROD[2 Megacredit<Player2> FROM Heat<Player2>]")
-      }
+      shouldThrow<NarrowingException> { doTask("PROD[2 Megacredit<Player2> FROM Heat<Player2>]") }
       abort()
     }
   }

@@ -80,9 +80,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Metric.Count(recurse()) }
       register { Metric.Constant(choose(1, 3, 5, 11)) }
       register { Metric.Scaled(recurse(), choose(2, 2, 3)) }
-      register {
-        Metric.Max(inner = recurse(), maximum = Metric.Constant(choose(5, 11)))
-      }
+      register { Metric.Max(inner = recurse(), maximum = Metric.Constant(choose(5, 11))) }
       fun RandomGenerator<PetNode>.metricOperand(): Metric =
           chooseS(4 to { recurse<Metric>() }, 1 to { recurse<Metric.Constant>() })
       register { Metric.Subtract(recurse(), metricOperand()) }
@@ -248,9 +246,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   }
 
   inline fun <reified T : PetNode> printTestStrings(count: Int) {
-    repeat(count) {
-      println(makeRandomNode<T>())
-    }
+    repeat(count) { println(makeRandomNode<T>()) }
   }
 
   private inline fun <reified T : PetNode> printTestStringOfEachLength(maxLength: Int) {

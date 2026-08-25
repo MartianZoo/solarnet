@@ -57,9 +57,7 @@ internal class MergerTest : CardTest() {
     engine.phase("Prelude")
     p1.manual("PreludeCard")
 
-    p1.playPrelude(Merger) {
-      doTask("PlayCard<Class<CorporationCard>, Class<$Celestic>>")
-    }
+    p1.playPrelude(Merger) { doTask("PlayCard<Class<CorporationCard>, Class<$Celestic>>") }
 
     p1.assertCounts(1 to "$Celestic")
   }
@@ -75,9 +73,7 @@ internal class MergerTest : CardTest() {
     )
     p1.playCorp(Polyphemos, 0)
     engine.phase("Prelude")
-    p1.playPrelude(Merger) {
-      doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>")
-    }
+    p1.playPrelude(Merger) { doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>") }
 
     p1.manual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(megacredits = 3)

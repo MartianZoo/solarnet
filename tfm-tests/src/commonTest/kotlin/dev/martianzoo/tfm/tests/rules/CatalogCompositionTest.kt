@@ -74,10 +74,7 @@ internal class CatalogCompositionTest {
         }
     val catalog = TfmCatalog.compose(Canon, extension)
 
-    val failure =
-        shouldThrow<PetException> {
-          Engine.newGame(canonicalPremise(catalog = catalog))
-        }
+    val failure = shouldThrow<PetException> { Engine.newGame(canonicalPremise(catalog = catalog)) }
 
     failure.message.orEmpty().shouldInclude("BlockedBootstrap<MissingBootstrapDependency>")
     failure.message.orEmpty().shouldInclude("requires MissingBootstrapDependency")

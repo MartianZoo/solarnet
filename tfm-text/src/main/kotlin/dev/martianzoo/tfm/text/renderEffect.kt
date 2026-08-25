@@ -112,9 +112,9 @@ private fun renderLinkedPlayedTagResourceChoice(
   val alternatives = (effect.instruction as? Instruction.Or)?.instructions ?: return null
   var linkedDestination = false
   val clauses = alternatives.map { alternative ->
-    renderLinkedCardResourceGain(alternative, holder, describers)?.also {
-      linkedDestination = true
-    } ?: renderInstructions(alternative, describers).clauses.singleOrNull() ?: return null
+    renderLinkedCardResourceGain(alternative, holder, describers)?.also { linkedDestination = true }
+        ?: renderInstructions(alternative, describers).clauses.singleOrNull()
+        ?: return null
   }
   if (!linkedDestination) return null
   val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
@@ -1094,9 +1094,7 @@ private fun Describers.placementEvent(expression: Expression, actor: EventActor)
       resolvedPlacement.sites
           .singleOrNull()
           ?.takeIf { it.simple }
-          ?.let {
-            fact(it.className, ComponentDescriber::metricLocation)
-          }
+          ?.let { fact(it.className, ComponentDescriber::metricLocation) }
   val modifiers =
       location?.let { listOf(Modifier.Phrase(it)) }
           ?: renderPlacementSites(resolvedPlacement, this)

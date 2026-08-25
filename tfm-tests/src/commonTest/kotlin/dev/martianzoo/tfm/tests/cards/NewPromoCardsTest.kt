@@ -36,9 +36,7 @@ internal class NewPromoCardsTest : CardTest() {
     val oceanArea = "Tharsis_2_6"
     p2.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
-    p2.cardAction2(IcyImpactors) {
-      p1.doTask("OceanTile<$oceanArea> BY Player2")
-    }
+    p2.cardAction2(IcyImpactors) { p1.doTask("OceanTile<$oceanArea> BY Player2") }
 
     p2.count("TerraformRating") shouldBe 21
     p1.count("TerraformRating") shouldBe 20
@@ -51,9 +49,7 @@ internal class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
-    p1.cardAction2(IcyImpactors) {
-      doTask("OceanTile<Tharsis_1_2> BY Player1")
-    }
+    p1.cardAction2(IcyImpactors) { doTask("OceanTile<Tharsis_1_2> BY Player1") }
 
     p1.count("TerraformRating") shouldBe 21
   }
@@ -106,10 +102,7 @@ internal class NewPromoCardsTest : CardTest() {
 
     engine.phase("Action")
     p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
-    p1.playProject(Mine, 1) {
-          doTask("Pay<Class<Plant>> FROM Plant")
-        }
-        .expect("-Plant")
+    p1.playProject(Mine, 1) { doTask("Pay<Class<Plant>> FROM Plant") }.expect("-Plant")
   }
 
   @Test

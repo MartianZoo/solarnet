@@ -18,9 +18,7 @@ internal class CapitalTest : CardTest() {
     engine.manual("OceanTile<Tharsis_6_8>")
     engine.phase("Action")
 
-    shouldThrow<RequirementException> {
-      p1.playProject(Capital, 26) { placeTile(3, 3) }
-    }
+    shouldThrow<RequirementException> { p1.playProject(Capital, 26) { placeTile(3, 3) } }
   }
 
   @Test
@@ -33,9 +31,7 @@ internal class CapitalTest : CardTest() {
     engine.manual("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
     engine.phase("Action")
 
-    p1.playProject(Capital, 26) {
-      placeTile(3, 3)
-    }
+    p1.playProject(Capital, 26) { placeTile(3, 3) }
 
     p1.assertCounts(1 to "CityTile<Tharsis_3_3>")
     p1.manual("GreeneryTile<Tharsis_2_3>")

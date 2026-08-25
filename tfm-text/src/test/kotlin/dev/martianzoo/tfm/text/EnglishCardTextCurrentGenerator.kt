@@ -23,9 +23,7 @@ internal object EnglishCardTextCurrentGenerator {
               rendering.bottom,
               rendering.top,
           )
-          .also { columns ->
-            require(columns.none { '\t' in it || '\n' in it || '\r' in it })
-          }
+          .also { columns -> require(columns.none { '\t' in it || '\n' in it || '\r' in it }) }
           .joinToString("\t")
           .trimEnd('\t')
     }
@@ -48,9 +46,7 @@ internal object EnglishCardTextCurrentGenerator {
             )
             .map { (reason, entries) ->
               val examples =
-                  entries.take(2).joinToString(" | ") {
-                    "${it.cardClass}: ${it.unresolved.node}"
-                  }
+                  entries.take(2).joinToString(" | ") { "${it.cardClass}: ${it.unresolved.node}" }
               listOf(entries.size, reason, examples).joinToString("\t")
             }
     refusalOutput.writeText(

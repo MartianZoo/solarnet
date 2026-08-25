@@ -36,9 +36,7 @@ internal class DomainExceptionBoundaryTest {
   internal fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
     val gameplay = gameplay()
 
-    shouldThrow<NoNewClassDeclarationsException> {
-      gameplay.manual("Mandate { -> 3 ProjectCard }")
-    }
+    shouldThrow<NoNewClassDeclarationsException> { gameplay.manual("Mandate { -> 3 ProjectCard }") }
     shouldThrow<PetSyntaxException> { gameplay.manual("Mandate { -> }") }
   }
 

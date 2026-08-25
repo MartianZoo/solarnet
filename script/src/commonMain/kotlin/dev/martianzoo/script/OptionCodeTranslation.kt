@@ -21,9 +21,7 @@ internal object OptionCodeTranslation {
   ): Setup {
     require(players in 1..5) { "player count must be between 1 and 5" }
     val codes = optionCodes.asIterable().map(Char::toString).toSetStrict()
-    require(optionsByCode.containsAll(codes)) {
-      "supported option codes are: $optionsByCode"
-    }
+    require(optionsByCode.containsAll(codes)) { "supported option codes are: $optionsByCode" }
     require("B" in codes) { "include B for the base game" }
     val selectedMapBundles = codes.intersect(bundleDefaultMapOptions.keys)
     require(selectedMapBundles.size <= 1) {

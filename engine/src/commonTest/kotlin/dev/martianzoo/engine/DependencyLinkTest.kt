@@ -56,9 +56,7 @@ internal class DependencyLinkTest {
   internal fun `links survive inheritance`() {
     table.resolve(te("InheritedLink<Player1, Card>")) shouldBe
         table.resolve(te("InheritedLink<Card<Player1>>"))
-    shouldThrow<ExpressionException> {
-      table.resolve(te("InheritedLink<Player1, Card<Player2>>"))
-    }
+    shouldThrow<ExpressionException> { table.resolve(te("InheritedLink<Player1, Card<Player2>>")) }
   }
 
   @Test

@@ -454,9 +454,7 @@ private constructor(
               }
           val selectorDomain =
               abstractActorSupertypes.singleOrNull { candidate ->
-                abstractActorSupertypes.none {
-                  it != candidate && it.isSubtypeOf(candidate)
-                }
+                abstractActorSupertypes.none { it != candidate && it.isSubtypeOf(candidate) }
               }
                   ?: run {
                     // A passive Owner such as SoloOpponent is not an Actor. Its opposing Actors

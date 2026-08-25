@@ -1,6 +1,4 @@
-plugins {
-  id("solarnet.kmp-jvm-js")
-}
+plugins { id("solarnet.kmp-jvm-js") }
 
 kotlin {
   sourceSets {

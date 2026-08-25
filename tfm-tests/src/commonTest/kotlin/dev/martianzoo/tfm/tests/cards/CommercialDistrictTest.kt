@@ -30,9 +30,7 @@ internal class CommercialDistrictTest : CardTest() {
     p1.manual("PROD[Energy]")
 
     p1.manual("$CommercialDistrict") {
-      shouldThrow<NarrowingException> {
-        placeTile(1, 2)
-      }
+      shouldThrow<NarrowingException> { placeTile(1, 2) }
       abort()
     }
 

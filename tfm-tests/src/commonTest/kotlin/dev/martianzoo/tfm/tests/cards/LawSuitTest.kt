@@ -97,9 +97,7 @@ internal class LawSuitTest : CardTest() {
     p2.manual("5 Megacredit, PROD[-Plant<Player1>]")
     p3.manual("5 Megacredit, PROD[-Plant<Player1>]")
 
-    p1.playProject(LawSuit, 2) {
-      choosePlayer2()
-    }
+    p1.playProject(LawSuit, 2) { choosePlayer2() }
 
     p1.assertCounts(3 to "Megacredit")
     p2.assertCounts(2 to "Megacredit")

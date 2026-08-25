@@ -32,9 +32,7 @@ internal class EffectActorCharacterizationTest {
     assertFailsWith<LimitsException> { player.manual("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
 
-    assertFailsWith<LimitsException> {
-      game.gameplay(ENGINE).godMode().manual("-TharsisMap")
-    }
+    assertFailsWith<LimitsException> { game.gameplay(ENGINE).godMode().manual("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
   }
 

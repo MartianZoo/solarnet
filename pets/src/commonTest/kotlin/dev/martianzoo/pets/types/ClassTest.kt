@@ -212,9 +212,7 @@ internal class ClassTest {
 
   @Test
   internal fun `effects cannot create class representatives`() {
-    shouldThrow<PetException> {
-      loader("CLASS Source { This:: Class<Target> }\nCLASS Target")
-    }
+    shouldThrow<PetException> { loader("CLASS Source { This:: Class<Target> }\nCLASS Target") }
   }
 
   @Test
@@ -606,9 +604,7 @@ internal class ClassTest {
   @Test
   internal fun concreteSuperclassRejected() {
     shouldThrow<PetException> { loadTypes("CLASS Foo", "CLASS Bar : Foo") }
-    shouldThrow<PetException> {
-      loadTypes("CLASS Foo", "ABSTRACT CLASS Bar : Foo")
-    }
+    shouldThrow<PetException> { loadTypes("CLASS Foo", "ABSTRACT CLASS Bar : Foo") }
   }
 
   @Test

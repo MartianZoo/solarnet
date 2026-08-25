@@ -13,20 +13,14 @@ internal class MiningAreaTest : CardTest() {
   internal fun `Can be placed adjacent to a steel area`() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
-    p1.manual("$MiningArea") {
-          placeTile(1, 1)
-        }
-        .expect("2 Steel, PROD[Steel]")
+    p1.manual("$MiningArea") { placeTile(1, 1) }.expect("2 Steel, PROD[Steel]")
   }
 
   @Test
   internal fun `Can be placed adjacent to a titanium area`() {
     newGame()
     p1.manual("CityTile<Tharsis_7_9>")
-    p1.manual("$MiningArea") {
-          placeTile(8, 9)
-        }
-        .expect("Titanium, PROD[Titanium]")
+    p1.manual("$MiningArea") { placeTile(8, 9) }.expect("Titanium, PROD[Titanium]")
   }
 
   @Test
@@ -51,17 +45,13 @@ internal class MiningAreaTest : CardTest() {
   @Test
   internal fun `Cannot be played without an adjacent owned tile`() {
     newGame()
-    shouldThrow<DependencyException> {
-      p1.manual("$MiningArea") { placeTile(1, 1) }
-    }
+    shouldThrow<DependencyException> { p1.manual("$MiningArea") { placeTile(1, 1) } }
   }
 
   @Test
   internal fun `Cannot select a card-bonus area`() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
-    shouldThrow<NotNowException> {
-      p1.manual("$MiningArea") { placeTile(3, 2) }
-    }
+    shouldThrow<NotNowException> { p1.manual("$MiningArea") { placeTile(3, 2) } }
   }
 }

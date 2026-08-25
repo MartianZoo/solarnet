@@ -85,9 +85,7 @@ private object TypeStructureReport {
 
     val depthCache = mutableMapOf<PetsClass, Int>()
     fun depth(klass: PetsClass): Int =
-        depthCache.getOrPut(klass) {
-          klass.directSuperclasses.maxOfOrNull(::depth)?.plus(1) ?: 0
-        }
+        depthCache.getOrPut(klass) { klass.directSuperclasses.maxOfOrNull(::depth)?.plus(1) ?: 0 }
 
     val directEdges = active.sumOf { it.directSuperclasses.size }
     val ancestorCounts = active.map { it.allSuperclasses().size }
@@ -241,7 +239,10 @@ private object TypeStructureReport {
       line("descendant count (including self)", distribution(descendantCounts))
       line("concrete-descendant count", distribution(concreteDescendantCounts))
       line("reflexive subtype pairs", subtypePairs)
-      line("subtype relation density", percent(subtypePairs, active.size.toLong() * active.size))
+      line(
+          "subtype relation density",
+          percent(subtypePairs, active.size.toLong() * active.size),
+      )
       line("equal concrete-extension class groups", equalConcreteExtensions.size)
       appendTop("largest class families", active, { table.allSubclasses(it).size })
       appendTop("most ancestors", active, { it.allSuperclasses().size })
@@ -266,13 +267,19 @@ private object TypeStructureReport {
           percent(knownCompiledSetBits, known.size.toLong() * bitBearingSuperclasses.size),
       )
       line("active-class words per fixed bitmap", activeWords)
-      line("active ancestor matrix", bytes(active.size.toLong() * activeWords * Long.SIZE_BYTES))
+      line(
+          "active ancestor matrix",
+          bytes(active.size.toLong() * activeWords * Long.SIZE_BYTES),
+      )
       line(
           "active full relation lower bound",
           bytes(bitsToBytes(active.size.toLong() * active.size)),
       )
       line("known-class words per fixed bitmap", knownWords)
-      line("known full relation lower bound", bytes(bitsToBytes(known.size.toLong() * known.size)))
+      line(
+          "known full relation lower bound",
+          bytes(bitsToBytes(known.size.toLong() * known.size)),
+      )
 
       section("Dependency structure")
       line("inherited dependency slots per class", distribution(dependencyCounts))
@@ -281,7 +288,10 @@ private object TypeStructureReport {
       line("maximum nested type depth", distribution(dependencyDepths))
       line("classes without dependencies", dependencyCounts.count { it == 0 })
       line("classes with inherited dependencies", dependencyCounts.count { it > 0 })
-      line("classes with linked dependency groups", dependencyLinks.count { it.value.isNotEmpty() })
+      line(
+          "classes with linked dependency groups",
+          dependencyLinks.count { it.value.isNotEmpty() },
+      )
       line(
           "linked dependency groups",
           dependencyLinks.values.sumOf(List<Set<DependencyPath>>::size),
@@ -523,9 +533,7 @@ private object TypeStructureReport {
               .asSequence()
               .filterNot(PetsClass::abstract)
               .mapNotNull { concreteClass -> type glb concreteClass.baseType }
-              .fold(BigInteger.ZERO) { total, concreteType ->
-                total + countSameClass(concreteType)
-              }
+              .fold(BigInteger.ZERO) { total, concreteType -> total + countSameClass(concreteType) }
         }
   }
 
@@ -657,9 +665,7 @@ private object TypeStructureReport {
     values
         .sortedWith(compareByDescending(metric).thenBy { it.toString() })
         .take(TOP_LIMIT)
-        .forEach {
-          appendLine("  ${metric(it).toString().padStart(8)}  $it")
-        }
+        .forEach { appendLine("  ${metric(it).toString().padStart(8)}  $it") }
   }
 
   private fun <T> StringBuilder.appendTopBig(
@@ -671,9 +677,7 @@ private object TypeStructureReport {
     values
         .sortedWith(compareByDescending(metric).thenBy { it.toString() })
         .take(TOP_LIMIT)
-        .forEach {
-          appendLine("  ${integer(metric(it)).padStart(20)}  $it")
-        }
+        .forEach { appendLine("  ${integer(metric(it)).padStart(20)}  $it") }
   }
 
   private fun StringBuilder.appendEquivalentExamples(

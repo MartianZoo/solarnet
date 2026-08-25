@@ -72,17 +72,11 @@ internal class ClassDeclarationParsingTest {
   @Test
   internal fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar, Bar") }
-    shouldThrow<PetSyntaxException> {
-      parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }")
-    }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }") }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo @ CLASS Bar") }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { cost = -1 }") }
-    shouldThrow<PetSyntaxException> {
-      parseClasses("CLASS Foo { score = TemperatureStep }")
-    }
-    shouldThrow<PetSyntaxException> {
-      parseClasses("CLASS Foo { score = COUNT TemperatureStep }")
-    }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { score = TemperatureStep }") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { score = COUNT TemperatureStep }") }
     shouldThrow<PetSyntaxException> {
       parseClasses("CLASS Foo { requirement = HAS TemperatureStep }")
     }
@@ -139,9 +133,7 @@ internal class ClassDeclarationParsingTest {
             "CLASS Foo\nCLASS Bar { HAS",
             "CLASS Foo\n\"Bar docs\"",
         )
-        .forEach { source ->
-          assertFailsWith<PetSyntaxException>(source) { parseClasses(source) }
-        }
+        .forEach { source -> assertFailsWith<PetSyntaxException>(source) { parseClasses(source) } }
   }
 
   @Test

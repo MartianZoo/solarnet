@@ -19,18 +19,13 @@ internal class EcolineTest : CardTest() {
   internal fun `Can convert seven plants into greenery`() {
     p1.manual("4 Plant")
     p1.assertCounts(7 to "Plant")
-    p1.convertPlants {
-          placeTile(4, 2)
-        }
-        .expect("-6 Plant, GreeneryTile")
+    p1.convertPlants { placeTile(4, 2) }.expect("-6 Plant, GreeneryTile")
     p1.assertCounts(1 to "Plant")
   }
 
   @Test
   internal fun `Cannot convert only six plants into greenery`() {
     p1.manual("3 Plant")
-    shouldThrow<LimitsException> {
-      p1.convertPlants()
-    }
+    shouldThrow<LimitsException> { p1.convertPlants() }
   }
 }
