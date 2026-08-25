@@ -14,6 +14,7 @@ import kotlin.test.BeforeTest
 
 internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   private val hands = mutableMapOf<Player, MutableSet<ClassName>>()
+  private val seenCards = mutableSetOf<ClassName>()
   private val expectedDraws = mutableMapOf<Player, MutableList<ClassName>>()
   private val expectedDiscards = mutableMapOf<Player, MutableList<ClassName>>()
   private lateinit var trackingCheckpoint: Checkpoint
@@ -22,12 +23,31 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
+    hands.clear()
+    seenCards.clear()
+    expectedDraws.clear()
+    expectedDiscards.clear()
+    observerInstalled = false
     game.actors.filterIsInstance<Player>().forEach { hands[it] = mutableSetOf() }
     trackingCheckpoint = game.timeline.checkpoint()
   }
 
   protected fun TfmGameplay.draw(vararg cardClasses: ClassName) {
     installObserver()
+    cardClasses.forEach { cardClass ->
+      check(seenCards.add(cardClass)) { "$cardClass has already been mentioned" }
+      check(hand(player).add(cardClass)) { "$player already has $cardClass in hand" }
+    }
+    expect(cardClasses, expectedDraws)
+  }
+
+  protected fun TfmGameplay.returnToHand(vararg cardClasses: ClassName) {
+    installObserver()
+    cardClasses.forEach { cardClass ->
+      check(cardClass in seenCards) { "$cardClass has not previously been mentioned" }
+      check(hands.values.none { cardClass in it }) { "$cardClass is already in a player's hand" }
+      check(hand(player).add(cardClass)) { "$player already has $cardClass in hand" }
+    }
     expect(cardClasses, expectedDraws)
   }
 
@@ -93,13 +113,8 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   private fun draw(player: Player, count: Int) {
     repeat(count) {
-      val cardClass =
-          expectedDraws[player]?.removeFirstOrNull()
-              ?: error("$player gained a ProjectCard without a queued name")
-      check(hands.values.none { cardClass in it }) {
-        "$cardClass is already in a player's hand"
-      }
-      check(hand(player).add(cardClass)) { "$player already has $cardClass in hand" }
+      expectedDraws[player]?.removeFirstOrNull()
+          ?: error("$player gained a ProjectCard without a queued name")
     }
   }
 

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.TaskResult
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -22,6 +23,19 @@ internal abstract class TfmTest {
     get() = game.tfm(ENGINE)
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
+
+  protected fun <T> OperationBody.doWithoutAutoExec(
+      gameplay: TfmGameplay,
+      body: OperationBody.() -> T,
+  ): T {
+    val previousAutoExecMode = gameplay.autoExecMode
+    gameplay.autoExecMode = NONE
+    return try {
+      body()
+    } finally {
+      gameplay.autoExecMode = previousAutoExecMode
+    }
+  }
 
   protected fun OperationBody.buyCards(count: Int) {
     doTask(if (count == 0) "Ok" else "$count BuyCard")

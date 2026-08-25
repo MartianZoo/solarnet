@@ -208,6 +208,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Teach the English renderer to consolidate repeated identical optional card transfers, so Astra
+  Mechanica's two independent choices render as “return up to 2” rather than two sentences.
 - Finish making `cards.pets` the sole card authority: express card-to-supporting-declaration
   contribution links and replacement relationships in Pets, then derive pre-load deck selection,
   tag validation, and compatibility without JSON-backed `CardDefinition` metadata.

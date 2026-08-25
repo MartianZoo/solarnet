@@ -662,7 +662,7 @@
       "projectKind": "AUTOMATED",
       "cost": 7,
       "tags": [ "ScienceTag" ],
-      "immediate": "CARDS[2 ProjectCard<Hand FROM EventPile>?]",
+      "immediate": "CARDS[ProjectCard<Hand FROM EventPile>?], CARDS[ProjectCard<Hand FROM EventPile>?]",
     },
 
     {

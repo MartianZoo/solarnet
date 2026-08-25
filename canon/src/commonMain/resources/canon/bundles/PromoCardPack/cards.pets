@@ -541,7 +541,7 @@ CLASS AstraMechanica : AutomatedCard<Class<ProjectCard>> {
   cost = 7
 
   This:: ScienceTag<This>
-  This: CARDS[2 ProjectCard<Hand FROM EventPile>?]
+  This: CARDS[ProjectCard<Hand FROM EventPile>?], CARDS[ProjectCard<Hand FROM EventPile>?]
 }
 
 CLASS CarbonNanosystems : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Graphene>> {
