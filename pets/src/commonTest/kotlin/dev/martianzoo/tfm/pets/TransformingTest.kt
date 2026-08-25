@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.api.Exceptions.KindException
-import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.Transforming.actionToEffect
 import dev.martianzoo.pets.Transforming.immediateToEffect
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -148,8 +148,8 @@ internal class TransformingTest {
             "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
     checkResolveThis<Effect>(petsIn, te("It<Worked>"), petsOut)
 
-    // allows nonsense
-    checkResolveThis<Instruction>("This<Foo>", cn("Bar").expression, "This<Foo>")
+    checkResolveThis<Instruction>("This<Foo>", cn("Bar").expression, "Bar<Foo>")
+    checkResolveThis<Instruction>("This<Foo>", te("Bar<Qux>"), "Bar<Foo>")
   }
 
   private inline fun <reified P : PetNode> checkResolveThis(
@@ -168,7 +168,7 @@ internal class TransformingTest {
   ) {
     val parsedOriginal = parse(type, original)
     val parsedExpected = parse(type, expected)
-    val transformer = replacer(THIS.expression, thiss)
+    val transformer = replaceThisExpressionsWith(thiss)
     val tx =
         when (parsedOriginal) {
           is Effect -> transformer.transformEffect(parsedOriginal)

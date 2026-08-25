@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
@@ -15,6 +16,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -27,14 +29,14 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.Max
-import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.TfmClasses.ACTION_CARD
 import dev.martianzoo.tfm.data.TfmClasses.ACTIVE_CARD
 import dev.martianzoo.tfm.data.TfmClasses.AUTOMATED_CARD
 import dev.martianzoo.tfm.data.TfmClasses.CARD_FRONT
+import dev.martianzoo.tfm.data.TfmClasses.CARD_RESOURCE
 import dev.martianzoo.tfm.data.TfmClasses.CORPORATION_CARD
 import dev.martianzoo.tfm.data.TfmClasses.END
 import dev.martianzoo.tfm.data.TfmClasses.EVENT_CARD
@@ -42,6 +44,8 @@ import dev.martianzoo.tfm.data.TfmClasses.EVENT_TAG
 import dev.martianzoo.tfm.data.TfmClasses.PRELUDE_CARD
 import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
 import dev.martianzoo.tfm.data.TfmClasses.RESOURCE_CARD
+import dev.martianzoo.tfm.data.TfmClasses.TAG
+import dev.martianzoo.types.Class as PetClass
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import kotlinx.serialization.Serializable
@@ -51,7 +55,13 @@ import kotlinx.serialization.Serializable
  * It's theoretically possible to reconstruct acceptable instruction text from this data, just not
  * the original wording.
  */
-public class CardDefinition(data: CardData) : Definition {
+public class CardDefinition
+private constructor(
+    private val data: CardData,
+    private val loadedClass: PetClass?,
+) : Definition {
+  public constructor(data: CardData) : this(data, null)
+
   override val className: ClassName = cn(data.name)
 
   private val derivedClasses = DerivedClassLowerer(className)
@@ -64,16 +74,22 @@ public class CardDefinition(data: CardData) : Definition {
    * property is public information even when the rest of the card data is hidden, then becomes
    * irrelevant as soon as the card has been played.
    */
-  public val deck: Deck? = data.deck?.let(Deck::valueOf)
+  private val sourceDeck: Deck? = data.deck?.let(Deck::valueOf)
+
+  public val deck: Deck?
+    get() =
+        loadedClass?.representedCardClass()?.let { represented ->
+          Deck.entries.singleOrNull { it.className == represented.className }
+        } ?: sourceDeck
 
   override val automaticSelectionRequirement: Requirement? =
-      if (deck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null
+      if (sourceDeck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null
 
   /** The card this card replaces, if any. For example, `DeimosDownPromo` replaces `DeimosDown`. */
   public val replaces: ClassName? = data.replaces?.let(::cn)
 
   internal val projectInfo: ProjectInfo? =
-      if (deck == PROJECT) {
+      if (sourceDeck == PROJECT) {
         ProjectInfo(data, data.requirement?.let(::parseOwned))
       } else {
         null
@@ -85,7 +101,7 @@ public class CardDefinition(data: CardData) : Definition {
    * from printed cards just because). Every event card additionally receives the derived
    * [EVENT_TAG].
    */
-  public val tags: Multiset<ClassName> =
+  private val sourceTags: Multiset<ClassName> =
       HashMultiset.of(
           data.tags.map(::cn).also { authoredTags ->
             require(EVENT_TAG !in authoredTags) {
@@ -94,31 +110,54 @@ public class CardDefinition(data: CardData) : Definition {
           } + listOfNotNull(if (projectInfo?.kind == ProjectKind.EVENT) EVENT_TAG else null)
       )
 
-  /** The card's immediate instruction, if any. */
-  public val immediate: InstructionGroup? =
+  public val tags: Multiset<ClassName>
+    get() = loadedClass?.loadedTags() ?: sourceTags
+
+  /** Authored Pets source for the card's immediate instruction, if any. */
+  public val authoredImmediateSource: String?
+    get() = data.immediate
+
+  private val sourceImmediate: InstructionGroup? =
       data.immediate?.let {
         InstructionGroup.of(parseOwned<InstructionTree>(it))
       }
 
-  /**
-   * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
-   * may not have these.
-   */
-  public val actions: List<Action> = data.actions.map(::parseOwned)
+  public val immediate: InstructionGroup?
+    get() = loadedClass?.loadedImmediate() ?: sourceImmediate
 
-  /**
-   * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
-   * may not have these.
-   */
-  public val effects: List<Effect> = data.effects.map(::parseOwned)
+  /** Authored Pets source for the card's actions. */
+  public val authoredActionSources: List<String>
+    get() = data.actions
+
+  private val sourceActions: List<Action> = data.actions.map(::parseOwned)
+
+  public val actions: List<Action>
+    get() = loadedClass?.declaration?.authoredActions ?: sourceActions
+
+  /** Authored Pets source for the card's effects. */
+  public val authoredEffectSources: List<String>
+    get() = data.effects
+
+  private val sourceEffects: List<Effect> = data.effects.map(::parseOwned)
+
+  public val effects: List<Effect>
+    get() = loadedClass?.loadedAuthoredEffects() ?: sourceEffects
 
   private val componentClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
 
   /** The card's printed play requirement, if any. */
-  public val requirement: Requirement? = projectInfo?.requirement
+  public val requirement: Requirement?
+    get() =
+        loadedClass?.properties?.get(REQUIREMENT_PROPERTY)?.let { value ->
+          (value as? RequirementValue)?.value
+        } ?: projectInfo?.requirement
 
   /** The card's non-negative cost in megacredits. */
-  public val cost: Int = projectInfo?.cost ?: 0
+  public val cost: Int
+    get() =
+        loadedClass?.properties?.get(COST_PROPERTY)?.let { value ->
+          (value as NumberValue).value
+        } ?: projectInfo?.cost ?: 0
 
   /** Extra information that only project cards have. */
   internal class ProjectInfo internal constructor(data: CardData, requirement: Requirement?) {
@@ -134,60 +173,158 @@ public class CardDefinition(data: CardData) : Definition {
   /** Class names whose authored use suggests that this card holds that kind of component. */
   public val resourceTypeCandidates: Set<ClassName> = deriveResourceTypeCandidates()
 
+  private val sourceResourceType: ClassName? = resourceTypeCandidates.singleOrNull()
+
+  public val resourceType: ClassName?
+    get() = loadedClass?.representedResourceClass()?.className ?: sourceResourceType
+
   init {
-    if (deck == PROJECT) {
+    if (sourceDeck == PROJECT) {
       val shouldBeActive =
-          actions.any() ||
-              effects.any { it.trigger != OnGainOf.create(END.expression) } ||
-              resourceTypeCandidates.isNotEmpty()
+          sourceActions.any() ||
+              sourceEffects.any { it.trigger != OnGainOf.create(END.expression) } ||
+              sourceResourceType != null
       require((projectInfo?.kind == ACTIVE) == shouldBeActive)
     }
   }
 
+  /** Supporting declarations emitted with generated Pets source for this card. */
+  public val authoredSupportingClasses: List<ClassDeclaration> = componentClasses
+
   /** Additional class declarations that come along with this card. */
   public val extraClasses: List<ClassDeclaration> = componentClasses + derivedClasses.declarations
 
-  /** Follow-mode declarations with source-level real-card operations neutralized. */
+  /** Follow-mode declarations with source-level real-card operations compiled. */
   internal val executableExtraClasses: List<ClassDeclaration> =
       extraClasses.map(FollowModeNeutralizer::neutralize)
 
-  override val asClassDeclaration: ClassDeclaration by lazy { toClassDeclaration(null) }
+  override val asClassDeclaration: ClassDeclaration by lazy {
+    toClassDeclaration(sourceResourceType)
+  }
 
   internal fun toClassDeclaration(resourceType: ClassName?): ClassDeclaration {
-    val createTags =
-        InstructionGroup.createTree(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
+    return loadedClass?.declaration
+        ?: run {
+          val createTags =
+              InstructionGroup.createTree(
+                  sourceTags.entries.map { (tag, count) ->
+                    gain(tag.of(THIS), count, intensity = null)
+                  }
+              )
 
-    val automaticFx: List<Effect> = listOfNotNull(immediateToEffect(createTags, true))
+          val automaticFx: List<Effect> = listOfNotNull(immediateToEffect(createTags, true))
 
-    val onPlayFx: List<Effect> =
-        listOfNotNull(immediate).mapNotNull { immediateToEffect(it, false) }
+          val onPlayFx: List<Effect> =
+              listOfNotNull(sourceImmediate).mapNotNull { immediateToEffect(it, false) }
 
-    val allEffects: List<Effect> = automaticFx + onPlayFx + effects + actionListToEffects(actions)
+          val authoredEffects: List<Effect> = automaticFx + onPlayFx + sourceEffects
+          val allEffects: List<Effect> = authoredEffects + actionListToEffects(sourceActions)
 
-    val supertypes =
-        setOfNotNull(
-                projectInfo?.kind?.className?.expression,
-                resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
-                if (actions.any()) ACTION_CARD.expression else null,
-            )
-            .ifEmpty { setOf(CARD_FRONT.expression) }
+          val cardBackClass = (sourceDeck?.className ?: CARD_BACK).classExpression()
+          val cardRolesBySpecificity =
+              listOfNotNull(
+                  projectInfo?.kind?.className?.expression,
+                  resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
+                  ACTION_CARD.expression.takeIf { sourceActions.any() },
+              )
+          val supertypes = buildSet {
+            if (cardRolesBySpecificity.isEmpty()) {
+              add(CARD_FRONT.of(cardBackClass))
+            } else {
+              add(cardRolesBySpecificity.first().appendArguments(listOf(cardBackClass)))
+              addAll(cardRolesBySpecificity.drop(1))
+            }
+          }
 
-    return ClassDeclaration(
-        className = className,
-        kind = CONCRETE,
-        supertypes = supertypes,
-        effects = allEffects.map(FollowModeNeutralizer::transformEffect),
-        invariants = setOf(Max(scaledEx(className.expression, 1))),
-        properties =
-            buildMap {
-              put(COST_PROPERTY, NumberValue(cost))
-              requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
-            },
-        extraNodes =
-            setOfNotNull(deck?.className) +
-                componentClasses.map(ClassDeclaration::className) +
-                actionSelectors(actions),
-    )
+          ClassDeclaration(
+              className = className,
+              kind = CONCRETE,
+              supertypes = supertypes,
+              authoredEffects = authoredEffects,
+              authoredActions = sourceActions,
+              executableEffects = allEffects.map(FollowModeNeutralizer::transformEffect),
+              properties =
+                  buildMap {
+                    put(COST_PROPERTY, NumberValue(projectInfo?.cost ?: 0))
+                    projectInfo?.requirement?.let {
+                      put(REQUIREMENT_PROPERTY, RequirementValue(it))
+                    }
+                  },
+              extraNodes =
+                  setOfNotNull(sourceDeck?.className) +
+                      componentClasses.map(ClassDeclaration::className) +
+                      actionSelectors(sourceActions),
+          )
+        }
+  }
+
+  internal fun backedBy(klass: PetClass): CardDefinition {
+    require(klass.className == className)
+    return CardDefinition(data, klass)
+  }
+
+  private fun PetClass.representedClasses(): List<PetClass> =
+      dependencies.typeDependencies().mapNotNull { dependency ->
+        dependency.boundType
+            .takeIf { it.rootClass.className == CLASS }
+            ?.dependencies
+            ?.representedClass
+      }
+
+  private fun PetClass.representedCardClass(): PetClass? {
+    val cardBack = classTable.getClass(CARD_BACK)
+    return representedClasses().singleOrNull { it.isSubtypeOf(cardBack) }
+  }
+
+  private fun PetClass.representedResourceClass(): PetClass? {
+    val cardResource = classTable.getClass(CARD_RESOURCE)
+    return representedClasses().singleOrNull { it.isSubtypeOf(cardResource) }
+  }
+
+  private fun PetClass.loadedTags(): Multiset<ClassName> {
+    val tag = classTable.getClass(TAG)
+    val names =
+        declaration.authoredEffects
+            .filter { it.automatic && it.trigger == WhenGain }
+            .flatMap { it.instruction.descendantsOfType<Gain>() }
+            .flatMap { gained ->
+              val gainedClass = classTable.getClass(gained.gaining.className)
+              if (gainedClass.isSubtypeOf(tag)) {
+                List((gained.count as ActualScalar).value) { gainedClass.className }
+              } else {
+                emptyList()
+              }
+            }
+    return HashMultiset.of(names)
+  }
+
+  private fun PetClass.loadedImmediate(): InstructionGroup? {
+    val instructions =
+        loadedNonActionEffects()
+            .filter { !it.automatic && it.trigger == WhenGain }
+            .map {
+              it.instruction
+            }
+    return instructions
+        .takeIf { it.isNotEmpty() }
+        ?.let {
+          InstructionGroup.of(InstructionGroup.createTree(it))
+        }
+  }
+
+  private fun PetClass.loadedAuthoredEffects(): List<Effect> =
+      loadedNonActionEffects().filterNot { effect ->
+        effect.trigger == WhenGain && (!effect.automatic || effect.containsTagGain())
+      }
+
+  private fun PetClass.loadedNonActionEffects(): List<Effect> = declaration.authoredEffects
+
+  private fun Effect.containsTagGain(): Boolean {
+    val klass = requireNotNull(loadedClass)
+    val tag = klass.classTable.getClass(TAG)
+    return instruction.descendantsOfType<Gain>().any { gain ->
+      klass.classTable.getClass(gain.gaining.className).isSubtypeOf(tag)
+    }
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */
@@ -236,7 +373,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   private fun deriveResourceTypeCandidates(): Set<ClassName> {
-    val cardNodes = listOfNotNull<PetNode>(immediate) + actions + effects
+    val cardNodes = listOfNotNull<PetNode>(sourceImmediate) + sourceActions + sourceEffects
     val authoredNodes = cardNodes + componentClasses.flatMap(ClassDeclaration::allNodes)
     fun isHeldByCard(expression: Expression): Boolean =
         expression.arguments == listOf(THIS.expression)
@@ -247,10 +384,8 @@ public class CardDefinition(data: CardData) : Definition {
             .filter(::isHeldByCard)
             .mapTo(linkedSetOf(), Expression::className)
 
-    // A held component becomes a card resource only when the card consumes or counts it. Merely
-    // adding a bound component, such as WildTag<This>, does not make the card a resource card.
     val used = buildSet {
-      actions
+      sourceActions
           .mapNotNull(Action::cost)
           .flatMap { it.descendantsOfType<Action.Cost.Spend>() }
           .mapTo(this) { it.scaledEx.expression.className }
@@ -265,22 +400,20 @@ public class CardDefinition(data: CardData) : Definition {
     val candidates = (heldByThis intersect used).toMutableSet()
 
     val acceptsFromThis =
-        effects
+        sourceEffects
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .any {
               it.gaining.className == ACCEPT_FROM_CARD && isHeldByCard(it.gaining)
             }
     if (acceptsFromThis) {
-      // AcceptFromCard<This> consumes the card's stocked resource through a linked type rather
-      // than naming that resource directly at the use site.
       val stocked =
-          (actions.flatMap { it.instruction.descendantsOfType<Gain>() } +
-                  effects.flatMap { it.instruction.descendantsOfType<Gain>() })
+          (sourceActions.flatMap { it.instruction.descendantsOfType<Gain>() } +
+                  sourceEffects.flatMap { it.instruction.descendantsOfType<Gain>() })
               .mapTo(linkedSetOf()) { it.gaining.className }
               .minus(ACCEPT_FROM_CARD)
       val explicitlyStocked = heldByThis intersect stocked
       candidates += explicitlyStocked.ifEmpty {
-        actions
+        sourceActions
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .mapTo(linkedSetOf()) { it.gaining.className }
       }
@@ -294,6 +427,7 @@ public class CardDefinition(data: CardData) : Definition {
 
   private companion object {
     val ACCEPT_FROM_CARD = cn("AcceptFromCard")
+    val CARD_BACK = cn("CardBack")
     val COST_PROPERTY = PropertyName("cost")
     val REQUIREMENT_PROPERTY = PropertyName("requirement")
   }

@@ -1,0 +1,789 @@
+// Generated from cards.json5.
+CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
+  cost = 0
+
+  This:: MicrobeTag<This>, BuildingTag<This>
+  This: 38, PROD[Steel]
+  BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
+}
+
+CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: MicrobeTag<This>
+  This: 44, Mandate { -> CARDS[ProjectCard(HAS MicrobeTag)] }
+  MicrobeTag<Anyone, CardFront<Anyone>>: 2
+}
+
+CLASS Factorum : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This:: PowerTag<This>, BuildingTag<This>
+  This: 37, PROD[Steel]
+
+  -> MAX 0 Energy: PROD[Energy]
+  3 -> CARDS[ProjectCard(HAS BuildingTag)]
+}
+
+CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This: 48, PROD[4]
+  MyResourceWasRemoved<Anyone, Player> OR MyProductionWasDecreased<Anyone, Player>: 3 Megacredit<Anyone> FROM Megacredit.
+}
+
+CLASS Philares : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: 47, Mandate { -> GreeneryTile<> }
+  Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource
+}
+
+CLASS AstroDrill : ActionCard, ResourceCard<Class<Asteroid>, Class<CorporationCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: 35, 3 Asteroid<This>
+
+  -> Asteroid OR StandardResource
+  Asteroid<This> -> 3 Titanium
+}
+
+CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
+  cost = 0
+
+  This:: 2 MicrobeTag<This>
+  This: CARDS[ProjectCard(HAS ScienceTag)]
+  This:: 54
+  MicrobeTag<Anyone, CardFront<Anyone>>: (Disease<This>! OR (MAX 0 This: Ok)), -4.
+  ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok)
+}
+
+CLASS TychoMagnetics : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This:: PowerTag<This>, ScienceTag<This>
+  This: 42, PROD[Energy]
+
+  X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]
+}
+
+CLASS KuiperCooperative : ActionCard, ResourceCard<Class<Asteroid>, Class<CorporationCard>> {
+  cost = 0
+
+  This:: 2 SpaceTag<This>
+  This: 33, PROD[Titanium]
+  UseAction<AsteroidSP> OR UseAction<AquiferSP>:: AcceptFromCard<This>
+  PayFromCard<This>:: -Owed<>
+
+  -> Asteroid<This> / SpaceTag
+}
+
+CLASS PolderTechDutch : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 35, Mandate { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }
+  OceanTile: Energy
+  GreeneryTile: Plant
+}
+
+CLASS CorporateArchives : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: ScienceTag<This>
+  This: 13, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
+}
+
+CLASS DoubleDown : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: CopyPrelude
+}
+
+CLASS Merger : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: CARDS[4 CorporationCard<Selecting> THEN CorporationCard<Hand FROM Selecting> THEN PlayCard<Class<CorporationCard>>], -42
+}
+
+CLASS NewPartner : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PROD[1], CARDS[2 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>]
+}
+
+CLASS HeadStart : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 2 Steel, CARDS[2 / ProjectCard<Hand>], UseAction<StandardAction>!, UseAction<StandardAction>!
+}
+
+CLASS AntiDesertificationTechniques : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: MicrobeTag<This>, PlantTag<This>
+  This: 3, PROD[Plant, Steel]
+}
+
+CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 30, UseAction<StandardAction>!, UseAction<StandardAction>!
+}
+
+CLASS GiantSolarCollector : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PowerTag<This>, SpaceTag<This>
+  This: PROD[2 Energy], VenusStep
+}
+
+CLASS StrategicBasePlanning : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: CityTag<This>, BuildingTag<This>, SpaceTag<This>
+  This: -3, CityTile<>, Colony<>
+}
+
+CLASS AlbedoPlants : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PlantTag<This>
+  This: PROD[Plant], Plant
+  PlantTag<>: 3 Heat
+}
+
+CLASS SmallAsteroid : EventCard<Class<ProjectCard>> {
+  cost = 10
+
+  This:: SpaceTag<This>, EventTag<This>
+  This: TemperatureStep, -2 Plant<Anyone>?
+}
+
+CLASS SnowAlgae : AutomatedCard<Class<ProjectCard>> {
+  cost = 12
+  requirement = HAS "2 OceanTile"
+
+  This:: PlantTag<This>
+  This: PROD[Plant, Heat]
+}
+
+CLASS Penguins : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
+  cost = 7
+  requirement = HAS "8 OceanTile"
+
+  This:: AnimalTag<This>
+  End: VictoryPoint / Animal<This>
+
+  -> Animal<This>
+}
+
+CLASS DuskLaserMining : AutomatedCard<Class<ProjectCard>> {
+  cost = 8
+  requirement = HAS "2 ScienceTag"
+
+  This:: SpaceTag<This>
+  This: PROD[-Energy, Titanium], 4 Titanium
+}
+
+CLASS ProjectInspection : EventCard<Class<ProjectCard>> {
+  cost = 0
+
+  This:: EventTag<This>
+  This: UseAction<ActionCard(HAS ActionUsedMarker)>
+}
+
+CLASS EnergyMarket : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 3
+
+  This:: PowerTag<This>
+
+  2X -> X Energy
+  PROD[Energy] -> 8
+}
+
+CLASS HiTechLab : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 17
+
+  This:: ScienceTag<This>, BuildingTag<This>
+  End: VictoryPoint
+
+  X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]
+}
+
+CLASS InterplanetaryTrade : AutomatedCard<Class<ProjectCard>> {
+  cost = 27
+
+  This:: SpaceTag<This>
+  This: PROD[1 / Class<Tag>(HAS Tag<Owner>)]
+  End: VictoryPoint
+}
+
+CLASS LawSuit : EventCard<Class<ProjectCard>> {
+  cost = 2
+
+  This:: EventTag<This>
+  This: 3 Megacredit FROM Megacredit<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): CARDS[CardBack<Player, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>])
+  End: -VictoryPoint
+}
+
+CLASS MercurianAlloys : ActiveCard<Class<ProjectCard>> {
+  cost = 3
+  requirement = HAS "2 ScienceTag"
+
+  This:: SpaceTag<This>
+  Pay<Class<Titanium>>:: -Owed<>
+}
+
+CLASS OrbitalCleanup : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 14
+
+  This:: EarthTag<This>, SpaceTag<This>
+  This: PROD[-2]
+  End: 2 VictoryPoint
+
+  -> 1 / ScienceTag
+}
+
+CLASS RegoPlastics : ActiveCard<Class<ProjectCard>> {
+  cost = 10
+
+  This:: BuildingTag<This>
+  Pay<Class<Steel>>:: -Owed<>
+  End: VictoryPoint
+}
+
+CLASS SaturnSurfing : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 13
+
+  This:: JovianTag<This>, EarthTag<This>
+  This: Floater<This> / EarthTag
+  End: VictoryPoint
+
+  Floater<This> -> 1 / Floater<This> MAX 4, 1
+}
+
+CLASS StanfordTorus : AutomatedCard<Class<ProjectCard>> {
+  cost = 12
+
+  This:: CityTag<This>, SpaceTag<This>
+  This: CityTile<RemoteArea {}>
+  End: 2 VictoryPoint
+}
+
+CLASS Advertising : ActiveCard<Class<ProjectCard>> {
+  cost = 4
+
+  This:: EarthTag<This>
+  CardFront(HAS 20 cost): PROD[1]
+}
+
+CLASS AsteroidDeflectionSystem : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+  cost = 13
+
+  This:: EarthTag<This>, SpaceTag<This>, BuildingTag<This>
+  This: PROD[-Energy]
+  -Plant BY !Owner:: Die
+  End: VictoryPoint / Asteroid<This>
+
+  -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
+}
+
+CLASS AsteroidHollowing : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+  cost = 16
+
+  This:: SpaceTag<This>
+  End: VictoryPoint / 2 Asteroid<This>
+
+  Titanium -> Asteroid<This>, PROD[1]
+}
+
+CLASS CometAiming : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+  cost = 17
+
+  This:: SpaceTag<This>
+
+  Titanium -> Asteroid
+  Asteroid<This> -> OceanTile<>
+}
+
+CLASS CrashSiteCleanup : EventCard<Class<ProjectCard>> {
+  cost = 4
+  requirement = HAS "MyResourceWasRemoved<Anyone, Class<Plant>, Owner>"
+
+  This:: EventTag<This>
+  This: Titanium OR 2 Steel
+  End: VictoryPoint
+}
+
+CLASS CuttingEdgeTechnology : ActiveCard<Class<ProjectCard>> {
+  cost = 12
+
+  This:: ScienceTag<This>
+  CardInvoice<Class<CardFront>(HAS requirement)>:: -2 Owed<>
+  End: VictoryPoint
+}
+
+CLASS DirectedImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+  cost = 8
+
+  This:: SpaceTag<This>
+  UseAction<This, First>:: Accept<Class<Titanium>>
+
+  6 -> Asteroid
+  Asteroid<This> -> TemperatureStep
+}
+
+CLASS DiversitySupport : EventCard<Class<ProjectCard>> {
+  cost = 1
+  requirement = HAS "9 Class<Resource>(HAS Resource<Owner>)"
+
+  This:: EventTag<This>
+  This: TerraformRating
+}
+
+CLASS FieldCappedCity : AutomatedCard<Class<ProjectCard>> {
+  cost = 29
+
+  This:: PowerTag<This>, CityTag<This>, BuildingTag<This>
+  This: PROD[2, Energy], 3 Plant, CityTile<>
+}
+
+CLASS ImportedNutrients : EventCard<Class<ProjectCard>> {
+  cost = 14
+
+  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
+  This: 4 Plant, 4 Microbe
+}
+
+CLASS JovianEmbassy : AutomatedCard<Class<ProjectCard>> {
+  cost = 14
+
+  This:: JovianTag<This>, BuildingTag<This>
+  This: TerraformRating
+  End: VictoryPoint
+}
+
+CLASS MagneticShield : AutomatedCard<Class<ProjectCard>> {
+  cost = 24
+  requirement = HAS "3 PowerTag"
+
+  This:: SpaceTag<This>
+  This: 4 TerraformRating
+}
+
+CLASS MeatIndustry : ActiveCard<Class<ProjectCard>> {
+  cost = 5
+
+  This:: BuildingTag<This>
+  Animal: 2
+}
+
+CLASS Meltworks : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 4
+
+  This:: BuildingTag<This>
+
+  5 Heat -> 3 Steel
+}
+
+CLASS MoholeLake : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 31
+
+  This:: BuildingTag<This>
+  This: OceanTile<>, TemperatureStep, 3 Plant
+
+  -> Microbe OR Animal
+}
+
+CLASS Potatoes : AutomatedCard<Class<ProjectCard>> {
+  cost = 2
+
+  This:: PlantTag<This>
+  This: -2 Plant, PROD[2]
+}
+
+CLASS SubCrustMeasurements : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 20
+  requirement = HAS "2 ScienceTag"
+
+  This:: EarthTag<This>, ScienceTag<This>, BuildingTag<This>
+  End: 2 VictoryPoint
+
+  -> ProjectCard
+}
+
+CLASS TopsoilContract : ActiveCard<Class<ProjectCard>> {
+  cost = 8
+
+  This:: EarthTag<This>, MicrobeTag<This>
+  This: 3 Plant
+  Microbe: 1
+}
+
+// replaces: DeimosDown
+CLASS DeimosDownPromo : EventCard<Class<ProjectCard>> {
+  cost = 31
+
+  This:: SpaceTag<This>, EventTag<This>
+  This: 3 TemperatureStep, SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> {}, 4 Steel, -6 Plant<Anyone>?
+}
+
+// replaces: GreatDam
+CLASS GreatDamPromo : AutomatedCard<Class<ProjectCard>> {
+  cost = 15
+  requirement = HAS "4 OceanTile"
+
+  This:: PowerTag<This>, BuildingTag<This>
+  This: PROD[2 Energy], SpecialTile<LandArea(HAS Neighbor<OceanTile>)> {}
+  End: VictoryPoint
+}
+
+// replaces: MagneticFieldGenerators
+CLASS MagneticFieldGeneratorsPromo : AutomatedCard<Class<ProjectCard>> {
+  cost = 22
+
+  This:: BuildingTag<This>
+  This: PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<> {}
+}
+
+CLASS AsteroidRights : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+  cost = 10
+
+  This:: EarthTag<This>, SpaceTag<This>
+  This: 2 Asteroid<This>
+
+  1 -> Asteroid
+  Asteroid<This> -> PROD[1] OR 2 Titanium
+}
+
+CLASS BactoviralResearch : AutomatedCard<Class<ProjectCard>> {
+  cost = 10
+
+  This:: MicrobeTag<This>, ScienceTag<This>
+  This: ProjectCard, Microbe / ScienceTag
+}
+
+CLASS BioPrintingFacility : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 7
+
+  This:: BuildingTag<This>
+
+  2 Energy -> 2 Plant OR Animal
+}
+
+CLASS Harvest : EventCard<Class<ProjectCard>> {
+  cost = 4
+  requirement = HAS "3 GreeneryTile"
+
+  This:: PlantTag<This>, EventTag<This>
+  This: 12
+}
+
+CLASS OutdoorSports : AutomatedCard<Class<ProjectCard>> {
+  cost = 8
+  requirement = HAS "Adjacency<CityTile<Anyone>, OceanTile>"
+
+  This: PROD[2]
+}
+
+CLASS SixteenPsyche : AutomatedCard<Class<ProjectCard>> {
+  cost = 31
+
+  This:: SpaceTag<This>
+  This: PROD[2 Titanium], 3 Titanium
+  End: 2 VictoryPoint
+}
+
+CLASS RobotPollinators : AutomatedCard<Class<ProjectCard>> {
+  cost = 9
+  requirement = HAS "4 OxygenStep"
+
+  This: PROD[Plant], Plant / PlantTag
+}
+
+CLASS Supercapacitors : ActiveCard<Class<ProjectCard>> {
+  cost = 4
+
+  This:: PowerTag<This>, BuildingTag<This>
+  This: PROD[1]
+  -Energy IF ProductionPhase: Energy FROM Heat?
+}
+
+CLASS IcyImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+  cost = 15
+
+  This:: SpaceTag<This>
+  UseAction<This, First>:: Accept<Class<Titanium>>
+
+  10 -> 2 Asteroid<This>
+  Asteroid<This> -> FirstPlayerOcean<Owner>
+}
+
+CLASS DirectedHeatUsage : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 1
+
+  3 Heat -> 4 OR 2 Plant
+}
+
+CLASS AqueductSystems : AutomatedCard<Class<ProjectCard>> {
+  cost = 9
+  requirement = HAS "Adjacency<CityTile, OceanTile>"
+
+  This:: BuildingTag<This>
+  This: CARDS[3 ProjectCard(HAS BuildingTag)]
+  End: VictoryPoint
+}
+
+CLASS AstraMechanica : AutomatedCard<Class<ProjectCard>> {
+  cost = 7
+
+  This:: ScienceTag<This>
+  This: CARDS[2 ProjectCard<Hand FROM EventPile>?]
+}
+
+CLASS CarbonNanosystems : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Graphene>> {
+  cost = 14
+
+  This:: ScienceTag<This>, BuildingTag<This>
+  ScienceTag<>: Graphene<This>
+  PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>:: AcceptFromCard<This>
+  PayFromCard<This>:: -4 Owed<>
+  End: VictoryPoint
+}
+
+CLASS CyberiaSystems : AutomatedCard<Class<ProjectCard>> {
+  cost = 16
+
+  This: PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice
+}
+
+CLASS HermeticOrderOfMars : AutomatedCard<Class<ProjectCard>> {
+  cost = 10
+  requirement = HAS "MAX 4 OxygenStep"
+
+  This: PROD[2], 1 / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)
+}
+
+CLASS HomeostasisBureau : ActiveCard<Class<ProjectCard>> {
+  cost = 16
+
+  This:: BuildingTag<This>
+  This: PROD[2 Heat]
+  TemperatureStep: 3
+}
+
+CLASS KaguyaTech : AutomatedCard<Class<ProjectCard>> {
+  cost = 10
+
+  This:: CityTag<This>, PlantTag<This>
+  This: PROD[2], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>
+}
+
+CLASS MartianLumberCorp : ActiveCard<Class<ProjectCard>> {
+  cost = 6
+  requirement = HAS "2 GreeneryTile"
+
+  This:: BuildingTag<This>, PlantTag<This>
+  This: PROD[Plant]
+  PlayTag<Class<BuildingTag>>:: Accept<Class<Plant>>
+  Pay<Class<Plant>>:: -3 Owed<>
+}
+
+CLASS NeptunianPowerConsultants : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Hydroelectric>> {
+  cost = 14
+
+  This:: PowerTag<This>
+  This: NeptunianOption
+  OceanTile BY Anyone: UseAction<NeptunianOption>?
+  End: VictoryPoint / Hydroelectric<This>
+}
+
+CLASS RedShips : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 2
+  requirement = HAS "4 OxygenStep"
+
+  -> 1 / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)
+}
+
+CLASS SolarLogistics : ActiveCard<Class<ProjectCard>> {
+  cost = 20
+
+  This:: EarthTag<This>, SpaceTag<This>
+  This: 2 Titanium
+  PlayTag<Class<EarthTag>>:: -2 Owed<>
+  EventCard<Anyone>(HAS SpaceTag<Anyone>): ProjectCard
+  End: VictoryPoint
+}
+
+CLASS StJosephOfCupertinoMission : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 7
+
+  This: CathedralAction
+  UseAction<This, First>:: Accept<Class<Steel>>
+  End: VictoryPoint / Cathedral<Anyone>
+
+  5 -> Cathedral<Anyone, CityTile<Anyone>>
+}
+
+CLASS Teslaract : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 14
+
+  This:: PowerTag<This>, BuildingTag<This>
+  This: TerraformRating
+
+  PROD[Energy] -> PROD[Plant]
+}
+
+CLASS SoilEnrichment : EventCard<Class<ProjectCard>> {
+  cost = 6
+
+  This:: MicrobeTag<This>, PlantTag<This>, EventTag<This>
+  This: -Microbe, 5 Plant
+}
+
+CLASS Supermarkets : AutomatedCard<Class<ProjectCard>> {
+  cost = 9
+  requirement = HAS "2 CityTile<Anyone>"
+
+  This: PROD[2]
+  End: VictoryPoint
+}
+
+CLASS Hospitals : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Disease>> {
+  cost = 8
+
+  This:: BuildingTag<This>
+  This: PROD[-Energy]
+  CityTile<Anyone>: Disease<This>
+  End: VictoryPoint
+
+  Disease -> 1 / CityTile<Anyone>
+}
+
+CLASS PublicBaths : AutomatedCard<Class<ProjectCard>> {
+  cost = 6
+  requirement = HAS "6 OceanTile"
+
+  This:: BuildingTag<This>
+  This: 6
+  End: VictoryPoint
+}
+
+CLASS CityParks : AutomatedCard<Class<ProjectCard>> {
+  cost = 7
+  requirement = HAS "3 CityTile"
+
+  This:: PlantTag<This>
+  This: 2 Plant
+  End: 2 VictoryPoint
+}
+
+CLASS Casinos : AutomatedCard<Class<ProjectCard>> {
+  cost = 5
+  requirement = HAS "CityTile"
+
+  This:: BuildingTag<This>
+  This: PROD[-Energy, 4]
+}
+
+CLASS ProtectedGrowth : EventCard<Class<ProjectCard>> {
+  cost = 2
+  requirement = HAS "MAX 7 OxygenStep"
+
+  This:: PlantTag<This>, EventTag<This>
+  This: Plant / PowerTag
+}
+
+CLASS StaticHarvesting : AutomatedCard<Class<ProjectCard>> {
+  cost = 5
+  requirement = HAS "MAX 3 OceanTile"
+
+  This:: PowerTag<This>
+  This: PROD[Energy], 1 / BuildingTag
+}
+
+CLASS Vermin : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
+  cost = 8
+
+  This:: MicrobeTag<This>, AnimalTag<This>
+  CityTile<Anyone>: Animal<This>
+
+  -> Animal<This> OR Microbe
+}
+
+CLASS WeatherBalloons : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 11
+
+  This:: ScienceTag<This>
+  This: ProjectCard
+
+  -> Floater<This>
+  Floater<This> -> 1 / CityTile<MarsArea, Anyone>
+}
+
+CLASS PublicPlans : EventCard<Class<ProjectCard>> {
+  cost = 7
+
+  This:: EventTag<This>
+  This: CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X]
+  End: VictoryPoint
+}
+
+CLASS SterlingVents : AutomatedCard<Class<ProjectCard>> {
+  cost = 5
+
+  This:: PowerTag<This>, BuildingTag<This>
+  This: PROD[-2 Heat, 2 Energy]
+  End: VictoryPoint
+}
+
+CLASS FloydContinuum : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 4
+
+  This:: ScienceTag<This>
+
+  -> 3 / GpComplete
+}
+
+// Supporting declarations contributed by cards in this bundle.
+CLASS SpliceTacticalGenomicsWatcher : Owned<Player> {
+  HAS =1 This
+  MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2
+}
+
+CLASS MonsInsuranceWatcher : Owned<Player> {
+  HAS =1 This
+  MonsInsurance<Anyone> IF MAX 0 MonsInsurance<Owner>: PROD[-2] BY Owner
+}
+
+CLASS Disease : CardResource<ResourceHolder<Class<Disease>>>
+
+CLASS CopyPrelude<CardFront<Player>> : Custom, Owned<Player>
+
+CLASS Graphene : CardResource<ResourceHolder<Class<Graphene>>>
+
+CLASS CyberiaSystemsFirstChoice : Cardbound, Temporary
+
+CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>
+
+CLASS NeptunianOption : HasActions, Owned {
+  UseAction<This>:: Accept<Class<Steel>>
+  5 -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>
+}
+
+CLASS CathedralAction : HasActions {
+  2 -> ProjectCard
+}
+
+CLASS Cathedral<CityTile<Owner>> : Owned<Owner> {
+  HAS MAX 1 This
+  This: UseAction<CathedralAction>?
+}
+
+CLASS VerminWatcher : Owned<Player> {
+  HAS =1 This
+  End IF 10 Animal<Anyone, Vermin<Anyone>>: -VictoryPoint / CityTile<Owner>
+}

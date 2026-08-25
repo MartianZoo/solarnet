@@ -90,6 +90,9 @@ public open class TfmAuthority : Authority {
             }
             if (availabilityModules.isNotEmpty()) {
               val definitionNames = bundle.allDefinitions.mapTo(hashSetOf(), Definition::className)
+              bundle.cardDefinitions.flatMapTo(definitionNames) { card ->
+                card.extraClasses.map(ClassDeclaration::className)
+              }
               bundleClassesBelow(bundle, TfmClasses.MILESTONE, includeAbstract = true)
                   .mapTo(definitionNames, ClassDeclaration::className)
               bundleClassesBelow(bundle, TfmClasses.AWARD, includeAbstract = true)
@@ -324,7 +327,17 @@ public open class TfmAuthority : Authority {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val explicit = explicitClassDeclarations.map(FollowModeNeutralizer::neutralize)
+    val generatedCardsByName =
+        cardDefinitions.associateBy(CardDefinition::className).mapValues { (name, card) ->
+          card.toClassDeclaration(cardResourceType(name))
+        }
+    val explicit = explicitClassDeclarations.map { declaration ->
+      val generated = generatedCardsByName[declaration.className]
+      val withContributionLinks =
+          if (generated == null) declaration
+          else declaration.copy(extraNodes = declaration.extraNodes + generated.extraNodes)
+      FollowModeNeutralizer.neutralize(withContributionLinks)
+    }
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
     // An explicit Pets declaration owns the Class when its structured Definition remains metadata.
     explicit +
@@ -677,17 +690,21 @@ public open class TfmAuthority : Authority {
   // DEFINITIONS
 
   public fun card(name: ClassName): CardDefinition =
-      cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
+      classBackedCardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
   /** The resource type implied by [name]'s content and explicit resource declarations, if any. */
   public fun cardResourceType(name: ClassName): ClassName? {
-    card(name)
+    require(name in cardsByClassName) { "No card named $name" }
     return cardResourceTypes.getValue(name)
   }
 
   public open val cardDefinitions: Set<CardDefinition> = emptySet()
 
   private val cardsByClassName by lazy { cardDefinitions.associateByStrict(Definition::className) }
+
+  private val classBackedCardsByClassName by lazy {
+    cardsByClassName.mapValues { (name, card) -> card.backedBy(classTable.getClass(name)) }
+  }
 
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.firstOrNull { it.className == name }

@@ -20,8 +20,8 @@ import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
@@ -87,9 +87,10 @@ internal object StandardResourceMonotonicityReport {
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()
     val opaqueUsages = linkedSetOf<OpaqueUsage>()
+    val tfmAuthority = premise.authority as TfmAuthority
     val playRequirements =
-        premise.authority.allDefinitions.filterIsInstance<CardDefinition>().associate {
-          it.className to it.requirement
+        tfmAuthority.cardDefinitions.associate { sourceCard ->
+          sourceCard.className to tfmAuthority.card(sourceCard.className).requirement
         }
 
     table.allClasses().sortedBy(PetsClass::className).forEach { subjectClass ->

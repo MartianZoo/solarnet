@@ -5,6 +5,7 @@ import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Intensity
@@ -108,6 +109,8 @@ internal class ClassDeclarationTest {
     decl.dependencies.shouldContainExactlyInAnyOrder(dep)
     decl.supertypes.shouldContainExactlyInAnyOrder(sup)
     decl.invariants.shouldContainExactlyInAnyOrder(inv)
+    decl.authoredEffects.shouldContainExactly(eff)
+    decl.authoredActions.shouldContainExactly(parse<Action>("Steel -> 5"))
     decl.effects.shouldContainExactlyInAnyOrder(eff, invoice, paid)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)

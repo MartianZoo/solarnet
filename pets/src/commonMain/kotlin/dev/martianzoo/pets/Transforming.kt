@@ -29,12 +29,23 @@ import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE_CLASSES
 public object Transforming {
   /**
    * Replaces each occurrence of the special `This` expression with [contextType], replacing
-   * `Class<This>` appropriately as well.
+   * `Class<This>` appropriately as well. An explicitly specialized `This<Foo>` keeps its authored
+   * arguments and specializes the concrete context class, becoming (for example) `Bar<Foo>`.
    */
   public fun replaceThisExpressionsWith(contextType: Expression): PetTransformer =
       chain(
           replacer(THIS.classExpression(), contextType.className.classExpression()),
-          replacer(THIS.expression, contextType),
+          object : PetTransformer() {
+            override fun transformNode(node: PetNode): PetNode {
+              if (node == THIS.expression) return contextType
+              val transformed = transformChildren(node)
+              return if (transformed is Expression && transformed.className == THIS) {
+                transformed.copy(className = contextType.className)
+              } else {
+                transformed
+              }
+            }
+          },
       )
 
   /** Replaces each occurrence of the contextual `Owner` placeholder with [owner]. */

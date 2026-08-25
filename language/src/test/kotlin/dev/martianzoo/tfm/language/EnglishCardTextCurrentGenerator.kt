@@ -12,7 +12,10 @@ internal object EnglishCardTextCurrentGenerator {
     val refusalOutput = File(args[1])
     val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
     val english = English(TerraformingMarsDescribers.descriptions)
-    val renderedCards = Canon.cardDefinitions.map { it to english.renderCard(it) }
+    val renderedCards =
+        Canon.cardDefinitions.map { sourceCard ->
+          Canon.card(sourceCard.className).let { it to english.renderCard(it) }
+        }
     val rows = renderedCards.map { (card, rendering) ->
       listOf(
               card.className.toString(),

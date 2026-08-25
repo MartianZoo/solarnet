@@ -14,8 +14,9 @@ The language module currently targets the JVM only. Its source and resource load
 ordinary JVM source sets even though the Pets and Canon dependencies remain multiplatform.
 
 `english-card-text-goals.tsv` is fallible, reviewed target text. `english-card-text-current.tsv` is
-generated characterization of what the renderer produces for canonical cards that have a
-`CardDefinition`. Neither file is an answer source for production code. Run
+generated characterization of what the renderer produces for canonical cards. The transitional
+`CardDefinition` passed to the renderer reads its semantic fields from the loaded `cards.pets`
+Class. Neither file is an answer source for production code. Run
 `./gradlew :language:writeEnglishCardTextCurrent` after an intentional renderer change, then review
 the current-versus-goal diff. Correct a goal row when card data or a systemic rule shows that it is
 mistaken.
@@ -74,8 +75,8 @@ than the structural rendering rules.
 
 `English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
 `InstructionTree`, or a `Requirement`. The public instruction and action overloads that accept a
-host `CardDefinition` remain so source declarations nested in that card are available as structural
-evidence. Unsupported valid Pets shapes return bracketed canonical Pets rather than failing or
+host `CardDefinition` remain while that transitional view supplies card-associated source
+declarations. Unsupported valid Pets shapes return bracketed canonical Pets rather than failing or
 consulting a card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
