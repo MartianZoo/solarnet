@@ -17,7 +17,7 @@ ordinary JVM source sets even though the Pets and Canon dependencies remain mult
 generated characterization of what the renderer produces for canonical cards. The transitional
 `CardDefinition` passed to the renderer reads its semantic fields from the loaded `cards.pets`
 Class. Neither file is an answer source for production code. Run
-`./gradlew :language:writeEnglishCardTextCurrent` after an intentional renderer change, then review
+`./gradlew :tfm-text:writeEnglishCardTextCurrent` after an intentional renderer change, then review
 the current-versus-goal diff. Correct a goal row when card data or a systemic rule shows that it is
 mistaken.
 

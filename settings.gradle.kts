@@ -16,7 +16,7 @@ develocity {
 
 rootProject.name = "solarnet"
 
-include("pets", "language", "engine", "script", "repl", "tfm-canon", "web", "tools", "benchmarks")
+include("pets", "tfm-text", "engine", "script", "repl", "tfm-canon", "web", "tools", "benchmarks")
 
 dependencyResolutionManagement {
   repositories {

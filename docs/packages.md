@@ -35,7 +35,7 @@ Various non-Terraforming-specific helpers.
 
 ## module LANGUAGE
 
-### <a href="language/dev.martianzoo.tfm.language/index.html">dev.martianzoo.tfm.language</a>
+### <a href="tfm-text/dev.martianzoo.tfm.text/index.html">dev.martianzoo.tfm.text</a>
 
 English text for Terraforming Mars cards.
 

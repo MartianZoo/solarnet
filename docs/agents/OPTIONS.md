@@ -297,7 +297,7 @@ named domain concept should become generic.
    product names are reasonable in this adapter, while that separate colony path reflects the
    deeper premise asymmetry above.
 5. **Minimal — descriptions, samples, reports, and comments.**
-   `language/.../TerraformingMarsDescribers.kt` describes Venus and colony concepts;
+   `tfm-text/.../TerraformingMarsDescribers.kt` describes Venus and colony concepts;
    `script/.../tfm/script/SampleGames.kt` and `script/.../tfm/script/commands/TfmSampleCommand.kt`
    demonstrate Prelude and Venus play; `tools/.../TypeStructureReport.kt` and
    `tools/.../StandardResourceMonotonicityReport.kt` deliberately select expansions for reports;

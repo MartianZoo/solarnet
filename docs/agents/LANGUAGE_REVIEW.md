@@ -6,7 +6,7 @@
 >
 > **Audience:** the agent doing the work. Kevin skims Sections 1–3 and 7.
 >
-> Scope: `language/src/main/kotlin/dev/martianzoo/tfm/language`, and its relationships to `pets`,
+> Scope: `tfm-text/src/main/kotlin/dev/martianzoo/tfm/text`, and its relationships to `pets`,
 > `tfm-canon`, and `docs/agents/LANGUAGE.md`.
 
 ---
