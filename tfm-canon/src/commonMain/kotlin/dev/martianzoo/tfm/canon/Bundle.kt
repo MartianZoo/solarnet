@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.data.CardDefinition
 
 /** An organizational provider of declarations, definitions, metadata, and custom code. */
 public abstract class Bundle(

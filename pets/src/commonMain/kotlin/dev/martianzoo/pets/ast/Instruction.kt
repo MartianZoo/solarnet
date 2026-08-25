@@ -130,9 +130,8 @@ public sealed class Instruction : InstructionTree() {
     }
   }
 
-  @ConsistentCopyVisibility
   public data class Gain
-  internal constructor(
+  public constructor(
       val scaledEx: ScaledExpression,
       override val intensity: Intensity?,
   ) : Change() {

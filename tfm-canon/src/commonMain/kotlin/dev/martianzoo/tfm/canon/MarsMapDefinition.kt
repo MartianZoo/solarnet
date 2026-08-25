@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
@@ -15,8 +15,8 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
-import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
-import dev.martianzoo.tfm.data.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
+import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.util.Grid
 
 public data class MarsMapDefinition(

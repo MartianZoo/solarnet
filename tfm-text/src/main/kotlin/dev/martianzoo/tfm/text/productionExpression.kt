@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Type
 

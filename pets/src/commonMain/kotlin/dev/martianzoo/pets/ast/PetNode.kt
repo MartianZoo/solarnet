@@ -12,7 +12,8 @@ public sealed class PetNode {
    * concrete implementation type. For example, a [Gain] has kind [Instruction], not [Gain]. A node
    * may also be accepted through a broader kind such as [InstructionTree].
    */
-  internal abstract val kind: KClass<out PetNode>
+  // TODO: Contract this temporary tfm-canon round-trip-test seam.
+  public abstract val kind: KClass<out PetNode>
 
   protected fun groupPartIfNeeded(part: PetNode): String =
       if (part.safeToNestIn(this)) "$part" else "($part)"

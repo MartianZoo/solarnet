@@ -8,8 +8,8 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.TestOption.Hellas
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm

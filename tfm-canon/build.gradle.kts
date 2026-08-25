@@ -1,4 +1,7 @@
-plugins { id("solarnet.kmp-jvm-js") }
+plugins {
+  id("solarnet.kmp-jvm-js")
+  alias(libs.plugins.kotlin.serialization)
+}
 
 // Canon reads its data files by name at runtime, which the JS target cannot enumerate on its own,
 // so ship a generated index of them alongside the data itself.
@@ -35,7 +38,10 @@ kotlin {
       // Registering the task itself as a source directory is what makes every `processResources`
       // task depend on it.
       resources.srcDir(generateCanonResourceIndex)
-      dependencies { implementation(project(":pets")) }
+      dependencies {
+        implementation(libs.kotlinx.serialization.json)
+        implementation(project(":pets"))
+      }
     }
     commonTest { dependencies { implementation(libs.kotest.assertions.core) } }
   }

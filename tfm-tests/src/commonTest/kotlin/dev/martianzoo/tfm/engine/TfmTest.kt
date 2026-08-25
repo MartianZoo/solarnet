@@ -10,9 +10,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
-import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.tfmAuthority
-import dev.martianzoo.tfm.data.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.canon.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.tfmAuthority
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 internal abstract class TfmTest {

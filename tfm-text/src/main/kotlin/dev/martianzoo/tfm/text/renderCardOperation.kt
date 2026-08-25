@@ -10,17 +10,17 @@ import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.data.CardOperation
-import dev.martianzoo.tfm.data.CardOperation.MoveEvents
-import dev.martianzoo.tfm.data.CardOperation.Observe
-import dev.martianzoo.tfm.data.CardOperation.RecoverEvents
-import dev.martianzoo.tfm.data.CardOperation.RevealAndPurchase
-import dev.martianzoo.tfm.data.CardOperation.RevealAndRestore
-import dev.martianzoo.tfm.data.CardOperation.RevealAndTest
-import dev.martianzoo.tfm.data.CardOperation.Search
-import dev.martianzoo.tfm.data.CardOperation.SelectAndKeep
-import dev.martianzoo.tfm.data.CardOperation.SelectAndPlay
-import dev.martianzoo.tfm.data.CardOperation.SelectAndPurchase
+import dev.martianzoo.tfm.canon.CardOperation
+import dev.martianzoo.tfm.canon.CardOperation.MoveEvents
+import dev.martianzoo.tfm.canon.CardOperation.Observe
+import dev.martianzoo.tfm.canon.CardOperation.RecoverEvents
+import dev.martianzoo.tfm.canon.CardOperation.RevealAndPurchase
+import dev.martianzoo.tfm.canon.CardOperation.RevealAndRestore
+import dev.martianzoo.tfm.canon.CardOperation.RevealAndTest
+import dev.martianzoo.tfm.canon.CardOperation.Search
+import dev.martianzoo.tfm.canon.CardOperation.SelectAndKeep
+import dev.martianzoo.tfm.canon.CardOperation.SelectAndPlay
+import dev.martianzoo.tfm.canon.CardOperation.SelectAndPurchase
 
 internal fun renderCardOperation(transform: Transform, describers: Describers): List<Clause>? {
   if (transform.transformKind != CardOperation.TRANSFORM_KIND) return null

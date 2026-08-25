@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

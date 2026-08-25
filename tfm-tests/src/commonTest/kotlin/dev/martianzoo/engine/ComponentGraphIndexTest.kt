@@ -2,8 +2,8 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.types.te
 import io.kotest.matchers.shouldBe

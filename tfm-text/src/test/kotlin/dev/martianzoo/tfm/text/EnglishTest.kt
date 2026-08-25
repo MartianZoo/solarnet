@@ -7,8 +7,8 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

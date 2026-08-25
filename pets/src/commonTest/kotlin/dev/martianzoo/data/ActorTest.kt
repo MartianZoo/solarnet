@@ -1,9 +1,6 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
-import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Owner
-import dev.martianzoo.data.Player
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

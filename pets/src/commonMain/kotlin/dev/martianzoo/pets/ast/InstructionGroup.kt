@@ -69,7 +69,7 @@ public data class InstructionGroup(val instructions: List<Instruction>) : Instru
     public fun of(tree: InstructionTree): InstructionGroup = of(listOf(tree))
 
     /** Returns canonical Pets syntax, collapsing empty and singleton groups. */
-    internal fun createTree(trees: Iterable<InstructionTree>): InstructionTree =
+    public fun createTree(trees: Iterable<InstructionTree>): InstructionTree =
         of(trees).let {
           when (it.size) {
             0 -> NoOp

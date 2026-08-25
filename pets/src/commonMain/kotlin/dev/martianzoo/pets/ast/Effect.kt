@@ -98,8 +98,8 @@ public data class Effect(
     @ConsistentCopyVisibility
     public data class OnGainOf private constructor(val expression: Expression) :
         SubscribedTrigger() {
-      internal companion object {
-        internal fun create(expression: Expression): BasicTrigger {
+      public companion object {
+        public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
           }

@@ -1,8 +1,10 @@
 # Module organization
 
-**Status: proposal.** This document describes a desired destination, not committed behavior or an
-implementation sequence. Current behavior remains documented by [ENGINE.md](ENGINE.md),
-[OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they differ from this proposal.
+**Status: active target.** The named module and package boundaries through `tfm-canon`,
+`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. The `Catalog` replacement, lower-layer test
+cleanup, and remaining ownership refinements are still proposed. Current behavior remains
+documented by [ENGINE.md](ENGINE.md), [OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they
+differ from this target.
 
 ## Governing rule
 

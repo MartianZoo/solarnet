@@ -1,7 +1,7 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.data.CardDefinition.Deck
+import dev.martianzoo.tfm.canon.CardDefinition.Deck
 
 /** Bundle-wide content selected by a Module; individual entries are deliberately unsupported. */
 public data class BundleContentSelection(

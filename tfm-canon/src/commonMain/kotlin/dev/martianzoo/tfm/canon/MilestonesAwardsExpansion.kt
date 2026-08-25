@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
-import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.types.Type
 
 internal val milestonesAwardsExpansionBundle: StandardFormBundle by lazy {

@@ -16,15 +16,6 @@ The Pets language. Parsers for elements and class declarations, the objects it p
 
 Pets element types, like Requirement, Action, Instruction, Expression, and so on. The abstract syntax tree the Pets language is parsed to.
 
-### <a href="pets/dev.martianzoo.tfm.data/index.html">dev.martianzoo.tfm.data</a>
-
-Data types for cards, milestones, maps, etc., and support for parsing these from JSON.
-
-### <a href="pets/dev.martianzoo.tfm.api/index.html">dev.martianzoo.tfm.api</a>
-
-Terraforming Mars-specific definitions and, in the aspirational API, the `TfmAuthority` catalog
-interface.
-
 ### <a href="pets/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
 
 The Pets type system.
@@ -33,7 +24,7 @@ The Pets type system.
 
 Various non-Terraforming-specific helpers.
 
-## module LANGUAGE
+## module TFM-TEXT
 
 ### <a href="tfm-text/dev.martianzoo.tfm.text/index.html">dev.martianzoo.tfm.text</a>
 
@@ -43,7 +34,8 @@ English text for Terraforming Mars cards.
 
 ### <a href="tfm-canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
 
-Contains the data and custom instructions for officially published cards, maps, etc.
+Contains the Terraforming Mars catalog model, data, custom instructions, and officially published
+cards, maps, etc.
 
 ## module ENGINE
 
@@ -51,13 +43,11 @@ Contains the data and custom instructions for officially published cards, maps, 
 
 The engine knows how to modify a Game World by executing card Instructions.
 
-### <a href="engine/dev.martianzoo.tfm.engine/index.html">dev.martianzoo.tfm.engine</a>
+## module TFM-ENGINE
+
+### <a href="tfm-engine/dev.martianzoo.tfm.engine/index.html">dev.martianzoo.tfm.engine</a>
 
 Terraforming Mars-specific gameplay and workflow code.
-
-### <a href="engine/dev.martianzoo.analysis/index.html">dev.martianzoo.analysis</a>
-
-Getting summary statistics from a played game.
 
 ## module SCRIPT
 

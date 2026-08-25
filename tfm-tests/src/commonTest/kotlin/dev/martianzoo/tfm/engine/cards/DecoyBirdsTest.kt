@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.tfmAuthority
-import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.tfmAuthority
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

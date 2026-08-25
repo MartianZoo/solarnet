@@ -1,10 +1,9 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.BundleContentSelection
-import dev.martianzoo.tfm.api.BundleContentSelection.Kind.AWARDS
-import dev.martianzoo.tfm.api.BundleContentSelection.Kind.CARDS
-import dev.martianzoo.tfm.api.BundleContentSelection.Kind.MILESTONES
+import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.AWARDS
+import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
+import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.MILESTONES
 
 internal val venusNextExpansionBundle: StandardFormBundle by lazy {
   StandardFormBundle(

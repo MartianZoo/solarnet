@@ -22,9 +22,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
-import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE_CLASSES
+import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
+import dev.martianzoo.tfm.canon.TfmClasses.MEGACREDIT
+import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE_CLASSES
 
 /**
  * Wraps and extends a [Gameplay] instance to provide much more convenient functions specific to

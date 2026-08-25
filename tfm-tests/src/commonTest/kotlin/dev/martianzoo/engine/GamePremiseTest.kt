@@ -6,10 +6,10 @@ import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
-import dev.martianzoo.tfm.api.Bundle
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.ColonizerTrainingCamp
 import dev.martianzoo.util.toSetStrict

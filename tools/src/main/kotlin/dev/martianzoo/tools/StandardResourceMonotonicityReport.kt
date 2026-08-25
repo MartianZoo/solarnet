@@ -20,11 +20,11 @@ import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.TfmClasses.PROD
-import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
+import dev.martianzoo.tfm.canon.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
+import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class as PetsClass
 import dev.martianzoo.types.ClassTable
 

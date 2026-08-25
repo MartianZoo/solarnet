@@ -12,22 +12,25 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.util.Reifiable
+
+// TODO: Move Terraforming Mars's omitted-expression currency convention into tfm-canon.
+private val defaultScaledExpression: Expression = cn("Megacredit").expression
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
 @ConsistentCopyVisibility
 public data class ScaledExpression
 private constructor(
-    val expression: Expression = MEGACREDIT.of(),
+    val expression: Expression = defaultScaledExpression,
     val scalar: Scalar,
 ) : PetNode() {
   public companion object {
     /** Returns [expression] scaled by [scalar], defaulting the expression to `Megacredit`. */
     public fun scaledEx(expression: HasExpression? = null, scalar: Scalar): ScaledExpression =
-        ScaledExpression(expression?.expression ?: MEGACREDIT.of(), scalar)
+        ScaledExpression(expression?.expression ?: defaultScaledExpression, scalar)
 
     /** Returns [expression] scaled by [count], defaulting to one `Megacredit`. */
     public fun scaledEx(expression: HasExpression? = null, count: Int = 1): ScaledExpression =
@@ -48,7 +51,7 @@ private constructor(
 
   private fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
       when {
-        !forceExpression && expression == MEGACREDIT.of() -> "$scalar"
+        !forceExpression && expression == defaultScaledExpression -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
         else -> "$scalar $expression"
       }

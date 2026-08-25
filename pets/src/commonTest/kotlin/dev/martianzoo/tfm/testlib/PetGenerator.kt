@@ -29,8 +29,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.tfm.data.TfmClasses.PROD
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
@@ -42,6 +40,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   constructor(greed: Double = 0.8, backoff: Double = 0.15) : this(scaling(greed, backoff))
 
   private object Registry : RandomGenerator.Registry<PetNode>() {
+    private val megacredit = cn("Megacredit")
+    private const val productionTransform = "PROD"
+
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
@@ -60,7 +61,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { XScalar(choose(1, 1, 2, 5, 11)) }
       register {
         scaledEx(
-            choose(1 to MEGACREDIT.of(), 3 to recurse<Expression>()),
+            choose(1 to megacredit.of(), 3 to recurse<Expression>()),
             recurse<Scalar>(),
         )
       }
@@ -86,7 +87,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           chooseS(4 to { recurse<Metric>() }, 1 to { recurse<Metric.Constant>() })
       register { Metric.Subtract(recurse(), metricOperand()) }
       register { Metric.Or(setOfSize<Metric.Count>(choose(2, 2, 2, 3, 4)).toList()) }
-      register { Metric.Transform(recurse(), PROD) }
+      register { Metric.Transform(recurse(), productionTransform) }
       register { Metric.Eval(Property(PropertyName("score"), recurse())) }
 
       val requirementTypes =
@@ -105,7 +106,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Requirement.Exact(scaledEx = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
-      register { Requirement.Transform(recurse(), PROD) }
+      register { Requirement.Transform(recurse(), productionTransform) }
       register { Requirement.Eval(Property(PropertyName("requirement"), recurse())) }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
@@ -141,7 +142,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
       register { Instruction.Or(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { InstructionGroup(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
-      register { Instruction.Transform(recurse(), PROD) }
+      register { Instruction.Transform(recurse(), productionTransform) }
 
       register(FromExpression::class) {
         chooseS(
@@ -191,7 +192,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Trigger.IfTrigger(recurse(), recurse()) }
       register { Trigger.Or(List(choose(2, 2, 3)) { recurse<Trigger>() }) }
       register { Trigger.XTrigger(recurse()) }
-      register { Trigger.Transform(recurse(), PROD) }
+      register { Trigger.Transform(recurse(), productionTransform) }
 
       register { Effect(recurse(), recurse(), choose(true, false)) }
 
@@ -208,7 +209,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Cost.Gated(recurse(), recurse()) }
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
-      register { Cost.Transform(recurse(), PROD) }
+      register { Cost.Transform(recurse(), productionTransform) }
 
       register { Action(choose(1 to null, 3 to recurse()), recurse()) }
     }

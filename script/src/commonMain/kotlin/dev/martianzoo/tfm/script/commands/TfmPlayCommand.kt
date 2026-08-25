@@ -6,7 +6,7 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.commands.TaskCommand
-import dev.martianzoo.tfm.api.tfmAuthority
+import dev.martianzoo.tfm.canon.tfmAuthority
 
 internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("tfm_play") {
   override val usage: String = "tfm_play <CardName>[, <payment>...]"

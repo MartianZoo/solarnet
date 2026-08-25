@@ -11,9 +11,9 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition
+import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.TestOption as Option
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm

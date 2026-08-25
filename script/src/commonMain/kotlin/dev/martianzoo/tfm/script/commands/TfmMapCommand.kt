@@ -4,9 +4,9 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.tfm.api.ApiUtils
-import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.data.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.ApiUtils
+import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.script.TfmColor.GREENERY_TILE

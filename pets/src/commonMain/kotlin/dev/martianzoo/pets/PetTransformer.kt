@@ -156,7 +156,8 @@ public abstract class PetTransformer protected constructor() {
   private fun transformScalar(node: Scalar): Scalar = transformAsKind(node, Scalar::class)
 
   /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
-  internal fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
+  // TODO: Contract this temporary tfm-canon seam.
+  public fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
 
   private fun <P : PetNode> transformAsKind(node: PetNode, requiredKind: KClass<P>): P {
     val transformed = transformWithoutKindCheck(node)

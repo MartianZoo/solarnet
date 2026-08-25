@@ -5,7 +5,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition
 import java.nio.file.Files
 import java.nio.file.Path
 

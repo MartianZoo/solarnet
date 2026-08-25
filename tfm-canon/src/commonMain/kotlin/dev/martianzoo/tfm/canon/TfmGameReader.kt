@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.GameReader
 

@@ -3,12 +3,12 @@ package dev.martianzoo.tools
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
-import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition.Deck.PROJECT
+import dev.martianzoo.tfm.canon.MarsMapDefinition
+import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.TfmAuthority
 import kotlin.system.exitProcess
 
 internal enum class SoloTile {

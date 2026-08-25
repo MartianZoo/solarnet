@@ -45,7 +45,8 @@ internal constructor(
 ) : HasClassName, Hierarchical<Class> {
 
   /** The master universe containing this class. */
-  internal val classTable: ClassTable = loader
+  // TODO: Contract this temporary tfm-canon seam.
+  public val classTable: ClassTable = loader
 
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }

@@ -10,7 +10,7 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.CardOperation
+import dev.martianzoo.tfm.canon.CardOperation
 import dev.martianzoo.types.Dependency.Key
 
 internal fun renderActions(

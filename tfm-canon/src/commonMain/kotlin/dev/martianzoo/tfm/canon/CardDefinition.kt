@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
@@ -30,21 +30,21 @@ import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
-import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.data.TfmClasses.ACTION_CARD
-import dev.martianzoo.tfm.data.TfmClasses.ACTIVE_CARD
-import dev.martianzoo.tfm.data.TfmClasses.AUTOMATED_CARD
-import dev.martianzoo.tfm.data.TfmClasses.CARD_FRONT
-import dev.martianzoo.tfm.data.TfmClasses.CARD_RESOURCE
-import dev.martianzoo.tfm.data.TfmClasses.CORPORATION_CARD
-import dev.martianzoo.tfm.data.TfmClasses.END
-import dev.martianzoo.tfm.data.TfmClasses.EVENT_CARD
-import dev.martianzoo.tfm.data.TfmClasses.EVENT_TAG
-import dev.martianzoo.tfm.data.TfmClasses.PRELUDE_CARD
-import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
-import dev.martianzoo.tfm.data.TfmClasses.RESOURCE_CARD
-import dev.martianzoo.tfm.data.TfmClasses.TAG
+import dev.martianzoo.tfm.canon.CardDefinition.Deck.PROJECT
+import dev.martianzoo.tfm.canon.CardDefinition.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.canon.TfmClasses.ACTION_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.ACTIVE_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.AUTOMATED_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.CARD_FRONT
+import dev.martianzoo.tfm.canon.TfmClasses.CARD_RESOURCE
+import dev.martianzoo.tfm.canon.TfmClasses.CORPORATION_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.END
+import dev.martianzoo.tfm.canon.TfmClasses.EVENT_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.EVENT_TAG
+import dev.martianzoo.tfm.canon.TfmClasses.PRELUDE_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.RESOURCE_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.TAG
 import dev.martianzoo.types.Class as PetClass
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -265,10 +265,7 @@ private constructor(
 
   private fun PetClass.representedClasses(): List<PetClass> =
       dependencies.typeDependencies().mapNotNull { dependency ->
-        dependency.boundType
-            .takeIf { it.rootClass.className == CLASS }
-            ?.dependencies
-            ?.representedClass
+        dependency.boundType.takeIf { it.rootClass.className == CLASS }?.representedClass
       }
 
   private fun PetClass.representedCardClass(): PetClass? {

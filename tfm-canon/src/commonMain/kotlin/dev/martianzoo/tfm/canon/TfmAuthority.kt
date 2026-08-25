@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.PetException
@@ -26,13 +26,7 @@ import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.systemClassDeclarations
-import dev.martianzoo.tfm.api.BundleContentSelection.Kind
-import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.CardOperation
-import dev.martianzoo.tfm.data.FollowModeNeutralizer
-import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.data.Prod
-import dev.martianzoo.tfm.data.TfmClasses
+import dev.martianzoo.tfm.canon.BundleContentSelection.Kind
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.associateByStrict

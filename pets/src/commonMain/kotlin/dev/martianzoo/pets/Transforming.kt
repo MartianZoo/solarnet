@@ -20,13 +20,16 @@ import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE_CLASSES
 
 /**
  * Various functions for transforming Pets syntax trees. Many more interesting transformers require
  * a class table, and therefore are found in the `engine` module's `Transformers` class.
  */
 public object Transforming {
+  // TODO: Move Terraforming Mars payment lowering into tfm-canon.
+  private val standardResourceClasses: Set<ClassName> =
+      setOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").mapTo(linkedSetOf(), ::cn)
+
   /**
    * Replaces each occurrence of the special `This` expression with [contextType], replacing
    * `Class<This>` appropriately as well. An explicitly specialized `This<Foo>` keeps its authored
@@ -79,7 +82,7 @@ public object Transforming {
     return Effect(trigger, instruction, automatic = false)
   }
 
-  internal fun actionListToEffects(actions: Collection<Action>): List<Effect> =
+  public fun actionListToEffects(actions: Collection<Action>): List<Effect> =
       actions.withIndex().flatMap { (index0Ref, action) ->
         actionToEffects(action, index1Ref = index0Ref + 1)
       }
@@ -91,7 +94,7 @@ public object Transforming {
           is Action.Cost.Per -> (cost.cost as? Action.Cost.Spend)?.let { it to cost.metric }
           else -> null
         } ?: return listOf(actionToEffect(action, index1Ref))
-    if (spend.scaledEx.expression.className !in STANDARD_RESOURCE_CLASSES) {
+    if (spend.scaledEx.expression.className !in standardResourceClasses) {
       return listOf(actionToEffect(action, index1Ref))
     }
 
@@ -125,14 +128,14 @@ public object Transforming {
     )
   }
 
-  internal fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
+  public fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
   private fun actionSelector(index1Ref: Int): ClassName =
       listOf(cn("First"), cn("Second"), cn("Third")).getOrNull(index1Ref - 1)
           ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
 
-  internal fun immediateToEffect(
+  public fun immediateToEffect(
       instruction: InstructionTree,
       effectIsAutomatic: Boolean = false,
   ): Effect? {

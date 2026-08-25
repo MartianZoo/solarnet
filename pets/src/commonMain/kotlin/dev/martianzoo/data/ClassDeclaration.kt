@@ -62,9 +62,10 @@ public data class ClassDeclaration(
      * Any additional Pets elements belonging to this class that aren't given for the previous
      * arguments.
      */
-    internal val extraNodes: Set<PetNode> = emptySet(),
+    public val extraNodes: Set<PetNode> = emptySet(),
 ) : HasClassName {
-  internal val authoredEffectsWithActions: List<Effect>
+  // TODO: Contract temporary tfm-canon declaration-lowering seams.
+  public val authoredEffectsWithActions: List<Effect>
     get() = authoredEffects + actionListToEffects(authoredActions)
 
   /** Effects authored directly or obtained by lowering the authored actions. */

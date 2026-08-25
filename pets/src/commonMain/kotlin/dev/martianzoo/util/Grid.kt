@@ -87,7 +87,7 @@ public interface Grid<E> : Set<E> {
       return mutableGrid(listOf<E>(), { 0 }, { 0 }).immutable()
     }
 
-    internal fun <E> grid(cells: Iterable<E>, rowFn: (E) -> Int, columnFn: (E) -> Int): Grid<E> {
+    public fun <E> grid(cells: Iterable<E>, rowFn: (E) -> Int, columnFn: (E) -> Int): Grid<E> {
       return mutableGrid(cells, rowFn, columnFn).immutable()
     }
 

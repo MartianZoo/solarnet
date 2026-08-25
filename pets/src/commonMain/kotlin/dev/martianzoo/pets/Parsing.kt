@@ -86,7 +86,8 @@ public object Parsing {
     return pet
   }
 
-  internal fun <P : PetNode> parse(
+  // TODO: Contract this temporary tfm-canon seam.
+  public fun <P : PetNode> parse(
       expectedType: KClass<P>,
       elementSource: String,
       derivedClasses: DerivedClassLowerer,

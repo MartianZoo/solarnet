@@ -5,7 +5,7 @@ import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.canon.TfmAuthority
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe

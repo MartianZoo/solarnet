@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse

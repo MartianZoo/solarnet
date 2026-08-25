@@ -10,11 +10,12 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.util.toSetStrict
 
 /** Lowers parsed owner-local Classes to ordinary, stably named Class declarations. */
-internal class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
+// TODO: Contract this temporary tfm-canon seam.
+public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
   private val claimedBases = mutableSetOf<ClassName>()
   private val declarationsByBase = linkedMapOf<ClassName, ClassDeclaration>()
 
-  val declarations: List<ClassDeclaration>
+  public val declarations: List<ClassDeclaration>
     get() = declarationsByBase.values.toList()
 
   internal fun lowerDeclaration(declaration: ClassDeclaration): List<ClassDeclaration> =

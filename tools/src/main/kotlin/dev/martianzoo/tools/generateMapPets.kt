@@ -2,9 +2,9 @@ package dev.martianzoo.tools
 
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.Bundle
+import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.MarsMapDefinition
+import dev.martianzoo.tfm.canon.MarsMapDefinition
 import java.nio.file.Files
 import java.nio.file.Path
 

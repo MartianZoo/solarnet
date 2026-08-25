@@ -1,8 +1,8 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.data.CardDefinition.CardData
-import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.util.Grid
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable

@@ -5,10 +5,10 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.ApiUtils.getOwner
-import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
-import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
-import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
+import dev.martianzoo.tfm.canon.ApiUtils.getOwner
+import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe

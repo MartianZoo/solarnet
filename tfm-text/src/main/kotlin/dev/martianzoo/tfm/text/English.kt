@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition
 import dev.martianzoo.types.Class
 
 /** English Pets text using the client's complete map of sparse component descriptions. */

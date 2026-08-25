@@ -7,7 +7,7 @@ public fun <T> Iterable<T>.toSetStrict(): Set<T> =
 
 public inline fun <T, K> Iterable<T>.toSetStrict(fn: (T) -> K): Set<K> = map(fn).toSetStrict()
 
-internal fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
+public fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   val map: Map<K, T> = associateBy(x)
   require(map.size == size) { groupBy(x).filterValues { it.size > 1 }.keys }
   return map

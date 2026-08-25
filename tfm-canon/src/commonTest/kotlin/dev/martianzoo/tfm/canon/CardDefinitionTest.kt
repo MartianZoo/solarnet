@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
@@ -10,12 +10,9 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.CardDefinition.CardData
-import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
-import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.testlib.assertFails
+import dev.martianzoo.tfm.canon.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.CardDefinition.Deck.PROJECT
+import dev.martianzoo.tfm.canon.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -413,44 +410,54 @@ internal class CardDefinitionTest {
 
   @Test
   internal fun emptyStrings() {
-    assertFails { CardData("") }
-    assertFails { card.copy(replaces = "") }
-    assertFails { card.copy(requirement = "") }
+    assertFailsWith<RuntimeException> { CardData("") }
+    assertFailsWith<RuntimeException> { card.copy(replaces = "") }
+    assertFailsWith<RuntimeException> { card.copy(requirement = "") }
   }
 
   @Test
   internal fun badCost() {
-    assertFails { card.copy(cost = -1) }
-    assertFails { card.copy(deck = "PRELUDE", cost = 1) }
-    assertFails { card.copy(deck = "CORPORATION", cost = 1) }
+    assertFailsWith<RuntimeException> { card.copy(cost = -1) }
+    assertFailsWith<RuntimeException> { card.copy(deck = "PRELUDE", cost = 1) }
+    assertFailsWith<RuntimeException> { card.copy(deck = "CORPORATION", cost = 1) }
   }
 
   @Test
   internal fun badProjectKind() {
-    assertFails { card.copy(deck = "CORPORATION", projectKind = "ACTIVE") }
-    assertFails { card.copy(deck = "PRELUDE", projectKind = "AUTOMATED") }
-    assertFails { card.copy(deck = "PROJECT") }
+    assertFailsWith<RuntimeException> { card.copy(deck = "CORPORATION", projectKind = "ACTIVE") }
+    assertFailsWith<RuntimeException> { card.copy(deck = "PRELUDE", projectKind = "AUTOMATED") }
+    assertFailsWith<RuntimeException> { card.copy(deck = "PROJECT") }
   }
 
   @Test
   internal fun badRequirement() {
-    assertFails { card.copy(deck = "CORPORATION", projectKind = "ACTIVE") }
-    assertFails { card.copy(deck = "PRELUDE", projectKind = "AUTOMATED") }
+    assertFailsWith<RuntimeException> { card.copy(deck = "CORPORATION", projectKind = "ACTIVE") }
+    assertFailsWith<RuntimeException> { card.copy(deck = "PRELUDE", projectKind = "AUTOMATED") }
   }
 
   @Test
   internal fun badActiveCard() {
-    assertFails { card.copy(projectKind = "EVENT", effects = listOf("Foo: Bar")) }
-    assertFails { card.copy(projectKind = "AUTOMATED", effects = listOf("Bar: Qux")) }
-    assertFails { card.copy(projectKind = "EVENT", actions = listOf("Foo -> Bar")) }
-    assertFails { card.copy(projectKind = "AUTOMATED", actions = listOf("Bar -> Qux")) }
-    assertFails {
+    assertFailsWith<RuntimeException> {
+      card.copy(projectKind = "EVENT", effects = listOf("Foo: Bar"))
+    }
+    assertFailsWith<RuntimeException> {
+      card.copy(projectKind = "AUTOMATED", effects = listOf("Bar: Qux"))
+    }
+    assertFailsWith<RuntimeException> {
+      card.copy(projectKind = "EVENT", actions = listOf("Foo -> Bar"))
+    }
+    assertFailsWith<RuntimeException> {
+      card.copy(projectKind = "AUTOMATED", actions = listOf("Bar -> Qux"))
+    }
+    assertFailsWith<RuntimeException> {
       card.copy(
           projectKind = "AUTOMATED",
           effects = listOf("End: VictoryPoint / Animal<This>"),
       )
     }
-    assertFails { card.copy(projectKind = "ACTIVE", immediate = "Whatever") }
+    assertFailsWith<RuntimeException> {
+      card.copy(projectKind = "ACTIVE", immediate = "Whatever")
+    }
   }
 
   @Test

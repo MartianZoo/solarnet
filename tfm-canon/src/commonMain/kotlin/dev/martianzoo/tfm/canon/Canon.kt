@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.tfm.api.TfmAuthority
-
 /** Published Terraforming Mars Authority with typed Terraforming Mars definition registries. */
 public object Canon :
     TfmAuthority.Composite(

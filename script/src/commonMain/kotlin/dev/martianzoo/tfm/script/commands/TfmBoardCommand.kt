@@ -6,7 +6,7 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.tfm.api.ApiUtils
+import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY

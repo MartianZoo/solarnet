@@ -3,8 +3,8 @@ package dev.martianzoo.tools
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmAuthority
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

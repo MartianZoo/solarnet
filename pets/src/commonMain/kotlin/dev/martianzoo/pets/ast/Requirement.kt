@@ -35,7 +35,7 @@ public sealed class Requirement : PetElement() {
           listOf(requirement)
         }
 
-    internal fun join(one: Requirement?, two: Requirement?): Requirement? {
+    public fun join(one: Requirement?, two: Requirement?): Requirement? {
       val x = setOfNotNull(one, two)
       return when (x.size) {
         0 -> null

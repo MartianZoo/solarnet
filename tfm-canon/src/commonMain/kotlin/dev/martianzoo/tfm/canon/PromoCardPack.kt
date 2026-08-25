@@ -8,8 +8,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.tfm.api.tfmAuthority
-import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
+import dev.martianzoo.tfm.canon.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.types.Type
 
 internal val promoCardPackBundle: StandardFormBundle by lazy {

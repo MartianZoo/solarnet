@@ -55,7 +55,7 @@ public object Exceptions {
   // TOP-LEVEL EXCEPTIONS
 
   /** A problem in authored Pets source or in the definitions assembled from it. */
-  public open class PetException internal constructor(message: String, cause: Throwable? = null) :
+  public open class PetException public constructor(message: String, cause: Throwable? = null) :
       Exception(message, cause)
 
   /** Something is not a valid narrowing of something else. */

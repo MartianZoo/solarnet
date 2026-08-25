@@ -11,8 +11,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * [GamePremise].
  */
 public data class GameConfig(
-    internal val includedClassNames: Set<ClassName>,
-    internal val excludedClassNames: Set<ClassName> = emptySet(),
+    public val includedClassNames: Set<ClassName>,
+    public val excludedClassNames: Set<ClassName> = emptySet(),
     public val playerNames: List<ClassName> = emptyList(),
 ) {
   init {

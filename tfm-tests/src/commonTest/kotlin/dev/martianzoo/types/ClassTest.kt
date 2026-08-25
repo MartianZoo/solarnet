@@ -21,10 +21,10 @@ import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.api.Bundle
-import dev.martianzoo.tfm.api.BundleContentSelection
-import dev.martianzoo.tfm.api.BundleContentSelection.Kind.MILESTONES
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.canon.Bundle
+import dev.martianzoo.tfm.canon.BundleContentSelection
+import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.MILESTONES
+import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow

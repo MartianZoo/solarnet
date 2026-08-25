@@ -7,10 +7,9 @@ import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.ApiUtils.getOwner
-import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
-import dev.martianzoo.tfm.api.BundleContentSelection
-import dev.martianzoo.tfm.api.BundleContentSelection.Kind.CARDS
+import dev.martianzoo.tfm.canon.ApiUtils.getOwner
+import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
 import dev.martianzoo.types.Type
 
 private val preludeCustomClasses: Set<CustomClass> = setOf(PreludeExpansion.LowestProduction)

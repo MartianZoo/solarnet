@@ -4,8 +4,8 @@ import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName
@@ -21,7 +21,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
+import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
 
 /** A validated semantic view of one canonical `CARDS[...]` instruction. */
 public sealed interface CardOperation {

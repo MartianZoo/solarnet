@@ -5,8 +5,8 @@ import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
+import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
+import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
