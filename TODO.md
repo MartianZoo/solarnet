@@ -9,6 +9,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   slice now executes its supported moves in Solarnet follow mode and streams the event feed; add the
   independent app projector and comparison next while the app continues owning chance and hidden
   cards.
+- Track every project card in full-game replays by exact card name and location from deck exit
+  through hand, temporary selection/reveal areas, play, event pile, and discard, with tracker state
+  restored consistently across timeline rollbacks.
+- Decide whether the gameplay payment helper should accept arbitrary resources instead of its
+  fixed standard-resource parameter list.
 - Get away from JSON entirely and create everything as pets code.
 - Implement abstract class-property defaults, beginning with `CardFront.cost = Number DEFAULT 0`;
   let the project-card families clear that default while retaining the `Number` bound so every

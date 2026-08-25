@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
@@ -64,11 +65,11 @@ internal abstract class TfmTest {
     doTask(tilePlacement(reader, tasks.extract { it }, row, column))
   }
 
-  protected fun TfmGameplay.addCardResources(card: ClassName): TaskResult =
-      doTask(cardResources(reader, pendingTasks(), card))
+  protected fun TfmGameplay.addCardResources(card: ClassName, count: Int? = null): TaskResult =
+      doTask(cardResources(reader, pendingTasks(), card, count))
 
-  protected fun OperationBody.addCardResources(card: ClassName) {
-    doTask(cardResources(reader, tasks.extract { it }, card))
+  protected fun OperationBody.addCardResources(card: ClassName, count: Int? = null) {
+    doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
   protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Engine")
@@ -115,23 +116,24 @@ internal abstract class TfmTest {
         mapDefinition(reader).areas.singleOrNull { it.row == row && it.column == column }
             ?: throw IllegalArgumentException("No map area at row $row, column $column")
     val tileType = reader.resolve(TILE.expression)
-    val task = tasks.single { task ->
-      task.instruction.descendantsOfType<Gain>().any { gain ->
-        reader.resolve(gain.gaining).narrows(tileType, reader)
-      }
-    }
-    val gain =
-        task.instruction.descendantsOfType<Gain>().first { gain ->
-          reader.resolve(gain.gaining).narrows(tileType, reader)
+    return tasks
+        .mapNotNull { task ->
+          task.instruction.descendantsOfType<Gain>().firstOrNull { gain ->
+            reader.resolve(gain.gaining).narrows(tileType, reader)
+          }
         }
-    return "${gain.gaining.className}<${area.className}>"
+        .map { "${it.gaining.className}<${area.className}>" }
+        .distinct()
+        .single()
   }
 
   private fun cardResources(
       reader: dev.martianzoo.pets.api.GameReader,
       tasks: List<Task>,
       card: ClassName,
+      count: Int?,
   ): String {
+    require(count == null || count > 0) { "Card-resource count must be positive" }
     val resourceType =
         requireNotNull(reader.tfmCatalog.cardResourceType(card)) {
           "$card does not hold card resources"
@@ -140,7 +142,9 @@ internal abstract class TfmTest {
         tasks
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
-              it.gaining.className == resourceType || it.gaining.className == cn("CardResource")
+              (count == null || it.count == ActualScalar(count)) &&
+                  (it.gaining.className == resourceType ||
+                      it.gaining.className == cn("CardResource"))
             }
     val arguments = gain.gaining.arguments.toMutableList()
     if (arguments.isEmpty()) arguments += card.expression

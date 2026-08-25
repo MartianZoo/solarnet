@@ -406,7 +406,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
     // Payment reconstruction: ER spent a fourth steel for the remaining two so the later Gene
     // Repair payment and final dashboard can both be reproduced.
-    ER.intentionalOverpay()
+    ER.intentionalOverpay(1)
     ER.playProject(GhgFactories, steel = 4)
     ER.playProject(RoboticWorkforce, 9) {
       ER.draw(LakeMarineris)
@@ -468,7 +468,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.cardAction1(Tardigrades)
     // Payment reconstruction: ER spent a second steel for the remaining two so the later Callisto
     // Penal Mines payment and final dashboard can both be reproduced.
-    ER.intentionalOverpay()
+    ER.intentionalOverpay(1)
     ER.playProject(MagneticFieldDome, steel = 2)
     ER.cardAction1(SmallAnimals)
     // Chronology: Heroku records JR's pass as a second action; defer it to this legal boundary.

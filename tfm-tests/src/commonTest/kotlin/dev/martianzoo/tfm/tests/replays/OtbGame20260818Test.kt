@@ -1307,7 +1307,6 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     dad.turn {
       // "It's weird, but I'm gonna play a card I've never played before in my life. Food Factory."
       // "And three real gives me four money production. Takes away one of my plant production."
-      intentionalOverpay()
       playProject(FoodFactory, 3, steel = 3).expect("PROD[4 M, -P], -ProjectCard")
     }
 
@@ -1352,7 +1351,6 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // out of it." "I'll copy industrial microbes." "Robotic workforce in Dawn City, we pretended
       // they were in that order."
       sellPatents(1).expect("1, -ProjectCard")
-      intentionalOverpay()
       playProject(RoboticWorkforce, 9) {
             doTask("-ProjectCard")
             doTask("CopyProductionBox<$IndustrialMicrobes>")
@@ -1521,7 +1519,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     dad.turn {
       // "Methane from Titan." "I'm gonna spend six titanium." "I mostly played it for the two
       // points."
-      intentionalOverpay()
+      intentionalOverpay(2)
       playProject(MethaneFromTitan, titanium = 6).expect("PROD[2 P, 2 H], -ProjectCard")
     }
 
