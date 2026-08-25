@@ -1,6 +1,22 @@
 # Prelude 2 implementation record
 
-> **Agent record:** This is implementation evidence and scope tracking, not player documentation.
+> **Read when:** changing Prelude 2 supported scope, card data, compatibility filtering, active
+> Preludes, the failed-Prelude fallback, or a card named below.
+>
+> **Skip when:** changing the ordinary Prelude phase with no Prelude 2-specific consequence.
+>
+> **Status:** current support and primary-source record.
+
+## Source map
+
+- [`prelude2ExpansionBundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/prelude2ExpansionBundle.kt)
+  — inspect bundle/module composition and source resources.
+- [Prelude 2 `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/Prelude2Expansion/cards.pets)
+  — search for the specific card Class before changing behavior.
+- [`cards-dont-work.json5`](../../tfm-canon/src/commonMain/resources/canon/bundles/Prelude2Expansion/cards-dont-work.json5)
+  — inspect only when changing the support boundary.
+- [`Prelude2CardsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt)
+  — read for the focused supported behavior, not as card-data authority.
 
 ## Sources and scope
 

@@ -1,8 +1,25 @@
 # Pets type system
 
-**Status: current model with explicit divergences in section 12.** This is the implementation-facing
-reference for `dev.martianzoo.pets.types`. The human tutorial is
-[type-system.md](../type-system.md).
+> **Read when:** changing a specific Pets type-system concept. Start with Quick model, then read only
+> its numbered section; read Known divergences only when diagnosing or deliberately fixing one.
+>
+> **Skip when:** changing live component/task execution without changing static Type meaning; use
+> [ENGINE.md](ENGINE.md).
+>
+> **Status:** current implementation-facing model with explicit defects in section 12. The human
+> tutorial is [type-system.md](../type-system.md).
+
+## Source map by concept
+
+| Concept | Source entry point |
+| --- | --- |
+| Class identity and nominal hierarchy | [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt), search `public class Class` |
+| Type arguments, dependency lookup, complements | [`Type.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Type.kt), search `public data class Type` |
+| Dependency declarations and keys | [`Dependency.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Dependency.kt) and [`DependencySet.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/DependencySet.kt) |
+| Class loading, inheritance, defaults, and inhabitation | [`ClassLoader.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassLoader.kt) |
+| Closed-world lookup and bounds | [`ClassTable.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassTable.kt) |
+| Authored implicit variables and regions | [`TypeLinking.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/TypeLinking.kt), search `Region` |
+| Foundational declaration vocabulary | [`system.pets`](../../pets/src/commonMain/resources/pets/system.pets), search for the named Class |
 
 ## Quick model
 

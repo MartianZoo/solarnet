@@ -1,6 +1,21 @@
 # Reducing custom Pets instructions
 
-**Status: audit.** `TODO.md` decides whether and when to act.
+> **Read when:** deliberately replacing `ColoniesSetup`, `PassLeft`, or another custom instruction
+> with hand-authored Pets and general runtime semantics.
+>
+> **Skip when:** merely implementing a custom operation or metric, or when no custom is being
+> removed. [`TODO.md`](../../TODO.md) decides priority.
+>
+> **Status:** audit.
+
+## Source map
+
+- [`CustomClass.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/api/CustomClass.kt) — inspect
+  the general extension boundary before claiming a custom can be removed.
+- [`CustomClassRuntime.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/CustomClassRuntime.kt)
+  — read when the candidate performs live preparation/execution.
+- [`ColoniesExpansion.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/ColoniesExpansion.kt)
+  — search for `ColoniesSetup` for that specific candidate.
 
 A custom instruction has been eliminated only when its behavior follows from hand-authored Pets and
 general runtime semantics. Moving the same bespoke behavior into

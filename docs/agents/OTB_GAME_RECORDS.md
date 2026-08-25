@@ -1,6 +1,22 @@
 # Reconstructing recorded over-the-board games
 
-> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+> **Read when:** reconstructing a physical game from mixed evidence such as audio, photographs, and
+> player-board resource records.
+>
+> **Skip when:** the primary evidence is a herokuapp log; use
+> [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md). For ordinary tests, use
+> [TESTING.md](TESTING.md).
+>
+> **Status:** replay procedure.
+
+## Code entry points
+
+- [`AbstractFullGameTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
+  — inspect shared chronology, checkpoint, and endgame helpers.
+- [`OtbGame20260818Test.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/OtbGame20260818Test.kt)
+  — consult only as a syntax example after independently inventorying the new game's evidence.
+- [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
+  search for `exMachina` only when an evidenced physical error needs direct reconciliation.
 
 This procedure covers live physical games reconstructed from mixed evidence such as an audio
 transcript, player-board resource logs, and photographs. It supplements the shared whole-game rules

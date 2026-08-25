@@ -1,9 +1,36 @@
 # Turmoil modeling record
 
-**Status: research-backed modeling proposal.** The physical rules and global-event data are source
-material. The component homes and Pets shown here are working design choices. `LANGUAGE?` comments
-identify behavior that current Pets does not clearly express; this document does not claim that the
-captured source parses or runs.
+> **Read when:** modeling Turmoil. Select only the rule family being discussed from the section map
+> below; do not read the entire card/event catalog by default.
+>
+> **Skip when:** changing the existing Turmoil card pack without Turmoil expansion rules, or doing
+> generic engine work merely because Turmoil could someday use it.
+>
+> **Status:** research-backed proposal. Physical rules and event data are source material; component
+> homes and Pets are working choices. `LANGUAGE?` marks unexpressed behavior. The captured source is
+> not claimed to parse or run.
+
+## Choose the section first
+
+| Task | Read |
+| --- | --- |
+| Decide which component owns a rule | Choosing the behavioral home |
+| Decide per-player/per-card multiplicity | Multiplicity and AMAP |
+| Model parties, dominance, or ruling | Current Pets draft; Parties, dominance, and ruling |
+| Model influence or delegates | Influence and delegates |
+| Model ruling policies | Policies |
+| Model the event queue or a named event | Global-event positions and shared card behavior, then only the relevant event family |
+| Revisit global-parameter ownership | Related GlobalParameter ownership question |
+| Resolve syntax/model gaps | Open language and modeling questions |
+
+## Nearby source
+
+- [Turmoil card-pack `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TurmoilCardPack/classes.pets)
+  and [`cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TurmoilCardPack/cards.pets)
+  contain supported promotional cards, not the proposed Turmoil expansion model. Search for a named
+  card before deciding whether it is a useful precedent.
+- [`turmoilCardPackBundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/turmoilCardPackBundle.kt)
+  shows the current card-pack boundary; do not mistake it for a Turmoil Module.
 
 Sources:
 

@@ -1,7 +1,27 @@
 # Context, assignment, and actor identity
 
-**Status:** The first four sections describe committed behavior. “Target delegation model” is a
-proposal.
+> **Read when:** changing context specialization, event Actor attribution, task queue assignment,
+> `BY`, preparation-time delegated narrowing, Philares, or Engine-selected hidden cards.
+>
+> **Skip when:** changing ownership as a Type dependency without task routing or attribution; read
+> the dependency sections of [TYPES.md](TYPES.md).
+>
+> **Status:** “Four identities” through “Current task assignment” describe committed behavior.
+> “Target delegation model” and “Proposed first slice” are unimplemented.
+
+## Source map
+
+- [`Identities.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Identities.kt) — search
+  for `public sealed interface Actor` for the operation identity boundary.
+- [`Task.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Task.kt) — inspect `assignee`
+  and `actor` before changing queued work.
+- [`LiveEffect.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/LiveEffect.kt) — search
+  for `assignee` to see trigger-time routing.
+- [`EffectActorCharacterizationTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
+  and [`TaskAssignmentCharacterizationTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
+  — read before changing current Actor or assignment semantics.
+- [`BugsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/BugsTest.kt) —
+  search for `Philares` for the characterized delegation gap.
 
 ## Four identities
 

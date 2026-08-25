@@ -1,13 +1,21 @@
 # Game hacks
 
+> **Read when:** touching one of the specifically named representations below, or when Pets meaning
+> appears deliberately unlike the published game even though supported outcomes match.
+>
+> **Skip when:** investigating an ordinary defect with no listed representation. Search
+> [`TODO.md`](../../TODO.md) and the relevant tests instead.
+>
+> **Status:** current inventory of deliberate representations plus one known payment defect.
+
 This is the ranked inventory of deliberate representations whose supported outcomes match the
 official game, but whose Pets meaning is technically different. Each creates an authoring rule:
 content that ignores the rule can expose the representation. Known incorrect behavior and intended
-repairs belong in [`TODO.md`](TODO.md), not here.
+repairs belong in [`TODO.md`](../../TODO.md), not here.
 
 ## Known incorrect behavior
 
-### Payment may spend more value than the remaining debt permits
+### Payment allocation is not yet auditable
 
 `Pay` and `PayFromCard` remove the selected resources immediately. Their automatic effects then
 remove as much `Owed` as remains. A same-denomination `Pay` removes one per resource; substitute
@@ -27,6 +35,11 @@ whatever `Owed` remains when each happens to execute. Automatic-effect registrat
 game rule. A future payment model should record every contribution in full and validate the
 completed allocation before consuming the exact debt. The concerns and candidate designs are
 developed in [`PAYMENTS.md`](PAYMENTS.md).
+
+Inspect [`TfmGameplay.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmGameplay.kt)
+at `fun pay` for the current client check, and
+[`PaymentSpecializationTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
+for systemic payment behavior.
 
 ## Cross-cutting representations
 

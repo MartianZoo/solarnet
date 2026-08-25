@@ -1,6 +1,23 @@
 # Catalog classes and game class views
 
-**Status: current model.**
+> **Read when:** changing `ClassTable`, Catalog-wide Class identity, a game projection, inhabitation,
+> or any API that lets a `Class`/`Type` enumerate game-specific candidates.
+>
+> **Skip when:** changing ordinary parsing or nominal subtyping without projection-dependent
+> enumeration; use [TYPES.md](TYPES.md).
+>
+> **Status:** current model.
+
+## Source map
+
+- [`ClassTable.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassTable.kt) — search
+  for `public abstract class ClassTable` to inspect master-universe and projection operations.
+- [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt) — read before
+  adding any back-reference or universe identity to a structural value.
+- [`GamePremise.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GamePremise.kt) —
+  search for `classTable` to see where the game projection is retained.
+- [`ClassTableProjectionTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/ClassTableProjectionTest.kt)
+  — read when changing inhabitation or Catalog/Class identity invariants.
 
 ## Ownership model
 

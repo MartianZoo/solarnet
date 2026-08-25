@@ -1,9 +1,26 @@
 # Pets Actions
 
-**Status: fixed, property-scaled, and X-scaled standard-resource costs use the billing model.**
-Direct and costless Actions retain ordinary Pets sequencing.
+> **Read when:** changing Pets `Action` parsing/lowering, action selection, billing, or cards with
+> fixed, property-scaled, or X-scaled standard-resource costs.
+>
+> **Skip when:** changing an ordinary instruction that is not an `Action`, or changing payment
+> allocation after an invoice has already been created; use [PAYMENTS.md](PAYMENTS.md) for that.
+>
+> **Status:** current model. Standard-resource costs use billing; direct and costless Actions retain
+> ordinary Pets sequencing.
 
-## Scope
+## Source map
+
+- [`Action.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Action.kt) — search for
+  `public sealed class Cost` to inspect the parsed cost forms.
+- [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
+  search for `transformAction` before changing the lowering boundary.
+- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+  — search for `ABSTRACT CLASS Billing` to see the runtime protocol.
+- [`VariableAmountActionsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt)
+  — read when changing X costs or the identity of several Actions on one component.
+
+## Meaning and scope
 
 A **Pets Action** is the declaration written `[cost] -> result`. It is distinct from the larger
 Terraforming Mars operation between one empty user task queue and the next.

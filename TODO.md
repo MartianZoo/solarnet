@@ -15,7 +15,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
   stages currently lose that shared identity. Expose the existing semantic link and represent the
   later participant as a structured reference rather than recognizing Flooding.
-- Finish the remaining English renderer work in `docs/agents/LANGUAGE_REVIEW.md` and `LANGUAGE_GUIDEBOOK.md` (it exists... somewhere)
+- Finish the remaining English renderer architecture work routed by `docs/agents/LANGUAGE_REVIEW.md`;
+  keep current output coverage and ordinary renderer rules in `docs/agents/LANGUAGE.md`.
 - Try making `VictoryPoint` depend on the scoring `Component` for the fun of it.
 - Philanthropist's metric is not the same as Vitor's (add BugsTest).
 - See if two wild tags on one card is feasible to support, else add to limitations doc.

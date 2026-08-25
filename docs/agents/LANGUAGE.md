@@ -1,7 +1,42 @@
 # English card-text derivation
 
-> **Agent record:** Current behavior and working rules for the incremental replacement of the
-> English card-text data file.
+> **Read when:** changing English output, a renderer family, the component lexicon, card-region
+> layout, refusal behavior, or review of generated card text.
+>
+> **Skip when:** changing Pets meaning without changing human rendering. Read
+> [LANGUAGE_REVIEW.md](LANGUAGE_REVIEW.md) only when working on its remaining architectural
+> migration, not for ordinary wording coverage.
+>
+> **Status:** current behavior and working rules.
+
+## Read only the relevant sections
+
+| Task | Read |
+| --- | --- |
+| Add support for one recurring Pets shape | Direction and pace; Expected renderer architecture; Transitional derivation; Review cadence |
+| Change wording or lexical categories | Canonical wording versus rules; Component nouns and change verbs |
+| Change actions, triggers, effects, requirements, or metrics | The matching part of Current derivation boundary, then its renderer source below |
+| Change which text appears above/below artwork | Known layout boundaries |
+| Review a corpus-wide change | Verification while replacing the data file; Review cadence |
+
+## Source map
+
+- [`English.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/English.kt) — inspect the
+  public entry points and card-region assembly.
+- [`Rendering.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/Rendering.kt) and
+  [`RenderedInstructions.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/RenderedInstructions.kt)
+  — search for `Unresolved` when changing refusal boundaries.
+- [`ExpressionResolver.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ExpressionResolver.kt)
+  — read when ownership defaults or dependency-by-key resolution is involved.
+- [`ComponentDescriber.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ComponentDescriber.kt)
+  and [`TerraformingMarsDescribers.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
+  — search for `ChangeFrame` and the relevant Class Name before adding lexical facts.
+- Choose one family source: [`renderActions.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderActions.kt),
+  [`renderChange.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderChange.kt),
+  [`renderEffect.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderEffect.kt),
+  [`renderInstructionTree.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderInstructionTree.kt),
+  [`renderMetric.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderMetric.kt), or
+  [`renderRequirement.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderRequirement.kt).
 
 ## Direction and pace
 

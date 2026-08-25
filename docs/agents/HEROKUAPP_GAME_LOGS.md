@@ -1,6 +1,23 @@
 # Translating herokuapp game logs
 
-> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+> **Read when:** reconstructing a game whose primary evidence is the herokuapp API log, end page,
+> and screenshots.
+>
+> **Skip when:** reconstructing a physical game from audio/photos; use
+> [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md). For ordinary card or rule tests, use
+> [TESTING.md](TESTING.md).
+>
+> **Status:** replay procedure. It intentionally contains no game-specific answers.
+
+## Code entry points
+
+- [`AbstractFullGameTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
+  — search for `abstract class AbstractFullGameTest` for shared replay chronology and assertions.
+- [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
+  search for `exMachina` only when evidence proves a direct reconciliation is required.
+- [`TfmWorkflow.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
+  — read only when the archive chronology crosses setup, phase, or endgame boundaries that the
+  replay helper does not explain.
 
 This guide intentionally contains no setup, action, balance, coordinate, or scoring answer for a
 particular archived game. Reconstruct each test independently from its archive. An existing dated

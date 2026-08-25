@@ -1,8 +1,23 @@
 # JVM test performance snapshot
 
-> **Agent record:** Measurements from 2026-08-23 on the development host. Treat absolute times as
+> **Read when:** measuring JVM test throughput, changing fork count or class-model compilation, or
+> choosing the next test-performance investigation.
+>
+> **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
+> measurements as current configuration requirements.
+>
+> **Status:** dated research from 2026-08-23 on the development host. Treat absolute times as
 > noisy: other JVM processes were consuming substantial CPU during the baseline. Relative structure
 > and the large parallel-speedup signal are still clear.
+
+## Configuration entry points
+
+- [`solarnet.kotlin-base.gradle.kts`](../../gradle/build-logic/src/main/kotlin/solarnet.kotlin-base.gradle.kts)
+  — search for `maxParallelForks` before changing JVM worker scaling.
+- [`TfmTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
+  class-level game construction only when profiling setup cost.
+- [`ClassLoader.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassLoader.kt) — read
+  only when a fresh profile again points to Class-model construction.
 
 ## End-to-end baseline
 

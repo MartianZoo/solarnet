@@ -1,5 +1,13 @@
 # Project values
 
+> **Read when:** designing, implementing, or reviewing a behavior or architecture change, especially
+> when fidelity, generality, completeness, and conceptual cost compete.
+>
+> **Skip when:** performing a mechanical, behavior-preserving edit whose design ownership is already
+> settled.
+>
+> **Status:** durable working rules.
+
 These are the durable criteria for design and review. Repository-level instructions in
 [`AGENTS.md`](../../AGENTS.md) remain authoritative for how to work.
 
@@ -50,6 +58,12 @@ incoherent exception, parallel mechanism, or disproportionate framework is still
   exact game. Do not blur these roles.
 - Load only the vocabulary a game needs. Mentioning an inactive optional type in a safe query must
   not activate its expansion.
+
+Source precedents: search for `CLASS GreeneryTile` and `CLASS Photosynthesis` in
+[Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+for an intrinsic rule with ambient conditioning. Search for `PharmacyUnion` in
+[Promo `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/PromoCardPack/cards.pets)
+only when evaluating a genuinely exceptional published rule.
 
 ## Keep interfaces and evidence honest
 

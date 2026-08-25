@@ -1,8 +1,24 @@
 # Native Pets workflow
 
-**Status:** Phase requirements below are settled domain behavior. The native vocabulary and runner
-are a proposal. Committed `TfmWorkflow.Auto` still sequences phases in Kotlin and waits for
-whole-world idleness.
+> **Read when:** changing phase topology/end conditions, moving workflow into Pets, introducing a
+> generic workflow runner, or deciding whether whole-world idleness is the right completion rule.
+>
+> **Skip when:** changing an ordinary card effect or existing workflow-created choice without
+> changing phase ownership.
+>
+> **Status:** domain requirements are settled. Native vocabulary and runner are proposed. Committed
+> `TfmWorkflow.Auto` sequences phases in Kotlin and waits for whole-world idleness.
+
+## Source map
+
+- [`TfmWorkflow.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
+  — search for `public object TfmWorkflow` and the named phase methods for current behavior.
+- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+  — search for `ABSTRACT CLASS Phase`, `CLASS Generation`, and `CLASS EndPhase` for current domain
+  vocabulary.
+- [`TfmWorkflowTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/TfmWorkflowTest.kt)
+  and [`EndgameRulesTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/EndgameRulesTest.kt)
+  — select only scenarios matching the changed phase/end boundary.
 
 This project is an architectural replacement, not a prerequisite for current Splice, Icy
 Impactors, Enceladus, or World Government Terraforming behavior. Philares is not a working

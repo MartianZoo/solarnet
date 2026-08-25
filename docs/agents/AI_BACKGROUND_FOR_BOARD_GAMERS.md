@@ -1,5 +1,13 @@
 # Teaching Computers to Play Big Hidden-Information Games
 
+> **Read when:** a concise explanation of the AI-player opportunity, limitations, or recommended
+> first goal is enough.
+>
+> **Skip when:** making source-backed research claims or concrete architecture/evaluation choices;
+> use [AI_BACKGROUND.md](AI_BACKGROUND.md).
+>
+> **Status:** research overview current through 2026-08-08.
+
 This is the board-gamer's version of the more detailed
 [research survey](AI_BACKGROUND.md). It assumes familiarity with games, not with how computer
 players are built.

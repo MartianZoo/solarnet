@@ -1,8 +1,42 @@
 # Engine model
 
-**Status: current model.** This is the architectural map for committed code. Follow links to source
-and tests when exact signatures or edge behavior matter. Future API and workflow directions live in
-[API.md](API.md) and [WORKFLOW.md](WORKFLOW.md).
+> **Read when:** changing live World construction, components, events, tasks, effects, rollback,
+> recoverable dead ends, input transformation, or the current `Gameplay` surface.
+>
+> **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
+> [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
+> resolution.
+>
+> **Status:** current-model map. Follow the source pointers for exact behavior. Future facade and
+> workflow directions live in [API.md](API.md) and [WORKFLOW.md](WORKFLOW.md).
+
+## Read only the relevant sections
+
+| If changing | Read |
+| --- | --- |
+| Game creation or premise activation | Game construction, then Wiring details |
+| Component state, event history, rollback, or forks | Component graph; Events and timeline; Recoverable dead ends |
+| Tasks, assignment, preparation, or execution | Tasks are an unordered choice pool through Execution |
+| Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
+| Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
+| Engine API or autoexecution | Current Gameplay surface; Auto-execution and workflow |
+| Parsing or lowering submitted Pets | Input transformation |
+
+## Source map
+
+- [`World.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/World.kt) and
+  [`WholeWorld.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/WholeWorld.kt) — search
+  for `public interface World` and `public class WholeWorld` for the read surface and live assembly.
+- [`ComponentGraph.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/ComponentGraph.kt) —
+  inspect for component multiplicity and indexes.
+- [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) and
+  [`PendingTask.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/PendingTask.kt) — inspect
+  only for deferred work and preparation.
+- [`EventLog.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/EventLog.kt) and
+  [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — inspect only
+  for history, atomicity, rollback, or revisions.
+- [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt) — search for
+  `public interface Gameplay` before changing caller-facing operations.
 
 ## Game construction
 
