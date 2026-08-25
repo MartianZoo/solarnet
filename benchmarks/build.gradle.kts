@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-  implementation(project(":canon"))
+  implementation(project(":tfm-canon"))
   implementation(project(":engine"))
   implementation(project(":pets"))
 }

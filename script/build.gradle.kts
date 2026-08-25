@@ -6,7 +6,7 @@ kotlin {
       dependencies {
         implementation(project(":pets"))
         implementation(project(":engine"))
-        implementation(project(":canon"))
+        implementation(project(":tfm-canon"))
       }
     }
   }

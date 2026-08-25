@@ -268,7 +268,7 @@ missing owning Module.
 
 ## Non-Canon Kotlin expansion-coupling audit
 
-**Status:** verified current production code. This inventory excludes the `canon` module, tests,
+**Status:** verified current production code. This inventory excludes the `tfm-canon` module, tests,
 and benchmarks. Severity describes pressure on the design boundary, not a conclusion that every
 named domain concept should become generic.
 

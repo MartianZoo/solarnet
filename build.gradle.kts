@@ -68,7 +68,7 @@ dependencies {
   dokka(project(":engine"))
   dokka(project(":script"))
   dokka(project(":repl"))
-  dokka(project(":canon"))
+  dokka(project(":tfm-canon"))
   dokka(project(":web"))
 }
 

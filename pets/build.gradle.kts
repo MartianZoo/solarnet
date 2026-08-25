@@ -15,7 +15,7 @@ kotlin {
     commonTest {
       dependencies {
         implementation(libs.kotest.assertions.core)
-        implementation(project(":canon")) // easier to test the pets data model this way
+        implementation(project(":tfm-canon")) // easier to test the pets data model this way
       }
     }
   }

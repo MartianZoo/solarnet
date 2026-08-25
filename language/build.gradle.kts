@@ -2,7 +2,7 @@ plugins { id("solarnet.jvm") }
 
 dependencies {
   implementation(project(":pets"))
-  implementation(project(":canon"))
+  implementation(project(":tfm-canon"))
   testImplementation(libs.kotest.assertions.core)
 }
 

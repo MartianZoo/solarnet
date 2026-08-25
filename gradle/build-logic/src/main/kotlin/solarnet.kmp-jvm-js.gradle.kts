@@ -21,8 +21,8 @@ tasks.register("test") {
 // and Pets resources the tests load have to be copied in next to them.
 val copyResourcesForKarma by
     tasks.registering(Copy::class) {
-      dependsOn(":canon:jsProcessResources", ":pets:jsProcessResources")
-      from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
+      dependsOn(":tfm-canon:jsProcessResources", ":pets:jsProcessResources")
+      from(project(":tfm-canon").layout.buildDirectory.dir("processedResources/js/main"))
       from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets")) {
         into("pets")
       }

@@ -41,7 +41,7 @@ English text for Terraforming Mars cards.
 
 ## module CANON
 
-### <a href="canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
+### <a href="tfm-canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
 
 Contains the data and custom instructions for officially published cards, maps, etc.
 

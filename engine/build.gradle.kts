@@ -11,7 +11,7 @@ kotlin {
     commonTest {
       dependencies {
         implementation(libs.kotest.assertions.core)
-        implementation(project(":canon")) // easiest to test the engine this way
+        implementation(project(":tfm-canon")) // easiest to test the engine this way
       }
     }
   }

@@ -12,6 +12,6 @@ maintained at the end of each bundle's sole `classes.pets`. When structured map 
 explicit declaration share a Class Name, the explicit declaration supplies the Class while the
 map data remains available as metadata.
 
-Because the `tools` module depends on `canon`, generation is still an explicit maintenance step and
+Because the `tools` module depends on `tfm-canon`, generation is still an explicit maintenance step and
 cannot feed Canon's own resource processing without a build dependency cycle. Removing JSON at
 runtime requires deriving topology, bonuses, and map grouping from the Pets declarations first.

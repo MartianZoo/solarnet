@@ -179,7 +179,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   in `TfmAuthority`.
 - Extract shared `Definition`-to-`ClassDeclaration` assembly without hiding category-specific behavior.
 - Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately.
-- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `canon`, and `script` APIs.
+- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated dependency/refinement construction without risking correctness.
 
 ### Medium Priority

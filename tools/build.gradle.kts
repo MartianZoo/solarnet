@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-  implementation(project(":canon"))
+  implementation(project(":tfm-canon"))
   implementation(project(":engine"))
   implementation(project(":pets"))
 }
@@ -36,7 +36,7 @@ tasks.register<JavaExec>("generateMapPets") {
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tools.GenerateMapPetsKt")
   inputs.files(
-      project(":canon").fileTree("src/commonMain/resources/canon/bundles") {
+      project(":tfm-canon").fileTree("src/commonMain/resources/canon/bundles") {
         include("**/*maps.json5")
       }
   )
@@ -50,9 +50,9 @@ tasks.register<JavaExec>("generateCardPets") {
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tools.GenerateCardPetsKt")
   inputs.files(
-      project(":canon").fileTree("src/commonMain/resources/canon/bundles") {
+      project(":tfm-canon").fileTree("src/commonMain/resources/canon/bundles") {
         include("**/cards.json5")
       }
   )
-  args(project(":canon").file("src/commonMain/resources").absolutePath)
+  args(project(":tfm-canon").file("src/commonMain/resources").absolutePath)
 }

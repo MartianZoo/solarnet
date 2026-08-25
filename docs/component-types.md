@@ -2,10 +2,10 @@
 
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to the source code as you read:
 
-* [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
-* [modes.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/modes.pets)
-* [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
-* [maps-tiles.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/maps-tiles.pets)
+* [global.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
+* [modes.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/modes.pets)
+* [player.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
+* [maps-tiles.pets](https://github.com/MartianZoo/solarnet/blob/main/tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/maps-tiles.pets)
 
 ## Communal / non-player-owned
 
