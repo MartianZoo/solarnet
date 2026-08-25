@@ -1,17 +1,16 @@
 # Canon map Pets generation
 
-**Status: experiment.** Canon loads map and area Class Declarations from generated Pets resources.
-The JSON map files remain temporarily as the redundant source of `MarsMapDefinition` topology and
-bonus metadata used by custom behavior and tools.
+Canon map topology and bonus metadata are authored as compact diagrams in comments within each
+bundle's `classes.pets`. Each diagram is immediately followed by its generated area declarations.
+The first character of a cell selects the area kind; the remaining characters encode its bonuses.
+Rows use the standard nine-row Mars-map shape, so their horizontal position determines columns.
 
-`./gradlew :tools:generateMapPets` reads `Canon.marsMapDefinitions` and writes one parse-validated
-Pets block per bundle under `tools/build/generated/mapPets/canon/bundles/`. The selected format
-puts every map declaration first, followed by one commented generated-area section. Each area stays
-on one line, area kinds are aligned, and map rows are separated with blank lines. This block is
-maintained at the end of each bundle's sole `classes.pets`. When structured map data and an
-explicit declaration share a Class Name, the explicit declaration supplies the Class while the
-map data remains available as metadata.
+`MarsMapReader` reads those diagrams directly when Canon loads a bundle. Milestone and award pools
+follow the map prefix naming convention, such as `TharsisMilestone` for `TharsisMap`.
 
-Because the `tools` module depends on `canon`, generation is still an explicit maintenance step and
-cannot feed Canon's own resource processing without a build dependency cycle. Removing JSON at
-runtime requires deriving topology, bonuses, and map grouping from the Pets declarations first.
+`./gradlew :tools:regenerateMapAreas` rewrites every generated area block in place. The tool keeps
+map-cell centers six characters apart, centers odd-width codes on their cells, and lets even-width
+codes extend one character farther right. It leaves a blank comment line between map rows. The tool
+also keeps each area declaration on one line, aligns area kinds, separates declaration rows with
+blank lines, and checks that the resulting Pets declarations round-trip to the definitions read
+from the diagrams.

@@ -121,16 +121,27 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun standardFormBundleWithoutPetsDoesNotSynthesizeAComponent() {
+  internal fun standardFormBundleLoadsMapDefinitionFromPetsComment() {
     val bundle =
         StandardFormBundle(
             name = "MapProvider",
-            resourceDirectory = "bundles/TharsisMap",
-            resourceFilenames = setOf(StandardFormBundle.MAPS_FILENAME),
+            resourceDirectory = "maps",
+            resourceFilenames = setOf("classes.pets"),
+            resourceReader = {
+              """
+              CLASS DemoMap : MarsMap
+              // The map areas below are code-generated based on the following comment
+              //
+              // L
+              //
+              CLASS Demo_1_1 : LandArea { row = 1; column = 1 }
+              """
+                  .trimIndent()
+            },
         )
 
     (cn("MapProvider") in bundle.allClassNames) shouldBe false
-    bundle.marsMapDefinitions.single().className shouldBe cn("TharsisMap")
+    bundle.marsMapDefinitions.single().className shouldBe cn("DemoMap")
   }
 
   @Test

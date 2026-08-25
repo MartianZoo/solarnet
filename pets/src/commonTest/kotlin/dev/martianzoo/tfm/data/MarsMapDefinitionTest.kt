@@ -11,29 +11,26 @@ import kotlin.test.Test
 
 internal class MarsMapDefinitionTest {
 
-  private val demoMapJson =
+  private val demoMapPets =
       """
-        {
-          "legend": {
-            "L": "LandArea", "W": "WaterArea", "V": "VolcanicArea",
-            "P": "Plant", "S": "Steel", "C": "ProjectCard",
-          },
-          "maps": [{
-            "name": "DemoMap",
-            "areaPrefix": "Demo",
-            "defaultMilestones": "DemoMilestone",
-            "defaultAwards": "DemoAward",
-            "rows": [
-              [ " V S ", "L" ],
-              [ "V2P", "WPP", "WPC" ],
-              [ "   ", "LSS", "LC" ],
-            ]
-          }]
-        }"""
+      ABSTRACT CLASS DemoMilestone : Milestone
+      ABSTRACT CLASS DemoAward : Award
+      CLASS DemoMap : MarsMap
+
+      // The map areas below are code-generated based on the following comment
+      //
+      // VS L
+      // V2P WPP WPC
+      // LSS LC
+      //
+
+      CLASS Demo_1_1 : VolcanicArea { row = 1; column = 1; Tile<This>: Steel }
+      """
+          .trimIndent()
 
   @Test
-  internal fun testDemoMapFromJson() {
-    val map: MarsMapDefinition = JsonReader.readMaps(demoMapJson).single()
+  internal fun readsMapDefinitionFromPetsComment() {
+    val map: MarsMapDefinition = MarsMapReader.readMaps(demoMapPets).single()
     map.className shouldBe cn("DemoMap")
     map.defaultMilestones shouldBe cn("DemoMilestone")
     map.defaultAwards shouldBe cn("DemoAward")
