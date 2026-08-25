@@ -1,6 +1,6 @@
 "Terra Cimmeria's MSL Curiosity placement bonus; its colony branch exists only with Colonies"
 CLASS TcColonyBonus : Signal {
-  This IF Class<ColoniesExpansion>: Colony<>, -5
+  This IF ColoniesExpansion: Colony<>, -5
 }
 
 ABSTRACT CLASS UtopiaMilestone : Milestone {

@@ -16,9 +16,9 @@ ABSTRACT CLASS Atomized
 "Implementation detail normally omitted from user-facing output"
 ABSTRACT CLASS Hidden
 
-"Engine-only machinery; unowned occurrences are independent of any Player Actor"
+"No one but Engine can create these"
 ABSTRACT CLASS System : Hidden {
-  This BY Player: Die
+  This BY !Engine: Die
 }
 
 // Anything that cannot exist after the task queue clears (i.e., the action ends)
