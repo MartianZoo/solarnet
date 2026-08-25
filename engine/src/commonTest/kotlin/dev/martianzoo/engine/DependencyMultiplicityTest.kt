@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.loader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
@@ -55,7 +54,7 @@ internal class DependencyMultiplicityTest {
     shouldThrow<PetException> { limiter(table) }
   }
 
-  private fun load(classes: String) = loader(classes.trimIndent())
+  private fun load(classes: String) = testClassTable(classes)
 
   private fun limiter(classTable: ClassTable) =
       Limiter(classTable, ComponentGraph.empty(classTable))

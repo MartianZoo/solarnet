@@ -15,8 +15,8 @@ import kotlin.jvm.JvmInline
 
 /** One concrete [Type] used as a value in a [ComponentGraph]. */
 @JvmInline
-// TODO: Contract the temporary constructor and playerOwner tfm-tests seams.
-public value class Component public constructor(public val type: Type) : HasExpression {
+// TODO: Contract the temporary playerOwner tfm-tests seam.
+public value class Component internal constructor(public val type: Type) : HasExpression {
   init {
     if (type.abstract) throw Exceptions.abstractComponent(type)
   }

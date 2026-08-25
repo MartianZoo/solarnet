@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.types.loader
-import dev.martianzoo.types.te
+import dev.martianzoo.pets.ast.Expression
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 internal class ComponentEffectsValidationTest {
   private val table =
-      loader(
+      testClassTable(
           """
           ABSTRACT CLASS Target
           CLASS Good : Target
@@ -52,7 +52,7 @@ internal class ComponentEffectsValidationTest {
 
   @Test
   internal fun `class effects reject a class from another class table`() {
-    val otherUniverse = loader("CLASS Holder")
+    val otherUniverse = testClassTable("CLASS Holder")
 
     shouldThrow<IllegalArgumentException> {
       transformers.classEffects(otherUniverse.getClass(cn("Holder")))
@@ -61,7 +61,7 @@ internal class ComponentEffectsValidationTest {
 
   @Test
   internal fun `components without ownership are unowned`() {
-    val table = loader("CLASS Token")
+    val table = testClassTable("CLASS Token")
 
     Component(table.resolve(te("Token"))).owner.shouldBeNull()
   }
@@ -69,7 +69,7 @@ internal class ComponentEffectsValidationTest {
   @Test
   fun `class token dependencies specialize independently`() {
     val table =
-        loader(
+        testClassTable(
             """
             ABSTRACT CLASS Resource
             CLASS Money : Resource
@@ -88,3 +88,5 @@ internal class ComponentEffectsValidationTest {
         .shouldContainExactly("This: Debt<Class<Money>>!")
   }
 }
+
+private fun te(source: String): Expression = parse(source)

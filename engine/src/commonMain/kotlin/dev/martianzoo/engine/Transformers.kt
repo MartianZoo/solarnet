@@ -71,7 +71,7 @@ public class Transformers(public val classTable: ClassTable) {
       }
 
   /** Effects inherited by [klass], processed as far as possible without a concrete component. */
-  public fun classEffects(klass: Class): List<Effect> {
+  internal fun classEffects(klass: Class): List<Effect> {
     require(classTable.isActive(klass)) { "$klass is not active in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
@@ -661,7 +661,7 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
-  public fun findSubstitutions(
+  internal fun findSubstitutions(
       gendeps: DependencySet,
       specdeps: DependencySet,
   ): Map<ClassName, Expression> {

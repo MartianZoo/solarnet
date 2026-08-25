@@ -1,8 +1,9 @@
-package dev.martianzoo.types
+package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Component
-import dev.martianzoo.engine.LiveEffect
-import dev.martianzoo.engine.Transformers
+import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Expression
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -10,7 +11,7 @@ import kotlin.test.Test
 
 internal class DependencyLinkTest {
   private val table =
-      loadTypes(
+      testClassTable(
           """
           CLASS Player1 : Owner
           CLASS Player2 : Owner
@@ -55,7 +56,9 @@ internal class DependencyLinkTest {
   internal fun `links survive inheritance`() {
     table.resolve(te("InheritedLink<Player1, Card>")) shouldBe
         table.resolve(te("InheritedLink<Card<Player1>>"))
-    assertFails { table.resolve(te("InheritedLink<Player1, Card<Player2>>")) }
+    shouldThrow<ExpressionException> {
+      table.resolve(te("InheritedLink<Player1, Card<Player2>>"))
+    }
   }
 
   @Test
@@ -86,3 +89,5 @@ internal class DependencyLinkTest {
         )
   }
 }
+
+private fun te(source: String): Expression = parse(source)
