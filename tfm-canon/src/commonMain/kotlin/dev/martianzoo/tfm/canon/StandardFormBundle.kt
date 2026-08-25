@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.CustomClass
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * An internal Authority-provider bundle loaded from conventionally named Pets and JSON resources.

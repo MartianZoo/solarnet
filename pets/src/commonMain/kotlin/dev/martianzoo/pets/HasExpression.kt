@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 
 /** Any object that can be represented in some way as an [Expression]. */
 public interface HasExpression {

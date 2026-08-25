@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

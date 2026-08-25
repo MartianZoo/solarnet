@@ -1,18 +1,18 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
+import dev.martianzoo.pets.types.ClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
@@ -11,7 +10,8 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.types.Dependency.Key
 
 /** Interprets one Pets state change from passive component construction facts. */
 internal fun renderChange(

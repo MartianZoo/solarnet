@@ -4,7 +4,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.types.Type
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

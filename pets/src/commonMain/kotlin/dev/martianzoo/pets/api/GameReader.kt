@@ -1,0 +1,45 @@
+package dev.martianzoo.pets.api
+
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.Multiset
+
+/** A readable view of a live Pets world. */
+public interface GameReader : TypeInfo {
+  /** Every Actor participating in this game, with seated Players in seat order. */
+  public val actors: List<Actor>
+
+  /** The Authority used by the world. */
+  public val authority: Authority
+
+  /** Returns the type represented by the (fully-prepared) [expression]. */
+  public fun resolve(expression: Expression): Type
+
+  /** Determines whether the (fully-prepared) [requirement] is met in the current world. */
+  override fun has(requirement: Requirement): Boolean
+
+  /**
+   * Evaluates the (fully-prepared) [metric] in the current world. A count whose root is a custom
+   * class is computed by that Kotlin implementation rather than from components.
+   */
+  public fun count(metric: Metric): Int
+
+  /** Returns the number of component instances having type [type] in the current world. */
+  public fun count(type: Type): Int
+
+  public fun containsAny(type: Type): Boolean
+
+  /** Returns the number of instances of [concreteType] in the current world. */
+  public fun countComponent(concreteType: Type): Int
+
+  /** Returns the types of all concrete components in the current world. */
+  public fun getComponents(type: Type): Multiset<Type>
+
+  /** Returns the types of all concrete components matching the Pets type expression [type]. */
+  public fun getComponents(type: String): Multiset<Type> = getComponents(resolve(parse(type)))
+}

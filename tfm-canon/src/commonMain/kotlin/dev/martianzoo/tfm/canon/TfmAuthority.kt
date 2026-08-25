@@ -1,21 +1,12 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.CustomClass
-import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.TypeInfo.NoGameState
-import dev.martianzoo.data.Authority
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassSelection
-import dev.martianzoo.data.Definition
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.ModuleProperties.AUTO_SELECT_WHEN
-import dev.martianzoo.data.ModuleProvenance
-import dev.martianzoo.data.Player
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
+import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
@@ -25,11 +16,20 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
+import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.pets.data.Definition
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
+import dev.martianzoo.pets.data.ModuleProvenance
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.systemClassDeclarations
+import dev.martianzoo.pets.types.ClassLoader
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.util.associateByStrict
 import dev.martianzoo.tfm.canon.BundleContentSelection.Kind
-import dev.martianzoo.types.ClassLoader
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.util.associateByStrict
 
 /**
  * A Terraforming Mars Authority with declarations, structured card/map data, and selection rules.

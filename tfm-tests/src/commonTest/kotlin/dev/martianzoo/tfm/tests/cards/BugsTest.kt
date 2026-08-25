@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.Task
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.pets.data.Task
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*

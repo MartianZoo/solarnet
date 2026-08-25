@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.Dependency.TypeDependency
+import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.Dependency.TypeDependency
-import dev.martianzoo.types.DependencySet.DependencyPath
 
 /**
  * Resolves authored expressions and answers structural Class questions for the English renderer.

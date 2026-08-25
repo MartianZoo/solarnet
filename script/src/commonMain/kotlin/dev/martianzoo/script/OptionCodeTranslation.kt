@@ -2,7 +2,7 @@ package dev.martianzoo.script
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 
 /** Keeps the REPL's legacy one-letter game-option syntax out of Canon and the engine API. */
 internal object OptionCodeTranslation {

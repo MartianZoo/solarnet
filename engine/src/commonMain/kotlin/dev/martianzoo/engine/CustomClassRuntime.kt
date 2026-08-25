@@ -1,14 +1,14 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.CustomCodeException
-import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Authority
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.api.Exceptions.CustomCodeException
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.types.Type
 
 /** Engine runtime for Kotlin-provided instruction and metric behavior of Pets custom classes. */
 internal class CustomClassRuntime(

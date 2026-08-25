@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.pets.types.Dependency.Key
 
 internal fun renderMetricPhrase(metric: Metric, describers: Describers): String? {
   return when (metric) {

@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
-import dev.martianzoo.types.Class
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {

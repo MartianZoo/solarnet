@@ -1,16 +1,16 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.api.TypeInfo.NoGameState
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement.Counting
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.ClassLimitTable
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassLimitTable
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
 import kotlin.Int.Companion.MAX_VALUE
 
 // TODO: Contract this temporary tfm-tests seam.

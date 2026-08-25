@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.TaskResult
+import dev.martianzoo.pets.data.TaskResult
 
 public interface Timeline {
   public fun checkpoint(): Checkpoint

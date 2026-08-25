@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Expression
@@ -10,8 +10,8 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.canon.CardOperation
-import dev.martianzoo.types.Dependency.Key
 
 internal fun renderActions(
     actions: List<Action>,

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -8,9 +8,9 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.Type
 
 internal fun lowerProductionSyntax(instructionTree: InstructionTree): InstructionTree =
     productionSyntaxLowerer.transformInstructionTree(instructionTree)

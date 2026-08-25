@@ -5,10 +5,10 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.toSetStrict
 
 public class TypeDescription
 public constructor(

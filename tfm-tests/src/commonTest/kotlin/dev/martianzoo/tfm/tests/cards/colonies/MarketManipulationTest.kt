@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test

@@ -1,13 +1,13 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExistingDependentsException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.pets.types.Type
 
 internal class Changer(
     private val reader: GameReader,

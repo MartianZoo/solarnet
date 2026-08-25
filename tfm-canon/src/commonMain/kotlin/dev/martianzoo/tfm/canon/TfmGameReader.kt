@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.GameReader
+import dev.martianzoo.pets.api.GameReader
 
 /** The Terraforming Mars Authority used by this game. */
 public val GameReader.tfmAuthority: TfmAuthority

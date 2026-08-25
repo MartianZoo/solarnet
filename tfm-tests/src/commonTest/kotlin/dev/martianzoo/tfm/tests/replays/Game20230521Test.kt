@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds

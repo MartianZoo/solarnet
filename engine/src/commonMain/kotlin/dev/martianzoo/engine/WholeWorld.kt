@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Actor
 import dev.martianzoo.pets.Vocabulary
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.types.ClassTable
 
 /** The live, complete implementation of a [World]. */
 // TODO: Contract this temporary tfm-tests seam.

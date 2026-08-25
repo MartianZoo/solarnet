@@ -8,15 +8,15 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SystemClasses.OK
-import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.TypeLinking
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.OK
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
@@ -25,8 +25,8 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.util.Reifiable
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.Reifiable
+import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * A specification of steps that might be taken (or were taken) to alter a world. Instructions

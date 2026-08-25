@@ -7,8 +7,8 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import kotlin.reflect.KClass
 
 /** The main part of a transmutation instruction, without its scalar or intensity. */

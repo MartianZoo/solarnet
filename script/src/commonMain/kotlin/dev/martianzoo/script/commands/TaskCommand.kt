@@ -1,8 +1,8 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.TaskResult
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion

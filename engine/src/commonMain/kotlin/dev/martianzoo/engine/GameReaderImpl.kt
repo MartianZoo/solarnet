@@ -1,9 +1,8 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Or
@@ -17,9 +16,10 @@ import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
 
 internal class GameReaderImpl(
     private val classTable: ClassTable,

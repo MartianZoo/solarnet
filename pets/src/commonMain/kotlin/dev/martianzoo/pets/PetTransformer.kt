@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.api.Exceptions.KindException
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -25,7 +25,7 @@ import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.withLinkedTypeSources
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 import kotlin.reflect.KClass
 
 /**

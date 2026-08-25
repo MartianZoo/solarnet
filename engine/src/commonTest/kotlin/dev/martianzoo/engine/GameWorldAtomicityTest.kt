@@ -1,10 +1,10 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.ClassSelection
-import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow

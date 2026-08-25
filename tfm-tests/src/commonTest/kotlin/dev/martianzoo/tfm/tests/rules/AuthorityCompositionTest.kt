@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.*

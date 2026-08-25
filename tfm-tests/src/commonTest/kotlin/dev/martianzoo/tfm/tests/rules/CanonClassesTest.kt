@@ -1,15 +1,15 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -36,7 +36,7 @@ internal class CanonClassesTest {
   internal fun setupSeparatesPlayersFromActors() {
     val premise = canonicalPremise()
     premise.actors
-        .filterIsInstance<dev.martianzoo.data.Player>()
+        .filterIsInstance<dev.martianzoo.pets.data.Player>()
         .shouldContainExactly(PLAYER1, PLAYER2)
     premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
     val game = Engine.newGame(premise)

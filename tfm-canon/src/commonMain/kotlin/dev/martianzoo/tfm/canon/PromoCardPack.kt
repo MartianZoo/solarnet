@@ -2,14 +2,14 @@
 
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.CustomClass
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.GameReader
+import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.CardDefinition.Deck.PRELUDE
-import dev.martianzoo.types.Type
 
 internal val promoCardPackBundle: StandardFormBundle by lazy {
   StandardFormBundle("PromoCardPack", promoCardPackCustomClasses)

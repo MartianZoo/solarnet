@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts

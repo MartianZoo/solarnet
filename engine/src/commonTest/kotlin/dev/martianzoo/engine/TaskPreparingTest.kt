@@ -1,13 +1,13 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.GameEvent
-import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Gameplay.TaskLayer
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test

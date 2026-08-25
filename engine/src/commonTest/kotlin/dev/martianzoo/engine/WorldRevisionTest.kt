@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test

@@ -1,10 +1,7 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -15,9 +12,12 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.pets.data.Definition
+import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.util.Grid
 
 public data class MarsMapDefinition(
     override val className: ClassName,

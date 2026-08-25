@@ -1,11 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.Gameplay.GodMode
@@ -14,6 +8,7 @@ import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -21,11 +16,16 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.HashMultiset
-import dev.martianzoo.util.Hierarchical.Companion.lub
-import dev.martianzoo.util.Multiset
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.Hierarchical.Companion.lub
+import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
 /**

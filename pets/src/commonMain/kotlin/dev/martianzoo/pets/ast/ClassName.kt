@@ -2,10 +2,10 @@ package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**

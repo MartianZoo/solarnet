@@ -1,13 +1,13 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.OneDefault
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
+import dev.martianzoo.pets.util.toSetStrict
 
 /** Lowers parsed owner-local Classes to ordinary, stably named Class declarations. */
 // TODO: Contract this temporary tfm-canon seam.

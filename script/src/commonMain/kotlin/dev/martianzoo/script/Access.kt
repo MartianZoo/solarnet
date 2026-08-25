@@ -1,12 +1,12 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
 
 internal sealed class Access {
   internal abstract fun exec(instruction: String): TaskResult

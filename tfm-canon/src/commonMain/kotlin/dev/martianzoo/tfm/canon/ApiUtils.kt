@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.data.Player
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.canon.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.toSetStrict
 
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
 public object ApiUtils {

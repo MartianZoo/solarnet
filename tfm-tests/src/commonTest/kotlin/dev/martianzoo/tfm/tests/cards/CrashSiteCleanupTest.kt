@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.data.Player.Companion.PLAYER3
+import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*

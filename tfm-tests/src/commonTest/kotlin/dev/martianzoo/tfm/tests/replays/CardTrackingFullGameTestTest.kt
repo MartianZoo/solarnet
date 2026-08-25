@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.data.GameConfig
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.cards.cardnames.AcquiredCompany
 import dev.martianzoo.tfm.tests.cards.cardnames.AdaptedLichen
 import dev.martianzoo.tfm.tests.cards.cardnames.AsteroidMining

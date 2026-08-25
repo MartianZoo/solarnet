@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.CardTest
-import dev.martianzoo.util.toSetStrict
 import kotlin.test.BeforeTest
 
 internal abstract class ColoniesCardTest : CardTest() {

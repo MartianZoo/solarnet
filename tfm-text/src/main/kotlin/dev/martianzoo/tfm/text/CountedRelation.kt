@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.pets.types.Dependency.Key
 
 /** One countable component related spatially to another component. */
 internal data class CountedRelation(

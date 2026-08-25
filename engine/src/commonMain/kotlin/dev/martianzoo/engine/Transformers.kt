@@ -1,16 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.Exceptions.invalidPetDefinition
-import dev.martianzoo.api.SystemClasses.ATOMIZED
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.SystemClasses.DIE
-import dev.martianzoo.api.SystemClasses.OK
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
@@ -18,6 +7,17 @@ import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.DIE
+import dev.martianzoo.pets.api.SystemClasses.OK
+import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -46,13 +46,13 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Defaults
-import dev.martianzoo.types.Defaults.DefaultSpec
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.DependencySet
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Defaults
+import dev.martianzoo.pets.types.Defaults.DefaultSpec
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.DependencySet
+import dev.martianzoo.pets.types.Type
 
 public class Transformers(public val classTable: ClassTable) {
   // TODO: Contract temporary tfm-tests transformation seams.

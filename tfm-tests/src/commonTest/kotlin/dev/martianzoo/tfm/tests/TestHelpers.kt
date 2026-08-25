@@ -1,11 +1,5 @@
 package dev.martianzoo.tfm.tests
 
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.ClassSelection
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
@@ -14,6 +8,7 @@ import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -22,10 +17,15 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =

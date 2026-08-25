@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.Dependency.TypeDependency
-import dev.martianzoo.types.DependencySet.DependencyPath
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.Dependency.TypeDependency
+import dev.martianzoo.pets.types.DependencySet.DependencyPath
+import dev.martianzoo.pets.types.Type
 
 /** A card-context Type plus keyed source dependencies needed after contextual normalization. */
 internal data class ResolvedExpression(

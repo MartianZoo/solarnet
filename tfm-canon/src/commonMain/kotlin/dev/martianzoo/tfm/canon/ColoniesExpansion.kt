@@ -2,8 +2,8 @@
 
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.CustomClass
-import dev.martianzoo.api.GameReader
+import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction

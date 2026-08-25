@@ -8,14 +8,14 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.TypeLinking
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.util.iff
+import dev.martianzoo.pets.util.iff
 
 /**
  * A triggered effect, like `CityTile: 2`. Any existing component in a world can have some number of

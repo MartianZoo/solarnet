@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.ClassSelection
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
@@ -15,7 +16,6 @@ import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
-import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain

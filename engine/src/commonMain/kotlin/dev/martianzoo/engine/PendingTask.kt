@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 
 /** Triggered work that has not yet been admitted to a task queue. */
 // TODO: Contract this temporary tfm-tests seam.

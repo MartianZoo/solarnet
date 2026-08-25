@@ -1,19 +1,19 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Exceptions.invalidPetDefinition
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.ModuleProvenance
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.ModuleProvenance
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
 
 internal class Initializer(
     private val gameplay: Gameplay,

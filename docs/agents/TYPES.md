@@ -1,7 +1,7 @@
 # Pets type system
 
 **Status: current model with explicit divergences in section 12.** This is the implementation-facing
-reference for `dev.martianzoo.types`. The human tutorial is
+reference for `dev.martianzoo.pets.types`. The human tutorial is
 [type-system.md](../type-system.md).
 
 ## Quick model

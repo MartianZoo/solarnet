@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression

@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test

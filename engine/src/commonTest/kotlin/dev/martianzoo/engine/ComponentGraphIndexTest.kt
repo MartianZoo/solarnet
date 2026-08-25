@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.engine.*

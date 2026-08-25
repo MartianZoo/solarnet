@@ -1,11 +1,11 @@
 # Module organization
 
 **Status: active target.** The named module and package boundaries through `tfm-canon`,
-`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. Lower-layer tests now live with the behavior
-they exercise, with Canon retained only as permitted test scaffolding. The `Catalog` replacement and
-remaining ownership refinements are still proposed. Current behavior remains documented by
-[ENGINE.md](ENGINE.md), [OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they differ from this
-target.
+`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. Every Kotlin module now owns one recognizable
+package subtree, and lower-layer tests live with the behavior they exercise, with Canon retained only
+as permitted test scaffolding. The `Catalog` replacement and remaining ownership refinements are
+still proposed. Current behavior remains documented by [ENGINE.md](ENGINE.md), [OPTIONS.md](OPTIONS.md),
+and [NAMING.md](NAMING.md) where they differ from this target.
 
 ## Governing rule
 
@@ -16,7 +16,8 @@ or repository without reversing a dependency.
 
 Module names should normally follow their principal `dev.martianzoo.*` package. Initially prefer an
 enforced boundary over minimizing module count; consider recombination only after the dependency
-directions are clean.
+directions are clean. Keep each Gradle module's physical source roots separate: merging them into a
+shared package-shaped tree would obscure the ownership that the module split now makes explicit.
 
 ## Initial dependency graph
 
@@ -197,7 +198,7 @@ application must not acquire engine merely because it shares a module with dynam
 
 | Current code | Destination |
 | --- | --- |
-| `dev.martianzoo.pets`, `.pets.ast`, `.types` | `pets` |
+| `dev.martianzoo.pets` and its subpackages | `pets` |
 | `ClassDeclaration`, class selection, projection, pure premise | `pets` |
 | `Authority`'s generic static contract | `pets` as a catalog contract |
 | `CustomClass`, `CustomMetric`, minimal read contract | `pets` |

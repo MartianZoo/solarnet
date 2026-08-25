@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow

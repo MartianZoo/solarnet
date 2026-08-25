@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*

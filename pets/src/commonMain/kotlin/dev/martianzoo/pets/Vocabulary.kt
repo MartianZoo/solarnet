@@ -1,17 +1,17 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Authority
-import dev.martianzoo.data.GameEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.data.Task
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.pets.data.Task
 
 /** Session-specific ASCII class-name input and presentation policy. */
 public class Vocabulary

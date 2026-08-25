@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm

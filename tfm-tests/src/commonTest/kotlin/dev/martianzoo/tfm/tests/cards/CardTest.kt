@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassSelection
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.CardDefinition
 import dev.martianzoo.tfm.canon.TfmAuthority

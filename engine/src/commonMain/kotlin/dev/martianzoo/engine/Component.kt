@@ -1,16 +1,16 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.api.Exceptions
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.Type
 import kotlin.jvm.JvmInline
 
 /** One concrete [Type] used as a value in a [ComponentGraph]. */

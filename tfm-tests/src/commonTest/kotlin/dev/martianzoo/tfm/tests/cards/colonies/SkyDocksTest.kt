@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow

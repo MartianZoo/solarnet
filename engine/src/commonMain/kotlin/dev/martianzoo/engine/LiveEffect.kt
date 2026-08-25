@@ -1,22 +1,18 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.ACTOR
-import dev.martianzoo.api.SystemClasses.ANYONE
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.SystemClasses.PLAYER
-import dev.martianzoo.api.SystemClasses.SYSTEM
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Player
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.ACTOR
+import dev.martianzoo.pets.api.SystemClasses.ANYONE
+import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -35,6 +31,10 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.Player
 
 /** One specialized component effect ready for subscription matching and firing. */
 internal class LiveEffect

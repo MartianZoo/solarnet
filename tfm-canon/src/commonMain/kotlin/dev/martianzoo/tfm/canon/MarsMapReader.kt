@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.util.Grid
 
 /** Reads the compact map diagrams embedded in Pets source comments. */
 public object MarsMapReader {

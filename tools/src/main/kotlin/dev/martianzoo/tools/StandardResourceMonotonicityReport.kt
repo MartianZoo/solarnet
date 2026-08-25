@@ -1,12 +1,9 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.SystemClasses.USE_ACTION
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -20,13 +17,16 @@ import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.types.Class as PetsClass
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmAuthority
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.types.Class as PetsClass
-import dev.martianzoo.types.ClassTable
 
 /**
  * Conservative static report of rules that may make a solo player's resource quantity nonmonotonic.

@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers(

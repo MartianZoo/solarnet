@@ -2,15 +2,14 @@
 
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.CustomClass
-import dev.martianzoo.api.CustomMetric
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.DIE
-import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomMetric
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -36,13 +35,14 @@ import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.Grid
 
 internal val terraformingMarsBundle: StandardFormBundle by lazy {
   StandardFormBundle(

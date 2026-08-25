@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.EventLog
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.pets.types.Type
 
 internal class Summarizer
 internal constructor(

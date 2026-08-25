@@ -1,9 +1,9 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.CardDefinition
 import java.nio.file.Files

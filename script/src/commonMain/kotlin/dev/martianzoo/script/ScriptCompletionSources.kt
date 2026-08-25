@@ -1,7 +1,7 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.tfmAuthority
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {

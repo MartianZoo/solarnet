@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*

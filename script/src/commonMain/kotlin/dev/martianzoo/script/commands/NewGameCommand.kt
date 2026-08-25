@@ -1,11 +1,11 @@
 package dev.martianzoo.script.commands
 
+import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.util.toSetStrict
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
   override val usage =

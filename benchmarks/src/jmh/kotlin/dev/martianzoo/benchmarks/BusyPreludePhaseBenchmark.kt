@@ -1,12 +1,12 @@
 package dev.martianzoo.benchmarks
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm

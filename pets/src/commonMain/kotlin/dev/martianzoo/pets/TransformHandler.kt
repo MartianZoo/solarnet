@@ -1,6 +1,6 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Instruction

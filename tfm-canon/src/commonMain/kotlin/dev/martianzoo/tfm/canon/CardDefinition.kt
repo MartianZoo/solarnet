@@ -1,16 +1,13 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.DerivedClassLowerer
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.Transforming.immediateToEffect
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -30,6 +27,12 @@ import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.pets.data.Definition
+import dev.martianzoo.pets.types.Class as PetClass
+import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.Multiset
 import dev.martianzoo.tfm.canon.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.canon.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.canon.TfmClasses.ACTION_CARD
@@ -45,9 +48,6 @@ import dev.martianzoo.tfm.canon.TfmClasses.PRELUDE_CARD
 import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
 import dev.martianzoo.tfm.canon.TfmClasses.RESOURCE_CARD
 import dev.martianzoo.tfm.canon.TfmClasses.TAG
-import dev.martianzoo.types.Class as PetClass
-import dev.martianzoo.util.HashMultiset
-import dev.martianzoo.util.Multiset
 import kotlinx.serialization.Serializable
 
 /**

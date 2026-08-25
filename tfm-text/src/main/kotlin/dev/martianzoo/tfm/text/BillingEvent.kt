@@ -4,7 +4,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.pets.types.Dependency.Key
 
 /** The payment operation identified by a Billing-family event. */
 internal data class BillingEvent(

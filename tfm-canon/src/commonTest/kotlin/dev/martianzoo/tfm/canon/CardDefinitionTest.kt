@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
@@ -10,10 +10,10 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.util.toStrings
 import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import dev.martianzoo.tfm.canon.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.canon.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

@@ -1,15 +1,15 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.types.ClassTable
 
 public object Prod {
   /** Creates the `PROD[...]` handler for one active class table. */

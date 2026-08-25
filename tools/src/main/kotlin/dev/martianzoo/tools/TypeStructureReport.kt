@@ -1,19 +1,19 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.types.Class as PetsClass
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.DependencySet.DependencyPath
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.types.Class as PetsClass
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.DependencySet.DependencyPath
-import dev.martianzoo.types.Type
 import java.math.BigInteger
 import java.util.Locale
 import kotlin.math.ceil

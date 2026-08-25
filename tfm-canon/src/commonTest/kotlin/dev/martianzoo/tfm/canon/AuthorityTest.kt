@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
+import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
 import dev.martianzoo.tfm.canon.CardDefinition.CardData
-import dev.martianzoo.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe

@@ -10,8 +10,8 @@ import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.types.ClassLoader
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.types.ClassLoader
+import dev.martianzoo.pets.types.Type
 import kotlin.reflect.KClass
 
 /**

@@ -1,10 +1,10 @@
 ## module PETS
 
-### <a href="pets/dev.martianzoo.api/index.html">dev.martianzoo.api</a>
+### <a href="pets/dev.martianzoo.pets.api/index.html">dev.martianzoo.pets.api</a>
 
 Basic interfaces that everything else needs to share.
 
-### <a href="pets/dev.martianzoo.data/index.html">dev.martianzoo.data</a>
+### <a href="pets/dev.martianzoo.pets.data/index.html">dev.martianzoo.pets.data</a>
 
 Basic data types shared by the engine and game-specific code.
 
@@ -16,11 +16,11 @@ The Pets language. Parsers for elements and class declarations, the objects it p
 
 Pets element types, like Requirement, Action, Instruction, Expression, and so on. The abstract syntax tree the Pets language is parsed to.
 
-### <a href="pets/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
+### <a href="pets/dev.martianzoo.pets.types/index.html">dev.martianzoo.pets.types</a>
 
 The Pets type system.
 
-### <a href="pets/dev.martianzoo.util/index.html">dev.martianzoo.util</a>
+### <a href="pets/dev.martianzoo.pets.util/index.html">dev.martianzoo.pets.util</a>
 
 Various non-Terraforming-specific helpers.
 

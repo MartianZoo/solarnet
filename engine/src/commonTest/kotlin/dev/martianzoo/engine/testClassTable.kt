@@ -1,17 +1,17 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.CustomClass
-import dev.martianzoo.data.Authority
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassSelection
-import dev.martianzoo.data.Definition
-import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Authority
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.pets.data.Definition
+import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.systemClassDeclarations
-import dev.martianzoo.types.ClassLoader
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.types.ClassLoader
+import dev.martianzoo.pets.types.ClassTable
 
 internal fun testClassTable(source: String): ClassTable = testAuthority(source).classTable
 

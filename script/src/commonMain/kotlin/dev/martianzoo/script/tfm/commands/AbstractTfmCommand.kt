@@ -1,0 +1,10 @@
+package dev.martianzoo.script.tfm.commands
+
+import dev.martianzoo.script.ScriptCommand
+import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.tfm.engine.TfmGameplay
+
+internal abstract class AbstractTfmCommand(internal val repl: ScriptSession, name: String) :
+    ScriptCommand(name) {
+  internal fun tfm() = TfmGameplay(repl.game, repl.gameplay.actor, repl.gameplay)
+}

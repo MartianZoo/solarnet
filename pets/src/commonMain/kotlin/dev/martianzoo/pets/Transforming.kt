@@ -1,10 +1,10 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

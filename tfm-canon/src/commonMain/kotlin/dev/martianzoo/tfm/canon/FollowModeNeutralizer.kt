@@ -1,9 +1,8 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -29,6 +28,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
 
 /** Compiles identity-bearing card source into follow mode's delegated, count-based operations. */

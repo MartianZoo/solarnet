@@ -1,8 +1,5 @@
 package dev.martianzoo.tfm.tests
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Task
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -10,6 +7,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.canon.tfmAuthority
@@ -91,7 +91,7 @@ internal abstract class TfmTest {
   }
 
   private fun tilePlacement(
-      reader: dev.martianzoo.api.GameReader,
+      reader: dev.martianzoo.pets.api.GameReader,
       tasks: List<Task>,
       row: Int,
       column: Int,
@@ -113,7 +113,7 @@ internal abstract class TfmTest {
   }
 
   private fun cardResources(
-      reader: dev.martianzoo.api.GameReader,
+      reader: dev.martianzoo.pets.api.GameReader,
       tasks: List<Task>,
       card: ClassName,
   ): String {
@@ -136,7 +136,7 @@ internal abstract class TfmTest {
 
   private fun requireSingleDeclinableTask(
       tasks: List<Task>,
-      reader: dev.martianzoo.api.GameReader,
+      reader: dev.martianzoo.pets.api.GameReader,
   ) {
     val declinable = tasks.count { task ->
       NoOp.narrows(task.instruction, reader) ||

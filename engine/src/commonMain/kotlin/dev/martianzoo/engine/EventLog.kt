@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.GameEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
 
 /**
  * A complete record of everything that happened in a particular game (in progress or finished),

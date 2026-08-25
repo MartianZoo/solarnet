@@ -1,18 +1,18 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.TypeDescription
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.random
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.random
 
 internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("desc") {
   override val usage = "desc <Expression>"
@@ -53,7 +53,7 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
     internal fun describe(
         expression: Expression,
         type: Type,
-        classTable: dev.martianzoo.types.ClassTable,
+        classTable: dev.martianzoo.pets.types.ClassTable,
         vocabulary: Vocabulary,
     ): String {
 

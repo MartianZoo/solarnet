@@ -169,7 +169,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   boundaries, and narrow `Instruction.narrows`.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
 - Move autoexecution out of the engine into optional clients of `Gameplay`: remove implicit drains,
   replace modes with named policies, record the issuing agent, and initially provide only policies
   that prove they make no gameplay sacrifice; see

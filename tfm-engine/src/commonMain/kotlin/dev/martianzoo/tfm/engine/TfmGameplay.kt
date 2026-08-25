@@ -1,15 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.NotNowException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.Task
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
@@ -17,11 +7,21 @@ import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE_CLASSES

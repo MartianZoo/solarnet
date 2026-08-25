@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.pets.types.Dependency.Key
 
 internal fun renderRequirement(
     requirement: Requirement,

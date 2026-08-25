@@ -7,16 +7,16 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.TypeLinking
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
-import dev.martianzoo.util.suf
+import dev.martianzoo.pets.util.suf
 
 /**
  * Classes can offer actions like `Plant -> 7` for players to manually trigger. In practice these
