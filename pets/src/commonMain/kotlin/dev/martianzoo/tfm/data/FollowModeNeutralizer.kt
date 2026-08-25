@@ -44,18 +44,21 @@ internal object FollowModeNeutralizer : TransformHandler {
   private val PLAYED_EVENT = cn("PlayedEvent")
   private val PRELUDE_CARD = cn("PreludeCard")
 
-  internal fun neutralize(source: ClassDeclaration): ClassDeclaration =
-      source.copy(
-          effects = source.effects.map(::transformEffect),
-          properties =
-              source.properties.mapValues { (_, value) ->
-                when (value) {
-                  is MetricValue -> MetricValue(transformMetric(value.value))
-                  is RequirementValue -> RequirementValue(transformRequirement(value.value))
-                  else -> value
-                }
-              },
-      )
+  internal fun neutralize(source: ClassDeclaration): ClassDeclaration {
+    val transformedEffects = source.effects.map(::transformEffect)
+    return source.copy(
+        executableEffects =
+            transformedEffects.takeUnless { it == source.authoredEffectsWithActions },
+        properties =
+            source.properties.mapValues { (_, value) ->
+              when (value) {
+                is MetricValue -> MetricValue(transformMetric(value.value))
+                is RequirementValue -> RequirementValue(transformRequirement(value.value))
+                else -> value
+              }
+            },
+    )
+  }
 
   override fun transform(inner: PetNode): PetNode =
       when (inner) {

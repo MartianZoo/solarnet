@@ -163,7 +163,9 @@ ABSTRACT CLASS Card : Owned<Player> {
   ABSTRACT CLASS CardBack { CLASS CorporationCard, ProjectCard }
 
   // A card in play: face-up on the table
-  ABSTRACT CLASS CardFront : TagHolder {
+  ABSTRACT CLASS CardFront<Class<CardBack>> : TagHolder {
+    HAS MAX 1 This<Player>
+
     cost = Number
     requirement = Requirement?
 

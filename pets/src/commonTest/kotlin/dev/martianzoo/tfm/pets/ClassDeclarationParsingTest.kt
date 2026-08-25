@@ -4,7 +4,9 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
@@ -17,6 +19,7 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -89,10 +92,17 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  internal fun ownerLocalClassesAreRejectedInsideOrdinaryClassDeclarations() {
-    val source = "CLASS Foo { Bar {}: Baz }"
+  internal fun ownerLocalClassesRequireDeclarationFileContext() {
+    val source = "CLASS Sponsor { This: Mandate { -> Colony<> } }"
+    val declarations = parseClasses(source)
 
-    shouldThrow<PetSyntaxException> { parseClasses(source) }
+    declarations.map { it.className }.shouldContainExactly(cn("Sponsor"), cn("Sponsor_Mandate"))
+    declarations
+        .first()
+        .authoredEffects
+        .shouldContainExactly(parse<Effect>("This: Sponsor_Mandate"))
+    declarations.last().supertypes.shouldContainExactly(parse<Expression>("Mandate"))
+    declarations.last().authoredActions.shouldContainExactly(parse<Action>("-> Colony<>"))
     shouldThrow<PetSyntaxException> { parseOneLinerClass(source) }
   }
 

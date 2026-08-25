@@ -17,6 +17,9 @@ internal class DerivedClassLowerer(private val owner: ClassName) : PetTransforme
   val declarations: List<ClassDeclaration>
     get() = declarationsByBase.values.toList()
 
+  internal fun lowerDeclaration(declaration: ClassDeclaration): List<ClassDeclaration> =
+      listOf(transformDeclaration(declaration)) + declarations
+
   override fun transformNode(node: PetNode): PetNode {
     if (node !is Expression) return transformChildren(node)
     val body = node.derivedClassBody ?: return transformChildren(node)
@@ -72,7 +75,9 @@ internal class DerivedClassLowerer(private val owner: ClassName) : PetTransforme
         dependencies = declaration.dependencies.map(::transformExpression),
         supertypes = declaration.supertypes.map(::transformExpression).toSetStrict(),
         invariants = declaration.invariants.map(::transformRequirement).toSetStrict(),
-        effects = declaration.effects.map(::transformEffect),
+        authoredEffects = declaration.authoredEffects.map(::transformEffect),
+        authoredActions = declaration.authoredActions.map(::transformAction),
+        executableEffects = declaration.executableEffects?.map(::transformEffect),
         defaultsDeclaration =
             defaults.copy(
                 universal = transformDefault(defaults.universal),

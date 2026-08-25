@@ -5,6 +5,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ## User Ideas and Agreed Directions
 
 - Get away from JSON entirely and create everything as pets code.
+- Implement abstract class-property defaults, beginning with `CardFront.cost = Number DEFAULT 0`;
+  let the project-card families clear that default while retaining the `Number` bound so every
+  project card must still state its cost explicitly, including zero.
+- Try moving the automatic `This:: EventTag<This>` gain from every generated event card onto
+  `EventCard`; ensure class-backed tag inspection sees the inherited authored behavior.
 - IndustrialComplex should top up to 2 production if in QuickStartVariant (add to BugsTest anytime).
 - Preserve linked Type variables through English sequence rendering. Flooding's repeated `Anyone`
   already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
@@ -186,6 +191,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Move Pets AST generation to Kotest property tests only if domain-aware shrinking improves failures.
 
 ## Autonomous Follow-ups
+
+- Finish making `cards.pets` the sole card authority: express card-to-supporting-declaration
+  contribution links and replacement relationships in Pets, then derive pre-load deck selection,
+  tag validation, and compatibility without JSON-backed `CardDefinition` metadata.
 
 - Replace the remaining colony-specific premise plumbing (`COLONY_TILES` and initial tile discovery)
   only when one general configured-starting-component model can preserve both selected starting

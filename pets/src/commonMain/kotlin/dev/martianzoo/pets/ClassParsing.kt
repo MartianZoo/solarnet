@@ -29,7 +29,6 @@ import dev.martianzoo.pets.ClassParsing.BodyElements.derivedClassBodyElement
 import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.pets.ClassParsing.Signatures.signature
-import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -312,7 +311,8 @@ internal object ClassParsing : PetTokenizer() {
             signature.asDeclaration.copy(
                 kind = kind,
                 invariants = body.invariants.toSetStrict(),
-                effects = body.effects + actionListToEffects(body.actions),
+                authoredEffects = body.effects,
+                authoredActions = body.actions,
                 defaultsDeclaration = mergedDefaults,
                 properties = body.properties,
                 extraNodes = actionSelectors(body.actions),
