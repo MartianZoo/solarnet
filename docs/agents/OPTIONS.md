@@ -1,7 +1,8 @@
 # Catalogs, Modules, and game premises
 
-**Status: current model through "Resolution order". Stronger closed-world viability proofs and
-durable projection-decision explanations remain future work.**
+**Status: current model except where a section is explicitly marked as settled direction.
+Stronger closed-world viability proofs and durable projection-decision explanations remain future
+work.**
 
 ## Catalog
 
@@ -27,6 +28,11 @@ Class declarations are the Catalog's only common content representation. Card an
 remain category-specific transitional inputs; there is no shared `Definition` interface or
 Catalog-wide registry of structured content objects.
 
+Catalog assembly still has transitional fallbacks that convert those records into declarations
+when bundled Pets declarations are absent. It also copies card-to-supporting-Class contribution
+links from card data into loaded declarations. Those mechanisms describe the incomplete migration;
+they are not a second intended Class authority.
+
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
 
@@ -36,6 +42,39 @@ Within a Catalog, every Class Name has one meaning. The Catalog loads and valida
 
 The master table is a schema, not a playable Game World. It is never instantiated because it
 contains mutually exclusive maps, modes, and replacement classes.
+
+## Declaration authority and staged removal
+
+**Status: settled direction, not fully implemented.**
+
+The next invariant is that runtime Catalog assembly receives only explicit Class declarations.
+Canon supplies those declarations exclusively through bundled `classes.pets` and `cards.pets`.
+Card and map conversion may remain as offline generation code, but runtime assembly must neither
+synthesize a missing declaration nor silently supplement its behavior from structured source data.
+
+The transition should happen before redesigning content groups or deleting the remaining concrete
+card and map records:
+
+1. Require every card, map, area, and card-supporting Class named by transitional metadata to have
+   a bundled declaration. Missing declarations fail Catalog loading.
+2. Remove runtime fallbacks through `CardDefinition.toClassDeclaration`, map and area
+   `asClassDeclaration`, and card-data-generated extra declarations. Synthetic Catalogs and tests
+   provide their declarations explicitly.
+3. Let transitional metadata contribute only relationships that Pets does not yet express, such as
+   a card's supporting-Class names and replacement target. Resolve those names to loaded
+   declarations before compatibility or activation analysis.
+4. Move conversion-only parsing and rendering toward `tools` after the runtime no longer calls it.
+
+This migration changes the inputs to compatibility, viability, and activation. It should not also
+redesign those policies.
+
+This boundary makes authority observable: editing behavioral JSON without regenerating
+`cards.pets` must not change runtime Class behavior. Regeneration checks may still reject stale
+generated Pets; that is a source-maintenance check, not runtime composition.
+
+After that cutover, simplify content grouping, then shrink card metadata, then replace runtime map
+records with the shared class-backed view. Revisit replacement representation last. Each stage must
+leave the preceding invariant intact.
 
 ## Module
 
@@ -130,6 +169,61 @@ superclasses named by its map metadata. Exceptional cross-Bundle or narrowed sel
 expressible, but Canon's ordinary expansions do not require a central registry to restate their
 ownership.
 
+Two registry-shaped exceptions remain. `Prelude1Deck` routes the original Prelude cards from the
+larger Prelude Bundle, while Venus Next explicitly asks its same-named Bundle for cards, milestones,
+and awards. These should be removed only after declaration authority is complete.
+
+### Content grouping direction
+
+**Status: settled direction, not implemented.**
+
+Ordinary all-or-none content membership should come from an honest bundle/resource boundary, not a
+list of individual members and not reconstruction from Class-name prefixes. A same-named Module
+then selects that Bundle's ordinary cards, direct goals, and colony tiles through one shared rule.
+`Prelude1Deck` should own a separate selectable resource group, represented by its own internal
+Bundle even though it shares a published product with the Prelude rules and project cards. Once the
+ordinary cases use those boundaries, delete `BundleContentSelection` rather than replacing it with
+directory-basename or map-suffix policy.
+
+Physical product packaging does not require one internal Bundle. Conversely, combining several
+selection groups in one Bundle is not a simplification when it requires a routing registry. Shared
+declarations may live in a nonselected provider or coalesce identically; do not add per-Class
+availability annotations merely to preserve a product-shaped source directory.
+
+## Transitional card data
+
+Canonical `cards.pets` already carries each card's deck role, tags, cost, play Requirement, actions,
+Effects, and resource role. Runtime card views should read those facts from the loaded Class.
+Structured card data remains temporarily useful for offline Pets generation, replacement targets,
+and card-to-supporting-Class contribution links.
+
+After the declaration-authority cutover, shrink runtime card-data consumption in that order. Do not
+remove supporting-Class links until Pets or an ordinary resource boundary expresses them: content
+compatibility and activation must include the complete loaded contribution, not only the card's own
+declaration. Do not retain runtime declaration generation merely to make synthetic card tests
+convenient.
+
+## Map data and runtime views
+
+The compact map diagram may remain bundle-owned presentation and generation metadata. Semantic map
+facts—area identity, kind, row, column, and bonus Effect—come from loaded Classes. Runtime map
+consumers should share one class-backed view rather than independently interpreting the diagram or
+reconstructing maps by name.
+
+`CreateMapAreas` remains the correct causal boundary: creation of the selected map gains its bundled
+area Classes, so event history records the map as their cause. A future class-backed view must
+preserve that behavior. It must also retain the compact display code as presentation metadata rather
+than reverse-encoding Effects through a closed Kotlin symbol table. Solo placement, adjacency,
+metrics, and script presentation should consume that same view; none should discover membership by
+Class-name prefix.
+
+## Card replacements
+
+Replacement data remains explicit until a cleaner positive model exists. Unknown targets, cycles,
+and multiple selected replacements for one target must continue to be validated, and exclusions
+must follow complete replacement chains. A future replacement-slot model may remove the negative
+relationship, but deleting the validation first is not simplification.
+
 ## Invariants
 
 - One game uses one Catalog.
@@ -158,8 +252,7 @@ Projection is premise semantics, not dead-code optimization. It must simultaneou
 2. **Optional reference.** An active declaration may observe a concept that is uninhabited in this
    game without importing the feature that introduced it.
 3. **Derived content compatibility.** Content Classes should not repeat expansion prerequisites
-   already implied by the Classes they reference, whether their declarations come directly from
-   Pets or from structured card/map data.
+   already implied by their loaded declarations and supporting Classes.
 4. **Faithful content.** Explicit selection must not bypass an expansion dependency and leave a
    card executable but materially unlike itself.
 5. **Early explanation.** Premise construction should distinguish content that is incompatible from
@@ -287,16 +380,18 @@ named domain concept should become generic.
    workflow direction in `WORKFLOW.md` should remove this dependency.
 2. **Moderate — Colonies remains privileged in premise infrastructure.**
    Concrete colony tiles and their immediate or delayed `ColonyTileSelection` representations are
-   ordinary Pets classes. `pets/.../TfmCatalog.kt` still recognizes the `ColonyTile` hierarchy when
-   constructing initial component Types; `pets/.../BundleContentSelection.kt` retains
+   ordinary Pets classes. `tfm-canon/.../TfmCatalog.kt` still recognizes the `ColonyTile`
+   hierarchy when constructing initial component Types;
+   `tfm-canon/.../BundleContentSelection.kt` retains
    `COLONY_TILES` as a dedicated content kind so every available tile remains active for mid-game
    additions. These are premise responsibilities rather than a parallel class-definition format,
    but a future general model for configured starting components could remove the remaining
    expansion names.
 3. **Moderate — expansion concepts appear in engine and card APIs.**
    `engine/.../TfmGameplay.kt` publishes `playPrelude` and `venusPercent`.
-   `pets/.../CardDefinition.kt` and `pets/.../TfmClasses.kt` make Prelude a built-in deck kind and
-   give it special validation. These are real dependencies, but `PreludeCard` and `VenusStep` are
+   `tfm-canon/.../CardDefinition.kt` and `tfm-canon/.../TfmClasses.kt` make Prelude a built-in deck
+   kind and give it special validation. These are real dependencies, but `PreludeCard` and
+   `VenusStep` are
    legitimate Terraforming Mars concepts; removing their names is not inherently a simplification.
 4. **Low — the legacy script boundary enumerates concrete products.**
    `script/.../OptionCodeTranslation.kt` names Corporate Era, the map products, Milestones and
