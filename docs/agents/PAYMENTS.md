@@ -1,8 +1,26 @@
 # Payment allocation
 
-**Status: audit and design record.** The present defect is verified. The payment rule stated below
-is a working interpretation until it is confirmed from an original Jacob Fryxelius post. None of
-the proposed mechanisms is committed.
+> **Read when:** fixing excess payment, recording tender value, attributing payment contributions,
+> or evaluating Helion/Stormcraft implications for one auditable allocation.
+>
+> **Skip when:** changing Action-to-invoice lowering without changing allocation; use
+> [ACTIONS.md](ACTIONS.md).
+>
+> **Status:** verified defect plus uncommitted design candidates. The rule interpretation still
+> requires confirmation from an original Jacob Fryxelius post.
+
+## Source map
+
+- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+  — search separately for `CLASS Pay`, `ABSTRACT CLASS Owed`, and `ABSTRACT CLASS Billing` to inspect
+  the current distributed protocol.
+- [Colonies `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/ColoniesExpansion/classes.pets)
+  — search for `Stormcraft` only when evaluating source attribution.
+- [`TfmGameplay.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmGameplay.kt)
+  — search for `fun pay` for the current client-side rejection boundary.
+- [`PaymentSpecializationTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
+  and [`BugsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/BugsTest.kt)
+  — read before choosing a repair.
 
 ## What must be fixed
 

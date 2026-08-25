@@ -1,6 +1,20 @@
 # Monotonicity in optimal solo play
 
-**Status: research note.**
+> **Read when:** working on TR63 exact/conservative optimization, standard-resource monotonicity, or
+> the associated report tool.
+>
+> **Skip when:** implementing ordinary solo rules or evaluating general AI-player architecture.
+>
+> **Status:** research note; no optimizer is implemented.
+
+## Source map
+
+- [`StandardResourceMonotonicityReport.kt`](../../tools/src/main/kotlin/dev/martianzoo/tools/StandardResourceMonotonicityReport.kt)
+  — search for `fun main` to inspect the implemented catalog report.
+- [`SoloGenerationCountdownTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
+  — read only when a proposed optimization depends on committed TR63 timing.
+- [Terraforming Mars `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/cards.pets)
+  — search for a named counterexample such as `Factorum` before relying on the analysis.
 
 This note develops one facet of exact or conservative optimization for the TR63 solo variant. It
 does not describe an implemented optimizer. The immediate goal is to recognize when an additional

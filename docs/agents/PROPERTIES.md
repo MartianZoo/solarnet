@@ -1,8 +1,36 @@
 # Class properties
 
-**Status:** The core class-property mechanism is implemented. This document separates that current
-model from settled semantic decisions and open extensions. Proposed syntax is illustrative unless
-explicitly identified as current.
+> **Read when:** changing class-property syntax, storage, inheritance/narrowing, cardinality,
+> defaults, `RequirementGroup`, printed tags, or a property-backed scalar.
+>
+> **Skip when:** changing component state or Type dependencies; class properties are immutable
+> Class facts.
+>
+> **Status:** core mechanism implemented. Later sections distinguish settled rules from open
+> extensions; proposed syntax is illustrative unless marked current.
+
+## Read only the relevant sections
+
+| Task | Read |
+| --- | --- |
+| Parse/store/read a property | Current model through Reading and evaluating |
+| Decide where a property applies | Applicability is primarily structural |
+| Cost, optional values, or groups | Total values; Cardinality types; Requirement versus RequirementGroup |
+| Inheritance/default behavior | Narrowing and inheritance; Abstract defaults are not overrides |
+| Printed tags or instruction collections | `Instruction*` and printed tags |
+| Add a new property capability | Design constraints for future extensions |
+
+## Source map
+
+- [`Property.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Property.kt) and
+  [`PropertyValue.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/PropertyValue.kt) —
+  inspect AST forms.
+- [`ClassDeclaration.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/ClassDeclaration.kt)
+  — search for `properties` for stored declarations and defaults.
+- [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt) — search for
+  `private fun resolveProperties` for validation and inheritance behavior.
+- [`PropertyTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PropertyTest.kt)
+  — read when behavior crosses Pets declarations and Terraforming Mars content.
 
 Class properties record immutable facts about a Class. They are not fields on component
 occurrences: every component of one concrete Type sees the same class-property facts. A class

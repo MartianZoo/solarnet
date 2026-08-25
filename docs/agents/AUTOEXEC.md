@@ -1,8 +1,32 @@
 # Autoexecution policies
 
-**Status: settled design direction with a current-implementation audit.** The policy model below is
-the destination, not committed behavior. The current-implementation section describes the
-divergence.
+> **Read when:** moving autoexecution out of the engine, changing `AutoExecMode`, proving a task safe
+> to execute automatically, or designing an optional client policy.
+>
+> **Skip when:** changing authored `::` automatic effects or ordinary explicit task execution; those
+> are engine semantics covered by [ENGINE.md](ENGINE.md) and [SEQUENCING.md](SEQUENCING.md).
+>
+> **Status:** settled design direction plus current-implementation audit. The policy model is not
+> committed behavior.
+
+## Source map
+
+- [`AutoExecMode.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AutoExecMode.kt) —
+  inspect the current mode vocabulary before proposing policy objects.
+- [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
+  — search for `autoExec` to find the current engine coupling and queue drain.
+- [`TfmWorkflow.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
+  — search for `game.isIdle()` when changing the current workflow's queue-drained wakeup.
+
+## Read only the relevant sections
+
+| Task | Read |
+| --- | --- |
+| Distinguish engine semantics from client policy | Core boundary; Preparation is not a policy |
+| Design a policy interface or driver | Policy pool and driver through Agent provenance |
+| Add analysis, speculative Worlds, or performance guarantees | Analysis and disposable Worlds; Performance contract |
+| Plan or review the extraction from engine | Broad implementation direction; First implemented seam; Current implementation divergence |
+| State the acceptance contract | Required invariants |
 
 ## Core boundary
 

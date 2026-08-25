@@ -1,8 +1,24 @@
 # `EACH` fanout
 
-**Status: proposal.** Nothing in this document is implemented. The historical filename reflects
-the Player-focused discussion that exposed the need; the proposed construct is generic enough to
-fan out over `ResourceCard` and other component Types.
+> **Read when:** explicitly designing or implementing the proposed `EACH Type { ... }` fanout, or
+> comparing repeated per-component listeners with one snapshot-based instruction.
+>
+> **Skip when:** changing ordinary quantified gain/removal, task delegation, or a single card's
+> listener. Those are separate mechanisms.
+>
+> **Status:** proposal; nothing here is implemented. The construct is generic despite the
+> historical filename.
+
+## Implementation entry points
+
+- [`Instruction.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Instruction.kt) —
+  inspect the sealed instruction model before choosing syntax shape.
+- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
+  for `instruct` to understand preparation and sibling task production.
+- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+  — search for `SetupPhase` to compare current setup-time per-Player effects.
+- [Venus Next `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/cards.pets)
+  — search for `SponsoredAcademiesWatcher` for a current per-Player watcher example.
 
 ## Goal
 

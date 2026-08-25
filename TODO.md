@@ -15,7 +15,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
   stages currently lose that shared identity. Expose the existing semantic link and represent the
   later participant as a structured reference rather than recognizing Flooding.
-- Finish the remaining English renderer work in `docs/agents/LANGUAGE_REVIEW.md` and `LANGUAGE_GUIDEBOOK.md` (it exists... somewhere)
+- Finish the remaining English renderer architecture work routed by `docs/agents/LANGUAGE_REVIEW.md`;
+  keep current output coverage and ordinary renderer rules in `docs/agents/LANGUAGE.md`.
 - Try making `VictoryPoint` depend on the scoring `Component` for the fun of it.
 - Philanthropist's metric is not the same as Vitor's (add BugsTest).
 - See if two wild tags on one card is feasible to support, else add to limitations doc.
@@ -234,6 +235,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   only when one general configured-starting-component model can preserve both selected starting
   tiles and unselected tiles available for mid-game addition.
 
+- Make `FollowModeNeutralizer` consume the shared `CardOperation` semantic view; it currently keeps
+  a separate recognizer because it also handles transformed card metrics and requirements.
+- Make copied card effects use their executable follow-mode form; copying Head Start currently
+  replays its authored card-area operation and tries to resolve inactive `Hand`.
 - If real content ever references a helper belonging only to the other map in a two-map Bundle,
   split that Bundle at the selection boundary instead of adding per-Class availability metadata.
 - Bring the JVM English renderer under Detekt through the planned intermediate-representation

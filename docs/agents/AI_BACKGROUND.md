@@ -1,9 +1,39 @@
 # AI Background: Competitive Play in Complex Hidden-Information Games
 
-Research current through **2026-08-08**. This is an engineering research note, not a claim that the
+> **Read when:** making an AI-player architecture, evaluation, observation, action-representation,
+> self-play, or content-transfer decision and needing the primary research evidence.
+>
+> **Skip when:** seeking only the conclusion; read
+> [AI_BACKGROUND_FOR_BOARD_GAMERS.md](AI_BACKGROUND_FOR_BOARD_GAMERS.md). This document is not an
+> engine implementation guide.
+>
+> **Status:** research current through **2026-08-08**.
+
+This is an engineering research note, not a claim that the
 field has agreed on a single definition of “complexity” or “human level.” The companion
 [board-gamer overview](AI_BACKGROUND_FOR_BOARD_GAMERS.md) explains the conclusions without assuming
 AI knowledge.
+
+## Solarnet source boundary
+
+Read the research first, then inspect [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt)
+at `public interface Gameplay` for the current command surface and
+[`PendingTask.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/PendingTask.kt) at
+`public data class PendingTask` for the structured-choice boundary. Neither is yet a
+player-relative observation or machine-learning API.
+
+## Choose the evidence needed
+
+| Question | Read |
+| --- | --- |
+| What is the practical conclusion? | Executive conclusion; Bottom line on specific-card training |
+| How broad and reliable was the research? | What was researched; Evidence map |
+| What has been demonstrated for Terraforming Mars itself? | Direct evidence: Terraforming Mars is still an open benchmark |
+| What do strong fixed-game systems establish? | What the strongest fixed-game systems teach |
+| What evidence bears on large or unseen card sets? | The closest content-rich evidence; What “unseen card” results actually show |
+| What should Solarnet build? | Architecture implications for Solarnet; Recommended first research target |
+| How should an AI player be evaluated? | Evaluation design |
+| Which primary paper supports a claim? | Annotated primary sources, after locating the claim in the relevant evidence section |
 
 ## Executive conclusion
 

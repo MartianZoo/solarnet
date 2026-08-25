@@ -1,6 +1,19 @@
 # Kotlin visibility
 
-**Status:** Working rules and current audit procedure.
+> **Read when:** reducing declaration visibility, responding to explicit-API diagnostics, moving a
+> caller across modules, or conducting a whole-project visibility audit.
+>
+> **Skip when:** changing behavior with no declaration-access change.
+>
+> **Status:** working rules and current audit procedure.
+
+## Configuration entry points
+
+- [`solarnet.kotlin-base.gradle.kts`](../../gradle/build-logic/src/main/kotlin/solarnet.kotlin-base.gradle.kts)
+  — search for `explicitApi` to inspect repository-wide Kotlin API policy.
+- The affected module's `build.gradle.kts` and source sets define the actual cross-module boundary.
+- For a whole-project audit, use a temporary copy under `$TMPDIR`; do not inspect another linked
+  working copy.
 
 Every declaration should have the narrowest effective visibility compatible with its real callers.
 
@@ -20,7 +33,7 @@ sets and Gradle modules.
 
 ## Audit procedure
 
-Perform a broad audit in an isolated project copy:
+Perform a broad audit in a temporary project copy under `$TMPDIR`:
 
 1. Change explicit `public` declarations to `internal`.
 2. Change `internal` and `protected` declarations to `private` in separate passes.

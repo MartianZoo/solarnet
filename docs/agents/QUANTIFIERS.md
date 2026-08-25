@@ -1,10 +1,39 @@
 # Instruction quantifiers
 
-> **Agent record:** This is the normative engine contract for Pets instruction quantifiers.
+> **Read when:** changing counts on gain/removal/transmutation, AMAP, abstract target choice,
+> missing dependencies, zero limits, or composition of a quantifier with `OR`, gates, and `PER`.
+>
+> **Skip when:** changing ordering between separate instructions; use
+> [SEQUENCING.md](SEQUENCING.md).
+>
+> **Status:** current normative engine contract.
+
+## Source map
+
+- [`Instruction.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Instruction.kt) — search
+  for `enum class Intensity` and the change instruction types.
+- [`Limiter.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Limiter.kt) — inspect for
+  concrete limits and invariant headroom.
+- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
+  for `Intensity` and `abstract` to see preparation of quantified changes.
+- [`PrepareTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/PrepareTest.kt) and
+  [`TaskPreparingTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskPreparingTest.kt)
+  — select scenarios matching the changed preparation boundary.
 
 A quantifier controls the count executed by one gain, removal, or transmutation. It does not choose
 an `OR` arm, satisfy a gate, choose a concrete target, or determine a `PER` metric. Those operations
 compose with quantification but have their own rules.
+
+## Read only the relevant sections
+
+| Task | Read |
+| --- | --- |
+| Establish terminology, evaluation time, or syntax | Vocabulary and evaluation time; Syntax and defaults |
+| Change a concrete target | The matching concrete gain/removal/transmutation section |
+| Change an abstract target or AMAP choice | Abstract pure gains and removals; Abstract transmutations |
+| Handle absent dependencies, uninhabited types, or zero | Uninhabited and computed-zero changes |
+| Combine a quantifier with `THEN`, `OR`, a gate, or `PER` | Composition |
+| Evaluate real-game effects or a rejected alternative | Known Terraforming Mars consequences; the matching alternative only |
 
 ## Vocabulary and evaluation time
 

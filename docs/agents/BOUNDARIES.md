@@ -1,7 +1,23 @@
 # Generic and Terraforming Mars boundary audit
 
-**Status: audit, not a mandate to support unrelated games.** The useful goal is coherent ownership
-inside Solarnet. Do not perform heroic extraction for hypothetical clients.
+> **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number or
+> Action lowering, splitting Catalog responsibilities, or separating script/workflow mechanics.
+>
+> **Skip when:** doing a move whose ownership is already explicit in [REORG.md](REORG.md), or when
+> the only motivation is support for a hypothetical unrelated game.
+>
+> **Status:** audit, not a mandate to generalize Solarnet.
+
+## Source map
+
+- [`ScaledExpression.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ScaledExpression.kt)
+  — search for `Megacredit` only for the omitted-unit seam.
+- [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
+  search for `transformAction` only for the Action/turn seam.
+- [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
+  inspect when splitting generic Catalog assembly from Terraforming Mars registries.
+- [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
+  inspect only for the script application seam.
 
 The generic runtime is mostly reusable, but a few seams still mix Pets/engine mechanics with
 Terraforming Mars or REgo application policy. `TODO.md` decides whether any seam is worth changing.
@@ -33,18 +49,6 @@ Mars `StandardResource` costs use provider- and action-qualified invoices, while
 costless Actions keep ordinary Pets sequencing. The generic Action transformer recognizes those six
 resource names directly, alongside its existing Terraforming Mars meaning for bare numbers. Treat
 both leaks as one boundary debt rather than adding a broad extension framework for this rule.
-
-### Configured marked-syntax transforms
-
-**Resolved.**
-
-Catalogs register handlers by the explicit marker before `[...]`; handlers that need the active
-class universe are factories bound through `ClassTable`. Generic input, class-effect, and
-custom-output processing use the complete resulting dispatcher without naming Terraforming Mars
-syntax. Terraforming Mars registers both `PROD` and `CARDS`; its language layer selects the
-registered `PROD` handler while retaining `CARDS` for structural rendering. Earlier card-source
-compilation uses the same dispatcher with only the follow-mode `CARDS` handler, so unregistered
-syntax is deliberately preserved for a later stage.
 
 ### The script application is mostly REgo/Terraforming Mars
 

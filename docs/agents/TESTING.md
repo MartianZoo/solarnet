@@ -1,8 +1,32 @@
 # Testing and verification
 
-> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+> **Read when:** choosing or running verification, writing/moving a test, changing build
+> configuration, reconstructing a game, formatting, or benchmarking.
+>
+> **Skip when:** doing a read-only task that requires no build or behavioral claim.
+>
+> **Status:** current repository procedure.
 
-(This is a by-codex-for-codex doc.)
+## Read only the needed section
+
+| Task | Read |
+| --- | --- |
+| Choose commands or suite scope | Routine verification |
+| Change Gradle/dependencies/source sets | Build configuration |
+| Write or move an ordinary test | Test design through the relevant test category |
+| Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
+| Change shared multiplatform tests | Multiplatform tests |
+
+## Test-support entry points
+
+- [`TfmTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
+  integrated setup and gameplay scopes.
+- [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
+  search for the named helper before spelling raw task text.
+- [`CardTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
+  read for component-focused scenario construction.
+- [`AbstractFullGameTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
+  — read only for whole-game chronology.
 
 ## Routine verification
 
@@ -10,8 +34,12 @@ The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 t
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
 Kotlin 2.2. Contributors do not need another JDK installed.
 
-- `./gradlew build` is the normal repository-wide check. It runs every JVM test plus one
-  representative multi-generation engine game in Chrome as the browser smoke suite.
+Start with the smallest test or build task that verifies the changed behavior. Expand verification
+only when the change crosses a wider boundary or the narrower result leaves a material risk.
+
+- `./gradlew build` checks the whole repository: every JVM test plus one representative
+  multi-generation engine game in Chrome. Use it only when repository-wide verification is
+  warranted by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
 - `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
@@ -22,7 +50,7 @@ Kotlin 2.2. Contributors do not need another JDK installed.
   both the JVM and browser.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
-  sources.
+  sources. A benchmark error fails the task rather than producing an empty successful report.
 - `./gradlew :repl:realTerminalSmokeTest` runs the separate Expect-based real-terminal test.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.
@@ -38,6 +66,11 @@ signal first, then review static-analysis findings.
 
 JVM test tasks use at most four parallel forks. This keeps the dominant engine suite substantially
 faster while bounding the additional CPU and memory demand from concurrent test processes.
+
+Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
+Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
+warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
+6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.
 
 ## Build configuration
 
@@ -106,6 +139,13 @@ in a test merely to detect that the list changed. Test observable behavior throu
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
 exact intermediate task text, or other implementation detail.
 
+Keep gameplay and test APIs generic. Never add a Kotlin helper or DSL operation solely to represent
+one card, corporation, Prelude, or other component. Use existing gameplay helpers when their
+operation boundaries fit. When component-specific steps must stay inside an outer operation, express
+them through existing `OperationBody` primitives so any sibling task may remain pending. Add a
+shared helper only for a recurring, component-independent concept that materially simplifies
+several call sites.
+
 Do not inspect Canon declarations or definitions and assert their exact Pets trees or rendered
 strings. Do not assert card totals by bundle, deck, expansion, or other content group. Canon
 admissibility is intentionally a compact loading and composition gate; card and rule behavior
@@ -153,7 +193,7 @@ match. Preserve this coverage during refactoring.
 say what currently happens incorrectly. Prefer such a characterization over a disproportionate
 workaround. Once the bug is fixed, move the useful scenario to its proper behavioral suite.
 
-## Translating game logs
+## Game replay tests
 
 Whole-game tests are high-value integration evidence. When translating a supplied game log:
 
@@ -204,7 +244,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Logs may not indicate how much steel/titanium/etc. was used toward a purchase. A reasonable
   default assumption to start with is that they probably spent as much of it as they could get full
   value for. Later events may reveal that your assumption needs to be revised.
-- Source-backed full-game fixtures enforce that assumption. A payment that leaves an accepted
+- Source-backed full-game replays enforce that assumption. A payment that leaves an accepted
   non-money resource unused despite its still receiving full value fails unless the player calls
   `intentionalUnderpay()` immediately before that payment. A payment that spends a non-money
   resource beyond the remaining owed amount likewise requires `intentionalOverpay()`. Each call is
@@ -217,6 +257,9 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Prefer supplied logs, images, and local map data over investigating another application's
   implementation. Work around unsupported engine behavior narrowly and record real follow-ups in
   `TODO.md`.
+
+### Direct state reconciliation
+
 - Never call `sneak` directly in a game test. Use the test's `exMachina` helper for an
   evidence-backed player error that requires a direct state adjustment. Place it as late in the
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add

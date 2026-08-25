@@ -1,8 +1,40 @@
 # Sequencing and completion
 
-**Status: working rules and audit.** This document defines when work may run, when an operation is
-complete, and which freedoms agents should preserve. Current known defects remain defects even when
-tests characterize them.
+> **Read when:** changing task eligibility/order, `THEN`, automatic effects, barriers, precursors,
+> completion, recoverable dead ends, or phase precedence.
+>
+> **Skip when:** changing only Actor/assignee identity ([IDENTITY.md](IDENTITY.md)) or the count
+> executed by one change ([QUANTIFIERS.md](QUANTIFIERS.md)).
+>
+> **Status:** working rules, explicit hypotheses, and audit. A passing characterization does not
+> turn a known defect into intended behavior.
+
+## Read only the relevant rule family
+
+| Question | Read |
+| --- | --- |
+| Is pending work ordered at all? | Mental model; Ask which kind of ordering; Rules that deliberately impose no order |
+| Which mechanism should express A-before-B? | Put facts in components; Recoverable dead ends; Choose the weakest honest mechanism |
+| Must a modifier precede the event it changes? | Model before-trigger effects with a committed precursor |
+| Must reactions complete before the user sees the next choice? | Use automatic effects to preserve player-visible invariants |
+| Does this concern `EACH`, continuations, priority, or atomicity? | Read only the matching explicitly proposed/exploratory section |
+| Is this a known family, defect, or phase rule? | Settled families through Workflow precedence |
+| How should a new ordering claim be researched? | Audit method |
+
+## Source map
+
+- [`TaskQueue.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueue.kt) and
+  [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) — inspect
+  task pooling, revision, and the prepared-task lock.
+- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — inspect
+  splitting, `THEN`, barriers, and prepared forms.
+- [`Effector.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Effector.kt) — search for
+  `automatic` when changing immediate reaction ordering.
+- [`AtomicOperationBoundary.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AtomicOperationBoundary.kt)
+  and [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — read only
+  for commit/rollback atomicity.
+- [`ActionSequencingTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt)
+  — read when changing player-visible action ordering.
 
 ## Mental model: preserve the whole valid decision tree
 
@@ -56,8 +88,9 @@ When evaluating an “atomic” rule, specify separately:
 2. whether intermediate component changes fire or observe effects; and
 3. what multiplicity a trigger sees as one effect.
 
-Do not infer those answers from an unanswered community post. For disputed rules, find the linked
-Jacob Fryxelius ruling or preserve the uncertainty.
+Do not initiate rule research during ordinary implementation work. When the user explicitly asks
+for it, do not infer these answers from an unanswered community post: find the linked Jacob
+Fryxelius ruling or preserve the uncertainty.
 
 ## Put facts in components and future work in tasks
 

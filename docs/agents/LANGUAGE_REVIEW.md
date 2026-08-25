@@ -1,374 +1,142 @@
-# English renderer: architecture and refactoring plan
+# English renderer architecture direction
 
-> **Status: agreed direction, not committed behavior.** Section 2 records decisions Kevin has made;
-> treat those as constraints, not suggestions. Section 3 states principles derived from them.
-> Sections 5–6 are the plan. Nothing here describes what the code does today except Section 4.
+> **Read when:** changing the renderer's intermediate representation, refusal reporting,
+> dependency resolution, lexicon ownership, or removing recognizers across a whole Pets family.
 >
-> **Audience:** the agent doing the work. Kevin skims Sections 1–3 and 7.
+> **Skip when:** adding ordinary coverage or changing wording within the current architecture; use
+> [LANGUAGE.md](LANGUAGE.md). Do not read this as a description of committed output.
 >
-> Scope: `tfm-text/src/main/kotlin/dev/martianzoo/tfm/text`, and its relationships to `pets`,
-> `tfm-canon`, and `docs/agents/LANGUAGE.md`.
+> **Status:** settled constraints plus remaining architecture work. Completed migration history has
+> been removed.
+
+## Source map
+
+- [`EnglishSyntax.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/EnglishSyntax.kt) —
+  search for `sealed interface Clause` to see the current partial intermediate representation.
+- [`Rendering.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/Rendering.kt) — search for
+  `enum class RefusalReason` for the implemented total-result boundary.
+- [`ExpressionResolver.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ExpressionResolver.kt)
+  — inspect dependency-by-key resolution and retained source dependencies.
+- [`ComponentDescriber.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ComponentDescriber.kt)
+  — search for `sealed interface ChangeFrame` before extending the lexicon model.
+- [`TerraformingMarsDescribers.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
+  — inspect only when moving lexical ownership or measuring remaining centralized facts.
+- [`EnglishCardTextCurrentGenerator.kt`](../../tfm-text/src/test/kotlin/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)
+  — search for `refusalRows` when changing corpus review output.
+
+## Settled constraints
+
+These decisions constrain future rounds; ordinary work should not relitigate them.
+
+1. The renderer is Terraforming Mars-specific, but expansions may recombine familiar meanings in
+   shapes absent from the current card set. Do not promote an accident of today's data to a rule.
+2. The target flow is Pets → a semantic description → English realization. Only English is being
+   built, and the semantic layer should grow one evidenced family at a time.
+3. Published cards are the golden use cases, but arbitrary Pets remains the public target. Unsupported
+   source stays visible in brackets at the narrowest safe boundary.
+4. Facts already present in the AST or Type system must be derived there. A lexicon entry may carry
+   language facts, never a second answer to a structural question.
+5. Track, placed, held, countable, and similar categories are presentation distinctions. Do not add
+   them to Pets solely for English rendering.
+6. Resolve expressions through the Class Table and read dependencies by `Key`. Positional argument
+   recognition is transitional. In card context, an omitted owner means the card owner; explicit
+   `Anyone` opts out.
+7. Consistent derivation matters more than matching stylistic variation in published card text.
+8. Never recognize a whole card. An exceptional component may declare one narrow lexical Procedure;
+   a Wrapper contributes a preface and delegates its contents to the ordinary renderer.
+9. Adding an expansion may add lexical entries. It should almost never add a new frame or renderer
+   concept.
+10. Canonical `CARDS[...]` operations carry their printed hidden-card procedure. Do not restore a
+    separate filtered-draw supplement or card-specific context channel.
+11. Card layout is a client of Pets rendering, not the semantic renderer's core responsibility.
+12. Change the active path in place and delete superseded machinery. Do not maintain a parallel
+    converter.
+
+## Current implementation boundary
+
+This table is for routing only. [LANGUAGE.md](LANGUAGE.md) owns exact current output coverage.
+
+| Area | Committed now | Remaining architecture pressure |
+| --- | --- | --- |
+| Refusal | `Rendering<T>` carries visible output plus typed `Unresolved` entries; the corpus generator emits a ranked report. | Many internal family helpers still return nullable partial results. Keep refusal reasons at the family boundary instead of multiplying reporting layers. |
+| Expression meaning | `ExpressionResolver`, `ResolvedExpression`, `Quantity`, and `Modality` centralize much of the source-to-semantic conversion. | Some paths still inspect source argument positions or lose linked identity across separately rendered stages. |
+| Change lexicon | `ChangeFrame` expresses countable, held, scale, positioned, deck, procedure, wrapper, and play constructions. | `ComponentDescriber` still carries many family-specific facts, and one central Terraforming Mars registry owns every bundle. |
+| English structure | Clauses, predicates, noun phrases, coordination, and modifiers exist and are used by every main family. | Preassembled strings still occupy structural slots, so factoring sometimes depends on wording rather than semantic roles. |
+| Requirements and metrics | They produce clauses and reuse resolved expressions in important paths. | Their object phrases and bound constructions have not yet proved a shared role-bearing semantic model. |
+| Triggers and effects | Common triggers and effects compose through clause structures. | `renderEffect.kt` still contains broad shape recognition, trigger-specific event kinds, and string prefaces. |
+| Card operations | Canonical operations render structurally from `CardOperation`. | Card-region assignment still lives in `English` rather than a named layout boundary. |
+
+## Remaining work, in dependency order
+
+### 1. Finish semantic expression resolution
+
+Remove positional matching from renderer families only when the resolved dependency retains the
+required meaning. Preserve authored linked variables across sequences so a later stage can refer to
+the same participant structurally. Do not replace one positional check with a Class-name check.
+
+Useful searches:
+
+- `expression.arguments` in `tfm-text/src/main` finds remaining direct source-position reads;
+- `sourceDependency(` finds intended key-based access; and
+- the `Flooding` declaration and English output constrain linked participant identity.
+
+### 2. Narrow the lexicon
+
+Move expansion-owned lexical data toward its bundle and reduce `ComponentDescriber` to language
+facts that recur across renderer families. Structural membership such as `CardResource`, `Tag`, or
+`Production` must come from the Class Table.
+
+Do not make registry movement a prerequisite for unrelated wording work. When selected, validate
+the complete lexicon once at construction and retain vocabulary-derived default nouns for Classes
+without explicit entries.
+
+### 3. Give changes role-bearing semantics
+
+For gain, removal, and transmutation, represent the meaning needed for realization: lexical head,
+party, direct object, extent, place/oblique, modality, and adverbial information. Keep each change's
+object and extent together so coordination cannot detach a count from its resource or production.
+
+Two changes may factor only when their invariant roles agree. Factoring must not compare rendered
+strings or require a syntax value whose unexplained purpose is to render nothing.
+
+Stop and report if this family requires about ten distinct semantic kinds or a kind serving one
+card. That would recreate the old sparse record under a new name.
+
+### 4. Extend only when another family proves a role
+
+Move requirements and metrics next, then triggers and effects. Add a complement role only when a
+current construction cannot be represented honestly without it.
+
+For triggers/effects, model the finite verb group compositionally: lexical head, voice, polarity,
+and evidenced auxiliary/modality. Destination is a complement, not an event kind. Distinguish an
+expressed subject from the understood “you” of an imperative. Replace string prefaces with a
+structured fronted constituent only when wrappers, gates, and trigger forms can share it.
 
----
+### 5. Delete surviving recognizers and name card layout
 
-## 1. Verdict, and what changed since the first draft
+Each component-specific matcher must become a general structural rule, a narrow Procedure lexical
+entry, corrected Pets, or visible unresolved source. Report lost coverage instead of hiding it.
 
-The strategy is right: derive text rather than store it; one renderer per Pets family; a per-class
-fact registry with inheritance; bracket unsupported Pets at the narrowest safe boundary; a generated
-snapshot as the characterization. Keep all of that.
+After semantic rendering is independent of card regions, extract the above/below-artwork assignment
+as `CardLayout`. Do not solve unresolved published layout distinctions by adding presentation
+meaning to Pets instructions.
 
-The implementation does not carry it out. Today it is a large **idiom recognizer** — ~50 hand-written
-matchers for shapes that happen to occur in today's card data — behind a **38-field record** that
-restates game semantics and stores English sentence templates. Both are exactly what Kevin's
-constraint forbids: they are *accidental invariants of the current data set* promoted to
-architecture.
+## Review discipline
 
-Two recommendations from the first draft are **withdrawn**:
-
-- **Withdrawn: add role-marker classes (`Track`, `PlacedComponent`) to Pets declarations.** Kevin's
-  answer to Q4 is decisive — track-vs-countable and placed-vs-added are *not game-mechanical
-  distinctions*. Pets could legitimately say "gain" for every component. Putting these categories into
-  Pets would leak presentation into the specification. They belong in the lexicon, on the
-  language-specific side (§3.3).
-- **Withdrawn: "Ontology vs Lexicon" as two registries.** There is one lexicon. What varies is where
-  each fact is *grounded* (§3.1).
-
-One recommendation is **promoted**: resolving expressions through the type system and reading
-dependencies by key (Q6) moves from "worth investigating" to the second stage of work. It is the
-single strongest defense against accidental invariants available, and it deletes the most fragile
-code in the module.
-
----
-
-## 2. Settled decisions
-
-Recorded so later rounds don't relitigate them.
-
-| # | Decision |
-|---|---|
-| D1 | **Terraforming Mars only.** No other game need ever work. But expansions will remix these elements in new and surprising ways, so no *accidental* invariant of today's data may be relied on. |
-| D2 | **Target shape is two layers**: Pets → intermediate representation → language-specific renderers. Only English is being built now. The IR need not be solved up front; grow it. |
-| D3 | **Real clients exist**: a game UI showing card text, plus the REPL, plus anywhere a Pets element needs to be readable. Published cards are the golden use cases, but arbitrary Pets is the target. |
-| D4 | **Track / placed / countable are not Pets concepts.** They are presentation categories. Do not add them to Pets declarations. |
-| D5 | **A colony is not a tile.** `ColonyTile` is the site a `Colony` is placed on. Pets class names reflect tileness accurately. |
-| D6 | **Use the type system.** Resolve expressions to `Type`s and read dependencies by key. Positional argument matching is the wrong instrument. |
-| D7 | **Consistency beats fidelity to the golden data.** The renderer must use the same word for the same thing every time. Variation in the published cards is *not* a requirement unless Kevin states it as one. `M€` or `megacredit` matters far less than picking one. |
-| D8 | **No card-specific recognition.** Anything that would hardcode a whole card's text belongs outside this library, not inside it. The recognizers present today are early-development scaffolding, never intended to persist. |
-| D9 | **A high generality bar is fine** provided the architecture lets the derivable boundary keep moving outward over time. Rate of progress matters more than today's coverage. |
-| D10 | **`Mandate` and `NextCardEffect` are shells the renderer should look through.** "Mandate" contributes "As your first action," and then the *ordinary* renderer handles the contents. |
-| D11 | **The refusal report is wanted** regardless of what else lands. |
-| D12 | Renaming (`English`, `Describers`, `ComponentDescriber`) is cheap and can happen any time. Not a priority. |
-| D13 | Whether the lexicon lives in Kotlin or in data files is not important. |
-| D14 | **Card ownership context is the renderer's law.** An omitted owner on a player-owned type means the card owner; explicit `<Anyone>` is required to opt out and address every player. The renderer need not support interpreting these source expressions outside ownership context. |
-| D15 | **`english-card-text-goals.tsv` is a fallible review aid, never authority.** Revise it for better wording and consistency, and pare back expectations that exceed the selected derivation boundary. |
-| D16 | Future iconographic generation should derive independently from Pets, whose syntax already follows the icon grammar. Do not complicate the English realizer's public boundary for it now. |
-| D17 | The former filtered-draw supplement was transitional. Canonical `CARDS` transforms now carry the operation structure, so the supplement and its card-specific context were deleted. |
-
----
-
-## 3. Three principles
-
-Everything in the plan follows from these. If a proposed change can't be justified by one of them,
-don't make it.
-
-### 3.1 Every fact must be *grounded*, and there are only two acceptable grounds
-
-For any fact the renderer uses about a component:
-
-| ground | what it means | verdict |
-|---|---|---|
-| **Structural** | Read from the Pets AST or type system: a dependency resolved by key, a subtype test against a class that exists for *engine* reasons, the shape of a refinement, a scalar, an intensity. | **Preferred.** True by construction. |
-| **Declared** | Registered in the lexicon as a fact about how to *say* a class, inherited through the class hierarchy. | **Required** for anything a language knows and the engine doesn't. |
-| **Recognized** | Matching an AST shape that happens to occur in today's data. | **Forbidden**, except as explicitly-labeled scaffolding with a removal plan. |
-
-The discipline that keeps this honest:
-
-> **A lexicon entry may never assert something the type system could have answered.**
-> If `Floater` is a `CardResource`, the renderer asks the class table, not the lexicon. If the lexicon
-> also said so, the two could disagree — and the lexicon would silently win.
-
-`StandardResource`, `CardResource`, `Tag`, `Production`, `GlobalParameter`, `Tile`, `Area`, `Owned`,
-`Signal`, `Barrier`, `Class` all exist as Pets classes for engine reasons. Membership in those is
-structural and free. Nothing needs to be *added* to Pets to get it — which is why D4 costs nothing.
-
-### 3.2 The IR carries structure; the lexicon carries language
-
-Concretely, for a change to one component:
-
-- **IR carries**: which class, resolved dependencies (owner, holder, site) *by key*, refinement,
-  count, direction, modality. All structural.
-- **Lexicon carries**: which verb frame the class takes in this language, and the words that frame
-  needs. All declared.
-
-This placement is deliberate and answers Kevin's open uncertainty about whether other languages carve
-these categories the same way. Because the frame is chosen by the **per-language lexicon**, English
-may treat `OxygenStep` as a scale and another language need not. Had the categories been pushed into
-Pets, every language would have inherited English's carving. This is the main reason D4 is right
-beyond the spec-purity argument.
-
-### 3.3 Verb frames replace the 38-field record
-
-The frame system already exists — it is written as prose at the bottom of `docs/agents/LANGUAGE.md`:
-
-> *"Temperature, oxygen, Venus, terraform rating, and colony productions are tracks, not countable
-> units. Render their gains and removals with the applicable increase/decrease or raise/lower pair
-> rather than resource language. Gaining a standard resource uses `gain`; gaining a card resource
-> uses `add`. The general removal verb is `remove`. An action cost paid from standard resources uses
-> `spend`."*
-
-That is a frame table. It is documentation instead of a data structure, so the code re-derives it ad
-hoc from 38 booleans in every renderer. Make it the data structure:
-
-| frame | acquire / relinquish | needs | example |
-|---|---|---|---|
-| **Countable** | gain / remove | noun, number forms | *gain 3 plants* |
-| **Held** | add / remove | noun, **place** | *add 2 animals to this card* |
-| **Scale** | raise / lower | subject, step noun | *raise oxygen 1 step* |
-| **Production** | increase / decrease | owner, resource | *increase your heat production 2 steps* |
-| **Positioned** | place / — | noun, article, **site** | *place a city tile on a land area* |
-| **Deck** | draw / discard | noun | *draw 2 cards* |
-| **Procedure** | *(imperative)* | verb + object phrase | *fund an award for free* |
-| **Wrapper** | *(transparent)* | preface | *as your first action, …* |
-
-Seven lexical frames plus one structural one. That is the replacement for 38 fields and for
-`DirectChange`'s ten variants. The frame supplies **both** direction words, so verb selection stops
-being scattered across `renderChange`, `renderEffect`, `renderActions`, and `renderPlacement`.
-
-**Growth is the thing to watch.** Adding an expansion must add lexicon *entries*, never frames. A new
-frame is a real language-model change and should be rare, argued for, and visible in review.
-
-**Procedure is the honest escape hatch** (D8): a component whose behavior Pets does not express gets
-one imperative phrase — not a recognizer. `Trade`, `Award`, `CopyPrelude`, `GiveColonyBonuses`
-already work this way and are fine.
-
-**Wrapper generalizes D10.** A component whose whole job is to wrap contributes a preface, then the
-renderer recurses into the wrapped content with the ordinary machinery. This replaces
-`directChangeForSubclasses`, `renderFirstAction`, and `renderNextPlayedCardAdjustment` with one rule.
-
----
-
-## 4. What's wrong now — the evidence
-
-Compressed; the numbers are from static reading and `grep`, accurate to about ±10%. Nothing was built
-or run.
-
-**Guards.** 549 `return null` statements across 11 files (`renderEffect.kt` 180, `renderChange.kt`
-135, `renderInstructionTree.kt` 65, `renderActions.kt` 37). They are overwhelmingly the same four
-tests: `refinement != null` / `.complement` (92 sites), positional `arguments ==` matching (82),
-`(count as? ActualScalar)?.value` (48), `intensity != MANDATORY` (~30). Every one is an ungrounded
-recognition (§3.1) or a job for the type system (D6).
-
-**Anonymous, uneven failure.** A guard failing collapses a subtree to `[raw Pets]` with no record of
-which guard or why. Granularity is accidental: `renderLoweredInstructions` brackets per instruction,
-but `renderSequentialThen` and `renderAlternatives` collapse the entire `THEN`/`OR` if any child
-fails.
-
-**The record.** 38 fields on `ComponentDescriber`; 12 used at exactly one call site, 25 at two or
-fewer, only 5 at five or more. Half of them (`standardResource`, `cardResource`, `production`, `tag`,
-…) restate Pets classes that already exist. `ThresholdSyntax` and `CountSyntax` store ten *English
-sentence templates* per component class — the four `CountSyntax` constants are just
-`(min|max) × (owned|global)`, information the interpreter already has. Under D7 these collapse
-outright; there is nothing to preserve.
-
-**No middle layer.** `Clause`/`Predicate`/`NounPhrase` exist but are routinely bypassed —
-`NounPhrase.text("up to $count $noun")` puts assembled English into the exact slot that factoring
-needs to inspect, so `coordinateClauseObjects` can only factor clauses whose wording matches as
-strings. A half-built IR already exists in the wrong place: `renderEffect.kt`'s private `EventKind`
-enum, which is a semantic trigger IR with the verbs baked in and destination mistaken for kind.
-
-**Registry placement.** `tfm-canon` is organized as ten bundles; the Terraforming Mars bundle also owns
-the Corporate Era and Tharsis resource sets, each of which already ships a `language/en.json5`
-consumed by `Vocabulary`. Meanwhile all descriptions for all expansions live in
-one 526-line `internal object` in a different module — so shipping an expansion means editing a core
-file. Two sources currently disagree about the same nouns (`en.json5` says `"Megacredit":
-"megacredit"`; the describer says `M€`), which is precisely the inconsistency D7 targets.
-
-**The contract, already measured.** Colonies exists. Adding it cost six lexicon-shaped entries — fine
-— *plus* two new `DirectChange` variants, three new renderer functions, and a 52-line effect-pair
-recognizer. The instructive detail: `TradeBarrier : Barrier` cost **zero**, because it inherits its
-role through the class hierarchy. `ColonyProduction` has no supertype at all, so "a track you move
-steps along" — a frame the renderer already implements four times — needed bespoke code. Under §3.3
-it needs one lexicon entry naming the **Scale** frame.
-
----
-
-## 5. Stages
-
-Each is independently shippable. `LANGUAGE_REFACTOR.md`'s rule holds throughout: **change the active
-path in place; never build a parallel converter.**
-
-### Stage 1 · Refusal report *(no output change)*
-
-Make every interpreter total. `f(node): T?` becomes `f(node): T` where refusal produces
-`Unresolved(node, reason)`; each `return null` names the guard that declined
-(`NON_LITERAL_SCALAR`, `REFINED_EXPRESSION`, `UNKNOWN_FRAME`, `UNRESOLVED_DEPENDENCY`, …). Extend the
-snapshot generator to emit a ranked histogram of refusals across all cards.
-
-*Done when:* the snapshot is byte-identical and `writeEnglishCardTextCurrent` also emits a ranked
-refusal report.
-*Why first:* it changes nothing, is trivially reviewable, and every later stage is prioritized by its
-output. It converts 549 anonymous nulls into a work queue.
-
-### Stage 2 · Types, not positions
-
-Resolve every `Expression` to a `Type` through the class table. Read owner, holder, and site as
-**dependencies by key**. Delete positional `arguments` matching, `anyoneExpression`/`ownerExpression`
-/`thisExpression` comparison, and the ad-hoc scalar and intensity tests — replace the last two with
-single `Quantity` and `Modality` resolutions.
-
-*Done when:* no renderer mentions `expression.arguments`, `ActualScalar`, or `Intensity` outside the
-resolution helpers.
-*Snapshot:* expect it to **improve** — cases refused today for arriving in an unexpected argument
-order or nesting will now resolve. Every diff must be explainable; unexplained ones are bugs.
-*Note:* this is the largest single deletion in the plan and the strongest move against accidental
-invariants (D1, D6).
-
-**Ownership context, verified during implementation.** Renderer inputs use source syntax but are
-interpreted as attached to a card. Apply declared ownership defaults before rendering: an omitted
-owner on a player-owned type means the card owner, while explicit `<Anyone>` is the opt-out. The
-resolver may retain that explicit source dependency by `Key` when type normalization erases the
-distinction. This does not authorize positional matching or inspecting source class/resource/site
-arguments when the resolved dependency retains their meaning.
-
-### Stage 3 · Verb frames
-
-**Status:** The change-frame migration, wrapper rule, and systemic requirement-bound rendering are
-implemented. `DirectChange`, the production-floor recognizer, `ThresholdSyntax`, and `CountSyntax`
-are gone, and expression resolution has its own component. The per-bundle registry work below
-remains; do not describe Stage 3 as complete until those completion criteria are met.
-
-Replace the 38 fields and the ten `DirectChange` variants with the frame table (§3.3). Derive
-structural membership by subtype test against existing engine classes; declare only what a language
-knows. Implement **Wrapper** as a general rule and delete `directChangeForSubclasses`,
-`renderFirstAction`, `renderNextPlayedCardAdjustment`. Delete `ThresholdSyntax`/`CountSyntax`
-(D7). Rebuild the registry per bundle while it is being rebuilt anyway, and reconcile the
-`Megacredit` conflict deliberately. Unregistered class ⇒ default noun via `Vocabulary`, never an
-exception. Validate the whole registry once at construction, not per lookup.
-
-*Done when:* `ComponentDescriber` holds only frame + words; `TerraformingMarsDescribers` is gone and
-`ColoniesExpansion/` owns its own English; adding a class under an existing frame needs no Kotlin
-change.
-*Snapshot:* a real, reviewed wording diff. This is the stage where consistency is imposed.
-
-### Stage 4 · IR for changes, then aggregation
-
-Introduce `Description` for `Gain`/`Remove`/`Transmute` only. The realizer owns verb, article, and
-number; `NounPhrase.text` is banned in this family. Then move coalescing and `Or`-factoring onto the
-IR: two changes coalesce iff direction, party, place, and modality agree — no string comparison.
-
-This stage must also replace `Predicate`'s undifferentiated objects-plus-modifiers shape with the
-smallest role-bearing complement model the change family proves it needs. Direct object, extent,
-place/oblique, and adverbial are evidenced now; do not import a comprehensive grammatical taxonomy
-in anticipation of other constructions. Punctuation is a realization choice, not a complement
-role, so `Phrase`/`Parenthetical`/`Supplement` must not remain the semantic distinctions used by
-factoring.
-
-Keep each coordinated change's complements as one bundle. For example, the two members of
-*increase your heat production 2 steps and your plant production 2 steps* are `(object = heat
-production, extent = 2 steps)` and `(object = plant production, extent = 2 steps)` under one shared
-predicate head. Do not coordinate the objects and extents independently, because that would lose
-which extent belongs to which production. The representation may model the head as shared or let
-the aggregation pass emit it once; it should not need a syntax node whose unexplained meaning is
-merely “render an empty string.”
-
-For this family, factoring requires the same verb group and the same invariant place/oblique and
-adverbial complements, while direct object and extent may vary together by member. This implements
-the existing rule that every named production retains its own step count and removes the current
-need to bury production-plus-extent in `NounPhrase.text`.
-
-*Snapshot:* should improve. Cases that currently refuse to factor will begin factoring.
-
-### Stage 5 · Requirements and metrics onto the IR
-
-### Stage 6 · Triggers and effects onto the IR
-
-Fold `EventKind`/`EventActor` into the IR's trigger representation. `renderEffect.kt` (999 lines)
-should roughly halve.
-
-Represent the finite verb group compositionally: lexical head, voice, polarity, and the evidenced
-auxiliary/modality. Destination is an ordinary complement, so `ADD_TO_CARD` and
-`ADD_TO_THIS_CARD` cease to be event kinds. This also gives removal prevention a structural route
-to a passive negative group with *may*. Voice does not by itself erase lexical distinctions such
-as *raise oxygen* versus *increase production*; those heads still come from the applicable frame.
-
-Replace `Clause.Simple.subject: NounPhrase?` with an explicit subject state. The first required
-distinction is an expressed subject versus the understood *you* of an imperative. Add contextual
-or controlled omission only when a current construction demonstrates that it is distinct; do not
-preload a larger omission taxonomy from hypothetical grammar coverage.
-
-Close the other raw-string boundary at the same time. `Clause.Prefaced` must take a structured
-fronted constituent, and gate rendering must return a clause or adverbial structure rather than a
-preassembled `String`. The same representation must cover lexical wrapper prefaces, conditional
-requirements, and trigger-derived forms such as *for each step …* without making all of them plain
-clauses.
-
-### Stage 7 · Delete the recognizers
-
-Apply D8 to everything that survives. Each card-specific matcher is either replaced by a **Procedure**
-lexicon entry, fixed in the Pets so it derives, or left bracketed. Report what coverage was lost and
-why.
-
-### Stage 8 · Card layout and context
-
-Give region assignment its own name (`CardLayout`) and get it out of the renderer core — under D3 the
-primary job is rendering arbitrary Pets, and card layout is one client of that. The obsolete
-filtered-draw parameter chain has been deleted now that Pets carries the operation structure.
-Card-aware entry points supply nested source declarations as structural context without changing
-the arbitrary-Pets renderer boundary.
-
-### Where to stop
-
-If Stages 1–3 land and the IR work stalls, the result is still much better than today: guards
-consolidated, expressions resolved through the type system, one small frame table, a per-bundle
-registry, and a refusal report. Stop and report if the IR passes roughly 10 kinds, or if any family
-needs a kind that serves one card — that is the 38-field record returning under a new name.
-
----
-
-## 6. How to batch human review
-
-Answering Q14 directly: the 25-card cadence is the wrong unit, because it measures the *diff* rather
-than the *decision*. A systemic rule that changes 200 cards identically is far easier to review than
-25 unrelated changes.
-
-**Make the transformation the unit of review.** After each stage, diff old against new snapshot and
-group rows by distinct before→after transformation. Report:
-
-1. **The rule, in one sentence** — what changed and why.
-2. **Per transformation**: a count, the before/after pattern, and two examples.
-3. **Unexplained rows**: anything that moved in a way the stated rule does not account for, listed
-   individually.
-
-Kevin then reviews five to ten transformations regardless of whether twenty or three hundred cards
-moved, and answers each with *keep* / *revert* / *that distinction was real*. That is exactly the
-feedback he described wanting — which distinctions were worth preserving and which should have been
-ironed out — and it makes the feedback cheap to give.
-
-**Proposed gate, replacing the card count:** ≤10 distinct transformations per review round, and
-**zero** unexplained rows. Unexplained rows are the actual bug surface; card count is noise.
-
----
-
-## 7. Still open
-
-Short list; everything else is settled in §2.
-
-1. **Is "placed" structural or lexical?** `Colony<ColonyTile>` and `Tile<Area>` both have a site
-   dependency, so "has a site dependency ⇒ Positioned frame" may be derivable rather than declared —
-   which would be strictly better under §3.1. Does that generalize, or are there components with site
-   dependencies that shouldn't read as placed?
-2. **Does Production collapse into Scale?** *increase your heat production 2 steps* and *raise oxygen
-   1 step* may be one frame with an owner slot. Worth trying to merge; if it needs a special case,
-   keep it separate and say why.
-
----
-
-## 8. Caveats
-
-- Nothing was built, run, or tested. Counts come from static reading; the Colonies history is
-  inferred from current code and declarations, not from a changelog.
-- Stages 3 and 4 reduce derived coverage on specific cards before general rules catch up. That is
-  accepted under D8/D9 but should be reported, not hidden.
-- `docs/agents/LANGUAGE.md` needs to shrink substantially. About 120 of its 403 lines enumerate the
-  current derivation boundary in prose; under this plan that becomes the refusal report's output.
-  Maintaining both would be worse than either.
+Make one systemic transformation the unit of review, not an arbitrary number of cards. For each
+round, report:
+
+1. the rule that changed;
+2. each distinct before→after transformation, with a count and two examples; and
+3. every unexplained row individually.
+
+Keep a review round to roughly ten distinct transformations and zero unexplained rows. The generated
+snapshot is evidence for behavior change; the refusal report identifies the next recurring boundary.
+Neither authorizes new machinery for one or two cards.
+
+## Open decisions
+
+- A site dependency may make “positioned” structurally derivable, but only if every applicable
+  component should read as placed. Otherwise the frame remains lexical.
+- Production may be one scale frame with an owner role, or a distinct frame if merging them needs a
+  special case. Let the role-bearing change model decide.

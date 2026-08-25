@@ -1,7 +1,24 @@
 # Engine workhorse and client API direction
 
-**Status: proposal.** Some read/write data-structure pairs have already been collapsed. The
-`Gameplay` power hierarchy and `godMode()` remain committed behavior; see [ENGINE.md](ENGINE.md).
+> **Read when:** flattening `Gameplay`, removing a power interface or `godMode()`, changing command
+> transaction boundaries, or designing a real client/observation API.
+>
+> **Skip when:** adding an ordinary gameplay operation without changing facade ownership; use the
+> Gameplay section of [ENGINE.md](ENGINE.md#current-gameplay-surface).
+>
+> **Status:** proposal. Some read/write data-structure pairs have been collapsed; the `Gameplay`
+> power hierarchy and `godMode()` remain committed behavior.
+
+## Source map
+
+- [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt) — search for
+  `public interface Gameplay` to see the current power hierarchy.
+- [`ApiTranslation.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/ApiTranslation.kt) —
+  search for `internal class ApiTranslation` before moving string/value adaptation.
+- [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
+  — search for `internal class Implementations` before changing command lifecycle ownership.
+- [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
+  read only when the change also touches the temporary REPL policy boundary.
 
 ## Decision
 

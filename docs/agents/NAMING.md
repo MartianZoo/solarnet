@@ -1,6 +1,23 @@
 # Class names and vocabulary
 
-**Status: current model.**
+> **Read when:** naming or renaming a Class, resolving a printed-name collision, changing player
+> aliases, or deciding whether a concept needs a separate identifier.
+>
+> **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
+>
+> **Status:** current model.
+
+## Source map
+
+- [`ClassName.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ClassName.kt) — inspect
+  syntax and canonical identity constraints.
+- [`Vocabulary.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/Vocabulary.kt) — read when
+  changing display lookup, aliases, or inheritance.
+- [`GamePremise.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GamePremise.kt) —
+  search for `playerNames` only when changing configured Player display names.
+- Bundle `language/en.json5` files under
+  [`tfm-canon/src/commonMain/resources/canon/bundles`](../../tfm-canon/src/commonMain/resources/canon/bundles)
+  own localized printed names; inspect only the bundle containing the renamed Class.
 
 Every class has one engine-facing `ClassName`. Pets, declarations, Kotlin implementations, events,
 saved state, and engine APIs use it. A `ClassName` begins with an ASCII uppercase letter and then

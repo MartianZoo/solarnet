@@ -1,11 +1,22 @@
 # Module organization
 
-**Status: active target.** The named module and package boundaries through `tfm-canon`,
-`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. Core production ownership now has recognizable
-package boundaries, and lower-layer tests live with the behavior they exercise, with Canon retained
-only as permitted test scaffolding. The generic static contract is now `Catalog`; remaining ownership
-refinements are still proposed. Current behavior remains documented by [ENGINE.md](ENGINE.md),
-[OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they differ from this target.
+> **Read when:** moving a production package, test suite, resource, dependency, application, or
+> analysis tool between Gradle modules.
+>
+> **Skip when:** changing behavior inside its existing owner. Use [BOUNDARIES.md](BOUNDARIES.md) only
+> for a remaining generic/Terraforming Mars seam.
+>
+> **Status:** current ownership through `tfm-canon`, `tfm-engine`, `tfm-text`, and `tfm-tests`, plus
+> a short remaining audit. Core module/package moves and lower-layer test moves are complete.
+
+## Repository entry points
+
+- [`settings.gradle.kts`](../../settings.gradle.kts) — inspect the actual module set and centralized
+  repositories.
+- Each module's `build.gradle.kts` is the authority for current dependency direction; inspect only
+  the source and destination modules involved in the proposed move.
+- Package roots under `pets/src`, `engine/src`, `tfm-canon/src`, `tfm-engine/src`, `tfm-text/src`,
+  and `tfm-tests/src` show current physical ownership.
 
 ## Governing rule
 
@@ -23,7 +34,7 @@ therefore contain sibling roots such as `dev.martianzoo.script` and `dev.martian
 a concrete dependency split justifies separate modules; do not nest one beneath the other merely to
 force a single package root.
 
-## Initial dependency graph
+## Current dependency graph
 
 ```text
 engine ─────> pets
@@ -199,9 +210,9 @@ simulation are dynamic.
 Physical organization of tools, REPL, web UI, and benchmarks is deferred. When revisited, a static
 application must not acquire engine merely because it shares a module with dynamic code.
 
-## Current ownership changes
+## Current ownership
 
-| Current code | Destination |
+| Concern | Owning module |
 | --- | --- |
 | `dev.martianzoo.pets` and its subpackages | `pets` |
 | `ClassDeclaration`, class selection, projection, pure premise | `pets` |

@@ -1,62 +1,97 @@
-# Agent handbook
+# Agent documentation router
 
-Read this page before using the rest of `docs/agents`. These documents have different authority:
+Read this page after `AGENTS.md`, but do not read every linked document. Pick the route matching the
+current task, read its “Read when” note and named sections, then inspect the linked source and tests.
 
-- **Current model** describes committed behavior. Check the code and tests when a claim matters to a
-  change; the document is a map, not stronger evidence than the implementation.
-- **Working rules** are design constraints for new work. Do not casually violate them even when the
-  current implementation does.
-- **Proposal** describes unimplemented or partially implemented work. It is context for a design
-  discussion, never permission to implement the whole proposal.
-- **Audit** records known gaps. [`TODO.md`](../../TODO.md) decides priority.
-- **Research note** preserves conclusions and sources; it does not specify product behavior.
+## Authority labels
 
-## Start here
+- **Current model:** a map of committed behavior. Source and tests win when details differ.
+- **Working rule:** a design constraint for new work, even if current code diverges.
+- **Proposal:** unimplemented or partial direction; never permission to implement the whole idea.
+- **Audit:** known gaps or suspicious ownership. [`TODO.md`](../../TODO.md) decides priority.
+- **Research:** preserved evidence and conclusions, not product behavior.
+- **Procedure:** steps to follow for a particular kind of work.
 
-| Need | Document | Status |
+## Choose a route
+
+### Change game behavior or engine semantics
+
+Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
+
+| Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Project priorities and review standard | [VALUES.md](VALUES.md) | Working rules |
-| Current Game World and execution architecture | [ENGINE.md](ENGINE.md) | Current model |
-| Pets types, dependencies, refinements, and variables | [TYPES.md](TYPES.md) | Current model, with divergences |
-| Class-property values, cardinality, defaults, and groups | [PROPERTIES.md](PROPERTIES.md) | Current model plus working rules and proposals |
-| Catalogs, Modules, configuration, and premises | [OPTIONS.md](OPTIONS.md) | Current model |
-| Task ordering, completion, `THEN`, automatic effects, and barriers | [SEQUENCING.md](SEQUENCING.md) | Working rules and audit |
-| Pets `Action` costs and invoices | [ACTIONS.md](ACTIONS.md) | Current model |
-| Payment allocation, excess, attribution, and candidate repairs | [PAYMENTS.md](PAYMENTS.md) | Audit and proposal |
-| Commands and test design | [TESTING.md](TESTING.md) | Current procedure |
-| JVM test performance baseline and hotspots | [JVM_TEST_PERFORMANCE.md](JVM_TEST_PERFORMANCE.md) | Research note |
-| Kotlin declaration accessibility | [VISIBILITY.md](VISIBILITY.md) | Working rules and current procedure |
-| Reconstructing herokuapp game logs | [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md) | Current procedure |
-| Reconstructing recorded physical games | [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md) | Current procedure |
-| Class Names, display names, and vocabulary | [NAMING.md](NAMING.md) | Current model |
-| English card-text derivation | [LANGUAGE.md](LANGUAGE.md) | Working rules |
+| World construction, components, events, tasks, effects, rollback, or Gameplay | [`ENGINE.md`](ENGINE.md) | Current model |
+| Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and audit |
+| Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and proposal |
+| Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
+| Action costs, invoices, or action identity | [`ACTIONS.md`](ACTIONS.md) | Current model |
+| Payment excess, tender value, or attribution | [`PAYMENTS.md`](PAYMENTS.md) and the payment entry in [`GAME_HACKS.md`](GAME_HACKS.md#payment-allocation-is-not-yet-auditable) | Audit and proposal |
+| Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model and known defect |
+| Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
+| Optional client autoexecution | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
 
-## Read only when the task touches the area
+### Change Pets, types, or static game construction
 
-| Area | Document | Status |
+| Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Actor, assignee, context owner, and future delegation | [IDENTITY.md](IDENTITY.md) | Current model plus proposal |
-| Component fanout through proposed `EACH` syntax | [EACHPLAYER.md](EACHPLAYER.md) | Proposal |
-| Flattening the engine workhorse and later client boundary | [API.md](API.md) | Proposal |
-| Autoexecution policy boundary, proofs, provenance, and performance | [AUTOEXEC.md](AUTOEXEC.md) | Settled design direction plus audit |
-| Catalog-wide Class identity and game-filtered views | [CLASS_TABLES.md](CLASS_TABLES.md) | Current model |
-| Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
-| Target Gradle module and package ownership | [REORG.md](REORG.md) | Proposal |
-| Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |
-| Turmoil rules, component homes, and exploratory Pets | [TURMOIL.md](TURMOIL.md) | Research-backed modeling proposal |
-| Remaining implicit-variable work | [LINKAGES.md](LINKAGES.md) | Focused implementation note |
-| Integrating the `work1` AMAP model with `wildtag` | [WILDTAG_INTEGRATION.md](WILDTAG_INTEGRATION.md) | Temporary branch integration record |
-| Candidates for eliminating custom instructions | [REDUCE_CUSTOM.md](REDUCE_CUSTOM.md) | Audit |
-| Shuffle, physical cards, hidden information, and chance | [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md) | Proposal |
-| Monotonicity in optimal TR63 solo play | [OPTIMAL_SOLO.md](OPTIMAL_SOLO.md) | Research note |
-| AI-player research and supporting literature | [AI_BACKGROUND.md](AI_BACKGROUND.md) and [board-gamer overview](AI_BACKGROUND_FOR_BOARD_GAMERS.md) | Research notes |
+| Classes, Types, dependencies, refinements, implicit variables, or uninhabited types | The relevant numbered section of [`TYPES.md`](TYPES.md) | Current model |
+| Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
+| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
+| Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
+| Remaining implicit-variable defects | [`LINKAGES.md`](LINKAGES.md), after the relevant `TYPES.md` section | Focused audit |
+| Proposed generic component fanout | [`EACHPLAYER.md`](EACHPLAYER.md), plus the fanout section of [`SEQUENCING.md`](SEQUENCING.md#proposed-fanout-composes-as-siblings-not-a-loop-or-join) | Proposal |
+| Eliminating a custom instruction | [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) | Audit |
 
-## Editing discipline
+### Change content, names, or human rendering
 
-- Keep current behavior, proposed behavior, and desired rules visibly separate.
-- Put prioritized work in [`TODO.md`](../../TODO.md); do not turn these documents into competing
+| Task | Read | Authority |
+| --- | --- | --- |
+| Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
+| Change English rendering or card layout | [`LANGUAGE.md`](LANGUAGE.md); read [`LANGUAGE_REVIEW.md`](LANGUAGE_REVIEW.md) only for remaining architecture work | Current model; active design record |
+| Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
+| Change Prelude 2 scope or its unusual rules | [`PRELUDE2.md`](PRELUDE2.md) | Source and support record |
+| Model Turmoil | Select only the relevant rule family in [`TURMOIL.md`](TURMOIL.md) | Research-backed proposal |
+| Design shuffle/deal, hidden cards, or chance | Select the relevant gate in [`REAL_CARDS_MODE.md`](REAL_CARDS_MODE.md) | Proposal |
+
+### Change project structure or APIs
+
+| Task | Read | Authority |
+| --- | --- | --- |
+| Move modules, packages, tests, or resources | [`REORG.md`](REORG.md) | Current ownership and remaining audit |
+| Move generic versus Terraforming Mars responsibilities | The matching seam in [`BOUNDARIES.md`](BOUNDARIES.md) | Audit |
+| Flatten Gameplay or design a client boundary | [`API.md`](API.md), after the Gameplay section of [`ENGINE.md`](ENGINE.md#current-gameplay-surface) | Proposal |
+| Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
+
+### Verify a change
+
+Read [`TESTING.md`](TESTING.md). Read [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md) only when
+measuring or changing JVM test throughput; its measurements are a dated baseline, not routine setup.
+
+### Reconstruct a game
+
+- For a herokuapp archive, read [`HEROKUAPP_GAME_LOGS.md`](HEROKUAPP_GAME_LOGS.md).
+- For a physical game record, read [`OTB_GAME_RECORDS.md`](OTB_GAME_RECORDS.md).
+- For either, also read only “Game replay tests” and “Direct state reconciliation” in
+  [`TESTING.md`](TESTING.md).
+
+### Research AI play or optimal solo play
+
+- Read [`AI_BACKGROUND_FOR_BOARD_GAMERS.md`](AI_BACKGROUND_FOR_BOARD_GAMERS.md) for the concise
+  conceptual account; read [`AI_BACKGROUND.md`](AI_BACKGROUND.md) only when source-level AI research
+  or architecture decisions are actually needed.
+- Read [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md) only for the TR63 monotonicity analysis or the associated
+  report tool.
+
+### Merge or synchronize branches
+
+Read [`WORKTREES.md`](WORKTREES.md). It is mandatory for these operations and irrelevant otherwise.
+
+## Maintain this collection
+
+- Put prioritized work in [`TODO.md`](../../TODO.md); these documents must not become competing
   backlogs.
-- Prefer links to production data and tests over copied inventories that can drift.
-- When behavior changes, update the smallest owning document. Avoid repeating the same rule in
-  several files.
-- Delete resolved audit history unless it still explains a live constraint.
+- Keep current behavior, proposed behavior, and desired rules visibly separate.
+- Link to production source and meaningful tests instead of copying inventories that can drift.
+- For a source location, give the file and a stable search string, never a line number.
+- Update the smallest owning document and avoid repeating a rule in several places.
+- Delete resolved audit and migration history unless it still explains a live constraint.

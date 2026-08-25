@@ -1,8 +1,36 @@
 # Catalogs, Modules, and game premises
 
-**Status: current model except where a section is explicitly marked as settled direction.
-Stronger closed-world viability proofs and durable projection-decision explanations remain future
-work.**
+> **Read when:** changing Catalog, Module, Bundle, `GameConfig`, `GamePremise`, selection defaults,
+> projection closure, or viability classification.
+>
+> **Skip when:** changing live World state after premise creation; use [ENGINE.md](ENGINE.md).
+>
+> **Status:** current model except where a section is explicitly marked as settled direction.
+> Stronger closed-world viability proofs and durable projection-decision explanations remain future
+> work.
+
+## Read only the relevant sections
+
+| Task | Read |
+| --- | --- |
+| Catalog namespace or indexes | Catalog; One master Class Table |
+| Bundle/Module composition | Module; Bundle; Invariants |
+| Config defaults or premise creation | Configuration and premise; Resolution order |
+| Inhabitation or closed-world selection | Settled projection-policy direction through Viable, unviable, and broken content |
+| Moving Kotlin expansion knowledge | Non-Canon Kotlin expansion-coupling audit |
+
+## Source map
+
+- [`Catalog.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Catalog.kt) — inspect the
+  generic static contract.
+- [`GameConfig.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GameConfig.kt) and
+  [`GamePremise.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GamePremise.kt) — read
+  only for unresolved intent and resolved premise state.
+- [`Bundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/Bundle.kt) and
+  [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
+  inspect when changing Terraforming Mars composition or resolution.
+- [`PremiseViability.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/PremiseViability.kt)
+  — read only for projection closure and viability.
 
 ## Catalog
 

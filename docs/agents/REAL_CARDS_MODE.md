@@ -1,8 +1,36 @@
 # Shuffle-and-deal real-card mode
 
-**Status: proposal with a settled central model.** Follow mode is committed and remains the
-default. The type syntax, shuffle algorithm, and observation boundary still require proof. Do not
-implement isolated card-specific shortcuts around the gates below.
+> **Read when:** designing or implementing physical cards, deck/discard derivation, shuffle/deal,
+> reveal/search, hidden information, dealer narrowing, or a real-card observation boundary.
+>
+> **Skip when:** changing committed follow-mode behavior without making authored hidden procedures
+> executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms.
+>
+> **Status:** proposal with a settled central model. Follow mode is committed and remains the
+> default; type syntax, dealer algorithm, and observation boundary remain unproved.
+
+## Read only the relevant gate
+
+| Task | Read |
+| --- | --- |
+| Component/area representation | State boundary through Ordinary transitions |
+| Defaults, counted cards, or delegated face choice | Defaults and atomization; Preparation-time delegation |
+| Shuffle, replay, rollback, or forks | Deterministic dealer projection |
+| Reveal, search, or card predicates | Reveals, searches, and printed predicates |
+| `CARDS[...]` or follow-mode lowering | Canonical card-operation source; Follow mode and operation lowering |
+| Conservation or hidden observations | Conservation; Information hiding is deferred |
+| Begin implementation | Implementation gates; Acceptance properties; Remaining decisions |
+
+## Source map
+
+- [`CardOperation.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/CardOperation.kt)
+  — inspect the canonical hidden-procedure representation.
+- [`FollowModeNeutralizer.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/FollowModeNeutralizer.kt)
+  — search for `neutralize` before changing current executable lowering.
+- [Promo `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/PromoCardPack/cards.pets)
+  — search for `CARDS[` to sample canonical authored operations.
+- [`CardDefinitionTest.kt`](../../tfm-canon/src/commonTest/kotlin/dev/martianzoo/tfm/canon/CardDefinitionTest.kt)
+  — read for transform preservation and follow-mode behavior.
 
 ## Settled direction
 
