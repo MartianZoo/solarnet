@@ -15,6 +15,7 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.ast.ClassName
@@ -62,31 +63,48 @@ public class TfmGameplay(
   public fun playCorp(cardName: ClassName, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return inTurn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
-      doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
-      if (buyCards > 0) {
-        if (hasPendingBuyCardsInvoice()) doTask("Invoice<BuyCards, First>")
-        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
-      }
+      buySelectedCards(buyCards)
       body()
     }
   }
 
   /** Buys the selected number of offered project cards and settles their M€ invoice. */
-  public fun buyCards(count: Int): TaskResult {
-    val purchase = doTask(if (count == 0) "Ok" else "$count BuyCard")
-    if (count == 0) return purchase
-    if (hasPendingBuyCardsInvoice()) doTask("Invoice<BuyCards, First>")
-    return doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+  public fun buyCards(count: Int): TaskResult =
+      gameplay.godMode().continueManual { buySelectedCards(count) }
+
+  private fun OperationBody.buySelectedCards(count: Int) {
+    closeUnusedPaymentOffers()
+    val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
+    require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
+    val discarded = offered - count
+    doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    if (count > 0) {
+      if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
+      this@TfmGameplay.pay(megacredits = this@TfmGameplay.count("Owed"))
+      closeUnusedPaymentOffers()
+    }
   }
 
-  private fun hasPendingBuyCardsInvoice(): Boolean =
-      game.tasks
+  private fun OperationBody.closeUnusedPaymentOffers() {
+    if (this@TfmGameplay.count("Owed") != 0) return
+    while (true) {
+      autoExecNow()
+      val offer =
+          tasks
+              .extract { it }
+              .withIndex()
+              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("Accept") } ?: return
+      doTask("Ok", offer.index + 1)
+    }
+  }
+
+  private fun hasPendingBuyCardsInvoice(tasks: TaskQueue): Boolean =
+      tasks
           .extract { it }
           .any { task ->
-            task.assignee == actor &&
-                task.instruction.toString().let {
-                  it.startsWith("Invoice<") && "BuyCards" in it
-                }
+            task.instruction.toString().let {
+              it.startsWith("Invoice<") && "BuyCards" in it
+            }
           }
 
   public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
@@ -429,7 +447,7 @@ public class TfmGameplay(
       }
 
   public fun sellPatents(count: Int): TaskResult =
-      stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
+      stdAction("SellPatents") { doTask("-$count ProjectCard<Hand>! THEN $count") }
 
   public fun phase(phase: String, body: BodyLambda = {}) {
     if (count("Phase") != 1) {

@@ -103,14 +103,14 @@ internal class ActionSequencingTest {
     p1.godMode().manual("$Polyphemos, 5 Megacredit")
     val manual = p1.godMode()
 
-    manual.beginManual("BuyCard")
+    manual.beginManual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards")
 
     p1.count("Owed<>") shouldBe 5
-    p1.count("ProjectCard") shouldBe 0
+    p1.count("ProjectCard<Hand>") shouldBe 0
 
     manual.doTask("5 Pay<Class<Megacredit>> FROM Megacredit")
 
-    p1.count("ProjectCard") shouldBe 1
+    p1.count("ProjectCard<Hand>") shouldBe 1
   }
 
   @Test

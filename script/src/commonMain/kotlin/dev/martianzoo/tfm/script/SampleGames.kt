@@ -66,7 +66,7 @@ internal object SampleGames {
     engine.nextGeneration(2, 2)
 
     p1.cardAction1(cn("DevelopmentCenter"))
-    p1.cardAction1(cn("InventorsGuild")) { doTask("Ok") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(0) }
     p2.cardAction1(cn("Factorum"))
     p2.playProject(cn("AsteroidCard"), 2, steel = 0, titanium = 4) { doTask("Ok") }
     p1.playProject(cn("CorporateStronghold"), 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
@@ -109,7 +109,7 @@ internal object SampleGames {
     p2.cardAction2(cn("Factorum"))
     p2.playProject(cn("DirectedImpactors"), 2, titanium = 2)
     p1.cardAction1(cn("DevelopmentCenter"))
-    p1.cardAction1(cn("InventorsGuild")) { doTask("Ok") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(0) }
     p2.sellPatents(2)
     p1.cardAction2(cn("DeuteriumExport"))
     p1.playProject(cn("DomedCrater"), 18, steel = 3) { doTask("CityTile<Tharsis_3_4>") }
@@ -171,7 +171,7 @@ internal object SampleGames {
     p2.playProject(cn("InventionContest"), 0) {
       doTask("-ProjectCard")
     }
-    p1.cardAction1(cn("InventorsGuild")) { doTask("Ok") }
+    p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(0) }
     p1.playProject(cn("QuantumExtractor"), 13)
     p2.playProject(cn("BioPrintingFacility"), 1, steel = 2)
     p2.cardAction1(cn("BioPrintingFacility"))

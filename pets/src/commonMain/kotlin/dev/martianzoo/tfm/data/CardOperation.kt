@@ -89,17 +89,15 @@ public sealed interface CardOperation {
           null
         }
 
-    private fun decode(source: InstructionTree): CardOperation =
+    /** Interprets a validated canonical card operation after its marker has been removed. */
+    public fun decode(source: InstructionTree): CardOperation =
         when (source) {
           is Gain -> decodeSearch(source)
           is Instruction.Per -> Observe(source)
           is InstructionGroup -> decodeSelection(source)
           is Then ->
               when {
-                source.instructions.last().isMandatoryGainOf(BUY_SELECTED_CARDS) ->
-                    decodeRevealAndPurchase(source)
-                source.first.gainingCardAt(SELECTING) -> decodeSelectedPlay(source)
-                source.first.gainingAt(REVEALED) -> decodeRevealedOperation(source)
+                source.first.gainingAt(REVEALED) -> decodeRevealAndTest(source)
                 source.first.movingCard(HAND, REVEALED) -> decodeRevealAndRestore(source)
                 else -> malformed(source)
               }
@@ -119,20 +117,6 @@ public sealed interface CardOperation {
       return Search(source, filter)
     }
 
-    private fun decodeSelection(source: InstructionGroup): CardOperation {
-      if (source.instructions.size != 2) malformed(source)
-      val offered =
-          source.instructions.filterIsInstance<Gain>().singleOrNull {
-            it.gaining.cardFamilyAt(SELECTING) != null && it.mandatory
-          } ?: malformed(source)
-      val result = source.instructions.singleOrNull { it !== offered } ?: malformed(source)
-      return when (result) {
-        is Transmute -> decodeRetainedCards(offered, result)
-        is Then -> decodePurchase(offered, result)
-        else -> malformed(source)
-      }
-    }
-
     private fun decodeRetainedCards(offered: Gain, retained: Transmute): SelectAndKeep {
       val family = offered.gaining.cardFamilyAt(SELECTING) ?: malformed(offered)
       if (
@@ -144,6 +128,27 @@ public sealed interface CardOperation {
         malformed(retained)
       }
       return SelectAndKeep(offered, retained)
+    }
+
+    private fun decodeSelection(source: InstructionGroup): CardOperation {
+      if (source.instructions.size !in 2..3) malformed(source)
+      val offered =
+          source.instructions.filterIsInstance<Gain>().singleOrNull {
+            it.gaining.cardFamilyAt(SELECTING) != null && it.mandatory
+          } ?: malformed(source)
+      if (source.instructions.size == 3) {
+        return decodeSelectedPlay(Then.createTree(source.instructions) as Then)
+      }
+      return when (val result = source.instructions.single { it !== offered }) {
+        is Transmute -> decodeRetainedCards(offered, result)
+        is Then ->
+            if (result.instructions.size == 2) decodePurchase(offered, result)
+            else
+                decodeRevealAndPurchase(
+                    Then.createTree(listOf(offered) + result.instructions) as Then
+                )
+        else -> malformed(source)
+      }
     }
 
     private fun decodePurchase(offered: Gain, purchase: Then): SelectAndPurchase {
@@ -158,13 +163,6 @@ public sealed interface CardOperation {
       }
       return SelectAndPurchase(offered)
     }
-
-    private fun decodeRevealedOperation(source: Then): CardOperation =
-        if (source.instructions.last().isMandatoryGainOf(BUY_CARDS)) {
-          decodeRevealAndPurchase(source)
-        } else {
-          decodeRevealAndTest(source)
-        }
 
     private fun decodeSelectedPlay(source: Then): SelectAndPlay {
       if (source.instructions.size != 3) malformed(source)
@@ -190,9 +188,6 @@ public sealed interface CardOperation {
     }
 
     private fun decodeRevealAndPurchase(source: Then): RevealAndPurchase {
-      if (source.instructions.last().isMandatoryGainOf(BUY_CARDS)) {
-        return decodeLegacyRevealAndPurchase(source)
-      }
       if (source.instructions.size != 4) malformed(source)
       val offered = source.first as? Gain ?: malformed(source)
       val retained = source.instructions[1] as? Transmute ?: malformed(source)
@@ -214,26 +209,6 @@ public sealed interface CardOperation {
       val filter = retained.gaining.refinement?.requirement ?: malformed(source)
       if (offered.count !is ActualScalar) malformed(source)
       return RevealAndPurchase(offered, retained, filter)
-    }
-
-    private fun decodeLegacyRevealAndPurchase(source: Then): RevealAndPurchase {
-      if (source.instructions.size != 3) malformed(source)
-      val revealed = source.first as? Gain ?: malformed(source)
-      val retained = source.instructions[1] as? Transmute ?: malformed(source)
-      if (
-          !revealed.gaining.isUnfilteredProjectCardAt(REVEALED) ||
-              !revealed.mandatory ||
-              retained.gaining.className != PROJECT_CARD ||
-              retained.gaining.arguments.any() ||
-              !retained.removing.isProjectCardAt(REVEALED) ||
-              retained.removing.refinement != null ||
-              retained.intensity != AMAP
-      ) {
-        malformed(source)
-      }
-      val filter = retained.gaining.refinement?.requirement ?: malformed(source)
-      if (revealed.count !is ActualScalar) malformed(source)
-      return RevealAndPurchase(revealed, retained, filter)
     }
 
     private fun decodeRevealAndTest(source: Then): RevealAndTest {
@@ -305,9 +280,6 @@ public sealed interface CardOperation {
     private fun Instruction.gainingAt(area: ClassName): Boolean =
         this is Gain && gaining.isUnfilteredProjectCardAt(area)
 
-    private fun Instruction.gainingCardAt(area: ClassName): Boolean =
-        this is Gain && gaining.cardFamilyAt(area) != null
-
     private fun Instruction.movingCard(from: ClassName, to: ClassName): Boolean =
         this is Transmute &&
             gaining.cardFamilyAt(to) == PROJECT_CARD &&
@@ -332,7 +304,6 @@ public sealed interface CardOperation {
         throw PetSyntaxException("Unsupported $TRANSFORM_KIND card operation: $source")
 
     private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
-    private val BUY_CARDS = cn("BuyCards")
     private val CARD_BACK = cn("CardBack")
     private val CLASS = cn("Class")
     private val CORPORATION_CARD = cn("CorporationCard")

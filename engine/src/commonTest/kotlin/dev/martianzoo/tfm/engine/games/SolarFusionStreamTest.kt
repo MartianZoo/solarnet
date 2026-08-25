@@ -198,7 +198,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
-      declineTask()
+      ER.buyCards(0)
     }
     ER.playProject(DuskLaserMining, 2, titanium = 2)
     JR.playProject(InterplanetaryTrade, 21, titanium = 2)
@@ -227,7 +227,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.playProject(BusinessContacts, 3) { KB.draw(TitaniumMine, LawSuit) }
     ER.cardAction1(TychoMagnetics, x = 1) { ER.draw(SolarWindPower) }
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
-      declineTask()
+      ER.buyCards(0)
     }
     JR.stdAction("ClaimMilestoneSA") { doTask("Philantropist") }
     JR.playProject(SpaceElevator, 27)
@@ -260,7 +260,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.buyCards(SpaceMirrors, Zeppelins)
 
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
-      declineTask()
+      ER.buyCards(0)
     }
     ER.playProject(GiantSpaceMirror, 5, titanium = 4).expect("PROD[3 Energy]")
     JR.convertHeat()
@@ -323,7 +323,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.cardAction1(RestrictedArea) { KB.draw(Potatoes) }
     ER.cardAction1(TychoMagnetics, x = 1) { ER.draw(DeimosDownPromo) }
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
-      declineTask()
+      ER.buyCards(0)
     }
     JR.playProject(Mine, 4)
     JR.playProject(Supermarkets, 9)
@@ -387,7 +387,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.convertHeat()
     KB.convertHeat()
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
-      declineTask()
+      ER.buyCards(0)
     }
     ER.playProject(MarsUniversity, 2, steel = 2) {
       ER.draw(AqueductSystems)
@@ -474,7 +474,11 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(SmallAnimals)
     // Chronology: Heroku records JR's pass as a second action; defer it to this legal boundary.
     JR.pass()
-    KB.playProject(PublicPlans, 4) { doTask("14") }.expect("10")
+    KB.playProject(PublicPlans, 4) {
+          doTask("Revealed")
+          doTask("14 ProjectCard<Revealed FROM Hand>")
+        }
+        .expect("10")
     KB.playProject(Ants, 6)
     ER.cardAction1(RedShips)
     ER.playProject(PublicBaths, megacredits = 0, steel = 2)

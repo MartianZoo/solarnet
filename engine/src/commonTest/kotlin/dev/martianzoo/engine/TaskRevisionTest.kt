@@ -173,8 +173,8 @@ internal class TaskRevisionTest {
     writer.reviseTask("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
 
     val discard = tasks.extract { it }.single()
-    discard.instruction.toString() shouldBe "-ProjectCard<Player1>!"
-    discard.then.toString() shouldBe "ProjectCard<Player1>!"
+    discard.instruction.toString() shouldBe "-ProjectCard<Player1, Hand>!"
+    discard.then.toString() shouldBe "ProjectCard<Player1, Hand>!"
   }
 
   @Test

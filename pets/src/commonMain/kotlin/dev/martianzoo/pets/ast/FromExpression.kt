@@ -2,6 +2,7 @@ package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
@@ -42,6 +43,7 @@ public sealed class FromExpression : PetNode() {
   public data class Compact(
       public val className: ClassName,
       public val arguments: List<FromExpression>,
+      public val refinement: Expression.Refinement? = null,
   ) : FromExpression() {
     init {
       if (arguments.count { it !is Unchanged } != 1) {
@@ -49,12 +51,17 @@ public sealed class FromExpression : PetNode() {
       }
     }
 
-    override val toExpression: Expression = className.of(arguments.map { it.toExpression })
+    override val toExpression: Expression =
+        className.of(arguments.map { it.toExpression }).copy(refinement = refinement)
     override val fromExpression: Expression = className.of(arguments.map { it.fromExpression })
 
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(arguments + className)
+    override fun visitChildren(visitor: Visitor): Unit =
+        visitor.visit(arguments + className + listOfNotNull(refinement))
 
-    override fun toString(): String = "$className${arguments.joinToString(", ", "<", ">")}"
+    override fun toString(): String = buildString {
+      append(className).append(arguments.joinToString(", ", "<", ">"))
+      refinement?.let { append("(").append(it).append(")") }
+    }
   }
 
   internal companion object : PetTokenizer() {
@@ -78,9 +85,10 @@ public sealed class FromExpression : PetNode() {
                 }
         val compact =
             ClassName.parser() and
-                (skipChar('<') and argumentList and skipChar('>')) map
-                { (name, arguments) ->
-                  Compact(name, arguments)
+                (skipChar('<') and argumentList and skipChar('>')) and
+                optional(Expression.refinementParser()) map
+                { (name, arguments, refinement) ->
+                  Compact(name, arguments, refinement)
                 }
 
         full or compact

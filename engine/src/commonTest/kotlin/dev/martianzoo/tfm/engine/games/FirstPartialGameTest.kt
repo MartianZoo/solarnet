@@ -59,6 +59,7 @@ internal class FirstPartialGameTest : TfmTest() {
         playProject(SpaceElevator, 1, steel = 13)
         cardAction1(SpaceElevator)
         playProject(InventionContest, 2)
+        assertCounts(0 to "ProjectCard<Selecting>")
         playProject(GreatEscarpmentConsortium, 6) { doTask("PROD[-S<Player1>]") }
       }
       p2.pass()
@@ -114,7 +115,7 @@ internal class FirstPartialGameTest : TfmTest() {
         playProject(SpaceHotels, 7, titanium = 1)
 
         playProject(MarsUniversity, 6) {
-          doTask("-ProjectCard")
+          doTask("-ProjectCard<Hand>! THEN ProjectCard<Hand>")
         }
         playProject(ArtificialPhotosynthesis, 10) {
           doTask("PROD[2 Energy]")
@@ -171,6 +172,7 @@ internal class FirstPartialGameTest : TfmTest() {
         production().values.shouldContainExactly(2, 2, 7, 0, 1, 0)
 
         assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
+        assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
         assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
         assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
@@ -185,6 +187,7 @@ internal class FirstPartialGameTest : TfmTest() {
         production().values.shouldContainExactly(8, 6, 1, 0, 2, 0)
 
         assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
+        assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
         assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
         assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)

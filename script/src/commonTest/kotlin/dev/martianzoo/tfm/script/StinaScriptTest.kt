@@ -27,7 +27,7 @@ internal class StinaScriptTest {
         become Me
 
         tfm_play SaturnSystems
-        task 10 BuyCard
+        task Ok
         task 30 Pay<Class<Megacredit>> FROM Megacredit
 
         tfm_play Biolab

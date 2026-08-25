@@ -296,6 +296,7 @@ public abstract class PetTransformer protected constructor() {
                 FromExpression.Compact(
                     transformClassName(node.className),
                     node.arguments.map(::transformFromExpression),
+                    node.refinement?.let(::transformRefinement),
                 )
           }
       is Effect ->

@@ -237,7 +237,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  internal fun realCardOperationsRemainInSourceWhileExecutableEffectsUseFollowMode() {
+  internal fun genericCardLocationsRemainInFollowModeEffects() {
     val card =
         CardDefinition(
             CardData(
@@ -257,19 +257,22 @@ internal class CardDefinitionTest {
             "CARDS[2 ProjectCard<Hand FROM EventPile>?]"
     card.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>(
-            "This: 2 ProjectCard, 2 ProjectCard, ProjectCard?, 2 ProjectCard FROM PlayedEvent?"
+            "This: 2 ProjectCard, " +
+                "Selecting THEN (4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting> THEN -Selecting), " +
+                "Revealed THEN ProjectCard<Revealed> THEN ((ProjectCard<Revealed>: ProjectCard) OR Ok) THEN -Revealed, " +
+                "2 ProjectCard FROM PlayedEvent?"
         )
     )
   }
 
   @Test
-  internal fun followModeNeutralizesCardAreaObservationsAndSelectedCardPlay() {
+  internal fun followModeRetainsCardLocationObservationsAndSelectedCardPlay() {
     val card =
         CardDefinition(
             CardData(
                 name = "CardAreaSource",
                 immediate =
-                    "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>], " +
+                    "CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>], " +
                         "CARDS[2 / ProjectCard<Hand>], " +
                         "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X], " +
                         "CARDS[1 / CardBack<EventPile, Anyone>]",
@@ -277,14 +280,16 @@ internal class CardDefinitionTest {
         )
 
     card.immediate.toString() shouldBe
-        "CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>], " +
+        "CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>], " +
             "CARDS[2 / ProjectCard<Hand>], " +
             "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X], " +
             "CARDS[1 / CardBack<EventPile, Anyone>]"
     card.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>(
-            "This: (3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>>), " +
-                "2 / ProjectCard, 1? / ProjectCard, 1 / PlayedEvent<Anyone>"
+            "This: Selecting THEN (3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>> THEN -Selecting), " +
+                "2 / ProjectCard<Hand>, " +
+                "(Revealed THEN X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X THEN -Revealed) OR Ok, " +
+                "1 / PlayedEvent<Anyone>"
         )
     )
   }
@@ -310,7 +315,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  internal fun followModeNeutralizesRealCardOperationsInsideDerivedClassBodies() {
+  internal fun followModeRetainsCardSearchesInsideDerivedClassBodies() {
     val card =
         CardDefinition(
             CardData(
@@ -332,7 +337,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  internal fun followModeNeutralizesRealCardPurchaseActions() {
+  internal fun followModeRetainsCardPurchaseActions() {
     val single =
         CardDefinition(
             CardData(
@@ -353,7 +358,7 @@ internal class CardDefinitionTest {
                 projectKind = "ACTIVE",
                 actions =
                     listOf(
-                        "-> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]"
+                        "-> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]"
                     ),
             )
         )
@@ -371,13 +376,23 @@ internal class CardDefinitionTest {
         )
 
     single.asClassDeclaration.effects.shouldContainExactly(
-        parse<Effect>("UseAction<This, First>: BuyCard?")
+        parse<Effect>(
+            "UseAction<This, First>: Selecting THEN " +
+                "(ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards)"
+        )
     )
     fourCards.asClassDeclaration.effects.shouldContainExactly(
-        parse<Effect>("UseAction<This, First>: 4 BuyCard?")
+        parse<Effect>(
+            "UseAction<This, First>: Selecting THEN " +
+                "(4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards)"
+        )
     )
     revealed.asClassDeclaration.effects.shouldContainExactly(
-        parse<Effect>("UseAction<This, First>: ProjectCard OR BuyCard?, ProjectCard OR BuyCard?")
+        parse<Effect>(
+            "UseAction<This, First>: Selecting THEN " +
+                "(2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>? THEN " +
+                "-2 ProjectCard<Selecting>? THEN BuySelectedCards)"
+        )
     )
   }
 

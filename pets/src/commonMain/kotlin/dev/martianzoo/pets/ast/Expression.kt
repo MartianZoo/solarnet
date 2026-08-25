@@ -129,17 +129,19 @@ public data class Expression(
   }
 
   internal companion object : PetTokenizer() {
+    internal fun refinementParser(): Parser<Refinement> =
+        group(skip(_has) and isPresent(char('?')) and Requirement.parser()) map
+            { (forgiving, requirement) ->
+              Refinement(requirement, forgiving)
+            }
+
     fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
       return parser {
         val argumentList =
             skipChar('<') and
                 optionalList(commaSeparated(parser(allowDerivedClass))) and
                 skipChar('>')
-        val refinement: Parser<Refinement> =
-            group(skip(_has) and isPresent(char('?')) and Requirement.parser()) map
-                { (a, b) ->
-                  Refinement(b, a)
-                }
+        val refinement = refinementParser()
 
         if (allowDerivedClass) {
           isPresent(char('!')) and

@@ -24,7 +24,8 @@ internal abstract class TfmTest {
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
   protected fun OperationBody.buyCards(count: Int) {
-    doTask(if (count == 0) "Ok" else "$count BuyCard")
+    require(count in 0..1) { "an individual card offer contains one selected card" }
+    doTask(if (count == 0) "-ProjectCard<Selecting>" else "Ok")
     if (count > 0) {
       if (
           tasks

@@ -51,7 +51,9 @@ those declarations; there are no parallel goal metadata objects.
 
 Canonical card classes are loaded from each bundle's generated `cards.pets` alongside
 `classes.pets`. A loaded card declaration retains authored actions and authored effects while its
-ordinary `effects` contain the follow-mode compilation used for activation and execution.
+ordinary `effects` contain the follow-mode compilation used for activation and execution. That
+compilation preserves generic `CardLocation` movements, delegates printed-face predicates to the
+client, and temporarily represents exact Event-pile links with `PlayedEvent`.
 `TfmAuthority.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
 so deck, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
 come from Pets. JSON-backed definitions remain temporarily for generation, pre-load content

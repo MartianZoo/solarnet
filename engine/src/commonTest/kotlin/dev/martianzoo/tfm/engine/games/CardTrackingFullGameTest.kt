@@ -48,7 +48,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
     return stdAction("SellPatents") {
-      doTask("-${cardClasses.size} ProjectCard THEN ${cardClasses.size}")
+      doTask("-${cardClasses.size} ProjectCard<Hand>! THEN ${cardClasses.size}")
       discard(*cardClasses)
     }
   }
@@ -59,7 +59,9 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   protected fun checkHandSizes() {
-    hands.forEach { (player, hand) -> game.tfm(player).count("ProjectCard") shouldBe hand.size }
+    hands.forEach { (player, hand) ->
+      game.tfm(player).count("ProjectCard<Hand>") shouldBe hand.size
+    }
   }
 
   protected val TfmGameplay.cardsInHand: Set<ClassName>
@@ -83,10 +85,15 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
       val gaining = change.gaining
       val removing = change.removing
       when {
-        gaining?.className == PROJECT_CARD -> draw(event.playerOwner(gaining), change.count)
-        removing?.className == PROJECT_CARD && gaining?.className != null ->
-            play(event.playerOwner(removing), checkNotNull(gaining).className)
-        removing?.className == PROJECT_CARD -> discard(event.playerOwner(removing), change.count)
+        gaining.isProjectCardAt(HAND) &&
+            (removing?.className != PROJECT_CARD || removing.hasArgument(SELECTING)) ->
+            draw(event.playerOwner(checkNotNull(gaining)), change.count)
+        removing.isProjectCardAt(HAND) &&
+            gaining?.className != null &&
+            gaining.className != PROJECT_CARD ->
+            play(event.playerOwner(checkNotNull(removing)), checkNotNull(gaining).className)
+        removing.isProjectCardAt(HAND) && gaining == null ->
+            discard(event.playerOwner(checkNotNull(removing)), change.count)
       }
     }
   }
@@ -137,5 +144,15 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   private companion object {
     val PROJECT_CARD: ClassName = cn("ProjectCard")
+    val HAND: ClassName = cn("Hand")
+    val SELECTING: ClassName = cn("Selecting")
   }
+
+  private fun dev.martianzoo.pets.ast.Expression?.isProjectCardAt(area: ClassName): Boolean =
+      this?.className == PROJECT_CARD && hasArgument(area)
+
+  private fun dev.martianzoo.pets.ast.Expression.hasArgument(className: ClassName): Boolean =
+      arguments.any {
+        it.className == className
+      }
 }

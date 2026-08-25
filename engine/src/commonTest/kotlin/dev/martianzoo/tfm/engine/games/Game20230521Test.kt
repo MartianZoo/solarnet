@@ -1789,7 +1789,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     summer.net("$ArcticAlgae", "Plant") shouldBe 3
 
     // Blue has done 16 card buys: 5 initial, 8 in research, and 3 from inventors guild
-    summer.net("BuyCard<Player1>", "Card<Player1>") shouldBe 16
+    summer.net("BuySelectedCards<Player1>", "BuyCard<Player1>") shouldBe 16
 
     // DeuteriumExport produced a net of 1 floaters (made, consumed, made)
     summer.net("$DeuteriumExport", "Floater") shouldBe 1

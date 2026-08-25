@@ -1014,7 +1014,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green used Business Network action
       // Green bought 0 card(s)
       cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
-            declineTask()
+            buyCards(0)
           }
           .expect("0 ProjectCard")
       // Green played Research
@@ -1137,7 +1137,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green used Business Network action
       // Green bought 0 card(s)
       cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
-            declineTask()
+            buyCards(0)
           }
           .expect("0 ProjectCard")
     }

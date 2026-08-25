@@ -82,7 +82,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  internal fun explicitDeclarationsAreNeutralizedForFollowMode() {
+  internal fun explicitDeclarationsRetainGenericCardLocationsInFollowMode() {
     val source =
         parseClasses(
                 """
@@ -93,7 +93,11 @@ internal class AuthorityTest {
                     .trimIndent()
             )
             .single()
-    val expected = parseClasses("ABSTRACT CLASS Buyer { ResearchPhase: 4 BuyCard? }").single()
+    val expected =
+        parseClasses(
+                "ABSTRACT CLASS Buyer { ResearchPhase: Selecting THEN (4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards) }"
+            )
+            .single()
 
     val loaded = authority(source).allClassDeclarations.getValue(cn("Buyer"))
 

@@ -27,7 +27,7 @@ CLASS ValleyTrust : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 37, Mandate { -> CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>] }
+  This: 37, Mandate { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }
   PlayTag<Class<ScienceTag>>:: -2 Owed<>
 }
 
