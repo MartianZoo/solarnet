@@ -291,7 +291,7 @@ CLASS VenusOrbitalSurvey : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This:: VenusTag<This>, SpaceTag<This>
 
-  -> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
+  -> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
 }
 
 CLASS VenusShuttles : ActionCard, ActiveCard<Class<ProjectCard>> {

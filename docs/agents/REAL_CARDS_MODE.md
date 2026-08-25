@@ -56,7 +56,6 @@ ABSTRACT CLASS CardArea { HAS =1 This }
 CLASS Hand : CardArea
 CLASS InPlay : CardArea
 CLASS EventPile : CardArea
-CLASS Drafting : CardArea
 CLASS Selecting : CardArea
 CLASS Revealed : CardArea
 
@@ -110,16 +109,15 @@ by Player.
 | `Hand` | back | acquired card available to its Player |
 | `InPlay` | front | active, automated, corporation, or temporarily live Event |
 | `EventPile` | back | completed Event retained for scoring or recovery |
-| `Drafting` | back | card in the current Player-associated draft packet |
 | `Selecting` | back | temporary Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
 
-Direct ownership is intentionally present even in temporary areas. It identifies whose draft,
-choice, or reveal operation the card belongs to and supplies ordinary contextual `Owner`, task
-routing, defaults, and queries. Passing a draft packet may transmutate both owner and area.
+Direct ownership is intentionally present even in temporary areas. It identifies whose choice or
+reveal operation the card belongs to and supplies ordinary contextual `Owner`, task routing,
+defaults, and queries.
 
 Ownership does not determine visibility. `Revealed` may be public, while another Player's `Hand`
-and `Drafting` cards are private.
+cards are private.
 
 Deck and discard are absent from this table because they are not Components or Pets Types.
 
@@ -131,8 +129,6 @@ Once an exact card is in the World, area changes remain ordinary atomic transmut
 | --- | --- |
 | Move into a selection pool | exact `Selecting FROM Hand` |
 | Keep a revealed card | exact `Hand FROM Revealed` |
-| Pass a draft packet | exact next-Player `Drafting FROM Drafting` |
-| Finish drafting | exact `Hand FROM Drafting` |
 | Play | exact front at `InPlay FROM` matching back at `Hand` |
 | Finish Event | matching back at `EventPile FROM` exact front at `InPlay` |
 | Recover Event | exact `Hand FROM EventPile` |
@@ -164,7 +160,6 @@ the World for the derived discard.
 | --- | --- | --- |
 | Draw | exact gain at `Hand` | consume next face from deck |
 | Reveal | exact gain at `Revealed` | consume next face from deck |
-| Deal draft card | exact gain at `Drafting` | consume next face from deck |
 | Offer cards | exact gain at `Selecting` | consume next face from deck |
 | Discard from an area | exact pure removal | add that face to discard |
 
@@ -350,9 +345,9 @@ Canonical sources now preserve hidden card procedures in one ordinary
 ```pets
 CARDS[2 ProjectCard(HAS VenusTag)]
 CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
-CARDS[3 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>]
+CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
-CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
+CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
 CARDS[2 ProjectCard<Hand FROM EventPile>?]
 CARDS[2 / ProjectCard<Hand>]
 CARDS[CardBack<EventPile>]
@@ -365,36 +360,41 @@ shorthand over the represented front's immutable printed metadata. It does not c
 `HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
 reveal every inspected card in order and discard nonmatches.
 
-A gain in `Selecting` offers cards, and a `Hand FROM Selecting` instruction retains exact cards.
-Automatic cleanup discards anything left there when the operation completes. `Revealed` has the
-corresponding cleanup rule. A purchase procedure first removes unwanted cards and then invokes one
+A card procedure's follow-mode compilation creates the Player's temporary `Selecting` area before
+the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing that area
+discards every card still dependent on it through the engine's ordinary dependency cascade.
+`Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then invokes one
 unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's selection
 and broadcasts the same multiplicity of `BuyCard`; those per-card signals create the base debt and
 let Polyphemos and Terralabs Research react by adding or removing `Owed`. Once the resulting invoice
 is fully paid, the purchase operation moves those exact selected cards to `Hand`. Its optional
 removal count is the offered count, so the player may discard any subset before buying the
 remainder; corporation setup uses ten, Research uses four, Venus Orbital Survey uses whatever
-non-Venus cards remain from two, and single-card purchase actions use one. `THEN` is reserved for
-actual causal boundaries, such as reveal-before-test, discard-before-purchase, or selecting a card
-before playing it; `FROM Selecting` already prevents retention before the offer exists.
+non-Venus cards remain from two, and single-card purchase actions use one.
 
 Area-qualified card observations use the same transform. `ProjectCard<Hand>` counts only project
 cards in the Player's hand, while `CardBack<EventPile>` counts completed Events in that Player's
 event pile. Public Plans moves one linked quantity from `Hand` to `Revealed`, returns those exact
 cards to `Hand`, and awards that quantity.
 
-Follow mode neutralizes `CARDS` through the Catalog's shared marked-syntax handler before Class
-loading according to that inner shape. A
-search becomes the old plain `ProjectCard` gain; a retained-card movement becomes the old gain;
-purchase selection becomes the corresponding optional counted `BuyCard` result; a conditional
-reveal becomes its old optional outcome; retain-matches-then-purchase becomes one free-or-buy outcome
-per offered card; and Event
-recovery becomes recovery from `PlayedEvent`. Selected Prelude and corporation play returns to its
-former draw-discard-play chain. Hand and event-pile observations become the former `ProjectCard` and
-`PlayedEvent` metrics, and Public Plans becomes its former optional per-card gain. Consequently the
-source contains the printed knowledge while follow-mode execution needs no `CardArea` declarations.
-This neutralization is the compilation boundary between two permanent modes; follow mode is not a
-migration state to eliminate.
+Follow mode has an intermediate model named `CardLocation`. A generic `CardBack`
+depends on one of `Hand`, `EventPile`, `Selecting`, or `Revealed`, but does not
+depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
+
+`CARDS` retains those locations and movements through the Catalog's shared marked-syntax handler.
+`Selecting` and `Revealed` are Player-owned temporary components. The handler sequences creation
+before the procedure body and cleanup after it; purchase closure instead belongs to
+`BuySelectedCards`. Removing a temporary location intrinsically removes cards still dependent on
+it. Printed-face predicates are still delegated to
+the follow-mode client: they are erased from generic backs, and a filtered retention becomes an
+explicit optional movement so the client can report how many matching cards moved. A client may
+ignore identities entirely or, as `CardTrackingFullGameTest` does, supply names precisely when cards
+enter and leave `Hand`.
+
+`BuySelectedCards` prices the cards remaining in `Selecting`, waits for the adjusted invoice to be
+paid, and then moves that count to `Hand`. Public Plans performs an explicit `Hand` to `Revealed` to
+`Hand` round trip. Exact Event movements lower through `PlayedEvent` because `CardBack` does not
+carry its represented front.
 
 The current source-level operation inventory is:
 
@@ -459,7 +459,7 @@ Exact visibility policy, irreversible publication, and rollback knowledge remain
 now:
 
 - Engine rules and dealer projection use the exact master history;
-- a Player sees exact own-Hand, own-Drafting, and own-Selecting faces when the rules permit;
+- a Player sees exact own-Hand and own-Selecting faces when the rules permit;
 - `Revealed`, `InPlay`, and `EventPile` are normally public; and
 - no observation API exposes future derived deck order.
 

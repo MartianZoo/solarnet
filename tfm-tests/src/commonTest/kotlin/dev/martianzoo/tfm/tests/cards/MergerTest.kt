@@ -79,6 +79,9 @@ internal class MergerTest : CardTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>")
     }
 
-    p1.manual("BuyCard") { p1.pay(megacredits = 3) }.expect("ProjectCard, -3 Megacredit")
+    p1.manual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards") {
+          p1.pay(megacredits = 3)
+        }
+        .expect("ProjectCard, -3 Megacredit")
   }
 }

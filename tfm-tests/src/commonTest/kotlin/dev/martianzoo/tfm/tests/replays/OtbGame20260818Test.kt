@@ -1036,7 +1036,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     // "I am going to use my business network to look at this card." "I will not buy this card."
     dad.turn {
       cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
-        declineTask()
+        dad.buyCards(0)
       }
     }
 
@@ -1241,7 +1241,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     dad.turn {
       // "I will use my business network to look at a card. Absolutely not."
       cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
-        declineTask()
+        dad.buyCards(0)
       }
       // "Heat boob." "Now your turn."
       convertHeat().expect("-8 H, TemperatureStep, TR")
@@ -1606,7 +1606,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     // "Oh my god, I forgot to use my business network. Fine, I'll use that then."
     dad.turn {
       cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
-            declineTask()
+            dad.buyCards(0)
           }
           .expect("0 ProjectCard")
     }

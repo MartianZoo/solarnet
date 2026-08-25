@@ -19,7 +19,7 @@ internal class CoreRulesTest : CardTest() {
 
     engine.phase("Research") {
       p1.buyCards(3)
-      requireP2().doTask("Ok")
+      requireP2().buyCards(0)
     }
 
     p1.count("Megacredit") shouldBe 3

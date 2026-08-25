@@ -157,10 +157,24 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 "Anything that can hold tags"
 ABSTRACT CLASS TagHolder : Owned<Player>
 
+"A place where an unplayed card can be associated with a player"
+ABSTRACT CLASS CardLocation : Owned<Player> {
+  CLASS Hand { HAS =1 This }
+  CLASS EventPile { HAS =1 This }
+  CLASS Selecting : Temporary { HAS MAX 1 This }
+  CLASS Revealed : Temporary { HAS MAX 1 This }
+}
+
 // Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard
 ABSTRACT CLASS Card : Owned<Player> {
-  // A generic card in your hand
-  ABSTRACT CLASS CardBack { CLASS CorporationCard, ProjectCard }
+  // A generic unplayed card whose face is still supplied by the follow-mode client
+  ABSTRACT CLASS CardBack<CardLocation<Player>> : Owned<Player> {
+    DEFAULT CardBack<Hand<Player>>
+    DEFAULT +CardBack
+    DEFAULT -CardBack
+
+    CLASS CorporationCard, ProjectCard
+  }
 
   // A card in play: face-up on the table
   ABSTRACT CLASS CardFront<Class<CardBack>> : TagHolder {
@@ -357,7 +371,7 @@ ABSTRACT CLASS StandardAction : HasActions {
   CLASS ConvertHeatSA { 8 Heat -> TemperatureStep }
 
   "Sell any number of patents"
-  CLASS SellPatents { X ProjectCard -> X }
+  CLASS SellPatents { X ProjectCard<Hand> -> X }
 
   "Resolve a mandatory action before taking another standard action"
   CLASS HandleMandates { -> Mandate: MandateSignal }
@@ -409,13 +423,18 @@ CLASS CitySP : StandardProject {
 
 CLASS BuyCard : Owned<Player>, Signal {
   This:: 3 Owed<>
-  X This: Invoice<BuyCards, First> THEN MAX 0 Invoice: X ProjectCard
+  X This: Invoice<BuyCards, First>
+}
+
+"Confirms purchase of every project card remaining in the player's selection"
+CLASS BuySelectedCards : Owned<Player>, Signal {
+  This: (BuyCard / ProjectCard<Selecting>) THEN MAX 0 Invoice: (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>) THEN -Selecting
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
   This:: (EVAL CardFront.requirement: Ok) OR HandlePossibleGpRequirement<Class<CardFront>>
-  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack
+  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<Hand>
 }
 
 CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal

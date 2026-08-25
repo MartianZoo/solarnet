@@ -165,6 +165,7 @@ internal class InstructionTest {
     testRoundTrip("Foo<Bar> FROM Foo<Qux>")
     testRoundTrip("Foo<Bar> FROM Foo<Qux>.")
     testRoundTrip("Foo<Bar FROM Qux>")
+    testRoundTrip("Foo<Bar FROM Qux>(HAS Baz)")
     testRoundTrip("Foo<Same, Here, NotSame FROM Different>")
 
     val instr =

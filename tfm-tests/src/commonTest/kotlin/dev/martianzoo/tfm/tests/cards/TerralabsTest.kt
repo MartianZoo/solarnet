@@ -11,7 +11,10 @@ internal class TerralabsTest : CardTest() {
   internal fun `Buys project cards for one megacredit each`() {
     newGame(TurmoilCardPack)
     p1.playCorp(TerraLabsResearch, 10)
-    p1.manual("4 BuyCard") { p1.pay(megacredits = 4) }.expect("4 ProjectCard, -4")
+    p1.manual("Selecting THEN 4 ProjectCard<Selecting> THEN BuySelectedCards") {
+          p1.pay(megacredits = 4)
+        }
+        .expect("4 ProjectCard, -4")
   }
 
   @Test
@@ -23,6 +26,9 @@ internal class TerralabsTest : CardTest() {
     )
     p1.manual("$TerraLabsResearch, $Polyphemos")
 
-    p1.manual("BuyCard") { p1.pay(megacredits = 3) }.expect("ProjectCard, -3 Megacredit")
+    p1.manual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards") {
+          p1.pay(megacredits = 3)
+        }
+        .expect("ProjectCard, -3 Megacredit")
   }
 }
