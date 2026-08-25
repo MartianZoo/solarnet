@@ -108,6 +108,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   model.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
   and whether adding and then removing those steps has any other observable consequences.
+- **Low priority:** Investigate why `GlobalParameter`'s `This: TerraformRating` silently produces no
+  task for World Government Terraforming. Decide whether the authored rule should explicitly say
+  `This BY Player: TerraformRating`, whether World Government should otherwise fail for its missing
+  Player-bound destination, and whether AMAP is a coherent alternative. Preserve the settled AMAP
+  distinction between an existing destination with zero invariant headroom and a missing
+  dependency; see [`TURMOIL.md`](docs/agents/TURMOIL.md#multiplicity-and-amap).
 - Complete `Game20260820Test` beyond its current partial generation-6 boundary using the preserved
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 
@@ -211,6 +217,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Contract the temporary public `EventLog.entryAt` boundary after `tfm-engine` receives a narrow
   event query for identifying the origin of an action-phase second-action offer.
 
+- Teach the English renderer to consolidate repeated identical optional card transfers, so Astra
+  Mechanica's two independent choices render as “return up to 2” rather than two sentences.
 - Finish making `cards.pets` the sole card authority: express card-to-supporting-declaration
   contribution links and replacement relationships in Pets, then derive pre-load deck selection,
   tag validation, and compatibility without JSON-backed `CardDefinition` metadata.

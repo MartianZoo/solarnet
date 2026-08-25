@@ -155,9 +155,12 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 Whole-game tests are high-value integration evidence. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify every
-  project card entering or leaving each Player's hand. Named `draw()`, `buyCards()`, `discard()`,
-  and `sellPatents()` calls queue those cards, then reconcile them with completed `ProjectCard`
-  gains and removals. Playing a project must remove its name from that Player's tracked hand.
+  project card entering or leaving each Player's hand. Named `draw()` and `buyCards()` declarations
+  immediately record the sourced card in the tracked hand, then completed `ProjectCard` gains
+  validate and consume those declarations. A first draw must name a card never previously mentioned
+  in that game; use `returnToHand()` when a known played event returns. Named `discard()` and
+  `sellPatents()` calls queue the corresponding removals. Playing a project must remove its name from
+  that Player's tracked hand.
   `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
   the named calls.
   When a source gives only a discard count, an exact tracked hand requires the test to select

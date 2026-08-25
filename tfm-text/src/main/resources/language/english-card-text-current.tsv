@@ -481,7 +481,7 @@ Supercapacitors	Supercapacitors	Increase your M€ production 1 step.	Effect: [-
 IcyImpactors	Icy Impactors		Action: Spend 10 M€ (titanium may be used) to add 2 asteroids to this card, or remove 1 asteroid from this card to [FirstPlayerOcean<Owner>].
 DirectedHeatUsage	Directed Heat Usage		Action: Spend 3 heat to gain 4 M€ or 2 plants.
 AqueductSystems	Aqueduct Systems	Requires a city tile adjacent to an ocean tile. Draw 3 building cards. 1 VP.
-AstraMechanica	Astra Mechanica	Return up to 2 of your played event cards to your hand.
+AstraMechanica	Astra Mechanica	Return up to one of your played event cards to your hand. Return up to one of your played event cards to your hand.
 CarbonNanosystems	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space tag or a city tag, graphene resources on this card may be used as 4 M€ each.
 CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. [CopyProductionBox<CardFront(HAS BuildingTag)>], then [CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)>], then [CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)>], then [-CyberiaSystemsFirstChoice].
 HermeticOrderOfMars	Hermetic Order Of Mars	Requires that oxygen is 4% or lower. Increase your M€ production 2 steps. [1 / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)].
