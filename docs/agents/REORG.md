@@ -6,8 +6,8 @@ implementation sequence. Current behavior remains documented by [ENGINE.md](ENGI
 
 ## Governing rule
 
-No non-Terraforming-Mars module may depend on a Terraforming-Mars module. The generic Pets,
-recording, engine, and API layers must make sense without Canon or any other Terraforming Mars code.
+No non-Terraforming-Mars module may depend on a Terraforming-Mars module. The generic Pets and
+engine layers must make sense without Canon or any other Terraforming Mars code.
 The boundary should be strong enough that all `tfm` modules could later move to another source tree
 or repository without reversing a dependency.
 
@@ -15,24 +15,21 @@ Module names should normally follow their principal `dev.martianzoo.*` package. 
 enforced boundary over minimizing module count; consider recombination only after the dependency
 directions are clean.
 
-## Proposed dependency graph
+## Initial dependency graph
 
 ```text
-pets
-├── record
-├── engine ──> record
-│   └── api
-│       └── script
-├── tfm-canon
-│   ├── tfm-text
-│   └── tfm-api ──> api
-│       └── tfm-script ──> script
+engine ─────> pets
+tfm-canon ──> pets
+tfm-engine ─> engine, tfm-canon
+tfm-text ───> tfm-canon, pets
+tfm-tests ──> tfm-engine, tfm-canon
 ```
 
-Every module in the diagram may depend on `pets`. `tfm-api` may depend on `tfm-canon`, but neither
-`pets`, `record`, `engine`, `api`, nor `script` may depend on any `tfm` module. REPL, web UI, tools,
-and benchmarks are intentionally deferred; they should eventually attach as leaf applications
-without weakening this rule.
+This is the first enforced boundary, not a claim that every eventual production module is already
+known. Generic client APIs remain packages within `engine` unless a concrete dependency reason
+justifies separating them. Terraforming Mars runtime and client-API packages similarly share
+`tfm-engine`; their imports require both generic engine and Canon, but do not justify another module
+between them. Script, REPL, web UI, tools, and benchmarks are deferred leaf applications.
 
 ## Pets: language and static semantics
 
@@ -41,6 +38,8 @@ without weakening this rule.
 - parsing, canonical source rendering, AST, and transformations;
 - Class declarations, loading, types, and projected Class Tables;
 - the pure `GamePremise` data model;
+- immutable generic task and event descriptions used both during execution and when recording what
+  happened;
 - generic system declarations in `system.pets`;
 - a composable catalog contract for declarations and exceptional implementations; and
 - the minimal host-query contract needed by world-dependent Pets evaluation.
@@ -77,12 +76,6 @@ Config and premise are different data:
 the resulting premise. Versioning of config resolution, Canon, and engine behavior is deliberately
 out of scope for this design.
 
-Player-chosen names should be the actual per-game Player Class Names. There need not be any
-`Player1` name unless a player chooses it. A premise supplies those names and projection creates the
-corresponding Player declarations; a name already owned by the selected catalog is unavailable.
-Reusing a record under a different premise may require rewriting a colliding player name, just as
-other changes to premise data may require rewriting the record.
-
 ### Catalog
 
 `Catalog` is the current preferred replacement for the overloaded static meaning of `Authority`.
@@ -96,9 +89,9 @@ Examples of distinct catalogs include:
 - a rebalanced replacement of official content; and
 - official content plus selected fan expansions.
 
-`PetCatalog` may be the generic interface name. `Canon` is the standard Terraforming Mars catalog,
-and composition or replacement produces other catalog instances. Client permission authority is a
-separate API concern and should not reuse this term.
+The generic interface should be named `Catalog`, not `PetCatalog`: Pets is the language, not every
+piece of generic game data. `Canon` is the standard Terraforming Mars catalog. Client permission
+authority is a separate concern and should not reuse this term.
 
 ## Terraforming Mars Canon
 
@@ -125,58 +118,10 @@ program has chosen not to execute a World.
 Localized bundle-name resources may stay with Canon for now. Their eventual packaging is not
 important enough to constrain the core split.
 
-## Record: durable played-game data
+There is no separate `record` module in this plan. The fact that generic task and event data can
+record game history does not by itself justify splitting that data away from `pets`.
 
-`record` is a proposed generic module depending only on Pets. It owns the stable data used to
-round-trip a played game without importing live engine objects.
-
-A record begins with its exact `GamePremise` and then preserves player decisions together with the
-engine events they produced. The intended granularity includes facts such as:
-
-```text
-Player A prepared task B.
-Player A narrowed it to C.
-Changes D, E, and F resulted.
-```
-
-Clients may attach an optional human note to a recorded decision. Higher-level notions such as a
-script command or “play this project” do not need to become Pets concepts. The durable semantic
-decision remains the generic API operation; richer client intent can stay in the note unless a real
-future requirement justifies another record layer.
-
-Recorded and live task types are distinct:
-
-- `TaskRecord` is immutable data used in decisions and task lifecycle events.
-- Engine's live pending task is internal execution state, including preparation, continuations, and
-  diagnostics.
-
-The immediate goal is to preserve enough data faithfully. Policies for reconciling records against
-changed code are deferred.
-
-### Quiescent save boundary
-
-A resumable record ends only after a complete API command and all user queues have drained. The
-leading workflow boundary is:
-
-1. finish the user's command and all consequences;
-2. when user queues are empty, emit the generic idle signal;
-3. drain anything that signal causes; and
-4. if user queues are still empty, establish the save point immediately before workflow advances.
-
-Resumption replays through that boundary and then invokes the same ordinary workflow advancement.
-The record's endpoint therefore says that workflow is ready; a separate serialized workflow cursor
-should be unnecessary if durable Phase state and projected topology are sufficient.
-
-A permanently pending, lowest-priority Engine task is not the preferred representation of workflow
-readiness. A Task normally means that the game is waiting for its assignee now; using one as hidden
-scheduler bookkeeping weakens that meaning and forces queue persistence. If the runner ultimately
-needs additional durable state, model that state explicitly rather than disguising it as an offered
-task.
-
-This conclusion remains provisional until the native workflow and idle semantics are proven
-together. It is the main unresolved pressure on the claim that no task-queue snapshot is needed.
-
-## Engine: execution and integrity
+## Engine and client API
 
 `engine` owns:
 
@@ -186,6 +131,11 @@ together. It is the main unresolved pressure on the claim that no task-queue sna
 - a flat trusted Actor-scoped workhorse;
 - implementation of the Pets evaluation contract; and
 - generic workflow and control-until-drain execution.
+
+It also owns the generic client-facing API packages for now. Packages should distinguish trusted
+runtime machinery from caller-facing operations, but a package distinction does not require a
+Gradle-module boundary. Split an `api` module only if real consumers or dependencies demonstrate
+that the separation buys something.
 
 It does not own Terraforming Mars rules, client permissions, localized input, or autoexecution
 policy. It receives a generic catalog and exact premise.
@@ -198,72 +148,23 @@ Terraforming Mars workflow topology does not belong in a renamed `TfmWorkflow` K
 target remains the division in [WORKFLOW.md](WORKFLOW.md): generic workflow vocabulary in Pets,
 Terraforming Mars topology in Canon declarations, and a generic runner in engine.
 
-## API: client capabilities and policy
+The current Terraforming Mars runtime wrappers belong in `tfm-engine`. This is an ownership move,
+not a replacement-API project: `TfmGameplay` and `TfmWorkflow` move intact until a later behavior
+change gives reason to redesign them.
 
-`api` wraps the trusted engine in interfaces that represent real differences in caller power:
+## Tests
 
-- observation;
-- ordinary player decisions;
-- workflow control;
-- referee or administrative state correction;
-- optional autoexecution; and
-- diagnostic access where a real client requires it.
+`tfm-tests` owns functional tests of the integrated Terraforming Mars system: cards, rules,
+workflows, and whole games. It is a leaf module depending on `tfm-engine` and Canon.
 
-Clients decide which capabilities to expose. This hierarchy is not an engine-internal layering
-scheme.
-
-Referee correction is a legitimate tabletop operation, not solely test machinery. It must preserve
-engine integrity, carry explicit provenance, and be recorded as a correction rather than disguised
-as ordinary legal play. The current `exMachina()` test helper should eventually call the same
-capability.
-
-The exact consequences of correction remain unresolved. Blindly suppressing every Effect is unsafe:
-some effects may maintain structural state, such as map adjacency after tile placement. Before
-choosing a correction primitive, audit which changes require automatic or queued consequences and
-whether a principled distinction between them exists.
-
-### Autoexecution
-
-Engine owns no autoexecution policy. `api` owns the plug-in contract and driver and may supply small
-generic policies. `tfm-api` supplies Terraforming Mars-specific policies. Any API client may install
-its own implementations.
-
-Script's `auto` command should normally configure available policies. Policy reasoning belongs in
-script only when it genuinely depends on textual interaction rather than generic or Terraforming
-Mars gameplay.
-
-## Terraforming Mars API
-
-`tfm-api` mirrors generic API capabilities with Terraforming Mars-shaped operations. It replaces the
-useful portions of `TfmGameplay` without combining player actions, workflow control, corrections,
-and test assertions into one wrapper.
-
-The three card models require distinct, parallel APIs:
-
-- non-tracking play does not represent exact physical cards;
-- tracking play requires the client to report cards as they pass through the game; and
-- assigning play will let the appropriate client assign exact cards.
-
-Functional gameplay tests select the API matching their evidence and ordinarily do only what a real
-holder of that capability could do. Referee correction is an explicit stronger capability.
-Assertion-only helpers remain test support.
-
-Information hiding and observer-specific record projections are deferred.
+Tests genuinely about Pets, the type system, or the generic engine remain with their production
+module and define their own small declarations. They must not depend on Canon merely to obtain
+convenient real content.
 
 ## Vocabulary and human text
 
-The current `Vocabulary` is not a necessary deep abstraction. It combines display names, alternate
-parseable names, player aliases, input synonyms, AST rewriting, and task/event formatting. The
-likely destination deletes this central object:
-
-- chosen player names are already canonical per-game names;
-- client-side maps own alternate input spellings and display names;
-- a simple `PetTransformer` performs AST name rewriting;
-- script and UI own input-only synonyms and record formatting; and
-- engine uses canonical Pets only.
-
-No lower-level Vocabulary interface should be introduced unless a concrete consumer remains after
-those responsibilities move outward.
+The current `Vocabulary` combines several responsibilities. Moving it or decomposing it is deferred
+until the surrounding module boundaries reveal its actual consumers; this phase does not replace it.
 
 `tfm-text` is a separate static module for human-language rendering of Terraforming Mars Pets and
 its English evidence resources. It depends on Pets and Canon, not engine.
@@ -272,12 +173,12 @@ its English evidence resources. It depends on Pets and Canon, not engine.
 
 The classification depends on what an analysis does, not how its input was produced:
 
-- Static analysis inspects Pets, a projected Class Table, Canon, or an already-produced record
+- Static analysis inspects Pets, a projected Class Table, Canon, or already-produced event data
   without executing instructions or evaluating a live World.
 - Dynamic analysis runs or simulates engine behavior.
 
 Therefore a finished-game summarizer is static even though engine originally produced its log. It
-should consume Pets plus `record`, not a live World. Canon inspection, map generation, resource
+should consume immutable Pets data, not a live World. Canon inspection, map generation, resource
 monotonicity analysis, and Terraforming Mars text rendering are also static. Benchmarks and
 simulation are dynamic.
 
@@ -294,16 +195,15 @@ application must not acquire engine merely because it shares a module with dynam
 | `CustomClass`, `CustomMetric`, minimal read contract | `pets` |
 | Syntax/type exceptions and generic system Class Names | `pets` |
 | Live Actor, task queues, preparation, World, timeline | `engine` |
-| Immutable decisions, task descriptions, and events | `record` |
+| Immutable decisions, task descriptions, and events | `pets` |
 | Terraforming Mars config, Definitions, JSON models, bundles | `tfm-canon` |
 | Current `TfmAuthority` registries and composition | `tfm-canon` |
-| Current `ApiTranslation` | split between canonical engine adaptation and client API |
-| Current `TfmGameplay` | decomposed into generic and Terraforming Mars capabilities |
-| Current `TfmWorkflow` | replaced by Canon topology plus generic runner |
-| Current `Vocabulary` | deleted and distributed to small client/Pets utilities |
+| Current generic API packages | remain in `engine` until a module split has concrete value |
+| Current `TfmGameplay` and `TfmWorkflow` | `tfm-engine` |
+| Current `Vocabulary` | destination pending consumer audit |
 | Current Terraforming Mars language renderer | `tfm-text` |
 | Generic synthetic execution tests | `engine` tests |
-| Terraforming Mars functional tests | `tfm-api` tests plus test support |
+| Terraforming Mars functional tests | `tfm-tests` |
 
 ## Resource and external-dependency boundaries
 
@@ -314,21 +214,17 @@ application must not acquire engine merely because it shares a module with dynam
   does not read it.
 - Better Parse is confined to Pets.
 - Terraforming Mars JSON serialization is confined to `tfm-canon`.
-- Record serialization is confined to `record`.
+- Generic task and event serialization, if retained, stays with `pets` unless a real consumer
+  requires a separate boundary.
 - Coroutines remain in engine only if the generic workflow runner needs them.
 - JLine and browser dependencies remain confined to eventual leaf applications.
 
-## Remaining consequential questions
+## Audits that decide the remaining moves
 
-1. Can the native workflow runner always resume from the exact pre-advance boundary using only
-   premise, replayed components, and the rule “advance workflow now,” or is another durable workflow
-   datum required?
-2. Which engine consequences preserve representation integrity, and which are ordinary gameplay
-   consequences that a referee correction may intentionally bypass?
-3. What is the exact smallest evaluation interface required by every current custom implementation?
-   Derive it from audited call sites; do not publish speculative query methods.
-4. What composition and replacement rules must `PetCatalog` expose to cover official content,
-   caller additions, rebalanced replacements, and fan expansions without making Terraforming Mars
-   concepts generic?
-5. Which current public result and event types are durable record data, and which are merely live
-   engine conveniences that should remain internal?
+1. Enumerate the methods every current custom implementation actually calls. The generic evaluation
+   boundary should expose only those needs, ideally through one interface.
+2. Classify each current `Authority` responsibility as declaration aggregation, transformation,
+   implementation lookup, projection, or Terraforming Mars content selection. That concrete list
+   will determine the smallest useful `Catalog` contract.
+3. Trace consumers of the generic client-facing packages. Keep them in `engine` unless an actual
+   consumer can avoid engine implementation dependencies through a separate module.
