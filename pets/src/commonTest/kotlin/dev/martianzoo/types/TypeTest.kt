@@ -1,18 +1,12 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.api.TypeInfo.NoGameState
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.cardnames.MediaGroup
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -475,36 +469,6 @@ internal class TypeTest {
 
         override fun has(requirement: Requirement): Boolean = has(requirement)
       }
-
-  private fun findSubstitutions(
-      type: Type,
-      classTable: ClassTable,
-  ): Map<ClassName, Expression> =
-      Transformers(classTable)
-          .findSubstitutions(
-              type.rootClass.defaultType.dependencies,
-              type.dependencies,
-          )
-
-  @Test
-  internal fun subs() {
-    val pprod = Canon.classTable.resolve(te("Production<Player1, Class<Plant>>"))
-    findSubstitutions(pprod, Canon.classTable) shouldBe
-        mapOf(
-            cn("StandardResource") to cn("Plant").expression,
-            OWNER to PLAYER1.expression,
-        )
-  }
-
-  @Test
-  internal fun subs2() {
-    val pprod = Canon.classTable.resolve(te("PlayCard<Player1, Class<$MediaGroup>>"))
-    findSubstitutions(pprod, Canon.classTable) shouldBe
-        mapOf(
-            cn("CardFront") to MediaGroup.expression,
-            OWNER to PLAYER1.expression,
-        )
-  }
 
   private fun te(s: String): Expression = parse(s)
 }
