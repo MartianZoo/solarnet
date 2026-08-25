@@ -10,7 +10,11 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Then
 
-internal val coloniesCustomClasses: Set<CustomClass> =
+internal val coloniesExpansionBundle: StandardFormBundle by lazy {
+  StandardFormBundle("ColoniesExpansion", coloniesCustomClasses)
+}
+
+private val coloniesCustomClasses: Set<CustomClass> =
     setOf(
         ColoniesExpansion.ColoniesSetup,
     )

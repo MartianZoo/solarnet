@@ -448,13 +448,17 @@ public open class TfmAuthority : Authority {
             }
           }
         }
+    val ordinaryCards =
+        if (moduleName in owner.moduleContentSelections) null
+        else owner.moduleCardDefinitions[moduleName]
     val contentSelections =
         owner.moduleContentSelections[moduleName]
             ?: if (moduleName == owner.bundleName) {
               setOf(
                   BundleContentSelection(
                       owner.bundleName,
-                      setOf(Kind.CARDS, Kind.COLONY_TILES),
+                      if (ordinaryCards == null) setOf(Kind.CARDS, Kind.COLONY_TILES)
+                      else setOf(Kind.COLONY_TILES),
                   )
               )
             } else {
@@ -468,6 +472,15 @@ public open class TfmAuthority : Authority {
           }
           selectionsFrom(bundlesByName.getValue(content.bundleName), content)
         }
+    ordinaryCards?.let { cards ->
+      selections.addDefinitions(cards)
+      selections.addReplacementExclusions(
+          cards,
+          cardDefinitions,
+          CardDefinition::className,
+          CardDefinition::replaces,
+      )
+    }
     return selections
   }
 

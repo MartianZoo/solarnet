@@ -29,46 +29,90 @@ internal class StandardFormBundle(
     private val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,
+    private val additionalResourceDirectories: Set<String> = emptySet(),
 ) : Bundle(cn(name)) {
+  private val resources =
+      listOf(ResourceSet(resourceDirectory, resourceFilenames)) +
+          additionalResourceDirectories.sorted().map { directory ->
+            ResourceSet(directory, CanonResources.filenames(directory))
+          }
+
   init {
-    require(resourceFilenames.isNotEmpty()) { "No resources in $resourceDirectory" }
-    val unexpected = resourceFilenames.filterNot(::isExpected).sorted()
-    if (unexpected.isNotEmpty()) {
-      println("Warning: ignoring unexpected files in $resourceDirectory: $unexpected")
+    resources.forEach { resourceSet ->
+      require(resourceSet.filenames.isNotEmpty()) { "No resources in ${resourceSet.directory}" }
+      val unexpected = resourceSet.filenames.filterNot(::isExpected).sorted()
+      if (unexpected.isNotEmpty()) {
+        println("Warning: ignoring unexpected files in ${resourceSet.directory}: $unexpected")
+      }
     }
   }
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    readIfPresent(CLASSES_FILENAME, ::parseClasses).toSetStrict()
+    resources
+        .flatMap { resourceSet ->
+          readIfPresent(resourceSet, CLASSES_FILENAME, ::parseClasses)
+        }
+        .toSetStrict()
   }
 
   override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
-    resourceFilenames
-        .mapNotNull { filename ->
+    buildMap<String, MutableMap<ClassName, String>> {
+      resources.forEach { resourceSet ->
+        resourceSet.filenames.forEach { filename ->
           LANGUAGE_FILENAME.matchEntire(filename)?.groupValues?.get(1)?.let { language ->
-            language to JsonReader.readDisplayNames(read(filename))
+            val names = getOrPut(language, ::linkedMapOf)
+            JsonReader.readDisplayNames(read(resourceSet, filename)).forEach {
+                (className, displayName) ->
+              val previous = names.put(className, displayName)
+              require(previous == null || previous == displayName) {
+                "Conflicting $language display names for $className: $previous and $displayName"
+              }
+            }
           }
         }
-        .toMap()
-  }
-
-  override val cardDefinitions: Set<CardDefinition> by lazy {
-    readIfPresent(CARDS_FILENAME, JsonReader::readCards).toSetStrict(::CardDefinition)
-  }
-
-  override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-    mapJsonResourceFiles().flatMapTo(linkedSetOf()) { filename ->
-      JsonReader.readMaps(read(filename))
+      }
     }
   }
 
-  private fun read(filename: String): String = resourceReader("$resourceDirectory/$filename")
+  private val cardsByResource: Map<ResourceSet, Set<CardDefinition>> by lazy {
+    resources.associateWith { resourceSet ->
+      readIfPresent(resourceSet, CARDS_FILENAME, JsonReader::readCards)
+          .toSetStrict(::CardDefinition)
+    }
+  }
 
-  private fun <T> readIfPresent(filename: String, parse: (String) -> List<T>): List<T> =
-      if (filename in resourceFilenames) parse(read(filename)) else emptyList()
+  override val cardDefinitions: Set<CardDefinition> by lazy {
+    cardsByResource.values.flatten().toSetStrict()
+  }
 
-  private fun mapJsonResourceFiles(): List<String> =
-      resourceFilenames.filter { it == MAPS_FILENAME || it.endsWith("-$MAPS_FILENAME") }.sorted()
+  override val moduleCardDefinitions: Map<ClassName, Set<CardDefinition>> by lazy {
+    cardsByResource
+        .filterValues { it.isNotEmpty() }
+        .mapKeys { (resourceSet, _) -> cn(resourceSet.directory.substringAfterLast('/')) }
+  }
+
+  override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
+    resources.flatMapTo(linkedSetOf()) { resourceSet ->
+      mapJsonResourceFiles(resourceSet).flatMap { filename ->
+        JsonReader.readMaps(read(resourceSet, filename))
+      }
+    }
+  }
+
+  private fun read(resourceSet: ResourceSet, filename: String): String =
+      resourceReader("${resourceSet.directory}/$filename")
+
+  private fun <T> readIfPresent(
+      resourceSet: ResourceSet,
+      filename: String,
+      parse: (String) -> List<T>,
+  ): List<T> =
+      if (filename in resourceSet.filenames) parse(read(resourceSet, filename)) else emptyList()
+
+  private fun mapJsonResourceFiles(resourceSet: ResourceSet): List<String> =
+      resourceSet.filenames
+          .filter { it == MAPS_FILENAME || it.endsWith("-$MAPS_FILENAME") }
+          .sorted()
 
   private fun isExpected(filename: String): Boolean =
       filename == CLASSES_FILENAME ||
@@ -88,4 +132,6 @@ internal class StandardFormBundle(
             MAPS_FILENAME,
         )
   }
+
+  private data class ResourceSet(val directory: String, val filenames: Set<String>)
 }
