@@ -10,12 +10,11 @@ import dev.martianzoo.util.toSetStrict
 /**
  * An internal Authority-provider bundle loaded from conventionally named Pets and JSON resources.
  *
- * `classes.pets`, when present, supplies the Pets declarations, including milestones and awards.
- * The supported JSON filenames are exposed as constants below. Files for unsupported canonical data
- * are recognized but ignored; other files produce a warning. A bundle identity is raw source
- * provenance, not a Pets class, so no declaration is required or synthesized for it. Callers whose
- * resources are not in Canon's generated index can provide [resourceFilenames] and [resourceReader]
- * directly.
+ * `classes.pets`, when present, supplies declarations and compact map diagrams; card and language
+ * metadata remain JSON. Files for unsupported canonical data are recognized but ignored; other
+ * files produce a warning. A bundle identity is raw source provenance, not a Pets class, so no
+ * declaration is required or synthesized for it. Callers whose resources are not in Canon's
+ * generated index can provide [resourceFilenames] and [resourceReader] directly.
  */
 internal class StandardFormBundle(
     name: String,
@@ -89,9 +88,7 @@ internal class StandardFormBundle(
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
     resources.flatMapTo(linkedSetOf()) { resourceSet ->
-      mapJsonResourceFiles(resourceSet).flatMap { filename ->
-        JsonReader.readMaps(read(resourceSet, filename))
-      }
+      readIfPresent(resourceSet, CLASSES_FILENAME, MarsMapReader::readMaps)
     }
   }
 
@@ -105,21 +102,14 @@ internal class StandardFormBundle(
   ): List<T> =
       if (filename in resourceSet.filenames) parse(read(resourceSet, filename)) else emptyList()
 
-  private fun mapJsonResourceFiles(resourceSet: ResourceSet): List<String> =
-      resourceSet.filenames
-          .filter { it == MAPS_FILENAME || it.endsWith("-$MAPS_FILENAME") }
-          .sorted()
-
   private fun isExpected(filename: String): Boolean =
       filename == CLASSES_FILENAME ||
           filename == CARD_PETS_FILENAME ||
           LANGUAGE_FILENAME.matches(filename) ||
-          filename in KNOWN_JSON_FILENAMES ||
-          filename.endsWith("-$MAPS_FILENAME")
+          filename in KNOWN_JSON_FILENAMES
 
   public companion object {
     private const val CARDS_FILENAME: String = "cards.json5"
-    internal const val MAPS_FILENAME: String = "maps.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CLASSES_FILENAME = "classes.pets"
     private const val CARD_PETS_FILENAME = "cards.pets"
@@ -127,7 +117,6 @@ internal class StandardFormBundle(
     private val KNOWN_JSON_FILENAMES =
         setOf(
             CARDS_FILENAME,
-            MAPS_FILENAME,
         )
   }
 

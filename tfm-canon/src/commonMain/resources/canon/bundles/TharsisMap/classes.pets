@@ -16,7 +16,25 @@ ABSTRACT CLASS TharsisAward : Award {
 
 CLASS TharsisMap : MarsMap
 
-// The map area declarations below are code generated.
+// The map areas below are code-generated based on the following comment
+//              LSS   WSS    L     WC    W
+//
+//            L     VS    L     L     L    WCC
+//
+//         VC    L     L     L     L     L     LS
+//
+//     VPT    LP    LP    LP   LPP    LP    LP   WPP
+//
+//  VPP   LPP   NPP   WPP   WPP   WPP   LPP   LPP   LPP
+//
+//      LP   LPP    LP    LP    LP    WP    WP    WP
+//
+//         L     L     L     L     L     LP    L
+//
+//           LSS    L     LC    LC    L     LT
+//
+//               LS   LSS    L     L    WTT
+
 CLASS Tharsis_1_1 :     LandArea { row = 1; column = 1; Tile<This>: 2 Steel }
 CLASS Tharsis_1_2 :    WaterArea { row = 1; column = 2; Tile<This>: 2 Steel }
 CLASS Tharsis_1_3 :     LandArea { row = 1; column = 3 }

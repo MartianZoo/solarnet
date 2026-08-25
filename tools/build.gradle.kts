@@ -28,20 +28,17 @@ tasks.register<JavaExec>("standardResourceMonotonicityReport") {
   mainClass.set("dev.martianzoo.tools.StandardResourceMonotonicityReportKt")
 }
 
-val generatedMapPets = layout.buildDirectory.dir("generated/mapPets")
-
-tasks.register<JavaExec>("generateMapPets") {
+tasks.register<JavaExec>("regenerateMapAreas") {
   group = "build"
-  description = "Generates Pets declarations for every canonical Mars map and area."
+  description = "Regenerates canonical map-area declarations from diagrams in Pets comments."
   classpath = sourceSets.main.get().runtimeClasspath
-  mainClass.set("dev.martianzoo.tools.GenerateMapPetsKt")
+  mainClass.set("dev.martianzoo.tools.RegenerateMapAreasKt")
   inputs.files(
       project(":tfm-canon").fileTree("src/commonMain/resources/canon/bundles") {
-        include("**/*maps.json5")
+        include("**/classes.pets")
       }
   )
-  outputs.dir(generatedMapPets)
-  args(generatedMapPets.get().asFile.absolutePath, true)
+  args(project(":tfm-canon").file("src/commonMain/resources").absolutePath)
 }
 
 tasks.register<JavaExec>("generateCardPets") {

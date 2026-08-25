@@ -40,7 +40,25 @@ CLASS UtopiaMap : MarsMap
 
 CLASS CimmeriaMap : MarsMap
 
-// The map area declarations below are code generated.
+// The map areas below are code-generated based on the following comment
+//               L     L    LEE    L     L
+//
+//            L    LSS   LEE   LEEC   L     L
+//
+//        W3P    L     LS    L     L    LCCT  LTT
+//
+//     WPC    LP    LP   LPP   WPP    WP    WP    LP
+//
+//   L     L     L     LP    LP   LPP    L     W    LPT
+//
+//      LS   LSS   WPP   LPP    L     L    LSS    L
+//
+//         LS    L     W    WPP    L     L     L
+//
+//            L    LCC    W    WPP   LST   LPP
+//
+//               L     L    LSS    WP    LP
+
 CLASS Utopia_1_1 :     LandArea { row = 1; column = 1 }
 CLASS Utopia_1_2 :     LandArea { row = 1; column = 2 }
 CLASS Utopia_1_3 :     LandArea { row = 1; column = 3; Tile<This>: 2 Energy }
@@ -110,6 +128,25 @@ CLASS Utopia_9_6 :     LandArea { row = 9; column = 6 }
 CLASS Utopia_9_7 :     LandArea { row = 9; column = 7; Tile<This>: 2 Steel }
 CLASS Utopia_9_8 :    WaterArea { row = 9; column = 8; Tile<This>: Plant }
 CLASS Utopia_9_9 :     LandArea { row = 9; column = 9; Tile<This>: Plant }
+
+// The map areas below are code-generated based on the following comment
+//               W     LP    VS    LP   WPP
+//
+//           WTT    L     L     L    LPS    WP
+//
+//         L     L     LX    L     L     LP    L
+//
+//      VS    L     LS    L    LSS    L    VTT    LC
+//
+//   L     L     L     LS    LS    LC    L    LSC    W
+//
+//     VCC    L    LTSS   L     LT   LSS    L    LSS
+//
+//        LPP    LT    L    LPSS  LPP    LP   WPP
+//
+//            W     LP    LT    LC   LPP   WPP
+//
+//              WPP    WP    WP    LP    WP
 
 CLASS Cimmeria_1_1 :    WaterArea { row = 1; column = 1 }
 CLASS Cimmeria_1_2 :     LandArea { row = 1; column = 2; Tile<This>: Plant }
