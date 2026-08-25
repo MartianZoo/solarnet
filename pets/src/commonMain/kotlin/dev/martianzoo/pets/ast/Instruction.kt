@@ -544,7 +544,8 @@ public sealed class Instruction : InstructionTree() {
     public companion object {
       public fun create(it: List<Instruction>): Instruction = createTree(it) as Instruction
 
-      internal fun createTree(it: List<InstructionTree>): InstructionTree =
+      /** Returns a canonical sequence, collapsing empty and singleton inputs. */
+      public fun createTree(it: List<InstructionTree>): InstructionTree =
           it.let { sourceParts ->
                 val final = sourceParts.lastOrNull()
                 if (final is Then) sourceParts.dropLast(1) + final.instructions else sourceParts

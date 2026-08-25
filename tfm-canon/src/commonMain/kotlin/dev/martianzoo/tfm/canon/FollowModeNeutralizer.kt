@@ -72,16 +72,14 @@ internal object FollowModeNeutralizer : TransformHandler {
     val operation = CardOperation.decode(source)
     val transformed = cardReferenceNeutralizer.transformInstructionTree(source)
     return when (operation) {
-      is CardOperation.SelectAndKeep, is CardOperation.SelectAndPlay ->
-          withTemporaryLocation(SELECTING, transformed, close = true)
-      is CardOperation.SelectAndPurchase, is CardOperation.RevealAndPurchase ->
+      is CardOperation.SelectAndKeep,
+      is CardOperation.SelectAndPlay -> withTemporaryLocation(SELECTING, transformed, close = true)
+      is CardOperation.SelectAndPurchase,
+      is CardOperation.RevealAndPurchase ->
           withTemporaryLocation(SELECTING, transformed, close = false)
-      is CardOperation.RevealAndTest ->
-          withTemporaryLocation(REVEALED, transformed, close = true)
+      is CardOperation.RevealAndTest -> withTemporaryLocation(REVEALED, transformed, close = true)
       is CardOperation.RevealAndRestore ->
-          Or.createTree(
-              listOf(withTemporaryLocation(REVEALED, transformed, close = true), NoOp)
-          )
+          Or.createTree(listOf(withTemporaryLocation(REVEALED, transformed, close = true), NoOp))
       else -> transformed
     }
   }
