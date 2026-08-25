@@ -421,7 +421,7 @@ Continue treating cards with behavior-bearing extra component declarations as da
 Insurance shows why: its component declarations encode printed setup behavior that is absent from
 `immediate`. Do not infer a generic draw sentence from a plain `ProjectCard` gain. `CARDS`
 distinguishes printed filtering, selection, reveal, purchase, and event-recovery procedures through
-its inner instruction tree in canonical Card Definitions. The renderer interprets that source
+its inner instruction tree in canonical card data. The renderer interprets that source
 transform rather than the follow-mode-neutralized executable declarations.
 
 A plain mandatory placement of one greenery tile does not restate its automatic oxygen increase,

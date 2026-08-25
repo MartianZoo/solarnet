@@ -1,6 +1,6 @@
 # Life of an Effect
 
-This document follows one string from a card Definition until its Instructions produce recorded
+This document follows one string from canonical card data until its Instructions produce recorded
 State Changes. The example is Recyclon because it passes through most of the interesting boundaries
 without making any one of them unusually difficult:
 
@@ -59,7 +59,7 @@ Effect text. It does not yet have an Effect.
 
 **PetTransformers, in order:** `DerivedClassLowerer`.
 
-The card Definition reads the entire string as an Effect, not as a general Instruction or some
+The card data reads the entire string as an Effect, not as a general Instruction or some
 other Pets element. Reading must consume the entire string. The result has three principal parts:
 
 ```pets
@@ -86,11 +86,11 @@ tree.
 queued/automatic choice, and set of authored Type Variables. Its Type Expressions are still source
 expressions; Class-level defaults and validity have not yet been established.
 
-## 3. The Definition produces Recyclon's Class Declaration
+## 3. The card data produces Recyclon's Class Declaration
 
 **PetTransformers, in order:** `FollowModeNeutralizer`.
 
-A card Definition contributes a Content Class. For Recyclon, the behavior-bearing part of its
+A card data record contributes a Content Class. For Recyclon, the behavior-bearing part of its
 generated Class Declaration can be read as:
 
 ```pets
@@ -103,14 +103,14 @@ CLASS Recyclon : ResourceCard<Class<Microbe>> {
 }
 ```
 
-The last line is our original Source Effect. The Definition has placed it after two generated
+The last line is our original Source Effect. The card data has placed it after two generated
 Effects:
 
 - The printed tags become an Automatic Effect on Recyclon's creation.
 - The `immediate` field becomes a queued Immediate Instruction.
 
 Recyclon's authored use of `Microbe<This>`, together with the explicit declaration of `Microbe` as
-a `CardResource`, makes it inherit from `ResourceCard<Class<Microbe>>`. The Definition adds
+a `CardResource`, makes it inherit from `ResourceCard<Class<Microbe>>`. The card data adds
 Recyclon's one-copy Invariant and card properties as well. It does not silently merge, remove, or
 reorder authored Effects. `FollowModeNeutralizer` removes hidden real-card operations which follow
 mode delegates to its client. Recyclon's Effect contains no such operation and is unchanged.

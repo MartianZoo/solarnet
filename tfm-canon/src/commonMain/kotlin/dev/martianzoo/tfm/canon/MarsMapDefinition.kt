@@ -14,18 +14,17 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.pets.data.Definition
 import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 
 public data class MarsMapDefinition(
-    override val className: ClassName,
+    val className: ClassName,
     val areas: Grid<AreaDefinition>,
     val defaultMilestones: ClassName? = null,
     val defaultAwards: ClassName? = null,
-) : Definition {
-  override val asClassDeclaration: ClassDeclaration =
+) {
+  public val asClassDeclaration: ClassDeclaration =
       ClassDeclaration(
           className = className,
           kind = CONCRETE,
@@ -56,7 +55,7 @@ public data class MarsMapDefinition(
 
       /** A short code like `LPP` summarizing this map area. */
       val code: String,
-  ) : Definition {
+  ) {
 
     init {
       require(row >= 1) { "bad row: $row" }
@@ -67,7 +66,7 @@ public data class MarsMapDefinition(
       InstructionGroup.of(parse<InstructionTree>(it))
     }
 
-    override val asClassDeclaration: ClassDeclaration by lazy {
+    public val asClassDeclaration: ClassDeclaration by lazy {
       ClassDeclaration(
           className = className,
           kind = CONCRETE,
@@ -81,7 +80,7 @@ public data class MarsMapDefinition(
       )
     }
 
-    override val className: ClassName = cn("${mapName}_${row}_$column")
+    public val className: ClassName = cn("${mapName}_${row}_$column")
   }
 
   private companion object {

@@ -54,7 +54,7 @@ Canonical card classes are loaded from each bundle's generated `cards.pets` alon
 ordinary `effects` contain the follow-mode compilation used for activation and execution.
 `TfmCatalog.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
 so deck, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
-come from Pets. JSON-backed definitions remain temporarily for generation, pre-load content
+come from Pets. JSON-backed card data remains temporarily for generation, pre-load content
 selection and replacement metadata, tag validation, and card-to-supporting-declaration activation
 links.
 

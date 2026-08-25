@@ -23,33 +23,24 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Catalog
 
 /** Exact premise checks whose proofs depend only on uninhabited Types. */
 internal object PremiseViability {
-  fun validate(
-      catalog: Catalog,
-      table: ClassTable,
-      selectedClassNames: Set<ClassName>,
-  ) {
-    val definitionsByName = catalog.allDefinitions.associateBy { it.className }
+  fun validate(table: ClassTable, selectedClassNames: Set<ClassName>) {
     selectedClassNames.forEach { className ->
-      val definition = definitionsByName[className]
-      val declaration = definition?.asClassDeclaration ?: table.getClass(className).declaration
+      val declaration = table.getClass(className).declaration
       (declaration.properties[REQUIREMENT_PROPERTY] as? RequirementValue)?.let { property ->
         if (truthOf(property.value, table) == Truth.FALSE) {
           unviable(className, "impossible requirement ${property.value}")
         }
       }
-      if (definition != null) {
-        declaration.effects
-            .filter { triggerReachable(it.trigger, table) }
-            .forEach { effect ->
-              impossibleRemoval(effect.instruction, table)?.let { removal ->
-                unviable(className, "reachable mandatory removal $removal")
-              }
+      declaration.effects
+          .filter { triggerReachable(it.trigger, table) }
+          .forEach { effect ->
+            impossibleRemoval(effect.instruction, table)?.let { removal ->
+              unviable(className, "reachable mandatory removal $removal")
             }
-      }
+          }
     }
   }
 

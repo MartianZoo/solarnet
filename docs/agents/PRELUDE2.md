@@ -34,7 +34,7 @@ ordinary Prelude phase already models the rulebook's failed-Prelude fallback as 
 Active Preludes compose with the existing action-card machinery, and active/effect-only Preludes
 may naturally omit an immediate instruction.
 Comments ending in `[F]` identify cards whose hidden filtered draw or reveal result must be supplied
-by a follow-mode client. Their canonical Definitions now retain that printed procedure in
+by a follow-mode client. Their canonical card data now retains that printed procedure in
 `CARDS`; executable follow-mode declarations neutralize it to the former client-supplied result.
 
 The focused card tests cover the genuinely new behavior, including World Government option

@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName
 
-/** An organizational provider of declarations, definitions, metadata, and custom code. */
+/**
+ * An organizational provider of declarations, category-specific data, metadata, and custom code.
+ */
 public abstract class Bundle(
     public val bundleName: ClassName,
 ) : TfmCatalog() {

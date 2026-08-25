@@ -7,7 +7,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.Definition
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.ClassLoader
@@ -47,7 +46,6 @@ private fun testCatalog(source: String): Catalog {
             declarations.associateBy(ClassDeclaration::className).also {
               require(it.size == declarations.size) { "duplicate test Class declaration" }
             }
-        override val allDefinitions: Set<Definition> = emptySet()
         override val customClasses: Set<CustomClass> = emptySet()
         override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
       }

@@ -19,7 +19,6 @@ import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.Definition
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
@@ -58,7 +57,7 @@ public open class TfmCatalog : Catalog {
 
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
     buildSet {
-      cardDefinitions.mapTo(this, Definition::className)
+      cardDefinitions.mapTo(this, CardDefinition::className)
       addAll(goalClassNames(TfmClasses.MILESTONE))
       addAll(goalClassNames(TfmClasses.AWARD))
       addAll(colonyTileClassNames)
@@ -77,22 +76,29 @@ public open class TfmCatalog : Catalog {
               if (sameNamedModule) {
                 add(bundle.bundleName)
               } else {
-                bundle.marsMapDefinitions.mapTo(this, Definition::className)
+                bundle.marsMapDefinitions.mapTo(this, MarsMapDefinition::className)
               }
             }
             if (availabilityModules.isNotEmpty()) {
-              val definitionNames = bundle.allDefinitions.mapTo(hashSetOf(), Definition::className)
-              bundle.cardDefinitions.flatMapTo(definitionNames) { card ->
+              val contentClassNames = buildSet {
+                bundle.cardDefinitions.mapTo(this, CardDefinition::className)
+                bundle.marsMapDefinitions.forEach { map ->
+                  add(map.className)
+                  map.areas.mapTo(this) { area -> area.className }
+                }
+              }
+                  .toMutableSet()
+              bundle.cardDefinitions.flatMapTo(contentClassNames) { card ->
                 card.extraClasses.map(ClassDeclaration::className)
               }
               bundleClassesBelow(bundle, TfmClasses.MILESTONE, includeAbstract = true)
-                  .mapTo(definitionNames, ClassDeclaration::className)
+                  .mapTo(contentClassNames, ClassDeclaration::className)
               bundleClassesBelow(bundle, TfmClasses.AWARD, includeAbstract = true)
-                  .mapTo(definitionNames, ClassDeclaration::className)
+                  .mapTo(contentClassNames, ClassDeclaration::className)
               val ambientClassNames =
                   bundle.explicitClassDeclarations
                       .map(ClassDeclaration::className)
-                      .filterNot(definitionNames::contains)
+                      .filterNot(contentClassNames::contains)
               ambientClassNames
                   .filterNot { isSubtypeOf(it, MODULE_CLASS) }
                   .forEach { className ->
@@ -108,7 +114,7 @@ public open class TfmCatalog : Catalog {
    * Cooks user-facing Module and setup selections into an exact game premise by applying Catalog
    * defaults and selection policies.
    *
-   * Structured definitions may use unambiguous English Pets names. Naming any milestones or awards
+   * Structured inputs may use unambiguous English Pets names. Naming any milestones or awards
    * selects the exact configured pool for that category. A playable Terraforming Mars Catalog
    * requires one to five player names in seat order. These become vocabulary aliases for the
    * canonical `Player1` through `Player5` classes.
@@ -166,19 +172,32 @@ public open class TfmCatalog : Catalog {
           }
         }
 
-    allDefinitions
+    cardDefinitions
         .filter { it.className in explicitlyIncluded }
-        .forEach { definition ->
-          compatibilityRequirement(definition)?.let { requirement ->
+        .forEach { card ->
+          cardCompatibilityRequirement(card)?.let { requirement ->
             require(
                 requirement.isMetBy { metric ->
-                  countConfigured(metric, included - definition.className)
+                  countConfigured(metric, included - card.className)
                 }
             ) {
-              "configured definition ${definition.className} is unavailable: $requirement"
+              "configured content ${card.className} is unavailable: $requirement"
             }
           }
         }
+    marsMapDefinitions.forEach { map ->
+      (listOf(map.className) + map.areas.map { area -> area.className })
+          .filter { it in explicitlyIncluded }
+          .forEach { className ->
+            contentCompatibilityRequirement(className)?.let { requirement ->
+              require(
+                  requirement.isMetBy { metric -> countConfigured(metric, included - className) }
+              ) {
+                "configured content $className is unavailable: $requirement"
+              }
+            }
+          }
+    }
     listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).forEach { goalClass ->
       (explicitlyIncluded intersect goalClassNames(goalClass)).forEach { goalName ->
         goalCompatibilityRequirement(goalName, goalClass)?.let { requirement ->
@@ -331,17 +350,16 @@ public open class TfmCatalog : Catalog {
       FollowModeNeutralizer.neutralize(withContributionLinks)
     }
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
-    // An explicit Pets declaration owns the Class when its structured Definition remains metadata.
+    // An explicit Pets declaration owns the Class when its structured data remains metadata.
     explicit +
-        allDefinitions
+        cardDefinitions
             .filterNot { it.className in explicitNames }
-            .map { definition ->
-              if (definition is CardDefinition) {
-                definition.toClassDeclaration(cardResourceType(definition.className))
-              } else {
-                definition.asClassDeclaration
-              }
-            } +
+            .map { card -> card.toClassDeclaration(cardResourceType(card.className)) } +
+        marsMapDefinitions
+            .flatMap { map ->
+              listOf(map.asClassDeclaration) + map.areas.map { it.asClassDeclaration }
+            }
+            .filterNot { it.className in explicitNames } +
         cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
   }
 
@@ -364,7 +382,7 @@ public open class TfmCatalog : Catalog {
   }
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
-    validateReplacements(cardDefinitions, CardDefinition::className, CardDefinition::replaces)
+    validateReplacements(cardDefinitions)
     try {
       (systemClassDeclarations.toList() + contributedClassDeclarations)
           .distinct()
@@ -375,13 +393,6 @@ public open class TfmCatalog : Catalog {
     } catch (e: IllegalArgumentException) {
       throw PetException("Multiple class declarations must be identical: ${e.message}")
     }
-  }
-
-  final override val allDefinitions: Set<Definition> by lazy {
-    setOf<Definition>() +
-        cardDefinitions +
-        marsMapDefinitions +
-        marsMapDefinitions.flatMap(MarsMapDefinition::areas)
   }
 
   private fun validateSystemDeclaration(declaration: ClassDeclaration) {
@@ -478,13 +489,8 @@ public open class TfmCatalog : Catalog {
           selectionsFrom(bundlesByName.getValue(content.bundleName), content)
         }
     ordinaryCards?.let { cards ->
-      selections.addDefinitions(cards)
-      selections.addReplacementExclusions(
-          cards,
-          cardDefinitions,
-          CardDefinition::className,
-          CardDefinition::replaces,
-      )
+      selections.addCards(cards)
+      selections.addReplacementExclusions(cards, cardDefinitions)
     }
     return selections
   }
@@ -499,23 +505,22 @@ public open class TfmCatalog : Catalog {
           bundle.cardDefinitions.filter { card ->
             selection.cardDecks == null || card.deck in selection.cardDecks
           }
-      addDefinitions(selectedCards)
-      addReplacementExclusions(
-          selectedCards,
-          cardDefinitions,
-          CardDefinition::className,
-          CardDefinition::replaces,
-      )
+      addCards(selectedCards)
+      addReplacementExclusions(selectedCards, cardDefinitions)
     }
     if (Kind.MAPS in kinds) {
       bundle.marsMapDefinitions.forEach { map ->
-        val requirement = automaticSelectionRequirement(map)
+        val requirement = contentCompatibilityRequirement(map.className)
         add(ClassSelection(map.className, requirement = requirement))
         map.areas.forEach { area ->
           add(
               ClassSelection(
                   area.className,
-                  requirement = Requirement.join(requirement, automaticSelectionRequirement(area)),
+                  requirement =
+                      Requirement.join(
+                          requirement,
+                          contentCompatibilityRequirement(area.className),
+                      ),
               )
           )
         }
@@ -540,15 +545,14 @@ public open class TfmCatalog : Catalog {
     }
   }
 
-  private fun MutableSet<ClassSelection>.addDefinitions(
-      definitions: Collection<Definition>,
+  private fun MutableSet<ClassSelection>.addCards(
+      cards: Collection<CardDefinition>,
       sharedRequirement: Requirement? = null,
   ) {
-    definitions.mapTo(this) { definition ->
+    cards.mapTo(this) { card ->
       ClassSelection(
-          definition.className,
-          requirement =
-              Requirement.join(sharedRequirement, automaticSelectionRequirement(definition)),
+          card.className,
+          requirement = Requirement.join(sharedRequirement, automaticSelectionRequirement(card)),
       )
     }
   }
@@ -570,10 +574,10 @@ public open class TfmCatalog : Catalog {
     }
   }
 
-  private fun automaticSelectionRequirement(definition: Definition): Requirement? {
+  private fun automaticSelectionRequirement(card: CardDefinition): Requirement? {
     return Requirement.join(
-        definition.automaticSelectionRequirement,
-        bundleCompatibilityRequirement(definition),
+        card.automaticSelectionRequirement,
+        cardBundleCompatibilityRequirement(card),
     )
   }
 
@@ -598,18 +602,16 @@ public open class TfmCatalog : Catalog {
           bundleCompatibilityRequirement(className, listOf(classDeclaration(className))),
       )
 
-  private fun compatibilityRequirement(definition: Definition): Requirement? =
-      Requirement.join(
-          definition.compatibilityRequirement,
-          bundleCompatibilityRequirement(definition),
-      )
+  private fun cardCompatibilityRequirement(card: CardDefinition): Requirement? =
+      cardBundleCompatibilityRequirement(card)
 
-  private fun bundleCompatibilityRequirement(definition: Definition): Requirement? {
-    val declarations =
-        listOf(definition.asClassDeclaration) +
-            if (definition is CardDefinition) definition.extraClasses else emptyList()
-    return bundleCompatibilityRequirement(definition.className, declarations)
+  private fun cardBundleCompatibilityRequirement(card: CardDefinition): Requirement? {
+    val declarations = listOf(classDeclaration(card.className)) + card.extraClasses
+    return bundleCompatibilityRequirement(card.className, declarations)
   }
+
+  private fun contentCompatibilityRequirement(className: ClassName): Requirement? =
+      bundleCompatibilityRequirement(className, listOf(classDeclaration(className)))
 
   private fun bundleCompatibilityRequirement(
       className: ClassName,
@@ -631,15 +633,13 @@ public open class TfmCatalog : Catalog {
           ?.map { moduleName -> Min(1, Count(moduleName.expression)) }
           ?.let(Or::create)
 
-  private fun <D : Definition> MutableSet<ClassSelection>.addReplacementExclusions(
-      selected: Collection<D>,
-      known: Collection<D>,
-      name: (D) -> ClassName,
-      replaces: (D) -> ClassName?,
+  private fun MutableSet<ClassSelection>.addReplacementExclusions(
+      selected: Collection<CardDefinition>,
+      known: Collection<CardDefinition>,
   ) {
-    val knownByName = known.associateByStrict(name)
+    val knownByName = known.associateByStrict(CardDefinition::className)
     selected.forEach { replacement ->
-      var target = replaces(replacement)
+      var target = replacement.replaces
       while (target != null) {
         val replaced = knownByName.getValue(target)
         add(
@@ -649,7 +649,7 @@ public open class TfmCatalog : Catalog {
                 requirement = automaticSelectionRequirement(replacement),
             )
         )
-        target = replaces(replaced)
+        target = replaced.replaces
       }
     }
   }
@@ -658,29 +658,21 @@ public open class TfmCatalog : Catalog {
       moduleNames: Set<ClassName>,
       configuredClassNames: Set<ClassName>,
   ) {
-    val selectedDefinitionNames =
+    val selectedContentNames =
         moduleNames
             .flatMap { modules.getValue(it) }
             .filter { it.included && it.appliesTo(configuredClassNames, universe) }
             .mapTo(hashSetOf(), ClassSelection::className)
-    validateSelectedReplacements(
-        cardDefinitions.filter { it.className in selectedDefinitionNames },
-        CardDefinition::className,
-        CardDefinition::replaces,
-    )
+    validateSelectedReplacements(cardDefinitions.filter { it.className in selectedContentNames })
   }
 
-  private fun <D : Definition> validateSelectedReplacements(
-      selected: Collection<D>,
-      name: (D) -> ClassName,
-      replaces: (D) -> ClassName?,
-  ) {
+  private fun validateSelectedReplacements(selected: Collection<CardDefinition>) {
     selected
-        .mapNotNull { replacement -> replaces(replacement)?.let { it to replacement } }
+        .mapNotNull { replacement -> replacement.replaces?.let { it to replacement } }
         .groupBy({ it.first }, { it.second })
         .forEach { (target, replacements) ->
           require(replacements.size == 1) {
-            "multiple selected replacements for $target: ${replacements.map(name)}"
+            "multiple selected replacements for $target: ${replacements.map(CardDefinition::className)}"
           }
         }
   }
@@ -692,7 +684,7 @@ public open class TfmCatalog : Catalog {
     }
   }
 
-  // DEFINITIONS
+  // STRUCTURED CONTENT DATA
 
   public fun card(name: ClassName): CardDefinition =
       classBackedCardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
@@ -705,7 +697,9 @@ public open class TfmCatalog : Catalog {
 
   public open val cardDefinitions: Set<CardDefinition> = emptySet()
 
-  private val cardsByClassName by lazy { cardDefinitions.associateByStrict(Definition::className) }
+  private val cardsByClassName by lazy {
+    cardDefinitions.associateByStrict(CardDefinition::className)
+  }
 
   private val classBackedCardsByClassName by lazy {
     cardsByClassName.mapValues { (name, card) -> card.backedBy(classTable.getClass(name)) }
@@ -736,25 +730,23 @@ public open class TfmCatalog : Catalog {
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
 
-    private fun <D : Definition> validateReplacements(
-        definitions: Collection<D>,
-        name: (D) -> ClassName,
-        replaces: (D) -> ClassName?,
-    ) {
-      val knownByName = definitions.associateByStrict(name)
-      definitions.forEach { definition ->
-        replaces(definition)?.let { target ->
+    private fun validateReplacements(cards: Collection<CardDefinition>) {
+      val knownByName = cards.associateByStrict(CardDefinition::className)
+      cards.forEach { card ->
+        card.replaces?.let { target ->
           require(target in knownByName) {
-            "${name(definition)} replaces unknown definition $target"
+            "${card.className} replaces unknown card $target"
           }
         }
       }
-      definitions.forEach { start ->
+      cards.forEach { start ->
         val path = mutableSetOf<ClassName>()
-        var current: D? = start
-        while (current != null && replaces(current) != null) {
-          require(path.add(name(current))) { "replacement cycle involving ${name(current)}" }
-          current = knownByName.getValue(replaces(current)!!)
+        var current: CardDefinition? = start
+        while (current?.replaces != null) {
+          require(path.add(current.className)) {
+            "replacement cycle involving ${current.className}"
+          }
+          current = knownByName.getValue(current.replaces!!)
         }
       }
     }

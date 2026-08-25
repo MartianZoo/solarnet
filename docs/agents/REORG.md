@@ -113,7 +113,7 @@ a separate concern and does not reuse this term.
 - Canon and catalog composition;
 - cards, maps, milestones, awards, Modules, and expansions;
 - Pets and JSON resource loading;
-- current structured Definition models while they still exist;
+- current structured card and map models while they still exist;
 - `PROD`, `CARDS`, and other Terraforming Mars transforms;
 - config-to-premise resolution; and
 - custom instruction and metric implementations required by the content.
@@ -210,7 +210,7 @@ application must not acquire engine merely because it shares a module with dynam
 | Syntax/type exceptions and generic system Class Names | `pets` |
 | Live Actor, task queues, preparation, World, timeline | `engine` |
 | Immutable decisions, task descriptions, and events | `pets` |
-| Terraforming Mars config, Definitions, JSON models, bundles | `tfm-canon` |
+| Terraforming Mars config, card/map data, JSON models, bundles | `tfm-canon` |
 | Current `TfmCatalog` registries and composition | `tfm-canon` |
 | Current generic API packages | remain in `engine` until a module split has concrete value |
 | Current `TfmGameplay` and `TfmWorkflow` | `tfm-engine` |

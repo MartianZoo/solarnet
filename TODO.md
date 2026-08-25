@@ -187,7 +187,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Separate Catalog data from premise resolution, and split `TfmCatalog`'s
   generic declaration aggregation/validation into `Catalog` from the Terraforming Mars registries
   in `TfmCatalog`.
-- Extract shared `Definition`-to-`ClassDeclaration` assembly without hiding category-specific behavior.
 - Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated dependency/refinement construction without risking correctness.
@@ -228,6 +227,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   contribution links and replacement relationships in Pets, then derive pre-load deck selection,
   tag validation, and compatibility without JSON-backed `CardDefinition` metadata.
 
+- Make bundled Class declarations mandatory for maps and cards, then restrict the remaining
+  structured card and map records to offline generation and category-specific metadata.
+
 - Replace the remaining colony-specific premise plumbing (`COLONY_TILES` and initial tile discovery)
   only when one general configured-starting-component model can preserve both selected starting
   tiles and unselected tiles available for mid-game addition.
@@ -251,7 +253,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Filter inactive gated provenance from `Initializer` source ordering so false mutual gains cannot
   create a bootstrap cycle absent from the selected configuration.
 - Retain projection-decision provenance so premise diagnostics can explain automatic filtering and
-  complete hard-reference paths, rather than only the selected Definition or immediate source.
+  complete hard-reference paths, rather than only the selected content Class or immediate source.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone
   reconciliation for a patent sale taken beyond the normal action allowance.

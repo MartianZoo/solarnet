@@ -29,7 +29,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.pets.data.Definition
 import dev.martianzoo.pets.types.Class as PetClass
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset
@@ -59,10 +58,10 @@ public class CardDefinition
 private constructor(
     private val data: CardData,
     private val loadedClass: PetClass?,
-) : Definition {
+) {
   public constructor(data: CardData) : this(data, null)
 
-  override val className: ClassName = cn(data.name)
+  public val className: ClassName = cn(data.name)
 
   private val derivedClasses = DerivedClassLowerer(className)
 
@@ -82,7 +81,7 @@ private constructor(
           Deck.entries.singleOrNull { it.className == represented.className }
         } ?: sourceDeck
 
-  override val automaticSelectionRequirement: Requirement? =
+  public val automaticSelectionRequirement: Requirement? =
       if (sourceDeck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null
 
   /** The card this card replaces, if any. For example, `DeimosDownPromo` replaces `DeimosDown`. */
@@ -198,7 +197,7 @@ private constructor(
   internal val executableExtraClasses: List<ClassDeclaration> =
       extraClasses.map(FollowModeNeutralizer::neutralize)
 
-  override val asClassDeclaration: ClassDeclaration by lazy {
+  public val asClassDeclaration: ClassDeclaration by lazy {
     toClassDeclaration(sourceResourceType)
   }
 

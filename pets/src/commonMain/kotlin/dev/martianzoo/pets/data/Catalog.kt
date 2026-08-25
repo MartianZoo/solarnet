@@ -38,11 +38,10 @@ public interface Catalog {
   public val allClassNames: Set<ClassName>
     get() = allClassDeclarations.keys
 
-  /** Direct source declarations, before structured definitions are converted to declarations. */
+  /**
+   * Direct source declarations, before transitional structured data is converted to declarations.
+   */
   public val explicitClassDeclarations: Set<ClassDeclaration>
-
-  /** Every structured component definition known to this Catalog. */
-  public val allDefinitions: Set<Definition>
 
   /** Every exceptional Kotlin implementation for this Catalog's `Custom` classes. */
   public val customClasses: Set<CustomClass>

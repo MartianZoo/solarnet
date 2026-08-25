@@ -4,7 +4,7 @@
 
 A custom instruction has been eliminated only when its behavior follows from hand-authored Pets and
 general runtime semantics. Moving the same bespoke behavior into
-`Definition.asClassDeclaration`, `extraClasses`, or Kotlin-generated Pets is worse: it keeps the
+`CardDefinition.asClassDeclaration`, `extraClasses`, or Kotlin-generated Pets is worse: it keeps the
 custom code and adds another representation.
 
 Custom metrics are a separate concern.

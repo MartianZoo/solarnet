@@ -48,7 +48,7 @@
 - **Custom Metric:** A Pets Metric whose Kotlin implementation calculates a nonnegative integer from a Game World without adding virtual Components to its Component Graph.
 - **Dead End:** A Task Queue state from which the queue cannot drain normally. A `Die!` Task is one example. The engine detects some Dead Ends eagerly with `DeadEndException`; an enclosing operation must roll back any route that eventually dead-ends.
 - **Default:** A Class-supplied Dependency bound or Quantifier inserted when a Type Expression or Change Instruction omits it.
-- **Definition:** Transitional structured data for a card or map item that is converted into a Class Declaration. Definitions have stable same-kind identities and may have configuration conditions or replacement targets.
+- **Structured content data:** Transitional category-specific card or map data used to generate Class Declarations and retain metadata not yet authored in Pets. It is not a common engine representation.
 - **Dependency:** A directed existence relationship from one Component to another, encoded in the dependent Component's Type. A Game World cannot contain the dependent occurrence unless the exact target Component also exists.
 - **Dependency Bound:** The Type that constrains the valid targets of one Dependency at a particular point in a Class hierarchy. A subtype may narrow an inherited Bound, and the same Dependency Key identifies that relationship throughout the hierarchy.
 - **Dependency Key:** The internal stable identity of a Dependency: its declaring Class plus its declaration ordinal.
@@ -62,7 +62,7 @@
 - **Engine:** The non-Player Actor that performs administrative operations.
 - **Event Log:** The ordered history of State Changes and Task lifecycle events in a Game World.
 - **Expression:** A Pets source or AST representation of a Type. Distinct Expressions may resolve to the same Type, and one Expression may resolve differently in different Contexts.
-- **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A Definition whose implementation specifically depends on that trust model has an identifier ending in `F`.
+- **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A card implementation that specifically depends on that trust model has an identifier ending in `F`.
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
 - **Game Config:** An unresolved, signed expression of user intent from which defaults, selection policies, and validation produce one exact Game Premise.
 - **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Catalog, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
@@ -70,7 +70,7 @@
 - **Game World Revision:**
 - **Gated Instruction:** An Instruction guarded by a Requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that Task uncompletable unless its Quantifier or enclosing choice permits another result.
 - **Hidden:** A presentation classification for Component Types normally omitted from user-visible output. It is not an Actor or ownership rule.
-- **Immediate Instruction:** An on-create Instruction expressed with `This:`, or supplied by a card Definition's `immediate` field.
+- **Immediate Instruction:** An on-create Instruction expressed with `This:`, or supplied by transitional card data's `immediate` field.
 - **Instruction:** A Pets specification of work that may change a Game World.
 - **Invariant:** A Class-declared Requirement that every committed Game World state must satisfy. The current engine supports only Limits and checks them while preparing Component changes.
 - **Limit:** A counting Invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. The Limiter uses applicable Limits to calculate how much of a Change Instruction is currently legal.
@@ -116,7 +116,7 @@
 - **Signal:** A Hidden Temporary Component that triggers its Effects and immediately removes itself.
 - **Singleton Type:** A Concrete Type for which initialization automatically creates one Component.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no Tasks or turns.
-- **Source Effect:** An Effect as authored in `.pets` or generated from a Definition, before Class-level inheritance and transformation.
+- **Source Effect:** An Effect as authored in `.pets` or generated from structured content data, before Class-level inheritance and transformation.
 - **State Change:** An exact Component gain, removal, or Transmutation that occurred in a Game World. Contrast: Change Instruction.
 - **Structural Activation:**
 - **System:** Engine-only machinery. It extends `Hidden`, cannot be created by a Player, and an unowned System occurrence does not implicitly restrict Effect matching by its Actor.

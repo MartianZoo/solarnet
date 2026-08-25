@@ -89,7 +89,7 @@ public abstract class ClassTable {
       require(reactivated.isEmpty()) {
         "structural activation conflicts with excluded classes: $reactivated"
       }
-      PremiseViability.validate(premise.catalog, table, roots)
+      PremiseViability.validate(table, roots)
       return table
     }
   }

@@ -52,7 +52,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun definitionsAndTheirExtraClassesBecomeDeclarations() {
+  internal fun cardDataAndItsExtraClassesBecomeDeclarations() {
     val catalog =
         object : TfmCatalog() {
           override val cardDefinitions =
@@ -70,6 +70,29 @@ internal class CatalogTest {
 
     catalog.classDeclaration(cn("ExampleCard")).abstract shouldBe false
     catalog.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
+  }
+
+  @Test
+  internal fun selectedClassViabilityUsesItsLoadedDeclaration() {
+    val source =
+        catalog(
+            *parseClasses(
+                    """
+                    CLASS Missing
+                    CLASS Selected { This: -Missing! }
+                    """
+                        .trimIndent()
+                )
+                .toTypedArray()
+        )
+
+    val unavailable =
+        shouldThrow<IllegalArgumentException> {
+          source.gamePremise(GameConfig("Selected")).classTable
+        }
+
+    unavailable.message.orEmpty() shouldContain
+        "unviable game premise: Selected has reachable mandatory removal Missing"
   }
 
   @Test
@@ -393,6 +416,15 @@ internal class CatalogTest {
                 immediate = "-LockedState.",
             )
         )
+    val supportingClassCard =
+        CardDefinition(
+            CardData(
+                name = "SupportingClassCard",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+                components = setOf("CLASS SupportingClass<LockedState>"),
+            )
+        )
     val independentCard =
         CardDefinition(
             CardData(
@@ -412,6 +444,7 @@ internal class CatalogTest {
                 constructingCard,
                 observingMaximumCard,
                 observingRemovalCard,
+                supportingClassCard,
                 independentCard,
             ),
         )
@@ -421,6 +454,7 @@ internal class CatalogTest {
     filtered.isActive(constructingCard.className) shouldBe false
     filtered.isActive(observingMaximumCard.className) shouldBe false
     filtered.isActive(observingRemovalCard.className) shouldBe false
+    filtered.isActive(supportingClassCard.className) shouldBe false
     filtered.isActive(independentCard.className) shouldBe true
 
     val automatic =
@@ -429,16 +463,23 @@ internal class CatalogTest {
     automatic.isActive(constructingCard.className) shouldBe true
     automatic.isActive(observingMaximumCard.className) shouldBe true
     automatic.isActive(observingRemovalCard.className) shouldBe true
+    automatic.isActive(supportingClassCard.className) shouldBe true
     automatic.isActive(independentCard.className) shouldBe true
 
-    listOf(observingCard, constructingCard, observingMaximumCard, observingRemovalCard).forEach {
-        card ->
-      val unavailable =
-          shouldThrow<IllegalArgumentException> {
-            source.gamePremise(GameConfig("Base, ${card.className}"))
-          }
-      unavailable.message.orEmpty() shouldContain "configured definition"
-    }
+    listOf(
+            observingCard,
+            constructingCard,
+            observingMaximumCard,
+            observingRemovalCard,
+            supportingClassCard,
+        )
+        .forEach { card ->
+          val unavailable =
+              shouldThrow<IllegalArgumentException> {
+                source.gamePremise(GameConfig("Base, ${card.className}"))
+              }
+          unavailable.message.orEmpty() shouldContain "configured content"
+        }
 
     val explicitIndependent =
         ClassTable.forPremise(source.gamePremise(GameConfig("Base, ${independentCard.className}")))

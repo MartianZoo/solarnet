@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.Definition
 import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
@@ -52,7 +51,6 @@ internal fun testCatalog(
         declarations.associateBy(ClassDeclaration::className).also {
           require(it.size == declarations.size) { "duplicate test Class declaration" }
         }
-    override val allDefinitions: Set<Definition> = emptySet()
     override val customClasses: Set<CustomClass> = customImplementations
     override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
     override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }

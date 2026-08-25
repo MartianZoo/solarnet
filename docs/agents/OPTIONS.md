@@ -5,10 +5,10 @@ durable projection-decision explanations remain future work.**
 
 ## Catalog
 
-An **Catalog** is one coherent namespace containing everything Solarnet may know about a game:
+A **Catalog** is one coherent namespace containing everything Solarnet may know about a game:
 
-- authored Rule-Class declarations;
-- structured definitions that generate Content-Class declarations;
+- authored Class declarations;
+- transitional card and map records used for generation, selection, and presentation;
 - vocabulary and descriptive metadata;
 - premise defaults and validity rules; and
 - the exceptional custom metrics and instructions that cannot be expressed as data.
@@ -22,6 +22,10 @@ exactly one Catalog. Identical declarations may coalesce. Conflicting declaratio
 Name or ambiguous ownership of a Module are invalid.
 
 ## One master Class Table, projected per game
+
+Class declarations are the Catalog's only common content representation. Card and map records
+remain category-specific transitional inputs; there is no shared `Definition` interface or
+Catalog-wide registry of structured content objects.
 
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
@@ -102,7 +106,9 @@ three players use two more tiles than players.
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
 parallel map option component. `TerraformingMars` selects `TharsisMap` only when no map is already
-selected. Creating the selected map creates all of its Areas through the map instruction.
+selected. Creating the selected map creates all of its Areas through the map instruction. The
+retained map record supplies the grid and compact display data, and the creation history keeps the
+selected map as the cause of its Areas.
 
 `PreludeExpansion` supplies the Prelude rules and phase. It selects `Prelude1Deck` by default and
 requires at least one `PreludeDeck`. The original deck may therefore be explicitly excluded only
@@ -114,8 +120,8 @@ Prelude rules, while the phase and solo generation adjustment still come only fr
 ## Bundle
 
 A **Bundle** is an internal unit of ownership, provenance, distribution, and loading. It may provide
-declarations, definitions, and custom implementations. It is not selected directly and never
-becomes a live component.
+declarations, category-specific card or map data, and custom implementations. It is not selected
+directly and never becomes a live component.
 
 A Bundle may contain several Modules while retaining their separate ordinary card pools. A Module
 named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map Module
@@ -133,7 +139,8 @@ ownership.
   premise.
 - Structural activation cannot select an unrequested Module or override an exclusion.
 - Eligible availability and initial existence remain separate.
-- Multiple active replacements for one definition are invalid.
+- Card replacements must name known cards, must not form cycles, and must not select multiple
+  replacements for one card.
 - Given a Catalog, ambient behavior is a deterministic function of the live Module components.
 
 ## Settled projection-policy direction
@@ -180,15 +187,15 @@ compatibility does not promise that every conditional branch executes in every g
 The boundary applies to hand-authored Class declarations and structured standard-action
 declarations. Cards, maps, areas, milestones, awards, colony tiles, and card-local generated
 Classes remain independently selectable content; merely residing in an expansion Bundle does not
-make a Definition expansion-dependent. Module Classes are never availability-locked: premise
+make a content Class expansion-dependent. Module Classes are never availability-locked: premise
 selection alone decides whether a Module is active.
 
-For content compatibility, inspect every semantic Class reference in the Definition's lowered
-declaration. Ordinary Module selection conjoins the owning Bundle Modules of those ambient Classes
-with the Definition's authored automatic-selection condition. An explicit individual inclusion
-must satisfy the derived Bundle condition and any separate non-Bundle compatibility condition, but
-may still override ordinary pool-selection policy. Thus a Colonies card that only counts colonies
-is just as Colonies-dependent as one that places a colony.
+For content compatibility, inspect every semantic Class reference in the loaded content declaration
+and every supporting declaration contributed with it. Ordinary Module selection conjoins the owning
+Bundle Modules of those ambient Classes with the content's automatic-selection condition. An
+explicit individual inclusion must satisfy the derived Bundle condition and any separate non-Bundle
+compatibility condition, but may still override ordinary pool-selection policy. Thus a Colonies
+card that only counts colonies is just as Colonies-dependent as one that places a colony.
 
 `VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make
 referencing content Venus-dependent. `WorldGovernmentTerraforming` and `FirstPlayerOcean` are shared
@@ -232,9 +239,9 @@ The important cases then fall out without card-specific rules:
 
 Compatible selected content can still have one of three projection outcomes:
 
-- **Viable:** the Definition can participate faithfully. References to uninhabited Types may count
+- **Viable:** the content Class can participate faithfully. References to uninhabited Types may count
   zero, make a `MAX 5` Requirement true, or make a Trigger permanently silent.
-- **Unviable:** the Definition does not demand forbidden state, but it can never be instantiated or
+- **Unviable:** the content Class does not demand forbidden state, but it can never be instantiated or
   complete a reachable mandatory entry point. A positive `MIN` play Requirement over uninhabited
   `VenusStep` is the canonical case. A reachable mandatory removal from a permanently empty domain
   has the same character.
@@ -243,7 +250,8 @@ Compatible selected content can still have one of three projection outcomes:
 Premise construction rejects both unviable and broken selected content, with different diagnostics.
 It must not silently activate a locked Class or defer an inevitable failure until gameplay.
 
-The first viability analysis need only exploit exact facts about uninhabited Types. A later
+The first viability analysis reads every selected root's loaded Class declaration and need only
+exploit exact facts about uninhabited Types. A later
 closed-world extension could prove facts not directly involving them—for example, that Law Suit is
 unviable in solo because no opponent-dependent attack record can ever exist. That is the same
 semantic category but a substantially stronger satisfiability analysis, not a prerequisite for the
@@ -254,7 +262,7 @@ projection change.
 The premise pipeline is:
 
 1. Resolve Modules, defaults, and explicit exclusions.
-2. Derive Definition compatibility from all semantic references and filter bundle-selected
+2. Derive content compatibility from all semantic references and filter bundle-selected
    content.
 3. Apply explicit individual content inclusions and exclusions, rejecting incompatible inclusions.
 4. Form the active closure from roots and reachable hard references, respecting Bundle availability
@@ -264,7 +272,7 @@ The premise pipeline is:
 
 A future retained analysis result should explain every decision, including which reference derived
 an automatic exclusion and the complete hard-reference path that activated or rejected a Class.
-Current failures identify the selected Definition or immediate hard-reference source and the
+Current failures identify the selected content Class or immediate hard-reference source and the
 missing owning Module.
 
 ## Non-Canon Kotlin expansion-coupling audit

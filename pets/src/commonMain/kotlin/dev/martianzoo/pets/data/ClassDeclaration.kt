@@ -22,7 +22,7 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 /**
  * A direct representation of the *declaration* of a component class, such as GreeneryTile. Some of
  * these are written explicitly in `*.pets` source files, but others are converted programmatically
- * from [Definition] objects.
+ * from transitional structured data.
  *
  * The information provided here is not very "cooked"; that cooking happens in
  * `dev.martianzoo.pets.types`.
