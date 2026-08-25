@@ -7,7 +7,9 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -15,7 +17,6 @@ import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.types.te
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
@@ -27,6 +28,8 @@ import kotlin.test.assertFailsWith
 internal class CanonClassesTest {
   companion object {
     val table = Canon.classTable
+
+    private fun te(source: String): Expression = parse(source)
   }
 
   @Test

@@ -1,9 +1,8 @@
-package dev.martianzoo.types
+package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.KindException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect

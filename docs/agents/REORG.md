@@ -1,10 +1,11 @@
 # Module organization
 
 **Status: active target.** The named module and package boundaries through `tfm-canon`,
-`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. The `Catalog` replacement, lower-layer test
-cleanup, and remaining ownership refinements are still proposed. Current behavior remains
-documented by [ENGINE.md](ENGINE.md), [OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they
-differ from this target.
+`tfm-engine`, `tfm-text`, and `tfm-tests` are committed. Lower-layer tests now live with the behavior
+they exercise, with Canon retained only as permitted test scaffolding. The `Catalog` replacement and
+remaining ownership refinements are still proposed. Current behavior remains documented by
+[ENGINE.md](ENGINE.md), [OPTIONS.md](OPTIONS.md), and [NAMING.md](NAMING.md) where they differ from this
+target.
 
 ## Governing rule
 

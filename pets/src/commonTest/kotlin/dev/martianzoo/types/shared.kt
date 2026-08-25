@@ -4,6 +4,7 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -36,19 +37,24 @@ internal fun assertFails(message: String = "(no message)", shouldFail: () -> Uni
 internal fun loadTypes(vararg declarations: String): ClassTable =
     loader(declarations.joinToString("\n"))
 
-internal fun loader(petsText: String): ClassTable {
+internal fun loader(petsText: String): ClassTable = testAuthority(petsText).classTable
+
+internal fun testAuthority(
+    petsText: String,
+    customImplementations: Set<CustomClass> = emptySet(),
+    moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
+): Authority {
   val explicitDeclarations = parseClasses(petsText).toSet()
   val declarations = systemClassDeclarations + explicitDeclarations
-  val authority =
-      object : Authority {
-        override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
-        override val allClassDeclarations: Map<ClassName, ClassDeclaration> =
-            declarations.associateBy(ClassDeclaration::className).also {
-              require(it.size == declarations.size) { "duplicate test Class declaration" }
-            }
-        override val allDefinitions: Set<Definition> = emptySet()
-        override val customClasses: Set<CustomClass> = emptySet()
-        override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
-      }
-  return authority.classTable
+  return object : Authority {
+    override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
+    override val allClassDeclarations: Map<ClassName, ClassDeclaration> =
+        declarations.associateBy(ClassDeclaration::className).also {
+          require(it.size == declarations.size) { "duplicate test Class declaration" }
+        }
+    override val allDefinitions: Set<Definition> = emptySet()
+    override val customClasses: Set<CustomClass> = customImplementations
+    override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
+    override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+  }
 }
