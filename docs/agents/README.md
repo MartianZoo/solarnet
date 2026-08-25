@@ -43,6 +43,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
 | Target Gradle module and package ownership | [REORG.md](REORG.md) | Proposal |
 | Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |
+| Turmoil rules, component homes, and exploratory Pets | [TURMOIL.md](TURMOIL.md) | Research-backed modeling proposal |
 | Remaining implicit-variable work | [LINKAGES.md](LINKAGES.md) | Focused implementation note |
 | Integrating the `work1` AMAP model with `wildtag` | [WILDTAG_INTEGRATION.md](WILDTAG_INTEGRATION.md) | Temporary branch integration record |
 | Candidates for eliminating custom instructions | [REDUCE_CUSTOM.md](REDUCE_CUSTOM.md) | Audit |
