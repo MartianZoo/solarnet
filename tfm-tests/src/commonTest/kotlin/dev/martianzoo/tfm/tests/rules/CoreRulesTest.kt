@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
@@ -124,7 +125,7 @@ internal class CoreRulesTest : CardTest() {
     p1.manual("8 Megacredit, 15 TerraformRating")
     engine.phase("Action")
 
-    p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }.expect("-8 Megacredit, Milestone")
+    p1.claimMilestone(cn("Terraformer35")).expect("-8 Megacredit, Milestone")
   }
 
   @Test
@@ -133,9 +134,9 @@ internal class CoreRulesTest : CardTest() {
     p1.manual("42 Megacredit")
     engine.phase("Action")
 
-    p1.stdAction("FundAwardSA") { doTask("Landlord") }.expect("-8 Megacredit, Award")
-    p1.stdAction("FundAwardSA", which = 2) { doTask("Scientist") }.expect("-14 Megacredit, Award")
-    p1.stdAction("FundAwardSA", which = 3) { doTask("Thermalist") }.expect("-20 Megacredit, Award")
+    p1.fundAward(cn("Landlord"), 8).expect("-8 Megacredit, Award")
+    p1.fundAward(cn("Scientist"), 14).expect("-14 Megacredit, Award")
+    p1.fundAward(cn("Thermalist"), 20).expect("-20 Megacredit, Award")
   }
 
   @Test

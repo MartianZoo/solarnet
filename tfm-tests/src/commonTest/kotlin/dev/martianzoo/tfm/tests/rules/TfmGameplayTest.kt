@@ -72,7 +72,14 @@ internal class TfmGameplayTest : CardTest() {
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
     p1.manual("3 Steel, ProjectCard")
-    p1.intentionalOverpay()
+    p1.intentionalOverpay(1)
+    shouldThrow<IllegalArgumentException> { p1.playProject(Mine, steel = 3) }
+
+    newGame()
+    p1.requireExplicitPaymentChoices()
+    engine.phase("Action")
+    p1.manual("3 Steel, ProjectCard")
+    p1.intentionalOverpay(2)
     p1.playProject(Mine, steel = 3)
   }
 
@@ -99,7 +106,7 @@ internal class TfmGameplayTest : CardTest() {
     engine.phase("Action")
     p1.manual("6 Steel, 2 ProjectCard")
 
-    p1.intentionalOverpay()
+    p1.intentionalOverpay(2)
     p1.playProject(Mine, steel = 3)
     shouldThrow<IllegalArgumentException> { p1.playProject(PowerPlant, steel = 3) }
   }

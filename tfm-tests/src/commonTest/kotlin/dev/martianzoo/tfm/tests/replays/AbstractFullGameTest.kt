@@ -122,13 +122,19 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   protected fun TfmGameplay.assertDashMiddle(
       played: Int,
-      actions: Int,
+      actions: Int? = null,
       vp: Int,
       tr: Int,
       hand: Int,
   ) {
-    assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront OR PlayedEvent")
-    assertActions(actions)
+    assertCounts(
+        hand to "ProjectCard",
+        tr to "TerraformRating",
+        played to "CardFront OR PlayedEvent",
+    )
+    if (actions != null) {
+      count("ActionCard") - count("ActionUsedMarker") shouldBe actions
+    }
     assertVps(vp)
   }
 
@@ -166,11 +172,11 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     val checkpoint = game.timeline.checkpoint()
     game.onAtomicComplete = {}
     try {
-      dropPendingTasksForScoring()
-      engine.phase("Production") { dropPendingTasksForScoring() }
+      dropPendingTasksForSnapshot()
+      engine.phase("Production") { dropPendingTasksForSnapshot() }
       engine.phase("End") {
-        dropPendingTasksForScoring()
-        assertCounts(expected to "VP")
+        dropPendingTasksForSnapshot()
+        assertCounts(expected to "VictoryPoint")
       }
     } finally {
       game.timeline.rollBack(checkpoint)
@@ -178,19 +184,21 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     }
   }
 
-  // Pending choices describe future play, so the scoring snapshot must neither execute nor count
-  // them. Privileged removal is safe here because the enclosing checkpoint restores every task.
-  private fun dropPendingTasksForScoring() {
+  // Pending choices describe future play, so a snapshot must neither execute nor count them.
+  // Unbought research cards need to leave their temporary locations before task removal; the
+  // enclosing checkpoint restores both the components and tasks afterward.
+  private fun dropPendingTasksForSnapshot() {
+    game.actors
+        .filterIsInstance<Player>()
+        .map { game.tfm(it) }
+        .filter { it.count("ProjectCard<Selecting>") > 0 }
+        .forEach { it.buyCards(0) }
     game.tasks
         .extract { it.assignee }
         .toSet()
         .forEach {
           game.gameplay(it).godMode().dropTasks()
         }
-  }
-
-  private fun TfmGameplay.assertActions(expected: Int) {
-    count("ActionCard") - count("ActionUsedMarker") shouldBe expected
   }
 }
 

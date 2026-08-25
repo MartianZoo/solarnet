@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
@@ -40,7 +41,7 @@ public class TfmGameplay(
 
   private var explicitPaymentChoicesRequired = false
   private var allowUnderpayment = false
-  private var allowOverpayment = false
+  private var expectedOverpaymentWaste: Int? = null
 
   private fun asActor(actor: Actor) =
       TfmGameplay(game, actor).also {
@@ -160,6 +161,14 @@ public class TfmGameplay(
     }
   }
 
+  public fun claimMilestone(milestone: ClassName): TaskResult =
+      stdAction("ClaimMilestoneSA") { doTask("$milestone") }
+
+  public fun fundAward(award: ClassName, amountPaid: Int): TaskResult {
+    val which = count("Award") + 1
+    return stdAction("FundAwardSA", which, payment = { pay(amountPaid) }) { doTask("$award") }
+  }
+
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
     val offeredResource = STANDARD_RESOURCE_CLASSES.singleOrNull { resource ->
       game.tasks
@@ -212,6 +221,7 @@ public class TfmGameplay(
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      payment: BodyLambda = { pay(megacredits, steel, titanium) },
       body: BodyLambda = {},
   ): TaskResult {
     return inTfmTurn {
@@ -220,7 +230,7 @@ public class TfmGameplay(
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
-      pay(megacredits, steel, titanium)
+      payment()
       body()
       if (this@TfmGameplay.count("Owed") == 0) {
         tasks
@@ -273,15 +283,17 @@ public class TfmGameplay(
       heat: Int = 0,
   ): TaskResult {
     val underpaymentAllowed = allowUnderpayment
-    val overpaymentAllowed = allowOverpayment
+    val expectedWaste = expectedOverpaymentWaste
     allowUnderpayment = false
-    allowOverpayment = false
+    expectedOverpaymentWaste = null
     // Billing effects are queued; safely advance them until the payment choices are available.
     val previousAutoExecMode = autoExecMode
-    autoExecMode = SAFE
+    if (autoExecMode != NONE) autoExecMode = SAFE
 
     return try {
       godMode().continueManual {
+        var observedWaste = 0
+
         fun payNonMoneyResource(cost: Int, currency: String) {
           val accepted =
               tasks
@@ -309,11 +321,15 @@ public class TfmGameplay(
                     "call intentionalUnderpay() immediately before paying if this is sourced"
             )
           }
-          if (explicitPaymentChoicesRequired && cost * value > owed && !overpaymentAllowed) {
-            throw IllegalArgumentException(
-                "$actor paid $cost $currency worth ${cost * value} against $owed owed; " +
-                    "call intentionalOverpay() immediately before paying if this is sourced"
-            )
+          val squanderedValue = (cost * value - owed).coerceAtLeast(0)
+          if (explicitPaymentChoicesRequired && squanderedValue > 0) {
+            if (expectedWaste == null) {
+              throw IllegalArgumentException(
+                  "$actor paid $cost $currency worth ${cost * value} against $owed owed; " +
+                      "call intentionalOverpay($squanderedValue) immediately before paying if this is sourced"
+              )
+            }
+            observedWaste += squanderedValue
           }
           if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
         }
@@ -323,6 +339,12 @@ public class TfmGameplay(
         payNonMoneyResource(heat, "Heat")
         payNonMoneyResource(titanium, "Titanium")
         payNonMoneyResource(steel, "Steel")
+
+        if (explicitPaymentChoicesRequired && expectedWaste != null) {
+          require(expectedWaste == observedWaste) {
+            "$actor declared $expectedWaste M€ of intentional overpayment but squandered $observedWaste M€"
+          }
+        }
 
         val owed = count("Owed")
         if (megacredits > owed) {
@@ -350,9 +372,14 @@ public class TfmGameplay(
     allowUnderpayment = true
   }
 
-  /** Allows the next [pay] call to spend a non-money resource for less than its full value. */
-  public fun intentionalOverpay() {
-    allowOverpayment = true
+  /**
+   * Allows the next [pay] call to squander exactly [monetaryValueSquandered] through overpayment.
+   */
+  public fun intentionalOverpay(monetaryValueSquandered: Int) {
+    require(monetaryValueSquandered > 0) {
+      "Intentional overpayment must squander a positive value"
+    }
+    expectedOverpaymentWaste = monetaryValueSquandered
   }
 
   public fun requireExplicitPaymentChoices(): TfmGameplay = apply {

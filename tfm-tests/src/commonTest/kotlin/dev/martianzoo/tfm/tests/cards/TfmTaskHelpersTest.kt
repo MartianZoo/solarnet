@@ -3,14 +3,26 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.ForcedPrecipitation
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class TfmTaskHelpersTest : CardTest() {
   @Test
-  internal fun `Tile placement rejects multiple pending placements`() {
+  internal fun `Tile placement accepts identical pending placements`() {
     newGame()
 
     p1.godMode().addTasks("OceanTile<WaterArea>, OceanTile<WaterArea>")
+
+    p1.placeTile(1, 2)
+
+    p1.count("OceanTile") shouldBe 1
+  }
+
+  @Test
+  internal fun `Tile placement rejects distinct pending placements`() {
+    newGame()
+
+    p1.godMode().addTasks("OceanTile<WaterArea>, GreeneryTile<LandArea>")
 
     shouldThrow<IllegalArgumentException> { p1.placeTile(1, 2) }
   }

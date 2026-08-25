@@ -28,8 +28,8 @@ internal class Prelude2CardsTest : CardTest() {
     val startingMoney = p1.count("Megacredit")
     engine.phase("Action")
 
-    p1.stdAction("ClaimMilestoneSA") { doTask("Planner") }.expect("Milestone")
-    p1.stdAction("FundAwardSA") { doTask("Landlord") }.expect("Award")
+    p1.claimMilestone(cn("Planner")).expect("Milestone")
+    p1.fundAward(cn("Landlord"), 0).expect("Award")
 
     p1.count("Megacredit") shouldBe startingMoney
   }
