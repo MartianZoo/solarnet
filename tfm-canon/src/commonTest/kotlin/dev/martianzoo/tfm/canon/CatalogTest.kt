@@ -104,7 +104,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun explicitDeclarationsAreNeutralizedForFollowMode() {
+  internal fun explicitDeclarationsRetainGenericCardLocationsInFollowMode() {
     val source =
         parseClasses(
                 """
@@ -115,7 +115,11 @@ internal class CatalogTest {
                     .trimIndent()
             )
             .single()
-    val expected = parseClasses("ABSTRACT CLASS Buyer { ResearchPhase: 4 BuyCard? }").single()
+    val expected =
+        parseClasses(
+                "ABSTRACT CLASS Buyer { ResearchPhase: Selecting THEN (4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards) }"
+            )
+            .single()
 
     val loaded = catalog(source).allClassDeclarations.getValue(cn("Buyer"))
 

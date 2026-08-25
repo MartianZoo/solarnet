@@ -172,8 +172,8 @@ internal class TaskRevisionTest {
     writer.reviseTask("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
 
     val discard = tasks.extract { it }.single()
-    discard.instruction.toString() shouldBe "-ProjectCard<Player1>!"
-    discard.then.toString() shouldBe "ProjectCard<Player1>!"
+    discard.instruction.toString() shouldBe "-ProjectCard<Player1, Hand>!"
+    discard.then.toString() shouldBe "ProjectCard<Player1, Hand>!"
   }
 
   @Test
@@ -343,6 +343,17 @@ internal class TaskRevisionTest {
     writer.doTask("3 Plant")
 
     tasksAsText().shouldContainExactly("3 Heat<Player1>?")
+  }
+
+  @Test
+  internal fun `revising a linked THEN to a concrete sequence splits its first stage`() {
+    initiate("X Plant? THEN X Heat?")
+
+    writer.reviseTask("X Plant? THEN X Heat?", "3 Plant THEN 3 Heat")
+
+    val task = tasks.extract { it }.single()
+    task.instruction.toString() shouldBe "3 Plant<Player1>!"
+    task.then.toString() shouldBe "3 Heat<Player1>!"
   }
 
   @Test

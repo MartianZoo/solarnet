@@ -35,7 +35,8 @@ internal class PharmacyUnionTest : CardTest() {
 
     manual.manual("$Research") {
       doTask("TerraformRating FROM Disease<$PharmacyUnion>")
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
+      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("3 TerraformRating")
       doTask("2 ProjectCard")
     }
 
@@ -56,7 +57,8 @@ internal class PharmacyUnionTest : CardTest() {
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.manual("$Research") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
+      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("3 TerraformRating")
       // Decline the second science tag's attempt to flip Pharmacy Union again.
       declineTask()
       doTask("2 ProjectCard")
@@ -78,7 +80,8 @@ internal class PharmacyUnionTest : CardTest() {
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.manual("$RegolithEaters") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
+      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("3 TerraformRating")
       doTask("-4 Megacredit")
       // Decline placing disease after Pharmacy Union has left play.
       declineTask()

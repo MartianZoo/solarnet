@@ -13,7 +13,7 @@ internal class SponsoredAcademiesTest : CardTest() {
     newGame(VenusNextExpansion, players = 3)
     engine.phase("Action")
     engine.manual(
-        "9 Megacredit<Player1>, ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>"
+        "9 Megacredit<Player1>, ProjectCard<Player1, Hand>, ProjectCard<Player2, Hand>, ProjectCard<Player3, Hand>"
     )
   }
 

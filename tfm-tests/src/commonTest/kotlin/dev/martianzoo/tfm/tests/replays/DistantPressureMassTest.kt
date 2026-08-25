@@ -192,7 +192,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       // Keen used Business Network action
       cardAction1(BusinessNetwork) {
         // The archive records that the revealed card was not bought.
-        declineTask()
+        buyCards(0)
       }
       // Keen bought 0 card(s)
       // Keen spent 1 M€ as payment
@@ -399,7 +399,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       // Keen used Business Network action
       cardAction1(BusinessNetwork) {
         // The archive records that the revealed card was not bought.
-        declineTask()
+        buyCards(0)
       }
       // Keen bought 0 card(s)
       // Keen used Search For Life action
@@ -515,7 +515,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       // Keen ended turn
       cardAction1(BusinessNetwork) {
         // The archive records that the revealed card was not bought.
-        declineTask()
+        buyCards(0)
       }
     }
     // Been passed
@@ -1126,7 +1126,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       // Keen used Business Network action
       cardAction1(BusinessNetwork) {
         // The archive records that the revealed card was not bought.
-        declineTask()
+        buyCards(0)
       }
       // Keen bought 0 card(s)
       // Keen spent 7 M€ as payment
@@ -1609,7 +1609,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.sellPatents(StaticHarvesting)
     keen.turn {
       // Keen used Business Network action
-      cardAction1(BusinessNetwork) { declineTask() }
+      cardAction1(BusinessNetwork) { buyCards(0) }
       // Keen bought 0 card(s)
       // Keen used Search For Life action
       // Keen spent 1 M€ as payment

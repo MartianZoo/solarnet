@@ -133,13 +133,13 @@
     {
       "name": "Merger",
       "deck": "PRELUDE",
-      "immediate": "CARDS[4 CorporationCard<Selecting> THEN CorporationCard<Hand FROM Selecting> THEN PlayCard<Class<CorporationCard>>], -42",
+      "immediate": "CARDS[4 CorporationCard<Selecting>, CorporationCard<Hand FROM Selecting>, PlayCard<Class<CorporationCard>>], -42",
     },
 
     {
       "name": "NewPartner",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], CARDS[2 PreludeCard<Selecting> THEN PreludeCard<Hand FROM Selecting> THEN PlayCard<Class<PreludeCard>>]",
+      "immediate": "PROD[1], CARDS[2 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]",
     },
 
     {

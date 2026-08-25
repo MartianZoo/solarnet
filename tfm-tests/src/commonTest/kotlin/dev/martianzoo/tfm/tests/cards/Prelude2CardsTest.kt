@@ -423,7 +423,7 @@ internal class Prelude2CardsTest : CardTest() {
     engine.phase("Action")
 
     p1.cardAction1(VenusOrbitalSurvey) {
-      doTask("ProjectCard")
+      doTask("ProjectCard<Hand FROM Selecting>")
       p1.buyCards(1)
     }
 

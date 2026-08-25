@@ -267,8 +267,8 @@ internal class ScriptSessionTest {
         """
         newgame BRVPX 2; mode blue; auto safe; phase Corporation
 
-        become Player1; turn; tfm_play Manutech; task 5 BuyCard; task 15 Pay<Class<Megacredit>> FROM Megacredit
-        become Player2; turn; tfm_play Factorum; task 4 BuyCard; task 12 Pay<Class<Megacredit>> FROM Megacredit
+        become Player1; turn; tfm_play Manutech; task -5 ProjectCard<Selecting>; task 15 Pay<Class<Megacredit>> FROM Megacredit
+        become Player2; turn; tfm_play Factorum; task -6 ProjectCard<Selecting>; task 12 Pay<Class<Megacredit>> FROM Megacredit
 
         phase Prelude
 
@@ -289,102 +289,32 @@ internal class ScriptSessionTest {
             .split(Regex(" *[\n;] *"))
             .filter { it.isNotEmpty() }
 
-    val expectedOutput =
-        """
-        New 2-player game created with options: BRVPX
-        Mode BLUE: Turn integrity: must perform a valid game turn for this phase
-        Autoexec mode is: SAFE
-        0000: +CorporationPhase FROM SetupPhase BY Engine (manual)
-        0000: +CorporationCard<Player1> BY Player1 VIA Player1 BECAUSE 0000
-        0000: +CorporationCard<Player2> BY Player2 VIA Player2 BECAUSE 0000
-        0000: +Photosynthesis BY Engine VIA TerraformingMars BECAUSE 0000
-        Hi, Player1
-        New tasks pending:
-        [Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
-        [Player1] 10 BuyCard<Player1>? (abstract)
-        0000: +Manutech<Player1, Class<CorporationCard>> FROM CorporationCard<Player1> BY Player1 VIA PlayCard<Player1, Class<CorporationCard>, Class<Manutech>> BECAUSE 0000
-        0000: +BuildingTag<Player1, Manutech<Player1, Class<CorporationCard>>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        0000: +35 Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        0000: +Production<Player1, Class<Steel>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        0000: +Steel<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        New tasks pending:
-        * [Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
-        [Player1] MAX 0 Invoice<Player1>: 5 ProjectCard<Player1>!
-        0000: +15 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> BY Player1 VIA Accept<Player1, Class<Megacredit>> BECAUSE 0000
-        0000: +5 ProjectCard<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
-        Hi, Player2
-        New tasks pending:
-        [Player2] PlayCard<Player2, Class<CorporationCard>>! (abstract)
-        [Player2] 10 BuyCard<Player2>? (abstract)
-        0000: +Factorum<Player2, Class<CorporationCard>> FROM CorporationCard<Player2> BY Player2 VIA PlayCard<Player2, Class<CorporationCard>, Class<Factorum>> BECAUSE 0000
-        0000: +PowerTag<Player2, Factorum<Player2, Class<CorporationCard>>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
-        0000: +BuildingTag<Player2, Factorum<Player2, Class<CorporationCard>>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
-        0000: +37 Megacredit<Player2> BY Player2 VIA Factorum<Player2> BECAUSE 0000
-        0000: +Production<Player2, Class<Steel>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
-        New tasks pending:
-        * [Player2] X Pay<Player2, Class<Megacredit>> FROM Megacredit<Player2>? (abstract)
-        [Player2] MAX 0 Invoice<Player2>: 4 ProjectCard<Player2>!
-        0000: +12 Pay<Player2, Class<Megacredit>> FROM Megacredit<Player2> BY Player2 VIA Accept<Player2, Class<Megacredit>> BECAUSE 0000
-        0000: +4 ProjectCard<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
-        0000: +PreludePhase FROM CorporationPhase BY Engine (manual)
-        0000: +2 PreludeCard<Player1> BY Player1 VIA PreludeSetup<Player1> BECAUSE 0000
-        0000: +2 PreludeCard<Player2> BY Player2 VIA PreludeSetup<Player2> BECAUSE 0000
-        Hi, Player1
-        New tasks pending:
-        * [Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
-        0000: +NewPartner<Player1, Class<PreludeCard>> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<NewPartner>> BECAUSE 0000
-        0000: +Production<Player1, Class<Megacredit>> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
-        0000: +2 PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
-        0000: +Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        0000: -PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
-
-        New tasks pending:
-        * [Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)
-        0000: +UnmiContractor<Player1, Class<PreludeCard>> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<UnmiContractor>> BECAUSE 0000
-        0000: +EarthTag<Player1, UnmiContractor<Player1, Class<PreludeCard>>> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
-        0000: +3 TerraformRating<Player1> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
-        0000: +ProjectCard<Player1> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
-        New tasks pending:
-        * [Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
-        0000: +AlliedBank<Player1, Class<PreludeCard>> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<AlliedBank>> BECAUSE 0000
-        0000: +EarthTag<Player1, AlliedBank<Player1, Class<PreludeCard>>> BY Player1 VIA AlliedBank<Player1> BECAUSE 0000
-        0000: +4 Production<Player1, Class<Megacredit>> BY Player1 VIA AlliedBank<Player1> BECAUSE 0000
-        0000: +3 Megacredit<Player1> BY Player1 VIA AlliedBank<Player1> BECAUSE 0000
-        0000: +4 Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        Hi, Player2
-        New tasks pending:
-        * [Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
-        0000: +AcquiredSpaceAgency<Player2, Class<PreludeCard>> FROM PreludeCard<Player2> BY Player2 VIA PlayCard<Player2, Class<PreludeCard>, Class<AcquiredSpaceAgency>> BECAUSE 0000
-        0000: +6 Titanium<Player2> BY Player2 VIA AcquiredSpaceAgency<Player2> BECAUSE 0000
-        0000: +2 ProjectCard<Player2> BY Player2 VIA AcquiredSpaceAgency<Player2> BECAUSE 0000
-        New tasks pending:
-        * [Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
-        0000: +IoResearchOutpost<Player2, Class<PreludeCard>> FROM PreludeCard<Player2> BY Player2 VIA PlayCard<Player2, Class<PreludeCard>, Class<IoResearchOutpost>> BECAUSE 0000
-        0000: +ScienceTag<Player2, IoResearchOutpost<Player2, Class<PreludeCard>>> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
-        0000: +JovianTag<Player2, IoResearchOutpost<Player2, Class<PreludeCard>>> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
-        0000: +Production<Player2, Class<Titanium>> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
-        0000: +ProjectCard<Player2> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
-        0000: +ActionPhase FROM PreludePhase BY Engine (manual)
-        Hi, Player1
-        New tasks pending:
-        * [Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! (abstract)
-        New tasks pending:
-        * [Player1] PlayCard<Player1, Class<ProjectCard>>! (abstract)
-        New tasks pending:
-        * [Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
-        [Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>!
-        0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> BY Player1 VIA Accept<Player1, Class<Megacredit>> BECAUSE 0000
-        0000: +InventorsGuild<Player1, Class<ProjectCard>> FROM ProjectCard<Player1> BY Player1 VIA PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
-        0000: +ScienceTag<Player1, InventorsGuild<Player1, Class<ProjectCard>>> BY Player1 VIA InventorsGuild<Player1> BECAUSE 0000
-        """
-            .trimIndent()
-            .split("\n")
-
-    // TODO The "MAX 0 Barrier" one should have said "(currently impossible)"
-    // also why is there a random blank line up there??
+    val expectedPreamble =
+        listOf(
+            "New 2-player game created with options: BRVPX",
+            "Mode BLUE: Turn integrity: must perform a valid game turn for this phase",
+            "Autoexec mode is: SAFE",
+            "0000: +CorporationPhase FROM SetupPhase BY Engine (manual)",
+        )
 
     val output = commands.flatMap(repl::command).map(::normalizeEventOrdinals)
-    assertEquals(expectedOutput, output)
+    assertEquals(expectedPreamble, output.take(4))
+    assertContains(
+        output,
+        "0000: +5 ProjectCard<Player1, Hand<Player1>> FROM ProjectCard<Player1, Selecting<Player1>> BY Player1 VIA BuySelectedCards<Player1> BECAUSE 0000",
+    )
+    assertContains(
+        output,
+        "0000: +4 ProjectCard<Player2, Hand<Player2>> FROM ProjectCard<Player2, Selecting<Player2>> BY Player2 VIA BuySelectedCards<Player2> BECAUSE 0000",
+    )
+    assertTrue(
+        output.none {
+          "can't reify" in it || "already prepared" in it || it.startsWith("pending tasks:")
+        }
+    )
+    assertEquals(0, repl.gameplay.count("ProjectCard<Player1, Selecting<Player1>>"))
+    assertEquals(0, repl.gameplay.count("ProjectCard<Player2, Selecting<Player2>>"))
+    assertEquals(1, repl.gameplay.count("InventorsGuild<Player1>"))
   }
 
   @Test

@@ -51,7 +51,9 @@ those declarations; there are no parallel goal metadata objects.
 
 Canonical card classes are loaded from each bundle's generated `cards.pets` alongside
 `classes.pets`. A loaded card declaration retains authored actions and authored effects while its
-ordinary `effects` contain the follow-mode compilation used for activation and execution.
+ordinary `effects` contain the follow-mode compilation used for activation and execution. That
+compilation preserves generic `CardLocation` movements, delegates printed-face predicates to the
+client, and temporarily represents exact Event-pile links with `PlayedEvent`.
 `TfmCatalog.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
 so deck, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
 come from Pets. JSON-backed card data remains temporarily for generation, pre-load content
@@ -130,7 +132,8 @@ task per member. Selecting a grouped `OR` branch can likewise replace one task w
 
 `A THEN B` stores A as current work and B as a continuation. Completing A enqueues B in its place;
 B is not immediate and receives no priority over unrelated pending work. Open implicit variables can
-prevent splitting until an earlier stage fixes their shared Type.
+prevent splitting until an earlier stage fixes their shared Type. Revision and preparation normalize
+the task again, so the sequence splits once those shared values become concrete.
 
 ### Assignment and Actor
 

@@ -360,9 +360,23 @@ internal class Implementations(
   ) {
     val group = InstructionGroup.of(replacement)
     if (group.size == 1) {
-      queue.editTask(
-          original.copy(instructionIn = group.instructions.single(), next = next, thenIn = then)
-      )
+      val instruction = group.instructions.single()
+      val updated =
+          if (instruction is Then && then == null) {
+            Task.newTasks(
+                    original.id,
+                    original.assignee,
+                    group,
+                    original.cause,
+                    original.actor,
+                    reader::isAbstract,
+                )
+                .single()
+                .copy(next = next, whyPending = original.whyPending)
+          } else {
+            original.copy(instructionIn = instruction, next = next, thenIn = then)
+          }
+      queue.editTask(updated)
     } else {
       queue.queueFor(original.assignee).addTasks(group, original.cause, original.actor)
       handleTask(queue, original.copy(thenIn = then))
