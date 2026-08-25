@@ -1,0 +1,330 @@
+// Generated from cards.json5.
+CLASS NirgalEnterprises : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: PowerTag<This>, PlantTag<This>, BuildingTag<This>
+  This: 30, PROD[Energy, Plant, Steel]
+  Invoice<ClaimMilestoneSA>:: -Owed<> / Owed<>
+  Invoice<FundAwardSA>:: -Owed<> / Owed<>
+}
+
+CLASS PalladinShipping : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: 36, 5 Titanium
+  EventCard(HAS SpaceTag): Titanium
+
+  2 Titanium -> TemperatureStep
+}
+
+CLASS SagittaFrontierServices : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This: 31, PROD[Energy, 2], CARDS[ProjectCard(HAS MAX 0 Tag)]
+  CardFront(HAS MAX 0 Tag): 4
+  CardFront(HAS =1 Tag): 1
+}
+
+CLASS EcoTec : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: MicrobeTag<This>, PlantTag<This>
+  This: 42, PROD[Plant]
+  BioTag<>: Plant OR Microbe
+}
+
+CLASS Spire : ResourceCard<Class<Science>, Class<CorporationCard>> {
+  cost = 0
+
+  This:: CityTag<This>, EarthTag<This>
+  This: 50, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }
+  CardFront(HAS 2 Tag): Science<This>
+  UseAction<StandardProject>:: AcceptFromCard<This>
+  PayFromCard<This>:: -2 Owed<>
+}
+
+CLASS AppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
+  cost = 0
+
+  This: WildTag<This>, 6 Science<This>
+
+  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
+}
+
+CLASS AtmosphericEnhancers : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: VenusTag<This>
+  This: (2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)]
+}
+
+CLASS BoardOfDirectors : ActionCard, ResourceCard<Class<Director>, Class<PreludeCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 4 Director<This>
+
+  -> PreludeCard, -PreludeCard OR (-12 THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)
+}
+
+CLASS ColonyTradeHub : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: PROD[Energy], 2 Titanium
+  Colony<Anyone>: 2
+}
+
+CLASS EarlyColonization : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: Colony<>, 3 Energy, 2 AdvanceColonyTracks
+}
+
+CLASS FloatingTradeHub : ActionCard, ResourceCard<Class<Floater>, Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+
+  -> 2 Floater
+  X Floater<This> -> X StandardResource
+}
+
+CLASS FocusedOrganization : ActionCard<Class<PreludeCard>> {
+  cost = 0
+
+  This: ProjectCard, StandardResource
+
+  -> -ProjectCard THEN -StandardResource THEN FocusedOrganizationGain
+}
+
+CLASS IndustrialComplex : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: -18, PROD[1 / 6 - Megacredit, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]
+}
+
+CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: -5
+  Asteroid<This>: Titanium
+  End: VictoryPoint / 2 Asteroid<This>
+
+  -> Asteroid
+}
+
+CLASS NobelPrize : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: WildTag<This>, 5, CARDS[2 ProjectCard(HAS requirement)]
+  End: 2 VictoryPoint
+}
+
+CLASS OldMiningColony : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: PROD[Titanium], Colony<>, -ProjectCard
+}
+
+CLASS PlanetaryAlliance : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: EarthTag<This>, JovianTag<This>, VenusTag<This>
+  This: 2 TerraformRating, CARDS[ProjectCard(HAS JovianTag)], CARDS[ProjectCard(HAS VenusTag)]
+}
+
+CLASS ProjectEden : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: CityTag<This>, PlantTag<This>
+  This: OceanTile<>, CityTile<>, GreeneryTile<>, -3 ProjectCard
+}
+
+CLASS Recession : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 10
+}
+
+CLASS SoilBacteria : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: MicrobeTag<This>
+  This: CARDS[2 ProjectCard(HAS MicrobeTag)], 3 Plant
+  PlantTag<> OR MicrobeTag<>: Plant
+}
+
+CLASS SpaceLanes : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: 3 Titanium
+  PlayTag<Class<PlanetTag>>:: -2 Owed<>
+}
+
+CLASS SuitableInfrastructure : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: 5 Steel
+  UseAction<StandardAction>:: -SuitableInfrastructurePaid.
+  NewTurn IF PreludePhase:: -SuitableInfrastructurePaid.
+  X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.
+}
+
+CLASS TerraformingDeal : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  TerraformRating: 2
+}
+
+CLASS VenusContract : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: VenusTag<This>
+  This: CARDS[ProjectCard(HAS VenusTag)], TerraformRating
+  VenusStep: 3
+}
+
+CLASS VenusL1Shade : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: 3 VenusStep
+}
+
+CLASS WorldGovernmentAdvisor : ActionCard<Class<PreludeCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 2 TerraformRating, ProjectCard
+
+  -> WorldGovernmentTerraforming BY Engine
+}
+
+CLASS CeresTechMarket : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 12
+
+  This:: ScienceTag<This>, SpaceTag<This>
+  This: 2 / Colony
+  End: VictoryPoint
+
+  X ProjectCard -> 2X
+}
+
+CLASS CloudTourism : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 11
+
+  This:: JovianTag<This>, VenusTag<This>
+  This: PROD[1 / EarthTag MAX VenusTag]
+  End: VictoryPoint / 3 Floater<This>
+
+  -> Floater<This>
+}
+
+CLASS FloatingRefinery : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 7
+
+  This:: VenusTag<This>
+  This: Floater<This> / VenusTag
+
+  -> Floater<This>
+  2 Floater -> Titanium, 2
+}
+
+CLASS IshtarExpedition : EventCard<Class<ProjectCard>> {
+  cost = 6
+  requirement = HAS "5 VenusStep"
+
+  This:: VenusTag<This>, EventTag<This>
+  This: 3 Titanium, CARDS[2 ProjectCard(HAS VenusTag)]
+}
+
+CLASS MicrogravityNutrition : AutomatedCard<Class<ProjectCard>> {
+  cost = 11
+
+  This:: MicrobeTag<This>, PlantTag<This>
+  This: PROD[1 / Colony]
+  End: VictoryPoint
+}
+
+CLASS SoilStudies : EventCard<Class<ProjectCard>> {
+  cost = 13
+  requirement = HAS "MAX 13 TemperatureStep"
+
+  This:: MicrobeTag<This>, PlantTag<This>, EventTag<This>
+  This: Plant / (VenusTag OR PlantTag OR Colony)
+}
+
+CLASS StratosphericExpedition : EventCard<Class<ProjectCard>> {
+  cost = 12
+
+  This:: VenusTag<This>, SpaceTag<This>, EventTag<This>
+  This: 2 Floater, CARDS[2 ProjectCard(HAS VenusTag)]
+  End: VictoryPoint
+}
+
+CLASS UnexpectedApplication : EventCard<Class<ProjectCard>> {
+  cost = 4
+
+  This:: VenusTag<This>, EventTag<This>
+  This: -ProjectCard THEN VenusStep
+}
+
+CLASS VenusAllies : AutomatedCard<Class<ProjectCard>> {
+  cost = 30
+
+  This:: VenusTag<This>, SpaceTag<This>
+  This: 2 VenusStep, 4 / Colony
+  End: 2 VictoryPoint
+}
+
+CLASS VenusOrbitalSurvey : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 18
+
+  This:: VenusTag<This>, SpaceTag<This>
+
+  -> CARDS[2 ProjectCard<Selecting> THEN 2 ProjectCard<Hand>(HAS VenusTag) FROM ProjectCard<Selecting>. THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
+}
+
+CLASS VenusShuttles : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 9
+
+  This:: VenusTag<This>
+  This: 2 Floater<CardFront(HAS VenusTag)>
+
+  1 / (12 - VenusTag) -> VenusStep
+}
+
+CLASS VenusTradeHub : ActiveCard<Class<ProjectCard>> {
+  cost = 12
+  requirement = HAS "2 VenusTag"
+
+  This:: VenusTag<This>, SpaceTag<This>
+  Trade: 3
+  End: VictoryPoint
+}
+
+// Supporting declarations contributed by cards in this bundle.
+CLASS Director : CardResource<ResourceHolder<Class<Director>>>
+
+CLASS FocusedOrganizationGain : Owned<Player>, Signal {
+  This: ProjectCard, StandardResource
+}
+
+CLASS RecessionWatcher : Owned<Player> {
+  HAS =1 This
+  Recession<Anyone> IF MAX 0 Recession<Owner>: -5 Megacredit<Owner>. BY Owner, PROD[-Megacredit<Owner>.] BY Owner
+}
+
+CLASS SuitableInfrastructurePaid : Atomized, Hidden, Owned<Player> {
+  HAS MAX 1 This
+  This:: 2
+}

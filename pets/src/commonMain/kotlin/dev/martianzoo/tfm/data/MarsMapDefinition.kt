@@ -77,7 +77,7 @@ public data class MarsMapDefinition(
                   PropertyName("row") to NumberValue(row),
                   PropertyName("column") to NumberValue(column),
               ),
-          effects = toEffects(bonus),
+          authoredEffects = toEffects(bonus),
       )
     }
 

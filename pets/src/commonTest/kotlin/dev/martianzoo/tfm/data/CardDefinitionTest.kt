@@ -90,9 +90,13 @@ internal class CardDefinitionTest {
 
     prelude.immediate shouldBe null
     prelude.tags.toStrings().shouldBeEmpty()
-    prelude.asClassDeclaration.supertypes.shouldContainExactly(parse<Expression>("CardFront"))
+    prelude.asClassDeclaration.supertypes.shouldContainExactly(
+        parse<Expression>("CardFront<Class<PreludeCard>>")
+    )
     event.tags.toStrings().shouldContainExactly("EventTag")
-    event.asClassDeclaration.supertypes.shouldContainExactly(parse<Expression>("EventCard"))
+    event.asClassDeclaration.supertypes.shouldContainExactly(
+        parse<Expression>("EventCard<Class<ProjectCard>>")
+    )
 
     assertFailsWith<IllegalArgumentException> {
       CardDefinition(CardData(name = "TaggedPrelude", deck = "PRELUDE", tags = listOf("EventTag")))
@@ -107,6 +111,24 @@ internal class CardDefinitionTest {
           )
       )
     }
+  }
+
+  @Test
+  internal fun mostSpecificCardRoleCarriesTheDeckClass() {
+    val resourceCorporation =
+        CardDefinition(
+            CardData(
+                name = "ExampleCorporation",
+                deck = "CORPORATION",
+                actions = listOf("-> Animal<This>"),
+                effects = listOf("End: VictoryPoint / Animal<This>"),
+            )
+        )
+
+    resourceCorporation.asClassDeclaration.supertypes.shouldContainExactlyInAnyOrder(
+        parse<Expression>("ResourceCard<Class<Animal>, Class<CorporationCard>>"),
+        parse<Expression>("ActionCard"),
+    )
   }
 
   @Test

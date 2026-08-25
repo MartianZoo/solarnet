@@ -1,0 +1,45 @@
+// Generated from cards.json5.
+CLASS LakefrontResorts : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: 54
+  OceanTile BY Anyone: PROD[1]
+  ForwardAdjacency<OceanTile, Tile>: 1
+}
+
+CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
+  cost = 0
+
+  This: 53, -2 TerraformRating
+  ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6
+  End: VictoryPoint / Preservation<This>
+}
+
+CLASS TerraLabsResearch : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: ScienceTag<This>, EarthTag<This>
+  This: 14, -TerraformRating
+  BuyCard:: -2 Owed<>
+}
+
+CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This: 40, PROD[Steel, Titanium]
+
+  PROD[StandardResource] -> 4 StandardResource
+}
+
+// Supporting declarations contributed by cards in this bundle.
+CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>
+
+CLASS HasRaisedTr : Generational, Hidden, Owned {
+  HAS MAX 1 This
+}
+
+CLASS TrWatcher : Owned<Player>, System {
+  HAS =1 This
+  TerraformRating IF MAX 0 SetupPhase:: HasRaisedTr.
+}

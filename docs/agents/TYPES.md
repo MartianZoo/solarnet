@@ -127,6 +127,11 @@ New dependencies follow inherited ones. `Cardbound<CardFront<Player>> : Owned<Pl
 `Owned_0` and adds the card dependency. The repeated `Player` links card and owner through an
 implicit variable described in section 10.
 
+When `This` has explicit arguments, replacement keeps those arguments while substituting the
+concrete context Class. Thus an invariant `HAS MAX 1 This<Player>` inherited by `Birds` constrains
+`Birds<Player>` as a whole, rather than separately constraining `Birds<Player1>`,
+`Birds<Player2>`, and so on. Bare `This` still denotes the fully bound context Type.
+
 ### Dependency targets must be unique
 
 An edge identifies its target only by exact Type, so every concrete Type admitted by a dependency

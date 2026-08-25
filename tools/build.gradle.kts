@@ -43,3 +43,16 @@ tasks.register<JavaExec>("generateMapPets") {
   outputs.dir(generatedMapPets)
   args(generatedMapPets.get().asFile.absolutePath, true)
 }
+
+tasks.register<JavaExec>("generateCardPets") {
+  group = "build"
+  description = "Generates inspectable Pets declarations for every canonical card bundle."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tools.GenerateCardPetsKt")
+  inputs.files(
+      project(":canon").fileTree("src/commonMain/resources/canon/bundles") {
+        include("**/cards.json5")
+      }
+  )
+  args(project(":canon").file("src/commonMain/resources").absolutePath)
+}

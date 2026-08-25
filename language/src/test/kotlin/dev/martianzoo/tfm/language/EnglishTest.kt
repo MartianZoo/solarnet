@@ -15,7 +15,8 @@ import kotlin.test.Test
 
 internal class EnglishTest {
   private val english = English(TerraformingMarsDescribers.descriptions)
-  private val cardsByClassName = Canon.cardDefinitions.associateBy { it.className }
+  private val cardsByClassName =
+      Canon.cardDefinitions.map { Canon.card(it.className) }.associateBy { it.className }
   private val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
   private val current =
       EnglishCardTextData.parse(readEnglishCardText("english-card-text-current.tsv"))

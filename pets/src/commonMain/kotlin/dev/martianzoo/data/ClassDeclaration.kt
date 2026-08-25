@@ -8,6 +8,8 @@ import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMO
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.TRIGGER_ONLY
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.Transforming.actionListToEffects
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
@@ -41,8 +43,14 @@ public data class ClassDeclaration(
     /** Any class invariants declared with `HAS` in the class body. */
     public val invariants: Set<Requirement> = emptySet(),
 
-    /** The class's effects, in declaration order. Duplicate effects are preserved. */
-    public val effects: List<Effect> = emptyList(),
+    /** Effects authored directly in this class body, in declaration order. */
+    public val authoredEffects: List<Effect> = emptyList(),
+
+    /** Actions authored directly in this class body. */
+    public val authoredActions: List<Action> = emptyList(),
+
+    /** An authority-specific executable form, when it differs from the authored form. */
+    internal val executableEffects: List<Effect>? = null,
 
     /** The merged contents of any `DEFAULT` clauses in the class body. */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
@@ -56,6 +64,13 @@ public data class ClassDeclaration(
      */
     internal val extraNodes: Set<PetNode> = emptySet(),
 ) : HasClassName {
+  internal val authoredEffectsWithActions: List<Effect>
+    get() = authoredEffects + actionListToEffects(authoredActions)
+
+  /** Effects authored directly or obtained by lowering the authored actions. */
+  public val effects: List<Effect>
+    get() = executableEffects ?: authoredEffectsWithActions
+
   public val custom: Boolean = CUSTOM.expression in supertypes
 
   init {
@@ -155,7 +170,8 @@ public data class ClassDeclaration(
       invariants.sortedBy(Requirement::toString).mapTo(this) { "HAS $it" }
       addAll(defaultsDeclaration.toPets())
       properties.mapTo(this) { (name, value) -> "$name = $value" }
-      effects.mapTo(this, Effect::toString)
+      authoredEffects.mapTo(this, Effect::toString)
+      authoredActions.mapTo(this, Action::toString)
     }
     if (body.isNotEmpty()) {
       if (oneLine) body.joinTo(this, separator = "; ", prefix = " { ", postfix = " }")

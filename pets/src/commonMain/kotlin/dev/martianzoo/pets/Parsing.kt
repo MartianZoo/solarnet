@@ -36,13 +36,15 @@ public object Parsing {
    * examples can be reviewed in `global.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
-    return rejectOwnerLocalClasses(
+    val declarations =
         parse(
             Declarations.declarationFile,
             declarationsSource,
             expectedTypeDesc = "Pets class declarations",
         )
-    )
+    return declarations.flatMap { declaration ->
+      DerivedClassLowerer(declaration.className).lowerDeclaration(declaration)
+    }
   }
 
   /**

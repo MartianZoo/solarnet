@@ -39,7 +39,9 @@ internal class StandardFormBundle(
   }
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    readIfPresent(CLASSES_FILENAME, ::parseClasses).toSetStrict()
+    (readIfPresent(CLASSES_FILENAME, ::parseClasses) +
+            readIfPresent(CARD_PETS_FILENAME, ::parseClasses))
+        .toSetStrict()
   }
 
   override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
@@ -72,6 +74,7 @@ internal class StandardFormBundle(
 
   private fun isExpected(filename: String): Boolean =
       filename == CLASSES_FILENAME ||
+          filename == CARD_PETS_FILENAME ||
           LANGUAGE_FILENAME.matches(filename) ||
           filename in KNOWN_JSON_FILENAMES ||
           filename.endsWith("-$MAPS_FILENAME")
@@ -81,6 +84,7 @@ internal class StandardFormBundle(
     internal const val MAPS_FILENAME: String = "maps.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CLASSES_FILENAME = "classes.pets"
+    private const val CARD_PETS_FILENAME = "cards.pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
     private val KNOWN_JSON_FILENAMES =
         setOf(

@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.GameConfig
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -21,6 +22,34 @@ internal class AuthorityTest {
   @Test
   internal fun everyAuthorityIncludesThePetsRuntimeDeclarations() {
     TfmAuthority().classDeclaration(COMPONENT)
+  }
+
+  @Test
+  internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossOwners() {
+    val table =
+        authority(
+                *parseClasses(
+                        """
+                        ABSTRACT CLASS Player : Owner {
+                          HAS =1 This
+                          CLASS Player1, Player2
+                        }
+                        ABSTRACT CLASS CardFront<Player> : Owned<Player> { HAS MAX 1 This<Player> }
+                        CLASS ExampleCard : CardFront
+                        """
+                            .trimIndent()
+                    )
+                    .toTypedArray()
+            )
+            .classTable
+    val expectedLimitType = table.resolve(parse("ExampleCard<Player>"))
+
+    listOf("ExampleCard<Player1>", "ExampleCard<Player2>").forEach { expression ->
+      table.componentLimits
+          .limitsFor(table.resolve(parse(expression)))
+          .single { it.range.last == 1 }
+          .type shouldBe expectedLimitType
+    }
   }
 
   @Test
@@ -66,7 +95,10 @@ internal class AuthorityTest {
             .single()
     val expected = parseClasses("ABSTRACT CLASS Buyer { ResearchPhase: 4 BuyCard? }").single()
 
-    authority(source).allClassDeclarations.getValue(cn("Buyer")) shouldBe expected
+    val loaded = authority(source).allClassDeclarations.getValue(cn("Buyer"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredEffects shouldBe source.effects
   }
 
   @Test
@@ -119,7 +151,8 @@ internal class AuthorityTest {
           override val explicitClassDeclarations =
               setOf(
                   parseOneLinerClass("ABSTRACT CLASS Module"),
-                  parseOneLinerClass("ABSTRACT CLASS CardFront"),
+                  parseOneLinerClass("ABSTRACT CLASS CardBack"),
+                  parseOneLinerClass("ABSTRACT CLASS CardFront<Class<CardBack>>"),
                   parseOneLinerClass("CLASS ExampleModule : Module"),
               )
           override val moduleContentSelections =
@@ -151,7 +184,8 @@ internal class AuthorityTest {
           override val explicitClassDeclarations =
               setOf(
                   parseOneLinerClass("ABSTRACT CLASS Module"),
-                  parseOneLinerClass("ABSTRACT CLASS CardFront"),
+                  parseOneLinerClass("ABSTRACT CLASS CardBack"),
+                  parseOneLinerClass("ABSTRACT CLASS CardFront<Class<CardBack>>"),
                   parseOneLinerClass("CLASS ExampleModule : Module"),
               )
           override val cardDefinitions = setOf(card)
@@ -165,7 +199,10 @@ internal class AuthorityTest {
   @Test
   internal fun replacementsRemainKnownWhileTheSelectedModuleActivatesOnlyTheReplacement() {
     val moduleBundle =
-        bundle("Base", "ABSTRACT CLASS Module\nABSTRACT CLASS CardFront\nCLASS Base : Module")
+        bundle(
+            "Base",
+            "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
+        )
     val original = CardDefinition(CardData(name = "DeimosDown"))
     val replacement = CardDefinition(CardData(name = "DeimosDownPromo", replaces = "DeimosDown"))
     val baseCards = cardBundle("BaseCards", original)
@@ -201,7 +238,8 @@ internal class AuthorityTest {
                       "Declarations",
                       """
                       ABSTRACT CLASS Module
-                      ABSTRACT CLASS CardFront
+                      ABSTRACT CLASS CardBack
+                      ABSTRACT CLASS CardFront<Class<CardBack>>
                       CLASS Base : Module
                       CLASS Latest : Module
                       """
@@ -242,7 +280,8 @@ internal class AuthorityTest {
                       "Declarations",
                       """
                       ABSTRACT CLASS Module
-                      ABSTRACT CLASS CardFront
+                      ABSTRACT CLASS CardBack
+                      ABSTRACT CLASS CardFront<Class<CardBack>>
                       CLASS First : Module
                       CLASS Second : Module
                       """
@@ -277,7 +316,7 @@ internal class AuthorityTest {
         TfmAuthority.compose(
             bundle(
                 "Base",
-                "ABSTRACT CLASS Module\nABSTRACT CLASS CardFront\nCLASS Base : Module",
+                "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
             ),
             cardBundle("Cards", CardDefinition(CardData(name = "ExampleCard"))),
         )
@@ -295,8 +334,8 @@ internal class AuthorityTest {
             """
             ABSTRACT CLASS Module
             ABSTRACT CLASS CardBack
-            ABSTRACT CLASS CardFront
-            ABSTRACT CLASS AutomatedCard : CardFront
+            ABSTRACT CLASS CardFront<Class<CardBack>>
+            ABSTRACT CLASS AutomatedCard : CardFront<Class<ProjectCard>>
             CLASS ProjectCard : CardBack
             CLASS Base : Module
             """
