@@ -1,15 +1,43 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
+private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
+
+private val fakeEstablishedMethodsDefinition =
+    CardDefinition(
+        CardData(
+            name = "FakeEstablishedMethods",
+            deck = "PRELUDE",
+            immediate = "30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!",
+        )
+    )
+
+private val solarFusionStreamCatalog =
+    TfmCatalog.compose(
+        Canon,
+        object : TfmCatalog() {
+          override val explicitClassDeclarations =
+              setOf(fakeEstablishedMethodsDefinition.asClassDeclaration)
+          override val cardDefinitions = setOf(fakeEstablishedMethodsDefinition)
+        },
+    )
+
 // Complete archive replay: Solar Fusion Stream (g4ce040d78bb6)
 // https://terraforming-mars.herokuapp.com/the-end?id=pc2de3208e4ca
 internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
+  override val catalog = solarFusionStreamCatalog
+
   // Player-record evidence: Elysium, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, and these limited-synergy milestone and award pools.
   // Unsupported component: unclaimed Terraformer substitutes for unclaimed Hydrologist.
@@ -18,7 +46,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           ElysiumMap
-          PreludeExpansion, PromoCardPack
+          PreludeExpansion, PromoCardPack, FakeEstablishedMethods
 
           Builder7, Philantropist, Spacefarer, Terraformer29, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
@@ -89,7 +117,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
           .expect("PROD[1 MC], WildTag")
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
-      playPrelude(FakeEstablishedMethods) {
+      playPrelude(fakeEstablishedMethods) {
             doTask("UseAction<PowerPlantSP, First>")
             pay(11)
             doTask("UseAction<PowerPlantSP, First>")
@@ -474,7 +502,6 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
     JR.pass()
     KB.playProject(PublicPlans, 4) {
-          doTask("Revealed")
           doTask("14 ProjectCard<Revealed FROM Hand>")
         }
         .expect("10 MC")

@@ -245,7 +245,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.convertHeat()
     ellie
         .playProject(PublicPlans, 5) {
-          doTask("Revealed")
           doTask("6 ProjectCard<Revealed FROM Hand>")
         }
         .expect("4 MC")

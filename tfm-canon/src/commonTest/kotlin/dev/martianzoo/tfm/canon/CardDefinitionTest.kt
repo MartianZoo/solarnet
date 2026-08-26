@@ -288,7 +288,7 @@ internal class CardDefinitionTest {
         parse<Effect>(
             "This: Selecting THEN (3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>> THEN -Selecting), " +
                 "2 MC / ProjectCard<Hand>, " +
-                "(Revealed THEN X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC THEN -Revealed) OR Ok, " +
+                "Revealed, (X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC THEN -Revealed), " +
                 "MC / PlayedEvent<Anyone>"
         )
     )

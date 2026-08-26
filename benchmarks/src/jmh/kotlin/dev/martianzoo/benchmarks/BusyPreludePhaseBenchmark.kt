@@ -8,6 +8,9 @@ import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.CardDefinition
+import dev.martianzoo.tfm.canon.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -22,6 +25,25 @@ import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
 
+private val fakeEstablishedMethodsDefinition =
+    CardDefinition(
+        CardData(
+            name = "FakeEstablishedMethods",
+            deck = "PRELUDE",
+            immediate = "30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!",
+        )
+    )
+
+private val busyPreludeCatalog =
+    TfmCatalog.compose(
+        Canon,
+        object : TfmCatalog() {
+          override val explicitClassDeclarations =
+              setOf(fakeEstablishedMethodsDefinition.asClassDeclaration)
+          override val cardDefinitions = setOf(fakeEstablishedMethodsDefinition)
+        },
+    )
+
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -35,10 +57,10 @@ public open class BusyPreludePhaseBenchmark {
   public fun setUp() {
     game =
         Engine.newGame(
-            Canon.gamePremise(
+            busyPreludeCatalog.gamePremise(
                 GameConfig(
                     "TerraformingMars, TharsisMap, PreludeExpansion, " +
-                        "ColoniesExpansion, PromoCardPack, Callisto, Ceres, Ganymede, " +
+                        "ColoniesExpansion, PromoCardPack, FakeEstablishedMethods, Callisto, Ceres, Ganymede, " +
                         "Luna",
                     "Me",
                 )

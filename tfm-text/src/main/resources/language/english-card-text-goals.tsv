@@ -483,7 +483,6 @@ TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 s
 KuiperCooperative	Kuiper Cooperative	Gain 33 M€. Increase your titanium production 1 step.	Action: Add 1 asteroid to this card for each space tag you have. / Effect: When you use a standard project or a standard project, asteroids on this card may be used as 1 M€ each.
 PolderTechDutch	Polder Tech Dutch	Gain 35 M€. As your first action, place 1 ocean tile, then place a greenery tile on a land area adjacent to one or more ocean tiles.	Effect: When you place an ocean tile, gain 1 energy. When you place a greenery tile, gain 1 plant.
 AntiDesertificationTechniques	Anti Desertification Techniques	Gain 3 M€. Increase your plant production 1 step and your steel production 1 step.
-FakeEstablishedMethods	Fake Established Methods	Gain 30 M€. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
 GiantSolarCollector	Giant Solar Collector	Increase your energy production 2 steps. Raise Venus 1 step.
 StrategicBasePlanning	Strategic Base Planning	Remove 3 M€. Place a city tile. Place a colony.
 AlbedoPlants	Albedo Plants	Increase your plant production 1 step. Gain 1 plant.	Effect: When you play a plant tag, gain 3 heat.

@@ -431,7 +431,6 @@ Merger	Merger	Draw 4 corporation cards, then discard 3 corporation cards, then p
 NewPartner	New Partner	Increase your M€ production 1 step. Draw 2 prelude cards, then discard 1 prelude card, then play a prelude card.
 HeadStart	Head Start	Gain 2 steel. [2 MC / ProjectCard]. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
 AntiDesertificationTechniques	Anti Desertification Techniques	Gain 3 M€. Increase your plant production 1 step and your steel production 1 step.
-FakeEstablishedMethods	Fake Established Methods	Gain 30 M€. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
 GiantSolarCollector	Giant Solar Collector	Increase your energy production 2 steps. Raise Venus 1 step.
 StrategicBasePlanning	Strategic Base Planning	Remove 3 M€. Place a city tile. Place a colony.
 AlbedoPlants	Albedo Plants	Increase your plant production 1 step. Gain 1 plant.	Effect: When you play a plant tag, gain 3 heat.

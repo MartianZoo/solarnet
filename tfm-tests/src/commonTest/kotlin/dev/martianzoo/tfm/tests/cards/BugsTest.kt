@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -12,7 +10,6 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
@@ -57,26 +54,6 @@ internal class BugsTest : CardTest() {
     p2.count("Steel") shouldBe 1
   }
 
-  // NOTE: Established Methods says that an unaffordable second standard project is replaced by
-  // NOTE: losing 10 M€ (or as much as possible). Fake Established Methods intentionally omits
-  // NOTE: that fallback.
-  @Test
-  internal fun `Established Methods without its note dead-ends when no second project is affordable`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    p1.phase("Prelude")
-    p1.manual("PreludeCard")
-
-    val deadEnd =
-        shouldThrow<AbstractException> {
-          p1.playPrelude(FakeEstablishedMethods) {
-            p1.manual("-20 MC")
-            doTask("UseAction<GreenerySP, First>")
-            p1.autoExecNow()
-          }
-        }
-    deadEnd.message shouldContain "FakeEstablishedMethods"
-  }
-
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
@@ -92,22 +69,6 @@ internal class BugsTest : CardTest() {
       doTask("18 Pay<Class<MC>> FROM MC")
       placeTile(5, 5)
     }
-  }
-
-  @Test
-  internal fun `Philantropist incorrectly counts Vitor as a card with victory points`() {
-    newGame(
-        GameConfig(
-            "PreludeExpansion, Philantropist, Builder7, Engineer",
-            "Player1",
-            "Player2",
-        )
-    )
-    p1.manual("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
-
-    p1.manual("Philantropist")
-
-    p1.count("Philantropist") shouldBe 1
   }
 
   @Test
@@ -159,17 +120,6 @@ internal class BugsTest : CardTest() {
 
     p1.playProject(AirRaid, 0).expect("-Floater<$AtmoCollectors>, 0 MC<Player1>")
     p2.assertCounts(0 to "MC")
-  }
-
-  @Test
-  internal fun `Public Plans incorrectly remains playable while revealing no other cards`() {
-    newGame(PromoCardPack)
-    engine.phase("Action")
-    p1.manual("7 MC, ProjectCard")
-
-    p1.playProject(PublicPlans, 7) { declineTask() }
-
-    p1.assertCounts(0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
   }
 
   @Test

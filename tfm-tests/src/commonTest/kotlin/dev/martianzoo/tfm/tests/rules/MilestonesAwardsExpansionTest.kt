@@ -8,11 +8,30 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class MilestonesAwardsExpansionTest : CardTest() {
+  @Test
+  internal fun `Philantropist counts victory point gains but not Vitor's reference`() {
+    newGame(
+        GameConfig(
+            "PreludeExpansion, Philantropist, Builder7, Engineer",
+            "Player1",
+            "Player2",
+        )
+    )
+    p1.manual("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
+
+    shouldThrow<RequirementException> { p1.manual("Philantropist") }
+
+    p1.manual("$SpaceElevator")
+    p1.manual("Philantropist")
+    p1.count("Philantropist") shouldBe 1
+  }
+
   @Test
   internal fun `Geologist counts owned tiles with owned neighbors`() {
     newGame(
