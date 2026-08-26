@@ -11,6 +11,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -25,7 +26,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.pets.util.Reifiable
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
@@ -97,19 +97,21 @@ public sealed class Instruction : InstructionTree() {
 
     public abstract val gaining: Expression?
     public abstract val removing: Expression?
+    // TODO: Rename Intensity to Quantifier throughout.
     public abstract val intensity: Intensity?
 
     override fun isAbstract(info: TypeInfo): Boolean {
-      return intensity?.abstract != false ||
-          count.abstract ||
-          (gaining?.let { info.isAbstract(it) } == true) ||
-          (removing?.let { info.isAbstract(it) } == true)
+      return amount.isAbstract(info) ||
+          (gaining?.isAbstract(info) == true) ||
+          (removing?.isAbstract(info) == true)
     }
 
     private val amount: Amount by lazy { Amount(count, intensity) }
 
-    private data class Amount(val scalar: Scalar, val intensity: Intensity?) : Reifiable<Amount> {
-      override val abstract: Boolean = scalar.abstract || intensity?.abstract != false
+    private data class Amount(val scalar: Scalar, val intensity: Intensity?) :
+        Specification<Amount> {
+      override fun isAbstract(info: TypeInfo): Boolean =
+          scalar.isAbstract(info) || intensity?.isAbstract(info) != false
 
       override fun ensureNarrows(that: Amount, info: TypeInfo) {
         intensity!!.ensureNarrows(that.intensity!!, info)
@@ -125,8 +127,8 @@ public sealed class Instruction : InstructionTree() {
       if (proposed == NoOp && intensity == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
       proposed.amount.ensureNarrows(amount, info)
-      gaining?.let { info.ensureNarrows(it, proposed.gaining!!) }
-      removing?.let { info.ensureNarrows(it, proposed.removing!!) }
+      gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
+      removing?.let { proposed.removing!!.ensureNarrows(it, info) }
     }
   }
 
@@ -265,7 +267,7 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as Per
+      proposed as? Per ?: throw NarrowingException("$proposed does not preserve metric $metric")
       if (proposed.metric != metric) {
         throw NarrowingException("can't change the metric")
       }
@@ -294,7 +296,7 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = create(inner * factor, actor)
 
     override fun isAbstract(info: TypeInfo): Boolean =
-        inner.isAbstract(info) || info.isAbstract(actor)
+        inner.isAbstract(info) || actor.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? By ?: throw NarrowingException("$proposed does not preserve performer $actor")
@@ -396,7 +398,7 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Then ?: throw NarrowingException("Can't reify $this to $proposed")
+      proposed as? Then ?: throw NarrowingException("Can't narrow $this to $proposed")
       if (instructions.size != proposed.instructions.size) {
         throw NarrowingException("Can't change the number of THEN stages")
       }
@@ -440,13 +442,7 @@ public sealed class Instruction : InstructionTree() {
         narrow: Expression,
         wide: Expression,
         info: TypeInfo,
-    ): Boolean =
-        try {
-          info.ensureNarrows(wide, narrow)
-          true
-        } catch (_: NarrowingException) {
-          false
-        }
+    ): Boolean = narrow.narrows(wide, info)
 
     /**
      * Narrows the first stage and carries every choice linked from that stage into later stages.
@@ -656,8 +652,8 @@ public sealed class Instruction : InstructionTree() {
     override fun extract(): InstructionTree = instruction
   }
 
-  public enum class Intensity(internal val symbol: String, override val abstract: Boolean = false) :
-      Reifiable<Intensity> {
+  public enum class Intensity(internal val symbol: String, public val abstract: Boolean = false) :
+      Specification<Intensity> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
 
@@ -667,6 +663,8 @@ public sealed class Instruction : InstructionTree() {
     /** The player can choose how much of the amount to do, including none of it. */
     OPTIONAL("?", true),
     ;
+
+    override fun isAbstract(info: TypeInfo): Boolean = abstract
 
     override fun ensureNarrows(that: Intensity, info: TypeInfo) {
       if (that != this && that != OPTIONAL) {

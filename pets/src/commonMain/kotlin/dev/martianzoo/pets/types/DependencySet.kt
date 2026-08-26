@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
@@ -9,12 +10,11 @@ import dev.martianzoo.pets.types.Dependency.Companion.isForClassType
 import dev.martianzoo.pets.types.Dependency.ComplementDependency
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
-import dev.martianzoo.pets.util.Hierarchical
 import dev.martianzoo.pets.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
 public class DependencySet private constructor(private val deps: Set<Dependency>) :
-    Hierarchical<DependencySet> {
+    Specification<DependencySet> {
 
   internal companion object {
     internal fun of(deps: Set<Dependency>): DependencySet {
@@ -92,7 +92,9 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   // HIERARCHY
 
-  override val abstract: Boolean = deps.any { it.abstract }
+  public val abstract: Boolean = deps.any { it.abstract }
+
+  override fun isAbstract(info: TypeInfo): Boolean = abstract
 
   internal fun activeIn(table: ClassTable): Boolean = deps.all { dependency ->
     table.isActive(dependency.boundClass) &&
@@ -103,17 +105,17 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
         }
   }
 
-  override fun isSubtypeOf(that: DependencySet): Boolean {
+  public fun isSubtypeOf(that: DependencySet): Boolean {
     requireSameClassTable(that)
     return that.deps.all { get(it.key).isSubtypeOf(it) }
   }
 
-  override fun glb(that: DependencySet): DependencySet? {
+  public infix fun glb(that: DependencySet): DependencySet? {
     requireSameClassTable(that)
     return merge(that) { a, b -> (a glb b) ?: return@glb null }
   }
 
-  override fun lub(that: DependencySet): DependencySet {
+  public infix fun lub(that: DependencySet): DependencySet {
     requireSameClassTable(that)
     val keys = keys.intersect(that.keys)
     return of(keys.map { this.get(it) lub that.get(it) })
@@ -124,7 +126,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     that.deps.forEach { get(it.key).ensureNarrows(it, info) }
   }
 
-  internal fun narrows(that: DependencySet, info: TypeInfo): Boolean {
+  override fun narrows(that: DependencySet, info: TypeInfo): Boolean {
     requireSameClassTable(that)
     return that.deps.all { get(it.key).narrows(it, info) }
   }

@@ -3,6 +3,7 @@ package dev.martianzoo.pets.types
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -23,8 +24,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.pets.util.Hierarchical
-import dev.martianzoo.pets.util.Reifiable
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
@@ -35,7 +34,7 @@ public data class Type(
     val rootClass: Class,
     val dependencies: DependencySet,
     val refinement: Refinement? = null,
-) : HasExpression, Hierarchical<Type>, Reifiable<Type>, HasClassName by rootClass {
+) : HasExpression, Specification<Type>, HasClassName by rootClass {
 
   internal val classTable: ClassTable = rootClass.classTable
   public val typeDependencies: Set<Dependency.TypeDependency> = dependencies.typeDependencies()
@@ -57,7 +56,9 @@ public data class Type(
     if (refinement != null) classTable.checkAllTypes(refinement)
   }
 
-  override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
+  public val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
+
+  override fun isAbstract(info: TypeInfo): Boolean = abstract
 
   /** Returns the concrete numeric value of the class property named [propertyName]. */
   public fun getNumberPropertyValue(propertyName: String): Int =
@@ -79,11 +80,11 @@ public data class Type(
    * Performs a context-free subtype check. Comparisons that reach a state-dependent refinement
    * throw; use [narrows] in a [TypeInfo] for those.
    */
-  override fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
+  public fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
 
   // Nearest common subtype
   // TODO allocating 28 MB per solo game
-  override fun glb(that: Type): Type? {
+  public infix fun glb(that: Type): Type? {
     requireSameClassTable(that)
     val glbClass = (rootClass glb that.rootClass) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
@@ -98,7 +99,7 @@ public data class Type(
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
-  override fun lub(that: Type): Type {
+  public infix fun lub(that: Type): Type {
     requireSameClassTable(that)
     val unrefined: Type =
         (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
@@ -235,7 +236,7 @@ public data class Type(
 
   // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
   /** Performs a state-aware narrowing check using [info]. */
-  public fun narrows(that: Type, info: TypeInfo): Boolean {
+  override fun narrows(that: Type, info: TypeInfo): Boolean {
     requireSameClassTable(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (that.refinement != null && refinement != null && refinement != that.refinement) return false

@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
@@ -23,8 +24,6 @@ import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
-import dev.martianzoo.pets.util.Hierarchical
-import dev.martianzoo.pets.util.Hierarchical.Companion.glb
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
@@ -42,7 +41,7 @@ internal constructor(
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
     public val directSuperclasses: List<Class> = superclasses(declaration, loader),
-) : HasClassName, Hierarchical<Class> {
+) : HasClassName, Specification<Class> {
 
   /** The master universe containing this class. */
   // TODO: Contract this temporary tfm-canon seam.
@@ -122,7 +121,7 @@ internal constructor(
                 "$className cannot override inherited property $name = $inheritedValue"
             )
           }
-          if (!inheritedValue.accepts(declared)) {
+          if (!declared.narrows(inheritedValue, TypeInfo.NoGameState)) {
             throw PetException(
                 "$className cannot narrow property $name = $inheritedValue with $declared"
             )
@@ -161,9 +160,11 @@ internal constructor(
 
   // HIERARCHY
 
-  override val abstract: Boolean by declaration::abstract
+  public val abstract: Boolean by declaration::abstract
 
-  override fun isSubtypeOf(that: Class): Boolean {
+  override fun isAbstract(info: TypeInfo): Boolean = abstract
+
+  public fun isSubtypeOf(that: Class): Boolean {
     requireSameClassTable(that)
     val bits = abstractSupertypeBits ?: return that in allSuperclasses()
     if (this === that) return true
@@ -189,7 +190,7 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
-  override fun glb(that: Class): Class? =
+  public infix fun glb(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
@@ -202,7 +203,7 @@ internal constructor(
         }
       }
 
-  override fun lub(that: Class): Class {
+  public infix fun lub(that: Class): Class {
     requireSameClassTable(that)
     val commonSupers: Set<Class> = this.allSuperclasses.intersect(that.allSuperclasses)
     val supersOfSupers: Set<Class> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
@@ -217,6 +218,9 @@ internal constructor(
     if (!isSubtypeOf(that))
         throw NarrowingException("${this.className} is not a subclass of ${that.className}")
   }
+
+  /** Returns whether this class is a supertype of [that], including equality. */
+  public fun isSupertypeOf(that: Class): Boolean = that.isSubtypeOf(this)
 
   private fun requireSameClassTable(that: Class) {
     require(classTable === that.classTable) {
@@ -332,7 +336,7 @@ internal constructor(
             }
           }
         }
-    glb(inherited) ?: DependencySet.of()
+    inherited.reduceOrNull { left, right -> (left glb right)!! } ?: DependencySet.of()
   }
 
   private val declaredDeps by lazy {

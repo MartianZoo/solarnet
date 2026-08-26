@@ -5,7 +5,6 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.types.Dependency.TypeDependency
-import dev.martianzoo.pets.util.Hierarchical.Companion.glb
 
 public data class Defaults(
     val allUsages: DefaultSpec,
@@ -82,7 +81,7 @@ public data class Defaults(
                     inherited?.glb(klass.dependencies.get(key))
                   }
                 },
-                { deps: List<Dependency> -> glb(deps)!! },
+                { deps: List<Dependency> -> deps.reduce { left, right -> (left glb right)!! } },
             )
           }
       return DependencySet.of(deps)

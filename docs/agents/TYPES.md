@@ -30,6 +30,8 @@
 - `Class<X>` names a Class without depending on an X component.
 - Class properties record immutable facts about a Class, not state on component occurrences.
 - Refinements filter candidates by querying the current World.
+- Unresolved `Expression` and resolved `Type` are both `Specification`s. Their roots, dependencies,
+  and refinements narrow compositionally, and state-aware checks use `TypeInfo`.
 - Complements exclude a dependency subdomain.
 - Each World has one frozen closed Class Table, allowing concrete enumeration and automatic
   narrowing.

@@ -39,7 +39,7 @@ internal class GameReaderImpl(
 
   // Next 3 are for TypeInfo interface
 
-  override fun isAbstract(e: Expression) = resolve(e).abstract
+  override fun isAbstract(e: Expression) = resolve(e).isAbstract(this)
 
   override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)

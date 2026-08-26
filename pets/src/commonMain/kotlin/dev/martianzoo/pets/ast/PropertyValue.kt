@@ -7,9 +7,12 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.Specification
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.TypeInfo
 
 /** A value or abstract value type assigned to a class property. */
-public sealed class PropertyValue : PetNode() {
+public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
   public companion object {
     internal fun parser(): Parser<PropertyValue> = Parsers.parser
   }
@@ -21,6 +24,8 @@ public sealed class PropertyValue : PetNode() {
             this === NumberType ||
             this === RequirementType ||
             this === OptionalRequirementType
+
+  override fun isAbstract(info: TypeInfo): Boolean = abstract
 
   /** The abstract type of any numeric property. */
   public data object MetricType : PropertyValue() {
@@ -66,8 +71,14 @@ public sealed class PropertyValue : PetNode() {
     override fun toString(): String = "HAS \"$value\""
   }
 
+  override fun ensureNarrows(that: PropertyValue, info: TypeInfo) {
+    if (this != that && !that.accepts(this)) {
+      throw NarrowingException("$this does not narrow property value $that")
+    }
+  }
+
   /** Whether this abstract bound may be narrowed directly to [value]. */
-  internal fun accepts(value: PropertyValue): Boolean =
+  private fun accepts(value: PropertyValue): Boolean =
       when (this) {
         MetricType -> value === NumberType || value is NumberValue || value is MetricValue
         NumberType -> value is NumberValue
