@@ -376,7 +376,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.cardAction1(SpaceElevator)
     KB.playProject(EarthCatapult, 19)
     KB.playProject(BigAsteroid, 14, titanium = 2) { /* Decline removing an opponent's plants. */
-          declineTask()
+          declineTask("-4 Plant<Anyone>?")
         }
         .expect("2 Titanium")
     ER.playProject(GreatDamPromo, steel = 5) { placeTile(1, 5) }.expect("0 ProjectCard")

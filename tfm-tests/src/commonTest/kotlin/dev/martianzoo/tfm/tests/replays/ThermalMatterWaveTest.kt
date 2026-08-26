@@ -42,10 +42,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
 
       playPrelude(SocietySupport).expect("PROD[-1 MC, Plant, Energy, Heat]")
-      playPrelude(ExcentricSponsor) {
-        // CrediCor still pays its rebate when Excentric Sponsor pays the project cost.
-        playProject(TitanShuttles, 0).expect("4 MC")
-      }
+      // CrediCor still pays its rebate when Excentric Sponsor pays the project cost.
+      playPrelude(ExcentricSponsor) { playProject(TitanShuttles, 0) }.expect("4 MC")
 
       cardAction1(TitanShuttles) {
         addCardResources(TitanShuttles)

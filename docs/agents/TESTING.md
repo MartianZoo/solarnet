@@ -160,6 +160,7 @@ Synthetic card scenarios may pass their `CardDefinition` and supporting `ClassDe
 Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and `assignWildTag(card, tag)`
 instead of spelling their routine task expressions. The tile and card-resource helpers require a
 single matching pending choice; keep raw `doTask()` calls where multiple placements are pending.
+When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
 without starting the ordinary use-card-action wrapper.
