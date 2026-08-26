@@ -401,30 +401,29 @@ internal class ScriptSessionTest {
 
     assertEquals(
         """
-                                   1    2    3    4    5    6    7    8    9
-                                  /    /    /    /    /    /    /    /    /
-
-               1 -            LSS  WSS   L    WC   W
-
-               2 -           L   VS    L    L    L   [O]
-
-               3 -        VC   L    L    L    L    L    LS
-
-               4 -     VPT  LP   LP   LP  [G2] [C1]  LP   WPP
-
-               5 -  VPP  LPP  NPP  WPP  [O]  [O]  [G1] LPP  LPP
-
-               6 -     LP   LPP  LP   LP  [C2]  WP   WP   WP
-
-               7 -        L    L    L    L    L    LP   L
-
-               8 -          LSS   L   LC   LC    L   LT
-
-               9 -             LS  LSS   L    L   [S2]
-            """
-            .replaceIndent(" ")
-            .split("\n")
-            .map { it.trimEnd() },
+        |                       1     2     3     4     5     6     7     8     9
+        |                      /     /     /     /     /     /     /     /     /
+        |
+        | 1 -              LSS   WSS    L     WC    W
+        |
+        | 2 -            L     VS    L     L     L    [O]
+        |
+        | 3 -         VC    L     L     L     L     L     LS
+        |
+        | 4 -     VPT    LP    LP    LP   [G2]  [C1]   LP   WPP
+        |
+        | 5 -  VPP   LPP   NPP   WPP   [O]   [O]   [G1]  LPP   LPP
+        |
+        | 6 -      LP   LPP    LP    LP   [C2]   WP    WP    WP
+        |
+        | 7 -         L     L     L     L     L     LP    L
+        |
+        | 8 -           LSS    L     LC    LC    L     LT
+        |
+        | 9 -               LS   LSS    L     L    [S2]
+        """
+            .trimMargin()
+            .split("\n"),
         repl.command(TfmMapCommand(repl)),
     )
   }

@@ -7,6 +7,7 @@ kotlin {
         implementation(libs.kotest.assertions.core)
         implementation(project(":engine"))
         implementation(project(":pets"))
+        implementation(project(":script"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-engine"))
       }
