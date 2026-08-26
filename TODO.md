@@ -45,7 +45,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Finish the remaining English renderer architecture work routed by `docs/agents/LANGUAGE_REVIEW.md`;
   keep current output coverage and ordinary renderer rules in `docs/agents/LANGUAGE.md`.
 - Try making `VictoryPoint` depend on the scoring `Component` for the fun of it.
-- Philanthropist's metric is not the same as Vitor's (add BugsTest).
 - See if two wild tags on one card is feasible to support, else add to limitations doc.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.

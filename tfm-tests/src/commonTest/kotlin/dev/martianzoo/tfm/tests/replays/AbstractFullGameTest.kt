@@ -9,6 +9,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
@@ -24,11 +25,12 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p3: TfmGameplay
 
   protected abstract val config: GameConfig
+  protected open val catalog: TfmCatalog = Canon
   protected open val inputOnlySynonyms: List<Pair<String, String>> = TEST_CLASS_SYNONYMS
 
   @BeforeTest
   open fun commonSetup() {
-    game = Engine.newGame(Canon.gamePremise(config), inputOnlySynonyms = inputOnlySynonyms)
+    game = Engine.newGame(catalog.gamePremise(config), inputOnlySynonyms = inputOnlySynonyms)
     val players = game.actors.filterIsInstance<Player>()
     p1 = game.tfm(players[0]).requireExplicitPaymentChoices()
     if (players.size > 1) p2 = game.tfm(players[1]).requireExplicitPaymentChoices()

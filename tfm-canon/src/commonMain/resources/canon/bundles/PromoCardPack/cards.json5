@@ -157,12 +157,6 @@
     },
 
     {
-      "name": "FakeEstablishedMethods",
-      "deck": "PRELUDE",
-      "immediate": "30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!",
-    },
-
-    {
       "name": "GiantSolarCollector",
       "deck": "PRELUDE",
       "tags": [ "PowerTag", "SpaceTag" ],

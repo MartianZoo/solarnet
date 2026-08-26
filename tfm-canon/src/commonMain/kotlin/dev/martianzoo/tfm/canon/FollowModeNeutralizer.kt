@@ -10,8 +10,6 @@ import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.pets.ast.Instruction.NoOp
-import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -78,8 +76,7 @@ internal object FollowModeNeutralizer : TransformHandler {
       is CardOperation.RevealAndPurchase ->
           withTemporaryLocation(SELECTING, transformed, close = false)
       is CardOperation.RevealAndTest -> withTemporaryLocation(REVEALED, transformed, close = true)
-      is CardOperation.RevealAndRestore ->
-          Or.createTree(listOf(withTemporaryLocation(REVEALED, transformed, close = true), NoOp))
+      is CardOperation.RevealAndRestore -> withRequiredTemporaryLocation(REVEALED, transformed)
       else -> transformed
     }
   }
@@ -93,6 +90,17 @@ internal object FollowModeNeutralizer : TransformHandler {
         if (close) closeAfter(body, Remove.remove(location.expression, intensity = null)) else body
     return Then.createTree(listOf(Gain.gain(location.expression, intensity = null), scopedBody))
   }
+
+  private fun withRequiredTemporaryLocation(
+      location: ClassName,
+      body: InstructionTree,
+  ): InstructionTree =
+      InstructionGroup.createTree(
+          listOf(
+              Gain.gain(location.expression, intensity = null),
+              closeAfter(body, Remove.remove(location.expression, intensity = null)),
+          )
+      )
 
   private fun closeAfter(body: InstructionTree, close: InstructionTree): InstructionTree =
       when (body) {

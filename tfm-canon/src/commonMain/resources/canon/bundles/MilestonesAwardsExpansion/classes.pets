@@ -1,6 +1,8 @@
 "Counts the tiles in a player's largest contiguous group of owned tiles"
 CLASS TileInLargestGroup : Owned<Player>, Custom
 
+CLASS GainsOf<CardFront, Class<Component>> : Custom
+
 // Hydrologist and Thawer need global parameters to become Owned components.
 // Lobbyist and Politician need Turmoil.
 // Briber is coming soon.
@@ -15,7 +17,7 @@ CLASS Geologist : Milestone { requirement = HAS "3 (OwnedTile<VolcanicArea> OR O
 CLASS Landshaper : Milestone { requirement = HAS "CityTile, GreeneryTile, SpecialTile" }
 CLASS Legend4 : Milestone { requirement = HAS "CARDS[4 CardBack<EventPile>]" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
-CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>)" }
+CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
 CLASS Pioneer4 : Milestone { requirement = HAS "4 Colony" }
 // GrossHack contributes five synthetic M€ production components, so 21 models the printed
 // combined production threshold of 16.

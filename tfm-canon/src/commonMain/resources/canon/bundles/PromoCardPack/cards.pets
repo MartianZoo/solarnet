@@ -127,12 +127,6 @@ CLASS AntiDesertificationTechniques : CardFront<Class<PreludeCard>> {
   This: 3 MC, PROD[Plant, Steel]
 }
 
-CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
-  cost = 0
-
-  This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!
-}
-
 CLASS GiantSolarCollector : CardFront<Class<PreludeCard>> {
   cost = 0
 
