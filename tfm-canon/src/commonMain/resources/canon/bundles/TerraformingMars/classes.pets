@@ -34,7 +34,8 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase:: 20 TerraformRating<This>
   SetupPhase IF QuickStartVariant: PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]
   CorporationPhase:: CorporationCard
-  ResearchPhase: CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
+  ResearchPhase:: Selecting
+  ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
   MeasureAward<Award>:: AwardTally<Award> / EVAL Award.metric
 
   CLASS Player1, Player2, Player3, Player4, Player5
@@ -324,7 +325,7 @@ ABSTRACT CLASS WhichAction {
 
 "A Signal a player sends to indicate an action they want to perform"
 CLASS UseAction<HasActions, WhichAction> : Owned<Player>, Signal {
-  This: MAX 0 Mandate: Ok
+  This IF Mandate: MAX 0 Mandate: Ok
 }
 
 ABSTRACT CLASS Mandate : Owned<Player>, HasActions {
@@ -426,7 +427,7 @@ CLASS CitySP : StandardProject {
 
 CLASS BuyCard : Owned<Player>, Signal {
   This:: 3 Owed<>
-  X This: Invoice<BuyCards, First>
+  X This:: Invoice<BuyCards, First>
 }
 
 "Confirms purchase of every project card remaining in the player's selection"

@@ -22,6 +22,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
@@ -76,6 +77,7 @@ public class TfmGameplay(
 
   private fun OperationBody.buySelectedCards(count: Int) {
     closeUnusedPaymentOffers()
+    openPendingProjectCardOffer()
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
     val discarded = offered - count
@@ -92,11 +94,33 @@ public class TfmGameplay(
         if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
         selectionTaskNumber,
     )
+    if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
     if (count > 0) {
+      while (hasPendingBuyCard(tasks)) doTask("BuyCard / ProjectCard<Selecting>")
       if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
-      this@TfmGameplay.pay(mc = this@TfmGameplay.count("Owed"))
+      payAllMc()
+      completePurchasedCards()
     }
+    if (this@TfmGameplay.count("Selecting") != 0) doTask("-Selecting")
     closeUnusedPaymentOffers()
+  }
+
+  private fun OperationBody.openPendingProjectCardOffer() {
+    if (this@TfmGameplay.count("ProjectCard<Selecting>") != 0) return
+    val offer =
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.assignee == actor &&
+                  task.instruction.descendantsOfType<Change>().any { change ->
+                    change.gaining?.let { gaining ->
+                      gaining.className == cn("ProjectCard") &&
+                          cn("Selecting") in gaining.descendantsOfType<ClassName>()
+                    } == true
+                  }
+            }
+            .singleOrNull() ?: return
+    executeTask(offer)
   }
 
   private fun OperationBody.closeUnusedPaymentOffers() {
@@ -118,6 +142,32 @@ public class TfmGameplay(
           .any { task ->
             task.instruction.toString().let { it.startsWith("Invoice<") && "BuyCards" in it }
           }
+
+  private fun hasPendingBuySelectedCards(tasks: TaskQueue): Boolean =
+      tasks.extract { it }.any { it.instruction.toString().startsWith("BuySelectedCards") }
+
+  private fun hasPendingBuyCard(tasks: TaskQueue): Boolean =
+      tasks.extract { it }.any { it.instruction.toString().startsWith("BuyCard<") }
+
+  private fun OperationBody.completePurchasedCards() {
+    val transfer =
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.instruction.descendantsOfType<Change>().any { change ->
+                change.gaining?.let { gaining ->
+                  gaining.className == cn("ProjectCard") &&
+                      cn("Hand") in gaining.descendantsOfType<ClassName>()
+                } == true &&
+                    change.removing?.let { removing ->
+                      removing.className == cn("ProjectCard") &&
+                          cn("Selecting") in removing.descendantsOfType<ClassName>()
+                    } == true
+              }
+            }
+            .singleOrNull() ?: return
+    executeTask(transfer)
+  }
 
   public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
 
@@ -179,6 +229,7 @@ public class TfmGameplay(
   }
 
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
+    val billingCause = openPendingBilling()
     val offeredResource = STANDARD_RESOURCE_CLASSES.singleOrNull { resource ->
       game.tasks
           .extract { it }
@@ -193,6 +244,7 @@ public class TfmGameplay(
     if (offeredResource != null) {
       doTask("Pay<Class<$offeredResource>> FROM $offeredResource / Owed<Class<$offeredResource>>")
     }
+    if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
 
   public fun convertPlants(body: BodyLambda = {}): TaskResult {
@@ -206,7 +258,7 @@ public class TfmGameplay(
   public fun stdProject(
       stdProject: String,
       payment: BodyLambda = {
-        doTask("Pay<Class<MC>> FROM MC / Owed<>")
+        payAllMc()
       },
       body: BodyLambda = {},
   ): TaskResult {
@@ -329,6 +381,7 @@ public class TfmGameplay(
 
     return try {
       godMode().continueManual {
+        val billingCause = openPendingBilling()
         var observedWaste = 0
 
         fun payNonMoneyResource(cost: Int, currency: String) {
@@ -392,16 +445,61 @@ public class TfmGameplay(
         }
 
         if (count("Owed") == 0) {
-          // Take care of other Accepts we didn't need
-          tasks
-              .matching { it.cause?.context?.className == cn("Accept") }
-              .forEach { reviseTask(it, "Ok") } // "executes" automatically
-          autoExecNow()
+          finishBilling(billingCause)
         }
       }
     } finally {
       autoExecMode = previousAutoExecMode
     }
+  }
+
+  private fun OperationBody.openPendingBilling(): Cause? {
+    if (this@TfmGameplay.count("Owed") != 0) return null
+    val billing =
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.instruction.descendantsOfType<Change>().any { change ->
+                change.gaining?.className == cn("Owed")
+              }
+            }
+            .singleOrNull() ?: return null
+    executeTask(billing)
+    advanceSingleConcreteTask(billing.cause)
+    return billing.cause
+  }
+
+  private fun OperationBody.payAllMc() {
+    val billingCause = openPendingBilling()
+    val owed = this@TfmGameplay.count("Owed")
+    if (owed > 0) doTask("$owed Pay<Class<MC>> FROM MC")
+    if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
+  }
+
+  private fun OperationBody.finishBilling(billingCause: Cause?) {
+    tasks.matching { it.cause?.context?.className == cn("Accept") }.forEach { reviseTask(it, "Ok") }
+    autoExecNow()
+    advanceSingleConcreteTask(billingCause)
+  }
+
+  private fun OperationBody.advanceSingleConcreteTask(cause: Cause?) {
+    if (cause == null) return
+    while (true) {
+      val next =
+          tasks
+              .extract { it }
+              .filter { task ->
+                task.cause == cause &&
+                    !task.instruction.isAbstract(reader) &&
+                    this@TfmGameplay.canPrepareTask(task.id)
+              }
+              .singleOrNull() ?: return
+      executeTask(next)
+    }
+  }
+
+  private fun executeTask(task: Task) {
+    prepareTask(task.id)?.let { tryPreparedTask() }
   }
 
   /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */

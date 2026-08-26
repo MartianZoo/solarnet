@@ -5,6 +5,19 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ## User Ideas and Agreed Directions
 
 - Rename instruction `Intensity` to `Quantifier` throughout.
+- **High priority:** Audit SAFE against its proof obligation: it may prepare only when exactly one
+  pending task can prepare, and preparation may concretize an instruction only when exactly one
+  legal concrete narrowing exists. Add focused behavioral coverage for multiple preparable tasks,
+  multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
+  client policy.
+- Revisit internal `::` boundaries separately from SAFE: deterministic research/card-offer setup
+  should be inline; after the player executes `BuySelectedCards`, purchase bookkeeping should run
+  through the next genuine payment choice; final payment should synchronously complete card entry,
+  triggers, and automatic effects while leaving queued gameplay effects pending. Do not convert
+  printed immediate card effects, triggered resource effects such as Manutech, or authored Action
+  results merely because their ordering seems pointless in the current game.
+- Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion can express
+  “after its tag choice or decline”; remove the gameplay helper's god-mode cleanup at that point.
 - **High priority:** Complete located-card follow mode: track every project card in full-game
   replays by exact card name and location from deck exit
   through hand, temporary selection/reveal areas, play, event pile, and discard, with tracker state
@@ -13,10 +26,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Decide whether the gameplay payment helper should accept arbitrary resources instead of its
   fixed standard-resource parameter list.
 - **High priority:** Finish eliminating the Definition/Class split: make Pets Classes the sole
-  runtime authority for cards and maps, then restrict remaining JSON-backed records to offline
-  generation and category-specific metadata.
+  runtime authority for cards and maps, get away from JSON entirely for their definitions, then
+  restrict remaining JSON-backed records to offline generation and category-specific metadata.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
   considered an unsuccessful direction.
+- Decide whether card-action helpers need a separate optional payment override, analogous to
+  `playProject`, while preserving actions with no cost and actions whose cost is authored.
 - Implement abstract class-property defaults, beginning with `CardFront.cost = Number DEFAULT 0`;
   let the project-card families clear that default while retaining the `Number` bound so every
   project card must still state its cost explicitly, including zero.

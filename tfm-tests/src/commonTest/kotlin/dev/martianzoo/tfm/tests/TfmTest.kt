@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -43,8 +44,29 @@ internal abstract class TfmTest {
 
   protected fun OperationBody.buyCards(count: Int) {
     require(count in 0..1) { "an individual card offer contains one selected card" }
+    if (
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.instruction.descendantsOfType<Change>().any { change ->
+                change.gaining?.let { gaining ->
+                  gaining.className == cn("ProjectCard") &&
+                      cn("Selecting") in gaining.descendantsOfType<ClassName>()
+                } == true
+              }
+            }
+            .singleOrNull() != null
+    ) {
+      doTask("ProjectCard<Selecting>")
+    }
     doTask(if (count == 0) "-ProjectCard<Selecting>" else "Ok")
+    if (tasks.extract { it }.any { it.instruction.toString().startsWith("BuySelectedCards") }) {
+      doTask("BuySelectedCards")
+    }
     if (count > 0) {
+      while (tasks.extract { it }.any { it.instruction.toString().startsWith("BuyCard<") }) {
+        doTask("BuyCard / ProjectCard<Selecting>")
+      }
       if (
           tasks
               .extract { it }

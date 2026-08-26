@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.Factorum
@@ -12,6 +13,7 @@ internal class FactorumTest : CardTest() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$Factorum")
+    p1.autoExecMode = SAFE
 
     p1.cardAction1(Factorum).expect("PROD[Energy]")
   }
