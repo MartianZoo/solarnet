@@ -3,15 +3,15 @@ CLASS Aphrodite : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: VenusTag<This>, PlantTag<This>
-  This: 47, PROD[Plant]
-  VenusStep BY Anyone: 2
+  This: 47 MC, PROD[Plant]
+  VenusStep BY Anyone: 2 MC
 }
 
 CLASS Celestic : ActionCard, ResourceCard<Class<Floater>, Class<CorporationCard>> {
   cost = 0
 
   This:: VenusTag<This>
-  This: 42, Mandate { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }
+  This: 42 MC, Mandate { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }
   End: VictoryPoint / 3 Floater<This>
 
   -> Floater
@@ -21,7 +21,7 @@ CLASS Manutech : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 35, PROD[Steel]
+  This: 35 MC, PROD[Steel]
   PROD[StandardResource]: StandardResource
 }
 
@@ -29,7 +29,7 @@ CLASS MorningStarInc : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: VenusTag<This>
-  This: 50, Mandate { -> CARDS[3 ProjectCard(HAS VenusTag)] }
+  This: 50 MC, Mandate { -> CARDS[3 ProjectCard(HAS VenusTag)] }
   PlayCard:: -2 Required<Class<VenusStep>>.
 }
 
@@ -37,7 +37,7 @@ CLASS Viron : ActionCard<Class<CorporationCard>> {
   cost = 0
 
   This:: MicrobeTag<This>
-  This: 48
+  This: 48 MC
 
   -> UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>
 }
@@ -57,7 +57,7 @@ CLASS AerosportTournament : EventCard<Class<ProjectCard>> {
   requirement = HAS "5 Floater"
 
   This:: EventTag<This>
-  This: 1 / CityTile<Anyone>
+  This: 1 MC / CityTile<Anyone>
   End: VictoryPoint
 }
 
@@ -90,14 +90,14 @@ CLASS CometForVenus : EventCard<Class<ProjectCard>> {
   cost = 11
 
   This:: SpaceTag<This>, EventTag<This>
-  This: VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?
+  This: VenusStep, -4 MC<Anyone(HAS VenusTag)>?
 }
 
 CLASS CorroderSuits : AutomatedCard<Class<ProjectCard>> {
   cost = 8
 
   This:: VenusTag<This>
-  This: PROD[2], CardResource<CardFront(HAS VenusTag)>
+  This: PROD[2 MC], CardResource<CardFront(HAS VenusTag)>
 }
 
 CLASS DawnCity : AutomatedCard<Class<ProjectCard>> {
@@ -155,7 +155,7 @@ CLASS FloatingHabs : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   This:: VenusTag<This>
   End: VictoryPoint / 2 Floater<This>
 
-  2 -> Floater
+  2 MC -> Floater
 }
 
 CLASS ForcedPrecipitation : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
@@ -163,7 +163,7 @@ CLASS ForcedPrecipitation : ActionCard, ActiveCard<Class<ProjectCard>>, Resource
 
   This:: VenusTag<This>
 
-  2 -> Floater<This>
+  2 MC -> Floater<This>
   2 Floater<This> -> VenusStep
 }
 
@@ -172,7 +172,7 @@ CLASS FreyjaBiodomes : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "5 VenusStep"
 
   This:: VenusTag<This>, PlantTag<This>
-  This: 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>, PROD[-Energy, 2]
+  This: 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>, PROD[-Energy, 2 MC]
   End: 2 VictoryPoint
 }
 
@@ -194,7 +194,7 @@ CLASS Gyropolis : AutomatedCard<Class<ProjectCard>> {
   cost = 20
 
   This:: CityTag<This>, BuildingTag<This>
-  This: PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile<>
+  This: PROD[-2 Energy, 1 MC / VenusTag, 1 MC / EarthTag], CityTile<>
 }
 
 CLASS HydrogenToVenus : EventCard<Class<ProjectCard>> {
@@ -235,14 +235,14 @@ CLASS LocalShading : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   This:: VenusTag<This>
 
   -> Floater<This>
-  Floater<This> -> PROD[1]
+  Floater<This> -> PROD[1 MC]
 }
 
 CLASS LunaMetropolis : AutomatedCard<Class<ProjectCard>> {
   cost = 21
 
   This:: SpaceTag<This>, EarthTag<This>, CityTag<This>
-  This: PROD[1 / EarthTag], CityTile<RemoteArea {}>
+  This: PROD[1 MC / EarthTag], CityTile<RemoteArea {}>
   End: 2 VictoryPoint
 }
 
@@ -302,7 +302,7 @@ CLASS RotatorImpacts : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<
   This:: SpaceTag<This>
   UseAction<This, First>:: Accept<Class<Titanium>>
 
-  6 -> Asteroid<This>
+  6 MC -> Asteroid<This>
   Asteroid<This> -> VenusStep
 }
 
@@ -311,7 +311,7 @@ CLASS SisterPlanetSupport : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "VenusTag, EarthTag"
 
   This:: VenusTag<This>, EarthTag<This>
-  This: PROD[3]
+  This: PROD[3 MC]
 }
 
 CLASS Solarnet : AutomatedCard<Class<ProjectCard>> {
@@ -343,7 +343,7 @@ CLASS Stratopolis : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cla
   requirement = HAS "2 ScienceTag"
 
   This:: VenusTag<This>, CityTag<This>
-  This: PROD[2], CityTile<RemoteArea {}>
+  This: PROD[2 MC], CityTile<RemoteArea {}>
   End: VictoryPoint / 3 Floater<This>
 
   -> 2 Floater<CardFront(HAS VenusTag)>
@@ -364,7 +364,7 @@ CLASS SulphurExports : AutomatedCard<Class<ProjectCard>> {
   cost = 21
 
   This:: VenusTag<This>, SpaceTag<This>
-  This: VenusStep, PROD[1 / VenusTag]
+  This: VenusStep, PROD[1 MC / VenusTag]
 }
 
 CLASS SulphurEatingBacteria : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
@@ -374,7 +374,7 @@ CLASS SulphurEatingBacteria : ActionCard, ActiveCard<Class<ProjectCard>>, Resour
   This:: VenusTag<This>, MicrobeTag<This>
 
   -> Microbe<This>
-  X Microbe<This> -> 3X
+  X Microbe<This> -> 3X MC
 }
 
 CLASS TerraformingContract : AutomatedCard<Class<ProjectCard>> {
@@ -382,7 +382,7 @@ CLASS TerraformingContract : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "25 TerraformRating"
 
   This:: EarthTag<This>
-  This: PROD[4]
+  This: PROD[4 MC]
 }
 
 CLASS Thermophiles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
@@ -407,7 +407,7 @@ CLASS VenusGovernor : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "2 VenusTag"
 
   This:: 2 VenusTag<This>
-  This: PROD[2]
+  This: PROD[2 MC]
 }
 
 CLASS VenusMagnetizer : ActionCard, ActiveCard<Class<ProjectCard>> {

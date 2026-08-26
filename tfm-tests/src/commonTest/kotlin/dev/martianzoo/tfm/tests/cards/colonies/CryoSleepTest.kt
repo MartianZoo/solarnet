@@ -7,9 +7,9 @@ import kotlin.test.Test
 
 internal class CryoSleepTest : ColoniesCardTest() {
   @Test
-  internal fun `Discounts a megacredit-funded trade`() {
-    p1.manual("$CryoSleep, 8")
-    p1.stdAction("TradeSA", 1) { doTask("Trade<Io>") }.expect("-8, 3 Heat")
+  internal fun `Discounts a mc-funded trade`() {
+    p1.manual("$CryoSleep, 8 MC")
+    p1.stdAction("TradeSA", 1) { doTask("Trade<Io>") }.expect("-8 MC, 3 Heat")
   }
 
   @Test
@@ -40,7 +40,7 @@ internal class CryoSleepTest : ColoniesCardTest() {
 
   @Test
   internal fun `Stacks its trade discount with Rim Freighters`() {
-    p1.manual("$CryoSleep, $RimFreighters, 7")
-    p1.stdAction("TradeSA", 1) { doTask("Trade<Io>") }.expect("-7, 3 Heat")
+    p1.manual("$CryoSleep, $RimFreighters, 7 MC")
+    p1.stdAction("TradeSA", 1) { doTask("Trade<Io>") }.expect("-7 MC, 3 Heat")
   }
 }

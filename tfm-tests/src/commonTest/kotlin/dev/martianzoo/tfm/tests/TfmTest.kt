@@ -54,7 +54,7 @@ internal abstract class TfmTest {
       ) {
         doTask("Invoice<BuyCards, First>")
       }
-      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+      doTask("Pay<Class<MC>> FROM MC / Owed<>")
     }
   }
 

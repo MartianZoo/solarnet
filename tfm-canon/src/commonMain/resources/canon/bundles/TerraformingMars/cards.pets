@@ -2,15 +2,15 @@
 CLASS CrediCor : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 57
-  CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4
+  This: 57 MC
+  CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4 MC
 }
 
 CLASS Ecoline : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: PlantTag<This>
-  This: 36, 3 Plant, PROD[2 Plant]
+  This: 36 MC, 3 Plant, PROD[2 Plant]
   Invoice<ConvertPlantsSA, First>:: -Owed<Class<Plant>>
 }
 
@@ -18,15 +18,15 @@ CLASS InterplanetaryCinematics : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 30, 20 Steel
-  EventCard: 2
+  This: 30 MC, 20 Steel
+  EventCard: 2 MC
 }
 
 CLASS Inventrix : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: ScienceTag<This>
-  This: 45, Mandate { -> 3 ProjectCard }
+  This: 45 MC, Mandate { -> 3 ProjectCard }
   PlayCard:: -2 Required<Class<GlobalParameter>>.
 }
 
@@ -34,7 +34,7 @@ CLASS MiningGuild : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: 2 BuildingTag<This>
-  This: 30, 5 Steel, PROD[Steel]
+  This: 30 MC, 5 Steel, PROD[Steel]
   Tile<MarsArea(HAS MapBonus<Class<Metal>>)>: PROD[Steel]
 }
 
@@ -42,7 +42,7 @@ CLASS Phobolog : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: SpaceTag<This>
-  This: 23, 10 Titanium
+  This: 23 MC, 10 Titanium
   Pay<Class<Titanium>>:: -Owed<>
 }
 
@@ -50,17 +50,17 @@ CLASS TharsisRepublic : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 40, Mandate { -> CityTile<> }
-  This IF SoloMode: PROD[2]
-  CityTile<Anyone, MarsArea>: PROD[1]
-  CityTile: 3
+  This: 40 MC, Mandate { -> CityTile<> }
+  This IF SoloMode: PROD[2 MC]
+  CityTile<Anyone, MarsArea>: PROD[1 MC]
+  CityTile: 3 MC
 }
 
 CLASS ThorGate : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: PowerTag<This>
-  This: 48, PROD[Energy]
+  This: 48 MC, PROD[Energy]
   PlayTag<Class<PowerTag>>:: -3 Owed<>
   Invoice<PowerPlantSP, First>:: -3 Owed<>
 }
@@ -69,9 +69,9 @@ CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 40
+  This: 40 MC
 
-  3 -> HasRaisedTr: TerraformRating
+  3 MC -> HasRaisedTr: TerraformRating
 }
 
 CLASS ColonizerTrainingCamp : AutomatedCard<Class<ProjectCard>> {
@@ -93,7 +93,7 @@ CLASS CloudSeeding : AutomatedCard<Class<ProjectCard>> {
   cost = 11
   requirement = HAS "3 OceanTile"
 
-  This: PROD[-1, -Heat<Anyone>, 2 Plant]
+  This: PROD[-1 MC, -Heat<Anyone>, 2 Plant]
 }
 
 CLASS SearchForLife : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Science>> {
@@ -103,7 +103,7 @@ CLASS SearchForLife : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<C
   This:: ScienceTag<This>
   End IF Science<This>: 3 VictoryPoint
 
-  1 -> Science<This>?
+  1 MC -> Science<This>?
 }
 
 CLASS MartianRails : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -111,7 +111,7 @@ CLASS MartianRails : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This:: BuildingTag<This>
 
-  Energy -> 1 / CityTile<MarsArea, Anyone>
+  Energy -> 1 MC / CityTile<MarsArea, Anyone>
 }
 
 CLASS Capital : AutomatedCard<Class<ProjectCard>> {
@@ -119,7 +119,7 @@ CLASS Capital : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "4 OceanTile"
 
   This:: CityTag<This>, BuildingTag<This>
-  This: CityTile<> THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5]
+  This: CityTile<> THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5 MC]
   End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>
 }
 
@@ -151,7 +151,7 @@ CLASS WaterImportFromEuropa : ActionCard, ActiveCard<Class<ProjectCard>> {
   UseAction<This, First>:: Accept<Class<Titanium>>
   End: VictoryPoint / JovianTag
 
-  12 -> OceanTile<>
+  12 MC -> OceanTile<>
 }
 
 CLASS EquatorialMagnetizer : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -167,7 +167,7 @@ CLASS DomedCrater : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "MAX 7 OxygenStep"
 
   This:: CityTag<This>, BuildingTag<This>
-  This: 3 Plant, CityTile<>, PROD[-Energy, 3]
+  This: 3 Plant, CityTile<>, PROD[-Energy, 3 MC]
   End: VictoryPoint
 }
 
@@ -175,7 +175,7 @@ CLASS NoctisCity : AutomatedCard<Class<ProjectCard>> {
   cost = 18
 
   This:: CityTag<This>, BuildingTag<This>
-  This: PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile<>)
+  This: PROD[-Energy, 3 MC], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile<>)
 }
 
 CLASS MethaneFromTitan : AutomatedCard<Class<ProjectCard>> {
@@ -213,7 +213,7 @@ CLASS PhobosSpaceHaven : AutomatedCard<Class<ProjectCard>> {
 CLASS BlackPolarDust : AutomatedCard<Class<ProjectCard>> {
   cost = 15
 
-  This: OceanTile<>, PROD[-2, 3 Heat]
+  This: OceanTile<>, PROD[-2 MC, 3 Heat]
 }
 
 CLASS ArcticAlgae : ActiveCard<Class<ProjectCard>> {
@@ -240,7 +240,7 @@ CLASS EosChasmaNationalPark : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "9 TemperatureStep"
 
   This:: PlantTag<This>, BuildingTag<This>
-  This: Animal, 3 Plant, PROD[2]
+  This: Animal, 3 Plant, PROD[2 MC]
   End: VictoryPoint
 }
 
@@ -249,21 +249,21 @@ CLASS CupolaCity : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "MAX 9 OxygenStep"
 
   This:: CityTag<This>, BuildingTag<This>
-  This: CityTile<>, PROD[-Energy, 3]
+  This: CityTile<>, PROD[-Energy, 3 MC]
 }
 
 CLASS LunarBeam : AutomatedCard<Class<ProjectCard>> {
   cost = 13
 
   This:: EarthTag<This>, PowerTag<This>
-  This: PROD[-2, 2 Heat, 2 Energy]
+  This: PROD[-2 MC, 2 Heat, 2 Energy]
 }
 
 CLASS OptimalAerobraking : ActiveCard<Class<ProjectCard>> {
   cost = 7
 
   This:: SpaceTag<This>
-  EventCard(HAS SpaceTag): 3, 3 Heat
+  EventCard(HAS SpaceTag): 3 MC, 3 Heat
 }
 
 CLASS UndergroundCity : AutomatedCard<Class<ProjectCard>> {
@@ -320,7 +320,7 @@ CLASS RoverConstruction : ActiveCard<Class<ProjectCard>> {
   cost = 8
 
   This:: BuildingTag<This>
-  CityTile<Anyone>: 2
+  CityTile<Anyone>: 2 MC
   End: VictoryPoint
 }
 
@@ -343,7 +343,7 @@ CLASS FoodFactory : AutomatedCard<Class<ProjectCard>> {
   cost = 12
 
   This:: BuildingTag<This>
-  This: PROD[-Plant, 4]
+  This: PROD[-Plant, 4 MC]
   End: VictoryPoint
 }
 
@@ -367,7 +367,7 @@ CLASS NaturalPreserve : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "MAX 4 OxygenStep"
 
   This:: ScienceTag<This>, BuildingTag<This>
-  This: SpecialTile<LandArea(HAS MAX 0 Neighbor)> {}, PROD[1]
+  This: SpecialTile<LandArea(HAS MAX 0 Neighbor)> {}, PROD[1 MC]
   End: VictoryPoint
 }
 
@@ -375,7 +375,7 @@ CLASS NuclearPower : AutomatedCard<Class<ProjectCard>> {
   cost = 10
 
   This:: PowerTag<This>, BuildingTag<This>
-  This: PROD[-2, 3 Energy]
+  This: PROD[-2 MC, 3 Energy]
 }
 
 CLASS Algae : AutomatedCard<Class<ProjectCard>> {
@@ -428,7 +428,7 @@ CLASS KelpFarming : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "6 OceanTile"
 
   This:: PlantTag<This>
-  This: PROD[2, 3 Plant], 2 Plant
+  This: PROD[2 MC, 3 Plant], 2 Plant
   End: VictoryPoint
 }
 
@@ -496,7 +496,7 @@ CLASS SpaceMirrors : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This:: PowerTag<This>, SpaceTag<This>
 
-  7 -> PROD[Energy]
+  7 MC -> PROD[Energy]
 }
 
 CLASS SolarWindPower : AutomatedCard<Class<ProjectCard>> {
@@ -555,7 +555,7 @@ CLASS PeroxidePower : AutomatedCard<Class<ProjectCard>> {
   cost = 7
 
   This:: PowerTag<This>, BuildingTag<This>
-  This: PROD[-1, 2 Energy]
+  This: PROD[-1 MC, 2 Energy]
 }
 
 CLASS Bushes : AutomatedCard<Class<ProjectCard>> {
@@ -585,7 +585,7 @@ CLASS FueledGenerators : AutomatedCard<Class<ProjectCard>> {
   cost = 1
 
   This:: PowerTag<This>, BuildingTag<This>
-  This: PROD[-1, Energy]
+  This: PROD[-1 MC, Energy]
 }
 
 CLASS Ironworks : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -624,7 +624,7 @@ CLASS OpenCity : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "12 OxygenStep"
 
   This:: CityTag<This>, BuildingTag<This>
-  This: PROD[-Energy, 4], 2 Plant, CityTile<>
+  This: PROD[-Energy, 4 MC], 2 Plant, CityTile<>
   End: VictoryPoint
 }
 
@@ -672,7 +672,7 @@ CLASS Farming : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "17 TemperatureStep"
 
   This:: PlantTag<This>
-  This: PROD[2, 2 Plant], 2 Plant
+  This: PROD[2 MC, 2 Plant], 2 Plant
   End: 2 VictoryPoint
 }
 
@@ -687,7 +687,7 @@ CLASS UrbanizedArea : AutomatedCard<Class<ProjectCard>> {
   cost = 10
 
   This:: CityTag<This>, BuildingTag<This>
-  This: PROD[-Energy, 2], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>
+  This: PROD[-Energy, 2 MC], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>
 }
 
 CLASS Moss : AutomatedCard<Class<ProjectCard>> {
@@ -726,7 +726,7 @@ CLASS Zeppelins : AutomatedCard<Class<ProjectCard>> {
   cost = 13
   requirement = HAS "5 OxygenStep"
 
-  This: PROD[1 / CityTile<MarsArea, Anyone>]
+  This: PROD[1 MC / CityTile<MarsArea, Anyone>]
   End: VictoryPoint
 }
 
@@ -874,7 +874,7 @@ CLASS Insects : AutomatedCard<Class<ProjectCard>> {
 CLASS Insulation : AutomatedCard<Class<ProjectCard>> {
   cost = 2
 
-  This: PROD[X Megacredit FROM Heat]
+  This: PROD[X MC FROM Heat]
 }
 
 CLASS AdaptationTechnology : ActiveCard<Class<ProjectCard>> {
@@ -957,7 +957,7 @@ CLASS Shuttles : ActiveCard<Class<ProjectCard>> {
   requirement = HAS "5 OxygenStep"
 
   This:: SpaceTag<This>
-  This: PROD[-Energy, 2]
+  This: PROD[-Energy, 2 MC]
   PlayTag<Class<SpaceTag>>:: -2 Owed<>
   End: VictoryPoint
 }
@@ -983,7 +983,7 @@ CLASS TundraFarming : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "12 TemperatureStep"
 
   This:: PlantTag<This>
-  This: PROD[Plant, 2], Plant
+  This: PROD[Plant, 2 MC], Plant
   End: 2 VictoryPoint
 }
 
@@ -1015,7 +1015,7 @@ CLASS ProtectedValley : AutomatedCard<Class<ProjectCard>> {
   cost = 23
 
   This:: PlantTag<This>, BuildingTag<This>
-  This: PROD[2], GreeneryTile<WaterArea>
+  This: PROD[2 MC], GreeneryTile<WaterArea>
 }
 
 CLASS NoctisFarming : AutomatedCard<Class<ProjectCard>> {
@@ -1023,7 +1023,7 @@ CLASS NoctisFarming : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "5 TemperatureStep"
 
   This:: PlantTag<This>, BuildingTag<This>
-  This: PROD[1], 2 Plant
+  This: PROD[1 MC], 2 Plant
   End: VictoryPoint
 }
 
@@ -1074,7 +1074,7 @@ CLASS Livestock : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class
   requirement = HAS "9 OxygenStep"
 
   This:: AnimalTag<This>
-  This: PROD[-Plant, 2]
+  This: PROD[-Plant, 2 MC]
   End: VictoryPoint / Animal<This>
 
   -> Animal<This>
@@ -1086,14 +1086,14 @@ CLASS AquiferPumping : ActionCard, ActiveCard<Class<ProjectCard>> {
   This:: BuildingTag<This>
   UseAction<This, First>:: Accept<Class<Steel>>
 
-  8 -> OceanTile<>
+  8 MC -> OceanTile<>
 }
 
 CLASS Flooding : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 Megacredit<Anyone>?)
+  This: OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 MC<Anyone>?)
   End: -VictoryPoint
 }
 
@@ -1131,7 +1131,7 @@ CLASS ImmigrationShuttles : AutomatedCard<Class<ProjectCard>> {
   cost = 31
 
   This:: EarthTag<This>, SpaceTag<This>
-  This: PROD[5]
+  This: PROD[5 MC]
   End: VictoryPoint / 3 CityTile<Anyone>
 }
 
@@ -1139,8 +1139,8 @@ CLASS ImmigrantCity : ActiveCard<Class<ProjectCard>> {
   cost = 13
 
   This:: CityTag<This>, BuildingTag<This>
-  This: PROD[-Energy, -2], CityTile<>
-  CityTile<Anyone>: PROD[1]
+  This: PROD[-Energy, -2 MC], CityTile<>
+  CityTile<Anyone>: PROD[1 MC]
 }
 
 CLASS UndergroundDetonations : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -1148,7 +1148,7 @@ CLASS UndergroundDetonations : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This:: BuildingTag<This>
 
-  10 -> PROD[2 Heat]
+  10 MC -> PROD[2 Heat]
 }
 
 CLASS Soletta : AutomatedCard<Class<ProjectCard>> {

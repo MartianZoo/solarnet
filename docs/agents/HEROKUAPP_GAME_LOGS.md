@@ -125,9 +125,7 @@ through which it is implemented, followed by the archived title, internal game I
 Name a partial test method for that boundary rather than as though it covered the entire game.
 
 Explicitly set `inputOnlySynonyms` to an empty list. Spell out resource, production, rating, and point
-types in test strings. Money is the exception: bare numbers are the idiomatic form in payments and
-expectations. Use the canonical owned money type only where a cross-player task cannot be expressed
-as a bare number.
+types in test strings.
 
 Use consistent provenance labels for retained comments: `Player-record evidence`, `Screenshot
 evidence`, `Test inference`, `Payment reconstruction`, `Chronology`, and `Unsupported component`.

@@ -14,26 +14,26 @@ import kotlin.test.Test
 
 internal class CoreRulesTest : CardTest() {
   @Test
-  internal fun `Research cards cost three megacredits each`() {
+  internal fun `Research cards cost three mc each`() {
     newGame()
-    p1.manual("12 Megacredit")
+    p1.manual("12 MC")
 
     engine.phase("Research") {
       p1.buyCards(3)
       requireP2().buyCards(0)
     }
 
-    p1.count("Megacredit") shouldBe 3
+    p1.count("MC") shouldBe 3
     p1.count("ProjectCard") shouldBe 3
   }
 
   @Test
-  internal fun `Selling patents returns one megacredit per card`() {
+  internal fun `Selling patents returns one mc per card`() {
     newGame()
     p1.manual("3 ProjectCard")
     engine.phase("Action")
 
-    p1.sellPatents(2).expect("-2 ProjectCard, 2 Megacredit")
+    p1.sellPatents(2).expect("-2 ProjectCard, 2 MC")
   }
 
   @Test
@@ -101,20 +101,20 @@ internal class CoreRulesTest : CardTest() {
     engine.phase("Action")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_4_7>") }
-        .expect("-7 Plant, 2 Megacredit, GreeneryTile, OxygenStep, TerraformRating")
+        .expect("-7 Plant, 2 MC, GreeneryTile, OxygenStep, TerraformRating")
   }
 
   @Test
   internal fun `Standard projects perform their advertised effects`() {
     newGame()
-    p1.manual("100 Megacredit")
+    p1.manual("100 MC")
     engine.phase("Action")
 
     p1.stdProject("PowerPlantSP").expect("PROD[Energy]")
     p1.stdProject("AsteroidSP").expect("TemperatureStep, TerraformRating")
     p1.stdProject("AquiferSP") { doTask("OceanTile<Tharsis_1_2>") }
         .expect("OceanTile, TerraformRating")
-    p1.stdProject("CitySP") { doTask("CityTile<Tharsis_4_4>") }.expect("CityTile, PROD[Megacredit]")
+    p1.stdProject("CitySP") { doTask("CityTile<Tharsis_4_4>") }.expect("CityTile, PROD[1 MC]")
     p1.stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_5>") }
         .expect("GreeneryTile, OxygenStep, TerraformRating")
   }
@@ -122,21 +122,21 @@ internal class CoreRulesTest : CardTest() {
   @Test
   internal fun `A qualified player can claim a milestone`() {
     newGame()
-    p1.manual("8 Megacredit, 15 TerraformRating")
+    p1.manual("8 MC, 15 TerraformRating")
     engine.phase("Action")
 
-    p1.claimMilestone(cn("Terraformer35")).expect("-8 Megacredit, Milestone")
+    p1.claimMilestone(cn("Terraformer35")).expect("-8 MC, Milestone")
   }
 
   @Test
   internal fun `Funding successive awards costs eight fourteen and twenty`() {
     newGame()
-    p1.manual("42 Megacredit")
+    p1.manual("42 MC")
     engine.phase("Action")
 
-    p1.fundAward(cn("Landlord"), 8).expect("-8 Megacredit, Award")
-    p1.fundAward(cn("Scientist"), 14).expect("-14 Megacredit, Award")
-    p1.fundAward(cn("Thermalist"), 20).expect("-20 Megacredit, Award")
+    p1.fundAward(cn("Landlord"), 8).expect("-8 MC, Award")
+    p1.fundAward(cn("Scientist"), 14).expect("-14 MC, Award")
+    p1.fundAward(cn("Thermalist"), 20).expect("-20 MC, Award")
   }
 
   @Test

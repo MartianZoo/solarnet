@@ -15,7 +15,7 @@ internal class AdvertisingTest : CardTest() {
         colonyTiles = testColonyTiles(2),
     )
     p1.manual("$Advertising")
-    p1.manual("$LunarExports") { doTask("PROD[5]") }.expect("PROD[5]")
-    p1.manual("$GanymedeColony").expect("PROD[1]")
+    p1.manual("$LunarExports") { doTask("PROD[5 MC]") }.expect("PROD[5 MC]")
+    p1.manual("$GanymedeColony").expect("PROD[1 MC]")
   }
 }

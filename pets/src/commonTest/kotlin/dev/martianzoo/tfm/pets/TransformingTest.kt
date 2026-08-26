@@ -38,7 +38,7 @@ internal class TransformingTest {
       actionToEffect(parsedA, index) shouldBe parsedE
     }
 
-    checkActionToEffect("5 -> Ok", 1, "UseAction<This, First>: -5! THEN Ok")
+    checkActionToEffect("5 MC -> Ok", 1, "UseAction<This, First>: -5 MC! THEN Ok")
     checkActionToEffect("Foo -> Bar, Qux", 3, "UseAction<This, Third>: -Foo! THEN (Bar, Qux)")
     checkActionToEffect(
         "Microbe<Anyone> -> Microbe<This>!",
@@ -142,10 +142,10 @@ internal class TransformingTest {
     // looks like a plain textual replacement but we know what's really happening
     val petsIn =
         "-Ooh<Foo<Xyz, This, Qux>>: " +
-            "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5: Foo<This>"
+            "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5 MC: Foo<This>"
     val petsOut =
         "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
-            "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
+            "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5 MC: Foo<It<Worked>>"
     checkResolveThis<Effect>(petsIn, te("It<Worked>"), petsOut)
 
     checkResolveThis<Instruction>("This<Foo>", cn("Bar").expression, "Bar<Foo>")

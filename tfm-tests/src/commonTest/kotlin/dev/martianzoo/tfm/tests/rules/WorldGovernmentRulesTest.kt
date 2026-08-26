@@ -30,13 +30,13 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `Engine terraforming triggers Aphrodite without granting terraform rating`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.manual("$Aphrodite")
-    val moneyBefore = p1.count("Megacredit")
+    val moneyBefore = p1.count("MC")
     val ratingBefore = p1.count("TerraformRating")
     TfmWorkflow.Manual(game).solarPhase()
 
     p1.doTask("VenusStep! BY Engine")
 
-    p1.count("Megacredit") shouldBe moneyBefore + 2
+    p1.count("MC") shouldBe moneyBefore + 2
     p1.count("TerraformRating") shouldBe ratingBefore
   }
 
@@ -48,7 +48,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
     p1.doTask("TemperatureStep! BY Engine")
 
-    p1.count("Megacredit") shouldBe 0
+    p1.count("MC") shouldBe 0
   }
 
   @Test

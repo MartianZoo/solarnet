@@ -17,60 +17,60 @@ internal class EffectTest {
 
   private val inputs =
       """
-      Bar: 11
+      Bar: 11 MC
       This: Ok
-      -Foo: -5X
+      -Foo: -5X MC
       X This: Ok
-      -X This: 5!
+      -X This: 5 MC!
       This: 5 Abc?
-      PROD[Qux]: 1?
-      This: 1, -!Foo
-      X Eep<Bar>: 5X?
+      PROD[Qux]: MC?
+      This: MC, -!Foo
+      X Eep<Bar>: 5X MC?
       PROD[X This]: Ok
-      PROD[X Xyz]:: -2.
-      -Xyz: 2 / Xyz OR 1
+      PROD[X Xyz]:: -2 MC.
+      -Xyz: 2 MC / Xyz OR MC
       PROD[Bar]: Ahh, Ahh
-      -This: 1 / PROD[Qux]
-      This: (1: Abc) BY Bar
+      -This: MC / PROD[Qux]
+      This: (MC: Abc) BY Bar
       PROD[Qux]: -Xyz, 2 Bar
       -X Foo(HAS Foo): -X Eep
       This BY Ooh: Foo!, 2 Xyz
       X This: PROD[2 Bar], -Abc
       !Ooh<Ahh>: 2X Xyz FROM Qux
       -Eep: Ok THEN Ok, PROD[Foo]
-      X This:: 2X Ahh, -Qux(HAS 1)
-      PROD[Wau<Bar, Ooh>]: PROD[1?]
+      X This:: 2X Ahh, -Qux(HAS MC)
+      PROD[Wau<Bar, Ooh>]: PROD[MC?]
       X Abc: Foo, (Ok BY Qux) BY Bar
-      X Qux<Bar>: Bar / 2 Bar<Bar>, 1
+      X Qux<Bar>: Bar / 2 Bar<Bar>, MC
       Foo BY Player2 IF =1 Xyz: -X Ahh
       PROD[X Ahh]: Bar<Ooh> / Xyz, -Qux
       -X This: -Foo! OR X Qux, Ahh, Bar?
       This OR PROD[X This]: Bar FROM !Ooh
       -Bar: 11 Ahh<Foo, Foo> FROM Eep<Qux>
-      Bar<Foo<Bar<Bar<Bar>>, Eep>, Bar>: -1
+      Bar<Foo<Bar<Bar<Bar>>, Eep>, Bar>: -MC
       X This: Abc / 2 Bar<Bar, Ooh> - Qux
       PROD[Abc]: -X Qux, 11 Abc<Xyz> FROM Xyz
       This OR This: 2 Xyz<Ooh<Foo>(HAS 5 Xyz)>
-      PROD[-Ooh<Qux<Bar>, Bar>]: -1 / PROD[Foo]
-      (This BY Abc) BY Xyz: !Foo<Foo>, 1!, 1: X.
-      PROD[Foo<Qux>]: 5X, Ahh<Qux> / Xyz, PROD[1]
-      !Foo: -1 / Foo, Ooh FROM Bar, 5!, Abc OR Qux
-      PROD[-Xyz] BY Foo:: 1 / Foo MAX 5, Foo(HAS 1)
-      -This: X!, Xyz(HAS Foo) FROM Foo, -5 Foo / Qux
-      Xyz IF MAX 0 Megacredit: Xyz<Abc, Foo> FROM Ahh
-      PROD[X Bar]: PROD[1 / Foo, Qux], Xyz, Qux, 2 Abc
-      PROD[X This]: 5X Eep<Bar<Abc>>, 2, Abc<Ooh, Qux>!
+      PROD[-Ooh<Qux<Bar>, Bar>]: -MC / PROD[Foo]
+      (This BY Abc) BY Xyz: !Foo<Foo>, MC!, MC: X MC.
+      PROD[Foo<Qux>]: 5X MC, Ahh<Qux> / Xyz, PROD[MC]
+      !Foo: -MC / Foo, Ooh FROM Bar, 5 MC!, Abc OR Qux
+      PROD[-Xyz] BY Foo:: MC / Foo MAX 5, Foo(HAS MC)
+      -This: X MC!, Xyz(HAS Foo) FROM Foo, -5 Foo / Qux
+      Xyz IF MAX 0 MC: Xyz<Abc, Foo> FROM Ahh
+      PROD[X Bar]: PROD[MC / Foo, Qux], Xyz, Qux, 2 Abc
+      PROD[X This]: 5X Eep<Bar<Abc>>, 2 MC, Abc<Ooh, Qux>!
       Ahh<Abc, Xyz>: -Eep(HAS Bar) OR (Bar: -Xyz BY Bar)
-      X Qux:: ((1 OR Bar): Abc) OR Ok OR -5 Qux, PROD[Ok]
-      Qux(HAS MAX 1 Megacredit): (-5, Qux FROM Qux) OR Xyz
-      Ahh IF MAX 1 Foo: PROD[2 Bar, 1 / Bar, Bar<Foo>: Xyz]
-      PROD[Foo] OR PROD[Bar]:: -5X, 2 THEN Foo<Qux> FROM Foo
-      PROD[Eep]:: -5, -2 Ooh<Abc>, (Foo: 2) OR (Qux FROM Foo)
+      X Qux:: ((MC OR Bar): Abc) OR Ok OR -5 Qux, PROD[Ok]
+      Qux(HAS MAX 1 MC): (-5 MC, Qux FROM Qux) OR Xyz
+      Ahh IF MAX 1 Foo: PROD[2 Bar, MC / Bar, Bar<Foo>: Xyz]
+      PROD[Foo] OR PROD[Bar]:: -5X MC, 2 MC THEN Foo<Qux> FROM Foo
+      PROD[Eep]:: -5 MC, -2 Ooh<Abc>, (Foo: 2 MC) OR (Qux FROM Foo)
       -Foo<!Qux>: -X Foo<!Qux<Bar<Foo>, Abc>> / 2 (2 Foo<Abc>)
-      Bar IF MAX 2 Bar: X Abc / Qux<Eep> OR PROD[1] BY Bar<Xyz>
-      PROD[Foo]:: (2 Qux FROM Foo) OR (-Foo, 1), 2 Qux FROM Ahh.
-      PROD[X This]: 1: 1, Abc / Bar<Bar<Bar>> OR 2 Foo., -2X Qux.
-      Ahh<Foo>: (Qux<Qux, Foo>, 1 / 2 Bar OR 2) OR Abc / PROD[Abc]
+      Bar IF MAX 2 Bar: X Abc / Qux<Eep> OR PROD[MC] BY Bar<Xyz>
+      PROD[Foo]:: (2 Qux FROM Foo) OR (-Foo, MC), 2 Qux FROM Ahh.
+      PROD[X This]: MC: MC, Abc / Bar<Bar<Bar>> OR 2 Foo., -2X Qux.
+      Ahh<Foo>: (Qux<Qux, Foo>, MC / 2 Bar OR 2 MC) OR Abc / PROD[Abc]
       """
           .trimIndent()
 
@@ -81,7 +81,7 @@ internal class EffectTest {
 
   @Test
   internal fun nodeCount() {
-    val effect: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
+    val effect: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR MC]")
     effect.descendantCount() shouldBe 20
   }
 

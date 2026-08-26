@@ -22,7 +22,7 @@ internal class ArcticAlgaeTest : CardTest() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae, Plant")
-    p1.manual("ProjectCard, 36 Megacredit")
+    p1.manual("ProjectCard, 36 MC")
     engine.phase("Action")
 
     p1.playProject(GiantIceAsteroid, 36) {
@@ -46,7 +46,7 @@ internal class ArcticAlgaeTest : CardTest() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae, Plant")
-    p1.manual("ProjectCard, 36 Megacredit")
+    p1.manual("ProjectCard, 36 MC")
     engine.phase("Action")
 
     p1.playProject(GiantIceAsteroid, 36) {

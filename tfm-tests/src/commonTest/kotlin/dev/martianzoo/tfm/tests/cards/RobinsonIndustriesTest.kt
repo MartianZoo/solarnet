@@ -16,34 +16,37 @@ internal class RobinsonIndustriesTest : CardTest() {
   }
 
   @Test
-  internal fun `Can raise uniquely lowest megacredit production`() {
+  internal fun `Can raise uniquely lowest mc production`() {
     p1.manual("PROD[Steel, Titanium, Plant, Energy, Heat]")
-    p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Megacredit]")
+    p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[1 MC]")
   }
 
   @Test
-  internal fun `Can raise megacredit production from below the production floor`() {
-    p1.manual("PROD[-Megacredit]")
-    p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Megacredit]")
+  internal fun `Can raise mc production from below the production floor`() {
+    p1.manual("PROD[-1 MC]")
+    p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[1 MC]")
   }
 
   @Test
   internal fun `Can raise uniquely lowest titanium production`() {
-    p1.manual("PROD[Megacredit, Steel, Plant, Energy, Heat]")
-    p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Titanium]")
+    p1.manual("PROD[1 MC, Steel, Plant, Energy, Heat]")
+    p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[Titanium]")
   }
 
   @Test
-  internal fun `Can choose megacredit production when tied for lowest`() {
+  internal fun `Can choose mc production when tied for lowest`() {
     seedProductionTie()
 
-    p1.cardAction1(RobinsonIndustries) { doTask("PROD[Megacredit]") }.expect("-4, PROD[Megacredit]")
+    p1.cardAction1(RobinsonIndustries) {
+          doTask("PROD[1 MC]")
+        }
+        .expect("-4 MC, PROD[1 MC]")
   }
 
   @Test
   internal fun `Can choose titanium production when tied for lowest`() {
     seedProductionTie()
-    p1.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }.expect("-4, PROD[Titanium]")
+    p1.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }.expect("-4 MC, PROD[Titanium]")
   }
 
   @Test

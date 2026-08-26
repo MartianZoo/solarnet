@@ -26,7 +26,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
     with(me) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 
-      playCorp(PharmacyUnion, 10).expect("16, 11 ProjectCard")
+      playCorp(PharmacyUnion, 10).expect("16 MC, 11 ProjectCard")
 
       playPrelude(Merger) {
         // playCorp("Manutech", 0) - TODO this really should work
@@ -94,7 +94,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat()
       convertHeat()
       stdProject("BuildColonySP") { doTask("Colony<Luna>") }
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15")
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15 MC")
       playProject(GiantSolarShade, 27).expect("Card")
       playProject(GeothermalPower, 2, steel = 3)
 
@@ -156,7 +156,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
         doTask("Colony<Ganymede>")
         placeTile(2, 6)
       }
-      stdProject("AirScrappingSP").expect("-12")
+      stdProject("AirScrappingSP").expect("-12 MC")
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       sellPatents(3)
@@ -259,7 +259,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       sum.net("CityTile", "VictoryPoint<Me>") shouldBe 24
       sum.net("Card", "VictoryPoint<Me>") shouldBe 18
       assertCounts(121 to "VictoryPoint")
-      assertCounts(82 to "Megacredit")
+      assertCounts(82 to "MC")
 
       // Head Start's two actions occur during Prelude; the source UI says 106.
       sum.net("ActionPhase", "UseAction<Me>") shouldBe 92

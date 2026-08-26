@@ -54,12 +54,12 @@ internal class MetricTest {
       (Bar - (Bar OR Xyz OR Qux<Abc<Foo>>)) MAX 5
       EVAL Xyz<Eep<Xyz>(HAS 2 Qux)>(HAS Abc).score
       Abc<Abc<Abc<Qux>>, Bar>(HAS Bar<Bar>) OR !Ahh
-      Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, 1)> OR Wau
+      Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, MC)> OR Wau
       EVAL Xyz<Eep>(HAS PROD[Abc OR MAX 1 Foo]).score
-      Ooh<Abc<Ooh(HAS MAX 0 Foo OR 1), Xyz>, Abc<Ahh>>
-      !Bar<Eep<Bar>(HAS MAX 1 Foo)>(HAS 1, =1 Foo<Foo>)
+      Ooh<Abc<Ooh(HAS MAX 0 Foo OR MC), Xyz>, Abc<Ahh>>
+      !Bar<Eep<Bar>(HAS MAX 1 Foo)>(HAS MC, =1 Foo<Foo>)
       PROD[3 (Qux - (Foo<Foo> - Bar<Foo> MAX 5)) MAX 11]
-      Foo<Wau> OR Abc<Ahh(HAS Bar)>(HAS MAX 0 Megacredit)
+      Foo<Wau> OR Abc<Ahh(HAS Bar)>(HAS MAX 0 MC)
       EVAL Ahh.score MAX 5 - (!Bar OR Bar<Qux>) - 11 - Bar
       PROD[2 (Foo - Abc - 2 (2 (2 Foo MAX 5)) - Foo) MAX 5]
       PROD[Xyz - Qux - PROD[Qux] - Foo - (2 Qux - Bar<Foo>)]
@@ -67,8 +67,8 @@ internal class MetricTest {
       Ooh<!Wau, Bar<!Xyz<Xyz<Ooh, Xyz, Qux>, Abc<Foo>>, !Abc>>
       PROD[Abc MAX 11 - 11 - (2 (Foo MAX 5) - 2 (2 Foo)) MAX 5]
       PROD[Foo MAX 11 - Foo - (Bar OR Abc<Bar> OR Foo(HAS Bar))]
-      EVAL Bar<Bar, Foo<!Xyz>, Abc<Foo>>(HAS =1 Megacredit).score
-      Eep<Foo(HAS PROD[1, =1 Foo]), Bar<Xyz(HAS 2 Foo), Qux>, Eep>
+      EVAL Bar<Bar, Foo<!Xyz>, Abc<Foo>>(HAS =1 MC).score
+      Eep<Foo(HAS PROD[MC, =1 Foo]), Bar<Xyz(HAS 2 Foo), Qux>, Eep>
       """
           .trimIndent()
 

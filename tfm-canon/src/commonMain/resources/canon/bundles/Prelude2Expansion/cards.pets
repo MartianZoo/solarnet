@@ -3,7 +3,7 @@ CLASS NirgalEnterprises : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: PowerTag<This>, PlantTag<This>, BuildingTag<This>
-  This: 30, PROD[Energy, Plant, Steel]
+  This: 30 MC, PROD[Energy, Plant, Steel]
   Invoice<ClaimMilestoneSA>:: -Owed<> / Owed<>
   Invoice<FundAwardSA>:: -Owed<> / Owed<>
 }
@@ -12,7 +12,7 @@ CLASS PalladinShipping : ActionCard<Class<CorporationCard>> {
   cost = 0
 
   This:: SpaceTag<This>
-  This: 36, 5 Titanium
+  This: 36 MC, 5 Titanium
   EventCard(HAS SpaceTag): Titanium
 
   2 Titanium -> TemperatureStep
@@ -21,16 +21,16 @@ CLASS PalladinShipping : ActionCard<Class<CorporationCard>> {
 CLASS SagittaFrontierServices : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 31, PROD[Energy, 2], CARDS[ProjectCard(HAS MAX 0 Tag)]
-  CardFront(HAS MAX 0 Tag): 4
-  CardFront(HAS =1 Tag): 1
+  This: 31 MC, PROD[Energy, 2 MC], CARDS[ProjectCard(HAS MAX 0 Tag)]
+  CardFront(HAS MAX 0 Tag): 4 MC
+  CardFront(HAS =1 Tag): 1 MC
 }
 
 CLASS EcoTec : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: MicrobeTag<This>, PlantTag<This>
-  This: 42, PROD[Plant]
+  This: 42 MC, PROD[Plant]
   BioTag<>: Plant OR Microbe
 }
 
@@ -38,7 +38,7 @@ CLASS Spire : ResourceCard<Class<Science>, Class<CorporationCard>> {
   cost = 0
 
   This:: CityTag<This>, EarthTag<This>
-  This: 50, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }
+  This: 50 MC, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }
   CardFront(HAS 2 Tag): Science<This>
   UseAction<StandardProject>:: AcceptFromCard<This>
   PayFromCard<This>:: -2 Owed<>
@@ -65,7 +65,7 @@ CLASS BoardOfDirectors : ActionCard, ResourceCard<Class<Director>, Class<Prelude
   This:: EarthTag<This>
   This: 4 Director<This>
 
-  -> PreludeCard, -PreludeCard OR (-12 THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)
+  -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)
 }
 
 CLASS ColonyTradeHub : CardFront<Class<PreludeCard>> {
@@ -73,7 +73,7 @@ CLASS ColonyTradeHub : CardFront<Class<PreludeCard>> {
 
   This:: SpaceTag<This>
   This: PROD[Energy], 2 Titanium
-  Colony<Anyone>: 2
+  Colony<Anyone>: 2 MC
 }
 
 CLASS EarlyColonization : CardFront<Class<PreludeCard>> {
@@ -104,14 +104,14 @@ CLASS IndustrialComplex : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: -18, PROD[1 / 6 - Megacredit, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]
+  This: -18 MC, PROD[1 MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]
 }
 
 CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<PreludeCard>> {
   cost = 0
 
   This:: SpaceTag<This>
-  This: -5
+  This: -5 MC
   Asteroid<This>: Titanium
   End: VictoryPoint / 2 Asteroid<This>
 
@@ -121,7 +121,7 @@ CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<Prelud
 CLASS NobelPrize : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: WildTag<This>, 5, CARDS[2 ProjectCard(HAS requirement)]
+  This: WildTag<This>, 5 MC, CARDS[2 ProjectCard(HAS requirement)]
   End: 2 VictoryPoint
 }
 
@@ -149,7 +149,7 @@ CLASS ProjectEden : CardFront<Class<PreludeCard>> {
 CLASS Recession : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: 10
+  This: 10 MC
 }
 
 CLASS SoilBacteria : CardFront<Class<PreludeCard>> {
@@ -182,7 +182,7 @@ CLASS TerraformingDeal : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  TerraformRating: 2
+  TerraformRating: 2 MC
 }
 
 CLASS VenusContract : CardFront<Class<PreludeCard>> {
@@ -190,7 +190,7 @@ CLASS VenusContract : CardFront<Class<PreludeCard>> {
 
   This:: VenusTag<This>
   This: CARDS[ProjectCard(HAS VenusTag)], TerraformRating
-  VenusStep: 3
+  VenusStep: 3 MC
 }
 
 CLASS VenusL1Shade : CardFront<Class<PreludeCard>> {
@@ -213,17 +213,17 @@ CLASS CeresTechMarket : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 12
 
   This:: ScienceTag<This>, SpaceTag<This>
-  This: 2 / Colony
+  This: 2 MC / Colony
   End: VictoryPoint
 
-  X ProjectCard -> 2X
+  X ProjectCard -> 2X MC
 }
 
 CLASS CloudTourism : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
   cost = 11
 
   This:: JovianTag<This>, VenusTag<This>
-  This: PROD[1 / EarthTag MAX VenusTag]
+  This: PROD[1 MC / EarthTag MAX VenusTag]
   End: VictoryPoint / 3 Floater<This>
 
   -> Floater<This>
@@ -236,7 +236,7 @@ CLASS FloatingRefinery : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCar
   This: Floater<This> / VenusTag
 
   -> Floater<This>
-  2 Floater -> Titanium, 2
+  2 Floater -> Titanium, 2 MC
 }
 
 CLASS IshtarExpedition : EventCard<Class<ProjectCard>> {
@@ -251,7 +251,7 @@ CLASS MicrogravityNutrition : AutomatedCard<Class<ProjectCard>> {
   cost = 11
 
   This:: MicrobeTag<This>, PlantTag<This>
-  This: PROD[1 / Colony]
+  This: PROD[1 MC / Colony]
   End: VictoryPoint
 }
 
@@ -282,7 +282,7 @@ CLASS VenusAllies : AutomatedCard<Class<ProjectCard>> {
   cost = 30
 
   This:: VenusTag<This>, SpaceTag<This>
-  This: 2 VenusStep, 4 / Colony
+  This: 2 VenusStep, 4 MC / Colony
   End: 2 VictoryPoint
 }
 
@@ -300,7 +300,7 @@ CLASS VenusShuttles : ActionCard, ActiveCard<Class<ProjectCard>> {
   This:: VenusTag<This>
   This: 2 Floater<CardFront(HAS VenusTag)>
 
-  1 / (12 - VenusTag) -> VenusStep
+  1 MC / (12 - VenusTag) -> VenusStep
 }
 
 CLASS VenusTradeHub : ActiveCard<Class<ProjectCard>> {
@@ -308,7 +308,7 @@ CLASS VenusTradeHub : ActiveCard<Class<ProjectCard>> {
   requirement = HAS "2 VenusTag"
 
   This:: VenusTag<This>, SpaceTag<This>
-  Trade: 3
+  Trade: 3 MC
   End: VictoryPoint
 }
 
@@ -321,10 +321,10 @@ CLASS FocusedOrganizationGain : Owned<Player>, Signal {
 
 CLASS RecessionWatcher : Owned<Player> {
   HAS =1 This
-  Recession<Anyone> IF MAX 0 Recession<Owner>: -5 Megacredit<Owner>. BY Owner, PROD[-Megacredit<Owner>.] BY Owner
+  Recession<Anyone> IF MAX 0 Recession<Owner>: -5 MC<Owner>. BY Owner, PROD[-1 MC<Owner>.] BY Owner
 }
 
 CLASS SuitableInfrastructurePaid : Atomized, Hidden, Owned<Player> {
   HAS MAX 1 This
-  This:: 2
+  This:: 2 MC
 }

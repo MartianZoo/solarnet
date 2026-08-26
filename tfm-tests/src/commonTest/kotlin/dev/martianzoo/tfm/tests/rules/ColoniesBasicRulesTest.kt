@@ -49,7 +49,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   @BeforeTest
   fun setUp() {
-    p1.godMode().sneak("100, 5 ProjectCard")
+    p1.godMode().sneak("100 MC, 5 ProjectCard")
     engine.phase("Action")
   }
 
@@ -94,7 +94,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // is any card in play that may collect their respective resources.
 
     engine.phase("Action")
-    p1.godMode().sneak("100, 5 ProjectCard")
+    p1.godMode().sneak("100 MC, 5 ProjectCard")
     p1.playProject(Pets, 10).expect("Miranda, ColonyProduction")
     engine.assertCounts(
         4 to "ColonyTile",
@@ -145,7 +145,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val p1 = engine.asPlayer(PLAYER1)
 
     engine.phase("Action")
-    p1.godMode().sneak("100, 5 ProjectCard")
+    p1.godMode().sneak("100 MC, 5 ProjectCard")
 
     shouldThrow<DependencyException> {
       p1.stdProject("BuildColonySP") { doTask("Colony<Miranda>") }
@@ -171,7 +171,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
     p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
         // Take the placement bonus printed inside the track.
-        .expect("PROD[2]")
+        .expect("PROD[2 MC]")
 
     p1.assertCounts(1 to "Colony")
 
@@ -213,7 +213,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
           // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
           // trade income, and give the local colony owners their colony bonus.
         }
-        .expect("19 Megacredit<Player1>, 2 Megacredit<Player2>, -3 E<Player1>")
+        .expect("19 MC<Player1>, 2 MC<Player2>, -3 E<Player1>")
 
     // Directly after trading you move the white marker as far left as possible, stopping next to
     // the player colonies, or at the bottom of the track (in the example above the marker is moved

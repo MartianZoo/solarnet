@@ -36,7 +36,9 @@ internal class NewPromoCardsTest : CardTest() {
     val oceanArea = "Tharsis_2_6"
     p2.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
-    p2.cardAction2(IcyImpactors) { p1.doTask("OceanTile<$oceanArea> BY Player2") }
+    p2.cardAction2(IcyImpactors) {
+      p1.doTask("OceanTile<$oceanArea> BY Player2")
+    }
 
     p2.count("TerraformRating") shouldBe 21
     p1.count("TerraformRating") shouldBe 20
@@ -49,7 +51,9 @@ internal class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
-    p1.cardAction2(IcyImpactors) { doTask("OceanTile<Tharsis_1_2> BY Player1") }
+    p1.cardAction2(IcyImpactors) {
+      doTask("OceanTile<Tharsis_1_2> BY Player1")
+    }
 
     p1.count("TerraformRating") shouldBe 21
   }
@@ -78,7 +82,7 @@ internal class NewPromoCardsTest : CardTest() {
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
     p1.manual("$FloydContinuum, 19 TemperatureStep, 14 OxygenStep, 15 VenusStep, $oceans")
 
-    p1.cardAction1(FloydContinuum).expect("12 Megacredit")
+    p1.cardAction1(FloydContinuum).expect("12 MC")
   }
 
   @Test
@@ -86,7 +90,7 @@ internal class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
-    p1.manual("25, 2 ProjectCard")
+    p1.manual("25 MC, 2 ProjectCard")
 
     p1.playProject(CarbonNanosystems, 14).expect("Graphene<$CarbonNanosystems>")
 
@@ -101,24 +105,27 @@ internal class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
-    p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
-    p1.playProject(Mine, 1) { doTask("Pay<Class<Plant>> FROM Plant") }.expect("-Plant")
+    p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20 MC")
+    p1.playProject(Mine, 1) {
+          doTask("Pay<Class<Plant>> FROM Plant")
+        }
+        .expect("-Plant")
   }
 
   @Test
   internal fun `Neptunian Power Consultants may pay for its ocean bonus with steel`() {
     newGame(PromoCardPack)
     engine.phase("Action")
-    p1.manual("50 Megacredit, 2 ProjectCard")
+    p1.manual("50 MC, 2 ProjectCard")
     p1.playProject(NeptunianPowerConsultants, 14)
 
     p1.stdProject("AquiferSP") {
       doTask("OceanTile<Tharsis_1_2>")
       doTask("UseAction<NeptunianOption, First>")
-      p1.pay(megacredits = 1, steel = 2)
+      p1.pay(mc = 1, steel = 2)
     }
 
-    p1.assertCounts(17 to "Megacredit", 0 to "Steel", 1 to "Hydroelectric")
+    p1.assertCounts(17 to "MC", 0 to "Steel", 1 to "Hydroelectric")
     p1.assertProds(1 to "Energy")
   }
 
@@ -127,20 +134,20 @@ internal class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$HomeostasisBureau")
-    p1.count("Megacredit") shouldBe 0
+    p1.count("MC") shouldBe 0
 
     p2.manual("TemperatureStep")
     engine.manual("TemperatureStep")
-    p1.count("Megacredit") shouldBe 0
+    p1.count("MC") shouldBe 0
 
-    p1.manual("TemperatureStep").expect("3 Megacredit")
+    p1.manual("TemperatureStep").expect("3 MC")
   }
 
   @Test
   internal fun `Kaguya Tech can replace a greenery with its city`() {
     newGame(PromoCardPack)
     engine.phase("Action")
-    p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
+    p1.manual("10 MC, ProjectCard, GreeneryTile<Tharsis_4_2>")
     p1.playProject(KaguyaTech, 10) {
           shouldThrow<NarrowingException> {
             doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
@@ -154,8 +161,8 @@ internal class NewPromoCardsTest : CardTest() {
   internal fun `St Joseph of Cupertino Mission offers the city owner a paid draw and scores`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("12 Megacredit, ProjectCard")
-    p2.manual("2 Megacredit")
+    p1.manual("12 MC, ProjectCard")
+    p2.manual("2 MC")
     p2.manual("CityTile<Player2, Tharsis_4_2>")
     engine.phase("Action")
 
@@ -166,7 +173,7 @@ internal class NewPromoCardsTest : CardTest() {
       p2.stdAction("CathedralAction")
     }
 
-    p2.assertCounts(0 to "Megacredit", 1 to "ProjectCard")
+    p2.assertCounts(0 to "MC", 1 to "ProjectCard")
     engine.phase("End")
     p1.assertCounts(21 to "VictoryPoint")
   }
@@ -174,7 +181,7 @@ internal class NewPromoCardsTest : CardTest() {
   @Test
   internal fun `St Joseph of Cupertino Mission can place a Cathedral on a neutral solo city`() {
     newGame(PromoCardPack, players = 1)
-    p1.manual("12 Megacredit, ProjectCard")
+    p1.manual("12 MC, ProjectCard")
     engine.phase("Action")
 
     p1.playProject(StJosephOfCupertinoMission, 7)
@@ -194,6 +201,6 @@ internal class NewPromoCardsTest : CardTest() {
     p1.manual("$RedShips, CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
     p1.manual("MiningRights_SpecialTile<Tharsis_2_2>")
 
-    p1.cardAction1(RedShips).expect("2 Megacredit")
+    p1.cardAction1(RedShips).expect("2 MC")
   }
 }

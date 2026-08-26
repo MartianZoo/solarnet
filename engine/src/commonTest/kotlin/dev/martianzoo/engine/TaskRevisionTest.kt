@@ -372,52 +372,51 @@ internal class TaskRevisionTest {
 
   @Test
   internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
-    game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
-    initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
+    game.gameplay(PLAYER2).godMode().manual("3 MC")
+    initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
     writer.autoExecNow()
 
-    tasksAsText()
-        .shouldContainExactly("3 Megacredit<Player1> FROM Megacredit<Player>. THEN Plant<Player>!")
-    game.gameplay(PLAYER2).count("Megacredit") shouldBe 3
+    tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>. THEN Plant<Player>!")
+    game.gameplay(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
   internal fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
-    game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
-    initiate("3 Megacredit FROM Megacredit<Player>.")
+    game.gameplay(PLAYER2).godMode().manual("3 MC")
+    initiate("3 MC FROM MC<Player>.")
 
     writer.autoExecNow()
 
-    tasksAsText().shouldContainExactly("3 Megacredit<Player1> FROM Megacredit<Player>.")
-    game.gameplay(PLAYER2).count("Megacredit") shouldBe 3
+    tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>.")
+    game.gameplay(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
   internal fun `selecting a zero-count AMAP actor after autoexec still binds the continuation`() {
-    writer.godMode().manual("3 Megacredit")
-    initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
+    writer.godMode().manual("3 MC")
+    initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
     writer.autoExecNow()
     writer.autoExecMode = NONE
 
-    writer.doTask("3 Megacredit FROM Megacredit<Player2>.")
+    writer.doTask("3 MC FROM MC<Player2>.")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
-    writer.count("Megacredit") shouldBe 3
+    writer.count("MC") shouldBe 3
     game.gameplay(PLAYER2).count("Plant") shouldBe 0
   }
 
   @Test
   internal fun `selecting an AMAP source binds the later stage before preparation`() {
-    game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
+    game.gameplay(PLAYER2).godMode().manual("3 MC")
     writer.autoExecMode = NONE
-    initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
+    initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
-    writer.doTask("3 Megacredit FROM Megacredit<Player2>.")
+    writer.doTask("3 MC FROM MC<Player2>.")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
-    writer.count("Megacredit") shouldBe 3
-    game.gameplay(PLAYER2).count("Megacredit") shouldBe 0
+    writer.count("MC") shouldBe 3
+    game.gameplay(PLAYER2).count("MC") shouldBe 0
   }
 
   private fun initiate(ins: String) = writer.godMode().addTasks(ins)

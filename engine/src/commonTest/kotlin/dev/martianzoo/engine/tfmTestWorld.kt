@@ -37,7 +37,7 @@ internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
 
 internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
     listOf(
-        "M" to "Megacredit",
+        "M" to "MC",
         "S" to "Steel",
         "T" to "Titanium",
         "P" to "Plant",

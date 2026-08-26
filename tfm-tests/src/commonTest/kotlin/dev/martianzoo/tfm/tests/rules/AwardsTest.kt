@@ -94,47 +94,47 @@ internal class AwardsTest : TfmTest() {
   internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
     game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().sneak("100 Megacredit")
+    p1.godMode().sneak("100 MC")
 
     val first =
         p1.godMode().manual("UseAction<FundAwardSA, First>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+          doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Landlord")
         }
-    first.expect("-8")
-    p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
+    first.expect("-8 MC")
+    p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     shouldThrow<RequirementException> {
       p1.godMode().manual("UseAction<FundAwardSA, First>") {
-        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+        doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Landlord")
       }
     }
-    p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
+    p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     val second =
         p1.godMode().manual("UseAction<FundAwardSA, Second>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+          doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Scientist")
         }
-    second.expect("-14")
-    p1.assertCounts(78 to "Megacredit", 1 to "Scientist")
+    second.expect("-14 MC")
+    p1.assertCounts(78 to "MC", 1 to "Scientist")
 
     val third =
         p1.godMode().manual("UseAction<FundAwardSA, Third>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+          doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Thermalist")
         }
-    third.expect("-20")
-    p1.assertCounts(58 to "Megacredit", 1 to "Thermalist", 3 to "Award")
+    third.expect("-20 MC")
+    p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<RequirementException> {
       p1.godMode().manual("UseAction<FundAwardSA, Third>") {
-        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+        doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Miner")
       }
     }
-    p1.assertCounts(58 to "Megacredit", 3 to "Award", 0 to "Miner")
+    p1.assertCounts(58 to "MC", 3 to "Award", 0 to "Miner")
   }
 
   @Test
@@ -175,12 +175,12 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
 
-    p1.godMode().sneak("Banker, PROD[-4]")
-    p2.godMode().sneak("PROD[-5]")
-    p3.godMode().sneak("PROD[-5]")
-    p1.assertProds(-4 to "Megacredit")
-    p2.assertProds(-5 to "Megacredit")
-    p3.assertProds(-5 to "Megacredit")
+    p1.godMode().sneak("Banker, PROD[-4 MC]")
+    p2.godMode().sneak("PROD[-5 MC]")
+    p3.godMode().sneak("PROD[-5 MC]")
+    p1.assertProds(-4 to "MC")
+    p2.assertProds(-5 to "MC")
+    p3.assertProds(-5 to "MC")
 
     engine.godMode().manual("EndPhase")
 
@@ -195,7 +195,7 @@ internal class AwardsTest : TfmTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     p1.godMode().sneak("3 VictoryPoint")
-    p2.godMode().sneak("Banker, PROD[Megacredit]")
+    p2.godMode().sneak("Banker, PROD[1 MC]")
 
     engine.godMode().manual("EndPhase")
 

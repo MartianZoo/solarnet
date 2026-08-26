@@ -47,13 +47,10 @@ corresponding classes do.
 ### Quantified expressions
 
 ```
-scalarAndType         := scalarAndOptionalType | optionalScalarAndType
-scalarAndOptionalType := scalar [typeExpression]
-optionalScalarAndType := [scalar] typeExpression
+scalarAndType := [scalar] typeExpression
 ```
 
-A quantified expression is just a number and a type expression. If the number is missing, it's inferred to be `1`. If
-the type is missing, it defaults to `Megacredit`. At least one must be used.
+A quantified expression is a type expression with an optional number. If the number is missing, it's inferred to be `1`.
 
 ### Metrics
 
@@ -131,7 +128,7 @@ groupedInst  := '(' instruction ')'
 
 Instructions are the meat of the language, as you can see. The elementary instructions are to gain some amount of a
 component (`4 Plant<Player2>`), remove some amount of a component (`-8 Heat<Player1>`), or even transmute some amount of
-one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Player2>`). When both
+one component directly into another (`3 MC<Player4> FROM MC<Player2>`). When both
 sides have the same Class and differ in exactly one nested argument, the shared structure can be
 written once: `Foo<Same, Here, NotSame FROM Different>` means
 `Foo<Same, Here, NotSame> FROM Foo<Same, Here, Different>`. The unchanged arguments are linked and

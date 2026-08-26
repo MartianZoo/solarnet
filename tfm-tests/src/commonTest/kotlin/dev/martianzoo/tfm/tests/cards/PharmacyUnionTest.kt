@@ -12,7 +12,7 @@ internal class PharmacyUnionTest : CardTest() {
   internal fun `Starting money precedes both mandatory microbe-tag losses`() {
     newGame(PromoCardPack)
 
-    p1.manual("$PharmacyUnion").expect("46 Megacredit, ProjectCard, 2 Disease<$PharmacyUnion>")
+    p1.manual("$PharmacyUnion").expect("46 MC, ProjectCard, 2 Disease<$PharmacyUnion>")
 
     p1.assertCounts(0 to "Mandate")
   }
@@ -75,19 +75,19 @@ internal class PharmacyUnionTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("$PharmacyUnion")
     p1.manual("-2 Disease<$PharmacyUnion>")
-    val moneyBefore = p1.count("Megacredit")
+    val moneyBefore = p1.count("MC")
     val trBefore = p1.count("TerraformRating")
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.manual("$RegolithEaters") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
       doTask("3 TerraformRating")
-      doTask("-4 Megacredit")
+      doTask("-4 MC")
       // Decline placing disease after Pharmacy Union has left play.
       declineTask()
     }
 
-    p1.count("Megacredit") shouldBe moneyBefore - 4
+    p1.count("MC") shouldBe moneyBefore - 4
     p1.count("TerraformRating") shouldBe trBefore + 3
     p1.assertCounts(
         0 to "Disease<$PharmacyUnion>",

@@ -12,13 +12,13 @@ internal class TollStationTest : CardTest() {
     // Tags must be added with the cards they depend on.
     p2.manual("$VestaShipyard, $SpaceElevator, $SolarWindPower")
 
-    p1.manual("$TollStation").expect("PROD[3 Megacredit]")
+    p1.manual("$TollStation").expect("PROD[3 MC]")
   }
 
   @Test
   internal fun `Adds no production without an opponent's space tags`() {
     newGame()
 
-    p1.manual("$TollStation").expect("PROD[0 Megacredit]")
+    p1.manual("$TollStation").expect("PROD[0 MC]")
   }
 }

@@ -517,7 +517,7 @@ review of each historical commit.
   pair rather than resource language.
 - Spell out `terraform rating` in rendered prose; `TR` remains only an input synonym for Pets.
 - Gaining a standard resource uses `gain`; gaining a card resource uses `add`. Standard-resource
-  gains use `Megacredit` -> `M€`, singular/plural `Plant` -> `plant`/`plants`, and a lowercased,
+  gains use `MC` -> `M€`, singular/plural `Plant` -> `plant`/`plants`, and a lowercased,
   un-camel-cased component Class Name by default.
 - The general removal verb is `remove`. An action cost paid from standard resources uses `spend`.
   Do not use `lose`.

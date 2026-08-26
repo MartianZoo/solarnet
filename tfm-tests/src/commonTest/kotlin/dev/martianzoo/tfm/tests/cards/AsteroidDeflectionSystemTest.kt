@@ -13,7 +13,7 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     engine.phase("Action")
-    p1.manual("13, ProjectCard, Plant, $Tardigrades, Microbe<$Tardigrades>, PROD[Energy]")
+    p1.manual("13 MC, ProjectCard, Plant, $Tardigrades, Microbe<$Tardigrades>, PROD[Energy]")
 
     p1.playProject(AsteroidDeflectionSystem, 13).expect("PROD[-Energy]")
 

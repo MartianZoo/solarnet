@@ -149,7 +149,7 @@ private constructor(
           (value as? RequirementValue)?.value
         } ?: projectInfo?.requirement
 
-  /** The card's non-negative cost in megacredits. */
+  /** The card's non-negative cost in mc. */
   public val cost: Int
     get() =
         loadedClass?.properties?.get(COST_PROPERTY)?.let { value -> (value as NumberValue).value }
@@ -163,7 +163,7 @@ private constructor(
     /** The card's printed play requirement, if any. */
     public val requirement: Requirement? = requirement
 
-    /** The card's non-negative cost in megacredits. */
+    /** The card's non-negative cost in mc. */
     public val cost: Int by data::cost
   }
 

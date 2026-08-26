@@ -15,7 +15,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     engine.phase("Action")
     p1.stdAction("HandleMandates")
     p1.manual(
-        "10 Megacredit, ProjectCard, OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, " +
+        "10 MC, ProjectCard, OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, " +
             "OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
     )
 
@@ -31,7 +31,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     engine.phase("Action")
     p1.stdAction("HandleMandates")
     p1.manual(
-        "30 Megacredit, 4 ProjectCard, OceanTile<Tharsis_1_2>, " +
+        "30 MC, 4 ProjectCard, OceanTile<Tharsis_1_2>, " +
             "OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>"
     )
 
@@ -48,7 +48,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
     p1.stdAction("HandleMandates")
-    p1.manual("50 Megacredit, 5 ProjectCard, 11 TemperatureStep, $AdaptationTechnology")
+    p1.manual("50 MC, 5 ProjectCard, 11 TemperatureStep, $AdaptationTechnology")
 
     p1.playProject(SpecialDesign, 4)
     p1.playProject(Farming, 16)
@@ -63,7 +63,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     p1.playCorp(MorningStarInc, 0)
     engine.phase("Action")
     p1.stdAction("HandleMandates")
-    p1.manual("30 Megacredit, 3 ProjectCard, 9 VenusStep")
+    p1.manual("30 MC, 3 ProjectCard, 9 VenusStep")
 
     p1.playProject(RotatorImpacts, 6)
     shouldThrow<RequirementException> { p1.playProject(Algae, 10) }

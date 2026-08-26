@@ -20,7 +20,7 @@ CLASS PreludeSetup : Owned<Player>, System {
 }
 
 CLASS PreludePhase : Phase {
-  NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15)
+  NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15 MC)
 }
 
 CLASS PreludeCard : CardBack

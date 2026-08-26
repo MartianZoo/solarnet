@@ -57,7 +57,7 @@ internal class ArtificialLakeTest : CardTest() {
   }
 
   private fun seedGame(vararg components: String) =
-      p1.manual((listOf("15, ProjectCard") + components).joinToString())
+      p1.manual((listOf("15 MC, ProjectCard") + components).joinToString())
 
   private fun oceanTiles(count: Int) =
       p1.list("WaterArea").take(count).joinToString { "OceanTile<$it>" }

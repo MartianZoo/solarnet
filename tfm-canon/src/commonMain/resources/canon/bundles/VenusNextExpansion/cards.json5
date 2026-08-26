@@ -5,15 +5,15 @@
       "name": "Aphrodite",
       "deck": "CORPORATION",
       "tags": [ "VenusTag", "PlantTag" ],
-      "immediate": "47, PROD[Plant]",
-      "effects": [ "VenusStep BY Anyone: 2" ],
+      "immediate": "47 MC, PROD[Plant]",
+      "effects": [ "VenusStep BY Anyone: 2 MC" ],
     },
 
     {
       "name": "Celestic",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
-      "immediate": "42, Mandate { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }",
+      "immediate": "42 MC, Mandate { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }",
       "actions": [ "-> Floater" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
     },
@@ -22,7 +22,7 @@
       "name": "Manutech",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "35, PROD[Steel]",
+      "immediate": "35 MC, PROD[Steel]",
       "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
@@ -30,7 +30,7 @@
       "name": "MorningStarInc",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
-      "immediate": "50, Mandate { -> CARDS[3 ProjectCard(HAS VenusTag)] }",
+      "immediate": "50 MC, Mandate { -> CARDS[3 ProjectCard(HAS VenusTag)] }",
       "effects": [ "PlayCard:: -2 Required<Class<VenusStep>>." ],
     },
 
@@ -38,7 +38,7 @@
       "name": "Viron",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
-      "immediate": "48",
+      "immediate": "48 MC",
       "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>" ],
     },
 
@@ -61,7 +61,7 @@
       "projectKind": "EVENT",
       "requirement": "5 Floater",
       "cost": 7,
-      "immediate": "1 / CityTile<Anyone>",
+      "immediate": "1 MC / CityTile<Anyone>",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -102,7 +102,7 @@
       "projectKind": "EVENT",
       "cost": 11,
       "tags": [ "SpaceTag" ],
-      "immediate": "VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?",
+      "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag)>?",
     },
 
     {
@@ -111,7 +111,7 @@
       "projectKind": "AUTOMATED",
       "cost": 8,
       "tags": [ "VenusTag" ],
-      "immediate": "PROD[2], CardResource<CardFront(HAS VenusTag)>",
+      "immediate": "PROD[2 MC], CardResource<CardFront(HAS VenusTag)>",
     },
 
     {
@@ -181,7 +181,7 @@
       "requirement": "2 ScienceTag",
       "cost": 5,
       "tags": [ "VenusTag" ],
-      "actions": [ "2 -> Floater" ],
+      "actions": [ "2 MC -> Floater" ],
       "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
     },
 
@@ -192,7 +192,7 @@
       "cost": 8,
       "tags": [ "VenusTag" ],
       "actions": [
-        "2 -> Floater<This>",
+        "2 MC -> Floater<This>",
         "2 Floater<This> -> VenusStep"
       ],
     },
@@ -204,7 +204,7 @@
       "requirement": "5 VenusStep",
       "cost": 14,
       "tags": [ "VenusTag", "PlantTag" ],
-      "immediate": "2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>, PROD[-Energy, 2]",
+      "immediate": "2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>, PROD[-Energy, 2 MC]",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -232,7 +232,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile<>",
+      "immediate": "PROD[-2 Energy, 1 MC / VenusTag, 1 MC / EarthTag], CityTile<>",
     },
 
     {
@@ -284,7 +284,7 @@
       "tags": [ "VenusTag" ],
       "actions": [
         "-> Floater<This>",
-        "Floater<This> -> PROD[1]"
+        "Floater<This> -> PROD[1 MC]"
       ],
     },
 
@@ -294,7 +294,7 @@
       "projectKind": "AUTOMATED",
       "cost": 21,
       "tags": [ "SpaceTag", "EarthTag", "CityTag" ],
-      "immediate": "PROD[1 / EarthTag], CityTile<RemoteArea {}>",
+      "immediate": "PROD[1 MC / EarthTag], CityTile<RemoteArea {}>",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -366,7 +366,7 @@
       "cost": 6,
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid<This>",
+        "6 MC -> Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
       "effects": [ "UseAction<This, First>:: Accept<Class<Titanium>>" ],
@@ -379,7 +379,7 @@
       "requirement": "VenusTag, EarthTag",
       "cost": 7,
       "tags": [ "VenusTag", "EarthTag" ],
-      "immediate": "PROD[3]",
+      "immediate": "PROD[3 MC]",
     },
 
     {
@@ -422,7 +422,7 @@
       "requirement": "2 ScienceTag",
       "cost": 22,
       "tags": [ "VenusTag", "CityTag" ],
-      "immediate": "PROD[2], CityTile<RemoteArea {}>",
+      "immediate": "PROD[2 MC], CityTile<RemoteArea {}>",
       "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
     },
@@ -445,7 +445,7 @@
       "projectKind": "AUTOMATED",
       "cost": 21,
       "tags": [ "VenusTag", "SpaceTag" ],
-      "immediate": "VenusStep, PROD[1 / VenusTag]",
+      "immediate": "VenusStep, PROD[1 MC / VenusTag]",
     },
 
     {
@@ -457,7 +457,7 @@
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [
         "-> Microbe<This>",
-        "X Microbe<This> -> 3X"
+        "X Microbe<This> -> 3X MC"
       ],
     },
 
@@ -468,7 +468,7 @@
       "requirement": "25 TerraformRating",
       "cost": 8,
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[4]",
+      "immediate": "PROD[4 MC]",
     },
 
     {
@@ -500,7 +500,7 @@
       "requirement": "2 VenusTag",
       "cost": 4,
       "tags": [ "VenusTag", "VenusTag" ],
-      "immediate": "PROD[2]",
+      "immediate": "PROD[2 MC]",
     },
 
     {

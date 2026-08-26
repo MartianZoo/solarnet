@@ -38,7 +38,7 @@ internal class WildTagTest : CardTest() {
             .extract { it }
             .any {
               val instruction = it.instruction.toString()
-              "Pay" in instruction && "Megacredit" in instruction
+              "Pay" in instruction && "MC" in instruction
             } shouldBe true
         p1.count("Owed<>") shouldBe 11
         p1.count("WildTagUse<$ResearchNetwork>") shouldBe 1
@@ -119,14 +119,16 @@ internal class WildTagTest : CardTest() {
   @Test
   internal fun `Robotic Workforce follows a claimed building wild tag`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
-    p1.manual("$ResearchNetwork, ProjectCard, 9 Megacredit")
+    p1.manual("$ResearchNetwork, ProjectCard, 9 MC")
     p1.count("WildTag") shouldBe 1
     engine.phase("Action")
     p1.startTurn()
     p1.assignWildTag(ResearchNetwork, "BuildingTag")
 
-    p1.playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$ResearchNetwork>") }
-        .expect("PROD[1]")
+    p1.playProject(RoboticWorkforce, 9) {
+          doTask("CopyProductionBox<$ResearchNetwork>")
+        }
+        .expect("PROD[1 MC]")
 
     p1.count("BuildingTag") shouldBe 0
   }
@@ -141,7 +143,7 @@ internal class WildTagTest : CardTest() {
     p1.startTurn()
     p1.assignWildTag(ResearchNetwork, "EarthTag")
 
-    p1.playPrelude(ExcentricSponsor) { p1.playProject(SpaceHotels, 0) }.expect("PROD[4]")
+    p1.playPrelude(ExcentricSponsor) { p1.playProject(SpaceHotels, 0) }.expect("PROD[4 MC]")
   }
 
   @Test

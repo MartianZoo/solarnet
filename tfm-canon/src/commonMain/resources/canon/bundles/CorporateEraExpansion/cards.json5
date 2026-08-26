@@ -5,15 +5,15 @@
       "name": "SaturnSystems",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
-      "immediate": "42, PROD[Titanium]",
-      "effects": [ "JovianTag<Anyone, CardFront<Anyone>>: PROD[1]" ],
+      "immediate": "42 MC, PROD[Titanium]",
+      "effects": [ "JovianTag<Anyone, CardFront<Anyone>>: PROD[1 MC]" ],
     },
 
     {
       "name": "Teractor",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "60",
+      "immediate": "60 MC",
       "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<>" ],
     },
 
@@ -44,7 +44,7 @@
       "cost": 27,
       "tags": [ "SpaceTag", "BuildingTag" ],
       "immediate": "PROD[Titanium]",
-      "actions": [ "Steel -> 5" ],
+      "actions": [ "Steel -> 5 MC" ],
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -97,7 +97,7 @@
       "requirement": "3 ScienceTag",
       "cost": 8,
       "tags": [ "PowerTag" ],
-      "immediate": "PROD[Energy, 1]",
+      "immediate": "PROD[Energy, 1 MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -126,7 +126,7 @@
       "projectKind": "AUTOMATED",
       "cost": 12,
       "tags": [ "JovianTag", "SpaceTag" ],
-      "immediate": "PROD[1 / EarthTag]",
+      "immediate": "PROD[1 MC / EarthTag]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -198,7 +198,7 @@
       "projectKind": "AUTOMATED",
       "cost": 6,
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[2]",
+      "immediate": "PROD[2 MC]",
     },
 
     {
@@ -209,7 +209,7 @@
       "cost": 17,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy]",
-      "actions": [ "Plant -> 7", "Steel -> 7" ],
+      "actions": [ "Plant -> 7 MC", "Steel -> 7 MC" ],
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -272,7 +272,7 @@
       "projectKind": "AUTOMATED",
       "cost": 24,
       "tags": [ "JovianTag", "SpaceTag" ],
-      "immediate": "PROD[3]",
+      "immediate": "PROD[3 MC]",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -291,7 +291,7 @@
       "projectKind": "AUTOMATED",
       "cost": 16,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], SpecialTile<> {}",
+      "immediate": "PROD[-Energy, 4 MC], SpecialTile<> {}",
       "effects": [ "End: VictoryPoint / Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>" ],
     },
 
@@ -321,7 +321,7 @@
       "requirement": "3 ScienceTag",
       "cost": 12,
       "tags": [ "ScienceTag" ],
-      "immediate": "PROD[2]",
+      "immediate": "PROD[2 MC]",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -331,7 +331,7 @@
       "projectKind": "AUTOMATED",
       "cost": 41,
       "tags": [ "JovianTag", "SpaceTag" ],
-      "immediate": "PROD[2 Titanium, 2]",
+      "immediate": "PROD[2 Titanium, 2 MC]",
       "effects": [ "End: VictoryPoint / JovianTag" ],
     },
 
@@ -362,7 +362,7 @@
       "projectKind": "AUTOMATED",
       "cost": 13,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-2 Heat, 3]",
+      "immediate": "PROD[-2 Heat, 3 MC]",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -372,7 +372,7 @@
       "projectKind": "AUTOMATED",
       "cost": 12,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[1 / SpaceTag<!Owner>]",
+      "immediate": "PROD[1 MC / SpaceTag<!Owner>]",
     },
 
     {
@@ -390,7 +390,7 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[3]",
+      "immediate": "PROD[3 MC]",
     },
 
     {
@@ -399,7 +399,7 @@
       "projectKind": "AUTOMATED",
       "cost": 8,
       "tags": [ "EarthTag" ],
-      "immediate": "CARDS[1 / CardBack<EventPile, Anyone>]",
+      "immediate": "CARDS[1 MC / CardBack<EventPile, Anyone>]",
     },
 
     {
@@ -408,7 +408,7 @@
       "projectKind": "ACTIVE",
       "cost": 6,
       "tags": [ "EarthTag" ],
-      "effects": [ "EventCard: 3" ],
+      "effects": [ "EventCard: 3 MC" ],
     },
 
     {
@@ -417,7 +417,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[-1]",
+      "immediate": "PROD[-1 MC]",
       "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
     },
 
@@ -445,7 +445,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
-      "immediate": "-3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
+      "immediate": "-3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 MC<Anyone>?",
     },
 
     {
@@ -455,7 +455,7 @@
       "cost": 4,
       "tags": [ "BuildingTag" ],
       "immediate": "SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)> {}",
-      "actions": [ "7 -> PROD[Steel]" ],
+      "actions": [ "7 MC -> PROD[Steel]" ],
     },
 
     {
@@ -463,7 +463,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
-      "immediate": "2 Steel<Owner FROM Anyone>? OR 3 Megacredit<Owner FROM Anyone>?",
+      "immediate": "2 Steel<Owner FROM Anyone>? OR 3 MC<Owner FROM Anyone>?",
     },
 
     {
@@ -471,7 +471,7 @@
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 3,
-      "immediate": "PROD[-Energy, -2 Megacredit<Anyone>, 2]",
+      "immediate": "PROD[-Energy, -2 MC<Anyone>, 2 MC]",
       "effects": [
         "End: -VictoryPoint"
       ],
@@ -483,7 +483,7 @@
       "projectKind": "AUTOMATED",
       "cost": 8,
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[1 / EarthTag]",
+      "immediate": "PROD[1 MC / EarthTag]",
     },
 
     {
@@ -522,7 +522,7 @@
       "projectKind": "EVENT",
       "cost": 3,
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[-1], 10",
+      "immediate": "PROD[-1 MC], 10 MC",
     },
 
     {
@@ -540,7 +540,7 @@
       "projectKind": "ACTIVE",
       "cost": 6,
       "tags": [ "ScienceTag" ],
-      "effects": [ "-Invoice<StandardProject>: 3" ],
+      "effects": [ "-Invoice<StandardProject>: 3 MC" ],
     },
 
     {
@@ -567,7 +567,7 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[1 / SpaceTag]",
+      "immediate": "PROD[1 MC / SpaceTag]",
     },
 
     {
@@ -576,7 +576,7 @@
       "projectKind": "AUTOMATED",
       "cost": 6,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Energy, Titanium, 1]",
+      "immediate": "PROD[-Energy, Titanium, 1 MC]",
     },
 
     {
@@ -585,7 +585,7 @@
       "projectKind": "AUTOMATED",
       "cost": 11,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 3], CityTile<>",
+      "immediate": "PROD[-Energy, 3 MC], CityTile<>",
       "effects": [ "End: -2 VictoryPoint" ],
     },
 
@@ -607,7 +607,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "2 CityTile<Anyone>",
       "cost": 6,
-      "immediate": "PROD[1]",
+      "immediate": "PROD[1 MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -626,7 +626,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "actions": [ "X Energy -> X" ],
+      "actions": [ "X Energy -> X MC" ],
     },
 
     {
@@ -665,7 +665,7 @@
       "cost": 11,
       "tags": [ "ScienceTag" ],
       "immediate": "SpecialTile<> {}",
-      "actions": [ "2 -> ProjectCard" ],
+      "actions": [ "2 MC -> ProjectCard" ],
     },
 
     {
@@ -693,7 +693,7 @@
       "projectKind": "AUTOMATED",
       "cost": 13,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "PROD[1 / 2 BuildingTag]",
+      "immediate": "PROD[1 MC / 2 BuildingTag]",
       "effects": [ "End: VictoryPoint" ],
     },
 

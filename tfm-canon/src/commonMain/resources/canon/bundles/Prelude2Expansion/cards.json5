@@ -5,7 +5,7 @@
       "name": "NirgalEnterprises",
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
-      "immediate": "30, PROD[Energy, Plant, Steel]",
+      "immediate": "30 MC, PROD[Energy, Plant, Steel]",
       "effects": [
         "Invoice<ClaimMilestoneSA>:: -Owed<> / Owed<>",
         "Invoice<FundAwardSA>:: -Owed<> / Owed<>",
@@ -16,7 +16,7 @@
       "name": "PalladinShipping",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
-      "immediate": "36, 5 Titanium",
+      "immediate": "36 MC, 5 Titanium",
       "actions": [ "2 Titanium -> TemperatureStep" ],
       "effects": [ "EventCard(HAS SpaceTag): Titanium" ],
     },
@@ -24,10 +24,10 @@
     {
       "name": "SagittaFrontierServices",
       "deck": "CORPORATION",
-      "immediate": "31, PROD[Energy, 2], CARDS[ProjectCard(HAS MAX 0 Tag)]",
+      "immediate": "31 MC, PROD[Energy, 2 MC], CARDS[ProjectCard(HAS MAX 0 Tag)]",
       "effects": [
-        "CardFront(HAS MAX 0 Tag): 4",
-        "CardFront(HAS =1 Tag): 1",
+        "CardFront(HAS MAX 0 Tag): 4 MC",
+        "CardFront(HAS =1 Tag): 1 MC",
       ],
     },
 
@@ -35,7 +35,7 @@
       "name": "EcoTec",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "PlantTag" ],
-      "immediate": "42, PROD[Plant]",
+      "immediate": "42 MC, PROD[Plant]",
       "effects": [ "BioTag<>: Plant OR Microbe" ],
     },
 
@@ -43,7 +43,7 @@
       "name": "Spire",
       "deck": "CORPORATION",
       "tags": [ "CityTag", "EarthTag" ],
-      "immediate": "50, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }",
+      "immediate": "50 MC, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }",
       "effects": [
         "CardFront(HAS 2 Tag): Science<This>",
         "UseAction<StandardProject>:: AcceptFromCard<This>",
@@ -71,7 +71,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "4 Director<This>",
       "actions": [
-        "-> PreludeCard, -PreludeCard OR (-12 THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)",
+        "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)",
       ],
       "components": [ "CLASS Director : CardResource<ResourceHolder<Class<Director>>>" ],
     },
@@ -81,7 +81,7 @@
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Energy], 2 Titanium",
-      "effects": [ "Colony<Anyone>: 2" ],
+      "effects": [ "Colony<Anyone>: 2 MC" ],
     },
 
     {
@@ -118,14 +118,14 @@
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       // GrossHack contributes five synthetic M€ production components, so 6 models 1 M€ production.
-      "immediate": "-18, PROD[1 / 6 - Megacredit, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]",
+      "immediate": "-18 MC, PROD[1 MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]",
     },
 
     {
       "name": "MainBeltAsteroids",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
-      "immediate": "-5",
+      "immediate": "-5 MC",
       "actions": [ "-> Asteroid" ],
       "effects": [
         "Asteroid<This>: Titanium",
@@ -136,7 +136,7 @@
     {
       "name": "NobelPrize",
       "deck": "PRELUDE",
-      "immediate": "WildTag<This>, 5, CARDS[2 ProjectCard(HAS requirement)]",
+      "immediate": "WildTag<This>, 5 MC, CARDS[2 ProjectCard(HAS requirement)]",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -164,9 +164,9 @@
     {
       "name": "Recession",
       "deck": "PRELUDE",
-      "immediate": "10",
+      "immediate": "10 MC",
       "components": [
-        "CLASS RecessionWatcher : Owned<Player> { HAS =1 This; Recession<Anyone> IF MAX 0 Recession<Owner>: (-5 Megacredit<Owner>., PROD[-Megacredit<Owner>.]) BY Owner }",
+        "CLASS RecessionWatcher : Owned<Player> { HAS =1 This; Recession<Anyone> IF MAX 0 Recession<Owner>: (-5 MC<Owner>., PROD[-1 MC<Owner>.]) BY Owner }",
       ],
     },
 
@@ -199,7 +199,7 @@
         "X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.",
       ],
       "components": [
-        "CLASS SuitableInfrastructurePaid : Owned<Player>, Hidden, Atomized { HAS MAX 1 This; This:: 2 }",
+        "CLASS SuitableInfrastructurePaid : Owned<Player>, Hidden, Atomized { HAS MAX 1 This; This:: 2 MC }",
       ],
     },
 
@@ -207,7 +207,7 @@
       "name": "TerraformingDeal",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "effects": [ "TerraformRating: 2" ],
+      "effects": [ "TerraformRating: 2 MC" ],
     },
 
     {
@@ -215,7 +215,7 @@
       "deck": "PRELUDE",
       "tags": [ "VenusTag" ],
       "immediate": "CARDS[ProjectCard(HAS VenusTag)], TerraformRating",
-      "effects": [ "VenusStep: 3" ],
+      "effects": [ "VenusStep: 3 MC" ],
     },
 
     {
@@ -239,8 +239,8 @@
       "projectKind": "ACTIVE",
       "cost": 12,
       "tags": [ "ScienceTag", "SpaceTag" ],
-      "immediate": "2 / Colony",
-      "actions": [ "X ProjectCard -> 2X" ],
+      "immediate": "2 MC / Colony",
+      "actions": [ "X ProjectCard -> 2X MC" ],
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -250,7 +250,7 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "JovianTag", "VenusTag" ],
-      "immediate": "PROD[1 / EarthTag MAX VenusTag]",
+      "immediate": "PROD[1 MC / EarthTag MAX VenusTag]",
       "actions": [ "-> Floater<This>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
     },
@@ -264,7 +264,7 @@
       "immediate": "Floater<This> / VenusTag",
       "actions": [
         "-> Floater<This>",
-        "2 Floater -> Titanium, 2",
+        "2 Floater -> Titanium, 2 MC",
       ],
     },
 
@@ -284,7 +284,7 @@
       "projectKind": "AUTOMATED",
       "cost": 11,
       "tags": [ "MicrobeTag", "PlantTag" ],
-      "immediate": "PROD[1 / Colony]",
+      "immediate": "PROD[1 MC / Colony]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -323,7 +323,7 @@
       "projectKind": "AUTOMATED",
       "cost": 30,
       "tags": [ "VenusTag", "SpaceTag" ],
-      "immediate": "2 VenusStep, 4 / Colony",
+      "immediate": "2 VenusStep, 4 MC / Colony",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -346,7 +346,7 @@
       "tags": [ "VenusTag" ],
       "immediate": "2 Floater<CardFront(HAS VenusTag)>",
       "actions": [
-        "1 / (12 - VenusTag) -> VenusStep",
+        "1 MC / (12 - VenusTag) -> VenusStep",
       ],
     },
 
@@ -358,7 +358,7 @@
       "cost": 12,
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "Trade: 3",
+        "Trade: 3 MC",
         "End: VictoryPoint",
       ],
     },

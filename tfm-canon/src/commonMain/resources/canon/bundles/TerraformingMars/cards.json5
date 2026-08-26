@@ -4,9 +4,9 @@
     {
       "name": "CrediCor",
       "deck": "CORPORATION",
-      "immediate": "57",
+      "immediate": "57 MC",
       "effects": [
-        "CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4"
+        "CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4 MC"
       ],
     },
 
@@ -14,7 +14,7 @@
       "name": "Ecoline",
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
-      "immediate": "36, 3 Plant, PROD[2 Plant]",
+      "immediate": "36 MC, 3 Plant, PROD[2 Plant]",
       "effects": [ "Invoice<ConvertPlantsSA, First>:: -Owed<Class<Plant>>" ],
     },
 
@@ -22,15 +22,15 @@
       "name": "InterplanetaryCinematics",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "30, 20 Steel",
-      "effects": [ "EventCard: 2" ],
+      "immediate": "30 MC, 20 Steel",
+      "effects": [ "EventCard: 2 MC" ],
     },
 
     {
       "name": "Inventrix",
       "deck": "CORPORATION",
       "tags": [ "ScienceTag" ],
-      "immediate": "45, Mandate { -> 3 ProjectCard }",
+      "immediate": "45 MC, Mandate { -> 3 ProjectCard }",
       "effects": [ "PlayCard:: -2 Required<Class<GlobalParameter>>." ],
     },
 
@@ -38,7 +38,7 @@
       "name": "MiningGuild",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag", "BuildingTag" ],
-      "immediate": "30, 5 Steel, PROD[Steel]",
+      "immediate": "30 MC, 5 Steel, PROD[Steel]",
       "effects": [
         "Tile<MarsArea(HAS MapBonus<Class<Metal>>)>: PROD[Steel]"
       ],
@@ -48,7 +48,7 @@
       "name": "Phobolog",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
-      "immediate": "23, 10 Titanium",
+      "immediate": "23 MC, 10 Titanium",
       "effects": [ "Pay<Class<Titanium>>:: -Owed<>" ],
     },
 
@@ -56,11 +56,11 @@
       "name": "TharsisRepublic",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "40, Mandate { -> CityTile<> }",
+      "immediate": "40 MC, Mandate { -> CityTile<> }",
       "effects": [
-        "This IF SoloMode: PROD[2]",
-        "CityTile<Anyone, MarsArea>: PROD[1]",
-        "CityTile: 3",
+        "This IF SoloMode: PROD[2 MC]",
+        "CityTile<Anyone, MarsArea>: PROD[1 MC]",
+        "CityTile: 3 MC",
       ],
     },
 
@@ -68,7 +68,7 @@
       "name": "ThorGate",
       "deck": "CORPORATION",
       "tags": [ "PowerTag" ],
-      "immediate": "48, PROD[Energy]",
+      "immediate": "48 MC, PROD[Energy]",
       "effects": [
         "PlayTag<Class<PowerTag>>:: -3 Owed<>",
         "Invoice<PowerPlantSP, First>:: -3 Owed<>"
@@ -79,8 +79,8 @@
       "name": "UnitedNationsMarsInitiative",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "40",
-      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
+      "immediate": "40 MC",
+      "actions": [ "3 MC -> HasRaisedTr: TerraformRating" ],
       "components": [
         "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
         "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating IF MAX 0 SetupPhase:: HasRaisedTr. }"
@@ -112,7 +112,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "3 OceanTile",
       "cost": 11,
-      "immediate": "PROD[-1, -Heat<Anyone>, 2 Plant]",
+      "immediate": "PROD[-1 MC, -Heat<Anyone>, 2 Plant]",
     },
 
     {
@@ -122,7 +122,7 @@
       "requirement": "MAX 6 OxygenStep",
       "cost": 3,
       "tags": [ "ScienceTag" ],
-      "actions": [ "1 -> Science<This>?" ], // follow mode: the client supplies the reveal outcome
+      "actions": [ "1 MC -> Science<This>?" ], // follow mode: the client supplies the reveal outcome
       "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
     },
 
@@ -132,7 +132,7 @@
       "projectKind": "ACTIVE",
       "cost": 13,
       "tags": [ "BuildingTag" ],
-      "actions": [ "Energy -> 1 / CityTile<MarsArea, Anyone>" ],
+      "actions": [ "Energy -> 1 MC / CityTile<MarsArea, Anyone>" ],
     },
 
     {
@@ -142,7 +142,7 @@
       "requirement": "4 OceanTile",
       "cost": 26,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "CityTile<> THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5]",
+      "immediate": "CityTile<> THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5 MC]",
       "effects": [
         "End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>"
       ],
@@ -185,7 +185,7 @@
       "cost": 25,
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [
-        "12 -> OceanTile<>"
+        "12 MC -> OceanTile<>"
       ],
       "effects": [
           "UseAction<This, First>:: Accept<Class<Titanium>>",
@@ -209,7 +209,7 @@
       "requirement": "MAX 7 OxygenStep",
       "cost": 24,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "3 Plant, CityTile<>, PROD[-Energy, 3]",
+      "immediate": "3 Plant, CityTile<>, PROD[-Energy, 3 MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -219,7 +219,7 @@
       "projectKind": "AUTOMATED",
       "cost": 18,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile<>)",
+      "immediate": "PROD[-Energy, 3 MC], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile<>)",
     },
 
     {
@@ -268,7 +268,7 @@
       "projectKind": "AUTOMATED",
       "cost": 15,
       // Following text order instead of icon order on published cards.
-      "immediate": "OceanTile<>, PROD[-2, 3 Heat]",
+      "immediate": "OceanTile<>, PROD[-2 MC, 3 Heat]",
     },
 
     {
@@ -300,7 +300,7 @@
       "requirement": "9 TemperatureStep",
       "cost": 16,
       "tags": [ "PlantTag", "BuildingTag" ],
-      "immediate": "Animal, 3 Plant, PROD[2]",
+      "immediate": "Animal, 3 Plant, PROD[2 MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -312,7 +312,7 @@
       "cost": 16,
       "tags": [ "CityTag", "BuildingTag" ],
       // Following text order instead of icon order on published cards.
-      "immediate": "CityTile<>, PROD[-Energy, 3]",
+      "immediate": "CityTile<>, PROD[-Energy, 3 MC]",
     },
 
     {
@@ -321,7 +321,7 @@
       "projectKind": "AUTOMATED",
       "cost": 13,
       "tags": [ "EarthTag", "PowerTag" ],
-      "immediate": "PROD[-2, 2 Heat, 2 Energy]",
+      "immediate": "PROD[-2 MC, 2 Heat, 2 Energy]",
     },
 
     {
@@ -330,7 +330,7 @@
       "projectKind": "ACTIVE",
       "cost": 7,
       "tags": [ "SpaceTag" ],
-      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
+      "effects": [ "EventCard(HAS SpaceTag): 3 MC, 3 Heat" ],
     },
 
     {
@@ -404,7 +404,7 @@
       "cost": 8,
       "tags": [ "BuildingTag" ],
       "effects": [
-        "CityTile<Anyone>: 2",
+        "CityTile<Anyone>: 2 MC",
         "End: VictoryPoint"
       ],
     },
@@ -434,7 +434,7 @@
       "projectKind": "AUTOMATED",
       "cost": 12,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Plant, 4]",
+      "immediate": "PROD[-Plant, 4 MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -464,7 +464,7 @@
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "SpecialTile<LandArea(HAS MAX 0 Neighbor)> {}, PROD[1]",
+      "immediate": "SpecialTile<LandArea(HAS MAX 0 Neighbor)> {}, PROD[1 MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -474,7 +474,7 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[-2, 3 Energy]",
+      "immediate": "PROD[-2 MC, 3 Energy]",
     },
 
     {
@@ -537,7 +537,7 @@
       "requirement": "6 OceanTile",
       "cost": 17,
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[2, 3 Plant], 2 Plant",
+      "immediate": "PROD[2 MC, 3 Plant], 2 Plant",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -618,7 +618,7 @@
       "projectKind": "ACTIVE",
       "cost": 3,
       "tags": [ "PowerTag", "SpaceTag" ],
-      "actions": [ "7 -> PROD[Energy]" ],
+      "actions": [ "7 MC -> PROD[Energy]" ],
     },
 
     {
@@ -693,7 +693,7 @@
       "projectKind": "AUTOMATED",
       "cost": 7,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[-1, 2 Energy]",
+      "immediate": "PROD[-1 MC, 2 Energy]",
     },
 
     {
@@ -731,7 +731,7 @@
       "projectKind": "AUTOMATED",
       "cost": 1,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[-1, Energy]",
+      "immediate": "PROD[-1 MC, Energy]",
     },
 
     {
@@ -777,7 +777,7 @@
       "requirement": "12 OxygenStep",
       "cost": 23,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], 2 Plant, CityTile<>",
+      "immediate": "PROD[-Energy, 4 MC], 2 Plant, CityTile<>",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -837,7 +837,7 @@
       "requirement": "17 TemperatureStep",
       "cost": 16,
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[2, 2 Plant], 2 Plant",
+      "immediate": "PROD[2 MC, 2 Plant], 2 Plant",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -856,7 +856,7 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 2], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>",
+      "immediate": "PROD[-Energy, 2 MC], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>",
     },
 
     {
@@ -906,7 +906,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "5 OxygenStep",
       "cost": 13,
-      "immediate": "PROD[1 / CityTile<MarsArea, Anyone>]",
+      "immediate": "PROD[1 MC / CityTile<MarsArea, Anyone>]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -1094,7 +1094,7 @@
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 2,
-      "immediate": "PROD[X Megacredit FROM Heat]",
+      "immediate": "PROD[X MC FROM Heat]",
     },
 
     {
@@ -1202,7 +1202,7 @@
       "requirement": "5 OxygenStep",
       "cost": 10,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[-Energy, 2]",
+      "immediate": "PROD[-Energy, 2 MC]",
       "effects": [
         "PlayTag<Class<SpaceTag>>:: -2 Owed<>",
         "End: VictoryPoint"
@@ -1236,7 +1236,7 @@
       "requirement": "12 TemperatureStep",
       "cost": 16,
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[Plant, 2], Plant",
+      "immediate": "PROD[Plant, 2 MC], Plant",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -1278,7 +1278,7 @@
       "projectKind": "AUTOMATED",
       "cost": 23,
       "tags": [ "PlantTag", "BuildingTag" ],
-      "immediate": "PROD[2], GreeneryTile<WaterArea>",
+      "immediate": "PROD[2 MC], GreeneryTile<WaterArea>",
     },
 
     {
@@ -1288,7 +1288,7 @@
       "requirement": "5 TemperatureStep",
       "cost": 10,
       "tags": [ "PlantTag", "BuildingTag" ],
-      "immediate": "PROD[1], 2 Plant",
+      "immediate": "PROD[1 MC], 2 Plant",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -1349,7 +1349,7 @@
       "requirement": "9 OxygenStep",
       "cost": 13,
       "tags": [ "AnimalTag" ],
-      "immediate": "PROD[-Plant, 2]",
+      "immediate": "PROD[-Plant, 2 MC]",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
@@ -1361,7 +1361,7 @@
       "cost": 18,
       "tags": [ "BuildingTag" ],
       "actions": [
-        "8 -> OceanTile<>"
+        "8 MC -> OceanTile<>"
       ],
       "effects": [ "UseAction<This, First>:: Accept<Class<Steel>>" ],
     },
@@ -1371,7 +1371,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
-      "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 Megacredit<Anyone>?)",
+      "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 MC<Anyone>?)",
       "effects": [ "End: -VictoryPoint" ],
     },
 
@@ -1417,7 +1417,7 @@
       "projectKind": "AUTOMATED",
       "cost": 31,
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "PROD[5]",
+      "immediate": "PROD[5 MC]",
       "effects": [ "End: VictoryPoint / 3 CityTile<Anyone>" ],
     },
 
@@ -1427,8 +1427,8 @@
       "projectKind": "ACTIVE",
       "cost": 13,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, -2], CityTile<>",
-      "effects": [ "CityTile<Anyone>: PROD[1]" ],
+      "immediate": "PROD[-Energy, -2 MC], CityTile<>",
+      "effects": [ "CityTile<Anyone>: PROD[1 MC]" ],
     },
 
     {
@@ -1437,7 +1437,7 @@
       "projectKind": "ACTIVE",
       "cost": 6,
       "tags": [ "BuildingTag" ],
-      "actions": [ "10 -> PROD[2 Heat]" ],
+      "actions": [ "10 MC -> PROD[2 Heat]" ],
     },
 
     {

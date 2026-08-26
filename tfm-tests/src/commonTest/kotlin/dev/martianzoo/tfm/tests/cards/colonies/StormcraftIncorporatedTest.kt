@@ -9,9 +9,9 @@ import kotlin.test.Test
 
 internal class StormcraftIncorporatedTest : CardTest() {
   @Test
-  internal fun `Starts with 48 megacredits and can add a floater to another card`() {
+  internal fun `Starts with 48 mc and can add a floater to another card`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.playCorp(StormcraftIncorporated, 0).expect("48")
+    p1.playCorp(StormcraftIncorporated, 0).expect("48 MC")
 
     engine.phase("Action")
     p1.manual("$TitanShuttles")
@@ -74,7 +74,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
     engine.phase("Action")
     val heatSetup = if (heat == 0) "" else ", $heat Heat"
     p1.manual(
-        "$StormcraftIncorporated, $floaters Floater<$StormcraftIncorporated>$heatSetup, ProjectCard, 1"
+        "$StormcraftIncorporated, $floaters Floater<$StormcraftIncorporated>$heatSetup, ProjectCard, 1 MC"
     )
   }
 }

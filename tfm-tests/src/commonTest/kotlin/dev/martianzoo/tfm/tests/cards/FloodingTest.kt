@@ -10,8 +10,8 @@ import kotlin.test.Test
 internal class FloodingTest : CardTest() {
   @Test
   internal fun `Can charge either neighboring owner`() {
-    playFlooding("Player2", "-4 Megacredit<Player2>")
-    playFlooding("Player3", "-4 Megacredit<Player3>")
+    playFlooding("Player2", "-4 MC<Player2>")
+    playFlooding("Player3", "-4 MC<Player3>")
   }
 
   @Test
@@ -24,7 +24,7 @@ internal class FloodingTest : CardTest() {
     arrangeFlooding()
     p1.playProject(Flooding, 7) {
       shouldThrow<NarrowingException> {
-        doTask("OceanTile<Tharsis_5_4> THEN -4 Megacredit<Player4>!")
+        doTask("OceanTile<Tharsis_5_4> THEN -4 MC<Player4>!")
       }
       abort()
     }
@@ -32,8 +32,7 @@ internal class FloodingTest : CardTest() {
 
   private fun playFlooding(owner: String?, expectedCharge: String?) {
     arrangeFlooding()
-    val task =
-        owner?.let { "OceanTile<Tharsis_5_4> THEN -4 Megacredit<$it>!" } ?: "OceanTile<Tharsis_5_4>"
+    val task = owner?.let { "OceanTile<Tharsis_5_4> THEN -4 MC<$it>!" } ?: "OceanTile<Tharsis_5_4>"
     val expected = listOfNotNull("OceanTile<Tharsis_5_4>", expectedCharge).joinToString()
 
     p1.playProject(Flooding, 7) { doTask(task) }.expect(expected)
@@ -46,9 +45,9 @@ internal class FloodingTest : CardTest() {
     val p3 = game.tfm(players[2])
     val p4 = game.tfm(players[3])
     engine.phase("Action")
-    p1.manual("7, ProjectCard")
-    p2.manual("10, CityTile<Tharsis_4_3>")
-    p3.manual("10, CityTile<Tharsis_5_3>")
-    p4.manual("10, CityTile<Tharsis_1_1>")
+    p1.manual("7 MC, ProjectCard")
+    p2.manual("10 MC, CityTile<Tharsis_4_3>")
+    p3.manual("10 MC, CityTile<Tharsis_5_3>")
+    p4.manual("10 MC, CityTile<Tharsis_1_1>")
   }
 }

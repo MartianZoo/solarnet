@@ -72,7 +72,7 @@ internal class PredatorsTest : CardTest() {
     p1.manual("$Predators, $MeatIndustry, Animal<$Predators>")
     engine.phase("Action")
 
-    p1.cardAction1(Predators) { doTask("-Animal<$Predators>") }.expect("0 Animal<$Predators>, 2")
+    p1.cardAction1(Predators) { doTask("-Animal<$Predators>") }.expect("0 Animal<$Predators>, 2 MC")
   }
 
   @Test

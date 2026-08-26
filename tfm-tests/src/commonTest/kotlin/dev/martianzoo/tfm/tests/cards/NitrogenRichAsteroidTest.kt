@@ -10,7 +10,7 @@ internal class NitrogenRichAsteroidTest : CardTest() {
     newGame(CorporateEraExpansion)
     engine.phase("Action")
     p1.manual("$Ecoline, $AdaptedLichen, $Lichen")
-    p1.manual("31 Megacredit, ProjectCard")
+    p1.manual("31 MC, ProjectCard")
 
     p1.playProject(NitrogenRichAsteroid, 31) { doTask("PROD[Plant]") }.expect("PROD[Plant]")
   }

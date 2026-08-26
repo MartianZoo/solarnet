@@ -40,7 +40,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB gained 1 titanium production
     // KB kept 3 project cards
     // KB gained 1 M€ production because of Saturn Systems
-    KB.playCorp(SaturnSystems, 3).expect("PROD[1]")
+    KB.playCorp(SaturnSystems, 3).expect("PROD[1 MC]")
 
     ER.turn {
       // ER played New Partner
@@ -73,7 +73,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
       // KB gained 3 heat production
       // KB gained 1 M€ production because of Saturn Systems
       playPrelude(ExcentricSponsor) { playProject(BeamFromAThoriumAsteroid, 7) }
-          .expect("PROD[1], -7")
+          .expect("PROD[1 MC], -7 MC")
     }
 
     // ER played Earth Office
@@ -88,13 +88,17 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB gained 1 titanium production
     // KB gained 1 M€ production because of Saturn Systems
     // KB ended turn
-    KB.turn { playProject(VestaShipyard, 15).expect("PROD[1]") }
+    KB.turn {
+      playProject(VestaShipyard, 15).expect("PROD[1 MC]")
+    }
 
     // ER played Carbonate Processing
     // ER lost 1 energy production
     // ER gained 3 heat production
     // ER ended turn
-    ER.turn { playProject(CarbonateProcessing, 6) }
+    ER.turn {
+      playProject(CarbonateProcessing, 6)
+    }
 
     // KB passed
     KB.pass()
@@ -140,7 +144,9 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB drew 2 card(s)
     // You drew Robotic Workforce,Ore Processor
     // KB ended turn
-    KB.turn { playProject(MartianSurvey, 9) }
+    KB.turn {
+      playProject(MartianSurvey, 9)
+    }
 
     // ER played Restricted Area
     // ER placed Restricted Area tile at 20
@@ -150,25 +156,31 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Immigrant City
     ER.turn {
-      playProject(RestrictedArea, 11) { placeTile(3, 7) }.expect("-7, Steel")
+      playProject(RestrictedArea, 11) { placeTile(3, 7) }.expect("-7 MC, Steel")
       cardAction1(RestrictedArea)
     }
 
     // KB played Artificial Photosynthesis
     // KB gained 2 energy production
     // KB ended turn
-    KB.turn { playProject(ArtificialPhotosynthesis, 12) { doTask("PROD[2 Energy]") } }
+    KB.turn {
+      playProject(ArtificialPhotosynthesis, 12) { doTask("PROD[2 Energy]") }
+    }
 
     // ER played Solar Wind Power
     // ER gained 1 energy production
     // ER gained 2 titanium
     // ER ended turn
-    ER.turn { playProject(SolarWindPower, 8, titanium = 1) }
+    ER.turn {
+      playProject(SolarWindPower, 8, titanium = 1)
+    }
 
     // KB played Power Supply Consortium
     // KB stole 1 energy production from ER
     // KB ended turn
-    KB.turn { playProject(PowerSupplyConsortium, 5) { doTask("PROD[-E<Player1>]") } }
+    KB.turn {
+      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-E<Player1>]") }
+    }
 
     // ER passed
     ER.pass()
@@ -212,12 +224,16 @@ internal class Game20260619Test : AbstractFullGameTest() {
       // ER used Convert Plants standard action
       // ER placed greenery tile at 19
       // ER gained 2 M€ from 1 ocean(s)
-      convertPlants { placeTile(3, 6) }
+      convertPlants {
+        placeTile(3, 6)
+      }
     }
 
     // KB used Convert Heat standard action
     // KB ended turn
-    KB.turn { convertHeat() }
+    KB.turn {
+      convertHeat()
+    }
 
     // ER played Nuclear Zone
     // ER gained 1 heat production
@@ -237,7 +253,9 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
     // KB used Power Plant:SP standard project
     // KB ended turn
-    KB.turn { stdProject("PowerPlantSP") }
+    KB.turn {
+      stdProject("PowerPlantSP")
+    }
 
     // ER played Business Contacts
     // ER drew 1 card(s)
@@ -299,21 +317,25 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB played Power Plant
     // KB gained 1 energy production
     // KB ended turn
-    KB.turn { playProject(PowerPlant, 4) }
+    KB.turn {
+      playProject(PowerPlant, 4)
+    }
 
     // ER played Pets
     // ER drew 1 card(s)
     // You drew House Printing
     // ER added 1 Animal to Pets
     // ER ended turn
-    ER.turn { playProject(Pets, 7) }
+    ER.turn {
+      playProject(Pets, 7)
+    }
 
     // KB claimed Specialist milestone
     // KB ended turn
     // TODO: Specialist is an Elysium milestone, but this setup only loads Tharsis milestones.
     // Stop automatic turn enforcement at this intentionally raw substitute for the logged action.
     workflow.shutdown()
-    KB.godMode().manual("-8, 5 VictoryPoint")
+    KB.godMode().manual("-8 MC, 5 VictoryPoint")
 
     // ER played Mohole Area
     // ER gained 4 heat production
@@ -321,11 +343,15 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Large Convoy
     // ER ended turn
-    ER.turn { playProject(MoholeArea, 18, steel = 1) { placeTile(1, 4) } }
+    ER.turn {
+      playProject(MoholeArea, 18, steel = 1) { placeTile(1, 4) }
+    }
 
     // KB played Ore Processor
     // KB ended turn
-    KB.turn { playProject(OreProcessor, 13) }
+    KB.turn {
+      playProject(OreProcessor, 13)
+    }
 
     // ER passed
     ER.pass()
@@ -361,7 +387,9 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
     // ER claimed Planner milestone
     // ER ended turn
-    ER.turn { stdAction("ClaimMilestoneSA") { doTask("Planner") } }
+    ER.turn {
+      stdAction("ClaimMilestoneSA") { doTask("Planner") }
+    }
 
     // KB used Convert Heat standard action
     KB.turn {
@@ -386,36 +414,50 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB used Ore Processor action
     // KB gained 1 titanium
     // KB ended turn
-    KB.turn { cardAction1(OreProcessor) }
+    KB.turn {
+      cardAction1(OreProcessor)
+    }
 
     // ER played Miranda Resort
     // ER gained 5 M€ production
     // KB gained 1 M€ production because of Saturn Systems
     // ER ended turn
-    ER.turn { playProject(MirandaResort, 6, titanium = 2) }
+    ER.turn {
+      playProject(MirandaResort, 6, titanium = 2)
+    }
 
     // KB played Regolith Eaters
     // KB ended turn
-    KB.turn { playProject(RegolithEaters, 13) }
+    KB.turn {
+      playProject(RegolithEaters, 13)
+    }
 
     // ER used Convert Heat standard action
     // ER ended turn
-    ER.turn { convertHeat() }
+    ER.turn {
+      convertHeat()
+    }
 
     // KB used Regolith Eaters action
     // KB added 1 Microbe to Regolith Eaters
     // KB ended turn
-    KB.turn { cardAction1(RegolithEaters) }
+    KB.turn {
+      cardAction1(RegolithEaters)
+    }
 
     // ER used Convert Heat standard action
     // ER ended turn
-    ER.turn { convertHeat() }
+    ER.turn {
+      convertHeat()
+    }
 
     // KB played Investment Loan
     // KB lost 1 M€ production
     // KB gained 10 M€
     // KB ended turn
-    KB.turn { playProject(InvestmentLoan, 3) }
+    KB.turn {
+      playProject(InvestmentLoan, 3)
+    }
 
     // ER passed
     ER.pass()

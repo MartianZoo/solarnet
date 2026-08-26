@@ -12,13 +12,13 @@ internal class MassiveDiscountsTest : CardTest() {
 
     engine.phase("Action")
     p1.manual(
-        "5, 2 ProjectCard, Steel, Titanium, $AntiGravityTechnology, $EarthCatapult, " +
+        "5 MC, 2 ProjectCard, Steel, Titanium, $AntiGravityTechnology, $EarthCatapult, " +
             "$ResearchOutpost, $MassConverter, $QuantumExtractor, $Shuttles, $SpaceStation, " +
             "$AdvancedAlloys, $Phobolog, $MercurianAlloys, $RegoPlastics"
     ) {
       placeTile(4, 2)
     }
 
-    p1.playProject(SpaceElevator, 4, steel = 1, titanium = 1).expect("-4, -Steel, -Titanium")
+    p1.playProject(SpaceElevator, 4, steel = 1, titanium = 1).expect("-4 MC, -Steel, -Titanium")
   }
 }

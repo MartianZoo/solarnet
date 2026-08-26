@@ -55,7 +55,7 @@ Once setup begins, exactly one Phase instance exists at all times: `SetupPhase`,
 
 Concrete classes called Player1, Player2, etc. will exist. The player owning the unique `StartToken` is the start player.
 
-The abstract class these all subclass is `Player`, which is both an `Owner` and an `Actor`. `Anyone` is still useful because it reads better in the icon-grammar spelling `CityTile<Anyone>: PROD[1]`. A solo opponent can be an `Owner` without being a `Player`.
+The abstract class these all subclass is `Player`, which is both an `Owner` and an `Actor`. `Anyone` is still useful because it reads better in the icon-grammar spelling `CityTile<Anyone>: PROD[1 MC]`. A solo opponent can be an `Owner` without being a `Player`.
 
 ### Owned
 
@@ -72,7 +72,7 @@ CLASS TerraformRating {
 }
 ```
 
-When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 megacredit for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
+When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 MC for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
 
 The `Owned-Owner` dependency is a regular component dependency just like any other in the game.
 

@@ -5,7 +5,7 @@
       "name": "CheungShingMars",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "44, PROD[3]",
+      "immediate": "44 MC, PROD[3 MC]",
       "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed<>" ],
     },
 
@@ -13,15 +13,15 @@
       "name": "PointLuna",
       "deck": "CORPORATION",
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "38, PROD[Titanium]",
+      "immediate": "38 MC, PROD[Titanium]",
       "effects": [ "EarthTag<>: ProjectCard" ],
     },
 
     {
       "name": "RobinsonIndustries",
       "deck": "CORPORATION",
-      "immediate": "47",
-      "actions": [ "4 -> PROD[StandardResource(HAS LowestProduction)]" ],
+      "immediate": "47 MC",
+      "actions": [ "4 MC -> PROD[StandardResource(HAS LowestProduction)]" ],
       "components": [ "CLASS LowestProduction<Class<StandardResource>> : Owned, Custom" ],
     },
 
@@ -29,7 +29,7 @@
       "name": "ValleyTrust",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "37, Mandate { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }",
+      "immediate": "37 MC, Mandate { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<>" ],
     },
 
@@ -37,10 +37,10 @@
       "name": "Vitor",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "45",
+      "immediate": "45 MC",
       "effects": [
         "This IF Class<Award>: Mandate { -> Award }",
-        "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
+        "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC"
       ],
       "components": [
         "CLASS CitationsIgnoringRemoves<CardFront, Class<Component>> : Custom",
@@ -51,14 +51,14 @@
       "name": "AlliedBank",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[4], 3",
+      "immediate": "PROD[4 MC], 3 MC",
     },
 
     {
       "name": "AquiferTurbines",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "OceanTile<>, PROD[2 Energy], -3",
+      "immediate": "OceanTile<>, PROD[2 Energy], -3 MC",
     },
 
     {
@@ -79,27 +79,27 @@
       "name": "BiosphereSupport",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[-1, 2 Plant]",
+      "immediate": "PROD[-1 MC, 2 Plant]",
     },
 
     {
       "name": "BusinessEmpire",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[6], -6",
+      "immediate": "PROD[6 MC], -6 MC",
     },
 
     {
       "name": "DomeFarming",
       "deck": "PRELUDE",
       "tags": [ "PlantTag", "BuildingTag" ],
-      "immediate": "PROD[Plant, 2]",
+      "immediate": "PROD[Plant, 2 MC]",
     },
 
     {
       "name": "Donation",
       "deck": "PRELUDE",
-      "immediate": "21",
+      "immediate": "21 MC",
     },
 
     {
@@ -133,7 +133,7 @@
       "name": "GalileanMining",
       "deck": "PRELUDE",
       "tags": [ "JovianTag" ],
-      "immediate": "PROD[2 Titanium], -5",
+      "immediate": "PROD[2 Titanium], -5 MC",
     },
 
     {
@@ -145,7 +145,7 @@
     {
       "name": "HugeAsteroid",
       "deck": "PRELUDE",
-      "immediate": "3 TemperatureStep, -5",
+      "immediate": "3 TemperatureStep, -5 MC",
     },
 
     {
@@ -158,14 +158,14 @@
     {
       "name": "Loan",
       "deck": "PRELUDE",
-      "immediate": "PROD[-2], 30",
+      "immediate": "PROD[-2 MC], 30 MC",
     },
 
     {
       "name": "MartianIndustries",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[Energy, Steel], 6",
+      "immediate": "PROD[Energy, Steel], 6 MC",
     },
 
     {
@@ -177,7 +177,7 @@
     {
       "name": "MetalsCompany",
       "deck": "PRELUDE",
-      "immediate": "PROD[1, Steel, Titanium]",
+      "immediate": "PROD[1 MC, Steel, Titanium]",
     },
 
     {
@@ -204,7 +204,7 @@
     {
       "name": "NitrogenShipment",
       "deck": "PRELUDE",
-      "immediate": "TerraformRating, PROD[Plant], 5",
+      "immediate": "TerraformRating, PROD[Plant], 5 MC",
     },
 
     {
@@ -231,14 +231,14 @@
     {
       "name": "ResearchNetwork",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], 3 ProjectCard, WildTag<This>",
+      "immediate": "PROD[1 MC], 3 ProjectCard, WildTag<This>",
     },
 
     {
       "name": "SelfSufficientSettlement",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "CityTile<>, PROD[2]",
+      "immediate": "CityTile<>, PROD[2 MC]",
     },
 
     {
@@ -251,7 +251,7 @@
     {
       "name": "SocietySupport",
       "deck": "PRELUDE",
-      "immediate": "PROD[-1, Plant, Energy, Heat]",
+      "immediate": "PROD[-1 MC, Plant, Energy, Heat]",
     },
 
     {
@@ -296,7 +296,7 @@
       "projectKind": "AUTOMATED",
       "cost": 15,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 2], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)",
+      "immediate": "PROD[-Energy, 2 MC], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)",
     },
 
     {
@@ -349,7 +349,7 @@
       "requirement": "2 EarthTag",
       "cost": 12,
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "PROD[4]",
+      "immediate": "PROD[4 MC]",
     },
   ],
 }

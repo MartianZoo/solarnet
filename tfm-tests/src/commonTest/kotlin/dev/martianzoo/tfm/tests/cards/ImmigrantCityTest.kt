@@ -10,9 +10,9 @@ internal class ImmigrantCityTest : CardTest() {
   @Test
   internal fun `Can be played at the production floor when Manutech offsets its loss`() {
     newGame(VenusNextExpansion)
-    p1.manual("$Manutech, PROD[-4, Energy]")
+    p1.manual("$Manutech, PROD[-4 MC, Energy]")
     p1.manual("$ImmigrantCity") { placeTile(7, 4) }
-        .expect("PROD[-Megacredit, -Energy], Megacredit, CityTile<Tharsis_7_4>")
-    p1.assertProds(-5 to "Megacredit", 0 to "Energy")
+        .expect("PROD[-1 MC, -Energy], 1 MC, CityTile<Tharsis_7_4>")
+    p1.assertProds(-5 to "MC", 0 to "Energy")
   }
 }

@@ -20,7 +20,7 @@ internal class DoubleDownTest : CardTest() {
   @Test
   internal fun `Can copy Biosphere Support`() {
     p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BiosphereSupport>") }
-        .expect("PROD[-Megacredit, 0 Steel, 0 Titanium, 2 Plant, 0 Energy, 0 Heat]")
+        .expect("PROD[-1 MC, 0 Steel, 0 Titanium, 2 Plant, 0 Energy, 0 Heat]")
   }
 
   @Test

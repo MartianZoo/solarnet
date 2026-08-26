@@ -51,7 +51,7 @@ import dev.martianzoo.tfm.script.TFM_SCRIPT_CLASS_SYNONYMS
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
 import dev.martianzoo.tfm.script.TfmColor.HEAT
-import dev.martianzoo.tfm.script.TfmColor.MEGACREDIT
+import dev.martianzoo.tfm.script.TfmColor.MC
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.PLANT
 import dev.martianzoo.tfm.script.commands.TfmActionCommand
@@ -285,7 +285,7 @@ public class ScriptSession(
 
   internal enum class ScriptMode(public val message: String, public val color: TfmColor) {
     RED("Change integrity: make changes without triggered effects", HEAT),
-    YELLOW("Task integrity: changes have consequences", MEGACREDIT),
+    YELLOW("Task integrity: changes have consequences", MC),
     GREEN("Operation integrity: clear task queue before starting new operation", PLANT),
     BLUE("Turn integrity: must perform a valid game turn for this phase", OCEAN_TILE),
     PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),

@@ -30,19 +30,26 @@ internal class StinaGameTest : AbstractSoloTest() {
                 ResearchOutpost,
             )
           }
-          .expect("PROD[1, Titanium], 12, 10 ProjectCard")
+          .expect("PROD[1 MC, Titanium], 12 MC, 10 ProjectCard")
 
-      playPrelude(Biolab) { draw(InventionContest, BusinessContacts, QuantumExtractor) }
+      playPrelude(Biolab) {
+            draw(InventionContest, BusinessContacts, QuantumExtractor)
+          }
           .expect("PROD[Plant], 3 ProjectCard")
-      playPrelude(AcquiredSpaceAgency) { draw(SpaceStation, OptimalAerobraking) }
+      playPrelude(AcquiredSpaceAgency) {
+            draw(SpaceStation, OptimalAerobraking)
+          }
           .expect("6 Titanium, 2 ProjectCard")
 
       playProject(EarthOffice, 1)
       playProject(MediaGroup, 3)
-      playProject(InvestmentLoan, 0).expect("PROD[-1], 13")
-      playProject(IndenturedWorkers, 0).expect("3")
+      playProject(InvestmentLoan, 0).expect("PROD[-1 MC], 13 MC")
+      playProject(IndenturedWorkers, 0).expect("3 MC")
       playProject(EarthCatapult, 12)
-      playProject(HiredRaiders, 0) { doTask("2 Steel<Me> FROM Steel<SoloOpponent>") }.expect("3")
+      playProject(HiredRaiders, 0) {
+            doTask("2 Steel<Me> FROM Steel<SoloOpponent>")
+          }
+          .expect("3 MC")
       playProject(OlympusConference, 1, steel = 2)
       playProject(AdvancedAlloys, 7) {
             draw(TechnologyDemonstration)
@@ -59,9 +66,11 @@ internal class StinaGameTest : AbstractSoloTest() {
             draw(ImportedGhg, MassConverter)
             doTask("ProjectCard FROM Science<OlympusConference>")
           }
-          .expect("ProjectCard, 3")
-      playProject(BusinessContacts, 1) { draw(TowingAComet, AdaptationTechnology) }
-          .expect("ProjectCard, 2")
+          .expect("ProjectCard, 3 MC")
+      playProject(BusinessContacts, 1) {
+            draw(TowingAComet, AdaptationTechnology)
+          }
+          .expect("ProjectCard, 2 MC")
       playProject(QuantumExtractor, 10).expect("PROD[4 Energy]")
       playProject(SpaceStation, 1, titanium = 1)
       playProject(OptimalAerobraking, 0)
@@ -72,19 +81,23 @@ internal class StinaGameTest : AbstractSoloTest() {
             draw(SpecialDesign, Shuttles, LagrangeObservatory)
             doTask("ProjectCard FROM Science<OlympusConference>")
           }
-          .expect("2 ProjectCard, 6, 3 Heat")
-      playProject(ImportOfAdvancedGhg, 0).expect("PROD[2 Heat], 6, 3 Heat")
-      playProject(ImportedGhg, 0).expect("PROD[Heat], 6, 6 Heat")
+          .expect("2 ProjectCard, 6 MC, 3 Heat")
+      playProject(ImportOfAdvancedGhg, 0).expect("PROD[2 Heat], 6 MC, 3 Heat")
+      playProject(ImportedGhg, 0).expect("PROD[Heat], 6 MC, 6 Heat")
       playProject(MassConverter, 5).expect("PROD[6 Energy]")
-      playProject(TowingAComet, 2, titanium = 3) { placeTile(1, 2) }
-          .expect("4, 2 Plant, OxygenStep, 3 Heat, 2 TR, OceanTile")
-      playProject(AdaptationTechnology, 9) { addCardResources(OlympusConference) }
+      playProject(TowingAComet, 2, titanium = 3) {
+            placeTile(1, 2)
+          }
+          .expect("4 MC, 2 Plant, OxygenStep, 3 Heat, 2 TR, OceanTile")
+      playProject(AdaptationTechnology, 9) {
+        addCardResources(OlympusConference)
+      }
       playProject(SpecialDesign, 1) {
             draw(ConvoyFromEuropa)
             doTask("ProjectCard FROM Science<OlympusConference>")
           }
-          .expect("2, 0 ProjectCard")
-      playProject(Shuttles, 1).expect("PROD[-Energy, 2]")
+          .expect("2 MC, 0 ProjectCard")
+      playProject(Shuttles, 1).expect("PROD[-Energy, 2 MC]")
 
       checkHandSizes()
       assertCardTrackingComplete()

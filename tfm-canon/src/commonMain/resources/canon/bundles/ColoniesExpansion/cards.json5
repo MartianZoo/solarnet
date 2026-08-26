@@ -4,14 +4,14 @@
     {
       "name": "FakeAridor",
       "deck": "CORPORATION",
-      "immediate": "40, Mandate { -> ColonyTileSelection }",
+      "immediate": "40 MC, Mandate { -> ColonyTileSelection }",
     },
 
     {
       "name": "Arklight",
       "deck": "CORPORATION",
       "tags": [ "AnimalTag" ],
-      "immediate": "45, PROD[2]",
+      "immediate": "45 MC, PROD[2 MC]",
       "effects" : [
         "AnimalTag<> OR PlantTag<>: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
@@ -21,22 +21,22 @@
     {
       "name": "Polyphemos",
       "deck": "CORPORATION",
-      "immediate": "50, 5 Titanium, PROD[5]",
+      "immediate": "50 MC, 5 Titanium, PROD[5 MC]",
       "effects" : [ "BuyCard:: 2 Owed<>" ],
     },
 
     {
       "name": "Poseidon",
       "deck": "CORPORATION",
-      "immediate": "45, Mandate { -> Colony<> }",
-      "effects": [ "Colony<Anyone>: PROD[1]" ],
+      "immediate": "45 MC, Mandate { -> Colony<> }",
+      "effects": [ "Colony<Anyone>: PROD[1 MC]" ],
     },
 
     {
       "name": "StormcraftIncorporated",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
-      "immediate": "48",
+      "immediate": "48 MC",
       "actions": [ "-> Floater" ],
       "effects": [
         "Billing<HasActions, WhichAction, Class<Heat>>:: AcceptFromCard<This>",
@@ -53,7 +53,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "3 Floater",
       "cost": 11,
-      "immediate": "PROD[2], 2 Floater",
+      "immediate": "PROD[2 MC], 2 Floater",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -62,7 +62,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "-Floater, 5 Megacredit<Owner FROM Anyone>?",
+      "immediate": "-Floater, 5 MC<Owner FROM Anyone>?",
     },
 
     {
@@ -82,7 +82,7 @@
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 13,
-      "immediate": "PROD[1 / CardFront(HAS MAX 0 Tag)]",
+      "immediate": "PROD[1 MC / CardFront(HAS MAX 0 Tag)]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -141,7 +141,7 @@
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 3,
-      "immediate": "PROD[1 / 3 Floater]",
+      "immediate": "PROD[1 MC / 3 Floater]",
     },
 
     {
@@ -168,7 +168,7 @@
       "projectKind": "AUTOMATED",
       "cost": 15,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[1 / JovianTag<Anyone>]",
+      "immediate": "PROD[1 MC / JovianTag<Anyone>]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -179,7 +179,7 @@
       "requirement": "2 EarthTag",
       "cost": 3,
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[2], 4",
+      "immediate": "PROD[2 MC], 4 MC",
       "effects": [ "End: -VictoryPoint" ],
     },
 
@@ -232,7 +232,7 @@
       "tags": [ "JovianTag" ],
       "actions": [
         "-> Floater<CardFront(HAS JovianTag)>",
-        "-> 1 / Floater<This> MAX 4"
+        "-> 1 MC / Floater<This> MAX 4"
       ],
       "effects": [ "End: VictoryPoint" ],
     },
@@ -244,7 +244,7 @@
       "requirement": "3 EarthTag",
       "cost": 4,
       "tags": [ "EarthTag", "EarthTag" ],
-      "immediate": "PROD[2]",
+      "immediate": "PROD[2 MC]",
     },
 
     {
@@ -253,7 +253,7 @@
       "projectKind": "AUTOMATED",
       "cost": 19,
       "tags": [ "SpaceTag", "EarthTag" ],
-      "immediate": "PROD[2 Plant OR 5]",
+      "immediate": "PROD[2 Plant OR 5 MC]",
     },
 
     {
@@ -281,7 +281,7 @@
       "requirement": "2 CityTile<Anyone>",
       "cost": 12,
       "tags": [ "AnimalTag", "BuildingTag" ],
-      "actions": [ "-> 1 / Animal<This>" ],
+      "actions": [ "-> 1 MC / Animal<This>" ],
       "effects": [
         "EarthTag<>: Animal<This>",
         "End: VictoryPoint"
@@ -303,7 +303,7 @@
       "projectKind": "AUTOMATED",
       "cost": 5,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[-2], Colony<>",
+      "immediate": "PROD[-2 MC], Colony<>",
     },
 
     {
@@ -312,7 +312,7 @@
       "projectKind": "AUTOMATED",
       "cost": 11,
       "tags": [ "ScienceTag" ],
-      "immediate": "1 / CityTile<Anyone>, 1 / Colony<Anyone>",
+      "immediate": "1 MC / CityTile<Anyone>, 1 MC / Colony<Anyone>",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -333,7 +333,7 @@
       "requirement": "MAX 1 Colony",
       "cost": 13,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[-2], Colony<>",
+      "immediate": "PROD[-2 MC], Colony<>",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -351,7 +351,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "4 ScienceTag",
       "cost": 8,
-      "immediate": "PROD[1 / Colony<Anyone>]",
+      "immediate": "PROD[1 MC / Colony<Anyone>]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -376,7 +376,7 @@
       "projectKind": "ACTIVE",
       "cost": 10,
       "tags": [ "EarthTag" ],
-      "actions": [ "PROD[1] -> Camp<This>" ],
+      "actions": [ "PROD[1 MC] -> Camp<This>" ],
       "effects": [ "End: VictoryPoint / Camp<This>" ],
       "components": [ "CLASS Camp : CardResource<ResourceHolder<Class<Camp>>>" ],
     },
@@ -439,7 +439,7 @@
       "requirement": "Colony",
       "cost": 22,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "ReserveTradeFleet, CityTile<>, PROD[-Energy, 4]",
+      "immediate": "ReserveTradeFleet, CityTile<>, PROD[-Energy, 4 MC]",
     },
 
     {
@@ -459,7 +459,7 @@
       "projectKind": "ACTIVE",
       "cost": 10,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2]",
+      "immediate": "PROD[2 MC]",
       "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
     },
 

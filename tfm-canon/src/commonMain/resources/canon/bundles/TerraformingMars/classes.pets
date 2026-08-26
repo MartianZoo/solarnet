@@ -32,7 +32,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   This:: GrossHack<This> BY Engine
   SetupPhase:: 20 TerraformRating<This>
-  SetupPhase IF QuickStartVariant: PROD[Megacredit, Steel, Titanium, Plant, Energy, Heat]
+  SetupPhase IF QuickStartVariant: PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]
   CorporationPhase:: CorporationCard
   ResearchPhase: CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
   MeasureAward<Award>:: AwardTally<Award> / EVAL Award.metric
@@ -118,7 +118,7 @@ ABSTRACT CLASS Tile<Area> {
     DEFAULT +OceanTile<WaterArea>
 
     This IF =9 OceanTile:: GpComplete<Class<This>>
-    ForwardAdjacency<This, Tile>: 2
+    ForwardAdjacency<This, Tile>: 2 MC
   }
 }
 
@@ -243,7 +243,7 @@ ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
 // inserting an explicit Owner variable; making Owner the bound erases that contextual binding.
 ABSTRACT CLASS Resource : Owned {
   ABSTRACT CLASS StandardResource {
-    CLASS Megacredit
+    CLASS MC
     ABSTRACT CLASS Metal {
       CLASS Steel
       CLASS Titanium
@@ -276,7 +276,7 @@ CLASS Production<Class<StandardResource>> : Owned {
 
 "One step on the terraform rating track; you generally start with 20 of them"
 CLASS TerraformRating : Owned<Player> {
-  ProductionPhase: 1
+  ProductionPhase: 1 MC
   End: VictoryPoint
 }
 
@@ -352,13 +352,13 @@ ABSTRACT CLASS StandardAction : HasActions {
   CLASS PlayCardSA { -> PlayCard<Class<ProjectCard>> }
 
   "Claim an available milestone"
-  CLASS ClaimMilestoneSA { 8 -> Milestone }
+  CLASS ClaimMilestoneSA { 8 MC -> Milestone }
 
   "Fund an available award"
   CLASS FundAwardSA {
-    8 -> (=0 Award: Award)
-    14 -> (=1 Award: Award)
-    20 -> (=2 Award: Award)
+    8 MC -> (=0 Award: Award)
+    14 MC -> (=1 Award: Award)
+    20 MC -> (=2 Award: Award)
   }
 
   "Use an action on a card"
@@ -371,7 +371,7 @@ ABSTRACT CLASS StandardAction : HasActions {
   CLASS ConvertHeatSA { 8 Heat -> TemperatureStep }
 
   "Sell any number of patents"
-  CLASS SellPatents { X ProjectCard<Hand> -> X }
+  CLASS SellPatents { X ProjectCard<Hand> -> X MC }
 
   "Resolve a mandatory action before taking another standard action"
   CLASS HandleMandates { -> Mandate: MandateSignal }
@@ -391,32 +391,32 @@ ABSTRACT CLASS StandardProject : StandardAction {
 
 CLASS PowerPlantSP : StandardProject {
   cost = 11
-  1 / cost -> PROD[Energy]
+  1 MC / cost -> PROD[Energy]
 }
 
 CLASS AsteroidSP : StandardProject {
   cost = 14
-  1 / cost -> TemperatureStep
+  1 MC / cost -> TemperatureStep
 }
 
 CLASS BufferGasSP : StandardProject {
   cost = 16
-  1 / cost -> TerraformRating
+  1 MC / cost -> TerraformRating
 }
 
 CLASS AquiferSP : StandardProject {
   cost = 18
-  1 / cost -> OceanTile<>
+  1 MC / cost -> OceanTile<>
 }
 
 CLASS GreenerySP : StandardProject {
   cost = 23
-  1 / cost -> GreeneryTile<>
+  1 MC / cost -> GreeneryTile<>
 }
 
 CLASS CitySP : StandardProject {
   cost = 25
-  1 / cost -> CityTile<>, PROD[1]
+  1 MC / cost -> CityTile<>, PROD[1 MC]
 }
 
 // PAY AND PLAY
@@ -441,8 +441,8 @@ CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
 ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Temporary {
   CLASS Owed : Barrier {
-    DEFAULT +Owed<Class<Megacredit>>
-    DEFAULT -Owed<Class<Megacredit>>.
+    DEFAULT +Owed<Class<MC>>
+    DEFAULT -Owed<Class<MC>>.
     X This:: Accept<Class<StandardResource>>
   }
 
@@ -454,7 +454,7 @@ ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Tempora
   }
 
   CLASS Pay : Signal {
-    DEFAULT +Pay<Class<Megacredit>>
+    DEFAULT +Pay<Class<MC>>
     This:: -Owed<Class<StandardResource>>
   }
 }
@@ -478,11 +478,11 @@ ABSTRACT CLASS Billing<HasActions, WhichAction, Class<StandardResource>> : Owned
 
 "The invoice produced by an action with a standard-resource cost"
 CLASS Invoice : Billing {
-  DEFAULT +Invoice<HasActions, WhichAction, Class<Megacredit>>
+  DEFAULT +Invoice<HasActions, WhichAction, Class<MC>>
 }
 
 "The finalized debt for playing a particular card"
-CLASS CardInvoice<Class<CardFront>> : Billing<PlayCards, First, Class<Megacredit>>
+CLASS CardInvoice<Class<CardFront>> : Billing<PlayCards, First, Class<MC>>
 
 "A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
@@ -697,8 +697,8 @@ CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
 
 "You didn't see this"
 CLASS GrossHack : Owned<Player>, System {
-  This:: PROD[5]
-  ProductionPhase: -5
+  This:: PROD[5 MC]
+  ProductionPhase: -5 MC
 }
 
 CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom

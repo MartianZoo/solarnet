@@ -32,16 +32,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1's steel production increased by 1
     // Player1 played Manutech
     // Player1 kept 5 project cards
-    p1.playCorp(Manutech, 5).expect("PROD[S], 20, S, 5 ProjectCard")
+    p1.playCorp(Manutech, 5).expect("PROD[S], 20 MC, S, 5 ProjectCard")
 
     // Player2's steel production increased by 1
     // Player2 played Factorum
     // Player2 kept 4 project cards
-    p2.playCorp(Factorum, 4).expect("PROD[S], 25, 4 ProjectCard")
+    p2.playCorp(Factorum, 4).expect("PROD[S], 25 MC, 4 ProjectCard")
 
     p1.turn {
       // Player1 played New Partner
-      // Player1's megacredits production increased by 1
+      // Player1's mc production increased by 1
       // You drew UNMI Contractor and Corporate Archives
       playPrelude(NewPartner) {
             // Player1 played UNMI Contractor
@@ -49,12 +49,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // You drew Ganymede Colony
             playPrelude(UnmiContractor)
           }
-          .expect("PROD[1], 1, ProjectCard, 3 TR")
+          .expect("PROD[1 MC], 1 MC, ProjectCard, 3 TR")
 
       // Player1 played Allied Bank
-      // Player1's megacredits production increased by 4
-      // Player1's megacredits amount increased by 3
-      playPrelude(AlliedBank).expect("PROD[4], 7, EarthTag")
+      // Player1's mc production increased by 4
+      // Player1's mc amount increased by 3
+      playPrelude(AlliedBank).expect("PROD[4 MC], 7 MC, EarthTag")
     }
 
     p2.turn {
@@ -71,12 +71,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 played Inventors' Guild
     // Player1 ended turn
-    p1.turn { playProject(InventorsGuild, 9) }
+    p1.turn {
+      playProject(InventorsGuild, 9)
+    }
 
     // Player2 played Arctic Algae
     // Player2's plants amount increased by 1
     // Player2 ended turn
-    p2.turn { playProject(ArcticAlgae, 12).expect("-12, Plant, PlantTag") }
+    p2.turn {
+      playProject(ArcticAlgae, 12).expect("-12 MC, Plant, PlantTag")
+    }
 
     // Player1 used Inventors' Guild action
     p1.turn {
@@ -90,7 +94,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Factorum action
     // Player2's energy production increased by 1
-    p2.turn { cardAction1(Factorum).expect("PROD[E]") }
+    p2.turn {
+      cardAction1(Factorum).expect("PROD[E]")
+    }
     // Player2 ended turn
 
     // Player1 used Power Plant:SP standard project
@@ -179,7 +185,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Rotator Impacts action
     // Player2 removed 1 resource(s) from Player2's Rotator Impacts
     // Player2 removed an asteroid resource to increase Venus scale 1 step
-    p2.turn { cardAction2(RotatorImpacts).expect("VenusStep, TR<Player2>") }
+    p2.turn {
+      cardAction2(RotatorImpacts).expect("VenusStep, TR<Player2>")
+    }
     // Player2 ended turn
 
     // Player1 played Development Center
@@ -198,9 +206,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       cardAction1(DevelopmentCenter).expect("-E, ProjectCard")
       // Player1 played Investment Loan
-      // Player1's megacredits production decreased by 1
-      // Player1's megacredits amount increased by 10
-      playProject(InvestmentLoan, 0).expect("PROD[-1], 10")
+      // Player1's mc production decreased by 1
+      // Player1's mc amount increased by 10
+      playProject(InvestmentLoan, 0).expect("PROD[-1 MC], 10 MC")
       // Player1 played Deuterium Export
       playProject(DeuteriumExport, 11)
       // Player1 used Deuterium Export action
@@ -265,13 +273,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Player1 played Corporate Stronghold
-    // Player1's megacredits production increased by 3
+    // Player1's mc production increased by 3
     // Player1's energy production decreased by 1
     // Player1 placed city tile on row 4 position 6
     // Player1's plants amount increased by 1
     p1.turn {
       playProject(CorporateStronghold, 5, steel = 3) { placeTile(4, 6) }
-          .expect("PROD[3, -E], -2, Plant<Player1>")
+          .expect("PROD[3 MC, -E], -2 MC, Plant<Player1>")
       // Player1 played Optimal Aerobraking
       playProject(OptimalAerobraking, 7)
     }
@@ -300,7 +308,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1 played Imported GHG
       // Player1's heat production increased by 1
       // Player1's heat amount increased by 3
-      // Player1's megacredits amount increased by 3 by Optimal Aerobraking
+      // Player1's mc amount increased by 3 by Optimal Aerobraking
       // Player1's heat amount increased by 3 by Optimal Aerobraking
       playProject(ImportedGhg, 4).expect("7 Heat<Player1>, PlayedEvent<Player1>")
     }
@@ -397,7 +405,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // Decline the science resource.
             declineTask()
           }
-          .expect("-1")
+          .expect("-1 MC")
     }
 
     // Player1 used Convert Heat standard action
@@ -414,13 +422,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Sell Patents standard project
     // Player1 sold 1 patents
     p1.turn {
-      sellPatents(1).expect("-ProjectCard, 1")
+      sellPatents(1).expect("-ProjectCard, 1 MC")
       // Player1 played Spin-Inducing Asteroid
       // Player1 drew 1 card(s)
       // You drew Lagrange Observatory
-      // Player1's megacredits amount increased by 3 by Optimal Aerobraking
+      // Player1's mc amount increased by 3 by Optimal Aerobraking
       // Player1's heat amount increased by 3 by Optimal Aerobraking
-      playProject(SpinInducingAsteroid, 16).expect("3 Heat, -13")
+      playProject(SpinInducingAsteroid, 16).expect("3 Heat, -13 MC")
 
       // Player1 passed
       pass()
@@ -459,7 +467,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       convertHeat()
       // Player1 played Small Asteroid
       // Player1's heat production increased by 1
-      // Player1's megacredits amount increased by 3 by Optimal Aerobraking
+      // Player1's mc amount increased by 3 by Optimal Aerobraking
       // Player1's heat amount increased by 3 by Optimal Aerobraking
       playProject(SmallAsteroid, 10) {
             // Player2's plants amount decreased by 2 by Player1
@@ -505,7 +513,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       cardAction2(DeuteriumExport)
       // Player1 played Domed Crater
-      // Player1's megacredits production increased by 3
+      // Player1's mc production increased by 3
       // Player1's energy production decreased by 1
       // Player1's plants amount increased by 3
       playProject(DomedCrater, 18, steel = 3) {
@@ -528,9 +536,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Player1 played Fueled Generators
-    // Player1's megacredits production decreased by 1
+    // Player1's mc production decreased by 1
     // Player1's energy production increased by 1
-    p1.turn { playProject(FueledGenerators, 1).expect("PROD[-1, E], E") }
+    p1.turn {
+      playProject(FueledGenerators, 1).expect("PROD[-1 MC, E], E")
+    }
     // Player1 ended turn
 
     // Player2 used Convert Heat standard action
@@ -625,8 +635,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(OlympusConference, 1, steel = 3).expect("Science<$OlympusConference>")
       // Player1 played Sister Planet Support
-      // Player1's megacredits production increased by 3
-      playProject(SisterPlanetSupport, 4).expect("PROD[3], -1")
+      // Player1's mc production increased by 3
+      playProject(SisterPlanetSupport, 4).expect("PROD[3 MC], -1 MC")
     }
 
     // Player2 used Directed Impactors action
@@ -649,8 +659,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(DuskLaserMining, 8).expect("PROD[T, -E], 5 T")
       // Player1 played Miranda Resort
-      // Player1's megacredits production increased by 5
-      playProject(MirandaResort, titanium = 4).expect("PROD[5], 5")
+      // Player1's mc production increased by 5
+      playProject(MirandaResort, titanium = 4).expect("PROD[5 MC], 5 MC")
     }
 
     // Player2 played Mine
@@ -676,7 +686,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Player2 used Convert Heat standard action
-    p2.turn { convertHeat() }
+    p2.turn {
+      convertHeat()
+    }
 
     // Player1 used Convert Heat standard action
     p1.turn {
@@ -701,7 +713,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           }
           .expect("ProjectCard<Player1>") // -1 played, +1 from card itself, +1 from olympus
       // Player1 played Venus Governor
-      // Player1's megacredits production increased by 2
+      // Player1's mc production increased by 2
       playProject(VenusGovernor, 4).expect("2 VenusTag<Player1>")
       // Player1 used Sell Patents standard project
       // Player1 sold 1 patents
@@ -773,7 +785,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       }
       // Player1 played Quantum Extractor
       // Player1's energy production increased by 4
-      playProject(QuantumExtractor, 13).expect("-13, PROD[4E], 4E")
+      playProject(QuantumExtractor, 13).expect("-13 MC, PROD[4E], 4E")
     }
 
     // Player2 played Bio Printing Facility
@@ -819,12 +831,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // Player1 added 1 floater(s) to Deuterium Export
             addCardResources(DeuteriumExport)
           }
-          .expect("-2, Floater")
+          .expect("-2 MC, Floater")
     }
 
     // Player2 played Titanium Mine
     // Player2's titanium production increased by 1
-    p2.turn { playProject(TitaniumMine, 5).expect("PROD[T], BuildingTag") }
+    p2.turn {
+      playProject(TitaniumMine, 5).expect("PROD[T], BuildingTag")
+    }
 
     // Player1 used Convert Heat standard action
     p1.turn {
@@ -835,7 +849,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Player2 passed
-    p2.turn { pass().expect("Pass") }
+    p2.turn {
+      pass().expect("Pass")
+    }
 
     // Player1 used Stratospheric Birds action
     p1.turn {
@@ -894,7 +910,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 played Extractor Balloons
     p1.turn {
-      playProject(ExtractorBalloons, 21).expect("-21")
+      playProject(ExtractorBalloons, 21).expect("-21 MC")
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Noctis Farming
@@ -919,9 +935,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     engine.assertCounts(6 to "VenusStep")
 
     // Player1 played Sulphur Exports
-    // Player1's megacredits production increased by 8
+    // Player1's mc production increased by 8
     p1.turn {
-      playProject(SulphurExports, 13, titanium = 2).expect("PROD[8], -5, VenusStep")
+      playProject(SulphurExports, 13, titanium = 2).expect("PROD[8 MC], -5 MC, VenusStep")
       // Player1 used Extractor Balloons action
       // Player1 removed 2 resource(s) from Player1's Extractor Balloons
       // Player1 raised the Venus scale 1 step(s)
@@ -945,9 +961,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 gained 2 plants from Arctic Algae
     p1.turn {
       playProject(MoholeLake, 7, steel = 12) { placeTile(5, 5) }
-          .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TR, -7")
+          .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TR, -7 MC")
       // Player1 claimed Terraformer milestone
-      stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }.expect("-8")
+      stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }.expect("-8 MC")
     }
 
     // Player2 used Convert Heat standard action
@@ -976,7 +992,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Bio Printing Facility action
     // Player2's plants amount increased by 2
-    p2.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") }.expect("2 Plant, -2 E") }
+    p2.turn {
+      cardAction1(BioPrintingFacility) { doTask("2 Plant") }.expect("2 Plant, -2 E")
+    }
 
     // Player1 used Convert Heat standard action
     p1.turn {
@@ -1129,16 +1147,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
           .expect("2 Animal, 2 Plant")
 
       // Player2 played Harvest
-      // Player2's megacredits amount increased by 12
+      // Player2's mc amount increased by 12
       // Player2 added 1 animal(s) to Ecological Zone
-      playProject(Harvest, 2).expect("10, Animal, PlayedEvent")
+      playProject(Harvest, 2).expect("10 MC, Animal, PlayedEvent")
     }
 
     // Player1 played Noctis Farming
-    // Player1's megacredits production increased by 1
+    // Player1's mc production increased by 1
     // Player1's plants amount increased by 2
     p1.turn {
-      playProject(NoctisFarming, 1, steel = 3).expect("PROD[1], 2P")
+      playProject(NoctisFarming, 1, steel = 3).expect("PROD[1 MC], 2P")
       // Player1 used Deuterium Export action
       // Player1 removed 1 resource(s) from Player1's Deuterium Export
       // Player1's energy production increased by 1
@@ -1174,7 +1192,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       cardAction2(Factorum).expect("Card")
       // Player2 played Natural Preserve
-      // Player2's megacredits production increased by 1
+      // Player2's mc production increased by 1
       playProject(NaturalPreserve, 1, steel = 2) {
         // Player2 is using their Mars University effect to draw a card by discarding a card.
         // You discarded Herbivores
@@ -1193,7 +1211,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       sellPatents(3)
       // Player1 played Water to Venus
-      // Player1's megacredits amount increased by 3 by Optimal Aerobraking
+      // Player1's mc amount increased by 3 by Optimal Aerobraking
       // Player1's heat amount increased by 3 by Optimal Aerobraking
       playProject(WaterToVenus, 4, titanium = 1)
     }
@@ -1203,7 +1221,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       sellPatents(2)
       // Player2 played Kelp Farming
-      // Player2's megacredits production increased by 2
+      // Player2's mc production increased by 2
       // Player2's plants production increased by 3
       // Player2's plants amount increased by 2
       // Player2 added 1 animal(s) to Ecological Zone
@@ -1324,14 +1342,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(AerialMappers, 9)
     }
     // Player1 played Lava Tube Settlement
-    // Player1's megacredits production increased by 2
+    // Player1's mc production increased by 2
     // Player1's energy production decreased by 1
     // Player1 placed city tile on row 2 position 2
     // Player1's steel amount increased by 1
     p1.turn {
       playProject(LavaTubeSettlement, 6, steel = 3) { placeTile(2, 2) }.expect("-2 Steel")
       // Player1 played Urbanized Area
-      // Player1's megacredits production increased by 2
+      // Player1's mc production increased by 2
       // Player1's energy production decreased by 1
       // Player1 placed city tile on row 2 position 3
       playProject(UrbanizedArea, 7, steel = 1) { placeTile(2, 3) }
@@ -1352,14 +1370,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
     // Player1 played Nitrogen-Rich Asteroid
     // Player1's plants production increased by 4
-    // Player1's megacredits amount increased by 3 by Optimal Aerobraking
+    // Player1's mc amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     p1.turn {
       playProject(NitrogenRichAsteroid, 26, titanium = 1) { doTask("PROD[4 Plant]") }
           .expect("3 Heat")
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile on row 3 position 3
-      convertPlants { placeTile(3, 3) }
+      convertPlants {
+        placeTile(3, 3)
+      }
     }
     // Player2 used Bio Printing Facility action
     // Player2 added 1 animal(s) to Ecological Zone
@@ -1397,7 +1417,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(PowerInfrastructure, 4)
       // Player1 used Power Infrastructure action
-      // Player1's megacredits amount increased by 8
+      // Player1's mc amount increased by 8
       cardAction1(PowerInfrastructure, x = 8)
     }
     // Player2 used Factorum action
@@ -1434,7 +1454,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
     }
     // Player2 played Nuclear Power
-    // Player2's megacredits production decreased by 2
+    // Player2's mc production decreased by 2
     // Player2's energy production increased by 3
     p2.turn {
       intentionalOverpay(1)
@@ -1465,7 +1485,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.buyCards(1)
     // Player1 played Imported Nitrogen
     // Player1's plants amount increased by 4
-    // Player1's megacredits amount increased by 3 by Optimal Aerobraking
+    // Player1's mc amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 3 microbe(s) to Venusian Insects
     // Player1 added 2 animal(s) to Stratospheric Birds
@@ -1492,7 +1512,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Convert Plants standard action
     // Player1 placed greenery tile on row 2 position 4
     p1.turn {
-      convertPlants { placeTile(2, 4) }
+      convertPlants {
+        placeTile(2, 4)
+      }
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
       // You drew no cards
@@ -1507,7 +1529,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(MiningExpedition, 10) { doTask("-2 Plant<Player1>") }
     }
     // Player1 used Power Infrastructure action
-    // Player1's megacredits amount increased by 5
+    // Player1's mc amount increased by 5
     p1.turn {
       cardAction1(PowerInfrastructure, x = 5)
       // Player1 used Extractor Balloons action
@@ -1528,9 +1550,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
       }
     }
     // Player1 played Business Network
-    // Player1's megacredits production decreased by 1
+    // Player1's mc production decreased by 1
     p1.turn {
-      playProject(BusinessNetwork, 1).expect("PROD[-1]")
+      playProject(BusinessNetwork, 1).expect("PROD[-1 MC]")
       // Player1 used Business Network action
       // Player1 bought 1 card(s)
       // You drew Standard Technology
@@ -1539,7 +1561,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used City standard project
     // Player2 placed city tile on row 8 position 2
     p2.turn {
-      stdProject("CitySP") { placeTile(8, 5) }
+      stdProject("CitySP") {
+        placeTile(8, 5)
+      }
       // Player2 used Convert Plants standard action
       convertPlants {
             // Player2 placed greenery tile on row 8 position 1
@@ -1605,7 +1629,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1 removed 1 resource(s) from Player1's Olympus Conference
       // Player1 drew 1 card(s)
       // You drew Zeppelins
-      playProject(StandardTechnology, 6) { doTask("ProjectCard FROM Science<$OlympusConference>") }
+      playProject(StandardTechnology, 6) {
+        doTask("ProjectCard FROM Science<$OlympusConference>")
+      }
     }
     // Player2 played Atalanta Planitia Lab
     // Player2 drew 2 card(s)
@@ -1626,11 +1652,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1 played Large Convoy
     // Player1 drew 2 card(s)
     // You drew Water Splitting Plant and Martian Survey
-    // Player1's megacredits amount increased by 3 by Optimal Aerobraking
+    // Player1's mc amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 4 animal(s) to Stratospheric Birds
     p1.turn {
-      playProject(LargeConvoy, 31) { addCardResources(StratosphericBirds) }
+      playProject(LargeConvoy, 31) {
+            addCardResources(StratosphericBirds)
+          }
           .expect("ProjectCard, 3 Heat, 4 Animal")
       // Player1 played Water Splitting Plant
       playProject(WaterSplittingPlant, steel = 4)
@@ -1642,14 +1670,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(RobotPollinators, 7).expect("PROD[Plant], 4 Plant")
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 7 position 2
-      convertPlants { placeTile(7, 4) }
+      convertPlants {
+        placeTile(7, 4)
+      }
     }
     // Player1 played Media Archives
-    // Player1's megacredits amount increased by 16
+    // Player1's mc amount increased by 16
     p1.turn {
       playProject(MediaArchives, 5)
       // Player1 used Greenery standard project
-      // Player1's megacredits amount increased by 3
+      // Player1's mc amount increased by 3
       stdProject("GreenerySP") {
         // Player1 placed greenery tile on row 5 position 7
         placeTile(5, 7)
@@ -1663,7 +1693,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(Greenhouses, 4).expect("6 Plant, Animal")
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 9 position 4
-      convertPlants { placeTile(9, 8) }
+      convertPlants {
+        placeTile(9, 8)
+      }
     }
     // Player1 funded Thermalist award
     p1.turn {
@@ -1692,10 +1724,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
       sellPatents(4)
     }
     // Player2 used Penguins action
-    p2.turn { cardAction1(Penguins) }
+    p2.turn {
+      cardAction1(Penguins)
+    }
     // Player1 played Gene Repair
-    // Player1's megacredits production increased by 2
-    p1.turn { playProject(GeneRepair, 12).expect("PROD[2]") }
+    // Player1's mc production increased by 2
+    p1.turn {
+      playProject(GeneRepair, 12).expect("PROD[2 MC]")
+    }
     // Player2 passed
     p2.pass()
     // Player1 passed
@@ -1728,21 +1764,21 @@ internal class Game20230521Test : AbstractFullGameTest() {
     summ.net("$AquiferPumping", "OceanTile") shouldBe 6
     summ.net("$ArcticAlgae", "Plant") shouldBe 19
     summ.net("$OptimalAerobraking", "Resource") shouldBe 42
-    // summ.net("$SearchForLife", "Megacredit") shouldBe -4
+    // summ.net("$SearchForLife", "MC") shouldBe -4
     summ.net("$SearchForLife", "Science") shouldBe 0
 
     // This is just silly
-    summ.net("TR<Player1>", "Megacredit<Player1>") shouldBe 361
-    summ.net("TR<Player1>", "Megacredit") shouldBe 361
-    summ.net("TR", "Megacredit<Player1>") shouldBe 361
-    summ.net("TR<Player2>", "Megacredit<Player2>") shouldBe 356
-    summ.net("TR<Player2>", "Megacredit") shouldBe 356
-    summ.net("TR", "Megacredit<Player2>") shouldBe 356
+    summ.net("TR<Player1>", "MC<Player1>") shouldBe 361
+    summ.net("TR<Player1>", "MC") shouldBe 361
+    summ.net("TR", "MC<Player1>") shouldBe 361
+    summ.net("TR<Player2>", "MC<Player2>") shouldBe 356
+    summ.net("TR<Player2>", "MC") shouldBe 356
+    summ.net("TR", "MC<Player2>") shouldBe 356
 
-    summ.net("TR", "Megacredit") shouldBe 717
+    summ.net("TR", "MC") shouldBe 717
 
-    summ.net("TR<Player1>", "Megacredit<Player2>") shouldBe 0
-    summ.net("TR<Player2>", "Megacredit<Player1>") shouldBe 0
+    summ.net("TR<Player1>", "MC<Player2>") shouldBe 0
+    summ.net("TR<Player2>", "MC<Player1>") shouldBe 0
   }
 
   private fun checkSummaryAfterGen4(game: World) {
@@ -1763,13 +1799,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Manutech has delivered! 1 MC with NewPartner, 4 with AlliedBank, 3 with CorporateStronghold
     // ... plus of course 35 at game start
-    summer.net("$Manutech", "Megacredit<Player1>") shouldBe 43
+    summer.net("$Manutech", "MC<Player1>") shouldBe 43
 
     // Purple got 63 MC from TR (at production phases they had 20, 21, 22, and 24 TR)
-    summer.net("TerraformRating", "Megacredit<Player2>") shouldBe 87
-    summer.net("TerraformRating<Player2>", "Megacredit") shouldBe 87
-    summer.net("TerraformRating<Player2>", "Megacredit<Player2>") shouldBe 87
-    summer.net("TerraformRating", "Megacredit") shouldBe 183
+    summer.net("TerraformRating", "MC<Player2>") shouldBe 87
+    summer.net("TerraformRating<Player2>", "MC") shouldBe 87
+    summer.net("TerraformRating<Player2>", "MC<Player2>") shouldBe 87
+    summer.net("TerraformRating", "MC") shouldBe 183
 
     // Blue has raised temp 2 & venus 2, purple did temp & venus2 & ocean
     summer.net("GlobalParameter", "TR<Player1>") shouldBe 4

@@ -9,7 +9,7 @@ internal class SearchForLifeTest : CardTest() {
   internal fun `Scores three points when it has a science resource`() {
     newGame()
     engine.phase("Action")
-    p1.manual("$SearchForLife, 1")
+    p1.manual("$SearchForLife, 1 MC")
     p1.cardAction1(SearchForLife) { doTask("Science<$SearchForLife>") }
     engine.phase("End")
     p1.assertCounts(23 to "VictoryPoint")

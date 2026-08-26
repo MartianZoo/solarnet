@@ -13,11 +13,11 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
   internal fun `MSL Curiosity bonus is inert without Colonies`() {
     newGame(Cimmeria)
-    p1.manual("10")
+    p1.manual("10 MC")
 
     p1.manual("CityTile<Cimmeria_3_3>")
 
-    p1.count("Megacredit") shouldBe 10
+    p1.count("MC") shouldBe 10
     p1.count("Colony") shouldBe 0
   }
 
@@ -28,11 +28,11 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
         Cimmeria,
         colonyTiles = testColonyTiles(2),
     )
-    p1.manual("10")
+    p1.manual("10 MC")
 
     p1.manual("CityTile<Cimmeria_3_3>") { doTask("Colony<Luna>") }
 
-    p1.count("Megacredit") shouldBe 5
+    p1.count("MC") shouldBe 5
     p1.count("Colony<Luna>") shouldBe 1
   }
 
@@ -40,7 +40,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
   internal fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
     newGame(Utopia)
     val p2 = requireP2()
-    p1.manual("8, $Ecoline, $EarthCatapult, Asteroid")
+    p1.manual("8 MC, $Ecoline, $EarthCatapult, Asteroid")
     p2.manual("$Mine")
     engine.phase("Action")
 
@@ -55,7 +55,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
   internal fun `Suburbian rewards a tile on the map edge over an interior tile`() {
     newGame(Utopia)
     val p2 = requireP2()
-    p1.manual("8, CityTile<Utopia_1_1>")
+    p1.manual("8 MC, CityTile<Utopia_1_1>")
     p2.manual("CityTile<Utopia_5_5>")
     engine.phase("Action")
 
@@ -70,7 +70,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
   internal fun `Founder counts a tile once when it neighbors multiple opponents' special tiles`() {
     newGame(Cimmeria)
     val p2 = requireP2()
-    p1.manual("8, CityTile<Cimmeria_3_3>")
+    p1.manual("8 MC, CityTile<Cimmeria_3_3>")
     p2.manual("MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>")
     engine.phase("Action")
 
@@ -88,25 +88,25 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
   internal fun `Claims Metallurgist for combined metal production and Trader for three resource types`() {
     newGame(Utopia)
     p1.manual(
-        "16, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
+        "16 MC, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
             "$Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
     )
     engine.phase("Action")
 
-    p1.stdAction("ClaimMilestoneSA") { doTask("Metallurgist") }.expect("-8, Milestone")
-    p1.stdAction("ClaimMilestoneSA") { doTask("Trader") }.expect("-8, Milestone")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Metallurgist") }.expect("-8 MC, Milestone")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Trader") }.expect("-8 MC, Milestone")
 
     p1.assertCounts(2 to "Milestone")
   }
 
   @Test
-  internal fun `Fundraiser requires printed megacredit production of twelve`() {
+  internal fun `Fundraiser requires printed mc production of twelve`() {
     newGame(Cimmeria)
-    p1.manual("PROD[11 Megacredit]")
+    p1.manual("PROD[11 MC]")
 
     shouldThrow<RequirementException> { p1.manual("Fundraiser") }
 
-    p1.manual("PROD[Megacredit], Fundraiser")
+    p1.manual("PROD[1 MC], Fundraiser")
     p1.count("Fundraiser") shouldBe 1
   }
 }

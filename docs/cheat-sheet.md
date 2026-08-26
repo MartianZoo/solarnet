@@ -18,19 +18,19 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 
 * `Plant` means to gain a plant
 * `-Plant` means to remove one
-* `4` is a shortcut for `4 Megacredit`
+* `4` is a shortcut for `4 MC`
 * `Plant / PlantTag` means to gain a plant for each plant tag you have
 * `PROD[Plant / PlantTag]` means to increase plant production for each plant tag you have
 * `PROD[Plant OR (3 PlantTag: 4 Plant)]` means to increase plant production 1 step, or, if you have 3 plant tags, 4 steps
 * `2 Steel<Player1> FROM Steel<Player2>` or `2 Steel<Player1 FROM Player2>` means to transfer 2 steel directly from Player2 to Player1
 * `-2 Microbe<This> THEN PROD[Plant]` means to remove 2 microbes from that card; only you've done that, a new task will appear to increase your plant production
-* `-3 Megacredit.` (with a dot) means to lose 3 megacredits or as much of that amount as possible
+* `-3 MC.` (with a dot) means to lose 3 MC or as much of that amount as possible
 * `-6 Plant<Anyone>?` (with a question mark) means to remove *up to* 6 plants from any player (i.e., optional)
 * `Ok` means to do nothing, which is sometimes needed because instructions are mandatory
 
 ## other syntax
 
-* `Steel -> 5` is an action, meaning to spend one steel to gain 5 megacredits
-* `X Microbe<This> -> 3X` means to spend one or more microbes from this card to get 3 megacredits each
-* `CityTile<Anyone>: PROD[1]` is a triggered effect, meaning when anyone gains a city tile, you get a money production
+* `Steel -> 5` is an action, meaning to spend one steel to gain 5 MC
+* `X Microbe<This> -> 3X` means to spend one or more microbes from this card to get 3 MC each
+* `CityTile<Anyone>: PROD[1 MC]` is a triggered effect, meaning when anyone gains a city tile, you get a money production
 * A requirement of `MAX 5 OxygenStep` means the oxygen level must be 5% or lower to do the thing

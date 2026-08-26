@@ -495,7 +495,7 @@ CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. [CopyProdu
 HermeticOrderOfMars	Hermetic Order Of Mars	Requires that oxygen is 4% or lower. Increase your M€ production 2 steps. [1 / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)].
 HomeostasisBureau	Homeostasis Bureau	Increase your heat production 2 steps.	Effect: [TemperatureStep: 3].
 KaguyaTech	Kaguya Tech	Increase your M€ production 2 steps. Draw 1 card. [CityTile<LandArea> FROM GreeneryTile<LandArea>].
-MartianLumberCorp	Martian Lumber Corp	Requires 2 greenery tiles. Increase your plant production 1 step.	Effect: When you play a building tag, [-X Plant!], then [-3X Owed<Class<Megacredit>>.], or do nothing.
+MartianLumberCorp	Martian Lumber Corp	Requires 2 greenery tiles. Increase your plant production 1 step.	Effect: When you play a building tag, [-X Plant!], then [-3X Owed<Class<MC>>.], or do nothing.
 RedShips	Red Ships	Requires that oxygen is 4% or higher.	Action: [1 / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)].
 StJosephOfCupertinoMission	St Joseph Of Cupertino Mission	1 VP per [Cathedral<Anyone>].	Action: Spend 5 M€ (steel may be used) to [Cathedral<Anyone, CityTile<Anyone>>].
 Teslaract	Teslaract	Raise your terraform rating 1 step.	Action: Decrease your energy production 1 step to increase your plant production 1 step.

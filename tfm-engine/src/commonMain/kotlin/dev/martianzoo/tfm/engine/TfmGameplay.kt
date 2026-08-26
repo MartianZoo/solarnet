@@ -25,7 +25,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.canon.TfmClasses.MEGACREDIT
+import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE_CLASSES
 
 /**
@@ -81,7 +81,7 @@ public class TfmGameplay(
     doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
     if (count > 0) {
       if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
-      this@TfmGameplay.pay(megacredits = this@TfmGameplay.count("Owed"))
+      this@TfmGameplay.pay(mc = this@TfmGameplay.count("Owed"))
     }
     closeUnusedPaymentOffers()
   }
@@ -192,7 +192,9 @@ public class TfmGameplay(
 
   public fun stdProject(
       stdProject: String,
-      payment: BodyLambda = { doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>") },
+      payment: BodyLambda = {
+        doTask("Pay<Class<MC>> FROM MC / Owed<>")
+      },
       body: BodyLambda = {},
   ): TaskResult {
     return stdAction(stdProject, payment = payment, body = body)
@@ -212,10 +214,10 @@ public class TfmGameplay(
 
   public fun playProject(
       cardName: ClassName,
-      megacredits: Int = 0,
+      mc: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
-      payment: BodyLambda = { pay(megacredits, steel, titanium) },
+      payment: BodyLambda = { pay(mc, steel, titanium) },
       body: BodyLambda = {},
   ): TaskResult {
     return inTfmTurn {
@@ -267,7 +269,7 @@ public class TfmGameplay(
   }
 
   public fun pay(
-      megacredits: Int = 0,
+      mc: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
       plant: Int = 0,
@@ -339,11 +341,11 @@ public class TfmGameplay(
         }
 
         val owed = count("Owed")
-        if (megacredits > owed) {
-          throw LimitsException("Overpaying $megacredits MC when only $owed is owed")
+        if (mc > owed) {
+          throw LimitsException("Overpaying $mc MC when only $owed is owed")
         }
-        if (megacredits > 0) {
-          doTask("$megacredits Pay<Class<Megacredit>> FROM Megacredit")
+        if (mc > 0) {
+          doTask("$mc Pay<Class<MC>> FROM MC")
         }
 
         if (count("Owed") == 0) {
@@ -467,7 +469,7 @@ public class TfmGameplay(
       }
 
   public fun sellPatents(count: Int): TaskResult =
-      stdAction("SellPatents") { doTask("-$count ProjectCard<Hand>! THEN $count") }
+      stdAction("SellPatents") { doTask("-$count ProjectCard<Hand>! THEN $count MC") }
 
   public fun phase(phase: String, body: BodyLambda = {}) {
     if (count("Phase") != 1) {
@@ -482,7 +484,7 @@ public class TfmGameplay(
       standardResourceNames(reader).associateWith { production(it) }
 
   public fun production(kind: ClassName): Int =
-      count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
+      count("PROD[$kind]") - if (kind == MC || kind == cn("M")) 5 else 0
 
   public fun oxygenPercent(): Int = count("OxygenStep")
 

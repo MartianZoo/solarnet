@@ -60,7 +60,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
               CorporateStronghold,
           )
         }
-        .expect("PROD[-2 Megacredit<JR>, -2 Megacredit<ER>]")
+        .expect("PROD[-2 MC<JR>, -2 MC<ER>]")
 
     // Player-record evidence: ER rejected Factorum and Viron; Mohole and Huge Asteroid; and Meat
     // Industry, Supercapacitors, Orbital Cleanup, Ice Cap Melting, and Towing A Comet.
@@ -83,8 +83,10 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
 
     KB.turn {
-      playPrelude(ResearchNetwork) { draw(ResearchOutpost, RestrictedArea, AcquiredCompany) }
-          .expect("PROD[1], WildTag")
+      playPrelude(ResearchNetwork) {
+            draw(ResearchOutpost, RestrictedArea, AcquiredCompany)
+          }
+          .expect("PROD[1 MC], WildTag")
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
       playPrelude(FakeEstablishedMethods) {
@@ -93,7 +95,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
             doTask("UseAction<PowerPlantSP, First>")
             pay(11)
           }
-          .expect("8")
+          .expect("8 MC")
     }
 
     ER.turn {
@@ -103,9 +105,9 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       playPrelude(AquiferTurbines) { placeTile(4, 7) }.expect("PROD[2 Energy], Plant")
     }
 
-    JR.stdAction("HandleMandates") { placeTile(5, 6) }.expect("3 Plant, 3, PROD[1]")
+    JR.stdAction("HandleMandates") { placeTile(5, 6) }.expect("3 Plant, 3 MC, PROD[1 MC]")
     JR.playProject(MethaneFromTitan, 28)
-    KB.playProject(ResearchOutpost, 18) { placeTile(5, 3) }.expect("PROD[Megacredit<JR>]")
+    KB.playProject(ResearchOutpost, 18) { placeTile(5, 3) }.expect("PROD[1 MC<JR>]")
     KB.playProject(AcquiredCompany, 9)
     ER.playProject(IndustrialCenter, 4) { placeTile(4, 8) }.expect("Plant, Steel")
     ER.cardAction1(IndustrialCenter)
@@ -137,7 +139,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
     JR.playProject(Pets, 10)
     KB.assignWildTag(ResearchNetwork, "BuildingTag")
-    KB.playProject(StaticHarvesting, 4).expect("-1")
+    KB.playProject(StaticHarvesting, 4).expect("-1 MC")
     KB.stdAction("ClaimMilestoneSA") { doTask("Energizer") }
     ER.cardAction1(IndustrialCenter)
     ER.declineSecondAction()
@@ -201,10 +203,10 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.playProject(InterplanetaryTrade, 21, titanium = 2)
     JR.declineSecondAction()
     KB.playProject(AdaptedLichen, 8)
-    KB.playProject(Hackers, 2) { doTask("PROD[-2 Megacredit<JR>]") }
+    KB.playProject(Hackers, 2) { doTask("PROD[-2 MC<JR>]") }
     // User recollection: ER used all eight titanium and retained 11 M€ after this play.
     ER.playProject(WaterImportFromEuropa, 1, titanium = 8)
-    ER.assertCounts(11 to "Megacredit", 0 to "Titanium")
+    ER.assertCounts(11 to "MC", 0 to "Titanium")
     // Test inference: Deep Well Heating is the only never-played card in ER's hand here.
     ER.sellPatents(DeepWellHeating)
     JR.pass()
@@ -229,7 +231,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.stdAction("ClaimMilestoneSA") { doTask("Philantropist") }
     JR.playProject(SpaceElevator, 27)
     KB.playProject(HiredRaiders, 0) { doTask("2 Steel<KB> FROM Steel<ER>") }
-        .expect("-3 Megacredit<KB>, 3 Megacredit<ER>")
+        .expect("-3 MC<KB>, 3 MC<ER>")
     KB.playProject(TitaniumMine, 2, steel = 2)
     ER.playProject(DustSeals, 2)
     ER.playProject(Sponsors, 6)
@@ -242,7 +244,10 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       ER.pay(titanium = 4)
       placeTile(5, 4)
     }
-    ER.playProject(CommercialDistrict, 0, steel = 8) { placeTile(4, 3) }.expect("4, Plant")
+    ER.playProject(CommercialDistrict, 0, steel = 8) {
+          placeTile(4, 3)
+        }
+        .expect("4 MC, Plant")
     JR.pass()
     KB.cardAction1(EquatorialMagnetizer)
     KB.declineSecondAction()
@@ -337,18 +342,18 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.convertHeat()
     ER.playProject(MediaGroup, 6)
     ER.playProject(AsteroidCard, 2, titanium = 3) { doTask("-3 Plant<JR>") }
-        .expect("-3 Megacredit<KB>, 3 Megacredit<JR>")
+        .expect("-3 MC<KB>, 3 MC<JR>")
     JR.pass()
     engine.assertCounts(8 to "TemperatureStep")
     KB.playProject(DesignedMicroorganisms, 15)
     KB.convertHeat()
     ER.playProject(SolarWindPower, 3, titanium = 2).expect("0 Titanium")
-    ER.cardAction1(RedShips).expect("8")
+    ER.cardAction1(RedShips).expect("8 MC")
     // Consequence reconstruction: KB lost two plants.
     KB.playProject(Potatoes, 1)
     KB.sellPatents(IndustrialMicrobes)
     ER.playProject(SubterraneanReservoir, 11) { placeTile(2, 5) }
-    ER.playProject(MirandaResort, 4, titanium = 2).expect("-4, -2 Titanium")
+    ER.playProject(MirandaResort, 4, titanium = 2).expect("-4 MC, -2 Titanium")
     KB.pass()
     // Test inference: Cyberia Systems is ER's only unplayed card not needed later.
     ER.sellPatents(CyberiaSystems)
@@ -456,7 +461,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(BioPrintingFacility) { addCardResources(SmallAnimals) }
     JR.stdProject("GreenerySP") { placeTile(4, 2) }
     JR.declineSecondAction()
-    KB.playProject(InventionContest, megacredits = 0) {
+    KB.playProject(InventionContest, mc = 0) {
       KB.draw(MartianRails, ImportedNutrients)
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
@@ -472,10 +477,10 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
           doTask("Revealed")
           doTask("14 ProjectCard<Revealed FROM Hand>")
         }
-        .expect("10")
+        .expect("10 MC")
     KB.playProject(Ants, 6)
     ER.cardAction1(RedShips)
-    ER.playProject(PublicBaths, megacredits = 0, steel = 2)
+    ER.playProject(PublicBaths, mc = 0, steel = 2)
     KB.cardAction1(Ants)
     KB.stdAction("FundAwardSA", which = 3) { doTask("Benefactor") }
     ER.sellPatents(SpecialDesign)

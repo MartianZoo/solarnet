@@ -112,7 +112,7 @@ public object Parsing {
       expectedTypeDesc: String? = null,
   ): T {
     try {
-      return parser.parseToEnd(matches)
+      return parser.parseToEnd(matches).also(::rejectUnsupportedSyntax)
     } catch (e: ParseException) {
       val tokenDesc =
           matches
@@ -131,6 +131,18 @@ public object Parsing {
       )
     } catch (e: RuntimeException) {
       throw PetSyntaxException("Invalid Pets syntax: $source", e)
+    }
+  }
+
+  private fun rejectUnsupportedSyntax(parsed: Any?) {
+    when (parsed) {
+      is ClassDeclaration -> parsed.allNodes.forEach(::rejectUnsupportedSyntax)
+      is PetNode ->
+          parsed.visitDescendants {
+            (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
+            true
+          }
+      is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)
     }
   }
 

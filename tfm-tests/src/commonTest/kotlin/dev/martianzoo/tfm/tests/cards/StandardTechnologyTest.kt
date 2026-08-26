@@ -18,18 +18,18 @@ internal class StandardTechnologyTest : CardTest() {
 
   @Test
   internal fun `Rebate cannot fund the triggering standard project`() {
-    p1.manual("8 Megacredit")
+    p1.manual("8 MC")
 
     shouldThrow<LimitsException> { p1.stdProject("PowerPlantSP") }
 
-    p1.assertCounts(8 to "Megacredit", 0 to "Owed", 0 to "Invoice")
+    p1.assertCounts(8 to "MC", 0 to "Owed", 0 to "Invoice")
     p1.assertProds(0 to "Energy")
   }
 
   @Test
   internal fun `Awards the rebate after paying for a standard project`() {
-    p1.manual("11 Megacredit")
+    p1.manual("11 MC")
 
-    p1.stdProject("PowerPlantSP").expect("-8 Megacredit, PROD[Energy]")
+    p1.stdProject("PowerPlantSP").expect("-8 MC, PROD[Energy]")
   }
 }

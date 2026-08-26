@@ -268,23 +268,23 @@ internal class CardDefinitionTest {
                 name = "CardAreaSource",
                 immediate =
                     "CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>], " +
-                        "CARDS[2 / ProjectCard<Hand>], " +
-                        "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X], " +
-                        "CARDS[1 / CardBack<EventPile, Anyone>]",
+                        "CARDS[2 MC / ProjectCard<Hand>], " +
+                        "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC], " +
+                        "CARDS[MC / CardBack<EventPile, Anyone>]",
             )
         )
 
     card.immediate.toString() shouldBe
         "CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>], " +
-            "CARDS[2 / ProjectCard<Hand>], " +
-            "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X], " +
-            "CARDS[1 / CardBack<EventPile, Anyone>]"
+            "CARDS[2 MC / ProjectCard<Hand>], " +
+            "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC], " +
+            "CARDS[MC / CardBack<EventPile, Anyone>]"
     card.asClassDeclaration.effects.shouldContainExactly(
         parse<Effect>(
             "This: Selecting THEN (3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>> THEN -Selecting), " +
-                "2 / ProjectCard<Hand>, " +
-                "(Revealed THEN X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X THEN -Revealed) OR Ok, " +
-                "1 / PlayedEvent<Anyone>"
+                "2 MC / ProjectCard<Hand>, " +
+                "(Revealed THEN X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC THEN -Revealed) OR Ok, " +
+                "MC / PlayedEvent<Anyone>"
         )
     )
   }
@@ -490,7 +490,7 @@ internal class CardDefinitionTest {
         CardDefinition(
             CardData(
                 name = "GenericMicrobeCard",
-                effects = listOf("MicrobeTag<CardFront>: Microbe<CardFront> OR 2"),
+                effects = listOf("MicrobeTag<CardFront>: Microbe<CardFront> OR 2 MC"),
             )
         )
 

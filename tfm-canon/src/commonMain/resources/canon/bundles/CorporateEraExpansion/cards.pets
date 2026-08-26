@@ -3,15 +3,15 @@ CLASS SaturnSystems : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: JovianTag<This>
-  This: 42, PROD[Titanium]
-  JovianTag<Anyone, CardFront<Anyone>>: PROD[1]
+  This: 42 MC, PROD[Titanium]
+  JovianTag<Anyone, CardFront<Anyone>>: PROD[1 MC]
 }
 
 CLASS Teractor : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 60
+  This: 60 MC
   PlayTag<Class<EarthTag>>:: -3 Owed<>
 }
 
@@ -39,7 +39,7 @@ CLASS SpaceElevator : ActionCard, ActiveCard<Class<ProjectCard>> {
   This: PROD[Titanium]
   End: 2 VictoryPoint
 
-  Steel -> 5
+  Steel -> 5 MC
 }
 
 CLASS DevelopmentCenter : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -80,7 +80,7 @@ CLASS LightningHarvest : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "3 ScienceTag"
 
   This:: PowerTag<This>
-  This: PROD[Energy, 1]
+  This: PROD[Energy, 1 MC]
   End: VictoryPoint
 }
 
@@ -104,7 +104,7 @@ CLASS MirandaResort : AutomatedCard<Class<ProjectCard>> {
   cost = 12
 
   This:: JovianTag<This>, SpaceTag<This>
-  This: PROD[1 / EarthTag]
+  This: PROD[1 MC / EarthTag]
   End: VictoryPoint
 }
 
@@ -162,7 +162,7 @@ CLASS Sponsors : AutomatedCard<Class<ProjectCard>> {
   cost = 6
 
   This:: EarthTag<This>
-  This: PROD[2]
+  This: PROD[2 MC]
 }
 
 CLASS ElectroCatapult : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -173,8 +173,8 @@ CLASS ElectroCatapult : ActionCard, ActiveCard<Class<ProjectCard>> {
   This: PROD[-Energy]
   End: VictoryPoint
 
-  Plant -> 7
-  Steel -> 7
+  Plant -> 7 MC
+  Steel -> 7 MC
 }
 
 CLASS EarthCatapult : ActiveCard<Class<ProjectCard>> {
@@ -220,7 +220,7 @@ CLASS CallistoPenalMines : AutomatedCard<Class<ProjectCard>> {
   cost = 24
 
   This:: JovianTag<This>, SpaceTag<This>
-  This: PROD[3]
+  This: PROD[3 MC]
   End: 2 VictoryPoint
 }
 
@@ -235,7 +235,7 @@ CLASS CommercialDistrict : AutomatedCard<Class<ProjectCard>> {
   cost = 16
 
   This:: BuildingTag<This>
-  This: PROD[-Energy, 4], SpecialTile<> {}
+  This: PROD[-Energy, 4 MC], SpecialTile<> {}
   End: VictoryPoint / Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>
 }
 
@@ -259,7 +259,7 @@ CLASS GeneRepair : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "3 ScienceTag"
 
   This:: ScienceTag<This>
-  This: PROD[2]
+  This: PROD[2 MC]
   End: 2 VictoryPoint
 }
 
@@ -267,7 +267,7 @@ CLASS IoMiningIndustries : AutomatedCard<Class<ProjectCard>> {
   cost = 41
 
   This:: JovianTag<This>, SpaceTag<This>
-  This: PROD[2 Titanium, 2]
+  This: PROD[2 Titanium, 2 MC]
   End: VictoryPoint / JovianTag
 }
 
@@ -293,7 +293,7 @@ CLASS TropicalResort : AutomatedCard<Class<ProjectCard>> {
   cost = 13
 
   This:: BuildingTag<This>
-  This: PROD[-2 Heat, 3]
+  This: PROD[-2 Heat, 3 MC]
   End: 2 VictoryPoint
 }
 
@@ -301,7 +301,7 @@ CLASS TollStation : AutomatedCard<Class<ProjectCard>> {
   cost = 12
 
   This:: SpaceTag<This>
-  This: PROD[1 / SpaceTag<!Owner>]
+  This: PROD[1 MC / SpaceTag<!Owner>]
 }
 
 CLASS EarthOffice : ActiveCard<Class<ProjectCard>> {
@@ -315,28 +315,28 @@ CLASS AcquiredCompany : AutomatedCard<Class<ProjectCard>> {
   cost = 10
 
   This:: EarthTag<This>
-  This: PROD[3]
+  This: PROD[3 MC]
 }
 
 CLASS MediaArchives : AutomatedCard<Class<ProjectCard>> {
   cost = 8
 
   This:: EarthTag<This>
-  This: CARDS[1 / CardBack<EventPile, Anyone>]
+  This: CARDS[1 MC / CardBack<EventPile, Anyone>]
 }
 
 CLASS MediaGroup : ActiveCard<Class<ProjectCard>> {
   cost = 6
 
   This:: EarthTag<This>
-  EventCard: 3
+  EventCard: 3 MC
 }
 
 CLASS BusinessNetwork : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 4
 
   This:: EarthTag<This>
-  This: PROD[-1]
+  This: PROD[-1 MC]
 
   -> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]
 }
@@ -360,7 +360,7 @@ CLASS Sabotage : EventCard<Class<ProjectCard>> {
   cost = 1
 
   This:: EventTag<This>
-  This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?
+  This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 MC<Anyone>?
 }
 
 CLASS IndustrialCenter : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -369,20 +369,20 @@ CLASS IndustrialCenter : ActionCard, ActiveCard<Class<ProjectCard>> {
   This:: BuildingTag<This>
   This: SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)> {}
 
-  7 -> PROD[Steel]
+  7 MC -> PROD[Steel]
 }
 
 CLASS HiredRaiders : EventCard<Class<ProjectCard>> {
   cost = 1
 
   This:: EventTag<This>
-  This: 2 Steel<Owner FROM Anyone>? OR 3 Megacredit<Owner FROM Anyone>?
+  This: 2 Steel<Owner FROM Anyone>? OR 3 MC<Owner FROM Anyone>?
 }
 
 CLASS Hackers : AutomatedCard<Class<ProjectCard>> {
   cost = 3
 
-  This: PROD[-Energy, -2 Megacredit<Anyone>, 2]
+  This: PROD[-Energy, -2 MC<Anyone>, 2 MC]
   End: -VictoryPoint
 }
 
@@ -390,7 +390,7 @@ CLASS Cartel : AutomatedCard<Class<ProjectCard>> {
   cost = 8
 
   This:: EarthTag<This>
-  This: PROD[1 / EarthTag]
+  This: PROD[1 MC / EarthTag]
 }
 
 CLASS TitaniumMine : AutomatedCard<Class<ProjectCard>> {
@@ -420,7 +420,7 @@ CLASS InvestmentLoan : EventCard<Class<ProjectCard>> {
   cost = 3
 
   This:: EarthTag<This>, EventTag<This>
-  This: PROD[-1], 10
+  This: PROD[-1 MC], 10 MC
 }
 
 CLASS CaretakerContract : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -434,7 +434,7 @@ CLASS StandardTechnology : ActiveCard<Class<ProjectCard>> {
   cost = 6
 
   This:: ScienceTag<This>
-  -Invoice<StandardProject>: 3
+  -Invoice<StandardProject>: 3 MC
 }
 
 CLASS PowerSupplyConsortium : AutomatedCard<Class<ProjectCard>> {
@@ -455,21 +455,21 @@ CLASS Satellites : AutomatedCard<Class<ProjectCard>> {
   cost = 10
 
   This:: SpaceTag<This>
-  This: PROD[1 / SpaceTag]
+  This: PROD[1 MC / SpaceTag]
 }
 
 CLASS FuelFactory : AutomatedCard<Class<ProjectCard>> {
   cost = 6
 
   This:: BuildingTag<This>
-  This: PROD[-Energy, Titanium, 1]
+  This: PROD[-Energy, Titanium, 1 MC]
 }
 
 CLASS CorporateStronghold : AutomatedCard<Class<ProjectCard>> {
   cost = 11
 
   This:: CityTag<This>, BuildingTag<This>
-  This: PROD[-Energy, 3], CityTile<>
+  This: PROD[-Energy, 3 MC], CityTile<>
   End: -2 VictoryPoint
 }
 
@@ -485,7 +485,7 @@ CLASS RadSuits : AutomatedCard<Class<ProjectCard>> {
   cost = 6
   requirement = HAS "2 CityTile<Anyone>"
 
-  This: PROD[1]
+  This: PROD[1 MC]
   End: VictoryPoint
 }
 
@@ -501,7 +501,7 @@ CLASS PowerInfrastructure : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This:: PowerTag<This>, BuildingTag<This>
 
-  X Energy -> X
+  X Energy -> X MC
 }
 
 CLASS IndenturedWorkers : EventCard<Class<ProjectCard>> {
@@ -534,7 +534,7 @@ CLASS RestrictedArea : ActionCard, ActiveCard<Class<ProjectCard>> {
   This:: ScienceTag<This>
   This: SpecialTile<> {}
 
-  2 -> ProjectCard
+  2 MC -> ProjectCard
 }
 
 CLASS EnergyTapping : AutomatedCard<Class<ProjectCard>> {
@@ -556,7 +556,7 @@ CLASS MedicalLab : AutomatedCard<Class<ProjectCard>> {
   cost = 13
 
   This:: ScienceTag<This>, BuildingTag<This>
-  This: PROD[1 / 2 BuildingTag]
+  This: PROD[1 MC / 2 BuildingTag]
   End: VictoryPoint
 }
 

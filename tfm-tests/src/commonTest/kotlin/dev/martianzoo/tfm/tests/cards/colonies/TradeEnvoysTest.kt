@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class TradeEnvoysTest : ColoniesCardTest() {
   @Test
   internal fun `Raises the track before trade income`() {
-    p1.manual("ProjectCard, 15")
+    p1.manual("ProjectCard, 15 MC")
     p1.playProject(TradeEnvoys, 6)
     engine.manual("3 ColonyProduction<Luna>")
 
@@ -19,7 +19,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
     p1.assertCounts(
         0 to "ColonyProduction<Luna>",
-        13 to "Megacredit",
+        13 to "MC",
     )
   }
 
@@ -35,13 +35,13 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
     p1.assertCounts(
         1 to "Floater<$TitanFloatingLaunchPad>",
-        13 to "Megacredit",
+        13 to "MC",
     )
   }
 
   @Test
   internal fun `Does not increase a maxed track`() {
-    p1.manual("$TradeEnvoys, 9")
+    p1.manual("$TradeEnvoys, 9 MC")
     engine.manual("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
 
@@ -49,13 +49,13 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
     p1.assertCounts(
         0 to "ColonyProduction<Luna>",
-        17 to "Megacredit",
+        17 to "MC",
     )
   }
 
   @Test
   internal fun `Trading Colony may decline the shared track increase`() {
-    p1.manual("ProjectCard, 30")
+    p1.manual("ProjectCard, 30 MC")
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
       placeTile(1, 2)
@@ -76,7 +76,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
   @Test
   internal fun `All track decisions precede the trade when both cards are active`() {
-    p1.manual("2 ProjectCard, 50")
+    p1.manual("2 ProjectCard, 50 MC")
     p1.playProject(TradeEnvoys, 6)
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")

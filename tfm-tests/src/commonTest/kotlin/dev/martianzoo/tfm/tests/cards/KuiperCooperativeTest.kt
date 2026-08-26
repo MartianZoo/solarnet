@@ -21,7 +21,7 @@ internal class KuiperCooperativeTest : CardTest() {
 
   @Test
   internal fun `Starts with money and titanium production`() {
-    p1.assertCounts(33 to "Megacredit", 1 to "PROD[Titanium]")
+    p1.assertCounts(33 to "MC", 1 to "PROD[Titanium]")
   }
 
   @Test
@@ -37,15 +37,17 @@ internal class KuiperCooperativeTest : CardTest() {
             "AsteroidSP",
             payment = { payWithKuiperAsteroids(this) },
         )
-        .expect("-2 Asteroid<$KuiperCooperative>, -12 Megacredit, TemperatureStep")
+        .expect("-2 Asteroid<$KuiperCooperative>, -12 MC, TemperatureStep")
   }
 
   @Test
   internal fun `Asteroids can help pay for an aquifer standard project`() {
     p1.cardAction1(KuiperCooperative)
 
-    p1.stdProject("AquiferSP", payment = { payWithKuiperAsteroids(this) }) { placeTile(1, 2) }
-        .expect("-2 Asteroid<$KuiperCooperative>, -16 Megacredit, OceanTile, TerraformRating")
+    p1.stdProject("AquiferSP", payment = { payWithKuiperAsteroids(this) }) {
+          placeTile(1, 2)
+        }
+        .expect("-2 Asteroid<$KuiperCooperative>, -16 MC, OceanTile, TerraformRating")
   }
 
   @Test
@@ -64,13 +66,15 @@ internal class KuiperCooperativeTest : CardTest() {
     shouldThrow<TaskException> {
       p1.stdProject(
           "AsteroidSP",
-          payment = { doTask("PayFromCard<$KuiperCooperative> FROM Asteroid<$AstroDrill>") },
+          payment = {
+            doTask("PayFromCard<$KuiperCooperative> FROM Asteroid<$AstroDrill>")
+          },
       )
     }
   }
 
   private fun payWithKuiperAsteroids(body: OperationBody) {
     body.doTask("2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>")
-    body.doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
+    body.doTask("Pay<Class<MC>> FROM MC / Owed<>")
   }
 }

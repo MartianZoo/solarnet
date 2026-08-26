@@ -10,10 +10,11 @@ internal class HermeticOrderOfMarsTest : CardTest() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual(
-        "10, ProjectCard, CityTile<Tharsis_1_1>, CityTile<Tharsis_2_1>, " + "CityTile<Tharsis_2_2>"
+        "10 MC, ProjectCard, CityTile<Tharsis_1_1>, CityTile<Tharsis_2_1>, " +
+            "CityTile<Tharsis_2_2>"
     )
     requireP2().manual("OceanTile<Tharsis_1_2>, CityTile<Tharsis_3_2>")
 
-    p1.playProject(HermeticOrderOfMars, 10).expect("PROD[2]")
+    p1.playProject(HermeticOrderOfMars, 10).expect("PROD[2 MC]")
   }
 }

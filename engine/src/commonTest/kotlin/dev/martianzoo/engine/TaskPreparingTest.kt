@@ -84,9 +84,11 @@ internal class TaskPreparingTest {
     initiate("PROD[-2 StandardResource]")
     gameplay.prepareTask("PROD[-2 StandardResource]")
 
-    tasksAsText().shouldContainExactlyInAnyOrder("-2 Production<Player1, Class<Megacredit>>!")
-    shouldThrow<NarrowingException> { gameplay.reviseTask("PROD[-2]", "PROD[-2 Plant]") }
-    gameplay.reviseTask("PROD[-2]", "PROD[-2]")
+    tasksAsText().shouldContainExactlyInAnyOrder("-2 Production<Player1, Class<MC>>!")
+    shouldThrow<NarrowingException> {
+      gameplay.reviseTask("PROD[-2 MC]", "PROD[-2 Plant]")
+    }
+    gameplay.reviseTask("PROD[-2 MC]", "PROD[-2 MC]")
   }
 
   @Test

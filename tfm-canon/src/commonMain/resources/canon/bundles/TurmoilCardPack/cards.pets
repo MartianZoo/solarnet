@@ -3,16 +3,16 @@ CLASS LakefrontResorts : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 54
-  OceanTile BY Anyone: PROD[1]
-  ForwardAdjacency<OceanTile, Tile>: 1
+  This: 54 MC
+  OceanTile BY Anyone: PROD[1 MC]
+  ForwardAdjacency<OceanTile, Tile>: 1 MC
 }
 
 CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
   cost = 0
 
-  This: 53, -2 TerraformRating
-  ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6
+  This: 53 MC, -2 TerraformRating
+  ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC
   End: VictoryPoint / Preservation<This>
 }
 
@@ -20,14 +20,14 @@ CLASS TerraLabsResearch : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: ScienceTag<This>, EarthTag<This>
-  This: 14, -TerraformRating
+  This: 14 MC, -TerraformRating
   BuyCard:: -2 Owed<>
 }
 
 CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
   cost = 0
 
-  This: 40, PROD[Steel, Titanium]
+  This: 40 MC, PROD[Steel, Titanium]
 
   PROD[StandardResource] -> 4 StandardResource
 }

@@ -30,7 +30,7 @@ internal class MergerTest : CardTest() {
     p1.stdAction("HandleMandates") {
       p1.assertCounts(8 to "ProjectCard", 1 to "PreludeCard")
       p1.assertProds(
-          0 to "Megacredit",
+          0 to "MC",
           0 to "Steel",
           0 to "Titanium",
           0 to "Plant",
@@ -40,7 +40,7 @@ internal class MergerTest : CardTest() {
 
       doTask("PlayCard<Class<PreludeCard>, Class<$SocietySupport>>")
       p1.assertProds(
-          -1 to "Megacredit",
+          -1 to "MC",
           0 to "Steel",
           0 to "Titanium",
           1 to "Plant",
@@ -76,8 +76,8 @@ internal class MergerTest : CardTest() {
     p1.playPrelude(Merger) { doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>") }
 
     p1.manual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards") {
-          p1.pay(megacredits = 3)
+          p1.pay(mc = 3)
         }
-        .expect("ProjectCard, -3 Megacredit")
+        .expect("ProjectCard, -3 MC")
   }
 }

@@ -12,25 +12,23 @@ internal class InsulationTest : CardTest() {
   fun initializeGame() {
     newGame()
     engine.phase("Action")
-    p1.manual("2, ProjectCard, PROD[-1, 3 Heat]")
+    p1.manual("2 MC, ProjectCard, PROD[-1 MC, 3 Heat]")
   }
 
   @Test
   internal fun `Can be played with heat production`() {
-    p1.playProject(Insulation, 2) { doTask("PROD[Megacredit FROM Heat]") }
-        .expect("PROD[Megacredit, -Heat]")
+    p1.playProject(Insulation, 2) { doTask("PROD[1 MC FROM Heat]") }.expect("PROD[1 MC, -Heat]")
   }
 
   @Test
   internal fun `Can convert two of three heat production`() {
-    p1.playProject(Insulation, 2) { doTask("PROD[2 Megacredit FROM Heat]") }
-        .expect("PROD[2 Megacredit, -2 Heat]")
+    p1.playProject(Insulation, 2) { doTask("PROD[2 MC FROM Heat]") }.expect("PROD[2 MC, -2 Heat]")
   }
 
   @Test
   internal fun `Cannot convert zero heat production`() {
     p1.playProject(Insulation, 2) {
-      shouldThrow<PetSyntaxException> { doTask("PROD[0 Megacredit FROM Heat]") }
+      shouldThrow<PetSyntaxException> { doTask("PROD[0 MC FROM Heat]") }
       abort()
     }
   }
@@ -46,7 +44,9 @@ internal class InsulationTest : CardTest() {
   @Test
   internal fun `Cannot convert another player's production`() {
     p1.playProject(Insulation, 2) {
-      shouldThrow<NarrowingException> { doTask("PROD[2 Megacredit<Player2> FROM Heat<Player2>]") }
+      shouldThrow<NarrowingException> {
+        doTask("PROD[2 MC<Player2> FROM Heat<Player2>]")
+      }
       abort()
     }
   }

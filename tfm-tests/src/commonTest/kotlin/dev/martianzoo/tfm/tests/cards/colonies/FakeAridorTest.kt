@@ -12,7 +12,7 @@ internal class FakeAridorTest : CardTest() {
   @Test
   internal fun `mandate adds one selected colony tile`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.playCorp(FakeAridor, 0).expect("40")
+    p1.playCorp(FakeAridor, 0).expect("40 MC")
     p1.assertCounts(1 to "Mandate")
 
     engine.phase("Action")

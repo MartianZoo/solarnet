@@ -1,6 +1,6 @@
 "Terra Cimmeria's MSL Curiosity placement bonus; its colony branch exists only with Colonies"
 CLASS TcColonyBonus : Signal {
-  This IF ColoniesExpansion: Colony<>, -5
+  This IF ColoniesExpansion: Colony<>, -5 MC
 }
 
 ABSTRACT CLASS UtopiaMilestone : Milestone {
@@ -25,7 +25,7 @@ ABSTRACT CLASS CimmeriaMilestone : Milestone {
   CLASS Coastguard { requirement = HAS "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
   CLASS Forester { requirement = HAS "PROD[3 Plant]" }
   // Search for GrossHack to understand this nonsense.
-  CLASS Fundraiser { requirement = HAS "PROD[12 (Megacredit - 5)]" }
+  CLASS Fundraiser { requirement = HAS "PROD[12 (MC - 5)]" }
 }
 
 ABSTRACT CLASS CimmeriaAward : Award {

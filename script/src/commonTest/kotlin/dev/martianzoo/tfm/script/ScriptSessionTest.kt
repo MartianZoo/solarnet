@@ -267,8 +267,8 @@ internal class ScriptSessionTest {
         """
         newgame BRVPX 2; mode blue; auto safe; phase Corporation
 
-        become Player1; turn; tfm_play Manutech; task -5 ProjectCard<Selecting>; task 15 Pay<Class<Megacredit>> FROM Megacredit
-        become Player2; turn; tfm_play Factorum; task -6 ProjectCard<Selecting>; task 12 Pay<Class<Megacredit>> FROM Megacredit
+        become Player1; turn; tfm_play Manutech; task -5 ProjectCard<Selecting>; task 15 Pay<Class<MC>> FROM MC
+        become Player2; turn; tfm_play Factorum; task -6 ProjectCard<Selecting>; task 12 Pay<Class<MC>> FROM MC
 
         phase Prelude
 
@@ -283,7 +283,7 @@ internal class ScriptSessionTest {
         phase Action
 
         become Player1
-        turn; task UseAction<PlayCardSA, First>; tfm_play InventorsGuild; tfm_pay 9
+        turn; task UseAction<PlayCardSA, First>; tfm_play InventorsGuild; tfm_pay 9 MC
         """
             .trimIndent()
             .split(Regex(" *[\n;] *"))
@@ -325,11 +325,11 @@ internal class ScriptSessionTest {
 
     assertEquals(
         listOf(
-                "+5 Production<Player2, Class<Megacredit>> BY Player2 (manual)",
+                "+5 Production<Player2, Class<MC>> BY Player2 (manual)",
                 "+4 Production<Player2, Class<Energy>> BY Player2 (manual)",
             )
             .sorted(),
-        strip(repl.command("exec PROD[5, 4 Energy]")).sorted(),
+        strip(repl.command("exec PROD[5 MC, 4 Energy]")).sorted(),
     )
     val byCard = "BY Player2 VIA StripMine<Player2>"
     assertEquals(
@@ -360,8 +360,8 @@ internal class ScriptSessionTest {
   internal fun testBoard() {
     val repl = ScriptSession()
     repl.command("become Player1")
-    repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
-    repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
+    repl.command("exec PROD[9 MC, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
+    repl.command("exec 8 MC, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
     val board =
         PlayerBoardToText(

@@ -15,7 +15,7 @@ internal class TilePlacingTest {
     val game = setUpGame()
     with(game.tfm(PLAYER2)) {
       phase("Action")
-      godMode().manual("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25")
+      godMode().manual("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
       assertFailsWith<NarrowingException> {
         stdProject("CitySP") { doTask("CityTile<Tharsis_3_4>") }
       }
@@ -36,7 +36,7 @@ internal class TilePlacingTest {
     val game = setUpGame()
 
     with(game.tfm(PLAYER1)) {
-      godMode().sneak("100")
+      godMode().sneak("100 MC")
       phase("Action")
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_3>") }
       assertFailsWith<NarrowingException> {
@@ -62,7 +62,7 @@ internal class TilePlacingTest {
     val p2 = game.tfm(PLAYER2)
 
     // Player1 has greenery next to south pole
-    p1.godMode().manual("4, GreeneryTile<Hellas_9_8>")
+    p1.godMode().manual("4 MC, GreeneryTile<Hellas_9_8>")
 
     // Player2 completely surrounds it except for south pole (Hellas_9_7)
     p2.godMode()
@@ -89,7 +89,7 @@ internal class TilePlacingTest {
       doTask("GreeneryTile<Hellas_9_7>")
       doTask("OceanTile<Hellas_4_6>")
     }
-    assertEquals(0, p1.count("Megacredit"))
+    assertEquals(0, p1.count("MC"))
     assertEquals(1, p1.count("GreeneryTile<Hellas_9_7>"))
   }
 
@@ -100,7 +100,7 @@ internal class TilePlacingTest {
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      godMode().manual("666, CityTile<Tharsis_8_6>") // shown as [] in comment below
+      godMode().manual("666 MC, CityTile<Tharsis_8_6>") // shown as [] in comment below
 
       // try to fool it by having an opponent tile at the XX below
       godMode().manual("CityTile<Player2, Tharsis_6_7>")

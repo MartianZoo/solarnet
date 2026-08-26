@@ -48,11 +48,11 @@ internal class SoloGenerationCountdownTest {
     player.count("StandardSoloVariant") shouldBe 0
     game.classTable.isActive(cn("BufferGasSP")) shouldBe true
 
-    player.godMode().manual("16 Megacredit")
+    player.godMode().manual("16 MC")
     player.godMode().manual("UseAction<BufferGasSP, First>") {
-      doTask("16 Pay<Class<Megacredit>> FROM Megacredit")
+      doTask("16 Pay<Class<MC>> FROM MC")
     }
-    player.count("Megacredit<Me>") shouldBe 0
+    player.count("MC<Me>") shouldBe 0
     player.count("TerraformRating<Me>") shouldBe 15
 
     player.godMode().manual("48 TerraformRating")

@@ -12,13 +12,13 @@ internal class OutdoorSportsTest : CardTest() {
   fun initializeGame() {
     newGame(PromoCardPack)
     engine.phase("Action")
-    p1.manual("8, ProjectCard")
+    p1.manual("8 MC, ProjectCard")
   }
 
   @Test
   internal fun `Can be played with an opponent's city beside an ocean`() {
     requireP2().manual("CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
-    p1.playProject(OutdoorSports, 8).expect("PROD[2 Megacredit]")
+    p1.playProject(OutdoorSports, 8).expect("PROD[2 MC]")
   }
 
   @Test

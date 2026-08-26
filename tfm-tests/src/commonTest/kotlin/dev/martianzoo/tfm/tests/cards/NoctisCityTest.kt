@@ -12,7 +12,10 @@ internal class NoctisCityTest : CardTest() {
   internal fun `Can be placed anywhere on Hellas`() {
     newGame(Hellas)
     p1.manual("PROD[Energy]")
-    p1.manual("$NoctisCity") { placeTile(1, 3) }.expect("PROD[3 Megacredit, -Energy]")
+    p1.manual("$NoctisCity") {
+          placeTile(1, 3)
+        }
+        .expect("PROD[3 MC, -Energy]")
   }
 
   @Test
@@ -26,7 +29,7 @@ internal class NoctisCityTest : CardTest() {
       shouldThrow<TaskException> { doTask("CityTile<Tharsis_1_3>") }
       placeTile(5, 3)
       doTask("PROD[-Energy]")
-      doTask("PROD[3 Megacredit]")
+      doTask("PROD[3 MC]")
       doTask("2 Plant")
     }
   }
