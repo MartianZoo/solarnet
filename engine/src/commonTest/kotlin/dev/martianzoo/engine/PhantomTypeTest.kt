@@ -25,7 +25,6 @@ internal class PhantomTypeTest {
     game.classTable.isActive(venusTag) shouldBe false
     game.classTable.isActive(gameplay.resolve("Class<VenusTag>")) shouldBe false
     game.reader.count(venusTag) shouldBe 0
-    game.reader.containsAny(venusTag) shouldBe false
     game.reader.countComponent(venusTag) shouldBe 0
     game.reader.getComponents(venusTag).isEmpty() shouldBe true
   }

@@ -7,7 +7,8 @@
 > for a remaining generic/Terraforming Mars seam.
 >
 > **Status:** current ownership through `tfm-canon`, `tfm-engine`, `tfm-text`, and `tfm-tests`, plus
-> a short remaining audit. Core module/package moves and lower-layer test moves are complete.
+> two remaining audits. Core module/package moves, lower-layer test moves, and the custom-evaluation
+> boundary audit are complete.
 
 ## Repository entry points
 
@@ -86,6 +87,13 @@ syntax; engine lowers prepared instructions into its own internal executable rep
 
 This preserves an important semantic boundary: custom code can derive Pets behavior from current
 game state, but cannot make task scheduling or diagnostic history part of the game rules.
+
+The completed consumer audit found that current custom implementations need type resolution and
+narrowing, Metric and component counts, matching-component enumeration, the Actor list for seat
+order, and the selected Catalog for composable card/map metadata and canonical declaration order.
+`GameReader` is the single interface for those needs. It exposes no tasks, history, mutation, or
+World handle. The former `containsAny` query was needed only by engine preparation and was removed
+from this public boundary.
 
 ### Config and premise
 
@@ -246,10 +254,8 @@ application must not acquire engine merely because it shares a module with dynam
 
 ## Audits that decide the remaining moves
 
-1. Enumerate the methods every current custom implementation actually calls. The generic evaluation
-   boundary should expose only those needs, ideally through one interface.
-2. Classify each current `Catalog` responsibility as declaration aggregation, transformation,
+1. Classify each current `Catalog` responsibility as declaration aggregation, transformation,
    implementation lookup, projection, or Terraforming Mars content selection. That concrete list
    will determine the smallest useful `Catalog` contract.
-3. Trace consumers of the generic client-facing packages. Keep them in `engine` unless an actual
+2. Trace consumers of the generic client-facing packages. Keep them in `engine` unless an actual
    consumer can avoid engine implementation dependencies through a separate module.

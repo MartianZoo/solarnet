@@ -114,7 +114,7 @@ internal class GameReaderImpl(
 
   override fun count(type: Type) = components.count(type, this)
 
-  override fun containsAny(type: Type) = components.containsAny(type, this)
+  internal fun containsAny(type: Type) = components.containsAny(type, this)
 
   override fun countComponent(concreteType: Type) =
       if (!classTable.isActive(concreteType)) 0

@@ -392,7 +392,7 @@ internal constructor(
       if (g == null && r?.abstract == true) {
         val canRemove =
             if (intens == OPTIONAL) {
-              reader.containsAny(r)
+              reader.hasAnyComponents(r)
             } else {
               limiter.hasExecutableConcreteRemoval(
                   r,
@@ -487,7 +487,7 @@ internal constructor(
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
-      val missing = dependencyComponents.filterNot(reader::containsAny)
+      val missing = dependencyComponents.filterNot(reader::hasAnyComponents)
       if (missing.any()) throw DependencyException(missing)
 
       g = classTable.singleConcreteSubtype(g, reader) ?: g
@@ -506,3 +506,6 @@ internal constructor(
     return g to r
   }
 }
+
+private fun GameReader.hasAnyComponents(type: Type): Boolean =
+    (this as? GameReaderImpl)?.containsAny(type) ?: getComponents(type).isNotEmpty()
