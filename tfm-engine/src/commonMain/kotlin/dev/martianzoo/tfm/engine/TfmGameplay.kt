@@ -9,6 +9,7 @@ import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
+import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -78,7 +79,19 @@ public class TfmGameplay(
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
     val discarded = offered - count
-    doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    val selectionTaskNumber =
+        tasks
+            .extract { it }
+            .withIndex()
+            .single { (_, task) ->
+              val instruction = task.instruction.toString()
+              "ProjectCard" in instruction && "Selecting" in instruction
+            }
+            .index + 1
+    doTask(
+        if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
+        selectionTaskNumber,
+    )
     if (count > 0) {
       if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
       this@TfmGameplay.pay(mc = this@TfmGameplay.count("Owed"))
@@ -220,29 +233,59 @@ public class TfmGameplay(
       payment: BodyLambda = { pay(mc, steel, titanium) },
       body: BodyLambda = {},
   ): TaskResult {
-    return inTfmTurn {
-      if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
-        doTask("UseAction<PlayCardSA, First>")
-      }
-      doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
+    return inTfmTurn { playProjectWithinOperation(cardName, payment, body) }
+  }
 
-      payment()
-      body()
-      if (this@TfmGameplay.count("Owed") == 0) {
-        tasks
-            .matching { it.cause?.context?.className in setOf(cn("Accept"), cn("AcceptFromCard")) }
-            .forEach { reviseTask(it, "Ok") }
-      }
-      autoExecNow()
+  public fun OperationBody.playProject(
+      cardName: ClassName,
+      mc: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0,
+      payment: BodyLambda = { pay(mc, steel, titanium) },
+      body: BodyLambda = {},
+  ) {
+    playProjectWithinOperation(cardName, payment, body)
+  }
+
+  private fun OperationBody.playProjectWithinOperation(
+      cardName: ClassName,
+      payment: BodyLambda,
+      body: BodyLambda,
+  ) {
+    if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
+      doTask("UseAction<PlayCardSA, First>")
     }
+    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
+
+    payment()
+    body()
+    if (this@TfmGameplay.count("Owed") == 0) {
+      tasks
+          .matching { it.cause?.context?.className in setOf(cn("Accept"), cn("AcceptFromCard")) }
+          .forEach { reviseTask(it, "Ok") }
+    }
+    autoExecNow()
   }
 
   private fun inTfmTurn(body: BodyLambda): TaskResult {
-    declineWildTagOffers()
     return inTurn {
-      declineWildTagOffers()
+      val preexistingTasks = game.tasks.extract { it }.associateBy { it.id }
       body()
       autoExecNow()
+      val newPendingTasks =
+          game.tasks
+              .extract { it }
+              .filter { task ->
+                val previous = preexistingTasks[task.id]
+                previous == null ||
+                    previous.copy(next = task.next, whyPending = task.whyPending) != task
+              }
+      if (newPendingTasks.isNotEmpty()) {
+        if (newPendingTasks.any { it.whyPending == "abstract" }) {
+          throw AbstractException("pending abstract tasks:\n${newPendingTasks.joinToString("\n")}")
+        }
+        throw TaskException("pending tasks:\n${newPendingTasks.joinToString("\n")}")
+      }
       declineWildTagOffers()
       removeWildTagUses()
     }

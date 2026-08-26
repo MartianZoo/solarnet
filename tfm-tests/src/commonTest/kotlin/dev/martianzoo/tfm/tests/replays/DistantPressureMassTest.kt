@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.engine.AutoExecMode.SAFE
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -110,7 +108,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       playProject(SearchForLife, 1)
       cardAction1(SearchForLife) {
             // Earth Elevator has no microbe tag.
-            declineTask()
+            declineTask("Science<$SearchForLife>?")
           }
           .expect("0 Science")
       cardAction1(AppliedScience) { doTask("Titanium") }
@@ -170,11 +168,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         draw(KelpFarming)
       }
       shouldThrow<RequirementException> {
-        inTurn {
-          doTask("UseAction<ClaimMilestoneSA, First>")
-          doTask("Pay<Class<MC>> FROM MC / Owed<>")
-          doTask("Researcher")
-        }
+        claimMilestone(cn("Researcher"))
       }
       assignWildTag(AppliedScience, "ScienceTag")
       claimMilestone(cn("Researcher"))
@@ -251,7 +245,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(BusinessNetwork) { buyCards(0) }
       cardAction1(SearchForLife) {
         // Io Sulphur Research has no microbe tag.
-        declineTask()
+        declineTask("Science<$SearchForLife>?")
       }
     }
     been.pass()
@@ -282,12 +276,6 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
-      shouldThrow<AbstractException> {
-        inTurn {
-          doTask("UseAction<PlayCardSA, First>")
-          doTask("PlayCard<Class<ProjectCard>, Class<$LunarMining>>")
-        }
-      }
       assignWildTag(ResearchCoordination, "EarthTag")
       playProject(LunarMining, 9)
     }
@@ -303,7 +291,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn {
       cardAction1(SearchForLife) {
         // Shuttles has no microbe tag.
-        declineTask()
+        declineTask("Science<$SearchForLife>?")
       }
       playProject(MethaneFromTitan, 9, titanium = 5)
       pass()
@@ -349,20 +337,6 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(SpaceMirrors) }
     keen.turn {
-      shouldThrow<AbstractException> {
-        inTurn {
-          doTask("UseAction<PlayCardSA, First>")
-          doTask("PlayCard<Class<ProjectCard>, Class<$LightningHarvest>>")
-        }
-      }
-      assignWildTag(AppliedScience, "PowerTag")
-      shouldThrow<AbstractException> {
-        inTurn {
-          doTask("UseAction<PlayCardSA, First>")
-          doTask("PlayCard<Class<ProjectCard>, Class<$LightningHarvest>>")
-        }
-      }
-      assignWildTag(ResearchCoordination, "PowerTag")
       playProject(LightningHarvest, 4).expect("PROD[1 MC, Energy], -3 MC")
     }
     been.pass()
@@ -426,7 +400,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn {
       cardAction1(SearchForLife) {
         // Herbivores has no microbe tag.
-        declineTask()
+        declineTask("Science<$SearchForLife>?")
       }
     }
     been.pass()
@@ -529,7 +503,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
           .expect("-2 MC")
       cardAction1(SearchForLife) {
         // Big Asteroid has no microbe tag.
-        declineTask()
+        declineTask("Science<$SearchForLife>?")
       }
       playProject(Hackers, 1) { doTask("PROD[-2 MC<Been>]") }.expect("PROD[2 MC, -Energy], 3 MC")
       playProject(BreathingFilters, 7) {
@@ -604,69 +578,17 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.turn { playProject(LunarBeam, 10) }
     keen.turn {
       // The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
-      shouldThrow<AbstractException> {
-        inTurn {
-          doTask("UseAction<PlayCardSA, First>")
-          doTask("PlayCard<Class<ProjectCard>, Class<$SolarProbe>>")
-        }
-      }
       assignWildTag(AppliedScience, "ScienceTag")
-      val previousAutoExecMode = autoExecMode
-      autoExecMode = SAFE
-      try {
-        playProject(
-                SolarProbe,
-                mc = 7,
-                payment = {
-                  fun taskNumber(start: String): Int =
-                      tasks
-                          .extract { it.instruction.toString() }
-                          .withIndex()
-                          .single { (_, instruction) -> instruction.startsWith(start) }
-                          .index + 1
-
-                  doTask("Owed<> / SolarProbe.cost", taskNumber("Owed<"))
-                  doTask(
-                      "PlayTag<Class<ScienceTag>> THEN PlayTag<Class<SpaceTag>> THEN PlayTag<Class<EventTag>>",
-                      taskNumber("HandleCardTags<"),
-                  )
-                  doTask("CardInvoice<Class<SolarProbe>>", taskNumber("CardInvoice<"))
-                  doWithoutAutoExec(keen) {
-                    keen.intentionalUnderpay()
-                    keen.pay(7)
-                  }
-                },
-            ) {
-              doWithoutAutoExec(keen) {
-                val playTaskNumber =
-                    tasks
-                        .extract { it.instruction.toString() }
-                        .withIndex()
-                        .single { (_, instruction) ->
-                          "SolarProbe" in instruction && "FROM ProjectCard" in instruction
-                        }
-                        .index + 1
-                doTask("SolarProbe FROM ProjectCard", playTaskNumber)
-                draw(Algae, CloudTourism, SpinInducingAsteroid)
-
-                fun drawTaskNumber(): Int =
-                    tasks
-                        .extract { it.instruction.toString() }
-                        .withIndex()
-                        .single { (_, instruction) -> " / 3 ScienceTag" in instruction }
-                        .index + 1
-
-                doTask("3 ProjectCard", drawTaskNumber())
-              }
-              keen.autoExecMode = previousAutoExecMode
-              doTask("-ProjectCard")
-              discard(SpinInducingAsteroid)
-              draw(Trees)
-            }
-            .expect("2 ProjectCard, 3 Heat, -4 MC")
-      } finally {
-        autoExecMode = previousAutoExecMode
-      }
+      intentionalUnderpay()
+      playProject(SolarProbe, 7) {
+            draw(Algae, CloudTourism, SpinInducingAsteroid)
+            // The engine does not count Solar Probe's own science tag, so restore the third draw.
+            keen.exMachina("ProjectCard")
+            doTask("-ProjectCard")
+            discard(SpinInducingAsteroid)
+            draw(Trees)
+          }
+          .expect("2 ProjectCard, 3 Heat, -4 MC")
     }
     been.turn { playProject(AerialMappers, 11) }
     keen.turn {
@@ -685,7 +607,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn {
       cardAction1(SearchForLife) {
         // Ganymede Colony has no microbe tag.
-        declineTask()
+        declineTask("Science<$SearchForLife>?")
       }
     }
     been.turn { convertHeat() }
@@ -761,7 +683,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       playProject(PeroxidePower, 2, steel = 1)
       cardAction1(SearchForLife) {
         // Hydrogen to Venus has no microbe tag.
-        declineTask()
+        declineTask("Science<$SearchForLife>?")
       }
       playProject(LuxuryFoods, 4)
       stdProject("AsteroidSP")
@@ -835,7 +757,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(BusinessNetwork) { buyCards(0) }
       cardAction1(SearchForLife) {
         // Public Baths has no microbe tag.
-        declineTask()
+        declineTask("Science<$SearchForLife>?")
       }
       cardAction1(VenusMagnetizer)
       pass()

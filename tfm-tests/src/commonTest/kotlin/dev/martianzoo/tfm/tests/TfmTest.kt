@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -86,13 +88,23 @@ internal abstract class TfmTest {
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {
-    requireSingleDeclinableTask(pendingTasks(), reader)
-    return doTask("Ok")
+    val taskNumber = singleDeclinableTaskNumber(pendingTasks(), reader)
+    return doTask("Ok", taskNumber)
+  }
+
+  protected fun TfmGameplay.declineTask(instruction: String): TaskResult {
+    val taskNumber = singleDeclinableTaskNumber(pendingTasks(), reader, instruction)
+    return doTask("Ok", taskNumber)
   }
 
   protected fun OperationBody.declineTask() {
-    requireSingleDeclinableTask(tasks.extract { it }, reader)
-    doTask("Ok")
+    val taskNumber = singleDeclinableTaskNumber(tasks.extract { it }, reader)
+    doTask("Ok", taskNumber)
+  }
+
+  protected fun OperationBody.declineTask(instruction: String) {
+    val taskNumber = singleDeclinableTaskNumber(tasks.extract { it }, reader, instruction)
+    doTask("Ok", taskNumber)
   }
 
   protected fun TfmGameplay.playCorp(
@@ -153,15 +165,23 @@ internal abstract class TfmTest {
     return "$gain".replace("${gain.gaining}", "$revisedExpression").removeSuffix("?")
   }
 
-  private fun requireSingleDeclinableTask(
+  private fun singleDeclinableTaskNumber(
       tasks: List<Task>,
       reader: dev.martianzoo.pets.api.GameReader,
-  ) {
-    val declinable = tasks.count { task ->
-      NoOp.narrows(task.instruction, reader) ||
-          task.instruction.descendantsOfType<NoOp>().isNotEmpty()
+      instruction: String? = null,
+  ): Int {
+    val matches =
+        tasks.withIndex().filter { (_, task) ->
+          (instruction == null ||
+              task.instruction == game.gameplay(task.assignee).parse<Instruction>(instruction)) &&
+              (NoOp.narrows(task.instruction, reader) ||
+                  task.instruction.descendantsOfType<NoOp>().isNotEmpty())
+        }
+    require(matches.size == 1) {
+      val qualifier = instruction?.let { " matching `$it`" } ?: ""
+      "Expected exactly one task narrowable to Ok$qualifier, found ${matches.size}"
     }
-    require(declinable == 1) { "Expected exactly one task narrowable to Ok, found $declinable" }
+    return matches.single().index + 1
   }
 
   private fun TfmGameplay.pendingTasks(): List<Task> =
