@@ -57,8 +57,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Task | Read | Authority |
 | --- | --- | --- |
-| Move generic versus Terraforming Mars responsibilities | The matching seam in [`BOUNDARIES.md`](BOUNDARIES.md) | Audit |
-| Flatten Gameplay or design a client boundary | [`API.md`](API.md), after the Gameplay section of [`ENGINE.md`](ENGINE.md#current-gameplay-surface) | Proposal |
+| Move generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Audit |
+| Flatten Gameplay or design a client interface | [`API.md`](API.md), after the Gameplay section of [`ENGINE.md`](ENGINE.md#current-gameplay-surface) | Proposal |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
 
 ### Verify a change

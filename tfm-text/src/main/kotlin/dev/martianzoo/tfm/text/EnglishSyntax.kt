@@ -167,7 +167,7 @@ internal enum class Conjunction {
   THEN,
 }
 
-/** The sole capitalization and punctuation boundary. */
+/** The sole capitalization and punctuation stage. */
 internal data class Sentence(
     private val clause: Clause,
     private val punctuation: String = ".",

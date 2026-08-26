@@ -216,7 +216,7 @@ A strong first milestone would be a two-player computer that:
   those cards use familiar game ingredients.
 
 The next test should withhold an entire kind of effect. That will reveal where “new card” stops and
-“new rule” begins. Only after measuring that boundary should we expect printed card wording or a
+“new rule” begins. Only after measuring that divide should we expect printed card wording or a
 general-purpose text-reading assistant to close the gap.
 
 ## Bottom line

@@ -17,7 +17,7 @@
 - [Colonies `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/ColoniesExpansion/classes.pets)
   — search for `Stormcraft` only when evaluating source attribution.
 - [`TfmGameplay.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmGameplay.kt)
-  — search for `fun pay` for the current client-side rejection boundary.
+  — search for `fun pay` for the current client-side rejection stage.
 - [`PaymentSpecializationTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
   and [`BugsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/BugsTest.kt)
   — read before choosing a repair.

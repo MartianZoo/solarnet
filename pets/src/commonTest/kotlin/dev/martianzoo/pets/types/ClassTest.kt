@@ -568,7 +568,7 @@ internal class ClassTest {
   }
 
   @Test
-  internal fun `frozen subclass masks cross machine-word boundaries`() {
+  internal fun `frozen subclass masks across machine-word divisions`() {
     val levels =
         (0 until 70).map { index ->
           if (index == 0) "ABSTRACT CLASS Level0"

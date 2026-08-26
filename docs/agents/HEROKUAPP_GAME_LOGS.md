@@ -16,7 +16,7 @@
 - [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for `exMachina` only when evidence proves a direct reconciliation is required.
 - [`TfmWorkflow.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
-  — read only when the archive chronology crosses setup, phase, or endgame boundaries that the
+  — read only when the archive chronology crosses setup, phase, or endgame transitions that the
   replay helper does not explain.
 
 This guide intentionally contains no setup, action, balance, coordinate, or scoring answer for a
@@ -61,7 +61,7 @@ Record which configured components are missing from Solarnet before replay work 
 milestone or award is unsupported, a clearly labeled same-role substitute can keep setup moving. If a
 component is actually played, claimed, funded, scored, or otherwise affects the archive, prefer
 implementing its general rule. When that would be disproportionate, encode only its sourced
-consequences at the right boundary, explain the limitation, and add a reusable `TODO.md` item. Never
+consequences at the right point, explain the limitation, and add a reusable `TODO.md` item. Never
 add a test DSL operation for one named component.
 
 ## Treat sources according to what they prove
@@ -111,7 +111,7 @@ the pass immediately to save a later client/server round trip. When such a line 
 first action, determine whether it is this early declaration before translating it. In Solarnet, let
 the one-action turn end normally and call `pass()` only when that player's next turn is actually
 prepared; the executable pass-call order can therefore differ from the source log order. Preserve the
-verbatim log lines in their source order near the relevant boundary, but do not treat every logged
+verbatim log lines in their source order near the relevant scope, but do not treat every logged
 pass as an immediate gameplay event.
 
 While copied log comments remain, keep each one directly above its representing statement. Put a
@@ -120,9 +120,9 @@ executable context as a place to hide a manual adjustment.
 
 ## Keep archive replays visually consistent
 
-Start each replay with a comment that says whether it is complete or the exact generation boundary
+Start each replay with a comment that says whether it is complete or the exact generation checkpoint
 through which it is implemented, followed by the archived title, internal game ID, and end-page URL.
-Name a partial test method for that boundary rather than as though it covered the entire game.
+Name a partial test method for that checkpoint rather than as though it covered the entire game.
 
 Explicitly set `inputOnlySynonyms` to an empty list. Spell out resource, production, rating, and point
 types in test strings.
@@ -134,7 +134,7 @@ Terraform Rating, Victory Points, then winner.
 
 Research screenshots need special care. The UI state—not a filename timestamp—determines whether a
 dashboard was captured before card purchases, after drafting choices, or after payment. Put the entire
-checkpoint at that exact boundary. Do not shift it past `buyCards()` and compensate only M€ or hand size;
+checkpoint at that exact point. Do not shift it past `buyCards()` and compensate only M€ or hand size;
 that loses the screenshot's power to validate the complete state.
 
 ## Reconstruct payments before inventing discrepancies
@@ -225,7 +225,7 @@ shown by the source, or an unsupported component whose exact consequences are kn
 itself is not evidence that the archived application made a mistake.
 
 Use a relative delta, place it at the most likely causal action when the evidence supports that placement,
-and otherwise place it at the latest defensible evidence boundary. Precede it with a comment naming the
+and otherwise place it at the latest defensible evidence checkpoint. Precede it with a comment naming the
 later source entry or checkpoint that requires it. Never defer many discrepancies into one large repair,
 and never bury raw state mutation in an unrelated action lambda.
 
@@ -260,7 +260,7 @@ locations against the archived board rather than relying only on aggregate point
 ## Preserve valuable counterfactuals
 
 A historical replay contains exact states that are expensive to recreate in a small test. Add a few
-negative assertions when they prove a non-obvious boundary that was genuinely tempting at that moment:
+negative assertions when they prove a non-obvious state constraint that was genuinely tempting at that moment:
 
 - a requirement or milestone threshold is almost, but not yet, met;
 - a target is protected, has an insufficient amount, or is excluded by narrowing;

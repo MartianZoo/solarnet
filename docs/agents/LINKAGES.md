@@ -21,7 +21,7 @@ The runtime already preserves authored variables through effects, actions, task 
 splitting, atomic transmutation, and incremental `THEN`. Do not replace working card mechanisms
 merely to begin this project.
 
-## Scope boundaries
+## Scope limits
 
 The generated `SpliceTacticalGenomicsWatcher<Player>` components used by Splice are working regression
 constraints, not unfinished Type-variable infrastructure. Replacing them would be optional data and

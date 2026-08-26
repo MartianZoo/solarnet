@@ -1,7 +1,7 @@
 # Life of an Effect
 
 This document follows one string from canonical card data until its Instructions produce recorded
-State Changes. The example is Recyclon because it passes through most of the interesting boundaries
+State Changes. The example is Recyclon because it passes through most of the interesting stages
 without making any one of them unusually difficult:
 
 ```json5
@@ -10,7 +10,7 @@ without making any one of them unusually difficult:
 ]
 ```
 
-At every boundary, the important question is not merely “what code ran?” but “what is now safe to
+At every stage, the important question is not merely “what code ran?” but “what is now safe to
 assume about the Pets tree?” Those postconditions are called out explicitly.
 
 The last part takes the point of view of a Task Queue client which does not use Autoexec. The client
@@ -456,7 +456,7 @@ separate, observable changes, and other Effects may respond between them.
 **Postcondition:** the plant-production Component exists, its gain is recorded, and Recyclon's
 Triggered Instruction has no remaining Task or continuation.
 
-## What each boundary deliberately does not promise
+## What each stage deliberately does not promise
 
 - A Source Effect is structurally valid Pets, but its Type Expressions have not yet been checked in
   a Class Table.

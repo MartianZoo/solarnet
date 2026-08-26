@@ -1,4 +1,4 @@
-# Generic and Terraforming Mars boundary audit
+# Generic and Terraforming Mars responsibility audit
 
 > **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number rejection or
 > Action lowering, splitting Catalog responsibilities, or separating script/workflow mechanics.
@@ -11,37 +11,37 @@
 ## Source map
 
 - [`ScaledExpression.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ScaledExpression.kt)
-  — search for `denominationless` only for the parse-time rejection seam.
+  — search for `denominationless` only for the parse-time rejection stage.
 - [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
-  search for `transformAction` only for the Action/turn seam.
+  search for `transformAction` only for the Action/turn division.
 - [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
 - [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
-  inspect only for the script application seam.
+  inspect only for the script application layer.
 
-The generic runtime is mostly reusable, but a few seams still mix Pets/engine mechanics with
-Terraforming Mars or REgo application policy. `TODO.md` decides whether any seam is worth changing.
+The generic runtime is mostly reusable, but a few interfaces still mix Pets/engine mechanics with
+Terraforming Mars or REgo application policy. `TODO.md` decides whether any dependency is worth changing.
 
 ## Terraforming Mars behavior outside `tfm`
 
 ### Turn/action protocol is split across layers
 
-**Priority when boundary work is selected: P0.**
+**Priority when dependency work is selected: P0.**
 
 Generic Pets and engine code know `Action`, `UseAction`, `WhichAction`, `NewTurn`, and turn-start
 translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
 documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
 under Terraforming Mars. The half-generic placement is the defect.
 
-The [Pets Action model](ACTIONS.md) makes this seam more explicit: fixed and X-scaled Terraforming
+The [Pets Action model](ACTIONS.md) makes this division more explicit: fixed and X-scaled Terraforming
 Mars `StandardResource` costs use provider- and action-qualified invoices, while direct and
 costless Actions keep ordinary Pets sequencing. The generic Action transformer recognizes those six
-resource names directly. Treat that leak as boundary debt rather than adding a broad extension
+resource names directly. Treat that leak as layering debt rather than adding a broad extension
 framework for this rule.
 
 ### The script application is mostly REgo/Terraforming Mars
 
-**Priority when boundary work is selected: P1.**
+**Priority when dependency work is selected: P1.**
 
 The reusable command shell and completion framework live beside concrete Canon construction,
 `TfmWorkflow`, colors, phase behavior, map views, six resources, and Terraforming Mars setup
@@ -70,7 +70,7 @@ resolution as part of that extraction.
 
 ### Workflow runner mechanics are general
 
-**Priority when boundary work is selected: P1.**
+**Priority when dependency work is selected: P1.**
 
 The phase sequence and victory conditions are Terraforming Mars. Coroutine lifecycle, single launch,
 queue-drained wakeup, checkpoint/rollback shutdown, and cancellation are engine mechanics. A native
@@ -79,12 +79,12 @@ workflow project should extract those mechanics while moving phase topology to t
 
 ### Minor presentation helpers
 
-**Priority when boundary work is selected: P3.**
+**Priority when dependency work is selected: P3.**
 
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.
 
-## Already-correct boundaries
+## Already-correct dependencies
 
 Do not reopen these without new evidence:
 
@@ -99,12 +99,12 @@ Do not reopen these without new evidence:
 - Runtime players use canonical seat identities; configured names are Vocabulary aliases.
 - `World` is the generic live Game World and construction accepts a generic `GamePremise`.
 
-If a boundary change is selected, prefer deleting a backward dependency or moving one whole policy
+If a dependency change is selected, prefer deleting a backward dependency or moving one whole policy
 over adding adapters on both sides.
 
 ## Conditional extraction order
 
-**Aspirational and not currently scheduled.** If the project deliberately selects a boundary
+**Aspirational and not currently scheduled.** If the project deliberately selects a dependency
 cleanup, the dependencies suggest this order:
 
 1. Decide whether bare-number currency is preserved in the AST or supplied by one small

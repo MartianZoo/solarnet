@@ -81,7 +81,7 @@ End-game effects materialize `VictoryPoint` components so all score sources can 
 one mechanism. The physical game instead calculates those points from their sources.
 
 Content may count the completed ledger, but must not trigger on victory-point gains or removals.
-Scores derived from other scores also require an explicit completed-scoring boundary; reaction or
+Scores derived from other scores also require an explicit completed-scoring phase; reaction or
 task enumeration order is not a game rule.
 
 ## Deliberate vocabulary differences

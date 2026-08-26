@@ -49,7 +49,7 @@ English display text defaults to the canonical Class Name with its words separat
 files contain only exceptions to that rule. English Pets uses the canonical Class Name directly.
 Other locales derive a Pets name from the effective localized display name with the [Google Java Style camel-case conversion][camel-case]:
 remove apostrophes, split on other punctuation, whitespace, and conventional internal camel-case
-boundaries, lowercase each word, capitalize its first character, and join. The current
+word divisions, lowercase each word, capitalize its first character, and join. The current
 implementation accepts ASCII display text only. Examples: `UNMI Contractor` becomes
 `UnmiContractor`, `PolderTECH Dutch` becomes `PolderTechDutch`, and `Asteroid (Card)` becomes
 `AsteroidCard`. A localized name that collides with another canonical Class Name falls back to the

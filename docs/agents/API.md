@@ -1,7 +1,7 @@
 # Engine workhorse and client API direction
 
 > **Read when:** flattening `Gameplay`, removing a power interface or `godMode()`, changing command
-> transaction boundaries, or designing a real client/observation API.
+> transaction scopes, or designing a real client/observation API.
 >
 > **Skip when:** adding an ordinary gameplay operation without changing facade ownership; use the
 > Gameplay section of [ENGINE.md](ENGINE.md#current-gameplay-surface).
@@ -18,7 +18,7 @@
 - [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
   — search for `internal class Implementations` before changing command lifecycle ownership.
 - [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
-  read only when the change also touches the temporary REPL policy boundary.
+  read only when the change also touches the temporary REPL policy layer.
 
 ## Decision
 
@@ -48,7 +48,7 @@ Gameplay -> TurnLayer -> OperationLayer -> TaskLayer -> GodMode
 the same object back to intermediate layers. Script colors reconstruct policy with those casts.
 
 This complicates signatures without enforcing authority. It also confuses API taxonomy with the
-real safety boundary: coordinated mutation.
+real safety mechanism: coordinated mutation.
 
 ## Target workhorse
 
@@ -76,7 +76,7 @@ The workhorse must preserve:
 A raw change may bypass Pets and triggered effects. It may not corrupt indexes, omit history, or
 become irreversible.
 
-## Command boundaries
+## Command scopes
 
 Public command-like operations should eventually use one explicit lifecycle:
 
@@ -113,7 +113,7 @@ Until a real client API exists, `script` should check its modes explicitly in on
 These checks are REPL policy, not security and not a reusable authorization framework. Test the
 command/mode matrix so new commands cannot bypass it accidentally.
 
-## Later client boundary
+## Later client interface
 
 Build the restrictive API around the flat workhorse only when real clients require it. Likely
 surfaces include player-visible queries and choices, player actions, workflow monitoring,
@@ -163,7 +163,7 @@ authorize building the later permission API at the same time.
 6. Remove obsolete bindings, casts, and documentation.
 7. Stop. Design the safe client API separately from actual observation and workflow requirements.
 
-Open naming and exact command-boundary questions do not change this direction. Do not mix
+Open naming and exact command-scope questions do not change this direction. Do not mix
 Actor-local auto-exec, native workflow delegation, hidden-information observation, or disposable
 state forks into the mechanical flattening.
 

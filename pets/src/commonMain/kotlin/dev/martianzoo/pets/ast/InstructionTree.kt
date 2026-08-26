@@ -10,7 +10,7 @@ import dev.martianzoo.pets.ast.Instruction.Or
 /**
  * A complete Pets instruction syntax tree. Most engine code should use [Instruction] when it needs
  * one task or [InstructionGroup] when it needs independent work; this broader type is for Pets
- * composition and the boundaries that deliberately convert between those forms.
+ * composition and the transitions that deliberately convert between those forms.
  */
 public sealed class InstructionTree : PetElement(), Specification<InstructionTree> {
   /** Returns a tree that does this tree [factor] times. */

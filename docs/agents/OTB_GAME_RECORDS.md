@@ -78,9 +78,9 @@ the physical map. Then map:
 
 Settle the assertion contract before implementation. A useful default is:
 
-- all six resources and all six production values at every sourced generation boundary, after
+- all six resources and all six production values at every sourced generation checkpoint, after
   automatic transition work and before the first `buyCards()`;
-- `assertSidebar()` at the same boundary when the evidence records global state;
+- `assertSidebar()` at the same checkpoint when the evidence records global state;
 - intermediate balance assertions where the source records them, especially before frequently
   changing M€ becomes hard to localize;
 - photo-backed tableau tags, card-front counts, tile counts, card resources, and other clearly
@@ -99,7 +99,7 @@ passes, production, world-government and colony phases, final production, final 
 scoring. Preserve every clearly ordered operation. Do not reorder actions to eliminate a mismatch.
 If the sources instead show an illegal physical action cadence that the workflow cannot represent,
 do not silently change ownership or invent a missing action. Isolate an extra action's evidenced
-state change at its exact boundary when possible; otherwise make the smallest chronology distortion
+state change at its exact checkpoint when possible; otherwise make the smallest chronology distortion
 and say exactly what moved and why. Record the missing general mechanism in `TODO.md`.
 
 Follow the current full-game test style rather than copying an old revision:
@@ -168,12 +168,12 @@ Before retaining one, verify chronology and phase transitions, reconcile the sou
 expectations for affected types, distinguish corrected mistakes from persistent ones, and check for
 an engine or test defect. Use an explicit relative delta. Put it at the causal action only when
 the evidence proves that placement; otherwise place it as late as the next sourced checkpoint
-allows. Keep it as a standalone timeline statement with a comment naming the source boundary that
+allows. Keep it as a standalone timeline statement with a comment naming the source checkpoint that
 requires it. Never use `sneak`, an absolute snapshot setter, a catch-all repair, or an unrelated
 action lambda as a hiding place.
 
 If Solarnet lacks a real component, represent only its known sourced consequences at the correct
-boundary, state that support is missing, and record a reusable follow-up in `TODO.md`. Never add a
+point, state that support is missing, and record a reusable follow-up in `TODO.md`. Never add a
 component-specific test API.
 
 ## Treat photographs and endgame as first-class evidence

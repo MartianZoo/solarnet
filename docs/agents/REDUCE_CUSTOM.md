@@ -11,7 +11,7 @@
 ## Source map
 
 - [`CustomClass.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/api/CustomClass.kt) — inspect
-  the general extension boundary before claiming a custom can be removed.
+  the general extension interface before claiming a custom can be removed.
 - [`CustomClassRuntime.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/CustomClassRuntime.kt)
   — read when the candidate performs live preparation/execution.
 - [`ColoniesExpansion.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/ColoniesExpansion.kt)
@@ -67,5 +67,5 @@ Robinson Industries already uses ordinary refined production instructions. Its
 `LowestProduction` custom metric remains the honest bridge for identifying tied lowest production.
 
 Prototype `ColoniesSetup` first. Consider `PassLeft` only as part of a single seat model. After a
-removal, delete its custom declaration, registration, implementation, and custom-boundary tests while
+removal, delete its custom declaration, registration, implementation, and custom-interface tests while
 retaining end-to-end gameplay coverage.

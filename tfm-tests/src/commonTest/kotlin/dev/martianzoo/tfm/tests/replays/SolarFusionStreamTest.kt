@@ -148,7 +148,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.pass()
     // Chronology: Heroku records ER's and JR's illegal second-action passes here. Decline those
     // second actions in Solarnet, then perform the no-effect passes at the next legal first-action
-    // boundary.
+    // checkpoint.
     ER.pass()
     JR.pass()
 
@@ -171,7 +171,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
     KB.playProject(EarthOffice, 0)
-    // Chronology: Heroku records JR's pass as a second action; defer it to this legal boundary.
+    // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
     JR.pass()
     KB.pass()
 
@@ -471,7 +471,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.intentionalOverpay(1)
     ER.playProject(MagneticFieldDome, steel = 2)
     ER.cardAction1(SmallAnimals)
-    // Chronology: Heroku records JR's pass as a second action; defer it to this legal boundary.
+    // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
     JR.pass()
     KB.playProject(PublicPlans, 4) {
           doTask("Revealed")

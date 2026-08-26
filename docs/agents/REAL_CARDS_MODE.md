@@ -1,19 +1,19 @@
 # Shuffle-and-deal real-card mode
 
 > **Read when:** designing or implementing physical cards, deck/discard derivation, shuffle/deal,
-> reveal/search, hidden information, dealer narrowing, or a real-card observation boundary.
+> reveal/search, hidden information, dealer narrowing, or a real-card observation interface.
 >
 > **Skip when:** changing committed follow-mode behavior without making authored hidden procedures
 > executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms.
 >
 > **Status:** proposal with a settled central model. Follow mode is committed and remains the
-> default; type syntax, dealer algorithm, and observation boundary remain unproved.
+> default; type syntax, dealer algorithm, and observation interface remain unproved.
 
 ## Read only the relevant gate
 
 | Task | Read |
 | --- | --- |
-| Component/area representation | State boundary through Ordinary transitions |
+| Component/area representation | State model through Ordinary transitions |
 | Defaults, counted cards, or delegated face choice | Defaults and atomization; Preparation-time delegation |
 | Shuffle, replay, rollback, or forks | Deterministic dealer projection |
 | Reveal, search, or card predicates | Reveals, searches, and printed predicates |
@@ -54,7 +54,7 @@ Deck, discard, and card areas have deliberately different roles: the first two a
 state, while areas are ordinary unowned Components. Ownership never propagates vicariously through
 an area dependency.
 
-## State boundary
+## State model
 
 The authoritative game still has one Event Log. Real-card mode adds no mutable deck list, discard
 list, RNG cursor, or second card database beside it.
@@ -179,7 +179,7 @@ The represented face and back family must link across both sides of each atomic 
 model one movement as a gain followed by a removal; the temporary duplicate or absence would be
 observable.
 
-## Crossing the derived-deck boundary
+## Derived-deck transitions
 
 A pure exact card gain enters the World from the derived deck. A pure exact card-back removal leaves
 the World for the derived discard.
@@ -257,7 +257,7 @@ atom is prepared, so the second atom necessarily derives the following face.
 
 ### Philares is the controlling precedent
 
-Philares requires the same controller/narrower boundary and establishes its timing semantics:
+Philares requires the same controller/narrower interface and establishes its timing semantics:
 
 1. the active Player retains control of the pending resource task and decides when to prepare it;
 2. preparation delegates only the Standard Resource narrowing to the Philares owner;
@@ -304,7 +304,7 @@ It advances from exact events:
 
 When the current order is exhausted, the next entry request deterministically shuffles the exact
 discard set with the next epoch seed, clears derived discard, and consumes the first resulting face.
-The boundary and participating set are recoverable from prior events, so neither a stored second seed
+The transition point and participating set are recoverable from prior events, so neither a stored second seed
 nor a mutable reshuffle record is required. An explicit diagnostic event may be useful, but cannot
 become a second authority.
 
@@ -458,8 +458,8 @@ Dealer replay plus the current World can validate this partition. The generic co
 does not need an invariant spanning hidden Deck and Discard Components because those Components no
 longer exist.
 
-Every ordinary transition preserves the face and back family. Entry and discard cross the World
-boundary but remain exact logged events. Setup proves that every selected face begins in the derived
+Every ordinary transition preserves the face and back family. Entry and discard move into or out of the
+World but remain exact logged events. Setup proves that every selected face begins in the derived
 deck exactly once.
 
 ## Information hiding is deferred, not contradicted
@@ -563,7 +563,7 @@ exceptions specific to ProjectCard.
 4. Preparation delegates face narrowing to Engine and blocks the controller until completion.
 5. Equal seed, algorithm version, deck family, and history produce equal outcomes across platforms.
 6. Rollback and retry reproduce an outcome; forks share outcomes until their histories diverge.
-7. Reshuffle uses exactly the discard set derived at the exhaustion boundary.
+7. Reshuffle uses exactly the discard set derived at the exhaustion point.
 8. Every search candidate enters `Revealed` before it is kept or discarded.
 9. Printed predicates do not create or query live tags on inactive cards.
 10. Playing and Event cleanup preserve exact face and back family.
@@ -577,7 +577,7 @@ exceptions specific to ProjectCard.
 - exact shuffle, seed derivation, and canonical ordering algorithms;
 - whether a derived reshuffle deserves an explicit diagnostic event;
 - how `Selecting` scopes overlapping selections;
-- the precise visibility matrix and irreversible knowledge boundary; and
+- the precise visibility matrix and irreversible knowledge limit; and
 - whether any supported future variant truly needs repeated or distinguishable copies.
 
 None changes the central model: directly owned in-World cards, unowned singleton areas, no Deck or

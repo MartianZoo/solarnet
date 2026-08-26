@@ -18,7 +18,7 @@
   for `Intensity` and `abstract` to see preparation of quantified changes.
 - [`PrepareTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/PrepareTest.kt) and
   [`TaskPreparingTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskPreparingTest.kt)
-  — select scenarios matching the changed preparation boundary.
+  — select scenarios matching the changed preparation phase.
 
 A quantifier controls the count executed by one gain, removal, or transmutation. It does not choose
 an `OR` arm, satisfy a gate, choose a concrete target, or determine a `PER` metric. Those operations

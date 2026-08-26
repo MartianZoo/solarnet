@@ -30,7 +30,7 @@
   contain supported promotional cards, not the proposed Turmoil expansion model. Search for a named
   card before deciding whether it is a useful precedent.
 - [`turmoilCardPackBundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/turmoilCardPackBundle.kt)
-  shows the current card-pack boundary; do not mistake it for a Turmoil Module.
+  shows the current card-pack limit; do not mistake it for a Turmoil Module.
 
 Sources:
 

@@ -14,7 +14,7 @@
 - [`EnglishSyntax.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/EnglishSyntax.kt) —
   search for `sealed interface Clause` to see the current partial intermediate representation.
 - [`Rendering.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/Rendering.kt) — search for
-  `enum class RefusalReason` for the implemented total-result boundary.
+  `enum class RefusalReason` for the implemented total-result interface.
 - [`ExpressionResolver.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ExpressionResolver.kt)
   — inspect dependency-by-key resolution and retained source dependencies.
 - [`ComponentDescriber.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ComponentDescriber.kt)
@@ -33,7 +33,7 @@ These decisions constrain future rounds; ordinary work should not relitigate the
 2. The target flow is Pets → a semantic description → English realization. Only English is being
    built, and the semantic layer should grow one evidenced family at a time.
 3. Published cards are the golden use cases, but arbitrary Pets remains the public target. Unsupported
-   source stays visible in brackets at the narrowest safe boundary.
+   source stays visible in brackets at the narrowest safe layer.
 4. Facts already present in the AST or Type system must be derived there. A lexicon entry may carry
    language facts, never a second answer to a structural question.
 5. Track, placed, held, countable, and similar categories are presentation distinctions. Do not add
@@ -52,19 +52,19 @@ These decisions constrain future rounds; ordinary work should not relitigate the
 12. Change the active path in place and delete superseded machinery. Do not maintain a parallel
     converter.
 
-## Current implementation boundary
+## Current implementation scope
 
 This table is for routing only. [LANGUAGE.md](LANGUAGE.md) owns exact current output coverage.
 
 | Area | Committed now | Remaining architecture pressure |
 | --- | --- | --- |
-| Refusal | `Rendering<T>` carries visible output plus typed `Unresolved` entries; the corpus generator emits a ranked report. | Many internal family helpers still return nullable partial results. Keep refusal reasons at the family boundary instead of multiplying reporting layers. |
+| Refusal | `Rendering<T>` carries visible output plus typed `Unresolved` entries; the corpus generator emits a ranked report. | Many internal family helpers still return nullable partial results. Keep refusal reasons at the family layer instead of multiplying reporting layers. |
 | Expression meaning | `ExpressionResolver`, `ResolvedExpression`, `Quantity`, and `Modality` centralize much of the source-to-semantic conversion. | Some paths still inspect source argument positions or lose linked identity across separately rendered stages. |
 | Change lexicon | `ChangeFrame` expresses countable, held, scale, positioned, deck, procedure, wrapper, and play constructions. | `ComponentDescriber` still carries many family-specific facts, and one central Terraforming Mars registry owns every bundle. |
 | English structure | Clauses, predicates, noun phrases, coordination, and modifiers exist and are used by every main family. | Preassembled strings still occupy structural slots, so factoring sometimes depends on wording rather than semantic roles. |
 | Requirements and metrics | They produce clauses and reuse resolved expressions in important paths. | Their object phrases and bound constructions have not yet proved a shared role-bearing semantic model. |
 | Triggers and effects | Common triggers and effects compose through clause structures. | `renderEffect.kt` still contains broad shape recognition, trigger-specific event kinds, and string prefaces. |
-| Card operations | Canonical operations render structurally from `CardOperation`. | Card-region assignment still lives in `English` rather than a named layout boundary. |
+| Card operations | Canonical operations render structurally from `CardOperation`. | Card-region assignment still lives in `English` rather than a named layout region. |
 
 ## Remaining work, in dependency order
 
@@ -131,7 +131,7 @@ round, report:
 3. every unexplained row individually.
 
 Keep a review round to roughly ten distinct transformations and zero unexplained rows. The generated
-snapshot is evidence for behavior change; the refusal report identifies the next recurring boundary.
+snapshot is evidence for behavior change; the refusal report identifies the next recurring limitation.
 Neither authorizes new machinery for one or two cards.
 
 ## Open decisions

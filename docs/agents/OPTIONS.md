@@ -96,7 +96,7 @@ card and map records:
 This migration changes the inputs to compatibility, viability, and activation. It should not also
 redesign those policies.
 
-This boundary makes authority observable: editing behavioral JSON without regenerating
+This rule makes authority observable: editing behavioral JSON without regenerating
 `cards.pets` must not change runtime Class behavior. Regeneration checks may still reject stale
 generated Pets; that is a source-maintenance check, not runtime composition.
 
@@ -205,12 +205,12 @@ and awards. These should be removed only after declaration authority is complete
 
 **Status: settled direction, not implemented.**
 
-Ordinary all-or-none content membership should come from an honest bundle/resource boundary, not a
+Ordinary all-or-none content membership should come from an honest bundle/resource organization, not a
 list of individual members and not reconstruction from Class-name prefixes. A same-named Module
 then selects that Bundle's ordinary cards, direct goals, and colony tiles through one shared rule.
 `Prelude1Deck` should own a separate selectable resource group, represented by its own internal
 Bundle even though it shares a published product with the Prelude rules and project cards. Once the
-ordinary cases use those boundaries, delete `BundleContentSelection` rather than replacing it with
+ordinary cases use those mechanisms, delete `BundleContentSelection` rather than replacing it with
 directory-basename or map-suffix policy.
 
 Physical product packaging does not require one internal Bundle. Conversely, combining several
@@ -226,7 +226,7 @@ Structured card data remains temporarily useful for offline Pets generation, rep
 and card-to-supporting-Class contribution links.
 
 After the declaration-authority cutover, shrink runtime card-data consumption in that order. Do not
-remove supporting-Class links until Pets or an ordinary resource boundary expresses them: content
+remove supporting-Class links until Pets or an ordinary resource interface expresses them: content
 compatibility and activation must include the complete loaded contribution, not only the card's own
 declaration. Do not retain runtime declaration generation merely to make synthetic card tests
 convenient.
@@ -238,7 +238,7 @@ facts—area identity, kind, row, column, and bonus Effect—come from loaded Cl
 consumers should share one class-backed view rather than independently interpreting the diagram or
 reconstructing maps by name.
 
-`CreateMapAreas` remains the correct causal boundary: creation of the selected map gains its bundled
+`CreateMapAreas` remains the correct causal point: creation of the selected map gains its bundled
 area Classes, so event history records the map as their cause. A future class-backed view must
 preserve that behavior. It must also retain the compact display code as presentation metadata rather
 than reverse-encoding Effects through a closed Kotlin symbol table. Solo placement, adjacency,
@@ -295,7 +295,7 @@ optimization leak.
 
 A Bundle with a same-named Module makes its ambient declarations available through that Module. A
 map Bundle without a same-named Module uses the disjunction of its map Modules. A data-only Bundle
-with neither has no implicit availability boundary. This convention covers ordinary expansions,
+with neither has no implicit availability rule. This convention covers ordinary expansions,
 single-map Bundles, and the two-map Hellas/Elysium and Utopia/Cimmeria Bundles without per-Class
 properties.
 
@@ -305,7 +305,7 @@ mode is active. A nonconstructive gate or Trigger may mention an available but u
 go silent intentionally. This keeps mode-conditional cards such as Vitor available in Solo;
 compatibility does not promise that every conditional branch executes in every game.
 
-The boundary applies to hand-authored Class declarations and structured standard-action
+The rule applies to hand-authored Class declarations and structured standard-action
 declarations. Cards, maps, areas, milestones, awards, colony tiles, and card-local generated
 Classes remain independently selectable content; merely residing in an expansion Bundle does not
 make a content Class expansion-dependent. Module Classes are never availability-locked: premise
@@ -325,7 +325,7 @@ enabling Venus Next. `PreludeCard` belongs to the Prelude Bundle; Valley Trust's
 therefore derives its Prelude dependency without a card property.
 
 Concrete awards retain their authored multiplayer-only condition. Explicit selection checks that
-condition too, so solo cannot bypass the boundary.
+condition too, so solo cannot bypass the rule.
 
 ### Projection closure
 
@@ -399,7 +399,7 @@ missing owning Module.
 ## Non-Canon Kotlin expansion-coupling audit
 
 **Status:** verified current production code. This inventory excludes the `tfm-canon` module, tests,
-and benchmarks. Severity describes pressure on the design boundary, not a conclusion that every
+and benchmarks. Severity describes pressure on the design constraints, not a conclusion that every
 named domain concept should become generic.
 
 1. **Severe — workflow hard-coding.** `engine/.../TfmWorkflow.kt` exposes `PreludePhase`, tests for
@@ -421,7 +421,7 @@ named domain concept should become generic.
    kind and give it special validation. These are real dependencies, but `PreludeCard` and
    `VenusStep` are
    legitimate Terraforming Mars concepts; removing their names is not inherently a simplification.
-4. **Low — the legacy script boundary enumerates concrete products.**
+4. **Low — the legacy script layer enumerates concrete products.**
    `script/.../OptionCodeTranslation.kt` names Corporate Era, the map products, Milestones and
    Awards, Venus, Prelude, Colonies, Turmoil, and Promos. `script/.../ScriptSession.kt` and
    `script/.../commands/NewGameCommand.kt` carry a separate selected-colonies input path. Explicit

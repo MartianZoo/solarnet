@@ -16,7 +16,7 @@ import dev.martianzoo.pets.data.TaskResult
  * Events appended later to [prefixSource] are not part of this log. The captured events must not be
  * rolled back while this log exists.
  *
- * [record] and [rollBackTo] are the single boundary between live state and its history. Callers
+ * [record] and [rollBackTo] are the single interface between live state and its history. Callers
  * supply the corresponding state mutation, which succeeds before the history and [revision] advance
  * together.
  */

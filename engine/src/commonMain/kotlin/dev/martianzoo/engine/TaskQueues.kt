@@ -98,7 +98,7 @@ private constructor(
     return apply(TaskEditedEvent(events.nextOrdinal, oldTask = oldTask, task = newTask))
   }
 
-  /** Applies and records one task event. This is also the task-history replay boundary. */
+  /** Applies and records one task event. This is also the task-history replay point. */
   private fun <E : TaskEvent> apply(entry: E): E =
       events.record(entry) {
         when (entry) {

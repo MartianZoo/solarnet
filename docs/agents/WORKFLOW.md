@@ -18,7 +18,7 @@
   vocabulary.
 - [`TfmWorkflowTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/TfmWorkflowTest.kt)
   and [`EndgameRulesTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/EndgameRulesTest.kt)
-  — select only scenarios matching the changed phase/end boundary.
+  — select only scenarios matching the changed phase/end transition.
 
 This project is an architectural replacement, not a prerequisite for current Splice, Icy
 Impactors, Enceladus, or World Government Terraforming behavior. Philares is not a working

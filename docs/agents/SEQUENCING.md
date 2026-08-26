@@ -115,8 +115,8 @@ what is happening and disappear before a stable World is exposed. Durable facts 
 `Temporary` currently covers two opposite lifecycle policies that a scoped completion model should
 distinguish. Some transient component facts should be removed automatically when their action or
 turn scope drains. Others represent mandatory unfinished state and must already have been removed;
-if they survive the boundary, the operation reaches a dead end. Neither policy makes the component
-task state, and the relevant boundary must be explicit rather than assumed to be global queue
+if they survive the phase, the operation reaches a dead end. Neither policy makes the component
+task state, and the relevant scope must be explicit rather than assumed to be global queue
 emptiness.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
@@ -353,7 +353,7 @@ decision whose queue entry must be suppressed. Use `::` there only when exposing
 the trigger and its consequence would violate a concrete invariant.
 
 The canon single-colon audit leaves queued effects only when their right side is a recognizable
-gameplay event or choice, or when current sequencing semantics require a task boundary. Several
+gameplay event or choice, or when current sequencing semantics require a task transition. Several
 implementation-shaped cases are intentionally still queued:
 
 - moving an EventCard to PlayedEvent must wait for the event's immediate work and tags;
@@ -466,7 +466,7 @@ effects. The engine would finish every other automatic effect, admit that instru
 immediately prepare it, and use the existing `next` lock to make it the only work the Player may
 change or execute.
 
-Nothing earlier remains suspended across that task boundary. When the Player resolves the prepared
+Nothing earlier remains suspended across that task transition. When the Player resolves the prepared
 instruction, it executes normally and its own automatic effects run normally. If one of those also
 remains abstract, the chain has violated the one-choice limit.
 
@@ -528,7 +528,7 @@ run. Do not add task-targeting instructions or effect access to task identity fo
 Several semantics must be proved before selection. Determine the relevant scope—Player queue,
 delegated operation, or whole World—rather than using global priority as an approximation. Prove
 what priority newly triggered tasks receive and that activating reduced work does not serialize
-otherwise reorderable siblings. Keep settlement inside the originating failure boundary. A lowest
+otherwise reorderable siblings. Keep settlement inside the originating failure scope. A lowest
 priority Engine task may eventually replace workflow queue-drained wakeups, but only after scoped
 control and the two domain cases establish the rule.
 
@@ -651,9 +651,9 @@ For a new A-before-B claim:
 6. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
 7. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is genuinely
    derived from it; do not mistake that local artificial order for broader game precedence.
-8. Otherwise classify the required boundary: a local condition calls for a barrier, the entire
+8. Otherwise classify the required scope: a local condition calls for a barrier, the entire
    World task pool calls for global idle settlement, and one delegated descendant tree calls for a
-   control scope. Do not approximate one with a broader boundary merely because it exists today.
+   control scope. Do not approximate one with a broader scope merely because it exists today.
 9. Use only a committed mechanism; leave the case open when it requires an exploratory completion
    rule.
 10. Add a precedence test and, when relevant, a freedom test.

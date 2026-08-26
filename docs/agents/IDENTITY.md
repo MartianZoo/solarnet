@@ -12,7 +12,7 @@
 ## Source map
 
 - [`Identities.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Identities.kt) — search
-  for `public sealed interface Actor` for the operation identity boundary.
+  for `public sealed interface Actor` for the operation identity mechanism.
 - [`Task.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Task.kt) — inspect `assignee`
   and `actor` before changing queued work.
 - [`LiveEffect.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/LiveEffect.kt) — search
@@ -116,7 +116,7 @@ active Player can do no more work in the scope until the Philares owner selects 
 resource. Assigning the reward directly to the Philares owner at trigger time is not an acceptable
 approximation because it transfers control too early.
 
-Real-card dealing uses the same boundary. A Player controls when an abstract
+Real-card dealing uses the same interface. A Player controls when an abstract
 `ProjectCard<Player, Hand>` gain is prepared. Preparation delegates the remaining exact-face
 narrowing to Engine, which derives the only lawful face from the seed and event history. The Player
 cannot nominate a face, and cannot continue within the suspended scope while the delegated child is

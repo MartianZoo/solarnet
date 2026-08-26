@@ -35,7 +35,7 @@ targets the Java 17 bytecode and API surface, while Kotlin source and standard-l
 Kotlin 2.2. Contributors do not need another JDK installed.
 
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
-only when the change crosses a wider boundary or the narrower result leaves a material risk.
+only when the change crosses a wider scope or the narrower result leaves a material risk.
 
 - `./gradlew build` checks the whole repository: every JVM test plus one representative
   multi-generation engine game in Chrome. Use it only when repository-wide verification is
@@ -125,7 +125,7 @@ clear coverage of these contracts matters more than preserving every current tes
 7. **Known-defect scenarios.** Focused passing characterizations of important behavior known to be
    wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
-   contract. These are useful boundary coverage even though they are not a development priority.
+   contract. These are useful interface coverage even though they are not a development priority.
 9. **Cross-runtime packaging smoke coverage.** One representative browser game proving that the
    JavaScript artifact, packaged Canon resources, and engine work together outside the JVM.
 10. **Real-terminal REPL smoke coverage.** One Expect-driven scenario proving the packaged REPL can
@@ -141,7 +141,7 @@ exact intermediate task text, or other implementation detail.
 
 Keep gameplay and test APIs generic. Never add a Kotlin helper or DSL operation solely to represent
 one card, corporation, Prelude, or other component. Use existing gameplay helpers when their
-operation boundaries fit. When component-specific steps must stay inside an outer operation, express
+operation scopes fit. When component-specific steps must stay inside an outer operation, express
 them through existing `OperationBody` primitives so any sibling task may remain pending. Add a
 shared helper only for a recurring, component-independent concept that materially simplifies
 several call sites.
@@ -185,7 +185,7 @@ expected net differs from the narrated gross amount. Prefer a nearby absolute as
 source states an absolute value. Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert
 that a particular type did not change.
 
-Cover meaningful boundaries, negative cases, non-targets, and option combinations rather than only
+Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
 
@@ -237,7 +237,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   rather than mechanically asserting every log entry. Audio transcript translations may drop filler
   and repetition while retaining gameplay-relevant personality, uncertainty, corrections, and mistakes.
 - Treat every supplied screenshot as an authoritative snapshot at its exact point in the timeline.
-  At a generation boundary, reproduce any research choices logged before that screenshot, then
+  At a generation checkpoint, reproduce any research choices logged before that screenshot, then
   reconcile every visible resource and production discrepancy before the first action. If the
   screenshot was taken before purchases, reconcile before them. Write explicit relative `exMachina()`
   deltas; do not set absolute values or let differences accumulate until a later screenshot.
@@ -270,7 +270,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   repeats it after the adjustment so state-dependent instructions are recalculated.
   Keep unexplained state reconciliations as standalone timeline statements.
   Never place a manual or other raw adjustment inside an unrelated action body to evade a prepared-task or
-  operation-boundary restriction; use an explicit test mechanism or fix the helper/API instead.
+  operation-scope restriction; use an explicit test mechanism or fix the helper/API instead.
   Nest a missing consequence only when the enclosing action genuinely caused it.
 
 ## Multiplatform tests

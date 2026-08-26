@@ -11,7 +11,7 @@
 
 - [`solarnet.kotlin-base.gradle.kts`](../../gradle/build-logic/src/main/kotlin/solarnet.kotlin-base.gradle.kts)
   — search for `explicitApi` to inspect repository-wide Kotlin API policy.
-- The affected module's `build.gradle.kts` and source sets define the actual cross-module boundary.
+- The affected module's `build.gradle.kts` and source sets define the actual cross-module interface.
 - For a whole-project audit, use a temporary copy under `$TMPDIR`; do not inspect another linked
   working copy.
 

@@ -14,7 +14,7 @@
 - [Prelude 2 `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/Prelude2Expansion/cards.pets)
   — search for the specific card Class before changing behavior.
 - [`cards-dont-work.json5`](../../tfm-canon/src/commonMain/resources/canon/bundles/Prelude2Expansion/cards-dont-work.json5)
-  — inspect only when changing the support boundary.
+  — inspect only when changing the support scope.
 - [`Prelude2CardsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt)
   — read for the focused supported behavior, not as card-data authority.
 
@@ -32,7 +32,7 @@ The source set contains 40 cards that do not require Turmoil. Per the selected s
 Program is unsupported, and the 11 projects and 3 Preludes whose manifest compatibility includes
 Turmoil are omitted entirely.
 
-## Current boundary
+## Current scope
 
 The executable manifest contains 38 cards: 5 corporations, 12 projects, and 21 Preludes. The one
 remaining non-Turmoil definition stays in `cards-dont-work.json5` so its accurate data and specific

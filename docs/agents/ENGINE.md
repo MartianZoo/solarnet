@@ -128,7 +128,7 @@ The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, and `TaskE
 A change records its Actor and Cause. Rendered history uses `BY` for Actor, `VIA` for the
 effect-bearing cause, and `BECAUSE` for causal event ordinal.
 
-`EventLog.record` and rollback are the single history/mutation boundary: application or reversal
+`EventLog.record` and rollback are the single history/mutation interface: application or reversal
 must succeed before the log changes. Each forward or reverse mutation advances an opaque
 `WorldRevision`. Unlike an event-count checkpoint, a revision is never reused after rollback.
 That distinction is intended to let a future overlay or fork detect any mutation of its backing
@@ -140,7 +140,7 @@ part of the capture, and the source may not roll back that captured prefix while
 `Timeline` provides checkpoints, atomic blocks, rollback, and a commit floor. An atomic failure
 reverses component state, tasks, indexes, and events. `AbortOperationException` requests the same
 rollback without surfacing as a caller error. The commit floor prevents rollback into initialization
-or a workflow boundary.
+or a workflow stage.
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.
@@ -374,7 +374,7 @@ Gameplay
 ```
 
 `ApiTranslation` implements all layers and `godMode()` reveals the bottom, so this is not an
-authority boundary. Normal task commands, manual operations, task edits, and `sneak` do not all
+authority model. Normal task commands, manual operations, task edits, and `sneak` do not all
 share identical atomic/auto-exec semantics. [API.md](API.md) proposes a mechanical flattening before
 a separate safe client API.
 
@@ -382,7 +382,7 @@ a separate safe client API.
 auto-exec, preserves previously pending unprepared tasks, and fails if newly created Tasks or
 `Temporary` components remain. A pre-existing prepared task prevents it from starting.
 `sneak()` applies raw changes without normal instruction preparation or effects, but still uses the
-timeline and graph mutation boundaries.
+timeline and graph mutation interfaces.
 
 ## Auto-execution and Terraforming Mars workflow
 
@@ -394,7 +394,7 @@ Auto-execution modes are:
 
 Scanning is global. Assignee selects the queue; stored Actor controls attribution. Failed candidates
 receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplication in the current
-scheduling boundaries and the proposed direction; it does not describe committed behavior.
+scheduling points and the proposed direction; it does not describe committed behavior.
 
 `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
 layers. Treat it as transitional; test conveniences and player-facing domain actions need not

@@ -36,7 +36,7 @@ Open-deck and hidden-deck play are different problems:
   eventually choose whether “best” means best expected score, best guaranteed score, or something
   else. Structural conclusions that hold for every possible deck do not depend on that later choice.
 
-At the client boundary, every ordinary method call both begins and ends with a nonempty player task
+At the client interface, every ordinary method call both begins and ends with a nonempty player task
 queue. Starting and finishing the game are the exceptions. The engine may pass through an idle world
 internally, but that state is not observable through this interface. Each client-visible decision is
 therefore one of:

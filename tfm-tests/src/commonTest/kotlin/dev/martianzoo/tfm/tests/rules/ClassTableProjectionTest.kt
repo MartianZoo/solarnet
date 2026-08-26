@@ -83,7 +83,7 @@ internal class ClassTableProjectionTest {
   internal fun `MultiplayerVictoryCheck stays unloaded in solo`() =
       assertNotLoaded("MultiplayerVictoryCheck", baseSolo)
 
-  // Mode and player-count boundaries
+  // Mode and player-count divisions
 
   @Test
   internal fun `GenerationSetup stays unloaded in multiplayer`() =

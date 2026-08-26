@@ -34,7 +34,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - See if two wild tags on one card is feasible to support, else add to limitations doc.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
   the concrete `WhichAction` universe, including support for a declared `Fourth` selector.
-- Complete the master-Class-universe access boundary: remove public `Catalog.classTable` after
+- Complete the master-Class-universe access interface: remove public `Catalog.classTable` after
   replacing the three deliberate structural acquisition points with narrower internal capabilities.
 - Make an omitted concrete `CardResource` holder bound specialize to that resource class; today
   `CLASS Animal : CardResource` leaves the holder generic, so declarations must repeat
@@ -42,7 +42,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   cards.
 - **Medium priority:** Opportunistically replace Canon-backed engine characterizations with small
   generic declarations when the substitution is straightforward; keep core-rule scenarios at the
-  player-action and observation boundary.
+  player-action and observation interface.
 - **Low priority:** Replace incidental Terraforming Mars vocabulary in generic Pets tests with small
   synthetic declarations where straightforward. Move a test only when its actual purpose is to verify
   Terraforming Mars behavior; domain words used as test data do not decide ownership by themselves.
@@ -110,7 +110,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   surface.
 - **Medium priority:** Finish disposable Game World forks and overlays: overlay components and
   live effects, copy the small task queues, extend event history from a captured prefix, and
-  preserve one clear revision boundary for prepared tasks. Once overlays carry speculative changes,
+  preserve one clear revision point for prepared tasks. Once overlays carry speculative changes,
   reconsider `ComponentGraph` as a custom read-mostly structure whose base changes only when the
   game moves forward.
 - Do not intern every structurally possible Type without a retention policy; families such as
@@ -133,13 +133,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   Player-bound destination, and whether AMAP is a coherent alternative. Preserve the settled AMAP
   distinction between an existing destination with zero invariant headroom and a missing
   dependency; see [`TURMOIL.md`](docs/agents/TURMOIL.md#multiplicity-and-amap).
-- Complete `Game20260820Test` beyond its current partial generation-6 boundary using the preserved
+- Complete `Game20260820Test` beyond its current partial generation-6 checkpoint using the preserved
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 
 ### Making Solarnet AI-player-ready
 
 - **Medium-high priority:** Move beyond follow-along mode by modeling shuffled decks, deals, draws, and actual private hands. Include the bidirectional represented-family link from [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family. Replace the temporary follow-mode neutralizer with real-mode lowering for the canonical `CARDS` operation.
-- **Low priority:** Provide one strict player-relative observation and visible-history interface that cannot expose opponents' cards, hidden deck order, or private events; use that same boundary for training, evaluation, and live play.
+- **Low priority:** Provide one strict player-relative observation and visible-history interface that cannot expose opponents' cards, hidden deck order, or private events; use that same interface for training, evaluation, and live play.
 - **Low priority:** Provide a stable, machine-learning-friendly action interface that enumerates or scores complete legal choices while preserving the relationship among the engine's lower-level card, payment, target, quantity, and placement tasks.
 - Support parallel or batched game simulation for AI search and training.
 - Add a replay format or dataset pipeline.
@@ -148,7 +148,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Hypothetical Card Behavior
 
-- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion boundary
+- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase
   if a future score depends on another score rather than directly on game state.
 - Give multiple wild tags on one card distinct occurrences if a future card has two wild tags, so
   both can be assigned either the same tag or different tags for one action.
@@ -191,7 +191,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium-high priority:** Consolidate exception cleanup
   ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain
   failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain
-  boundaries, and narrow `Instruction.narrows`.
+  layers, and narrow `Instruction.narrows`.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
 - Move autoexecution out of the engine into optional clients of `Gameplay`: remove implicit drains,
@@ -228,11 +228,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Move Terraforming Mars payment/action lowering out of generic Pets; its remaining string-level
   implementation no longer creates a module dependency, but it is still domain ownership in the
   wrong layer.
-- Contract the temporary public engine and TFM-engine test seams after Canon-dependent lower-layer
+- Contract the temporary public engine and TFM-engine test interfaces after Canon-dependent lower-layer
   tests use self-contained declarations and return to their owning modules.
-- Contract the temporary public Pets-to-Canon construction and lowering seams around the eventual
-  generic `Catalog` boundary.
-- Contract the temporary public `EventLog.entryAt` boundary after `tfm-engine` receives a narrow
+- Contract the temporary public Pets-to-Canon construction and lowering stages around the eventual
+  generic `Catalog` interface.
+- Contract the temporary public `EventLog.entryAt` method after `tfm-engine` receives a narrow
   event query for identifying the origin of an action-phase second-action offer.
 
 - Teach the English renderer to consolidate repeated identical optional card transfers, so Astra
@@ -253,7 +253,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Make copied card effects use their executable follow-mode form; copying Head Start currently
   replays its authored card-area operation and tries to resolve inactive `Hand`.
 - If real content ever references a helper belonging only to the other map in a two-map Bundle,
-  split that Bundle at the selection boundary instead of adding per-Class availability metadata.
+  split that Bundle at the selection point instead of adding per-Class availability metadata.
 - Bring the JVM English renderer under Detekt through the planned intermediate-representation
   decomposition; avoid mechanical helper extraction or blanket suppression of the 47 legacy
   complexity findings.
@@ -262,7 +262,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
   `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
   so there is one implementation and one source of domain context.
-- Preserve and enforce the existing `GameReader` boundary that prevents game mechanics, including
+- Preserve and enforce the existing `GameReader` constraint that prevents game mechanics, including
   custom Classes, from reading `EventLog`; add an architectural check so event history remains
   diagnostic and gameplay-state equivalence can depend only on the `ComponentGraph` and
   gameplay-relevant `TaskQueues`.

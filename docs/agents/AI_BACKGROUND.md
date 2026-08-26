@@ -14,12 +14,12 @@ field has agreed on a single definition of “complexity” or “human level.�
 [board-gamer overview](AI_BACKGROUND_FOR_BOARD_GAMERS.md) explains the conclusions without assuming
 AI knowledge.
 
-## Solarnet source boundary
+## Solarnet source scope
 
 Read the research first, then inspect [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt)
 at `public interface Gameplay` for the current command surface and
 [`PendingTask.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/PendingTask.kt) at
-`public data class PendingTask` for the structured-choice boundary. Neither is yet a
+`public data class PendingTask` for the structured-choice interface. Neither is yet a
 player-relative observation or machine-learning API.
 
 ## Choose the evidence needed
@@ -500,7 +500,7 @@ This separation gives three benefits:
 It also clarifies “handling a new card.” The engine must always know how it works. The learned player
 may or may not already know how valuable its consequences are.
 
-### Build an explicit player observation boundary
+### Build an explicit player observation interface
 
 The live Game World, Event Log, and trusted engine APIs can contain facts a Player must not see. The
 learning interface needs a deterministic, player-relative observation builder. It should expose:
@@ -684,7 +684,7 @@ actions, semantic card encoding, long-horizon value, and population self-play—
 them with all multiplayer and expansion problems at once.
 
 The next milestone should hold out an entire effect family. Failure there is informative: it marks
-the boundary between “new card” and “new rule.” Only after that boundary is measured is it worth
+the divide between “new card” and “new rule.” Only after that divide is measured is it worth
 adding raw language conditioning or an LLM-based strategic advisor.
 
 ## Bottom line on specific-card training

@@ -7,7 +7,7 @@
 >
 > **Status:** mandatory repository procedure.
 
-## Isolation boundary
+## Isolation model
 
 Other linked or sibling working copies are out of scope. Never discover, enumerate, resolve,
 inspect, read, write, or otherwise access them. Do not run `git worktree list`, use `git -C` against

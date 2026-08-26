@@ -91,18 +91,18 @@ The projection computes the premise's monotone activation closure but freezing i
 construction or nominal-hierarchy compilation. Master compilation performs those tasks once for the
 Catalog.
 
-## Access boundary
+## Access interface
 
 Game runtime code receives the filtered table from `World.classTable`; it must not recover the
 master through `GameReader.catalog`. Production master-table acquisition is concentrated at three
-structural boundaries:
+structural constraints:
 
 - `TfmCatalog` compiles configuration and Module selection against its private `universe` handle;
 - `ClassTable.forPremise` acquires the Catalog universe once to construct a filtered view; and
 - canonical language metadata uses one module-private `canonClassUniverse` handle.
 
 `Catalog.classTable` remains public even though ordinary game clients have no legitimate reason
-to use it. That is an API-boundary gap, not permission for additional callers.
+to use it. That is an API-access gap, not permission for additional callers.
 
 ## Integrity requirements
 

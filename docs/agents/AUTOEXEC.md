@@ -22,13 +22,13 @@
 
 | Task | Read |
 | --- | --- |
-| Distinguish engine semantics from client policy | Core boundary; Preparation is not a policy |
+| Distinguish engine semantics from client policy | Core distinction; Preparation is not a policy |
 | Design a policy interface or driver | Policy pool and driver through Agent provenance |
 | Add analysis, speculative Worlds, or performance guarantees | Analysis and disposable Worlds; Performance contract |
-| Plan or review the extraction from engine | Broad implementation direction; First implemented seam; Current implementation divergence |
+| Plan or review the extraction from engine | Broad implementation direction; First implemented split; Current implementation divergence |
 | State the acceptance contract | Required invariants |
 
-## Core boundary
+## Core distinction
 
 The engine must be fully usable with no autoexecution enabled. A client can play a complete game by
 issuing explicit gameplay commands. Disabling every policy must perform no autoexecution analysis,
@@ -39,7 +39,7 @@ policy may select, prepare, narrow, or execute tasks on an Actor's behalf. It ha
 that an explicit client call lacks, and the resulting gameplay operation must be identical to the
 same call made directly by that client.
 
-This boundary excludes several engine responsibilities:
+This distinction excludes several engine responsibilities:
 
 - A `::` effect executes inline because the authored game rule makes it automatic.
 - A `:` effect creates a task because the authored rule requires later activity by its assignee.
@@ -119,14 +119,14 @@ semantically distinct legal continuation. Useful proof families include:
   uncommitted mechanical step;
 - exactly one revision of a selected task is valid;
 - exactly one task can make any gameplay progress in the current state; or
-- several candidate paths reach the same semantic state at the same comparison boundary.
+- several candidate paths reach the same semantic state at the same comparison point.
 
 The third case is stronger than observing that one call to `prepareTask` succeeds. Another task may
 still accept an explicit narrowing or another ordinary command. A policy must account for every
 way a client can make gameplay progress. When one task is gated on `Foo`, the World has no `Foo`,
 and the only other task gains `Foo`, the gain really is forced: the gated task cannot progress
 until that state change occurs. This policy family is plausible, but it may be deferred until its
-proof boundary and its value to whole-game clients are both clear.
+proof criterion and its value to whole-game clients are both clear.
 
 Speculative analysis may return `PROVEN`, `DISPROVEN`, or `UNKNOWN`; uncertainty always stops a
 proof-preserving policy. A successful simulation is not by itself proof that no other legal path
@@ -137,11 +137,11 @@ exists.
 For this purpose the gameplay state is the `ComponentGraph` plus the gameplay-relevant contents of
 `TaskQueues`. Two paths may be equivalent even when they produce different event records, policy
 credits, task ids, or other diagnostic metadata, provided those differences cannot affect later
-gameplay and the component/task states are otherwise the same at the same boundary.
+gameplay and the component/task states are otherwise the same at the same comparison point.
 
 This relies on a firm architectural rule: game mechanics must not read event history. Custom Class
 implementations currently receive only `GameReader`, which exposes no history. Preserve and enforce
-that boundary so a future custom API cannot silently turn diagnostic history into gameplay state.
+that restriction so a future custom API cannot silently turn diagnostic history into gameplay state.
 Event history remains essential for explanation, provenance, rollback, replay, and presentation;
 it is simply not an input to game rules.
 
@@ -179,7 +179,7 @@ revision must remain explicit so analysis is never applied to a changed state.
 
 ## Performance contract
 
-The implementation historically paid for autoexecution after every nested engine/API boundary. A
+The implementation historically paid for autoexecution after every nested engine/API transition. A
 JFR trace of `ThermalMatterWaveTest` after immediate execution stopped using reversible execution
 preview recorded 3,158 `autoExecNext` calls, 5,413 candidate-preparation probes, and 1,272 atomic API
 entries. There were more than five autoexecution passes and nine preparation probes per explicit
@@ -189,14 +189,14 @@ The destination removes that structural cost:
 
 - raw `Gameplay` commands never start an autoexecution drain;
 - no selected policies means no autoexecution work;
-- one application boundary owns policy advancement;
+- one application driver owns policy advancement;
 - each accepted proposal performs one ordinary command and invalidates earlier analysis;
 - policies may subscribe to relevant task changes instead of rescanning the World; and
 - caching or overlays are added only for a demonstrated proof policy and keyed by gameplay state,
   not diagnostic history.
 
 Performance is a first-class reason for the overhaul, but it reinforces rather than defines the
-boundary. The engine should not retain policy ownership merely because an internal loop appears
+division. The engine should not retain policy ownership merely because an internal loop appears
 easier to optimize.
 
 ## Broad implementation direction
@@ -204,7 +204,7 @@ easier to optimize.
 The current policy loop should move out of `Implementations` and `ApiTranslation`; `AutoExecMode`
 and `FIRST` should disappear from `Gameplay`. The raw API should retain ordinary task commands and
 gain only the read-only analysis needed by real policies. An optional application driver should own
-the selected policy profile, advancement boundaries, and diagnostic agent identity.
+the selected policy profile, advancement points, and diagnostic agent identity.
 
 The first useful profile should be deliberately small: execute a concrete task whose choice is
 already committed, and apply narrowly defined forced revisions. A sole-progress policy can be added
@@ -215,15 +215,15 @@ This is a broad destination, not a required migration order. Intermediate work m
 behavior and proposed behavior clearly labeled and must not make arbitrary autoexecution choices
 look safe merely to keep tests concise.
 
-## First implemented seam
+## First implemented split
 
 Nested facade re-entry no longer starts an implicit drain. `AtomicOperationBoundary` now invokes
 the configured autoexecution only before the outermost command completes. Explicit `OperationBody`
 task commands still advance between body statements, and the operation lifecycle still has its own
 pre-body and post-body drains because current completion validation depends on them.
 
-This is not the client-policy boundary yet: modes and the policy loop remain in the engine. It does
-establish one outer command seam, removes incidental cross-Actor re-entry as a scheduling boundary,
+This is not the client-policy split yet: modes and the policy loop remain in the engine. It does
+establish one outer command interface, removes incidental cross-Actor re-entry as a scheduling point,
 and makes the remaining operation coupling explicit enough to extract deliberately.
 
 An attempted direct removal of `FIRST` demonstrated why that extraction must come first. With the
@@ -238,7 +238,7 @@ engine internals into client scripts.
 ## Current implementation divergence
 
 Committed code still stores `AutoExecMode` on `Gameplay`, defaults it to `FIRST`, invokes draining
-from the outer engine-side API boundary and operation lifecycle, scans pending tasks globally, and
+from the outer engine-side API layer and operation lifecycle, scans pending tasks globally, and
 uses stable iteration order to choose among multiple candidates. Candidate discovery catches every
 `Exception`, conflating ordinary ineligibility with defects, and operation-level drains can still
 repeat analysis.
@@ -260,5 +260,5 @@ The finished design should establish that:
 - no supplied policy uses stable task order as a gameplay decision;
 - Actor, assignee, cause, and agent provenance remain distinct and correct;
 - game mechanics cannot read event history; and
-- policy advancement is measured at an application boundary rather than hidden inside nested
+- policy advancement is measured once per application command rather than hidden inside nested
   engine calls.

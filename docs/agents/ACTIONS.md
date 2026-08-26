@@ -14,7 +14,7 @@
 - [`Action.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Action.kt) — search for
   `public sealed class Cost` to inspect the parsed cost forms.
 - [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
-  search for `transformAction` before changing the lowering boundary.
+  search for `transformAction` before changing the lowering stage.
 - [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
   — search for `ABSTRACT CLASS Billing` to see the runtime protocol.
 - [`VariableAmountActionsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt)
@@ -44,7 +44,7 @@ A standard-resource Action has this lifecycle:
    itself.
 5. The Action result responds to that `-Invoice` event.
 
-The invoice is therefore both the finalized boundary of one obligation and its completion event.
+The invoice is therefore both the conclusion of one obligation and its completion event.
 There is no separate payment-completed signal.
 
 Only invoice creation needs to state its denomination, and M€ is the creation default. Effects
@@ -101,9 +101,9 @@ the cost, without pretending that holder-sensitive components are fungible debt.
 Costless Actions likewise need no invoice. This keeps the payment model limited to the family for
 which debt, modifiers, and alternate tender genuinely compose.
 
-## Ownership boundary
+## Ownership rules
 
 `Action` is a Pets AST concept, while `StandardResource`, `Owed`, and `Invoice` belong to
 Terraforming Mars. The generic transformer currently recognizes the six concrete standard-resource
 names, just as bare numeric costs already carry Terraforming Mars currency meaning. Treat those
-leaks as one boundary debt rather than introducing a policy layer for this closed set.
+leaks as one layering flaw rather than introducing a policy layer for this closed set.

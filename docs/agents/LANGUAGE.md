@@ -15,8 +15,8 @@
 | --- | --- |
 | Add support for one recurring Pets shape | Direction and pace; Expected renderer architecture; Transitional derivation; Review cadence |
 | Change wording or lexical categories | Canonical wording versus rules; Component nouns and change verbs |
-| Change actions, triggers, effects, requirements, or metrics | The matching part of Current derivation boundary, then its renderer source below |
-| Change which text appears above/below artwork | Known layout boundaries |
+| Change actions, triggers, effects, requirements, or metrics | The matching part of Current derivation scope, then its renderer source below |
+| Change which text appears above/below artwork | Known layout regions |
 | Review a corpus-wide change | Verification while replacing the data file; Review cadence |
 
 ## Source map
@@ -25,7 +25,7 @@
   public entry points and card-region assembly.
 - [`Rendering.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/Rendering.kt) and
   [`RenderedInstructions.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/RenderedInstructions.kt)
-  — search for `Unresolved` when changing refusal boundaries.
+  — search for `Unresolved` when changing refusal cases.
 - [`ExpressionResolver.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ExpressionResolver.kt)
   — read when ownership defaults or dependency-by-key resolution is involved.
 - [`ComponentDescriber.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ComponentDescriber.kt)
@@ -43,7 +43,7 @@
 The eventual goal is for `English` to render any instruction expressed in Pets. It now makes a
 best effort without consulting whole-card text data. When a renderer cannot safely describe a Pets
 node, it emits that node's canonical Pets source in square brackets at the narrowest safe structural
-boundary. An incremental result containing bracketed regions is expected and honest.
+layer. An incremental result containing bracketed regions is expected and honest.
 
 The language module currently targets the JVM only. Its source and resource loading use the
 ordinary JVM source sets even though the Pets and Canon dependencies remain multiplatform.
@@ -67,10 +67,10 @@ semantic authority or a production answer source.
 ## Verification while replacing the data file
 
 Do not add a test merely to prove that a newly supported shape removes brackets. Such a test would
-restate the implementation boundary, and every incremental step would require another synthetic
+restate the implementation scope, and every incremental step would require another synthetic
 test. The all-card comparison against the generated current snapshot is the behavioral
 characterization. Review the production diff and the regenerated snapshot together to establish
-that the raw boundary moved intentionally.
+that the raw scope moved intentionally.
 
 The explicit empty-region tests establish that structurally absent top or bottom content renders as
 empty text. If a renderer gains behavior not exercised by any canonical card, add a behavioral test
@@ -79,7 +79,7 @@ for that behavior or defer the generalization.
 Every active family entry point now returns total text together with explicit `Unresolved` records
 for Pets retained as source. `writeEnglishCardTextCurrent` writes a ranked refusal histogram to
 `english-card-text-refusals.tsv` while preserving `english-card-text-current.tsv` as the wording
-characterization. Refusal reasons identify the active boundary that could not interpret the node,
+characterization. Refusal reasons identify the unsupported construct that the renderer could not interpret,
 such as its change frame, effect trigger, action cost, gate, or scaling form. Nullable private
 matchers remain branch attempts inside those interpreters and do not create anonymous report rows.
 
@@ -205,7 +205,7 @@ they need not solve the general case immediately.
 Do not automatically populate such a table from card regions keyed only by the Pets element. Equal
 syntax trees currently occur in card rows with context-specific variants such as “including this.”
 Either derive such wording from explicit host context or canonicalize the redundant variant away. A
-granular raw boundary must remain valid independently of whichever whole-card row happened to teach it.
+granular raw scope must remain valid independently of whichever whole-card row happened to teach it.
 
 ## Canonical wording versus rules
 
@@ -243,7 +243,7 @@ Corporation definitions must author starting money before their other immediate 
 the ordinary authored-order renderer puts that gain first. Correct the canonical card definition
 when this order is wrong; do not teach the renderer to reorder corporations.
 
-## Current derivation boundary
+## Current derivation scope
 
 Above the artwork, `English` now composes a card's action region from its `Action` list when the card
 has no behavior-bearing extra declaration. Bottom-region immediate instructions do not prevent
@@ -252,7 +252,7 @@ one standard resource, and actions that decrease one concrete standard-resource 
 fixed number of steps, provided the result uses the supported instruction shapes below. An action
 may instead remove a concrete number of one card resource from this card, `ANY PLAYER'S CARD`, or
 any of the player's own cards, as specified by the cost expression. Multiple authored actions render
-as alternatives, with a comma before `or` to distinguish their operation boundaries. Alternative
+as alternatives, with a comma before `or` to distinguish their operation scopes. Alternative
 costs share one verb only when their verb and modifiers agree; other mixes remain bracketed rather
 than risking a change in scope. An action may also link an `X`-scaled standard-resource or
 card-resource cost to one `X`-scaled concrete standard-resource gain; the action renderer retains
@@ -280,7 +280,7 @@ player is constrained and retains a separately described
 placement location. An unrestricted trigger uses passive
 voice and qualifies the event object with `any`, so it does not introduce or imply any triggering
 actor; this includes non-player mechanisms such as World Government Terraforming. Other non-End
-effects retain bracketed Pets at the narrowest safe effect boundary.
+effects retain bracketed Pets at the narrowest safe effect layer.
 Event interpretation retains the event kind and actor constraint independently; the actor
 constraint selects active `you` wording or unrestricted passive wording at linearization.
 Alternative event clauses with different verbs remain coordinated as complete clauses.
@@ -372,7 +372,7 @@ One mandatory gain may instead use a procedure frame's imperative verb and optio
 when its procedure is absent from the Pets change itself. Optional top-card purchase procedures,
 production-box copying, and temporary next-card adjustments remain bracketed rather than being
 recognized from their current declaration shapes. A `Per` whose metric is a subtraction likewise
-uses the ordinary scaling boundary; production floors are not a separate instruction idiom.
+uses the ordinary scaling rule; production floors are not a separate instruction idiom.
 A two-stage immediate instruction may instead play a card and then remove every generated global-
 requirement shortfall or remove up to one fixed owed amount, rendering the requirement waiver or
 card discount at the scope of that play.
@@ -448,7 +448,7 @@ bracketed independently. Extra component declarations do not produce text themse
 available to the renderer as structural evidence for instructions that refer to them.
 Actions and non-End effects are top elements and do not prevent bottom derivation.
 
-## Known layout boundaries
+## Known layout regions
 
 Immediate instructions are printed below the artwork. The goal rows that split Potatoes, Air
 Raid, or Stratospheric Birds across regions were data errors, not evidence for a layout distinction
@@ -499,7 +499,7 @@ disjoint. Render the metric composition directly when it has a compact general r
 When asking Kevin to judge possible wording canonicalizations, use concrete sentence pairs rather
 than architectural descriptions. For each candidate, show two actual current outputs, then show both
 sentences after applying one proposed consistency rule. Keep each item to one visible transformation
-so Kevin can mark a winner, reject it, or refine its boundary directly. Carry those decisions into
+so Kevin can mark a winner, reject it, or refine its scope directly. Carry those decisions into
 the next pair or implementation; do not translate them back into abstract questions unless the
 implementation reveals a genuine design choice.
 
