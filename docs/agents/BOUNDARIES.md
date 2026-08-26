@@ -3,8 +3,8 @@
 > **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number or
 > Action lowering, splitting Catalog responsibilities, or separating script/workflow mechanics.
 >
-> **Skip when:** doing a move whose ownership is already explicit in [REORG.md](REORG.md), or when
-> the only motivation is support for a hypothetical unrelated game.
+> **Skip when:** a move follows the dependency direction already explicit in the source and Gradle
+> build files, or when the only motivation is support for a hypothetical unrelated game.
 >
 > **Status:** audit, not a mandate to generalize Solarnet.
 
