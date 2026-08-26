@@ -580,23 +580,27 @@ public class TfmGameplay(
       body: BodyLambda = {},
   ) {
     doTask("UseAction<$cardName, ${whichAction(which)}>")
-    x?.let { chooseVariableInvoiceAmount(this, it) }
+    x?.let { chooseVariableAmount(this, it) }
     payInvoiceFromItsResourceIfOffered()
     body()
   }
 
-  private fun chooseVariableInvoiceAmount(operation: OperationBody, x: Int) {
+  private fun chooseVariableAmount(operation: OperationBody, x: Int) {
     require(x > 0) { "An action's X must be positive: $x" }
-    val invoice =
+    val variableTasks =
         game.tasks
             .extract { it }
-            .filter { it.assignee == actor }
-            .single { task ->
-              task.instruction.descendantsOfType<Change>().any { change ->
-                change.gaining?.className == cn("Owed")
-              } && task.instruction.descendantsOfType<Scalar>().any(Scalar::abstract)
+            .filter { task ->
+              task.assignee == actor &&
+                  task.instruction.descendantsOfType<Scalar>().any(Scalar::abstract)
             }
-    val bound = bindXTo(x).transformInstructionTree(invoice.instruction)
+    val variableTask =
+        variableTasks.singleOrNull { task ->
+          task.instruction.descendantsOfType<Change>().any { change ->
+            change.gaining?.className == cn("Owed")
+          }
+        } ?: variableTasks.single()
+    val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
     val firstStage = if (bound is Then) bound.first else bound
     operation.doTask(firstStage.toString())
   }
