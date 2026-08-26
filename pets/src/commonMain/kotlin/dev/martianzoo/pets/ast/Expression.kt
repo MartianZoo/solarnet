@@ -10,6 +10,8 @@ import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.Specification
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.Type
 import kotlin.reflect.KClass
@@ -33,7 +35,7 @@ public data class Expression(
     val complement: Boolean = false,
     /** Whether the source wrote angle brackets, including an explicit empty `<>`. */
     val argumentsSpecified: Boolean = arguments.isNotEmpty(),
-) : PetElement(), HasClassName, HasExpression {
+) : PetElement(), HasClassName, HasExpression, Specification<Expression> {
 
   internal var derivedClassBody: ClassParsing.Body? = null
     private set
@@ -67,6 +69,11 @@ public data class Expression(
 
   override val expression: Expression
     get() = this
+
+  override fun isAbstract(info: TypeInfo): Boolean = info.isAbstract(this)
+
+  override fun ensureNarrows(that: Expression, info: TypeInfo): Unit =
+      info.ensureNarrows(that, this)
 
   override fun visitChildren(visitor: Visitor): Unit =
       visitor.visit(listOf(className) + arguments + refinement)

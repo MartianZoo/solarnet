@@ -192,8 +192,13 @@ handoff exists.
 
 ### Preparation
 
-A task can be abstract because of a Type, Quantifier, `OR`, refinement, or unresolved custom
-operation. Preparation reads the current World and:
+`InstructionTree` and its narrowable parts implement `Specification`: `isAbstract` reports whether
+an externally supplied choice remains, while `narrows` and `ensureNarrows` compare two
+specifications compositionally. This is independent of preparation. An unresolved gate, `PER`, or
+AMAP instruction can already be non-abstract, and an unresolved instruction can be narrowed while
+preserving its gate, metric, or refinement.
+
+Preparation resolves the state-dependent parts of a task against the current World and:
 
 - evaluates `PER` metrics;
 - evaluates gates and optional no-ops;

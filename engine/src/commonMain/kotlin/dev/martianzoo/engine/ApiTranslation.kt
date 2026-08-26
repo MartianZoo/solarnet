@@ -24,7 +24,6 @@ import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
-import dev.martianzoo.pets.util.Hierarchical.Companion.lub
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
@@ -69,7 +68,7 @@ internal class ApiTranslation(
       val matches = allComponents.filter { it.isSubtypeOf(sub.baseType) }
       if (matches.any()) {
         @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<Type>
-        result.add(lub(types)!!.expression, matches.size)
+        result.add(types.reduceOrNull(Type::lub)!!.expression, matches.size)
       }
     }
     return result

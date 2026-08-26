@@ -61,6 +61,8 @@ The implemented value families are:
 | `Requirement?` | currently, an absent or present Requirement | the declaration may be omitted by a concrete descendant |
 
 The Kotlin AST names are `Property`, `PropertyName`, and `PropertyValue`.
+`PropertyValue` is a `Specification`, so inheritance uses the same narrowing relation as types,
+quantities, and instructions.
 
 ### Narrowing and inheritance
 

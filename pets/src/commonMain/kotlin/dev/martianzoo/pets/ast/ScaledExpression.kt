@@ -9,13 +9,13 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.pets.util.Reifiable
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
 @ConsistentCopyVisibility
@@ -69,12 +69,16 @@ private constructor(
 
   override val kind: kotlin.reflect.KClass<out PetNode> = ScaledExpression::class
 
-  public sealed class Scalar : PetNode(), Reifiable<Scalar> {
+  public sealed class Scalar : PetNode(), Specification<Scalar> {
     override val kind: kotlin.reflect.KClass<out PetNode> = Scalar::class
 
     override fun visitChildren(visitor: Visitor): Unit = Unit
 
     internal abstract operator fun times(multiple: Int): Scalar
+
+    override fun isAbstract(info: TypeInfo): Boolean = abstract
+
+    public abstract val abstract: Boolean
 
     /** Replaces an authored X with [value], retaining its written coefficient. */
     internal fun bindX(value: Int): Scalar =

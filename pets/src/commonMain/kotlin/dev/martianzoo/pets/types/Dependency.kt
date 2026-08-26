@@ -2,15 +2,25 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.Specification
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.util.Hierarchical
 
-public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasClassName {
+public sealed class Dependency : Specification<Dependency>, HasExpression, HasClassName {
   public abstract val key: Key
+  public abstract val abstract: Boolean
+
+  override fun isAbstract(info: TypeInfo): Boolean = abstract
+
+  public abstract fun isSubtypeOf(that: Dependency): Boolean
+
+  public abstract infix fun glb(that: Dependency): Dependency?
+
+  public abstract infix fun lub(that: Dependency): Dependency
 
   /**
    * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
@@ -35,7 +45,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
   internal abstract val boundClass: Class
 
-  internal abstract fun narrows(that: Dependency, info: TypeInfo): Boolean
+  public abstract override fun narrows(that: Dependency, info: TypeInfo): Boolean
 
   internal abstract fun intersect(expression: Expression): Dependency?
 
@@ -82,13 +92,23 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
       return glb(copy(boundType = boundType.classTable.resolve(expression)))
     }
 
-    override fun ensureNarrows(that: Dependency, info: TypeInfo): Unit =
-        boundType.ensureNarrows(boundOf(that), info)
+    override fun ensureNarrows(that: Dependency, info: TypeInfo) {
+      when (that) {
+        is ComplementDependency -> {
+          if (!that.matches(boundType, info)) {
+            throw NarrowingException("$this does not narrow $that")
+          }
+        }
+        is TypeDependency -> boundType.ensureNarrows(boundOf(that), info)
+        else -> throw NarrowingException("$this does not narrow $that")
+      }
+    }
 
-    override fun narrows(that: Dependency, info: TypeInfo) =
+    override fun narrows(that: Dependency, info: TypeInfo): Boolean =
         when (that) {
           is ComplementDependency -> that.matches(boundType, info)
-          else -> boundType.narrows(boundOf(that), info)
+          is TypeDependency -> boundType.narrows(boundOf(that), info)
+          else -> false
         }
 
     private fun boundOf(that: Dependency): Type =
@@ -166,7 +186,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) {
       if (!narrows(that, info)) {
-        domainType.ensureNarrows((that as TypeDependency).boundType, info)
+        throw NarrowingException("$this does not narrow $that")
       }
     }
 

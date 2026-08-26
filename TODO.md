@@ -4,6 +4,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Rename instruction `Intensity` to `Quantifier` throughout.
 - Track every project card in full-game replays by exact card name and location from deck exit
   through hand, temporary selection/reveal areas, play, event pile, and discard, with tracker state
   restored consistently across timeline rollbacks.

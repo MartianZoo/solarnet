@@ -77,7 +77,7 @@ public object Exceptions {
 
   /**
    * An attempt was made to execute an instruction that was not fully-specified. This should be
-   * rectifiable by reifying the instruction.
+   * rectifiable by narrowing or preparing the instruction.
    */
   public class AbstractException(message: String) : RecoverableException(message)
 
