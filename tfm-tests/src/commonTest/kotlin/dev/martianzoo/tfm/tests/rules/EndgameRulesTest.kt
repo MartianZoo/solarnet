@@ -51,6 +51,26 @@ internal class EndgameRulesTest : CardTest() {
   }
 
   @Test
+  internal fun `Standard Venus solo also requires completing Venus`() {
+    newGame(VenusNextExpansion, players = 1)
+    engine.manual(
+        "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+    )
+    engine.manual("SoloVictoryCheck")
+    p1.count("Victory") shouldBe 0
+
+    newGame(VenusNextExpansion, players = 1)
+    engine.manual(
+        "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>"
+    )
+    engine.manual("SoloVictoryCheck")
+
+    p1.count("Victory") shouldBe 1
+  }
+
+  @Test
   internal fun `Prelude shortens the solo countdown by two generations`() {
     newGame(players = 1)
     engine.count("SoloGenerationsLeft") shouldBe 13
@@ -75,7 +95,20 @@ internal class EndgameRulesTest : CardTest() {
     p1.count("Victory") shouldBe 1
   }
 
+  @Test
+  internal fun `TR 63 solo evaluates the current rating rather than past attainment`() {
+    newGame(Tr63SoloVariant, players = 1)
+    p1.manual("49 TerraformRating")
+    p1.manual("-TerraformRating")
+
+    engine.manual("SoloVictoryCheck")
+
+    p1.count("Victory") shouldBe 0
+  }
+
   private fun exhaustSoloCountdown() {
-    repeat(engine.count("SoloGenerationsLeft")) { engine.manual("-SoloGenerationsLeft") }
+    repeat(engine.count("SoloGenerationsLeft")) {
+      engine.manual("-SoloGenerationsLeft")
+    }
   }
 }

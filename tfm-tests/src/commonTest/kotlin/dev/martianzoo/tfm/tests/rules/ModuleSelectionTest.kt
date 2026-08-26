@@ -115,6 +115,16 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
+                description = "Mandatory Venus adds the multiplayer end variant",
+                config = "VenusNextExpansion, MandatoryVenusVariant",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap,
+                    VenusNextExpansion, WorldGovernmentOption, MandatoryVenusVariant
+                    """,
+            ),
+            Configuration(
                 description = "World Government can be selected without Venus Next",
                 config = "WorldGovernmentOption",
                 selectsExactly =
@@ -316,6 +326,11 @@ internal class ModuleSelectionTest {
             Rejection(
                 description = "a multiplayer game cannot select a solo objective",
                 config = "Tr63SoloVariant",
+            ),
+            Rejection(
+                description = "mandatory Venus is multiplayer-only",
+                config = "VenusNextExpansion, MandatoryVenusVariant",
+                players = 1,
             ),
             Rejection(
                 description = "a solo game cannot select two solo objectives",

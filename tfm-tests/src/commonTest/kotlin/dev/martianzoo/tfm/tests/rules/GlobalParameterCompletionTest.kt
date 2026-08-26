@@ -21,7 +21,7 @@ internal class GlobalParameterCompletionTest {
 
     p1.godMode().manual("TemperatureStep, OxygenStep, VenusStep")
 
-    p1.count("LastCall") shouldBe 0
+    p1.count("GameEndBarrier") shouldBe 1
 
     p1.godMode().manual("OceanTile<${waterAreas.elementAt(8)}>")
 
@@ -29,6 +29,7 @@ internal class GlobalParameterCompletionTest {
     p1.count("GpComplete<Class<OxygenStep>>") shouldBe 1
     p1.count("GpComplete<Class<OceanTile>>") shouldBe 1
     p1.count("GpComplete<Class<VenusStep>>") shouldBe 1
-    p1.count("LastCall") shouldBe 1
+    p1.count("GpIncomplete") shouldBe 0
+    p1.count("GameEndBarrier") shouldBe 0
   }
 }

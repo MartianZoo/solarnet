@@ -51,7 +51,8 @@ public object TfmWorkflow {
 
     /** Enters the universal Solar phase unless the game ended after production. */
     public fun solarPhase(): TaskResult? =
-        if (engineOps.has("LastCall")) null else engineOps.beginManual("SolarPhase FROM Phase")
+        if (engineOps.has("GameEndBarrier")) engineOps.beginManual("SolarPhase FROM Phase")
+        else null
 
     public fun generation(): TaskResult = engineOps.beginManual("Generation")
 

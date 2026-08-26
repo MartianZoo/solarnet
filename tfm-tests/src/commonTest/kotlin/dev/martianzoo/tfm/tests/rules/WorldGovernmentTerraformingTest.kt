@@ -48,13 +48,13 @@ internal class WorldGovernmentTerraformingTest {
     val engine = game.tfm(ENGINE)
     engine
         .godMode()
-        .sneak(
+        .manual(
             "GpComplete<Class<TemperatureStep>>, " +
                 "GpComplete<Class<OxygenStep>>, " +
                 "GpComplete<Class<OceanTile>>, " +
                 "GpComplete<Class<VenusStep>>"
         )
-    engine.count("LastCall") shouldBe 0
+    engine.count("GpIncomplete") shouldBe 0
 
     TfmWorkflow.Manual(game).solarPhase()
 
@@ -65,7 +65,12 @@ internal class WorldGovernmentTerraformingTest {
   internal fun `Solar phase is skipped when production ends the game`() {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
-    engine.godMode().sneak("LastCall")
+    engine
+        .godMode()
+        .manual(
+            "GpComplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+        )
 
     TfmWorkflow.Manual(game).solarPhase()
 

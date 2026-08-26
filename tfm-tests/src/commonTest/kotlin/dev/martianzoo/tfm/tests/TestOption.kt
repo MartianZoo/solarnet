@@ -23,7 +23,8 @@ public enum class TestOption(private val configuredName: String? = null) : TestS
   ColoniesExpansion,
   TurmoilCardPack,
   PromoCardPack,
-  WorldGovernmentOption;
+  WorldGovernmentOption,
+  MandatoryVenusVariant;
 
   internal val className: ClassName = cn(configuredName ?: name)
 }

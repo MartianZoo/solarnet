@@ -64,7 +64,7 @@ internal class FinalGreeneryPhaseTest {
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp(Ecoline, 0)
-    engine.godMode().sneak("-13 SoloGenerationsLeft, LastCall")
+    engine.godMode().sneak("-13 SoloGenerationsLeft")
 
     p1.pass()
 
@@ -94,10 +94,10 @@ internal class FinalGreeneryPhaseTest {
     engine
         .godMode()
         .sneak(
-            "-13 SoloGenerationsLeft, LastCall, " +
-                "GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>>"
+            "-13 SoloGenerationsLeft, " +
+                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
         )
 
     p1.pass()
@@ -123,10 +123,10 @@ internal class FinalGreeneryPhaseTest {
     engine
         .godMode()
         .sneak(
-            "-13 SoloGenerationsLeft, LastCall, " +
-                "GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>>"
+            "-13 SoloGenerationsLeft, " +
+                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
         )
 
     p1.pass()
@@ -176,8 +176,12 @@ internal class FinalGreeneryPhaseTest {
     engine
         .godMode()
         .sneak(
-            "LastCall, GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
         )
 
     p1.pass()
@@ -210,8 +214,12 @@ internal class FinalGreeneryPhaseTest {
     engine
         .godMode()
         .sneak(
-            "LastCall, GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
         )
 
     p1.pass()
@@ -248,8 +256,12 @@ internal class FinalGreeneryPhaseTest {
     engine
         .godMode()
         .sneak(
-            "LastCall, GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
         )
 
     p1.pass()
@@ -292,8 +304,12 @@ internal class FinalGreeneryPhaseTest {
     engine
         .godMode()
         .sneak(
-            "LastCall, GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
         )
 
     p1.pass()
@@ -322,11 +338,29 @@ internal class FinalGreeneryPhaseTest {
         .godMode()
         .manual(
             "GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>>"
+                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
         )
 
     engine.count("GpComplete<Class<VenusStep>>") shouldBe 0
-    engine.count("LastCall") shouldBe 1
+    engine.count("GameEndBarrier") shouldBe 0
+  }
+
+  @Test
+  internal fun mandatoryVenusVariantKeepsItsOwnBarrierUntilVenusIsComplete() {
+    val game = setUpGame(VenusNextExpansion, MandatoryVenusVariant)
+    val engine = game.tfm(ENGINE)
+
+    engine
+        .godMode()
+        .manual(
+            "GpComplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+        )
+
+    engine.count("GameEndBarrier") shouldBe 1
+
+    engine.godMode().manual("GpComplete<Class<VenusStep>>")
+
+    engine.count("GameEndBarrier") shouldBe 0
   }
 }

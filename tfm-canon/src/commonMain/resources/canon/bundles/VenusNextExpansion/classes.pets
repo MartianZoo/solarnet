@@ -1,7 +1,6 @@
 CLASS VenusNextExpansion : Module {
   This:: AirScrappingSP
-  SetupPhase IF SoloMode: SoloVictoryRequirement
-  SoloVictoryCheck IF SoloMode, MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
+  This:: GpIncomplete<Class<VenusStep>>
 }
 
 CLASS AirScrappingSP : StandardProject {
@@ -13,7 +12,13 @@ CLASS AirScrappingSP : StandardProject {
 CLASS WorldGovernmentOption : Module {
   autoSelectWhen = HAS "VenusNextExpansion"
 
-  SolarPhase IF MAX 2 GpComplete OR (VenusNextExpansion, MAX 3 GpComplete):: WorldGovernmentTerraforming
+  SolarPhase IF GpIncomplete:: WorldGovernmentTerraforming
+}
+
+"Makes Venus a required global parameter for ending a multiplayer game"
+CLASS MandatoryVenusVariant : Module {
+  premiseRequirement = HAS "MultiplayerMode, VenusNextExpansion"
+  This:: GlobalParameterGameEndBarrier<Class<VenusStep>>
 }
 
 "Represents a 2% increase in Venus... terraformedness"

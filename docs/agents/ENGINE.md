@@ -397,8 +397,9 @@ remain one production wrapper.
 
 `TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
 for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken
-determines turn order. Canon produces shared `LastCall` and `Victory` facts; the workflow reads
-those facts rather than reimplementing their predicates. Exact phase requirements and known gaps are
+determines turn order. Canon represents every condition currently preventing game end as a
+`GameEndBarrier`; the workflow checks for those components after Production and reads the solo
+`Victory` result rather than reimplementing its predicate. Exact phase requirements and known gaps are
 in [WORKFLOW.md](WORKFLOW.md).
 
 ## Wiring details

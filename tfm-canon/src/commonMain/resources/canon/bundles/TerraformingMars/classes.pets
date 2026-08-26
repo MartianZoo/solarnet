@@ -8,6 +8,7 @@ CLASS TerraformingMars : Module {
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardSA, UseCardActionSA, ConvertPlantsSA, ConvertHeatSA, SellPatents, HandleMandates
+  This:: GpIncomplete<Class<TemperatureStep>>, GpIncomplete<Class<OxygenStep>>, GpIncomplete<Class<OceanTile>>
   This IF Mode, MAX 0 MarsMap:: TharsisMap
 
   SetupPhase IF MultiplayerMode:: BeginGame
@@ -533,11 +534,23 @@ CLASS BeginGame : Signal, System {
   This:: Generation THEN StartToken<Player1>
 }
 
-"Records that a particular global parameter track has reached its maximum"
-CLASS GpComplete<Class<GlobalParameter>> { HAS MAX 1 This }
+"Records that a particular global parameter track has not reached its maximum"
+CLASS GpIncomplete<Class<GlobalParameter>> { HAS MAX 1 This }
 
-"Records that the current generation will be the last one played"
-CLASS LastCall { HAS MAX 1 This }
+"Records that a particular global parameter track has reached its maximum"
+CLASS GpComplete<Class<GlobalParameter>> {
+  HAS MAX 1 This
+  This:: -GpIncomplete<Class<GlobalParameter>>!
+}
+
+"Something that prevents the game from ending at the post-production check"
+ABSTRACT CLASS GameEndBarrier
+
+"A required global parameter that has not yet reached its maximum"
+CLASS GlobalParameterGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier {
+  HAS MAX 1 This
+  GpComplete<Class<GlobalParameter>>:: -This!
+}
 
 "This Signal causes components to pay out victory points"
 CLASS End : Signal, System
@@ -580,8 +593,8 @@ ABSTRACT CLASS Mode : Module {
     autoSelectWhen = HAS "2 Player"
 
     This:: ClaimMilestoneSA, FundAwardSA
+    This:: GlobalParameterGameEndBarrier<Class<TemperatureStep>>, GlobalParameterGameEndBarrier<Class<OxygenStep>>, GlobalParameterGameEndBarrier<Class<OceanTile>>
 
-    GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>:: LastCall.
     EndPhase: End THEN FinalScore
     FinalScore: MultiplayerVictoryCheck
   }
@@ -603,7 +616,6 @@ CLASS SoloMode : Mode {
   SetupPhase:: GenerationSetup THEN BeginGame
   GenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
-  -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
   SetupPhase: -6 TerraformRating<Player1>
   EndPhase: End THEN FinalScore
 }
@@ -614,29 +626,22 @@ ABSTRACT CLASS SoloVariant : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloVariant {
-    SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
+    SoloVictoryCheck IF MAX 0 GpIncomplete: Victory<Player1>.
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloVariant {
     This:: BufferGasSP
 
-    SetupPhase: Tr63SoloObjective
     SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
   }
 }
 
-"Records that a selected expansion extends the ordinary solo victory objective"
-CLASS SoloVictoryRequirement { HAS MAX 1 This }
-
 "Lets selected variants initialize solo state immediately before generation 1 begins"
 CLASS GenerationSetup : Signal, System
 
-"Records that the selected solo objective is 63 terraform rating"
-CLASS Tr63SoloObjective { HAS MAX 1 This }
-
-"The number of generations remaining in a solo game"
-CLASS SoloGenerationsLeft
+"One generation that must begin before a solo game may end"
+CLASS SoloGenerationsLeft : GameEndBarrier
 
 "Checks whether the solo player satisfied the configured victory objective"
 CLASS SoloVictoryCheck : Signal, System

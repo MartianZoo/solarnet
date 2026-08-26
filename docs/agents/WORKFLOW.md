@@ -47,8 +47,9 @@ This is topology, not one unconditional line.
 
 ### Multiplayer ending
 
-After Production, Solar checks temperature, oxygen, and oceans. Venus is not part of the multiplayer
-end condition. If complete, go directly to Final Greenery and End; otherwise run selected Solar
+After Production, the workflow checks whether any `GameEndBarrier` remains. Multiplayer begins with
+one barrier for each of temperature, oxygen, and oceans; `MandatoryVenusVariant` adds
+one for Venus. With no barrier, go directly to Final Greenery and End; otherwise run selected Solar
 subphases and continue.
 
 Final greenery follows final-generation player order. Each player receives an optional conversion,
@@ -57,14 +58,15 @@ chooses `Ok` to finish before the next player begins.
 
 ### Solo ending
 
-Every solo game runs its configured generation count even if its objective is reached early. At the
-Solar phase after final production:
+Every solo game runs its configured generation count even if its objective is reached early. Each
+`SoloGenerationsLeft` is a `GameEndBarrier`; creating a Generation removes one, so the last
+generation is played with none. At the post-production check:
 
 - if the configured objective is satisfied, run Final Greenery then End;
 - otherwise abort without final greeneries or scoring and record a zero-score loss.
 
-Ordinary solo checks its required parameters, Venus solo includes Venus, and TR 63 checks rating 63.
-Final greeneries cannot rescue a failed objective.
+Ordinary solo checks that no active global parameter remains incomplete, while TR 63 checks the
+player's then-current rating. Final greeneries cannot rescue a failed objective.
 
 ### Other required precedence
 

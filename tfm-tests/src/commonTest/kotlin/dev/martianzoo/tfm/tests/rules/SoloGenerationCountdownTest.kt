@@ -25,7 +25,7 @@ internal class SoloGenerationCountdownTest {
   }
 
   @Test
-  internal fun enteringTheFinalSoloGenerationRecordsIt() {
+  internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
     finishNeutralSetup(engine)
@@ -34,7 +34,7 @@ internal class SoloGenerationCountdownTest {
     engine.godMode().manual("-SoloGenerationsLeft")
 
     engine.count("SoloGenerationsLeft") shouldBe 0
-    engine.count("LastCall") shouldBe 1
+    engine.count("GameEndBarrier") shouldBe 0
   }
 
   @Test
