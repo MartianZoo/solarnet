@@ -274,10 +274,15 @@ Two related families should not be described more strongly than the implementati
   generic action dispatch, however, not a promise of one uniform later component Type.
 - `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. Each signal creates the base
   `Owed` amount; Polyphemos and Terralabs Research react to that signal by adding or removing their
-  own `Owed`. Only then does it create an invoice hosted by the live `BuyCards` component, which
-  exposes payment and gates the follow-mode `ProjectCard` gain until settlement. In real-card mode,
-  `BuySelectedCards` broadcasts one `BuyCard` per remaining selected card and moves those exact
-  cards to `Hand` only after the invoice is paid.
+  own `Owed`. An automatic sibling creates the invoice hosted by the live `BuyCards` component,
+  which exposes payment and gates the follow-mode `ProjectCard` gain until settlement. In real-card
+  mode, `BuySelectedCards` broadcasts one `BuyCard` per remaining selected card and moves those
+  exact cards to `Hand` only after the invoice is paid.
+
+The buy-card invoice is currently an automatic sibling of the base debt and every card-specific
+price adjustment. Its registration order is covered by purchase tests, but automatic siblings do
+not provide a semantic ordering guarantee. Replace that dependency with aggregate purchase
+completion that establishes every selected card's adjusted debt before creating the single invoice.
 
 `Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
 not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
@@ -342,7 +347,8 @@ Settled uses include:
 - hidden adjacency creation before area bonuses and tile reactions;
 - old energy-to-heat conversion before production payouts;
 - fixed card requirement/cost/payment bookkeeping before gated choices; and
-- invisible marker creation that users should never execute manually;
+- invisible marker creation that users should never execute manually, including the research
+  `Selecting` scope before queued card offers;
 - completion and last-call flags derived from already-committed state changes that players can
   cause; and
 - helper Signals caused by player activity whose only purpose is to fan out later gameplay work.

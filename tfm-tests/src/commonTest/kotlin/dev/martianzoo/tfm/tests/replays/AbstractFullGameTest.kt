@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
@@ -170,8 +171,10 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   private fun TfmGameplay.assertVps(expected: Int) {
     val onAtomicComplete = game.onAtomicComplete
     val checkpoint = game.timeline.checkpoint()
+    val autoExecModes = game.actors.associateWith { game.gameplay(it).autoExecMode }
     game.onAtomicComplete = {}
     try {
+      game.actors.forEach { game.gameplay(it).autoExecMode = FIRST }
       dropPendingTasksForSnapshot()
       engine.phase("Production") { dropPendingTasksForSnapshot() }
       engine.phase("End") {
@@ -180,6 +183,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
       }
     } finally {
       game.timeline.rollBack(checkpoint)
+      autoExecModes.forEach { (actor, mode) -> game.gameplay(actor).autoExecMode = mode }
       game.onAtomicComplete = onAtomicComplete
     }
   }

@@ -17,6 +17,8 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Research cards cost three mc each`() {
     newGame()
     p1.manual("12 MC")
+    p1.autoExecMode = AutoExecMode.SAFE
+    requireP2().autoExecMode = AutoExecMode.SAFE
 
     engine.phase("Research") {
       p1.buyCards(3)
