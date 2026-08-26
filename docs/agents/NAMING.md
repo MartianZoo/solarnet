@@ -21,8 +21,8 @@
 
 Every class has one engine-facing `ClassName`. Pets, declarations, Kotlin implementations, events,
 saved state, and engine APIs use it. A `ClassName` begins with an ASCII uppercase letter and then
-contains ASCII letters, digits, or underscores. Pets keywords are reserved; keywords parsed without
-case sensitivity, such as `HAS`, are unavailable in every capitalization.
+contains ASCII letters, digits, or underscores. Pets keywords are case-sensitive and their exact
+spellings are reserved as class names.
 
 Structured content uses globally unique semantic English names such as `Birds`, `Builder7`,
 `Landlord`, and `Enceladus`. A definition's Class Name is its sole identity; there is no separate

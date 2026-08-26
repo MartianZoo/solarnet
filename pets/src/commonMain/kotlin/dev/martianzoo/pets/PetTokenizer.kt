@@ -34,15 +34,15 @@ internal abstract class PetTokenizer {
   // I simply don't want to name all of these and would rather look them up by the char itself
   private val characters = "!@^+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
 
-  internal val _by = caseInsensitiveWord("BY")
-  internal val _count = caseInsensitiveWord("COUNT")
-  internal val _eval = caseInsensitiveWord("EVAL")
-  internal val _from = caseInsensitiveWord("FROM")
-  internal val _has = caseInsensitiveWord("HAS")
-  internal val _if = caseInsensitiveWord("IF")
-  internal val _max = caseInsensitiveWord("MAX")
-  internal val _or = caseInsensitiveWord("OR")
-  internal val _then = caseInsensitiveWord("THEN")
+  internal val _by = word("BY")
+  internal val _count = word("COUNT")
+  internal val _eval = word("EVAL")
+  internal val _from = word("FROM")
+  internal val _has = word("HAS")
+  internal val _if = word("IF")
+  internal val _max = word("MAX")
+  internal val _or = word("OR")
+  internal val _then = word("THEN")
   internal val _x = regex(Regex("""X\b"""), "X")
 
   // class declarations - making these ignore case causes trouble with `Class<...>`
@@ -116,6 +116,5 @@ internal abstract class PetTokenizer {
 
   private fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
 
-  private fun caseInsensitiveWord(word: String, name: String = word) =
-      regex(Regex("$word\\b", RegexOption.IGNORE_CASE), name)
+  private fun word(word: String, name: String = word) = regex(Regex("$word\\b"), name)
 }
