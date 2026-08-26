@@ -253,9 +253,10 @@ Current strong examples are:
   amounts and a qualified `Invoice` barrier. Ecoline reduces the plant debt by one. Once the
   corresponding `Pay` removes the owner's final matching `Owed`, the invoice removes itself and
   only that conversion's result responds.
-- Every concrete `StandardProject` declares an ordinary `1 / cost -> result` Action. Standard-cost
-  Action lowering creates M€ debt from the provider's `cost` property and then one qualified
-  invoice. Discounts reduce `Owed`;
+- Every concrete `StandardProject` declares an ordinary `1 / cost -> result` Action. Action
+  lowering creates M€ debt from the provider's `cost` property and then one qualified invoice.
+  Sell Patents has cost zero, so its invoice completes without payment before cards are exchanged
+  for M€. Discounts reduce `Owed`;
   Standard Technology's separate 3 M€ reaction follows invoice settlement, remaining a rebate
   rather than reducing the debt or helping fund the triggering project.
 - `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose

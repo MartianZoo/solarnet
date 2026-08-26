@@ -540,7 +540,7 @@
       "projectKind": "ACTIVE",
       "cost": 6,
       "tags": [ "ScienceTag" ],
-      "effects": [ "-Invoice<StandardProject>: 3" ],
+      "effects": [ "-Invoice<StandardProject(HAS cost)>: 3" ],
     },
 
     {

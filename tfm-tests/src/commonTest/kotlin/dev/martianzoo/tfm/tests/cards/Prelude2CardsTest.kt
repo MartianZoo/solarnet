@@ -228,6 +228,19 @@ internal class Prelude2CardsTest : CardTest() {
     }
   }
 
+  @Test
+  internal fun `Selling patents does not offer Spire science for later debts`() {
+    newGame(Prelude2Expansion)
+    p1.manual("$Spire, Science<$Spire>, ProjectCard<Hand>")
+    p1.manual("-Mandate!")
+    engine.phase("Action")
+    p1.sellPatents(1)
+
+    shouldThrow<TaskException> {
+      p1.manual("10 Owed<>") { doTask("PayFromCard<$Spire> FROM Science<$Spire>") }
+    }
+  }
+
   // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
   @Test
   internal fun `Suitable Infrastructure pays once for each action`() {

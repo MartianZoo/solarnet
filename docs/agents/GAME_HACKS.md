@@ -86,19 +86,7 @@ task enumeration order is not a game rule.
 
 ## Deliberate vocabulary differences
 
-### 5. `StandardProject` excludes Sell Patents
-
-The official rules list Sell Patents as a standard project. Pets uses `StandardProject` for the
-costed standard projects that share invoicing and rebates, while Sell Patents is a separate
-standard action. Jacob Fryxelius's ruling that Established Methods cannot merely sell patents
-supports the behavioral distinction, but does not rename it out of the rulebook category:
-[Jacob's ruling](https://boardgamegeek.com/thread/3334230/article/44569176#44569176) and the
-[base rules](https://fryxgames.se/wp-content/uploads/2023/04/TMRULESFINAL.pdf).
-
-Authored effects over Pets `StandardProject` therefore exclude Sell Patents. A rule that truly
-means every rulebook standard project must mention Sell Patents separately.
-
-### 6. A copyable production box must be one `PROD[...]` subtree
+### 5. A copyable production box must be one `PROD[...]` subtree
 
 Robotic Workforce and Cyberia Systems copy a card's printed production box. The Kotlin-backed
 `CopyProductionBox` finds exactly one `PROD` subtree in the card's immediate instruction and
@@ -109,13 +97,13 @@ group, even when equivalent independent production instructions would otherwise 
 
 ## Initialization and coordinates
 
-### 7. Neutral solo greeneries briefly use ordinary greenery behavior
+### 6. Neutral solo greeneries briefly use ordinary greenery behavior
 
 Solo setup places a neutral greenery without raising oxygen. Pets places an ordinary greenery,
 allowing its normal oxygen step, and then removes that step. Neutral setup must therefore finish
 before user-contributed effects capable of observing oxygen changes can exist.
 
-### 8. Colony production tracks count advances, not printed spaces
+### 7. Colony production tracks count advances, not printed spaces
 
 A physical colony track has seven spaces and begins on its first space. Pets starts with one
 `ColonyProduction` component and caps the count at six: the count represents advances above the

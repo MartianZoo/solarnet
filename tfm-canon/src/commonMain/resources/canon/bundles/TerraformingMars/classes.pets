@@ -369,9 +369,6 @@ ABSTRACT CLASS StandardAction : HasActions {
   "Convert heat into a temperature increase"
   CLASS ConvertHeatSA { 8 Heat -> TemperatureStep }
 
-  "Sell any number of patents"
-  CLASS SellPatents { X ProjectCard<Hand> -> X }
-
   "Resolve a mandatory action before taking another standard action"
   CLASS HandleMandates { -> Mandate: MandateSignal }
 }
@@ -383,9 +380,15 @@ CLASS BuyCards : HasActions { HAS =1 This }
 "The persistent operation that owns card play regardless of how the play was initiated"
 CLASS PlayCards : HasActions { HAS =1 This }
 
-"A standard project, as the game defines it (but excluding Sell Patents)"
+"A standard project, as the game defines it"
 ABSTRACT CLASS StandardProject : StandardAction {
   cost = Number
+}
+
+"Sell any number of patents"
+CLASS SellPatents : StandardProject {
+  cost = 0
+  1 / cost -> X Megacredit FROM ProjectCard<Hand>
 }
 
 CLASS PowerPlantSP : StandardProject {

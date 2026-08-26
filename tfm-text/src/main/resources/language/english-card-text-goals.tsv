@@ -299,7 +299,7 @@ CeosFavoriteProject	CEO's Favorite Project	Add 1 resource to a card with 1 or mo
 AntiGravityTechnology	Anti-Gravity Technology	Requires 7 science tags. 3 VPs.	Effect: When you play a card, pay 2 M€ less.
 InvestmentLoan	Investment Loan	Decrease your M€ production 1 step. Gain 10 M€.
 CaretakerContract	Caretaker Contract	Requires that temperature is 0°C or higher.	Action: Spend 8 heat to raise your terraform rating 1 step.
-StandardTechnology	Standard Technology		Effect: When you use a standard project, gain 3 M€.
+StandardTechnology	Standard Technology		Effect: When you pay for a standard project, except selling patents, gain 3 M€.
 PowerSupplyConsortium	Power Supply Consortium	Requires 2 power tags. Decrease any player's energy production 1 step and increase your energy production 1 step.
 ProtectedHabitats	Protected Habitats		Effect: Opponents may not remove your plants, animals, or microbes.
 Satellites	Satellites	Increase your M€ production 1 step for each space tag you have.

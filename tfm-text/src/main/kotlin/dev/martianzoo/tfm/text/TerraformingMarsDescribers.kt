@@ -385,6 +385,8 @@ internal object TerraformingMarsDescribers {
                                     ComponentDescriber.MinimumProperty.Threshold(
                                         "printed cost",
                                         "M€",
+                                        positiveObjectPhrase =
+                                            "a standard project, except selling patents",
                                     )
                             ),
                     )

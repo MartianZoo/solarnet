@@ -46,7 +46,7 @@
       "immediate": "50, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }",
       "effects": [
         "CardFront(HAS 2 Tag): Science<This>",
-        "UseAction<StandardProject>:: AcceptFromCard<This>",
+        "UseAction<StandardProject(HAS cost)>:: AcceptFromCard<This>",
         "PayFromCard<This>:: -2 Owed<>",
       ],
     },

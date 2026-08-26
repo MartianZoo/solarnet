@@ -139,8 +139,11 @@ public data class ComponentDescriber(
   )
 
   public sealed interface MinimumProperty {
-    public data class Threshold(public val noun: String, public val unit: String? = null) :
-        MinimumProperty
+    public data class Threshold(
+        public val noun: String,
+        public val unit: String? = null,
+        public val positiveObjectPhrase: String? = null,
+    ) : MinimumProperty
 
     public data class Presence(public val noun: String) : MinimumProperty
   }
