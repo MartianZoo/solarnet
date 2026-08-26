@@ -25,10 +25,7 @@ internal class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   internal fun `Can convert three microbes into nine mc`() {
-    p1.cardAction2(SulphurEatingBacteria) {
-          doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9 MC")
-        }
-        .expect("-3 Microbe, 9 MC")
+    p1.cardAction2(SulphurEatingBacteria, x = 3).expect("-3 Microbe, 9 MC")
   }
 
   @Test
