@@ -467,7 +467,9 @@ public class TfmGameplay(
       }
 
   public fun sellPatents(count: Int): TaskResult =
-      stdAction("SellPatents") { doTask("-$count ProjectCard<Hand>! THEN $count") }
+      stdAction("SellPatents") {
+        doTask("$count Megacredit FROM ProjectCard<Hand>!")
+      }
 
   public fun phase(phase: String, body: BodyLambda = {}) {
     if (count("Phase") != 1) {

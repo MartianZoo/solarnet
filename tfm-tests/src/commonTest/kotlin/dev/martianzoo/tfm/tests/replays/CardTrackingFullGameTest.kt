@@ -68,7 +68,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
     return stdAction("SellPatents") {
-      doTask("-${cardClasses.size} ProjectCard<Hand>! THEN ${cardClasses.size}")
+      doTask("${cardClasses.size} Megacredit FROM ProjectCard<Hand>!")
       discard(*cardClasses)
     }
   }
@@ -108,6 +108,8 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
         gaining.isProjectCardAt(HAND) &&
             (removing?.className != PROJECT_CARD || removing.hasArgument(SELECTING)) ->
             draw(event.playerOwner(checkNotNull(gaining)), change.count)
+        removing.isProjectCardAt(HAND) && gaining?.className == MEGACREDIT ->
+            discard(event.playerOwner(checkNotNull(removing)), change.count)
         removing.isProjectCardAt(HAND) &&
             gaining?.className != null &&
             gaining.className != PROJECT_CARD ->
@@ -160,6 +162,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     get() = actor as Player
 
   private companion object {
+    val MEGACREDIT: ClassName = cn("Megacredit")
     val PROJECT_CARD: ClassName = cn("ProjectCard")
     val HAND: ClassName = cn("Hand")
     val SELECTING: ClassName = cn("Selecting")

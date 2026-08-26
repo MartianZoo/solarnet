@@ -1,6 +1,6 @@
 count	reason	examples
 26	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesign_NextCardEffect
-15	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2] | StandardTechnology: -Invoice<StandardProject>: 3
+14	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2] | Vitor: This IF Class<Award>: Vitor_Mandate
 13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<Megacredit>> / 6 - Production<Class<Megacredit>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
 3	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
 2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X | VenusShuttles: 1 / 12 - VenusTag -> VenusStep

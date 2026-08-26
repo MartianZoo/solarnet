@@ -32,4 +32,11 @@ internal class StandardTechnologyTest : CardTest() {
 
     p1.stdProject("PowerPlantSP").expect("-8 Megacredit, PROD[Energy]")
   }
+
+  @Test
+  internal fun `Does not award the rebate after selling patents`() {
+    p1.manual("ProjectCard<Hand>")
+
+    p1.sellPatents(1).expect("-ProjectCard, Megacredit")
+  }
 }

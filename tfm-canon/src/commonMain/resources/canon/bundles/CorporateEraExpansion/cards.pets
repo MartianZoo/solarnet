@@ -434,7 +434,7 @@ CLASS StandardTechnology : ActiveCard<Class<ProjectCard>> {
   cost = 6
 
   This:: ScienceTag<This>
-  -Invoice<StandardProject>: 3
+  -Invoice<StandardProject(HAS cost)>: 3
 }
 
 CLASS PowerSupplyConsortium : AutomatedCard<Class<ProjectCard>> {

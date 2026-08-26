@@ -289,8 +289,10 @@ with comma-or coordination.
 Event triggers use the same structured clauses, predicates, noun phrases, and modifiers as
 instructions and requirements rather than assembling a separate partial-string representation.
 Billing-family triggers are resolved structurally through the `Billing` dependency keys. The
-resolved provider supplies the payment operation, an explicitly selected represented resource
-supplies its denomination, and `CardInvoice` additionally retains the selected played-card Class and refinement.
+resolved provider and its refinement supply the payment operation, an explicitly selected
+represented resource supplies its denomination, and `CardInvoice` additionally retains the
+selected played-card Class and refinement. Invoice removal describes completion of payment rather
+than a pre-payment adjustment.
 The same interpretation drives action and card-play discounts, purchase surcharges, accepted
 alternate resources, and card-resource payment values; individual billing subclasses and cards do
 not have dedicated matchers. An explicitly selected action on the current card renders as `this

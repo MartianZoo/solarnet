@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Dependency.Key
 
@@ -11,14 +12,22 @@ internal data class BillingEvent(
     val provider: Expression,
     val resource: Expression?,
     val card: Expression?,
+    val completed: Boolean,
 )
 
 internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
-  val expression = (trigger as? OnGainOf)?.expression ?: return null
+  val expression =
+      when (trigger) {
+        is OnGainOf -> trigger.expression
+        is OnRemoveOf -> trigger.expression
+        else -> return null
+      }
   if (expression.refinement != null || expression.complement) return null
   if (!expressions.isBilling(expression.className)) return null
   val resolved = resolveExpression(expression) ?: return null
-  val provider = resolved.dependency(PROVIDER)?.rootClass?.className?.expression ?: return null
+  val providerType = resolved.dependency(PROVIDER) ?: return null
+  val provider =
+      providerType.rootClass.className.expression.copy(refinement = providerType.refinement)
   val resource =
       resolved.sourceDependency(RESOURCE)?.let {
         resolved.dependency(RESOURCE)?.representedClass?.className?.expression
@@ -33,7 +42,7 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
                 ?.expression
                 ?.copy(refinement = cardClass.refinement) ?: return null
           }
-  return BillingEvent(provider, resource, card)
+  return BillingEvent(provider, resource, card, trigger is OnRemoveOf)
 }
 
 private val BILLING = cn("Billing")

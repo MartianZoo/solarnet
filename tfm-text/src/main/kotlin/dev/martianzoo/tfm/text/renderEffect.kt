@@ -663,6 +663,13 @@ private fun Describers.renderBillingTrigger(trigger: Trigger): Clause.Simple? {
   billing.card?.let { card ->
     return playedCardEvent(card)?.renderTrigger()
   }
+  if (billing.completed) {
+    return eventTrigger(
+        subject = NounPhrase.text("you"),
+        verb = "pay for",
+        objectPhrase = NounPhrase.text(renderActionUse(billing.provider) ?: return null),
+    )
+  }
   val predicate =
       fact(billing.provider.className, ComponentDescriber::actionUse)?.refundDiscountPredicate
           ?: return null
@@ -705,6 +712,7 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
     trigger: Trigger,
 ): PaymentDiscountTrigger? {
   val billing = billingEvent(trigger) ?: return null
+  if (billing.completed) return null
   val use = fact(billing.provider.className, ComponentDescriber::actionUse) ?: return null
   return PaymentDiscountTrigger(
       renderBillingTrigger(trigger) ?: return null,
@@ -997,6 +1005,11 @@ private fun Describers.renderActionUse(expression: Expression): String? {
   val propertyMetric = minimum.metric as? Property ?: return null
   if (propertyMetric.receiver != null) return null
   val property = use.minimumProperties[propertyMetric.propertyName.value] ?: return null
+  if (minimum.target == 1) {
+    property.positiveObjectPhrase?.let {
+      return it
+    }
+  }
   val unit = property.unit?.let { " $it" }.orEmpty()
   val article = indefiniteArticle(property.noun)
   return "${use.objectPhrase} with $article ${property.noun} of ${minimum.target}$unit or more"
