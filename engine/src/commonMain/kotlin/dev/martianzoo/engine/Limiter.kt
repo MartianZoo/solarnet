@@ -13,8 +13,7 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import kotlin.Int.Companion.MAX_VALUE
 
-// TODO: Contract this temporary tfm-tests seam.
-public class Limiter(
+internal class Limiter(
     private val classTable: ClassTable,
     private val components: ComponentGraph,
 ) {

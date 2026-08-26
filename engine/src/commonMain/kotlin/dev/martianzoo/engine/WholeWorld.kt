@@ -6,9 +6,8 @@ import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
 
 /** The live, complete implementation of a [World]. */
-// TODO: Contract this temporary tfm-tests seam.
-public class WholeWorld
-public constructor(
+internal class WholeWorld
+internal constructor(
     override val components: ComponentGraph,
     override val events: EventLog,
     override val tasks: TaskQueue,
@@ -19,7 +18,7 @@ public constructor(
     private val gameplayByActor: Map<Actor, Gameplay>,
 ) : World {
   /** The exact event-backed state revision, including changes later rolled back. */
-  public val revision: WorldRevision
+  internal val revision: WorldRevision
     get() = events.revision
 
   override fun gameplay(actor: Actor): Gameplay = gameplayByActor[actor]!!
