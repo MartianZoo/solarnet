@@ -3,8 +3,8 @@
 > **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number or
 > Action lowering, splitting Catalog responsibilities, or separating script/workflow mechanics.
 >
-> **Skip when:** doing a move whose ownership is already explicit in [REORG.md](REORG.md), or when
-> the only motivation is support for a hypothetical unrelated game.
+> **Skip when:** a move follows the dependency direction already explicit in the source and Gradle
+> build files, or when the only motivation is support for a hypothetical unrelated game.
 >
 > **Status:** audit, not a mandate to generalize Solarnet.
 
@@ -67,12 +67,17 @@ when another caller needs them.
 
 ### `TfmCatalog` contains a generic Catalog implementation
 
-**Priority when boundary work is selected: P1.**
+System-declaration aggregation, duplicate checking, core declaration validation, Class loading,
+display-name merging, and custom implementation composition are generic Catalog assembly tasks.
+Card, milestone, award, map, standard-action, and colony registries are Terraforming Mars
+responsibilities.
 
-Declaration aggregation, duplicate checking, core validation, definition lowering, indexes, custom
-lookup, and test providers are generic Catalog responsibilities. Card, milestone, award, map,
-standard-action, and colony registries are Terraforming Mars responsibilities. Split them when work
-already touches Catalog ownership; do not redesign premise resolution at the same time.
+The module-organization audit found no useful implementation split today. The generic contract
+already lives in `pets`, while Terraforming Mars content selection is absent from it. There is only
+one production assembler, and its declaration assembly still incorporates transitional card and map
+lowering. Do not introduce a generic base implementation until a real second implementation or a
+completed declaration-authority cutover reveals a coherent reusable unit. Do not redesign premise
+resolution as part of that extraction.
 
 ### Workflow runner mechanics are general
 
