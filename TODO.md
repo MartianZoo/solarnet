@@ -5,12 +5,18 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ## User Ideas and Agreed Directions
 
 - Rename instruction `Intensity` to `Quantifier` throughout.
-- Track every project card in full-game replays by exact card name and location from deck exit
+- **High priority:** Complete located-card follow mode: track every project card in full-game
+  replays by exact card name and location from deck exit
   through hand, temporary selection/reveal areas, play, event pile, and discard, with tracker state
-  restored consistently across timeline rollbacks.
+  restored consistently across timeline rollbacks; make copied card effects use their executable
+  follow-mode form rather than replaying inactive authored card-area operations.
 - Decide whether the gameplay payment helper should accept arbitrary resources instead of its
   fixed standard-resource parameter list.
-- Get away from JSON entirely and create everything as pets code.
+- **High priority:** Finish eliminating the Definition/Class split: make Pets Classes the sole
+  runtime authority for cards and maps, then restrict remaining JSON-backed records to offline
+  generation and category-specific metadata.
+- Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
+  considered an unsuccessful direction.
 - Implement abstract class-property defaults, beginning with `CardFront.cost = Number DEFAULT 0`;
   let the project-card families clear that default while retaining the `Number` bound so every
   project card must still state its cost explicitly, including zero.
@@ -54,10 +60,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   resulting components.
 - Restrict `TfmGameplay.stdAction` to actual `StandardAction` providers; give other live
   `HasActions` components a correctly named gameplay operation instead.
-- Represent a payment as one auditable allocation: record every tender and every rule's full value,
-  reject excess that is not smaller than every payment-unit value used, and only then consume the
-  exact `Owed` amount. Confirm the precise excess-payment rule from an authoritative Jacob
-  Fryxelius ruling before committing that legality test; do not derive attribution from automatic
+- **Medium-low priority:** Represent a payment as one auditable allocation: record every tender and
+  every rule's full value, reject excess that is not smaller than every payment-unit value used,
+  and only then consume the exact `Owed` amount. Confirm the precise excess-payment rule from an
+  authoritative Jacob Fryxelius ruling before committing that legality test; do not derive
+  attribution from automatic
   effect order. See [`PAYMENTS.md`](docs/agents/PAYMENTS.md) for the concerns and candidate designs.
 - **Medium priority:** Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
