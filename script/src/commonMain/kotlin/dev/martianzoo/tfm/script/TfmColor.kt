@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.script
 
 internal enum class TfmColor(private val hexString: String) {
-  MEGACREDIT("f4d400"),
+  MC("f4d400"),
   STEEL("c8621e"),
   TITANIUM("777777"),
   PLANT("6dd248"),

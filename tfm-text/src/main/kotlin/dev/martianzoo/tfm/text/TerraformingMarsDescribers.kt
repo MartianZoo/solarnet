@@ -24,7 +24,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("titanium or steel")),
         klass("Steel") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
         klass("Titanium") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
-        klass("Megacredit") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
+        klass("MC") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
         klass("Plant") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),
         klass("ProjectCard") to

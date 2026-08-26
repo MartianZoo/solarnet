@@ -25,7 +25,7 @@ internal class BasicTest {
     val game = setUpGame()
     val session = game.tfm(PLAYER2).godMode()
 
-    session.manual("PROD[5, 4 E]")
+    session.manual("PROD[5 MC, 4 E]")
     session.manual("ProjectCard")
     session.manual("StripMine")
     session.manual("PROD[-2 E, 2 S, T]")

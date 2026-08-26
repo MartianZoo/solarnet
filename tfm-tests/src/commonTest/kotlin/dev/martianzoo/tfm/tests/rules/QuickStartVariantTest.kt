@@ -33,7 +33,7 @@ internal class QuickStartVariantTest : CardTest() {
         .map { game.tfm(it) }
         .forEach { player ->
           player.assertProds(
-              1 to "Megacredit",
+              1 to "MC",
               1 to "Steel",
               1 to "Titanium",
               1 to "Plant",
@@ -53,7 +53,7 @@ internal class QuickStartVariantTest : CardTest() {
         )
     )
     p1.assertProds(
-        1 to "Megacredit",
+        1 to "MC",
         1 to "Steel",
         1 to "Titanium",
         1 to "Plant",
@@ -69,7 +69,7 @@ internal class QuickStartVariantTest : CardTest() {
         )
     )
     p1.assertProds(
-        0 to "Megacredit",
+        0 to "MC",
         0 to "Steel",
         0 to "Titanium",
         0 to "Plant",
@@ -90,12 +90,12 @@ internal class QuickStartVariantTest : CardTest() {
         )
     quickStart.classTable.isActive(cn("Generalist")) shouldBe false
     quickStart.classTable.isActive(cn("Generalist2")) shouldBe true
-    p1.manual("8 Megacredit")
+    p1.manual("8 MC")
     engine.phase("Action")
 
     shouldThrow<RequirementException> { p1.stdAction("ClaimMilestoneSA") { doTask("Generalist2") } }
 
-    p1.manual("PROD[Megacredit, Steel, Titanium, Plant, Energy, Heat]")
+    p1.manual("PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]")
     p1.stdAction("ClaimMilestoneSA") { doTask("Generalist2") }
     p1.count("Milestone") shouldBe 1
 

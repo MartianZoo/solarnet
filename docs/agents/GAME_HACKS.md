@@ -49,7 +49,7 @@ for systemic payment behavior.
 player five M€-production components, then removes five M€ during each production phase. This
 represents the printed -5 floor without negative component counts.
 
-Consequently, raw `PROD[Megacredit]` counts production assets above the minimum, not the signed
+Consequently, raw `PROD[MC]` counts production assets above the minimum, not the signed
 track value. This is harmless for comparisons such as Banker because adding five preserves order.
 A threshold or displayed value must translate from the internal count, as Specialist does. A
 universal saturating `PositiveMoneyProd` would not be safer: it would erase distinctions that

@@ -57,7 +57,7 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe
         "Add up to 1 animal to this card."
     english.describe(
-        parse<InstructionTree>("3 Megacredit<Anyone> FROM Megacredit."),
+        parse<InstructionTree>("3 MC<Anyone> FROM MC."),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe
         "Requires that oxygen is 6% or lower."
@@ -113,7 +113,7 @@ internal class EnglishTest {
                 name = "TitaniumAction",
                 deck = "PROJECT",
                 projectKind = "ACTIVE",
-                actions = listOf("12 -> OceanTile", "Asteroid<This> -> VenusStep"),
+                actions = listOf("12 MC -> OceanTile", "Asteroid<This> -> VenusStep"),
                 effects = listOf("UseAction<This, First>:: Accept<Class<Titanium>>"),
             )
         )
@@ -139,9 +139,9 @@ internal class EnglishTest {
 
   @Test
   fun interpretsPlayerOwnedTypesInCardOwnershipContext() {
-    english.describe(parse<InstructionTree>("2 Megacredit / Colony")) shouldBe
+    english.describe(parse<InstructionTree>("2 MC / Colony")) shouldBe
         "Gain 2 M€ for each colony you own."
-    english.describe(parse<InstructionTree>("2 Megacredit / Colony<Anyone>")) shouldBe
+    english.describe(parse<InstructionTree>("2 MC / Colony<Anyone>")) shouldBe
         "Gain 2 M€ for each colony."
   }
 

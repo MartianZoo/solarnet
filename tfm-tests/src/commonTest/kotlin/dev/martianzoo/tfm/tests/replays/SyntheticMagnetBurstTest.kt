@@ -75,7 +75,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 10 M€
       // Green lost 1 M€ production because of Pink
       // Green lost 5 M€ because of Pink
-      playPrelude(Recession).expect("PROD[-Megacredit<Green>], -5 Megacredit<Green>")
+      playPrelude(Recession).expect("PROD[-1 MC<Green>], -5 MC<Green>")
       // Pink played Merger
       playPrelude(Merger) {
             // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
@@ -88,7 +88,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             draw(MicroMills)
             // Pink gained 4 M€ for playing Sagitta Frontier Services, which has no tags.
           }
-          .expect("PROD[2, Energy], ProjectCard, -7")
+          .expect("PROD[2 MC, Energy], ProjectCard, -7 MC")
     }
 
     green.turn {
@@ -99,7 +99,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             // Green drew Insects,Stratopolis
             draw(Insects, Stratopolis)
           }
-          .expect("5, 2 ProjectCard")
+          .expect("5 MC, 2 ProjectCard")
       // Green played Suitable Infrastructure
       // Green gained 5 steel
       playPrelude(SuitableInfrastructure)
@@ -118,7 +118,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             // Pink gained 3 M€
             // Pink gained 1 M€ production
           }
-          .expect("-3, PROD[1]")
+          .expect("-3 MC, PROD[1 MC]")
       // Pink played Micro-Mills
       // Pink gained 1 heat production
       // Pink gained 4 M€ for playing Micro-Mills, which has no tags.
@@ -166,7 +166,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             doTask("CopyProductionBox<$Mine>")
             // Pink gained 1 steel production
           }
-          .expect("PROD[Steel], -8, 0 Mine")
+          .expect("PROD[Steel], -8 MC, 0 Mine")
     }
 
     green.turn {
@@ -236,7 +236,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green played Investment Loan
       // Green lost 1 M€ production
       // Green gained 10 M€
-      playProject(InvestmentLoan, 0).expect("PROD[-1], 10")
+      playProject(InvestmentLoan, 0).expect("PROD[-1 MC], 10 MC")
       // Green used Aquifer Pumping action
       cardAction1(AquiferPumping) {
             pay(8)
@@ -245,7 +245,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             // Green gained 3 heat
             // Green gained 2 M€ from 1 ocean(s)
           }
-          .expect("3 Heat, -6")
+          .expect("3 Heat, -6 MC")
     }
     green.turn {
       // Green played Rotator Impacts
@@ -358,7 +358,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       assignWildTag(NobelPrize, "EarthTag")
       // Green gained 3 M€ production
       // Green gained 2 M€ from Suitable Infrastructure
-      playProject(MirandaResort, 12).expect("PROD[3], -10")
+      playProject(MirandaResort, 12).expect("PROD[3 MC], -10 MC")
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
       assignWildTag(NobelPrize, "MicrobeTag")
       // Green claimed Diversifier milestone
@@ -368,7 +368,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink played Titanium Mine
       // Pink gained 1 titanium production
       // Pink gained 1 M€ for playing Titanium Mine, which has exactly 1 tag.
-      playProject(TitaniumMine, 1, steel = 3).expect("PROD[Titanium], 0")
+      playProject(TitaniumMine, 1, steel = 3).expect("PROD[Titanium], 0 MC")
       // Pink ended turn
     }
     // Green passed
@@ -505,8 +505,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink lost 1 energy production
       // Pink stole 2 M€ production from Green
       // Pink gained 4 M€ for playing Hackers, which has no tags.
-      playProject(Hackers, 1) { doTask("PROD[-2 Megacredit<Green>]") }
-          .expect("PROD[2, -Energy, -2 Megacredit<Green>], 3")
+      playProject(Hackers, 1) { doTask("PROD[-2 MC<Green>]") }
+          .expect("PROD[2 MC, -Energy, -2 MC<Green>], 3 MC")
       // Pink used Space Elevator action
       // Pink gained 5 M€
       cardAction1(SpaceElevator)
@@ -521,7 +521,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink played Decomposers
       // Pink added 1 Microbe to Decomposers
       // Pink gained 1 M€ for playing Decomposers, which has exactly 1 tag.
-      playProject(Decomposers, 3).expect("Microbe<$Decomposers>, -2")
+      playProject(Decomposers, 3).expect("Microbe<$Decomposers>, -2 MC")
       // Pink played Ecological Zone
       // Pink added 2 Microbe(s) to Decomposers
       // Pink added 2 Animal(s) to Ecological Zone
@@ -676,7 +676,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green drew Stratospheric Birds,Floating Refinery
       // Green gained 3 M€
       playProject(IshtarExpedition, 6) { draw(StratosphericBirds, FloatingRefinery) }
-          .expect("3 Titanium, -3")
+          .expect("3 Titanium, -3 MC")
       // Green played Giant Ice Asteroid
       playProject(GiantIceAsteroid, 27, titanium = 3) {
             // Green placed ocean tile at 43
@@ -690,7 +690,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             doTask("-6 Plant<Pink>")
             // Green gained 3 M€
           }
-          .expect("Steel, -6 Plant<Pink>, -14")
+          .expect("Steel, -6 Plant<Pink>, -14 MC")
     }
     pink.turn {
       // Pink played Geothermal Power
@@ -707,7 +707,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             // Pink gained 1 M€ production
             // Pink gained 1 M€ production
           }
-          .expect("PROD[0], 0")
+          .expect("PROD[0 MC], 0 MC")
     }
     green.turn {
       // Green used Ironworks action
@@ -866,7 +866,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink lost 1 energy production
       // Pink gained 3 M€
       // Pink gained 1 M€ production
-      playProject(DawnCity, 4, titanium = 3).expect("PROD[Titanium, -Energy, 1], -1")
+      playProject(DawnCity, 4, titanium = 3).expect("PROD[Titanium, -Energy, 1 MC], -1 MC")
       // Pink ended turn
     }
     green.turn {
@@ -884,7 +884,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.turn {
       // Green played Bribed Committee
       // Green gained 3 M€
-      playProject(BribedCommittee, 4).expect("2 TerraformRating, -1")
+      playProject(BribedCommittee, 4).expect("2 TerraformRating, -1 MC")
       // Green ended turn
     }
     pink.turn {
@@ -900,7 +900,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green gained 2 M€ from Suitable Infrastructure
       // Pink lost 1 heat production because of Green
       playProject(CloudSeeding, 11) { doTask("PROD[-Heat<Pink>]") }
-          .expect("PROD[-1, 2 Plant, -Heat<Pink>], -9")
+          .expect("PROD[-1 MC, 2 Plant, -Heat<Pink>], -9 MC")
       // Green ended turn
     }
     pink.turn {
@@ -970,7 +970,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             placeTile(8, 5)
             draw(VenusianInsects)
           }
-          .expect("PROD[2 Megacredit<Pink>]")
+          .expect("PROD[2 MC<Pink>]")
     }
     pink.turn {
       // Pink played Fusion Power
@@ -1002,7 +1002,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 3 M€
       // Pink gained 1 M€ production
       // Pink gained 1 M€ production
-      playProject(Gyropolis, 18) { placeTile(1, 3) }.expect("PROD[8], 2 Plant")
+      playProject(Gyropolis, 18) { placeTile(1, 3) }.expect("PROD[8 MC], 2 Plant")
     }
     green.turn {
       // Green used Business Network action
@@ -1070,7 +1070,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green sold 1 patents
       // Green played Water to Venus
       // Green gained 3 M€
-      playProject(WaterToVenus, 9).expect("VenusStep, -6")
+      playProject(WaterToVenus, 9).expect("VenusStep, -6 MC")
     }
     pink.turn {
       // Pink funded Landscaper award
@@ -1159,7 +1159,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.turn {
       // Pink used Space Elevator action
       // Pink gained 5 M€
-      cardAction1(SpaceElevator).expect("5, -Steel")
+      cardAction1(SpaceElevator).expect("5 MC, -Steel")
       // Pink ended turn
     }
     green.turn {

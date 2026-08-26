@@ -106,7 +106,10 @@ internal class ClassDeclarationParsingTest {
     parseClasses("ABSTRACT CLASS Foo") // abstract
     parseClasses("CLASS Foo<Bar>") // with spec
     parseClasses("CLASS Foo : Bar") // with supertype
-    parseClasses("CLASS Foo { HAS 1 }") // with same-line body
+    parseClasses("CLASS Foo { HAS MC }") // with same-line body
+    parseClasses(
+        "CLASS MC"
+    ) // short class names use the same grammar in declarations and expressions
     parseClasses(" CLASS Foo") // with space first
     parseClasses("\nCLASS Foo") // with newline first
     parseClasses("CLASS Foo ") // with space after

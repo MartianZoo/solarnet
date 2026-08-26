@@ -12,16 +12,16 @@ internal class HeadStartTest : CardTest() {
   internal fun `Head Start grants two mandatory actions`() {
     newGame(PreludeExpansion, PromoCardPack)
     engine.phase("Prelude")
-    p1.manual("4, 10 ProjectCard, PreludeCard")
+    p1.manual("4 MC, 10 ProjectCard, PreludeCard")
     p1.playPrelude(HeadStart) {
-      p1.assertCounts(2 to "Steel", 24 to "Megacredit")
+      p1.assertCounts(2 to "Steel", 24 to "MC")
 
       doTask("UseAction<PowerPlantSP, First>")
-      doTask("11 Pay<Class<Megacredit>> FROM Megacredit")
+      doTask("11 Pay<Class<MC>> FROM MC")
       doTask("UseAction<PowerPlantSP, First>")
-      doTask("11 Pay<Class<Megacredit>> FROM Megacredit")
+      doTask("11 Pay<Class<MC>> FROM MC")
 
-      p1.assertCounts(2 to "Megacredit")
+      p1.assertCounts(2 to "MC")
       p1.production(cn("Energy")) shouldBe 2
     }
   }
@@ -37,7 +37,7 @@ internal class HeadStartTest : CardTest() {
       doTask("UseAction<HandleMandates, First>")
       doTask("PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>")
       doTask("UseAction<PowerPlantSP, First>")
-      doTask("11 Pay<Class<Megacredit>> FROM Megacredit")
+      doTask("11 Pay<Class<MC>> FROM MC")
     }
   }
 }

@@ -28,44 +28,44 @@ internal class StinaScriptTest {
 
         tfm_play SaturnSystems
         task Ok
-        task 30 Pay<Class<Megacredit>> FROM Megacredit
+        task 30 Pay<Class<MC>> FROM MC
 
         tfm_play Biolab
         tfm_play AcquiredSpaceAgency
 
-        tfm_play EarthOffice, 1
-        tfm_play MediaGroup, 3
+        tfm_play EarthOffice, 1 MC
+        tfm_play MediaGroup, 3 MC
 
         tfm_play InvestmentLoan
         task Ok
 
         tfm_play IndenturedWorkers
 
-        tfm_play EarthCatapult, 12
+        tfm_play EarthCatapult, 12 MC
 
         tfm_play HiredRaiders
         task 2 Steel<Me> FROM Steel<SoloOpponent>
         task Ok
 
-        tfm_play OlympusConference, 2 Steel, 1
+        tfm_play OlympusConference, 2 Steel, 1 MC
 
-        tfm_play AdvancedAlloys, 7
+        tfm_play AdvancedAlloys, 7 MC
         task ProjectCard FROM Science<OlympusConference>
 
-        tfm_play MineralDeposit, 3
+        tfm_play MineralDeposit, 3 MC
 
-        tfm_play ResearchOutpost, 5 Steel, 1
+        tfm_play ResearchOutpost, 5 Steel, 1 MC
         task CityTile<Elysium_9_7>
 
         tfm_play InventionContest
         task Ok
         task ProjectCard FROM Science<OlympusConference>
 
-        tfm_play BusinessContacts, 1
+        tfm_play BusinessContacts, 1 MC
 
-        tfm_play QuantumExtractor, 10
+        tfm_play QuantumExtractor, 10 MC
 
-        tfm_play SpaceStation, 1 Titanium, 1
+        tfm_play SpaceStation, 1 Titanium, 1 MC
 
         tfm_play OptimalAerobraking
         task 1 Ok
@@ -84,18 +84,18 @@ internal class StinaScriptTest {
         task 1 Ok
         task Ok
 
-        tfm_play MassConverter, 5
+        tfm_play MassConverter, 5 MC
 
-        tfm_play TowingAComet, 3 Titanium, 2
+        tfm_play TowingAComet, 3 Titanium, 2 MC
         task OceanTile<Elysium_1_2>
 
-        tfm_play AdaptationTechnology, 9
+        tfm_play AdaptationTechnology, 9 MC
         task Science<OlympusConference>!
 
-        tfm_play SpecialDesign, 1
+        tfm_play SpecialDesign, 1 MC
         task ProjectCard FROM Science<OlympusConference>
 
-        tfm_play Shuttles, 1
+        tfm_play Shuttles, 1 MC
         """
             .trimIndent()
 

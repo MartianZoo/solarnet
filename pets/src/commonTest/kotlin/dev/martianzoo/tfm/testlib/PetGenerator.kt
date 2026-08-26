@@ -40,7 +40,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   constructor(greed: Double = 0.8, backoff: Double = 0.15) : this(scaling(greed, backoff))
 
   private object Registry : RandomGenerator.Registry<PetNode>() {
-    private val megacredit = cn("Megacredit")
+    private val mc = cn("MC")
     private const val productionTransform = "PROD"
 
     init {
@@ -61,7 +61,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { XScalar(choose(1, 1, 2, 5, 11)) }
       register {
         scaledEx(
-            choose(1 to megacredit.of(), 3 to recurse<Expression>()),
+            choose(1 to mc.of(), 3 to recurse<Expression>()),
             recurse<Scalar>(),
         )
       }

@@ -29,10 +29,10 @@ internal class TfmGameplayTest : CardTest() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
-    p1.manual("10, 2 Steel, ProjectCard")
+    p1.manual("10 MC, 2 Steel, ProjectCard")
 
     shouldThrow<IllegalArgumentException> { p1.playProject(Mine, 4) }
-    p1.count("Megacredit") shouldBe 10
+    p1.count("MC") shouldBe 10
     p1.count("Steel") shouldBe 2
     p1.count("ProjectCard") shouldBe 1
     p1.count("$Mine") shouldBe 0
@@ -40,7 +40,7 @@ internal class TfmGameplayTest : CardTest() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
-    p1.manual("10, 2 Steel, ProjectCard")
+    p1.manual("10 MC, 2 Steel, ProjectCard")
     // Synthetic API test: no strategic reason; deliberate underpayment exercises the opt-in.
     p1.intentionalUnderpay()
     p1.playProject(Mine, 4)
@@ -51,7 +51,7 @@ internal class TfmGameplayTest : CardTest() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
-    p1.manual("14, 2 Steel, 2 ProjectCard")
+    p1.manual("14 MC, 2 Steel, 2 ProjectCard")
 
     // Synthetic API test: no strategic reason; deliberate underpayment exercises one-shot scope.
     p1.intentionalUnderpay()
@@ -84,14 +84,16 @@ internal class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  internal fun `Payment rejects megacredits beyond the remainder after steel`() {
+  internal fun `Payment rejects mc beyond the remainder after steel`() {
     newGame()
     engine.phase("Action")
-    p1.manual("30 Megacredit, 5 Steel, ProjectCard")
+    p1.manual("30 MC, 5 Steel, ProjectCard")
 
-    shouldThrow<LimitsException> { p1.playProject(AquiferPumping, megacredits = 18, steel = 5) }
+    shouldThrow<LimitsException> {
+      p1.playProject(AquiferPumping, mc = 18, steel = 5)
+    }
 
-    p1.count("Megacredit") shouldBe 30
+    p1.count("MC") shouldBe 30
     p1.count("Steel") shouldBe 5
     p1.count("ProjectCard") shouldBe 1
     p1.count("$AquiferPumping") shouldBe 0

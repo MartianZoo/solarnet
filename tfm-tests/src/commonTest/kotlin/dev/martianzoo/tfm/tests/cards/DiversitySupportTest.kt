@@ -29,11 +29,11 @@ internal class DiversitySupportTest : CardTest() {
     engine.phase("Action")
     requireP2()
         .manual(
-            "10 Megacredit, 9 ProjectCard, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat, " +
+            "10 MC, 9 ProjectCard, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat, " +
                 "$EarthCatapult, $Mine, $InventorsGuild"
         )
     p1.manual(
-        "6 Megacredit, 5 ProjectCard, 4 Steel, 3 Titanium, 2 Plant, 2 Energy, 2 Heat, " +
+        "6 MC, 5 ProjectCard, 4 Steel, 3 Titanium, 2 Plant, 2 Energy, 2 Heat, " +
             "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>"
     )
   }

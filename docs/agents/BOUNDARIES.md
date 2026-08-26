@@ -1,6 +1,6 @@
 # Generic and Terraforming Mars boundary audit
 
-> **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number or
+> **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number rejection or
 > Action lowering, splitting Catalog responsibilities, or separating script/workflow mechanics.
 >
 > **Skip when:** a move follows the dependency direction already explicit in the source and Gradle
@@ -11,7 +11,7 @@
 ## Source map
 
 - [`ScaledExpression.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ScaledExpression.kt)
-  — search for `Megacredit` only for the omitted-unit seam.
+  — search for `denominationless` only for the parse-time rejection seam.
 - [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
   search for `transformAction` only for the Action/turn seam.
 - [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
@@ -23,17 +23,6 @@ The generic runtime is mostly reusable, but a few seams still mix Pets/engine me
 Terraforming Mars or REgo application policy. `TODO.md` decides whether any seam is worth changing.
 
 ## Terraforming Mars behavior outside `tfm`
-
-### Bare numbers mean megacredits
-
-**Priority when boundary work is selected: P0.**
-
-`ScaledExpression` in `pets` treats an omitted scalar expression as megacredits. That makes a
-Terraforming Mars currency part of the generic AST.
-
-A principled correction would either preserve omission in the AST until a configured transform
-resolves it or supply the implicit unit through a game language profile. Do not add a general
-profile system unless this seam is actually being fixed.
 
 ### Turn/action protocol is split across layers
 
@@ -47,8 +36,8 @@ under Terraforming Mars. The half-generic placement is the defect.
 The [Pets Action model](ACTIONS.md) makes this seam more explicit: fixed and X-scaled Terraforming
 Mars `StandardResource` costs use provider- and action-qualified invoices, while direct and
 costless Actions keep ordinary Pets sequencing. The generic Action transformer recognizes those six
-resource names directly, alongside its existing Terraforming Mars meaning for bare numbers. Treat
-both leaks as one boundary debt rather than adding a broad extension framework for this rule.
+resource names directly. Treat that leak as boundary debt rather than adding a broad extension
+framework for this rule.
 
 ### The script application is mostly REgo/Terraforming Mars
 

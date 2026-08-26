@@ -26,7 +26,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun paymentWords(): List<ScriptCompletion> {
-    val standards = setOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    val standards = setOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
     return repl.game.classTable
         .allClasses()
         .filter { it.className.toString() in standards }

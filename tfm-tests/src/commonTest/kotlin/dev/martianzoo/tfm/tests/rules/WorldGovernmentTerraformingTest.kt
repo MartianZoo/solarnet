@@ -21,7 +21,7 @@ internal class WorldGovernmentTerraformingTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     p1.godMode().manual("$Aphrodite")
-    val megacreditsBefore = p1.count("Megacredit")
+    val mcBefore = p1.count("MC")
     engine.godMode().manual("StartToken<Player2> FROM StartToken<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
@@ -39,7 +39,7 @@ internal class WorldGovernmentTerraformingTest {
         }
     venusIncrease.actor shouldBe ENGINE
     p2.count("TerraformRating") shouldBe 20
-    p1.count("Megacredit") shouldBe megacreditsBefore + 2
+    p1.count("MC") shouldBe mcBefore + 2
   }
 
   @Test

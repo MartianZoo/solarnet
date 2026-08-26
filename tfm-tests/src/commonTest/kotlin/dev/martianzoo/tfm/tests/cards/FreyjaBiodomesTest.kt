@@ -17,6 +17,6 @@ internal class FreyjaBiodomesTest : CardTest() {
           // Decline adding animals to Venusian Animals by choosing the unavailable microbe gain.
           declineTask()
         }
-        .expect("PROD[-Energy, 2 Megacredit], 0 Animal<$VenusianAnimals>")
+        .expect("PROD[-Energy, 2 MC], 0 Animal<$VenusianAnimals>")
   }
 }

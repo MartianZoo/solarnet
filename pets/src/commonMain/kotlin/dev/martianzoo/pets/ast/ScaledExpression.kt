@@ -17,41 +17,52 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.util.Reifiable
 
-// TODO: Move Terraforming Mars's omitted-expression currency convention into tfm-canon.
-private val defaultScaledExpression: Expression = cn("Megacredit").expression
-
 /** The combination of a positive integer (or `X`) with an [Expression]. */
 @ConsistentCopyVisibility
 public data class ScaledExpression
 private constructor(
-    val expression: Expression = defaultScaledExpression,
+    val expression: Expression,
     val scalar: Scalar,
 ) : PetNode() {
   public companion object {
-    /** Returns [expression] scaled by [scalar], defaulting the expression to `Megacredit`. */
-    public fun scaledEx(expression: HasExpression? = null, scalar: Scalar): ScaledExpression =
-        ScaledExpression(expression?.expression ?: defaultScaledExpression, scalar)
+    // Identity, rather than the name, makes this parse-only marker impossible to author.
+    private val denominationlessClass = cn("Denominationless")
+    private val denominationlessExpression = denominationlessClass.expression
+    private const val denominationlessAmountMessage =
+        "Denominationless money amounts are no longer supported; write MC explicitly"
 
-    /** Returns [expression] scaled by [count], defaulting to one `Megacredit`. */
-    public fun scaledEx(expression: HasExpression? = null, count: Int = 1): ScaledExpression =
+    /** Returns [expression] scaled by [scalar]. */
+    public fun scaledEx(expression: HasExpression, scalar: Scalar): ScaledExpression =
+        ScaledExpression(expression.expression, scalar)
+
+    /** Returns [expression] scaled by [count]. */
+    public fun scaledEx(expression: HasExpression, count: Int = 1): ScaledExpression =
         scaledEx(expression, ActualScalar(count))
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
 
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
+
+    internal fun denominationless(scalar: Scalar): ScaledExpression =
+        ScaledExpression(denominationlessExpression, scalar)
+
+    internal fun rejectIfDenominationless(expression: Expression) {
+      if (expression.className === denominationlessClass) {
+        throw PetSyntaxException(denominationlessAmountMessage)
+      }
+    }
   }
 
   override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scalar, expression)
 
-  override fun toString(): String = toString(forceScalar = false, forceExpression = false)
+  override fun toString(): String = toString(forceScalar = false)
 
-  internal fun toFullString() = toString(forceScalar = true, forceExpression = true)
+  internal fun toFullString() = toString(forceScalar = true)
 
   internal operator fun times(multiple: Int) = copy(scalar = scalar * multiple)
 
-  private fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
+  private fun toString(forceScalar: Boolean = false) =
       when {
-        !forceExpression && expression == defaultScaledExpression -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
         else -> "$scalar $expression"
       }
@@ -126,13 +137,15 @@ private constructor(
 
     fun parser(): Parser<ScaledExpression> {
       return parser {
-        val scalarAndOptionalEx = scalar() and optional(Expression.parser())
-        val optionalScalarAndEx = optional(scalar()) and Expression.parser()
+        val scalarAndOptionalExpression = scalar() and optional(Expression.parser())
+        val optionalScalarAndExpression = optional(scalar()) and Expression.parser()
 
-        scalarAndOptionalEx or
-            optionalScalarAndEx map
-            { (scalar, expr) ->
-              scaledEx(expr, scalar ?: ActualScalar(1))
+        scalarAndOptionalExpression or
+            optionalScalarAndExpression map
+            { (scalar, expression) ->
+              val resolvedScalar = scalar ?: ActualScalar(1)
+              if (expression == null) denominationless(resolvedScalar)
+              else scaledEx(expression, resolvedScalar)
             }
       }
     }

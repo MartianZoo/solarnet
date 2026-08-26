@@ -79,7 +79,7 @@ internal class ClassDeclarationTest {
           DEFAULT Foo<Trigger>:
 
           This: DoStuff
-          Steel -> 5
+          Steel -> 5 MC
         }
         """
             .trimIndent()
@@ -97,7 +97,7 @@ internal class ClassDeclarationTest {
             "UseAction<This, First>: Owed<Class<Steel>> THEN " +
                 "Invoice<This, First, Class<Steel>>"
         )
-    val paid = parse<Effect>("-Invoice<This, First>: 5")
+    val paid = parse<Effect>("-Invoice<This, First>: 5 MC")
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
     val trigger = cn("Trigger").expression
@@ -109,7 +109,7 @@ internal class ClassDeclarationTest {
     decl.supertypes.shouldContainExactlyInAnyOrder(sup)
     decl.invariants.shouldContainExactlyInAnyOrder(inv)
     decl.authoredEffects.shouldContainExactly(eff)
-    decl.authoredActions.shouldContainExactly(parse<Action>("Steel -> 5"))
+    decl.authoredActions.shouldContainExactly(parse<Action>("Steel -> 5 MC"))
     decl.effects.shouldContainExactlyInAnyOrder(eff, invoice, paid)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)

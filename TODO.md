@@ -217,9 +217,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Move Terraforming Mars payment/action lowering and the omitted-expression Megacredit convention
-  out of generic Pets; their remaining string-level implementation no longer creates a module
-  dependency, but it is still domain ownership in the wrong layer.
+- Move Terraforming Mars payment/action lowering out of generic Pets; its remaining string-level
+  implementation no longer creates a module dependency, but it is still domain ownership in the
+  wrong layer.
 - Contract the temporary public engine and TFM-engine test seams after Canon-dependent lower-layer
   tests use self-contained declarations and return to their owning modules.
 - Contract the temporary public Pets-to-Canon construction and lowering seams around the eventual

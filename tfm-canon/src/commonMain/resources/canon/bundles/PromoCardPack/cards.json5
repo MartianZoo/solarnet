@@ -5,7 +5,7 @@
       "name": "Recyclon",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "BuildingTag" ],
-      "immediate": "38, PROD[Steel]",
+      "immediate": "38 MC, PROD[Steel]",
       "effects": [ "BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
     },
 
@@ -13,10 +13,10 @@
       "name": "SpliceTacticalGenomics",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
-      "immediate": "44, Mandate { -> CARDS[ProjectCard(HAS MicrobeTag)] }",
-      "effects": [ "MicrobeTag<Anyone, CardFront<Anyone>>: 2" ],
+      "immediate": "44 MC, Mandate { -> CARDS[ProjectCard(HAS MicrobeTag)] }",
+      "effects": [ "MicrobeTag<Anyone, CardFront<Anyone>>: 2 MC" ],
       "components": [
-        "CLASS SpliceTacticalGenomicsWatcher : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 }"
+        "CLASS SpliceTacticalGenomicsWatcher : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 MC }"
       ],
     },
 
@@ -24,22 +24,22 @@
       "name": "Factorum",
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "37, PROD[Steel]",
+      "immediate": "37 MC, PROD[Steel]",
       "actions": [
         "-> MAX 0 Energy: PROD[Energy]",
-        "3 -> CARDS[ProjectCard(HAS BuildingTag)]"
+        "3 MC -> CARDS[ProjectCard(HAS BuildingTag)]"
       ],
     },
 
     {
       "name": "MonsInsurance",
       "deck": "CORPORATION",
-      "immediate": "48, PROD[4]",
+      "immediate": "48 MC, PROD[4 MC]",
       "effects": [
-        "MyResourceWasRemoved<Anyone, Player> OR MyProductionWasDecreased<Anyone, Player>: 3 Megacredit<Anyone> FROM Megacredit.",
+        "MyResourceWasRemoved<Anyone, Player> OR MyProductionWasDecreased<Anyone, Player>: 3 MC<Anyone> FROM MC.",
       ],
       "components": [
-        "CLASS MonsInsuranceWatcher : Owned<Player> { HAS =1 This; MonsInsurance<Anyone> IF MAX 0 MonsInsurance<Owner>: PROD[-2] BY Owner }",
+        "CLASS MonsInsuranceWatcher : Owned<Player> { HAS =1 This; MonsInsurance<Anyone> IF MAX 0 MonsInsurance<Owner>: PROD[-2 MC] BY Owner }",
       ],
     },
 
@@ -47,7 +47,7 @@
       "name": "Philares",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "47, Mandate { -> GreeneryTile<> }",
+      "immediate": "47 MC, Mandate { -> GreeneryTile<> }",
       "effects": [
         "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
       ],
@@ -57,7 +57,7 @@
       "name": "AstroDrill",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
-      "immediate": "35, 3 Asteroid<This>",
+      "immediate": "35 MC, 3 Asteroid<This>",
       "actions": [
         "-> Asteroid OR StandardResource",
         "Asteroid<This> -> 3 Titanium"
@@ -75,10 +75,10 @@
         // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
         // the whole 54 money free and clear!
         // Reference: https://boardgamegeek.com/thread/3067197/can-card-effects-really-be-done-any-order-weird-sc
-        "This:: 54",
+        "This:: 54 MC",
         // The disease task can remain pending after this corporation flips. Its gated fallback
         // states that lifetime exception without weakening the mandatory placement while it exists.
-        "MicrobeTag<Anyone, CardFront<Anyone>>: (Disease<This>! OR (MAX 0 This: Ok)), -4.",
+        "MicrobeTag<Anyone, CardFront<Anyone>>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.",
         // Check the disease count when each tag consequence executes, so two simultaneous science
         // tags can remove the last disease and then offer the flip.
         "ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok)"
@@ -89,7 +89,7 @@
       "name": "TychoMagnetics",
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "ScienceTag" ],
-      "immediate": "42, PROD[Energy]",
+      "immediate": "42 MC, PROD[Energy]",
       "actions": [ "X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]" ],
     },
 
@@ -97,7 +97,7 @@
       "name": "KuiperCooperative",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag", "SpaceTag" ],
-      "immediate": "33, PROD[Titanium]",
+      "immediate": "33 MC, PROD[Titanium]",
       "actions": [ "-> Asteroid<This> / SpaceTag" ],
       "effects": [
         "UseAction<AsteroidSP> OR UseAction<AquiferSP>:: AcceptFromCard<This>",
@@ -109,7 +109,7 @@
       "name": "PolderTechDutch",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "35, Mandate { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
+      "immediate": "35 MC, Mandate { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
       "effects": [
         "OceanTile: Energy",
         "GreeneryTile: Plant",
@@ -120,7 +120,7 @@
       "name": "CorporateArchives",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
-      "immediate": "13, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]",
+      "immediate": "13 MC, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]",
     },
 
     {
@@ -133,33 +133,33 @@
     {
       "name": "Merger",
       "deck": "PRELUDE",
-      "immediate": "CARDS[4 CorporationCard<Selecting>, CorporationCard<Hand FROM Selecting>, PlayCard<Class<CorporationCard>>], -42",
+      "immediate": "CARDS[4 CorporationCard<Selecting>, CorporationCard<Hand FROM Selecting>, PlayCard<Class<CorporationCard>>], -42 MC",
     },
 
     {
       "name": "NewPartner",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], CARDS[2 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]",
+      "immediate": "PROD[1 MC], CARDS[2 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]",
     },
 
     {
       "name": "HeadStart",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
-      "immediate": "2 Steel, CARDS[2 / ProjectCard<Hand>], UseAction<StandardAction>!, UseAction<StandardAction>!",
+      "immediate": "2 Steel, CARDS[2 MC / ProjectCard<Hand>], UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
     {
       "name": "AntiDesertificationTechniques",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag", "PlantTag" ],
-      "immediate": "3, PROD[Plant, Steel]",
+      "immediate": "3 MC, PROD[Plant, Steel]",
     },
 
     {
       "name": "FakeEstablishedMethods",
       "deck": "PRELUDE",
-      "immediate": "30, UseAction<StandardAction>!, UseAction<StandardAction>!",
+      "immediate": "30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
     {
@@ -173,7 +173,7 @@
       "name": "StrategicBasePlanning",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
-      "immediate": "-3, CityTile<>, Colony<>",
+      "immediate": "-3 MC, CityTile<>, Colony<>",
     },
 
     {
@@ -239,8 +239,8 @@
       "cost": 3,
       "tags": [ "PowerTag" ],
       "actions": [
-        "2X -> X Energy",
-        "PROD[Energy] -> 8"
+        "2X MC -> X Energy",
+        "PROD[Energy] -> 8 MC"
       ],
     },
 
@@ -260,7 +260,7 @@
       "projectKind": "AUTOMATED",
       "cost": 27,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[1 / Class<Tag>(HAS Tag<Owner>)]",
+      "immediate": "PROD[1 MC / Class<Tag>(HAS Tag<Owner>)]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -269,7 +269,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 2,
-      "immediate": "3 Megacredit FROM Megacredit<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): CARDS[CardBack<Player, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>])",
+      "immediate": "3 MC FROM MC<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): CARDS[CardBack<Player, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>])",
       "effects": [ "End: -VictoryPoint" ],
     },
 
@@ -289,8 +289,8 @@
       "projectKind": "ACTIVE",
       "cost": 14,
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "PROD[-2]",
-      "actions": [ "-> 1 / ScienceTag" ],
+      "immediate": "PROD[-2 MC]",
+      "actions": [ "-> 1 MC / ScienceTag" ],
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -313,7 +313,7 @@
       "cost": 13,
       "tags": [ "JovianTag", "EarthTag" ],
       "immediate": "Floater<This> / EarthTag",
-      "actions": [ "Floater<This> -> 1 / Floater<This> MAX 4, 1" ],
+      "actions": [ "Floater<This> -> 1 MC / Floater<This> MAX 4, 1 MC" ],
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -333,7 +333,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "EarthTag" ],
-      "effects": [ "CardFront(HAS 20 cost): PROD[1]" ],
+      "effects": [ "CardFront(HAS 20 cost): PROD[1 MC]" ],
     },
 
     {
@@ -356,7 +356,7 @@
       "projectKind": "ACTIVE",
       "cost": 16,
       "tags": [ "SpaceTag" ],
-      "actions": [ "Titanium -> Asteroid<This>, PROD[1]" ],
+      "actions": [ "Titanium -> Asteroid<This>, PROD[1 MC]" ],
       "effects": [ "End: VictoryPoint / 2 Asteroid<This>" ],
     },
 
@@ -401,7 +401,7 @@
       "cost": 8,
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid",
+        "6 MC -> Asteroid",
         "Asteroid<This> -> TemperatureStep"
       ],
       "effects": [ "UseAction<This, First>:: Accept<Class<Titanium>>" ],
@@ -422,7 +422,7 @@
       "projectKind": "AUTOMATED",
       "cost": 29,
       "tags": [ "PowerTag", "CityTag", "BuildingTag" ],
-      "immediate": "PROD[2, Energy], 3 Plant, CityTile<>",
+      "immediate": "PROD[2 MC, Energy], 3 Plant, CityTile<>",
     },
 
     {
@@ -460,7 +460,7 @@
       "projectKind": "ACTIVE",
       "cost": 5,
       "tags": [ "BuildingTag" ],
-      "effects": [ "Animal: 2" ],
+      "effects": [ "Animal: 2 MC" ],
     },
 
     {
@@ -489,7 +489,7 @@
       "projectKind": "AUTOMATED",
       "cost": 2,
       "tags": [ "PlantTag" ],
-      "immediate": "-2 Plant, PROD[2]",
+      "immediate": "-2 Plant, PROD[2 MC]",
     },
 
     {
@@ -510,7 +510,7 @@
       "cost": 8,
       "tags": [ "EarthTag", "MicrobeTag" ],
       "immediate": "3 Plant",
-      "effects": [ "Microbe: 1" ],
+      "effects": [ "Microbe: 1 MC" ],
     },
 
     {
@@ -553,8 +553,8 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "2 Asteroid<This>",
       "actions": [
-        "1 -> Asteroid",
-        "Asteroid<This> -> PROD[1] OR 2 Titanium"
+        "1 MC -> Asteroid",
+        "Asteroid<This> -> PROD[1 MC] OR 2 Titanium"
       ],
     },
 
@@ -583,7 +583,7 @@
       "requirement": "3 GreeneryTile",
       "cost": 4,
       "tags": [ "PlantTag" ],
-      "immediate": "12",
+      "immediate": "12 MC",
     },
 
     {
@@ -592,7 +592,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "Adjacency<CityTile<Anyone>, OceanTile>",
       "cost": 8,
-      "immediate": "PROD[2]",
+      "immediate": "PROD[2 MC]",
     },
 
     {
@@ -620,7 +620,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[1]",
+      "immediate": "PROD[1 MC]",
       "effects": [ "-Energy IF ProductionPhase: Energy FROM Heat?" ],
     },
 
@@ -631,7 +631,7 @@
       "cost": 15,
       "tags": [ "SpaceTag" ],
       "actions": [
-        "10 -> 2 Asteroid<This>",
+        "10 MC -> 2 Asteroid<This>",
         "Asteroid<This> -> FirstPlayerOcean<Owner>"
       ],
       "effects": [ "UseAction<This, First>:: Accept<Class<Titanium>>" ],
@@ -642,7 +642,7 @@
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 1,
-      "actions": [ "3 Heat -> 4 OR 2 Plant" ],
+      "actions": [ "3 Heat -> 4 MC OR 2 Plant" ],
     },
 
     {
@@ -697,7 +697,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "MAX 4 OxygenStep",
       "cost": 10,
-      "immediate": "PROD[2], 1 / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)",
+      "immediate": "PROD[2 MC], 1 MC / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)",
     },
 
     {
@@ -707,7 +707,7 @@
       "cost": 16,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2 Heat]",
-      "effects": [ "TemperatureStep: 3" ],
+      "effects": [ "TemperatureStep: 3 MC" ],
     },
 
     {
@@ -717,7 +717,7 @@
       "cost": 10,
       "tags": [ "CityTag", "PlantTag" ],
       // Repeated LandArea occurrences must specialize to the same concrete area.
-      "immediate": "PROD[2], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>",
+      "immediate": "PROD[2 MC], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>",
     },
 
     {
@@ -747,7 +747,7 @@
       ],
       "components": [
         "CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>",
-        "CLASS NeptunianOption : Owned, HasActions { 5 -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accept<Class<Steel>> }"
+        "CLASS NeptunianOption : Owned, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accept<Class<Steel>> }"
       ],
     },
 
@@ -758,7 +758,7 @@
       "requirement": "4 OxygenStep",
       "cost": 2,
       "actions": [
-        "-> 1 / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)"
+        "-> 1 MC / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)"
       ],
     },
 
@@ -782,7 +782,7 @@
       "projectKind": "ACTIVE",
       "cost": 7,
       "immediate": "CathedralAction",
-      "actions": [ "5 -> Cathedral<Anyone, CityTile<Anyone>>" ],
+      "actions": [ "5 MC -> Cathedral<Anyone, CityTile<Anyone>>" ],
       "effects": [
         "UseAction<This, First>:: Accept<Class<Steel>>",
         "End: VictoryPoint / Cathedral<Anyone>"
@@ -790,7 +790,7 @@
       // The city owner owns the Cathedral and therefore receives its pay-2-to-draw offer. The
       // Mission owner still receives the endgame VP through the effect above.
       "components": [
-        "CLASS CathedralAction : HasActions { 2 -> ProjectCard }",
+        "CLASS CathedralAction : HasActions { 2 MC -> ProjectCard }",
         "CLASS Cathedral<CityTile<Owner>> : Owned<Owner> { HAS MAX 1 This; This: UseAction<CathedralAction>? }"
       ],
     },
@@ -820,7 +820,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "2 CityTile<Anyone>",
       "cost": 9,
-      "immediate": "PROD[2]",
+      "immediate": "PROD[2 MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -831,7 +831,7 @@
       "cost": 8,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy]",
-      "actions": [ "Disease -> 1 / CityTile<Anyone>" ],
+      "actions": [ "Disease -> 1 MC / CityTile<Anyone>" ],
       "effects": [
         "CityTile<Anyone>: Disease<This>",
         "End: VictoryPoint"
@@ -845,7 +845,7 @@
       "requirement": "6 OceanTile",
       "cost": 6,
       "tags": [ "BuildingTag" ],
-      "immediate": "6",
+      "immediate": "6 MC",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -867,7 +867,7 @@
       "requirement": "CityTile",
       "cost": 5,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4]",
+      "immediate": "PROD[-Energy, 4 MC]",
     },
 
     {
@@ -887,7 +887,7 @@
       "requirement": "MAX 3 OceanTile",
       "cost": 5,
       "tags": [ "PowerTag" ],
-      "immediate": "PROD[Energy], 1 / BuildingTag",
+      "immediate": "PROD[Energy], 1 MC / BuildingTag",
     },
 
     {
@@ -912,7 +912,7 @@
       "immediate": "ProjectCard",
       "actions": [
         "-> Floater<This>",
-        "Floater<This> -> 1 / CityTile<MarsArea, Anyone>"
+        "Floater<This> -> 1 MC / CityTile<MarsArea, Anyone>"
       ],
     },
 
@@ -921,7 +921,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
-      "immediate": "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X]",
+      "immediate": "CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -941,7 +941,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "ScienceTag" ],
-      "actions": [ "-> 3 / GpComplete" ]
+      "actions": [ "-> 3 MC / GpComplete" ]
   }
   ],
 }

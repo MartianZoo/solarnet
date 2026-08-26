@@ -12,7 +12,7 @@ internal class AstraMechanicaTest : CardTest() {
   internal fun `Can choose zero played events`() {
     newGame(PromoCardPack)
     engine.phase("Action")
-    p1.manual("7 Megacredit, ProjectCard")
+    p1.manual("7 MC, ProjectCard")
 
     p1.playProject(AstraMechanica, 7) {
           doWithoutAutoExec(p1) {
@@ -21,7 +21,7 @@ internal class AstraMechanicaTest : CardTest() {
             doTask("Ok")
           }
         }
-        .expect("-7, -ProjectCard")
+        .expect("-7 MC, -ProjectCard")
 
     p1.assertCounts(1 to "$AstraMechanica", 0 to "PlayedEvent")
   }
@@ -31,7 +31,7 @@ internal class AstraMechanicaTest : CardTest() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual(
-        "7 Megacredit, ProjectCard, PlayedEvent<Class<$Flooding>>, " +
+        "7 MC, ProjectCard, PlayedEvent<Class<$Flooding>>, " +
             "PlayedEvent<Class<$InventionContest>>"
     )
 

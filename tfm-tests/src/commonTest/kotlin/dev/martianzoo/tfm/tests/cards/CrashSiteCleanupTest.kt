@@ -14,7 +14,7 @@ internal class CrashSiteCleanupTest : CardTest() {
   fun initializeGame() {
     newGame(PromoCardPack)
     engine.phase("Action")
-    p1.manual("4, ProjectCard")
+    p1.manual("4 MC, ProjectCard")
     requireP2().manual("Plant")
   }
 
@@ -53,9 +53,9 @@ internal class CrashSiteCleanupTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     engine.phase("Action")
-    p1.manual("4, ProjectCard")
+    p1.manual("4 MC, ProjectCard")
     requireP2().manual("Plant")
-    p3.manual("4, ProjectCard")
+    p3.manual("4 MC, ProjectCard")
 
     p1.manual("-Plant<Player2>")
 

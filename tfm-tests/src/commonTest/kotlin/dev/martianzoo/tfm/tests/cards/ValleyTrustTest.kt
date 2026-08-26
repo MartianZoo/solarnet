@@ -20,7 +20,7 @@ internal class ValleyTrustTest : CardTest() {
   @Test
   internal fun `Resolves Valley Trust's starting prelude`() {
     newGame(PreludeExpansion)
-    p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22")
+    p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22 MC")
 
     engine.phase("Action")
     p1.stdAction("HandleMandates") { p1.playPrelude(MartianIndustries) }

@@ -10,7 +10,7 @@ internal class PhilaresTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares, GreeneryTile<Tharsis_3_2>")
-    p1.manual("23")
+    p1.manual("23 MC")
     engine.phase("Action")
 
     p1.stdProject("GreenerySP") {
@@ -52,7 +52,7 @@ internal class PhilaresTest : CardTest() {
   internal fun `Does not pay its owner for adjacency to their own tile`() {
     newGame(PromoCardPack)
     p1.manual("$Philares")
-    p1.manual("23")
+    p1.manual("23 MC")
     engine.phase("Action")
     p1.stdAction("HandleMandates") { placeTile(4, 2) }
     p1.stdProject("GreenerySP") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")

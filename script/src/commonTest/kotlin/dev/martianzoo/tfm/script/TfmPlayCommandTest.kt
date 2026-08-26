@@ -19,11 +19,11 @@ internal class TfmPlayCommandTest {
     repl.command("become Me")
     repl.command("tfm_play SaturnSystems")
     repl.command("task Ok")
-    repl.command("task 30 Pay<Class<Megacredit>> FROM Megacredit")
+    repl.command("task 30 Pay<Class<MC>> FROM MC")
     repl.command("tfm_play Biolab")
     repl.command("tfm_play AcquiredSpaceAgency")
 
-    repl.command("tfm_play EarthOffice, 1")
+    repl.command("tfm_play EarthOffice, 1 MC")
 
     assertEquals(1, repl.gameplay.count("ActionPhase"))
     assertEquals(1, repl.gameplay.count("EarthOffice<Me>"))
@@ -39,12 +39,12 @@ internal class TfmPlayCommandTest {
     repl.command("turn")
     repl.command("tfm_play SaturnSystems")
     repl.command("task Ok")
-    repl.command("task 30 Pay<Class<Megacredit>> FROM Megacredit")
+    repl.command("task 30 Pay<Class<MC>> FROM MC")
     repl.command("exec 2 Steel")
     repl.command("phase Action")
     repl.command("turn")
 
-    repl.command("tfm_play OlympusConference, 2 Steel, 6")
+    repl.command("tfm_play OlympusConference, 2 Steel, 6 MC")
 
     assertEquals(1, repl.gameplay.count("OlympusConference<Player1>"))
     assertEquals(0, repl.gameplay.count("Steel<Player1>"))

@@ -237,13 +237,15 @@ public sealed class Requirement : PetElement() {
     fun atomParser(): Parser<Requirement> {
       return parser {
         val scaledEx = parser {
-          val scalarAndOptionalEx = rawScalar and optional(Expression.parser())
-          val optionalScalarAndEx = optional(rawScalar) and Expression.parser()
+          val scalarAndOptionalExpression = rawScalar and optional(Expression.parser())
+          val optionalScalarAndExpression = optional(rawScalar) and Expression.parser()
 
-          scalarAndOptionalEx or
-              optionalScalarAndEx map
-              { (scalar, expr) ->
-                scaledEx(expr, ActualScalar(scalar ?: 1))
+          scalarAndOptionalExpression or
+              optionalScalarAndExpression map
+              { (scalar, expression) ->
+                val resolvedScalar = ActualScalar(scalar ?: 1)
+                if (expression == null) ScaledExpression.denominationless(resolvedScalar)
+                else scaledEx(expression, resolvedScalar)
               }
         }
 

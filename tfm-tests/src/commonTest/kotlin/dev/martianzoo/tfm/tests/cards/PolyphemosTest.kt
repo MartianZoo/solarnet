@@ -15,6 +15,6 @@ internal class PolyphemosTest : CardTest() {
     p1.playCorp(Polyphemos, 7)
     engine.phase("Action")
     p1.playProject(InventorsGuild, 9)
-    p1.cardAction1(InventorsGuild) { p1.buyCards(1) }.expect("ProjectCard, -5")
+    p1.cardAction1(InventorsGuild) { p1.buyCards(1) }.expect("ProjectCard, -5 MC")
   }
 }

@@ -58,7 +58,7 @@ internal class LocalHeatTrappingTest : CardTest() {
 
   @Test
   internal fun `Cannot be played without enough heat`() {
-    p1.manual("4 Heat, ProjectCard, $Pets, 1")
+    p1.manual("4 Heat, ProjectCard, $Pets, 1 MC")
     p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 
     engine.phase("Action")

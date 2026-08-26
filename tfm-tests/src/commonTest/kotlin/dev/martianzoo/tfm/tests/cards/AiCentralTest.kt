@@ -13,7 +13,7 @@ internal class AiCentralTest : CardTest() {
     newGame()
     engine.phase("Action")
     p1.manual(
-        "19, Steel, ProjectCard, $SearchForLife, $InventorsGuild, $DesignedMicroorganisms, PROD[Energy]"
+        "19 MC, Steel, ProjectCard, $SearchForLife, $InventorsGuild, $DesignedMicroorganisms, PROD[Energy]"
     )
     p1.playProject(AiCentral, 19, steel = 1).expect("PROD[-Energy]")
   }
@@ -40,7 +40,7 @@ internal class AiCentralTest : CardTest() {
   internal fun `Cannot be played with only two science tags`() {
     newGame()
     engine.phase("Action")
-    p1.manual("21, ProjectCard, $SearchForLife, $InventorsGuild, PROD[Energy]")
+    p1.manual("21 MC, ProjectCard, $SearchForLife, $InventorsGuild, PROD[Energy]")
     shouldThrow<RequirementException> { p1.playProject(AiCentral, 21) }
   }
 
@@ -48,7 +48,7 @@ internal class AiCentralTest : CardTest() {
   internal fun `Cannot be played without energy production`() {
     newGame()
     engine.phase("Action")
-    p1.manual("21, ProjectCard, $SearchForLife, $InventorsGuild, $DesignedMicroorganisms")
+    p1.manual("21 MC, ProjectCard, $SearchForLife, $InventorsGuild, $DesignedMicroorganisms")
     shouldThrow<LimitsException> { p1.playProject(AiCentral, 21) }
   }
 

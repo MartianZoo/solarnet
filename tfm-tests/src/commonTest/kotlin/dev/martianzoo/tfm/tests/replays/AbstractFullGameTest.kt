@@ -47,7 +47,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   // script/src/commonTest/kotlin/dev/martianzoo/tfm/script/StinaScriptTest.kt.
   protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertProds(
-        m to "Megacredit",
+        m to "MC",
         s to "Steel",
         t to "Titanium",
         p to "Plant",
@@ -58,7 +58,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   protected fun TfmGameplay.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertCounts(
-        m to "Megacredit",
+        m to "MC",
         s to "Steel",
         t to "Titanium",
         p to "Plant",

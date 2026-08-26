@@ -34,7 +34,7 @@ internal class ApiUtilsTest {
     prods
         .map { it.key to it.value }
         .shouldContainExactlyInAnyOrder(
-            cn("Megacredit") to 0,
+            cn("MC") to 0,
             cn("Steel") to 0,
             cn("Titanium") to 0,
             cn("Plant") to 0,
@@ -47,7 +47,7 @@ internal class ApiUtilsTest {
     prods2
         .map { it.key to it.value }
         .shouldContainExactlyInAnyOrder(
-            cn("Megacredit") to 0,
+            cn("MC") to 0,
             cn("Steel") to 0,
             cn("Titanium") to 0,
             cn("Plant") to 2,
@@ -62,7 +62,7 @@ internal class ApiUtilsTest {
     standardResourceNames(game.reader)
         .toStrings()
         .shouldContainExactlyInAnyOrder(
-            "Megacredit",
+            "MC",
             "Steel",
             "Titanium",
             "Plant",

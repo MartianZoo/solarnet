@@ -11,12 +11,12 @@ import kotlin.test.Test
 
 internal class HellasElysiumExpansionTest : CardTest() {
   @Test
-  internal fun `Specialist uses printed megacredit production`() {
+  internal fun `Specialist uses printed mc production`() {
     newGame(TestOption.Elysium)
-    p1.manual("PROD[9 Megacredit]")
+    p1.manual("PROD[9 MC]")
     shouldThrow<RequirementException> { p1.manual("Specialist") }
 
-    p1.manual("PROD[Megacredit], Specialist")
+    p1.manual("PROD[1 MC], Specialist")
     p1.count("Specialist") shouldBe 1
   }
 }

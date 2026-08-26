@@ -100,8 +100,8 @@ public open class BusyPreludePhaseBenchmark {
   public fun rollBack() {
     // Teractor + Valley Trust, four Preludes, and four projects.
     check(me.count("CardFront") == 10)
-    val megacredits = me.count("Megacredit")
-    check(megacredits == 89) { "expected 89 Megacredit, found $megacredits" }
+    val mc = me.count("MC")
+    check(mc == 89) { "expected 89 MC, found $mc" }
     game.timeline.rollBack(beforeCorporationPhase)
   }
 }

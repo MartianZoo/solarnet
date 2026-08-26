@@ -7,35 +7,35 @@ import kotlin.test.Test
 internal class IndenturedWorkersTest : CardTest() {
   @Test
   internal fun `Discounts the next card played`() {
-    initializeGame("27, 2 ProjectCard")
+    initializeGame("27 MC, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
-    p1.playProject(Soletta, 27).expect("-27")
+    p1.playProject(Soletta, 27).expect("-27 MC")
   }
 
   @Test
   internal fun `Keeps its discount available through other actions`() {
-    initializeGame("39, 4 ProjectCard, 8 Heat")
+    initializeGame("39 MC, 4 ProjectCard, 8 Heat")
     p1.playProject(IndenturedWorkers, 0)
     p1.stdProject("AsteroidSP")
     p1.convertHeat()
     p1.sellPatents(2)
-    p1.playProject(Soletta, 27).expect("-27")
+    p1.playProject(Soletta, 27).expect("-27 MC")
   }
 
   @Test
   internal fun `Discounts only one card`() {
-    initializeGame("36, 3 ProjectCard")
+    initializeGame("36 MC, 3 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     p1.playProject(Soletta, 27)
-    p1.playProject(AdvancedAlloys, 9).expect("-9")
+    p1.playProject(AdvancedAlloys, 9).expect("-9 MC")
   }
 
   @Test
   internal fun `Expires at the end of the generation`() {
-    initializeGame("35, 2 ProjectCard")
+    initializeGame("35 MC, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     engine.manual("Generation")
-    p1.playProject(Soletta, 35).expect("-35")
+    p1.playProject(Soletta, 35).expect("-35 MC")
   }
 
   private fun initializeGame(instruction: String) {

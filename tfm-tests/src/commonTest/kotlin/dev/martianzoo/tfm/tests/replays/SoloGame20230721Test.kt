@@ -42,7 +42,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me's titanium amount increased by 10
       // me played PhoboLog
       // me kept 4 project cards
-      playCorp(Phobolog, 4).expect("11, 10 T")
+      playCorp(Phobolog, 4).expect("11 MC, 10 T")
 
       // me played Merger
       playPrelude(Merger) {
@@ -65,11 +65,11 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
 
       // me played Callisto Penal Mines
-      // me's megacredits production increased by 3
+      // me's mc production increased by 3
       playProject(CallistoPenalMines, titanium = 6)
 
       // me played Sponsors
-      // me's megacredits production increased by 2
+      // me's mc production increased by 2
       playProject(Sponsors, 6)
 
       // me passed
@@ -145,9 +145,9 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me added 1 asteroid(s) to Rotator Impacts
       cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
       // me played Nuclear Power
-      // me's megacredits production decreased by 2
+      // me's mc production decreased by 2
       // me's energy production increased by 3
-      playProject(NuclearPower, 10).expect("PROD[-2, 3E]")
+      playProject(NuclearPower, 10).expect("PROD[-2 MC, 3E]")
 
       // me passed
       // me acted as World Government and increased temperature
@@ -207,8 +207,8 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me added 1 floater(s) to Atmo Collectors
       cardAction1(AtmoCollectors)
       // me spent 3 energy to trade with Luna
-      // me's megacredits amount increased by 17
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("17")
+      // me's mc amount increased by 17
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("17 MC")
       // me played Extractor Balloons
       // me added 3 floater(s) to Extractor Balloons
       playProject(ExtractorBalloons, 21)
@@ -233,12 +233,12 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
             // me's plants amount increased by 1
             godMode()
                 .manual(
-                    "-7 THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<$Conscription>> FROM ProjectCard"
+                    "-7 MC THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<$Conscription>> FROM ProjectCard"
                 ) {
                   placeTile(4, 6)
                   autoExecMode = FIRST
                 }
-                .expect("Plant, -3")
+                .expect("Plant, -3 MC")
           }
           .expect("2 Steel, TR")
 
@@ -307,9 +307,9 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(AtmoCollectors)
       // me played Interplanetary Colony Ship
       // me built a colony on Luna
-      // me's megacredits production increased by 2
+      // me's mc production increased by 2
       playProject(InterplanetaryColonyShip, 1, titanium = 2) { doTask("Colony<Luna>") }
-          .expect("PROD[2]")
+          .expect("PROD[2 MC]")
       // me used Convert Heat standard action
       convertHeat()
       // me used Convert Heat standard action
@@ -324,7 +324,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       playProject(Solarnet, 7)
       // You drew Giant Solar Shade and Luna Governor
       // me played Luna Governor
-      // me's megacredits production increased by 2
+      // me's mc production increased by 2
       playProject(LunaGovernor, 0)
       // me played Giant Solar Shade
       playProject(GiantSolarShade, 7, titanium = 5)
@@ -364,9 +364,9 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
         placeTile(5, 6)
       }
       // me spent 3 energy to trade with Luna
-      // me's megacredits amount increased by 7
-      // me's megacredits amount increased by 2
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("9")
+      // me's mc amount increased by 7
+      // me's mc amount increased by 2
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("9 MC")
       // me used Greenery standard project
       stdProject("GreenerySP") {
         // me placed greenery tile on row 5 position 7
@@ -455,9 +455,9 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me played Release of Inert Gases
       playProject(ReleaseOfInertGases, 14)
       // me spent 3 energy to trade with Luna
-      // me's megacredits amount increased by 7
-      // me's megacredits amount increased by 2
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("9")
+      // me's mc amount increased by 7
+      // me's mc amount increased by 2
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("9 MC")
       // me used Atmo Collectors action
       // me removed 1 resource(s) from me's Atmo Collectors
       cardAction2(AtmoCollectors) {
@@ -486,7 +486,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
             // You drew Interstellar Colony Ship
             placeTile(1, 3)
           }
-          .expect("-7 Plant, 8, Card, 3 TR")
+          .expect("-7 Plant, 8 MC, Card, 3 TR")
       // me used Rotator Impacts action1 2 ***
       // me added 1 asteroid(s) to Rotator Impacts
       cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
@@ -529,8 +529,8 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       }
       // me spent 3 energy to trade with Luna
       stdAction("TradeSA", 2) {
-        // me's megacredits amount increased by 4
-        // me's megacredits amount increased by 2
+        // me's mc amount increased by 4
+        // me's mc amount increased by 2
         doTask("Trade<Luna>")
       }
       // me used Atmo Collectors action
@@ -594,7 +594,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       sum.net("CityTile", "VictoryPoint<Me>") shouldBe 13
       sum.net("Card", "VictoryPoint<Me>") shouldBe 5
       assertCounts(95 to "VictoryPoint")
-      assertCounts(82 to "Megacredit")
+      assertCounts(82 to "MC")
 
       // The score is really 99, but we faked Flooding. Note
       // herokuapp says 111.

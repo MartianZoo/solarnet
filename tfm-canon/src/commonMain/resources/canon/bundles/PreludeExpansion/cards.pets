@@ -3,7 +3,7 @@ CLASS CheungShingMars : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 44, PROD[3]
+  This: 44 MC, PROD[3 MC]
   PlayTag<Class<BuildingTag>>:: -2 Owed<>
 }
 
@@ -11,23 +11,23 @@ CLASS PointLuna : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>, SpaceTag<This>
-  This: 38, PROD[Titanium]
+  This: 38 MC, PROD[Titanium]
   EarthTag<>: ProjectCard
 }
 
 CLASS RobinsonIndustries : ActionCard<Class<CorporationCard>> {
   cost = 0
 
-  This: 47
+  This: 47 MC
 
-  4 -> PROD[StandardResource(HAS LowestProduction)]
+  4 MC -> PROD[StandardResource(HAS LowestProduction)]
 }
 
 CLASS ValleyTrust : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 37, Mandate { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }
+  This: 37 MC, Mandate { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }
   PlayTag<Class<ScienceTag>>:: -2 Owed<>
 }
 
@@ -35,23 +35,23 @@ CLASS Vitor : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 45
+  This: 45 MC
   This IF Class<Award>: Mandate { -> Award }
-  CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3
+  CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC
 }
 
 CLASS AlliedBank : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: PROD[4], 3
+  This: PROD[4 MC], 3 MC
 }
 
 CLASS AquiferTurbines : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: PowerTag<This>
-  This: OceanTile<>, PROD[2 Energy], -3
+  This: OceanTile<>, PROD[2 Energy], -3 MC
 }
 
 CLASS Biofuels : CardFront<Class<PreludeCard>> {
@@ -72,27 +72,27 @@ CLASS BiosphereSupport : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: PlantTag<This>
-  This: PROD[-1, 2 Plant]
+  This: PROD[-1 MC, 2 Plant]
 }
 
 CLASS BusinessEmpire : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: PROD[6], -6
+  This: PROD[6 MC], -6 MC
 }
 
 CLASS DomeFarming : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: PlantTag<This>, BuildingTag<This>
-  This: PROD[Plant, 2]
+  This: PROD[Plant, 2 MC]
 }
 
 CLASS Donation : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: 21
+  This: 21 MC
 }
 
 CLASS EarlySettlement : CardFront<Class<PreludeCard>> {
@@ -126,7 +126,7 @@ CLASS GalileanMining : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: JovianTag<This>
-  This: PROD[2 Titanium], -5
+  This: PROD[2 Titanium], -5 MC
 }
 
 CLASS GreatAquifer : CardFront<Class<PreludeCard>> {
@@ -138,7 +138,7 @@ CLASS GreatAquifer : CardFront<Class<PreludeCard>> {
 CLASS HugeAsteroid : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: 3 TemperatureStep, -5
+  This: 3 TemperatureStep, -5 MC
 }
 
 CLASS IoResearchOutpost : CardFront<Class<PreludeCard>> {
@@ -151,14 +151,14 @@ CLASS IoResearchOutpost : CardFront<Class<PreludeCard>> {
 CLASS Loan : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PROD[-2], 30
+  This: PROD[-2 MC], 30 MC
 }
 
 CLASS MartianIndustries : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: PROD[Energy, Steel], 6
+  This: PROD[Energy, Steel], 6 MC
 }
 
 CLASS MetalRichAsteroid : CardFront<Class<PreludeCard>> {
@@ -170,7 +170,7 @@ CLASS MetalRichAsteroid : CardFront<Class<PreludeCard>> {
 CLASS MetalsCompany : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PROD[1, Steel, Titanium]
+  This: PROD[1 MC, Steel, Titanium]
 }
 
 CLASS MiningOperations : CardFront<Class<PreludeCard>> {
@@ -197,7 +197,7 @@ CLASS MoholeExcavation : CardFront<Class<PreludeCard>> {
 CLASS NitrogenShipment : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: TerraformRating, PROD[Plant], 5
+  This: TerraformRating, PROD[Plant], 5 MC
 }
 
 CLASS OrbitalConstructionYard : CardFront<Class<PreludeCard>> {
@@ -224,14 +224,14 @@ CLASS PowerGeneration : CardFront<Class<PreludeCard>> {
 CLASS ResearchNetwork : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PROD[1], 3 ProjectCard, WildTag<This>
+  This: PROD[1 MC], 3 ProjectCard, WildTag<This>
 }
 
 CLASS SelfSufficientSettlement : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: CityTag<This>, BuildingTag<This>
-  This: CityTile<>, PROD[2]
+  This: CityTile<>, PROD[2 MC]
 }
 
 CLASS SmeltingPlant : CardFront<Class<PreludeCard>> {
@@ -244,7 +244,7 @@ CLASS SmeltingPlant : CardFront<Class<PreludeCard>> {
 CLASS SocietySupport : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PROD[-1, Plant, Energy, Heat]
+  This: PROD[-1 MC, Plant, Energy, Heat]
 }
 
 CLASS Supplier : CardFront<Class<PreludeCard>> {
@@ -285,7 +285,7 @@ CLASS LavaTubeSettlement : AutomatedCard<Class<ProjectCard>> {
   cost = 15
 
   This:: CityTag<This>, BuildingTag<This>
-  This: PROD[-Energy, 2], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)
+  This: PROD[-Energy, 2 MC], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)
 }
 
 CLASS MartianSurvey : EventCard<Class<ProjectCard>> {
@@ -327,7 +327,7 @@ CLASS SpaceHotels : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "2 EarthTag"
 
   This:: EarthTag<This>, SpaceTag<This>
-  This: PROD[4]
+  This: PROD[4 MC]
 }
 
 // Supporting declarations contributed by cards in this bundle.

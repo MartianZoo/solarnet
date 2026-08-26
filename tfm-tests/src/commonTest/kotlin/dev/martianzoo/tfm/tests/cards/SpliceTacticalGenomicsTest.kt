@@ -12,7 +12,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Splice pays itself because it is not a microbe card`() {
     newGame(PromoCardPack)
 
-    p1.playCorp(SpliceTacticalGenomics, 0).expect("48")
+    p1.playCorp(SpliceTacticalGenomics, 0).expect("48 MC")
 
     engine.phase("Action")
     p1.stdAction("HandleMandates").expect("ProjectCard")
@@ -24,8 +24,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics")
 
-    p2.manual("$Decomposers") { doTask("2 Megacredit") }
-        .expect("2 Megacredit<Player1>, 2 Megacredit")
+    p2.manual("$Decomposers") { doTask("2 MC") }.expect("2 MC<Player1>, 2 MC")
   }
 
   @Test
@@ -33,21 +32,21 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics")
-    val before = p1.count("Megacredit")
+    val before = p1.count("MC")
 
     p2.manual("$PharmacyUnion")
 
-    p1.count("Megacredit") shouldBe before + 4
+    p1.count("MC") shouldBe before + 4
   }
 
   @Test
-  internal fun `Can take a microbe instead of megacredits`() {
+  internal fun `Can take a microbe instead of mc`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics")
 
     p2.manual("$Decomposers") { addCardResources(Decomposers) }
-        .expect("2 Megacredit<Player1>, 2 Microbe<$Decomposers>")
+        .expect("2 MC<Player1>, 2 Microbe<$Decomposers>")
   }
 
   @Test
@@ -55,13 +54,12 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics")
-    p2.manual("$RegolithEaters") { doTask("2 Megacredit") }
-        .expect("2 Megacredit<Player1>, 2 Megacredit")
+    p2.manual("$RegolithEaters") { doTask("2 MC") }.expect("2 MC<Player1>, 2 MC")
 
     p2.manual("$Decomposers") {
           shouldThrow<NarrowingException> { doTask("Microbe<$RegolithEaters>!") }
           addCardResources(Decomposers)
         }
-        .expect("2 Megacredit<Player1>, 2 Microbe<$Decomposers>")
+        .expect("2 MC<Player1>, 2 Microbe<$Decomposers>")
   }
 }

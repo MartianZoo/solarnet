@@ -63,19 +63,19 @@ internal class TransformersTest {
 
     checkApplyDefaults(
         "Heat FROM Owed<>!",
-        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
+        "Heat<Owner> FROM Owed<Owner, Class<MC>>!",
     )
     checkApplyDefaults(
         "Heat FROM Owed<>.",
-        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>.",
+        "Heat<Owner> FROM Owed<Owner, Class<MC>>.",
     )
     checkApplyDefaults(
         "Heat FROM Owed<>",
-        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
+        "Heat<Owner> FROM Owed<Owner, Class<MC>>!",
     )
-    checkApplyDefaults("Owed<>", "Owed<Owner, Class<Megacredit>>!")
+    checkApplyDefaults("Owed<>", "Owed<Owner, Class<MC>>!")
     checkApplyDefaults("-Owed", "-Owed<Owner>.")
-    checkApplyDefaults("-Owed<>", "-Owed<Owner, Class<Megacredit>>.")
+    checkApplyDefaults("-Owed<>", "-Owed<Owner, Class<MC>>.")
   }
 
   @Test

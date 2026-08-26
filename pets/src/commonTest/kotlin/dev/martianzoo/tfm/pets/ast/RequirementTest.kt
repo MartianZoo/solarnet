@@ -17,66 +17,66 @@ internal class RequirementTest {
 
   private val inputs =
       """
-      5
-      11
+      5 MC
+      11 MC
       Qux
-      5, 1
+      5 MC, MC
       5 Foo
       =1 Foo
       =11 Xyz
       EVAL Foo.requirement
-      PROD[11]
+      PROD[11 MC]
       MAX 1 Abc
       MAX 11 Bar
       =1 Qux<Wau>
       PROD[=1 Bar]
-      =0 Xyz(HAS 1)
-      1 OR MAX 1 Xyz
+      =0 Xyz(HAS MC)
+      MC OR MAX 1 Xyz
       PROD[MAX 1 Qux]
-      MAX 5 Megacredit
+      MAX 5 MC
       PROD[=0 Abc<Foo>]
-      (5, Bar) OR 11 Abc
+      (5 MC, Bar) OR 11 Abc
       Bar, Bar, MAX 1 Ooh
       5 Qux<Qux<Xyz, Foo>>
-      PROD[MAX 1 Bar] OR 11
-      PROD[=0 Megacredit, 1]
+      PROD[MAX 1 Bar] OR 11 MC
+      PROD[=0 MC, MC]
       PROD[Bar OR (Abc, Abc)]
       MAX 5 Xyz<Foo<Ooh<Foo>>>
-      PROD[Foo<Xyz> OR (5, 11)]
-      MAX 5 Megacredit OR 11 Qux
+      PROD[Foo<Xyz> OR (5 MC, 11 MC)]
+      MAX 5 MC OR 11 Qux
       PROD[=1 Qux<Qux, Bar, Abc>]
-      PROD[MAX 11 Megacredit, Bar]
-      Foo<Qux>, PROD[=0 Megacredit]
-      ((1, Foo), 1 OR Foo), Wau<Foo>
+      PROD[MAX 11 MC, Bar]
+      Foo<Qux>, PROD[=0 MC]
+      ((MC, Foo), MC OR Foo), Wau<Foo>
       PROD[Qux<Foo>, MAX 11 Bar, Qux]
-      MAX 0 Ahh<Foo>, MAX 1 Megacredit
-      MAX 1 Megacredit, Xyz OR Xyz<Foo>
-      PROD[11 Bar(HAS MAX 1 Megacredit)]
-      PROD[MAX 1 Bar], (Qux, Bar<Foo>, 1)
+      MAX 0 Ahh<Foo>, MAX 1 MC
+      MAX 1 MC, Xyz OR Xyz<Foo>
+      PROD[11 Bar(HAS MAX 1 MC)]
+      PROD[MAX 1 Bar], (Qux, Bar<Foo>, MC)
       =5 Wau<Qux, Bar<Foo>, Ooh<Eep, Bar>>
-      PROD[=0 Megacredit, Abc OR MAX 1 Abc]
-      MAX 1 Abc<Qux, Ahh(HAS =0 Megacredit)>
-      PROD[MAX 1 Megacredit, 5 Bar<Qux, Foo>]
-      PROD[1, (MAX 1 Megacredit, Abc<Bar>, 1)]
-      PROD[1 OR ((MAX 0 Bar, Foo OR 1) OR Foo)]
-      Bar, 5 Foo, 11 Foo OR (1, Abc<Abc>) OR Ahh
-      5 Abc OR (Qux OR Bar, Abc<Foo>) OR 1 OR Bar
-      PROD[(MAX 0 Megacredit, Qux<Foo>) OR =0 Bar]
-      MAX 1 Bar OR (MAX 0 Megacredit, PROD[=0 Ahh])
-      ((1 OR MAX 0 Foo) OR =1 Megacredit, =0 Foo), 1
-      PROD[=0 Abc OR ((MAX 1 Megacredit, 1), =1 Bar)]
-      MAX 5 Megacredit, 5 Foo OR Qux OR MAX 1 Foo<Bar>
-      11 Foo, (MAX 1 Foo OR (Abc, 1)) OR PROD[Abc<Bar>]
-      Xyz<Qux, Xyz> OR (1, MAX 1 Bar), PROD[11 Qux], Xyz
-      MAX 1 Bar OR 5 OR =5 Megacredit OR 1, 5 Ooh<Qux>, 1
-      MAX 5 Foo<Abc, Foo> OR 11 OR PROD[Bar, 5 Qux] OR Xyz
-      1 OR Bar<Bar>, 1 OR ((Foo OR 1) OR =1 Megacredit), 11
-      (Qux, MAX 1 Foo OR Foo, (1, 1)), =0 Xyz, =1 Megacredit
+      PROD[=0 MC, Abc OR MAX 1 Abc]
+      MAX 1 Abc<Qux, Ahh(HAS =0 MC)>
+      PROD[MAX 1 MC, 5 Bar<Qux, Foo>]
+      PROD[MC, (MAX 1 MC, Abc<Bar>, MC)]
+      PROD[MC OR ((MAX 0 Bar, Foo OR MC) OR Foo)]
+      Bar, 5 Foo, 11 Foo OR (MC, Abc<Abc>) OR Ahh
+      5 Abc OR (Qux OR Bar, Abc<Foo>) OR MC OR Bar
+      PROD[(MAX 0 MC, Qux<Foo>) OR =0 Bar]
+      MAX 1 Bar OR (MAX 0 MC, PROD[=0 Ahh])
+      ((MC OR MAX 0 Foo) OR =1 MC, =0 Foo), MC
+      PROD[=0 Abc OR ((MAX 1 MC, MC), =1 Bar)]
+      MAX 5 MC, 5 Foo OR Qux OR MAX 1 Foo<Bar>
+      11 Foo, (MAX 1 Foo OR (Abc, MC)) OR PROD[Abc<Bar>]
+      Xyz<Qux, Xyz> OR (MC, MAX 1 Bar), PROD[11 Qux], Xyz
+      MAX 1 Bar OR 5 MC OR =5 MC OR MC, 5 Ooh<Qux>, MC
+      MAX 5 Foo<Abc, Foo> OR 11 MC OR PROD[Bar, 5 Qux] OR Xyz
+      MC OR Bar<Bar>, MC OR ((Foo OR MC) OR =1 MC), 11 MC
+      (Qux, MAX 1 Foo OR Foo, (MC, MC)), =0 Xyz, =1 MC
       ((Bar, MAX 0 Foo<Xyz>) OR =5 Qux OR Foo) OR PROD[5 Qux]
-      (Foo, =11 Abc, MAX 11 Megacredit), (Bar, (Xyz, 1) OR Foo)
-      ((MAX 1 Qux OR MAX 1 Megacredit OR 1) OR Bar) OR MAX 1 Eep
-      MAX 1 Foo<Qux, Ooh>, (1, MAX 1 Foo), PROD[MAX 1 Megacredit]
-      PROD[MAX 0 Xyz OR MAX 1 Foo OR 5 Ahh OR Ooh, MAX 0 Ahh OR 1]
+      (Foo, =11 Abc, MAX 11 MC), (Bar, (Xyz, MC) OR Foo)
+      ((MAX 1 Qux OR MAX 1 MC OR MC) OR Bar) OR MAX 1 Eep
+      MAX 1 Foo<Qux, Ooh>, (MC, MAX 1 Foo), PROD[MAX 1 MC]
+      PROD[MAX 0 Xyz OR MAX 1 Foo OR 5 Ahh OR Ooh, MAX 0 Ahh OR MC]
       """
           .trimIndent()
 
@@ -105,12 +105,10 @@ internal class RequirementTest {
   internal fun simpleApiToSource() {
     Min(scaledEx(fooEx, 1)).toString() shouldBe "Foo"
     Min(scaledEx(fooEx, 3)).toString() shouldBe "3 Foo"
-    Min(scaledEx(count = 3)).toString() shouldBe "3"
-    Min(scaledEx(cn("Megacredit").expression, count = 3)).toString() shouldBe "3"
+    Min(scaledEx(cn("MC").expression, count = 3)).toString() shouldBe "3 MC"
     Max(scaledEx(fooEx, 0)).toString() shouldBe "MAX 0 Foo"
     Max(scaledEx(fooEx, 1)).toString() shouldBe "MAX 1 Foo"
     Max(scaledEx(fooEx, 3)).toString() shouldBe "MAX 3 Foo"
-    Max(scaledEx(count = 3)).toString() shouldBe "MAX 3 Megacredit"
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -118,9 +116,8 @@ internal class RequirementTest {
 
   @Test
   internal fun roundTrips() {
-    testRoundTrip("1", "1")
-    testRoundTrip("Megacredit", "1")
-    testRoundTrip("1 Megacredit", "1")
+    testRoundTrip("MC")
+    testRoundTrip("MC", "MC")
     testRoundTrip("Plant")
     testRoundTrip("1 Plant", "Plant")
     testRoundTrip("3 Plant")
@@ -138,10 +135,10 @@ internal class RequirementTest {
 
   @Test
   internal fun testProd() {
-    testRoundTrip("PROD[2]")
-    testRoundTrip("Steel, PROD[1]")
-    testRoundTrip("PROD[Steel, 1]")
-    testRoundTrip("PROD[Steel OR 1]")
+    testRoundTrip("PROD[2 MC]")
+    testRoundTrip("Steel, PROD[MC]")
+    testRoundTrip("PROD[Steel, MC]")
+    testRoundTrip("PROD[Steel OR MC]")
   }
 
   @Test

@@ -69,7 +69,7 @@ internal class BugsTest : CardTest() {
     val deadEnd =
         shouldThrow<AbstractException> {
           p1.playPrelude(FakeEstablishedMethods) {
-            p1.manual("-20")
+            p1.manual("-20 MC")
             doTask("UseAction<GreenerySP, First>")
             p1.autoExecNow()
           }
@@ -82,14 +82,14 @@ internal class BugsTest : CardTest() {
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
     newGame(PreludeExpansion, TurmoilCardPack, PromoCardPack)
     p1.phase("Prelude")
-    p1.manual("4, 10 ProjectCard, PreludeCard, 10 Heat")
+    p1.manual("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
 
     p1.playPrelude(HeadStart) {
-      p1.assertCounts(2 to "Steel", 24 to "Megacredit")
+      p1.assertCounts(2 to "Steel", 24 to "MC")
       doTask("UseAction<ConvertHeatSA, First>")
       doTask("8 Pay<Class<Heat>> FROM Heat")
       doTask("UseAction<AquiferSP, First>")
-      doTask("18 Pay<Class<Megacredit>> FROM Megacredit")
+      doTask("18 Pay<Class<MC>> FROM MC")
       placeTile(5, 5)
     }
   }
@@ -108,7 +108,7 @@ internal class BugsTest : CardTest() {
   internal fun `Prelude incorrectly allows discarding a playable card`() {
     newGame(PreludeExpansion)
     engine.phase("Prelude")
-    val moneyBefore = p1.count("Megacredit")
+    val moneyBefore = p1.count("MC")
 
     p1.startTurn()
     p1.doTask("-PreludeCard")
@@ -116,7 +116,7 @@ internal class BugsTest : CardTest() {
     p1.doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
 
     p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
-    p1.count("Megacredit") shouldBe moneyBefore + 15
+    p1.count("MC") shouldBe moneyBefore + 15
   }
 
   // Solar Probe should count its own science tag and draw one card for all three tags.
@@ -124,23 +124,23 @@ internal class BugsTest : CardTest() {
   internal fun `Solar Probe incorrectly draws no card during normal play`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     engine.phase("Action")
-    p1.manual("9, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
+    p1.manual("9 MC, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
 
-    p1.playProject(SolarProbe, 9).expect("-9, -ProjectCard")
+    p1.playProject(SolarProbe, 9).expect("-9 MC, -ProjectCard")
   }
 
   @Test
   internal fun `Stealing zero is incorrectly allowed and prevents Mons Insurance compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance, 10 Megacredit")
-    p2.manual("5 Megacredit")
+    p1.manual("$MonsInsurance, 10 MC")
+    p2.manual("5 MC")
 
-    p1.manual("3 Megacredit FROM Megacredit<Player2>?") {
-          // Decline taking Player 2's megacredits.
+    p1.manual("3 MC FROM MC<Player2>?") {
+          // Decline taking Player 2's mc.
           declineTask()
         }
-        .expect("0 Megacredit<Player1>, 0 Megacredit<Player2>")
+        .expect("0 MC<Player1>, 0 MC<Player2>")
   }
 
   @Test
@@ -149,17 +149,17 @@ internal class BugsTest : CardTest() {
     val p2 = requireP2()
     engine.phase("Action")
     p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
-    p1.manual("ProjectCard, 5 Megacredit")
+    p1.manual("ProjectCard, 5 MC")
 
-    p1.playProject(AirRaid, 0).expect("-Floater<$AtmoCollectors>, 0 Megacredit<Player1>")
-    p2.assertCounts(0 to "Megacredit")
+    p1.playProject(AirRaid, 0).expect("-Floater<$AtmoCollectors>, 0 MC<Player1>")
+    p2.assertCounts(0 to "MC")
   }
 
   @Test
   internal fun `Public Plans incorrectly remains playable while revealing no other cards`() {
     newGame(PromoCardPack)
     engine.phase("Action")
-    p1.manual("7 Megacredit, ProjectCard")
+    p1.manual("7 MC, ProjectCard")
 
     p1.playProject(PublicPlans, 7) { declineTask() }
 

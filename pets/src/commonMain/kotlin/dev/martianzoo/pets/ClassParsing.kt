@@ -26,7 +26,7 @@ import dev.martianzoo.pets.ClassParsing.Signatures.signature
 import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
+import dev.martianzoo.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PropertyName
@@ -64,7 +64,7 @@ internal object ClassParsing : PetTokenizer() {
         optionalList(skipChar(':') and commaSeparated(Expression.parser(allowDerivedClass = false)))
 
     val signature: Parser<Signature> =
-        classFullName and
+        className and
             dependencies and
             supertypeList map
             { (name, deps, supes) ->

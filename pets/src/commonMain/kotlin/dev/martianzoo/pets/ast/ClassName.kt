@@ -15,6 +15,10 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 public class ClassName private constructor(private val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
   public companion object {
+    private val caseInsensitiveReservedNames =
+        setOf("BY", "COUNT", "EVAL", "FROM", "HAS", "IF", "MAX", "OR", "THEN")
+    private val exactReservedNames = setOf("ABSTRACT", "CLASS", "DEFAULT", "X")
+
     /** Returns the [ClassName] for the given string. */
     public fun cn(name: String): ClassName = ClassName(name)
 
@@ -27,6 +31,11 @@ public class ClassName private constructor(private val asString: String) :
 
   init {
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
+    require(
+        asString.uppercase() !in caseInsensitiveReservedNames && asString !in exactReservedNames
+    ) {
+      "Pets keyword cannot be a class name: $asString"
+    }
   }
 
   /**

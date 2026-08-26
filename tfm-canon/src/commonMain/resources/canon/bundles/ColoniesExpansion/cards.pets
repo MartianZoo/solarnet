@@ -2,14 +2,14 @@
 CLASS FakeAridor : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 40, Mandate { -> ColonyTileSelection }
+  This: 40 MC, Mandate { -> ColonyTileSelection }
 }
 
 CLASS Arklight : ResourceCard<Class<Animal>, Class<CorporationCard>> {
   cost = 0
 
   This:: AnimalTag<This>
-  This: 45, PROD[2]
+  This: 45 MC, PROD[2 MC]
   AnimalTag<> OR PlantTag<>: Animal<This>
   End: VictoryPoint / 2 Animal<This>
 }
@@ -17,22 +17,22 @@ CLASS Arklight : ResourceCard<Class<Animal>, Class<CorporationCard>> {
 CLASS Polyphemos : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 50, 5 Titanium, PROD[5]
+  This: 50 MC, 5 Titanium, PROD[5 MC]
   BuyCard:: 2 Owed<>
 }
 
 CLASS Poseidon : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 45, Mandate { -> Colony<> }
-  Colony<Anyone>: PROD[1]
+  This: 45 MC, Mandate { -> Colony<> }
+  Colony<Anyone>: PROD[1 MC]
 }
 
 CLASS StormcraftIncorporated : ActionCard, ResourceCard<Class<Floater>, Class<CorporationCard>> {
   cost = 0
 
   This:: JovianTag<This>
-  This: 48
+  This: 48 MC
   Billing<HasActions, WhichAction, Class<Heat>>:: AcceptFromCard<This>
   PayFromCard<This>:: -2 Owed<Class<Heat>>
   LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok
@@ -44,7 +44,7 @@ CLASS Airliners : AutomatedCard<Class<ProjectCard>> {
   cost = 11
   requirement = HAS "3 Floater"
 
-  This: PROD[2], 2 Floater
+  This: PROD[2 MC], 2 Floater
   End: VictoryPoint
 }
 
@@ -52,7 +52,7 @@ CLASS AirRaid : EventCard<Class<ProjectCard>> {
   cost = 0
 
   This:: EventTag<This>
-  This: -Floater, 5 Megacredit<Owner FROM Anyone>?
+  This: -Floater, 5 MC<Owner FROM Anyone>?
 }
 
 CLASS AtmoCollectors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
@@ -67,7 +67,7 @@ CLASS AtmoCollectors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<
 CLASS CommunityServices : AutomatedCard<Class<ProjectCard>> {
   cost = 13
 
-  This: PROD[1 / CardFront(HAS MAX 0 Tag)]
+  This: PROD[1 MC / CardFront(HAS MAX 0 Tag)]
   End: VictoryPoint
 }
 
@@ -115,7 +115,7 @@ CLASS EcologyResearch : AutomatedCard<Class<ProjectCard>> {
 CLASS FloaterLeasing : AutomatedCard<Class<ProjectCard>> {
   cost = 3
 
-  This: PROD[1 / 3 Floater]
+  This: PROD[1 MC / 3 Floater]
 }
 
 CLASS FloaterPrototypes : EventCard<Class<ProjectCard>> {
@@ -137,7 +137,7 @@ CLASS GalileanWaystation : AutomatedCard<Class<ProjectCard>> {
   cost = 15
 
   This:: SpaceTag<This>
-  This: PROD[1 / JovianTag<Anyone>]
+  This: PROD[1 MC / JovianTag<Anyone>]
   End: VictoryPoint
 }
 
@@ -146,7 +146,7 @@ CLASS HeavyTaxation : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "2 EarthTag"
 
   This:: EarthTag<This>
-  This: PROD[2], 4
+  This: PROD[2 MC], 4 MC
   End: -VictoryPoint
 }
 
@@ -191,7 +191,7 @@ CLASS JupiterFloatingStation : ActionCard, ActiveCard<Class<ProjectCard>>, Resou
   End: VictoryPoint
 
   -> Floater<CardFront(HAS JovianTag)>
-  -> 1 / Floater<This> MAX 4
+  -> 1 MC / Floater<This> MAX 4
 }
 
 CLASS LunaGovernor : AutomatedCard<Class<ProjectCard>> {
@@ -199,14 +199,14 @@ CLASS LunaGovernor : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "3 EarthTag"
 
   This:: 2 EarthTag<This>
-  This: PROD[2]
+  This: PROD[2 MC]
 }
 
 CLASS LunarExports : AutomatedCard<Class<ProjectCard>> {
   cost = 19
 
   This:: SpaceTag<This>, EarthTag<This>
-  This: PROD[2 Plant OR 5]
+  This: PROD[2 Plant OR 5 MC]
 }
 
 CLASS LunarMining : AutomatedCard<Class<ProjectCard>> {
@@ -231,7 +231,7 @@ CLASS MartianZoo : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Clas
   EarthTag<>: Animal<This>
   End: VictoryPoint
 
-  -> 1 / Animal<This>
+  -> 1 MC / Animal<This>
 }
 
 CLASS MiningColony : AutomatedCard<Class<ProjectCard>> {
@@ -245,14 +245,14 @@ CLASS MinorityRefuge : AutomatedCard<Class<ProjectCard>> {
   cost = 5
 
   This:: SpaceTag<This>
-  This: PROD[-2], Colony<>
+  This: PROD[-2 MC], Colony<>
 }
 
 CLASS MolecularPrinting : AutomatedCard<Class<ProjectCard>> {
   cost = 11
 
   This:: ScienceTag<This>
-  This: 1 / CityTile<Anyone>, 1 / Colony<Anyone>
+  This: 1 MC / CityTile<Anyone>, 1 MC / Colony<Anyone>
   End: VictoryPoint
 }
 
@@ -269,7 +269,7 @@ CLASS PioneerSettlement : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "MAX 1 Colony"
 
   This:: SpaceTag<This>
-  This: PROD[-2], Colony<>
+  This: PROD[-2 MC], Colony<>
   End: 2 VictoryPoint
 }
 
@@ -283,7 +283,7 @@ CLASS QuantumCommunications : AutomatedCard<Class<ProjectCard>> {
   cost = 8
   requirement = HAS "4 ScienceTag"
 
-  This: PROD[1 / Colony<Anyone>]
+  This: PROD[1 MC / Colony<Anyone>]
   End: VictoryPoint
 }
 
@@ -305,7 +305,7 @@ CLASS RefugeeCamps : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   This:: EarthTag<This>
   End: VictoryPoint / Camp<This>
 
-  PROD[1] -> Camp<This>
+  PROD[1 MC] -> Camp<This>
 }
 
 CLASS ResearchColony : AutomatedCard<Class<ProjectCard>> {
@@ -352,7 +352,7 @@ CLASS SpacePort : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "Colony"
 
   This:: CityTag<This>, BuildingTag<This>
-  This: ReserveTradeFleet, CityTile<>, PROD[-Energy, 4]
+  This: ReserveTradeFleet, CityTile<>, PROD[-Energy, 4 MC]
 }
 
 CLASS SpacePortColony : AutomatedCard<Class<ProjectCard>> {
@@ -368,7 +368,7 @@ CLASS SpinOffDepartment : ActiveCard<Class<ProjectCard>> {
   cost = 10
 
   This:: BuildingTag<This>
-  This: PROD[2]
+  This: PROD[2 MC]
   CardFront(HAS 20 cost): ProjectCard
 }
 

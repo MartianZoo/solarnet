@@ -17,14 +17,14 @@ ABSTRACT CLASS HellasAward : Award {
 ABSTRACT CLASS ElysiumMilestone : Milestone {
   CLASS Generalist {
     HAS MAX 0 QuickStartVariant
-    requirement = HAS "PROD[6, Steel, Titanium, Plant, Energy, Heat]"
+    requirement = HAS "PROD[6 MC, Steel, Titanium, Plant, Energy, Heat]"
   }
   CLASS Generalist2 {
     HAS QuickStartVariant
-    requirement = HAS "PROD[7, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat]"
+    requirement = HAS "PROD[7 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat]"
   }
   // Search for GrossHack to understand this nonsense.
-  CLASS Specialist { requirement = HAS "PROD[10 (Megacredit - 5) OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" }
+  CLASS Specialist { requirement = HAS "PROD[10 (MC - 5) OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" }
   CLASS Ecologist { requirement = HAS "4 BioTag" }
   CLASS Tycoon15 { requirement = HAS "15 (ActiveCard OR AutomatedCard)" }
   CLASS Legend5 { requirement = HAS "CARDS[5 CardBack<EventPile>]" }
@@ -127,7 +127,7 @@ CLASS Hellas_8_9 :     LandArea { row = 8; column = 9; Tile<This>: Titanium }
 
 CLASS Hellas_9_5 :     LandArea { row = 9; column = 5 }
 CLASS Hellas_9_6 :     LandArea { row = 9; column = 6; Tile<This>: 2 Heat }
-CLASS Hellas_9_7 :     LandArea { row = 9; column = 7; Tile<This>: OceanTile<>, -6 }
+CLASS Hellas_9_7 :     LandArea { row = 9; column = 7; Tile<This>: OceanTile<>, -6 MC }
 CLASS Hellas_9_8 :     LandArea { row = 9; column = 8; Tile<This>: 2 Heat }
 CLASS Hellas_9_9 :     LandArea { row = 9; column = 9 }
 

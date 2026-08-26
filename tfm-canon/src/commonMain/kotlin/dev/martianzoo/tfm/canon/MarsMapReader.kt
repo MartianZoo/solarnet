@@ -91,7 +91,7 @@ public object MarsMapReader {
           'H' to "Heat",
           'X' to "TcColonyBonus",
           'O' to "OceanTile<>",
-          '-' to "-6",
+          '-' to "-6 MC",
       )
   private val AREA_CLASS = Regex("\\s*CLASS ([A-Za-z][A-Za-z0-9]*)_\\d+_\\d+.*")
   private val CLASS_NAME = Regex("\\s*(?:ABSTRACT )?CLASS ([A-Za-z][A-Za-z0-9]*).*")

@@ -10,7 +10,7 @@ A Game World consists entirely of a multiset of **Component** instances (plus Ta
 
 For example, when the game begins there are 20 instances of `TerraformRating<Player1>`, 20 of `TerraformRating<Player2>`, etc. The first 20 are indistinguishable from each other, and only their type distinguishes them from the latter 20. I'll try to use the term "component" consistently to mean a *single* instance, a.k.a a single occurrence of a component type (e.g., there were 40 components discussed in our example).
 
-A Game World is mutable. There are only two basic operations: adding or removing N identical copies of a Component. (There are also atomic Transmutations.) Being a multiset, or "just a bag of things", it can never contain a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (megacredit production). This headache is worth suffering, though, because otherwise the multiset model makes a large number of bugs impossible.
+A Game World is mutable. There are only two basic operations: adding or removing N identical copies of a Component. (There are also atomic Transmutations.) Being a multiset, or "just a bag of things", it can never contain a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (MC production). This headache is worth suffering, though, because otherwise the multiset model makes a large number of bugs impossible.
 
 Note that components are never "out of play"; a tile that's not yet on the board simply doesn't exist, and when you pay for a card the resources just vanish. (The "transmuting" just alluded to is fairly rare; mostly "steal" cards, and energy becoming heat during a production phase.)
 
@@ -141,7 +141,7 @@ The `Class` class is predefined. `Class<Foo>` contains one class name, not a dep
 * Only a single class name can go inside the angle brackets. `Class<Steel>` works but `Class<Steel<Player2>>` does not.
 * Even though the type `Steel` is abstract, and the type `AnythingElse<Steel>` would also be abstract, `Class<Steel>` is considered concrete! After all, it's as concrete as it *can* be.
 
-`Class` is a Singleton Class. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
+`Class` is a Singleton Class. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<MC>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
 
 #### What's that good for?
 

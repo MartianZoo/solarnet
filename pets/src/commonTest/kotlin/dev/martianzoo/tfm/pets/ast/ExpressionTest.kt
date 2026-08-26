@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.testlib.te
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 // Most testing is done by AutomatedTest
 internal class ExpressionTest {
@@ -24,6 +25,14 @@ internal class ExpressionTest {
   @Test
   internal fun simpleApiToSource() {
     cn("Foo").expression.toString() shouldBe "Foo"
+  }
+
+  @Test
+  internal fun petsKeywordsCannotBeClassNames() {
+    assertFailsWith<IllegalArgumentException> { cn("HAS") }
+    assertFailsWith<IllegalArgumentException> { cn("Has") }
+    assertFailsWith<IllegalArgumentException> { cn("CLASS") }
+    assertFailsWith<IllegalArgumentException> { cn("X") }
   }
 
   @Test

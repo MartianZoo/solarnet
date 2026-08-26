@@ -22,8 +22,8 @@ internal class ColoniesRulesTest : CardTest() {
         colonyTiles = setOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").map(::cn).toSet(),
     )
     val p2 = requireP2()
-    p1.manual("100 Megacredit, 5 ProjectCard")
-    p2.manual("100 Megacredit, 5 ProjectCard")
+    p1.manual("100 MC, 5 ProjectCard")
+    p2.manual("100 MC, 5 ProjectCard")
     engine.phase("Action")
     p2.playProject(RegolithEaters, 13)
     p1.playProject(NitriteReducingBacteria, 11)

@@ -8,13 +8,13 @@ import kotlin.test.Test
 internal class TerralabsTest : CardTest() {
 
   @Test
-  internal fun `Buys project cards for one megacredit each`() {
+  internal fun `Buys project cards for one mc each`() {
     newGame(TurmoilCardPack)
     p1.playCorp(TerraLabsResearch, 10)
     p1.manual("Selecting THEN 4 ProjectCard<Selecting> THEN BuySelectedCards") {
-          p1.pay(megacredits = 4)
+          p1.pay(mc = 4)
         }
-        .expect("4 ProjectCard, -4")
+        .expect("4 ProjectCard, -4 MC")
   }
 
   @Test
@@ -27,8 +27,8 @@ internal class TerralabsTest : CardTest() {
     p1.manual("$TerraLabsResearch, $Polyphemos")
 
     p1.manual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards") {
-          p1.pay(megacredits = 3)
+          p1.pay(mc = 3)
         }
-        .expect("ProjectCard, -3 Megacredit")
+        .expect("ProjectCard, -3 MC")
   }
 }

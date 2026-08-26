@@ -21,7 +21,7 @@ internal class ActionSequencingTest {
   @Test
   internal fun `invoice settlement unlocks only its matching action selector`() {
     listOf(
-            Triple("First", "Megacredit", 9),
+            Triple("First", "MC", 9),
             Triple("Second", "Energy", 3),
             Triple("Third", "Titanium", 3),
         )
@@ -62,7 +62,7 @@ internal class ActionSequencingTest {
   internal fun `city standard project creates independent production and placement tasks after payment`() {
     val game = setUpGame()
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().manual("25 Megacredit")
+    p1.godMode().manual("25 MC")
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.beginManual("UseAction<CitySP, First>")
@@ -80,7 +80,7 @@ internal class ActionSequencingTest {
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
         true
 
-    manual.doTask("25 Pay<Class<Megacredit>> FROM Megacredit")
+    manual.doTask("25 Pay<Class<MC>> FROM MC")
     p1.count("Owed<>") shouldBe 0
     p1.count("Invoice<CitySP, First>") shouldBe 0
 
@@ -101,7 +101,7 @@ internal class ActionSequencingTest {
   internal fun `card purchase waits for its complete adjusted debt to be paid`() {
     val game = setUpGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().manual("$Polyphemos, 5 Megacredit")
+    p1.godMode().manual("$Polyphemos, 5 MC")
     val manual = p1.godMode()
 
     manual.beginManual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards")
@@ -109,7 +109,7 @@ internal class ActionSequencingTest {
     p1.count("Owed<>") shouldBe 5
     p1.count("ProjectCard<Hand>") shouldBe 0
 
-    manual.doTask("5 Pay<Class<Megacredit>> FROM Megacredit")
+    manual.doTask("5 Pay<Class<MC>> FROM MC")
 
     p1.count("ProjectCard<Hand>") shouldBe 1
   }

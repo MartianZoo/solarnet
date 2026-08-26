@@ -40,11 +40,11 @@ internal class AwardsRulesTest : CardTest() {
   }
 
   @Test
-  internal fun `Megacredits break a multiplayer victory-point tie`() {
+  internal fun `MC break a multiplayer victory-point tie`() {
     newGame()
     val p2 = requireP2()
-    p1.manual("2 VictoryPoint, 5 Megacredit")
-    p2.manual("2 VictoryPoint, 4 Megacredit")
+    p1.manual("2 VictoryPoint, 5 MC")
+    p2.manual("2 VictoryPoint, 4 MC")
 
     TfmWorkflow.Manual(game).endPhase()
 

@@ -4,7 +4,7 @@ CLASS ColoniesExpansion : Module {
 
   This:: TradeSA, BuildColonySP
   SetupPhase IF MAX 0 SoloColoniesSetup: ColoniesSetup
-  SetupPhase IF SoloMode: PROD[-2 Megacredit<Player1>]
+  SetupPhase IF SoloMode: PROD[-2 MC<Player1>]
   SolarPhase: AdvanceColonyTracks
 }
 
@@ -16,14 +16,14 @@ CLASS SoloColoniesSetup : Owned<Player>, System {
 
 "Trade with a colony tile"
 CLASS TradeSA : StandardAction {
-  9 -> Trade
+  9 MC -> Trade
   3 Energy -> Trade
   3 Titanium -> Trade
 }
 
 CLASS BuildColonySP : StandardProject {
   cost = 17
-  1 / cost -> Colony<>
+  1 MC / cost -> Colony<>
 }
 
 "Creates the colony tiles and one trade fleet for each player"
@@ -84,10 +84,10 @@ CLASS Enceladus : ColonyTile {
 
 CLASS Europa : ColonyTile, ColonyTileSelection<Class<Europa>> {
   Colony<This>: OceanTile<>
-  GiveColonyBonus<This>: 1
+  GiveColonyBonus<This>: 1 MC
 
-  FlownTradeFleet<This> IF =0 ColonyProduction<This>: PROD[1]
-  FlownTradeFleet<This> IF =1 ColonyProduction<This>: PROD[1]
+  FlownTradeFleet<This> IF =0 ColonyProduction<This>: PROD[1 MC]
+  FlownTradeFleet<This> IF =1 ColonyProduction<This>: PROD[1 MC]
   FlownTradeFleet<This> IF =2 ColonyProduction<This>: PROD[Energy]
   FlownTradeFleet<This> IF =3 ColonyProduction<This>: PROD[Energy]
   FlownTradeFleet<This> IF =4 ColonyProduction<This>: PROD[Plant]
@@ -122,16 +122,16 @@ CLASS Io : ColonyTile, ColonyTileSelection<Class<Io>> {
 }
 
 CLASS Luna : ColonyTile, ColonyTileSelection<Class<Luna>> {
-  Colony<This>: PROD[2]
-  GiveColonyBonus<This>: 2
+  Colony<This>: PROD[2 MC]
+  GiveColonyBonus<This>: 2 MC
 
-  FlownTradeFleet<This> IF =0 ColonyProduction<This>: 1
-  FlownTradeFleet<This> IF =1 ColonyProduction<This>: 2
-  FlownTradeFleet<This> IF =2 ColonyProduction<This>: 4
-  FlownTradeFleet<This> IF =3 ColonyProduction<This>: 7
-  FlownTradeFleet<This> IF =4 ColonyProduction<This>: 10
-  FlownTradeFleet<This> IF =5 ColonyProduction<This>: 13
-  FlownTradeFleet<This> IF =6 ColonyProduction<This>: 17
+  FlownTradeFleet<This> IF =0 ColonyProduction<This>: 1 MC
+  FlownTradeFleet<This> IF =1 ColonyProduction<This>: 2 MC
+  FlownTradeFleet<This> IF =2 ColonyProduction<This>: 4 MC
+  FlownTradeFleet<This> IF =3 ColonyProduction<This>: 7 MC
+  FlownTradeFleet<This> IF =4 ColonyProduction<This>: 10 MC
+  FlownTradeFleet<This> IF =5 ColonyProduction<This>: 13 MC
+  FlownTradeFleet<This> IF =6 ColonyProduction<This>: 17 MC
 }
 
 CLASS Miranda : ColonyTile {

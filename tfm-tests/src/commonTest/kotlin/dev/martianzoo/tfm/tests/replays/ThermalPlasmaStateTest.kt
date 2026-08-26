@@ -340,7 +340,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(InventorsGuild) { buyCards(AirRaid) }
       playProject(AirRaid, 0) {
             // The app omitted Air Raid's 5 M€ transfer from the log.
-            doTask("5 Megacredit<Me> FROM Megacredit<SoloOpponent>")
+            doTask("5 MC<Me> FROM MC<SoloOpponent>")
           }
           .expect("8 M")
       playProject(BactoviralResearch, 10) {

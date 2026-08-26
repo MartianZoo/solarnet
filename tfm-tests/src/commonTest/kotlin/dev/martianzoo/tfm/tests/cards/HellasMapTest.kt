@@ -30,10 +30,10 @@ internal class HellasMapTest : CardTest() {
     engine.phase("Action")
     p1.manual("$LakefrontResorts")
     p1.manual("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
-    p1.manual("-54 Megacredit")
+    p1.manual("-54 MC")
 
     p1.manual("GreeneryTile<Hellas_9_7>") { placeTile(5, 7) }
 
-    p1.count("Megacredit") shouldBe 0
+    p1.count("MC") shouldBe 0
   }
 }

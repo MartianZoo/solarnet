@@ -330,11 +330,11 @@ private object TerraformingMars {
       }
       val mostVictoryPoints = victoryPoints.values.maxOrNull() ?: return NoOp
       val leaders = victoryPoints.filterValues { it == mostVictoryPoints }.keys
-      val megacredits = leaders.associateWith {
-        reader.count(reader.resolve(cn("Megacredit").of(it.expression)))
+      val mc = leaders.associateWith {
+        reader.count(reader.resolve(cn("MC").of(it.expression)))
       }
-      val mostMegacredits = megacredits.values.maxOrNull() ?: return NoOp
-      val winners = megacredits.filterValues { it == mostMegacredits }.keys
+      val mostMC = mc.values.maxOrNull() ?: return NoOp
+      val winners = mc.filterValues { it == mostMC }.keys
       return Then.create(winners.map { gain(VICTORY.of(it.expression)) })
     }
   }

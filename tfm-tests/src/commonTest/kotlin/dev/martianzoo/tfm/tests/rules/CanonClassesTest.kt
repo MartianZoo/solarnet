@@ -92,7 +92,7 @@ internal class CanonClassesTest {
     game.reader.count(game.reader.resolve(te("StandardSoloVariant"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
     game.gameplay(PLAYER1).count("TerraformRating<Me>") shouldBe 14
-    listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
+    listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
       game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
     }
@@ -125,7 +125,7 @@ internal class CanonClassesTest {
     player.manual("PROD[5 Plant<SoloOpponent>]")
     player.manual("-5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
     player.manual("5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
-    listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
+    listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
       game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
       game.gameplay(PLAYER1).count("$it<Me>") shouldBe 0

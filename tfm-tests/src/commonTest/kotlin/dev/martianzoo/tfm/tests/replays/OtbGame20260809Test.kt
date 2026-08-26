@@ -50,12 +50,12 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I call Mons Insurance again."
     // "Your money production goes up four." "And Dad's money production goes down two."
     // "You're buying six cards, which leaves you with 30 money."
-    ellie.playCorp(MonsInsurance, 6).expect("PROD[4 M<Ellie>, -2 M<Dad>], 30")
+    ellie.playCorp(MonsInsurance, 6).expect("PROD[4 M<Ellie>, -2 M<Dad>], 30 MC")
 
     // "On my turn, I play Morning Star Inc."
     // "I am purchasing four cards. So I receive 50 money."
     // "And then I'm spending 12 money. So I have 38 money left."
-    dad.playCorp(MorningStarInc, 4).expect("38")
+    dad.playCorp(MorningStarInc, 4).expect("38 MC")
 
     // "It is now the Prelude phase."
     engine.assertCounts(1 to "PreludePhase")
@@ -63,17 +63,17 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn {
       // "I got Dome Farming."
       // "That is, I gain a plant production and two money production."
-      playPrelude(DomeFarming).expect("PROD[P, 2]")
+      playPrelude(DomeFarming).expect("PROD[P, 2 MC]")
 
       // "And Society Support: I lose a money production, I gain plant production, gain energy"
       // "production, gain heat production."
-      playPrelude(SocietySupport).expect("PROD[-1, P, E, H]")
+      playPrelude(SocietySupport).expect("PROD[-1 MC, P, E, H]")
     }
 
     dad.turn {
       // "On my turn, I play Nitrogen Shipment."
       // "I get a TR, a plant production, and five money, bringing me to 43 money."
-      playPrelude(NitrogenShipment).expect("TR, PROD[P], 5")
+      playPrelude(NitrogenShipment).expect("TR, PROD[P], 5 MC")
       assertCounts(43 to "M") // ledger entry 7
 
       // (11:30 am) "Then I play Great Aquifer."
@@ -84,7 +84,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             doTask("OceanTile<Hellas_4_6>")
           }
           // "I get a card, one plant, two money, and two TR."
-          .expect("ProjectCard, P, 2, 2 TR")
+          .expect("ProjectCard, P, 2 MC, 2 TR")
     }
 
     // "That concludes the Prelude phase. It is now time for the action phase."
@@ -102,7 +102,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(5, 7)
           }
           // "I'm gonna place in this nice little spot where I get four money and three heat."
-          .expect("-4, 3 H, TR")
+          .expect("-4 MC, 3 H, TR")
     }
 
     // "For my first action, I flip cards until I get 3 Venus tags. Let's see how this goes."
@@ -117,7 +117,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             doTask("CopyProductionBox<$DomeFarming>")
           }
           // "So that's a plant production and 2 money production."
-          .expect("PROD[P, 2]")
+          .expect("PROD[P, 2 MC]")
       assertCounts(0 to "M") // ledger entry 17
     }
 
@@ -188,7 +188,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           }
           // "I will put it up here for the spot with one plant and four money."
           // "And one TR?"
-          .expect("P, -4, TR")
+          .expect("P, -4 MC, TR")
       assertCounts(18 to "M") // ledger entry 37
     }
 
@@ -196,7 +196,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "So that costs me eight, bringing me down to 34."
     // "It takes me from negative two to positive two money production."
     dad.turn {
-      playProject(TerraformingContract, 8).expect("PROD[4]")
+      playProject(TerraformingContract, 8).expect("PROD[4 MC]")
       assertCounts(34 to "M", 7 to "PROD[M]") // ledger entry 28; 7 really means 2
     }
 
@@ -250,7 +250,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           }
           // "That's two money, a plant, and a card."
           // "The oxygen goes up to 2%, and Ellie gets a TR."
-          .expect("-7 P, 2, ProjectCard, TR")
+          .expect("-7 P, 2 MC, ProjectCard, TR")
       engine.assertCounts(2 to "OxygenStep")
     }
 
@@ -303,13 +303,13 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm going to take the action of Venusian Insects to add one microbe to Venusian Insects"
     // "and get one money from Topsoil Contract."
     dad.turn {
-      cardAction1(VenusianInsects).expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1 MC")
       assertCounts(16 to "M") // ledger entry 49
 
       // "I'm going to play Venus Governor because I have three Venus tags and it requires two."
       // "That costs me four, but gets me two money production, bringing me up to four money"
       // "production."
-      playProject(VenusGovernor, 4).expect("PROD[2]")
+      playProject(VenusGovernor, 4).expect("PROD[2 MC]")
 
       // 11:55 am
       // "I'm going to play Search for Life, which we're still under the max requirement."
@@ -363,7 +363,9 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use Venusian Insects to take a microbe on Venusian Insects and gain one money"
     // "and forgo my second action."
-    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1") }
+    dad.turn {
+      cardAction1(VenusianInsects).expect("Microbe, 1 MC")
+    }
 
     // "I'm gonna pay 16 for Imported Hydrogen. I'm gonna gain three plants."
     ellie.turn {
@@ -374,7 +376,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(6, 8)
           }
           // "Optimal Aerobraking gives me three money and three heat, bringing me up to 14 heat."
-          .expect("-9, S, 3 H, PlayedEvent, TR")
+          .expect("-9 MC, S, 3 H, PlayedEvent, TR")
       assertCounts(19 to "M") // ledger entry 93
 
       // "I may as well use Aquifer Pumping."
@@ -391,7 +393,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // (12:38 pm) "Peroxide Power costs me seven."
     // "It costs me a money production and gains me two energy production."
     dad.turn {
-      playProject(PeroxidePower, 7).expect("PROD[-1, 2 E]")
+      playProject(PeroxidePower, 7).expect("PROD[-1 MC, 2 E]")
       assertCounts(25 to "M") // ledger entry 65
     }
 
@@ -409,9 +411,11 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // (12:40 pm) "I will convert eight plants to a greenery."
     ellie.turn {
-      convertPlants { placeTile(3, 6) }
+      convertPlants {
+            placeTile(3, 6)
+          }
           // "And that'll be on the 2-plants, 4-money spot."
-          .expect("-6 P, 4, TR")
+          .expect("-6 P, 4 MC, TR")
 
       // "Oxygen goes to 4%. I'm at 29 TR."
       assertCounts(4 to "OxygenStep", 29 to "TR") // ledger entry 105
@@ -424,7 +428,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             // "plant."
             placeTile(2, 6)
           }
-          .expect("P, PROD[-E, 3]")
+          .expect("P, PROD[-E, 3 MC]")
     }
 
     // "I'm going to play Martian Survey while I still can."
@@ -447,7 +451,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "That appears to be the end of everything I can do except..."
       // HACK: Unlike the other narrated Search for Life actions, I never said that I paid the one
       // money.
-      exMachina("1")
+      exMachina("1 MC")
       assertCounts(5 to "M") // derived from ledger entry 72 before Industrial Center
 
       // "Sure. Let us play Industrial Center for four."
@@ -509,19 +513,19 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             // "It'll go on the two-one space for two plants and two money."
             placeTile(2, 1)
           }
-          .expect("2 P, -6, TR")
+          .expect("2 P, -6 MC, TR")
 
       // "And I will play... Energy Market."
       playProject(EnergyMarket, 3)
     }
     // HACK: The ledger says Ellie paid six here, although the recording only names Energy Market.
-    ellie.exMachina("-3")
+    ellie.exMachina("-3 MC")
 
     ellie.assertCounts(21 to "M") // ledger entry 130
 
     // (12:51 pm) "I'm gonna spend three energy to fly my little ship to Luna."
     // "And I simply take 13 money. The track goes all the way down. And the track zoops."
-    dad.turn { stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("13") }
+    dad.turn { stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("13 MC") }
 
     // "I spend six money to gain three energy."
     ellie.turn {
@@ -533,7 +537,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "Come to think of it, I don't know why I did that urgently..."
     // HACK: Despite saying "spend six money," she did not record a second six-money payment.
-    ellie.exMachina("6")
+    ellie.exMachina("6 MC")
     ellie.assertCounts(21 to "M") // ledger entry 130
 
     // "Earth Catapult for 23."
@@ -559,7 +563,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm gonna use Venusian Insects to give myself a microbe."
     // "That gives me one money."
-    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1") }
+    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1 MC") }
 
     // "I'm gonna play... Ironworks for 11. Boop."
     ellie.turn { playProject(Ironworks, 11) }
@@ -653,7 +657,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(3, 3)
           }
           // "I take a steel."
-          .expect("S, PROD[-E, 3]")
+          .expect("S, PROD[-E, 3 MC]")
     }
     // "I'm gonna pay 12 for Ecological Zone." "Oh my, does it hold animals?"
     ellie.turn {
@@ -664,7 +668,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(4, 8)
             assertCounts(30 to "M") // ledger entry 169
           }
-          .expect("-8, P, Miranda, 2 Animal")
+          .expect("-8 MC, P, Miranda, 2 Animal")
 
       // "Landshaper." "I was just gonna get that. I hate you."
       stdAction("ClaimMilestoneSA") { doTask("Landshaper") }
@@ -681,7 +685,10 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'll spend the eight plants. I'm going to put the greenery on the two-plants, four-money"
     // "spot. I raise oxygen to 7% and get a TR."
     dad.turn {
-      convertPlants { placeTile(2, 2) }.expect("-6 P, 4, TR")
+      convertPlants {
+            placeTile(2, 2)
+          }
+          .expect("-6 P, 4 MC, TR")
       engine.assertCounts(7 to "OxygenStep")
     }
 
@@ -693,7 +700,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           }
           // "I get a plant, two money, and an oxygen raise."
           // "I have to manually input the temperature raise and the extra TR."
-          .expect("-7 P, 2, OxygenStep, TemperatureStep, 2 TR")
+          .expect("-7 P, 2 MC, OxygenStep, TemperatureStep, 2 TR")
 
       // "My second action is to raise the temperature with my eight heat."
       // "That gives me an extra TR."
@@ -710,7 +717,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       playProject(KelpFarming, 17)
           // "I gain two money production, three plant production, and two plants."
           // "I add an animal to Ecological Zone."
-          .expect("PROD[2, 3 P], 2 P, Animal<$EcologicalZone>")
+          .expect("PROD[2 MC, 3 P], 2 P, Animal<$EcologicalZone>")
       assertCounts(7 to "M") // ledger entry 186
     }
 
@@ -718,7 +725,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     dad.turn {
       playProject(NuclearPower, 6, steel = 1)
           // "I lose two money production and gain three energy production."
-          .expect("PROD[-2, 3 E]")
+          .expect("PROD[-2 MC, 3 E]")
       assertCounts(19 to "M") // ledger entry 122
     }
 
@@ -746,12 +753,12 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             // "I put a microbe on Venusian Insects, which gives me one money."
             addCardResources(VenusianInsects)
           }
-          .expect("VenusStep, TR, -10")
+          .expect("VenusStep, TR, -10 MC")
 
       // "I'm going to use... thing. Venusian Insects itself to put another cube on Venusian Insects
       // and take"
       // "another money."
-      cardAction1(VenusianInsects).expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1 MC")
 
       // "I'm going to use Rotator Impacts to spend two titanium and put an asteroid on Rotator"
       // "Impacts."
@@ -807,11 +814,14 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(1, 2)
             assertCounts(21 to "M") // ledger entry 213
           }
-          .expect("2 P, -23")
+          .expect("2 P, -23 MC")
 
       // "I spend eight plants on a greenery at row one, column three, for two plants."
       // "Oxygen goes up to 10%. I get a TR."
-      convertPlants { placeTile(1, 3) }.expect("-6 P, TR")
+      convertPlants {
+            placeTile(1, 3)
+          }
+          .expect("-6 P, TR")
       engine.assertCounts(10 to "OxygenStep")
     }
 
@@ -885,11 +895,11 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             doTask("Trade<Enceladus>")
             addCardResources(VenusianInsects)
           }
-          .expect("-Floater<$TitanFloatingLaunchPad>, 4")
+          .expect("-Floater<$TitanFloatingLaunchPad>, 4 MC")
 
       // "Then I will use Venusian Insects itself to get one more and one more
       // money."
-      cardAction1(VenusianInsects).expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1 MC")
       assertCounts(5 to "M") // ledger entry 152
 
       // "I use Search for Life, spend one, and flip Research Coordination."
@@ -962,7 +972,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             // "I place the city at row three, column five, for two money."
             placeTile(3, 5)
           }
-          .expect("-23")
+          .expect("-23 MC")
       assertCounts(27 to "M") // ledger entry 257
 
       // "I convert eight plants to a greenery."
@@ -991,7 +1001,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(4, 5)
           }
           // "Oh man, you got the last oxygen. I never win this game."
-          .expect("S, 4, TR")
+          .expect("S, 4 MC, TR")
       engine.assertCounts(14 to "OxygenStep")
 
       // "Before I forget, I'm going to claim Mayor for eight."
@@ -1007,7 +1017,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm going to use Venusian Insects and add a microbe to Venusian Insects and take the"
     // "money."
     dad.turn {
-      cardAction1(VenusianInsects).expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1 MC")
       assertCounts(13 to "M") // ledger entry 176
     }
 
@@ -1017,7 +1027,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I am going to play Satellites."
     // "It would cost eight, but I'm spending six worth of titanium and two money."
     // "I'm getting four money production, bringing me up to eight money production."
-    dad.turn { playProject(Satellites, 2, titanium = 2).expect("PROD[4]") }
+    dad.turn { playProject(Satellites, 2, titanium = 2).expect("PROD[4 MC]") }
 
     // "I pass."
     ellie.pass()
@@ -1029,7 +1039,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       cardAction1(Birds).expect("Animal")
 
       // "I use Extremophiles to add a Venusian Insect and take a money."
-      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1")
+      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1 MC")
 
       // "I use Rotator Impacts to spend six money to add an asteroid."
       cardAction1(RotatorImpacts) { pay(6) }.expect("Asteroid")
@@ -1071,7 +1081,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // (8:05 pm) "I believe I start by paying three energy to trade with Luna. That's ten."
     ellie.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("10")
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("10 MC")
 
       // "I'm going to use the City standard project on the plant-and-steel space."
       stdProject("CitySP") { placeTile(1, 4) }.expect("P, S")
@@ -1086,7 +1096,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             addCardResources(Penguins)
             // "It gives me two money production. We meet the requirement."
           }
-          .expect("3 P, PROD[2]")
+          .expect("3 P, PROD[2 MC]")
 
       // Dad uses the park's three plants immediately as his second action.
       // "I'm going to do plant boop, which should not give me TR: convert plants to greenery."
@@ -1096,14 +1106,14 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(3, 2)
           }
           // "It does not give me a TR."
-          .expect("-7 P, 2, 0 TR")
+          .expect("-7 P, 2 MC, 0 TR")
     }
 
     // (8:08 pm) "I will pay ten money for Rego Plastics."
     ellie.turn { playProject(RegoPlastics, 10) }
 
     // "I use Venusian Insects to add a cube to Venusian Insects and take one money."
-    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1") }
+    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1 MC") }
 
     // "I will pay four steel, because it's worth three now, for Industrial Microbes."
     ellie.turn {
@@ -1218,7 +1228,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             doTask("Trade<Enceladus>")
             addCardResources(VenusianInsects)
           }
-          .expect("3")
+          .expect("3 MC")
     }
 
     // "I can pay 25 for a City standard project."
@@ -1227,11 +1237,14 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             // "It'll go at row five, column five, for two money."
             placeTile(5, 5)
           }
-          .expect("-23")
+          .expect("-23 MC")
       assertCounts(32 to "M") // ledger entry 322
 
       // "Then I'll convert plants to a greenery at row six, column six, for four money."
-      convertPlants { placeTile(6, 6) }.expect("4, 0 TR")
+      convertPlants {
+            placeTile(6, 6)
+          }
+          .expect("4 MC, 0 TR")
     }
 
     // "What I'm going to do is play Restricted Area for nine."
@@ -1262,14 +1275,14 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I use Restricted Area to draw a card."
     dad.turn { cardAction1(RestrictedArea).expect("ProjectCard") }
     // HACK: I narrated drawing the card but never mentioned Restricted Area's two-money cost.
-    dad.exMachina("2")
+    dad.exMachina("2 MC")
     dad.assertCounts(31 to "M") // ledger entry 217
 
     // "I play Medical Lab. I'll spend my four steel as 12 money plus one money."
     // "I increase money production one step for every two building tags."
     // "I have eight building tags, so that's four money production."
     ellie.turn {
-      playProject(MedicalLab, 1, steel = 4).expect("PROD[4]")
+      playProject(MedicalLab, 1, steel = 4).expect("PROD[4 MC]")
       assertCounts(25 to "PROD[M]") // ledger entry 328; 25 really means 20
     }
 
@@ -1298,7 +1311,9 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "For my second action, I play Lawsuit for free. You lowered my production this generation."
       // "So you lose three money and I gain three money?"
       // "My Mons doesn't activate for that. I would just pay myself."
-      playProject(LawSuit, 0) { doTask("3 Megacredit<Dad> FROM Megacredit<Ellie>.") }
+      playProject(LawSuit, 0) {
+            doTask("3 MC<Dad> FROM MC<Ellie>.")
+          }
           .expect("3 M<Dad>, -3 M<Ellie>")
     }
     dad.assertCounts(26 to "M") // ledger entry 222
@@ -1309,7 +1324,9 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to spend 23 and put a greenery at the only spot next to my city that isn't next"
     // "to one of yours. I get a steel."
-    dad.turn { stdProject("GreenerySP") { placeTile(4, 3) }.expect("S, 0 TR") }
+    dad.turn {
+      stdProject("GreenerySP") { placeTile(4, 3) }.expect("S, 0 TR")
+    }
     ellie.assertCounts(7 to "M") // ledger entry 332
 
     // (8:28 pm) "I add a Nitrite Reducing Bacterium."
@@ -1317,7 +1334,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I play Harvest for two and then get 12. Now I have 13 money."
     dad.turn {
-      playProject(Harvest, 2).expect("10")
+      playProject(Harvest, 2).expect("10 MC")
       assertCounts(13 to "M") // ledger entry 226
     }
 
@@ -1337,14 +1354,16 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     ellie.turn { cardAction1(EnergyMarket, x = 3) }
 
     // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
-    dad.turn { cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) } }
+    dad.turn {
+      cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) }
+    }
 
     // (8:30 pm) "I pass."
     ellie.pass()
 
     // "I'm going to use Venusian Insects to get a microbe and a money."
     dad.turn {
-      cardAction1(VenusianInsects).expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1 MC")
       // "I'm going to use Penguins, Stratospheric Birds, and Birds to get one animal on each."
       cardAction1(Penguins).expect("Animal")
       cardAction1(StratosphericBirds).expect("Animal")
@@ -1362,7 +1381,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I'm going to use Extremophiles to add a microbe to Venusian Insects and give myself"
       // "another money."
-      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1")
+      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1 MC")
 
       // "I'm going to use Rotator Impacts to pay two titanium to put an asteroid on Rotator
       // Impacts."
@@ -1430,25 +1449,28 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     }
     // HACK: Again, I narrated drawing the card without saying that I paid the two-money action
     // cost.
-    dad.exMachina("2")
+    dad.exMachina("2 MC")
     dad.assertCounts(43 to "M") // ledger entry 243
 
     // "I'm going to convert eight plants to a greenery."
     // "I place it at row five, column four, and get two steel."
     ellie.turn {
-      convertPlants { placeTile(5, 4) }.expect("2 S, 0 TR")
+      convertPlants {
+            placeTile(5, 4)
+          }
+          .expect("2 S, 0 TR")
       // "And... Gyropolis. I pay... Wow. Free steel. What is going on, Ellie? Why do you have six
       // cities?"
       // "I place it in six-three." "Looks like you put it in five-three." "Five-three. Sorry."
       // "I get no placement bonuses, but it's next to two greeneries."
-      playProject(Gyropolis, 11, steel = 3) { placeTile(5, 3) }.expect("PROD[3, -2 E]")
+      playProject(Gyropolis, 11, steel = 3) { placeTile(5, 3) }.expect("PROD[3 MC, -2 E]")
     }
     // HACK: Dad distracted Ellie into forgetting to make the production changes
-    ellie.exMachina("PROD[-3, 2 E]")
+    ellie.exMachina("PROD[-3 MC, 2 E]")
 
     // (8:41 pm) "I'm going to use Venusian Insects for one microbe and one money."
     dad.turn {
-      cardAction1(VenusianInsects).expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1 MC")
       assertCounts(44 to "M") // ledger entry 247
     }
 
@@ -1472,16 +1494,18 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I hope this is not a mistake. Jovian Lanterns cost me 18 money."
     // "It gives me a TR and two floaters, which I put on Jovian Lanterns itself."
-    dad.turn { playProject(JovianLanterns, 18) { addCardResources(JovianLanterns) }.expect("TR") }
+    dad.turn {
+      playProject(JovianLanterns, 18) { addCardResources(JovianLanterns) }.expect("TR")
+    }
     // HACK: It was a mistake: I only paid 17.
-    dad.exMachina("1")
+    dad.exMachina("1 MC")
     dad.assertCounts(27 to "M") // ledger entry 249
 
     // "I sell a card for one money."
     ellie.turn { sellPatents(1) }
 
     // (8:45 pm) "In order to Terraform Ganymede, that costs 31, but I spend 24 worth of titanium.
-    // "I only have to spend seven megacredits, taking me down to 20."
+    // "I only have to spend seven mc, taking me down to 20."
     // "That gives me three TR."
     // (later) "Oh shit. Let me take back one titanium and spend three more money."
     dad.turn {
@@ -1493,12 +1517,12 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     }
 
     // "I will play Molecular Printing for 11. I get 8 money for the 8 cities."
-    ellie.turn { playProject(MolecularPrinting, 11).expect("-3") }
+    ellie.turn { playProject(MolecularPrinting, 11).expect("-3 MC") }
     ellie.assertCounts(48 to "M") // ledger entry 365
 
-    // (8:48 pm) "I think I forgot one megacredit of cost, so I'll correct that."
+    // (8:48 pm) "I think I forgot one mc of cost, so I'll correct that."
     // ... but she hadn't ...
-    ellie.exMachina("-1")
+    ellie.exMachina("-1 MC")
     ellie.assertCounts(47 to "M") // ledger entry 366
 
     // "I'm going to use Jovian Lanterns to spend a titanium and put two more floaters on Jovian"
@@ -1517,7 +1541,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I am going to spend one on Floater Leasing, which gives me two money production."
     dad.turn {
-      playProject(FloaterLeasing, 1).expect("PROD[2]")
+      playProject(FloaterLeasing, 1).expect("PROD[2 MC]")
       assertCounts(16 to "M") // ledger entry 262
     }
 
@@ -1552,18 +1576,23 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "There is one thing I can do. Not that I really need to. Do a plant forest."
     // "In other words, convert plants to greenery. To this four-two for a plant."
-    ellie.turn { convertPlants { placeTile(4, 2) }.expect("-7 P, 0 TR") }
+    ellie.turn {
+      convertPlants {
+            placeTile(4, 2)
+          }
+          .expect("-7 P, 0 TR")
+    }
 
     // "I'm going to use Birds to take a Bird."
     dad.turn {
       cardAction1(Birds).expect("Animal")
-      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1")
+      cardAction1(Extremophiles) { addCardResources(VenusianInsects) }.expect("1 MC")
     }
 
     // "Not that it would have helped me much, but I can use Energy Market to decrease"
     // "an energy production." "I pitched one card. For the energy production."
     ellie.turn {
-      cardAction2(EnergyMarket).expect("PROD[-E], 8")
+      cardAction2(EnergyMarket).expect("PROD[-E], 8 MC")
       assertCounts(8 to "M") // ledger entry 382
     }
 
@@ -1585,7 +1614,10 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "go next to your city. Whatever. I did it."
     // "I might need the steel, so I'm going on four-four to get two steel."
     dad.turn {
-      convertPlants { placeTile(4, 4) }.expect("2 S, 0 TR")
+      convertPlants {
+            placeTile(4, 4)
+          }
+          .expect("2 S, 0 TR")
 
       // (8:58 pm) "Mining Quota cost three, so I'll spend two steel on it."
       // "It gives me two steel production. Yay, my very first steel production."
@@ -1600,7 +1632,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I'm gonna use Maxwell Base to put a microbe on Venusian Insects and give me a money back."
       // "Give me my money back."
-      cardAction1(MaxwellBase) { addCardResources(VenusianInsects) }.expect("1")
+      cardAction1(MaxwellBase) { addCardResources(VenusianInsects) }.expect("1 MC")
 
       // "I will try Search for Life. Wouldn't that be funny if this made all the difference"
       // "right here? Search for Life, Vesta Shipyard, no life. I got no life."
@@ -1610,7 +1642,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           .expect("0 Science")
 
       // I never narrated paying the action's one money; the ledger suggests I took one instead.
-      exMachina("2")
+      exMachina("2 MC")
       assertCounts(2 to "M") // ledger entry 275
 
       // "So now I must pass. And so we hit production."

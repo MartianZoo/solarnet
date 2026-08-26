@@ -42,7 +42,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
       playPrelude(Biolab).expect("3 Card")
-      playPrelude(NewPartner) { playPrelude(BusinessEmpire) }.expect("PROD[7]")
+      playPrelude(NewPartner) { playPrelude(BusinessEmpire) }.expect("PROD[7 MC]")
 
       stdAction("HandleMandates") { playPrelude(GalileanMining) }.expect("PROD[2 T]")
       playProject(IndenturedWorkers, 0)
@@ -58,7 +58,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       assertDashRight(events = 1, tagless = 1, cities = 0)
       assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
-      playProject(AcquiredCompany, 10).expect("EarthTag, PROD[3]")
+      playProject(AcquiredCompany, 10).expect("EarthTag, PROD[3 MC]")
 
       pass()
       buyCards(2)
@@ -67,7 +67,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
           .expect("TemperatureStep, TR")
       playProject(PeroxidePower, 3, steel = 2)
       playProject(ForcedPrecipitation, 8)
-      cardAction1(ForcedPrecipitation).expect("-2, Floater")
+      cardAction1(ForcedPrecipitation).expect("-2 MC, Floater")
       playProject(Solarnet, 7).expect("2 Card")
 
       pass()
@@ -82,7 +82,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       playProject(RegolithEaters, 11)
       cardAction1(RegolithEaters)
-      cardAction1(ForcedPrecipitation).expect("-2, Floater")
+      cardAction1(ForcedPrecipitation).expect("-2 MC, Floater")
       playProject(SubCrustMeasurements, 16, steel = 1)
       cardAction1(SubCrustMeasurements).expect("Card")
 
@@ -123,12 +123,12 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       }
 
       cardAction1(SubCrustMeasurements)
-      cardAction1(ForcedPrecipitation).expect("-2")
+      cardAction1(ForcedPrecipitation).expect("-2 MC")
       cardAction1(RegolithEaters).expect("Microbe")
       playProject(ResearchOutpost, 12, steel = 2) { placeTile(7, 6) }
 
-      playProject(Cartel, 7).expect("PROD[5]")
-      playProject(Supercapacitors, 3).expect("PROD[1]")
+      playProject(Cartel, 7).expect("PROD[5 MC]")
+      playProject(Supercapacitors, 3).expect("PROD[1 MC]")
 
       // The player chose to convert only one of three energy with Supercapacitors.
       pass()

@@ -15,9 +15,9 @@
 | `LargeConvoy`     | `This: OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal`       |
 | `ElectroCatapult` | `Plant -> 7`, `Steel -> 7`                                  |
 | `ArcticAlgae`     | `OceanTile BY Anyone: 2 Plant`                              |
-| `Insulation`      | `This: PROD[X Megacredit FROM Heat]`                        |
-| `EarthCatapult`   | `PlayCard: -2 Owed<Class<Megacredit>>`                      |
-| `CitySP`          | `25 -> CityTile<>, PROD[1]`                                 |
+| `Insulation`      | `This: PROD[X MC FROM Heat]`                        |
+| `EarthCatapult`   | `PlayCard: -2 Owed<Class<MC>>`                      |
+| `CitySP`          | `25 MC -> CityTile<>, PROD[1 MC]`                           |
 | `TerraformRating` | `ProductionPhase: 1`, `End: VictoryPoint`                   |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 

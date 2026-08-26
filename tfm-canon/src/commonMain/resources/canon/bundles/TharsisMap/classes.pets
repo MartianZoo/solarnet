@@ -8,7 +8,7 @@ ABSTRACT CLASS TharsisMilestone : Milestone {
 
 ABSTRACT CLASS TharsisAward : Award {
   CLASS Landlord { metric = COUNT "OwnedTile" }
-  CLASS Banker { metric = COUNT "PROD[Megacredit]" }
+  CLASS Banker { metric = COUNT "PROD[MC]" }
   CLASS Scientist { metric = COUNT "ScienceTag" }
   CLASS Thermalist { metric = COUNT "Heat" }
   CLASS Miner { metric = COUNT "Metal" }

@@ -9,6 +9,6 @@ internal class CorroderSuitsTest : CardTest() {
   internal fun `Can be played without another compatible Venus card`() {
     newGame(VenusNextExpansion)
 
-    p1.manual("$CorroderSuits").expect("PROD[2], 0 CardResource")
+    p1.manual("$CorroderSuits").expect("PROD[2 MC], 0 CardResource")
   }
 }

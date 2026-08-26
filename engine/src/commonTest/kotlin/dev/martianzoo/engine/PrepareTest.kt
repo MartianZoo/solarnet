@@ -29,7 +29,7 @@ internal class PrepareTest {
       )
 
   init {
-    game.tfm(PLAYER1).godMode().sneak("Plant, 10 ProjectCard, PROD[-1]")
+    game.tfm(PLAYER1).godMode().sneak("Plant, 10 ProjectCard, PROD[-1 MC]")
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {

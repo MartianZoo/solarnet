@@ -8,7 +8,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
-import dev.martianzoo.tfm.canon.TfmClasses.MEGACREDIT
+import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 
@@ -30,18 +30,18 @@ public object ApiUtils {
   }
 
   /**
-   * Returns a map with six entries, giving [player]'s current production levels, adjusting
-   * megacredit production to account for our GrossHack.
+   * Returns a map with six entries, giving [player]'s current production levels, adjusting mc
+   * production to account for our GrossHack.
    */
   public fun lookUpProductionLevels(game: GameReader, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
         val type = game.resolve(PRODUCTION.of(player, it.classExpression()))
-        game.count(type) - if (it == MEGACREDIT) 5 else 0
+        game.count(type) - if (it == MC) 5 else 0
       }
 
   /**
-   * Returns a map with six entries, giving [player]'s current production levels, adjusting
-   * megacredit production to account for our GrossHack.
+   * Returns a map with six entries, giving [player]'s current production levels, adjusting mc
+   * production to account for our GrossHack.
    */
   public fun lookUpProductionLevels(game: GameReader, player: Player): Map<ClassName, Int> =
       lookUpProductionLevels(game, player.expression)

@@ -10,7 +10,7 @@ internal class DirigiblesTest : CardTest() {
     newGame(VenusNextExpansion)
 
     engine.phase("Action")
-    p1.manual("ProjectCard, $Dirigibles, 2 Floater<$Dirigibles>, 5")
+    p1.manual("ProjectCard, $Dirigibles, 2 Floater<$Dirigibles>, 5 MC")
 
     p1.playProject(AerialMappers, 5) {
           doTask("2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")

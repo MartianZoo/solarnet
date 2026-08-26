@@ -33,16 +33,16 @@ internal class TfmActionCommandTest {
 
   @Test
   internal fun `tfm action forwards inline payment through an accept workflow`() {
-    val repl = actionGame("WaterImportFromEuropa, 12")
+    val repl = actionGame("WaterImportFromEuropa, 12 MC")
 
-    val output = repl.command("tfm_action WaterImportFromEuropa 1, 12")
+    val output = repl.command("tfm_action WaterImportFromEuropa 1, 12 MC")
 
     assertEquals(
         1,
         repl.gameplay.count("ActionUsedMarker<WaterImportFromEuropa>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("Megacredit"))
+    assertEquals(0, repl.gameplay.count("MC"))
     assertEquals(0, repl.gameplay.count("Owed"))
     assertTrue(repl.command("tasks").any { "OceanTile" in it })
   }
@@ -60,7 +60,7 @@ internal class TfmActionCommandTest {
     )
     assertEquals(1, repl.gameplay.count("Plant"))
     assertEquals(0, repl.gameplay.count("Steel"))
-    assertEquals(7, repl.gameplay.count("Megacredit"))
+    assertEquals(7, repl.gameplay.count("MC"))
   }
 
   @Test
@@ -75,21 +75,21 @@ internal class TfmActionCommandTest {
         output.joinToString("\n"),
     )
     assertEquals(0, repl.gameplay.count("Energy"))
-    assertEquals(5, repl.gameplay.count("Megacredit"))
+    assertEquals(5, repl.gameplay.count("MC"))
   }
 
   @Test
   internal fun `tfm action binds a multiplied variable invoice cost`() {
-    val repl = actionGame("EnergyMarket, 6", "BRPX")
+    val repl = actionGame("EnergyMarket, 6 MC", "BRPX")
 
-    val output = repl.command("tfm_action EnergyMarket 1, 6")
+    val output = repl.command("tfm_action EnergyMarket 1, 6 MC")
 
     assertEquals(
         1,
         repl.gameplay.count("ActionUsedMarker<EnergyMarket>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("Megacredit"))
+    assertEquals(0, repl.gameplay.count("MC"))
     assertEquals(3, repl.gameplay.count("Energy"))
   }
 

@@ -10,13 +10,13 @@ internal class ExcentricSponsorTest : CardTest() {
   fun initializeGame() {
     newGame(VenusNextExpansion, PreludeExpansion)
     engine.phase("Prelude")
-    p1.manual("44, ProjectCard, PreludeCard")
+    p1.manual("44 MC, ProjectCard, PreludeCard")
   }
 
   @Test
   internal fun `Can apply its full discount to the next card`() {
     p1.playPrelude(ExcentricSponsor) { p1.playProject(NitrogenRichAsteroid, 6) }
-        .expect("-6 Megacredit, PROD[Plant], 3 TerraformRating")
+        .expect("-6 MC, PROD[Plant], 3 TerraformRating")
   }
 
   @Test

@@ -28,7 +28,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 public object Transforming {
   // TODO: Move Terraforming Mars payment lowering into tfm-canon.
   private val standardResourceClasses: Set<ClassName> =
-      setOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").mapTo(linkedSetOf(), ::cn)
+      setOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").mapTo(linkedSetOf(), ::cn)
 
   /**
    * Replaces each occurrence of the special `This` expression with [contextType], replacing
@@ -108,7 +108,7 @@ public object Transforming {
         "${spend.scaledEx.scalar} Owed<Class<${spend.scaledEx.expression}>>" +
             if (metric == null) "" else " / $metricText"
     val invoiceResource =
-        if (spend.scaledEx.expression.className == cn("Megacredit")) ""
+        if (spend.scaledEx.expression.className == cn("MC")) ""
         else ", Class<${spend.scaledEx.expression}>"
     if (spend.scaledEx.scalar is XScalar) {
       return listOf(
