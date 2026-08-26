@@ -9,8 +9,7 @@ import kotlin.jvm.JvmInline
  * to retain when later code needs to detect that the same backing world changed in any way.
  */
 @JvmInline
-// TODO: Contract this temporary tfm-tests seam.
-public value class WorldRevision private constructor(private val sequence: Long) {
+internal value class WorldRevision private constructor(private val sequence: Long) {
   internal fun next(): WorldRevision {
     check(sequence < Long.MAX_VALUE) { "world revision exhausted" }
     return WorldRevision(sequence + 1)

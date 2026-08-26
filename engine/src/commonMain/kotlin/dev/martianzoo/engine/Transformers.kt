@@ -55,8 +55,6 @@ import dev.martianzoo.pets.types.DependencySet
 import dev.martianzoo.pets.types.Type
 
 public class Transformers(public val classTable: ClassTable) {
-  // TODO: Contract temporary tfm-tests transformation seams.
-
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
   private val transformDispatcher by lazy { classTable.transformDispatcher() }
 
@@ -239,7 +237,7 @@ public class Transformers(public val classTable: ClassTable) {
       }
 
   @Suppress("ComplexCondition") // TODO: fix that
-  public fun atomizer(): PetTransformer {
+  internal fun atomizer(): PetTransformer {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 
     return object : PetTransformer() {
@@ -262,9 +260,9 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
-  public fun insertDefaults(): PetTransformer = insertDefaults(THIS.expression)
+  internal fun insertDefaults(): PetTransformer = insertDefaults(THIS.expression)
 
-  public fun insertDefaults(context: Expression): PetTransformer =
+  internal fun insertDefaults(context: Expression): PetTransformer =
       chain(
           insertTriggerDefaults(context),
           insertGainRemoveDefaults(context),
@@ -528,7 +526,7 @@ public class Transformers(public val classTable: ClassTable) {
    * specialization. Optional phantom changes become `Ok`; dead changes become `Die` so enclosing
    * choices can discard them.
    */
-  public fun checkedSubstituter(
+  internal fun checkedSubstituter(
       general: Type,
       specific: Type,
       vararg afterSubstitution: PetTransformer?,
@@ -594,7 +592,7 @@ public class Transformers(public val classTable: ClassTable) {
   }
 
   /** Applies trigger narrowing only to the source expressions declared by linkages. */
-  public fun checkedLinkageSubstituter(
+  internal fun checkedLinkageSubstituter(
       general: Type,
       specific: Type,
       linkedSources: Set<Expression>,

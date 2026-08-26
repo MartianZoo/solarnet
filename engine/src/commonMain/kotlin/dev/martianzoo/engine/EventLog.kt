@@ -20,8 +20,7 @@ import dev.martianzoo.pets.data.TaskResult
  * supply the corresponding state mutation, which succeeds before the history and [revision] advance
  * together.
  */
-// TODO: Contract temporary tfm-tests construction and query seams.
-public class EventLog public constructor(private val prefixSource: EventLog? = null) {
+public class EventLog internal constructor(private val prefixSource: EventLog? = null) {
   private val prefixSize: Int = prefixSource?.size ?: 0
   private val events: MutableList<GameEvent> = mutableListOf()
 
@@ -104,7 +103,7 @@ public class EventLog public constructor(private val prefixSource: EventLog? = n
     return TaskResult(changes, newTasks)
   }
 
-  public fun markSetupStart() {
+  internal fun markSetupStart() {
     setupStart = Checkpoint(size)
   }
 }

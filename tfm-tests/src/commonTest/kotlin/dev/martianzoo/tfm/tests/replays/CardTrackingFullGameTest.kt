@@ -150,7 +150,9 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
       checkNotNull(hands[player]) { "No tracked hand for $player" }
 
   private fun ChangeEvent.playerOwner(expression: dev.martianzoo.pets.ast.Expression): Player =
-      checkNotNull(expression.toComponent(game.reader).playerOwner) {
+      checkNotNull(
+          expression.toComponent(game.reader).owner?.className?.let(Player::fromClassNameOrNull)
+      ) {
         "$expression changed without a Player owner in $this"
       }
 

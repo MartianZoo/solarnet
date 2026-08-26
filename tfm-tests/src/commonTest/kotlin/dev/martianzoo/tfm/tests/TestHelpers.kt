@@ -198,7 +198,9 @@ object TestHelpers {
 
     return changes
         .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }
-        .mapNotNull { game.reader.resolve(it).toComponent().playerOwner }
+        .mapNotNull {
+          game.reader.resolve(it).toComponent().owner?.className?.let(Player::fromClassNameOrNull)
+        }
         .distinct()
         .singleOrNull()
   }
