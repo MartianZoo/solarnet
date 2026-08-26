@@ -58,9 +58,7 @@ internal fun canonicalCardPetsFiles(): Map<String, String> = buildMap {
       }
       val expectedNames =
           cards.map(CardDefinition::className) +
-              cards
-                  .flatMap { card -> card.extraClasses + card.authoredSupportingClasses }
-                  .map(ClassDeclaration::className)
+              cards.flatMap(CardDefinition::extraClasses).map(ClassDeclaration::className)
       check(
           parseClasses(source).map(ClassDeclaration::className).toSet() == expectedNames.toSet()
       ) {

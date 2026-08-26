@@ -50,9 +50,9 @@ import dev.martianzoo.tfm.canon.TfmClasses.TAG
 import kotlinx.serialization.Serializable
 
 /**
- * Everything there is to know about a Terraforming Mars card except its localized display text.
- * It's theoretically possible to reconstruct acceptable instruction text from this data, just not
- * the original wording.
+ * Transitional imported card data used by generation tools and as a friendly view of a loaded card
+ * Class. Once backed by a Class, intrinsic semantic properties are read exclusively from that
+ * Class.
  */
 public class CardDefinition
 private constructor(
@@ -76,13 +76,15 @@ private constructor(
   private val sourceDeck: Deck? = data.deck?.let(Deck::valueOf)
 
   public val deck: Deck?
-    get() =
-        loadedClass?.representedCardClass()?.let { represented ->
-          Deck.entries.singleOrNull { it.className == represented.className }
-        } ?: sourceDeck
+    get() {
+      val klass = loadedClass ?: return sourceDeck
+      return klass.representedCardClass()?.let { represented ->
+        Deck.entries.singleOrNull { it.className == represented.className }
+      }
+    }
 
-  public val automaticSelectionRequirement: Requirement? =
-      if (sourceDeck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null
+  public val automaticSelectionRequirement: Requirement?
+    get() = if (deck == Deck.PRELUDE) Parsing.parse("PreludeDeck") else null
 
   /** The card this card replaces, if any. For example, `DeimosDownPromo` replaces `DeimosDown`. */
   public val replaces: ClassName? = data.replaces?.let(::cn)
@@ -110,7 +112,10 @@ private constructor(
       )
 
   public val tags: Multiset<ClassName>
-    get() = loadedClass?.loadedTags() ?: sourceTags
+    get() {
+      val klass = loadedClass ?: return sourceTags
+      return klass.loadedTags()
+    }
 
   /** Authored Pets source for the card's immediate instruction, if any. */
   public val authoredImmediateSource: String?
@@ -120,7 +125,10 @@ private constructor(
       data.immediate?.let { InstructionGroup.of(parseOwned<InstructionTree>(it)) }
 
   public val immediate: InstructionGroup?
-    get() = loadedClass?.loadedImmediate() ?: sourceImmediate
+    get() {
+      val klass = loadedClass ?: return sourceImmediate
+      return klass.loadedImmediate()
+    }
 
   /** Authored Pets source for the card's actions. */
   public val authoredActionSources: List<String>
@@ -129,7 +137,10 @@ private constructor(
   private val sourceActions: List<Action> = data.actions.map(::parseOwned)
 
   public val actions: List<Action>
-    get() = loadedClass?.declaration?.authoredActions ?: sourceActions
+    get() {
+      val klass = loadedClass ?: return sourceActions
+      return klass.declaration.authoredActions
+    }
 
   /** Authored Pets source for the card's effects. */
   public val authoredEffectSources: List<String>
@@ -138,23 +149,28 @@ private constructor(
   private val sourceEffects: List<Effect> = data.effects.map(::parseOwned)
 
   public val effects: List<Effect>
-    get() = loadedClass?.loadedAuthoredEffects() ?: sourceEffects
+    get() {
+      val klass = loadedClass ?: return sourceEffects
+      return klass.loadedAuthoredEffects()
+    }
 
   private val componentClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
 
   /** The card's printed play requirement, if any. */
   public val requirement: Requirement?
-    get() =
-        loadedClass?.properties?.get(REQUIREMENT_PROPERTY)?.let { value ->
-          (value as? RequirementValue)?.value
-        } ?: projectInfo?.requirement
+    get() {
+      val klass = loadedClass ?: return projectInfo?.requirement
+      return klass.properties[REQUIREMENT_PROPERTY]?.let { value ->
+        (value as? RequirementValue)?.value
+      }
+    }
 
   /** The card's non-negative cost in mc. */
   public val cost: Int
-    get() =
-        loadedClass?.properties?.get(COST_PROPERTY)?.let { value -> (value as NumberValue).value }
-            ?: projectInfo?.cost
-            ?: 0
+    get() {
+      val klass = loadedClass ?: return projectInfo?.cost ?: 0
+      return (klass.properties.getValue(COST_PROPERTY) as NumberValue).value
+    }
 
   /** Extra information that only project cards have. */
   internal class ProjectInfo internal constructor(data: CardData, requirement: Requirement?) {
@@ -168,12 +184,15 @@ private constructor(
   }
 
   /** Class names whose authored use suggests that this card holds that kind of component. */
-  public val resourceTypeCandidates: Set<ClassName> = deriveResourceTypeCandidates()
+  private val resourceTypeCandidates: Set<ClassName> = deriveResourceTypeCandidates()
 
   private val sourceResourceType: ClassName? = resourceTypeCandidates.singleOrNull()
 
   public val resourceType: ClassName?
-    get() = loadedClass?.representedResourceClass()?.className ?: sourceResourceType
+    get() {
+      val klass = loadedClass ?: return sourceResourceType
+      return klass.representedResourceClass()?.className
+    }
 
   init {
     if (sourceDeck == PROJECT) {
@@ -188,12 +207,19 @@ private constructor(
   /** Supporting declarations emitted with generated Pets source for this card. */
   public val authoredSupportingClasses: List<ClassDeclaration> = componentClasses
 
+  /**
+   * Loaded Class names contributed with this card until resource grouping owns the relationship.
+   */
+  internal val supportingClassNames: Set<ClassName> =
+      componentClasses.mapTo(linkedSetOf(), ClassDeclaration::className)
+
   /** Additional class declarations that come along with this card. */
   public val extraClasses: List<ClassDeclaration> = componentClasses + derivedClasses.declarations
 
-  /** Follow-mode declarations with source-level real-card operations compiled. */
-  internal val executableExtraClasses: List<ClassDeclaration> =
-      extraClasses.map(FollowModeNeutralizer::neutralize)
+  /** Names of every generated or authored Class belonging to this card's contribution. */
+  internal val contributedClassNames: Set<ClassName> =
+      supportingClassNames +
+          derivedClasses.declarations.mapTo(linkedSetOf(), ClassDeclaration::className)
 
   public val asClassDeclaration: ClassDeclaration by lazy { toClassDeclaration(sourceResourceType) }
 
@@ -269,6 +295,7 @@ private constructor(
   }
 
   private fun PetClass.representedResourceClass(): PetClass? {
+    if (!isSubtypeOf(classTable.getClass(RESOURCE_CARD))) return null
     val cardResource = classTable.getClass(CARD_RESOURCE)
     return representedClasses().singleOrNull { it.isSubtypeOf(cardResource) }
   }

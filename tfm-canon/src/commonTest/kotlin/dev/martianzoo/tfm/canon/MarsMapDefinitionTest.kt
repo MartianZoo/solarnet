@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -13,8 +11,6 @@ internal class MarsMapDefinitionTest {
 
   private val demoMapPets =
       """
-      ABSTRACT CLASS DemoMilestone : Milestone
-      ABSTRACT CLASS DemoAward : Award
       CLASS DemoMap : MarsMap
 
       // The map areas below are code-generated based on the following comment
@@ -32,10 +28,8 @@ internal class MarsMapDefinitionTest {
   internal fun readsMapDefinitionFromPetsComment() {
     val map: MarsMapDefinition = MarsMapReader.readMaps(demoMapPets).single()
     map.className shouldBe cn("DemoMap")
-    map.defaultMilestones shouldBe cn("DemoMilestone")
-    map.defaultAwards shouldBe cn("DemoAward")
-    map.asClassDeclaration.effects shouldBe emptyList()
-    map.asClassDeclaration.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("MarsMap"))
+    map.defaultMilestones shouldBe emptySet()
+    map.defaultAwards shouldBe emptySet()
     map.areas.shouldHaveSize(7)
     map.areas[1, 1]!!.code shouldBe "VS"
     map.areas[1, 1]!!.bonusText shouldBe "Steel"

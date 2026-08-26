@@ -3,38 +3,30 @@ CLASS TcColonyBonus : Signal {
   This IF ColoniesExpansion: Colony<>, -5 MC
 }
 
-ABSTRACT CLASS UtopiaMilestone : Milestone {
-  CLASS Manager { requirement = HAS "3 SpecialTile" }
-  CLASS Pioneer3 { requirement = HAS "3 Colony" }
-  CLASS Trader { requirement = HAS "3 Class<CardResource>(HAS CardResource<Owner>)" }
-  CLASS Metallurgist { requirement = HAS "6 PROD[Metal]" }
-  CLASS Researcher { requirement = HAS "4 ScienceTag" }
-}
+CLASS Manager : Milestone { requirement = HAS "3 SpecialTile" }
+CLASS Pioneer3 : Milestone { requirement = HAS "3 Colony" }
+CLASS Trader : Milestone { requirement = HAS "3 Class<CardResource>(HAS CardResource<Owner>)" }
+CLASS Metallurgist : Milestone { requirement = HAS "6 PROD[Metal]" }
+CLASS Researcher : Milestone { requirement = HAS "4 ScienceTag" }
 
-ABSTRACT CLASS UtopiaAward : Award {
-  CLASS Suburbian { metric = COUNT "OwnedTile(HAS MAX 5 Neighbor)" }
-  CLASS Investor { metric = COUNT "EarthTag" }
-  CLASS Botanist { metric = COUNT "PROD[Plant]" }
-  CLASS Incorporator { metric = COUNT "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" }
-  CLASS Metropolist { metric = COUNT "CityTile" }
-}
+CLASS Suburbian : Award { metric = COUNT "OwnedTile(HAS MAX 5 Neighbor)" }
+CLASS Investor : Award { metric = COUNT "EarthTag" }
+CLASS Botanist : Award { metric = COUNT "PROD[Plant]" }
+CLASS Incorporator : Award { metric = COUNT "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" }
+CLASS Metropolist : Award { metric = COUNT "CityTile" }
 
-ABSTRACT CLASS CimmeriaMilestone : Milestone {
-  CLASS Planetologist { requirement = HAS "2 EarthTag, 2 VenusTag, 2 JovianTag" }
-  CLASS Architect { requirement = HAS "3 CityTag" }
-  CLASS Coastguard { requirement = HAS "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
-  CLASS Forester { requirement = HAS "PROD[3 Plant]" }
-  // Search for GrossHack to understand this nonsense.
-  CLASS Fundraiser { requirement = HAS "PROD[12 (MC - 5)]" }
-}
+CLASS Planetologist : Milestone { requirement = HAS "2 EarthTag, 2 VenusTag, 2 JovianTag" }
+CLASS Architect : Milestone { requirement = HAS "3 CityTag" }
+CLASS Coastguard : Milestone { requirement = HAS "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
+CLASS Forester : Milestone { requirement = HAS "PROD[3 Plant]" }
+// Search for GrossHack to understand this nonsense.
+CLASS Fundraiser : Milestone { requirement = HAS "PROD[12 (MC - 5)]" }
 
-ABSTRACT CLASS CimmeriaAward : Award {
-  CLASS Electrician { metric = COUNT "PowerTag" }
-  CLASS Founder { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<SpecialTile<Anyone>>)>" }
-  CLASS Mogul { metric = COUNT "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" }
-  CLASS Zoologist { metric = COUNT "Animal OR Microbe" }
-  CLASS Forecaster { metric = COUNT "CardFront(HAS requirement)" }
-}
+CLASS Electrician : Award { metric = COUNT "PowerTag" }
+CLASS Founder : Award { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<SpecialTile<Anyone>>)>" }
+CLASS Mogul : Award { metric = COUNT "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" }
+CLASS Zoologist : Award { metric = COUNT "Animal OR Microbe" }
+CLASS Forecaster : Award { metric = COUNT "CardFront(HAS requirement)" }
 
 CLASS UtopiaMap : MarsMap
 

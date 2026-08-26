@@ -47,7 +47,7 @@ public open class TfmCatalog : Catalog {
   private fun validateCardTags(table: ClassTable) {
     val tagClass = table.findClass(TAG_CLASS) ?: return
     cardDefinitions.forEach { card ->
-      card.tags.elements.forEach { tagName ->
+      card.backedBy(table.getClass(card.className)).tags.elements.forEach { tagName ->
         require(table.getClass(tagName).isSubtypeOf(tagClass)) {
           "${card.className} names non-Tag class $tagName as a tag"
         }
@@ -88,9 +88,10 @@ public open class TfmCatalog : Catalog {
                 }
               }
                   .toMutableSet()
-              bundle.cardDefinitions.flatMapTo(contentClassNames) { card ->
-                card.extraClasses.map(ClassDeclaration::className)
-              }
+              bundle.cardDefinitions.flatMapTo(
+                  contentClassNames,
+                  CardDefinition::contributedClassNames,
+              )
               bundleClassesBelow(bundle, TfmClasses.MILESTONE, includeAbstract = true)
                   .mapTo(contentClassNames, ClassDeclaration::className)
               bundleClassesBelow(bundle, TfmClasses.AWARD, includeAbstract = true)
@@ -234,6 +235,20 @@ public open class TfmCatalog : Catalog {
             .flatMap { modules.getValue(it) }
             .filter { it.included && it.appliesTo(included, universe) }
             .mapTo(hashSetOf(), ClassSelection::className)
+    if (MULTIPLAYER_MODE in moduleNames) {
+      requireGoalPoolSize(
+          moduleNames,
+          explicitlyIncluded,
+          explicitlyExcluded,
+          TfmClasses.MILESTONE,
+      )
+      requireGoalPoolSize(
+          moduleNames,
+          explicitlyIncluded,
+          explicitlyExcluded,
+          TfmClasses.AWARD,
+      )
+    }
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "initial ColonyTiles must be provided by a selected Module"
     }
@@ -269,6 +284,27 @@ public open class TfmCatalog : Catalog {
     val countedClass = universe.getClass(metric.expression.className)
     return configuredClassNames.count { configuredName ->
       universe.getClass(configuredName).isSubtypeOf(countedClass)
+    }
+  }
+
+  private fun requireGoalPoolSize(
+      moduleNames: Set<ClassName>,
+      explicitlyIncluded: Set<ClassName>,
+      explicitlyExcluded: Set<ClassName>,
+      goalClass: ClassName,
+  ) {
+    val knownGoals = goalClassNames(goalClass)
+    val explicitlySelected = explicitlyIncluded intersect knownGoals
+    val selectedGoals =
+        ((explicitlySelected.takeIf { it.isNotEmpty() }
+            ?: moduleNames
+                .flatMap { modules.getValue(it) }
+                .filter(ClassSelection::included)
+                .mapTo(linkedSetOf(), ClassSelection::className)) intersect knownGoals) -
+            explicitlyExcluded
+    require(selectedGoals.size >= MINIMUM_GOAL_POOL_SIZE) {
+      "a multiplayer game requires at least $MINIMUM_GOAL_POOL_SIZE $goalClass classes; " +
+          "found ${selectedGoals.size}: ${selectedGoals.sortedBy(ClassName::toString)}"
     }
   }
 
@@ -330,58 +366,41 @@ public open class TfmCatalog : Catalog {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val generatedCardsByName =
-        cardDefinitions.associateBy(CardDefinition::className).mapValues { (name, card) ->
-          card.toClassDeclaration(cardResourceType(name))
-        }
+    val supportingNamesByCard = cardDefinitions.associate { card ->
+      card.className to card.supportingClassNames
+    }
     val explicit = explicitClassDeclarations.map { declaration ->
-      val generated = generatedCardsByName[declaration.className]
-      val withContributionLinks =
-          if (generated == null) declaration
-          else declaration.copy(extraNodes = declaration.extraNodes + generated.extraNodes)
-      FollowModeNeutralizer.neutralize(withContributionLinks)
+      val supportingNames = supportingNamesByCard[declaration.className].orEmpty()
+      FollowModeNeutralizer.neutralize(
+          declaration.copy(extraNodes = declaration.extraNodes + supportingNames)
+      )
     }
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
-    // An explicit Pets declaration owns the Class when its structured data remains metadata.
-    explicit +
-        cardDefinitions
-            .filterNot { it.className in explicitNames }
-            .map { card -> card.toClassDeclaration(cardResourceType(card.className)) } +
-        marsMapDefinitions
-            .flatMap { map ->
-              listOf(map.asClassDeclaration) + map.areas.map { it.asClassDeclaration }
-            }
-            .filterNot { it.className in explicitNames } +
-        cardDefinitions.flatMap(CardDefinition::executableExtraClasses)
-  }
-
-  private val declaredCardResourceClassNames: Set<ClassName> by lazy {
-    (explicitClassDeclarations + cardDefinitions.flatMap(CardDefinition::extraClasses))
-        .filter { declaration ->
-          declaration.supertypes.any { supertype -> supertype.className == CARD_RESOURCE_CLASS }
-        }
-        .mapTo(linkedSetOf(), ClassDeclaration::className)
-  }
-
-  private val cardResourceTypes: Map<ClassName, ClassName?> by lazy {
-    cardDefinitions.associate { card ->
-      val declared = card.resourceTypeCandidates intersect declaredCardResourceClassNames
-      require(declared.size <= 1) {
-        "${card.className} content implies multiple card resource types: $declared"
+    val requiredNames = buildSet {
+      cardDefinitions.forEach { card ->
+        add(card.className)
+        addAll(card.contributedClassNames)
       }
-      card.className to declared.singleOrNull()
+      marsMapDefinitions.forEach { map ->
+        add(map.className)
+        map.areas.mapTo(this) { area -> area.className }
+      }
     }
+    val missing = requiredNames - explicitNames
+    require(missing.isEmpty()) {
+      "Structured content lacks explicit Pets declarations: ${missing.sortedBy(ClassName::toString)}"
+    }
+    explicit
   }
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     validateReplacements(cardDefinitions)
+    val declarations = systemClassDeclarations.toList() + contributedClassDeclarations
     try {
-      (systemClassDeclarations.toList() + contributedClassDeclarations)
-          .distinct()
-          .associateByStrict { declaration ->
-            validateSystemDeclaration(declaration)
-            declaration.className
-          }
+      declarations.distinct().associateByStrict { declaration ->
+        validateSystemDeclaration(declaration)
+        declaration.className
+      }
     } catch (e: IllegalArgumentException) {
       throw PetException("Multiple class declarations must be identical: ${e.message}")
     }
@@ -438,22 +457,26 @@ public open class TfmCatalog : Catalog {
           return buildSet {
             add(ClassSelection(map.className))
             map.areas.forEach { area -> add(ClassSelection(area.className)) }
-            map.defaultMilestones?.let { group ->
-              val goals = bundleClassesBelow(owner, group)
-              addGoals(
-                  goals,
-                  TfmClasses.MILESTONE,
-                  parse("MultiplayerMode, MAX 0 Milestone"),
-              )
-            }
-            map.defaultAwards?.let { group ->
-              val goals = bundleClassesBelow(owner, group)
-              addGoals(
-                  goals,
-                  TfmClasses.AWARD,
-                  parse("MultiplayerMode, MAX 0 Award"),
-              )
-            }
+            map.defaultMilestones
+                .takeIf { it.isNotEmpty() }
+                ?.let { names ->
+                  val goals = names.map(::classDeclaration)
+                  addGoals(
+                      goals,
+                      TfmClasses.MILESTONE,
+                      parse("MultiplayerMode, MAX 0 Milestone"),
+                  )
+                }
+            map.defaultAwards
+                .takeIf { it.isNotEmpty() }
+                ?.let { names ->
+                  val goals = names.map(::classDeclaration)
+                  addGoals(
+                      goals,
+                      TfmClasses.AWARD,
+                      parse("MultiplayerMode, MAX 0 Award"),
+                  )
+                }
           }
         }
     val ordinaryCards =
@@ -495,7 +518,7 @@ public open class TfmCatalog : Catalog {
     if (Kind.CARDS in kinds) {
       val selectedCards =
           bundle.cardDefinitions.filter { card ->
-            selection.cardDecks == null || card.deck in selection.cardDecks
+            selection.cardDecks == null || loadedCard(card).deck in selection.cardDecks
           }
       addCards(selectedCards)
       addReplacementExclusions(selectedCards, cardDefinitions)
@@ -568,7 +591,7 @@ public open class TfmCatalog : Catalog {
 
   private fun automaticSelectionRequirement(card: CardDefinition): Requirement? {
     return Requirement.join(
-        card.automaticSelectionRequirement,
+        loadedCard(card).automaticSelectionRequirement,
         cardBundleCompatibilityRequirement(card),
     )
   }
@@ -598,7 +621,9 @@ public open class TfmCatalog : Catalog {
       cardBundleCompatibilityRequirement(card)
 
   private fun cardBundleCompatibilityRequirement(card: CardDefinition): Requirement? {
-    val declarations = listOf(classDeclaration(card.className)) + card.extraClasses
+    val declarations =
+        listOf(classDeclaration(card.className)) +
+            card.contributedClassNames.map(::classDeclaration)
     return bundleCompatibilityRequirement(card.className, declarations)
   }
 
@@ -683,9 +708,11 @@ public open class TfmCatalog : Catalog {
 
   /** The resource type implied by [name]'s content and explicit resource declarations, if any. */
   public fun cardResourceType(name: ClassName): ClassName? {
-    require(name in cardsByClassName) { "No card named $name" }
-    return cardResourceTypes.getValue(name)
+    return card(name).resourceType
   }
+
+  private fun loadedCard(card: CardDefinition): CardDefinition =
+      card.backedBy(universe.getClass(card.className))
 
   public open val cardDefinitions: Set<CardDefinition> = emptySet()
 
@@ -714,13 +741,14 @@ public open class TfmCatalog : Catalog {
     public fun compose(vararg catalogs: TfmCatalog): TfmCatalog = Composite(*catalogs)
 
     private val MODULE_CLASS = cn("Module")
-    private val CARD_RESOURCE_CLASS = cn("CardResource")
     private val PLAYER_CLASS = cn("Player")
+    private val MULTIPLAYER_MODE = cn("MultiplayerMode")
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
+    private const val MINIMUM_GOAL_POOL_SIZE = 3
 
     private fun validateReplacements(cards: Collection<CardDefinition>) {
       val knownByName = cards.associateByStrict(CardDefinition::className)

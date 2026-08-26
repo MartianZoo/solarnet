@@ -20,9 +20,8 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 
 /**
- * A direct representation of the *declaration* of a component class, such as GreeneryTile. Some of
- * these are written explicitly in `*.pets` source files, but others are converted programmatically
- * from transitional structured data.
+ * A direct representation of the *declaration* of a component class, such as GreeneryTile. Runtime
+ * Catalogs normally load these from `*.pets` source; tools and tests may construct them directly.
  *
  * The information provided here is not very "cooked"; that cooking happens in
  * `dev.martianzoo.pets.types`.

@@ -153,7 +153,11 @@ internal class GamePremiseTest {
     val premise =
         Canon.gamePremise(
             GameConfig(
-                "HellasMap, Coastguard, Landshaper, Botanist, Founder",
+                """
+                HellasMap,
+                Coastguard, Landshaper, Builder7,
+                Botanist, Founder, Administrator
+                """,
                 "Player1",
                 "Player2",
             )
@@ -173,18 +177,38 @@ internal class GamePremiseTest {
     val premise =
         Canon.gamePremise(
             GameConfig(
-                "HellasMap, Landshaper",
+                "HellasMap, Landshaper, Builder7, Coastguard",
                 "Player1",
                 "Player2",
             )
         )
     val table = Engine.newGame(premise).classTable
 
-    premise.modules.shouldNotContain(cn("HellasMilestone"))
-    premise.modules.shouldNotContain(cn("HellasAward"))
     table.isActive(cn("Landshaper")) shouldBe true
     table.isActive(cn("Diversifier")) shouldBe false
     table.isActive(cn("Cultivator")) shouldBe true
+  }
+
+  @Test
+  internal fun multiplayerGamesRequireThreeMilestonesAndThreeAwards() {
+    shouldThrow<IllegalArgumentException> {
+      Canon.gamePremise(
+          GameConfig(
+              "HellasMap, Coastguard, Landshaper",
+              "Player1",
+              "Player2",
+          )
+      )
+    }
+    shouldThrow<IllegalArgumentException> {
+      Canon.gamePremise(
+          GameConfig(
+              "HellasMap, Botanist, Founder",
+              "Player1",
+              "Player2",
+          )
+      )
+    }
   }
 
   @Test

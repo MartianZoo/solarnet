@@ -4,28 +4,21 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Dependency.Key
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers(
     private val descriptions: Map<Class, ComponentDescriber>,
-    private val sourceDeclarations: Map<ClassName, ClassDeclaration> = emptyMap(),
 ) {
   internal val expressions = ExpressionResolver(descriptions.keys)
   private val classesByName = expressions.classesByName
 
   init {
-    if (sourceDeclarations.isEmpty()) validateInheritedFacts()
+    validateInheritedFacts()
   }
 
-  internal fun withSourceDeclarations(declarations: List<ClassDeclaration>): Describers =
-      if (declarations.isEmpty()) this
-      else Describers(descriptions, declarations.associateBy(ClassDeclaration::className))
-
-  internal fun sourceDeclaration(className: ClassName): ClassDeclaration =
-      sourceDeclarations[className] ?: classesByName.getValue(className).declaration
+  internal fun declaration(className: ClassName) = classesByName.getValue(className).declaration
 
   internal fun <T> fact(
       className: ClassName,

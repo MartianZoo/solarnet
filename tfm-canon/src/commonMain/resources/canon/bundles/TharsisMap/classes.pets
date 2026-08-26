@@ -1,18 +1,14 @@
-ABSTRACT CLASS TharsisMilestone : Milestone {
-  CLASS Terraformer35 { requirement = HAS "35 TerraformRating" }
-  CLASS Mayor { requirement = HAS "3 CityTile" }
-  CLASS Gardener { requirement = HAS "3 GreeneryTile" }
-  CLASS Builder8 { requirement = HAS "8 BuildingTag" }
-  CLASS Planner { requirement = HAS "CARDS[16 ProjectCard<Hand>]" }
-}
+CLASS Terraformer35 : Milestone { requirement = HAS "35 TerraformRating" }
+CLASS Mayor : Milestone { requirement = HAS "3 CityTile" }
+CLASS Gardener : Milestone { requirement = HAS "3 GreeneryTile" }
+CLASS Builder8 : Milestone { requirement = HAS "8 BuildingTag" }
+CLASS Planner : Milestone { requirement = HAS "CARDS[16 ProjectCard<Hand>]" }
 
-ABSTRACT CLASS TharsisAward : Award {
-  CLASS Landlord { metric = COUNT "OwnedTile" }
-  CLASS Banker { metric = COUNT "PROD[MC]" }
-  CLASS Scientist { metric = COUNT "ScienceTag" }
-  CLASS Thermalist { metric = COUNT "Heat" }
-  CLASS Miner { metric = COUNT "Metal" }
-}
+CLASS Landlord : Award { metric = COUNT "OwnedTile" }
+CLASS Banker : Award { metric = COUNT "PROD[MC]" }
+CLASS Scientist : Award { metric = COUNT "ScienceTag" }
+CLASS Thermalist : Award { metric = COUNT "Heat" }
+CLASS Miner : Award { metric = COUNT "Metal" }
 
 CLASS TharsisMap : MarsMap
 

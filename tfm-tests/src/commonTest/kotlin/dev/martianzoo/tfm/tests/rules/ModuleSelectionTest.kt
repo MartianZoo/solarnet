@@ -85,7 +85,7 @@ internal class ModuleSelectionTest {
             ),
             Configuration(
                 description = "a named milestone replaces only the map's milestone pool",
-                config = "HellasMap, Landshaper",
+                config = "HellasMap, Landshaper, Builder7, Coastguard",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
@@ -146,7 +146,9 @@ internal class ModuleSelectionTest {
             ),
             Configuration(
                 description = "named goals replace every default goal pool",
-                config = "VenusNextExpansion, Coastguard, Landshaper, Botanist, Founder",
+                config =
+                    "VenusNextExpansion, Coastguard, Landshaper, Builder7, " +
+                        "Botanist, Founder, Administrator",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
@@ -264,7 +266,8 @@ internal class ModuleSelectionTest {
     val namedGoals =
         Engine.newGame(
                 premise(
-                    "VenusNextExpansion, Coastguard, Landshaper, Botanist, Founder",
+                    "VenusNextExpansion, Coastguard, Landshaper, Builder7, " +
+                        "Botanist, Founder, Administrator",
                     2,
                 )
             )

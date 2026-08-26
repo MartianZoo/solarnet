@@ -15,22 +15,14 @@ import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.pets.util.Grid
-import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 
 public data class MarsMapDefinition(
     val className: ClassName,
     val areas: Grid<AreaDefinition>,
-    val defaultMilestones: ClassName? = null,
-    val defaultAwards: ClassName? = null,
+    val defaultMilestones: Set<ClassName> = emptySet(),
+    val defaultAwards: Set<ClassName> = emptySet(),
 ) {
-  public val asClassDeclaration: ClassDeclaration =
-      ClassDeclaration(
-          className = className,
-          kind = CONCRETE,
-          supertypes = setOf(MARS_MAP.expression),
-      )
-
   public data class AreaDefinition(
       /** Prefix used by area class names, such as the `Tharsis_1_1` prefix. */
       private val mapName: ClassName,

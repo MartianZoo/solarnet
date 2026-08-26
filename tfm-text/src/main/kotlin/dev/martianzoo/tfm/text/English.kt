@@ -18,40 +18,23 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
   /** Returns complete English sentences describing [actions] as one action region. */
   public fun describe(actions: List<Action>): String = renderActions(actions, describers).value
 
-  /** Returns complete English sentences describing [actions] as actions on [card]. */
-  public fun describe(actions: List<Action>, card: CardDefinition): String =
-      renderActions(actions, describers.withSourceDeclarations(card.extraClasses)).value
-
   /** Returns complete, context-neutral English sentences describing [instructionTree]. */
   public fun describe(instructionTree: InstructionTree): String =
       renderInstructionTree(instructionTree, describers).value
-
-  /**
-   * Returns complete English sentences describing [instructionTree] as an instruction on [card].
-   */
-  public fun describe(instructionTree: InstructionTree, card: CardDefinition): String =
-      renderInstructionTree(
-              instructionTree,
-              describers.withSourceDeclarations(card.extraClasses),
-          )
-          .value
 
   /** Returns complete English sentences describing [requirement]. */
   public fun describe(requirement: Requirement): String =
       renderRequirement(requirement, describers).value
 
   /** Returns the best available text above [card]'s artwork. */
-  public fun topText(card: CardDefinition): String =
-      renderTopText(card, describers.withSourceDeclarations(card.extraClasses)).value
+  public fun topText(card: CardDefinition): String = renderTopText(card, describers).value
 
   /** Returns the best available text below [card]'s artwork. */
-  public fun bottomText(card: CardDefinition): String =
-      renderBottomText(card, describers.withSourceDeclarations(card.extraClasses)).value
+  public fun bottomText(card: CardDefinition): String = renderBottomText(card, describers).value
 
   internal fun renderCard(card: CardDefinition): EnglishCardRendering {
-    val cardDescribers = describers.withSourceDeclarations(card.extraClasses)
-    val top = renderTopText(card, cardDescribers)
-    val bottom = renderBottomText(card, cardDescribers)
+    val top = renderTopText(card, describers)
+    val bottom = renderBottomText(card, describers)
     return EnglishCardRendering(top.value, bottom.value, top.unresolved + bottom.unresolved)
   }
 
@@ -101,11 +84,12 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
             }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
-              val resourceType =
-                  card.resourceTypeCandidates.filter(cardDescribers::isCardResource).singleOrNull()
-              renderEffects(list, cardDescribers, cardResourceType = resourceType).map { text ->
-                "Effect: $text"
-              }
+              renderEffects(
+                      list,
+                      cardDescribers,
+                      cardResourceType = card.resourceType,
+                  )
+                  .map { text -> "Effect: $text" }
             }
     return joinRenderings(listOfNotNull(actions, effects), " / ")
   }

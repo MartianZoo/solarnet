@@ -54,12 +54,11 @@ Name or ambiguous ownership of a Module are invalid.
 
 Class declarations are the Catalog's only common content representation. Card and map records
 remain category-specific transitional inputs; there is no shared `Definition` interface or
-Catalog-wide registry of structured content objects.
-
-Catalog assembly still has transitional fallbacks that convert those records into declarations
-when bundled Pets declarations are absent. It also copies card-to-supporting-Class contribution
-links from card data into loaded declarations. Those mechanisms describe the incomplete migration;
-they are not a second intended Class authority.
+Catalog-wide registry of structured content objects. Catalog assembly requires explicit Pets
+declarations for every card, map, area, and contributed Class and never synthesizes or behaviorally
+supplements one from a structured record. Card data still supplies card-to-contributed-Class names,
+including the supporting subset that activates with the card, until resource grouping expresses
+those relationships.
 
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
@@ -73,36 +72,30 @@ contains mutually exclusive maps, modes, and replacement classes.
 
 ## Declaration authority and staged removal
 
-**Status: settled direction, not fully implemented.**
+**Status: current declaration authority; remaining cleanup is settled direction.**
 
-The next invariant is that runtime Catalog assembly receives only explicit Class declarations.
-Canon supplies those declarations exclusively through bundled `classes.pets` and `cards.pets`.
-Card and map conversion may remain as offline generation code, but runtime assembly must neither
-synthesize a missing declaration nor silently supplement its behavior from structured source data.
+Runtime Catalog assembly receives only explicit Class declarations. Canon supplies those
+declarations through bundled `classes.pets` and `cards.pets`. Missing declarations fail Catalog
+loading. Card and map conversion remains available to offline generation code and synthetic tests,
+but runtime assembly neither synthesizes a missing declaration nor supplements its behavior from
+structured source data.
 
-The transition should happen before redesigning content groups or deleting the remaining concrete
-card and map records:
+Transitional metadata may contribute only relationships Pets does not yet express: currently a
+card's contributed-Class names, its activation-linked supporting subset, and its replacement
+target. Compatibility and activation resolve those names back to loaded declarations. The
+remaining cleanup is to express or replace those relationships, move conversion-only parsing and
+rendering toward `tools`, and then remove the runtime structured records.
 
-1. Require every card, map, area, and card-supporting Class named by transitional metadata to have
-   a bundled declaration. Missing declarations fail Catalog loading.
-2. Remove runtime fallbacks through `CardDefinition.toClassDeclaration`, map and area
-   `asClassDeclaration`, and card-data-generated extra declarations. Synthetic Catalogs and tests
-   provide their declarations explicitly.
-3. Let transitional metadata contribute only relationships that Pets does not yet express, such as
-   a card's supporting-Class names and replacement target. Resolve those names to loaded
-   declarations before compatibility or activation analysis.
-4. Move conversion-only parsing and rendering toward `tools` after the runtime no longer calls it.
-
-This migration changes the inputs to compatibility, viability, and activation. It should not also
-redesign those policies.
+Changing the remaining metadata relationships changes the inputs to compatibility, viability, and
+activation; do not redesign those policies in the same step.
 
 This rule makes authority observable: editing behavioral JSON without regenerating
 `cards.pets` must not change runtime Class behavior. Regeneration checks may still reject stale
 generated Pets; that is a source-maintenance check, not runtime composition.
 
-After that cutover, simplify content grouping, then shrink card metadata, then replace runtime map
-records with the shared class-backed view. Revisit replacement representation last. Each stage must
-leave the preceding invariant intact.
+Next simplify content grouping, then shrink card metadata, then replace runtime map records with the
+shared class-backed view. Revisit replacement representation last. Each stage must preserve
+explicit declaration authority.
 
 ## Module
 
@@ -163,12 +156,14 @@ representations. In solo play four are selected; setup asks the player to remove
 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
-multiplayer, each map selects the concrete members of its printed milestone and award pool
-superclasses. Venus Next selects its single published milestone and award directly as conditional
-bundle content. Explicitly naming any milestones or awards makes that category an exact pool, so
-named goals replace only their own category. Selecting colony tiles also requests their initial
-components. Solo Colonies uses three tiles, two-player Colonies uses five, and games with at least
-three players use two more tiles than players.
+multiplayer, each map selects the concrete members of its explicitly configured milestone and award
+pools. Pool membership is not represented by gameplay supertypes. A multiplayer premise is invalid
+unless its configured selection contains at least three milestone and three award Classes. Venus
+Next selects its single published milestone and award directly as conditional bundle content.
+Explicitly naming any milestones or awards makes that category an exact pool, so named goals
+replace only their own category. Selecting colony tiles also requests their initial components.
+Solo Colonies uses three tiles, two-player Colonies uses five, and games with at least three players
+use two more tiles than players.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
@@ -192,8 +187,8 @@ directly and never becomes a live component.
 
 A Bundle may contain several Modules while retaining their separate ordinary card pools. A Module
 named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map Module
-selects its own map definition, areas, and the concrete milestone and award Classes under the pool
-superclasses named by its map metadata. Exceptional cross-Bundle or narrowed selections remain
+selects its own map definition, areas, and the concrete milestone and award Classes named by its map
+configuration. Exceptional cross-Bundle or narrowed selections remain
 expressible, but Canon's ordinary expansions do not require a central registry to restate their
 ownership.
 

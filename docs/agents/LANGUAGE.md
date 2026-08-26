@@ -109,10 +109,9 @@ elements compositionally. Keep lexical policy, such as component nouns and chang
 than the structural rendering rules.
 
 `English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
-`InstructionTree`, or a `Requirement`. The public instruction and action overloads that accept a
-host `CardDefinition` remain while that transitional view supplies card-associated source
-declarations. Unsupported valid Pets shapes return bracketed canonical Pets rather than failing or
-consulting a card row.
+`InstructionTree`, or a `Requirement`. Standalone rendering needs no host card because all Class
+relationships come from the complete loaded Class map. Unsupported valid Pets shapes return
+bracketed canonical Pets rather than failing or consulting a card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
 It has no canonical component registry or implicit Terraforming Mars description source; it only

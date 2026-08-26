@@ -86,17 +86,7 @@ internal class EnglishTest {
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
         "1 VP per ANY cathedral."
 
-    val animalCard =
-        CardDefinition(
-            CardData(
-                name = "AnimalHolder",
-                deck = "PROJECT",
-                projectKind = "ACTIVE",
-                effects = listOf("End: VictoryPoint / Animal<This>"),
-            )
-        )
-    english.describe(parse<InstructionTree>("Animal"), animalCard) shouldBe
-        "Add 1 animal to any card."
+    english.describe(parse<InstructionTree>("Animal")) shouldBe "Add 1 animal to any card."
   }
 
   @Test

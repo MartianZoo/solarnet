@@ -22,16 +22,6 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 internal class CardDefinitionTest {
-  private val resourceDeclarations =
-      parseClasses(
-          """
-          CLASS Animal : CardResource
-          CLASS Floater : CardResource
-          CLASS Microbe : CardResource
-          """
-              .trimIndent()
-      )
-
   private val birds =
       CardData(
           name = "Birds",
@@ -129,14 +119,29 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  internal fun cardTagsMustActuallyBeTags() {
+  internal fun cardTagsComeFromTheLoadedTagHierarchy() {
     val badCard = CardDefinition(CardData(name = "BadCard", tags = listOf("WildTag")))
     val badSource =
         object : TfmCatalog() {
+          override val explicitClassDeclarations =
+              parseClasses(
+                      """
+                      CLASS BadCard : CardFront<Class<CorporationCard>> {
+                        cost = 0
+                        This:: AnimalTag<This>
+                      }
+                      """
+                          .trimIndent()
+                  )
+                  .toSet()
           override val cardDefinitions = setOf(badCard)
         }
 
-    assertFailsWith<IllegalArgumentException> { TfmCatalog.compose(Canon, badSource).classTable }
+    TfmCatalog.compose(Canon, badSource)
+        .card(badCard.className)
+        .tags
+        .toStrings()
+        .shouldContainExactly("AnimalTag")
   }
 
   @Test
@@ -310,28 +315,6 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  internal fun followModeRetainsCardSearchesInsideDerivedClassBodies() {
-    val card =
-        CardDefinition(
-            CardData(
-                name = "RealCardMandate",
-                immediate = "Mandate { -> CARDS[ProjectCard(HAS VenusTag)] }",
-            )
-        )
-
-    card.extraClasses
-        .single()
-        .effects
-        .shouldContainExactly(
-            parse<Effect>("UseAction<This, First>: CARDS[ProjectCard(HAS VenusTag)]")
-        )
-    card.executableExtraClasses
-        .single()
-        .effects
-        .shouldContainExactly(parse<Effect>("UseAction<This, First>: ProjectCard"))
-  }
-
-  @Test
   internal fun followModeRetainsCardPurchaseActions() {
     val single =
         CardDefinition(
@@ -501,7 +484,7 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  internal fun multipleDerivedCardResourceTypesAreRejected() {
+  internal fun loadedClassRatherThanSourceInferenceDeterminesCardResourceType() {
     val card =
         CardDefinition(
             CardData(
@@ -513,20 +496,18 @@ internal class CardDefinitionTest {
                     ),
             )
         )
-    assertFailsWith<IllegalArgumentException> {
-      catalog(setOf(card)).cardResourceType(card.className)
-    }
+    catalog(setOf(card)).cardResourceType(card.className) shouldBe null
   }
 
   private fun catalog(cards: Set<CardDefinition>): TfmCatalog =
-      TfmCatalog.compose(
-          object : TfmCatalog() {
-            override val explicitClassDeclarations = resourceDeclarations.toSet()
-          },
-          object : TfmCatalog() {
-            override val cardDefinitions = cards
-          },
-      )
+      object : TfmCatalog() {
+        private val cardNames = cards.mapTo(hashSetOf(), CardDefinition::className)
+        override val explicitClassDeclarations =
+            Canon.explicitClassDeclarations.filterNot { it.className in cardNames }.toSet() +
+                cards.flatMap { card -> listOf(card.asClassDeclaration) + card.extraClasses }
+        override val cardDefinitions = cards
+        override val customClasses = Canon.customClasses
+      }
 
   @Test
   internal fun testRoundTripForAllCanonCardData() { // move to canon

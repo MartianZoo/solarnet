@@ -61,7 +61,15 @@ internal abstract class CardTest(
     } else {
       val additions =
           object : TfmCatalog() {
-            override val explicitClassDeclarations = additionalClassDeclarations
+            override val explicitClassDeclarations = buildSet {
+              addAll(additionalClassDeclarations)
+              additionalCardDefinitions.forEach { card ->
+                if (none { it.className == card.className }) add(card.asClassDeclaration)
+                card.extraClasses.forEach { supporting ->
+                  if (none { it.className == supporting.className }) add(supporting)
+                }
+              }
+            }
             override val cardDefinitions = additionalCardDefinitions
           }
       TfmCatalog.compose(Canon, additions)

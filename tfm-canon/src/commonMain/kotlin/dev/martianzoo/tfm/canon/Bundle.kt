@@ -11,7 +11,7 @@ public abstract class Bundle(
   /**
    * Exceptional cross-bundle or narrowed content selections. A Module named for its owning bundle
    * selects that bundle's ordinary cards and colony tiles without an entry here; a map Module
-   * selects its own map and the concrete members of its milestone and award pool superclasses.
+   * selects its own map and its explicitly configured milestone and award pools.
    */
   public open val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap()
 

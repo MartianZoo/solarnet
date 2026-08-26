@@ -39,17 +39,13 @@ public object MarsMapReader {
           area(prefix, rowNumber, firstColumn + columnIndex, code)
         }
       }
-      val declarations =
-          source
-              .lineSequence()
-              .mapNotNull { CLASS_NAME.matchEntire(it)?.groupValues?.get(1) }
-              .map(::cn)
-              .toSet()
+      val mapName = cn("${prefix}Map")
+      val goals = MapGoalSets.forMap(mapName)
       MarsMapDefinition(
-          className = cn("${prefix}Map"),
+          className = mapName,
           areas = Grid.grid(areas, AreaDefinition::row, AreaDefinition::column),
-          defaultMilestones = cn("${prefix}Milestone").takeIf(declarations::contains),
-          defaultAwards = cn("${prefix}Award").takeIf(declarations::contains),
+          defaultMilestones = goals.milestones,
+          defaultAwards = goals.awards,
       )
     }
   }
@@ -94,7 +90,6 @@ public object MarsMapReader {
           '-' to "-6 MC",
       )
   private val AREA_CLASS = Regex("\\s*CLASS ([A-Za-z][A-Za-z0-9]*)_\\d+_\\d+.*")
-  private val CLASS_NAME = Regex("\\s*(?:ABSTRACT )?CLASS ([A-Za-z][A-Za-z0-9]*).*")
 
   private inline fun <T> List<T>.indexOfFirstAfter(index: Int, predicate: (T) -> Boolean): Int {
     for (candidate in index + 1 until size) if (predicate(get(candidate))) return candidate

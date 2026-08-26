@@ -241,8 +241,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   contribution links and replacement relationships in Pets, then derive pre-load deck selection,
   tag validation, and compatibility without JSON-backed `CardDefinition` metadata.
 
-- Make bundled Class declarations mandatory for maps and cards, then restrict the remaining
-  structured card and map records to offline generation and category-specific metadata.
+- Restrict the remaining structured card and map records to offline generation and
+  category-specific metadata.
 
 - Replace the remaining colony-specific premise plumbing (`COLONY_TILES` and initial tile discovery)
   only when one general configured-starting-component model can preserve both selected starting

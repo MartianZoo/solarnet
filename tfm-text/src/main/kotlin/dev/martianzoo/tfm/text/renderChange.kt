@@ -186,7 +186,7 @@ private fun renderWrapper(
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
   val declaration = wrapperSubclassDeclaration(className, describers) ?: return null
-  val effect = declaration.effects.singleOrNull() ?: return null
+  val effect = declaration.authoredEffectsWithActions.singleOrNull() ?: return null
   if (effect.automatic) return null
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
   val actionKey = Key(ClassName.cn("UseAction"), 0)
@@ -217,7 +217,7 @@ private fun wrapperSubclassDeclaration(
   if (describers.changeFrame(superclass.className) !is ComponentDescriber.ChangeFrame.Wrapper) {
     return null
   }
-  val declaration = describers.sourceDeclaration(className)
+  val declaration = describers.declaration(className)
   val supertype = declaration.supertypes.singleOrNull()
   if (
       declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||

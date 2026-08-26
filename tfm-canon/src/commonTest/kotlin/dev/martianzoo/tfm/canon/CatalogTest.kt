@@ -12,7 +12,6 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
 import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
@@ -52,7 +51,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun cardDataAndItsExtraClassesBecomeDeclarations() {
+  internal fun structuredCardDataRequiresExplicitPetsDeclarations() {
     val catalog =
         object : TfmCatalog() {
           override val cardDefinitions =
@@ -68,8 +67,10 @@ internal class CatalogTest {
               )
         }
 
-    catalog.classDeclaration(cn("ExampleCard")).abstract shouldBe false
-    catalog.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
+    val missing = shouldThrow<IllegalArgumentException> { catalog.classTable }
+
+    missing.message.orEmpty() shouldContain
+        "Structured content lacks explicit Pets declarations: [ExampleCard, Foo]"
   }
 
   @Test
@@ -189,7 +190,7 @@ internal class CatalogTest {
     val unrelated = parseOneLinerClass("CLASS Unrelated")
     val contentBundle =
         object : Bundle(cn("ContentProvider")) {
-          override val explicitClassDeclarations = setOf(unrelated)
+          override val explicitClassDeclarations = setOf(unrelated, card.asClassDeclaration)
           override val cardDefinitions = setOf(card)
         }
     val source = TfmCatalog.compose(moduleBundle, contentBundle)
@@ -211,6 +212,7 @@ internal class CatalogTest {
                   parseOneLinerClass("ABSTRACT CLASS CardBack"),
                   parseOneLinerClass("ABSTRACT CLASS CardFront<Class<CardBack>>"),
                   parseOneLinerClass("CLASS ExampleModule : Module"),
+                  card.asClassDeclaration,
               )
           override val cardDefinitions = setOf(card)
         }
@@ -498,6 +500,10 @@ internal class CatalogTest {
 
   private fun cardBundle(name: String, vararg cards: CardDefinition): Bundle =
       object : Bundle(cn(name)) {
+        override val explicitClassDeclarations =
+            cards.flatMapTo(linkedSetOf()) { card ->
+              listOf(card.asClassDeclaration) + card.extraClasses
+            }
         override val cardDefinitions = cards.toSet()
       }
 }

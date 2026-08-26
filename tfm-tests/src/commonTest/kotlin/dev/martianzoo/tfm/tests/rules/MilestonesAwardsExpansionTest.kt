@@ -15,7 +15,13 @@ import kotlin.test.Test
 internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
   internal fun `Geologist counts owned tiles with owned neighbors`() {
-    newGame(GameConfig("Geologist", "Player1", "Player2"))
+    newGame(
+        GameConfig(
+            "Geologist, Builder7, Engineer",
+            "Player1",
+            "Player2",
+        )
+    )
     p1.manual("CommercialDistrict_SpecialTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>")
 
     shouldThrow<RequirementException> { p1.manual("Geologist") }
@@ -27,7 +33,14 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Landscaper counts the largest contiguous map group and ignores remote tiles`() {
-    val game = newGame(GameConfig("Landscaper", "Player1", "Player2"))
+    val game =
+        newGame(
+            GameConfig(
+                "Landscaper, Administrator, Biologist",
+                "Player1",
+                "Player2",
+            )
+        )
     game.classTable.isActive(cn("Landscaper")) shouldBe true
     val p2 = requireP2()
     p1.manual(
@@ -44,7 +57,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
     p1.manual("8 M")
     engine.phase("Action")
-    p1.stdAction("FundAwardSA")
+    p1.stdAction("FundAwardSA") { doTask("Landscaper") }
 
     p1.count("Landscaper") shouldBe 1
     p1.count("OwnedTile") shouldBe 5
@@ -52,19 +65,32 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Merchant checks resources after the normal claim cost`() {
-    val game = newGame(GameConfig("Merchant", "Player1", "Player2"))
+    val game =
+        newGame(
+            GameConfig(
+                "Merchant, Builder7, Engineer",
+                "Player1",
+                "Player2",
+            )
+        )
     game.classTable.isActive(cn("Merchant")) shouldBe true
     p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
     engine.phase("Action")
 
-    p1.stdAction("ClaimMilestoneSA")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Merchant") }
 
     p1.count("Merchant") shouldBe 1
   }
 
   @Test
   internal fun `Producer22 requires combined production of twenty two`() {
-    newGame(GameConfig("Producer22, -CorporateEraExpansion", "Player1", "Player2"))
+    newGame(
+        GameConfig(
+            "Producer22, Builder7, Engineer, -CorporateEraExpansion",
+            "Player1",
+            "Player2",
+        )
+    )
     p1.manual("8 M")
     engine.phase("Action")
 
@@ -72,17 +98,29 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
     p1.manual("PROD[6 MC, Steel, Titanium, Plant, Energy, Heat]")
     p1.count("PROD[StandardResource]") shouldBe 22
-    p1.stdAction("ClaimMilestoneSA")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Producer22") }
     p1.count("Milestone") shouldBe 1
   }
 
   @Test
   internal fun `Producer versions belong to opposite Quick Start modes`() {
     shouldThrow<LimitsException> {
-      newGame(GameConfig("Producer, -CorporateEraExpansion", "Player1", "Player2"))
+      newGame(
+          GameConfig(
+              "Producer, Builder7, Engineer, -CorporateEraExpansion",
+              "Player1",
+              "Player2",
+          )
+      )
     }
     shouldThrow<IllegalArgumentException> {
-      newGame(GameConfig("Producer22", "Player1", "Player2"))
+      newGame(
+          GameConfig(
+              "Producer22, Builder7, Engineer",
+              "Player1",
+              "Player2",
+          )
+      )
     }
   }
 }

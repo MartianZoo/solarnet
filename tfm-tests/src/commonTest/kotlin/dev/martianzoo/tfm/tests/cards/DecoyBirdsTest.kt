@@ -8,7 +8,21 @@ import dev.martianzoo.tfm.canon.tfmCatalog
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-private val decoyAnimalDeclarations = parseClasses("CLASS DecoyAnimal : Cardbound")
+private val decoyAnimalDeclarations =
+    parseClasses(
+        """
+        CLASS DecoyAnimal : Cardbound
+        CLASS DecoyBirds : ActionCard, ActiveCard<Class<ProjectCard>> {
+          cost = 10
+          requirement = HAS "13 OxygenStep"
+          This:: AnimalTag<This>
+          This: PROD[-2 Plant<Anyone>]
+          End: VictoryPoint / DecoyAnimal<This>
+          -> DecoyAnimal<This>
+        }
+        """
+            .trimIndent()
+    )
 
 private val decoyBirds =
     CardDefinition(
@@ -33,10 +47,10 @@ internal class DecoyBirdsTest :
   @Test
   internal fun `cardbound cubes do not make a resource card`() {
     val game = newGame()
-    game.reader.tfmCatalog.cardResourceType(cn("DecoyBirds")) shouldBe null
     val decoyBirdsClass = game.classTable.getClass(cn("DecoyBirds"))
     val resourceCardClass = game.classTable.getClass(cn("ResourceCard"))
 
     decoyBirdsClass.isSubtypeOf(resourceCardClass) shouldBe false
+    game.reader.tfmCatalog.cardResourceType(cn("DecoyBirds")) shouldBe null
   }
 }
