@@ -414,19 +414,30 @@ public class Transformers(public val classTable: ClassTable) {
           !expression.argumentsSpecified
 
   public fun insertExpressionDefaults(context: Expression): PetTransformer {
+    var refinementDepth = 0
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Expression.Refinement) {
+          refinementDepth++
+          try {
+            return transformChildren(node)
+          } finally {
+            refinementDepth--
+          }
+        }
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
         if (node.hasDeferredOwnerComplement()) return node
 
-        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
+        val klass = classTable.getClass(node.className)
+        val defaultDeps = klass.defaults.allUsages.dependencies
         val result =
             insertDefaultsIntoExpr(
                 transformChildren(node) as Expression,
                 defaultDeps,
                 context,
                 classTable,
+                deferLinkedDefaults = refinementDepth > 0 && !node.argumentsSpecified,
             )
         return result
       }
@@ -461,6 +472,7 @@ public class Transformers(public val classTable: ClassTable) {
       defaultDeps: DependencySet,
       contextCpt: Expression,
       classTable: ClassTable,
+      deferLinkedDefaults: Boolean = false,
   ): Expression {
 
     val klass: Class = classTable.getClass(original.className)
@@ -469,7 +481,12 @@ public class Transformers(public val classTable: ClassTable) {
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =
-        defaultDeps.typeDependencies().associate { it.key to it.expression }
+        defaultDeps
+            .typeDependencies()
+            .filterNot { deferLinkedDefaults && klass.isLinkedDependency(it.key) }
+            .associate {
+              it.key to it.expression
+            }
     val inferred = klass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
