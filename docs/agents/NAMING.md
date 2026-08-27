@@ -37,7 +37,7 @@ their threshold, as in `Builder7` and `Builder8`; revised promo cards use `Promo
 Each Game World owns a locale-specific `Vocabulary`:
 
 - `canonicalName` and `canonicalize` resolve localized Pets input and input-only synonyms;
-- `displayName` produces ordinary UI text; and
+- `displayName` produces plain UI text; and
 - `petsName` and `renderPets` produce localized, parseable Pets.
 
 Bundle files at `language/<tag>.json5` map Class Names to display names. Lookup falls back from the
@@ -57,8 +57,8 @@ canonical name.
 
 There are no per-entry Pets-name overrides. Input-only synonyms never become rendering candidates.
 Vocabulary construction rejects collisions among Class Names, localized Pets names, and synonyms.
-Display text remains presentation rather than identity; UI code must render through the session
-Vocabulary rather than `ClassName.toString()`.
+Display text is presentation, not identity. UI code must therefore render through the session
+Vocabulary instead of `ClassName.toString()`.
 
 There is no Unicode normalization because non-ASCII display text is currently rejected.
 

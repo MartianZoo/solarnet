@@ -3,7 +3,7 @@
 > **Read when:** explicitly designing or implementing the proposed `EACH Type { ... }` fanout, or
 > comparing repeated per-component listeners with one snapshot-based instruction.
 >
-> **Skip when:** changing ordinary quantified gain/removal, task delegation, or a single card's
+> **Skip when:** changing quantified gain/removal, task delegation, or a single card's
 > listener. Those are separate mechanisms.
 >
 > **Status:** proposal; nothing here is implemented. The construct is generic despite the
@@ -36,7 +36,7 @@ EACH Type { InstructionTree }
 `EACH` is a **fanout**, not a loop. It takes one World snapshot and groups the matching components
 by exact concrete Type. Each distinct Type produces one sibling instruction tree multiplied by that
 Type's snapshot multiplicity. That Type set and each multiplier remain fixed as the sibling tasks
-execute; ordinary later task preparation still reads the then-current World. Fanout has no
+execute; later task preparation still reads the then-current World. Fanout has no
 iteration order, index, first or last branch, accumulator, or short-circuiting. Implementation
 traversal order must not become authored precedence.
 
@@ -45,7 +45,7 @@ traversal order must not become authored precedence.
 
 ## Proposed binding model
 
-The selector and its repetitions in the body form an ordinary implicit-Type-variable region. Each
+The selector and its repetitions in the body form an implicit-Type-variable region. Each
 selected concrete Type narrows every linked occurrence in its branch:
 
 - no local identifier is introduced;
@@ -93,12 +93,12 @@ Fanout branches are ordinary siblings. These compositions have local meanings:
 
 ```pets
 A THEN EACH Player { B<Player> }              // completing A produces the B siblings
-EACH Player { A<Player> THEN B<Player> }      // one ordinary continuation in each branch
+EACH Player { A<Player> THEN B<Player> }      // one continuation in each branch
 Trigger:: EACH Player { A<Player> }           // inline only when every A is choice-free
 ```
 
 There is no proposed meaning in which `EACH Player { A<Player> } THEN B` waits for every branch or
-every transitive consequence to drain. Ordinary `THEN` waits for one task, not descendants. A
+every transitive consequence to drain. Plain `THEN` waits for one task, not descendants. A
 genuine fanout-wide join would require the distinct completion-scope or barrier design discussed
 in [SEQUENCING.md](SEQUENCING.md); it must not arrive accidentally with `EACH`.
 
@@ -125,13 +125,13 @@ fanout bodies, not complete replacement declarations.
 
 - Research purchases, final-greenery choices, and other work the selected Player must narrow, at
   least until assignment/delegation is designed explicitly.
-- `StartToken` reactions: the unique token honestly identifies the relevant Player and owns the
+- `StartToken` reactions: the unique token unambiguously identifies the relevant Player and owns the
   ambient rule.
 - Splice and TR-marker reactions: these find the owner of one triggering component rather than
   fanning out to every Player.
 - Colony trade bonuses and Productive Outpost: each Colony identifies eligibility and recipient,
   and some bonuses contain owner-specific choices.
-- Production, Energy conversion, TR/card/tile scoring, generational cleanup, and ordinary card
+- Production, Energy conversion, TR/card/tile scoring, generational cleanup, and card
   passives: these are genuine behavior of actual state occurrences.
 
 ## Open questions

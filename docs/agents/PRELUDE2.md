@@ -3,7 +3,7 @@
 > **Read when:** changing Prelude 2 supported scope, card data, compatibility filtering, active
 > Preludes, the failed-Prelude fallback, or a card named below.
 >
-> **Skip when:** changing the ordinary Prelude phase with no Prelude 2-specific consequence.
+> **Skip when:** changing the standard Prelude phase with no Prelude 2-specific consequence.
 >
 > **Status:** current support and primary-source record.
 
@@ -46,7 +46,7 @@ that offer.
 
 Prelude and Prelude 2 are independent modules. Each owns the shared Prelude setup and phase protocol,
 so selecting either activates it once; selecting both changes only the eligible card pool. The
-ordinary Prelude phase already models the rulebook's failed-Prelude fallback as discard plus 15 M€.
+standard Prelude phase already models the rulebook's failed-Prelude fallback as discard plus 15 M€.
 Active Preludes compose with the existing action-card machinery, and active/effect-only Preludes
 may naturally omit an immediate instruction.
 Comments ending in `[F]` identify cards whose hidden filtered draw or reveal result must be supplied

@@ -3,7 +3,7 @@
 > **Read when:** the user asks to merge a branch, run `merge-all-work`, or perform the separate
 > post-merge worktree advance.
 >
-> **Skip when:** doing ordinary Git inspection, commits, or work confined to this working copy.
+> **Skip when:** doing routine Git inspection, commits, or work confined to this working copy.
 >
 > **Status:** mandatory repository procedure.
 

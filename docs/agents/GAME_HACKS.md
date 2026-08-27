@@ -3,7 +3,7 @@
 > **Read when:** touching one of the specifically named representations below, or when Pets meaning
 > appears deliberately unlike the published game even though supported outcomes match.
 >
-> **Skip when:** investigating an ordinary defect with no listed representation. Search
+> **Skip when:** investigating a defect with no listed representation. Search
 > [`TODO.md`](../../TODO.md) and the relevant tests instead.
 >
 > **Status:** current inventory of deliberate representations plus one known payment defect.
@@ -97,9 +97,9 @@ group, even when equivalent independent production instructions would otherwise 
 
 ## Initialization and coordinates
 
-### 6. Neutral solo greeneries briefly use ordinary greenery behavior
+### 6. Neutral solo greeneries briefly use normal greenery behavior
 
-Solo setup places a neutral greenery without raising oxygen. Pets places an ordinary greenery,
+Solo setup places a neutral greenery without raising oxygen. Pets places a real greenery,
 allowing its normal oxygen step, and then removes that step. Neutral setup must therefore finish
 before user-contributed effects capable of observing oxygen changes can exist.
 

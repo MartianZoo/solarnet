@@ -3,7 +3,7 @@
 > **Read when:** changing `ClassTable`, Catalog-wide Class identity, a game projection, inhabitation,
 > or any API that lets a `Class`/`Type` enumerate game-specific candidates.
 >
-> **Skip when:** changing ordinary parsing or nominal subtyping without projection-dependent
+> **Skip when:** changing parsing or nominal subtyping without projection-dependent
 > enumeration; use [TYPES.md](TYPES.md).
 >
 > **Status:** current model.
@@ -101,7 +101,7 @@ structural constraints:
 - `ClassTable.forPremise` acquires the Catalog universe once to construct a filtered view; and
 - canonical language metadata uses one module-private `canonClassUniverse` handle.
 
-`Catalog.classTable` remains public even though ordinary game clients have no legitimate reason
+`Catalog.classTable` remains public even though game clients have no legitimate reason
 to use it. That is an API-access gap, not permission for additional callers.
 
 ## Integrity requirements

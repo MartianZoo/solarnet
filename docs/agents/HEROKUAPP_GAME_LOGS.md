@@ -4,7 +4,7 @@
 > and screenshots.
 >
 > **Skip when:** reconstructing a physical game from audio/photos; use
-> [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md). For ordinary card or rule tests, use
+> [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md). For card or rule tests, use
 > [TESTING.md](TESTING.md).
 >
 > **Status:** replay procedure. It intentionally contains no game-specific answers.
@@ -77,7 +77,7 @@ evidence and say why.
 
 Never invent a source-style comment. A comment that reads like a log line must be traceable to that
 line in the preserved log. Label deductions and assignments explicitly as test inference, user
-recollection, screenshot evidence, or player-record evidence, and state uncertainty rather than making
+recollection, screenshot evidence, or player-record evidence, and state uncertainty instead of making
 an inference masquerade as archived text.
 
 The log is intentionally incomplete in several respects. It commonly omits payment composition,
@@ -87,7 +87,7 @@ authoritative for final resources, production, tableau, scoring, and board state
 
 An assertion without an external source is still useful as a characterization, but label it honestly.
 For example, a missing generation screenshot may use a full resource/production stanza with a comment
-that it merely records replay values. Never present such a stanza as source validation, and never copy
+that it only records replay values. Never present such a stanza as source validation, and never copy
 a value from an old test into a supposedly independent reconstruction.
 
 ## Establish chronology before reconciling values
@@ -100,7 +100,7 @@ wrong. Verify phase transitions before adding resources to compensate.
 Check whether the archived game used fast mode. In fast-mode multiplayer games, a player must take two
 actions on every turn unless passing, so translate the actions directly and do not use `player.turn {
 ... }` to auto-decline a second action. In games without that restriction, use `player.turn { ... }`
-consistently for ordinary turns instead of scattering many `declineSecondAction()` calls through the
+consistently for routine turns instead of scattering many `declineSecondAction()` calls through the
 test. Once every other player has passed, keep the remaining player's actions through `pass()` in one
 turn block when the workflow permits. Play both of a player's Preludes in the same turn block.
 
@@ -115,7 +115,7 @@ verbatim log lines in their source order near the relevant scope, but do not tre
 pass as an immediate gameplay event.
 
 While copied log comments remain, keep each one directly above its representing statement. Put a
-consequence inside an action lambda only when that action genuinely causes it. Do not use an unrelated
+consequence inside an action lambda only when that action causes it. Do not use an unrelated
 executable context as a place to hide a manual adjustment.
 
 ## Keep archive replays visually consistent
@@ -201,15 +201,15 @@ behavioral evidence. Add an expectation when the result is interesting because i
 
 An ordinary card can therefore merit an expectation when its sourced result has multiple interacting
 parts or a state-dependent amount. A single fixed production or resource gain usually does not. Do not
-use an expectation merely because a standard action has its ordinary result or a global-parameter
-increase ordinarily grants TR. Do not restate an explicit cost, payment argument, literal `doTask()`,
+add an expectation just because a standard action produced its usual result or a global-parameter
+increase granted TR as expected. Do not restate an explicit cost, payment argument, literal `doTask()`,
 milestone claim, award funding, or every repetition of the same recurring action. A late conversion
-that earns zero TR is interesting; an ordinary conversion that earns one is not.
+that earns zero TR is interesting; a routine conversion that earns one is not.
 
 Assert only the interesting net types, not every change from the operation. Expectations are net, so
 the amount can differ from the source's gross statement when a same-type cost, rebate, or passive effect
 is part of what makes the result interesting. Prefer `Microbe`, `Animal`, or another readable general
-type unless the destination is genuinely ambiguous. Use typed zeroes to prove cancellation, a failed
+type unless the destination is ambiguous. Use typed zeroes to prove cancellation, a failed
 draw, or the absence of a promised result.
 
 If the source states an absolute balance or global value, prefer a nearby absolute assertion. Around a
@@ -255,12 +255,12 @@ second-place awards, greenery, cities, aggregate card VP, selected variable-card
 winner. Assert final plants after greenery and all six final resources and production values when the
 player records expose them. Aggregate flat card VP when the archive reports only an aggregate; individual
 variable-card assertions are useful when directly checkable. Cross-check final tile ownership and map
-locations against the archived board rather than relying only on aggregate points.
+locations against the archived board instead of relying only on aggregate points.
 
 ## Preserve valuable counterfactuals
 
 A historical replay contains exact states that are expensive to recreate in a small test. Add a few
-negative assertions when they prove a non-obvious state constraint that was genuinely tempting at that moment:
+negative assertions when they prove a non-obvious state constraint that was tempting at that moment:
 
 - a requirement or milestone threshold is almost, but not yet, met;
 - a target is protected, has an insufficient amount, or is excluded by narrowing;
@@ -268,7 +268,7 @@ negative assertions when they prove a non-obvious state constraint that was genu
 
 Use the precise domain exception (`RequirementException`, `NarrowingException`, `LimitsException`,
 `DeadEndException`, or another specific result). Put a choice-level failure inside the action lambda
-beside the successful choice. Skip obvious cases that merely require the card or resources gained by the
+beside the successful choice. Skip obvious cases that only require the card or resources gained by the
 preceding action, and do not turn the whole-game test into a substitute for focused rule tests.
 
 ## Map coordinates

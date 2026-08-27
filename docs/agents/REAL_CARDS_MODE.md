@@ -13,7 +13,7 @@
 
 | Task | Read |
 | --- | --- |
-| Component/area representation | State model through Ordinary transitions |
+| Component/area representation | State model through Normal transitions |
 | Defaults, counted cards, or delegated face choice | Defaults and atomization; Preparation-time delegation |
 | Shuffle, replay, rollback, or forks | Deterministic dealer projection |
 | Reveal, search, or card predicates | Reveals, searches, and printed predicates |
@@ -51,7 +51,7 @@ The smallest coherent model discovered so far is:
    require unknown-card Components in the master World.
 
 Deck, discard, and card areas have deliberately different roles: the first two are derived dealer
-state, while areas are ordinary unowned Components. Ownership never propagates vicariously through
+state, while areas are plain unowned Components. Ownership never propagates vicariously through
 an area dependency.
 
 ## State model
@@ -141,7 +141,7 @@ by Player.
 | `Revealed` | back | exact face exposed by a reveal operation |
 
 Direct ownership is intentionally present even in temporary areas. It identifies whose choice or
-reveal operation the card belongs to and supplies ordinary contextual `Owner`, task routing,
+reveal operation the card belongs to and supplies the usual contextual `Owner`, task routing,
 defaults, and queries.
 
 Ownership does not determine visibility. `Revealed` may be public, while another Player's `Hand`
@@ -149,7 +149,7 @@ cards are private.
 
 Deck and discard are absent from this table because they are not Components or Pets Types.
 
-## Ordinary transitions
+## Normal transitions
 
 Once an exact card is in the World, area changes remain ordinary atomic transmutations:
 
@@ -199,7 +199,7 @@ a discard because it produces an `EventPile` back. These distinct event shapes l
 identify reservoir transitions without guessing from a generic removal.
 
 If a future rule permanently removes a card from the game, add an explicit semantic transition for
-that rule. Do not reinterpret ordinary discard.
+that rule. Do not reinterpret discard.
 
 ## Defaults and atomization
 
@@ -326,7 +326,7 @@ preparation observational.
 
 ## Reveals, searches, and printed predicates
 
-An ordinary draw enters `Hand`. A reveal enters `Revealed`. Search policies consume the deck in
+A normal draw enters `Hand`. A reveal enters `Revealed`. Search policies consume the deck in
 order and must not filter the shuffled set first, because doing so would skip and fail to record
 rejected cards.
 
@@ -354,7 +354,7 @@ lowering still has to make deck exhaustion explicit: fail, accept fewer, or resh
 the actual rule.
 
 A back has no live tag Components. Printed predicates inspect immutable front-Class metadata, for
-example through a property or honest represented-Class refinement:
+example through a property or represented-Class refinement:
 
 ```text
 ProjectCard<
@@ -362,12 +362,12 @@ ProjectCard<
 >
 ```
 
-Do not make ordinary `HAS` silently traverse every represented Class, and do not create live tag
+Do not make plain `HAS` silently traverse every represented Class, and do not create live tag
 Components for cards outside `InPlay`.
 
 ## Canonical card-operation source
 
-Canonical sources now preserve hidden card procedures in one ordinary
+Canonical sources now preserve hidden card procedures in one
 `Instruction.Transform`, `CARDS[...]`. The inner instruction tree carries the operation family:
 
 ```pets
@@ -384,13 +384,13 @@ CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 ```
 
 A filtered plain gain means sequentially search for the requested matches. Its predicate is source
-shorthand over the represented front's immutable printed metadata. It does not change ordinary
+shorthand over the represented front's immutable printed metadata. It does not change plain
 `HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
 reveal every inspected card in order and discard nonmatches.
 
 A card procedure's follow-mode compilation creates the Player's temporary `Selecting` area before
 the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing that area
-discards every card still dependent on it through the engine's ordinary dependency cascade.
+discards every card still dependent on it through the engine's dependency cascade.
 `Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then invokes one
 unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's selection
 and broadcasts the same multiplicity of `BuyCard`; those per-card signals create the base debt and
@@ -440,7 +440,7 @@ The current source-level operation inventory is:
 | Finish or transfer Events | Event cards, Pharmacy Union, Law Suit |
 | Reveal chosen hand cards temporarily | Public Plans |
 
-The remaining ordinary card gains and removals still use the follow-mode shorthand directly; they
+The remaining card gains and removals still use the follow-mode shorthand directly; they
 do not preserve deck or hand-area procedure yet.
 
 ## Conservation
@@ -458,7 +458,7 @@ Dealer replay plus the current World can validate this partition. The generic co
 does not need an invariant spanning hidden Deck and Discard Components because those Components no
 longer exist.
 
-Every ordinary transition preserves the face and back family. Entry and discard move into or out of the
+Every normal transition preserves the face and back family. Entry and discard move into or out of the
 World but remain exact logged events. Setup proves that every selected face begins in the derived
 deck exactly once.
 
@@ -479,7 +479,7 @@ A viewer who may know only that Player1 has one project card can receive a broad
 ProjectCard<Player1, Hand, Class<ProjectFront>>
 ```
 
-This is ordinary loss of Type concreteness, not an `UnknownCard` object. The same projection must
+This is normal loss of Type concreteness, not an `UnknownCard` object. The same projection must
 eventually cover counts, refinements, tasks, results, and event history; hiding only component-list
 output would leak identities.
 
@@ -501,7 +501,7 @@ card outcomes to a client.
 
 Develop real-card lowering by operation family while preserving the corresponding follow lowering:
 
-1. ordinary draws and deals;
+1. draws and deals;
 2. reveal one and optionally keep or buy;
 3. reveal several and choose;
 4. sequential search by printed facts;

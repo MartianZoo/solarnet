@@ -34,7 +34,7 @@ incoherent exception, parallel mechanism, or disproportionate framework is still
   simpler.
 - When the user explicitly asks for Terraforming Mars rule research, verify disputed rulings against
   a post by Jacob Fryxelius; rulebooks and physical components remain primary evidence for their
-  printed content. Do not initiate rule research during ordinary implementation work.
+  printed content. Do not initiate rule research during routine implementation work.
 
 ## Minimize permanent concepts
 

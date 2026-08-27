@@ -13,7 +13,7 @@
 | --- | --- |
 | Choose commands or suite scope | Routine verification |
 | Change Gradle/dependencies/source sets | Build configuration |
-| Write or move an ordinary test | Test design through the relevant test category |
+| Write or move a test | Test design through the relevant test category |
 | Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
 | Change shared multiplatform tests | Multiplatform tests |
 
@@ -50,7 +50,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   both the JVM and browser.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
-  sources. A benchmark error fails the task rather than producing an empty successful report.
+  sources. A benchmark error fails the task instead of producing an empty successful report.
 - `./gradlew :repl:realTerminalSmokeTest` runs the separate Expect-based real-terminal test.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.
@@ -59,7 +59,7 @@ Gradle may report tests as `UP-TO-DATE`. That is usually fine. When changing a t
 browser configuration, resource packaging, or a locked JavaScript dependency, force the affected
 tasks with `--rerun-tasks` so cached results are not mistaken for verification.
 
-Do not run Detekt while compilation or tests are known to be failing. Restore the ordinary test
+Do not run Detekt while compilation or tests are known to be failing. Restore the normal test
 signal first, then review static-analysis findings.
 
 `./gradlew dokkaGenerateHtml` generates the local API site at `docs/api/index.html`.
@@ -135,7 +135,7 @@ This list does not itself decide which current tests should be retained. Test-de
 are a separate review.
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
-in a test merely to detect that the list changed. Test observable behavior through the normal
+in a test just to detect that the list changed. Test observable behavior through the normal
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
 exact intermediate task text, or other implementation detail.
 
@@ -163,12 +163,12 @@ single matching pending choice; keep raw `doTask()` calls where multiple placeme
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
-without starting the ordinary use-card-action wrapper.
+without starting the usual use-card-action wrapper.
 Use `declineTask()` only when exactly one pending task accepts `Ok`, and comment what is declined.
 
 `CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
 than any individual card. Its scenarios should reproduce only the important preconditions observed
-in whole games and should use the ordinary `TfmGameplay` actions and result expectations.
+in whole games and should use the standard `TfmGameplay` actions and result expectations.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
@@ -225,7 +225,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - In multiplayer action phases, express each player's actions as `player.turn { ... }`. A normal
   turn block contains up to two actions and automatically declines an unused second action. The
   exception is a sourced fast-mode game, where players must take two actions unless passing; translate
-  those actions directly rather than using `turn {}`, and preserve explicit passes or declined second
+  those actions directly instead of using `turn {}`, and preserve explicit passes or declined second
   actions when the source records them.
   Once every other player has passed, keep the remaining player's actions through `pass()` in one
   turn block; workflow-provided `NewTurn` tasks let that block continue across the remaining nominal
@@ -274,7 +274,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   Keep unexplained state reconciliations as standalone timeline statements.
   Never place a manual or other raw adjustment inside an unrelated action body to evade a prepared-task or
   operation-scope restriction; use an explicit test mechanism or fix the helper/API instead.
-  Nest a missing consequence only when the enclosing action genuinely caused it.
+  Nest a missing consequence only when the enclosing action caused it.
 
 ## Multiplatform tests
 

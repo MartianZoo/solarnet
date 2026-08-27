@@ -75,7 +75,7 @@ Terraforming Mars:
   duel found in chess or heads-up poker.
 
 A huge number of possible games is not the whole story. Poker has an enormous number of possible
-deals and betting histories, but every card still belongs to one ordinary 52-card deck. Terraforming
+deals and betting histories, but every card still belongs to one standard 52-card deck. Terraforming
 Mars has fewer ways to shuffle cards but far more kinds of card text and long-term interactions.
 
 ## What the strongest examples really prove
@@ -201,7 +201,7 @@ and the test hides an eleventh, success may only show resemblance. If practice c
 “whenever another player does X” effects and the player later handles one well, that is much stronger
 evidence that it understands the recipe.
 
-Results should be reported as wins and finishing places, not merely high scores. In Terraforming
+Results should be reported as wins and finishing places, not just high scores. In Terraforming
 Mars, scoring more while allowing an opponent to score even more is not success. Tests should also
 report how long each decision takes and confirm that no private information reached the player.
 

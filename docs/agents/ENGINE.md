@@ -85,7 +85,7 @@ those declarations; there are no parallel goal metadata objects.
 
 Canonical card classes are loaded from each bundle's generated `cards.pets` alongside
 `classes.pets`. A loaded card declaration retains authored actions and authored effects while its
-ordinary `effects` contain the follow-mode compilation used for activation and execution. That
+`effects` contain the follow-mode compilation used for activation and execution. That
 compilation preserves generic `CardLocation` movements, delegates printed-face predicates to the
 client, and temporarily represents exact Event-pile links with `PlayedEvent`.
 `TfmCatalog.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
@@ -101,7 +101,7 @@ Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful o
 In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
 selected data families, Class representatives, and generic specialization fanout. Initialization
 materializes Modules in an order consistent with active provenance, then Module effects create the
-ordinary concrete components they own.
+concrete components they own.
 
 ## Component graph
 
@@ -118,9 +118,9 @@ The only state mutation is a count plus optional source and destination. A trans
 before it adds. Every successful mutation updates live-effect indexes and enters the Event Log.
 
 `Custom` classes never enter the graph. Custom metrics report virtual non-negative counts; custom
-instructions translate concrete input to ordinary instruction trees. A custom declaration may use
+instructions translate concrete input to instruction trees. A custom declaration may use
 supertypes for dependencies and ownership, but the loader rejects inherited effects, invariants, and
-ordinary instruction defaults so Kotlin translation remains its sole behavior.
+instruction defaults so Kotlin translation remains its sole behavior.
 
 ## Events and timeline
 
@@ -215,7 +215,7 @@ result is marked `next` and must execute before any other mutation.
 
 Explicit preparation checks a concrete result's complete execution in a reversible atomic preview.
 Immediate task execution skips that preview because the encompassing operation already provides
-failure atomicity. A task already marked `next` retains its prepared first stage rather than deriving
+failure atomicity. A task already marked `next` retains its prepared first stage instead of deriving
 it again; later linked stages still prepare when reached, against the state produced by earlier
 stages.
 
@@ -243,7 +243,7 @@ and `OR` combinations. Wrappers add:
 - `IF` state requirements; and
 - `X` “one response for any positive matching count” behavior.
 
-Ordinary triggers scale their instruction by the matching change count. Self triggers respond only
+Normal triggers scale their instruction by the matching change count. Self triggers respond only
 to changed copies of the effect-bearing exact Type; existing equal copies do not multiply them.
 Other subscriptions multiply by the number of live effect-bearing components.
 
@@ -266,7 +266,7 @@ chain. `:` effects become tasks. Use
 `Tag` depends on `TagHolder`; `CardFront` is one such holder. Printed tags therefore remain ordinary
 components such as `PlantTag<CardFront>`. A `WildTag` creates a distinct `WildTagUse` holder for
 each `NewTurn` in Action or Prelude and each action-phase `SecondAction`. The temporary holder offers
-the owner `Tag<This>?`, so a chosen wild meaning is an ordinary tag and participates in bare tag
+the owner `Tag<This>?`, so a chosen wild meaning is a real tag and participates in bare tag
 metrics and requirements.
 
 The holder distinction is also the trigger distinction. `Tag` has the trigger default
@@ -279,7 +279,7 @@ action-scoped wild holder received the Building interpretation.
 
 `WildTagUse` is `Temporary`, so the action cannot finish while it remains. `TfmGameplay` declines
 unchosen offers and removes all of the acting player's uses after the action body has drained; the
-dependent tags disappear through ordinary dependency cascade. A different client must perform the
+dependent tags disappear through dependency cascade. A different client must perform the
 same uniquely implied settlement before completing the operation.
 
 ## Metrics, refinements, and limits
@@ -297,10 +297,10 @@ Every Kotlin invocation receives concrete dependency arguments.
 
 Refinements substitute a candidate into their requirement and query the current World. Immutable
 class properties supply printed cost and requirement plus map row and column without creating live
-components. Numeric properties are ordinary Metrics. Stored Metric and Requirement syntax enters a
+components. Numeric properties are Metrics. Stored Metric and Requirement syntax enters a
 class effect only through `EVAL`; expansion substitutes the concrete receiver for `This`, can defer
 until trigger specialization, and then receives normal defaults, `Owner` binding, and `PROD`
-lowering. Map bonuses and other computed metadata remain honest custom metrics. Distinct live tag or
+lowering. Map bonuses and other computed metadata remain justified custom metrics. Distinct live tag or
 resource kinds use refined `Class<...>` Types instead.
 
 Each `Class` retains its effective inherited invariants, and each active `ClassTable` projection
@@ -315,7 +315,7 @@ Task selection is speculative until the encompassing operation completes. A loca
 produce later work that cannot finish. That is a recoverable dead end: raise
 `DeadEndException`, roll back to the encompassing checkpoint, and try another branch.
 
-Do not duplicate target exclusions in Pets merely to prevent every impossible intermediate choice.
+Do not duplicate target exclusions in Pets simply to prevent every impossible intermediate choice.
 A route is a correctness bug only when an illegal result can commit or no route can produce a legal
 result. Earlier impossibility detection remains desirable for choice quality and diagnostics.
 

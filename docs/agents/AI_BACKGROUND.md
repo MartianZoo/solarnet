@@ -126,7 +126,7 @@ publicly substantiated state-of-the-art result to build on.
 Contract bridge, Skat, Gin Rummy, Hanabi, and social-deduction work were also checked. They offer
 useful techniques for partnership, opponent-hand inference, conventions, and reasoning about what
 other players know. They were not promoted into the main comparison set because they use a fixed
-ordinary deck or a small role/card vocabulary and do not test heterogeneous new content. The 2024
+deck or a small role/card vocabulary and do not test heterogeneous new content. The 2024
 [reproducible bridge-bidding baseline](https://arxiv.org/abs/2406.10306), for example, improves on
 the champion WBridge5 program in bidding experiments, but is not an end-to-end new-card result.
 
@@ -175,7 +175,7 @@ internet.
 | LOCM 1.5 / ByteRL (2022–2023) | A new pool of 120 procedurally generated cards every game | Clear winner of both 2022 competition tracks | Cards come from a fixed structured grammar of stats, keywords, and deterministic effects | Strong play on never-before-seen *combinations of known primitives* is practical |
 | Metamon and PokéAgent / competitive Pokémon (2025–2026) | 1,000+ species, many moves/items/abilities, hidden opponent team, stochastic games up to 100+ turns | Metamon variants reached roughly the top human decile; 2025 competition winners improved further | Specialist models tokenize exact game vocabulary and train on millions of exact-game trajectories | Current strongest analogue for encyclopedic fixed content; elite play and robust transfer remain open |
 | PokéChamp / competitive Pokémon (2025) | Same large content universe, with language-model knowledge plus minimax lookahead | 84% vs strongest rule bot; actual ladder run crossed 1300 after 50 games, with a projected 1300–1500 excluding timeouts | No extra fine-tuning, but prompts, a simulator, damage tools, historical team data, and pretrained Pokémon knowledge | A general language model can be a useful search guide, but latency, stale knowledge, and exploitability matter |
-| Magic draft representation (2024) | Thousands of semantically varied cards and genuinely new set releases | Predicted 55.44% of human picks for a completely held-out set after training on 2,990 cards / 75M decisions | Uses shared features, text, images, and usage metadata | Strong unseen-card *valuation* during drafting, not rules execution or competitive battle play |
+| Magic draft representation (2024) | Thousands of semantically varied cards and new set releases | Predicted 55.44% of human picks for a completely held-out set after training on 2,990 cards / 75M decisions | Uses shared features, text, images, and usage metadata | Strong unseen-card *valuation* during drafting, not rules execution or competitive battle play |
 | Multi-game LLM fine-tuning (2025) | One architecture trained on eight hidden-information card games | Approached teacher agents in DouDizhu, Guandan, and Mahjong after supervised fine-tuning | Up to 1M winning teacher decisions per complex game; no new-effect test | Architecture reuse is real, but strategy still comes from game-specific examples |
 | Tales of Tribute (2023–2025) | Hidden decks/hands, in-match deck building, long-term planning | PPO competitive with established MCTS agents | Fixed patron/card implementation; no human or unseen-card benchmark | Useful modern-tabletop testbed, but explicitly smaller than Hearthstone |
 | MTG-Causal-RL (2026 preprint) | Real Magic engine, partial observation, 478 masked actions | PPO variants beat random/heuristic baselines in five fixed archetypes | Fixed archetypes; leave-one-archetype gaps, not new-card mastery | Promising benchmark and evaluation design, not a competitive-Magic result yet |
@@ -219,7 +219,7 @@ answer to the competitive Terraforming Mars problem.
 
 ### Robust self-play must address a moving opponent
 
-Ordinary self-play is unstable: every improvement changes the training problem, strategies can
+Naive self-play is unstable: every improvement changes the training problem, strategies can
 cycle, and a player can become excellent against its current partner while forgetting how to handle
 older styles. The strongest systems use one or more of:
 
@@ -254,7 +254,7 @@ population-aware self-play for Solarnet, but the follow-up
 policy, then a best-response fine-tune, could beat the published LOCM agent on hundreds of fixed deck
 pools. Tournament wins and a tiny human match do not prove that a strategy is robust.
 
-### Hidden-information search is not ordinary MCTS
+### Hidden-information search is not standard MCTS
 
 Sampling one possible opponent hand, pretending it is real, and running perfect-information search
 creates two classic errors:
@@ -389,7 +389,7 @@ unseen species or mechanics.
 
 The useful conclusion is not that a general language model already solves content-rich games. It is
 that pretrained knowledge can guide candidate selection and evaluation when wrapped in an exact,
-domain-specific harness. The harness—not merely the model—contains the rules, calculator, state
+domain-specific harness. The harness—not just the model—contains the rules, calculator, state
 tracking, memory, and time management.
 
 ## What “unseen card” results actually show
@@ -534,7 +534,7 @@ A card representation should combine:
 The PETS type/effect structure is a better primary representation than English card text because it
 is canonical, executable, and already distinguishes relationships that prose may leave implicit.
 A learned encoder can recursively embed the typed expression/effect tree. Raw text, card ID, and
-name can be additional features, but ablations should determine whether they help or merely let the
+name can be additional features, but ablations should determine whether they help or just let the
 model memorize.
 
 Do not flatten an effect tree into a handful of card categories if that loses triggers, ownership,

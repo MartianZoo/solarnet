@@ -85,13 +85,13 @@ capacity. A maxed card can receive zero AMAP resources; an absent named card is 
 card. Optional differs because zero is intrinsically one of its authored choices.
 
 A concrete custom-class gain does not use the optional dependency fallback or this limit table. It
-first translates to ordinary instructions; those generated instructions carry the meaningful
+first translates to plain instructions; those generated instructions carry the meaningful
 quantifiers.
 
 ## Concrete pure removals
 
 A removal does not require the removed Type's dependency component to exist separately: if no
-matching removable component exists, its footroom is zero. It therefore uses the ordinary limit
+matching removable component exists, its footroom is zero. It therefore uses the same limit
 table:
 
 | Limit | mandatory | optional | AMAP |
@@ -119,7 +119,7 @@ following `THEN`; target selection and component movement are separate consequen
 
 ## Abstract pure gains and removals
 
-Preparation first performs ordinary unique-Type narrowing. If the target remains abstract, the
+Preparation first performs unique-Type narrowing. If the target remains abstract, the
 following rules apply.
 
 For mandatory and AMAP, the engine can search a pure change's concrete domain. A concrete gain
@@ -149,7 +149,7 @@ validating the domain in one World and executing the selected target in another.
 dependency-blocked target is rejected while the authored domain has any positive candidate.
 
 Abstract custom gains are not searched using pure-gain feasibility. They narrow normally; after a
-concrete custom target is chosen, it translates to its ordinary instructions. Custom removal and
+concrete custom target is chosen, it translates to its instructions. Custom removal and
 custom transmutation are unsupported.
 
 ## Abstract transmutations
@@ -169,7 +169,7 @@ uninhabited target is `Ok` when optional or AMAP and a `DeadEndException` when m
 not auto-narrow, fire triggers, or participate in abstract feasibility.
 
 When a `PER` metric or other scalar calculation makes the requested count zero, preparation returns
-`Ok` before ordinary positive-count quantifier behavior is needed.
+`Ok` before positive-count quantifier behavior is needed.
 
 ## Composition
 
@@ -185,7 +185,7 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
 - `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero becomes
   `Ok`; a positive result follows the normal rules.
 - `A BY actor`: `BY` changes the performer, not the target domain, count, or limit.
-- `PROD[A]`: production lowering changes the component Types first; the resulting ordinary changes
+- `PROD[A]`: production lowering changes the component Types first; the resulting changes
   then follow this specification.
 
 A concrete AMAP gain with a missing dependency therefore fails as a standalone instruction but is

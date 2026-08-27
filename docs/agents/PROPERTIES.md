@@ -74,12 +74,12 @@ ABSTRACT CLASS FixedScore : Scored { score = Number }
 CLASS EightPoints : FixedScore { score = 8 }
 ```
 
-Once an ordinary concrete value has been supplied, descendants cannot redeclare it. The same fact
+Once a concrete value has been supplied, descendants cannot redeclare it. The same fact
 coalesces when inherited through multiple paths. Distinct origins and divergent narrowing paths
-conflict even when their printed values happen to match. Every ordinary non-cardinality bound on a
+conflict even when their printed values happen to match. Every non-cardinality bound on a
 concrete Class must have a concrete value.
 
-This rule is intentionally stronger than ordinary object-oriented property overriding. A class
+This rule is intentionally stronger than conventional object-oriented property overriding. A class
 property is a fact about the Class, and inheritance accumulates and narrows facts.
 
 ### Reading and evaluating
@@ -132,7 +132,7 @@ all the way to zero. Project cards still state their cost explicitly, including 
 zero-cost project cards; there is no useful project-card default of zero.
 
 Therefore `CardFront.cost` remains `Number`, not `Number?`. This also keeps payment and numeric cost
-filters within one ordinary numeric model.
+filters within one numeric model.
 
 There is no global rule that an absent numeric class property means zero. If `Number?` is eventually
 introduced, its empty case supplies no Number and hence no Metric: it cannot count anything. A
@@ -154,7 +154,7 @@ concrete Class; those are implementation vocabulary, not the intended general do
 
 Cardinality queries should observe the number of held values. Bare `HAS property` means at least one
 value. If a cardinality can exceed one, `HAS 2 property` naturally means at least two. These are
-presence/cardinality queries, not ordinary numeric reads of the held value.
+presence/cardinality queries, not numeric reads of the held value.
 
 ### `Requirement?` and directional valence
 
@@ -198,7 +198,7 @@ instruction groups do.
 
 That would make the cardinality interpretation literal. A card could hold zero or more printed
 Requirements, `HAS requirement` would ask whether it has any, and `HAS 2 requirement` would ask
-whether it has at least two. It would also make conjunction's empty identity structural rather than
+whether it has at least two. It would also make conjunction's empty identity structural instead of
 encoding it as a special always-satisfied Requirement.
 
 Questions to settle before changing the AST include:
@@ -218,7 +218,7 @@ Class may safely offer descendants a default class-property value. A concrete de
 that default or state another permitted value explicitly. Once the concrete Class's effective value
 is chosen, it remains final.
 
-This is not ordinary overriding. A default is a fallback used only when a descendant makes no
+This is not conventional overriding. A default is a fallback used only when a descendant makes no
 choice; it is not an inherited concrete fact that is later replaced. The declaration model must
 distinguish:
 
@@ -227,7 +227,7 @@ distinguish:
 - a final fact that every descendant inherits unchanged.
 
 Project-card cost illustrates the first case: each project card should state its cost, and the four
-zero-cost cards should explicitly state zero. A family whose members genuinely share a normal value
+zero-cost cards should explicitly state zero. A family whose members share a normal value
 might use a default. A family whose value is definitionally fixed should narrow to a final fact.
 
 Syntax and multiple-inheritance rules remain open. In particular, competing defaults, nearer
@@ -258,7 +258,7 @@ The direction is promising but not yet a design. It must answer:
 - whether `Instruction*` is a group value, a cardinality-bearing property, or both.
 
 The goal is not merely to move `HandleCardTags` into generated Pets. The result should provide one
-honest source of printed tag facts that supports both pre-existence queries and live materialization.
+source of printed tag facts that supports both pre-existence queries and live materialization.
 
 ## Design constraints for future extensions
 

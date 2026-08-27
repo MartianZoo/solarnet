@@ -3,7 +3,7 @@
 > **Read when:** changing phase topology/end conditions, moving workflow into Pets, introducing a
 > generic workflow runner, or deciding whether whole-world idleness is the right completion rule.
 >
-> **Skip when:** changing an ordinary card effect or existing workflow-created choice without
+> **Skip when:** changing a card effect or existing workflow-created choice without
 > changing phase ownership.
 >
 > **Status:** domain requirements are settled. Native vocabulary and runner are proposed. Committed
@@ -65,7 +65,7 @@ generation is played with none. At the post-production check:
 - if the configured objective is satisfied, run Final Greenery then End;
 - otherwise abort without final greeneries or scoring and record a zero-score loss.
 
-Ordinary solo checks that no active global parameter remains incomplete, while TR 63 checks the
+Standard solo checks that no active global parameter remains incomplete, while TR 63 checks the
 player's then-current rating. Final greeneries cannot rescue a failed objective.
 
 ### Other required precedence
@@ -82,8 +82,8 @@ player's then-current rating. Final greeneries cannot rescue a failed objective.
 A Phase component is legitimate Game World state. Readiness, pending work, and waiting belong to
 Tasks or execution control; do not mirror them as marker components.
 
-Native workflow needs **control-until-drain**, not instruction-side `BY` and not whole-world
-idleness. Engine retains a continuation while one Player controls a turn; nested choices may be
+Native workflow needs **control-until-drain**, which neither instruction-side `BY` nor
+whole-world idleness provides. Engine retains a continuation while one Player controls a turn; nested choices may be
 assigned elsewhere; Engine resumes only after that control scope drains. The exact representation
 may be a frame, continuation, or suspension relation. Current task queues do not provide it. See
 [IDENTITY.md](IDENTITY.md).
@@ -102,7 +102,7 @@ participates only when its span and both endpoint Classes are independently acti
 activate an endpoint.
 
 A span has one unique next active step. Expansion constraints insert intermediate steps between
-core-owned endpoints. Dynamic branches remain ordinary effects; for example, Solar completion may
+core-owned endpoints. Dynamic branches remain normal effects; for example, Solar completion may
 transmute directly to Final Greenery, overriding normal span advancement.
 
 Do not add a persistent “ready” component, a second next-phase field, a separate workflow expression
@@ -158,7 +158,7 @@ and both endpoint Classes were activated independently. The runner compiles them
 Catalog data; it does not create precedence components in the World.
 
 After a step and its delegated control scope drain, the runner emits
-`StepComplete<current-step>`. An ordinary Effect may consume that signal to make a dynamic branch.
+`StepComplete<current-step>`. An Effect may consume that signal to make a dynamic branch.
 Otherwise the runner follows the unique successor in the compiled span, transmutates the old Phase
 to the next, and waits for the new step. No successor means termination; multiple immediate
 successors are invalid.
