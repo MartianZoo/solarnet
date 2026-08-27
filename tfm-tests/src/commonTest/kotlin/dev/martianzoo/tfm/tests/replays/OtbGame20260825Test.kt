@@ -1164,7 +1164,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // "I guess I just gotta take that last temp raise. And I gain five moolahs. Temp is maxed."
     ellie.turn {
       assertCounts(1 to "GameEndBarrier")
-      stdProject("AsteroidSP").expect("5 MC")
+      stdProject("AsteroidSP").expect("-9 MC")
       assertCounts(0 to "GameEndBarrier")
     }
     dad.turn {
