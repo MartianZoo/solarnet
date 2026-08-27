@@ -17,7 +17,7 @@
 | Which mechanism should express A-before-B? | Put facts in components; Recoverable dead ends; Choose the weakest mechanism that fits |
 | Must a modifier precede the event it changes? | Model before-trigger effects with a committed precursor |
 | Must reactions complete before the user sees the next choice? | Use automatic effects to preserve player-visible invariants |
-| Does this concern `EACH`, continuations, priority, or atomicity? | Read only the matching explicitly proposed/exploratory section |
+| Does this concern `EACH`, continuations, idle settlement, or atomicity? | Read only the matching proposed or agreed-direction section |
 | Is this a known family, defect, or phase rule? | Settled families through Workflow precedence |
 | How should a new ordering claim be researched? | Audit method |
 
@@ -68,8 +68,8 @@ Several different concerns are easy to collapse into a vague request for work to
 - **Sequencing:** B cannot precede A. `THEN`, a barrier, or natural unavailability can establish it.
 - **Immediacy:** after A, work cannot be postponed behind a player choice. Automatic `::` expresses
   this.
-- **Deferred eligibility:** B already exists as work, but cannot be selected while higher-priority
-  work remains in the relevant control scope. The task-priority hypothesis below explores this.
+- **Idle settlement:** B is created only after a Player's current queue epoch drains. The agreed
+  `Idle<Player>` direction below covers this without admitting an ineligible task early.
 - **Global completion:** the whole World task pool has drained and remains empty after completion
   work.
 - **Scoped completion:** one delegated operation and its descendants have drained, even if unrelated
@@ -112,16 +112,15 @@ Signals such as `PlayCard`, `Trade`, `Accept`, and `Pay` are coherent component 
 what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
 `Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
 
-`Temporary` currently covers two opposite lifecycle policies that a scoped completion model should
-distinguish. Some transient component facts should be removed automatically when their action or
-turn scope drains. Others represent mandatory unfinished state and must already have been removed;
-if they survive the phase, the operation reaches a dead end. Neither policy makes the component
-task state, and the relevant scope must be explicit rather than assumed to be global queue
-emptiness.
+`Temporary` currently covers two lifecycle policies. Some transient facts listen for `Idle` and
+remove themselves when their Player's work drains. Others represent mandatory unfinished state and
+must keep a task pending or make the operation dead-end. The workflow may proceed only after idle
+settlement leaves neither tasks nor unfinished temporary state.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
-wait.” `TradeBarrier` is the strongest current example. Priority may remove such pure scheduling
-semaphores without moving quantitative or identity-bearing World state into tasks.
+wait.” `TradeBarrier` is the strongest current example. First investigate whether an honest
+`Idle` listener can replace such a pure scheduling semaphore without losing the selected identity
+or required failure behavior.
 
 ## Recoverable dead ends are part of the model
 
@@ -206,7 +205,8 @@ next. Prefer a specific gate such as `MAX 0 TradeBarrier` to `MAX 0 Barrier`.
 A barrier controls legality, not priority. Other currently legal work remains reorderable. Retain a
 component gate when the component carries real state, as `Owed` and `Required` do. When the only
 fact represented is that later work must wait for the relevant task pool to drain, investigate
-immutable task priority instead; do not create a graph semaphore just to schedule tasks.
+whether idle settlement can create that work after the drain; do not create a graph semaphore just
+to schedule tasks.
 
 Phase topology and Player control-until-drain belong to [WORKFLOW.md](WORKFLOW.md), not generic
 barriers. Global queue drain is only the root-scope case of that broader completion model.
@@ -491,52 +491,43 @@ already-finished automatic work as a continuation.
 Keep the current choice-free rule for `::` unless this constrained model is selected and proves that
 it removes more permanent machinery than it adds.
 
-## Immutable task priority (exploratory)
+## Player idle settlement (agreed direction)
 
-**Aspirational hypothesis, not an approved engine rule.** Some work should exist immediately but
-remain ineligible until other work drains. This may be task priority rather than an `Idle` component
-and fixed-point broadcast protocol.
+**Agreed direction, not implemented.** When a Player's task queue finishes one nonempty epoch, Engine
+emits one owned `Idle<Player>` Signal after the completing atomic operation. Automatic `Idle`
+listeners run in that signal's change context; queued listeners may refill the queue. If work is
+created, normal play continues and the next nonempty-to-empty transition emits another `Idle`.
+Workflow may resume only after idle dispatch leaves no pending task or unfinished temporary state.
 
-A task may be selected only when it has or ties for the highest priority in the relevant control
-scope. Tasks tied at that priority remain an unordered pool. When they are gone, the next occupied
-priority becomes eligible automatically; no task is edited or literally “bumped.” A task's priority
-is fixed when it is created and survives player narrowing, selection, splitting, and execution
-machinery just as assignee, Actor, and cause do.
+`Idle` is Engine-created and owned. Ownership binds inherited listeners and prevents one Player's
+empty queue from settling another Player's invoice or EventCard. An idle listener represents
+one-shot completion work and must automatically make its context cease listening, normally by
+removing or transmuting that context. Do not permit Players to manufacture `Idle` or create durable
+listeners that react again on unrelated later turns.
 
-Use a small semantic ordering, not arbitrary author-selected numbers. The exact bands remain open,
-but the model needs at least ordinary player work, reduced-priority settlement, and an Engine-owned
-workflow fallback below both. A selected task can share the eligibility check as the sole selected
-work, but selection remains explicit state: resolution has read the World and therefore forbids every
-intervening mutation, not merely lower-priority task selection.
+Queue emptiness must mean controlled work really drained. Under delegated narrowing, the controller
+retains a suspended parent task while another Actor narrows a child; the controller therefore cannot
+become idle early. This is the same control-until-drain requirement described in
+[WORKFLOW.md](WORKFLOW.md) and [IDENTITY.md](IDENTITY.md), not an assumption that assignment and
+control are identical.
 
-Priority is not `THEN`. Completing A creates its particular B continuation; queue-drain priority
-delays already-created B behind all higher-priority work in one scope. It is also not automatically
-a replacement for barriers: `Owed` and `Required` remain auditable quantitative components, and
-their survival at settlement can still make an operation incomplete. Priority is most promising
-where a component currently carries no information except scheduling.
+Payment is the first proving case. One mandatory abstract payment task offers one currently accepted
+tender unit. A successful payment creates the next such task only while matching `Owed` remains. If
+debt remains but no tender is legal, that task stays pending and unselectable, so the operation
+dead-ends rather than emitting `Idle`. Once debt is gone, no replacement task appears; `Idle`
+removes Billing, existing `-Billing` effects remove its `Accept` capabilities, and invoice
+removal produces the payoff or card entry. There is no completion sentinel and no parallel task to
+decline for every unused tender kind.
 
-The first two investigations should be:
+Event cleanup is the second proving case. An EventCard listens for its owner's next `Idle` and then
+automatically moves to the played-event pile. Solar Probe consequently retains its own Science tag
+through every queued effect of the turn that played it, but not into a possible consecutive turn.
 
-1. **Trade.** Let `Trade<ColonyTile>` directly create the selected fleet-movement task at reduced
-   priority while Trade Envoys and Trading Colony create optional production decisions.
-   If draining those decisions makes fleet movement eligible with all valid sibling orders intact,
-   delete `TradeBarrier` and its create/remove effects.
-2. **PlayCard.** Let `PlayCard<Class<CardBack>, Class<CardFront>>` directly create the corresponding
-   `CardFront FROM CardBack` task at reduced priority. Payment setup, discounts, and payment choices
-   remain normal-priority work, with `Owed` and `Required` preserved as component facts. Event-card entry
-   can then create its `PlayedEvent FROM EventCard` cleanup at reduced priority in the new task
-   context, testing whether Solar Probe retains its own tags through all card work.
-
-These cases test both directions of the idea: Trade may remove a pure graph semaphore, while
-PlayCard should preserve quantitative graph state and change only when the already-promised work may
-run. Do not add task-targeting instructions or effect access to task identity for either experiment.
-
-Several semantics must be proved before selection. Determine the relevant scope—Player queue,
-delegated operation, or whole World—rather than using global priority as an approximation. Prove
-what priority newly triggered tasks receive and that activating reduced work does not serialize
-otherwise reorderable siblings. Keep settlement inside the originating failure scope. A lowest
-priority Engine task may eventually replace workflow queue-drained wakeups, but only after scoped
-control and the two domain cases establish the rule.
+Implement idle detection outside raw task-set mutation so rollback, task replacement, and one
+instruction's admission of consequences cannot expose a false empty transition. Prove exact and
+partial payment, cost reduced to zero, legal overpayment, unavailable tender, card-resource tender,
+an `Idle` listener that queues more work, Solar Probe, consecutive turns by one Player, and a
+suspended delegated child before migrating workflow wakeup or deleting existing barriers.
 
 ## Atomicity audit hypotheses
 
@@ -601,7 +592,8 @@ this is acceptable only while nothing can observe their relative order.
 ## Known defects or missing rules
 
 - **Event cleanup:** an event must remain live through its immediate effect and tags before moving to
-  the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag.
+  the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag; the
+  agreed repair is automatic cleanup on the owning Player's next `Idle`.
 - **Head Start:** every descendant of its first granted action must finish before the second begins.
   Siblings and plain `THEN` are too weak; this requires a completion scope or narrow barrier.
 
@@ -616,12 +608,10 @@ this is acceptable only while nothing can observe their relative order.
 - **Candidate draw/select/play:** Valley Trust, Merger, and New Partner use hand cards in
   incremental chains, so candidates are neither isolated nor forced to continue. Prefer one
   operation-scoped candidate representation if a fix is selected.
-- **Task priority:** investigate Trade first as a possible deletion of `TradeBarrier`, then PlayCard
-  as direct creation of reduced-priority card-entry and event-cleanup tasks. Preserve `Owed` and
-  `Required` cardinality and audit history; do not introduce task mutation.
-- **Card-play gate:** determine whether reduced-priority entry plus scoped settlement can replace the
-  broad `MAX 0 Barrier` gate, or whether a payment-specific state gate remains necessary.
-- **Trade settlement:** while testing priority, determine whether colony-track reset can be observed
+- **Idle settlement:** implement the payment and EventCard proving cases before generalizing. Keep
+  auditable `Owed` and `Required` facts; do not infer successful payment from emptiness alone.
+- **Trade settlement:** determine whether the same idle protocol can delete `TradeBarrier` without
+  losing the selected ColonyTile or letting colony-track reset be observed
   before income and colony bonuses finish.
 - **Automatic-effect order:** remove the current runtime dependence on registration order, then
   prove setup, generation, and phase effects respect the replacement semantic or canonical order.

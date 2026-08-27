@@ -83,10 +83,17 @@ A Phase component is legitimate Game World state. Readiness, pending work, and w
 Tasks or execution control; do not mirror them as marker components.
 
 Native workflow needs **control-until-drain**, which neither instruction-side `BY` nor
-whole-world idleness provides. Engine retains a continuation while one Player controls a turn; nested choices may be
-assigned elsewhere; Engine resumes only after that control scope drains. The exact representation
-may be a frame, continuation, or suspension relation. Current task queues do not provide it. See
+whole-world idleness provides. Engine retains a continuation while one Player controls a turn;
+nested choices may be assigned elsewhere, and a suspended parent keeps the controller's queue from
+becoming empty. Engine resumes only after that control scope drains. The exact representation may
+be a frame, continuation, or suspension relation. Current task queues do not provide it. See
 [IDENTITY.md](IDENTITY.md).
+
+The agreed completion handshake is an Engine-created `Idle<Player>` Signal after one controlled
+queue epoch drains. Idle listeners get the first opportunity to perform automatic settlement or
+enqueue more work. Workflow proceeds only when dispatch leaves the control scope drained and no
+unfinished temporary state remains. This replaces the current coroutine's direct whole-World idle
+wakeup; it does not make raw queue emptiness sufficient for phase advancement.
 
 ## Minimal proposed model
 
@@ -95,7 +102,7 @@ A generic runtime needs only:
 - one selected workflow entry step;
 - durable workflow-step Classes;
 - span-scoped forward precedence among active steps; and
-- a transient completion signal after a step's control scope drains.
+- the shared `Idle<Player>` completion handshake after a controlled queue drains.
 
 Compile topology from active Catalog data. Precedence endpoints are weak references: a constraint
 participates only when its span and both endpoint Classes are independently active. It must never
@@ -119,8 +126,8 @@ ABSTRACT CLASS Workflow<Class<WorkflowStep>> : System
 "One durable state in a native workflow"
 ABSTRACT CLASS WorkflowStep : System
 
-"Signal emitted after one workflow step's control scope drains"
-CLASS StepComplete<WorkflowStep> : Signal, System
+"Engine-owned signal emitted after one Player's controlled queue drains"
+CLASS Idle : Owned<Player>, Signal, System
 
 "One contiguous part of a workflow, including its endpoints"
 ABSTRACT CLASS WorkflowSpan<Class<WorkflowStep>, Class<WorkflowStep>> : System
@@ -157,11 +164,11 @@ These references are intentionally weak. The precedence declarations participate
 and both endpoint Classes were activated independently. The runner compiles them from active
 Catalog data; it does not create precedence components in the World.
 
-After a step and its delegated control scope drain, the runner emits
-`StepComplete<current-step>`. An Effect may consume that signal to make a dynamic branch.
-Otherwise the runner follows the unique successor in the compiled span, transmutates the old Phase
-to the next, and waits for the new step. No successor means termination; multiple immediate
-successors are invalid.
+After a controlled queue drains, Engine emits `Idle<Player>`. Automatic listeners settle transient
+state and queued listeners may reopen work. Once idle dispatch reaches quiescence, the runner follows
+the unique successor in the compiled span, transmutates the old Phase to the next, and waits for the
+new step. No successor means termination; multiple immediate successors are invalid. Dynamic
+branches may consume the idle signal before the default successor is chosen.
 
 The transient signal is intended to avoid a second persistent readiness state while preserving the
 exactly-one-Phase invariant. Unordered component fanout is the separate [`EACH`](EACHPLAYER.md)
@@ -175,8 +182,10 @@ proposal. Player-controlled work still requires the delegation model in
 2. Extract only lifecycle, checkpoint, cancellation, and wakeup mechanics from `TfmWorkflow.Auto`.
 3. Move coarse Terraforming Mars topology and expansion insertions into Catalog/Pets data.
 4. Implement Player control-until-drain with parent/child assignment tests.
-5. Express Corporation, Prelude, Action, and Final Greenery turns using that control mechanism.
-6. Migrate callers, then delete both Kotlin Terraforming Mars workflow variants.
+5. Emit `Idle<Player>` after a controlled queue epoch and prove that listeners may reopen work
+   before workflow advances.
+6. Express Corporation, Prelude, Action, and Final Greenery turns using that control mechanism.
+7. Migrate callers, then delete both Kotlin Terraforming Mars workflow variants.
 
 Preserve current integration tests throughout. A native workflow is not successful merely because
 its happy-path phase list is correct.

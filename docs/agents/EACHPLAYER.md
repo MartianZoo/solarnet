@@ -83,7 +83,7 @@ selected exact Animal Type is removed three times. There are not three occurrenc
 Pets gains no synthetic component identity.
 
 Multiplication uses the existing `InstructionTree.times` meaning. It therefore scales the whole
-specialized body, rather than adding branch-to-branch ordering or repeatedly preparing against
+specialized body, rather than adding branch-to-branch ordering or repeatedly resolving against
 changing Worlds. Types with multiplicity zero produce no branch. Seated Player Types normally each
 have multiplicity one.
 

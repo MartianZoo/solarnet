@@ -44,6 +44,8 @@ This distinction excludes several engine responsibilities:
 
 - A `::` effect executes inline because the authored game rule makes it automatic.
 - A `:` effect creates a task because the authored rule requires later activity by its assignee.
+- The agreed `Idle<Player>` direction emits an Engine-owned completion Signal after a controlled
+  queue epoch drains; authored idle listeners and the workflow may react without a client policy.
 - Validation and recognition of a proven dead end apply whether a client or policy chose the path.
 - Selecting a particular task causes the engine to resolve it against the current World.
 
@@ -134,7 +136,7 @@ exists.
 
 Autoexecution must be suspended for an operation as soon as any reachable continuation could later
 delegate an abstract task to another Player for narrowing. Philares is the primary example: the
-Player placing the adjacent tile controls when the reward task is prepared, but the Philares owner
+Player placing the adjacent tile controls when the reward task is selected, but the Philares owner
 chooses its resource. Even earlier commands that appear locally interchangeable must remain
 explicit, because their timing or order may reveal information that dominates the delegated
 Player's strategy and that a proof-preserving policy cannot calculate. The only exception is a
@@ -216,7 +218,7 @@ gain only the read-only analysis needed by real policies. An optional applicatio
 the selected policy profile, advancement points, and diagnostic agent identity.
 
 The first useful profile should be deliberately small: execute a concrete task whose choice is
-already committed, and apply narrowly defined forced revisions. A sole-progress policy can be added
+already committed, and apply narrowly defined forced narrowings. A sole-progress policy can be added
 if its proof is sound and removing the current behavior causes enough legitimate client burden to
 justify it. Richer equivalence and exhaustive-search policies should follow only concrete needs.
 
