@@ -53,10 +53,42 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    // Discarded 14 cards Atalanta Planitia Lab,Power Plant,Arctic Algae,Worms,Mercurian
-    // Alloys,Weather Balloons,Freyja Biodomes,Nitrogen-Rich Asteroid,Stratospheric Birds,Magnetic
-    // Field Dome,GHG Producing Bacteria,Venus Waystation,Comet for Venus,Research
+    // Technically I think these discards happen during InitialResearchPhase which we don't model,
+    // but we should soon...
+    keen.discardUnselectedProjectCards(
+        AirScrappingExpedition,
+        Virus,
+        IshtarExpedition,
+        EnergySaving,
+        NoctisCity,
+        LavaFlows,
+    )
+    been.discardUnselectedProjectCards(
+        SubCrustMeasurements,
+        TradeEnvoys,
+        SfMemorial,
+        OrbitalCleanup,
+        IceCapMelting,
+        HiTechLab,
+    )
+
     keen.playCorp(SagittaFrontierServices) {
+      keen.discardProjectCardsFromDeck(
+          AtalantaPlanitiaLab,
+          PowerPlant,
+          ArcticAlgae,
+          Worms,
+          MercurianAlloys,
+          WeatherBalloons,
+          FreyjaBiodomes,
+          NitrogenRichAsteroid,
+          StratosphericBirds,
+          MagneticFieldDome,
+          GhgProducingBacteria,
+          VenusWaystation,
+          CometForVenus,
+          Research,
+      )
       draw(CaretakerContract)
       buyCards(CuttingEdgeTechnology, SearchForLife, CommunityServices, DustSeals)
     }
@@ -93,7 +125,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   private fun generation2() {
     keen.buyCards(DirectedHeatUsage, BusinessNetwork, OptimalAerobraking)
+    keen.discardUnselectedProjectCards(LunaMetropolis)
     been.buyCards(VenusianAnimals, MiningColony, EcologyResearch)
+    been.discardUnselectedProjectCards(WarpDrive)
 
     been.turn { playProject(ExtractorBalloons, 21) }
     keen.turn { playProject(CuttingEdgeTechnology, 12) }
@@ -104,9 +138,12 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       playProject(DirectedHeatUsage, 1)
       playProject(CommunityServices, 13)
       playProject(BusinessNetwork, 4)
-      cardAction1(BusinessNetwork) { buyCards(0) }
+      cardAction1(BusinessNetwork) {
+        discardUnselectedProjectCards(SoilEnrichment)
+      }
       playProject(SearchForLife, 1)
       cardAction1(SearchForLife) {
+            discardProjectCardsFromDeck(EarthElevator)
             // Earth Elevator has no microbe tag.
             declineTask("Science<$SearchForLife>?")
           }
@@ -149,6 +186,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     engine.assertCounts(5 to "Tile")
 
     been.buyCards(AstraMechanica, ForcedPrecipitation)
+    been.discardUnselectedProjectCards(MartianSurvey, HiredRaiders)
 
     keen.turn {
       cardAction1(AppliedScience) { doTask("Energy") }
@@ -216,7 +254,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     engine.assertCounts(5 to "Tile")
 
     been.buyCards(InventionContest)
+    been.discardUnselectedProjectCards(JupiterFloatingStation, ElectroCatapult, RedShips)
     keen.buyCards(ResearchCoordination, LunarMining)
+    keen.discardUnselectedProjectCards(Hospitals, SolarPower)
 
     been.turn {
       cardAction2(ExtractorBalloons)
@@ -242,8 +282,11 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn { playProject(ResearchCoordination, 2) }
     been.turn { stdProject("PowerPlantSP") }
     keen.turn {
-      cardAction1(BusinessNetwork) { buyCards(0) }
+      cardAction1(BusinessNetwork) {
+        discardUnselectedProjectCards(GalileanWaystation)
+      }
       cardAction1(SearchForLife) {
+        discardProjectCardsFromDeck(IoSulphurResearch)
         // Io Sulphur Research has no microbe tag.
         declineTask("Science<$SearchForLife>?")
       }
@@ -258,7 +301,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   private fun generation5() {
     been.buyCards(SpaceMirrors, SisterPlanetSupport)
+    been.discardUnselectedProjectCards(MiningQuota, CrashSiteCleanup)
     keen.buyCards(FueledGenerators, CupolaCity, GiantIceAsteroid)
+    keen.discardUnselectedProjectCards(FloatingRefinery)
 
     keen.turn { stdAction("TradeSA", 3) { doTask("Trade<Ceres>") } }
     been.turn {
@@ -285,11 +330,14 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     been.turn { cardAction2(ForcedPrecipitation) }
     keen.turn {
-      cardAction1(BusinessNetwork) { buyCards(0) }
+      cardAction1(BusinessNetwork) {
+        discardUnselectedProjectCards(ProtectedValley)
+      }
     }
     been.pass()
     keen.turn {
       cardAction1(SearchForLife) {
+        discardProjectCardsFromDeck(Shuttles)
         // Shuttles has no microbe tag.
         declineTask("Science<$SearchForLife>?")
       }
@@ -301,7 +349,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   private fun generation6() {
     keen.buyCards(LightningHarvest, WaterSplittingPlant)
+    keen.discardUnselectedProjectCards(SpacePortColony, SoilFactory)
     been.buyCards(EarthOffice, SolarReflectors)
+    been.discardUnselectedProjectCards(GhgImportFromVenus, ImportedNutrients)
 
     been.turn {
       cardAction2(ExtractorBalloons)
@@ -351,6 +401,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   private fun generation7() {
     been.buyCards(FloaterPrototypes, UrbanDecomposers, BusinessContacts)
+    been.discardUnselectedProjectCards(ProjectInspection)
     keen.buyCards(RadSuits, RadChemFactory, SterlingVents, SpecialDesign)
 
     keen.turn {
@@ -359,8 +410,10 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     been.turn {
       playProject(VenusianAnimals, 15)
+      expectProjectCards(ReleaseOfInertGases, SubterraneanReservoir, JovianLanterns)
       playProject(InventionContest, 2) {
         draw(SubterraneanReservoir)
+        discardUnselectedProjectCards(ReleaseOfInertGases, JovianLanterns)
       }
     }
     keen.turn {
@@ -372,8 +425,10 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
           .expect("-18 MC, -Titanium, Plant, 3 Heat")
     }
     been.turn {
+      expectProjectCards(CorroderSuits, FusionPower, DeepWellHeating, QuantumCommunications)
       playProject(BusinessContacts, 4) {
         draw(CorroderSuits, DeepWellHeating)
+        discardUnselectedProjectCards(FusionPower, QuantumCommunications)
       }
     }
     keen.turn {
@@ -399,6 +454,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
       cardAction1(SearchForLife) {
+        discardProjectCardsFromDeck(Herbivores)
         // Herbivores has no microbe tag.
         declineTask("Science<$SearchForLife>?")
       }
@@ -438,7 +494,13 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     engine.assertCounts(14 to "Tile")
 
     been.buyCards(AerialMappers)
+    been.discardUnselectedProjectCards(
+        IndenturedWorkers,
+        ProtectedHabitats,
+        HermeticOrderOfMars,
+    )
     keen.buyCards(ProductiveOutpost, Hackers, Harvest)
+    keen.discardUnselectedProjectCards(Farming)
 
     been.turn {
       stdProject("GreenerySP") { placeTile(2, 4) }
@@ -482,8 +544,10 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       }
     }
     been.turn {
+      expectProjectCards(Bushes, MassConverter, UrbanizedArea)
       playProject(InventionContest, 2) {
         draw(UrbanizedArea)
+        discardUnselectedProjectCards(Bushes, MassConverter)
       }
       playProject(DeepWellHeating, 9, steel = 2)
     }
@@ -502,6 +566,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
           }
           .expect("-2 MC")
       cardAction1(SearchForLife) {
+        discardProjectCardsFromDeck(BigAsteroid)
         // Big Asteroid has no microbe tag.
         declineTask("Science<$SearchForLife>?")
       }
@@ -519,7 +584,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   private fun generation9() {
     been.buyCards(RimFreighters, LunarBeam)
+    been.discardUnselectedProjectCards(SulphurExports, TopsoilContract)
     keen.buyCards(AdvancedAlloys, CyberiaSystems)
+    keen.discardUnselectedProjectCards(cn("VenusTradeHub"), WaterToVenus)
 
     keen.turn {
       convertPlants { placeTile(5, 5) }
@@ -568,7 +635,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       fundAward(cn("Highlander"), 14)
     }
     keen.turn {
-      cardAction1(BusinessNetwork) { buyCards(0) }
+      cardAction1(BusinessNetwork) {
+        discardUnselectedProjectCards(TitanShuttles)
+      }
       playProject(AdvancedAlloys, 7) {
         doTask("-ProjectCard")
         discard(CyberiaSystems)
@@ -606,6 +675,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
       cardAction1(SearchForLife) {
+        discardProjectCardsFromDeck(GanymedeColony)
         // Ganymede Colony has no microbe tag.
         declineTask("Science<$SearchForLife>?")
       }
@@ -634,7 +704,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   private fun generation10() {
     been.buyCards(FieldCappedCity)
+    been.discardUnselectedProjectCards(ImmigrationShuttles, VenusSoils, IcyImpactors)
     keen.buyCards(LuxuryFoods, PeroxidePower)
+    keen.discardUnselectedProjectCards(CeosFavoriteProject, Sponsors)
     been.turn {
       playProject(FieldCappedCity, 23, steel = 3) { placeTile(2, 3) }
       playProject(UrbanizedArea, 10) { placeTile(3, 4) }
@@ -682,6 +754,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       convertPlants { placeTile(4, 2) }
       playProject(PeroxidePower, 2, steel = 1)
       cardAction1(SearchForLife) {
+        discardProjectCardsFromDeck(HydrogenToVenus)
         // Hydrogen to Venus has no microbe tag.
         declineTask("Science<$SearchForLife>?")
       }
@@ -694,7 +767,9 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   private fun generation11() {
     been.buyCards(Plantation)
+    been.discardUnselectedProjectCards(Zeppelins, AsteroidMiningConsortium, Potatoes)
     keen.buyCards(NitrogenFromTitan, SubZeroSaltFish)
+    keen.discardUnselectedProjectCards(CoronaExtractor, cn("UnexpectedApplication"))
     keen.turn {
       playProject(SubZeroSaltFish, 1) { doTask("PROD[-Plant<Been>]") }.expect("0 MC")
       stdAction("TradeSA", 2) {
@@ -754,8 +829,11 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     keen.sellPatents(StaticHarvesting)
     keen.turn {
-      cardAction1(BusinessNetwork) { buyCards(0) }
+      cardAction1(BusinessNetwork) {
+        discardUnselectedProjectCards(SpaceHotels)
+      }
       cardAction1(SearchForLife) {
+        discardProjectCardsFromDeck(PublicBaths)
         // Public Baths has no microbe tag.
         declineTask("Science<$SearchForLife>?")
       }

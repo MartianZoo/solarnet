@@ -18,11 +18,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   results merely because their ordering seems pointless in the current game.
 - Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion can express
   “after its tag choice or decline”; remove the gameplay helper's god-mode cleanup at that point.
-- **High priority:** Complete located-card follow mode: track every project card in full-game
-  replays by exact card name and location from deck exit
-  through hand, temporary selection/reveal areas, play, event pile, and discard, with tracker state
-  restored consistently across timeline rollbacks; make copied card effects use their executable
-  follow-mode form rather than replaying inactive authored card-area operations.
+- **High priority:** Extend Distant Pressure Mass's exact located-card follow mode to other
+  source-complete full-game replays: track every known project-card deck exit through temporary
+  areas, hand, play, event pile, or terminal disappearance.
+- Model `InitialResearchPhase` so starting project-card rejections happen there rather than being
+  recorded beside corporation play.
 - Decide whether the gameplay payment helper should accept arbitrary resources instead of its
   fixed standard-resource parameter list.
 - **High priority:** Finish eliminating the Definition/Class split: make Pets Classes the sole
