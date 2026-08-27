@@ -317,7 +317,16 @@ private fun Describers.renderEligiblePlayer(expression: Expression): String? {
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   if (minimum.target != 1) return null
   val tagExpression = (minimum.metric as? Metric.Count)?.expression ?: return null
-  if (!tagExpression.simple) return null
+  if (
+      tagExpression.refinement != null ||
+          tagExpression.complement ||
+          resolveExpression(tagExpression)?.let { tag ->
+            tag.sourceDependencies.isNotEmpty() &&
+                !tag.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression)
+          } != false
+  ) {
+    return null
+  }
   val tag = tagName(tagExpression.className)?.first ?: return null
   return "a player with ${indefiniteArticle(tag)} $tag tag"
 }
