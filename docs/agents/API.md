@@ -3,7 +3,7 @@
 > **Read when:** flattening `Gameplay`, removing a power interface or `godMode()`, changing command
 > transaction scopes, or designing a real client/observation API.
 >
-> **Skip when:** adding an ordinary gameplay operation without changing facade ownership; use the
+> **Skip when:** adding a gameplay operation without changing facade ownership; use the
 > Gameplay section of [ENGINE.md](ENGINE.md#current-gameplay-surface).
 >
 > **Status:** proposal. Some read/write data-structure pairs have been collapsed; the `Gameplay`
@@ -110,7 +110,7 @@ Until a real client API exists, `script` should check its modes explicitly in on
 | Yellow | Also insert and remove tasks |
 | Red | Also perform raw changes without normal triggered consequences |
 
-These checks are REPL policy, not security and not a reusable authorization framework. Test the
+These checks are REPL policy. They are neither security nor a reusable authorization framework. Test the
 command/mode matrix so new commands cannot bypass it accidentally.
 
 ## Later client interface

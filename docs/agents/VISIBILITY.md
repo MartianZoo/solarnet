@@ -49,4 +49,4 @@ Perform a broad audit in a temporary project copy under `$TMPDIR`:
 8. Verify mechanically that the final source diff changes only visibility and formatting.
 
 The compiler-guided mutation belongs in temporary storage. Do not add a permanent source-rewriting
-framework merely for an occasional whole-project audit.
+framework solely for an occasional whole-project audit.

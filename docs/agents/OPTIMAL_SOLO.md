@@ -31,12 +31,12 @@ reshuffled is outside the problem and is discarded rather than evaluated.
 Open-deck and hidden-deck play are different problems:
 
 - In open-deck play, deck contents and order are part of the known state. “Best attainable score”
-  has an ordinary exact meaning.
+  has an exact meaning.
 - In hidden-deck play, the player knows only a set or distribution of possible deck orders. We must
   eventually choose whether “best” means best expected score, best guaranteed score, or something
   else. Structural conclusions that hold for every possible deck do not depend on that later choice.
 
-At the client interface, every ordinary method call both begins and ends with a nonempty player task
+At the client interface, every method call both begins and ends with a nonempty player task
 queue. Starting and finishing the game are the exceptions. The engine may pass through an idle world
 internally, but that state is not observable through this interface. Each client-visible decision is
 therefore one of:
@@ -231,4 +231,4 @@ For each component type, a useful report should contain:
 
 This retains the attractive simplicity of monotonic reasoning without pretending that the full card
 catalog is simple. The optimizer may make aggressive reductions where it has a certificate and fall
-back to ordinary branching everywhere else.
+back to branching everywhere else.

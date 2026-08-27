@@ -3,11 +3,11 @@
 > **Read when:** changing Pets `Action` parsing/lowering, action selection, billing, or cards with
 > fixed, property-scaled, or X-scaled standard-resource costs.
 >
-> **Skip when:** changing an ordinary instruction that is not an `Action`, or changing payment
+> **Skip when:** changing an instruction that is not an `Action`, or changing payment
 > allocation after an invoice has already been created; use [PAYMENTS.md](PAYMENTS.md) for that.
 >
 > **Status:** current model except where the Player-idle payment loop is explicitly marked as an
-> agreed, unimplemented direction. Direct and costless Actions retain ordinary Pets sequencing.
+> agreed, unimplemented direction. Direct and costless Actions retain normal Pets sequencing.
 
 ## Source map
 
@@ -49,7 +49,7 @@ There is no separate payment-completed signal.
 
 Only invoice creation needs to state its denomination, and M€ is the creation default. Effects
 normally respond to `Invoice<Provider, Selector>` because a particular Action has one nominal
-denomination. A non-M€ creation retains `Class<Resource>` as honest data naming the fungible debt;
+denomination. A non-M€ creation retains `Class<Resource>` as accurate data naming the fungible debt;
 it does not substitute a Class token for the live behavior provider.
 
 On removal, bare `-Owed` deliberately leaves the denomination generic; `-Owed<>` explicitly accepts
@@ -82,7 +82,7 @@ Accept capabilities; `-Invoice` remains the single completion event for the Acti
 still no separate `Paid` component.
 
 Card play uses the same boundary. Remove the pending `MAX 0 Barrier: CardFront FROM CardBack` task;
-`-CardInvoice` instead puts the card into play after idle payment settlement. The card's ordinary
+`-CardInvoice` instead puts the card into play after idle payment settlement. The card's normal
 effects may refill the queue, and an EventCard moves to the played-event pile on the following idle
 boundary. See [SEQUENCING.md](SEQUENCING.md#player-idle-settlement-agreed-direction).
 
@@ -90,7 +90,7 @@ boundary. See [SEQUENCING.md](SEQUENCING.md#player-idle-settlement-agreed-direct
 
 Several additions to `Owed` may precede one invoice. Card buying adds 3 M€ per card, allowing
 Polyphemos and Terralabs Research to alter the same debt before the invoice opens. Fund Award is
-instead three ordinary Actions—8, 14, and 20 M€—whose results are gated to the corresponding
+instead three Actions—8, 14, and 20 M€—whose results are gated to the corresponding
 existing Award count; selecting the wrong one cannot complete and rolls back.
 
 Card play creates printed M€ debt, handles tags, then creates
@@ -107,25 +107,25 @@ Consultants.
 St. Joseph of Cupertino Mission creates one unowned `CathedralAction`. Each owned Cathedral offers
 that Action to its city owner, so the city owner is also the payer and recipient.
 
-Standard projects use the same rule while retaining ordinary authored Actions such as
+Standard projects use the same rule while retaining authored Actions such as
 `1 / cost -> OceanTile<>`; Action lowering supplies the invoice workflow.
 
-Stormcraft offers its floaters through ordinary heat `Billing`. Local Heat Trapping is the sole
+Stormcraft offers its floaters through heat `Billing`. Local Heat Trapping is the sole
 direct heat payment, so Stormcraft separately lets up to three floaters become the equivalent heat
-when that card enters play; LHT itself retains its ordinary immediate removal.
+when that card enters play; LHT itself retains its immediate removal.
 
 ## Direct and costless Actions
 
 Card-resource removals, production transformations, selections, and other nonstandard costs remain
-ordinary Pets instructions. Their existing `THEN` chain already expresses when the result follows
+plain Pets instructions. Their existing `THEN` chain already expresses when the result follows
 the cost, without pretending that holder-sensitive components are fungible debt.
 
 Costless Actions likewise need no invoice. This keeps the payment model limited to the family for
-which debt, modifiers, and alternate tender genuinely compose.
+which debt, modifiers, and alternate tender compose.
 
 ## Ownership rules
 
 `Action` is a Pets AST concept, while `StandardResource`, `Owed`, and `Invoice` belong to
 Terraforming Mars. The generic transformer currently recognizes the six concrete standard-resource
 names, just as bare numeric costs already carry Terraforming Mars currency meaning. Treat those
-leaks as one layering flaw rather than introducing a policy layer for this closed set.
+leaks as one layering flaw instead of introducing a policy layer for this closed set.

@@ -119,7 +119,7 @@ owns “A causes B.” Other structural reachability may
 activate dependencies, but it may not activate an unselected Module or defeat an explicit
 exclusion.
 
-Module premise policy is authored with ordinary Requirement-valued Pets properties.
+Module premise policy is authored with Requirement-valued Pets properties.
 `autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
 resolve to an order-independent fixed point and an explicit exclusion wins. Each candidate's
 condition is evaluated without counting that candidate itself, and an automatic selection is
@@ -127,7 +127,7 @@ retracted when later selections make its condition false. A nonconverging set of
 invalid. By contrast, an explicit exclusion that contradicts an active constructive provenance
 edge makes the configuration invalid.
 `premiseRequirement` is checked against the completed projection when that Module is selected.
-Module invariants provide the ordinary exact-count rules that are also meaningful in the live
+Module invariants provide the exact-count rules that are also meaningful in the live
 World. `Class<T>` representatives describe that already-fixed projection: required representatives
 are declared with invariants, not created by triggered instructions.
 
@@ -185,11 +185,11 @@ A **Bundle** is an internal unit of ownership, provenance, distribution, and loa
 declarations, category-specific card or map data, and custom implementations. It is not selected
 directly and never becomes a live component.
 
-A Bundle may contain several Modules while retaining their separate ordinary card pools. A Module
+A Bundle may contain several Modules while retaining their separate card pools. A Module
 named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map Module
 selects its own map definition, areas, and the concrete milestone and award Classes named by its map
 configuration. Exceptional cross-Bundle or narrowed selections remain
-expressible, but Canon's ordinary expansions do not require a central registry to restate their
+expressible, but Canon's normal expansions do not require a central registry to restate their
 ownership.
 
 Two registry-shaped exceptions remain. `Prelude1Deck` routes the original Prelude cards from the
@@ -200,18 +200,18 @@ and awards. These should be removed only after declaration authority is complete
 
 **Status: settled direction, not implemented.**
 
-Ordinary all-or-none content membership should come from an honest bundle/resource organization, not a
+Routine all-or-none content membership should come from the bundle/resource organization itself, not a
 list of individual members and not reconstruction from Class-name prefixes. A same-named Module
 then selects that Bundle's ordinary cards, direct goals, and colony tiles through one shared rule.
 `Prelude1Deck` should own a separate selectable resource group, represented by its own internal
 Bundle even though it shares a published product with the Prelude rules and project cards. Once the
-ordinary cases use those mechanisms, delete `BundleContentSelection` rather than replacing it with
+common cases use those mechanisms, delete `BundleContentSelection` instead of replacing it with
 directory-basename or map-suffix policy.
 
 Physical product packaging does not require one internal Bundle. Conversely, combining several
 selection groups in one Bundle is not a simplification when it requires a routing registry. Shared
 declarations may live in a nonselected provider or coalesce identically; do not add per-Class
-availability annotations merely to preserve a product-shaped source directory.
+availability annotations solely to preserve a product-shaped source directory.
 
 ## Transitional card data
 
@@ -221,9 +221,9 @@ Structured card data remains temporarily useful for offline Pets generation, rep
 and card-to-supporting-Class contribution links.
 
 After the declaration-authority cutover, shrink runtime card-data consumption in that order. Do not
-remove supporting-Class links until Pets or an ordinary resource interface expresses them: content
+remove supporting-Class links until Pets or a resource interface expresses them: content
 compatibility and activation must include the complete loaded contribution, not only the card's own
-declaration. Do not retain runtime declaration generation merely to make synthetic card tests
+declaration. Do not retain runtime declaration generation just to make synthetic card tests
 convenient.
 
 ## Map data and runtime views
@@ -290,7 +290,7 @@ optimization leak.
 
 A Bundle with a same-named Module makes its ambient declarations available through that Module. A
 map Bundle without a same-named Module uses the disjunction of its map Modules. A data-only Bundle
-with neither has no implicit availability rule. This convention covers ordinary expansions,
+with neither has no implicit availability rule. This convention covers expansions,
 single-map Bundles, and the two-map Hellas/Elysium and Utopia/Cimmeria Bundles without per-Class
 properties.
 
@@ -307,10 +307,10 @@ make a content Class expansion-dependent. Module Classes are never availability-
 selection alone decides whether a Module is active.
 
 For content compatibility, inspect every semantic Class reference in the loaded content declaration
-and every supporting declaration contributed with it. Ordinary Module selection conjoins the owning
+and every supporting declaration contributed with it. Normal Module selection conjoins the owning
 Bundle Modules of those ambient Classes with the content's automatic-selection condition. An
 explicit individual inclusion must satisfy the derived Bundle condition and any separate non-Bundle
-compatibility condition, but may still override ordinary pool-selection policy. Thus a Colonies
+compatibility condition, but may still override the default pool-selection policy. Thus a Colonies
 card that only counts colonies is just as Colonies-dependent as one that places a colony.
 
 `VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make

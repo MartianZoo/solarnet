@@ -4,7 +4,7 @@
 > player-board resource records.
 >
 > **Skip when:** the primary evidence is a herokuapp log; use
-> [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md). For ordinary tests, use
+> [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md). For routine tests, use
 > [TESTING.md](TESTING.md).
 >
 > **Status:** replay procedure.
@@ -102,14 +102,14 @@ do not silently change ownership or invent a missing action. Isolate an extra ac
 state change at its exact checkpoint when possible; otherwise make the smallest chronology distortion
 and say exactly what moved and why. Record the missing general mechanism in `TODO.md`.
 
-Follow the current full-game test style rather than copying an old revision:
+Follow the current full-game test style instead of copying an old revision:
 
 - define `override val config = GameConfig(...)` with player-name arguments;
 - resolve gameplay objects with `game.tfm(Player.PLAYERn)`;
 - import and pass card-name constants rather than string card names;
 - use named `buyCards()`/`discard()` calls when the source identifies cards, opting into
   `CardTrackingFullGameTest` only when the evidence can sustain exact hand tracking;
-- use `player.turn { ... }` for ordinary multiplayer turns and put both Preludes in one turn block;
+- use `player.turn { ... }` for routine multiplayer turns and put both Preludes in one turn block;
 - once other players have passed, keep the remaining player's actions through `pass()` in one block
   when the workflow permits; and
 - keep literal source comments immediately beside the operation they prove.
@@ -144,7 +144,7 @@ accumulate guesses until a later snapshot happens to pass.
 the transcript explicitly says it changed, when an interesting automatic or cross-player effect is
 not obvious from the call, or when localizing a residual between authoritative checkpoints.
 
-Do not restate an explicit payment argument, literal `doTask()`, or incidental movement merely to
+Do not restate an explicit payment argument, literal `doTask()`, or incidental movement just to
 make the expectation exhaustive. Use a nearby absolute assertion when a source gives an absolute
 amount. Prefer general types such as `Microbe` and `Animal` unless the destination is ambiguous, and
 use typed zeroes when cancellation or the absence of a narrated result matters. Expectations are
@@ -153,7 +153,7 @@ net effects, so they may differ from spoken gross effects.
 When new expectations explain a mismatch, reassess every existing manual adjustment. Better
 localization often proves that a repair should move, shrink, or disappear.
 
-Do not put an expectation on `exMachina()` merely to restate the adjustment. Start at the
+Do not put an expectation on `exMachina()` simply to restate the adjustment. Start at the
 reconciliation, identify the affected type, and walk backward over the real gameplay operations
 that could have changed it. Put partial expectations for that type on those operations until the
 remaining unexplained delta is bounded at its actual source. For example, a plant reconciliation
@@ -161,7 +161,7 @@ calls for plant expectations on the preceding card plays, placements, and action
 
 ## Represent physical mistakes honestly
 
-`exMachina()` means the physical table reached an evidenced state that ordinary correct engine play
+`exMachina()` means the physical table reached an evidenced state that correct engine play
 does not produce. It is not a general test-unblocking tool.
 
 Before retaining one, verify chronology and phase transitions, reconcile the source interval, add
@@ -198,7 +198,7 @@ Before handoff:
 2. audit operations and comments against transcript order;
 3. trace every assertion to a named source or label it as characterization;
 4. justify every `exMachina()` and search once more for a natural explanation;
-5. confirm endgame workflow and scoring, not merely compilation;
+5. confirm endgame workflow and scoring, not just compilation;
 6. run the focused JVM test, the suite required by [TESTING.md](TESTING.md), formatting, and
    `git diff --check`; and
 7. inspect the final diff for game-specific helpers, accidental production changes, and stale

@@ -4,7 +4,7 @@
 > below; do not read the entire card/event catalog by default.
 >
 > **Skip when:** changing the existing Turmoil card pack without Turmoil expansion rules, or doing
-> generic engine work merely because Turmoil could someday use it.
+> generic engine work just because Turmoil could someday use it.
 >
 > **Status:** research-backed proposal. Physical rules and event data are source material; component
 > homes and Pets are working choices. `LANGUAGE?` marks unexpressed behavior. The captured source is
@@ -59,7 +59,7 @@ resource rather than to Building cards.
 The preferred conceptual home and the currently implementable declaration site are separate
 questions. Timing, multiplicity, contextual ownership, or inheritance may prevent Pets from
 placing an effect in its ideal component today. Determine the preferred home first; only then
-decide whether the language needs a general facility or whether an honest nearby representation is
+decide whether the language needs a general facility or whether a faithful nearby representation is
 better.
 
 Useful corroborating questions are:
@@ -272,7 +272,7 @@ bounds. This is more precise than describing the result as generic runtime owner
 
 The free and paid delegate actions create `NormalDelegate`. The action does not appoint a leader;
 party maintenance owns any subsequent promotion. The exact leader and dominance comparisons remain
-an honest open language problem because their tie rules differ.
+an open language problem because their tie rules differ.
 
 ### Policies
 
@@ -310,7 +310,7 @@ CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
 
 Each policy is the reason its behavior exists. In particular, Reds is intentionally modeled as
 `TerraformRating: -3`; substituting the upstream global-parameter change would confuse the observed
-game event with the effect's behavioral home. Scientists and Kelvinists are ordinary `HasActions`
+game event with the effect's behavioral home. Scientists and Kelvinists are plain `HasActions`
 components. Their actions disappear automatically when their policy components disappear.
 
 ### Global-event positions and shared card behavior
@@ -382,7 +382,7 @@ not merely different effect punctuation.
 ### Base Turmoil global events
 
 The two Party dependencies and instruction shorthand are transcribed from the working data. The 31
-base cards follow; Election and Revolution incorporate their solo companion rows rather than
+base cards follow; Election and Revolution incorporate their solo companion rows instead of
 pretending those rows are additional physical cards.
 
 ```pets
@@ -516,7 +516,7 @@ CLASS WarOnEarth<EventSlot> : GlobalEvent<EventSlot, MarsFirst, Kelvinists> {
 }
 ```
 
-The ordinary cards intentionally keep compact Pets-like arithmetic even where current Metrics do
+The regular cards intentionally keep compact Pets-like arithmetic even where current Metrics do
 not support addition after a capped term. Election and Revolution instead state custom operations
 and retain their metrics as class data. Their tied ranking, chairman replacement, and solo behavior
 are not good reasons to add isolated ranking syntax.
@@ -550,7 +550,7 @@ CLASS MicrogravityHealthProblems<EventSlot> :
 
 These five cards belong to Turmoil but observe components supplied by Venus Next or Colonies. They
 should be active only when their required expansion supplies a meaningful component domain; that
-is an ordinary premise/projection concern rather than a Turmoil-specific runtime exception.
+is a general premise/projection concern rather than a Turmoil-specific runtime exception.
 
 ## Related GlobalParameter ownership question
 
@@ -589,7 +589,7 @@ The draft currently exposes these questions without selecting implementations:
    properties exist; general Instruction properties do not.
 2. **Dependency-specialized component behavior.** One exact global-event component should provide
    different behavior while its slot dependency is Distant, Coming, or Current. The effect must not
-   migrate to a persistent slot watcher merely because that is easier to express.
+   migrate to a persistent slot watcher just because that is easier to express.
 3. **Invariant-restoration scope.** Changing Times wants the final state to contain exactly one
    Coming and Distant event while a recursive automatic chain temporarily empties each slot.
    Current minimum invariants constrain every individual transmutation.

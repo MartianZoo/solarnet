@@ -3,7 +3,7 @@
 > **Read when:** implementing one of the remaining implicit-variable defects after first reading the
 > relevant part of [TYPES.md](TYPES.md#10-implicit-type-variables).
 >
-> **Skip when:** using existing implicit variables, changing ordinary dependencies, or considering
+> **Skip when:** using existing implicit variables, changing dependencies, or considering
 > Splice's generated watchers. Priority lives in [`TODO.md`](../../TODO.md).
 >
 > **Status:** focused audit; the target changes are not implemented.
@@ -19,7 +19,7 @@
 
 The runtime already preserves authored variables through effects, actions, task revision and
 splitting, atomic transmutation, and incremental `THEN`. Do not replace working card mechanisms
-merely to begin this project.
+just to begin this project.
 
 ## Scope limits
 

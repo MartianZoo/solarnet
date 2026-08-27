@@ -35,8 +35,8 @@ under Terraforming Mars. The half-generic placement is the defect.
 
 The [Pets Action model](ACTIONS.md) makes this division more explicit: fixed and X-scaled Terraforming
 Mars `StandardResource` costs use provider- and action-qualified invoices, while direct and
-costless Actions keep ordinary Pets sequencing. The generic Action transformer recognizes those six
-resource names directly. Treat that leak as layering debt rather than adding a broad extension
+costless Actions keep normal Pets sequencing. The generic Action transformer recognizes those six
+resource names directly. Treat that leak as layering debt instead of adding a broad extension
 framework for this rule.
 
 ### The script application is mostly REgo/Terraforming Mars
@@ -117,5 +117,5 @@ cleanup, the dependencies suggest this order:
 6. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
 7. Clean up dependency directions made visible by those moves.
 
-Do not perform this sequence merely to make an unrelated board game theoretically possible. Each
+Do not perform this sequence solely to make an unrelated board game theoretically possible. Each
 step must be independently valuable to Solarnet.

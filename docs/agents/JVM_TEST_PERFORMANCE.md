@@ -142,5 +142,5 @@ and the complete build still finished 1m47.67s sooner.
    worker count.
 3. Treat isolated slow-test cleanup as secondary. Whole-game scenarios are not the main cost, and
    even deleting the single 15.1s outlier would save under 4% of engine CPU.
-4. Do not prioritize Gradle configuration, compilation, or merely increasing worker heap from this
+4. Do not prioritize Gradle configuration, compilation, or simply increasing worker heap from this
    evidence. They are not driving elapsed time, and collection pauses are small.

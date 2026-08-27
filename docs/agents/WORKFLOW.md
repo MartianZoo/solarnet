@@ -3,7 +3,7 @@
 > **Read when:** changing phase topology/end conditions, moving workflow into Pets, introducing a
 > generic workflow runner, or deciding whether whole-world idleness is the right completion rule.
 >
-> **Skip when:** changing an ordinary card effect or existing workflow-created choice without
+> **Skip when:** changing a card effect or existing workflow-created choice without
 > changing phase ownership.
 >
 > **Status:** domain requirements are settled. Native vocabulary and runner are proposed. Committed
@@ -65,7 +65,7 @@ generation is played with none. At the post-production check:
 - if the configured objective is satisfied, run Final Greenery then End;
 - otherwise abort without final greeneries or scoring and record a zero-score loss.
 
-Ordinary solo checks that no active global parameter remains incomplete, while TR 63 checks the
+Standard solo checks that no active global parameter remains incomplete, while TR 63 checks the
 player's then-current rating. Final greeneries cannot rescue a failed objective.
 
 ### Other required precedence
@@ -82,11 +82,12 @@ player's then-current rating. Final greeneries cannot rescue a failed objective.
 A Phase component is legitimate Game World state. Readiness, pending work, and waiting belong to
 Tasks or execution control; do not mirror them as marker components.
 
-Native workflow needs **control-until-drain**, not instruction-side `BY` and not whole-world
-idleness. Engine retains a continuation while one Player controls a turn; nested choices may be
-assigned elsewhere, and a suspended parent keeps the controller's queue from becoming empty. Engine
-resumes only after that control scope drains. The exact representation may be a frame, continuation,
-or suspension relation. Current task queues do not provide it. See [IDENTITY.md](IDENTITY.md).
+Native workflow needs **control-until-drain**, which neither instruction-side `BY` nor
+whole-world idleness provides. Engine retains a continuation while one Player controls a turn;
+nested choices may be assigned elsewhere, and a suspended parent keeps the controller's queue from
+becoming empty. Engine resumes only after that control scope drains. The exact representation may
+be a frame, continuation, or suspension relation. Current task queues do not provide it. See
+[IDENTITY.md](IDENTITY.md).
 
 The agreed completion handshake is an Engine-created `Idle<Player>` Signal after one controlled
 queue epoch drains. Idle listeners get the first opportunity to perform automatic settlement or
@@ -108,7 +109,7 @@ participates only when its span and both endpoint Classes are independently acti
 activate an endpoint.
 
 A span has one unique next active step. Expansion constraints insert intermediate steps between
-core-owned endpoints. Dynamic branches remain ordinary effects; for example, Solar completion may
+core-owned endpoints. Dynamic branches remain normal effects; for example, Solar completion may
 transmute directly to Final Greenery, overriding normal span advancement.
 
 Do not add a persistent “ready” component, a second next-phase field, a separate workflow expression

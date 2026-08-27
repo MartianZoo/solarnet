@@ -3,7 +3,7 @@
 > **Read when:** moving autoexecution out of the engine, changing `AutoExecMode`, proving a task safe
 > to execute automatically, or designing an optional client policy.
 >
-> **Skip when:** changing authored `::` automatic effects or ordinary explicit task execution; those
+> **Skip when:** changing authored `::` automatic effects or explicit task execution; those
 > are engine semantics covered by [ENGINE.md](ENGINE.md) and [SEQUENCING.md](SEQUENCING.md).
 >
 > **Status:** settled design direction plus current-implementation audit. The policy model is not
@@ -34,7 +34,7 @@ The engine must be fully usable with no autoexecution enabled. A client can play
 issuing explicit gameplay commands. Disabling every policy must perform no autoexecution analysis,
 queue scan, speculative preparation, or other hidden work.
 
-Autoexecution is a pool of optional client policies plugged into the ordinary `Gameplay` API. A
+Autoexecution is a pool of optional client policies plugged into the same `Gameplay` API. A
 policy may select, prepare, narrow, or execute tasks on an Actor's behalf. It has no mutation power
 that an explicit client call lacks, and the resulting gameplay operation must be identical to the
 same call made directly by that client.
@@ -61,7 +61,7 @@ the task pool.
 
 Forced narrowing is distinct. It examines a choice and proves that some candidates are impossible
 or that only one answer remains. The engine may expose reusable read-only analysis that supports
-such a proof, but ordinary preparation is not contractually required to discover every forced
+such a proof, but preparation is not contractually required to discover every forced
 narrowing. An optional policy may request the analysis and submit the resulting revision through
 the same gameplay command a client would use.
 
@@ -83,7 +83,7 @@ into one omnibus policy.
 An application-level driver repeatedly:
 
 1. reads current gameplay and task state;
-2. asks the selected policies for an ordinary gameplay command;
+2. asks the selected policies for a gameplay command;
 3. performs at most one proposed command through the relevant assignee's `Gameplay` API; and
 4. discards every prior conclusion and reads the resulting state again.
 
@@ -95,7 +95,7 @@ The driver may be a decorator, subscriber, command-loop collaborator, or another
 mechanism. Its concrete shape must preserve the essential dependency direction:
 
 ```text
-autoexecution policies -> ordinary Gameplay API -> engine semantics
+autoexecution policies -> Gameplay API -> engine semantics
 ```
 
 It must not become a callback from engine internals into policy code, a privileged task mutation
@@ -111,7 +111,7 @@ client.
 That architectural freedom is separate from the policies Solarnet should provide in the near term.
 For now, every supplied policy must prove that its action makes no gameplay sacrifice. In
 particular, there is no `FIRST` policy, no stable-order fallback, and no convenience mode allowed to
-pick an arbitrary viable task. Tests depending on such choices must become explicit rather than
+pick an arbitrary viable task. Tests depending on such choices must become explicit instead of
 preserving an unsafe policy for their convenience.
 
 A proof-preserving policy may act only when it establishes that its command removes no
@@ -124,7 +124,7 @@ semantically distinct legal continuation. Useful proof families include:
 - several candidate paths reach the same semantic state at the same comparison point.
 
 The third case is stronger than observing that one call to `prepareTask` succeeds. Another task may
-still accept an explicit narrowing or another ordinary command. A policy must account for every
+still accept an explicit narrowing or another command. A policy must account for every
 way a client can make gameplay progress. When one task is gated on `Foo`, the World has no `Foo`,
 and the only other task gains `Foo`, the gain really is forced: the gated task cannot progress
 until that state change occurs. This policy family is plausible, but it may be deferred until its
@@ -173,7 +173,7 @@ work or erase the identity of the policy that supplied each command.
 Some proof policies need more than local structural inspection. Read-only analysis may use a
 disposable Game World overlay: share immutable declarations, overlay component and live-effect
 state, copy the small task queues, and extend event history only for diagnosis. Every branch is
-discarded after analysis; the chosen ordinary command is then applied to the live World.
+discarded after analysis; the chosen command is then applied to the live World.
 
 Overlays do not authorize arbitrary selection. They are useful only when the policy checks the
 complete relevant candidate set and proves forcedness or semantic equivalence. The backing World
@@ -192,19 +192,19 @@ The destination removes that structural cost:
 - raw `Gameplay` commands never start an autoexecution drain;
 - no selected policies means no autoexecution work;
 - one application driver owns policy advancement;
-- each accepted proposal performs one ordinary command and invalidates earlier analysis;
+- each accepted proposal performs one command and invalidates earlier analysis;
 - policies may subscribe to relevant task changes instead of rescanning the World; and
 - caching or overlays are added only for a demonstrated proof policy and keyed by gameplay state,
   not diagnostic history.
 
 Performance is a first-class reason for the overhaul, but it reinforces rather than defines the
-division. The engine should not retain policy ownership merely because an internal loop appears
+division. The engine should not retain policy ownership simply because an internal loop appears
 easier to optimize.
 
 ## Broad implementation direction
 
 The current policy loop should move out of `Implementations` and `ApiTranslation`; `AutoExecMode`
-and `FIRST` should disappear from `Gameplay`. The raw API should retain ordinary task commands and
+and `FIRST` should disappear from `Gameplay`. The raw API should retain task commands and
 gain only the read-only analysis needed by real policies. An optional application driver should own
 the selected policy profile, advancement points, and diagnostic agent identity.
 
@@ -215,7 +215,7 @@ justify it. Richer equivalence and exhaustive-search policies should follow only
 
 This is a broad destination, not a required migration order. Intermediate work must keep current
 behavior and proposed behavior clearly labeled and must not make arbitrary autoexecution choices
-look safe merely to keep tests concise.
+look safe just to keep tests concise.
 
 ## First implemented split
 
@@ -242,7 +242,7 @@ engine internals into client scripts.
 Committed code still stores `AutoExecMode` on `Gameplay`, defaults it to `FIRST`, invokes draining
 from the outer engine-side API layer and operation lifecycle, scans pending tasks globally, and
 uses stable iteration order to choose among multiple candidates. Candidate discovery catches every
-`Exception`, conflating ordinary ineligibility with defects, and operation-level drains can still
+`Exception`, conflating routine ineligibility with defects, and operation-level drains can still
 repeat analysis.
 
 Those facts describe debt, not compatibility requirements. The project has no known client whose

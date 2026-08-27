@@ -5,7 +5,7 @@
 >
 > **Skip when:** changing Pets meaning without changing human rendering. Read
 > [LANGUAGE_REVIEW.md](LANGUAGE_REVIEW.md) only when working on its remaining architectural
-> migration, not for ordinary wording coverage.
+> migration, not for routine wording coverage.
 >
 > **Status:** current behavior and working rules.
 
@@ -46,7 +46,7 @@ node, it emits that node's canonical Pets source in square brackets at the narro
 layer. An incremental result containing bracketed regions is expected and honest.
 
 The language module currently targets the JVM only. Its source and resource loading use the
-ordinary JVM source sets even though the Pets and Canon dependencies remain multiplatform.
+plain JVM source sets even though the Pets and Canon dependencies remain multiplatform.
 
 `english-card-text-goals.tsv` is fallible, reviewed target text. `english-card-text-current.tsv` is
 generated characterization of what the renderer produces for canonical cards. The transitional
@@ -66,7 +66,7 @@ semantic authority or a production answer source.
 
 ## Verification while replacing the data file
 
-Do not add a test merely to prove that a newly supported shape removes brackets. Such a test would
+Do not add a test just to prove that a newly supported shape removes brackets. Such a test would
 restate the implementation scope, and every incremental step would require another synthetic
 test. The all-card comparison against the generated current snapshot is the behavioral
 characterization. Review the production diff and the regenerated snapshot together to establish
@@ -85,7 +85,7 @@ matchers remain branch attempts inside those interpreters and do not create anon
 
 Canonical `CARDS` transforms carry the structure of filtered draws, card selection and purchase,
 reveal-and-test operations, and event recovery. The renderer decodes those structural families
-directly; card identity does not supply hidden rendering data. Ordinary card-handling conventions
+directly; card identity does not supply hidden rendering data. Standard card-handling conventions
 supply the discard of cards that were revealed or inspected but not drawn. An unqualified
 `ProjectCard` gain remains an ordinary project-card draw.
 
@@ -111,7 +111,7 @@ than the structural rendering rules.
 `English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
 `InstructionTree`, or a `Requirement`. Standalone rendering needs no host card because all Class
 relationships come from the complete loaded Class map. Unsupported valid Pets shapes return
-bracketed canonical Pets rather than failing or consulting a card row.
+bracketed canonical Pets instead of failing or consulting a card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
 It has no canonical component registry or implicit Terraforming Mars description source; it only
@@ -172,7 +172,7 @@ Equal values from those providers coalesce. This keeps structural rendering clos
 shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
 
 A wrapper frame may interpret a gained concrete direct subclass of its declaring superclass. The
-subclass must be a plain concrete declaration with one supported effect; the ordinary instruction
+subclass must be a plain concrete declaration with one supported effect; the instruction
 renderer handles that effect and the wrapper contributes only its preface. `Mandate` currently uses
 this construction for `as your first action`. More specialized temporary effects remain bracketed.
 
@@ -187,7 +187,7 @@ representation keeps punctuation out of structural decisions without attempting 
 English grammar.
 
 Instruction, requirement, and effect rendering lower `PROD[...]` through the shared Terraforming
-Mars Pets transformer before inspection. Their family renderers interpret the resulting ordinary
+Mars Pets transformer before inspection. Their family renderers interpret the resulting
 `Production` expressions using passive component facts, so production boxes do not need parallel
 renderers for every Pets wrapper. `Describers` is limited to lookup and lexical access; it does not
 render Pets families.
@@ -195,7 +195,7 @@ render Pets families.
 ## Transitional derivation
 
 Intermediate solutions may derive most of an instruction structurally while looking up one narrow
-wording fragment. Prefer a granular table for the genuinely irregular fragment over either a
+wording fragment. Prefer a granular table for the irregular fragment over either a
 whole-card special case or new gameplay concepts. For example, city-placing cards might share the
 normal placement derivation while a small table supplies only how each card describes the allowed
 city location. Such tables are acceptable stepping stones toward broader structural derivation;
@@ -210,8 +210,7 @@ granular raw scope must remain valid independently of whichever whole-card row h
 
 Treat the data text as fallible evidence for meaning, not as authority or as a source of incidental
 wording. A textual difference is not evidence of a rules distinction by itself. When equivalent
-instructions vary only in style, choose one clear form that is easy to derive consistently rather
-than adding code to reproduce each variation. For example, `Gain 1 steel and 1 titanium` and `Gain
+instructions vary only in style, choose one clear form that is easy to derive consistently instead of adding code to reproduce each variation. For example, `Gain 1 steel and 1 titanium` and `Gain
 1 plant. Gain 1 energy` do not establish that conjunction and separate sentences have different
 semantics.
 
@@ -239,7 +238,7 @@ tag, an Earth tag, and a Jovian tag`; do not collapse them to `Requires Venus, E
 tags`. Non-quantified references such as `play an Earth tag` likewise use an article.
 
 Corporation definitions must author starting money before their other immediate instructions so
-the ordinary authored-order renderer puts that gain first. Correct the canonical card definition
+the authored-order renderer puts that gain first. Correct the canonical card definition
 when this order is wrong; do not teach the renderer to reorder corporations.
 
 ## Current derivation scope
@@ -259,7 +258,7 @@ the shared quantity when it says the same number, that amount, or an explicit mu
 may instead link an abstract standard-resource production cost to a fixed gain of the same abstract
 resource type; the renderer retains the shared type as “resources of that kind.” A Describer may
 identify a refinement as a named selection among the player's production tracks; this renders the
-selected production directly rather than inventing a concrete resource type. The selector may remain
+selected production directly instead of inventing a concrete resource type. The selector may remain
 a local custom marker when its otherwise-empty declaration and description account for its complete
 printed role. A Describer may
 also identify the deferred-payment protocol: a fixed standard-resource amount owed, one accepted
@@ -295,7 +294,7 @@ than a pre-payment adjustment.
 The same interpretation drives action and card-play discounts, purchase surcharges, accepted
 alternate resources, and card-resource payment values; individual billing subclasses and cards do
 not have dedicated matchers. An explicitly selected action on the current card renders as `this
-action`, while canonical operation providers supply their ordinary action phrases through the
+action`, while canonical operation providers supply their usual action phrases through the
 lexicon.
 A payment-resource acceptance effect structurally linked to the first action on the current card is
 rendered as a parenthetical on that action's cost, such as `Spend 8 M€ (steel may be used)`, rather
@@ -326,8 +325,8 @@ discount. Discounts use imperative `pay` without restating the acting player or 
 When actions and effects share a top region, actions are rendered first and their
 card-resource metrics name `this card` rather than the contextual `here`.
 A component may instead describe a purchase object. A fixed mandatory resource gain
-or removal triggered by that component then derives the payment adjustment without assuming an
-ordinary price absent from the Pets effect.
+or removal triggered by that component then derives the payment adjustment without assuming a
+default price absent from the Pets effect.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
@@ -371,7 +370,7 @@ One mandatory gain may instead use a procedure frame's imperative verb and optio
 when its procedure is absent from the Pets change itself. Optional top-card purchase procedures,
 production-box copying, and temporary next-card adjustments remain bracketed rather than being
 recognized from their current declaration shapes. A `Per` whose metric is a subtraction likewise
-uses the ordinary scaling rule; production floors are not a separate instruction idiom.
+uses the same scaling rule; production floors are not a separate instruction idiom.
 A two-stage immediate instruction may instead play a card and then remove every generated global-
 requirement shortfall or remove up to one fixed owed amount, rendering the requirement waiver or
 card discount at the scope of that play.
@@ -381,7 +380,7 @@ their authored order and expose unsupported stages independently.
 A two-stage placement may instead link one of several described placement bonuses on the selected
 site to a one-step increase of the matching production.
 A gained component may instead declare exactly one described first action; its consequence is
-rendered through the ordinary instruction renderer, while unsupported consequences remain
+rendered through the instruction renderer, while unsupported consequences remain
 bracketed. A class-selection gate around that mandate is omitted when the selected component's
 imperative already expresses the choice, as in funding an award. A no-op alternative used only to
 make that selection executable is likewise omitted from the printed instruction.
@@ -491,7 +490,7 @@ Research Colony and Space Port Colony print additional permission to reuse an oc
 Treat corpus coverage as evidence, not authorization for new machinery. Do not add structural
 renderer APIs, Class-hierarchy analysis, or new grammar representations to improve only one or two
 canonical cards. A systemic iteration should simplify the model or cover a meaningfully recurring
-family; otherwise retain the honest bracketed Pets and wait for a smaller general rule. In
+family; otherwise retain the bracketed Pets and wait for a smaller general rule. In
 particular, do not distribute an `OR` metric into repeated instructions by proving its alternatives
 disjoint. Render the metric composition directly when it has a compact general representation.
 
@@ -506,12 +505,12 @@ Commit bounded renderer iterations autonomously. Stop autonomous rounds after ac
 25 modified cards, then provide an old-versus-new comparison roundup grouped by the
 systemic wording rule that caused them. If one renderer shape would itself change materially more
 than 25 cards, report that scope before regenerating current data or committing it. Snapshot changes may be
-committed along the way; reconstruct the roundup from the commit-range diff rather than expecting
+committed along the way; reconstruct the roundup from the commit-range diff instead of expecting
 review of each historical commit.
 
 ## Component nouns and change verbs
 
-- A component type can often become its ordinary noun by splitting its camel-case name. Number
+- A component type can often become its everyday noun by splitting its camel-case name. Number
   agreement is separate; `Plant` specifically becomes `plant` or `plants`.
 - Temperature, oxygen, Venus, terraform rating, and colony productions are tracks, not countable
   units. Render their gains and removals with the applicable `increase`/`decrease` or `raise`/`lower`

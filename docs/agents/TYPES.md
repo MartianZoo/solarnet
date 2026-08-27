@@ -26,7 +26,7 @@
 - A Game World contains a multiset of concrete component Types.
 - Components have no fields or instance identity. Type plus multiplicity is all state.
 - Classes provide nominal subtyping. Concrete Classes cannot have subclasses.
-- Type arguments are dependency edges to other unique components, not ordinary generic parameters.
+- Type arguments are dependency edges to other unique components, not conventional generic parameters.
 - `Class<X>` names a Class without depending on an X component.
 - Class properties record immutable facts about a Class, not state on component occurrences.
 - Refinements filter candidates by querying the current World.
@@ -62,7 +62,7 @@ negative.
 
 A card definition can declare a component Class at its point of use without choosing its canonical
 name explicitly. For example, a card instruction can gain `Mandate { -> 3 ProjectCard }`, or use
-`CityTile<RemoteArea {}>`. Card-definition construction lowers these to ordinary declarations with
+`CityTile<RemoteArea {}>`. Card-definition construction lowers these to declarations with
 stable owner-derived names such as `Inventrix_Mandate` and `PhobosSpaceHaven_RemoteArea` before building the
 Class Table. They have exactly the existing Class and component semantics; there is no runtime
 anonymous identity.
@@ -84,7 +84,7 @@ roles should remain explicit. Multiple local Classes with the same natural suffi
 explicitly rather than distinguished by an ordinal or hash.
 
 Another expression that needs the exact derived Class may use its assigned canonical name. Writing
-the superclass without a local body still means the ordinary abstract family; it does not implicitly
+the superclass without a local body still means the whole abstract family; it does not implicitly
 resolve to the local subtype. Existing implicit Type-variable rules continue to link repeated
 abstract dependencies inside the derived Type.
 
@@ -259,7 +259,7 @@ keeps a refinement only when both operands have the exact same one.
 ### Forgiving `HAS?`
 
 A forgiving refinement accepts a candidate when its Requirement holds or when no candidate anywhere
-satisfies the ordinary refinement. Greenery placement uses this to fall back to any empty land area
+satisfies the strict refinement. Greenery placement uses this to fall back to any empty land area
 when no empty area adjacent to the owner exists.
 
 The escape test covers the whole refined Requirement. Put occupancy inside it when occupied adjacent
@@ -343,7 +343,7 @@ one unique result.
 ### Upper bound
 
 `lub` returns a common supertype and falls back to `Component`. Multiple nominal inheritance can
-produce incomparable minimal candidates, so the implementation uses a heuristic rather than
+produce incomparable minimal candidates, so the implementation uses a heuristic instead of
 promising a mathematical least upper bound.
 
 Dependency `lub` retains a Complement only when the other bound already satisfies it or both
@@ -467,7 +467,7 @@ An active Class cannot have an uninhabited direct supertype or dependency bound.
 Loading an active declaration activates structural supertypes, dependency and default Types,
 explicit ownership roots, Custom implementation dependencies, and destinations of reachable gains
 and transmutations. A positive Class invariant activates the inhabitants it explicitly requires;
-ordinary observational Requirements and Trigger roots do not. Modules explicitly own protocol
+observational Requirements and Trigger roots do not. Modules explicitly own protocol
 Classes issued by workflows or gameplay APIs. A Trigger with an uninhabited argument or false gate
 remains dormant. The loader rechecks every active declaration as the closure grows, so activating a
 Trigger domain can make its constructive body reachable later.

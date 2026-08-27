@@ -39,7 +39,7 @@ The payment system must eventually distinguish three facts:
 
 Today it preserves the first fact but not the other two. `Pay` and `PayFromCard` remove the selected
 resource. Automatic effects then remove `Owed`, stopping harmlessly when no matching debt remains.
-For example, one Steel removes two M€ of debt through the ordinary Steel rule and possibly another
+For example, one Steel removes two M€ of debt through the Steel rule and possibly another
 through Advanced Alloys. (`Pay` itself handles payment whose resource matches the debt denomination.)
 If the earlier removals exhaust the debt, the later effect records no contribution. The result
 depends on automatic-effect execution order, although that order is not a game rule and must not
@@ -117,7 +117,7 @@ direct validation.
 
 ### Record an allowed excess reserve
 
-The invoice could create `AllowedOverpayment` units. Payment effects would remove ordinary `Owed`
+The invoice could create `AllowedOverpayment` units. Payment effects would remove plain `Owed`
 first and the reserve second, failing if their complete value could remove neither. This records
 excess and prevents silent saturation. It does not explain how much reserve to create: the legal
 amount depends on the least-valued selected unit, which is not known when the invoice is created.
@@ -143,7 +143,7 @@ would reject the selection if any single source unit could be returned while the
 covers the debt. This expresses the working rule directly and supports strange conversion chains.
 
 It is complete, but reversing one source unit requires retaining that unit's entire causal group of
-base value, bonuses, and conversions. Implemented honestly, this is a per-allocation payment ledger
+base value, bonuses, and conversions. Implemented properly, this is a per-allocation payment ledger
 or counterfactual evaluator. That may ultimately be the right model, but it is not a small trick.
 
 ### Produce tender or credit before consuming debt
@@ -155,7 +155,7 @@ invoice. This would preserve gross value and attribution and could support eithe
 validation.
 
 This is the most coherent systemic direction found so far, but it adds an intermediate concept and
-may require payment units to remain grouped. It should not be adopted merely to make one failing
+may require payment units to remain grouped. It should not be adopted solely to make one failing
 test pass. A prototype would need to demonstrate that it simplifies the existing Steel, Titanium,
 card-resource, and modifier rules as a whole.
 
@@ -165,7 +165,7 @@ Helion support is low priority and is not part of the current payment-fix scope.
 still a useful test of whether a proposed model composes.
 
 Stormcraft currently responds to a Heat `Billing` by offering `PayFromCard<Stormcraft>`, then that
-signal directly removes two `Owed<Heat>`. If Helion makes Heat acceptable for an M€ invoice, merely
+signal directly removes two `Owed<Heat>`. If Helion makes Heat acceptable for an M€ invoice, simply
 having Stormcraft react to `Accept<Heat>` would expose the floater choice but would not complete the
 conversion: `PayFromCard<Stormcraft>` would still seek Heat debt while the invoice contains M€ debt.
 The signal also does not retain that the floater represents two Heat.

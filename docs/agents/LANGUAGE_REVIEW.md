@@ -3,7 +3,7 @@
 > **Read when:** changing the renderer's intermediate representation, refusal reporting,
 > dependency resolution, lexicon ownership, or removing recognizers across a whole Pets family.
 >
-> **Skip when:** adding ordinary coverage or changing wording within the current architecture; use
+> **Skip when:** adding coverage or changing wording within the current architecture; use
 > [LANGUAGE.md](LANGUAGE.md). Do not read this as a description of committed output.
 >
 > **Status:** settled constraints plus remaining architecture work. Completed migration history has
@@ -26,7 +26,7 @@
 
 ## Settled constraints
 
-These decisions constrain future rounds; ordinary work should not relitigate them.
+These decisions constrain future rounds; routine work should not relitigate them.
 
 1. The renderer is Terraforming Mars-specific, but expansions may recombine familiar meanings in
    shapes absent from the current card set. Do not promote an accident of today's data to a rule.
@@ -43,7 +43,7 @@ These decisions constrain future rounds; ordinary work should not relitigate the
    `Anyone` opts out.
 7. Consistent derivation matters more than matching stylistic variation in published card text.
 8. Never recognize a whole card. An exceptional component may declare one narrow lexical Procedure;
-   a Wrapper contributes a preface and delegates its contents to the ordinary renderer.
+   a Wrapper contributes a preface and delegates its contents to the renderer.
 9. Adding an expansion may add lexical entries. It should almost never add a new frame or renderer
    concept.
 10. Canonical `CARDS[...]` operations carry their printed hidden-card procedure. Do not restore a
