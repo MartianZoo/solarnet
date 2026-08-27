@@ -13,7 +13,7 @@ import dev.martianzoo.pets.api.TypeInfo
 
 /** A value or abstract value type assigned to a class property. */
 public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
-  public companion object {
+  internal companion object {
     internal fun parser(): Parser<PropertyValue> = Parsers.parser
   }
 

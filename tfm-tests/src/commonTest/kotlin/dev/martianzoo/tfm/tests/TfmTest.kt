@@ -42,7 +42,7 @@ internal abstract class TfmTest {
     }
   }
 
-  protected fun OperationBody.buyCards(count: Int) {
+  private fun OperationBody.buyCards(count: Int) {
     require(count in 0..1) { "an individual card offer contains one selected card" }
     if (
         tasks

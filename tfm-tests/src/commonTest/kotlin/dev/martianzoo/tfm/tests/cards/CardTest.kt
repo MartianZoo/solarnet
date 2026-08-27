@@ -28,7 +28,7 @@ internal abstract class CardTest(
   protected lateinit var p1: TfmGameplay
     private set
 
-  protected var p2: TfmGameplay? = null
+  private var p2: TfmGameplay? = null
     private set
 
   protected fun newGame(config: GameConfig): World =

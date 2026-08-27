@@ -4,7 +4,7 @@ import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.tfm.canon.Canon
 import java.io.File
 
-internal object EnglishCardTextCurrentGenerator {
+private object EnglishCardTextCurrentGenerator {
   @JvmStatic
   fun main(args: Array<String>) {
     require(args.size == 2)

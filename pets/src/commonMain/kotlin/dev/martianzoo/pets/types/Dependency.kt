@@ -18,6 +18,9 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
   public abstract fun isSubtypeOf(that: Dependency): Boolean
 
+  /** Returns whether this dependency is a supertype of [that], including equality. */
+  public fun isSupertypeOf(that: Dependency): Boolean = that.isSubtypeOf(this)
+
   public abstract infix fun glb(that: Dependency): Dependency?
 
   public abstract infix fun lub(that: Dependency): Dependency
@@ -31,10 +34,10 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
        * The name of the class originally declaring this dependency (not just narrowing it from a
        * supertype).
        */
-      private val declaringClass: ClassName,
+      public val declaringClass: ClassName,
 
       /** The ordinal of this dependency within that list, 0-referenced. */
-      private val index: Int,
+      public val index: Int,
   ) {
     init {
       require(index >= 0)

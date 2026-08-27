@@ -4,7 +4,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.*
 
-public enum class TestOption(private val configuredName: String? = null) : TestSelection {
+internal enum class TestOption(private val configuredName: String? = null) : TestSelection {
   TerraformingMars,
   SoloMode,
   MultiplayerMode,

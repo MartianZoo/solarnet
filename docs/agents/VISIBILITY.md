@@ -16,6 +16,10 @@
   working copy.
 
 Every declaration should have the narrowest effective visibility compatible with its real callers.
+Current callers establish a lower bound, not the entire public design: preserve coherent families of
+constructors, factories, structural properties, and paired queries on an intentionally public
+abstraction. Do not leave a public model with arbitrary holes merely because one member currently
+lacks a cross-module caller.
 
 - Use `private` when all callers are in the containing declaration or file.
 - Use `internal` when callers cross files but remain in one module.
@@ -24,6 +28,10 @@ Every declaration should have the narrowest effective visibility compatible with
   entrypoints.
 - Test classes and `@Test` methods should be `internal`, not private; runners must still discover
   them.
+- Values in the test `cardnames` package are a deliberate exception and remain public.
+- Pets AST node types, their structural members and construction surface, the corresponding
+  `PetTransformer` entry points, and string-to-AST entry points remain public even without current
+  cross-module callers.
 - Application `main` functions and JMH-discovered classes and methods remain public.
 
 Strict explicit-API mode prevents accidental production API growth, but it does not prove that an
@@ -35,7 +43,8 @@ sets and Gradle modules.
 
 Perform a broad audit in a temporary project copy under `$TMPDIR`:
 
-1. Change explicit `public` declarations to `internal`.
+1. Change explicit `public` declarations to `internal`, excluding test `cardnames` values and the
+   public Pets AST surface described above.
 2. Change `internal` and `protected` declarations to `private` in separate passes.
 3. Parse declarations with implicit visibility, including constructor properties, and attempt to
    make them private unless an enclosing private declaration already makes that effective.

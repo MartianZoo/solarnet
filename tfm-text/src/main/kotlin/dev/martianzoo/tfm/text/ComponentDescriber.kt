@@ -1,36 +1,36 @@
 package dev.martianzoo.tfm.text
 
 /** Sparse English-language facts declared for one component Class. */
-public data class ComponentDescriber(
-    public val noun: Noun? = null,
-    public val numericSingularChange: Boolean? = null,
-    public val changeFrame: ChangeFrame? = null,
-    public val cardResourceHolder: Noun.Counted? = null,
-    public val metricLocation: String? = null,
-    public val placementSite: PlacementSite? = null,
-    public val placementBonus: PlacementBonus? = null,
-    public val spatialRelation: SpatialRelation? = null,
-    public val productionSelection: String? = null,
-    public val requirement: Requirement? = null,
-    public val purchase: Purchase? = null,
-    public val score: Score? = null,
-    public val deadEndSignal: Boolean? = null,
-    public val playTrigger: PlayTrigger? = null,
-    public val playedCard: PlayedCard? = null,
-    public val playedTagPhrase: String? = null,
-    public val presenceCondition: String? = null,
-    public val usedActionTrigger: Boolean? = null,
-    public val actionUse: ActionUse? = null,
-    public val spentResourceTrigger: Boolean? = null,
-    public val paymentRole: PaymentRole? = null,
-    public val implicitPaymentResource: Noun? = null,
-    public val requirementShortfall: Boolean? = null,
-    public val requirementKind: String? = null,
-    public val distinctKinds: Noun.Counted? = null,
-    public val countNoun: Noun.Counted? = null,
-    public val metricCount: MetricCount? = null,
+internal data class ComponentDescriber(
+    internal val noun: Noun? = null,
+    internal val numericSingularChange: Boolean? = null,
+    internal val changeFrame: ChangeFrame? = null,
+    internal val cardResourceHolder: Noun.Counted? = null,
+    internal val metricLocation: String? = null,
+    internal val placementSite: PlacementSite? = null,
+    internal val placementBonus: PlacementBonus? = null,
+    internal val spatialRelation: SpatialRelation? = null,
+    internal val productionSelection: String? = null,
+    internal val requirement: Requirement? = null,
+    internal val purchase: Purchase? = null,
+    internal val score: Score? = null,
+    internal val deadEndSignal: Boolean? = null,
+    internal val playTrigger: PlayTrigger? = null,
+    internal val playedCard: PlayedCard? = null,
+    internal val playedTagPhrase: String? = null,
+    internal val presenceCondition: String? = null,
+    internal val usedActionTrigger: Boolean? = null,
+    internal val actionUse: ActionUse? = null,
+    internal val spentResourceTrigger: Boolean? = null,
+    internal val paymentRole: PaymentRole? = null,
+    internal val implicitPaymentResource: Noun? = null,
+    internal val requirementShortfall: Boolean? = null,
+    internal val requirementKind: String? = null,
+    internal val distinctKinds: Noun.Counted? = null,
+    internal val countNoun: Noun.Counted? = null,
+    internal val metricCount: MetricCount? = null,
 ) {
-  public sealed interface Noun {
+  internal sealed interface Noun {
     public data object ClassName : Noun
 
     public data class Fixed(public val text: String) : Noun
@@ -39,7 +39,7 @@ public data class ComponentDescriber(
   }
 
   /** The English construction used to describe a change to this component. */
-  public sealed interface ChangeFrame {
+  internal sealed interface ChangeFrame {
     public data object Countable : ChangeFrame
 
     public data object Held : ChangeFrame
@@ -47,18 +47,18 @@ public data class ComponentDescriber(
     public data class Scale(public val subject: String) : ChangeFrame
 
     public data class Positioned(
-        public val article: String,
-        public val singular: String,
-        public val plural: String,
-        public val unqualifiedMetricOwner: MetricOwner? = null,
-        public val anyoneMetricOwner: MetricOwner? = null,
+        internal val article: String,
+        internal val singular: String,
+        internal val plural: String,
+        internal val unqualifiedMetricOwner: MetricOwner? = null,
+        internal val anyoneMetricOwner: MetricOwner? = null,
     ) : ChangeFrame
 
     public data object Deck : ChangeFrame
 
     public data class Procedure(
-        public val verb: String,
-        public val objectPhrase: String? = null,
+        internal val verb: String,
+        internal val objectPhrase: String? = null,
     ) : ChangeFrame
 
     public data class Wrapper(public val preface: String) : ChangeFrame
@@ -66,25 +66,25 @@ public data class ComponentDescriber(
     public data object Play : ChangeFrame
   }
 
-  public data class PlacementSite(
-      public val noun: Noun,
-      public val article: String? = null,
-      public val forSubclasses: Boolean = true,
+  internal data class PlacementSite(
+      internal val noun: Noun,
+      internal val article: String? = null,
+      internal val forSubclasses: Boolean = true,
   )
 
-  public data class PlacementBonus(public val noun: Noun.Counted)
+  internal data class PlacementBonus(internal val noun: Noun.Counted)
 
-  public data class MetricCount(
-      public val noun: Noun.Counted,
-      public val unqualifiedSuffix: String? = null,
-      public val anyoneSuffix: String? = null,
+  internal data class MetricCount(
+      internal val noun: Noun.Counted,
+      internal val unqualifiedSuffix: String? = null,
+      internal val anyoneSuffix: String? = null,
   )
 
-  public data class SpatialRelation(
-      public val phrase: String,
-      public val defaultTarget: Noun.Counted? = null,
-      public val countedPair: Boolean = false,
-      public val eventNoun: String? = null,
+  internal data class SpatialRelation(
+      internal val phrase: String,
+      internal val defaultTarget: Noun.Counted? = null,
+      internal val countedPair: Boolean = false,
+      internal val eventNoun: String? = null,
   ) {
     init {
       require((defaultTarget != null) != countedPair) {
@@ -96,26 +96,26 @@ public data class ComponentDescriber(
     }
   }
 
-  public enum class MetricOwner {
+  internal enum class MetricOwner {
     YOU,
     ANY_PLAYER,
   }
 
-  public data class Requirement(
-      public val minimum: Bound? = null,
-      public val maximum: Bound? = null,
-      public val ownedCount: Noun? = null,
+  internal data class Requirement(
+      internal val minimum: Bound? = null,
+      internal val maximum: Bound? = null,
+      internal val ownedCount: Noun? = null,
   ) {
-    public sealed interface Bound {
+    internal sealed interface Bound {
       public data class Threshold(
-          public val subject: String,
-          public val value: Value = Value.PLAIN,
+          internal val subject: String,
+          internal val value: Value = Value.PLAIN,
       ) : Bound
 
       public data class Count(public val noun: Noun.Counted) : Bound
     }
 
-    public enum class Value {
+    internal enum class Value {
       PLAIN,
       PERCENT,
       DOUBLE_PERCENT,
@@ -123,37 +123,37 @@ public data class ComponentDescriber(
     }
   }
 
-  public data class Score(public val singular: String, public val plural: String)
+  internal data class Score(internal val singular: String, internal val plural: String)
 
-  public data class Purchase(public val noun: Noun.Counted)
+  internal data class Purchase(internal val noun: Noun.Counted)
 
-  public data class ActionUse(
-      public val objectPhrase: String,
-      public val refundDiscountPredicate: String? = null,
-      public val refundDiscountNoun: Noun.Counted? = null,
-      public val minimumProperties: Map<String, MinimumProperty.Threshold> = emptyMap(),
+  internal data class ActionUse(
+      internal val objectPhrase: String,
+      internal val refundDiscountPredicate: String? = null,
+      internal val refundDiscountNoun: Noun.Counted? = null,
+      internal val minimumProperties: Map<String, MinimumProperty.Threshold> = emptyMap(),
   )
 
-  public data class PlayedCard(
-      public val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
+  internal data class PlayedCard(
+      internal val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
   )
 
-  public sealed interface MinimumProperty {
+  internal sealed interface MinimumProperty {
     public data class Threshold(
-        public val noun: String,
-        public val unit: String? = null,
-        public val positiveObjectPhrase: String? = null,
+        internal val noun: String,
+        internal val unit: String? = null,
+        internal val positiveObjectPhrase: String? = null,
     ) : MinimumProperty
 
     public data class Presence(public val noun: String) : MinimumProperty
   }
 
-  public enum class PlayTrigger {
+  internal enum class PlayTrigger {
     CARD,
     TAG,
   }
 
-  public enum class PaymentRole {
+  internal enum class PaymentRole {
     OWED,
     ACCEPTANCE,
     BARRIER,

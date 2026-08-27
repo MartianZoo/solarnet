@@ -61,9 +61,9 @@ internal object FollowModeNeutralizer : TransformHandler {
   internal fun transformEffect(source: dev.martianzoo.pets.ast.Effect) =
       transformer.transformEffect(source)
 
-  internal fun transformMetric(source: Metric): Metric = transformer.transformMetric(source)
+  private fun transformMetric(source: Metric): Metric = transformer.transformMetric(source)
 
-  internal fun transformRequirement(source: Requirement): Requirement =
+  private fun transformRequirement(source: Requirement): Requirement =
       transformer.transformRequirement(source)
 
   private fun transformCards(source: InstructionTree): InstructionTree {

@@ -83,7 +83,7 @@ public interface Grid<E> : Set<E> {
       hexNeighbors(r, c) + listOfNotNull(this[r - 1, c + 1], this[r + 1, c - 1])
 
   public companion object {
-    internal fun <E> empty(): Grid<E> {
+    private fun <E> empty(): Grid<E> {
       return mutableGrid(listOf<E>(), { 0 }, { 0 }).immutable()
     }
 

@@ -245,7 +245,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     }
   }
 
-  inline fun <reified T : PetNode> printTestStrings(count: Int) {
+  private inline fun <reified T : PetNode> printTestStrings(count: Int) {
     repeat(count) { println(makeRandomNode<T>()) }
   }
 
@@ -253,7 +253,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     getTestStringOfEachLength<T>(maxLength).forEach(::println)
   }
 
-  inline fun <reified T : PetNode> getTestStringOfEachLength(maxLength: Int): List<String> {
+  private inline fun <reified T : PetNode> getTestStringOfEachLength(maxLength: Int): List<String> {
     require(maxLength >= 20) // just cause
 
     val stringsByLength = mutableMapOf<Int, String>()
@@ -275,7 +275,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     return stringsByLength.keys.sorted().map { stringsByLength.getValue(it) }
   }
 
-  inline fun <reified T : PetNode> uniqueNodes(
+  private inline fun <reified T : PetNode> uniqueNodes(
       count: Int = 100,
       depthLimit: Int = 10,
       stopAtDrySpell: Int = 200,

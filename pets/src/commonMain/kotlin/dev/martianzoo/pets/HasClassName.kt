@@ -11,7 +11,7 @@ public interface HasClassName {
   public companion object {
     public fun Iterable<HasClassName>.classNames(): List<ClassName> = map { it.className }
 
-    internal fun Sequence<HasClassName>.classNames(): Sequence<ClassName> = map { it.className }
+    public fun Sequence<HasClassName>.classNames(): Sequence<ClassName> = map { it.className }
 
     public fun Set<HasClassName>.classNames(): Set<ClassName> = toSetStrict { it.className }
   }

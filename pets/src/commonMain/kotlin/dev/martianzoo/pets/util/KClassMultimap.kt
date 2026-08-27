@@ -3,7 +3,7 @@ package dev.martianzoo.pets.util
 import kotlin.reflect.KClass
 
 internal class KClassMultimap<B : Any>(list: Collection<B> = emptyList()) {
-  internal val map = mutableMapOf<KClass<out B>, MutableList<B>>()
+  private val map = mutableMapOf<KClass<out B>, MutableList<B>>()
 
   init {
     this += list

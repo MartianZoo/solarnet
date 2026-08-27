@@ -11,7 +11,7 @@ internal sealed interface Clause {
 
   data class Simple(
       val predicate: Predicate,
-      public val subject: NounPhrase? = null,
+      internal val subject: NounPhrase? = null,
   ) : Clause {
     fun withModifier(modifier: Modifier): Simple =
         copy(predicate = predicate.withModifier(modifier))
@@ -66,7 +66,7 @@ internal data class Predicate(
 }
 
 /** Coordinates predicate objects only when the surrounding predicate structure is shared. */
-internal fun coordinatePredicateObjects(
+private fun coordinatePredicateObjects(
     predicates: List<Predicate>,
     conjunction: Conjunction,
 ): Predicate? {
@@ -93,7 +93,7 @@ internal fun coordinateClauseObjects(
 /** A noun phrase whose number agreement is decided only by the final linearizer. */
 internal data class NounPhrase(
     private val singular: String,
-    public val plural: String = singular,
+    internal val plural: String = singular,
     private val count: Int? = null,
     private val determiner: String? = null,
 ) {

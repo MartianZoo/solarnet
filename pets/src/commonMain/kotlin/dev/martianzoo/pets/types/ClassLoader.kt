@@ -112,7 +112,7 @@ private constructor(
   // LOADING
 
   /** Returns the class whose stable [Class.className] is [name], loading it first if necessary. */
-  public fun load(name: ClassName): Class {
+  internal fun load(name: ClassName): Class {
     if (!frozen) loadAll(listOf(name))
     return getClass(name)
   }
@@ -425,7 +425,7 @@ private constructor(
     return checkNotNull(directSubclassesByClass)[klass] ?: emptySet()
   }
 
-  public fun freeze(): ClassTable {
+  internal fun freeze(): ClassTable {
     require(!frozen)
     if (masterSource != null) {
       frozen = true

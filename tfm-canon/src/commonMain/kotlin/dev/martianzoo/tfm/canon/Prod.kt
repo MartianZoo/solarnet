@@ -11,7 +11,7 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 
-public object Prod {
+internal object Prod {
   /** Creates the `PROD[...]` handler for one active class table. */
   public fun handler(classTable: ClassTable): TransformHandler =
       handler(findResourceClassNames(classTable))

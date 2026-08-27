@@ -123,7 +123,7 @@ internal class BugsTest : CardTest() {
   }
 
   @Test
-  fun `Space Elevator incorrectly accepts payment that wastes one steel`() {
+  internal fun `Space Elevator incorrectly accepts payment that wastes one steel`() {
     newGame()
     engine.phase("Action")
     p1.manual("10 Steel, 10 Titanium, ProjectCard")

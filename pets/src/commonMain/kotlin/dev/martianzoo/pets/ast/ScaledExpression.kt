@@ -114,8 +114,7 @@ private constructor(
       override fun toString(): String = "$value"
     }
 
-    @ConsistentCopyVisibility
-    public data class XScalar internal constructor(val multiple: Int) : Scalar() {
+    public data class XScalar public constructor(val multiple: Int) : Scalar() {
       init {
         require(multiple > 0)
       }

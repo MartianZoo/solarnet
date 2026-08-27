@@ -230,7 +230,7 @@ public class ScriptSession(
     }
   }
 
-  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
+  private fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
       game.tasks
           .extract { it }
           .filter { it.assignee == gameplay.actor && (ids == null || it.id in ids) }

@@ -20,7 +20,7 @@ import kotlin.math.min
 public sealed class Metric : PetElement() {
   public companion object {
     /** Returns [inner] scaled by [unit], omitting the meaningless wrapper when [unit] is one. */
-    internal fun scaled(inner: Metric, unit: Int): Metric {
+    public fun scaled(inner: Metric, unit: Int): Metric {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")
       return if (unit == 1) inner else Scaled(inner, unit)
     }
@@ -86,8 +86,7 @@ public sealed class Metric : PetElement() {
   }
 
   /** A fixed non-negative value. */
-  @ConsistentCopyVisibility
-  public data class Constant internal constructor(val value: Int) : Metric() {
+  public data class Constant public constructor(val value: Int) : Metric() {
     init {
       require(value >= 0)
     }
@@ -167,7 +166,7 @@ public sealed class Metric : PetElement() {
         }
       }
 
-      internal fun create(first: Metric, vararg rest: Metric) =
+      private fun create(first: Metric, vararg rest: Metric) =
           if (rest.none()) first else create(listOf(first) + rest)
     }
 

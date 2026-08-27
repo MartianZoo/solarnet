@@ -67,7 +67,7 @@ internal class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `class token dependencies specialize independently`() {
+  internal fun `class token dependencies specialize independently`() {
     val table =
         testClassTable(
             """

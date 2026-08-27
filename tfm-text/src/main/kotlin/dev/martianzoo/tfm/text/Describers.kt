@@ -146,7 +146,7 @@ internal class Describers(
   internal fun componentNoun(className: ClassName, count: Int): String =
       describedNoun(className, fact(className, ComponentDescriber::noun), count)
 
-  internal fun usesNumericSingularChange(className: ClassName): Boolean =
+  private fun usesNumericSingularChange(className: ClassName): Boolean =
       fact(className, ComponentDescriber::numericSingularChange) == true
 
   internal fun describedNoun(

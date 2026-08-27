@@ -40,7 +40,7 @@ public sealed class PetNode {
   protected abstract fun visitChildren(visitor: Visitor)
 
   /** Immediate children in the same stable order used by descendant traversal. */
-  internal fun immediateChildren(): List<PetNode> = buildList {
+  public fun immediateChildren(): List<PetNode> = buildList {
     visitChildren(
         Visitor {
           add(it)
@@ -56,7 +56,7 @@ public sealed class PetNode {
   public fun visitDescendants(visitor: (PetNode) -> Boolean): Unit = Visitor(visitor).visit(this)
 
   /** Returns the total number of [PetNode]s in this subtree, including this. */
-  internal fun descendantCount(): Int {
+  public fun descendantCount(): Int {
     var count = 0
     visitDescendants {
       count++

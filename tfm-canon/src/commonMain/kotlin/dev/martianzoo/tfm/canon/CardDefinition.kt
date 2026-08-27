@@ -180,7 +180,7 @@ private constructor(
     public val requirement: Requirement? = requirement
 
     /** The card's non-negative cost in mc. */
-    public val cost: Int by data::cost
+    internal val cost: Int by data::cost
   }
 
   /** Class names whose authored use suggests that this card holds that kind of component. */
@@ -223,7 +223,7 @@ private constructor(
 
   public val asClassDeclaration: ClassDeclaration by lazy { toClassDeclaration(sourceResourceType) }
 
-  internal fun toClassDeclaration(resourceType: ClassName?): ClassDeclaration {
+  private fun toClassDeclaration(resourceType: ClassName?): ClassDeclaration {
     return loadedClass?.declaration
         ?: run {
           val createTags =

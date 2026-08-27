@@ -9,7 +9,7 @@ import dev.martianzoo.pets.ast.Instruction.Transform
  * example being `PROD[...]`. Each of those (e.g., [Instruction.Transform]) implements this
  * interface.
  */
-internal interface TransformNode<P : PetNode> {
+public interface TransformNode<P : PetNode> {
   /** The string that identifies this kind of transform, e.g. `"PROD"`. */
   public val transformKind: String
 

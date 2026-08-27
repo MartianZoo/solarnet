@@ -34,7 +34,7 @@ import dev.martianzoo.pets.util.toSetStrict
  * section of cards, in an engine's task queues, and so forth.
  */
 public sealed class Instruction : InstructionTree() {
-  public companion object {
+  internal companion object {
     internal fun parser(): Parser<Instruction> =
         Parsers.parser() map
             {
@@ -316,7 +316,7 @@ public sealed class Instruction : InstructionTree() {
       public fun create(gate: Requirement?, inner: Instruction): Instruction =
           if (gate == null) inner else Gated(gate, inner)
 
-      internal fun createTree(gate: Requirement?, inner: InstructionTree): InstructionTree =
+      public fun createTree(gate: Requirement?, inner: InstructionTree): InstructionTree =
           if (gate == null) inner else Gated(gate, inner)
     }
 
@@ -356,7 +356,7 @@ public sealed class Instruction : InstructionTree() {
     public val first: Instruction
       get() = stages.first()
 
-    internal val linkedTypeSources: Set<Expression>
+    public val linkedTypeSources: Set<Expression>
       get() = recordedLinkedTypeSources
 
     init {
@@ -628,7 +628,7 @@ public sealed class Instruction : InstructionTree() {
         }
       }
 
-      internal fun create(first: InstructionTree, vararg rest: InstructionTree): InstructionTree =
+      private fun create(first: InstructionTree, vararg rest: InstructionTree): InstructionTree =
           createTree(listOf(first) + rest)
     }
   }
@@ -652,7 +652,7 @@ public sealed class Instruction : InstructionTree() {
     override fun extract(): InstructionTree = instruction
   }
 
-  public enum class Intensity(internal val symbol: String, public val abstract: Boolean = false) :
+  public enum class Intensity(public val symbol: String, public val abstract: Boolean = false) :
       Specification<Intensity> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
@@ -672,7 +672,7 @@ public sealed class Instruction : InstructionTree() {
       }
     }
 
-    internal companion object {
+    private companion object {
       private fun from(symbol: String) = entries.first { it.symbol == symbol }
     }
   }

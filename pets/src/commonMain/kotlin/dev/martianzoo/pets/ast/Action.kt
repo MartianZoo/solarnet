@@ -78,7 +78,7 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
     }
 
     // can't do non-prod per prod yet
-    internal data class Per(val cost: Cost, val metric: Metric) : Cost() {
+    public data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
         when (cost) {
           is Cost.Multi -> throw PetSyntaxException("Break into separate Per instructions")
@@ -87,42 +87,42 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
         }
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(cost, metric)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost, metric)
 
-      override fun toString() = "${groupPartIfNeeded(cost)} / ${groupPartIfNeeded(metric)}"
+      override fun toString(): String = "${groupPartIfNeeded(cost)} / ${groupPartIfNeeded(metric)}"
 
-      override fun precedence() = 5
+      override fun precedence(): Int = 5
 
       override fun toInstruction(): Instruction =
           Instruction.Per(cost.toInstruction() as Instruction, metric)
     }
 
-    internal data class Multi(var costs: List<Cost>) : Cost() {
+    public data class Multi(var costs: List<Cost>) : Cost() {
       private constructor(vararg costs: Cost) : this(costs.toList())
 
       init {
         require(costs.size >= 2)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(costs)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(costs)
 
-      override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
+      override fun toString(): String = costs.joinToString { groupPartIfNeeded(it) }
 
-      override fun precedence() = 1
+      override fun precedence(): Int = 1
 
       override fun toInstruction(): InstructionTree =
           InstructionGroup.createTree(costs.map { it.toInstruction() })
     }
 
-    internal data class Transform(val cost: Cost, override val transformKind: String) :
+    public data class Transform(val cost: Cost, override val transformKind: String) :
         Cost(), TransformNode<Cost> {
-      override fun visitChildren(visitor: Visitor) = visitor.visit(cost)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost)
 
-      override fun toString() = "$transformKind[$cost]"
+      override fun toString(): String = "$transformKind[$cost]"
 
-      override fun toInstruction() = Transform(cost.toInstruction(), transformKind)
+      override fun toInstruction(): InstructionTree = Transform(cost.toInstruction(), transformKind)
 
-      override fun extract() = cost
+      override fun extract(): Cost = cost
     }
 
     internal companion object : PetTokenizer() {

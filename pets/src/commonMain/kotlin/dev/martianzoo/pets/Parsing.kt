@@ -16,15 +16,19 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.ParserGroup
 import kotlin.reflect.KClass
@@ -172,12 +176,16 @@ public object Parsing {
     pgb.publish(Cost.parser())
     pgb.publish(Effect.parser())
     pgb.publish(Expression.parser())
+    pgb.publish(Refinement::class, Expression.refinementParser())
+    pgb.publish(FromExpression.parser())
     pgb.publish(InstructionTree.parser())
     pgb.publish(Instruction.parser())
     pgb.publish(Metric.parser())
+    pgb.publish(Property.parser())
     pgb.publish(PropertyName.parser())
     pgb.publish(PropertyValue.parser())
     pgb.publish(Requirement.parser())
+    pgb.publish(Scalar::class, ScaledExpression.scalar())
     pgb.publish(ScaledExpression.parser())
     pgb.publish(Trigger.parser())
 

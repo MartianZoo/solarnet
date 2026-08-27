@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 internal class StandardTechnologyTest : CardTest() {
   @BeforeTest
-  internal fun initializeGame() {
+  private fun initializeGame() {
     newGame()
     engine.phase("Action")
     p1.manual("$StandardTechnology")

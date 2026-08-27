@@ -86,9 +86,9 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   internal inline fun expressionsFull(function: (Dependency) -> Expression): List<Expression> =
       deps.map(function)
 
-  internal fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
+  public fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
 
-  internal fun getIfPresent(key: Key): Dependency? = deps.firstOrNull { it.key == key }
+  public fun getIfPresent(key: Key): Dependency? = deps.firstOrNull { it.key == key }
 
   // HIERARCHY
 
@@ -109,6 +109,9 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     requireSameClassTable(that)
     return that.deps.all { get(it.key).isSubtypeOf(it) }
   }
+
+  /** Returns whether this dependency set is a supertype of [that], including equality. */
+  public fun isSupertypeOf(that: DependencySet): Boolean = that.isSubtypeOf(this)
 
   public infix fun glb(that: DependencySet): DependencySet? {
     requireSameClassTable(that)
@@ -163,7 +166,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   internal fun subMapInOrder(keysInOrder: Iterable<Key>) =
       of(keysInOrder.mapNotNull(::getIfPresent))
 
-  internal inline fun map(function: (Type) -> Type) =
+  private inline fun map(function: (Type) -> Type) =
       DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
 
   internal inline fun mapWithKey(function: (Key, Type) -> Type) =

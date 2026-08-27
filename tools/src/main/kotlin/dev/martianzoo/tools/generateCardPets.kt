@@ -39,7 +39,7 @@ private fun renderCard(card: CardDefinition): String = buildString {
   }
 }
 
-internal fun canonicalCardPetsFiles(): Map<String, String> = buildMap {
+private fun canonicalCardPetsFiles(): Map<String, String> = buildMap {
   Canon.bundles.forEach { bundle ->
     val cards = bundle.cardDefinitions.toList()
     if (cards.isNotEmpty()) {

@@ -9,28 +9,28 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.CardDefinition
 
 /** English Pets text using the client's complete map of sparse component descriptions. */
-public class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
+internal class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
   private val describers = Describers(descriptions)
 
   /** Returns complete English sentences describing [effect]. */
-  public fun describe(effect: Effect): String = renderEffect(effect, describers).value
+  internal fun describe(effect: Effect): String = renderEffect(effect, describers).value
 
   /** Returns complete English sentences describing [actions] as one action region. */
-  public fun describe(actions: List<Action>): String = renderActions(actions, describers).value
+  internal fun describe(actions: List<Action>): String = renderActions(actions, describers).value
 
   /** Returns complete, context-neutral English sentences describing [instructionTree]. */
-  public fun describe(instructionTree: InstructionTree): String =
+  internal fun describe(instructionTree: InstructionTree): String =
       renderInstructionTree(instructionTree, describers).value
 
   /** Returns complete English sentences describing [requirement]. */
-  public fun describe(requirement: Requirement): String =
+  internal fun describe(requirement: Requirement): String =
       renderRequirement(requirement, describers).value
 
   /** Returns the best available text above [card]'s artwork. */
-  public fun topText(card: CardDefinition): String = renderTopText(card, describers).value
+  internal fun topText(card: CardDefinition): String = renderTopText(card, describers).value
 
   /** Returns the best available text below [card]'s artwork. */
-  public fun bottomText(card: CardDefinition): String = renderBottomText(card, describers).value
+  internal fun bottomText(card: CardDefinition): String = renderBottomText(card, describers).value
 
   internal fun renderCard(card: CardDefinition): EnglishCardRendering {
     val top = renderTopText(card, describers)

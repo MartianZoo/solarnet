@@ -70,7 +70,7 @@ public data class Task(
     }
   }
 
-  public operator fun times(factor: Int): Task {
+  internal operator fun times(factor: Int): Task {
     return copy(instructionIn = instruction * factor, thenIn = then?.times(factor))
   }
 
@@ -202,7 +202,7 @@ public data class Task(
       require(ordinal >= 0)
     }
 
-    public fun next(): TaskId = TaskId(ordinal + 1)
+    internal fun next(): TaskId = TaskId(ordinal + 1)
 
     override fun compareTo(other: TaskId): Int = ordinal.compareTo(other.ordinal)
 

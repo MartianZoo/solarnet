@@ -13,7 +13,7 @@ internal sealed class Access {
 
   internal abstract fun newTurn(): TaskResult
 
-  public abstract fun phase(phase: String): TaskResult
+  internal abstract fun phase(phase: String): TaskResult
 
   internal fun doPhase(gameplay: OperationLayer, phase: String): TaskResult =
       gameplay.beginManual("${phase}Phase FROM Phase")

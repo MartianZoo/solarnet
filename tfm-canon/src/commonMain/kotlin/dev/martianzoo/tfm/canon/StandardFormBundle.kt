@@ -108,7 +108,7 @@ internal class StandardFormBundle(
           LANGUAGE_FILENAME.matches(filename) ||
           filename in KNOWN_JSON_FILENAMES
 
-  public companion object {
+  private companion object {
     private const val CARDS_FILENAME: String = "cards.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CLASSES_FILENAME = "classes.pets"

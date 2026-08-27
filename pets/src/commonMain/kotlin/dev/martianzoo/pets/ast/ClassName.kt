@@ -12,7 +12,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * A camel-case word used as a class name. Not validated except for its general pattern. Create one
  * using the compactly-named function [cn].
  */
-public class ClassName private constructor(private val asString: String) :
+public class ClassName private constructor(public val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
   public companion object {
     private val reservedNames =
@@ -90,7 +90,7 @@ public class ClassName private constructor(private val asString: String) :
 
   internal object Parsing : PetTokenizer() {
     private val classShortName = _allCapsWordRE map { cn(it.text) }
-    val classFullName = _upperCamelRE map { cn(it.text) }
+    private val classFullName = _upperCamelRE map { cn(it.text) }
     val className = classFullName or classShortName
   }
 }

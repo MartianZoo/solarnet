@@ -12,7 +12,7 @@ import kotlin.test.Test
 
 internal class TransformHandlerTest {
   @Test
-  fun handlerOnlyRewritesInsideItsMarkedSyntax() {
+  internal fun handlerOnlyRewritesInsideItsMarkedSyntax() {
     val handler = TransformHandler { inner ->
       PetNode.replacer(cn("Inside"), cn("Rewritten")).transformWithoutKindCheck(inner)
     }
@@ -23,7 +23,7 @@ internal class TransformHandlerTest {
   }
 
   @Test
-  fun transformedGroupIsSplicedIntoItsSurroundingGroup() {
+  internal fun transformedGroupIsSplicedIntoItsSurroundingGroup() {
     val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
 
     dispatcher
@@ -32,7 +32,7 @@ internal class TransformHandlerTest {
   }
 
   @Test
-  fun unregisteredTransformIsPreservedForAnotherStage() {
+  internal fun unregisteredTransformIsPreservedForAnotherStage() {
     val dispatcher = TransformHandler.dispatcher(emptyMap())
 
     dispatcher.transformInstructionTree(parse<InstructionTree>("LATER[Inside]")).toString() shouldBe
@@ -40,14 +40,14 @@ internal class TransformHandlerTest {
   }
 
   @Test
-  fun handlerCanPreserveItsMarkedSyntax() {
+  internal fun handlerCanPreserveItsMarkedSyntax() {
     val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { null }))
 
     dispatcher.transformInstructionTree(parse("MARK[Inside]")).toString() shouldBe "MARK[Inside]"
   }
 
   @Test
-  fun sameTransformKindCannotBeNested() {
+  internal fun sameTransformKindCannotBeNested() {
     val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
 
     shouldThrow<PetSyntaxException> {
@@ -56,7 +56,7 @@ internal class TransformHandlerTest {
   }
 
   @Test
-  fun handlerMustReturnTheSamePetsFamily() {
+  internal fun handlerMustReturnTheSamePetsFamily() {
     val dispatcher =
         TransformHandler.dispatcher(
             mapOf("MARK" to TransformHandler { parse<Metric>("Different") })

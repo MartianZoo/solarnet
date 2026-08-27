@@ -82,6 +82,9 @@ public data class Type(
    */
   public fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
 
+  /** Performs the converse context-free subtype check. */
+  public fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
+
   // Nearest common subtype
   // TODO allocating 28 MB per solo game
   public infix fun glb(that: Type): Type? {
@@ -206,7 +209,7 @@ public data class Type(
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
   // used publicly only by `desc random`
-  public fun concreteSubtypesSameClass(): Sequence<Type> =
+  internal fun concreteSubtypesSameClass(): Sequence<Type> =
       if (rootClass.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
 
   internal fun concreteSubclasses(baseClass: Class) =

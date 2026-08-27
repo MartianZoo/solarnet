@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-public object JsonReader {
+internal object JsonReader {
 
   /** Reads one bundle language file keyed by canonical class name. */
   public fun readDisplayNames(json5: String): Map<dev.martianzoo.pets.ast.ClassName, String> =
@@ -15,7 +15,7 @@ public object JsonReader {
 
   // CARDS
 
-  public fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
+  internal fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
 
   @Serializable private data class CardList(val cards: List<CardData>)
 

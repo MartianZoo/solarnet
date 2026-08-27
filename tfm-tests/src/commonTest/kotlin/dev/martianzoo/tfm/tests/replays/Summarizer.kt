@@ -17,7 +17,7 @@ internal constructor(
 ) {
   internal constructor(game: World) : this(game.events, game.reader, game.vocabulary)
 
-  public fun net(byType: String, ofType: String): Int =
+  internal fun net(byType: String, ofType: String): Int =
       net(
           vocabulary.canonicalize(parse<Expression>(byType)),
           vocabulary.canonicalize(parse<Expression>(ofType)),

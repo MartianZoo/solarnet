@@ -24,7 +24,7 @@ internal class EnglishTest {
   // This characterization is deliberately the sole wording test for every canonical derivation
   // shape. The separate goals file is reviewed target text, not an answer source or test oracle.
   @Test
-  fun allCardTextMatchesCurrentSnapshot() {
+  internal fun allCardTextMatchesCurrentSnapshot() {
     goals.keys shouldBe cardsByClassName.keys
     current.keys shouldBe cardsByClassName.keys
     current.forEach { (cardFront, expected) ->
@@ -39,7 +39,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun describesStandalonePetsElements() {
+  internal fun describesStandalonePetsElements() {
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This>")) shouldBe
         "1 VP per animal on this card."
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This, Owner>")) shouldBe
@@ -90,13 +90,13 @@ internal class EnglishTest {
   }
 
   @Test
-  fun compactAndExpandedTransmutationsRenderIdentically() {
+  internal fun compactAndExpandedTransmutationsRenderIdentically() {
     english.describe(parse<InstructionTree>("2 Steel<Owner FROM Anyone>?")) shouldBe
         english.describe(parse<InstructionTree>("2 Steel<Owner> FROM Steel<Anyone>?"))
   }
 
   @Test
-  fun integratesPaymentPermissionIntoItsActionCost() {
+  internal fun integratesPaymentPermissionIntoItsActionCost() {
     val card =
         CardDefinition(
             CardData(
@@ -113,7 +113,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun cardWithoutTopElementsHasEmptyTopText() {
+  internal fun cardWithoutTopElementsHasEmptyTopText() {
     val requirementOnly =
         CardDefinition(
             CardData(
@@ -128,7 +128,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun interpretsPlayerOwnedTypesInCardOwnershipContext() {
+  internal fun interpretsPlayerOwnedTypesInCardOwnershipContext() {
     english.describe(parse<InstructionTree>("2 MC / Colony")) shouldBe
         "Gain 2 M€ for each colony you own."
     english.describe(parse<InstructionTree>("2 MC / Colony<Anyone>")) shouldBe
@@ -136,7 +136,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun cardWithoutBottomElementsHasEmptyBottomText() {
+  internal fun cardWithoutBottomElementsHasEmptyBottomText() {
     val actionOnly =
         CardDefinition(
             CardData(
@@ -151,7 +151,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
+  internal fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
     english.describe(parse<InstructionTree>("2 Steel, 3 VictoryPoint")) shouldBe
         "Gain 2 steel. [3 VictoryPoint]."
 
@@ -165,7 +165,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun usesDefaultNounForAClassWithoutRegisteredEnglishFacts() {
+  internal fun usesDefaultNounForAClassWithoutRegisteredEnglishFacts() {
     val heat =
         TerraformingMarsDescribers.descriptions.keys.single { it.className.toString() == "Heat" }
     val sparseEnglish = English(TerraformingMarsDescribers.descriptions - heat)
