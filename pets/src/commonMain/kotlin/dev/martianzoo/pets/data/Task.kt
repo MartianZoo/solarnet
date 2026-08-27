@@ -119,12 +119,8 @@ public data class Task(
     private fun normalizeForTask(tree: InstructionTree): InstructionTree {
       return when (tree) {
         is InstructionGroup -> InstructionGroup.of(tree.instructions.map(::normalizeForTask))
-        is Change ->
-            if (tree.gaining != DIE.expression) {
-              tree
-            } else {
-              throw DeadEndException("a Die instruction was reached")
-            }
+        is Change if tree.gaining != DIE.expression -> tree
+        is Change -> throw DeadEndException("a Die instruction was reached")
         is By -> {
           val inner = normalizeForTask(tree.inner)
           if (inner is Then) {

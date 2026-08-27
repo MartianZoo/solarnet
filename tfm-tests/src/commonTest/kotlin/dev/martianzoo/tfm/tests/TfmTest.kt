@@ -105,8 +105,15 @@ internal abstract class TfmTest {
   protected fun TfmGameplay.assignWildTag(card: ClassName, tag: String): TaskResult =
       doTask("$tag<WildTagUse<$card>>")
 
+  protected fun TfmGameplay.assignWildTag(tag: String): TaskResult =
+      doTask(wildTagAssignment(pendingTasks(), tag))
+
   protected fun OperationBody.assignWildTag(card: ClassName, tag: String) {
     doTask("$tag<WildTagUse<$card>>")
+  }
+
+  protected fun OperationBody.assignWildTag(tag: String) {
+    doTask(wildTagAssignment(tasks.extract { it }, tag))
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {
@@ -204,6 +211,17 @@ internal abstract class TfmTest {
       "Expected exactly one task narrowable to Ok$qualifier, found ${matches.size}"
     }
     return matches.single().index + 1
+  }
+
+  private fun wildTagAssignment(tasks: List<Task>, tag: String): String {
+    val use =
+        tasks
+            .asSequence()
+            .flatMap { it.instruction.descendantsOfType<Expression>() }
+            .firstOrNull { it.className == cn("WildTagUse") }
+            ?: throw IllegalArgumentException("No pending wild-tag task")
+    val card = requireNotNull(use.arguments.lastOrNull()?.className)
+    return "$tag<WildTagUse<$card>>"
   }
 
   private fun TfmGameplay.pendingTasks(): List<Task> =
