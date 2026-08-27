@@ -9,7 +9,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   pending task can prepare, and preparation may concretize an instruction only when exactly one
   legal concrete narrowing exists. Add focused behavioral coverage for multiple preparable tasks,
   multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
-  client policy.
+  client policy. Use [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
 - Revisit internal `::` boundaries separately from SAFE: deterministic research/card-offer setup
   should be inline; after the player executes `BuySelectedCards`, purchase bookkeeping should run
   through the next genuine payment choice; final payment should synchronously complete card entry,

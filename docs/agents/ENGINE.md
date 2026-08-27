@@ -138,9 +138,11 @@ A log may capture another log as an immutable prefix in constant time. Later sou
 part of the capture, and the source may not roll back that captured prefix while the suffix exists.
 
 `Timeline` provides checkpoints, atomic blocks, rollback, and a commit floor. An atomic failure
-reverses component state, tasks, indexes, and events. `AbortOperationException` requests the same
-rollback without surfacing as a caller error. The commit floor prevents rollback into initialization
-or a workflow stage.
+reverses component state, tasks, event-backed indexes, and events. The current live-effect
+`registryOrder` is an exception: remove/re-add rollback can assign a new ordinal, as audited in
+[SEQUENCING.md](SEQUENCING.md#open-design-or-rules-audits). `AbortOperationException` requests
+rollback without surfacing as a caller error. The commit floor prevents rollback into
+initialization or a workflow stage.
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.

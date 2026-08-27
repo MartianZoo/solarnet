@@ -28,7 +28,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Payment excess, tender value, or attribution | [`PAYMENTS.md`](PAYMENTS.md) and the payment entry in [`GAME_HACKS.md`](GAME_HACKS.md#payment-allocation-is-not-yet-auditable) | Audit and proposal |
 | Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model and known defect |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
-| Optional client autoexecution | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
+| Optional client autoexecution mechanism | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
+| Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
 
 ### Change Pets, types, or static game construction
 
