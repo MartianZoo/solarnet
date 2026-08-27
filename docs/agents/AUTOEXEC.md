@@ -43,6 +43,8 @@ This distinction excludes several engine responsibilities:
 
 - A `::` effect executes inline because the authored game rule makes it automatic.
 - A `:` effect creates a task because the authored rule requires later activity by its assignee.
+- The agreed `Idle<Player>` direction emits an Engine-owned completion Signal after a controlled
+  queue epoch drains; authored idle listeners and the workflow may react without a client policy.
 - Validation and recognition of a proven dead end apply whether a client or policy chose the path.
 - Preparing a particular task performs the state-based evaluation required by preparation.
 

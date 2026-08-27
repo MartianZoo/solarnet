@@ -6,8 +6,8 @@
 > **Skip when:** changing an ordinary instruction that is not an `Action`, or changing payment
 > allocation after an invoice has already been created; use [PAYMENTS.md](PAYMENTS.md) for that.
 >
-> **Status:** current model. Standard-resource costs use billing; direct and costless Actions retain
-> ordinary Pets sequencing.
+> **Status:** current model except where the Player-idle payment loop is explicitly marked as an
+> agreed, unimplemented direction. Direct and costless Actions retain ordinary Pets sequencing.
 
 ## Source map
 
@@ -63,6 +63,28 @@ parallel kinds of cost.
 Fixed costs lower to two effects: one creates the debt and invoice, and the other responds to the
 invoice's removal. X-scaled costs keep their result as a local continuation gated on absence of the
 invoice, preserving the chosen X without encoding it in invoice multiplicity.
+
+### Agreed Player-idle payment loop
+
+The replacement protocol must create one mandatory abstract payment task at a time, not one task
+per accepted tender kind. Its concrete choices are the currently live `Accept<Resource>` and
+`AcceptFromCard<Holder>` capabilities. Spending one unit creates a common payment Signal after whose
+automatic value effects Billing creates exactly one replacement task if matching `Owed` remains.
+
+If debt remains but no accepted tender is available, the payment task remains present but cannot
+prepare. The queue therefore cannot become idle and the encompassing operation dead-ends. Do not add
+a separate `MAX 0 Owed: Ok` completion task: after successful payment it would compete with stale
+unused-tender tasks and recreate the need to decline or clean them.
+
+When no debt remains, no replacement payment task is created. The queue drains, Engine emits
+`Idle<Player>`, and Billing removes itself automatically. Existing `-Billing` effects remove the
+Accept capabilities; `-Invoice` remains the single completion event for the Action result. There is
+still no separate `Paid` component.
+
+Card play uses the same boundary. Remove the pending `MAX 0 Barrier: CardFront FROM CardBack` task;
+`-CardInvoice` instead puts the card into play after idle payment settlement. The card's ordinary
+effects may refill the queue, and an EventCard moves to the played-event pile on the following idle
+boundary. See [SEQUENCING.md](SEQUENCING.md#player-idle-settlement-agreed-direction).
 
 ## Composition
 

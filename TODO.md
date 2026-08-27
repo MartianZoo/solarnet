@@ -10,10 +10,14 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   legal concrete narrowing exists. Add focused behavioral coverage for multiple preparable tasks,
   multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
   client policy.
-- Revisit internal `::` boundaries separately from SAFE: deterministic research/card-offer setup
-  should be inline; after the player executes `BuySelectedCards`, purchase bookkeeping should run
-  through the next genuine payment choice; final payment should synchronously complete card entry,
-  triggers, and automatic effects while leaving queued gameplay effects pending. Do not convert
+- **High priority:** Implement the Player-idle settlement protocol. Emit Engine-owned
+  `Idle<Player>` after a controlled queue epoch drains; let automatic listeners settle temporary
+  state before workflow advances. Replace parallel payment-method tasks with one mandatory abstract
+  accepted-tender choice at a time, keep it pending and unpreparable while unpaid without legal
+  tender, remove Billing on `Idle` only after debt is gone, and let `-CardInvoice` put the card into
+  play. Move EventCards to the played-event pile on the following `Idle`, fixing Solar Probe without
+  task priority. Preserve invoice removal as the completion event and delete superseded helper-side
+  payment cleanup. Revisit other internal `::` boundaries separately from SAFE. Do not convert
   printed immediate card effects, triggered resource effects such as Manutech, or authored Action
   results merely because their ordering seems pointless in the current game.
 - Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion can express
@@ -108,11 +112,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
   dependencies. Autoexecution policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **Medium priority:** Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
-  highest occupied priority in their control scope, without task-targeting effects or mutation.
-  Test whether Trade can delete its pure scheduling barrier and whether PlayCard can directly create
-  reduced-priority card-entry and event-cleanup work while preserving auditable `Owed` and
-  `Required` components. Keep this distinct from `THEN`, state gates, and scoped drain.
+- **Medium priority:** After the payment and EventCard proving cases, test whether Player-idle
+  settlement can also delete `TradeBarrier` while retaining the selected ColonyTile and keeping
+  fleet movement after every optional production decision.
 - **Medium-high priority:** Finish replacing the legacy “linkage” terminology and machinery with the
   Type-variable model, including unifying Class-header Type-variable recognition with ordinary
   scopes: bind whole abstract Expressions, keep sibling argument branches independent, propagate
