@@ -102,7 +102,7 @@
       "projectKind": "EVENT",
       "cost": 11,
       "tags": [ "SpaceTag" ],
-      "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag)>?",
+      "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag<Anyone>)>?",
     },
 
     {

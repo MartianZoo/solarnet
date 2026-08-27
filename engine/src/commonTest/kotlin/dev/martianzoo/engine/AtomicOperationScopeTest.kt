@@ -6,7 +6,7 @@ import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AtomicOperationBoundaryTest {
+internal class AtomicOperationScopeTest {
   @Test
   internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
     val game = Engine.newGame(testGamePremise(players = 2))

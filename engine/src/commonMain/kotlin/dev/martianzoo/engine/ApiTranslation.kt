@@ -40,7 +40,7 @@ internal class ApiTranslation(
     private val classTable: ClassTable,
     xers: Transformers,
     vocabulary: Vocabulary,
-    private val atomicOperationBoundary: AtomicOperationBoundary,
+    private val atomicOperationScope: AtomicOperationScope,
 ) : GodMode { // so it really implements all gameplay layers
 
   override var autoExecMode: AutoExecMode = FIRST
@@ -164,7 +164,7 @@ internal class ApiTranslation(
   override fun autoExecNow() = atomic {}
 
   private fun autoExecAtomically(): TaskResult =
-      atomicOperationBoundary.run({ impl.autoExecNow(autoExecMode) }) {}
+      atomicOperationScope.run({ impl.autoExecNow(autoExecMode) }) {}
 
   // TURNS
 
@@ -213,7 +213,7 @@ internal class ApiTranslation(
   // autoExecNow() and cross-Actor gameplay calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
   private fun atomic(block: () -> Unit): TaskResult =
-      atomicOperationBoundary.run(block) { impl.autoExecNow(autoExecMode) }
+      atomicOperationScope.run(block) { impl.autoExecNow(autoExecMode) }
 
   private data class ParsedTaskRevision(
       val instruction: InstructionTree,

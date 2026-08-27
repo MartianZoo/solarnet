@@ -10,7 +10,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   legal concrete narrowing exists. Add focused behavioral coverage for multiple preparable tasks,
   multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
   client policy.
-- Revisit internal `::` boundaries separately from SAFE: deterministic research/card-offer setup
+- Revisit internal `::` transitions separately from SAFE: deterministic research/card-offer setup
   should be inline; after the player executes `BuySelectedCards`, purchase bookkeeping should run
   through the next genuine payment choice; final payment should synchronously complete card entry,
   triggers, and automatic effects while leaving queued gameplay effects pending. Do not convert

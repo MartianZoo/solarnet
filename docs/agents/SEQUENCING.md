@@ -30,7 +30,7 @@
   splitting, `THEN`, barriers, and prepared forms.
 - [`Effector.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Effector.kt) — search for
   `automatic` when changing immediate reaction ordering.
-- [`AtomicOperationBoundary.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AtomicOperationBoundary.kt)
+- [`AtomicOperationScope.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AtomicOperationScope.kt)
   and [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — read only
   for commit/rollback atomicity.
 - [`ActionSequencingTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt)
