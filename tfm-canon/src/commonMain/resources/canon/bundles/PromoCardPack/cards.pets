@@ -608,7 +608,7 @@ CLASS SolarLogistics : ActiveCard<Class<ProjectCard>> {
   This:: EarthTag<This>, SpaceTag<This>
   This: 2 Titanium
   PlayTag<Class<EarthTag>>:: -2 Owed<>
-  EventCard<Anyone>(HAS SpaceTag<Anyone>): ProjectCard
+  EventCard<Anyone>(HAS SpaceTag): ProjectCard
   End: VictoryPoint
 }
 

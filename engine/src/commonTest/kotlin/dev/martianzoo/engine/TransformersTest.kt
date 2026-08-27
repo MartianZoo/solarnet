@@ -57,6 +57,14 @@ internal class TransformersTest {
         "LandArea(HAS Neighbor<OwnedTile<Owner>>)!",
     )
     checkApplyDefaults(
+        "MC<Anyone(HAS VenusTag)>",
+        "MC<Anyone(HAS VenusTag)>!",
+    )
+    checkApplyDefaults(
+        "MC<Anyone(HAS VenusTag<>)>",
+        "MC<Anyone(HAS VenusTag<Owner>)>!",
+    )
+    checkApplyDefaults(
         "GreeneryTile<>",
         "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>, MAX 0 Tile), Owner>!",
     )

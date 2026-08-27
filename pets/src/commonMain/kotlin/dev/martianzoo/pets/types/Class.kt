@@ -407,6 +407,11 @@ internal constructor(
     merged
   }
 
+  /** Whether this direct dependency is one occurrence of an authored class-header linkage. */
+  public fun isLinkedDependency(key: Key): Boolean = dependencyLinks.any {
+    DependencyPath(key) in it.paths
+  }
+
   private fun linkError(link: DependencyLink, dependencies: DependencySet): Nothing =
       error(
           "linked ${link.expressions.joinToString()} dependencies disagree in " +

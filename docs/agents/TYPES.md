@@ -215,6 +215,10 @@ most-general common narrowing; Quantifiers must agree.
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
 
+Inside a refinement, an implicit default is deferred when its dependency participates directly in
+an authored Class-header linkage; candidate substitution can then bind it through the linked
+occurrence. Writing `<>` still explicitly accepts the default.
+
 A gain, removal, or trigger that would receive dependency bounds from its use-specific default
 cannot leave its argument list implicit. It must supply at least one argument or write an empty list
 such as `GreeneryTile<>` or `ScienceTag<>` to explicitly accept those bounds. The gain and removal

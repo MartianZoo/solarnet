@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
@@ -13,57 +15,111 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
 internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
-  private val hands = mutableMapOf<Player, MutableSet<ClassName>>()
-  private val seenCards = mutableSetOf<ClassName>()
-  private val expectedDraws = mutableMapOf<Player, MutableList<ClassName>>()
-  private val expectedDiscards = mutableMapOf<Player, MutableList<ClassName>>()
+  private val cards = linkedMapOf<ClassName, CardLocation>()
   private lateinit var trackingCheckpoint: Checkpoint
-  private var observerInstalled = false
 
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
-    hands.clear()
-    seenCards.clear()
-    expectedDraws.clear()
-    expectedDiscards.clear()
-    observerInstalled = false
-    game.actors.filterIsInstance<Player>().forEach { hands[it] = mutableSetOf() }
+    cards.clear()
     trackingCheckpoint = game.timeline.checkpoint()
   }
 
-  protected fun TfmGameplay.draw(vararg cardClasses: ClassName) {
-    installObserver()
+  /** Assigns sourced identities to this Player's next anonymous project-card selection. */
+  protected fun TfmGameplay.expectProjectCards(vararg cardClasses: ClassName) {
+    syncCardPlays()
     cardClasses.forEach { cardClass ->
-      check(seenCards.add(cardClass)) { "$cardClass has already been mentioned" }
-      check(hand(player).add(cardClass)) { "$player already has $cardClass in hand" }
+      check(cards.put(cardClass, Selecting(player)) == null) {
+        "$cardClass has already left the deck"
+      }
     }
-    expect(cardClasses, expectedDraws)
+  }
+
+  /** Records a sourced deck exit that the game model omits entirely. */
+  protected fun TfmGameplay.discardProjectCardsFromDeck(vararg cardClasses: ClassName) {
+    syncCardPlays()
+    cardClasses.forEach { cardClass ->
+      check(cards.put(cardClass, Terminal) == null) { "$cardClass has already left the deck" }
+    }
+  }
+
+  /** Marks the named cards from the current selection as terminal. */
+  protected fun TfmGameplay.discardUnselectedProjectCards(vararg cardClasses: ClassName) {
+    syncCardPlays()
+    discardUnselectedProjectCards(player, cardClasses)
+  }
+
+  /** Resolves and identifies an anonymous in-operation selection discard. */
+  protected fun OperationBody.discardUnselectedProjectCards(vararg cardClasses: ClassName) {
+    require(cardClasses.isNotEmpty())
+    if (
+        tasks
+            .extract { it }
+            .any { task ->
+              task.instruction.toString().let { text ->
+                text.startsWith("-") && "ProjectCard" in text && "Selecting" in text
+              }
+            }
+    ) {
+      doTask("-${cardClasses.size} ProjectCard<Selecting>")
+    }
+    discardUnselectedProjectCards(null, cardClasses)
+  }
+
+  private fun discardUnselectedProjectCards(
+      expectedPlayer: Player?,
+      cardClasses: Array<out ClassName>,
+  ) {
+    cardClasses.forEach { cardClass ->
+      when (val location = cards[cardClass]) {
+        null -> cards[cardClass] = Terminal
+        is Selecting -> {
+          check(expectedPlayer == null || location.player == expectedPlayer) {
+            "$cardClass belongs to ${location.player}'s selection"
+          }
+          cards[cardClass] = Terminal
+        }
+        else -> error("$cardClass is not unselected: $location")
+      }
+    }
+  }
+
+  protected fun TfmGameplay.draw(vararg cardClasses: ClassName) {
+    syncCardPlays()
+    cardClasses.forEach { cardClass ->
+      when (val location = cards[cardClass]) {
+        null -> cards[cardClass] = Hand(player)
+        is Selecting -> {
+          check(location.player == player) {
+            "$cardClass belongs to ${location.player}'s selection"
+          }
+          cards[cardClass] = Hand(player)
+        }
+        else -> error("$cardClass cannot be drawn from $location")
+      }
+    }
   }
 
   protected fun TfmGameplay.returnToHand(vararg cardClasses: ClassName) {
-    installObserver()
+    syncCardPlays()
     cardClasses.forEach { cardClass ->
-      check(cardClass in seenCards) { "$cardClass has not previously been mentioned" }
-      check(hands.values.none { cardClass in it }) { "$cardClass is already in a player's hand" }
-      check(hand(player).add(cardClass)) { "$player already has $cardClass in hand" }
+      val location = cards[cardClass]
+      check((location is Played || location is EventPile) && location.player == player) {
+        "$cardClass is not played by $player: $location"
+      }
+      cards[cardClass] = Hand(player)
     }
-    expect(cardClasses, expectedDraws)
   }
 
   protected fun TfmGameplay.buyCards(vararg cardClasses: ClassName): TaskResult {
+    val result = buyCards(cardClasses.size)
     draw(*cardClasses)
-    return buyCards(cardClasses.size)
+    return result
   }
 
   protected fun TfmGameplay.discard(vararg cardClasses: ClassName) {
-    installObserver()
-    cardClasses.forEach {
-      check(it in hand(player) || it in expectedDraws[player].orEmpty()) {
-        "$player does not have $it in hand or queued to draw"
-      }
-    }
-    expect(cardClasses, expectedDiscards)
+    syncCardPlays()
+    cardClasses.forEach { cardClass -> move(cardClass, Hand(player), Terminal) }
   }
 
   protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
@@ -74,84 +130,65 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   protected fun assertCardTrackingComplete() {
-    check(expectedDraws.values.all { it.isEmpty() }) { "unconsumed draws: $expectedDraws" }
-    check(expectedDiscards.values.all { it.isEmpty() }) { "unconsumed discards: $expectedDiscards" }
+    syncCardPlays()
+    check(cards.values.none { it is Selecting }) {
+      "cards left in selections: ${cards.filterValues { it is Selecting }}"
+    }
   }
 
   protected fun checkHandSizes() {
-    hands.forEach { (player, hand) ->
-      game.tfm(player).count("ProjectCard<Hand>") shouldBe hand.size
+    syncCardPlays()
+    game.actors.filterIsInstance<Player>().forEach { player ->
+      game.tfm(player).count("ProjectCard<Hand>") shouldBe cards.values.count { it == Hand(player) }
     }
   }
 
   protected val TfmGameplay.cardsInHand: Set<ClassName>
-    get() = hand(player)
-
-  private fun installObserver() {
-    if (observerInstalled) return
-    observerInstalled = true
-    val previousOnAtomicComplete = game.onAtomicComplete
-    game.onAtomicComplete = {
-      val changes = game.events.entriesSince(trackingCheckpoint).filterIsInstance<ChangeEvent>()
-      trackingCheckpoint = game.timeline.checkpoint()
-      observe(TaskResult(changes = changes))
-      previousOnAtomicComplete()
+    get() {
+      syncCardPlays()
+      return cards.filterValues { it == Hand(player) }.keys
     }
+
+  private fun syncCardPlays() {
+    val current = game.timeline.checkpoint()
+    check(current.ordinal >= trackingCheckpoint.ordinal) {
+      "card tracking crossed an unannounced timeline rollback"
+    }
+    game.events
+        .entriesSince(trackingCheckpoint)
+        .filterIsInstance<ChangeEvent>()
+        .forEach(::observeCardPlay)
+    trackingCheckpoint = current
   }
 
-  private fun observe(result: TaskResult) {
-    result.changes.forEach { event ->
-      val change = event.change
-      val gaining = change.gaining
-      val removing = change.removing
-      when {
-        gaining.isProjectCardAt(HAND) &&
-            (removing?.className != PROJECT_CARD || removing.hasArgument(SELECTING)) ->
-            draw(event.playerOwner(checkNotNull(gaining)), change.count)
-        removing.isProjectCardAt(HAND) && gaining?.className == MC ->
-            discard(event.playerOwner(checkNotNull(removing)), change.count)
-        removing.isProjectCardAt(HAND) &&
-            gaining?.className != null &&
-            gaining.className != PROJECT_CARD ->
-            play(event.playerOwner(checkNotNull(removing)), checkNotNull(gaining).className)
-        removing.isProjectCardAt(HAND) && gaining == null ->
-            discard(event.playerOwner(checkNotNull(removing)), change.count)
+  private fun observeCardPlay(event: ChangeEvent) {
+    val gaining = event.change.gaining
+    val removing = event.change.removing
+    when {
+      gaining?.className == PLAYED_EVENT -> {
+        val cardClass = checkNotNull(gaining.trackedCardClass())
+        val player = cards.getValue(cardClass).player
+        checkNotNull(player) { "$cardClass has no Player before entering the event pile" }
+        cards[cardClass] = EventPile(player)
+      }
+      removing.isProjectCardAt(HAND) && gaining?.className != null -> {
+        val cardClass = gaining.className
+        val location = cards[cardClass] ?: return
+        val player = event.playerOwner(checkNotNull(removing))
+        check(location == Hand(player)) { "$player played $cardClass from $location" }
+        cards[cardClass] = Played(player)
       }
     }
   }
 
-  private fun draw(player: Player, count: Int) {
-    repeat(count) {
-      expectedDraws[player]?.removeFirstOrNull()
-          ?: error("$player gained a ProjectCard without a queued name")
+  private fun move(cardClass: ClassName, from: CardLocation, to: CardLocation) {
+    check(cards[cardClass] == from) {
+      "$cardClass should be at $from, but is at ${cards[cardClass]}"
     }
+    cards[cardClass] = to
   }
 
-  private fun discard(player: Player, count: Int) {
-    repeat(count) {
-      val cardClass =
-          expectedDiscards[player]?.removeFirstOrNull()
-              ?: error("$player discarded a ProjectCard without a queued name")
-      check(hand(player).remove(cardClass)) { "$player does not have $cardClass in hand" }
-    }
-  }
-
-  private fun play(player: Player, cardClass: ClassName) {
-    check(hand(player).remove(cardClass)) { "$player played $cardClass without having it in hand" }
-  }
-
-  private fun TfmGameplay.expect(
-      cardClasses: Array<out ClassName>,
-      queueByPlayer: MutableMap<Player, MutableList<ClassName>>,
-  ) {
-    val player = player
-    queueByPlayer.getOrPut(player, ::mutableListOf).addAll(cardClasses)
-  }
-
-  private fun hand(player: Player): MutableSet<ClassName> =
-      checkNotNull(hands[player]) { "No tracked hand for $player" }
-
-  private fun ChangeEvent.playerOwner(expression: dev.martianzoo.pets.ast.Expression): Player =
+  private fun ChangeEvent.playerOwner(expression: Expression): Player =
       checkNotNull(
           expression.toComponent(game.reader).owner?.className?.let(Player::fromClassNameOrNull)
       ) {
@@ -161,18 +198,31 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   private val TfmGameplay.player: Player
     get() = actor as Player
 
-  private companion object {
-    val MC: ClassName = cn("MC")
-    val PROJECT_CARD: ClassName = cn("ProjectCard")
-    val HAND: ClassName = cn("Hand")
-    val SELECTING: ClassName = cn("Selecting")
+  private fun Expression?.isProjectCardAt(area: ClassName): Boolean =
+      this?.className == PROJECT_CARD && arguments.any { it.className == area }
+
+  private fun Expression.trackedCardClass(): ClassName? =
+      descendantsOfType<ClassName>().firstOrNull { it in cards }
+
+  private sealed interface CardLocation {
+    val player: Player?
   }
 
-  private fun dev.martianzoo.pets.ast.Expression?.isProjectCardAt(area: ClassName): Boolean =
-      this?.className == PROJECT_CARD && hasArgument(area)
+  private data class Selecting(override val player: Player) : CardLocation
 
-  private fun dev.martianzoo.pets.ast.Expression.hasArgument(className: ClassName): Boolean =
-      arguments.any {
-        it.className == className
-      }
+  private data class Hand(override val player: Player) : CardLocation
+
+  private data class Played(override val player: Player) : CardLocation
+
+  private data class EventPile(override val player: Player) : CardLocation
+
+  private data object Terminal : CardLocation {
+    override val player: Player? = null
+  }
+
+  private companion object {
+    val PROJECT_CARD: ClassName = cn("ProjectCard")
+    val HAND: ClassName = cn("Hand")
+    val PLAYED_EVENT: ClassName = cn("PlayedEvent")
+  }
 }
