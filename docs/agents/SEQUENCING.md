@@ -623,8 +623,12 @@ this is acceptable only while nothing can observe their relative order.
   broad `MAX 0 Barrier` gate, or whether a payment-specific state gate remains necessary.
 - **Trade settlement:** while testing priority, determine whether colony-track reset can be observed
   before income and colony bonuses finish.
-- **Lifecycle mixed modes:** prove setup, generation, and phase effects do not depend on automatic
-  effect registration order.
+- **Automatic-effect order:** remove the current runtime dependence on registration order, then
+  prove setup, generation, and phase effects respect the replacement semantic or canonical order.
+  `registryOrder` is not rollback-stable: removing the last effect-bearing component drops its
+  ordinal, and rollback re-adds it after surviving effects. Failed operations and speculative
+  execution can therefore change later gameplay; see the analysis in
+  [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md#egs-equality-obligations).
 
 ## Workflow precedence
 

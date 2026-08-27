@@ -25,6 +25,7 @@
 | Distinguish engine semantics from client policy | Core distinction; Resolution is not a policy |
 | Design a policy interface or driver | Policy pool and driver through Agent provenance |
 | Add analysis, speculative Worlds, or performance guarantees | Analysis and disposable Worlds; Performance contract |
+| Prove that selecting, narrowing, or executing a task is safe | [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) |
 | Plan or review the extraction from engine | Broad implementation direction; First implemented split; Current implementation divergence |
 | State the acceptance contract | Required invariants |
 
@@ -130,6 +131,15 @@ proof criterion and its value to whole-game clients are both clear.
 Speculative analysis may return `PROVEN`, `DISPROVEN`, or `UNKNOWN`; uncertainty always stops a
 proof-preserving policy. A successful simulation is not by itself proof that no other legal path
 exists.
+
+Autoexecution must be suspended for an operation as soon as any reachable continuation could later
+delegate an abstract task to another Player for narrowing. Philares is the primary example: the
+Player placing the adjacent tile controls when the reward task is prepared, but the Philares owner
+chooses its resource. Even earlier commands that appear locally interchangeable must remain
+explicit, because their timing or order may reveal information that dominates the delegated
+Player's strategy and that a proof-preserving policy cannot calculate. The only exception is a
+command proved necessary before the delegated task can be created in every successful continuation;
+such a command leaves neither Player an alternative ordering or disclosure decision.
 
 ## Semantic equivalence
 
