@@ -82,7 +82,7 @@ private constructor(
       displayId: String? = task.id.toString(),
   ): String = buildString {
     if (displayId != null) append(displayId)
-    append(if (task.next) "* " else if (displayId != null) "  " else "")
+    append(if (task.selected) "* " else if (displayId != null) "  " else "")
     append("[${petsName(task.assignee)}] ")
     append(renderPets(task.instruction))
     task.then?.let { append(" (THEN ${renderPets(it)})") }

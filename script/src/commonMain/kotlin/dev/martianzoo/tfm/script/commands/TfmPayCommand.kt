@@ -40,9 +40,9 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
         repl.game.timeline.atomic {
           repl.gameplay.autoExecMode = NONE
           try {
-            val prepared = repl.game.tasks.preparedTask()
+            val selected = repl.game.tasks.selectedTask()
             val ordered = payments.sortedByDescending { (currency) ->
-              paymentTask(currency) == prepared
+              paymentTask(currency) == selected
             }
             ordered.forEach { (_, instruction) -> repl.gameplay.doTask(instruction) }
             dismissUnusedAcceptsWhilePaused()
@@ -57,11 +57,8 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
     repl.game.tasks
         .matching { it.cause?.context?.className == cn("Accept") }
         .forEach {
-          repl.gameplay.reviseTask(it, "Ok")
-          if (it in repl.game.tasks) {
-            val taskNumber = repl.selectableTasks().indexOfFirst { task -> task.id == it } + 1
-            repl.gameplay.tryTask("Ok", taskNumber)
-          }
+          repl.gameplay.selectTask(it)
+          if (it in repl.game.tasks) repl.gameplay.narrowTask("Ok")
         }
   }
 

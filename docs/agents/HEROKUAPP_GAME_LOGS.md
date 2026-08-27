@@ -110,7 +110,7 @@ second action, end the current turn, and commit to passing when their next turn 
 the pass immediately to save a later client/server round trip. When such a line follows a player's
 first action, determine whether it is this early declaration before translating it. In Solarnet, let
 the one-action turn end normally and call `pass()` only when that player's next turn is actually
-prepared; the executable pass-call order can therefore differ from the source log order. Preserve the
+selected; the executable pass-call order can therefore differ from the source log order. Preserve the
 verbatim log lines in their source order near the relevant scope, but do not treat every logged
 pass as an immediate gameplay event.
 

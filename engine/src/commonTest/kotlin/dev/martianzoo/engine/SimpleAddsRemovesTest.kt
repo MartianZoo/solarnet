@@ -37,7 +37,7 @@ internal class SimpleAddsRemovesTest {
   internal fun manualPreservesTasksThatWereAlreadyPending() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
-    val pendingTask = p2.addTasks("StandardResource").single()
+    val pendingTask = p2.addTasks("StandardResource?").single()
 
     p2.manual("Heat")
 
@@ -46,11 +46,11 @@ internal class SimpleAddsRemovesTest {
   }
 
   @Test
-  internal fun manualRejectsAPreparedTask() {
+  internal fun manualRejectsASelectedTask() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
-    val pendingTask = p2.addTasks("StandardResource").single()
-    p2.prepareTask(pendingTask)
+    val pendingTask = p2.addTasks("StandardResource?").single()
+    p2.selectTask(pendingTask)
 
     shouldThrow<TaskException> { p2.manual("Heat") }
   }

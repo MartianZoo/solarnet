@@ -14,7 +14,7 @@
 - [`Instruction.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Instruction.kt) —
   inspect the sealed instruction model before choosing syntax shape.
 - [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
-  for `instruct` to understand preparation and sibling task production.
+  for `resolve` to understand resolution and sibling task production.
 - [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
   — search for `SetupPhase` to compare current setup-time per-Player effects.
 - [Venus Next `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/cards.pets)
@@ -36,7 +36,7 @@ EACH Type { InstructionTree }
 `EACH` is a **fanout**, not a loop. It takes one World snapshot and groups the matching components
 by exact concrete Type. Each distinct Type produces one sibling instruction tree multiplied by that
 Type's snapshot multiplicity. That Type set and each multiplier remain fixed as the sibling tasks
-execute; later task preparation still reads the then-current World. Fanout has no
+execute; ordinary later task resolution still reads the then-current World. Fanout has no
 iteration order, index, first or last branch, accumulator, or short-circuiting. Implementation
 traversal order must not become authored precedence.
 

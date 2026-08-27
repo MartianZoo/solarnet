@@ -309,7 +309,7 @@ internal class ScriptSessionTest {
     )
     assertTrue(
         output.none {
-          "can't narrow" in it || "already prepared" in it || it.startsWith("pending tasks:")
+          "can't narrow" in it || "select-lock" in it || it.startsWith("pending tasks:")
         }
     )
     assertEquals(0, repl.gameplay.count("ProjectCard<Player1, Selecting<Player1>>"))

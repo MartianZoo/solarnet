@@ -23,18 +23,18 @@ public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,
 
-    /** Whose pending-work queue contains this task and whose scoped gameplay may revise it. */
+    /** Whose pending-work queue contains this task and whose scoped gameplay may select it. */
     val assignee: Actor,
 
     /** The Actor recorded for resulting changes unless the instruction contains an explicit BY. */
     val actor: Actor = assignee,
 
     /** If true, the world may not be modified until this task is completed. */
-    val next: Boolean = false,
+    val selected: Boolean = false,
 
     /**
-     * What to do. Can be abstract. If so, it will have to be revised to something narrower and
-     * concrete before it is executed. Normalized to [instruction].
+     * What to do. Can be abstract. If so, it must be narrowed until concrete before it executes.
+     * Normalized to [instruction].
      */
     private val instructionIn: Instruction,
 
@@ -76,7 +76,7 @@ public data class Task(
 
   override fun toString(): String = buildString {
     append(id)
-    append(if (next) "* " else "  ")
+    append(if (selected) "* " else "  ")
     appendAssigneeLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
@@ -86,7 +86,7 @@ public data class Task(
 
   private fun toStringWithoutCause(displayId: String = id.toString()): String = buildString {
     append(displayId)
-    append(if (next) "* " else "  ")
+    append(if (selected) "* " else "  ")
     appendAssigneeLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
@@ -179,7 +179,7 @@ public data class Task(
               id = id,
               assignee = assignee,
               actor = actor,
-              next = automatic,
+              selected = automatic,
               instructionIn = instruction,
               cause = cause,
           )

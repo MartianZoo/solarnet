@@ -1,7 +1,7 @@
 # Context, assignment, and actor identity
 
 > **Read when:** changing context specialization, event Actor attribution, task queue assignment,
-> `BY`, preparation-time delegated narrowing, Philares, or Engine-selected hidden cards.
+> `BY`, selection-time delegated narrowing, Philares, or Engine-selected hidden cards.
 >
 > **Skip when:** changing ownership as a Type dependency without task routing or attribution; read
 > the dependency sections of [TYPES.md](TYPES.md).
@@ -52,7 +52,7 @@ the surrounding execution Actor. Instruction-side `BY` explicitly overrides the 
 
 The default binds when work is produced. A pending or queued task remembers its future Actor in
 `Task.actor`; later execution through another gameplay scope does not steal attribution. Splitting,
-revision, preparation, and `THEN` continuation preserve it.
+narrowing, resolution, and `THEN` continuation preserve it.
 
 A `ChangeEvent` records that Actor. Trigger-side `BY` inspects only the event's Actor. This is why
 stealing a victim's heat is still an action by the attacker.
@@ -83,15 +83,16 @@ of both defects live in `BugsTest`.
 A task may eventually need three independently varying operational roles:
 
 - **controller:** chooses which instruction in the surrounding operation proceeds;
-- **narrower:** resolves choices inside that instruction; and
+- **narrower:** supplies choices inside that instruction; and
 - **future Actor:** receives event attribution unless instruction-side `BY` overrides it.
 
-The target is for a controller to retain an abstract parent task and decide exactly when to prepare
-it. Preparation may discover that a different narrower is required, create a child choice in that
-Actor's queue, and suspend the parent. While the child is outstanding, the controller cannot execute
-other tasks in that control scope. Resolving the child supplies the parent's narrowing, removes the
-block, and resumes the parent. Delegation changes narrowing authority; it does not silently replace
-the future Actor.
+The target is for a controller to retain an abstract parent task and decide exactly when to select
+it. Resolution may discover that a different narrower is required, create an already-selected child
+choice in that Actor's queue, and suspend the parent. The delegate does not make a second task
+selection; it only narrows the choice exposed by the controller's selection. While the child is
+outstanding, the controller cannot execute other tasks in that control scope. Narrowing the child
+supplies the parent's narrowing, removes the block, and resumes the parent. Delegation changes
+narrowing authority; it does not silently replace the future Actor.
 
 Examples that constrain the design:
 
@@ -110,14 +111,14 @@ Examples that constrain the design:
 instruction `!`.
 
 Philares is the primary sequencing constraint. The active Player controls a pending resource task
-caused by that Player's placement and may resolve other eligible siblings before preparing it. Once
-the active Player prepares that task, its resource choice is delegated to the Philares owner. The
-active Player can do no more work in the scope until the Philares owner selects and receives the
+caused by that Player's placement and may select other eligible siblings before it. Once the active
+Player selects that task, resolution delegates its resource choice to the Philares owner. The active
+Player can do no more work in the scope until the Philares owner narrows the choice and receives the
 resource. Assigning the reward directly to the Philares owner at trigger time is not an acceptable
 approximation because it transfers control too early.
 
 Real-card dealing uses the same interface. A Player controls when an abstract
-`ProjectCard<Player, Hand>` gain is prepared. Preparation delegates the remaining exact-face
+`ProjectCard<Player, Hand>` gain is selected. Resolution delegates the remaining exact-face
 narrowing to Engine, which derives the only lawful face from the seed and event history. The Player
 cannot nominate a face, and cannot continue within the suspended scope while the delegated child is
 outstanding.

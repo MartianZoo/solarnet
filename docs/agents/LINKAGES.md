@@ -17,7 +17,7 @@
 - [`DependencyLinkTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/DependencyLinkTest.kt)
   — read before changing effect/task preservation of linked variables.
 
-The runtime already preserves authored variables through effects, actions, task revision and
+The runtime already preserves authored variables through effects, actions, task narrowing and
 splitting, atomic transmutation, and incremental `THEN`. Do not replace working card mechanisms
 just to begin this project.
 

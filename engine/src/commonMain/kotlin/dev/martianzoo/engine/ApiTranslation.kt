@@ -92,11 +92,12 @@ internal class ApiTranslation(
 
   private fun parseInstructionTree(text: String): InstructionTree = parse(text)
 
-  private fun parseTaskRevision(text: String): ParsedTaskRevision {
+  private fun parseTaskNarrowing(text: String): ParsedTaskNarrowing {
     val parsed = Parsing.parse<InstructionTree>(text)
-    return ParsedTaskRevision(
+    return ParsedTaskNarrowing(
         preprocessor.transformInstructionTree(parsed),
         intensityOmitted = parsed is Change && parsed.intensity == null,
+        submittedAsGroup = parsed is InstructionGroup,
     )
   }
 
@@ -146,13 +147,13 @@ internal class ApiTranslation(
     override val tasks by this@ApiTranslation::tasks
     override val reader by this@ApiTranslation::reader
 
-    override fun doTask(revised: String, taskNumber: Int?) {
-      this@ApiTranslation.doTask(revised, taskNumber)
+    override fun doTask(narrowing: String, taskNumber: Int?) {
+      this@ApiTranslation.doTask(narrowing, taskNumber)
       impl.autoExecNow(autoExecMode)
     }
 
-    override fun tryTask(revised: String, taskNumber: Int?) {
-      this@ApiTranslation.tryTask(revised, taskNumber)
+    override fun tryTask(narrowing: String, taskNumber: Int?) {
+      this@ApiTranslation.tryTask(narrowing, taskNumber)
       impl.autoExecNow(autoExecMode)
     }
 
@@ -182,41 +183,47 @@ internal class ApiTranslation(
   // This layer is only usable if you have a running workflow, so that >0 players always have a
   // task in their queue at any given time
 
-  override fun reviseTask(taskId: TaskId, revised: String) = timeline.atomic {
-    val parsed = parseTaskRevision(revised)
-    impl.reviseTask(taskId, parsed.instruction, parsed.intensityOmitted)
+  override fun narrowTask(narrowing: String) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.narrowTask(parsed.instruction, parsed.intensityOmitted)
   }
 
-  override fun reviseTask(current: String, revised: String) = timeline.atomic {
-    val parsed = parseTaskRevision(revised)
-    impl.reviseTask(parse<Instruction>(current), parsed.instruction, parsed.intensityOmitted)
+  override fun canSelectTask(taskId: TaskId) = impl.canSelectTask(taskId)
+
+  override fun selectTask(taskId: TaskId) = atomic { impl.selectTask(taskId) }
+
+  override fun selectTask(instruction: String) = atomic {
+    impl.selectTask(parse<Instruction>(instruction))
   }
 
-  override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
-
-  override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
-
-  override fun prepareTask(instruction: String) = impl.prepareTask(parse<Instruction>(instruction))
-
-  override fun doTask(revised: String, taskNumber: Int?) = atomic {
-    val parsed = parseTaskRevision(revised)
-    impl.doTask(parsed.instruction, taskNumber, parsed.intensityOmitted)
+  override fun doTask(narrowing: String, taskNumber: Int?) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.doTask(
+        parsed.instruction,
+        taskNumber,
+        parsed.intensityOmitted,
+        parsed.submittedAsGroup,
+    )
   }
 
-  override fun tryTask(revised: String, taskNumber: Int?) = atomic {
-    val parsed = parseTaskRevision(revised)
-    impl.tryTask(parsed.instruction, taskNumber, parsed.intensityOmitted)
+  override fun tryTask(narrowing: String, taskNumber: Int?) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.tryTask(
+        parsed.instruction,
+        taskNumber,
+        parsed.intensityOmitted,
+        parsed.submittedAsGroup,
+    )
   }
-
-  override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
 
   // autoExecNow() and cross-Actor gameplay calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
   private fun atomic(block: () -> Unit): TaskResult =
       atomicOperationScope.run(block) { impl.autoExecNow(autoExecMode) }
 
-  private data class ParsedTaskRevision(
+  private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,
       val intensityOmitted: Boolean,
+      val submittedAsGroup: Boolean,
   )
 }

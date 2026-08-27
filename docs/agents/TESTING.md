@@ -274,10 +274,10 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add
   source-backed `.expect()` assertions for the mistake-prone types to preceding actions wherever
   practical so the remaining unexplained gap is bounded as narrowly as possible.
-  If auto-exec has already prepared the next task, the helper rolls that preparation back and
-  repeats it after the adjustment so state-dependent instructions are recalculated.
+  If auto-exec has already selected the next task, the helper rolls that selection back and repeats
+  it after the adjustment so state-dependent instructions are resolved again.
   Keep unexplained state reconciliations as standalone timeline statements.
-  Never place a manual or other raw adjustment inside an unrelated action body to evade a prepared-task or
+  Never place a manual or other raw adjustment inside an unrelated action body to evade a selected-task or
   operation-scope restriction; use an explicit test mechanism or fix the helper/API instead.
   Nest a missing consequence only when the enclosing action caused it.
 

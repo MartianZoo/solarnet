@@ -97,8 +97,9 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
       "Action requires ${directCosts.size} direct payment(s), but ${removals.size} were supplied"
     }
     directCosts.zip(removals).forEach { (task, removal) ->
-      val revision = specializeVariableCost(task.instruction, removal)
-      repl.gameplay.reviseTask(task.id, revision.toString())
+      val narrowing = specializeVariableCost(task.instruction, removal)
+      repl.gameplay.selectTask(task.id)
+      repl.gameplay.narrowTask(narrowing.toString())
     }
   }
 
@@ -112,7 +113,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
         invoice.instruction.descendantsOfType<Change>().single { change ->
           change.gaining?.className == cn("Owed")
         }
-    val revision =
+    val narrowing =
         if (owed.count.abstract) {
           val supplied =
               paymentGains(payment).single { gain ->
@@ -128,7 +129,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
         } else {
           invoice.instruction
         }
-    TaskCommand(repl).withArgs(firstStage(revision).toString())
+    TaskCommand(repl).withArgs(firstStage(narrowing).toString())
     val invoiceTask =
         repl.game.tasks
             .extract { it }

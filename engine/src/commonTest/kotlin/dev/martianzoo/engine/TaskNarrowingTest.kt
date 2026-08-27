@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
@@ -20,7 +19,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
-internal class TaskRevisionTest {
+internal class TaskNarrowingTest {
   private val game = Engine.newGame(canonicalPremise(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
 
   // Kinda gross
@@ -29,11 +28,15 @@ internal class TaskRevisionTest {
   private val writer = game.gameplay(PLAYER1)
   private val start = game.timeline.checkpoint()
 
+  init {
+    writer.autoExecMode = NONE
+  }
+
   @Test
   internal fun `initiating NoOp does nothing`() {
     val tasks = initiate("Ok")
 
-    tasks.shouldBeEmpty()
+    tasks.isEmpty() shouldBe true
     history().shouldBeEmpty()
     game.timeline.checkpoint() shouldBe start
   }
@@ -47,44 +50,45 @@ internal class TaskRevisionTest {
   }
 
   @Test
-  internal fun `narrowing an instruction to itself has no effect`() {
+  internal fun `narrowing an instruction to itself adds no edit after selection`() {
     initiate("2 Plant?")
+    writer.selectTask("2 Plant?")
     val before = game.timeline.checkpoint()
 
-    writer.reviseTask("2 Plant?", "2 Plant?")
+    writer.narrowTask("2 Plant?")
     tasksAsText().shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
     events.entriesSince(before).shouldBeEmpty()
   }
 
   @Test
-  internal fun `a normal case of narrowing works normally`() {
-    val originalId = initiate("2 Plant?").single()
+  internal fun `a concrete narrowing executes immediately`() {
+    initiate("2 Plant?")
 
-    writer.reviseTask("2 Plant?", "Plant!")
-    history().shouldHaveSize(2)
-    tasksAsText().shouldContainExactlyInAnyOrder("Plant<Player1>!")
-    tasks.ids().shouldContainExactly(originalId)
-    originalId.ordinal shouldBe (history().single { it is TaskAddedEvent }).ordinal
+    selectAndNarrow("2 Plant?", "Plant!")
+    writer.count("Plant") shouldBe 1
+    tasks.isEmpty() shouldBe true
   }
 
   @Test
   internal fun `an invalid narrowing fails, atomically`() {
     initiate("2 Plant?")
     history().shouldHaveSize(1)
-    shouldThrow<NarrowingException> { writer.reviseTask("2 Plant?", "3 Plant!") }
-    history().shouldHaveSize(1)
+    shouldThrow<NarrowingException> { selectAndNarrow("2 Plant?", "3 Plant!") }
+    history().shouldHaveSize(2)
+    tasks.extract { it.selected }.shouldContainExactly(true)
   }
 
   @Test
   internal fun `repeated narrowing`() {
     initiate("3 StandardResource?")
 
-    writer.reviseTask("3 StandardResource?", "2 StandardResource?")
-    writer.reviseTask("2 StandardResource?", "2 Plant?")
-    writer.reviseTask("2 Plant?", "Plant?")
-    writer.reviseTask("Plant?", "Plant!")
+    selectAndNarrow("3 StandardResource?", "2 StandardResource?")
+    selectAndNarrow("2 StandardResource?", "2 Plant?")
+    selectAndNarrow("2 Plant?", "Plant?")
+    selectAndNarrow("Plant?", "Plant!")
 
-    tasksAsText().shouldContainExactlyInAnyOrder("Plant<Player1>!")
+    writer.count("Plant") shouldBe 1
+    tasks.isEmpty() shouldBe true
   }
 
   @Test
@@ -92,19 +96,20 @@ internal class TaskRevisionTest {
     initiate("5 Plant OR 4 Heat")
     tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>! OR 4 Heat<Player1>!")
 
-    writer.reviseTask("5 Plant OR 4 Heat", "5 Plant")
-    history().shouldHaveSize(2)
-    tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>!")
+    selectAndNarrow("5 Plant OR 4 Heat", "5 Plant")
+    writer.count("Plant") shouldBe 5
+    tasks.isEmpty() shouldBe true
   }
 
   @Test
   internal fun `narrowing an OR can enqueue multiple instructions`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
-    writer.reviseTask("5 Plant OR (4 Heat, 2 Energy)", "4 Heat, 2 Energy")
+    selectAndNarrow("5 Plant OR (4 Heat, 2 Energy)", "4 Heat, 2 Energy")
 
     assertHistoryTypes(
         TaskAddedEvent::class, // full one
+        GameEvent.TaskEditedEvent::class, // selected
         TaskAddedEvent::class, // heat
         TaskAddedEvent::class, // energy
         TaskRemovedEvent::class, // -full one
@@ -157,7 +162,7 @@ internal class TaskRevisionTest {
   internal fun `narrowing an OR can narrow each instruction in a grouped arm`() {
     initiate("5 Plant OR (4 StandardResource, 2 StandardResource)")
 
-    writer.reviseTask(
+    selectAndNarrow(
         "5 Plant OR (4 StandardResource, 2 StandardResource)",
         "4 Heat, 2 Energy",
     )
@@ -166,14 +171,13 @@ internal class TaskRevisionTest {
   }
 
   @Test
-  internal fun `narrowing to the first stage selects a THEN arm of an OR`() {
+  internal fun `narrowing to the first stage executes it and admits its THEN continuation`() {
+    writer.godMode().manual("ProjectCard")
     initiate("(-ProjectCard THEN ProjectCard) OR Ok")
 
-    writer.reviseTask("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
+    selectAndNarrow("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
 
-    val discard = tasks.extract { it }.single()
-    discard.instruction.toString() shouldBe "-ProjectCard<Player1, Hand>!"
-    discard.then.toString() shouldBe "ProjectCard<Player1, Hand>!"
+    tasksAsText().shouldContainExactly("ProjectCard<Player1, Hand>!")
   }
 
   @Test
@@ -188,55 +192,64 @@ internal class TaskRevisionTest {
   }
 
   @Test
-  internal fun `narrowing a gated instruction to Ok throws NarrowingException`() {
+  internal fun `an unmet gate prevents selection before narrowing`() {
     initiate("10 TR: Plant")
 
-    shouldThrow<NarrowingException> { writer.reviseTask("10 TR: Plant", "Ok") }
+    shouldThrow<dev.martianzoo.pets.api.Exceptions.RequirementException> {
+      writer.selectTask("10 TR: Plant")
+    }
 
     tasksAsText().shouldContainExactly("10 TerraformRating<Player1>: Plant<Player1>!")
   }
 
   @Test
-  internal fun `changing a grouped instruction is a narrowing failure`() {
-    initiate("TR: (Plant, Heat)")
+  internal fun `resolution that produces siblings completes the selected structural task`() {
+    writer.godMode().manual("Plant")
+    val original = initiate("Plant: (Steel?, Heat?)").single()
 
-    shouldThrow<NarrowingException> { writer.reviseTask("TR: (Plant, Heat)", "TR: (Plant, Steel)") }
+    writer.selectTask(original)
+
+    (original in tasks) shouldBe false
+    tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>?", "Heat<Player1>?")
+    tasks.extract { it.selected }.shouldContainExactly(false, false)
   }
 
   @Test
   internal fun `narrowing to Ok automatically handles the task`() {
     initiate("2 Plant?")
 
-    writer.reviseTask("2 Plant?", "Ok")
-    assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
+    selectAndNarrow("2 Plant?", "Ok")
+    assertHistoryTypes(
+        TaskAddedEvent::class,
+        GameEvent.TaskEditedEvent::class,
+        TaskRemovedEvent::class,
+    )
     tasks.isEmpty() shouldBe true
   }
 
   @Test
-  internal fun `narrowing to something impossible is not prevented`() {
+  internal fun `selection can resolve a limited task directly to completion`() {
     initiate("-30 TerraformRating?")
 
-    writer.reviseTask("-30 TerraformRating?", "-21 TerraformRating!")
+    writer.selectTask("-30 TerraformRating?")
 
-    history().shouldHaveSize(2)
-    tasksAsText().shouldContainExactlyInAnyOrder("-21 TerraformRating<Player1>!")
-
-    // Not the point of this test class, but incidentally, we're at a dead end
-    shouldThrow<LimitsException> { writer.prepareTask("-21 TerraformRating!") }
-    shouldThrow<LimitsException> { writer.doTask("-21 TerraformRating!") }
-    shouldThrow<LimitsException> { game.gameplay(PLAYER1).autoExecNow() }
+    writer.count("TerraformRating") shouldBe 0
+    tasks.isEmpty() shouldBe true
   }
 
   @Test
-  internal fun `selecting an AMAP target early locks its domain and rejects a zero target`() {
+  internal fun `narrowing a selected AMAP target rejects an occupied area`() {
+    writer.autoExecMode = AutoExecMode.FIRST
     writer.godMode().manual("OceanTile<Tharsis_1_2>")
+    writer.autoExecMode = NONE
     initiate("OceanTile<>")
 
-    shouldThrow<NarrowingException> { writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_2>") }
-    writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_4>")
+    writer.selectTask("OceanTile<>")
+    shouldThrow<NarrowingException> { writer.narrowTask("OceanTile<Tharsis_1_2>") }
+    writer.narrowTask("OceanTile<Tharsis_1_4>")
 
-    tasks.extract { it.next }.shouldContainExactly(true)
-    tasksAsText().shouldContainExactly("OceanTile<Tharsis_1_4>!")
+    tasks.selectedTask() shouldBe null
+    writer.count("OceanTile<Tharsis_1_4>") shouldBe 1
   }
 
   @Test
@@ -247,7 +260,7 @@ internal class TaskRevisionTest {
     writer.doTask("OceanTile<Tharsis_2_3>")
 
     writer.count("OceanTile<Tharsis_2_3>") shouldBe 1
-    tasks.isEmpty() shouldBe true
+    tasks.matching { "OceanTile" in it.instruction.toString() }.none() shouldBe true
   }
 
   @Test
@@ -257,31 +270,32 @@ internal class TaskRevisionTest {
     writer.doTask("OceanTile<Tharsis_2_3>")
 
     writer.count("OceanTile<Tharsis_2_3>") shouldBe 1
-    tasks.isEmpty() shouldBe true
+    tasks.matching { "OceanTile" in it.instruction.toString() }.none() shouldBe true
   }
 
   @Test
-  internal fun `selecting a PER-wrapped AMAP target early locks the evaluated instruction`() {
+  internal fun `selection resolves PER before its AMAP target is narrowed`() {
     writer.godMode().manual("Plant")
     initiate("OceanTile<> / Plant")
 
-    writer.reviseTask("OceanTile<> / Plant", "OceanTile<Tharsis_1_4> / Plant")
+    writer.selectTask("OceanTile<> / Plant")
+    writer.narrowTask("OceanTile<Tharsis_1_4>")
 
-    tasks.extract { it.next }.shouldContainExactly(true)
-    tasksAsText().shouldContainExactly("OceanTile<Tharsis_1_4>!")
+    tasks.selectedTask() shouldBe null
+    writer.count("OceanTile<Tharsis_1_4>") shouldBe 1
   }
 
   @Test
   internal fun `selecting a PER-wrapped AMAP target with a zero metric resolves to NoOp`() {
     initiate("OceanTile<> / Steel")
 
-    writer.reviseTask("OceanTile<> / Steel", "OceanTile<Tharsis_1_4> / Steel")
+    writer.selectTask("OceanTile<> / Steel")
 
     tasks.isEmpty() shouldBe true
   }
 
   @Test
-  internal fun `doing a task evaluates a PER revision before matching`() {
+  internal fun `doing a task evaluates a PER narrowing before matching`() {
     writer.godMode().manual("3 Heat")
     initiate("X Plant?")
 
@@ -297,7 +311,7 @@ internal class TaskRevisionTest {
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("Plant<Player1>?")
     tasks.extract { "${it.then}" }.shouldContainExactlyInAnyOrder("Steel<Player1>!, Heat<Player1>!")
 
-    writer.reviseTask("Plant?", "Ok")
+    selectAndNarrow("Plant?", "Ok")
     tasksAsText().shouldContainExactly("Steel<Player1>!", "Heat<Player1>!")
     tasks.matching { it.then != null }.none() shouldBe true
   }
@@ -306,18 +320,18 @@ internal class TaskRevisionTest {
   internal fun `a chain of 4 THEN clauses has the head sliced off one by one`() {
     initiate("Plant? THEN Steel? THEN Heat? THEN Energy")
 
-    writer.reviseTask("Plant?", "Ok")
+    selectAndNarrow("Plant?", "Ok")
 
     val task1 = tasks.extract { it }.single()
     task1.instruction.toString() shouldBe "Steel<Player1>?"
     task1.then.toString() shouldBe "Heat<Player1>? THEN Energy<Player1>!"
 
-    writer.reviseTask("Steel?", "Ok")
+    selectAndNarrow("Steel?", "Ok")
     val task2 = tasks.extract { it }.single()
     task2.instruction.toString() shouldBe "Heat<Player1>?"
     task2.then.toString() shouldBe "Energy<Player1>!"
 
-    writer.reviseTask("Heat?", "Ok")
+    selectAndNarrow("Heat?", "Ok")
     val task3 = tasks.extract { it }.single()
     task3.instruction.toString() shouldBe "Energy<Player1>!"
     task3.then shouldBe null
@@ -342,14 +356,15 @@ internal class TaskRevisionTest {
   }
 
   @Test
-  internal fun `revising a linked THEN to a concrete sequence splits its first stage`() {
+  internal fun `narrowing a linked THEN to a concrete sequence splits its first stage`() {
     initiate("X Plant? THEN X Heat?")
 
-    writer.reviseTask("X Plant? THEN X Heat?", "3 Plant THEN 3 Heat")
+    selectAndNarrow("X Plant? THEN X Heat?", "3 Plant THEN 3 Heat")
 
     val task = tasks.extract { it }.single()
-    task.instruction.toString() shouldBe "3 Plant<Player1>!"
-    task.then.toString() shouldBe "3 Heat<Player1>!"
+    task.instruction.toString() shouldBe "3 Heat<Player1>!"
+    task.then shouldBe null
+    writer.count("Plant") shouldBe 3
   }
 
   @Test
@@ -361,11 +376,9 @@ internal class TaskRevisionTest {
     tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>?", "Heat<Player1>?")
     tasks.matching { it.then != null }.shouldBeEmpty()
 
-    writer.reviseTask("Heat?", "Heat!")
-    writer.doTask("Heat!")
+    selectAndNarrow("Heat?", "Heat!")
 
-    writer.reviseTask("Steel?", "Steel!")
-    writer.doTask("Steel!")
+    selectAndNarrow("Steel?", "Steel!")
 
     tasks.isEmpty() shouldBe true
   }
@@ -407,7 +420,7 @@ internal class TaskRevisionTest {
   }
 
   @Test
-  internal fun `selecting an AMAP source binds the later stage before preparation`() {
+  internal fun `selecting an AMAP source binds the later stage before resolution`() {
     game.gameplay(PLAYER2).godMode().manual("3 MC")
     writer.autoExecMode = NONE
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
@@ -420,6 +433,11 @@ internal class TaskRevisionTest {
   }
 
   private fun initiate(ins: String) = writer.godMode().addTasks(ins)
+
+  private fun selectAndNarrow(current: String, narrowing: String) {
+    writer.selectTask(current)
+    writer.narrowTask(narrowing)
+  }
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 

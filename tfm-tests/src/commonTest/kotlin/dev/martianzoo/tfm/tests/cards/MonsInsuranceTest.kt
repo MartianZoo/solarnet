@@ -129,10 +129,9 @@ internal class MonsInsuranceTest : CardTest() {
     val manual = p1.godMode().also { it.autoExecMode = NONE }
     manual.addTasks("-Plant<Player2>, 2 MC")
     val attack = game.tasks.extract { it }.single { "Plant<Player2>" in it.instruction.toString() }
-    manual.prepareTask(attack.id)
-    manual.tryPreparedTask()
+    manual.selectTask(attack.id)
     val payout = game.tasks.extract { it }.single { "FROM MC" in it.instruction.toString() }
-    manual.prepareTask(payout.id) shouldBe null
+    manual.selectTask(payout.id)
     manual.doTask("2 MC<Player1>")
 
     p1.count("MC") shouldBe 2

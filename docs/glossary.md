@@ -1,19 +1,19 @@
 # Glossary
 
-- **Abstract Instruction:** An Instruction that is not yet executable because it leaves a choice or calculation unresolved. Examples include an `OR`, a Change Instruction involving an Abstract Type or a non-mandatory Quantifier, and an unevaluated Metric.
-- **Abstract Task:** A Task whose Instruction is abstract. Preparation can evaluate Game World-dependent parts such as Metrics, but the Task remains abstract until every required choice is resolved. Antonym: Concrete Task.
+- **Abstract Instruction:** An Instruction that is not yet executable because it still requires an externally supplied choice. Examples include a live `OR`, a Change Instruction involving an Abstract Type, and an optional quantity. An unresolved Metric or gate is not by itself abstract because Resolution, rather than the Player, determines it.
+- **Abstract Task:** A Task whose Instruction still requires an externally supplied choice. Selecting it resolves Game World-dependent parts such as Metrics, but the Task remains abstract until narrowing has supplied every required choice. Antonym: Concrete Task.
 - **Abstract Type:** A Type that is not fully specified. It can be counted or queried but cannot be the exact Type of a Component gained or removed. Antonym: Concrete Type.
 - **Action:** (1) A Pets element, written with `->`, that combines an optional cost with an Instruction and usually belongs to a card or Standard Action. (2) One of the actions granted to a Player on a turn: starting it seeds that Player's Task Queue, and it lasts until that queue drains.
 - **Activation Edge:** A reference from an Active Class to another Class that must also be active. Structural Dependencies and a Custom implementation's required Class Names create Activation Edges; merely mentioning a represented Class in a `Class<...>` Metric does not.
 - **Active Class:** A Class whose declaration and behavior participate in a particular game-specific Class-table Projection. Only Active Classes can contribute automatically created singleton Components, enumeration candidates, generated choices, and live Effects. A Catalog-known Class that is not active is represented there as an Uninhabited Class. Antonym: Uninhabited Class.
 - **Actor:** The entity credited with performing a pending or completed change. The Actors are the Players and the administrative Engine.
-- **AMAP:** The `.` Quantifier, meaning “as much as possible.” Preparation calculates the greatest currently possible amount and makes that amount mandatory.
+- **AMAP:** The `.` Quantifier, meaning “as much as possible.” Resolution calculates the greatest currently possible amount and makes that amount mandatory.
 - **Anyone:** The broad Pets Type used where an ownership expression does not constrain who the Owner is. More specific domain Types include `Owner` and `Actor`.
-- **Assignee:** The Actor whose Task Queue contains a Task and whose scoped Gameplay may revise, prepare, and execute it. The Assignee chooses among that queue's Tasks and normally makes any optional narrowing; an Instruction-level `BY` may assign the resulting State Changes to a different Performer without changing the Assignee. This is why Philares and Enceladus can give a choice to an Effect's owner, while World Government Terraforming gives its Assignee a choice that Engine performs.
+- **Assignee:** The Actor whose Task Queue contains a Task and whose scoped Gameplay may select and narrow it. The Assignee chooses among that queue's Tasks and normally makes any optional narrowing; an Instruction-level `BY` may assign the resulting State Changes to a different Performer without changing the Assignee. This is why Philares and Enceladus can give a choice to an Effect's owner, while World Government Terraforming gives its Assignee a choice that Engine performs.
 - **Atomicity:** Indivisibility with respect to a stated scope. One `FROM` is a single Transmutation State Change, so its removal and gain cannot be observed separately. A Timeline operation is failure-atomic: all of its events commit or all are rolled back. An Instruction, Task, or chain of Automatic Effects is not thereby one indivisible gameplay event; intermediate State Changes may fire Effects and be observed by them.
 - **Atomize:** To split one counted Instruction into one Instruction per unit so that each unit is handled and triggers Effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not.
 - **Catalog:** One coherent rule universe: the Class Declarations, structured data, Vocabulary, premise rules, and exceptional Custom implementations available to a game. A game selects exactly one Catalog. `Canon` is the Catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different Catalog.
-- **Autoexec:** A convenience policy that prepares and executes pending work when permitted. It trades some opportunity to exercise choices manually for relief from repetitive play.
+- **Autoexec:** A convenience policy that selects or narrows Tasks on an Actor's behalf when it can justify the choice. Resolution and execution are the same automatic engine consequences as for direct Player input.
 - **Automatic Effect:** An Effect written with `::`. Its Triggered Instruction executes inline instead of becoming a queued Task. Antonym: Queued Effect.
 - **Automatic Narrowing:** Narrowing performed by the engine because only one valid choice remains, rather than selected by the Assignee.
 - **Barrier:** A Temporary Component that must be removed before gated work can continue. A Barrier is a common modeling pattern in Pets declarations, not a distinct engine mechanism.
@@ -72,30 +72,28 @@
 - **Hidden:** A presentation classification for Component Types normally omitted from user-visible output. It is not an Actor or ownership rule.
 - **Immediate Instruction:** An on-create Instruction expressed with `This:`, or supplied by transitional card data's `immediate` field.
 - **Instruction:** A Pets specification of work that may change a Game World.
-- **Invariant:** A Class-declared Requirement that every committed Game World state must satisfy. The current engine supports only Limits and checks them while preparing Component changes.
+- **Invariant:** A Class-declared Requirement that every committed Game World state must satisfy. The current engine supports only Limits and checks them while resolving selected Component changes.
 - **Limit:** A counting Invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. The Limiter uses applicable Limits to calculate how much of a Change Instruction is currently legal.
 - **Live Effect:** A Component Effect paired with its existing context Component, compiled into a subscription, and registered with the Effector. The registry counts it according to the multiplicity of that Component Type.
-- **Manual:** Initiated by a Solarnet client rather than caused by an Effect or Workflow. Resolving or narrowing an already pending Task is not a new manual action. With fully automatic Workflow, a game can contain no manual operations.
+- **Manual:** Initiated by a Solarnet client rather than caused by an Effect or Workflow. Selecting or narrowing an already pending Task is not a new manual action. With fully automatic Workflow, a game can contain no manual operations.
 - **Metric:** A Pets expression that computes a nonnegative integer from a Game World.
 - **Minimal Form:** The shortest canonical Type Expression that reliably resolves back to the same Type. It omits inherited Bounds that equal the root Class's defaults, retaining a Bound only when omission would make Dependency matching ambiguous.
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **Multi-instruction:** An Instruction containing two or more comma-separated, unordered child Instructions. It is split into separate Tasks because one Task cannot contain a Multi-instruction.
 - **Multi-requirement:** A Requirement containing two or more child Requirements combined as logical “and.”
-- **Narrowing:** Replacing an Expression, Type, Instruction, or Task with a valid strictly more specific form. For Types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for choices such as Refinements, complements, and linked variables. An Abstract Task becomes executable only after it has narrowed to a Concrete Task.
+- **Narrowing:** Replacing an Expression, Type, Instruction, or Selected Task with a valid more specific form. For Types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for choices such as Refinements, complements, and linked variables. Task narrowing may fill one sub-Specification at a time; each partial choice is recorded as Task state rather than a State Change, and Resolution may reduce the choices offered for the remaining parts. An Abstract Task becomes executable only after it has narrowed to a Concrete Task.
 - **No-op:** The `Ok` Instruction, which always succeeds without changing state.
 - **Operation:**
 - **Origin Indicator:**
 - **Owned:** The root Class for Components whose Type carries an ownership Dependency.
 - **Owner:** An entity that may own Components. Components expose their concrete Owner as a resolved Pets Type; Kotlin runtime identities implement `Owner` only when the entity must participate directly, currently Players. Pets also uses `Owner` as a contextual placeholder that must be bound before execution.
-- **Pending Task:**
+- **Pending Task:** A Task offered in an Assignee's Task Queue but not currently Selected.
 - **Per:**
 - **Performer:** The Actor credited on an Instruction's State Changes. Normally this is the Gameplay Actor, but an Instruction-level `BY` can override the Performer without changing the Task's Assignee.
 - **Pets:** Solarnet's specification language for Component Types, rules, and Game World changes.
 - **Pets Name:**
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **Player-relative Observation:**
-- **Prepared Task:** A Task simplified using facts from the current Game World and therefore locked as the next Task to finish. It may still require narrowing that does not invalidate those facts.
-- **Prepared-Task Lock:**
 - **Production Box:** Terraforming Mars-specific `PROD[...]` notation that Preprocessing lowers into production-Component operations.
 - **Quantifier:** The policy on a Change Instruction: mandatory (`!`), optional (`?`), or AMAP (`.`).
 - **Queue Position:**
@@ -106,10 +104,14 @@
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
 - **Represented-Type linkage:** Inside a refined Class literal such as `Class<Tag>(HAS Tag<Player1>)`, the represented Class argument links to matching root-Class occurrences in the Requirement. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the Class token as an owned Component.
 - **Requirement:** A Pets predicate evaluated against a Game World, used for queries, gates, Invariants, and Refinements.
+- **Resolution:** The engine's interpretation of an Instruction against the current Game World. It evaluates gates and Metrics, applies Quantifier and Limit rules, translates concrete Custom Instructions, and performs forced narrowing without making Player choices. Resolution follows Selection and repeats after each narrowing. It is engine processing, not a third way for a Player to play.
 - **Root Type:** The Class at the head of a Type Expression, before its written Dependency bounds.
 - **Rule Class:** A Class whose Declaration is authored directly in Pets to express the game's reusable structure or rules, such as `GreeneryTile`. This describes provenance only; after Class Loading, a Rule Class behaves like a Content Class. Antonym: Content Class.
 - **Scalar:**
 - **Self Trigger:**
+- **Selected Task:** The Task the Assignee has chosen to finish next. Selection sets `Task.selected` and takes the select-lock because Resolution has read the current Game World; the Task may remain abstract and accept partial narrowing.
+- **Select-lock:** The rule that no competing Game World mutation may invalidate the facts used to resolve a Selected Task before that Task finishes.
+- **Selection:** The Player activity that chooses one Pending Task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a Timeline commit; commit retains its transactional meaning after execution.
 - **Sequential Instruction:**
 - **Session Vocabulary Canonicalization:**
 - **SetupPhase:** The phase that begins after a Game World is fully bootstrapped and performs domain-significant setup work, such as granting each Player 20 `TerraformRating`.
@@ -127,7 +129,6 @@
 - **Task Pool:**
 - **Task Queue:** An Assignee's unordered set of pending Tasks. Stable Task-ID iteration makes arbitrary engine choices reproducible but gives queue order no gameplay meaning.
 - **Task Result:** The Change Events and newly spawned Task IDs returned by a successful operation.
-- **Task Revision:**
 - **Temporary:** A Component Type that must not remain after its operation's Task Queue drains.
 - **This:** A built-in contextual binding. In a Class Declaration it remains late-bound through inheritance and is fixed from the exact context Component; in an Effect Trigger it denotes that Component's own gain or removal event.
 - **Transmutation:** One State Change that removes copies of one Component Type and gains the same number of another without exposing an intermediate state.

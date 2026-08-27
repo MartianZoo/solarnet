@@ -13,7 +13,7 @@
 - [`CustomClass.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/api/CustomClass.kt) — inspect
   the general extension interface before claiming a custom can be removed.
 - [`CustomClassRuntime.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/CustomClassRuntime.kt)
-  — read when the candidate performs live preparation/execution.
+  — read when the candidate performs live resolution/execution.
 - [`ColoniesExpansion.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/ColoniesExpansion.kt)
   — search for `ColoniesSetup` for that specific candidate.
 

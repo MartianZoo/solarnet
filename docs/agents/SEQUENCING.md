@@ -25,9 +25,9 @@
 
 - [`TaskQueue.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueue.kt) and
   [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) — inspect
-  task pooling, revision, and the prepared-task lock.
+  task pooling, narrowing, and the select-lock.
 - [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — inspect
-  splitting, `THEN`, barriers, and prepared forms.
+  splitting, `THEN`, barriers, and resolved forms.
 - [`Effector.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Effector.kt) — search for
   `automatic` when changing immediate reaction ordering.
 - [`AtomicOperationScope.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AtomicOperationScope.kt)
@@ -104,7 +104,7 @@ does not make them task metadata.
 
 Tasks say what activities remain available or mandatory. Keep them sealed after creation: authored
 game behavior must not edit, reprioritize, cancel, or remove another task. Player narrowing remains
-the deliberate exception; engine preparation and execution retain their existing mechanical roles.
+the deliberate exception; engine resolution and execution retain their existing mechanical roles.
 A future priority is immutable task metadata assigned when work is created, not a new capability for
 effects to reach into the task pool.
 
@@ -292,11 +292,11 @@ all: it exposes an optional payment choice.
 
 ### Do not make proposed changes triggerable
 
-A generic `PRE A:: B` would fire after an `A` change had been concretely prepared but before it was
-applied. Do not add this. Preparation is allowed to read the current World only because its result
-must be the next mutation. Letting B mutate first makes the prepared A stale: B could consume A's
+A generic `PRE A:: B` would fire after an `A` change had been concretely resolved but before it was
+applied. Do not add this. Resolution is allowed to read the current World only because its result
+must be the next mutation. Letting B mutate first makes the resolved A stale: B could consume A's
 removal target, fill its gain limit, remove one of its dependencies, or otherwise make the exact
-change impossible. Executing A anyway can violate the component model; preparing it again permits B
+change impossible. Executing A anyway can violate the component model; resolving it again permits B
 to happen in response to an A that then changes or disappears. Making either outcome roll back
 requires a new speculative-change contract rather than ordinary Effect semantics.
 
@@ -306,7 +306,7 @@ listener snapshots, atomization, multiplicity, and nested PRE cycles. A committe
 all of that in the existing model: record a real P only after the operation commits to producing A,
 make A mandatory for successful completion, and roll both back if the operation reaches a dead end.
 The extra P Type is visible conceptual cost, but it is narrower and more truthful than making every
-prepared change observable before it exists.
+resolved change observable before it exists.
 
 ## Use automatic effects to preserve player-visible invariants
 
@@ -394,7 +394,7 @@ A: (R: B) OR Ok
 
 The first tests R when A's exact Change Event fires. If R is false, no task is created; if it is
 true, later changes to R do not cancel B. The second always creates a task and tests R when that task
-is prepared against the later World. It also makes B optional when R is true because `Ok` remains a
+is resolved against the later World. It also makes B optional when R is true because `Ok` remains a
 valid arm. The forms are therefore not interchangeable.
 
 Prefer trigger-side `IF` when R cannot change in the interval or when R qualifies the original
@@ -444,36 +444,36 @@ to Viron's target Requirement, producing the awkward
 marker deferrable and can permit another use.
 
 An author-local automatic tail might help with hidden bookkeeping, but it would not by itself solve
-Viron: the queued target is prepared against the later World where the marker already exists. It
+Viron: the queued target is resolved against the later World where the marker already exists. It
 also would not solve Head Start or event cleanup, which require descendant completion. Investigate
 the three semantics separately before adding syntax.
 
-### Existing preparation precedent
+### Existing resolution precedent
 
-The engine already combines preparation and forced continuation in several narrower ways:
+The engine already combines resolution and forced continuation in several narrower ways:
 
-- `Instructor` prepares every instruction immediately before inline execution, including the
+- `Instructor` resolves every instruction immediately before inline execution, including the
   instruction of an automatic effect.
-- Executing an ordinary task prepares it first; explicit preparation may leave an abstract task
-  marked `next`, which prevents any other World mutation until that task finishes.
-- Narrowing a prepared task automatically prepares the narrowed instruction again, because the
-  prepared task still owns the next mutation.
-- Auto-exec may select and prepare an ordinary task as a convenience policy.
+- Selecting an ordinary task resolves it; selection may leave an abstract task locked against every
+  other World mutation until that task finishes.
+- Narrowing a selected task automatically resolves the narrowed instruction again, because the
+  selected task still owns the next mutation.
+- Auto-exec may select an ordinary task as a convenience policy.
 
 These are useful machinery, but they do not currently give `::` a choice point. An automatic
-instruction that remains abstract after preparation fails instead of entering the task pool. No
-current rule admits an abstract automatic instruction and immediately prepares it because it was
+instruction that remains abstract after resolution fails instead of entering the task pool. No
+current rule admits an abstract automatic instruction and immediately resolves it because it was
 automatic.
 
 ### A constrained deferred-automatic hypothesis
 
 One possible extension would allow at most one abstract instruction in a dynamic chain of `::`
 effects. The engine would finish every other automatic effect, admit that instruction as a task,
-immediately prepare it, and use the existing `next` lock to make it the only work the Player may
+immediately select and resolve it, and use the select-lock to make it the only work the Player may
 change or execute.
 
-Nothing earlier remains suspended across that task transition. When the Player resolves the prepared
-instruction, it executes normally and its own automatic effects run normally. If one of those also
+Nothing earlier remains suspended across that task transition. When the Player narrows the selected
+instruction to concrete, it executes normally and its own automatic effects run normally. If one of those also
 remains abstract, the chain has violated the one-choice limit.
 
 This is substantially narrower than giving every deferred automatic task general priority. Its
@@ -482,7 +482,7 @@ choice should happen sooner.” Trade Envoys could potentially express its optio
 this way without creating and later removing a `TradeBarrier`.
 
 The small syntax rule does not by itself settle the runtime semantics. Before exposing the choice,
-the engine must drain every other choice-free automatic consequence that can affect its preparation;
+the engine must drain every other choice-free automatic consequence that can affect its resolution;
 otherwise effect registration order could change the available choices. It must also reject a
 second abstract instruction in the same causal chain and decide whether a selected instruction group
 is one operation or illegally expands into several unlocked tasks. None of this requires retaining
@@ -497,16 +497,16 @@ it removes more permanent machinery than it adds.
 remain ineligible until other work drains. This may be task priority rather than an `Idle` component
 and fixed-point broadcast protocol.
 
-A task may be prepared only when it has or ties for the highest priority in the relevant control
+A task may be selected only when it has or ties for the highest priority in the relevant control
 scope. Tasks tied at that priority remain an unordered pool. When they are gone, the next occupied
 priority becomes eligible automatically; no task is edited or literally “bumped.” A task's priority
-is fixed when it is created and survives player narrowing, preparation, splitting, and execution
+is fixed when it is created and survives player narrowing, selection, splitting, and execution
 machinery just as assignee, Actor, and cause do.
 
 Use a small semantic ordering, not arbitrary author-selected numbers. The exact bands remain open,
-but the model needs at least normal player work, reduced-priority settlement, and an Engine-owned
-workflow fallback below both. A prepared task can share the eligibility check as the sole selected
-work, but preparation remains explicit state: it has read the World and therefore forbids every
+but the model needs at least ordinary player work, reduced-priority settlement, and an Engine-owned
+workflow fallback below both. A selected task can share the eligibility check as the sole selected
+work, but selection remains explicit state: resolution has read the World and therefore forbids every
 intervening mutation, not merely lower-priority task selection.
 
 Priority is not `THEN`. Completing A creates its particular B continuation; queue-drain priority

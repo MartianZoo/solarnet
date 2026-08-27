@@ -22,7 +22,7 @@
 
 | Task | Read |
 | --- | --- |
-| Distinguish engine semantics from client policy | Core distinction; Preparation is not a policy |
+| Distinguish engine semantics from client policy | Core distinction; Resolution is not a policy |
 | Design a policy interface or driver | Policy pool and driver through Agent provenance |
 | Add analysis, speculative Worlds, or performance guarantees | Analysis and disposable Worlds; Performance contract |
 | Plan or review the extraction from engine | Broad implementation direction; First implemented split; Current implementation divergence |
@@ -32,10 +32,10 @@
 
 The engine must be fully usable with no autoexecution enabled. A client can play a complete game by
 issuing explicit gameplay commands. Disabling every policy must perform no autoexecution analysis,
-queue scan, speculative preparation, or other hidden work.
+queue scan, speculative resolution, or other hidden work.
 
-Autoexecution is a pool of optional client policies plugged into the same `Gameplay` API. A
-policy may select, prepare, narrow, or execute tasks on an Actor's behalf. It has no mutation power
+Autoexecution is a pool of optional client policies plugged into the ordinary `Gameplay` API. A
+policy may select or narrow tasks on an Actor's behalf. It has no mutation power
 that an explicit client call lacks, and the resulting gameplay operation must be identical to the
 same call made directly by that client.
 
@@ -44,14 +44,14 @@ This distinction excludes several engine responsibilities:
 - A `::` effect executes inline because the authored game rule makes it automatic.
 - A `:` effect creates a task because the authored rule requires later activity by its assignee.
 - Validation and recognition of a proven dead end apply whether a client or policy chose the path.
-- Preparing a particular task performs the state-based evaluation required by preparation.
+- Selecting a particular task causes the engine to resolve it against the current World.
 
 The engine owns those semantics. It does not own a policy for deciding which offered gameplay
 command should happen.
 
-## Preparation is not a policy
+## Resolution is not a policy
 
-The engine prepares only the task a caller identifies. Preparation evaluates facts whose meaning is
+The engine resolves only the task a caller selects. Resolution evaluates facts whose meaning is
 already fixed by the current World, especially gates and metrics, and performs the validation and
 normalization needed to represent that task. This evaluation is conceptually related to narrowing,
 but it is not a search through the player's choices and it does not initiate background work over
@@ -59,17 +59,17 @@ the task pool.
 
 Forced narrowing is distinct. It examines a choice and proves that some candidates are impossible
 or that only one answer remains. The engine may expose reusable read-only analysis that supports
-such a proof, but preparation is not contractually required to discover every forced
-narrowing. An optional policy may request the analysis and submit the resulting revision through
+such a proof, but ordinary resolution is not contractually required to discover every forced
+narrowing. An optional policy may request the analysis and submit the resulting narrowing through
 the same gameplay command a client would use.
 
-This distinction keeps raw preparation small and predictable. Turning every policy off removes
+This distinction keeps resolution small and predictable. Turning every policy off removes
 policy-driven task-pool searches and optional choice-pruning work while leaving gates, metrics,
-validation, local preparation normalization, and explicit gameplay functional.
+validation, local resolution, and explicit gameplay functional.
 
-Selection, preparation, narrowing, and execution remain separate possible commands. A policy may
-automate any subset for which it has an adequate reason; becoming prepared or concrete does not by
-itself execute a task.
+Selection and narrowing are the only Player activities. Resolution follows either, and execution
+follows automatically once the selected task is concrete. A policy may automate either Player
+activity for which it has an adequate reason.
 
 ## Policy pool and driver
 
@@ -115,14 +115,13 @@ preserving an unsafe policy for their convenience.
 A proof-preserving policy may act only when it establishes that its command removes no
 semantically distinct legal continuation. Useful proof families include:
 
-- the client has already selected and fully narrowed a concrete task, leaving execution as the
-  uncommitted mechanical step;
-- exactly one revision of a selected task is valid;
+- exactly one narrowing of a selected task is valid;
 - exactly one task can make any gameplay progress in the current state; or
 - several candidate paths reach the same semantic state at the same comparison point.
 
-The third case is stronger than observing that one call to `prepareTask` succeeds. Another task may
-still accept an explicit narrowing or another command. A policy must account for every
+The second case is stronger than observing that one call to `canSelectTask` succeeds.
+Another task may still accept an explicit narrowing or another ordinary command. A policy must
+account for every
 way a client can make gameplay progress. When one task is gated on `Foo`, the World has no `Foo`,
 and the only other task gains `Foo`, the gain really is forced: the gated task cannot progress
 until that state change occurs. This policy family is plausible, but it may be deferred until its
@@ -146,7 +145,7 @@ Event history remains essential for explanation, provenance, rollback, replay, a
 it is simply not an input to game rules.
 
 Equivalence of component/task state is deliberately stronger than equality of headline resources
-or final scores. Temporary components, prepared-task state, assignee, Actor, continuations, and any
+or final scores. Temporary components, selected-task state, assignee, Actor, continuations, and any
 other task data that can affect future play all count.
 
 ## Agent provenance
@@ -181,8 +180,8 @@ revision must remain explicit so analysis is never applied to a changed state.
 
 The implementation historically paid for autoexecution after every nested engine/API transition. A
 JFR trace of `ThermalMatterWaveTest` after immediate execution stopped using reversible execution
-preview recorded 3,158 `autoExecNext` calls, 5,413 candidate-preparation probes, and 1,272 atomic API
-entries. There were more than five autoexecution passes and nine preparation probes per explicit
+preview recorded 3,158 `autoExecNext` calls, 5,413 candidate-resolution probes, and 1,272 atomic API
+entries. There were more than five autoexecution passes and nine resolution probes per explicit
 task selection on average.
 
 The destination removes that structural cost:
@@ -254,7 +253,7 @@ The finished design should establish that:
 - an empty profile performs no scans, probes, or automatic task commands;
 - direct and policy-issued copies of the same gameplay command differ only in diagnostic agent
   provenance, producing identical semantic state and otherwise identical events;
-- automatic rules and state-based preparation behave identically with every policy disabled;
+- automatic rules and state-based resolution behave identically with every policy disabled;
 - each supplied proof-preserving policy is tested against the legal alternatives it claims to
   preserve;
 - no supplied policy uses stable task order as a gameplay decision;

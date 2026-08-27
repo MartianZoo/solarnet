@@ -17,15 +17,15 @@ public interface GameReader : TypeInfo {
   /** The Catalog used by the world. */
   public val catalog: Catalog
 
-  /** Returns the type represented by the (fully-prepared) [expression]. */
+  /** Returns the type represented by the fully contextualized [expression]. */
   public fun resolve(expression: Expression): Type
 
-  /** Determines whether the (fully-prepared) [requirement] is met in the current world. */
+  /** Determines whether the fully contextualized [requirement] is met in the current world. */
   override fun has(requirement: Requirement): Boolean
 
   /**
-   * Evaluates the (fully-prepared) [metric] in the current world. A count whose root is a custom
-   * class is computed by that Kotlin implementation rather than from components.
+   * Evaluates the fully contextualized [metric] in the current world. A count whose root is a
+   * custom class is computed by that Kotlin implementation rather than from components.
    */
   public fun count(metric: Metric): Int
 

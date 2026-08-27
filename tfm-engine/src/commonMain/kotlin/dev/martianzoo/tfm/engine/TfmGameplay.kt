@@ -314,7 +314,10 @@ public class TfmGameplay(
     if (this@TfmGameplay.count("Owed") == 0) {
       tasks
           .matching { it.cause?.context?.className in setOf(cn("Accept"), cn("AcceptFromCard")) }
-          .forEach { reviseTask(it, "Ok") }
+          .forEach {
+            selectTask(it)
+            if (it in tasks) narrowTask("Ok")
+          }
     }
     autoExecNow()
   }
@@ -330,7 +333,7 @@ public class TfmGameplay(
               .filter { task ->
                 val previous = preexistingTasks[task.id]
                 previous == null ||
-                    previous.copy(next = task.next, whyPending = task.whyPending) != task
+                    previous.copy(selected = task.selected, whyPending = task.whyPending) != task
               }
       if (newPendingTasks.isNotEmpty()) {
         if (newPendingTasks.any { it.whyPending == "abstract" }) {
@@ -477,7 +480,12 @@ public class TfmGameplay(
   }
 
   private fun OperationBody.finishBilling(billingCause: Cause?) {
-    tasks.matching { it.cause?.context?.className == cn("Accept") }.forEach { reviseTask(it, "Ok") }
+    tasks
+        .matching { it.cause?.context?.className == cn("Accept") }
+        .forEach {
+          selectTask(it)
+          if (it in tasks) narrowTask("Ok")
+        }
     autoExecNow()
     advanceSingleConcreteTask(billingCause)
   }
@@ -491,7 +499,7 @@ public class TfmGameplay(
               .filter { task ->
                 task.cause == cause &&
                     !task.instruction.isAbstract(reader) &&
-                    this@TfmGameplay.canPrepareTask(task.id)
+                    this@TfmGameplay.canSelectTask(task.id)
               }
               .singleOrNull() ?: return
       executeTask(next)
@@ -499,7 +507,7 @@ public class TfmGameplay(
   }
 
   private fun executeTask(task: Task) {
-    prepareTask(task.id)?.let { tryPreparedTask() }
+    selectTask(task.id)
   }
 
   /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */

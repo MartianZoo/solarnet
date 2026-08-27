@@ -27,7 +27,7 @@ internal class BugsTest : CardTest() {
 
     val reward = philaresReward()
     reward.assignee shouldBe PLAYER2
-    shouldThrow<TaskException> { manual.prepareTask(reward.id) }
+    shouldThrow<TaskException> { manual.selectTask(reward.id) }
 
     p2.doTask("Steel")
     manual.doTask("Plant")

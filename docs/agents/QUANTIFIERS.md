@@ -15,10 +15,10 @@
 - [`Limiter.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Limiter.kt) — inspect for
   concrete limits and invariant headroom.
 - [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
-  for `Intensity` and `abstract` to see preparation of quantified changes.
-- [`PrepareTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/PrepareTest.kt) and
+  for `Intensity` and `abstract` to see resolution of quantified changes.
+- [`InstructionResolutionTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/InstructionResolutionTest.kt) and
   [`TaskPreparingTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskPreparingTest.kt)
-  — select scenarios matching the changed preparation phase.
+  — select scenarios matching the changed resolution phase.
 
 A quantifier controls the count executed by one gain, removal, or transmutation. It does not choose
 an `OR` arm, satisfy a gate, choose a concrete target, or determine a `PER` metric. Those operations
@@ -46,10 +46,10 @@ compose with quantification but have their own rules.
   invariant headroom.
 - The **limit** `m` is the greatest count the concrete change can execute without violating an
   invariant. It is never negative.
-- `Ok` is the prepared representation of executing no change. Pets has no zero-count `Change` node.
+- `Ok` is the resolved representation of executing no change. Pets has no zero-count `Change` node.
 
-Instructions normally prepare against the World in which their task becomes next, not the World in
-which an effect originally created the task. The prepared instruction must execute next against that
+Instructions normally resolve against the World in which their task is selected, not the World in
+which an effect originally created the task. The resolved instruction must execute next against that
 same World. Quantifiers do not preserve trigger-time target existence.
 
 ## Syntax and defaults
@@ -119,7 +119,7 @@ following `THEN`; target selection and component movement are separate consequen
 
 ## Abstract pure gains and removals
 
-Preparation first performs unique-Type narrowing. If the target remains abstract, the
+Resolution first performs ordinary unique-Type narrowing. If the target remains abstract, the
 following rules apply.
 
 For mandatory and AMAP, the engine can search a pure change's concrete domain. A concrete gain
@@ -127,7 +127,7 @@ candidate must be active, narrow the authored Type, have all destination depende
 required invariant headroom. A concrete removal candidate must be a matching existing component
 with the required footroom.
 
-- Mandatory uses required count `n`. If no candidate can execute all `n`, preparation throws
+- Mandatory uses required count `n`. If no candidate can execute all `n`, resolution throws
   `LimitsException`. Otherwise every candidate that the player selects must execute all `n`.
 - AMAP uses required count one when deciding whether a useful target exists. If no candidate can
   execute one, the whole abstract change becomes `Ok`. Otherwise the task remains a choice among
@@ -143,10 +143,10 @@ AMAP does not require selection of the candidate with the largest limit. It requ
 candidate, then maximizes the count for that selected target. The count is never distributed among
 several targets.
 
-Selecting a concrete target from an unprepared abstract pure AMAP task immediately prepares and
-locks that task to the current World before retaining the selection. This prevents a client from
-validating the domain in one World and executing the selected target in another. A zero-capacity or
-dependency-blocked target is rejected while the authored domain has any positive candidate.
+An abstract pure AMAP target may be narrowed only after its task is selected and resolved. The
+select-lock then prevents a client from validating the domain in one World and executing the
+chosen target in another. A zero-capacity or dependency-blocked target is rejected while the
+authored domain has any positive candidate.
 
 Abstract custom gains are not searched using pure-gain feasibility. They narrow normally; after a
 concrete custom target is chosen, it translates to its instructions. Custom removal and
@@ -168,18 +168,18 @@ An uninhabited Type has a provably empty domain in the current premise. A change
 uninhabited target is `Ok` when optional or AMAP and a `DeadEndException` when mandatory. It does
 not auto-narrow, fire triggers, or participate in abstract feasibility.
 
-When a `PER` metric or other scalar calculation makes the requested count zero, preparation returns
-`Ok` before positive-count quantifier behavior is needed.
+When a `PER` metric or other scalar calculation makes the requested count zero, resolution returns
+`Ok` before ordinary positive-count quantifier behavior is needed.
 
 ## Composition
 
-- `A OR B`: each arm prepares independently against the same current World. An unavailable arm is
+- `A OR B`: each arm resolves independently against the same current World. An unavailable arm is
   discarded. `Ok` is a real surviving arm, and equal surviving arms are deduplicated. If no arm
   survives, the `OR` reports the strongest applicable failure rather than becoming `Ok`.
-- `A THEN B`: only `A` prepares initially. `B` prepares against the World produced by `A`, after
+- `A THEN B`: only `A` resolves initially. `B` resolves against the World produced by `A`, after
   linked Types selected by `A` have been substituted.
-- `A, B`: the instructions become independent sibling tasks. Each prepares against the World in
-  which it becomes next, and either may be resolved first unless another mechanism orders them.
+- `A, B`: the instructions become independent sibling tasks. Each resolves against the World in
+  which it is selected, and either may be selected first unless another mechanism orders them.
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it
   does not change `A`'s quantifier.
 - `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero becomes
@@ -201,7 +201,7 @@ discarded when it is an arm of `OR`. The fallback comes from `OR`, not from AMAP
   when no compatible card can receive a resource.
 - An abstract AMAP tile placement cannot select an occupied area while any legal area exists. When
   no legal area exists, the whole placement is `Ok`.
-- Atmoscoop authors separate concrete AMAP global-parameter arms. A maxed arm prepares to `Ok` and
+- Atmoscoop authors separate concrete AMAP global-parameter arms. A maxed arm resolves to `Ok` and
   remains selectable because it is an explicit arm; Atmoscoop is not one abstract parameter domain.
 - Viral Enhancers authors `Plant OR CardResource<CardFront>`. When the entering bio card cannot
   hold a resource, the concrete resource arm has a missing dependency and is discarded, forcing

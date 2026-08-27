@@ -5,9 +5,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ## User Ideas and Agreed Directions
 
 - Rename instruction `Intensity` to `Quantifier` throughout.
-- **High priority:** Audit SAFE against its proof obligation: it may prepare only when exactly one
-  pending task can prepare, and preparation may concretize an instruction only when exactly one
-  legal concrete narrowing exists. Add focused behavioral coverage for multiple preparable tasks,
+- **High priority:** Audit SAFE against its proof obligation: it may select only when exactly one
+  pending task can be selected, and resolution may concretize an instruction only when exactly one
+  legal concrete narrowing exists. Add focused behavioral coverage for multiple selectable tasks,
   multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
   client policy.
 - Revisit internal `::` transitions separately from SAFE: deterministic research/card-offer setup
@@ -85,10 +85,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   completion separate.
 - Replace the custom `ColoniesSetup` instruction with ordinary per-player setup signaling, then
   delete its custom declaration, registration, and Kotlin implementation.
-- **High priority:** Implement preparation-time delegated narrowing. The controller chooses when to
-  prepare a parent task, the delegate alone narrows its child, and the controller remains blocked
-  until that child completes. Prove Engine narrowing for real-card deals and Player delegation for
-  Enceladus.
+- **High priority:** Implement selection-time delegated narrowing. The controller chooses when to
+  select a parent task, resolution delegates its choice, the delegate alone narrows its child, and
+  the controller remains blocked until that child completes. Prove Engine narrowing for real-card
+  deals and Player delegation for Enceladus.
 - **Low priority:** Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
 - **Low priority:** Support requirement adjustment when one part of a compound card requirement is
@@ -100,15 +100,15 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **High priority:** Identify the signal Classes that workflows or APIs can create directly even
   though no selected Module activates them. Make their owning Modules activate them explicitly,
   then remove the `ClassLoader` rule that activates every reachable Trigger root.
-- **High priority:** Allow a partial instruction to narrow the matching portion of exactly one
-  pending task while preserving the task's untouched structure
+- **High priority:** Allow a partial instruction to narrow the matching portion of the selected task
+  while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
 - **High priority:** Make task queues semantically unordered: remove positional task selection and
   stable-order autoexec precedence, remove `FIRST`, require an id or unambiguous instruction match,
   and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
   dependencies. Autoexecution policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **Medium priority:** Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
+- **Medium priority:** Explore immutable task priority, starting with Trade and PlayCard: tasks may be selected only at the
   highest occupied priority in their control scope, without task-targeting effects or mutation.
   Test whether Trade can delete its pure scheduling barrier and whether PlayCard can directly create
   reduced-priority card-entry and event-cleanup work while preserving auditable `Owed` and
@@ -124,7 +124,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   surface.
 - **Medium priority:** Finish disposable Game World forks and overlays: overlay components and
   live effects, copy the small task queues, extend event history from a captured prefix, and
-  preserve one clear revision point for prepared tasks. Once overlays carry speculative changes,
+  preserve one clear World Revision for Selected Tasks. Once overlays carry speculative changes,
   reconsider `ComponentGraph` as a custom read-mostly structure whose base changes only when the
   game moves forward.
 - Do not intern every structurally possible Type without a retention policy; families such as
@@ -224,17 +224,17 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium-high priority:**
   [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define small,
   independently selectable autoexecution policies that can prove and submit forced task narrowings
-  without making raw preparation search through player choices.
+  without making raw resolution search through player choices.
 
 ### Low Priority
 
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
-- After `OverlayWorld`, consider retaining standalone Task preparation's successful speculative
+- After `OverlayWorld`, consider retaining standalone Task resolution's successful speculative
   event suffix so later execution can fast-forward it when the backing Game World has not changed.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
-- Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
+- Split `Instructor.resolveChange` into narrowing, custom translation, and limit-checking stages.
 - Move Pets AST generation to Kotest property tests only if domain-aware shrinking improves failures.
 
 ## Autonomous Follow-ups
@@ -312,8 +312,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Define the `script` command's relative-path policy and correct its help text, which currently
   promises paths relative to the repository while `File(args)` actually uses the process working
   directory.
-- Separate `Instructor`'s preparation-only capability from execution so `Changer`, `Effector`, and
-  the default Actor do not remain nullable solely for `PrepareTest`.
+- Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
+  the default Actor do not remain nullable solely for `InstructionResolutionTest`.
 - Canonicalize unambiguous authored dependency arguments by key before implicit-variable matching, so equivalent argument orders share a variable as intended (`docs/agents/TYPES.md` §12.7).
 - Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

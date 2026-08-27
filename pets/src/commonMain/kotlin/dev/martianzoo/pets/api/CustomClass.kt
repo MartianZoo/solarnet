@@ -26,27 +26,27 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
 
   /**
    * For a type with 0 dependencies: translates an instruction to gain this type into another
-   * instruction tree that will be prepared and executed instead.
+   * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(game: GameReader): InstructionTree = throw NotImplementedError()
 
   /**
    * For a type with 1 dependency: translates an instruction to gain this type into another
-   * instruction tree that will be prepared and executed instead.
+   * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(game: GameReader, type0: Type): InstructionTree =
       throw NotImplementedError()
 
   /**
    * For a type with 2 dependencies: translates an instruction to gain this type into another
-   * instruction tree that will be prepared and executed instead.
+   * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(game: GameReader, type0: Type, type1: Type): InstructionTree =
       throw NotImplementedError()
 
   /**
    * For a type with 3 dependencies: translates an instruction to gain this type into another
-   * instruction tree that will be prepared and executed instead.
+   * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(
       game: GameReader,
@@ -57,7 +57,7 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
 
   /**
    * For a type with 4 dependencies: translates an instruction to gain this type into another
-   * instruction tree that will be prepared and executed instead.
+   * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(
       game: GameReader,

@@ -16,7 +16,7 @@
 | --- | --- |
 | Game creation or premise activation | Game construction, then Wiring details |
 | Component state, event history, rollback, or forks | Component graph; Events and timeline; Recoverable dead ends |
-| Tasks, assignment, preparation, or execution | Tasks are an unordered choice pool through Execution |
+| Tasks, assignment, selection, narrowing, resolution, or execution | Tasks are an unordered choice pool through Execution |
 | Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
 | Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
 | Engine API or autoexecution | Current Gameplay surface; Auto-execution and workflow |
@@ -31,7 +31,7 @@
   inspect for component multiplicity and indexes.
 - [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) and
   [`PendingTask.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/PendingTask.kt) — inspect
-  only for deferred work and preparation.
+  only for deferred work and resolution.
 - [`EventLog.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/EventLog.kt) and
   [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
@@ -151,10 +151,10 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 
 - stable `TaskId`, derived from its original add-event ordinal;
 - one task-shaped `Instruction`;
-- `assignee`, whose scoped queue contains and may narrow it;
+- `assignee`, whose scoped queue contains it and who may select and narrow it;
 - `actor`, recorded on resulting changes unless instruction-side `BY` overrides it;
 - `cause`;
-- prepared flag `next`;
+- selected flag;
 - optional `THEN` continuation group; and
 - diagnostic `whyPending`.
 
@@ -162,11 +162,11 @@ A temporary 1-based display position may disambiguate equal-looking tasks. It is
 
 `InstructionTree` is the broad AST kind. `Instruction` is one task-shaped root.
 `InstructionGroup` is a normalized comma-separated batch. Queue admission splits a group into one
-task per member. Selecting a grouped `OR` branch can likewise replace one task with several.
+task per member. Narrowing a grouped `OR` branch can likewise replace one task with several.
 
 `A THEN B` stores A as current work and B as a continuation. Completing A enqueues B in its place;
 B is not immediate and receives no priority over unrelated pending work. Open implicit variables can
-prevent splitting until an earlier stage fixes their shared Type. Revision and preparation normalize
+prevent splitting until an earlier stage fixes their shared Type. Narrowing and resolution normalize
 the task again, so the sequence splits once those shared values become concrete.
 
 ### Assignment and Actor
@@ -177,32 +177,44 @@ component, otherwise the triggering Actor. It independently attributes the futur
 effect's context owner when present, otherwise the triggering Actor.
 
 Instruction-side `BY` changes only the Actor. Trigger-side `BY` matches only the Actor on the
-trigger event. Splitting, revision, preparation, `THEN`, and cross-scope execution preserve the
+trigger event. Splitting, narrowing, resolution, `THEN`, and cross-scope execution preserve the
 stored Actor. See [IDENTITY.md](IDENTITY.md).
 
-There is no parent/child queue suspension or delegated control scope. One prepared task globally
-locks preparation of competitors. `TfmWorkflow.Auto` starts Player operations directly and waits
+There is no parent/child queue suspension or delegated control scope. One selected task globally
+locks selection of competitors. `TfmWorkflow.Auto` starts Player operations directly and waits
 for whole-world idleness instead.
 
 This is a known correctness gap for Philares. The current trigger-time assignment gives the
 Philares owner its resource choice immediately and does not let the active Player choose when to
-prepare that reward. The target preparation-time handoff and its blocking requirement are specified
+select that reward. The target selection-time handoff and its blocking requirement are specified
 in [IDENTITY.md](IDENTITY.md); `BugsTest` preserves the two current incorrect behaviors until that
 handoff exists.
 
-### Preparation
+### Selection, resolution, and narrowing
+
+This is the current task lifecycle.
+
+Players play through exactly two kinds of activity:
+
+1. select one pending task, making it the work that must finish next; or
+2. narrow the selected task by supplying one or more of its remaining choices.
+
+Resolution and execution are engine consequences of those activities. Selection is an ordering
+promise, not a Timeline commit; commit retains its transactional meaning after execution. A Player
+with neither a selectable task nor narrowing authority over the selected task has nothing to do.
 
 `InstructionTree` and its narrowable parts implement `Specification`: `isAbstract` reports whether
 an externally supplied choice remains, while `narrows` and `ensureNarrows` compare two
-specifications compositionally. This is independent of preparation. An unresolved gate, `PER`, or
+specifications compositionally. This is independent of resolution. An unresolved gate, `PER`, or
 AMAP instruction can already be non-abstract, and an unresolved instruction can be narrowed while
 preserving its gate, metric, or refinement.
 
-Preparation resolves the state-dependent parts of a task against the current World and:
+Selecting a task causes the engine to resolve its state-dependent parts against the current World.
+Resolution repeats after each narrowing and:
 
 - evaluates `PER` metrics;
 - evaluates gates and optional no-ops;
-- recursively prepares `OR` arms and removes locally impossible ones;
+- recursively resolves `OR` arms and removes locally impossible ones;
 - narrows Types when exactly one concrete choice remains;
 - resolves quantifiers and abstract choice domains as specified in
   [QUANTIFIERS.md](QUANTIFIERS.md);
@@ -210,18 +222,29 @@ Preparation resolves the state-dependent parts of a task against the current Wor
 - makes a reflexive nonmandatory transfer a no-op; and
 - translates a valid concrete custom instruction.
 
-Preparation may replace one task with several group members. Once preparation has read state, the
-result is marked `next` and must execute before any other mutation.
+Narrowing may be partial. Each accepted narrowing is recorded as Task state so the client
+does not need a parallel memory of earlier sub-Specification choices. It is a Task Event, not a State
+Change. Because the select-lock prevents intervening World mutation, later contextual checks,
+including refinement narrowing, observe the same World. Resolution may winnow the options for every
+choice that remains.
 
-Explicit preparation checks a concrete result's complete execution in a reversible atomic preview.
-Immediate task execution skips that preview because the encompassing operation already provides
-failure atomicity. A task already marked `next` retains its prepared first stage instead of deriving
-it again; later linked stages still prepare when reached, against the state produced by earlier
-stages.
+Choice enumeration should follow that same decomposition. Expose useful legal narrowings for one
+sub-Specification, retain the Player's choice, resolve again, and then enumerate the next remaining
+choice. Do not require a client to choose from the Cartesian product of every fully concrete
+Instruction when its parts can be narrowed compositionally.
+
+Once resolution has read state, an abstract task remains selected and must finish before any
+competing mutation. A concrete result executes as part of the same command. A Selected Task retains
+its resolved first stage rather than deriving it again; later linked stages resolve when reached,
+against the state produced by earlier stages.
+
+If resolution or narrowing exposes several independent instructions, the selected structural Task
+completes and is replaced by ordinary Pending Tasks. No child inherits selection; choosing which
+sibling comes next is a new Selection.
 
 ### Execution
 
-Execution accepts prepared concrete work without preparing its first stage again. A `Change` goes
+Execution accepts resolved concrete work without resolving its first stage again. A `Change` goes
 through `Changer`, logging, automatic effects, and queued effects. `By` selects an Actor. A
 normalized `Then` inside inline execution runs its concrete stages; queued `THEN` tails were
 separated when the task was created. `NoOp` does nothing. An unresolved gate, `OR`, scalar, Type, or
@@ -378,10 +401,10 @@ authority model. Normal task commands, manual operations, task edits, and `sneak
 share identical atomic/auto-exec semantics. [API.md](API.md) proposes a mechanical flattening before
 a separate safe client API.
 
-`manual()` seeds a group of new tasks, permits an operation body to resolve them, runs configured
-auto-exec, preserves previously pending unprepared tasks, and fails if newly created Tasks or
-`Temporary` components remain. A pre-existing prepared task prevents it from starting.
-`sneak()` applies raw changes without normal instruction preparation or effects, but still uses the
+`manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
+auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
+`Temporary` components remain. A pre-existing selected task prevents it from starting.
+`sneak()` applies raw changes without normal instruction resolution or effects, but still uses the
 timeline and graph mutation interfaces.
 
 ## Auto-execution and Terraforming Mars workflow
@@ -389,8 +412,8 @@ timeline and graph mutation interfaces.
 Auto-execution modes are:
 
 - `NONE`: do nothing;
-- `SAFE`: proceed only when one preparable option exists; and
-- `FIRST`: choose the first preparable task in stable iteration order.
+- `SAFE`: proceed only when one selectable option exists; and
+- `FIRST`: choose the first selectable task in stable iteration order.
 
 Scanning is global. Assignee selects the queue; stored Actor controls attribution. Failed candidates
 receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplication in the current

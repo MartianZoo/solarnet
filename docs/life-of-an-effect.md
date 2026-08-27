@@ -14,8 +14,12 @@ At every stage, the important question is not merely “what code ran?” but �
 assume about the Pets tree?” Those postconditions are called out explicitly.
 
 The last part takes the point of view of a Task Queue client which does not use Autoexec. The client
-chooses, narrows, prepares, and executes Tasks, then observes the resulting State Changes. It does
-not need to know how those operations are carried out internally.
+plays by selecting Tasks and narrowing the selected Task, then observes the engine's resolution,
+execution, and resulting State Changes. It does not need to know how those consequences are carried
+out internally.
+
+The `Gameplay` API exposes the Player activities as `selectTask` and `narrowTask`; resolution and
+execution remain engine consequences.
 
 `PetTransformer` is the implementation's common mechanism for turning one Pets tree into another.
 Each numbered stage below lists the PetTransformers which touch our Effect, in execution order. A
@@ -37,7 +41,7 @@ postconditions remain the semantic contract.
 | Live Effect | A corresponding Recyclon Component actually exists and can respond to Change Events. |
 | Triggered Instruction | One exact Change Event has matched and supplied any trigger-linked choices. |
 | Task | The queued Instruction has an Assignee and Cause and may still contain choices. |
-| Prepared Task | Current Game World facts have been applied and this is the next Task to finish. |
+| Selected Task | The client has chosen the next Task, and current Game World facts have been applied. |
 | State Change | An exact gain or removal has happened and a Change Event records it. |
 
 ## 1. The JSON5 string
@@ -386,7 +390,7 @@ Instruction, its remainder is retained for later; this later part is called its 
 Production<Player1, Class<Plant>>!
 ```
 
-The continuation is not executed or prepared early. `THEN` promises only that the second stage
+The continuation is not executed or resolved early. `THEN` promises only that the second stage
 cannot precede completion of the first; it does not give either stage priority over unrelated
 Tasks.
 
@@ -405,25 +409,25 @@ to `ColonyProduction<Luna>?`. Only then is the first stage safely independent of
 stages have been retained with the same Assignee, Cause, and Performer. No later stage can appear
 before the selected first stage completes.
 
-## 10. Preparing and executing the first stage
+## 10. Selecting, resolving, and executing the first stage
 
-**PetTransformers, in order:** none during preparation or execution of Recyclon's ordinary Change
-Instruction. Preparation handles its count, Quantifier, Type, and Limits directly. If the client
+**PetTransformers, in order:** none during resolution or execution of Recyclon's ordinary Change
+Instruction. Resolution handles its count, Quantifier, Type, and Limits directly. If the client
 identifies the Task by Pets text rather than Task ID, that text uses the eight-step client-input
-chain listed in stage 9 before preparation begins.
+chain listed in stage 9 before resolution begins.
 
-The client prepares the removal Task against the current Game World. With at least two microbes on
-Recyclon, it becomes a Prepared Task for exactly:
+The client selects the removal Task. The engine resolves it against the current Game World. With at
+least two microbes on Recyclon, it becomes the Selected Task for exactly:
 
 ```pets
 -2 Microbe<Recyclon<Player1>>!
 ```
 
-Preparation has checked the current counts and applicable Invariants and applied any
-Game-World-dependent calculation. A Prepared Task is locked as the next Task to finish, because
+Resolution has checked the current counts and applicable Invariants and applied every
+Game-World-dependent calculation. The Selected Task is locked as the next Task to finish, because
 those conclusions were drawn from the current World. Here there is no remaining choice.
 
-The client executes it and observes:
+The engine therefore executes it, and the client observes:
 
 - the count of `Microbe<Recyclon<Player1>>` has decreased by two;
 - a Change Event records that exact removal, its Performer, and the Task's Cause; and
@@ -435,19 +439,19 @@ that it actually happened; those are deliberately different concepts.
 **Postcondition:** the exact removal is committed in the Game World and recorded in the Event Log.
 The first Task is complete, and only now is its continuation pending.
 
-## 11. Preparing and executing the continuation
+## 11. Selecting and executing the continuation
 
-**PetTransformers, in order:** none during preparation or execution. As in stage 10, client-supplied
+**PetTransformers, in order:** none during resolution or execution. As in stage 10, client-supplied
 Pets text separately passes through the stage 9 client-input chain.
 
-The client next chooses and prepares:
+The client next selects:
 
 ```pets
 Production<Player1, Class<Plant>>!
 ```
 
-It is already a mandatory gain of a Concrete Type, so preparation leaves its visible form alone.
-The client executes it and observes the final State Change: one
+It is already a mandatory gain of a Concrete Type, so resolution leaves its visible form alone.
+The engine executes it, and the client observes the final State Change: one
 `Production<Player1, Class<Plant>>` Component has been gained, with a corresponding Change Event.
 
 Nothing in `THEN` makes this gain part of the same State Change as the microbe removal. They are two
@@ -467,7 +471,9 @@ Triggered Instruction has no remaining Task or continuation.
 - A Live Effect can respond, but it has not responded until one Change Event matches.
 - A Triggered Instruction has finished trigger specialization, but may still be an Abstract
   Instruction.
-- A Task records permitted work and choices; only preparation applies current Game World facts.
-- A Prepared Task is ready and locked next, but it is not a State Change.
+- A Task records permitted work and choices; only selection causes current Game World facts to be
+  resolved into it.
+- A Selected Task is locked next, but its selection and any partial narrowing are Task state rather
+  than State Changes.
 - Only execution produces State Changes, and only Change Events make those changes part of the
   Event Log.

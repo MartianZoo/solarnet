@@ -15,7 +15,7 @@ internal class CustomClassRuntime(
     private val catalog: Catalog,
     private val transformers: Transformers,
 ) {
-  internal fun prepare(component: Component, reader: GameReader): InstructionTree {
+  internal fun translateInstruction(component: Component, reader: GameReader): InstructionTree {
     require(component.isCustom)
     require(transformers.classTable.isActive(component.type))
 

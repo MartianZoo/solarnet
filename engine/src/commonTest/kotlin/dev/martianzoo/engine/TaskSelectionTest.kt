@@ -54,10 +54,10 @@ internal class TaskSelectionTest {
   }
 
   @Test
-  internal fun `a prepared task wins even when a task number is supplied`() {
+  internal fun `a selected task wins even when a task number is supplied`() {
     tasks.addTasks("Plant?")
     tasks.addTasks("Heat?")
-    gameplay.prepareTask("Heat?")
+    gameplay.selectTask("Heat?")
 
     gameplay.doTask("Heat!", 1)
 

@@ -22,7 +22,7 @@
 
 This project is an architectural replacement, not a prerequisite for current Splice, Icy
 Impactors, Enceladus, or World Government Terraforming behavior. Philares is not a working
-precedent: its required preparation-time delegation remains a known gap described in
+precedent: its required selection-time delegation remains a known gap described in
 [IDENTITY.md](IDENTITY.md).
 
 ## Domain requirements

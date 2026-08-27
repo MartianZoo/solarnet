@@ -13,8 +13,8 @@
 
 | Task | Read |
 | --- | --- |
-| Component/area representation | State model through Normal transitions |
-| Defaults, counted cards, or delegated face choice | Defaults and atomization; Preparation-time delegation |
+| Component/area representation | State model through Ordinary transitions |
+| Defaults, counted cards, or delegated face choice | Defaults and atomization; Selection-time delegation |
 | Shuffle, replay, rollback, or forks | Deterministic dealer projection |
 | Reveal, search, or card predicates | Reveals, searches, and printed predicates |
 | `CARDS[...]` or follow-mode lowering | Canonical card-operation source; Follow mode and operation lowering |
@@ -45,8 +45,9 @@ The smallest coherent model discovered so far is:
 4. A card back carries its represented `Class<CardFront>`; a card front carries its
    `Class<CardBack>` family.
 5. Counted physical-card instructions atomize before defaults and ownership specialization.
-6. A Player controls when a card gain is prepared, but Engine alone narrows the remaining exact-face
-   choice. Preparation-time delegation blocks the controlling scope until that narrowing completes.
+6. A Player controls when a card gain is selected, but Engine alone narrows the remaining exact-face
+   choice. Selection-time resolution delegates that narrowing and blocks the controlling scope until
+   it completes.
 7. Information hiding will eventually project exact Types to less concrete Types. It does not
    require unknown-card Components in the master World.
 
@@ -232,19 +233,19 @@ ProjectCard<Player1>     // default area Hand; exact face still unresolved
 Positive entry gains receive Engine narrowing. Hand removals remain Player choices because the
 exact candidate cards already exist in that Player's World-visible domain.
 
-## Preparation-time delegation
+## Selection-time delegation
 
 An abstract card gain contains two decisions owned by different parties:
 
 - the controlling Player decides when the promised draw or reveal proceeds; and
 - Engine determines which exact face the deterministic deck supplies.
 
-The abstract task must initially remain under its controller. The Player may order other eligible
-sibling work before preparing it. When the Player prepares the card gain:
+The abstract task must initially remain under its controller. The Player may select other eligible
+sibling work first. When the Player selects the card gain:
 
-1. preparation recognizes that its remaining face variable is Engine-narrowed;
+1. resolution recognizes that its remaining face variable is Engine-narrowed;
 2. the parent task is suspended;
-3. a child task is assigned to Engine while preserving the parent's future Actor;
+3. an already-selected child task is assigned to Engine while preserving the parent's future Actor;
 4. the controlling scope is blocked from further task execution;
 5. Engine derives and applies the one lawful exact-face narrowing; and
 6. completion of that child resumes and completes the parent, releasing the block.
@@ -253,14 +254,14 @@ The Player must never be able to submit a preferred exact face. `BY Engine` is n
 instruction-side `BY` changes event attribution, not narrowing authority or queue control.
 
 Counted gains delegate one atom at a time. The first exact gain enters the Event Log before the next
-atom is prepared, so the second atom necessarily derives the following face.
+atom is selected, so the second atom necessarily derives the following face.
 
 ### Philares is the controlling precedent
 
 Philares requires the same controller/narrower interface and establishes its timing semantics:
 
-1. the active Player retains control of the pending resource task and decides when to prepare it;
-2. preparation delegates only the Standard Resource narrowing to the Philares owner;
+1. the active Player retains control of the pending resource task and decides when to select it;
+2. resolution delegates only the Standard Resource narrowing to the Philares owner;
 3. the active Player can do no more work in that control scope while the delegated child is
    unresolved; and
 4. after the Philares owner chooses and receives the resource, the active Player resumes.
@@ -320,9 +321,9 @@ explicit dealer rule, not a selector fallback that invents a candidate.
 - The premise's algorithm version lets old histories be validated after implementation changes.
 - A cache is indexed by history identity or event cursor and never advances independently.
 
-Preparation computes a candidate without mutating dealer state. Executing the exact gain appends the
+Resolution computes a candidate without mutating dealer state. Executing the exact gain appends the
 event that advances the projection. This avoids an off-timeline RNG cursor and keeps failed
-preparation observational.
+resolution observational.
 
 ## Reveals, searches, and printed predicates
 
@@ -536,7 +537,7 @@ rename every card definition.
 1. **Types and defaults:** prove the mutual Class-literal dependencies, singleton areas, direct
    ownership, gain/removal defaults, atomization order, and linked play/Event transitions in a
    synthetic Class Table.
-2. **Delegated narrowing:** implement controller-held preparation, child assignment, blocking, and
+2. **Delegated narrowing:** implement controller-held selection, child assignment, blocking, and
    resumption. Fix the two Philares characterizations first, then delegate a synthetic card face to
    Engine without changing its future Actor.
 3. **Dealer projection:** derive a tiny three-face deck and discard set from premise plus events;
@@ -559,8 +560,8 @@ exceptions specific to ProjectCard.
 1. The premise-selected face set partitions exactly across derived deck, derived discard, backs,
    and fronts.
 2. `N ProjectCard` creates N atomized gains and consumes N sequential faces without replacement.
-3. The controlling Player decides when each gain is prepared but cannot narrow its face.
-4. Preparation delegates face narrowing to Engine and blocks the controller until completion.
+3. The controlling Player decides when each gain is selected but cannot narrow its face.
+4. Resolution delegates face narrowing to Engine and blocks the controller until completion.
 5. Equal seed, algorithm version, deck family, and history produce equal outcomes across platforms.
 6. Rollback and retry reproduce an outcome; forks share outcomes until their histories diverge.
 7. Reshuffle uses exactly the discard set derived at the exhaustion point.
@@ -582,4 +583,4 @@ exceptions specific to ProjectCard.
 
 None changes the central model: directly owned in-World cards, unowned singleton areas, no Deck or
 Discard Components, deterministic dealer state derived from premise plus history, and
-preparation-time delegation of exact-face narrowing to Engine.
+selection-time delegation of exact-face narrowing to Engine.

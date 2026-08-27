@@ -55,7 +55,7 @@ real safety mechanism: coordinated mutation.
 One Actor-scoped engine facade should expose the supported trusted operations:
 
 - contextual parsing and queries;
-- task revision, preparation, execution, insertion, and removal;
+- task selection, narrowing, execution, insertion, and removal;
 - manual operations and turns;
 - read-only task analysis usable by explicit clients and optional autoexecution policies; and
 - conspicuously named rules-bypassing changes.
@@ -67,8 +67,8 @@ The workhorse must preserve:
 
 1. rollback of every component, task, index, and event change in a failed atomic command;
 2. synchronization of component multiplicity and live effects;
-3. normalized, logged, reversible task mutation;
-4. one coherent global prepared-task lock;
+3. normalized, logged task mutation;
+4. one coherent global select-lock;
 5. one Game World's Class Table identity;
 6. Actor/context semantics and event attribution; and
 7. committed initialization/workflow rollback floors.
@@ -90,9 +90,57 @@ return
 ```
 
 First characterize the current transaction, result, and notification behavior of task
-revision/preparation, insertion/removal, manual operations, turns, and raw changes. Normalize only
+selection/narrowing, insertion/removal, manual operations, turns, and raw changes. Normalize only
 deliberate differences. Autoexecution is an optional client of this raw command lifecycle, as
 specified in [AUTOEXEC.md](AUTOEXEC.md), not a stage inside it.
+
+## Select-and-narrow API
+
+The public primitives expose the two ways a Player plays; internal names expose the engine
+consequences.
+
+| Name | Contract |
+| --- | --- |
+| `Task.selected` | This task holds the select-lock; it need not yet be concrete. |
+| `TaskQueue.selectedTask()` | Returns the Selected Task, if any. |
+| `Gameplay.canSelectTask(id)` | Checks whether Selection and its initial Resolution can succeed. |
+| `Gameplay.selectTask(id)` | Selects and resolves one Pending Task, then executes it immediately if concrete. |
+| `Gameplay.selectTask(text)` | Convenience matcher with the same Selection semantics. |
+| `Gameplay.narrowTask(text)` | Narrows only the Selected Task, resolves it again, and executes if concrete; partial narrowing remains recorded. |
+| `Instructor.resolve(...)` | Applies World-dependent instruction semantics without making a Player choice. |
+| `Instructor.executeResolved(...)` | Executes the already-resolved first stage. |
+| `CustomClassRuntime.translateInstruction(...)` | Names the custom-class responsibility directly. |
+
+The Player-facing core should therefore reduce to:
+
+```kotlin
+fun canSelectTask(taskId: TaskId): Boolean
+fun selectTask(taskId: TaskId): TaskResult
+fun narrowTask(narrowing: String): TaskResult
+```
+
+The Selected Task supplies its identity and current wider Specification. String parsing and matching
+remain in `ApiTranslation`. Each mutating call resolves and, once concrete, executes before
+returning; a partial narrowing returns with the same task still selected.
+
+`GameReader.resolve(Expression)` and `ClassTable.resolve(Expression)` keep their names: converting a
+symbolic specification into its contextual meaning is the same concept. Private helpers should
+follow the public vocabulary (`canSelectAnyTask`, `executeSelectedTask`, `resolveChange`,
+`resolveOr`).
+
+`doTask(narrowing, taskNumber)` and `tryTask(...)` need not be split merely for lexical purity. They
+are combined commands that match a task, select it, resolve it, apply the submitted narrowing, and
+execute once concrete, in that order. Their KDoc should state that composition and they must obey the
+same invariants as the primitives. An explicitly submitted group bundles execution of the resulting
+siblings; a group exposed only by Preprocessing or Resolution completes its structural task and
+leaves ordinary Pending Tasks. The script command for explicit Selection is `task select`.
+
+Selection must precede narrowing, so contextual Type narrowing occurs while the select-lock protects
+the World it read. Partial narrowing produces `TaskEditedEvent`s and survives subsequent client
+requests, but it does not produce a `ChangeEvent`.
+
+If Resolution or Narrowing exposes several independent instructions, the selected structural Task
+completes and the instructions become ordinary Pending Tasks. No child inherits Selection.
 
 `ApiTranslation` should remain a value/string adapter rather than the owner of all engine policy.
 A focused command runner can own atomicity, result collection, agent provenance, and completion

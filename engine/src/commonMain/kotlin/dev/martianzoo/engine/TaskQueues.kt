@@ -28,8 +28,8 @@ import dev.martianzoo.pets.types.ClassTable
  * * `a, Ok` becomes `a`
  * * `a, Die` becomes `Die`
  * * `a OR Die` becomes `a`; if every option is `Die`, the task produces [DeadEndException]
- * * A concrete task with [Task.next] set is guaranteed to execute successfully
- * * New tasks created have the same assignee, Actor, and cause as the original. Prepared tasks
+ * * A concrete selected task is guaranteed to execute successfully
+ * * New tasks created have the same assignee, Actor, and cause as the original. Selected tasks
  *   cannot be split
  */
 internal class TaskQueues

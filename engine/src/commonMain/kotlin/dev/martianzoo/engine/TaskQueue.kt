@@ -53,8 +53,8 @@ internal constructor(
   /** Returns the results of executing a function against every task in the queue. */
   public fun <T> extract(extractor: (Task) -> T): List<T> = filtered().map(extractor)
 
-  /** Returns the id of the task marked with [Task.next] if there is one. */
-  public fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
+  /** Returns the id of the selected task if there is one. */
+  public fun selectedTask(): TaskId? = filtered().firstOrNull { it.selected }?.id
 
   /** Returns true if no queue has any tasks. */
   internal fun areAllQueuesEmpty(): Boolean = taskQueues.getAllTaskData().none()

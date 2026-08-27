@@ -78,7 +78,7 @@ internal class ScriptCompletionEngineTest {
 
     assertFalse(values("task ").any { it == "A" || it == "B" })
     assertContainsAll(values("task Pl"), "Plant", "PlantTag")
-    assertTrue("prepare" in values("task pr"))
+    assertTrue("select" in values("task se"))
     assertContainsAll(values("task 1 Play"), "PlayCard", "Player1")
   }
 
@@ -87,7 +87,7 @@ internal class ScriptCompletionEngineTest {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
     taskLayer.addTasks("2 Plant?")
     assertTrue(repl.command("tasks").single().startsWith("[Engine] "))
-    assertTrue(repl.command("task prepare").single().startsWith("* [Engine] "))
+    assertTrue(repl.command("task select").single().startsWith("* [Engine] "))
 
     repl.command("mode yellow")
     repl.command("task drop")
@@ -99,7 +99,7 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  internal fun prepareAndDropRejectMultipleTasks() {
+  internal fun selectAndDropRejectMultipleTasks() {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
     taskLayer.addTasks("2 Plant?")
     taskLayer.addTasks("3 Heat?")
@@ -108,14 +108,14 @@ internal class ScriptCompletionEngineTest {
     assertEquals(
         listOf(
             "this requires exactly one pending task",
-            "Usage: task [<number>] <Instruction> | task <prepare | drop>",
+            "Usage: task [<number>] <Instruction> | task <select | drop>",
         ),
-        repl.command("task prepare"),
+        repl.command("task select"),
     )
     assertEquals(
         listOf(
             "this requires exactly one pending task",
-            "Usage: task [<number>] <Instruction> | task <prepare | drop>",
+            "Usage: task [<number>] <Instruction> | task <select | drop>",
         ),
         repl.command("task drop"),
     )

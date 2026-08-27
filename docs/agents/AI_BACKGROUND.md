@@ -487,7 +487,7 @@ the engine and the learner a stable way to handle new compositions.
 ### Separate rule competence from strategic competence
 
 Solarnet already has the valuable half that many research projects had to build: an exact,
-transactional rule engine. `ComponentGraph`, `Effector`, `EventLog`, and task preparation can provide
+transactional rule engine. `ComponentGraph`, `Effector`, `EventLog`, and task resolution can provide
 state transitions, rollback, histories, and legal choices. The AI should not learn whether an action
 is legal or be asked to reproduce card effects from prose.
 
@@ -560,7 +560,7 @@ action encoding and avoids a fixed vocabulary tied to today's card list.
 Solarnet's decomposed tasks create a credit-assignment issue: `playProject`, payment, target, and
 placement are parts of one strategic commitment. Training records should identify the enclosing
 manual operation or causal card so value can be assigned coherently. Where safe, the AI interface
-may expose complete prepared alternatives instead of forcing the policy to rediscover compatible
+may expose complete resolved alternatives instead of forcing the policy to rediscover compatible
 subchoices one at a time; the engine should remain the source of their legality.
 
 ### Preserve history or learn beliefs

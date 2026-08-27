@@ -41,10 +41,12 @@ internal class Implementations(
     private val instructor: Instructor,
     private val changer: Changer,
 ) {
-  // Auto-exec scans the whole game for compatibility with existing workflows, and Task.next is a
-  // whole-game lock. Keep that global visibility as a queue view rather than exposing TaskQueues
+  // Auto-exec scans the whole game for compatibility with existing workflows, and Task.selected is
+  // a whole-game lock. Keep that global visibility as a queue view rather than exposing TaskQueues
   // storage.
   private val allTasks = taskQueues.all()
+
+  private object SelectionProbeSucceeded : RuntimeException()
 
   // CHANGES LAYER
 
@@ -81,8 +83,8 @@ internal class Implementations(
       body: () -> Unit,
   ) {
     val preexistingTasks = allTasks.ids()
-    allTasks.preparedTask()?.let {
-      throw TaskException("can't start a manual operation while task $it is prepared")
+    allTasks.selectedTask()?.let {
+      throw TaskException("can't start a manual operation while task $it holds the select-lock")
     }
     addTasks(initialInstructions).forEach(::doInitialTask)
     complete(autoExec, preexistingTasks, body)
@@ -142,16 +144,16 @@ internal class Implementations(
     if (mode == NONE || allTasks.isEmpty()) return false
 
     val options: List<TaskId> =
-        allTasks.preparedTask()?.let(::listOf) ?: allTasks.ids().filter(::canPrepareAnyTask)
+        allTasks.selectedTask()?.let(::listOf) ?: allTasks.ids().filter(::canSelectAnyTask)
 
     when (options.size) {
-      0 -> prepareAnyTask(allTasks.ids().first()).also { error("that should've failed") }
+      0 -> doAnyTask(allTasks.ids().first()).also { error("that should've completed") }
       1 -> {
         val taskId = options.single()
         val queue = queueForAnyTask(taskId)
-        doPrepare(queue, queue.getTaskData(taskId)) ?: return true
+        selectTask(queue, queue.getTaskData(taskId)) ?: return true
         try {
-          if (tryPreparedAnyTask()) return true // if this fails we should fail too
+          if (trySelectedAnyTask()) return true // if this fails we should fail too
         } catch (e: DeadEndException) {
           throw e.cause ?: e
         }
@@ -207,13 +209,13 @@ internal class Implementations(
     queue.removeTask(task.id)
   }
 
-  private fun dontCutTheLine(taskId: TaskId) {
-    // Task.next remains a global game-state lock; a scoped queue could miss a prepared task in
+  private fun enforceSelectLock(taskId: TaskId) {
+    // Selection is a global game-state lock; a scoped queue could miss the selected task in
     // another player's queue and allow a caller to cut in front of it.
-    val already = allTasks.preparedTask()
+    val already = allTasks.selectedTask()
     if (already != null && already != taskId) {
       val instr = allTasks.getTaskData(already).instruction
-      throw TaskException("task $already ($instr) is already prepared and must be executed first")
+      throw TaskException("task $already ($instr) holds the select-lock and must finish first")
     }
   }
 
@@ -223,137 +225,104 @@ internal class Implementations(
 
   // GAMES LAYER
 
-  internal fun reviseTask(
-      taskId: TaskId,
-      revised: InstructionTree,
-      intensityOmitted: Boolean = false,
-  ) {
+  internal fun narrowTask(narrowing: InstructionTree, intensityOmitted: Boolean = false) {
+    val taskId = tasks.selectedTask() ?: throw TaskException("$actor has no selected task")
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
-      throw TaskException("$actor can't revise a task assigned to ${task.assignee}")
+      throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
     }
 
-    val effectiveRevision = effectiveRevision(revised, task.instruction, intensityOmitted)
-    if (effectiveRevision == task.instruction) return
-    val directlyNarrows = effectiveRevision.narrows(task.instruction, reader)
+    val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, intensityOmitted)
+    if (effectiveNarrowing == task.instruction) {
+      executeSelectedIfConcrete(tasks, taskId)
+      return
+    }
+    val directlyNarrows = effectiveNarrowing.narrows(task.instruction, reader)
     val selectedThen =
-        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, effectiveRevision)
-    if (selectedThen == null) effectiveRevision.ensureNarrows(task.instruction, reader)
+        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, effectiveNarrowing)
+    if (selectedThen == null) effectiveNarrowing.ensureNarrows(task.instruction, reader)
 
     if (selectedThen != null && task.then != null) {
       throw TaskException("can't select the first stage of a THEN with an outer continuation")
     }
     val continuation = selectedThen?.continuationAfterFirst() ?: task.then
 
-    val selectsAmApTarget = instructor.validateAmApSelection(task.instruction, effectiveRevision)
-    if (selectsAmApTarget && !task.next) {
-      if (effectiveRevision is Instruction) {
-        replace1WithN(
-            tasks,
-            task,
-            instructor.prepare(effectiveRevision),
-            next = true,
-            then = continuation,
-        )
-        return
-      }
-      val prepared = prepareTask(taskId) ?: return
-      reviseTask(prepared, effectiveRevision)
-      return
-    }
-
-    // A selected group must split before its children are prepared against successive worlds.
+    instructor.validateAmApSelection(task.instruction, effectiveNarrowing)
+    // A selected group completes structurally before its children resolve against successive
+    // worlds.
     val replacement =
-        if (task.next && effectiveRevision is Instruction) instructor.prepare(effectiveRevision)
-        else effectiveRevision
-    replace1WithN(tasks, task, replacement, task.next, continuation)
-  }
-
-  internal fun reviseTask(
-      current: Instruction,
-      revised: InstructionTree,
-      intensityOmitted: Boolean = false,
-  ) {
-    reviseTask(taskWithInstruction(current), revised, intensityOmitted)
+        if (effectiveNarrowing is Instruction) instructor.resolve(effectiveNarrowing)
+        else effectiveNarrowing
+    replace1WithN(tasks, task, replacement, selected = true, then = continuation)
+    if (taskId in tasks) executeSelectedIfConcrete(tasks, taskId)
   }
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
-  internal fun canPrepareTask(taskId: TaskId): Boolean {
-    // TODO better way
-    dontCutTheLine(taskId)
-    val unprepared = tasks.getTaskData(taskId).instruction
+  internal fun canSelectTask(taskId: TaskId): Boolean {
     return try {
-      timeline.atomic { instructor.prepare(unprepared) }
+      timeline.atomic {
+        selectAndExecuteIfConcrete(tasks, taskId)
+        throw SelectionProbeSucceeded
+      }
+      false
+    } catch (_: SelectionProbeSucceeded) {
       true
     } catch (_: Exception) {
       false
     }
   }
 
-  internal fun prepareTask(taskId: TaskId): TaskId? =
-      doPrepare(tasks, tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
+  internal fun selectTask(taskId: TaskId) {
+    val task = tasks.getTaskData(taskId)
+    if (actor != task.assignee) {
+      throw TaskException("$actor can't select a task assigned to ${task.assignee}")
+    }
+    selectAndExecuteIfConcrete(tasks, taskId)
+  }
 
-  internal fun prepareTask(instruction: Instruction): TaskId? =
-      prepareTask(taskWithInstruction(instruction))
+  internal fun selectTask(instruction: Instruction) = selectTask(taskWithInstruction(instruction))
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
-  private fun canPrepareAnyTask(taskId: TaskId): Boolean {
+  private fun canSelectAnyTask(taskId: TaskId): Boolean {
     val queue = queueForAnyTask(taskId)
-    dontCutTheLine(taskId)
-    val unprepared = queue.getTaskData(taskId).instruction
     return try {
-      timeline.atomic { instructor.prepare(unprepared) }
+      timeline.atomic {
+        selectAndExecuteIfConcrete(queue, taskId)
+        throw SelectionProbeSucceeded
+      }
+      false
+    } catch (_: SelectionProbeSucceeded) {
       true
     } catch (_: Exception) {
       false
     }
   }
 
-  private fun prepareAnyTask(taskId: TaskId): TaskId? {
-    val queue = queueForAnyTask(taskId)
-    return doPrepare(queue, queue.getTaskData(taskId)).also {
-      lookAheadForTroubleInAnyQueue(taskId)
+  private fun selectAndExecuteIfConcrete(queue: TaskQueue, taskId: TaskId) {
+    val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
+    executeSelectedIfConcrete(queue, selected)
+  }
+
+  private fun executeSelectedIfConcrete(queue: TaskQueue, taskId: TaskId) {
+    val task = queue.getTaskData(taskId)
+    if (!task.instruction.isAbstract(reader)) {
+      executeSelectedTask(queue, taskId)
     }
   }
 
-  private fun lookAheadForTrouble(taskId: TaskId) {
-    if (taskId in tasks) {
-      try {
-        timeline.atomic {
-          doTask(taskId)
-          throw AbstractException("just getting this to roll back")
-        }
-      } catch (ignore: AbstractException) { // the only failure that's expected/normal
-      }
-    }
-  }
-
-  private fun lookAheadForTroubleInAnyQueue(taskId: TaskId) {
-    if (taskId in allTasks) {
-      try {
-        timeline.atomic {
-          doAnyTask(taskId)
-          throw AbstractException("just getting this to roll back")
-        }
-      } catch (ignore: AbstractException) { // the only failure that's expected/normal
-      }
-    }
-  }
-
-  private fun doPrepare(queue: TaskQueue, task: Task): TaskId? {
-    dontCutTheLine(task.id)
-    // A prepared task owns the next World mutation, so its instruction remains authoritative.
-    if (task.next) return task.id
-    val replacement = instructor.prepare(task.instruction)
-    replace1WithN(queue, task, replacement, next = true, then = task.then)
-    return queue.preparedTask()
+  private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
+    enforceSelectLock(task.id)
+    if (task.selected) return task.id
+    val replacement = instructor.resolve(task.instruction)
+    replace1WithN(queue, task, replacement, selected = true, then = task.then)
+    return queue.selectedTask()
   }
 
   private fun replace1WithN(
       queue: TaskQueue,
       original: Task,
       replacement: InstructionTree,
-      next: Boolean,
+      selected: Boolean,
       then: InstructionGroup?,
   ) {
     val group = InstructionGroup.of(replacement)
@@ -370,12 +339,14 @@ internal class Implementations(
                     reader::isAbstract,
                 )
                 .single()
-                .copy(next = next, whyPending = original.whyPending)
+                .copy(selected = selected, whyPending = original.whyPending)
           } else {
-            original.copy(instructionIn = instruction, next = next, thenIn = then)
+            original.copy(instructionIn = instruction, selected = selected, thenIn = then)
           }
       queue.editTask(updated)
     } else {
+      // Structural completion replaces the selected task with ordinary pending siblings. No child
+      // inherits selection; a later player input must select whichever sibling comes next.
       queue.queueFor(original.assignee).addTasks(group, original.cause, original.actor)
       handleTask(queue, original.copy(thenIn = then))
     }
@@ -386,16 +357,25 @@ internal class Implementations(
   }
 
   private fun doTask(queue: TaskQueue, taskId: TaskId) {
-    val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
-    val preparedTask = queue.getTaskData(prepared)
+    val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
+    val selectedTask = queue.getTaskData(selected)
+    if (selectedTask.instruction.isAbstract(reader)) {
+      throw abstractInstruction(selectedTask.instruction)
+    }
+    executeSelectedTask(queue, selected)
+  }
+
+  private fun executeSelectedTask(queue: TaskQueue, taskId: TaskId) {
+    val selectedTask = queue.getTaskData(taskId)
+    check(selectedTask.selected)
     val newTasks =
-        instructor.executePrepared(
-            preparedTask.instruction,
-            preparedTask.cause,
-            preparedTask.actor,
+        instructor.executeResolved(
+            selectedTask.instruction,
+            selectedTask.cause,
+            selectedTask.actor,
         )
     newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
-    handleTask(queue, queue.getTaskData(taskId))
+    handleTask(queue, selectedTask)
   }
 
   private fun doAnyTask(taskId: TaskId) {
@@ -403,29 +383,34 @@ internal class Implementations(
   }
 
   internal fun doTask(
-      revised: InstructionTree,
+      narrowing: InstructionTree,
       taskNumber: Int? = null,
       intensityOmitted: Boolean = false,
+      executeSubmittedGroup: Boolean = false,
   ) {
-    val evaluated = evaluatePer(revised)
+    val evaluated = evaluatePer(narrowing)
     val id = matchingTask(evaluated, taskNumber, intensityOmitted)
-    val selectsLinkedFirstStage =
-        selectFirstStageOrNull(tasks.getTaskData(id).instruction, evaluated) != null
-    if (selectsLinkedFirstStage) reviseTask(id, evaluated, intensityOmitted)
-    if (id in tasks) doPrepare(tasks, tasks.getTaskData(id))
-    if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, evaluated, intensityOmitted)
-    if (id in tasks) doTask(id)
+    val tasksBefore = tasks.ids()
+    selectTask(tasks, tasks.getTaskData(id)) ?: return
+    narrowTask(evaluated, intensityOmitted)
+    if (id !in tasks) {
+      if (executeSubmittedGroup) {
+        tasks.ids().filter { it !in tasksBefore }.forEach(::doTask)
+      }
+      return
+    }
+    throw abstractInstruction(tasks.getTaskData(id).instruction)
   }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
-      if (instruction is Per) instructor.prepare(instruction) else instruction
+      if (instruction is Per) instructor.resolve(instruction) else instruction
 
   private fun matchingTask(
-      revised: InstructionTree,
+      narrowing: InstructionTree,
       taskNumber: Int? = null,
       intensityOmitted: Boolean = false,
   ): TaskId {
-    tasks.preparedTask()?.let {
+    tasks.selectedTask()?.let {
       return it
     }
 
@@ -435,43 +420,43 @@ internal class Implementations(
           ?: throw TaskException("there is no task $taskNumber; tasks are:\n$tasks")
     }
 
-    fun weCanReviseIt(taskData: Task): Boolean {
+    fun weCanNarrowIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
       val instruction = taskData.instruction
-      if (narrowsTask(revised, instruction, intensityOmitted)) return true
+      if (narrowsTask(narrowing, instruction, intensityOmitted)) return true
       return try {
-        narrowsTask(revised, instructor.prepare(instruction), intensityOmitted)
+        narrowsTask(narrowing, instructor.resolve(instruction), intensityOmitted)
       } catch (_: NotNowException) {
         false
       }
     }
 
-    return uniqueMatchingTask(tasks.extract { it }.filter(::weCanReviseIt))
+    return uniqueMatchingTask(tasks.extract { it }.filter(::weCanNarrowIt))
   }
 
   private fun narrowsTask(
-      revised: InstructionTree,
+      narrowing: InstructionTree,
       existing: InstructionTree,
       intensityOmitted: Boolean,
   ): Boolean {
-    val effectiveRevision = effectiveRevision(revised, existing, intensityOmitted)
-    return effectiveRevision.narrows(existing, reader) ||
-        selectFirstStageOrNull(existing, effectiveRevision) != null
+    val effectiveNarrowing = effectiveNarrowing(narrowing, existing, intensityOmitted)
+    return effectiveNarrowing.narrows(existing, reader) ||
+        selectFirstStageOrNull(existing, effectiveNarrowing) != null
   }
 
-  private fun effectiveRevision(
-      revised: InstructionTree,
+  private fun effectiveNarrowing(
+      narrowing: InstructionTree,
       existing: InstructionTree,
       intensityOmitted: Boolean,
   ): InstructionTree {
-    if (!intensityOmitted || revised !is Change) return revised
-    if (revised.narrows(existing, reader)) return revised
+    if (!intensityOmitted || narrowing !is Change) return narrowing
+    if (narrowing.narrows(existing, reader)) return narrowing
 
     fun inheritIntensity(change: Change): InstructionTree =
-        when (revised) {
-          is Gain -> Gain.gain(revised.scaledEx, change.intensity)
-          is Remove -> Remove.remove(revised.scaledEx, change.intensity)
-          is Transmute -> revised.copy(intensity = change.intensity)
+        when (narrowing) {
+          is Gain -> Gain.gain(narrowing.scaledEx, change.intensity)
+          is Remove -> Remove.remove(narrowing.scaledEx, change.intensity)
+          is Transmute -> narrowing.copy(intensity = change.intensity)
         }
 
     val choices =
@@ -485,15 +470,15 @@ internal class Implementations(
           inheritIntensity(choice).takeIf { inherited -> inherited.narrows(choice, reader) }
         }
         .distinct()
-        .singleOrNull() ?: revised
+        .singleOrNull() ?: narrowing
   }
 
   private fun selectFirstStageOrNull(
       instruction: InstructionTree,
-      revised: InstructionTree,
+      narrowing: InstructionTree,
   ): Then? {
-    if (revised is Then) return null
-    val revisedInstruction = revised as? Instruction ?: return null
+    if (narrowing is Then) return null
+    val revisedInstruction = narrowing as? Instruction ?: return null
     val candidates: List<Pair<Then, Boolean>> =
         when (instruction) {
           is Then -> listOf(instruction to false)
@@ -548,14 +533,15 @@ internal class Implementations(
   }
 
   internal fun tryTask(
-      revised: InstructionTree,
+      narrowing: InstructionTree,
       taskNumber: Int? = null,
       intensityOmitted: Boolean = false,
+      executeSubmittedGroup: Boolean = false,
   ) {
-    val evaluated = evaluatePer(revised)
+    val evaluated = evaluatePer(narrowing)
     val id = matchingTask(evaluated, taskNumber, intensityOmitted)
     try {
-      doTask(evaluated, taskNumber, intensityOmitted)
+      doTask(evaluated, taskNumber, intensityOmitted, executeSubmittedGroup)
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {
@@ -563,22 +549,9 @@ internal class Implementations(
     }
   }
 
-  // Similar to tryTask, but a NotNowException is unrecoverable in this case
-  internal fun tryPreparedTask(): Boolean /* did I do stuff? */ {
-    val taskId = tasks.preparedTask()!!
-    return try {
-      doTask(taskId)
-      true
-    } catch (e: NotNowException) {
-      throw DeadEndException(e)
-    } catch (_: AbstractException) {
-      explainTask(taskId, "abstract")
-      false
-    }
-  }
-
-  private fun tryPreparedAnyTask(): Boolean /* did I do stuff? */ {
-    val taskId = allTasks.preparedTask()!!
+  // Similar to tryTask, but a NotNowException is unrecoverable once selection holds the lock.
+  private fun trySelectedAnyTask(): Boolean /* did I do stuff? */ {
+    val taskId = allTasks.selectedTask()!!
     return try {
       doAnyTask(taskId)
       true

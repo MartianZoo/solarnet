@@ -42,7 +42,7 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import kotlin.math.min
 
-/** Just a cute name for "instruction handler". It prepares and executes instructions. */
+/** Just a cute name for "instruction handler". It resolves and executes instructions. */
 internal class Instructor
 internal constructor(
     private val reader: GameReader,
@@ -70,13 +70,13 @@ internal constructor(
   ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor) }
 
   /**
-   * Executes a prepared first stage; later linked stages prepare against the state they inherit.
+   * Executes a resolved first stage; later linked stages resolve against the state they inherit.
    */
-  internal fun executePrepared(
+  internal fun executeResolved(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor = checkNotNull(defaultActor),
-  ): List<PendingTask> = buildList { doExecutePrepared(instruction, cause, this, actor) }
+  ): List<PendingTask> = buildList { doExecuteResolved(instruction, cause, this, actor) }
 
   private fun doExecute(
       instruction: Instruction,
@@ -84,33 +84,33 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
   ) {
-    when (val prepared = prepare(instruction)) {
-      is Instruction -> doExecutePrepared(prepared, cause, deferred, actor)
-      is InstructionGroup -> throw abstractInstruction(prepared)
+    when (val resolved = resolve(instruction)) {
+      is Instruction -> doExecuteResolved(resolved, cause, deferred, actor)
+      is InstructionGroup -> throw abstractInstruction(resolved)
     }
   }
 
-  private fun doExecutePrepared(
-      prepared: Instruction,
+  private fun doExecuteResolved(
+      resolved: Instruction,
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
   ) {
-    when (prepared) {
-      is Change -> executeChange(prepared, cause, deferred, actor)
-      is By -> doExecutePrepared(prepared.inner, cause, deferred, actorFor(prepared))
+    when (resolved) {
+      is Change -> executeChange(resolved, cause, deferred, actor)
+      is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved))
       is Then ->
-          prepared.instructions.forEachIndexed { index, tree ->
+          resolved.instructions.forEachIndexed { index, tree ->
             val instruction = tree as? Instruction ?: throw abstractInstruction(tree)
             if (index == 0) {
-              doExecutePrepared(instruction, cause, deferred, actor)
+              doExecuteResolved(instruction, cause, deferred, actor)
             } else {
               doExecute(instruction, cause, deferred, actor)
             }
           }
-      is Or -> throw orWithoutChoice(prepared)
+      is Or -> throw orWithoutChoice(resolved)
       is NoOp -> {}
-      else -> error("somehow a ${prepared::class.simpleName} was enqueued: $prepared")
+      else -> error("somehow a ${resolved::class.simpleName} was enqueued: $resolved")
     }
   }
 
@@ -165,24 +165,24 @@ internal constructor(
   }
 
   /**
-   * Returns a narrowed form of [unprepared] based on the current world (but does not change the
+   * Returns a narrowed form of [unresolved] based on the current world (but does not change the
    * world itself). The returned instruction tree *must* be executed against this very same world
    * (i.e., must be the next one executed). The returned instruction tree might still be abstract.
    *
-   * Preparing iterates to a fixed point. Examples of preparing:
+   * Resolution iterates to a fixed point. Examples include:
    * * Replaces inert instructions with `Ok`
    * * Auto-narrows gained and removed types to the extent possible
    * * Modifies a `?` or `.` change based on limits (upgrading `.` to `!`)
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
-   * * Prepares each option of an [Or]
+   * * Resolves each option of an [Or]
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
    */
-  internal fun prepare(unprepared: Instruction): InstructionTree = doPrepare(unprepared)
+  internal fun resolve(unresolved: Instruction): InstructionTree = doResolve(unresolved)
 
   /**
    * Validates a concrete target selected from an abstract pure AMAP gain or removal. Returns true
-   * when that kind of selection occurred, so an unprepared task can be locked to this world before
+   * when that kind of selection occurred, so an unselected task can be locked to this world before
    * retaining the selection.
    */
   internal fun validateAmApSelection(
@@ -272,25 +272,25 @@ internal constructor(
     const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
   }
 
-  private fun prepareTree(unprepared: InstructionTree): InstructionTree =
-      if (unprepared is InstructionGroup) unprepared else doPrepare(unprepared as Instruction)
+  private fun resolveTree(unresolved: InstructionTree): InstructionTree =
+      if (unresolved is InstructionGroup) unresolved else doResolve(unresolved as Instruction)
 
-  private fun doPrepare(unprepared: Instruction): InstructionTree {
-    return when (unprepared) {
+  private fun doResolve(unresolved: Instruction): InstructionTree {
+    return when (unresolved) {
       is NoOp -> NoOp
-      is Change -> prepareChange(unprepared)
-      is By -> By.createTree(doPrepare(unprepared.inner), canonicalActorExpression(unprepared))
-      is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
+      is Change -> resolveChange(unresolved)
+      is By -> By.createTree(doResolve(unresolved.inner), canonicalActorExpression(unresolved))
+      is Per -> doResolve(unresolved.inner * reader.count(unresolved.metric))
       is Gated -> {
-        if (!reader.has(unprepared.gate)) throw requirementNotMet(unprepared.gate)
-        prepareTree(unprepared.inner)
+        if (!reader.has(unresolved.gate)) throw requirementNotMet(unresolved.gate)
+        resolveTree(unresolved.inner)
       }
-      is Or -> prepareOr(unprepared)
+      is Or -> resolveOr(unresolved)
       is Then ->
-          unprepared.withInstructions(
-              listOf(prepareTree(unprepared.first)) + unprepared.instructions.drop(1)
+          unresolved.withInstructions(
+              listOf(resolveTree(unresolved.first)) + unresolved.instructions.drop(1)
           )
-      is Transform -> throw ExpressionException("unhandled instruction transform: $unprepared")
+      is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
   }
 
@@ -316,10 +316,10 @@ internal constructor(
   }
 
   // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.
-  private fun prepareChange(change: Change): InstructionTree {
+  private fun resolveChange(change: Change): InstructionTree {
     val intensity = change.intensity ?: error("missing intensity: $change")
     return try {
-      prepareChangeWithoutDependencyFallback(change, intensity)
+      resolveChangeWithoutDependencyFallback(change, intensity)
     } catch (e: DependencyException) {
       val gaining = change.gaining
       val canFallBackToZero =
@@ -332,11 +332,11 @@ internal constructor(
     }
   }
 
-  private fun prepareChangeWithoutDependencyFallback(
+  private fun resolveChangeWithoutDependencyFallback(
       change: Change,
       intens: Instruction.Intensity,
   ): InstructionTree {
-    // can't prepare at all if we still have an X?
+    // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
 
     val (g: Type?, r: Type?) =
@@ -421,8 +421,10 @@ internal constructor(
         throw ExpressionException("custom class instructions can only be pure gains: $change")
       }
       val translated =
-          transformDispatcher.transformInstructionTree(customClasses.prepare(gaining!!, reader))
-      return prepareTree(translated)
+          transformDispatcher.transformInstructionTree(
+              customClasses.translateInstruction(gaining!!, reader)
+          )
+      return resolveTree(translated)
     }
 
     val limit = limiter.findLimit(gaining, removing)
@@ -450,11 +452,11 @@ internal constructor(
     )
   }
 
-  private fun prepareOr(unprepared: Or): InstructionTree {
+  private fun resolveOr(unresolved: Or): InstructionTree {
     val options: List<Any> =
-        unprepared.instructions.map {
+        unresolved.instructions.map {
           try {
-            prepareTree(it)
+            resolveTree(it)
           } catch (e: NotNowException) {
             e
           } catch (e: DeadEndException) {

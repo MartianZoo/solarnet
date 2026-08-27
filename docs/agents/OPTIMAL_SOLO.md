@@ -41,10 +41,10 @@ queue. Starting and finishing the game are the exceptions. The engine may pass t
 internally, but that state is not observable through this interface. Each client-visible decision is
 therefore one of:
 
-1. choosing which queued task to prepare; or
-2. choosing a concrete narrowing of that task.
+1. selecting one queued task; or
+2. narrowing the selected task, possibly one sub-Specification at a time.
 
-Preparation, execution, triggered effects, and other forced processing after a choice can be viewed
+Resolution, execution, triggered effects, and other forced processing after a choice can be viewed
 as its automatic consequences. The optimizer branches only where the client can choose.
 
 ## Three claims that must not be confused

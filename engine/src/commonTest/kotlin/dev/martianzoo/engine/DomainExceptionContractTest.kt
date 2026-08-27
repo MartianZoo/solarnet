@@ -53,7 +53,7 @@ internal class DomainExceptionContractTest {
   internal fun taskFailuresUseTaskOrDeadEndExceptions() {
     val gameplay = gameplay()
 
-    shouldThrow<TaskException> { gameplay.prepareTask("Plant") }
+    shouldThrow<TaskException> { gameplay.selectTask("Plant") }
     shouldThrow<DeadEndException> { gameplay.addTasks("Die THEN Plant") }
   }
 }

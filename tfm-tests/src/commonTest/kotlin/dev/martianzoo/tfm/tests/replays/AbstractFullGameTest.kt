@@ -86,39 +86,39 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     unusedActionCards shouldBe expectedUnusedActionCards
   }
 
-  /** Reproduces an evidenced player mistake without leaving a task prepared against stale state. */
+  /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
   protected fun TfmGameplay.exMachina(adjustment: String) {
-    val preparedId = game.tasks.preparedTask()
-    if (preparedId != null) {
-      val preparedTask = game.tasks.getTaskData(preparedId)
-      var expectedTask = preparedTask
-      val unpreparedTask =
+    val selectedId = game.tasks.selectedTask()
+    if (selectedId != null) {
+      val selectedTask = game.tasks.getTaskData(selectedId)
+      var expectedTask = selectedTask
+      val unselectedTask =
           game.events
               .entriesSince(Checkpoint(0))
               .asReversed()
               .asSequence()
               .map { event ->
                 check(event is TaskEditedEvent && event.task == expectedTask) {
-                  "unexpected event after preparation of task $preparedId: $event"
+                  "unexpected event after selection of task $selectedId: $event"
                 }
-                if (!event.oldTask.next && event.task.next) return@map event.oldTask
+                if (!event.oldTask.selected && event.task.selected) return@map event.oldTask
 
                 check(event.task == event.oldTask.copy(whyPending = event.task.whyPending)) {
-                  "unexpected edit after preparation of task $preparedId: $event"
+                  "unexpected edit after selection of task $selectedId: $event"
                 }
                 expectedTask = event.oldTask
                 null
               }
               .firstNotNullOf { it }
 
-      game.tasks.editTask(unpreparedTask)
+      game.tasks.editTask(unselectedTask)
     }
 
     godMode().sneak(adjustment)
 
-    if (preparedId != null) {
-      val task = game.tasks.getTaskData(preparedId)
-      checkNotNull(game.gameplay(task.assignee).prepareTask(preparedId))
+    if (selectedId != null) {
+      val task = game.tasks.getTaskData(selectedId)
+      game.gameplay(task.assignee).selectTask(selectedId)
       game.gameplay(task.assignee).autoExecNow()
     }
   }

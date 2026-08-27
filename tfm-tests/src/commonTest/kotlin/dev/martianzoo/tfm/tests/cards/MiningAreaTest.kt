@@ -35,10 +35,10 @@ internal class MiningAreaTest : CardTest() {
 
     val manual = p1.godMode().also { it.autoExecMode = NONE }
     manual.beginManual("$RoboticWorkforce")
-    manual.reviseTask(
-        "CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>",
-        "CopyProductionBox<$MiningArea>",
+    manual.selectTask(
+        "CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>"
     )
+    manual.narrowTask("CopyProductionBox<$MiningArea>")
     manual.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 

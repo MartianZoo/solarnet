@@ -33,7 +33,7 @@ internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
     p1.buyCards(cardsBought)
   }
 
-  /** Leaves the following workflow task unprepared while [body] makes a log correction. */
+  /** Leaves the following workflow task unselected while [body] makes a log correction. */
   protected fun <T> withAutoExecLoweredAfterOperation(
       mode: AutoExecMode,
       operation: (() -> Unit) -> T,

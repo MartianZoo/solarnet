@@ -57,7 +57,7 @@ This cost is broad rather than dominated by a few outliers. The median engine me
 for only 24.2%.
 
 Largest classes were `ModuleSelectionTest` (18.9s), `Prelude2CardsTest` (15.5s),
-`TaskRevisionTest` (14.4s), `ClassTableProjectionTest` (7.7s), and `CoreRulesTest` (7.6s).
+`TaskNarrowingTest` (14.4s), `ClassTableProjectionTest` (7.7s), and `CoreRulesTest` (7.6s).
 The single largest method was ModuleSelection's valid-configuration catalog at 15.1s.
 
 ## CPU and allocation sample

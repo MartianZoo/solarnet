@@ -53,7 +53,7 @@ internal class SpecificationTest {
   }
 
   @Test
-  internal fun noOpDoesNotNarrowAnUnpreparedPerInstruction() {
+  internal fun noOpDoesNotNarrowAnUnresolvedPerInstruction() {
     testInvalid("2 Plant! / Player", "Ok")
   }
 

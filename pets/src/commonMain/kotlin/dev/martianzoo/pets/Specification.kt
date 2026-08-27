@@ -6,8 +6,8 @@ import dev.martianzoo.pets.api.TypeInfo
 /**
  * A value that can retain choices and be replaced by a narrower value of the same kind.
  *
- * Narrowing is independent of state-driven preparation. An unresolved specification can be
- * non-abstract when preparation has only one possible result, or can be narrowed while preserving
+ * Narrowing is independent of state-driven resolution. An unresolved specification can be
+ * non-abstract when resolution has only one possible result, or can be narrowed while preserving
  * the unresolved parts that are not choices.
  */
 public interface Specification<S : Specification<S>> {

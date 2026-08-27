@@ -10,15 +10,15 @@ import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 
 internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("task") {
-  override val usage = "task [<number>] <Instruction> | task <prepare | drop>"
+  override val usage = "task [<number>] <Instruction> | task <select | drop>"
   override val help =
       """
         Carry out the pending task matched by an instruction, narrowing it when needed. For
         example, `task -2 Plant<Player1>` can resolve a queued
         `-3 StandardResource<Anyone>?`. The instruction must match only one pending task, though
-        identical tasks are interchangeable and a prepared task always wins. In the rare
+        identical tasks are interchangeable and a selected task always wins. In the rare
         ambiguous case, prefix the instruction with its current 1-based position in `tasks`, such
-        as `task 2 Ok`. Task numbers are temporary positions, not ids. `task prepare` and `task
+        as `task 2 Ok`. Task numbers are temporary positions, not ids. `task select` and `task
         drop` are available only when exactly one task is pending.
       """
 
@@ -27,7 +27,7 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
     val instructionContext = if (numbered) context.droppingLeadingWords(1) else context
     val actions =
         if (context.argIndex == 0) {
-          context.completions("drop", "prepare", group = "task actions")
+          context.completions("drop", "select", group = "task actions")
         } else {
           emptyList()
         }
@@ -44,8 +44,8 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
             repl.access().dropTask(repl.onlyTask().id)
             return listOf("Task deleted")
           }
-          "prepare" -> {
-            repl.gameplay.prepareTask(repl.onlyTask().id)
+          "select" -> {
+            repl.gameplay.selectTask(repl.onlyTask().id)
             return repl.taskLines()
           }
           else -> {
