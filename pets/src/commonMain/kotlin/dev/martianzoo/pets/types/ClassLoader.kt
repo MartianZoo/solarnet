@@ -247,21 +247,18 @@ private constructor(
 
     fun truthOf(requirement: Requirement): Truth =
         when (requirement) {
-          is Requirement.Counting -> {
+          is Requirement.Counting if requirement.metric is Metric.Count -> {
             val metric = requirement.metric
-            if (metric is Metric.Count) {
-              val configuredCount = configuredCount(metric.expression)
-              when {
-                configuredCount != null ->
-                    if (configuredCount in requirement.range) Truth.TRUE else Truth.FALSE
-                isUninhabited(metric.expression) ->
-                    if (0 in requirement.range) Truth.TRUE else Truth.FALSE
-                else -> Truth.UNKNOWN
-              }
-            } else {
-              Truth.UNKNOWN
+            val configuredCount = configuredCount(metric.expression)
+            when {
+              configuredCount != null ->
+                  if (configuredCount in requirement.range) Truth.TRUE else Truth.FALSE
+              isUninhabited(metric.expression) ->
+                  if (0 in requirement.range) Truth.TRUE else Truth.FALSE
+              else -> Truth.UNKNOWN
             }
           }
+          is Requirement.Counting -> Truth.UNKNOWN
           is Requirement.And -> truthOfAll(requirement.requirements.map(::truthOf))
           is Requirement.Or -> truthOfAny(requirement.requirements.map(::truthOf))
           is Requirement.Eval,
@@ -283,12 +280,10 @@ private constructor(
 
     fun collectRequiredInhabitants(requirement: Requirement) {
       when (requirement) {
-        is Requirement.Counting -> {
-          val metric = requirement.metric
-          if (requirement.range.first > 0 && metric is Metric.Count) {
-            collectStructural(metric.expression)
-          }
-        }
+        is Requirement.Counting if
+            requirement.range.first > 0 && requirement.metric is Metric.Count
+         -> collectStructural(requirement.metric.expression)
+        is Requirement.Counting -> Unit
         is Requirement.And -> requirement.requirements.forEach(::collectRequiredInhabitants)
         is Requirement.Or -> requirement.requirements.forEach(::collectRequiredInhabitants)
         is Requirement.Eval,

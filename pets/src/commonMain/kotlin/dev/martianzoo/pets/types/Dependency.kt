@@ -94,11 +94,9 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) {
       when (that) {
-        is ComplementDependency -> {
-          if (!that.matches(boundType, info)) {
+        is ComplementDependency if !that.matches(boundType, info) ->
             throw NarrowingException("$this does not narrow $that")
-          }
-        }
+        is ComplementDependency -> Unit
         is TypeDependency -> boundType.ensureNarrows(boundOf(that), info)
         else -> throw NarrowingException("$this does not narrow $that")
       }

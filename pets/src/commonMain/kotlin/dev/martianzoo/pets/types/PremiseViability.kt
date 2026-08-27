@@ -93,14 +93,12 @@ internal object PremiseViability {
 
   private fun truthOf(requirement: Requirement, table: ClassTable): Truth =
       when (requirement) {
-        is Requirement.Counting -> {
-          val metric = requirement.metric
-          if (metric is Count && isUninhabited(metric.expression, table)) {
-            if (0 in requirement.range) Truth.TRUE else Truth.FALSE
-          } else {
-            Truth.UNKNOWN
-          }
+        is Requirement.Counting if
+            requirement.metric is Count && isUninhabited(requirement.metric.expression, table)
+         -> {
+          if (0 in requirement.range) Truth.TRUE else Truth.FALSE
         }
+        is Requirement.Counting -> Truth.UNKNOWN
         is Requirement.And -> truthOfAll(requirement.requirements.map { truthOf(it, table) })
         is Requirement.Or -> truthOfAny(requirement.requirements.map { truthOf(it, table) })
         is Requirement.Eval,
