@@ -40,8 +40,8 @@ internal class WildTagTest : CardTest() {
     p1.startTurn()
 
     p1.count("WildTagUse") shouldBe 2
-    p1.assignWildTag(ResearchCoordination, "EarthTag")
-    p1.assignWildTag(ResearchNetwork, "ScienceTag")
+    p1.assignWildTag("EarthTag")
+    p1.assignWildTag("ScienceTag")
 
     p1.count("EarthTag") shouldBe 2
     p1.count("EarthTag<CardFront>") shouldBe 1

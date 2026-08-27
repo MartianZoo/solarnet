@@ -241,6 +241,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Model Mars Nomads' moving non-tile marker, adjacency and reservation rules, and destination
+  placement bonuses, then remove the replay's test-only stand-in and sourced reconciliations.
 - Move Terraforming Mars payment/action lowering out of generic Pets; its remaining string-level
   implementation no longer creates a module dependency, but it is still domain ownership in the
   wrong layer.
