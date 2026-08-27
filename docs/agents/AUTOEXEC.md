@@ -217,7 +217,7 @@ look safe merely to keep tests concise.
 
 ## First implemented split
 
-Nested facade re-entry no longer starts an implicit drain. `AtomicOperationBoundary` now invokes
+Nested facade re-entry no longer starts an implicit drain. `AtomicOperationScope` now invokes
 the configured autoexecution only before the outermost command completes. Explicit `OperationBody`
 task commands still advance between body statements, and the operation lifecycle still has its own
 pre-body and post-body drains because current completion validation depends on them.

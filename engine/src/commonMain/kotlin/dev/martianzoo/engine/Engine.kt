@@ -51,8 +51,8 @@ public object Engine {
         GameReaderImpl(classTable, components, transformers, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues)
     private val limiter = Limiter(classTable, components)
-    private val atomicOperationBoundary: AtomicOperationBoundary =
-        AtomicOperationBoundary(timeline) { world.onAtomicComplete() }
+    private val atomicOperationScope: AtomicOperationScope =
+        AtomicOperationScope(timeline) { world.onAtomicComplete() }
     private val changerByActor: Map<Actor, Changer> =
         premise.actors.associateWith { Changer(reader, components, events, it) }
     private val instructorByActor: Map<Actor, Instructor> =
@@ -166,7 +166,7 @@ public object Engine {
           classTable,
           transformers,
           vocabulary,
-          atomicOperationBoundary,
+          atomicOperationScope,
       )
     }
   }

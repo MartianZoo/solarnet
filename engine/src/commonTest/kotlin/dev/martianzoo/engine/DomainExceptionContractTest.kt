@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class DomainExceptionBoundaryTest {
+internal class DomainExceptionContractTest {
   private fun gameplay() = Engine.newGame(canonicalPremise()).gameplay(PLAYER1).godMode()
 
   @Test
@@ -50,7 +50,7 @@ internal class DomainExceptionBoundaryTest {
   }
 
   @Test
-  internal fun taskBoundaryFailuresUseTaskOrDeadEndExceptions() {
+  internal fun taskFailuresUseTaskOrDeadEndExceptions() {
     val gameplay = gameplay()
 
     shouldThrow<TaskException> { gameplay.prepareTask("Plant") }
