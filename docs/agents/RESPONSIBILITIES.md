@@ -26,8 +26,6 @@ Terraforming Mars or REgo application policy. `TODO.md` decides whether any depe
 
 ### Turn/action protocol is split across layers
 
-**Priority when dependency work is selected: P0.**
-
 Generic Pets and engine code know `Action`, `UseAction`, `WhichAction`, `NewTurn`, and turn-start
 translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
 documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
@@ -40,8 +38,6 @@ resource names directly. Treat that leak as layering debt instead of adding a br
 framework for this rule.
 
 ### The script application is mostly REgo/Terraforming Mars
-
-**Priority when dependency work is selected: P1.**
 
 The reusable command shell and completion framework live beside concrete Canon construction,
 `TfmWorkflow`, colors, phase behavior, map views, six resources, and Terraforming Mars setup
@@ -70,16 +66,12 @@ resolution as part of that extraction.
 
 ### Workflow runner mechanics are general
 
-**Priority when dependency work is selected: P1.**
-
 The phase sequence and victory conditions are Terraforming Mars. Coroutine lifecycle, single launch,
 queue-drained wakeup, checkpoint/rollback shutdown, and cancellation are engine mechanics. A native
 workflow project should extract those mechanics while moving phase topology to the domain; see
 [WORKFLOW.md](WORKFLOW.md).
 
 ### Minor presentation helpers
-
-**Priority when dependency work is selected: P3.**
 
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.

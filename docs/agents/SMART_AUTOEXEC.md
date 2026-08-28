@@ -12,15 +12,15 @@
 ## Source map
 
 - [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
-  — search for `autoExecNext`, `dontCutTheLine`, and `doPrepare` for current selection, locking, and
-  preparation semantics.
+  — search for `autoExecNext`, `enforceSelectLock`, and `selectTask` for current automatic
+  execution, selection, and locking semantics.
 - [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
-  for `doPrepare` and `doExecutePrepared` for state reads, execution, and effect creation.
+  for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Effector.kt) — search for
   `candidatesFor` and `registryOrder` before defining EGS equality.
 - [`Task.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Task.kt) and
-  [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) — inspect
-  prepared state, continuations, causes, normalization, and id-only ordering.
+  [`TaskQueue.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueue.kt) — inspect
+  selected state, continuations, causes, normalization, and id-only ordering.
 
 ## Read only the relevant sections
 
@@ -57,7 +57,7 @@ nontermination result is outside the first contract.
 
 Fix one Game Premise and let `S` be a complete semantic engine state. Let `S →a S'` mean that an
 ordinary legal, policy-free task command `a` changes `S` to `S'`. The atomic transition includes
-preparation and execution work performed by that command, every inline automatic effect, and the
+resolution and execution work performed by that command, every inline automatic effect, and the
 creation or removal of queued tasks. It does not include a subsequent policy drain. Rules-bypassing
 commands such as god-mode task deletion are outside the relation.
 
@@ -117,7 +117,7 @@ arguments: components have no instance identity and equal Types are indistinguis
 alpha-renamed only through the semantic-symmetry rule below. At minimum the candidate EGS contains:
 
 - the exact component multiset, including dependencies and ownership;
-- the unordered task multiset, including instruction, continuation, assignee, Actor, and prepared
+- the unordered task multiset, including instruction, continuation, assignee, Actor, and selected
   status; and
 - cause context plus the equivalence relation describing which tasks share one cause, while the
   numeric event ordinals and task ids may be alpha-renamed.
@@ -132,7 +132,7 @@ gameplay must not rely on registration order between automatic effects. Removing
 an effect-bearing component deletes its ordinal; rollback re-adds it with a new ordinal because
 `nextRegistryOrder` is monotonic and is not timeline state. Speculation on the live World therefore
 changes later gameplay even when it records no lasting events. The same defect affects ordinary
-failed operations and `prepareTask`'s rollback-backed `lookAheadForTrouble`.
+failed operations and rollback-backed task-selection probes.
 
 Do not enshrine that order in EGS. Make automatic-effect sequencing semantic or canonical as owned
 by `SEQUENCING.md`, and require every speculative proof to use a disposable World overlay rather
@@ -152,27 +152,27 @@ gameplay command.
 
 ### One task
 
-If exactly one task exists, selecting and preparing it is safe only after establishing an engine
-lemma: preparation in an unchanged World preserves every legal narrowing and continuation of that
-task. Preparation may prune an `OR`, evaluate `PER`, apply limits, translate a custom Class, split a
+If exactly one task exists, selecting and resolving it is safe only after establishing an engine
+lemma: resolution in an unchanged World preserves every legal narrowing and continuation of that
+task. Resolution may prune an `OR`, evaluate `PER`, apply limits, translate a custom Class, split a
 group, reduce to `Ok`, and enqueue `THEN`; uniqueness of the queue entry alone proves none of those
 transformations.
 
 The rule becomes sound when:
 
 1. queue resolution admits no other semantic state mutation before that task;
-2. preparation succeeds; and
-3. every pre-preparation completion has an equivalent post-preparation completion.
+2. resolution succeeds; and
+3. every pre-resolution completion has an equivalent post-resolution completion.
 
 This lemma is worth making a direct engine contract and testing independently. Once it holds, every
 successful-resolution path must pass through the selected representation.
 
 ### Selected concrete task
 
-Executing a selected concrete task is safe if ordinary commands respect `dontCutTheLine` and
-*concrete* means there is no remaining non-equivalent legal revision. `sneak` bypasses the lock but
+Executing a selected concrete task is safe if ordinary commands respect `enforceSelectLock` and
+*concrete* means there is no remaining non-equivalent legal narrowing. `sneak` bypasses the lock but
 is already outside the formal relation. The proof should cite the ordinary-command guard rather
-than call `next` an unconditional global property.
+than treat selection as an unconditional global property.
 
 ### Unique concrete narrowing
 
@@ -191,8 +191,9 @@ open. Unique concrete narrowing is the special case where `r` is already concret
 This rule is not sound as stated. Suppose executing `A` creates queued task `C`; `C` gains `Switch`;
 and `B` gains `Marker IF Switch`, or evaluates a `PER` metric changed by `C`. The immediate orders
 `A,B` and `B,A` can have identical components with `C` pending, while legal order `A,C,B` reaches a
-different successful boundary. `allTasksConcrete()` does not screen this out: it checks each
-original task's preparation only in the initial state and never explores the created task.
+different successful boundary. Checking only whether the original tasks are concrete does not
+screen this out: it resolves each original task only in the initial state and never explores the
+created task.
 
 The comparison becomes sound under either repair:
 
@@ -257,8 +258,8 @@ prove that the relevant type domain, metric, gate, and limits cannot change.
 ### 4. Sole semantic progress
 
 If `a` is the only legal command that can change EGS, it is safe. The analysis must include task
-revision and decline commands, not only tasks for which `prepareTask` succeeds. A blocked task may
-have a viable explicit narrowing, so “only one task prepares” is not this proof.
+narrowing and decline commands, not only tasks that can be selected as written. A blocked task may
+have a viable explicit narrowing, so “only one task is selectable” is not this proof.
 
 A useful extension is a necessary-enabler certificate: every successful completion must perform
 `a` before any other semantic transition can become enabled.
@@ -337,7 +338,7 @@ compute. A false conflict costs automation; an omitted possible interaction inva
 For each instruction/effect family, a useful summary contains:
 
 - component domains it may read through gates, metrics, auto-narrowing, limits, dependencies,
-  properties, and custom preparation;
+  properties, and custom resolution;
 - components it may gain, remove, or transitively remove as dependents;
 - change events it may emit, with Actor constraints;
 - automatic and queued effects those events may fire, including inherited and self effects;
@@ -412,14 +413,14 @@ outcomes that autoexecution must preserve.
 
 ## Failure modes for bounded permutation proofs
 
-A proof that prepares every current task as-is, compares only their immediate permutations, and
+A proof that resolves every current task as-is, compares only their immediate permutations, and
 replays one accepted order is not sound when:
 
 - it does not explore interleavings with tasks created by the batch, so the concrete `IF`/`PER`
   form of the `A,C,B` counterexample above can pass an immediate-order comparison;
 - component/task comparison omits live-effect registry order, and rollback-backed speculation can
   itself mutate that order before evaluating the next candidate;
-- one immediate concrete form per original task does not cover legal revisions; and
+- one immediate concrete form per original task does not cover legal narrowings; and
 - composing the proof with another policy inherits every unproved assumption in that policy.
 
 The registry defect already has a two-task witness. Let `W1` own automatic effect `A:: Flag` and
@@ -428,7 +429,7 @@ component multiset and empty task pool, so an immediate component/task comparato
 equivalent. The first order drops and recreates `W1`'s registry ordinal behind `W2`; the second never
 drops it. A later `A` therefore produces different `Marker` results.
 
-Preparation used by analysis must remain read-only or run in a disposable World; otherwise the act
+Resolution used by analysis must remain read-only or run in a disposable World; otherwise the act
 of proving can itself change later gameplay.
 
 The size bound is a performance limitation, not the soundness defect. A bounded proof is welcome
