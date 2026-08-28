@@ -61,7 +61,8 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       )
     }
 
-    // User recollection recorded in _local/Game20260811/sources.md: Dad's otherwise-unidentified
+    // User recollection recorded in _local/replays/Game20260811/sources.md: Dad's
+    // otherwise-unidentified
     // seventh project was Cyberia Systems; the player record and later plays identify the other
     // six.
     dad.draw(
