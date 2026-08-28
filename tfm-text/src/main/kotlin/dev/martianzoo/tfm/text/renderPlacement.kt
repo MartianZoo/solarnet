@@ -202,31 +202,25 @@ private fun renderSpatialTarget(
       resolvedTarget.hasOnlySourceDependency(ownerKey, describers.anyoneExpression)
   val ownership =
       when {
-        explicitlyAnyOwner &&
-            placement.anyoneMetricOwner != ComponentDescriber.MetricOwner.ANY_PLAYER ->
-            SpatialTarget.Ownership.ANYONES
-        explicitlyAnyOwner -> SpatialTarget.Ownership.UNRESTRICTED
-        describers.isPlayerOwned(target.className) -> SpatialTarget.Ownership.YOURS
-        else -> SpatialTarget.Ownership.UNRESTRICTED
+        explicitlyAnyOwner -> placement.anyoneOwnership ?: return null
+        resolvedTarget.sourceDependencies.isEmpty() ->
+            placement.unqualifiedOwnership ?: ComponentDescriber.OwnershipPhrase.IMPLICIT
+        else -> return null
       }
   return SpatialTarget(
-      spatialTargetNoun(target, placement, describers),
-      ownership,
+      placement.referenceNoun
+          ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural),
+      ownership.asSpatialOwnership(),
       explicitlyAny = explicitlyAnyOwner,
   )
 }
 
-private fun spatialTargetNoun(
-    expression: Expression,
-    placement: ComponentDescriber.ChangeFrame.Positioned,
-    describers: Describers,
-): ComponentDescriber.Noun.Counted {
-  val requirementNoun =
-      describers.fact(expression.className, ComponentDescriber::requirement)?.minimum
-          as? ComponentDescriber.Requirement.Bound.Count
-  return requirementNoun?.noun
-      ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
-}
+private fun ComponentDescriber.OwnershipPhrase.asSpatialOwnership(): SpatialTarget.Ownership =
+    when (this) {
+      ComponentDescriber.OwnershipPhrase.IMPLICIT -> SpatialTarget.Ownership.UNRESTRICTED
+      ComponentDescriber.OwnershipPhrase.YOURS -> SpatialTarget.Ownership.YOURS
+      ComponentDescriber.OwnershipPhrase.ANYONES -> SpatialTarget.Ownership.ANYONES
+    }
 
 private fun spelledOutCount(count: Int): String =
     when (count) {
