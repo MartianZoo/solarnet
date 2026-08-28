@@ -21,7 +21,7 @@
 ## Sources and scope
 
 The official English rulebook is stored locally at
-`_local/TM_PRELUDE2_RULES_ENGi.pdf`. It was downloaded from FryxGames and visually checked after
+`_local/rulebooks/prelude-2.pdf`. It was downloaded from FryxGames and visually checked after
 rendering all four pages. Prelude 2 uses the original Prelude rules, keeps active Preludes in play
 without treating them as blue cards, filters cards by their required expansion icons, and awards
 15 M€ when a revealed Prelude cannot be fully performed.
