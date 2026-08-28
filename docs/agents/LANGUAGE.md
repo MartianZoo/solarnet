@@ -3,17 +3,17 @@
 > **Read when:** changing English output, a renderer family, the component lexicon, card-region
 > layout, refusal behavior, or review of generated card text.
 >
-> **Skip when:** changing Pets meaning without changing human rendering. Read
-> [LANGUAGE_REVIEW.md](LANGUAGE_REVIEW.md) only when working on its remaining architectural
-> migration, not for routine wording coverage.
+> **Skip when:** changing Pets meaning without changing human rendering.
 >
-> **Status:** current behavior and working rules.
+> **Status:** current behavior, settled architecture constraints, and prioritized remaining work.
 
 ## Read only the relevant sections
 
 | Task | Read |
 | --- | --- |
 | Add support for one recurring Pets shape | Direction and pace; Expected renderer architecture; Transitional derivation; Review cadence |
+| Change the intermediate representation, dependency resolution, or lexicon ownership | Architecture constraints; Current architecture; Prioritized architecture work; Expected renderer architecture |
+| Select the next renderer architecture task | Current architecture; Prioritized architecture work; Review cadence |
 | Change wording or lexical categories | Canonical wording versus rules; Component nouns and change verbs |
 | Change actions, triggers, effects, requirements, or metrics | The matching part of Current derivation scope, then its renderer source below |
 | Change which text appears above/below artwork | Known layout regions |
@@ -23,6 +23,8 @@
 
 - [`English.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/English.kt) — inspect the
   public entry points and card-region assembly.
+- [`EnglishSyntax.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/EnglishSyntax.kt) —
+  search for `sealed interface Clause` before changing the intermediate representation.
 - [`Rendering.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/Rendering.kt) and
   [`RenderedInstructions.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/RenderedInstructions.kt)
   — search for `Unresolved` when changing refusal cases.
@@ -37,6 +39,94 @@
   [`renderInstructionTree.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderInstructionTree.kt),
   [`renderMetric.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderMetric.kt), or
   [`renderRequirement.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderRequirement.kt).
+- [`EnglishCardTextCurrentGenerator.kt`](../../tfm-text/src/test/kotlin/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)
+  — search for `refusalRows` when changing corpus review output.
+
+## Architecture constraints
+
+These decisions constrain every renderer round, including ordinary coverage work.
+
+1. The target flow is Pets → a semantic description → English realization. Keep English outside the
+   Pets AST and do not add presentation categories to Pets.
+2. Published cards are the golden use cases, but arbitrary valid Pets remains the public target.
+   Unsupported source stays visible in brackets at the narrowest safe layer.
+3. Derive structural facts from the AST and Class Table. Lexicon entries may carry language facts,
+   never a second structural answer.
+4. Read dependencies by `Key`. Positional recognition is transitional and must be removed only when
+   the semantic replacement retains the same meaning.
+5. Never recognize a whole card. A narrow Procedure or Wrapper lexical fact is acceptable only when
+   it delegates the represented instruction back to a general renderer.
+6. Expansion work may add lexical entries but should almost never add a renderer concept or frame.
+7. Prefer consistent derivation to incidental published wording variation.
+8. Change the active path in place and delete superseded machinery; do not maintain parallel
+   converters.
+
+## Current architecture
+
+| Area | Current implementation | Remaining pressure |
+| --- | --- | --- |
+| Refusal | `Rendering<T>` carries visible output and typed `Unresolved` entries; corpus generation emits a ranked report. | Many private helpers remain nullable branch attempts. Keep refusal ownership at the family layer. |
+| Expression meaning | `ExpressionResolver`, `ResolvedExpression`, `Quantity`, and `Modality` centralize much source-to-semantic conversion. | Some renderer paths still inspect source positions or lose linked identity across separately rendered stages. |
+| Change lexicon | `ChangeFrame` covers countable, held, scale, positioned, deck, procedure, wrapper, and play constructions. | `ComponentDescriber` still mixes recurring language facts with family-specific facts, and one registry owns every bundle. |
+| English structure | Clauses, predicates, noun phrases, coordination, and modifiers are shared by every main family. | Preassembled strings still occupy structural roles, so some factoring compares wording rather than meaning. |
+| Requirements and metrics | Both produce clauses and reuse resolved expressions in important paths. | Their objects and bounds have not yet proved a shared role-bearing model. |
+| Triggers and effects | Common forms compose through clause structures. | `renderEffect.kt` still contains broad shape recognition, trigger-specific event kinds, and string prefaces. |
+| Card operations and layout | Canonical operations render from `CardOperation`; `English` assigns card regions. | Semantic rendering is not yet independent enough to name layout as its own client model. |
+
+## Prioritized architecture work
+
+This order reflects both value and dependency. Do not select a lower item merely to improve one or
+two cards.
+
+### 1. Give one recurring change family role-bearing semantics
+
+Select a recurring gain, removal, or transmutation construction whose current renderer already
+contains duplicated or string-shaped decisions. Replace that active path end to end; do not begin by
+declaring a complete semantic schema. Introduce only the roles the selected family proves it needs,
+such as lexical head, party, direct object, extent, place or oblique, modality, or adverbial
+information. Keep every object's extent attached to it so coordination cannot detach a count from
+its resource or production.
+
+Replace active string-shaped decisions rather than adding a semantic record beside them. Two changes
+may factor only when their invariant roles agree. Stop and report if the work needs about ten
+semantic kinds, a kind serving one card, or more permanent concepts than it removes.
+
+### 2. Finish expression meaning as required by those roles
+
+Remove positional matching only when the resolved dependency retains the required meaning. Use
+`expression.arguments`, `sourceDependency(`, and contextual placement-site `This` as the focused
+audit searches. Do not replace a positional check with a Class-name check.
+
+Revisit cross-stage linked identity only after more than one current construction needs the same
+role. Flooding remains a regression constraint, not authorization for player-reference
+infrastructure by itself.
+
+### 3. Narrow lexical ownership
+
+Move expansion-owned lexical data toward its bundle and reduce `ComponentDescriber` to facts that
+recur across renderer families. Structural membership such as `CardResource`, `Tag`, or `Production`
+must continue to come from the Class Table. Validate the complete lexicon once at construction and
+retain vocabulary-derived default nouns for Classes without explicit entries.
+
+Do not make registry movement a prerequisite for unrelated wording work.
+
+### 4. Extend roles only when another family proves them
+
+Move requirements and metrics next, then triggers and effects. Add a complement role only when a
+current construction cannot be represented honestly without it. For triggers and effects, model the
+finite verb group compositionally; destination is a complement, not an event kind. Replace string
+prefaces only when wrappers, gates, and triggers can share one structured constituent.
+
+### 5. Delete surviving recognizers, then name card layout
+
+Each component-specific matcher must become a structural rule, a narrow Procedure fact, corrected
+Pets, or visible unresolved source. Report lost coverage instead of hiding it. After semantic
+rendering is independent of printed regions, extract their assignment as `CardLayout`; do not add
+presentation meaning to Pets instructions.
+
+Open decisions remain evidence-driven: a site dependency can replace the positioned frame only if
+every applicable component should read as placed, and production should merge with scale changes
+only if the role model needs no special case.
 
 ## Direction and pace
 
@@ -493,6 +583,15 @@ canonical cards. A systemic iteration should simplify the model or cover a meani
 family; otherwise retain the bracketed Pets and wait for a smaller general rule. In
 particular, do not distribute an `OR` metric into repeated instructions by proving its alternatives
 disjoint. Render the metric composition directly when it has a compact general representation.
+
+Before implementation, name the recurring family or the existing machinery the change will delete.
+If it has neither, stop and report the unsupported card instead. Judge the trade primarily by new
+production concepts and context passed between families; tests, snapshots, and documentation do not
+make disproportionate production machinery cheaper.
+
+Make one systemic transformation the unit of review. For each round, report the rule, every distinct
+before→after transformation with a count and two examples, and every unexplained row individually.
+Keep a round to roughly ten distinct transformations and zero unexplained rows.
 
 When asking Kevin to judge possible wording canonicalizations, use concrete sentence pairs rather
 than architectural descriptions. For each candidate, show two actual current outputs, then show both

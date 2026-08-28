@@ -48,7 +48,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Task | Read | Authority |
 | --- | --- | --- |
 | Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
-| Change English rendering or card layout | [`LANGUAGE.md`](LANGUAGE.md); read [`LANGUAGE_REVIEW.md`](LANGUAGE_REVIEW.md) only for remaining architecture work | Current model; active design record |
+| Change English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md), selecting only the sections routed there | Current model, constraints, and prioritized design record |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
 | Change Prelude 2 scope or its unusual rules | [`PRELUDE2.md`](PRELUDE2.md) | Source and support record |
 | Model Turmoil | Select only the relevant rule family in [`TURMOIL.md`](TURMOIL.md) | Research-backed proposal |
