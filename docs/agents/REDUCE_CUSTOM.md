@@ -66,6 +66,5 @@ isolated ranking syntax to erase their Kotlin implementations.
 Robinson Industries already uses refined production instructions. Its
 `LowestProduction` custom metric remains the honest bridge for identifying tied lowest production.
 
-Prototype `ColoniesSetup` first. Consider `PassLeft` only as part of a single seat model. After a
-removal, delete its custom declaration, registration, implementation, and custom-interface tests while
-retaining end-to-end gameplay coverage.
+After a removal, delete its custom declaration, registration, implementation, and custom-interface
+tests while retaining end-to-end gameplay coverage.
