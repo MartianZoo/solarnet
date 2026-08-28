@@ -6,7 +6,7 @@ import dev.martianzoo.pets.PetTokenizer
 
 /** A lower-camel-case name identifying one class property. */
 public data class PropertyName(public val value: String) : PetNode(), Comparable<PropertyName> {
-  public companion object {
+  internal companion object {
     private val propertyNameRegex = Regex("[a-z][A-Za-z0-9]*")
 
     internal fun parser(): Parser<PropertyName> = Parsing.parser

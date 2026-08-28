@@ -1,28 +1,28 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ByTriggerCharacterizationTest {
+internal class ByTriggerCharacterizationTest {
   @Test
-  fun byAnyoneAcceptsPlayer() {
+  internal fun byAnyoneAcceptsPlayer() {
     assertByAnyone(PLAYER1)
   }
 
   @Test
-  fun byAnyoneAcceptsEngine() {
+  internal fun byAnyoneAcceptsEngine() {
     assertByAnyone(ENGINE)
   }
 
@@ -39,7 +39,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byPlayerAcceptsPlayer() {
+  internal fun byPlayerAcceptsPlayer() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     p1.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
@@ -52,7 +52,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
+  internal fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
     val game = newGame()
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
     p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
@@ -68,7 +68,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byPlayerRejectsEngine() {
+  internal fun byPlayerRejectsEngine() {
     val game = newGame()
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     engine.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
@@ -79,7 +79,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
+  internal fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -96,7 +96,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun anUnownedTriggerDefaultsToTheEffectOwner() {
+  internal fun anUnownedTriggerDefaultsToTheEffectOwner() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -124,7 +124,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
+  internal fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -138,7 +138,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
+  internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
     val game = newGame()
     val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -157,7 +157,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun orTriggerMatchesItsRemovalAlternative() {
+  internal fun orTriggerMatchesItsRemovalAlternative() {
     val game = newGame()
     val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -171,42 +171,42 @@ class ByTriggerCharacterizationTest {
   }
 
   private fun newGame(): World {
-    return Engine.newGame(canonicalPremise(authority = ProbeAuthority))
+    return Engine.newGame(canonicalPremise(catalog = ProbeCatalog))
   }
 }
 
-private object ProbeAuthority : TfmAuthority.Composite(Canon, ProbeDeclarations)
+private object ProbeCatalog : TfmCatalog.Composite(Canon, ProbeDeclarations)
 
-private object ProbeDeclarations : TfmAuthority() {
+private object ProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """
-              CLASS ActorTriggerSignal : AutoLoad
-              CLASS OwnedActorTrigger : Owned, AutoLoad
+              CLASS ActorTriggerSignal
+              CLASS OwnedActorTrigger : Owned
 
-              CLASS ActorTriggerProbe : AutoLoad {
+              CLASS ActorTriggerProbe {
                 ActorTriggerSignal BY Anyone: Plant<Player1>
                 -ActorTriggerSignal BY Player: Steel<Player1>
               }
 
-              CLASS ActorBindingProbe : AutoLoad {
+              CLASS ActorBindingProbe {
                 -OwnedActorTrigger<!Player> BY Player: Steel<Player>, Heat<!Player>
               }
 
-              CLASS RepeatedOwnerProbe : Owned, AutoLoad {
+              CLASS RepeatedOwnerProbe : Owned {
                 ActorTriggerSignal: Plant<Owner>, Steel<Owner>
               }
 
-              CLASS OwnedByProbe : Owned, AutoLoad {
+              CLASS OwnedByProbe : Owned {
                 ActorTriggerSignal BY Owner: Heat<Owner>
                 -ActorTriggerSignal BY Owner: Heat<Owner>
               }
 
-              CLASS OwnedTriggerProbe : Owned, AutoLoad {
+              CLASS OwnedTriggerProbe : Owned {
                 OwnedActorTrigger<Anyone>: Plant<Owner>
               }
 
-              CLASS OpponentByProbe : Owned, AutoLoad {
+              CLASS OpponentByProbe : Owned {
                 ActorTriggerSignal OR -ActorTriggerSignal BY !Owner: Heat<Owner>
               }
 

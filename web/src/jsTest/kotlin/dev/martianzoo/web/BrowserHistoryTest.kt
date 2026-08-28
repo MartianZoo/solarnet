@@ -12,7 +12,7 @@ internal class BrowserHistoryTest {
   }
 
   @Test
-  fun recordsAndReloadsHistory() {
+  internal fun recordsAndReloadsHistory() {
     val history = BrowserHistory()
     history.record("help")
     history.record("count Plant")

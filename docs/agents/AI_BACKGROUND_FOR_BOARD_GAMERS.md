@@ -1,5 +1,13 @@
 # Teaching Computers to Play Big Hidden-Information Games
 
+> **Read when:** a concise explanation of the AI-player opportunity, limitations, or recommended
+> first goal is enough.
+>
+> **Skip when:** making source-backed research claims or concrete architecture/evaluation choices;
+> use [AI_BACKGROUND.md](AI_BACKGROUND.md).
+>
+> **Status:** research overview current through 2026-08-08.
+
 This is the board-gamer's version of the more detailed
 [research survey](AI_BACKGROUND.md). It assumes familiarity with games, not with how computer
 players are built.
@@ -67,7 +75,7 @@ Terraforming Mars:
   duel found in chess or heads-up poker.
 
 A huge number of possible games is not the whole story. Poker has an enormous number of possible
-deals and betting histories, but every card still belongs to one ordinary 52-card deck. Terraforming
+deals and betting histories, but every card still belongs to one standard 52-card deck. Terraforming
 Mars has fewer ways to shuffle cards but far more kinds of card text and long-term interactions.
 
 ## What the strongest examples really prove
@@ -193,7 +201,7 @@ and the test hides an eleventh, success may only show resemblance. If practice c
 “whenever another player does X” effects and the player later handles one well, that is much stronger
 evidence that it understands the recipe.
 
-Results should be reported as wins and finishing places, not merely high scores. In Terraforming
+Results should be reported as wins and finishing places, not just high scores. In Terraforming
 Mars, scoring more while allowing an opponent to score even more is not success. Tests should also
 report how long each decision takes and confirm that no private information reached the player.
 
@@ -208,7 +216,7 @@ A strong first milestone would be a two-player computer that:
   those cards use familiar game ingredients.
 
 The next test should withhold an entire kind of effect. That will reveal where “new card” stops and
-“new rule” begins. Only after measuring that boundary should we expect printed card wording or a
+“new rule” begins. Only after measuring that divide should we expect printed card wording or a
 general-purpose text-reading assistant to close the gap.
 
 ## Bottom line

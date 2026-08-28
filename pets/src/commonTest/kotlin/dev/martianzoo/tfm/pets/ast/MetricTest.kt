@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.tfm.pets.testSampleStrings
@@ -12,6 +12,7 @@ import kotlin.test.Test
 internal class MetricTest {
   private val inputs =
       """
+      This
       Xyz
       !Ahh
       3 Bar
@@ -53,12 +54,12 @@ internal class MetricTest {
       (Bar - (Bar OR Xyz OR Qux<Abc<Foo>>)) MAX 5
       EVAL Xyz<Eep<Xyz>(HAS 2 Qux)>(HAS Abc).score
       Abc<Abc<Abc<Qux>>, Bar>(HAS Bar<Bar>) OR !Ahh
-      Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, 1)> OR Wau
+      Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, MC)> OR Wau
       EVAL Xyz<Eep>(HAS PROD[Abc OR MAX 1 Foo]).score
-      Ooh<Abc<Ooh(HAS MAX 0 Foo OR 1), Xyz>, Abc<Ahh>>
-      !Bar<Eep<Bar>(HAS MAX 1 Foo)>(HAS 1, =1 Foo<Foo>)
+      Ooh<Abc<Ooh(HAS MAX 0 Foo OR MC), Xyz>, Abc<Ahh>>
+      !Bar<Eep<Bar>(HAS MAX 1 Foo)>(HAS MC, =1 Foo<Foo>)
       PROD[3 (Qux - (Foo<Foo> - Bar<Foo> MAX 5)) MAX 11]
-      Foo<Wau> OR Abc<Ahh(HAS Bar)>(HAS MAX 0 Megacredit)
+      Foo<Wau> OR Abc<Ahh(HAS Bar)>(HAS MAX 0 MC)
       EVAL Ahh.score MAX 5 - (!Bar OR Bar<Qux>) - 11 - Bar
       PROD[2 (Foo - Abc - 2 (2 (2 Foo MAX 5)) - Foo) MAX 5]
       PROD[Xyz - Qux - PROD[Qux] - Foo - (2 Qux - Bar<Foo>)]
@@ -66,24 +67,24 @@ internal class MetricTest {
       Ooh<!Wau, Bar<!Xyz<Xyz<Ooh, Xyz, Qux>, Abc<Foo>>, !Abc>>
       PROD[Abc MAX 11 - 11 - (2 (Foo MAX 5) - 2 (2 Foo)) MAX 5]
       PROD[Foo MAX 11 - Foo - (Bar OR Abc<Bar> OR Foo(HAS Bar))]
-      EVAL Bar<Bar, Foo<!Xyz>, Abc<Foo>>(HAS =1 Megacredit).score
-      Eep<Foo(HAS PROD[1, =1 Foo]), Bar<Xyz(HAS 2 Foo), Qux>, Eep>
+      EVAL Bar<Bar, Foo<!Xyz>, Abc<Foo>>(HAS =1 MC).score
+      Eep<Foo(HAS PROD[MC, =1 Foo]), Bar<Xyz(HAS 2 Foo), Qux>, Eep>
       """
           .trimIndent()
 
   @Test
-  fun testSampleStrings() {
+  internal fun testSampleStrings() {
     testSampleStrings<Metric>(inputs)
   }
 
   @Test
-  fun subtractionIsLeftAssociativeAndPreservesNecessaryGrouping() {
+  internal fun subtractionIsLeftAssociativeAndPreservesNecessaryGrouping() {
     parse<Metric>("Foo - Bar - Qux").toString() shouldBe "Foo - Bar - Qux"
     parse<Metric>("Foo - (Bar - Qux)").toString() shouldBe "Foo - (Bar - Qux)"
   }
 
   @Test
-  fun subtractionEvaluationRemainsNonnegative() {
+  internal fun subtractionEvaluationRemainsNonnegative() {
     val counts = mapOf("Ore" to 12, "Fleet" to 3)
     fun evaluate(text: String): Int =
         parse<Metric>(text)
@@ -100,7 +101,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun orAcceptsOnlyDistinctComponentCounts() {
+  internal fun orAcceptsOnlyDistinctComponentCounts() {
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo MAX 5 OR Bar") }
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo - Bar OR Qux") }
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo OR Foo") }
@@ -111,21 +112,21 @@ internal class MetricTest {
   }
 
   @Test
-  fun constantsArePositiveSubtrahendsOnly() {
-    shouldThrow<PetSyntaxException> { parse<Metric>("5") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("PROD[5]") }
+  internal fun constantsAreMetricValuesAndMinuends() {
     shouldThrow<PetSyntaxException> { parse<Metric>("2 5") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("Foo - 0") }
     shouldThrow<PetSyntaxException> { parse<Metric>("0 Foo") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("1 - Foo") }
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo + Bar") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("3 (11 - Foo)") }
 
+    parse<Metric>("0").toString() shouldBe "0"
+    parse<Metric>("5").toString() shouldBe "5"
+    parse<Metric>("PROD[5]").toString() shouldBe "PROD[5]"
     parse<Metric>("Foo - 5").toString() shouldBe "Foo - 5"
+    parse<Metric>("1 - Foo").toString() shouldBe "1 - Foo"
+    parse<Metric>("3 (11 - Foo)").toString() shouldBe "3 (11 - Foo)"
   }
 
   @Test
-  fun unitScalingIsCanonicalizedAway() {
+  internal fun unitScalingIsCanonicalizedAway() {
     val count = Metric.Count(cn("Foo").expression)
 
     Metric.scaled(count, 1) shouldBe count
@@ -133,7 +134,7 @@ internal class MetricTest {
   }
 
   @Test
-  fun unexpandedEvalIsAProgrammerError() {
+  internal fun unexpandedEvalIsAProgrammerError() {
     shouldThrow<IllegalStateException> {
       parse<Metric>("EVAL Foo.score").evaluate({ 0 }, { 0 }, { 0 })
     }

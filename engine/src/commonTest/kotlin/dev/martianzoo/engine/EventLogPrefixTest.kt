@@ -1,11 +1,11 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -13,7 +13,7 @@ import kotlin.test.Test
 
 internal class EventLogPrefixTest {
   @Test
-  fun capturesAStartingSequenceAndAppendsLocally() {
+  internal fun capturesAStartingSequenceAndAppendsLocally() {
     val parent = EventLog()
     recordGain(parent, "Energy")
     parent.markSetupStart()
@@ -32,7 +32,7 @@ internal class EventLogPrefixTest {
   }
 
   @Test
-  fun failedStateUpdateDoesNotAdvanceHistoryOrRevision() {
+  internal fun failedStateUpdateDoesNotAdvanceHistoryOrRevision() {
     val events = EventLog()
     val revision = events.revision
     val entry = gainEvent(events, "Energy")

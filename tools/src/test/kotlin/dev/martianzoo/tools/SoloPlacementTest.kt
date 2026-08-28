@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 
 internal class SoloPlacementTest {
   @Test
-  fun calculatesCompatibilityModePlacementsFromCanonicalCardsAndMap() {
+  internal fun calculatesCompatibilityModePlacementsFromCanonicalCardsAndMap() {
     val placements =
         calculateSoloPlacements(
             listOf(
@@ -25,19 +25,19 @@ internal class SoloPlacementTest {
         placements.map { it.area.className.toString() },
     )
     assertEquals(
-        listOf("CardC25", "Card020", "CardX28", "CardC19"),
+        listOf("MiningColony", "ResearchOutpost", "Potatoes", "JupiterFloatingStation"),
         placements.map { it.card.className.toString() },
     )
     val output = formatPlacements(placements)
     assertTrue(output.contains("Mining Colony"))
     assertTrue(output.contains("Jupiter Floating Station"))
-    assertTrue(!output.contains("CardC25"))
+    assertTrue(!output.contains("MiningColony"))
     assertEquals(listOf(20, 18, 2, 9), placements.map { it.card.cost })
     assertEquals(4, placements.map { it.area }.toSet().size)
   }
 
   @Test
-  fun standardModeAcceptsZeroAndCountsOneAsSecond() {
+  internal fun standardModeAcceptsZeroAndCountsOneAsSecond() {
     val zeroPlacements =
         calculateSoloPlacements(
             listOf(
@@ -64,7 +64,7 @@ internal class SoloPlacementTest {
   }
 
   @Test
-  fun compatibilityModeRejectsZeroAndCountsOneAsFirst() {
+  internal fun compatibilityModeRejectsZeroAndCountsOneAsFirst() {
     val onePlacements =
         calculateSoloPlacements(
             listOf(

@@ -1,0 +1,366 @@
+{
+  "cards": [
+
+    {
+      "name": "NirgalEnterprises",
+      "deck": "CORPORATION",
+      "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
+      "immediate": "30 MC, PROD[Energy, Plant, Steel]",
+      "effects": [
+        "Invoice<ClaimMilestoneSA>:: -Owed<> / Owed<>",
+        "Invoice<FundAwardSA>:: -Owed<> / Owed<>",
+      ],
+    },
+
+    {
+      "name": "PalladinShipping",
+      "deck": "CORPORATION",
+      "tags": [ "SpaceTag" ],
+      "immediate": "36 MC, 5 Titanium",
+      "actions": [ "2 Titanium -> TemperatureStep" ],
+      "effects": [ "EventCard(HAS SpaceTag): Titanium" ],
+    },
+
+    {
+      "name": "SagittaFrontierServices",
+      "deck": "CORPORATION",
+      "immediate": "31 MC, PROD[Energy, 2 MC], CARDS[ProjectCard(HAS MAX 0 Tag)]",
+      "effects": [
+        "CardFront(HAS MAX 0 Tag): 4 MC",
+        "CardFront(HAS =1 Tag): 1 MC",
+      ],
+    },
+
+    {
+      "name": "EcoTec",
+      "deck": "CORPORATION",
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "42 MC, PROD[Plant]",
+      "effects": [ "BioTag<>: Plant OR Microbe" ],
+    },
+
+    {
+      "name": "Spire",
+      "deck": "CORPORATION",
+      "tags": [ "CityTag", "EarthTag" ],
+      "immediate": "50 MC, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }",
+      "effects": [
+        "CardFront(HAS 2 Tag): Science<This>",
+        "UseAction<StandardProject(HAS cost)>:: AcceptFromCard<This>",
+        "PayFromCard<This>:: -2 Owed<>",
+      ],
+    },
+
+    {
+      "name": "AppliedScience",
+      "deck": "PRELUDE",
+      "immediate": "WildTag<This>, 6 Science<This>",
+      "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
+    },
+
+    {
+      "name": "AtmosphericEnhancers",
+      "deck": "PRELUDE",
+      "tags": [ "VenusTag" ],
+      "immediate": "(2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)]",
+    },
+
+    {
+      "name": "BoardOfDirectors",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag" ],
+      "immediate": "4 Director<This>",
+      "actions": [
+        "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)",
+      ],
+      "components": [ "CLASS Director : CardResource<ResourceHolder<Class<Director>>>" ],
+    },
+
+    {
+      "name": "ColonyTradeHub",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[Energy], 2 Titanium",
+      "effects": [ "Colony<Anyone>: 2 MC" ],
+    },
+
+    {
+      "name": "EarlyColonization",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "Colony<>, 3 Energy, 2 AdvanceColonyTracks",
+    },
+
+    {
+      "name": "FloatingTradeHub",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "actions": [
+        "-> 2 Floater",
+        "X Floater<This> -> X StandardResource",
+      ],
+    },
+
+    {
+      "name": "FocusedOrganization",
+      "deck": "PRELUDE",
+      "immediate": "ProjectCard, StandardResource",
+      "actions": [
+        "-> -ProjectCard THEN -StandardResource THEN FocusedOrganizationGain",
+      ],
+      "components": [
+        "CLASS FocusedOrganizationGain : Owned<Player>, Signal { This: ProjectCard, StandardResource }",
+      ],
+    },
+
+    {
+      "name": "IndustrialComplex",
+      "deck": "PRELUDE",
+      "tags": [ "BuildingTag" ],
+      // GrossHack contributes five synthetic M€ production components, so 6 models 1 M€ production.
+      "immediate": "-18 MC, PROD[1 MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]",
+    },
+
+    {
+      "name": "MainBeltAsteroids",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "-5 MC",
+      "actions": [ "-> Asteroid" ],
+      "effects": [
+        "Asteroid<This>: Titanium",
+        "End: VictoryPoint / 2 Asteroid<This>",
+      ],
+    },
+
+    {
+      "name": "NobelPrize",
+      "deck": "PRELUDE",
+      "immediate": "WildTag<This>, 5 MC, CARDS[2 ProjectCard(HAS requirement)]",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    {
+      "name": "OldMiningColony",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[Titanium], Colony<>, -ProjectCard",
+    },
+
+    {
+      "name": "PlanetaryAlliance",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
+      "immediate": "2 TerraformRating, CARDS[ProjectCard(HAS JovianTag)], CARDS[ProjectCard(HAS VenusTag)]",
+    },
+
+    {
+      "name": "ProjectEden",
+      "deck": "PRELUDE",
+      "tags": [ "CityTag", "PlantTag" ],
+      "immediate": "OceanTile<>, CityTile<>, GreeneryTile<>, -3 ProjectCard",
+    },
+
+    {
+      "name": "Recession",
+      "deck": "PRELUDE",
+      "immediate": "10 MC",
+      "components": [
+        "CLASS RecessionWatcher : Owned<Player> { HAS =1 This; Recession<Anyone> IF MAX 0 Recession<Owner>: (-5 MC<Owner>., PROD[-1 MC<Owner>.]) BY Owner }",
+      ],
+    },
+
+    {
+      "name": "SoilBacteria",
+      "deck": "PRELUDE",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "CARDS[2 ProjectCard(HAS MicrobeTag)], 3 Plant",
+      "effects": [ "PlantTag<> OR MicrobeTag<>: Plant" ],
+    },
+
+    {
+      "name": "SpaceLanes",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "3 Titanium",
+      "effects": [
+        "PlayTag<Class<PlanetTag>>:: -2 Owed<>",
+      ],
+    },
+
+    {
+      "name": "SuitableInfrastructure",
+      "deck": "PRELUDE",
+      "tags": [ "BuildingTag" ],
+      "immediate": "5 Steel",
+      "effects": [
+        "UseAction<StandardAction>:: -SuitableInfrastructurePaid.",
+        "NewTurn IF PreludePhase:: -SuitableInfrastructurePaid.",
+        "X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.",
+      ],
+      "components": [
+        "CLASS SuitableInfrastructurePaid : Owned<Player>, Hidden, Atomized { HAS MAX 1 This; This:: 2 MC }",
+      ],
+    },
+
+    {
+      "name": "TerraformingDeal",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag" ],
+      "effects": [ "TerraformRating: 2 MC" ],
+    },
+
+    {
+      "name": "VenusContract",
+      "deck": "PRELUDE",
+      "tags": [ "VenusTag" ],
+      "immediate": "CARDS[ProjectCard(HAS VenusTag)], TerraformRating",
+      "effects": [ "VenusStep: 3 MC" ],
+    },
+
+    {
+      "name": "VenusL1Shade",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "3 VenusStep",
+    },
+
+    {
+      "name": "WorldGovernmentAdvisor",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag" ],
+      "immediate": "2 TerraformRating, ProjectCard",
+      "actions": [ "-> WorldGovernmentTerraforming BY Engine" ],
+    },
+
+    {
+      "name": "CeresTechMarket",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 12,
+      "tags": [ "ScienceTag", "SpaceTag" ],
+      "immediate": "2 MC / Colony",
+      "actions": [ "X ProjectCard -> 2X MC" ],
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "CloudTourism",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 11,
+      "tags": [ "JovianTag", "VenusTag" ],
+      "immediate": "PROD[1 MC / EarthTag MAX VenusTag]",
+      "actions": [ "-> Floater<This>" ],
+      "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
+    },
+
+    {
+      "name": "FloatingRefinery",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 7,
+      "tags": [ "VenusTag" ],
+      "immediate": "Floater<This> / VenusTag",
+      "actions": [
+        "-> Floater<This>",
+        "2 Floater -> Titanium, 2 MC",
+      ],
+    },
+
+    {
+      "name": "IshtarExpedition",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "5 VenusStep",
+      "cost": 6,
+      "tags": [ "VenusTag" ],
+      "immediate": "3 Titanium, CARDS[2 ProjectCard(HAS VenusTag)]",
+    },
+
+    {
+      "name": "MicrogravityNutrition",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 11,
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "PROD[1 MC / Colony]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "SoilStudies",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "MAX 13 TemperatureStep",
+      "cost": 13,
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "Plant / (VenusTag OR PlantTag OR Colony)",
+    },
+
+    {
+      "name": "StratosphericExpedition",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 12,
+      "tags": [ "VenusTag", "SpaceTag" ],
+      "immediate": "2 Floater, CARDS[2 ProjectCard(HAS VenusTag)]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "UnexpectedApplication",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 4,
+      "tags": [ "VenusTag" ],
+      "immediate": "-ProjectCard THEN VenusStep",
+    },
+
+    {
+      "name": "VenusAllies",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 30,
+      "tags": [ "VenusTag", "SpaceTag" ],
+      "immediate": "2 VenusStep, 4 MC / Colony",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    {
+      "name": "VenusOrbitalSurvey",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 18,
+      "tags": [ "VenusTag", "SpaceTag" ],
+      "actions": [
+        "-> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]",
+      ],
+    },
+
+    {
+      "name": "VenusShuttles",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 9,
+      "tags": [ "VenusTag" ],
+      "immediate": "2 Floater<CardFront(HAS VenusTag)>",
+      "actions": [
+        "1 MC / (12 - VenusTag) -> VenusStep",
+      ],
+    },
+
+    {
+      "name": "VenusTradeHub",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "2 VenusTag",
+      "cost": 12,
+      "tags": [ "VenusTag", "SpaceTag" ],
+      "effects": [
+        "Trade: 3 MC",
+        "End: VictoryPoint",
+      ],
+    },
+  ],
+}

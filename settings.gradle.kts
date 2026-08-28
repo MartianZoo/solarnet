@@ -1,10 +1,8 @@
-pluginManagement { includeBuild("build-logic") }
+pluginManagement { includeBuild("gradle/build-logic") }
 
 // Enable Build Scans
 // https://docs.gradle.org/current/userguide/github-actions.html#enable_build_scan_publishing
-plugins {
-  id("com.gradle.develocity") version ("4.2.2")
-}
+plugins { id("com.gradle.develocity") version ("4.2.2") }
 
 develocity {
   buildScan {
@@ -16,7 +14,19 @@ develocity {
 
 rootProject.name = "solarnet"
 
-include("pets", "language", "engine", "script", "repl", "canon", "web", "tools", "benchmarks")
+include(
+    "pets",
+    "tfm-text",
+    "engine",
+    "tfm-engine",
+    "tfm-tests",
+    "script",
+    "repl",
+    "tfm-canon",
+    "web",
+    "tools",
+    "benchmarks",
+)
 
 dependencyResolutionManagement {
   repositories {

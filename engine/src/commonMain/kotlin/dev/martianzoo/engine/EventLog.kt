@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.GameEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
 
 /**
  * A complete record of everything that happened in a particular game (in progress or finished),
@@ -16,7 +16,7 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  * Events appended later to [prefixSource] are not part of this log. The captured events must not be
  * rolled back while this log exists.
  *
- * [record] and [rollBackTo] are the single boundary between live state and its history. Callers
+ * [record] and [rollBackTo] are the single interface between live state and its history. Callers
  * supply the corresponding state mutation, which succeeds before the history and [revision] advance
  * together.
  */
@@ -68,12 +68,14 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
   public fun changesSinceSetup(): List<ChangeEvent> =
       entriesSinceSetup().filterIsInstance<ChangeEvent>()
 
-  internal fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
+  public fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
 
-  internal fun entryAt(ordinal: Int): GameEvent = entriesSince(Checkpoint(ordinal)).first()
+  // TODO: Replace this temporary cross-module exposure with the narrow event query TfmGameplay
+  // needs.
+  public fun entryAt(ordinal: Int): GameEvent = entriesSince(Checkpoint(ordinal)).first()
 
   /** Returns all change events since [checkpoint]. */
-  internal fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
+  public fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
   public fun entriesSince(checkpoint: Checkpoint): List<GameEvent> {

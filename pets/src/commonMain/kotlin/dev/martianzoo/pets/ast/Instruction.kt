@@ -8,14 +8,17 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SystemClasses.OK
-import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Specification
+import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.TypeLinking
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.OK
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -23,8 +26,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.util.Reifiable
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * A specification of steps that might be taken (or were taken) to alter a world. Instructions
@@ -32,7 +34,7 @@ import dev.martianzoo.util.toSetStrict
  * section of cards, in an engine's task queues, and so forth.
  */
 public sealed class Instruction : InstructionTree() {
-  public companion object {
+  internal companion object {
     internal fun parser(): Parser<Instruction> =
         Parsers.parser() map
             {
@@ -86,7 +88,7 @@ public sealed class Instruction : InstructionTree() {
           count == 0 -> NoOp
           removing == null -> Gain.gain(gaining!!, count, intensity)
           gaining == null -> Remove.remove(removing, count, intensity)
-          else -> Transmute(FromExpression(gaining, removing), ActualScalar(count), intensity)
+          else -> Transmute(Full(gaining, removing), ActualScalar(count), intensity)
         }
       }
     }
@@ -95,19 +97,21 @@ public sealed class Instruction : InstructionTree() {
 
     public abstract val gaining: Expression?
     public abstract val removing: Expression?
+    // TODO: Rename Intensity to Quantifier throughout.
     public abstract val intensity: Intensity?
 
     override fun isAbstract(info: TypeInfo): Boolean {
-      return intensity?.abstract != false ||
-          count.abstract ||
-          (gaining?.let { info.isAbstract(it) } == true) ||
-          (removing?.let { info.isAbstract(it) } == true)
+      return amount.isAbstract(info) ||
+          (gaining?.isAbstract(info) == true) ||
+          (removing?.isAbstract(info) == true)
     }
 
     private val amount: Amount by lazy { Amount(count, intensity) }
 
-    internal data class Amount(val scalar: Scalar, val intensity: Intensity?) : Reifiable<Amount> {
-      override val abstract: Boolean = scalar.abstract || intensity?.abstract != false
+    private data class Amount(val scalar: Scalar, val intensity: Intensity?) :
+        Specification<Amount> {
+      override fun isAbstract(info: TypeInfo): Boolean =
+          scalar.isAbstract(info) || intensity?.isAbstract(info) != false
 
       override fun ensureNarrows(that: Amount, info: TypeInfo) {
         intensity!!.ensureNarrows(that.intensity!!, info)
@@ -123,14 +127,13 @@ public sealed class Instruction : InstructionTree() {
       if (proposed == NoOp && intensity == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
       proposed.amount.ensureNarrows(amount, info)
-      gaining?.let { info.ensureNarrows(it, proposed.gaining!!) }
-      removing?.let { info.ensureNarrows(it, proposed.removing!!) }
+      gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
+      removing?.let { proposed.removing!!.ensureNarrows(it, info) }
     }
   }
 
-  @ConsistentCopyVisibility
   public data class Gain
-  internal constructor(
+  public constructor(
       val scaledEx: ScaledExpression,
       override val intensity: Intensity?,
   ) : Change() {
@@ -229,16 +232,18 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun safeToNestIn(container: PetNode): Boolean =
-        super.safeToNestIn(container) && container !is Or
+        super.safeToNestIn(container) && (fromEx !is Full || container !is Or)
 
-    override fun precedence(): Int = 7
+    override fun precedence(): Int = if (fromEx is Full) 7 else 10
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       super.ensureIsNarrowedBy(proposed, info)
       if (proposed == NoOp) return
       proposed as Transmute
       for (source in TypeLinking.atomicSources(this, info::isAbstract)) {
-        val bindings = TypeLinking.bindings(this, proposed, source)
+        val bindings =
+            TypeLinking.bindings(gaining, proposed.gaining, source) +
+                TypeLinking.bindings(removing, proposed.removing, source)
         if (bindings.distinct().size > 1) {
           throw NarrowingException("Can't set linked type $source differently: ${bindings.toSet()}")
         }
@@ -262,7 +267,7 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as Per
+      proposed as? Per ?: throw NarrowingException("$proposed does not preserve metric $metric")
       if (proposed.metric != metric) {
         throw NarrowingException("can't change the metric")
       }
@@ -291,7 +296,7 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = create(inner * factor, actor)
 
     override fun isAbstract(info: TypeInfo): Boolean =
-        inner.isAbstract(info) || info.isAbstract(actor)
+        inner.isAbstract(info) || actor.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? By ?: throw NarrowingException("$proposed does not preserve performer $actor")
@@ -311,7 +316,7 @@ public sealed class Instruction : InstructionTree() {
       public fun create(gate: Requirement?, inner: Instruction): Instruction =
           if (gate == null) inner else Gated(gate, inner)
 
-      internal fun createTree(gate: Requirement?, inner: InstructionTree): InstructionTree =
+      public fun createTree(gate: Requirement?, inner: InstructionTree): InstructionTree =
           if (gate == null) inner else Gated(gate, inner)
     }
 
@@ -326,7 +331,7 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as Gated
+      proposed as? Gated ?: throw NarrowingException("$proposed does not preserve condition $gate")
       if (proposed.gate != gate) {
         throw NarrowingException("can't change the condition")
       }
@@ -351,7 +356,7 @@ public sealed class Instruction : InstructionTree() {
     public val first: Instruction
       get() = stages.first()
 
-    internal val linkedTypeSources: Set<Expression>
+    public val linkedTypeSources: Set<Expression>
       get() = recordedLinkedTypeSources
 
     init {
@@ -381,7 +386,7 @@ public sealed class Instruction : InstructionTree() {
     }
 
     /** Replaces the sequence parts while preserving this `THEN`'s linkage identities. */
-    public fun withParts(stages: List<Instruction>, continuation: InstructionTree): Then =
+    internal fun withParts(stages: List<Instruction>, continuation: InstructionTree): Then =
         Then(stages, continuation).withLinkedTypeSources(linkedTypeSources)
 
     override fun precedence(): Int = 2
@@ -393,7 +398,7 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Then ?: throw NarrowingException("Can't reify $this to $proposed")
+      proposed as? Then ?: throw NarrowingException("Can't narrow $this to $proposed")
       if (instructions.size != proposed.instructions.size) {
         throw NarrowingException("Can't change the number of THEN stages")
       }
@@ -401,26 +406,7 @@ public sealed class Instruction : InstructionTree() {
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      if (hasLinkedX) {
-        val wideScalars = descendantsOfType<Scalar>()
-        val narrowScalars = proposed.descendantsOfType<Scalar>()
-        if (wideScalars.size != narrowScalars.size) {
-          throw NarrowingException("Can't match X occurrences in $proposed")
-        }
-        val xValues =
-            wideScalars.zip(narrowScalars).mapNotNull { (wide, narrow) ->
-              if (wide !is XScalar) return@mapNotNull null
-              narrow as? ActualScalar
-                  ?: throw NarrowingException("Can't bind X occurrence in $proposed")
-              if (narrow.value % wide.multiple != 0) {
-                throw NarrowingException("${narrow.value} isn't a multiple of ${wide.multiple}")
-              }
-              narrow.value / wide.multiple
-            }
-        if (xValues.distinct().size > 1) {
-          throw NarrowingException("Can't set different values for X: ${xValues.toSet()}")
-        }
-      }
+      if (hasLinkedX) linkedXValue(this, proposed)
     }
 
     private fun bindTypeLinksFrom(
@@ -456,13 +442,7 @@ public sealed class Instruction : InstructionTree() {
         narrow: Expression,
         wide: Expression,
         info: TypeInfo,
-    ): Boolean =
-        try {
-          info.ensureNarrows(wide, narrow)
-          true
-        } catch (_: NarrowingException) {
-          false
-        }
+    ): Boolean = narrow.narrows(wide, info)
 
     /**
      * Narrows the first stage and carries every choice linked from that stage into later stages.
@@ -511,13 +491,41 @@ public sealed class Instruction : InstructionTree() {
           )
       val specialized =
           bindTypeLinksFrom(partial, info, PetTransformer.chain(loweredBinding, authoredBinding))
-      if (requireBinding && specialized == this) {
+      val selectedX = if (hasLinkedX) linkedXValue(first, proposed) else null
+      val fullySpecialized =
+          selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
+      if (requireBinding && fullySpecialized == this) {
         throw NarrowingException("The first stage does not bind this THEN's type linkage")
       }
-      return specialized.withParts(
-          listOf(proposed) + specialized.stages.drop(1),
-          specialized.continuation,
+      return fullySpecialized.withParts(
+          listOf(proposed) + fullySpecialized.stages.drop(1),
+          fullySpecialized.continuation,
       )
+    }
+
+    private fun linkedXValue(wide: PetNode, narrow: PetNode): Int? {
+      val wideScalars = wide.descendantsOfType<Scalar>()
+      val narrowScalars = narrow.descendantsOfType<Scalar>()
+      if (wideScalars.none { it is XScalar }) return null
+      if (wideScalars.size != narrowScalars.size) {
+        throw NarrowingException("Can't match X occurrences in $narrow")
+      }
+      val xValues =
+          wideScalars.zip(narrowScalars).mapNotNull { (wideScalar, narrowScalar) ->
+            if (wideScalar !is XScalar) return@mapNotNull null
+            narrowScalar as? ActualScalar
+                ?: throw NarrowingException("Can't bind X occurrence in $narrow")
+            if (narrowScalar.value % wideScalar.multiple != 0) {
+              throw NarrowingException(
+                  "${narrowScalar.value} isn't a multiple of ${wideScalar.multiple}"
+              )
+            }
+            narrowScalar.value / wideScalar.multiple
+          }
+      if (xValues.distinct().size > 1) {
+        throw NarrowingException("Can't set different values for X: ${xValues.toSet()}")
+      }
+      return xValues.singleOrNull()
     }
 
     internal fun keepLinked(isAbstract: ((Expression) -> Boolean)?) =
@@ -532,7 +540,8 @@ public sealed class Instruction : InstructionTree() {
     public companion object {
       public fun create(it: List<Instruction>): Instruction = createTree(it) as Instruction
 
-      internal fun createTree(it: List<InstructionTree>): InstructionTree =
+      /** Returns a canonical sequence, collapsing empty and singleton inputs. */
+      public fun createTree(it: List<InstructionTree>): InstructionTree =
           it.let { sourceParts ->
                 val final = sourceParts.lastOrNull()
                 if (final is Then) sourceParts.dropLast(1) + final.instructions else sourceParts
@@ -619,7 +628,7 @@ public sealed class Instruction : InstructionTree() {
         }
       }
 
-      internal fun create(first: InstructionTree, vararg rest: InstructionTree): InstructionTree =
+      private fun create(first: InstructionTree, vararg rest: InstructionTree): InstructionTree =
           createTree(listOf(first) + rest)
     }
   }
@@ -643,8 +652,8 @@ public sealed class Instruction : InstructionTree() {
     override fun extract(): InstructionTree = instruction
   }
 
-  public enum class Intensity(internal val symbol: String, override val abstract: Boolean = false) :
-      Reifiable<Intensity> {
+  public enum class Intensity(public val symbol: String, public val abstract: Boolean = false) :
+      Specification<Intensity> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
 
@@ -655,14 +664,16 @@ public sealed class Instruction : InstructionTree() {
     OPTIONAL("?", true),
     ;
 
+    override fun isAbstract(info: TypeInfo): Boolean = abstract
+
     override fun ensureNarrows(that: Intensity, info: TypeInfo) {
       if (that != this && that != OPTIONAL) {
         throw NarrowingException("")
       }
     }
 
-    internal companion object {
-      internal fun from(symbol: String) = entries.first { it.symbol == symbol }
+    private companion object {
+      private fun from(symbol: String) = entries.first { it.symbol == symbol }
     }
   }
 
@@ -706,7 +717,7 @@ public sealed class Instruction : InstructionTree() {
 
         val maybeTransform: Parser<InstructionTree> = transform or maybePer
 
-        val atomBase: Parser<InstructionTree> = group(parser()) or maybeTransform
+        val atomBase: Parser<InstructionTree> = maybeTransform or group(parser())
 
         val atom: Parser<InstructionTree> =
             atomBase and

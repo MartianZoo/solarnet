@@ -10,7 +10,7 @@ A Game World consists entirely of a multiset of **Component** instances (plus Ta
 
 For example, when the game begins there are 20 instances of `TerraformRating<Player1>`, 20 of `TerraformRating<Player2>`, etc. The first 20 are indistinguishable from each other, and only their type distinguishes them from the latter 20. I'll try to use the term "component" consistently to mean a *single* instance, a.k.a a single occurrence of a component type (e.g., there were 40 components discussed in our example).
 
-A Game World is mutable. There are only two basic operations: adding or removing N identical copies of a Component. (There are also atomic Transmutations.) Being a multiset, or "just a bag of things", it can never contain a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (megacredit production). This headache is worth suffering, though, because otherwise the multiset model makes a large number of bugs impossible.
+A Game World is mutable. There are only two basic operations: adding or removing N identical copies of a Component. (There are also atomic Transmutations.) Being a multiset, or "just a bag of things", it can never contain a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (MC production). This headache is worth suffering, though, because otherwise the multiset model makes a large number of bugs impossible.
 
 Note that components are never "out of play"; a tile that's not yet on the board simply doesn't exist, and when you pay for a card the resources just vanish. (The "transmuting" just alluded to is fairly rare; mostly "steal" cards, and energy becoming heat during a production phase.)
 
@@ -20,7 +20,7 @@ As expected, we *declare* named classes (like `Player1`, `Animal`, or `Ecologica
 
 A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
-An Authority has one master Class Table containing every Class it knows. Before a game begins, that
+A Catalog has one master Class Table containing every Class it knows. Before a game begins, that
 table is projected into the Class Table for this particular game and then frozen. The projection
 preserves every known Class identity but gives it one of two roles: active or uninhabited. Its
 Active Classes are the ones that might be needed in the game. For any Active Class, we know the
@@ -28,14 +28,14 @@ complete set of its active subclasses.
 
 This explains, for example, how we can tell which five milestones are available to be claimed even
 though no `Milestone` Component exists in the Game World until one is claimed: we inspect the Active
-Classes. A milestone Class excluded from this game's pool is still known to the Authority, but it is
+Classes. A milestone Class excluded from this game's pool is still known to the Catalog, but it is
 uninhabited and does not appear among those choices. (This scheme works out well in many ways,
 while creating just one headache, called Aridor.)
 
 ### Uninhabited classes: the jackalope example
 
 Imagine that the master Class Table contains `Jackalope : Rabbit`. A jackalope is not an unknown
-animal: the Authority understands the name and knows exactly what kind of animal it would be. But
+animal: the Catalog understands the name and knows exactly what kind of animal it would be. But
 suppose the premise for one game makes `Jackalope` uninhabited. In that game we know something
 stronger than "we have not seen one yet": there cannot be a Jackalope Component at all.
 
@@ -115,6 +115,7 @@ CLASS PlantProduction<Player> {
 ```
 
 Inside a class declaration, lines of the form `<trigger>: <instruction>` are effects. They express that component's behaviors.
+Triggers on the root `Component` class must be qualified with `IF` or `BY`.
 
 The type `PlantProduction<Player>` is abstract, meaning that no component of that exact type can exist. That's because, even though `PlantProduction` is concrete, `Player` is not, and *all* types seen must be concrete for the whole type to be.
 
@@ -140,7 +141,7 @@ The `Class` class is predefined. `Class<Foo>` contains one class name, not a dep
 * Only a single class name can go inside the angle brackets. `Class<Steel>` works but `Class<Steel<Player2>>` does not.
 * Even though the type `Steel` is abstract, and the type `AnythingElse<Steel>` would also be abstract, `Class<Steel>` is considered concrete! After all, it's as concrete as it *can* be.
 
-`Class` is a Singleton Class. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
+`Class` is a Singleton Class. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<MC>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
 
 #### What's that good for?
 

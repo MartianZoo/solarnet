@@ -2,10 +2,14 @@
 # active; their individual suppressions are kept next to the code that needs them.
 
 complexity:
+  ComplexCondition:
+    # Boolean-expression complexity is not a useful constraint for this domain model.
+    active: false
   NestedScopeFunctions:
     active: true
   CyclomaticComplexMethod:
-    excludes: ['**/tfm/engine/games/**']
+    # Branching complexity is expected in parsers and renderers and is not actionable by itself.
+    active: false
   LargeClass:
     excludes: ['**/tfm/engine/games/**']
   NestedBlockDepth:

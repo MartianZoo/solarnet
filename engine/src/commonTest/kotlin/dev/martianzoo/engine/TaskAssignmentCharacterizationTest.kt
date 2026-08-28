@@ -1,88 +1,90 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.tfm.engine.canonicalPremise
-import dev.martianzoo.types.te
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.pets.data.Task.TaskId
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class TaskAssignmentCharacterizationTest {
+internal class TaskAssignmentCharacterizationTest {
+  private fun game() =
+      Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>", players = 2))
+
   @Test
-  fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
-    val game = Engine.newGame(canonicalPremise())
+  internal fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
+    val game = game()
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
 
-    p2.godMode().addTasks("Plant")
+    p2.godMode().addTasks("Token<Player2>")
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
-    shouldThrow<TaskException> { p1.doTask("Plant<Player2>") }
+    shouldThrow<TaskException> { p1.doTask("Token<Player2>") }
 
-    p2.doTask("Plant")
-    p2.count("Plant") shouldBe 1
+    p2.doTask("Token<Player2>")
+    p2.count("Token<Player2>") shouldBe 1
     game.tasks.isEmpty() shouldBe true
   }
 
   @Test
-  fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
-    val game = Engine.newGame(canonicalPremise())
+  internal fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
+    val game = game()
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p2.godMode().addTasks("Plant")
+    p2.godMode().addTasks("Token<Player2>")
     p1.autoExecMode = FIRST
 
     game.tasks.isEmpty() shouldBe true
-    p2.count("Plant") shouldBe 1
+    p2.count("Token<Player2>") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe PLAYER2
   }
 
   @Test
-  fun assignedPlayerCanCompleteATaskPerformedByEngine() {
-    val game = Engine.newGame(canonicalPremise())
+  internal fun assignedPlayerCanCompleteATaskPerformedByEngine() {
+    val game = game()
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p1.godMode().addTasks("Plant<Player1> BY Engine")
+    p1.godMode().addTasks("Token<Player1> BY Engine")
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER1)
 
-    p1.doTask("Plant<Player1> BY Engine")
+    p1.doTask("Token<Player1> BY Engine")
 
-    p1.count("Plant") shouldBe 1
+    p1.count("Token") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe Actor.ENGINE
   }
 
   @Test
-  fun performerOverridePreservesThenTaskSequencing() {
-    val game = Engine.newGame(canonicalPremise())
+  internal fun performerOverridePreservesThenTaskSequencing() {
+    val game = game()
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p1.godMode().addTasks("(Plant<Player1> THEN Steel<Player1>) BY Engine")
+    p1.godMode().addTasks("(Token<Player1> THEN Marker<Player1>) BY Engine")
     game.tasks.extract { it.then != null }.shouldContainExactly(true)
 
-    p1.doTask("Plant<Player1> BY Engine")
+    p1.doTask("Token<Player1> BY Engine")
 
-    p1.count("Plant") shouldBe 1
-    p1.count("Steel") shouldBe 0
+    p1.count("Token") shouldBe 1
+    p1.count("Marker") shouldBe 0
     game.tasks
         .extract { it.instruction.toString() }
-        .shouldContainExactly("Steel<Player1>! BY Engine")
+        .shouldContainExactly("Marker<Player1>! BY Engine")
 
-    p1.doTask("Steel<Player1> BY Engine")
+    p1.doTask("Marker<Player1> BY Engine")
 
     game.events
         .changesSince(checkpoint)
@@ -91,14 +93,14 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun pendingTaskReceivesItsAddEventOrdinalWhenInsertedIntoItsAssigneesQueue() {
+  internal fun pendingTaskReceivesItsAddEventOrdinalWhenInsertedIntoItsAssigneesQueue() {
     val events = EventLog()
     val queues = TaskQueues(events)
-    val cause = Cause(te("TerraformingMars"), triggerEvent = 0)
+    val cause = Cause(parse<Expression>("Token"), triggerEvent = 0)
     val pending =
         PendingTask(
             assignee = PLAYER2,
-            instruction = InstructionGroup(listOf(parse<Instruction>("Plant<Player2>!"))),
+            instruction = InstructionGroup(listOf(parse<Instruction>("Token<Player2>!"))),
             cause = cause,
         )
 
@@ -114,14 +116,14 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun copiedQueuesRetainTasksAndThenDiverge() {
+  internal fun copiedQueuesRetainTasksAndThenDiverge() {
     val events = EventLog()
     val queues = TaskQueues(events)
     val pending =
         PendingTask(
             assignee = PLAYER2,
-            instruction = InstructionGroup(listOf(parse<Instruction>("Plant<Player2>!"))),
-            cause = Cause(te("TerraformingMars"), triggerEvent = 0),
+            instruction = InstructionGroup(listOf(parse<Instruction>("Token<Player2>!"))),
+            cause = Cause(parse<Expression>("Token"), triggerEvent = 0),
         )
     queues[PLAYER2].addTasks(pending)
 

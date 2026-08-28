@@ -17,21 +17,22 @@ public interface TransformNode<P : PetNode> {
   public fun extract(): P
 
   public companion object {
-    public fun wrap(node: Cost, kind: String): Cost = wrap(node, kind) { Cost.Transform(it, kind) }
+    internal fun wrap(node: Cost, kind: String): Cost =
+        wrap(node, kind) { Cost.Transform(it, kind) }
 
-    public fun wrap(node: InstructionTree, kind: String): InstructionTree =
+    internal fun wrap(node: InstructionTree, kind: String): InstructionTree =
         wrap(node, kind) { Transform(it, kind) }
 
-    public fun wrap(node: Instruction, kind: String): Instruction =
+    internal fun wrap(node: Instruction, kind: String): Instruction =
         wrap(node, kind) { Transform(it, kind) }
 
-    public fun wrap(node: Metric, kind: String): Metric =
+    internal fun wrap(node: Metric, kind: String): Metric =
         wrap(node, kind) { Metric.Transform(it, kind) }
 
-    public fun wrap(node: Requirement, kind: String): Requirement =
+    internal fun wrap(node: Requirement, kind: String): Requirement =
         wrap(node, kind) { Requirement.Transform(it, kind) }
 
-    public fun wrap(node: Trigger, kind: String): Trigger =
+    internal fun wrap(node: Trigger, kind: String): Trigger =
         wrap(node, kind) { Trigger.Transform(it, kind) }
 
     private fun <P : PetNode> wrap(node: P, kind: String, wrapper: (P) -> P): P {

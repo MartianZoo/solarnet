@@ -7,60 +7,85 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.Specification
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.util.Reifiable
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
 @ConsistentCopyVisibility
 public data class ScaledExpression
-internal constructor(
-    val expression: Expression = MEGACREDIT.of(),
+private constructor(
+    val expression: Expression,
     val scalar: Scalar,
 ) : PetNode() {
   public companion object {
-    /** Returns [expression] scaled by [scalar], defaulting the expression to `Megacredit`. */
-    public fun scaledEx(expression: HasExpression? = null, scalar: Scalar): ScaledExpression =
-        ScaledExpression(expression?.expression ?: MEGACREDIT.of(), scalar)
+    // Identity, rather than the name, makes this parse-only marker impossible to author.
+    private val denominationlessClass = cn("Denominationless")
+    private val denominationlessExpression = denominationlessClass.expression
+    private const val denominationlessAmountMessage =
+        "Denominationless money amounts are no longer supported; write MC explicitly"
 
-    /** Returns [expression] scaled by [count], defaulting to one `Megacredit`. */
-    public fun scaledEx(expression: HasExpression? = null, count: Int = 1): ScaledExpression =
+    /** Returns [expression] scaled by [scalar]. */
+    public fun scaledEx(expression: HasExpression, scalar: Scalar): ScaledExpression =
+        ScaledExpression(expression.expression, scalar)
+
+    /** Returns [expression] scaled by [count]. */
+    public fun scaledEx(expression: HasExpression, count: Int = 1): ScaledExpression =
         scaledEx(expression, ActualScalar(count))
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
 
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
+
+    internal fun denominationless(scalar: Scalar): ScaledExpression =
+        ScaledExpression(denominationlessExpression, scalar)
+
+    internal fun rejectIfDenominationless(expression: Expression) {
+      if (expression.className === denominationlessClass) {
+        throw PetSyntaxException(denominationlessAmountMessage)
+      }
+    }
   }
 
   override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scalar, expression)
 
-  override fun toString(): String = toString(forceScalar = false, forceExpression = false)
+  override fun toString(): String = toString(forceScalar = false)
 
-  internal fun toFullString() = toString(forceScalar = true, forceExpression = true)
+  internal fun toFullString() = toString(forceScalar = true)
 
   internal operator fun times(multiple: Int) = copy(scalar = scalar * multiple)
 
-  internal fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
+  private fun toString(forceScalar: Boolean = false) =
       when {
-        !forceExpression && expression == MEGACREDIT.of() -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
         else -> "$scalar $expression"
       }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = ScaledExpression::class
 
-  public sealed class Scalar : PetNode(), Reifiable<Scalar> {
+  public sealed class Scalar : PetNode(), Specification<Scalar> {
     override val kind: kotlin.reflect.KClass<out PetNode> = Scalar::class
 
     override fun visitChildren(visitor: Visitor): Unit = Unit
 
     internal abstract operator fun times(multiple: Int): Scalar
+
+    override fun isAbstract(info: TypeInfo): Boolean = abstract
+
+    public abstract val abstract: Boolean
+
+    /** Replaces an authored X with [value], retaining its written coefficient. */
+    internal fun bindX(value: Int): Scalar =
+        when (this) {
+          is ActualScalar -> this
+          is XScalar -> ActualScalar(value * multiple)
+        }
 
     internal companion object {
       internal fun checkNonzero(s: Scalar) {
@@ -89,12 +114,12 @@ internal constructor(
       override fun toString(): String = "$value"
     }
 
-    internal data class XScalar(val multiple: Int) : Scalar() {
+    public data class XScalar public constructor(val multiple: Int) : Scalar() {
       init {
         require(multiple > 0)
       }
 
-      override val abstract = true
+      override val abstract: Boolean = true
 
       override fun ensureNarrows(that: Scalar, info: TypeInfo) {
         if (this != that) throw NarrowingException("$this / $that")
@@ -102,7 +127,7 @@ internal constructor(
 
       override fun times(multiple: Int) = copy(multiple = this.multiple * multiple)
 
-      override fun toString() = if (multiple == 1) "X" else "${multiple}X"
+      override fun toString(): String = if (multiple == 1) "X" else "${multiple}X"
     }
   }
 
@@ -115,13 +140,15 @@ internal constructor(
 
     fun parser(): Parser<ScaledExpression> {
       return parser {
-        val scalarAndOptionalEx = scalar() and optional(Expression.parser())
-        val optionalScalarAndEx = optional(scalar()) and Expression.parser()
+        val scalarAndOptionalExpression = scalar() and optional(Expression.parser())
+        val optionalScalarAndExpression = optional(scalar()) and Expression.parser()
 
-        scalarAndOptionalEx or
-            optionalScalarAndEx map
-            { (scalar, expr) ->
-              scaledEx(expr, scalar ?: ActualScalar(1))
+        scalarAndOptionalExpression or
+            optionalScalarAndExpression map
+            { (scalar, expression) ->
+              val resolvedScalar = scalar ?: ActualScalar(1)
+              if (expression == null) denominationless(resolvedScalar)
+              else scaledEx(expression, resolvedScalar)
             }
       }
     }

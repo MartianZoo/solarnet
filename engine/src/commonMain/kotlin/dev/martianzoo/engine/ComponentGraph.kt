@@ -1,14 +1,14 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExistingDependentsException
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.HashMultiset
-import dev.martianzoo.util.Multiset
+import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.Multiset
 
 /**
  * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
@@ -51,11 +51,11 @@ private constructor(
 
   /**
    * How many total component instances have the type [parentType] (or any of its subtypes)? Returns
-   * zero for a phantom type, which cannot have stored components.
+   * zero for an inactive type, which cannot have stored components.
    */
   internal fun count(parentType: Type, info: TypeInfo): Int {
     requireOwnClassTable(parentType)
-    return if (parentType.phantom) {
+    return if (!classTable.isActive(parentType)) {
       0
     } else if (parentType.className == COMPONENT) {
       components.size
@@ -71,7 +71,7 @@ private constructor(
 
   internal fun containsAny(parentType: Type, info: TypeInfo): Boolean {
     requireOwnClassTable(parentType)
-    return if (parentType.phantom) {
+    return if (!classTable.isActive(parentType)) {
       false
     } else if (parentType.abstract) {
       components.queryElements(parentType).any { it.hasType(parentType, info) }
@@ -82,13 +82,13 @@ private constructor(
 
   /**
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
-   * multiset. The size of the returned collection will be `[count]([parentType])` . A phantom type
-   * returns an empty multiset. If [parentType] is `Component` this returns the entire component
-   * multiset.
+   * multiset. The size of the returned collection will be `[count]([parentType])` . An inactive
+   * type returns an empty multiset. If [parentType] is `Component` this returns the entire
+   * component multiset.
    */
   internal fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
     requireOwnClassTable(parentType)
-    return if (parentType.phantom) {
+    return if (!classTable.isActive(parentType)) {
       HashMultiset()
     } else if (parentType.className == COMPONENT) {
       components.copy()
@@ -104,6 +104,9 @@ private constructor(
   internal fun applyChange(count: Int, gaining: Component?, removing: Component?) {
     listOfNotNull(gaining, removing).forEach {
       requireOwnClassTable(it.type)
+      if (!classTable.isActive(it.type)) {
+        throw ExpressionException("inactive type has no components: ${it.type}")
+      }
       if (it.isCustom) {
         throw ExpressionException(
             "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
@@ -122,14 +125,14 @@ private constructor(
   }
 
   private fun requireOwnClassTable(type: Type) {
-    require(type.classTable === classTable) { "$type belongs to a different class table" }
+    require(classTable.knows(type)) { "$type belongs to a different Catalog" }
   }
 
   private fun queryShardClasses(klass: Class): Set<Class> =
       queryShardClassesByClass.getOrPut(klass) {
         // An abstract query can cross a later inheritance junction, so include the shard of every
         // possible root subclass. The shards partition components, so summing them is safe.
-        klass.allSubclasses().mapTo(linkedSetOf(), ::shardClass)
+        classTable.allSubclasses(klass).mapTo(linkedSetOf(), ::shardClass)
       }
 
   private fun shardClass(klass: Class): Class =

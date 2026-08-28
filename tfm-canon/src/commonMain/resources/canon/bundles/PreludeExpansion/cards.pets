@@ -1,0 +1,336 @@
+// Generated from cards.json5.
+CLASS CheungShingMars : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: 44 MC, PROD[3 MC]
+  PlayTag<Class<BuildingTag>>:: -2 Owed<>
+}
+
+CLASS PointLuna : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: EarthTag<This>, SpaceTag<This>
+  This: 38 MC, PROD[Titanium]
+  EarthTag<>: ProjectCard
+}
+
+CLASS RobinsonIndustries : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This: 47 MC
+
+  4 MC -> PROD[StandardResource(HAS LowestProduction)]
+}
+
+CLASS ValleyTrust : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 37 MC, Mandate { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }
+  PlayTag<Class<ScienceTag>>:: -2 Owed<>
+}
+
+CLASS Vitor : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 45 MC
+  This IF Class<Award>: Mandate { -> Award }
+  CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC
+}
+
+CLASS AlliedBank : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: PROD[4 MC], 3 MC
+}
+
+CLASS AquiferTurbines : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PowerTag<This>
+  This: OceanTile<>, PROD[2 Energy], -3 MC
+}
+
+CLASS Biofuels : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: MicrobeTag<This>
+  This: PROD[Plant, Energy], 2 Plant
+}
+
+CLASS Biolab : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: ScienceTag<This>
+  This: PROD[Plant], 3 ProjectCard
+}
+
+CLASS BiosphereSupport : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PlantTag<This>
+  This: PROD[-1 MC, 2 Plant]
+}
+
+CLASS BusinessEmpire : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: PROD[6 MC], -6 MC
+}
+
+CLASS DomeFarming : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PlantTag<This>, BuildingTag<This>
+  This: PROD[Plant, 2 MC]
+}
+
+CLASS Donation : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 21 MC
+}
+
+CLASS EarlySettlement : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: CityTag<This>, BuildingTag<This>
+  This: CityTile<>, PROD[Plant]
+}
+
+CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PlantTag<This>, MicrobeTag<This>
+  This: PROD[Plant], PlayCard THEN -Required / Required
+}
+
+CLASS ExcentricSponsor : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PlayCard<Class<ProjectCard>> THEN -25 Owed<>.
+}
+
+CLASS ExperimentalForest : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PlantTag<This>
+  This: GreeneryTile<>, CARDS[2 ProjectCard(HAS PlantTag)]
+}
+
+CLASS GalileanMining : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: JovianTag<This>
+  This: PROD[2 Titanium], -5 MC
+}
+
+CLASS GreatAquifer : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 2 OceanTile<>
+}
+
+CLASS HugeAsteroid : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 3 TemperatureStep, -5 MC
+}
+
+CLASS IoResearchOutpost : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: ScienceTag<This>, JovianTag<This>
+  This: PROD[Titanium], ProjectCard
+}
+
+CLASS Loan : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PROD[-2 MC], 30 MC
+}
+
+CLASS MartianIndustries : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: PROD[Energy, Steel], 6 MC
+}
+
+CLASS MetalRichAsteroid : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: TemperatureStep, 4 Titanium, 4 Steel
+}
+
+CLASS MetalsCompany : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PROD[1 MC, Steel, Titanium]
+}
+
+CLASS MiningOperations : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: PROD[2 Steel], 4 Steel
+}
+
+CLASS Mohole : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: PROD[3 Heat], 3 Heat
+}
+
+CLASS MoholeExcavation : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: PROD[Steel, 2 Heat], 2 Heat
+}
+
+CLASS NitrogenShipment : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: TerraformRating, PROD[Plant], 5 MC
+}
+
+CLASS OrbitalConstructionYard : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>
+  This: PROD[Titanium], 4 Titanium
+}
+
+CLASS PolarIndustries : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: OceanTile<>, PROD[2 Heat]
+}
+
+CLASS PowerGeneration : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PowerTag<This>
+  This: PROD[3 Energy]
+}
+
+CLASS ResearchNetwork : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PROD[1 MC], 3 ProjectCard, WildTag<This>
+}
+
+CLASS SelfSufficientSettlement : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: CityTag<This>, BuildingTag<This>
+  This: CityTile<>, PROD[2 MC]
+}
+
+CLASS SmeltingPlant : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: 2 OxygenStep, 5 Steel
+}
+
+CLASS SocietySupport : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PROD[-1 MC, Plant, Energy, Heat]
+}
+
+CLASS Supplier : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: PowerTag<This>
+  This: PROD[2 Energy], 4 Steel
+}
+
+CLASS SupplyDrop : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 3 Titanium, 8 Steel, 3 Plant
+}
+
+CLASS UnmiContractor : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 3 TerraformRating, ProjectCard
+}
+
+CLASS AcquiredSpaceAgency : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 6 Titanium, CARDS[2 ProjectCard(HAS SpaceTag)]
+}
+
+CLASS HousePrinting : AutomatedCard<Class<ProjectCard>> {
+  cost = 10
+
+  This:: BuildingTag<This>
+  This: PROD[Steel]
+  End: VictoryPoint
+}
+
+CLASS LavaTubeSettlement : AutomatedCard<Class<ProjectCard>> {
+  cost = 15
+
+  This:: CityTag<This>, BuildingTag<This>
+  This: PROD[-Energy, 2 MC], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)
+}
+
+CLASS MartianSurvey : EventCard<Class<ProjectCard>> {
+  cost = 9
+  requirement = HAS "MAX 4 OxygenStep"
+
+  This:: ScienceTag<This>, EventTag<This>
+  This: 2 ProjectCard
+  End: VictoryPoint
+}
+
+CLASS Psychrophiles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
+  cost = 2
+  requirement = HAS "MAX 5 TemperatureStep"
+
+  This:: MicrobeTag<This>
+  PlayTag<Class<PlantTag>>:: AcceptFromCard<This>
+  PayFromCard<This>:: -2 Owed<>
+
+  -> Microbe<This>
+}
+
+CLASS ResearchCoordination : AutomatedCard<Class<ProjectCard>> {
+  cost = 4
+
+  This: WildTag<This>
+}
+
+CLASS SfMemorial : AutomatedCard<Class<ProjectCard>> {
+  cost = 7
+
+  This:: BuildingTag<This>
+  This: ProjectCard
+  End: VictoryPoint
+}
+
+CLASS SpaceHotels : AutomatedCard<Class<ProjectCard>> {
+  cost = 12
+  requirement = HAS "2 EarthTag"
+
+  This:: EarthTag<This>, SpaceTag<This>
+  This: PROD[4 MC]
+}
+
+// Supporting declarations contributed by cards in this bundle.
+CLASS LowestProduction<Class<StandardResource>> : Custom, Owned
+
+CLASS CitationsIgnoringRemoves<CardFront, Class<Component>> : Custom

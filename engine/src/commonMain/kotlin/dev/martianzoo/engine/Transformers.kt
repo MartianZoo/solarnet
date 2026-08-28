@@ -1,16 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.Exceptions.invalidPetDefinition
-import dev.martianzoo.api.SystemClasses.ATOMIZED
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.SystemClasses.DIE
-import dev.martianzoo.api.SystemClasses.OK
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
@@ -18,11 +7,24 @@ import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.DIE
+import dev.martianzoo.pets.api.SystemClasses.OK
+import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -44,19 +46,20 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.Prod
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Defaults
-import dev.martianzoo.types.Defaults.DefaultSpec
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.DependencySet
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Defaults
+import dev.martianzoo.pets.types.Defaults.DefaultSpec
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.DependencySet
+import dev.martianzoo.pets.types.Type
 
 public class Transformers(public val classTable: ClassTable) {
-
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
-  private val deprodifier by lazy { Prod.deprodify(classTable) }
+  private val transformDispatcher by lazy { classTable.transformDispatcher() }
+
+  /** Expands the marked Pets syntax configured by this game's Catalog. */
+  public fun transformMarkedSyntax(): PetTransformer = transformDispatcher
 
   /** Rewrites session-localized input names to their canonical engine names. */
   public fun canonicalize(vocabulary: Vocabulary): PetTransformer =
@@ -67,7 +70,7 @@ public class Transformers(public val classTable: ClassTable) {
 
   /** Effects inherited by [klass], processed as far as possible without a concrete component. */
   internal fun classEffects(klass: Class): List<Effect> {
-    require(klass.classTable === classTable) { "$klass belongs to a different class table" }
+    require(classTable.isActive(klass)) { "$klass is not active in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
           source.declaration.effects.map(attachToClassTransformer(source)::transformEffect)
@@ -134,7 +137,8 @@ public class Transformers(public val classTable: ClassTable) {
                     "Class `${propertyClass.className}` has no property " +
                         "`${contextualProperty.propertyName}`"
                 )
-        if (deferAbstract && value.abstract) return node
+        if (deferAbstract && (value.abstract || (propertyType.abstract && THIS in value)))
+            return node
         val syntax: PetNode =
             when (node) {
               is Metric.Eval ->
@@ -187,7 +191,7 @@ public class Transformers(public val classTable: ClassTable) {
                 atomizer(),
                 insertDefaults(context),
                 owner?.let(::replaceOwnerWith),
-                Prod.deprodify(classTable),
+                transformDispatcher,
             )
         return when (expanded) {
           is Metric -> finishing.transformMetric(expanded)
@@ -203,7 +207,7 @@ public class Transformers(public val classTable: ClassTable) {
     return chain(
         insertDefaults(context),
         atomizer(),
-        deprodifier,
+        transformDispatcher,
         fixEffectForUnownedContext(klass),
     )
   }
@@ -256,10 +260,37 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
-  internal fun insertDefaults() = insertDefaults(THIS.expression)
+  internal fun insertDefaults(): PetTransformer = insertDefaults(THIS.expression)
 
-  internal fun insertDefaults(context: Expression) =
-      chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
+  internal fun insertDefaults(context: Expression): PetTransformer =
+      chain(
+          insertTriggerDefaults(context),
+          insertGainRemoveDefaults(context),
+          insertExpressionDefaults(context),
+      )
+
+  private fun insertTriggerDefaults(context: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun transformNode(node: PetNode): PetNode =
+          when (node) {
+            is OnGainOf -> applyTriggerDefault(node, node.expression)
+            is OnRemoveOf -> applyTriggerDefault(node, node.expression)
+            else -> transformChildren(node)
+          }
+
+      private fun applyTriggerDefault(node: Effect.Trigger, original: Expression): Effect.Trigger {
+        val default = classTable.getClass(original.className).defaults.triggerOnly
+        requireExplicitDependencyDefaults(original, default, "trigger")
+        val fixed = insertDefaultsIntoExpr(original, default.dependencies, context, classTable)
+        val replacer =
+            object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (node === original) fixed else transformChildren(node)
+            }
+        return replacer.transformTrigger(node)
+      }
+    }
+  }
 
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
@@ -292,15 +323,12 @@ public class Transformers(public val classTable: ClassTable) {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val spec: DefaultSpec = extractor(classTable.getClass(original.className).defaults)
-          requireExplicitDependencyDefaults(original, spec, node is Gain)
+          val kind = if (node is Gain) "gain" else "removal"
+          val spec = extractor(classTable.getClass(original.className).defaults)
+          if (kind == "gain") requireExplicitDependencyDefaults(original, spec, kind)
           val fixed =
-              insertDefaultsIntoExpr(
-                  original,
-                  spec.dependencies,
-                  context,
-                  classTable,
-              )
+              if (kind == "removal" && hasUnacceptedDependencyDefaults(original, spec)) original
+              else insertDefaultsIntoExpr(original, spec.dependencies, context, classTable)
           val intensity = node.intensity ?: spec.intensity
           rebuild(fixed, intensity)
         }
@@ -313,9 +341,9 @@ public class Transformers(public val classTable: ClassTable) {
             node.intensity ?: intersectIntensities(gainDefault?.intensity, removeDefault?.intensity)
 
         return Transmute(
-            FromExpression(
-                applyDefault(node.gaining, gainDefault, context),
-                applyDefault(node.removing, removeDefault, context),
+            Full(
+                applyDefault(node.gaining, gainDefault, context, gain = true),
+                applyDefault(node.removing, removeDefault, context, gain = false),
             ),
             node.count,
             intensity,
@@ -329,35 +357,19 @@ public class Transformers(public val classTable: ClassTable) {
       ): DefaultSpec? {
         if (leaveItAlone(expression)) return null
         val default = extractor(classTable.getClass(expression.className).defaults)
-        requireExplicitDependencyDefaults(expression, default, gain)
+        if (gain) requireExplicitDependencyDefaults(expression, default, "gain")
         return default
-      }
-
-      private fun requireExplicitDependencyDefaults(
-          expression: Expression,
-          default: DefaultSpec,
-          gain: Boolean,
-      ) {
-        if (
-            default.dependencies.keys.isNotEmpty() &&
-                expression.arguments.isEmpty() &&
-                !expression.argumentsSpecified
-        ) {
-          val kind = if (gain) "gain" else "removal"
-          throw PetSyntaxException(
-              "`${expression.className}` has $kind dependency defaults; write " +
-                  "`${expression.className}<>` to accept them or provide dependency arguments"
-          )
-        }
       }
 
       private fun applyDefault(
           expression: Expression,
           default: DefaultSpec?,
           context: Expression,
+          gain: Boolean,
       ): Expression =
-          if (default == null) expression
-          else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
+          if (default == null || (!gain && hasUnacceptedDependencyDefaults(expression, default))) {
+            expression
+          } else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
 
       private fun intersectIntensities(
           gainIntensity: Instruction.Intensity?,
@@ -376,20 +388,56 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
+  private fun requireExplicitDependencyDefaults(
+      expression: Expression,
+      default: DefaultSpec,
+      kind: String,
+  ) {
+    if (
+        default.dependencies.keys.isNotEmpty() &&
+            expression.arguments.isEmpty() &&
+            !expression.argumentsSpecified
+    ) {
+      throw PetSyntaxException(
+          "`${expression.className}` has $kind dependency defaults; write " +
+              "`${expression.className}<>` to accept them or provide dependency arguments"
+      )
+    }
+  }
+
+  private fun hasUnacceptedDependencyDefaults(
+      expression: Expression,
+      default: DefaultSpec,
+  ): Boolean =
+      default.dependencies.keys.isNotEmpty() &&
+          expression.arguments.isEmpty() &&
+          !expression.argumentsSpecified
+
   public fun insertExpressionDefaults(context: Expression): PetTransformer {
+    var refinementDepth = 0
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Expression.Refinement) {
+          refinementDepth++
+          try {
+            return transformChildren(node)
+          } finally {
+            refinementDepth--
+          }
+        }
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
         if (node.hasDeferredOwnerComplement()) return node
 
-        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
+        val klass = classTable.getClass(node.className)
+        val defaultDeps = klass.defaults.allUsages.dependencies
         val result =
             insertDefaultsIntoExpr(
                 transformChildren(node) as Expression,
                 defaultDeps,
                 context,
                 classTable,
+                deferLinkedDefaults = refinementDepth > 0 && !node.argumentsSpecified,
             )
         return result
       }
@@ -424,6 +472,7 @@ public class Transformers(public val classTable: ClassTable) {
       defaultDeps: DependencySet,
       contextCpt: Expression,
       classTable: ClassTable,
+      deferLinkedDefaults: Boolean = false,
   ): Expression {
 
     val klass: Class = classTable.getClass(original.className)
@@ -432,7 +481,12 @@ public class Transformers(public val classTable: ClassTable) {
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =
-        defaultDeps.typeDependencies().associate { it.key to it.expression }
+        defaultDeps
+            .typeDependencies()
+            .filterNot { deferLinkedDefaults && klass.isLinkedDependency(it.key) }
+            .associate {
+              it.key to it.expression
+            }
     val inferred = klass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
@@ -468,14 +522,16 @@ public class Transformers(public val classTable: ClassTable) {
       override fun transformNode(node: PetNode): PetNode {
         if (node is Expression && node in preserved) return node
         if (node is Expression) {
-          val replacement: Expression? = subs[node.className]
+          val transformed = transformChildren(node) as Expression
+          val replacement: Expression? = subs[transformed.className]
           if (replacement != null) {
             val expr: Expression =
                 replacement
-                    .appendArguments(node.arguments)
-                    .copy(refinement = node.refinement, complement = node.complement)
+                    .appendArguments(transformed.arguments)
+                    .copy(refinement = transformed.refinement, complement = transformed.complement)
             return expr
           }
+          return transformed
         }
         return transformChildren(node)
       }
@@ -499,15 +555,54 @@ public class Transformers(public val classTable: ClassTable) {
     )
   }
 
-  /** Specializes a component while leaving trigger-local linked expressions to the event match. */
-  internal fun checkedSubstituterPreserving(
+  /**
+   * Specializes a class effect while retaining complete values for abstract class-header
+   * dependencies used by that effect. Those occurrences are variables linked to the header, not
+   * ordinary requests to replace every instance of the same abstract Class.
+   */
+  internal fun checkedEffectSubstituter(
       general: Type,
       specific: Type,
-      preserved: Set<Expression>,
+      effect: Effect,
+      eventLinkedSources: Set<Expression>,
       vararg afterSubstitution: PetTransformer?,
   ): PetTransformer {
+    val expressions = effect.descendantsOfType<Expression>().toSet()
+    val commonPaths =
+        general.dependencies.flatten().keys.intersect(specific.dependencies.flatten().keys)
+    val dependencyBindings =
+        commonPaths
+            .mapNotNull { path ->
+              val source = general.dependencies.at(path).expression
+              val replacement = specific.dependencies.at(path).expressionFull
+              if (
+                  source.simple &&
+                      classTable.getClass(source.className).abstract &&
+                      source in expressions &&
+                      source !in eventLinkedSources &&
+                      replacement != source
+              ) {
+                source to replacement
+              } else {
+                null
+              }
+            }
+            .groupBy({ it.first }, { it.second })
+            .mapNotNull { (source, replacements) ->
+              replacements.distinct().singleOrNull()?.let { source to it }
+            }
+            .toMap()
+
     return chain(
-        listOf(substituter(specializationSubstitutions(general, specific), preserved)) +
+        listOf(
+            substituter(
+                specializationSubstitutions(general, specific),
+                eventLinkedSources + dependencyBindings.keys,
+            )
+        ) +
+            dependencyBindings.map { (source, replacement) ->
+              PetNode.replacer(source, replacement)
+            } +
             afterSubstitution +
             invalidChangesToDie()
     )
@@ -566,7 +661,7 @@ public class Transformers(public val classTable: ClassTable) {
                   specialized.gaining?.let(classTable::resolve),
                   specialized.removing?.let(classTable::resolve),
               )
-          if (types.any(Type::phantom)) {
+          if (types.any { !classTable.isActive(it) }) {
             return if (specialized.intensity == MANDATORY) {
               gain(DIE)
             } else {
@@ -588,8 +683,8 @@ public class Transformers(public val classTable: ClassTable) {
     val commonKeys = gendeps.flatten().keys.intersect(specdeps.flatten().keys)
     return commonKeys
         .mapNotNull {
-          val replaced = gendeps.at(it).expression
-          val replacement = specdeps.at(it).expression
+          val replaced = gendeps.at(it).expressionFull
+          val replacement = specdeps.at(it).expressionFull
           when {
             classTable.getClass(replaced.className).abstract &&
                 replaced.className != replacement.className ->

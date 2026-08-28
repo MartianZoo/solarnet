@@ -1,18 +1,19 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.canonicalPremise
-import dev.martianzoo.types.te
+import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ComponentGraphIndexTest {
   @Test
-  fun componentInMultipleTopLevelBranchesIsCountedOnce() {
-    val game = Engine.newGame(canonicalPremise(authority = IndexProbeAuthority))
+  internal fun componentInMultipleTopLevelBranchesIsCountedOnce() {
+    val game = Engine.newGame(canonicalPremise(catalog = IndexProbeCatalog))
     val gameplay = game.gameplay(PLAYER1).godMode()
     val componentCount = gameplay.count("Component")
     val checkpoint = game.timeline.checkpoint()
@@ -23,7 +24,8 @@ internal class ComponentGraphIndexTest {
     gameplay.count("RightBranch") shouldBe 3
     gameplay.count("BothBranches") shouldBe 3
     gameplay.count("Component") shouldBe componentCount + 3
-    game.reader.getComponents(game.reader.resolve(te("Component"))).size shouldBe componentCount + 3
+    game.reader.getComponents(game.reader.resolve(parse<Expression>("Component"))).size shouldBe
+        componentCount + 3
 
     game.timeline.rollBack(checkpoint)
 
@@ -33,15 +35,15 @@ internal class ComponentGraphIndexTest {
   }
 }
 
-private object IndexProbeAuthority : TfmAuthority.Composite(Canon, IndexProbeDeclarations)
+private object IndexProbeCatalog : TfmCatalog.Composite(Canon, IndexProbeDeclarations)
 
-private object IndexProbeDeclarations : TfmAuthority() {
+private object IndexProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """
               ABSTRACT CLASS LeftBranch
               ABSTRACT CLASS RightBranch
-              CLASS BothBranches : LeftBranch, RightBranch, AutoLoad
+              CLASS BothBranches : LeftBranch, RightBranch
               """
                   .trimIndent()
           )

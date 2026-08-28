@@ -1,11 +1,11 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.TaskEvent
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.TaskEvent
+import dev.martianzoo.pets.data.TaskResult
 
 /**
  * Supports checkpoints and rollbacks to those checkpoints (and thereby, failure-atomic

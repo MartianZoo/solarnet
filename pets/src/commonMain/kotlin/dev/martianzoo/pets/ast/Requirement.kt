@@ -8,9 +8,9 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
@@ -111,7 +111,7 @@ public sealed class Requirement : PetElement() {
     }
   }
 
-  public data class Min(val minimum: Int, val countedMetric: Metric) :
+  public data class Min(public val minimum: Int, public val countedMetric: Metric) :
       Counting(minimum, countedMetric) {
     public constructor(
         scaledEx: ScaledExpression
@@ -128,7 +128,7 @@ public sealed class Requirement : PetElement() {
 
   public data class Max(val maximum: Int, val countedMetric: Metric) :
       Counting(maximum, countedMetric) {
-    public constructor(
+    internal constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 
@@ -137,9 +137,9 @@ public sealed class Requirement : PetElement() {
     override val range: IntRange = 0..target
   }
 
-  public data class Exact(val expected: Int, val countedMetric: Metric) :
+  public data class Exact(public val expected: Int, public val countedMetric: Metric) :
       Counting(expected, countedMetric) {
-    public constructor(
+    internal constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 
@@ -177,7 +177,7 @@ public sealed class Requirement : PetElement() {
 
   @ConsistentCopyVisibility
   public data class And internal constructor(val requirements: List<Requirement>) : Requirement() {
-    internal constructor(
+    private constructor(
         req1: Requirement,
         req2: Requirement,
         vararg rest: Requirement,
@@ -237,13 +237,15 @@ public sealed class Requirement : PetElement() {
     fun atomParser(): Parser<Requirement> {
       return parser {
         val scaledEx = parser {
-          val scalarAndOptionalEx = rawScalar and optional(Expression.parser())
-          val optionalScalarAndEx = optional(rawScalar) and Expression.parser()
+          val scalarAndOptionalExpression = rawScalar and optional(Expression.parser())
+          val optionalScalarAndExpression = optional(rawScalar) and Expression.parser()
 
-          scalarAndOptionalEx or
-              optionalScalarAndEx map
-              { (scalar, expr) ->
-                scaledEx(expr, ActualScalar(scalar ?: 1))
+          scalarAndOptionalExpression or
+              optionalScalarAndExpression map
+              { (scalar, expression) ->
+                val resolvedScalar = ActualScalar(scalar ?: 1)
+                if (expression == null) ScaledExpression.denominationless(resolvedScalar)
+                else scaledEx(expression, resolvedScalar)
               }
         }
 

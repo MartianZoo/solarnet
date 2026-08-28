@@ -1,27 +1,27 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
 
 internal sealed class Access {
-  public abstract fun exec(instruction: String): TaskResult
+  internal abstract fun exec(instruction: String): TaskResult
 
-  public abstract fun newTurn(): TaskResult
+  internal abstract fun newTurn(): TaskResult
 
-  public abstract fun phase(phase: String): TaskResult
+  internal abstract fun phase(phase: String): TaskResult
 
   internal fun doPhase(gameplay: OperationLayer, phase: String): TaskResult =
       gameplay.beginManual("${phase}Phase FROM Phase")
 
-  public open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
+  internal open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
   // PURPLE: Game integrity: the engine fully controls the workflow
-  internal class PurpleMode(private val gameplay: Gameplay) : Access() {
+  internal class PurpleMode : Access() {
     override fun phase(phase: String): TaskResult = error("not allowed in this mode")
 
     override fun newTurn(): TaskResult = error("not allowed in this mode")

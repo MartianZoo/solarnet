@@ -1,26 +1,22 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.CustomClass
-import dev.martianzoo.api.Exceptions.DeadEndException
-import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.NotNowException
-import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.api.Exceptions.abstractInstruction
-import dev.martianzoo.api.Exceptions.orWithoutChoice
-import dev.martianzoo.api.Exceptions.requirementNotMet
-import dev.martianzoo.api.Exceptions.requirementsNotMetInChoices
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.ACTOR
-import dev.martianzoo.api.SystemClasses.ATOMIZED
-import dev.martianzoo.api.SystemClasses.DIE
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.abstractInstruction
+import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
+import dev.martianzoo.pets.api.Exceptions.requirementNotMet
+import dev.martianzoo.pets.api.Exceptions.requirementsNotMetInChoices
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.ACTOR
+import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
+import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -38,13 +34,17 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.Prod
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
 import kotlin.math.min
 
-/** Just a cute name for "instruction handler". It prepares and executes instructions. */
-internal class Instructor(
+/** Just a cute name for "instruction handler". It resolves and executes instructions. */
+internal class Instructor
+internal constructor(
     private val reader: GameReader,
     private val limiter: Limiter,
     private val changer: Changer?,
@@ -52,16 +52,31 @@ internal class Instructor(
     private val classTable: ClassTable,
     private val defaultActor: Actor? = null,
     private val customClasses: CustomClassRuntime =
-        CustomClassRuntime(reader.authority, Transformers(classTable)),
+        CustomClassRuntime(reader.catalog, Transformers(classTable)),
 ) {
+  internal constructor(
+      reader: GameReader,
+      limiter: Limiter,
+      classTable: ClassTable,
+  ) : this(reader, limiter, null, null, classTable)
+
+  private val automaticEffectStack = mutableListOf<PendingTask>()
+  private val transformDispatcher by lazy { classTable.transformDispatcher() }
 
   internal fun execute(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor = checkNotNull(defaultActor),
-  ): List<PendingTask> = buildList {
-    doExecute(instruction, cause, this, actor)
-  }
+  ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor) }
+
+  /**
+   * Executes a resolved first stage; later linked stages resolve against the state they inherit.
+   */
+  internal fun executeResolved(
+      instruction: Instruction,
+      cause: Cause?,
+      actor: Actor = checkNotNull(defaultActor),
+  ): List<PendingTask> = buildList { doExecuteResolved(instruction, cause, this, actor) }
 
   private fun doExecute(
       instruction: Instruction,
@@ -69,17 +84,33 @@ internal class Instructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
   ) {
-    when (val prepped = prepare(instruction)) { // idempotent?
-      is Change -> executeChange(prepped, cause, deferred, actor)
-      is By -> doExecute(prepped.inner, cause, deferred, actorFor(prepped))
+    when (val resolved = resolve(instruction)) {
+      is Instruction -> doExecuteResolved(resolved, cause, deferred, actor)
+      is InstructionGroup -> throw abstractInstruction(resolved)
+    }
+  }
+
+  private fun doExecuteResolved(
+      resolved: Instruction,
+      cause: Cause?,
+      deferred: MutableList<PendingTask>,
+      actor: Actor,
+  ) {
+    when (resolved) {
+      is Change -> executeChange(resolved, cause, deferred, actor)
+      is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved))
       is Then ->
-          prepped.instructions.forEach {
-            doExecute(it as? Instruction ?: throw abstractInstruction(it), cause, deferred, actor)
+          resolved.instructions.forEachIndexed { index, tree ->
+            val instruction = tree as? Instruction ?: throw abstractInstruction(tree)
+            if (index == 0) {
+              doExecuteResolved(instruction, cause, deferred, actor)
+            } else {
+              doExecute(instruction, cause, deferred, actor)
+            }
           }
-      is Or -> throw orWithoutChoice(prepped)
+      is Or -> throw orWithoutChoice(resolved)
       is NoOp -> {}
-      is InstructionGroup -> throw abstractInstruction(prepped)
-      else -> error("somehow a ${prepped::class.simpleName} was enqueued: $prepped")
+      else -> error("somehow a ${resolved::class.simpleName} was enqueued: $resolved")
     }
   }
 
@@ -108,32 +139,50 @@ internal class Instructor(
 
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
-        task.instruction.instructions.forEach { doExecute(it, task.cause, deferred, task.actor) }
+        executeAutomaticEffect(task, deferred)
       }
       deferred += effector.fire(result, automatic = false)
       if (done) break
     }
   }
 
+  private fun executeAutomaticEffect(
+      task: PendingTask,
+      deferred: MutableList<PendingTask>,
+  ) {
+    if (automaticEffectStack.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
+      throw RunawayEffectChainException(
+          MAX_AUTOMATIC_EFFECT_DEPTH,
+          (automaticEffectStack + task).map(PendingTask::instruction),
+      )
+    }
+    automaticEffectStack += task
+    try {
+      task.instruction.instructions.forEach { doExecute(it, task.cause, deferred, task.actor) }
+    } finally {
+      automaticEffectStack.removeLast()
+    }
+  }
+
   /**
-   * Returns a narrowed form of [unprepared] based on the current world (but does not change the
+   * Returns a narrowed form of [unresolved] based on the current world (but does not change the
    * world itself). The returned instruction tree *must* be executed against this very same world
    * (i.e., must be the next one executed). The returned instruction tree might still be abstract.
    *
-   * Preparing iterates to a fixed point. Examples of preparing:
+   * Resolution iterates to a fixed point. Examples include:
    * * Replaces inert instructions with `Ok`
    * * Auto-narrows gained and removed types to the extent possible
    * * Modifies a `?` or `.` change based on limits (upgrading `.` to `!`)
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
-   * * Prepares each option of an [Or]
+   * * Resolves each option of an [Or]
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
    */
-  internal fun prepare(unprepared: Instruction) = doPrepare(unprepared)
+  internal fun resolve(unresolved: Instruction): InstructionTree = doResolve(unresolved)
 
   /**
    * Validates a concrete target selected from an abstract pure AMAP gain or removal. Returns true
-   * when that kind of selection occurred, so an unprepared task can be locked to this world before
+   * when that kind of selection occurred, so an unselected task can be locked to this world before
    * retaining the selection.
    */
   internal fun validateAmApSelection(
@@ -196,7 +245,7 @@ internal class Instructor(
   private fun hasPositiveExecution(change: Change): Boolean {
     val gaining = change.gaining?.let(reader::resolve)
     val removing = change.removing?.let(reader::resolve)
-    if (gaining?.phantom == true || removing?.phantom == true) return false
+    if (listOfNotNull(gaining, removing).any { !classTable.isActive(it) }) return false
     return when {
       gaining != null && removing == null ->
           if (gaining.abstract) {
@@ -219,25 +268,29 @@ internal class Instructor(
     }
   }
 
-  private fun prepareTree(unprepared: InstructionTree): InstructionTree =
-      if (unprepared is InstructionGroup) unprepared else doPrepare(unprepared as Instruction)
+  private companion object {
+    const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
+  }
 
-  private fun doPrepare(unprepared: Instruction): InstructionTree {
-    return when (unprepared) {
+  private fun resolveTree(unresolved: InstructionTree): InstructionTree =
+      if (unresolved is InstructionGroup) unresolved else doResolve(unresolved as Instruction)
+
+  private fun doResolve(unresolved: Instruction): InstructionTree {
+    return when (unresolved) {
       is NoOp -> NoOp
-      is Change -> prepareChange(unprepared)
-      is By -> By.createTree(doPrepare(unprepared.inner), canonicalActorExpression(unprepared))
-      is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
+      is Change -> resolveChange(unresolved)
+      is By -> By.createTree(doResolve(unresolved.inner), canonicalActorExpression(unresolved))
+      is Per -> doResolve(unresolved.inner * reader.count(unresolved.metric))
       is Gated -> {
-        if (!reader.has(unprepared.gate)) throw requirementNotMet(unprepared.gate)
-        prepareTree(unprepared.inner)
+        if (!reader.has(unresolved.gate)) throw requirementNotMet(unresolved.gate)
+        resolveTree(unresolved.inner)
       }
-      is Or -> prepareOr(unprepared)
+      is Or -> resolveOr(unresolved)
       is Then ->
-          unprepared.withInstructions(
-              listOf(prepareTree(unprepared.first)) + unprepared.instructions.drop(1)
+          unresolved.withInstructions(
+              listOf(resolveTree(unresolved.first)) + unresolved.instructions.drop(1)
           )
-      is Transform -> throw ExpressionException("unhandled instruction transform: $unprepared")
+      is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
   }
 
@@ -257,18 +310,16 @@ internal class Instructor(
     if (reader.countComponent(type) != 1) {
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }
-    return when {
-      type.className == ENGINE.className -> ENGINE
-      Player.isValid(type.className) -> Player(type.className)
-      else -> throw ExpressionException("unsupported Actor: ${type.expression}")
-    }
+    if (type.className == ENGINE.className) return ENGINE
+    return Player.fromClassNameOrNull(type.className)
+        ?: throw ExpressionException("unsupported Actor: ${type.expression}")
   }
 
   // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.
-  private fun prepareChange(change: Change): InstructionTree {
+  private fun resolveChange(change: Change): InstructionTree {
     val intensity = change.intensity ?: error("missing intensity: $change")
     return try {
-      prepareChangeWithoutDependencyFallback(change, intensity)
+      resolveChangeWithoutDependencyFallback(change, intensity)
     } catch (e: DependencyException) {
       val gaining = change.gaining
       val canFallBackToZero =
@@ -281,11 +332,11 @@ internal class Instructor(
     }
   }
 
-  private fun prepareChangeWithoutDependencyFallback(
+  private fun resolveChangeWithoutDependencyFallback(
       change: Change,
       intens: Instruction.Intensity,
   ): InstructionTree {
-    // can't prepare at all if we still have an X?
+    // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
 
     val (g: Type?, r: Type?) =
@@ -301,11 +352,11 @@ internal class Instructor(
       // Independent auto-narrowing must not choose conflicting values for one atomic linkage.
       return change
     }
-    if (listOfNotNull(g, r).any(Type::phantom)) {
+    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
           "mandatory change uses inactive type: " +
-              listOfNotNull(g, r).filter(Type::phantom).joinToString()
+              listOfNotNull(g, r).filterNot(classTable::isActive).joinToString()
       )
     }
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
@@ -340,7 +391,7 @@ internal class Instructor(
       if (g == null && r?.abstract == true) {
         val canRemove =
             if (intens == OPTIONAL) {
-              reader.containsAny(r)
+              reader.hasAnyComponents(r)
             } else {
               limiter.hasExecutableConcreteRemoval(
                   r,
@@ -370,9 +421,10 @@ internal class Instructor(
         throw ExpressionException("custom class instructions can only be pure gains: $change")
       }
       val translated =
-          Prod.deprodify(classTable)
-              .transformInstructionTree(customClasses.prepare(gaining!!, reader))
-      return prepareTree(translated)
+          transformDispatcher.transformInstructionTree(
+              customClasses.translateInstruction(gaining!!, reader)
+          )
+      return resolveTree(translated)
     }
 
     val limit = limiter.findLimit(gaining, removing)
@@ -400,11 +452,11 @@ internal class Instructor(
     )
   }
 
-  private fun prepareOr(unprepared: Or): InstructionTree {
+  private fun resolveOr(unresolved: Or): InstructionTree {
     val options: List<Any> =
-        unprepared.instructions.map {
+        unresolved.instructions.map {
           try {
-            prepareTree(it)
+            resolveTree(it)
           } catch (e: NotNowException) {
             e
           } catch (e: DeadEndException) {
@@ -432,14 +484,14 @@ internal class Instructor(
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
 
-    if (listOfNotNull(g, r).any(Type::phantom)) return g to r
+    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) return g to r
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
-      val missing = dependencyComponents.filterNot(reader::containsAny)
+      val missing = dependencyComponents.filterNot(reader::hasAnyComponents)
       if (missing.any()) throw DependencyException(missing)
 
-      g = g.singleConcreteSubtype(reader) ?: g
+      g = classTable.singleConcreteSubtype(g, reader) ?: g
     }
 
     val hasAbstractActorDependency =
@@ -449,10 +501,12 @@ internal class Instructor(
     if (r?.abstract == true && !(preserveAbstractActor && hasAbstractActorDependency)) {
       // Infer a type if there IS only one kind of component that has it
       r =
-          reader.getComponents(r).elements.singleOrNull()?.let {
-            classTable.resolve(it.expression)
-          } ?: r
+          reader.getComponents(r).elements.singleOrNull()?.let { classTable.resolve(it.expression) }
+              ?: r
     }
     return g to r
   }
 }
+
+private fun GameReader.hasAnyComponents(type: Type): Boolean =
+    (this as? GameReaderImpl)?.containsAny(type) ?: getComponents(type).isNotEmpty()

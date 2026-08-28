@@ -6,10 +6,10 @@ import kotlin.test.assertEquals
 
 internal class TfmPlayCommandTest {
   @Test
-  fun `tfm play works within the automatic solo workflow`() {
+  internal fun `tfm play works within the automatic solo workflow`() {
     val repl = ScriptSession()
     repl.command(
-        "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMapOption, " +
+        "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, " +
             "PreludeExpansion\" Me purple"
     )
     repl.command("task CityTile<Elysium_5_6, SoloOpponent>")
@@ -18,18 +18,19 @@ internal class TfmPlayCommandTest {
     repl.command("task GreeneryTile<Elysium_7_6, SoloOpponent>")
     repl.command("become Me")
     repl.command("tfm_play SaturnSystems")
-    repl.command("task 10 BuyCard")
+    repl.command("task Ok")
+    repl.command("task 30 Pay<Class<MC>> FROM MC")
     repl.command("tfm_play Biolab")
     repl.command("tfm_play AcquiredSpaceAgency")
 
-    repl.command("tfm_play EarthOffice, 1")
+    repl.command("tfm_play EarthOffice, 1 MC")
 
     assertEquals(1, repl.gameplay.count("ActionPhase"))
     assertEquals(1, repl.gameplay.count("EarthOffice<Me>"))
   }
 
   @Test
-  fun `tfm play selects the play card action and forwards inline payment`() {
+  internal fun `tfm play selects the play card action and forwards inline payment`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("auto safe")
@@ -37,12 +38,13 @@ internal class TfmPlayCommandTest {
     repl.command("phase Corporation")
     repl.command("turn")
     repl.command("tfm_play SaturnSystems")
-    repl.command("task 10 BuyCard")
+    repl.command("task Ok")
+    repl.command("task 30 Pay<Class<MC>> FROM MC")
     repl.command("exec 2 Steel")
     repl.command("phase Action")
     repl.command("turn")
 
-    repl.command("tfm_play OlympusConference, 2 Steel, 6")
+    repl.command("tfm_play OlympusConference, 2 Steel, 6 MC")
 
     assertEquals(1, repl.gameplay.count("OlympusConference<Player1>"))
     assertEquals(0, repl.gameplay.count("Steel<Player1>"))

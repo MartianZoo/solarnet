@@ -1,18 +1,18 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.TypeDescription
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.random
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.random
 
 internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("desc") {
   override val usage = "desc <Expression>"
@@ -38,21 +38,26 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
                   .map { it.arguments.single() }
                   .random()
                   .let(repl.game.reader::resolve)
-                  .concreteSubtypesSameClass()
+                  .let(repl.game.classTable::concreteSubtypesSameClass)
                   .random()
           type.expressionFull to type
         } else {
           val expression: Expression = repl.gameplay.parse(args)
           expression to repl.gameplay.resolve(args)
         }
-    return listOf(TypeToText.describe(expression, type, repl.game.vocabulary))
+    return listOf(TypeToText.describe(expression, type, repl.game.classTable, repl.game.vocabulary))
   }
 
-  object TypeToText {
+  private object TypeToText {
     /** A detailed multi-line description of a type. */
-    internal fun describe(expression: Expression, type: Type, vocabulary: Vocabulary): String {
+    internal fun describe(
+        expression: Expression,
+        type: Type,
+        classTable: dev.martianzoo.pets.types.ClassTable,
+        vocabulary: Vocabulary,
+    ): String {
 
-      val desc = TypeDescription(type)
+      val desc = TypeDescription(classTable, type)
 
       val long = type.className
       val altName = vocabulary.petsName(long)

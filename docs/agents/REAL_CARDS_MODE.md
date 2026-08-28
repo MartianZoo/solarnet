@@ -1,368 +1,586 @@
 # Shuffle-and-deal real-card mode
 
-**Status: proposal.** Follow mode is committed and remains the default. Do not implement an isolated
-piece of this design unless its gate below is selected and the preceding invariants remain intact.
+> **Read when:** designing or implementing physical cards, deck/discard derivation, shuffle/deal,
+> reveal/search, hidden information, dealer narrowing, or a real-card observation interface.
+>
+> **Skip when:** changing committed follow-mode behavior without making authored hidden procedures
+> executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms.
+>
+> **Status:** proposal with a settled central model. Follow mode is committed and remains the
+> default; type syntax, dealer algorithm, and observation interface remain unproved.
 
-## Goal
+## Read only the relevant gate
 
-Let Solarnet own physical cards, shuffled decks, deals, draws, discards, drafts, reveals, event
-piles, hidden information, and reproducible chance without abandoning the component model.
+| Task | Read |
+| --- | --- |
+| Component/area representation | State model through Ordinary transitions |
+| Defaults, counted cards, or delegated face choice | Defaults and atomization; Selection-time delegation |
+| Shuffle, replay, rollback, or forks | Deterministic dealer projection |
+| Reveal, search, or card predicates | Reveals, searches, and printed predicates |
+| `CARDS[...]` or follow-mode lowering | Canonical card-operation source; Follow mode and operation lowering |
+| Conservation or hidden observations | Conservation; Information hiding is deferred |
+| Begin implementation | Implementation gates; Acceptance properties; Remaining decisions |
 
-The minimum new concepts are:
+## Source map
 
-1. card location;
-2. timeline-owned chance resolution; and
-3. player-relative observation with a committed knowledge horizon.
+- [`CardOperation.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/CardOperation.kt)
+  — inspect the canonical hidden-procedure representation.
+- [`FollowModeNeutralizer.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/FollowModeNeutralizer.kt)
+  — search for `neutralize` before changing current executable lowering.
+- [Promo `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/PromoCardPack/cards.pets)
+  — search for `CARDS[` to sample canonical authored operations.
+- [`CardDefinitionTest.kt`](../../tfm-canon/src/commonTest/kotlin/dev/martianzoo/tfm/canon/CardDefinitionTest.kt)
+  — read for transform preservation and follow-mode behavior.
 
-Do not add a second card database, mirrored hand counters, default card-copy identity, or an
-off-timeline RNG.
+## Settled direction
+
+Real-card mode lets Solarnet shuffle, deal, reveal, draft, play, and discard exact physical cards.
+The smallest coherent model discovered so far is:
+
+1. A card exists as a Component only while it is associated with a Player.
+2. Every such card is directly `Owned` by that Player and depends on one unowned singleton card-area
+   Component.
+3. Deck and discard are not Components. They are deterministic projections of the selected card
+   set, an immutable seed, and exact card-transition history.
+4. A card back carries its represented `Class<CardFront>`; a card front carries its
+   `Class<CardBack>` family.
+5. Counted physical-card instructions atomize before defaults and ownership specialization.
+6. A Player controls when a card gain is selected, but Engine alone narrows the remaining exact-face
+   choice. Selection-time resolution delegates that narrowing and blocks the controlling scope until
+   it completes.
+7. Information hiding will eventually project exact Types to less concrete Types. It does not
+   require unknown-card Components in the master World.
+
+Deck, discard, and card areas have deliberately different roles: the first two are derived dealer
+state, while areas are plain unowned Components. Ownership never propagates vicariously through
+an area dependency.
 
 ## State model
 
-An out-of-play physical card is one `CardBack` component with dependencies on its represented
-`Class<CardFront>` and a `CardLocation`. A live card is its existing exact
-`CardFront<Owner>`. Exactly one representation exists at a time.
+The authoritative game still has one Event Log. Real-card mode adds no mutable deck list, discard
+list, RNG cursor, or second card database beside it.
 
-Illustrative Types:
+The premise fixes:
+
+- the selected set of faces for each deck family;
+- one root seed;
+- a canonical face order;
+- the shuffle and seed-derivation algorithm version; and
+- the real-card Module selection.
+
+The Event Log records exact in-world card gains, movements, plays, and removals. Deck order, discard
+membership, reshuffle epoch, and next position are derived by folding those facts. A cache may retain
+the fold at an event cursor, but deleting that cache and replaying must reproduce the same result.
+
+The Event Log is already durable game state. A derived deck projection is therefore not a second
+authority.
+
+## In-world type model
+
+Exact syntax is provisional, but the dependency shape is settled:
 
 ```pets
-ABSTRACT CLASS Card
-ABSTRACT CLASS CardLocation
-ABSTRACT CLASS OwnedCardLocation<Owner> : Owned<Owner>, CardLocation
-ABSTRACT CLASS PrivateCardLocation : CardLocation
+ABSTRACT CLASS CardArea { HAS =1 This }
 
-CLASS Deck : CardLocation, PrivateCardLocation
-CLASS Discard : CardLocation
-CLASS Revealed : CardLocation
-CLASS Hand : OwnedCardLocation, PrivateCardLocation
-CLASS Events : OwnedCardLocation
+CLASS Hand : CardArea
+CLASS InPlay : CardArea
+CLASS EventPile : CardArea
+CLASS Selecting : CardArea
+CLASS Revealed : CardArea
 
-ABSTRACT CLASS CardBack<Class<CardFront>, CardLocation> : Card
-CLASS ProjectCard : CardBack, Atomized
-CLASS PreludeCard : CardBack, Atomized
-CLASS CorporationCard : CardBack, Atomized
+ABSTRACT CLASS Card<CardArea> : Owned<Owner>
+ABSTRACT CLASS CardBack<Class<CardFront>> : Card
+ABSTRACT CLASS CardFront<Class<CardBack>> : Card, TagHolder
 
-ABSTRACT CLASS CardFront : Card, Owned<Player>
+ABSTRACT CLASS ProjectFront : CardFront<Class<ProjectCard>>
+CLASS ProjectCard : CardBack<Class<ProjectFront>>, Atomized
+
+ABSTRACT CLASS PreludeFront : CardFront<Class<PreludeCard>>
+CLASS PreludeCard : CardBack<Class<PreludeFront>>, Atomized
+
+ABSTRACT CLASS CorporationFront : CardFront<Class<CorporationCard>>
+CLASS CorporationCard : CardBack<Class<CorporationFront>>, Atomized
 ```
 
-Exact syntax and draft-location names are not settled. The semantics are:
-
-- location is a singleton component dependency, not a string property or external map;
-- ownership and visibility are separate;
-- `Card` cannot itself be owned because deck cards have no owner;
-- code finds an out-of-play owner only through an `OwnedCardLocation`; and
-- card movement normally transmutates one location dependency atomically.
-
-Example lifecycle:
+The rendered argument order may differ after dependency inheritance is proved. Semantically, an
+exact card includes:
 
 ```text
-ProjectCard<Class<Card131>, Deck>
-ProjectCard<Class<Card131>, Hand<Player2>>
-Card131<Player2>
-ProjectCard<Class<Card131>, Events<Player2>>
+card family + Player owner + card area + represented opposite-face Class
 ```
 
-The represented Class is immutable. Playing transmutates the hand back into the front. Event cleanup
-transmutates the front into the matching back at Events. Live tags, effects, and card resources exist
-only while the front exists.
-
-## Multiplicity and physical supply
-
-Equal physical copies remain multiplicity of one Type. Add per-copy identity only if a supported
-rule distinguishes equal copies through hidden ordering. Beginner Corporation copies do not justify
-identity.
-
-For one printed face, physical supply is conserved across:
+For example:
 
 ```text
-exact CardFront at any owner
-OR
-CardBack representing that front at any location
+ProjectCard<Player1, Hand, Class<Decomposers>>
+Decomposers<Player1, InPlay, Class<ProjectCard>>
+ProjectCard<Player1, EventPile, Class<Decomposers>>
 ```
 
-An ordinary card has maximum one; canonical metadata may declare a larger supply. The current
-Limiter cannot express this additive union invariant. The narrow proposed extension is to permit a
-class invariant over a union of component-count Expressions using existing no-double-count union
-semantics. A source and destination both inside the union produce net zero.
+The two Class literals carry different facts:
 
-Do not generalize invariants to arbitrary arithmetic or custom metrics as part of this work.
-Setup separately proves that it assembled exactly the selected supply.
+- `Decomposers -> ProjectCard` is immutable family metadata on the front Class.
+- one exact `ProjectCard -> Decomposers` is the identity of the current card Component.
 
-## Movements
+The family bounds prevent a corporation back from representing a project front. They also let play
+and event cleanup preserve physical identity without a separate deck-family check.
 
-| Operation | Atomic change | Choice owner |
+Exactly one representation of a face exists in the World at a time. Playing transmutates its back
+into its exact front; it does not retain a parallel back Component underneath the live card.
+
+## Card areas
+
+Areas are singletons and are never owned. The card's direct `Owner` dependency partitions each area
+by Player.
+
+| Area | Typical representation | Meaning |
 | --- | --- | --- |
-| Draw | `Hand<Owner> FROM Deck` | Chance |
-| Reveal | `Revealed FROM Deck` | Chance |
-| Keep reveal | `Hand<Owner> FROM Revealed` | Player/rule |
-| Reject reveal | `Discard FROM Revealed` | Player/rule |
-| Discard from hand | `Discard FROM Hand<Owner>` | Player |
-| Deal draft packet | `DraftHand<Owner> FROM Deck` | Chance |
-| Draft | `Drafted<Owner> FROM DraftHand<Owner>` | Player |
-| Pass packet | `DraftHand<Next> FROM DraftHand<Owner>` | Seat rule |
-| Finish draft | `Hand<Owner> FROM Drafted<Owner>` | Research rule |
-| Play | exact front `FROM` matching hand back | Player |
-| Finish event | matching Events back `FROM` front | Automatic |
-| Recover event | `Hand<Owner> FROM Events<Owner>` | Player/rule |
-| Reshuffle | each eligible `Deck FROM Discard` | Automatic |
+| `Hand` | back | acquired card available to its Player |
+| `InPlay` | front | active, automated, corporation, or temporarily live Event |
+| `EventPile` | back | completed Event retained for scoring or recovery |
+| `Selecting` | back | temporary Player-associated selection pool |
+| `Revealed` | back | exact face exposed by a reveal operation |
 
-Link the represented face across both sides. Never implement movement as gain `THEN` removal; the
-duplicate/gap would be observable.
+Direct ownership is intentionally present even in temporary areas. It identifies whose choice or
+reveal operation the card belongs to and supplies the usual contextual `Owner`, task routing,
+defaults, and queries.
 
-`Revealed` is a real location so committed choices and rollback use ordinary state. One reveal
-scope must drain before another. Add a scope dependency only if supported rules prove overlapping
-reveals are necessary.
+Ownership does not determine visibility. `Revealed` may be public, while another Player's `Hand`
+cards are private.
 
-## Familiar card-back shorthand
+Deck and discard are absent from this table because they are not Components or Pets Types.
 
-In real mode, after ordinary Owner defaults:
+## Normal transitions
+
+Once an exact card is in the World, area changes remain ordinary atomic transmutations:
+
+| Operation | State change |
+| --- | --- |
+| Move into a selection pool | exact `Selecting FROM Hand` |
+| Keep a revealed card | exact `Hand FROM Revealed` |
+| Play | exact front at `InPlay FROM` matching back at `Hand` |
+| Finish Event | matching back at `EventPile FROM` exact front at `InPlay` |
+| Recover Event | exact `Hand FROM EventPile` |
+
+Playing Decomposers is conceptually:
 
 ```text
-ProjectCard
-  -> ProjectCard<Class<CardFront>, Hand<Owner>>
-       FROM ProjectCard<Class<CardFront>, Deck>
-
--ProjectCard
-  -> ProjectCard<Class<CardFront>, Discard>
-       FROM ProjectCard<Class<CardFront>, Hand<Owner>>
+Decomposers<Player1, InPlay, Class<ProjectCard>>
+  FROM ProjectCard<Player1, Hand, Class<Decomposers>>
 ```
 
-Prelude and Corporation backs follow the same rule. `N ProjectCard` atomizes into N one-card moves
-before chance narrowing so it can select N different faces without replacement.
+Finishing an Event reverses the representation and changes its area:
 
-Use one named, mode-aware lowering. It recognizes only omitted-location pure gains/removals,
-preserves one linked face constraint, never chooses a card, never rewrites explicit `FROM`, and
-rejects physical pure gains/removals outside controlled setup. Do not teach every gain to infer a
-source from invariant failure.
+```text
+ProjectCard<Player1, EventPile, Class<SearchForLife>>
+  FROM SearchForLife<Player1, InPlay, Class<ProjectCard>>
+```
 
-Follow mode may use the same shape with a system-only `UntrackedCardFront` in hand. A client-supplied
-play consumes one untracked back and creates the supplied front. Real mode must never accept an
-untracked back or expose it as a playable face.
+The represented face and back family must link across both sides of each atomic instruction. Never
+model one movement as a gain followed by a removal; the temporary duplicate or absence would be
+observable.
 
-## Chance narrows; it does not mutate
+## Derived-deck transitions
 
-After lowering, a deck-sourced transmutation is abstract. Chance:
+A pure exact card gain enters the World from the derived deck. A pure exact card-back removal leaves
+the World for the derived discard.
 
-1. enumerates exact matching source components from the master World;
-2. applies the named physical search policy;
-3. chooses by deterministic canonical candidate order and multiplicity;
-4. narrows every linked face occurrence; and
-5. executes the resulting ordinary instruction.
+| Operation | World event | Derived projection consequence |
+| --- | --- | --- |
+| Draw | exact gain at `Hand` | consume next face from deck |
+| Reveal | exact gain at `Revealed` | consume next face from deck |
+| Offer cards | exact gain at `Selecting` | consume next face from deck |
+| Discard from an area | exact pure removal | add that face to discard |
 
-Only chance-owned sources auto-narrow this way. Hand discard and revealed-card selection remain
-Player tasks. Deck exhaustion and reshuffling are explicit rules, not selector fallbacks.
+Nothing ever moves directly from deck to discard. Even a rejected card from Search for Life first
+exists at `Revealed`; its later pure removal records the separate discard transition.
 
-This requires a focused abstract-instruction resolution seam. Do not put a `ProjectCard` branch in
-`Instructor.prepareChange` or per-card Kotlin draw implementations.
+Playing is not a discard because it is an in-World back-to-front transmutation. Event cleanup is not
+a discard because it produces an `EventPile` back. These distinct event shapes let the derived fold
+identify reservoir transitions without guessing from a generic removal.
 
-### Timeline requirements
+If a future rule permanently removes a card from the game, add an explicit semantic transition for
+that rule. Do not reinterpret discard.
 
-- Premise includes seed plus algorithm/version.
-- Candidate order is identical on JVM and JavaScript.
-- Every outcome is recorded atomically with the instruction it narrows.
-- Rollback restores chance position and retry repeats the outcome.
-- Replay consumes recorded results, not a future RNG implementation.
-- Forks share history and diverge deterministically only after their histories differ.
-- The original Actor still performs the change; chance provenance is not another Actor.
+## Defaults and atomization
 
-A mutable RNG cursor outside the Event Log is invalid. Preparation is currently observational, so
-chance cannot secretly append an event inside a read-only prepare call. Prototype the transaction
-boundary before canonical card work.
+`CardBack` has a gain default selecting `Hand`; its removal default likewise selects `Hand` for the
+familiar discard shorthand. Contextual ownership supplies the Player.
 
-Repeatability alone does not prevent rollback fishing across different pre-draw branches. Card
-identity must remain sealed until the decision is irrevocably committed.
+Current preprocessing atomizes before inserting dependencies and replacing contextual `Owner`:
 
-## Printed facts
+```text
+2 ProjectCard
+  -> ProjectCard, ProjectCard
+  -> ProjectCard<Hand>, ProjectCard<Hand>
+  -> ProjectCard<Player1, Hand>, ProjectCard<Player1, Hand>
+```
 
-A card back in Deck has no live `MicrobeTag` component. Do not make `HAS` silently jump through
-every CardBack's represented Class.
+Each resulting instruction is still abstract over its represented `Class<ProjectFront>`. That is
+essential: the authored instruction promises two cards but does not choose either face.
 
-Use an honest metadata property or metric:
+Atomization follows from physical exactness. Two different faces are two different concrete Types,
+so one counted concrete change cannot honestly select them together. This is the same reason a
+counted OceanTile placement must split before choosing different areas.
+
+The familiar forms remain meaningful:
+
+```text
+ProjectCard<Player1>     // default area Hand; exact face still unresolved
+-ProjectCard<Player1>    // choose an exact Hand card, then discard it
+```
+
+Positive entry gains receive Engine narrowing. Hand removals remain Player choices because the
+exact candidate cards already exist in that Player's World-visible domain.
+
+## Selection-time delegation
+
+An abstract card gain contains two decisions owned by different parties:
+
+- the controlling Player decides when the promised draw or reveal proceeds; and
+- Engine determines which exact face the deterministic deck supplies.
+
+The abstract task must initially remain under its controller. The Player may select other eligible
+sibling work first. When the Player selects the card gain:
+
+1. resolution recognizes that its remaining face variable is Engine-narrowed;
+2. the parent task is suspended;
+3. an already-selected child task is assigned to Engine while preserving the parent's future Actor;
+4. the controlling scope is blocked from further task execution;
+5. Engine derives and applies the one lawful exact-face narrowing; and
+6. completion of that child resumes and completes the parent, releasing the block.
+
+The Player must never be able to submit a preferred exact face. `BY Engine` is not this mechanism:
+instruction-side `BY` changes event attribution, not narrowing authority or queue control.
+
+Counted gains delegate one atom at a time. The first exact gain enters the Event Log before the next
+atom is selected, so the second atom necessarily derives the following face.
+
+### Philares is the controlling precedent
+
+Philares requires the same controller/narrower interface and establishes its timing semantics:
+
+1. the active Player retains control of the pending resource task and decides when to select it;
+2. resolution delegates only the Standard Resource narrowing to the Philares owner;
+3. the active Player can do no more work in that control scope while the delegated child is
+   unresolved; and
+4. after the Philares owner chooses and receives the resource, the active Player resumes.
+
+Current code is incorrect: it assigns the reward directly to the Philares owner when adjacency
+occurs and lets the active Player continue while that task is pending. `BugsTest` contains passing
+characterizations of both defects. Real-card work must not build a card-specific substitute for the
+general delegation mechanism specified in [IDENTITY.md](IDENTITY.md).
+
+## Deterministic dealer projection
+
+For each deck family and epoch, derive a permutation from:
+
+```text
+shuffle(
+  canonical eligible face set,
+  deriveSeed(root seed, deck family, reshuffle epoch),
+  algorithm version
+)
+```
+
+The project, prelude, and corporation families use independently derived streams so activity in one
+does not perturb another.
+
+The initial selected supply is a set in this game: one occurrence per selected face. There is no
+physical-copy identity and no multiplicity problem to solve. A future game variant with genuinely
+distinguishable or repeated physical copies would require a separate extension.
+
+The fold maintains only derived values:
+
+- current epoch;
+- current shuffled face order;
+- position within that order; and
+- current discard set.
+
+It advances from exact events:
+
+- an exact entry gain consumes the next expected face;
+- an exact pure card-back removal adds that face to discard;
+- in-World area and front/back transmutations leave the dealer projection unchanged.
+
+When the current order is exhausted, the next entry request deterministically shuffles the exact
+discard set with the next epoch seed, clears derived discard, and consumes the first resulting face.
+The transition point and participating set are recoverable from prior events, so neither a stored second seed
+nor a mutable reshuffle record is required. An explicit diagnostic event may be useful, but cannot
+become a second authority.
+
+If both derived deck and discard are empty, the entry gain is unavailable. Reshuffling is an
+explicit dealer rule, not a selector fallback that invents a candidate.
+
+### Replay, rollback, and forks
+
+- Equal premises and equal histories derive equal next cards on JVM and JavaScript.
+- Rolling back an exact gain removes its event, so retry derives the same face.
+- A fork sharing the same prefix shares the same next face and diverges only after its history does.
+- Exact recorded gains remain authoritative historical outcomes.
+- The premise's algorithm version lets old histories be validated after implementation changes.
+- A cache is indexed by history identity or event cursor and never advances independently.
+
+Resolution computes a candidate without mutating dealer state. Executing the exact gain appends the
+event that advances the projection. This avoids an off-timeline RNG cursor and keeps failed
+resolution observational.
+
+## Reveals, searches, and printed predicates
+
+A normal draw enters `Hand`. A reveal enters `Revealed`. Search policies consume the deck in
+order and must not filter the shuffled set first, because doing so would skip and fail to record
+rejected cards.
+
+“Reveal until three matching cards” quantifies successful matches, not cards inspected. Do not add
+a quantifier meaning “as few as necessary to avoid a dead end”; that would introduce downstream
+lookahead and let constraint solving inspect future deck order.
+
+The compositional operation is three sequential one-hit searches. Conceptually:
+
+```text
+repeat until one hit:
+  gain the next exact card at Revealed
+  if its printed facts match:
+    move it Revealed -> Hand
+    finish this hit
+  otherwise:
+    remove it from Revealed into derived discard
+
+perform that one-hit operation three times
+```
+
+The canonical authoring form for this family is a filtered card gain inside `CARDS`, parameterized
+by deck family and printed predicate, not a Kotlin implementation per printed card. Its real-mode
+lowering still has to make deck exhaustion explicit: fail, accept fewer, or reshuffle according to
+the actual rule.
+
+A back has no live tag Components. Printed predicates inspect immutable front-Class metadata, for
+example through a property or represented-Class refinement:
 
 ```text
 ProjectCard<
-  Class<CardFront>(HAS PrintedTag<Class<MicrobeTag>>)
+  Class<ProjectFront>(HAS PrintedTag<Class<BuildingTag>>)
 >
 ```
 
-A temporary custom metric could read canonical `CardDefinition` metadata. The chance selector
-receives an already filtered source Type and knows nothing about tags. Cost and requirement filters
-reuse the card Class's immutable properties; color, deck, and other printed facts need similarly
-honest properties or metadata bridges.
+Do not make plain `HAS` silently traverse every represented Class, and do not create live tag
+Components for cards outside `InPlay`.
 
-Do not generate subclasses or live components for every printed fact.
+## Canonical card-operation source
 
-The abbreviated argument form above still needs a focused type proof; use the fully explicit form
-if dependency specialization cannot justify it. Any future `ProjectCard(HAS MicrobeTag)` sugar must
-lower to the explicit printed-fact constraint rather than changing the global meaning of `HAS`.
+Canonical sources now preserve hidden card procedures in one
+`Instruction.Transform`, `CARDS[...]`. The inner instruction tree carries the operation family:
 
-## Player-relative observation
-
-Rules, workflow, chance, and setup always use the exact master reader. A Player receives a projected
-read model.
-
-Committed location policy:
-
-| State | Owner sees face | Others see face |
-| --- | --- | --- |
-| Deck | no | no |
-| Hand / private draft zone | yes | no |
-| Revealed / Discard / Events | yes | yes |
-| live CardFront | yes | yes |
-
-This policy proves that ownership is not visibility: Deck is secret but unowned; Events is public
-but owned.
-
-Visibility is also bounded by the viewer's **knowledge horizon**. An exact identity produced after
-the latest irrevocably published checkpoint remains abstract even to its eventual owner and even at
-a normally public location. Before commit:
-
-```text
-master:  ProjectCard<Class<Card131>, Hand<Player1>>
-viewer:  ProjectCard<Class<CardFront>, Hand<Player1>>
+```pets
+CARDS[2 ProjectCard(HAS VenusTag)]
+CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
+CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]
+CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
+CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
+CARDS[2 ProjectCard<Hand FROM EventPile>?]
+CARDS[2 / ProjectCard<Hand>]
+CARDS[CardBack<EventPile>]
+CARDS[CardBack<EventPile, Class<This>> FROM This]
+CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
 ```
 
-Publishing a chance result must atomically:
+A filtered plain gain means sequentially search for the requested matches. Its predicate is source
+shorthand over the represented front's immutable printed metadata. It does not change plain
+`HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
+reveal every inspected card in order and discard nonmatches.
 
-1. validate the deterministic work before the reveal;
-2. record the exact chance movement internally;
-3. advance the rollback floor through it;
-4. advance eligible viewers' knowledge horizons; and
-5. only then return the exact permitted observation.
+A card procedure's follow-mode compilation creates the Player's temporary `Selecting` area before
+the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing that area
+discards every card still dependent on it through the engine's dependency cascade.
+`Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then invokes one
+unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's selection
+and broadcasts the same multiplicity of `BuyCard`; those per-card signals create the base debt and
+let Polyphemos and Terralabs Research react by adding or removing `Owed`. Once the resulting invoice
+is fully paid, the purchase operation moves those exact selected cards to `Hand`. Its optional
+removal count is the offered count, so the player may discard any subset before buying the
+remainder; corporation setup uses ten, Research uses four, Venus Orbital Survey uses whatever
+non-Venus cards remain from two, and single-card purchase actions use one.
 
-A reveal-dependent choice is offered after this commit-and-reveal barrier. The engine cannot later
-ask a player to forget a card because downstream work dead-ended.
+Area-qualified card observations use the same transform. `ProjectCard<Hand>` counts only project
+cards in the Player's hand, while `CardBack<EventPile>` counts completed Events in that Player's
+event pile. Public Plans moves one linked quantity from `Hand` to `Revealed`, returns those exact
+cards to `Hand`, and awards that quantity.
 
-Projection occurs before query evaluation. It collapses hidden exact Types into an abstract visible
-Type and sums multiplicity. Exact `count`, `has`, refinement, union, custom-metric, task, result,
-event, cause, replay, and history access must all use the same projection or reject the query.
-Scrubbing only `getComponents()` leaks information.
+Follow mode has an intermediate model named `CardLocation`. A generic `CardBack`
+depends on one of `Hand`, `EventPile`, `Selecting`, or `Revealed`, but does not
+depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
 
-Do not add `KnownTo` components or fake playable `UnknownCardFront` Classes to the master
-ontology. The observation schema may represent unknowns.
+`CARDS` retains those locations and movements through the Catalog's shared marked-syntax handler.
+`Selecting` and `Revealed` are Player-owned temporary components. The handler sequences creation
+before the procedure body and cleanup after it; purchase closure instead belongs to
+`BuySelectedCards`. Removing a temporary location intrinsically removes cards still dependent on
+it. Printed-face predicates are still delegated to
+the follow-mode client: they are erased from generic backs, and a filtered retention becomes an
+explicit optional movement so the client can report how many matching cards moved. A client may
+ignore identities entirely or, as `CardTrackingFullGameTest` does, supply names precisely when cards
+enter and leave `Hand`.
 
-The target observation builder derives a per-viewer knowledge ledger from committed event history.
-An identity already published to a viewer stays known if that card later enters a private location.
-Unique represented faces are sufficient to follow ordinary cards; multiplicity is sufficient for
-interchangeable copies. Add physical copy identity only if a supported hidden mixing rule makes
-equal known copies distinguishable.
+`BuySelectedCards` prices the cards remaining in `Selecting`, waits for the adjusted invoice to be
+paid, and then moves that count to `Hand`. Public Plans performs an explicit `Hand` to `Revealed` to
+`Hand` round trip. Exact Event movements lower through `PlayedEvent` because `CardBack` does not
+carry its represented front.
 
-A custom metric running against a projected view must not regain the master reader by casting. If a
-reveal-dependent path can be intrinsically impossible, detect that before publication or keep the
-whole operation engine-controlled; committing merely to expose a choice must never freeze an
-illegal prefix.
+The current source-level operation inventory is:
 
-## Playing and leaving play
+| Family | Cards |
+| --- | --- |
+| Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Nobel Prize, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
+| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics, Spire |
+| Inspect N, select and play one | Valley Trust, Merger, New Partner |
+| Choose cards to buy from an offer | Corporation setup, Research phase, Inventors' Guild, Business Network |
+| Reveal and test | Search for Life, Asteroid Deflection System |
+| Reveal two, retain matches, buy or discard the rest | Venus Orbital Survey |
+| Recover Events | Astra Mechanica |
+| Observe cards in hand | Head Start, Planner, Visionary |
+| Observe completed Events | Media Archives, Legend, Promoter |
+| Finish or transfer Events | Event cards, Pharmacy Union, Law Suit |
+| Reveal chosen hand cards temporarily | Public Plans |
 
-**Proposed real-mode behavior.** An exact play transition proves that the card is in this Player's
-hand, that its represented Class is the front being played, and that its back kind belongs to the
-right deck family:
+The remaining card gains and removals still use the follow-mode shorthand directly; they
+do not preserve deck or hand-area procedure yet.
+
+## Conservation
+
+For each selected face, exactly one of these positions exists:
 
 ```text
-Card131<Player2>
-  FROM ProjectCard<Class<Card131>, Hand<Player2>>
+derived deck
+OR derived discard
+OR one exact in-World CardBack
+OR one exact in-World CardFront
 ```
 
-The real-mode path would no longer need `CheckCardDeck`; the exact source Type authenticates the
-deck. Follow mode may retain that custom check while it consumes an untracked back.
+Dealer replay plus the current World can validate this partition. The generic component Limiter
+does not need an invariant spanning hidden Deck and Discard Components because those Components no
+longer exist.
 
-An Event should later transmutate its live front into the same represented face at
-`Events<Owner>`. Its back kind must come from canonical deck metadata rather than assuming that
-every future Event is a Project. Removing the front naturally removes its live tags, Effects, and
-card resources.
+Every normal transition preserves the face and back family. Entry and discard move into or out of the
+World but remain exact logged events. Setup proves that every selected face begins in the derived
+deck exactly once.
 
-Rules and queries over the current mirrored `PlayedEvent<Class<CardFront>>` representation should
-migrate to located backs at Events. Do not preserve a second `PlayedEvent` component merely for
-compatibility.
+## Information hiding is deferred, not contradicted
 
-If supported content removes a physical card from the game, add a public `Removed` location rather
-than deleting the card. Do not add that location before a selected rule requires it.
+Deck secrecy is immediate because deck faces are absent from the component World. In-world hidden
+cards still require a Player-relative projection.
 
-## Mode-specific definitions
+The master World stores an exact Type:
+
+```text
+ProjectCard<Player1, Hand, Class<Decomposers>>
+```
+
+A viewer who may know only that Player1 has one project card can receive a broader observation:
+
+```text
+ProjectCard<Player1, Hand, Class<ProjectFront>>
+```
+
+This is normal loss of Type concreteness, not an `UnknownCard` object. The same projection must
+eventually cover counts, refinements, tasks, results, and event history; hiding only component-list
+output would leak identities.
+
+Exact visibility policy, irreversible publication, and rollback knowledge remain later gates. For
+now:
+
+- Engine rules and dealer projection use the exact master history;
+- a Player sees exact own-Hand and own-Selecting faces when the rules permit;
+- `Revealed`, `InPlay`, and `EventPile` are normally public; and
+- no observation API exposes future derived deck order.
+
+Do not add `KnownTo` Components, fake playable unknown fronts, or ownership-based visibility rules.
+
+## Follow mode and operation lowering
 
 Real-card mode is an affirmative Module fixed in the premise and mutually exclusive with follow
-mode. `F` definitions remain follow-mode variants whose client supplies card outcomes. Real
-counterparts use the non-`F` identity and explicit physical movements.
+mode. Both modes are permanent supported behavior; follow mode remains the default and delegates
+card outcomes to a client.
 
-Migrate by operation family, not by stripping `F` mechanically:
+Develop real-card lowering by operation family while preserving the corresponding follow lowering:
 
-1. reveal one and optionally keep/buy;
-2. reveal several and choose;
-3. reveal and test a printed fact;
-4. search with a printed filter;
-5. ordinary consequential draws; and
-6. recover a known event.
+1. draws and deals;
+2. reveal one and optionally keep or buy;
+3. reveal several and choose;
+4. sequential search by printed facts;
+5. drafting and packet passing;
+6. play and Event cleanup; and
+7. recover a known Event.
 
-Shared cards with no material transition difference need one definition.
+Shared definitions with no transition difference need one form. Do not mechanically duplicate or
+rename every card definition.
 
 ## Rejected designs
 
+- Deck or Discard as CardArea Components;
+- owned card-area Components or vicarious ownership through a dependency;
+- a mutable Kotlin deck, discard list, or RNG cursor as independent authority;
+- Player narrowing of an exact face supplied by chance;
+- immediate Engine auto-selection that bypasses controller timing and delegation;
+- `BY Engine` as a substitute for changing the narrower;
+- direct deck-to-discard movement;
+- filtering the shuffled set before reveal;
+- a minimum-lookahead instruction quantifier;
+- gain-then-remove movement;
 - mirrored hand counters;
-- add-then-remove movement;
-- source inference from invariant failure;
-- off-timeline randomness;
-- “owned means private”;
-- output-only hidden-state scrubbing;
-- a universal CardBack `HAS` substitution rule;
-- per-card draw code;
-- eager deck-position components without a supported ordering rule;
-- default copy identity; or
+- per-card search implementations;
+- live printed tags on backs;
+- a universal represented-Class `HAS` rule;
+- default physical-copy identity; or
 - a Chance Actor.
 
-## Gates
+## Implementation gates
 
-1. **Types and invariant:** prove locations, singleton dependencies, linked moves, physical-supply
-   union limits, and one printed-metadata refinement in a synthetic table.
-2. **Tiny deterministic deck:** move three exact cards through every location and live-front state;
-   prove conservation and shorthand atomization.
-3. **Timeline chance:** specify cross-platform RNG/order, event recording, rollback/replay/forks,
-   reshuffle, filtering, and sealed results.
-4. **Observation:** project all query/task/history paths and couple commit, rollback floor, knowledge
-   horizon, and publication.
-5. **Real setup:** assemble selected supply, deal all starting material, and migrate one complete
-   example of every operation family.
+1. **Types and defaults:** prove the mutual Class-literal dependencies, singleton areas, direct
+   ownership, gain/removal defaults, atomization order, and linked play/Event transitions in a
+   synthetic Class Table.
+2. **Delegated narrowing:** implement controller-held selection, child assignment, blocking, and
+   resumption. Fix the two Philares characterizations first, then delegate a synthetic card face to
+   Engine without changing its future Actor.
+3. **Dealer projection:** derive a tiny three-face deck and discard set from premise plus events;
+   prove independent family streams, exhaustion, reshuffle epochs, cache deletion, rollback, replay,
+   and forks on JVM and JavaScript.
+4. **Card lifecycle:** move exact cards through every area, front, and back state and prove the
+   conservation partition.
+5. **Operation families:** migrate one draw, reveal, choice, search, draft, play/Event, and recovery
+   rule without card-specific engine branches.
+6. **Observation:** project every component, query, task, result, and history path before exposing
+   real mode to clients.
 
-Do not touch canonical card data if Gate 1 requires global Type-system exceptions. Do not expose the
-mode before Gates 3 and 4. Keep follow mode green and default until a real setup can play through
-event scoring.
+Keep follow mode green and default throughout. Stop if the type proof or delegation requires global
+exceptions specific to ProjectCard.
 
 ## Acceptance properties
 
-**Target acceptance criteria, not current guarantees.** Integration and property coverage must
-establish at least:
+**Target criteria, not current guarantees:**
 
-1. Every selected face has the configured total multiplicity across fronts and backs.
-2. Ordinary movement preserves represented Class and changes only location.
-3. Playing and finishing an Event preserve identity and total physical-card count.
-4. `N ProjectCard` makes N sequential selections without replacement.
-5. Equal seeds and histories produce equal JVM/JavaScript draws; different seeds vary usefully.
-6. Rollback and retry reproduce an outcome; replay uses the recorded result.
-7. Printed-tag filtering selects only qualifying definitions without live tag components.
-8. Discarding from hand is the owning Player's exact-card choice.
-9. Private own zones, hidden other zones, and public zones obey the visibility matrix.
-10. Exact count, refinement, union, custom-metric, task, and history queries cannot recover hidden
-    identities.
-11. The master rules engine still validates and executes against exact hidden state.
-12. Real and follow definitions for one printed card cannot both be active.
-13. Interchangeable duplicate backs coexist without invented copy Classes.
-14. Before commit, a Player's own draw and every public reveal remain abstract in all Player-facing
-    component, task, result, and history views.
-15. Commit disables earlier rollback before publishing newly visible identities; a simulation fork
-    cannot advance the live session's knowledge horizon.
-16. A reveal-dependent choice appears only after its reveal is committed, so a later dead end never
-    asks a Player to forget a card.
+1. The premise-selected face set partitions exactly across derived deck, derived discard, backs,
+   and fronts.
+2. `N ProjectCard` creates N atomized gains and consumes N sequential faces without replacement.
+3. The controlling Player decides when each gain is selected but cannot narrow its face.
+4. Resolution delegates face narrowing to Engine and blocks the controller until completion.
+5. Equal seed, algorithm version, deck family, and history produce equal outcomes across platforms.
+6. Rollback and retry reproduce an outcome; forks share outcomes until their histories diverge.
+7. Reshuffle uses exactly the discard set derived at the exhaustion point.
+8. Every search candidate enters `Revealed` before it is kept or discarded.
+9. Printed predicates do not create or query live tags on inactive cards.
+10. Playing and Event cleanup preserve exact face and back family.
+11. Hand discard is the owning Player's exact-card choice and updates derived discard once.
+12. No Player-facing path exposes future deck order or another Player's hidden exact faces.
 
-## Open design decisions
+## Remaining decisions
 
-These are aspirations requiring proof during the gates, not missing current behavior:
+- final dependency and rendered-argument order;
+- final real-mode lowering of `CARDS`;
+- exact shuffle, seed derivation, and canonical ordering algorithms;
+- whether a derived reshuffle deserves an explicit diagnostic event;
+- how `Selecting` scopes overlapping selections;
+- the precise visibility matrix and irreversible knowledge limit; and
+- whether any supported future variant truly needs repeated or distinguishable copies.
 
-- final names for the two draft locations;
-- whether one global `Revealed` location is sufficient;
-- the transaction boundary for chance resolution during task preparation;
-- the relationship among the live rollback floor, fork floors, and per-session knowledge horizons;
-- which real `F` counterparts search and reshuffle versus reveal and discard;
-- whether supported content requires persistent deck order; and
-- whether `UntrackedCardFront` remains isolated enough to avoid mode-selected declarations.
-
-None changes the proposed central model: exact inactive back plus location, exact live front, atomic
-movement, timeline-owned chance, and Player-relative observation.
+None changes the central model: directly owned in-World cards, unowned singleton areas, no Deck or
+Discard Components, deterministic dealer state derived from premise plus history, and
+selection-time delegation of exact-face narrowing to Engine.

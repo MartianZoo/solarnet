@@ -1,23 +1,23 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.KindException
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.NotNowException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Task
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
+import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.KindException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.Multiset
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
 /**
@@ -51,74 +51,63 @@ public interface Gameplay {
   // Purple mode (and below)
 
   /**
-   * Voluntarily replaces a task's instruction with a strictly more specific revision, as its
-   * assignee is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
-   * instruction if necessary. Executes nothing.
+   * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;
+   * a concrete result executes before this call returns.
    *
-   * @param [revised] the new instruction tree; may be abstract or a grouped arm selected from an
+   * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
    *   `OR`; a group replaces this one task with one task per member; if identical to the current
-   *   instruction this method does nothing
-   * @throws [TaskException] if there is no task by this id assigned to this gameplay's Actor
-   * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
+   *   instruction this method does nothing; an omitted intensity retains a stronger pending
+   *   intensity when the Class default would weaken it
+   * @throws [TaskException] if this Actor has no selected task
+   * @throws [NarrowingException] if [narrowing] does not narrow the selected task's instruction
    */
-  public fun reviseTask(taskId: TaskId, revised: String): TaskResult
+  public fun narrowTask(narrowing: String): TaskResult
+
+  /** Tells whether [selectTask] will complete normally. */
+  public fun canSelectTask(taskId: TaskId): Boolean
 
   /**
-   * Revises the single task whose current instruction is [current]. This avoids depending on its
-   * generated [TaskId] when the instruction itself identifies the task.
-   */
-  public fun reviseTask(current: String, revised: String): TaskResult
-
-  /** Tells whether [prepareTask] will complete normallly. */
-  public fun canPrepareTask(taskId: TaskId): Boolean
-
-  /**
-   * Sets a task's [Task.next] bit, and simplifies its instruction according to the current world.
-   * It will be impossible to change the world except by executing this task.
+   * Selects one pending task and resolves its instruction against the current World. An abstract
+   * result remains selected for later [narrowTask] calls. A concrete result executes before this
+   * call returns.
    *
-   * If the prepared task is concrete, but would fail to execute, that exception is thrown now
-   * instead of preparing the task.
-   *
-   * If the return task is abstract, it will require a further call to [reviseTask], which will
-   * re-prepare the task. If no possible narrowing could succeed, this method might or might not
-   * recognize that fact and throw instead.
-   *
-   * If preparation produces independent instructions, this task is replaced by one task for each
-   * instruction before any of them is prepared against the world.
+   * If resolution produces independent instructions, selecting the structural task completes it and
+   * admits those instructions as ordinary pending siblings.
    *
    * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
-   *   prepared
-   * @throws [NotNowException] if the prepared task would throw this exception on execution
+   *   selected
+   * @throws [NotNowException] if the selected task cannot execute in the current World
    */
-  public fun prepareTask(taskId: TaskId): TaskId?
+  public fun selectTask(taskId: TaskId): TaskResult
 
   /**
-   * Prepares the single task whose current instruction is [instruction]. Equivalent tasks that
-   * differ only by id are interchangeable.
+   * Selects the single pending task whose current instruction is [instruction]. Equivalent tasks
+   * that differ only by id are interchangeable.
    */
-  public fun prepareTask(instruction: String): TaskId?
+  public fun selectTask(instruction: String): TaskResult
 
   /**
-   * Carries out the task matched by the source-level [revised] instruction tree. A grouped tree can
-   * select a grouped choice and replace the matched task with independent tasks; preprocessing can
-   * produce the same result, for example when atomizing a multi-step global parameter gain.
-   * Prepares the matched task first if necessary. As part of this, executes triggered instructions
-   * from *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then],
-   * and removes the original task from the game's task queue. Throws an exception if any of this
-   * fails.
+   * Carries out the task matched by the source-level [narrowing] instruction tree. A grouped tree
+   * can select a grouped choice and replace the matched task with independent tasks; preprocessing
+   * can produce the same replacement, for example when atomizing a multi-step global parameter
+   * gain. Explicitly submitted grouped instructions execute as one bundled command; siblings
+   * exposed only by preprocessing or resolution remain ordinary pending tasks. Selects and resolves
+   * the matched task first if necessary. As part of this, executes triggered instructions from
+   * *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then], and
+   * removes the original task from the game's task queue. Throws an exception if any of this fails.
    *
-   * A prepared task always wins. Otherwise, the revision must match exactly one task, except that
+   * A selected task always wins. Otherwise, the narrowing must match exactly one task, except that
    * fully identical tasks are interchangeable. [taskNumber], when supplied, selects the 1-based
-   * position in this Actor's current task list.
+   * position in this Actor's current task list. When the narrowing omits an intensity and its Class
+   * default would weaken the pending task's intensity, the pending intensity is retained; an
+   * explicitly written intensity must narrow normally.
    *
    * @throws [AbstractException] if the task is abstract
-   * @throws [NotNowException] if the task can't currently be prepared
+   * @throws [NotNowException] if the task can't currently be resolved
    */
-  public fun doTask(revised: String, taskNumber: Int? = null): TaskResult
+  public fun doTask(narrowing: String, taskNumber: Int? = null): TaskResult
 
-  public fun tryTask(revised: String, taskNumber: Int? = null): TaskResult
-
-  public fun tryPreparedTask(): TaskResult
+  public fun tryTask(narrowing: String, taskNumber: Int? = null): TaskResult
 
   public fun autoExecNow(): TaskResult
 
@@ -152,9 +141,9 @@ public interface Gameplay {
     public val tasks: TaskQueue
     public val reader: GameReader
 
-    public fun doTask(revised: String, taskNumber: Int? = null)
+    public fun doTask(narrowing: String, taskNumber: Int? = null)
 
-    public fun tryTask(revised: String, taskNumber: Int? = null)
+    public fun tryTask(narrowing: String, taskNumber: Int? = null)
 
     public fun autoExecNow()
 
@@ -163,7 +152,7 @@ public interface Gameplay {
 
   // Yellow
   public interface TaskLayer : OperationLayer {
-    /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
+    /** Adds a manual task for the given [instruction], but does not select or execute it. */
     public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
     /** Removes a task for any reason or no reason at all. */

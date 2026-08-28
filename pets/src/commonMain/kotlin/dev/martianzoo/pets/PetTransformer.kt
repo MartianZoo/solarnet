@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.api.Exceptions.KindException
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -25,7 +25,7 @@ import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.withLinkedTypeSources
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 import kotlin.reflect.KClass
 
 /**
@@ -102,7 +102,7 @@ public abstract class PetTransformer protected constructor() {
   public fun transformTrigger(node: Trigger): Trigger = transformAsKind(node, Trigger::class)
 
   /** Transforms a child that structurally must remain a [BasicTrigger]. */
-  private fun transformBasicTrigger(node: BasicTrigger): BasicTrigger =
+  public fun transformBasicTrigger(node: BasicTrigger): BasicTrigger =
       transformAsKind(node, BasicTrigger::class)
 
   /** Transforms an expression while preserving the [Expression] kind. */
@@ -156,7 +156,8 @@ public abstract class PetTransformer protected constructor() {
   public fun transformScalar(node: Scalar): Scalar = transformAsKind(node, Scalar::class)
 
   /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
-  internal fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
+  // TODO: Contract this temporary tfm-canon seam.
+  public fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
 
   private fun <P : PetNode> transformAsKind(node: PetNode, requiredKind: KClass<P>): P {
     val transformed = transformWithoutKindCheck(node)
@@ -222,7 +223,7 @@ public abstract class PetTransformer protected constructor() {
                     node.receiver?.let(::transformExpression),
                 )
             is Metric.Scaled -> Metric.scaled(transformMetric(node.inner), node.unit)
-            is Metric.Max -> Metric.Max(transformMetric(node.inner), node.maximum)
+            is Metric.Max -> Metric.Max(transformMetric(node.inner), transformMetric(node.maximum))
             is Metric.Subtract ->
                 Metric.Subtract(
                     transformMetric(node.minuend),
@@ -284,10 +285,21 @@ public abstract class PetTransformer protected constructor() {
                 )
           }
       is FromExpression ->
-          FromExpression(
-              transformExpression(node.toExpression),
-              transformExpression(node.fromExpression),
-          )
+          when (node) {
+            is FromExpression.Unchanged ->
+                FromExpression.Unchanged(transformExpression(node.expression))
+            is FromExpression.Full ->
+                FromExpression.Full(
+                    transformExpression(node.toExpression),
+                    transformExpression(node.fromExpression),
+                )
+            is FromExpression.Compact ->
+                FromExpression.Compact(
+                    transformClassName(node.className),
+                    node.arguments.map(::transformFromExpression),
+                    node.refinement?.let(::transformRefinement),
+                )
+          }
       is Effect ->
           node
               .copy(
@@ -323,7 +335,6 @@ public abstract class PetTransformer protected constructor() {
             is Cost.Spend -> Cost.Spend(transformScaledExpression(node.scaledEx))
             is Cost.Gated -> Cost.Gated(transformRequirement(node.gate), transformCost(node.cost))
             is Cost.Per -> Cost.Per(transformCost(node.cost), transformMetric(node.metric))
-            is Cost.Or -> Cost.Or(node.costs.map(::transformCost).toSetStrict())
             is Cost.Multi -> Cost.Multi(node.costs.map(::transformCost))
             is Cost.Transform -> Cost.Transform(transformCost(node.cost), node.transformKind)
           }

@@ -1,0 +1,712 @@
+{
+  "cards": [
+
+    {
+      "name": "SaturnSystems",
+      "deck": "CORPORATION",
+      "tags": [ "JovianTag" ],
+      "immediate": "42 MC, PROD[Titanium]",
+      "effects": [ "JovianTag<Anyone, CardFront<Anyone>>: PROD[1 MC]" ],
+    },
+
+    {
+      "name": "Teractor",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": "60 MC",
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<>" ],
+    },
+
+    {
+      "name": "AsteroidMiningConsortium",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "PROD[Titanium]",
+      "cost": 13,
+      "tags": [ "JovianTag" ],
+      "immediate": "PROD[-Titanium<Anyone>, Titanium]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "InventorsGuild",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 9,
+      "tags": [ "ScienceTag" ],
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
+    },
+
+    {
+      "name": "SpaceElevator",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 27,
+      "tags": [ "SpaceTag", "BuildingTag" ],
+      "immediate": "PROD[Titanium]",
+      "actions": [ "Steel -> 5 MC" ],
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    {
+      "name": "DevelopmentCenter",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 11,
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "actions": [ "Energy -> ProjectCard" ],
+    },
+
+    {
+      "name": "SpaceStation",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 10,
+      "tags": [ "SpaceTag" ],
+      "effects": [
+        "PlayTag<Class<SpaceTag>>:: -2 Owed<>",
+        "End: VictoryPoint"
+      ],
+    },
+
+    {
+      "name": "InterstellarColonyShip",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "5 ScienceTag",
+      "cost": 24,
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "effects": [ "End: 4 VictoryPoint" ],
+    },
+
+    {
+      "name": "SecurityFleet",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 12,
+      "tags": [ "SpaceTag" ],
+      "actions": [ "Titanium -> Fighter<This>" ],
+      "effects": [ "End: VictoryPoint / Fighter<This>" ],
+      "components": [ "CLASS Fighter : CardResource<ResourceHolder<Class<Fighter>>>" ],
+    },
+
+    {
+      "name": "LightningHarvest",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "3 ScienceTag",
+      "cost": 8,
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[Energy, 1 MC]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "Tardigrades",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "MicrobeTag" ],
+      "actions": [ "-> Microbe<This>" ],
+      "effects": [ "End: VictoryPoint / 4 Microbe<This>" ],
+    },
+
+    {
+      "name": "Virus",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 1,
+      "tags": [ "MicrobeTag" ],
+      "immediate": "-2 Animal<Anyone>? OR -5 Plant<Anyone>?",
+    },
+
+    {
+      "name": "MirandaResort",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 12,
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "PROD[1 MC / EarthTag]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "Mine",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 4,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[Steel]",
+    },
+
+    {
+      "name": "VestaShipyard",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 15,
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "PROD[Titanium]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "GreatEscarpmentConsortium",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "PROD[Steel]",
+      "cost": 6,
+      "immediate": "PROD[-Steel<Anyone>, Steel]",
+    },
+
+    {
+      "name": "MineralDeposit",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 5,
+      "immediate": "5 Steel",
+    },
+
+    {
+      "name": "MiningArea",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 4,
+      "tags": [ "BuildingTag" ],
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} THEN PROD[(LandArea(HAS MiningArea_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
+    },
+
+    {
+      "name": "BuildingIndustries",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 6,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy, 2 Steel]",
+    },
+
+    {
+      "name": "LandClaim",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 1,
+      "immediate": "LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>",
+    },
+
+    {
+      "name": "Sponsors",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 6,
+      "tags": [ "EarthTag" ],
+      "immediate": "PROD[2 MC]",
+    },
+
+    {
+      "name": "ElectroCatapult",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "MAX 8 OxygenStep",
+      "cost": 17,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy]",
+      "actions": [ "Plant -> 7 MC", "Steel -> 7 MC" ],
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "EarthCatapult",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 23,
+      "tags": [ "EarthTag" ],
+      "effects": [
+        "Billing<PlayCards>:: -2 Owed<>",
+        "End: 2 VictoryPoint"
+      ],
+    },
+
+    {
+      "name": "AdvancedAlloys",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 9,
+      "tags": [ "ScienceTag" ],
+      "effects": [ "Pay<Class<Metal>>:: -Owed<>" ],
+    },
+
+    {
+      "name": "MarsUniversity",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 8,
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "effects": [
+        "ScienceTag<>: (-ProjectCard THEN ProjectCard) OR Ok",
+        "End: VictoryPoint"
+      ],
+    },
+
+    {
+      "name": "ViralEnhancers",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 9,
+      "tags": [ "ScienceTag", "MicrobeTag" ],
+      "effects": [ "BioTag<CardFront>: Plant OR CardResource<CardFront>" ],
+    },
+
+    {
+      "name": "QuantumExtractor",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "4 ScienceTag",
+      "cost": 13,
+      "tags": [ "ScienceTag", "PowerTag" ],
+      "immediate": "PROD[4 Energy]",
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<>" ],
+    },
+
+    {
+      "name": "CallistoPenalMines",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 24,
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "PROD[3 MC]",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    {
+      "name": "TransNeptuneProbe",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 6,
+      "tags": [ "ScienceTag", "SpaceTag" ],
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "CommercialDistrict",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 16,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy, 4 MC], SpecialTile<> {}",
+      "effects": [ "End: VictoryPoint / Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>" ],
+    },
+
+    {
+      "name": "RoboticWorkforce",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 9,
+      "tags": [ "ScienceTag" ],
+      "immediate": "CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>",
+    },
+
+    {
+      "name": "Research",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 11,
+      "tags": [ "ScienceTag", "ScienceTag" ],
+      "immediate": "2 ProjectCard",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "GeneRepair",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "3 ScienceTag",
+      "cost": 12,
+      "tags": [ "ScienceTag" ],
+      "immediate": "PROD[2 MC]",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    {
+      "name": "IoMiningIndustries",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 41,
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "PROD[2 Titanium, 2 MC]",
+      "effects": [ "End: VictoryPoint / JovianTag" ],
+    },
+
+    {
+      "name": "MassConverter",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "5 ScienceTag",
+      "cost": 8,
+      "tags": [ "ScienceTag", "PowerTag" ],
+      "immediate": "PROD[6 Energy]",
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<>" ],
+    },
+
+    {
+      "name": "PhysicsComplex",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 12,
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "actions": [ "6 Energy -> Science<This>" ],
+      "effects": [ "End: 2 VictoryPoint / Science<This>" ],
+    },
+
+    {
+      "name": "TropicalResort",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 13,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-2 Heat, 3 MC]",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    {
+      "name": "TollStation",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 12,
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[1 MC / SpaceTag<!Owner>]",
+    },
+
+    {
+      "name": "EarthOffice",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 1,
+      "tags": [ "EarthTag" ],
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<>" ],
+    },
+
+    {
+      "name": "AcquiredCompany",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 10,
+      "tags": [ "EarthTag" ],
+      "immediate": "PROD[3 MC]",
+    },
+
+    {
+      "name": "MediaArchives",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 8,
+      "tags": [ "EarthTag" ],
+      "immediate": "CARDS[1 MC / CardBack<EventPile, Anyone>]",
+    },
+
+    {
+      "name": "MediaGroup",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 6,
+      "tags": [ "EarthTag" ],
+      "effects": [ "EventCard: 3 MC" ],
+    },
+
+    {
+      "name": "BusinessNetwork",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "EarthTag" ],
+      "immediate": "PROD[-1 MC]",
+      "actions": [ "-> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]" ],
+    },
+
+    {
+      "name": "BusinessContacts",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 7,
+      "tags": [ "EarthTag" ],
+      "immediate": "2 ProjectCard",
+    },
+
+    {
+      "name": "BribedCommittee",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 7,
+      "tags": [ "EarthTag" ],
+      "immediate": "2 TerraformRating",
+      "effects": [ "End: -2 VictoryPoint" ],
+    },
+
+    {
+      "name": "Sabotage",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 1,
+      "immediate": "-3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 MC<Anyone>?",
+    },
+
+    {
+      "name": "IndustrialCenter",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "BuildingTag" ],
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)> {}",
+      "actions": [ "7 MC -> PROD[Steel]" ],
+    },
+
+    {
+      "name": "HiredRaiders",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 1,
+      "immediate": "2 Steel<Owner FROM Anyone>? OR 3 MC<Owner FROM Anyone>?",
+    },
+
+    {
+      "name": "Hackers",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 3,
+      "immediate": "PROD[-Energy, -2 MC<Anyone>, 2 MC]",
+      "effects": [
+        "End: -VictoryPoint"
+      ],
+    },
+
+    {
+      "name": "Cartel",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 8,
+      "tags": [ "EarthTag" ],
+      "immediate": "PROD[1 MC / EarthTag]",
+    },
+
+    {
+      "name": "TitaniumMine",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 7,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[Titanium]",
+    },
+
+    {
+      "name": "CeosFavoriteProject",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 1,
+      "immediate": "CardResource<CardFront(HAS CardResource)>",
+    },
+
+    {
+      "name": "AntiGravityTechnology",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "7 ScienceTag",
+      "cost": 14,
+      "tags": [ "ScienceTag" ],
+      "effects": [
+        "Billing<PlayCards>:: -2 Owed<>",
+        "End: 3 VictoryPoint"
+      ],
+    },
+
+    {
+      "name": "InvestmentLoan",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 3,
+      "tags": [ "EarthTag" ],
+      "immediate": "PROD[-1 MC], 10 MC",
+    },
+
+    {
+      "name": "CaretakerContract",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "15 TemperatureStep",
+      "cost": 3,
+      "actions": [ "8 Heat -> TerraformRating" ],
+    },
+
+    {
+      "name": "StandardTechnology",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 6,
+      "tags": [ "ScienceTag" ],
+      "effects": [ "-Invoice<StandardProject(HAS cost)>: 3 MC" ],
+    },
+
+    {
+      "name": "PowerSupplyConsortium",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "2 PowerTag",
+      "cost": 5,
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[-Energy<Anyone>, Energy]",
+    },
+
+    {
+      "name": "ProtectedHabitats",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 5,
+      "effects": [ "-Plant OR -Animal OR -Microbe BY !Owner:: Die" ],
+    },
+
+    {
+      "name": "Satellites",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 10,
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[1 MC / SpaceTag]",
+    },
+
+    {
+      "name": "FuelFactory",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 6,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy, Titanium, 1 MC]",
+    },
+
+    {
+      "name": "CorporateStronghold",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 11,
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, 3 MC], CityTile<>",
+      "effects": [ "End: -2 VictoryPoint" ],
+    },
+
+    {
+      "name": "OlympusConference",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 10,
+      "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
+      "effects": [
+        "ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)",
+        "End: VictoryPoint"
+      ],
+    },
+
+    {
+      "name": "RadSuits",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "2 CityTile<Anyone>",
+      "cost": 6,
+      "immediate": "PROD[1 MC]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "InventionContest",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 2,
+      "tags": [ "ScienceTag" ],
+      "immediate": "ProjectCard",
+    },
+
+    {
+      "name": "PowerInfrastructure",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "actions": [ "X Energy -> X MC" ],
+    },
+
+    {
+      "name": "IndenturedWorkers",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 0,
+      "immediate": "NextCardEffect { Billing<PlayCards>:: -8 Owed<> }",
+      "effects": [ "End: -VictoryPoint" ],
+    },
+
+    {
+      "name": "LagrangeObservatory",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 9,
+      "tags": [ "ScienceTag", "SpaceTag" ],
+      "immediate": "ProjectCard",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "TerraformingGanymede",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 33,
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "TerraformRating / JovianTag",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    {
+      "name": "RestrictedArea",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 11,
+      "tags": [ "ScienceTag" ],
+      "immediate": "SpecialTile<> {}",
+      "actions": [ "2 MC -> ProjectCard" ],
+    },
+
+    {
+      "name": "EnergyTapping",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 3,
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[-Energy<Anyone>, Energy]",
+      "effects": [ "End: -VictoryPoint" ],
+    },
+
+    {
+      "name": "TechnologyDemonstration",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 5,
+      "tags": [ "ScienceTag", "SpaceTag" ],
+      "immediate": "2 ProjectCard",
+    },
+
+    {
+      "name": "MedicalLab",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 13,
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "immediate": "PROD[1 MC / 2 BuildingTag]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    {
+      "name": "AiCentral",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "3 ScienceTag",
+      "cost": 21,
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy]",
+      "actions": [ "-> 2 ProjectCard" ],
+      "effects": [ "End: VictoryPoint" ],
+    },
+  ],
+}

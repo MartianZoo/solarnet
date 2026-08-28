@@ -1,22 +1,23 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.HIDDEN
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.Task
-import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
 import dev.martianzoo.script.Access.PurpleMode
@@ -45,16 +46,16 @@ import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
-import dev.martianzoo.tfm.api.ApiUtils
+import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TFM_SCRIPT_CLASS_SYNONYMS
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
 import dev.martianzoo.tfm.script.TfmColor.HEAT
-import dev.martianzoo.tfm.script.TfmColor.MEGACREDIT
+import dev.martianzoo.tfm.script.TfmColor.MC
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.PLANT
 import dev.martianzoo.tfm.script.commands.TfmActionCommand
@@ -63,7 +64,6 @@ import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
-import dev.martianzoo.types.Type
 
 /** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(
@@ -158,7 +158,15 @@ public class ScriptSession(
           0
         }
 
-    val resourceNames = listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    val resourceNames =
+        linkedMapOf(
+            "Megacredit" to "MC",
+            "Steel" to "Steel",
+            "Titanium" to "Titanium",
+            "Plant" to "Plant",
+            "Energy" to "Energy",
+            "Heat" to "Heat",
+        )
     val tagTypes =
         linkedMapOf(
             "building" to "BuildingTag",
@@ -182,11 +190,11 @@ public class ScriptSession(
         terraformRating = countIfLoaded("TerraformRating"),
         cards = countIfLoaded("ProjectCard"),
         resources =
-            resourceNames.map {
+            resourceNames.map { (displayName, type) ->
               PlayerResourceSnapshot(
-                  name = it,
-                  stock = countIfLoaded(it),
-                  production = tfm.production(cn(it)),
+                  name = displayName,
+                  stock = countIfLoaded(type),
+                  production = tfm.production(cn(type)),
               )
             },
         tags =
@@ -222,7 +230,7 @@ public class ScriptSession(
     }
 
     return MarsMapSnapshot(
-        name = map.className.toString(),
+        name = map.className.toString().removeSuffix("Map"),
         areas =
             map.areas.sortedWith(compareBy({ it.row }, { it.column })).map { area ->
               val tile = tileKind(area.className)
@@ -315,16 +323,14 @@ public class ScriptSession(
         YELLOW -> YellowMode(gameplay.godMode())
         GREEN -> GreenMode(gameplay.godMode())
         BLUE -> BlueMode(gameplay.godMode())
-        PURPLE -> PurpleMode(gameplay.godMode())
+        PURPLE -> PurpleMode()
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
     val changes =
         result.changes
             .filterNot { isHidden(it, game.reader) }
-            .map { event ->
-              game.vocabulary.renderPets(event)
-            }
+            .map { event -> game.vocabulary.renderPets(event) }
 
     val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
@@ -342,12 +348,10 @@ public class ScriptSession(
     }
   }
 
-  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
+  private fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
       game.tasks
           .extract { it }
-          .filter {
-            it.assignee == gameplay.actor && (ids == null || it.id in ids)
-          }
+          .filter { it.assignee == gameplay.actor && (ids == null || it.id in ids) }
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
       selectableTasks(ids).map { task -> game.vocabulary.renderPets(task, displayId = null) }
@@ -399,7 +403,7 @@ public class ScriptSession(
 
   internal enum class ScriptMode(public val message: String, public val color: TfmColor) {
     RED("Change integrity: make changes without triggered effects", HEAT),
-    YELLOW("Task integrity: changes have consequences", MEGACREDIT),
+    YELLOW("Task integrity: changes have consequences", MC),
     GREEN("Operation integrity: clear task queue before starting new operation", PLANT),
     BLUE("Turn integrity: must perform a valid game turn for this phase", OCEAN_TILE),
     PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),
@@ -411,7 +415,7 @@ public class ScriptSession(
   }
 
   internal fun player(name: String): Player {
-    // In case a configured synonym or definition id was used
+    // In case a configured synonym was used
     val type: Type = gameplay.resolve(name)
     return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
         ?: throw UsageException("not a participating Player: $name")
@@ -425,7 +429,7 @@ public class ScriptSession(
         Canon,
         locale,
         TFM_SCRIPT_CLASS_SYNONYMS,
-        activeClassNames = Canon.colonyTileDefinitions.mapTo(linkedSetOf()) { it.className },
+        activeClassNames = Canon.colonyTileClassNames,
     )
   }
 }

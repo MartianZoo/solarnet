@@ -5,11 +5,15 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.Specification
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.TypeInfo
 
 /** A value or abstract value type assigned to a class property. */
-public sealed class PropertyValue : PetNode() {
-  public companion object {
+public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
+  internal companion object {
     internal fun parser(): Parser<PropertyValue> = Parsers.parser
   }
 
@@ -20,6 +24,8 @@ public sealed class PropertyValue : PetNode() {
             this === NumberType ||
             this === RequirementType ||
             this === OptionalRequirementType
+
+  override fun isAbstract(info: TypeInfo): Boolean = abstract
 
   /** The abstract type of any numeric property. */
   public data object MetricType : PropertyValue() {
@@ -55,18 +61,24 @@ public sealed class PropertyValue : PetNode() {
     override fun toString(): String = "$value"
   }
 
-  /** One concrete metric-valued property, written with a `COUNT` prefix. */
+  /** One concrete metric-valued property, written as a quoted Metric after `COUNT`. */
   public data class MetricValue(public val value: Metric) : PropertyValue() {
-    override fun toString(): String = "COUNT $value"
+    override fun toString(): String = "COUNT \"$value\""
   }
 
-  /** One concrete requirement-valued property. */
+  /** One concrete requirement-valued property, written as a quoted Requirement after `HAS`. */
   public data class RequirementValue(public val value: Requirement) : PropertyValue() {
-    override fun toString(): String = "HAS $value"
+    override fun toString(): String = "HAS \"$value\""
+  }
+
+  override fun ensureNarrows(that: PropertyValue, info: TypeInfo) {
+    if (this != that && !that.accepts(this)) {
+      throw NarrowingException("$this does not narrow property value $that")
+    }
   }
 
   /** Whether this abstract bound may be narrowed directly to [value]. */
-  internal fun accepts(value: PropertyValue): Boolean =
+  private fun accepts(value: PropertyValue): Boolean =
       when (this) {
         MetricType -> value === NumberType || value is NumberValue || value is MetricValue
         NumberType -> value is NumberValue
@@ -94,11 +106,7 @@ public sealed class PropertyValue : PetNode() {
 
   private object Parsers : PetTokenizer() {
     val requirement: Parser<PropertyValue> =
-        _has and
-            Requirement.parser() map
-            { (_, value) ->
-              RequirementValue(value)
-            }
+        _has and quotedText map { (_, source) -> RequirementValue(parse<Requirement>(source)) }
 
     val parser: Parser<PropertyValue> =
         (_metric map { MetricType }) or
@@ -106,7 +114,7 @@ public sealed class PropertyValue : PetNode() {
             (_requirement and skipChar('?') map { OptionalRequirementType }) or
             (_requirement map { RequirementType }) or
             requirement or
-            (skip(_count) and Metric.parser() map { MetricValue(it) }) or
+            (skip(_count) and quotedText map { MetricValue(parse<Metric>(it)) }) or
             (rawScalar map { NumberValue(it) })
   }
 }

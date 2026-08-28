@@ -10,18 +10,15 @@ CLASS Class<Component> : System { HAS =1 This }
 "Instances of this type never exist; Kotlin can instead define its instruction or metric behavior"
 ABSTRACT CLASS Custom
 
-"A class extends this to make sure it is always loaded even if never referenced by anything"
-ABSTRACT CLASS AutoLoad
-
 "Extend this to have plural instructions automatically split into individual instructions"
 ABSTRACT CLASS Atomized
 
 "Implementation detail normally omitted from user-facing output"
 ABSTRACT CLASS Hidden
 
-"Engine-only machinery; unowned occurrences are independent of any Player Actor"
+"No one but Engine can create these"
 ABSTRACT CLASS System : Hidden {
-  This BY Player: Die
+  This BY !Engine: Die
 }
 
 // Anything that cannot exist after the task queue clears (i.e., the action ends)
@@ -53,7 +50,7 @@ ABSTRACT CLASS Owned<Anyone> {
 CLASS Engine : System, Actor { HAS MAX 1 This }
 
 "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
-CLASS Ok : Signal, AutoLoad
+CLASS Ok : Signal
 
 "A component you can't create; the task queue will refuse to enqueue an attempt to"
-CLASS Die : Signal, AutoLoad { HAS MAX 0 This }
+CLASS Die : Signal { HAS MAX 0 This }

@@ -2,30 +2,51 @@ package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
  * A camel-case word used as a class name. Not validated except for its general pattern. Create one
  * using the compactly-named function [cn].
  */
-public class ClassName private constructor(private val asString: String) :
+public class ClassName private constructor(public val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
   public companion object {
+    private val reservedNames =
+        setOf(
+            "ABSTRACT",
+            "BY",
+            "CLASS",
+            "COUNT",
+            "DEFAULT",
+            "EVAL",
+            "FROM",
+            "HAS",
+            "IF",
+            "MAX",
+            "OR",
+            "THEN",
+            "X",
+        )
+
     /** Returns the [ClassName] for the given string. */
     public fun cn(name: String): ClassName = ClassName(name)
 
     private const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,5})\\b"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
 
-    public fun parser(): com.github.h0tk3y.betterParse.parser.Parser<ClassName> = Parsing.className
+    internal fun parser(): com.github.h0tk3y.betterParse.parser.Parser<ClassName> =
+        Parsing.className
   }
 
   init {
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
+    require(asString !in reservedNames) {
+      "Pets keyword cannot be a class name: $asString"
+    }
   }
 
   /**
@@ -68,8 +89,8 @@ public class ClassName private constructor(private val asString: String) :
   override fun compareTo(other: ClassName): Int = asString.compareTo(other.asString)
 
   internal object Parsing : PetTokenizer() {
-    val classShortName = _allCapsWordRE map { cn(it.text) }
-    val classFullName = _upperCamelRE map { cn(it.text) }
+    private val classShortName = _allCapsWordRE map { cn(it.text) }
+    private val classFullName = _upperCamelRE map { cn(it.text) }
     val className = classFullName or classShortName
   }
 }

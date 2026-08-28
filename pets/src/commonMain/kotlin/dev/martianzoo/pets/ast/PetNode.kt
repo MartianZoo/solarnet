@@ -12,6 +12,7 @@ public sealed class PetNode {
    * concrete implementation type. For example, a [Gain] has kind [Instruction], not [Gain]. A node
    * may also be accepted through a broader kind such as [InstructionTree].
    */
+  // TODO: Contract this temporary tfm-canon round-trip-test seam.
   public abstract val kind: KClass<out PetNode>
 
   protected fun groupPartIfNeeded(part: PetNode): String =
@@ -39,7 +40,7 @@ public sealed class PetNode {
   protected abstract fun visitChildren(visitor: Visitor)
 
   /** Immediate children in the same stable order used by descendant traversal. */
-  internal fun immediateChildren(): List<PetNode> = buildList {
+  public fun immediateChildren(): List<PetNode> = buildList {
     visitChildren(
         Visitor {
           add(it)
@@ -93,9 +94,9 @@ public sealed class PetNode {
 
   /** See [PetNode.visitChildren]. */
   protected class Visitor(private val shouldContinue: (PetNode) -> Boolean) {
-    public fun visit(nodes: Iterable<PetNode?>): Unit = nodes.forEach(::maybeVisit)
+    internal fun visit(nodes: Iterable<PetNode?>): Unit = nodes.forEach(::maybeVisit)
 
-    public fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
+    internal fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
 
     private fun maybeVisit(node: PetNode?) {
       node?.let { if (shouldContinue(it)) it.visitChildren(this) }

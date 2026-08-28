@@ -11,7 +11,7 @@ public data class Property(
     public val propertyName: PropertyName,
     public val receiver: Expression? = null,
 ) : Metric() {
-  public companion object {
+  internal companion object {
     internal fun parser(): Parser<Property> = Parsing.parser
   }
 

@@ -1,0 +1,4 @@
+"Expansion adding active preludes and cards that combine Prelude with other expansions"
+CLASS Prelude2Expansion : PreludeDeck {
+  This:: PreludeExpansion.
+}

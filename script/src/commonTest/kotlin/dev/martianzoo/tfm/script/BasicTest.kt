@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.script.OptionCodeTranslation
 import dev.martianzoo.script.createGame
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -21,24 +21,24 @@ internal fun setUpGame(
 
 internal class BasicTest {
   @Test
-  fun configuredInputOnlySynonyms() {
+  internal fun configuredInputOnlySynonyms() {
     val game = setUpGame()
     val session = game.tfm(PLAYER2).godMode()
 
-    session.manual("PROD[5, 4 E]")
+    session.manual("PROD[5 MC, 4 E]")
     session.manual("ProjectCard")
-    session.manual("Card138")
+    session.manual("StripMine")
     session.manual("PROD[-2 E, 2 S, T]")
 
-    assertEquals(0, session.count("PROD[E]"))
-    assertEquals(4, session.count("PROD[S]"))
-    assertEquals(2, session.count("PROD[T]"))
+    assertEquals(1, session.count("PROD[E]"))
+    assertEquals(5, session.count("PROD[S]"))
+    assertEquals(3, session.count("PROD[T]"))
 
-    assertTrue(game.tfm(PLAYER1).has("PROD[=0 E, =0 S]"))
+    assertTrue(game.tfm(PLAYER1).has("PROD[=1 E, =1 S]"))
   }
 
   @Test
-  fun removeAmap() {
+  internal fun removeAmap() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
@@ -49,7 +49,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun rollback() {
+  internal fun rollback() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
@@ -66,7 +66,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun dependencies() {
+  internal fun dependencies() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
@@ -86,7 +86,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun counting() {
+  internal fun counting() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
     session.manual("42 Heat")
@@ -104,7 +104,7 @@ internal class BasicTest {
   }
 
   @Test
-  fun tempTrigger() {
+  internal fun tempTrigger() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
     assertEquals(20, session.count("TerraformRating"))
@@ -112,14 +112,14 @@ internal class BasicTest {
     session.manual("2 TemperatureStep")
     assertEquals(2, session.count("TemperatureStep"))
     assertEquals(22, session.count("TerraformRating"))
-    assertEquals(0, session.count("Production<Class<Heat>>"))
+    assertEquals(1, session.count("Production<Class<Heat>>"))
 
     session.manual("2 TemperatureStep")
     assertEquals(24, session.count("TerraformRating"))
-    assertEquals(1, session.count("Production<Class<Heat>>"))
+    assertEquals(2, session.count("Production<Class<Heat>>"))
 
     session.manual("8 OxygenStep")
     assertEquals(33, session.count("TerraformRating"))
-    assertEquals(2, session.count("Production<Class<Heat>>"))
+    assertEquals(3, session.count("Production<Class<Heat>>"))
   }
 }

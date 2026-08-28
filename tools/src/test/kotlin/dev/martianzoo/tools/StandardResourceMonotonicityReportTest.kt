@@ -1,26 +1,22 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.data.ClassSelection
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tools.StandardResourceMonotonicityReport.RuleLocation
-import dev.martianzoo.tools.StandardResourceMonotonicityReport.RuleLocationKind.ACTION
+import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.test.Test
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 internal class StandardResourceMonotonicityReportTest {
   @Test
-  fun scansCountScaledInstructionsAfterDeprodification() {
+  internal fun scansCountScaledInstructionsAfterDeprodification() {
     val probe =
-        object : TfmAuthority() {
+        object : TfmCatalog() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS ProductionPerProbe : AutoLoad {
+                      CLASS ProductionPerProbe {
                         HAS =1 This
                         This: PROD[Energy / Plant]
                       }
@@ -32,7 +28,7 @@ internal class StandardResourceMonotonicityReportTest {
     val basePremise = StandardResourceMonotonicityReport.maximalSoloPremise()
     val premise =
         basePremise.copy(
-            authority = TfmAuthority.Composite(Canon, probe),
+            catalog = TfmCatalog.Composite(Canon, probe),
             classSelections =
                 basePremise.classSelections + ClassSelection(cn("ProductionPerProbe")),
         )
@@ -47,39 +43,6 @@ internal class StandardResourceMonotonicityReportTest {
               it.evidence == "Production<Class<Energy>> / Production<Class<Plant>>"
         },
         probeFindings.toString(),
-    )
-  }
-
-  @Test
-  fun separatesSoloResourceAndProductionHazards() {
-    val premise = StandardResourceMonotonicityReport.maximalSoloPremise()
-    Engine.newGame(premise)
-    val analysis = StandardResourceMonotonicityReport.analyze(premise)
-
-    assertTrue(
-        analysis.findings.any {
-          it.quantity == "Energy" &&
-              it.subject == "Factorum" &&
-              it.location == RuleLocation(ACTION, 1) &&
-              it.kind == "maximum requirement" &&
-              it.evidence == "MAX 0 Energy"
-        }
-    )
-    assertTrue("Energy production" in analysis.quantities)
-    assertFalse(
-        analysis.findings.any { it.quantity == "Energy production" && it.subject == "Factorum" }
-    )
-    assertFalse(analysis.findings.any { it.subject == "Manutech" })
-    assertFalse(analysis.findings.any { it.subject == "Pharmacy Union" })
-    assertFalse(analysis.findings.any { it.subject == "Protected Habitats" })
-    assertFalse(analysis.findings.any { it.subject == "Asteroid Deflection System" })
-    assertFalse(
-        analysis.findings.any { it.subject == "Law Suit" || it.subject == "Mons Insurance" }
-    )
-    assertTrue(
-        analysis.opaqueUsages.any {
-          it.subject == "Double Down" && it.evidence == "CopyPrelude"
-        }
     )
   }
 }

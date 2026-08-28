@@ -1,0 +1,4 @@
+"Uses the full project deck and asymmetric starting production"
+CLASS CorporateEraExpansion : Module {
+  autoSelectWhen = HAS "TerraformingMars"
+}

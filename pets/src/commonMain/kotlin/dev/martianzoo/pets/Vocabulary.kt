@@ -1,17 +1,17 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Authority
-import dev.martianzoo.data.GameEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.data.Task
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Catalog
+import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.pets.data.Task
 
 /** Session-specific ASCII class-name input and presentation policy. */
 public class Vocabulary
@@ -19,14 +19,15 @@ private constructor(
     public val locale: String,
     private val displayNames: Map<ClassName, String>,
     private val petsNames: Map<ClassName, ClassName>,
-    public val inputOnlySynonyms: Map<ClassName, ClassName>,
+    private val inputOnlySynonyms: Map<ClassName, ClassName>,
     private val inputNames: Map<ClassName, ClassName>,
 ) {
   /** Resolves a localized Pets name or input-only synonym to its stable canonical name. */
   public fun canonicalName(name: ClassName): ClassName = inputNames[name] ?: name
 
   /** Returns the localized natural-language name used in ordinary UI. */
-  public fun displayName(name: ClassName): String = displayNames[name] ?: name.toString()
+  public fun displayName(name: ClassName): String =
+      displayNames[name] ?: defaultEnglishDisplayName(name)
 
   /** Returns the localized identifier used when rendering Pets source. */
   public fun petsName(name: ClassName): ClassName = petsNames[name] ?: name
@@ -69,9 +70,8 @@ private constructor(
             buildString {
               append("${event.ordinal}: ${renderPets(event.change)} BY ${petsName(event.actor)}")
               append(
-                  event.cause?.let {
-                    " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}"
-                  } ?: " (manual)"
+                  event.cause?.let { " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}" }
+                      ?: " (manual)"
               )
             }
       }
@@ -82,7 +82,7 @@ private constructor(
       displayId: String? = task.id.toString(),
   ): String = buildString {
     if (displayId != null) append(displayId)
-    append(if (task.next) "* " else if (displayId != null) "  " else "")
+    append(if (task.selected) "* " else if (displayId != null) "  " else "")
     append("[${petsName(task.assignee)}] ")
     append(renderPets(task.instruction))
     task.then?.let { append(" (THEN ${renderPets(it)})") }
@@ -103,9 +103,9 @@ private constructor(
   public companion object {
     public const val ENGLISH: String = "en"
 
-    /** Builds one vocabulary from the names and language files in [authority]. */
+    /** Builds one vocabulary from the names and language files in [catalog]. */
     public fun create(
-        authority: Authority,
+        catalog: Catalog,
         locale: String = ENGLISH,
         inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
         activeClassNames: Set<ClassName>,
@@ -114,10 +114,9 @@ private constructor(
       val canonicalByAlias =
           petsNameAliases.entries.associate { (canonical, alias) -> alias to canonical }
       return create(
-          canonicalNames = authority.allClassNames,
-          displayNamesByLanguage = authority.displayNamesByLanguage,
-          derivedPetsNameClassNames =
-              authority.derivedPetsNameClassNames intersect activeClassNames,
+          canonicalNames = catalog.allClassNames,
+          displayNamesByLanguage = catalog.displayNamesByLanguage,
+          derivedPetsNameClassNames = catalog.derivedPetsNameClassNames intersect activeClassNames,
           locale = locale,
           inputOnlySynonyms =
               inputOnlySynonyms.map { (synonym, target) ->
@@ -157,13 +156,12 @@ private constructor(
               .toList() + ENGLISH
       val effectiveDisplayNames = buildMap {
         canonicalNames.forEach { canonical ->
-          fallbackChain
-              .firstNotNullOfOrNull { normalizedLanguages[it]?.get(canonical) }
-              ?.let {
-                require(it.isNotBlank()) { "Blank display name for $canonical" }
-                requireAscii(it)
-                put(canonical, it)
-              }
+          val displayName =
+              fallbackChain.firstNotNullOfOrNull { normalizedLanguages[it]?.get(canonical) }
+                  ?: defaultEnglishDisplayName(canonical)
+          require(displayName.isNotBlank()) { "Blank display name for $canonical" }
+          requireAscii(displayName)
+          put(canonical, displayName)
         }
         petsNameAliases.forEach { (canonical, petsName) ->
           require(canonical in canonicalNames) {
@@ -175,14 +173,21 @@ private constructor(
       require(canonicalNames.containsAll(derivedPetsNameClassNames)) {
         "Pets-name derivation requested for unknown classes: ${derivedPetsNameClassNames - canonicalNames}"
       }
-      val missingDisplayNames = derivedPetsNameClassNames - effectiveDisplayNames.keys
-      require(missingDisplayNames.isEmpty()) {
-        "No localized or English display name for structured classes: $missingDisplayNames"
-      }
       val effectivePetsNames = buildMap {
         effectiveDisplayNames
             .filterKeys { it in derivedPetsNameClassNames }
-            .mapValuesTo(this) { (_, displayName) -> petsClassName(displayName) }
+            .mapValuesTo(this) { (canonicalName, displayName) ->
+              if (normalizedLocale.substringBefore('-') == ENGLISH) {
+                canonicalName
+              } else {
+                val localizedName = petsClassName(displayName)
+                if (localizedName in canonicalNames && localizedName != canonicalName) {
+                  canonicalName
+                } else {
+                  localizedName
+                }
+              }
+            }
         putAll(petsNameAliases)
       }
 
@@ -211,9 +216,7 @@ private constructor(
       }
       normalizedInputOnlySynonyms
           .filterValues { it in canonicalNames }
-          .forEach { (synonym, canonical) ->
-            register(synonym, canonical, "input-only synonym")
-          }
+          .forEach { (synonym, canonical) -> register(synonym, canonical, "input-only synonym") }
 
       return Vocabulary(
           normalizedLocale,
@@ -224,8 +227,27 @@ private constructor(
       )
     }
 
+    /** Derives ordinary English display text by separating the words in [className]. */
+    public fun defaultEnglishDisplayName(className: ClassName): String {
+      val source = className.toString()
+      return buildString {
+        source.forEachIndexed { index, character ->
+          val previous = source.getOrNull(index - 1)
+          val startsWord =
+              index > 0 &&
+                  character != '_' &&
+                  previous != '_' &&
+                  ((character.isUpperCase() && previous?.isLowerCase() == true) ||
+                      (character.isDigit() && previous?.isDigit() == false) ||
+                      (!character.isDigit() && previous?.isDigit() == true))
+          if ((character == '_' || startsWord) && lastOrNull() != ' ') append(' ')
+          if (character != '_') append(character)
+        }
+      }
+    }
+
     /** Derives the sole Pets-compatible spelling allowed for the ASCII [displayName]. */
-    public fun petsClassName(displayName: String): ClassName {
+    internal fun petsClassName(displayName: String): ClassName {
       requireAscii(displayName)
       var atWordStart = true
       var wordStartedUppercase = false
@@ -255,7 +277,13 @@ private constructor(
         }
       }
       require(result.isNotEmpty()) { "Display name has no identifier characters: $displayName" }
-      return cn(result)
+      val validResult =
+          if (result.length > 6 && result[1] !in 'a'..'z' && result[1] != '_') {
+            result.substring(0, 1) + "_" + result.substring(1)
+          } else {
+            result
+          }
+      return cn(validResult)
     }
 
     private fun requireAscii(value: String) {

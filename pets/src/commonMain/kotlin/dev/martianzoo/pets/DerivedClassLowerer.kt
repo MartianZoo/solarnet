@@ -1,21 +1,25 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.OneDefault
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
+import dev.martianzoo.pets.util.toSetStrict
 
 /** Lowers parsed owner-local Classes to ordinary, stably named Class declarations. */
-internal class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
+// TODO: Contract this temporary tfm-canon seam.
+public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
   private val claimedBases = mutableSetOf<ClassName>()
   private val declarationsByBase = linkedMapOf<ClassName, ClassDeclaration>()
 
-  val declarations: List<ClassDeclaration>
+  public val declarations: List<ClassDeclaration>
     get() = declarationsByBase.values.toList()
+
+  internal fun lowerDeclaration(declaration: ClassDeclaration): List<ClassDeclaration> =
+      listOf(transformDeclaration(declaration)) + declarations
 
   override fun transformNode(node: PetNode): PetNode {
     if (node !is Expression) return transformChildren(node)
@@ -72,12 +76,15 @@ internal class DerivedClassLowerer(private val owner: ClassName) : PetTransforme
         dependencies = declaration.dependencies.map(::transformExpression),
         supertypes = declaration.supertypes.map(::transformExpression).toSetStrict(),
         invariants = declaration.invariants.map(::transformRequirement).toSetStrict(),
-        effects = declaration.effects.map(::transformEffect),
+        authoredEffects = declaration.authoredEffects.map(::transformEffect),
+        authoredActions = declaration.authoredActions.map(::transformAction),
+        executableEffects = declaration.executableEffects?.map(::transformEffect),
         defaultsDeclaration =
             defaults.copy(
                 universal = transformDefault(defaults.universal),
                 gainOnly = transformDefault(defaults.gainOnly),
                 removeOnly = transformDefault(defaults.removeOnly),
+                triggerOnly = transformDefault(defaults.triggerOnly),
             ),
         properties =
             declaration.properties.entries.associate {

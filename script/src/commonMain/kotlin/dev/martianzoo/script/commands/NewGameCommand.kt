@@ -1,11 +1,11 @@
 package dev.martianzoo.script.commands
 
+import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.util.toSetStrict
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
   override val usage =
@@ -16,7 +16,6 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         command history out of ~/.rego_session and replay it.) For <options>, jam some letters
         together: B=base game (required, with the default Tharsis map),
         R=coRpoRate eRa, H=Hellas & Elysium, U=Utopia & Cimmeria,
-        M=Milestones & Awards,
         X=Promos, and the rest
         are what you'd think. The base game is always included. The player count can be from 1 to 5. A count of 1 applies
         the solo starting state.

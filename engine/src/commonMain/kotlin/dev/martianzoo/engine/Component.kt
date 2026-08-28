@@ -1,26 +1,27 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.api.Exceptions
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.types.Class
-import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.Type
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.Type
+import kotlin.jvm.JvmInline
 
-/** An *instance* of some concrete [Type]; a [ComponentGraph] is a multiset of these. */
-public class Component internal constructor(public val type: Type) : HasExpression by type {
+/** One concrete [Type] used as a value in a [ComponentGraph]. */
+@JvmInline
+public value class Component internal constructor(public val type: Type) : HasExpression {
   init {
     if (type.abstract) throw Exceptions.abstractComponent(type)
-    if (type.phantom) throw ExpressionException("inactive type has no components: $type")
   }
 
-  internal val isCustom: Boolean = type.rootClass.declaration.custom
+  internal val isCustom: Boolean
+    get() = type.rootClass.declaration.custom
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
@@ -28,30 +29,33 @@ public class Component internal constructor(public val type: Type) : HasExpressi
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [Class.dependencies].
    */
-  public val dependencyComponents: List<Component> =
-      type.typeDependencies.map { it.boundType.toComponent() }
+  internal val dependencyComponents: List<Component>
+    get() = type.typeDependencies.map { it.boundType.toComponent() }
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
-  public val owner: Type? =
-      if (type.classTable.isActive(OWNER) && hasType(type.classTable.resolve(OWNER.expression))) {
-        type
-      } else {
-        type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
-      }
+  public val owner: Type?
+    get() =
+        if (type.rootClass.allSuperclasses().any { it.className == OWNER }) {
+          type
+        } else {
+          type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
+        }
 
   /** This component's owner when that owner is a seated Player. */
-  internal val playerOwner: Player? =
-      owner?.className?.let { if (Player.isValid(it)) Player(it) else null }
+  internal val playerOwner: Player?
+    get() = owner?.className?.let(Player::fromClassNameOrNull)
+
+  override val expression: Expression
+    get() = type.expression
+
+  override val expressionFull: Expression
+    get() = type.expressionFull
 
   /** Context-free check; throws if [supertype] has a state-dependent refinement. */
   public fun hasType(supertype: Type): Boolean = type.isSubtypeOf(supertype)
 
   /** State-aware check for types that may have refinements. */
   public fun hasType(supertype: Type, info: TypeInfo): Boolean = type.narrows(supertype, info)
-
-  override fun equals(other: Any?): Boolean = other is Component && other.type == type
-
-  override fun hashCode(): Int = type.hashCode()
 
   override fun toString(): String = "$type"
 

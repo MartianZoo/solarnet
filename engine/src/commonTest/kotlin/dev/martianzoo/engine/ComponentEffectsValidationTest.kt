@@ -1,17 +1,17 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.types.loader
-import dev.martianzoo.types.te
+import dev.martianzoo.pets.ast.Expression
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import kotlin.test.Test
 
-class ComponentEffectsValidationTest {
+internal class ComponentEffectsValidationTest {
   private val table =
-      loader(
+      testClassTable(
           """
           ABSTRACT CLASS Target
           CLASS Good : Target
@@ -24,7 +24,7 @@ class ComponentEffectsValidationTest {
   private val transformers = Transformers(table)
 
   @Test
-  fun `valid specialized component effect is retained`() {
+  internal fun `valid specialized component effect is retained`() {
     val component = Component(table.resolve(te("Holder<Good>")))
 
     LiveEffect.compile(component, transformers)
@@ -34,7 +34,7 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `invalid atomic branch after component specialization becomes Die`() {
+  internal fun `invalid atomic branch after component specialization becomes Die`() {
     val component = Component(table.resolve(te("Holder<Bad>")))
 
     LiveEffect.compile(component, transformers)
@@ -44,15 +44,15 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `invalid specialized component trigger fails validation`() {
+  internal fun `invalid specialized component trigger fails validation`() {
     val component = Component(table.resolve(te("BrokenHolder<Bad>")))
 
     shouldThrow<ExpressionException> { LiveEffect.compile(component, transformers) }
   }
 
   @Test
-  fun `class effects reject a class from another class table`() {
-    val otherUniverse = loader("CLASS Holder")
+  internal fun `class effects reject a class from another class table`() {
+    val otherUniverse = testClassTable("CLASS Holder")
 
     shouldThrow<IllegalArgumentException> {
       transformers.classEffects(otherUniverse.getClass(cn("Holder")))
@@ -60,9 +60,33 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `components without ownership are unowned`() {
-    val table = loader("CLASS Token")
+  internal fun `components without ownership are unowned`() {
+    val table = testClassTable("CLASS Token")
 
     Component(table.resolve(te("Token"))).owner.shouldBeNull()
   }
+
+  @Test
+  internal fun `class token dependencies specialize independently`() {
+    val table =
+        testClassTable(
+            """
+            ABSTRACT CLASS Resource
+            CLASS Money : Resource
+            CLASS Operation
+            CLASS Debt<Class<Resource>>
+            CLASS Receipt<Class<Resource>, Class<Component>> {
+              This: Debt<Class<Resource>>
+            }
+            """
+        )
+    val component = Component(table.resolve(te("Receipt<Class<Money>, Class<Operation>>")))
+
+    LiveEffect.compile(component, Transformers(table))
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Debt<Class<Money>>!")
+  }
 }
+
+private fun te(source: String): Expression = parse(source)

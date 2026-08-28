@@ -1,0 +1,17 @@
+{
+  "cards": [
+
+    {
+      "name": "SelfReplicatingRobots",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "2 ScienceTag",
+      "cost": 7,
+      "actions": [
+        "-> StageReplicatedProject<This, Class<CardFront>(HAS BuildingTag)> OR StageReplicatedProject<This, Class<CardFront>(HAS SpaceTag)>",
+        "-> ReplicateStagedProject<This, Class<CardFront>>"
+      ],
+    },
+
+  ],
+}

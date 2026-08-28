@@ -1,8 +1,24 @@
 # `EACH` fanout
 
-**Status: proposal.** Nothing in this document is implemented. The historical filename reflects
-the Player-focused discussion that exposed the need; the proposed construct is generic enough to
-fan out over `ResourceCard` and other component Types.
+> **Read when:** explicitly designing or implementing the proposed `EACH Type { ... }` fanout, or
+> comparing repeated per-component listeners with one snapshot-based instruction.
+>
+> **Skip when:** changing quantified gain/removal, task delegation, or a single card's
+> listener. Those are separate mechanisms.
+>
+> **Status:** proposal; nothing here is implemented. The construct is generic despite the
+> historical filename.
+
+## Implementation entry points
+
+- [`Instruction.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Instruction.kt) —
+  inspect the sealed instruction model before choosing syntax shape.
+- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
+  for `resolve` to understand resolution and sibling task production.
+- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+  — search for `SetupPhase` to compare current setup-time per-Player effects.
+- [Venus Next `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/cards.pets)
+  — search for `SponsoredAcademiesWatcher` for a current per-Player watcher example.
 
 ## Goal
 
@@ -20,7 +36,7 @@ EACH Type { InstructionTree }
 `EACH` is a **fanout**, not a loop. It takes one World snapshot and groups the matching components
 by exact concrete Type. Each distinct Type produces one sibling instruction tree multiplied by that
 Type's snapshot multiplicity. That Type set and each multiplier remain fixed as the sibling tasks
-execute; ordinary later task preparation still reads the then-current World. Fanout has no
+execute; ordinary later task resolution still reads the then-current World. Fanout has no
 iteration order, index, first or last branch, accumulator, or short-circuiting. Implementation
 traversal order must not become authored precedence.
 
@@ -29,7 +45,7 @@ traversal order must not become authored precedence.
 
 ## Proposed binding model
 
-The selector and its repetitions in the body form an ordinary implicit-Type-variable region. Each
+The selector and its repetitions in the body form an implicit-Type-variable region. Each
 selected concrete Type narrows every linked occurrence in its branch:
 
 - no local identifier is introduced;
@@ -62,12 +78,12 @@ delegation mechanism exists.
 ## Multiplicity
 
 Fanout selects concrete Types, not component occurrences. If the snapshot contains three equal
-`Animal<Player1, CardX75<Player1>>` components, `EACH Animal { -Animal }` produces one branch whose
+`Animal<Player1, Vermin<Player1>>` components, `EACH Animal { -Animal }` produces one branch whose
 selected exact Animal Type is removed three times. There are not three occurrence branches, and
 Pets gains no synthetic component identity.
 
 Multiplication uses the existing `InstructionTree.times` meaning. It therefore scales the whole
-specialized body, rather than adding branch-to-branch ordering or repeatedly preparing against
+specialized body, rather than adding branch-to-branch ordering or repeatedly resolving against
 changing Worlds. Types with multiplicity zero produce no branch. Seated Player Types normally each
 have multiplicity one.
 
@@ -77,12 +93,12 @@ Fanout branches are ordinary siblings. These compositions have local meanings:
 
 ```pets
 A THEN EACH Player { B<Player> }              // completing A produces the B siblings
-EACH Player { A<Player> THEN B<Player> }      // one ordinary continuation in each branch
+EACH Player { A<Player> THEN B<Player> }      // one continuation in each branch
 Trigger:: EACH Player { A<Player> }           // inline only when every A is choice-free
 ```
 
 There is no proposed meaning in which `EACH Player { A<Player> } THEN B` waits for every branch or
-every transitive consequence to drain. Ordinary `THEN` waits for one task, not descendants. A
+every transitive consequence to drain. Plain `THEN` waits for one task, not descendants. A
 genuine fanout-wide join would require the distinct completion-scope or barrier design discussed
 in [SEQUENCING.md](SEQUENCING.md); it must not arrive accidentally with `EACH`.
 
@@ -97,7 +113,7 @@ An automatic triggering Effect already provides the automatic form of fanout. Do
 | `PreludeSetup<Player>` singleton listeners | `EACH Player { 2 PreludeCard<Player> }` | Pure recipient fanout |
 | Award tallying through every `Player` | `EACH Player { AwardTally<Player, This> / EVAL This.metric }` | Pure scoring fanout |
 | Sponsored Academies' owner-local `Signal` and Player watchers | `-ProjectCard THEN (3 ProjectCard, EACH (Player except Owner) { ProjectCard<Player> })` | Schematic opponent fanout; difference-selector syntax unresolved |
-| Mons Insurance setup watchers | `EACH Player { MAX 0 CardXC05<Player>: PROD[-2 Megacredit<Player>] BY Player }` | Must name Player so solo opponent is excluded |
+| Mons Insurance setup watchers | `EACH Player { MAX 0 MonsInsurance<Player>: PROD[-2 MC<Player>] BY Player }` | Must name Player so solo opponent is excluded |
 | Vermin's end-game Player watchers | `EACH Player { -VictoryPoint<Player> / CityTile<Player> }` | Pure scoring fanout |
 | Kotlin `ColoniesSetup` fleet loop | `EACH Player { ReserveTradeFleet<Player> }` | Pure setup fanout |
 | Turmoil Global Events affecting Resource Cards | `EACH ResourceCard { ... ResourceCard ... }` | Confirms the selector cannot be Player-specific |
@@ -109,13 +125,13 @@ fanout bodies, not complete replacement declarations.
 
 - Research purchases, final-greenery choices, and other work the selected Player must narrow, at
   least until assignment/delegation is designed explicitly.
-- `StartToken` reactions: the unique token honestly identifies the relevant Player and owns the
+- `StartToken` reactions: the unique token unambiguously identifies the relevant Player and owns the
   ambient rule.
 - Splice and TR-marker reactions: these find the owner of one triggering component rather than
   fanning out to every Player.
 - Colony trade bonuses and Productive Outpost: each Colony identifies eligibility and recipient,
   and some bonuses contain owner-specific choices.
-- Production, Energy conversion, TR/card/tile scoring, generational cleanup, and ordinary card
+- Production, Energy conversion, TR/card/tile scoring, generational cleanup, and card
   passives: these are genuine behavior of actual state occurrences.
 
 ## Open questions

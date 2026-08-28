@@ -1,21 +1,21 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Gameplay.TaskLayer
-import dev.martianzoo.tfm.engine.setUpGame
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class TaskSelectionTest {
+internal class TaskSelectionTest {
   private val game = setUpGame()
   private val gameplay = game.gameplay(PLAYER1).also { it.autoExecMode = AutoExecMode.NONE }
   private val tasks = gameplay.godMode() as TaskLayer
 
   @Test
-  fun `an omitted task number rejects distinct matching tasks`() {
+  internal fun `an omitted task number rejects distinct matching tasks`() {
     tasks.addTasks("Plant?")
     tasks.addTasks("StandardResource?")
 
@@ -30,7 +30,7 @@ class TaskSelectionTest {
   }
 
   @Test
-  fun `a task number selects by current queue order`() {
+  internal fun `a task number selects by current queue order`() {
     tasks.addTasks("Plant?")
     tasks.addTasks("StandardResource?")
 
@@ -41,7 +41,7 @@ class TaskSelectionTest {
   }
 
   @Test
-  fun `identical matching tasks are interchangeable`() {
+  internal fun `identical matching tasks are interchangeable`() {
     tasks.addTasks("3 TemperatureStep")
 
     gameplay.doTask("TemperatureStep!")
@@ -54,10 +54,10 @@ class TaskSelectionTest {
   }
 
   @Test
-  fun `a prepared task wins even when a task number is supplied`() {
+  internal fun `a selected task wins even when a task number is supplied`() {
     tasks.addTasks("Plant?")
     tasks.addTasks("Heat?")
-    gameplay.prepareTask("Heat?")
+    gameplay.selectTask("Heat?")
 
     gameplay.doTask("Heat!", 1)
 

@@ -11,12 +11,6 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassDeclaration.ClassKind
-import dev.martianzoo.data.ClassDeclaration.ClassKind.ABSTRACT
-import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.ActionElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.DefaultsElement
@@ -29,19 +23,25 @@ import dev.martianzoo.pets.ClassParsing.BodyElements.derivedClassBodyElement
 import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.pets.ClassParsing.Signatures.signature
-import dev.martianzoo.pets.Transforming.actionListToEffects
+import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
+import dev.martianzoo.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.util.KClassMultimap
-import dev.martianzoo.util.associateStrict
-import dev.martianzoo.util.plus
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.ClassKind
+import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.ABSTRACT
+import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
+import dev.martianzoo.pets.util.KClassMultimap
+import dev.martianzoo.pets.util.associateStrict
+import dev.martianzoo.pets.util.plus
+import dev.martianzoo.pets.util.toSetStrict
 
 internal object ClassParsing : PetTokenizer() {
   private val nls = zeroOrMore(char('\n'))
@@ -51,7 +51,7 @@ internal object ClassParsing : PetTokenizer() {
    * fine-grained details never needed again.
    */
 
-  internal object Signatures {
+  private object Signatures {
 
     private val dependencies: Parser<List<Expression>> =
         optionalList(
@@ -64,7 +64,7 @@ internal object ClassParsing : PetTokenizer() {
         optionalList(skipChar(':') and commaSeparated(Expression.parser(allowDerivedClass = false)))
 
     val signature: Parser<Signature> =
-        classFullName and
+        className and
             dependencies and
             supertypeList map
             { (name, deps, supes) ->
@@ -76,7 +76,7 @@ internal object ClassParsing : PetTokenizer() {
         zeroOrMore(skipChar(',') and signature) map ClassParsing::MoreSignatures
   }
 
-  internal object BodyElements {
+  private object BodyElements {
     private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
@@ -111,8 +111,20 @@ internal object ClassParsing : PetTokenizer() {
           }
     }
 
+    private val triggerOnlyDefaults: Parser<DefaultsDeclaration> =
+        Expression.parser() and
+            skipChar(':') map
+            { expr ->
+              require(expr.refinement == null)
+              DefaultsDeclaration(
+                  triggerOnly = OneDefault(expr.arguments),
+                  forClass = expr.className,
+              )
+            }
+
     private val default: Parser<DefaultsDeclaration> =
-        skip(_default) and (gainOnlyDefaults or removeOnlyDefaults or allCasesDefault)
+        skip(_default) and
+            (gainOnlyDefaults or removeOnlyDefaults or triggerOnlyDefaults or allCasesDefault)
 
     private val property: Parser<Pair<PropertyName, PropertyValue>> =
         PropertyName.parser() and
@@ -147,14 +159,18 @@ internal object ClassParsing : PetTokenizer() {
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
 
-    private val docstring: Parser<String> = _docString map { it.text.removeSurrounding("\"") }
+    private val oneLineBody: Parser<Body> by lazy {
+      oneLineBodyParser(bodyElementExceptNestedClasses, acceptZero = false)
+    }
+
+    private val docstring: Parser<String> = quotedText
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
             optional(docstring and skip(nls)) and
             kind and
             signature and
-            (multilineBody or moreSignatures) map
+            (multilineBody or oneLineBody or moreSignatures) map
             { (doc, kind, sig, bodyOrSigs) ->
               bodyOrSigs.convert(kind, sig, doc)
             }
@@ -181,10 +197,6 @@ internal object ClassParsing : PetTokenizer() {
 
     val derivedClassBody: Parser<Body> by lazy {
       oneLineBodyParser(derivedClassBodyElement, acceptZero = true)
-    }
-
-    private val oneLineBody: Parser<Body> by lazy {
-      oneLineBodyParser(bodyElementExceptNestedClasses, acceptZero = false)
     }
 
     val oneLineDecl: Parser<ClassDeclaration> =
@@ -222,7 +234,7 @@ internal object ClassParsing : PetTokenizer() {
     ): NestableDeclGroup
   }
 
-  internal class MoreSignatures(private val moreSignatures: List<Signature>) :
+  private class MoreSignatures(private val moreSignatures: List<Signature>) :
       MoreSignaturesOrBody() {
     override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
         NestableDeclGroup(
@@ -236,7 +248,7 @@ internal object ClassParsing : PetTokenizer() {
     constructor(list: List<BodyElement> = emptyList()) : this(KClassMultimap(list))
 
     override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
-        NestableDeclGroup(kind, firstSignature, this)
+        NestableDeclGroup(kind, firstSignature, this, docstring)
 
     private inline fun <reified E : BodyElement> getAll() = elements.get<E>()
 
@@ -275,9 +287,10 @@ internal object ClassParsing : PetTokenizer() {
         kind: ClassKind,
         signature: Signature,
         body: Body,
-    ) : this(create(kind, signature, body))
+        docstring: String? = null,
+    ) : this(create(kind, signature, body, docstring))
 
-    fun unnestAllFrom(container: ClassName): List<NestableDecl> = declList.map {
+    private fun unnestAllFrom(container: ClassName): List<NestableDecl> = declList.map {
       it.unnestOneFrom(container)
     }
 
@@ -286,16 +299,24 @@ internal object ClassParsing : PetTokenizer() {
     fun finishAll() = declList.map { it.decl }
 
     private companion object {
-      fun create(kind: ClassKind, signature: Signature, body: Body): List<NestableDecl> {
+      fun create(
+          kind: ClassKind,
+          signature: Signature,
+          body: Body,
+          docstring: String?,
+      ): List<NestableDecl> {
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
         require(mergedDefaults.forClass in setOf(null, signature.className))
         val newDecl =
             signature.asDeclaration.copy(
                 kind = kind,
                 invariants = body.invariants.toSetStrict(),
-                effects = body.effects + actionListToEffects(body.actions),
+                authoredEffects = body.effects,
+                authoredActions = body.actions,
                 defaultsDeclaration = mergedDefaults,
                 properties = body.properties,
+                extraNodes = actionSelectors(body.actions),
+                docstring = docstring,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested
@@ -308,7 +329,7 @@ internal object ClassParsing : PetTokenizer() {
 
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
-    data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
+    private data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
       override fun unnestOneFrom(container: ClassName) = this
     }
 

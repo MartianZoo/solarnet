@@ -1,9 +1,8 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player
-import dev.martianzoo.tfm.api.tfmAuthority
-import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.tfm.canon.tfmCatalog
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {
   fun commandNames(): List<ScriptCompletion> =
@@ -27,7 +26,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun paymentWords(): List<ScriptCompletion> {
-    val standards = setOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
+    val standards = setOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
     return repl.game.classTable
         .allClasses()
         .filter { it.className.toString() in standards }
@@ -37,21 +36,22 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
-      repl.game.reader.tfmAuthority.allDefinitions.filterIsInstance<CardDefinition>().map {
+      repl.game.reader.tfmCatalog.cardDefinitions.map { sourceCard ->
+        val card = repl.game.reader.tfmCatalog.card(sourceCard.className)
         ScriptCompletion(
-            repl.game.vocabulary.petsName(it.className).toString(),
+            repl.game.vocabulary.petsName(card.className).toString(),
             "cards",
-            it.deck?.name?.lowercase(),
+            card.deck?.name?.lowercase(),
         )
       }
 
   fun actionCardNames(): List<ScriptCompletion> =
-      repl.game.reader.tfmAuthority.allDefinitions
-          .filterIsInstance<CardDefinition>()
-          .filter { it.actions.isNotEmpty() }
-          .map {
+      repl.game.reader.tfmCatalog.cardDefinitions
+          .map { repl.game.reader.tfmCatalog.card(it.className) }
+          .filter { card -> card.actions.isNotEmpty() }
+          .map { card ->
             ScriptCompletion(
-                repl.game.vocabulary.petsName(it.className).toString(),
+                repl.game.vocabulary.petsName(card.className).toString(),
                 "action cards",
             )
           }

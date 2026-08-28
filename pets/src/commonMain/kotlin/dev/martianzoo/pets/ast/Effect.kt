@@ -8,13 +8,14 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.TypeLinking
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.util.iff
+import dev.martianzoo.pets.util.iff
 
 /**
  * A triggered effect, like `CityTile: 2`. Any existing component in a world can have some number of
@@ -25,6 +26,12 @@ public data class Effect(
     val instruction: InstructionTree,
     val automatic: Boolean = false,
 ) : PetElement() {
+  init {
+    trigger.unqualifiedBroadSubscription()?.let {
+      throw PetSyntaxException("$it trigger requires IF or BY")
+    }
+  }
+
   public val linkedTypeSources: Set<Expression>
     get() = recordedLinkedTypeSources
 
@@ -91,8 +98,8 @@ public data class Effect(
     @ConsistentCopyVisibility
     public data class OnGainOf private constructor(val expression: Expression) :
         SubscribedTrigger() {
-      internal companion object {
-        internal fun create(expression: Expression): BasicTrigger {
+      public companion object {
+        public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
           }
@@ -116,8 +123,8 @@ public data class Effect(
     @ConsistentCopyVisibility
     public data class OnRemoveOf private constructor(val expression: Expression) :
         SubscribedTrigger() {
-      internal companion object {
-        internal fun create(expression: Expression): BasicTrigger {
+      public companion object {
+        public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
           }
@@ -258,3 +265,16 @@ public data class Effect(
     }
   }
 }
+
+private fun Effect.Trigger.unqualifiedBroadSubscription(qualified: Boolean = false): Expression? =
+    when (this) {
+      is Effect.Trigger.OnGainOf -> expression.takeIf { !qualified && it.className == COMPONENT }
+      is Effect.Trigger.OnRemoveOf -> expression.takeIf { !qualified && it.className == COMPONENT }
+      is Effect.Trigger.SelfTrigger -> null
+      is Effect.Trigger.Or ->
+          triggers.firstNotNullOfOrNull { it.unqualifiedBroadSubscription(qualified) }
+      is Effect.Trigger.ByTrigger,
+      is Effect.Trigger.IfTrigger -> inner.unqualifiedBroadSubscription(qualified = true)
+      is Effect.Trigger.XTrigger,
+      is Effect.Trigger.Transform -> inner.unqualifiedBroadSubscription(qualified)
+    }

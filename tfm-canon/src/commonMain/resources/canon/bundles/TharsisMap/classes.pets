@@ -1,0 +1,102 @@
+CLASS Terraformer35 : Milestone { requirement = HAS "35 TerraformRating" }
+CLASS Mayor : Milestone { requirement = HAS "3 CityTile" }
+CLASS Gardener : Milestone { requirement = HAS "3 GreeneryTile" }
+CLASS Builder8 : Milestone { requirement = HAS "8 BuildingTag" }
+CLASS Planner : Milestone { requirement = HAS "CARDS[16 ProjectCard<Hand>]" }
+
+CLASS Landlord : Award { metric = COUNT "OwnedTile" }
+CLASS Banker : Award { metric = COUNT "PROD[MC]" }
+CLASS Scientist : Award { metric = COUNT "ScienceTag" }
+CLASS Thermalist : Award { metric = COUNT "Heat" }
+CLASS Miner : Award { metric = COUNT "Metal" }
+
+CLASS TharsisMap : MarsMap
+
+// The map areas below are code-generated based on the following comment
+//              LSS   WSS    L     WC    W
+//
+//            L     VS    L     L     L    WCC
+//
+//         VC    L     L     L     L     L     LS
+//
+//     VPT    LP    LP    LP   LPP    LP    LP   WPP
+//
+//  VPP   LPP   NPP   WPP   WPP   WPP   LPP   LPP   LPP
+//
+//      LP   LPP    LP    LP    LP    WP    WP    WP
+//
+//         L     L     L     L     L     LP    L
+//
+//           LSS    L     LC    LC    L     LT
+//
+//               LS   LSS    L     L    WTT
+
+CLASS Tharsis_1_1 :     LandArea { row = 1; column = 1; Tile<This>: 2 Steel }
+CLASS Tharsis_1_2 :    WaterArea { row = 1; column = 2; Tile<This>: 2 Steel }
+CLASS Tharsis_1_3 :     LandArea { row = 1; column = 3 }
+CLASS Tharsis_1_4 :    WaterArea { row = 1; column = 4; Tile<This>: ProjectCard }
+CLASS Tharsis_1_5 :    WaterArea { row = 1; column = 5 }
+
+CLASS Tharsis_2_1 :     LandArea { row = 2; column = 1 }
+CLASS Tharsis_2_2 : VolcanicArea { row = 2; column = 2; Tile<This>: Steel }
+CLASS Tharsis_2_3 :     LandArea { row = 2; column = 3 }
+CLASS Tharsis_2_4 :     LandArea { row = 2; column = 4 }
+CLASS Tharsis_2_5 :     LandArea { row = 2; column = 5 }
+CLASS Tharsis_2_6 :    WaterArea { row = 2; column = 6; Tile<This>: 2 ProjectCard }
+
+CLASS Tharsis_3_1 : VolcanicArea { row = 3; column = 1; Tile<This>: ProjectCard }
+CLASS Tharsis_3_2 :     LandArea { row = 3; column = 2 }
+CLASS Tharsis_3_3 :     LandArea { row = 3; column = 3 }
+CLASS Tharsis_3_4 :     LandArea { row = 3; column = 4 }
+CLASS Tharsis_3_5 :     LandArea { row = 3; column = 5 }
+CLASS Tharsis_3_6 :     LandArea { row = 3; column = 6 }
+CLASS Tharsis_3_7 :     LandArea { row = 3; column = 7; Tile<This>: Steel }
+
+CLASS Tharsis_4_1 : VolcanicArea { row = 4; column = 1; Tile<This>: Plant, Titanium }
+CLASS Tharsis_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Plant }
+CLASS Tharsis_4_3 :     LandArea { row = 4; column = 3; Tile<This>: Plant }
+CLASS Tharsis_4_4 :     LandArea { row = 4; column = 4; Tile<This>: Plant }
+CLASS Tharsis_4_5 :     LandArea { row = 4; column = 5; Tile<This>: 2 Plant }
+CLASS Tharsis_4_6 :     LandArea { row = 4; column = 6; Tile<This>: Plant }
+CLASS Tharsis_4_7 :     LandArea { row = 4; column = 7; Tile<This>: Plant }
+CLASS Tharsis_4_8 :    WaterArea { row = 4; column = 8; Tile<This>: 2 Plant }
+
+CLASS Tharsis_5_1 : VolcanicArea { row = 5; column = 1; Tile<This>: 2 Plant }
+CLASS Tharsis_5_2 :     LandArea { row = 5; column = 2; Tile<This>: 2 Plant }
+CLASS Tharsis_5_3 :   NoctisArea { row = 5; column = 3; Tile<This>: 2 Plant }
+CLASS Tharsis_5_4 :    WaterArea { row = 5; column = 4; Tile<This>: 2 Plant }
+CLASS Tharsis_5_5 :    WaterArea { row = 5; column = 5; Tile<This>: 2 Plant }
+CLASS Tharsis_5_6 :    WaterArea { row = 5; column = 6; Tile<This>: 2 Plant }
+CLASS Tharsis_5_7 :     LandArea { row = 5; column = 7; Tile<This>: 2 Plant }
+CLASS Tharsis_5_8 :     LandArea { row = 5; column = 8; Tile<This>: 2 Plant }
+CLASS Tharsis_5_9 :     LandArea { row = 5; column = 9; Tile<This>: 2 Plant }
+
+CLASS Tharsis_6_2 :     LandArea { row = 6; column = 2; Tile<This>: Plant }
+CLASS Tharsis_6_3 :     LandArea { row = 6; column = 3; Tile<This>: 2 Plant }
+CLASS Tharsis_6_4 :     LandArea { row = 6; column = 4; Tile<This>: Plant }
+CLASS Tharsis_6_5 :     LandArea { row = 6; column = 5; Tile<This>: Plant }
+CLASS Tharsis_6_6 :     LandArea { row = 6; column = 6; Tile<This>: Plant }
+CLASS Tharsis_6_7 :    WaterArea { row = 6; column = 7; Tile<This>: Plant }
+CLASS Tharsis_6_8 :    WaterArea { row = 6; column = 8; Tile<This>: Plant }
+CLASS Tharsis_6_9 :    WaterArea { row = 6; column = 9; Tile<This>: Plant }
+
+CLASS Tharsis_7_3 :     LandArea { row = 7; column = 3 }
+CLASS Tharsis_7_4 :     LandArea { row = 7; column = 4 }
+CLASS Tharsis_7_5 :     LandArea { row = 7; column = 5 }
+CLASS Tharsis_7_6 :     LandArea { row = 7; column = 6 }
+CLASS Tharsis_7_7 :     LandArea { row = 7; column = 7 }
+CLASS Tharsis_7_8 :     LandArea { row = 7; column = 8; Tile<This>: Plant }
+CLASS Tharsis_7_9 :     LandArea { row = 7; column = 9 }
+
+CLASS Tharsis_8_4 :     LandArea { row = 8; column = 4; Tile<This>: 2 Steel }
+CLASS Tharsis_8_5 :     LandArea { row = 8; column = 5 }
+CLASS Tharsis_8_6 :     LandArea { row = 8; column = 6; Tile<This>: ProjectCard }
+CLASS Tharsis_8_7 :     LandArea { row = 8; column = 7; Tile<This>: ProjectCard }
+CLASS Tharsis_8_8 :     LandArea { row = 8; column = 8 }
+CLASS Tharsis_8_9 :     LandArea { row = 8; column = 9; Tile<This>: Titanium }
+
+CLASS Tharsis_9_5 :     LandArea { row = 9; column = 5; Tile<This>: Steel }
+CLASS Tharsis_9_6 :     LandArea { row = 9; column = 6; Tile<This>: 2 Steel }
+CLASS Tharsis_9_7 :     LandArea { row = 9; column = 7 }
+CLASS Tharsis_9_8 :     LandArea { row = 9; column = 8 }
+CLASS Tharsis_9_9 :    WaterArea { row = 9; column = 9; Tile<This>: 2 Titanium }

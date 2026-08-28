@@ -1,6 +1,22 @@
 # Reconstructing recorded over-the-board games
 
-> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+> **Read when:** reconstructing a physical game from mixed evidence such as audio, photographs, and
+> player-board resource records.
+>
+> **Skip when:** the primary evidence is a herokuapp log; use
+> [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md). For routine tests, use
+> [TESTING.md](TESTING.md).
+>
+> **Status:** replay procedure.
+
+## Code entry points
+
+- [`AbstractFullGameTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
+  — inspect shared chronology, checkpoint, and endgame helpers.
+- [`OtbGame20260818Test.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/OtbGame20260818Test.kt)
+  — consult only as a syntax example after independently inventorying the new game's evidence.
+- [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
+  search for `exMachina` only when an evidenced physical error needs direct reconciliation.
 
 This procedure covers live physical games reconstructed from mixed evidence such as an audio
 transcript, player-board resource logs, and photographs. It supplements the shared whole-game rules
@@ -33,7 +49,9 @@ procedure here and game-specific uncertainties in the source inventory or tempor
 Evidence in a physical game is complementary rather than interchangeable:
 
 - A transcript proves the order and content of clearly spoken actions. It may omit silent
-  bookkeeping, mishear card names, or faithfully record a player's mistaken arithmetic.
+  bookkeeping, mishear card names, or faithfully record a player's mistaken arithmetic. Never
+  trust a guess about who is speaking: establish the player from that player's ledger first, then
+  use the transcript to interpret the ledger-backed action.
 - A player-board log proves stable personal resources and production at its recorded checkpoints.
   Fine-grained entry grouping may reflect data-entry timing rather than action chronology.
 - A board photograph proves visible point-in-time state: board tiles, tracks, colonies, cards,
@@ -60,9 +78,9 @@ the physical map. Then map:
 
 Settle the assertion contract before implementation. A useful default is:
 
-- all six resources and all six production values at every sourced generation boundary, after
+- all six resources and all six production values at every sourced generation checkpoint, after
   automatic transition work and before the first `buyCards()`;
-- `assertSidebar()` at the same boundary when the evidence records global state;
+- `assertSidebar()` at the same checkpoint when the evidence records global state;
 - intermediate balance assertions where the source records them, especially before frequently
   changing M€ becomes hard to localize;
 - photo-backed tableau tags, card-front counts, tile counts, card resources, and other clearly
@@ -81,24 +99,25 @@ passes, production, world-government and colony phases, final production, final 
 scoring. Preserve every clearly ordered operation. Do not reorder actions to eliminate a mismatch.
 If the sources instead show an illegal physical action cadence that the workflow cannot represent,
 do not silently change ownership or invent a missing action. Isolate an extra action's evidenced
-state change at its exact boundary when possible; otherwise make the smallest chronology distortion
+state change at its exact checkpoint when possible; otherwise make the smallest chronology distortion
 and say exactly what moved and why. Record the missing general mechanism in `TODO.md`.
 
-Follow the current full-game test style rather than copying an old revision:
+Follow the current full-game test style instead of copying an old revision:
 
 - define `override val config = GameConfig(...)` with player-name arguments;
 - resolve gameplay objects with `game.tfm(Player.PLAYERn)`;
 - import and pass card-name constants rather than string card names;
 - use named `buyCards()`/`discard()` calls when the source identifies cards, opting into
   `CardTrackingFullGameTest` only when the evidence can sustain exact hand tracking;
-- use `player.turn { ... }` for ordinary multiplayer turns and put both Preludes in one turn block;
+- use `player.turn { ... }` for routine multiplayer turns and put both Preludes in one turn block;
 - once other players have passed, keep the remaining player's actions through `pass()` in one block
   when the workflow permits; and
 - keep literal source comments immediately beside the operation they prove.
 
-Transcript comments may normalize filler and repetition while retaining gameplay-relevant
-personality, uncertainty, corrections, and admitted mistakes. If a spoken consequence is provably
-wrong, preserve the useful quote with `[sic]` and assert the stronger evidence separately. Put a
+Preserve gameplay-bearing transcript lines verbatim beside the operations they support. Omit only
+speech that provides no gameplay information; do not replace primary evidence with a paraphrase.
+Retain uncertainty, corrections, and admitted mistakes. If a spoken consequence is provably wrong,
+preserve the useful quote with `[sic]` and assert the stronger evidence separately. Put a
 photograph's exact local filename at its timeline anchor.
 
 ## Work checkpoint to checkpoint
@@ -125,7 +144,7 @@ accumulate guesses until a later snapshot happens to pass.
 the transcript explicitly says it changed, when an interesting automatic or cross-player effect is
 not obvious from the call, or when localizing a residual between authoritative checkpoints.
 
-Do not restate an explicit payment argument, literal `doTask()`, or incidental movement merely to
+Do not restate an explicit payment argument, literal `doTask()`, or incidental movement just to
 make the expectation exhaustive. Use a nearby absolute assertion when a source gives an absolute
 amount. Prefer general types such as `Microbe` and `Animal` unless the destination is ambiguous, and
 use typed zeroes when cancellation or the absence of a narrated result matters. Expectations are
@@ -134,21 +153,27 @@ net effects, so they may differ from spoken gross effects.
 When new expectations explain a mismatch, reassess every existing manual adjustment. Better
 localization often proves that a repair should move, shrink, or disappear.
 
+Do not put an expectation on `exMachina()` simply to restate the adjustment. Start at the
+reconciliation, identify the affected type, and walk backward over the real gameplay operations
+that could have changed it. Put partial expectations for that type on those operations until the
+remaining unexplained delta is bounded at its actual source. For example, a plant reconciliation
+calls for plant expectations on the preceding card plays, placements, and actions.
+
 ## Represent physical mistakes honestly
 
-`exMachina()` means the physical table reached an evidenced state that ordinary correct engine play
+`exMachina()` means the physical table reached an evidenced state that correct engine play
 does not produce. It is not a general test-unblocking tool.
 
 Before retaining one, verify chronology and phase transitions, reconcile the source interval, add
 expectations for affected types, distinguish corrected mistakes from persistent ones, and check for
 an engine or test defect. Use an explicit relative delta. Put it at the causal action only when
 the evidence proves that placement; otherwise place it as late as the next sourced checkpoint
-allows. Keep it as a standalone timeline statement with a comment naming the source boundary that
+allows. Keep it as a standalone timeline statement with a comment naming the source checkpoint that
 requires it. Never use `sneak`, an absolute snapshot setter, a catch-all repair, or an unrelated
 action lambda as a hiding place.
 
 If Solarnet lacks a real component, represent only its known sourced consequences at the correct
-boundary, state that support is missing, and record a reusable follow-up in `TODO.md`. Never add a
+point, state that support is missing, and record a reusable follow-up in `TODO.md`. Never add a
 component-specific test API.
 
 ## Treat photographs and endgame as first-class evidence
@@ -173,7 +198,7 @@ Before handoff:
 2. audit operations and comments against transcript order;
 3. trace every assertion to a named source or label it as characterization;
 4. justify every `exMachina()` and search once more for a natural explanation;
-5. confirm endgame workflow and scoring, not merely compilation;
+5. confirm endgame workflow and scoring, not just compilation;
 6. run the focused JVM test, the suite required by [TESTING.md](TESTING.md), formatting, and
    `git diff --check`; and
 7. inspect the final diff for game-specific helpers, accidental production changes, and stale

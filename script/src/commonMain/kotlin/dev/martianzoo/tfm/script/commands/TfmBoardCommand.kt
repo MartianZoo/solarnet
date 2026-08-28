@@ -1,17 +1,17 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.tfm.api.ApiUtils
+import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
 import dev.martianzoo.tfm.script.TfmColor.HEAT
-import dev.martianzoo.tfm.script.TfmColor.MEGACREDIT
+import dev.martianzoo.tfm.script.TfmColor.MC
 import dev.martianzoo.tfm.script.TfmColor.PLANT
 import dev.martianzoo.tfm.script.TfmColor.STEEL
 import dev.martianzoo.tfm.script.TfmColor.TITANIUM
@@ -48,7 +48,7 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
       fun prodAndResource(s: String) =
           prodMap[cn(s)].toString() to resourceMap[cn(s)].toString().padStart(3)
 
-      val (mp, mres) = prodAndResource("Megacredit")
+      val (mp, mres) = prodAndResource("MC")
       val (sp, sres) = prodAndResource("Steel")
       val (tp, tres) = prodAndResource("Titanium")
       val (pp, pres) = prodAndResource("Plant")
@@ -64,7 +64,7 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
 
       fun maybeColor(c: TfmColor, s: String) = if (useColors) c.foreground(s) else s
 
-      val megac = maybeColor(MEGACREDIT, "M: $mres")
+      val megac = maybeColor(MC, "M: $mres")
       val steel = maybeColor(STEEL, "S: $sres")
       val titan = maybeColor(TITANIUM, "T: $tres")
       val plant = maybeColor(PLANT, "P: $pres")

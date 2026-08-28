@@ -1,14 +1,15 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.pets.util.toStrings
+import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.canonicalPremise
-import dev.martianzoo.types.te
-import dev.martianzoo.util.toStrings
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -16,7 +17,7 @@ import kotlin.test.Test
 
 internal class SimpleAddsRemovesTest {
   @Test
-  fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
+  internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
 
@@ -26,17 +27,17 @@ internal class SimpleAddsRemovesTest {
   }
 
   @Test
-  fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
+  internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
     val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2).godMode()
 
     shouldThrow<LimitsException> { p2.manual("-Plant") }
   }
 
   @Test
-  fun manualPreservesTasksThatWereAlreadyPending() {
+  internal fun manualPreservesTasksThatWereAlreadyPending() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
-    val pendingTask = p2.addTasks("StandardResource").single()
+    val pendingTask = p2.addTasks("StandardResource?").single()
 
     p2.manual("Heat")
 
@@ -45,17 +46,17 @@ internal class SimpleAddsRemovesTest {
   }
 
   @Test
-  fun manualRejectsAPreparedTask() {
+  internal fun manualRejectsASelectedTask() {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
-    val pendingTask = p2.addTasks("StandardResource").single()
-    p2.prepareTask(pendingTask)
+    val pendingTask = p2.addTasks("StandardResource?").single()
+    p2.selectTask(pendingTask)
 
     shouldThrow<TaskException> { p2.manual("Heat") }
   }
 
   @Test
-  fun basicByApi() {
+  internal fun basicByApi() {
     val game = Engine.newGame(canonicalPremise())
 
     val checkpoint = game.timeline.checkpoint()
@@ -90,11 +91,19 @@ internal class SimpleAddsRemovesTest {
     changes
         .map { it.change }
         .shouldContainExactly(
-            StateChange(5, gaining = te("Heat<Player2>")),
-            StateChange(10, gaining = te("Heat<Player1>")),
-            StateChange(4, removing = te("Heat<Player2>")),
-            StateChange(3, gaining = te("Steel<Player1>"), removing = te("Heat<Player1>")),
-            StateChange(2, gaining = te("Heat<Player2>"), removing = te("Heat<Player1>")),
+            StateChange(5, gaining = parse<Expression>("Heat<Player2>")),
+            StateChange(10, gaining = parse<Expression>("Heat<Player1>")),
+            StateChange(4, removing = parse<Expression>("Heat<Player2>")),
+            StateChange(
+                3,
+                gaining = parse<Expression>("Steel<Player1>"),
+                removing = parse<Expression>("Heat<Player1>"),
+            ),
+            StateChange(
+                2,
+                gaining = parse<Expression>("Heat<Player2>"),
+                removing = parse<Expression>("Heat<Player1>"),
+            ),
         )
 
     strip(changes.toStrings().map { it.replace(Regex("^\\d+"), "") })

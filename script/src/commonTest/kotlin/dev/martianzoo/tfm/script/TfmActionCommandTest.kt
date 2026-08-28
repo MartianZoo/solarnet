@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 
 internal class TfmActionCommandTest {
   @Test
-  fun `tfm action selects the standard action and uses the requested card action`() {
+  internal fun `tfm action selects the standard action and uses the requested card action`() {
     val repl = actionGame("PROD[Energy], AiCentral")
 
     val output = repl.command("tfm_action AiCentral 1")
@@ -17,13 +17,13 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action continues a use card action already underway`() {
+  internal fun `tfm action continues a use card action already underway`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("become Player1")
     repl.gameplay.godMode().manual("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.gameplay.godMode().beginManual("UseAction1<UseCardActionSA>")
+    repl.gameplay.godMode().beginManual("UseAction<UseCardActionSA, First>")
     repl.command("auto safe")
 
     val output = repl.command("tfm_action AiCentral 1")
@@ -32,26 +32,26 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action forwards inline payment through an accept workflow`() {
-    val repl = actionGame("WaterImportFromEuropa, 12")
+  internal fun `tfm action forwards inline payment through an accept workflow`() {
+    val repl = actionGame("WaterImportFromEuropa, 12 MC")
 
-    val output = repl.command("tfm_action WaterImportFromEuropa 1, 12")
+    val output = repl.command("tfm_action WaterImportFromEuropa 1, 12 MC")
 
     assertEquals(
         1,
         repl.gameplay.count("ActionUsedMarker<WaterImportFromEuropa>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("Megacredit"))
+    assertEquals(0, repl.gameplay.count("MC"))
     assertEquals(0, repl.gameplay.count("Owed"))
     assertTrue(repl.command("tasks").any { "OceanTile" in it })
   }
 
   @Test
-  fun `tfm action selects an alternative direct removal cost`() {
+  internal fun `tfm action selects Electro Catapult's steel action`() {
     val repl = actionGame("PROD[Energy], ElectroCatapult, Plant, Steel")
 
-    val output = repl.command("tfm_action ElectroCatapult 1, 1 Steel")
+    val output = repl.command("tfm_action ElectroCatapult 2, 1 Steel")
 
     assertEquals(
         1,
@@ -60,11 +60,11 @@ internal class TfmActionCommandTest {
     )
     assertEquals(1, repl.gameplay.count("Plant"))
     assertEquals(0, repl.gameplay.count("Steel"))
-    assertEquals(7, repl.gameplay.count("Megacredit"))
+    assertEquals(7, repl.gameplay.count("MC"))
   }
 
   @Test
-  fun `tfm action binds a variable direct removal cost`() {
+  internal fun `tfm action binds a variable invoice cost`() {
     val repl = actionGame("PowerInfrastructure, 5 Energy")
 
     val output = repl.command("tfm_action PowerInfrastructure 1, 5 Energy")
@@ -75,26 +75,26 @@ internal class TfmActionCommandTest {
         output.joinToString("\n"),
     )
     assertEquals(0, repl.gameplay.count("Energy"))
-    assertEquals(5, repl.gameplay.count("Megacredit"))
+    assertEquals(5, repl.gameplay.count("MC"))
   }
 
   @Test
-  fun `tfm action binds a multiplied variable direct removal cost`() {
-    val repl = actionGame("EnergyMarket, 6", "BRPX")
+  internal fun `tfm action binds a multiplied variable invoice cost`() {
+    val repl = actionGame("EnergyMarket, 6 MC", "BRPX")
 
-    val output = repl.command("tfm_action EnergyMarket 1, 6")
+    val output = repl.command("tfm_action EnergyMarket 1, 6 MC")
 
     assertEquals(
         1,
         repl.gameplay.count("ActionUsedMarker<EnergyMarket>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("Megacredit"))
+    assertEquals(0, repl.gameplay.count("MC"))
     assertEquals(3, repl.gameplay.count("Energy"))
   }
 
   @Test
-  fun `tfm action verifies a fixed direct removal cost`() {
+  internal fun `tfm action pays a fixed invoice cost`() {
     val repl = actionGame("DevelopmentCenter, Energy")
 
     val output = repl.command("tfm_action DevelopmentCenter 1, 1 Energy")
@@ -109,19 +109,22 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  fun `tfm action rolls back when a direct removal does not match the payment`() {
+  internal fun `tfm action rolls back when invoice payment uses the wrong resource`() {
     val repl = actionGame("PROD[Energy], ElectroCatapult, Plant, Energy")
 
     val output = repl.command("tfm_action ElectroCatapult 1, 1 Energy")
 
-    assertTrue(output.single().contains("does not narrow"), output.joinToString("\n"))
+    assertTrue(
+        output.single().contains("there wasn't exactly one matching task"),
+        output.joinToString("\n"),
+    )
     assertEquals(0, repl.gameplay.count("ActionUsedMarker<ElectroCatapult>"))
     assertEquals(1, repl.gameplay.count("Plant"))
     assertEquals(1, repl.gameplay.count("Energy"))
   }
 
   @Test
-  fun `tfm action rejects an invalid action number`() {
+  internal fun `tfm action rejects an invalid action number`() {
     val repl = ScriptSession()
 
     assertTrue(repl.command("tfm_action AiCentral 4").single().startsWith("Usage:"))

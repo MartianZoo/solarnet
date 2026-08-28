@@ -1,9 +1,8 @@
 package dev.martianzoo.tfm.testlib
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -12,6 +11,9 @@ import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.Compact
+import dev.martianzoo.pets.ast.FromExpression.Full
+import dev.martianzoo.pets.ast.FromExpression.Unchanged
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -26,8 +28,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.tfm.data.TfmClasses.PROD
+import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
@@ -39,6 +40,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   constructor(greed: Double = 0.8, backoff: Double = 0.15) : this(scaling(greed, backoff))
 
   private object Registry : RandomGenerator.Registry<PetNode>() {
+    private val mc = cn("MC")
+    private const val productionTransform = "PROD"
+
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
@@ -57,7 +61,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { XScalar(choose(1, 1, 2, 5, 11)) }
       register {
         scaledEx(
-            choose(1 to MEGACREDIT.of(), 3 to recurse<Expression>()),
+            choose(1 to mc.of(), 3 to recurse<Expression>()),
             recurse<Scalar>(),
         )
       }
@@ -76,12 +80,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Metric.Count(recurse()) }
       register { Metric.Constant(choose(1, 3, 5, 11)) }
       register { Metric.Scaled(recurse(), choose(2, 2, 3)) }
-      register { Metric.Max(inner = recurse(), maximum = choose(5, 11)) }
+      register { Metric.Max(inner = recurse(), maximum = Metric.Constant(choose(5, 11))) }
       fun RandomGenerator<PetNode>.metricOperand(): Metric =
           chooseS(4 to { recurse<Metric>() }, 1 to { recurse<Metric.Constant>() })
       register { Metric.Subtract(recurse(), metricOperand()) }
       register { Metric.Or(setOfSize<Metric.Count>(choose(2, 2, 2, 3, 4)).toList()) }
-      register { Metric.Transform(recurse(), PROD) }
+      register { Metric.Transform(recurse(), productionTransform) }
       register { Metric.Eval(Property(PropertyName("score"), recurse())) }
 
       val requirementTypes =
@@ -100,7 +104,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Requirement.Exact(scaledEx = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
-      register { Requirement.Transform(recurse(), PROD) }
+      register { Requirement.Transform(recurse(), productionTransform) }
       register { Requirement.Eval(Property(PropertyName("requirement"), recurse())) }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
@@ -136,10 +140,23 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
       register { Instruction.Or(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { InstructionGroup(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
-      register { Instruction.Transform(recurse(), PROD) }
+      register { Instruction.Transform(recurse(), productionTransform) }
 
       register(FromExpression::class) {
-        FromExpression(recurse(), recurse())
+        chooseS(
+            1 to { Full(recurse(), recurse()) },
+            1 to
+                {
+                  Compact(
+                      cn(randomName()),
+                      listOf(
+                          Unchanged(recurse()),
+                          Full(recurse(), recurse()),
+                          Unchanged(recurse()),
+                      ),
+                  )
+                },
+        )
       }
 
       val basicTriggerTypes =
@@ -173,7 +190,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Trigger.IfTrigger(recurse(), recurse()) }
       register { Trigger.Or(List(choose(2, 2, 3)) { recurse<Trigger>() }) }
       register { Trigger.XTrigger(recurse()) }
-      register { Trigger.Transform(recurse(), PROD) }
+      register { Trigger.Transform(recurse(), productionTransform) }
 
       register { Effect(recurse(), recurse(), choose(true, false)) }
 
@@ -182,7 +199,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               9 to Cost.Spend::class,
               2 to Cost.Gated::class,
               3 to Cost.Per::class,
-              3 to Cost.Or::class,
               2 to Cost.Multi::class,
               2 to Cost.Transform::class,
           )
@@ -190,9 +206,8 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Cost.Spend(scaledEx = recurse()) }
       register { Cost.Gated(recurse(), recurse()) }
       register { Cost.Per(recurse(), recurse()) }
-      register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
-      register { Cost.Transform(recurse(), PROD) }
+      register { Cost.Transform(recurse(), productionTransform) }
 
       register { Action(choose(1 to null, 3 to recurse()), recurse()) }
     }
@@ -230,17 +245,15 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     }
   }
 
-  inline fun <reified T : PetNode> printTestStrings(count: Int) {
-    repeat(count) {
-      println(makeRandomNode<T>())
-    }
+  private inline fun <reified T : PetNode> printTestStrings(count: Int) {
+    repeat(count) { println(makeRandomNode<T>()) }
   }
 
-  inline fun <reified T : PetNode> printTestStringOfEachLength(maxLength: Int) {
+  private inline fun <reified T : PetNode> printTestStringOfEachLength(maxLength: Int) {
     getTestStringOfEachLength<T>(maxLength).forEach(::println)
   }
 
-  inline fun <reified T : PetNode> getTestStringOfEachLength(maxLength: Int): List<String> {
+  private inline fun <reified T : PetNode> getTestStringOfEachLength(maxLength: Int): List<String> {
     require(maxLength >= 20) // just cause
 
     val stringsByLength = mutableMapOf<Int, String>()
@@ -262,7 +275,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     return stringsByLength.keys.sorted().map { stringsByLength.getValue(it) }
   }
 
-  inline fun <reified T : PetNode> uniqueNodes(
+  private inline fun <reified T : PetNode> uniqueNodes(
       count: Int = 100,
       depthLimit: Int = 10,
       stopAtDrySpell: Int = 200,
@@ -281,7 +294,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   }
 }
 
-fun scaling(greed: Double, backoff: Double): (Int) -> Double {
+private fun scaling(greed: Double, backoff: Double): (Int) -> Double {
   require(backoff >= 0)
   require(greed > -1.0)
   require(greed < 1.0)

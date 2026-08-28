@@ -2,7 +2,7 @@ package dev.martianzoo.script
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 
 /** Keeps the REPL's legacy one-letter game-option syntax out of Canon and the engine API. */
 internal object OptionCodeTranslation {
@@ -21,9 +21,7 @@ internal object OptionCodeTranslation {
   ): Setup {
     require(players in 1..5) { "player count must be between 1 and 5" }
     val codes = optionCodes.asIterable().map(Char::toString).toSetStrict()
-    require(optionsByCode.containsAll(codes)) {
-      "supported option codes are: $optionsByCode"
-    }
+    require(optionsByCode.containsAll(codes)) { "supported option codes are: $optionsByCode" }
     require("B" in codes) { "include B for the base game" }
     val selectedMapBundles = codes.intersect(bundleDefaultMapOptions.keys)
     require(selectedMapBundles.size <= 1) {
@@ -32,10 +30,7 @@ internal object OptionCodeTranslation {
 
     val options = buildSet {
       add(TERRAFORMING_MARS)
-      add(
-          selectedMapBundles.singleOrNull()?.let(bundleDefaultMapOptions::getValue)
-              ?: THARSIS_MAP_OPTION
-      )
+      add(selectedMapBundles.singleOrNull()?.let(bundleDefaultMapOptions::getValue) ?: THARSIS_MAP)
       codes.mapNotNullTo(this) { positiveOptions[it] }
     }
     val excludedOptions = if (CORPORATE_ERA in options) emptySet() else setOf(CORPORATE_ERA)
@@ -59,18 +54,17 @@ internal object OptionCodeTranslation {
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val CORPORATE_ERA = cn("CorporateEraExpansion")
-  private val THARSIS_MAP_OPTION = cn("TharsisMapOption")
+  private val THARSIS_MAP = cn("TharsisMap")
 
   private val bundleDefaultMapOptions =
       linkedMapOf(
-          "H" to cn("HellasMapOption"),
-          "U" to cn("UtopiaPlanitiaMapOption"),
+          "H" to cn("HellasMap"),
+          "U" to cn("UtopiaMap"),
       )
 
   private val positiveOptions =
       mapOf(
           "R" to CORPORATE_ERA,
-          "M" to cn("MilestonesAwardsExpansion"),
           "V" to cn("VenusNextExpansion"),
           "P" to cn("PreludeExpansion"),
           "C" to cn("ColoniesExpansion"),
@@ -78,7 +72,7 @@ internal object OptionCodeTranslation {
           "X" to cn("PromoCardPack"),
       )
 
-  private val optionsByCode = linkedSetOf("B", "R", "M", "H", "U", "V", "P", "C", "T", "X")
+  private val optionsByCode = linkedSetOf("B", "R", "H", "U", "V", "P", "C", "T", "X")
 
   private val optionByCode = optionsByCode.associateWith { code ->
     when (code) {

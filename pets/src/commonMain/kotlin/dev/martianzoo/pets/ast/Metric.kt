@@ -8,9 +8,9 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import kotlin.math.min
 
 /**
@@ -52,7 +52,11 @@ public sealed class Metric : PetElement() {
         is Constant -> value
         is Property -> readProperty(this)
         is Scaled -> inner.evaluate(count, readProperty, countUnion) / unit
-        is Max -> min(inner.evaluate(count, readProperty, countUnion), maximum)
+        is Max ->
+            min(
+                inner.evaluate(count, readProperty, countUnion),
+                maximum.evaluate(count, readProperty, countUnion),
+            )
         is Subtract ->
             maxOf(
                 minuend.evaluate(count, readProperty, countUnion) -
@@ -81,11 +85,10 @@ public sealed class Metric : PetElement() {
     override fun precedence(): Int = 12
   }
 
-  /** A fixed positive subtrahend. */
-  @ConsistentCopyVisibility
-  public data class Constant internal constructor(val value: Int) : Metric() {
+  /** A fixed non-negative value. */
+  public data class Constant public constructor(val value: Int) : Metric() {
     init {
-      if (value < 1) throw PetSyntaxException("metric constant can't be zero")
+      require(value >= 0)
     }
 
     override fun visitChildren(visitor: Visitor): Unit = Unit
@@ -109,25 +112,22 @@ public sealed class Metric : PetElement() {
     override fun precedence(): Int = 11
   }
 
-  public data class Max(val inner: Metric, val maximum: Int) : Metric() {
+  /** Caps [inner] at the value of [maximum]. */
+  public data class Max(val inner: Metric, val maximum: Metric) : Metric() {
     init {
-      require(maximum >= 0)
       if (inner is Max) throw PetSyntaxException("what are you even doing")
     }
 
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, maximum)
 
-    override fun toString(): String = "${groupPartIfNeeded(inner)} MAX $maximum"
+    override fun toString(): String =
+        "${groupPartIfNeeded(inner)} MAX ${groupPartIfNeeded(maximum)}"
 
     override fun precedence(): Int = 10
   }
 
   /** Subtracts two Metric values, saturating at zero so Metrics remain non-negative. */
   public data class Subtract(val minuend: Metric, val subtrahend: Metric) : Metric() {
-    init {
-      if (minuend is Constant) throw PetSyntaxException("metric constant can only be subtracted")
-    }
-
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(minuend, subtrahend)
 
     override fun toString(): String {
@@ -166,7 +166,7 @@ public sealed class Metric : PetElement() {
         }
       }
 
-      internal fun create(first: Metric, vararg rest: Metric) =
+      private fun create(first: Metric, vararg rest: Metric) =
           if (rest.none()) first else create(listOf(first) + rest)
     }
 
@@ -205,9 +205,8 @@ public sealed class Metric : PetElement() {
 
     fun subtractionParser(): Parser<Metric> {
       return parser {
-        val subtrahend = atomParser() or (rawScalar map ::Constant)
         atomParser() and
-            zeroOrMore(skipChar('-') and subtrahend) map
+            zeroOrMore(skipChar('-') and atomParser()) map
             { (first, rest) ->
               rest.fold(first, ::Subtract)
             }
@@ -230,11 +229,13 @@ public sealed class Metric : PetElement() {
         val scaled: Parser<Metric> =
             rawScalar and nonconstant map { (unit, met) -> scaled(met, unit) }
 
-        val primary: Parser<Metric> = scaled or nonconstant
+        val constant: Parser<Metric> = rawScalar map ::Constant
+
+        val primary: Parser<Metric> = scaled or nonconstant or constant
 
         val max: Parser<Metric> =
             primary and
-                optional(skip(_max) and rawScalar) map
+                optional(skip(_max) and primary) map
                 { (met, limit) ->
                   limit?.let { Max(met, it) } ?: met
                 }

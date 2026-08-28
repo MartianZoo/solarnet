@@ -1,0 +1,12 @@
+{
+  "cards": [
+
+    {
+      "name": "Aridor",
+      "deck": "CORPORATION",
+      "immediate": "40, Mandate { -> ColonyTileSelection }",
+      "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1 MC]" ],
+    },
+
+  ],
+}

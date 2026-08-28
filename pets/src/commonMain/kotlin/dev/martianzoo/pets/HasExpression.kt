@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.util.toSetStrict
 
 /** Any object that can be represented in some way as an [Expression]. */
 public interface HasExpression {
@@ -15,7 +15,7 @@ public interface HasExpression {
   public companion object {
     public fun Iterable<HasExpression>.expressions(): List<Expression> = map { it.expression }
 
-    internal fun Sequence<HasExpression>.expressions(): Sequence<Expression> = map { it.expression }
+    public fun Sequence<HasExpression>.expressions(): Sequence<Expression> = map { it.expression }
 
     public fun Set<HasExpression>.expressions(): Set<Expression> = toSetStrict { it.expression }
   }

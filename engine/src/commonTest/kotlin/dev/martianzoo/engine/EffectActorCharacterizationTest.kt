@@ -1,20 +1,20 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.DeadEndException
-import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.TestOption.*
-import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class EffectActorCharacterizationTest {
+internal class EffectActorCharacterizationTest {
   @Test
-  fun playersCannotCreateSystemComponents() {
+  internal fun playersCannotCreateSystemComponents() {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
@@ -25,23 +25,22 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun noActorCanRemoveModules() {
+  internal fun noActorCanRemoveModules() {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
-    assertFailsWith<LimitsException> { player.manual("-TharsisMapOption") }
-    player.count("TharsisMapOption") shouldBe 1
+    assertFailsWith<LimitsException> { player.manual("-TharsisMap") }
+    player.count("TharsisMap") shouldBe 1
 
-    assertFailsWith<LimitsException> {
-      game.gameplay(ENGINE).godMode().manual("-TharsisMapOption")
-    }
-    player.count("TharsisMapOption") shouldBe 1
+    assertFailsWith<LimitsException> { game.gameplay(ENGINE).godMode().manual("-TharsisMap") }
+    player.count("TharsisMap") shouldBe 1
   }
 
   @Test
-  fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
-    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, players = 2))
+  internal fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
+    val game = Engine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    engine.manual("Photosynthesis")
     val checkpoint = game.timeline.checkpoint()
 
     engine.beginManual("GreeneryTile<Player1, Elysium_9_8>") {
@@ -57,7 +56,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
+  internal fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
@@ -74,7 +73,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun byOwnerEffectDoesNotTreatEngineAsAnOwner() {
+  internal fun byOwnerEffectDoesNotTreatEngineAsAnOwner() {
     val game = Engine.newGame(canonicalPremise())
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = engine.count("TerraformRating")

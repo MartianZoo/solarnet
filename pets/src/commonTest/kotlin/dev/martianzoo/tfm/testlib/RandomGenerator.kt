@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.testlib
 
-import dev.martianzoo.util.Multiset
+import dev.martianzoo.pets.util.Multiset
 import kotlin.enums.enumEntries
 import kotlin.math.PI
 import kotlin.math.min

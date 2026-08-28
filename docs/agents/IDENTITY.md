@@ -1,7 +1,27 @@
 # Context, assignment, and actor identity
 
-**Status:** The first four sections describe committed behavior. “Target delegation model” is a
-proposal.
+> **Read when:** changing context specialization, event Actor attribution, task queue assignment,
+> `BY`, selection-time delegated narrowing, Philares, or Engine-selected hidden cards.
+>
+> **Skip when:** changing ownership as a Type dependency without task routing or attribution; read
+> the dependency sections of [TYPES.md](TYPES.md).
+>
+> **Status:** “Four identities” through “Current task assignment” describe committed behavior.
+> “Target delegation model” and “Proposed first slice” are unimplemented.
+
+## Source map
+
+- [`Identities.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Identities.kt) — search
+  for `public sealed interface Actor` for the operation identity mechanism.
+- [`Task.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Task.kt) — inspect `assignee`
+  and `actor` before changing queued work.
+- [`LiveEffect.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/LiveEffect.kt) — search
+  for `assignee` to see trigger-time routing.
+- [`EffectActorCharacterizationTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
+  and [`TaskAssignmentCharacterizationTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
+  — read before changing current Actor or assignment semantics.
+- [`BugsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/BugsTest.kt) —
+  search for `Philares` for the characterized delegation gap.
 
 ## Four identities
 
@@ -32,7 +52,7 @@ the surrounding execution Actor. Instruction-side `BY` explicitly overrides the 
 
 The default binds when work is produced. A pending or queued task remembers its future Actor in
 `Task.actor`; later execution through another gameplay scope does not steal attribution. Splitting,
-revision, preparation, and `THEN` continuation preserve it.
+narrowing, resolution, and `THEN` continuation preserve it.
 
 A `ChangeEvent` records that Actor. Trigger-side `BY` inspects only the event's Actor. This is why
 stealing a victim's heat is still an action by the attacker.
@@ -51,20 +71,28 @@ For queued triggered work, `LiveEffect` chooses the assignee in this order:
 It chooses the context owner as Actor when present and otherwise keeps the triggering Actor.
 Automatic effects use the same Actor but execute inline without entering a queue.
 
-This compatibility rule supports current Philares, Enceladus, Splice, Icy Impactors, and World
-Government Terraforming behavior, but it is not a complete semantic model of control.
+This compatibility rule supports parts of the current Enceladus, Splice, Icy Impactors, and World
+Government Terraforming behavior, but it is not a complete semantic model of control. In
+particular, it does not implement the required Philares control sequence. It incorrectly assigns
+Philares's resource choice to the corporation owner as soon as the adjacency occurs and lets the
+active Player continue other work while that choice remains unresolved. Passing characterizations
+of both defects live in `BugsTest`.
 
 ## Target delegation model
 
 A task may eventually need three independently varying operational roles:
 
 - **controller:** chooses which instruction in the surrounding operation proceeds;
-- **narrower:** resolves choices inside that instruction; and
+- **narrower:** supplies choices inside that instruction; and
 - **future Actor:** receives event attribution unless instruction-side `BY` overrides it.
 
-The target is for a controller to retain an abstract parent task. Preparing it may discover that a
-different narrower is required, create a child choice in that Actor's queue, suspend the parent, and
-resume it when the child becomes concrete.
+The target is for a controller to retain an abstract parent task and decide exactly when to select
+it. Resolution may discover that a different narrower is required, create an already-selected child
+choice in that Actor's queue, and suspend the parent. The delegate does not make a second task
+selection; it only narrows the choice exposed by the controller's selection. While the child is
+outstanding, the controller cannot execute other tasks in that control scope. Narrowing the child
+supplies the parent's narrowing, removes the block, and resumes the parent. Delegation changes
+narrowing authority; it does not silently replace the future Actor.
 
 Examples that constrain the design:
 
@@ -74,6 +102,7 @@ Examples that constrain the design:
 | Enceladus bonuses | Active trader orders bonuses | Each colony owner chooses their card | Each colony owner |
 | Icy Impactors | Card owner | StartToken owner chooses an ocean | Card owner via explicit `BY` |
 | World Government Terraforming | Engine workflow | StartToken owner | Engine via explicit `BY Engine` |
+| Real-card deal | Player controlling the draw operation | Engine | Originating task's Actor |
 | Steal | Attacker | Attacker | Attacker |
 | Homeostasis Bureau | Surrounding operation controller | No choice | Card owner |
 | Pharmacy Union | Operation that produced the Microbe tag | No choice | Pharmacy Union owner |
@@ -81,13 +110,27 @@ Examples that constrain the design:
 `!Owner` is a complement Type and has nothing to do with either form of `BY` or postfix
 instruction `!`.
 
+Philares is the primary sequencing constraint. The active Player controls a pending resource task
+caused by that Player's placement and may select other eligible siblings before it. Once the active
+Player selects that task, resolution delegates its resource choice to the Philares owner. The active
+Player can do no more work in the scope until the Philares owner narrows the choice and receives the
+resource. Assigning the reward directly to the Philares owner at trigger time is not an acceptable
+approximation because it transfers control too early.
+
+Real-card dealing uses the same interface. A Player controls when an abstract
+`ProjectCard<Player, Hand>` gain is selected. Resolution delegates the remaining exact-face
+narrowing to Engine, which derives the only lawful face from the seed and event history. The Player
+cannot nominate a face, and cannot continue within the suspended scope while the delegated child is
+outstanding.
+
 Do not redesign attribution while implementing delegation. First characterize a synthetic
 parent/child handoff and preserve every existing Actor test.
 
 ## Proposed first slice
 
-**Not implemented.** Characterize preparation-time handoff with a synthetic parent/child task, then
-apply it to Philares without changing either form of `BY` or future-Actor attribution. The next
-design constraint is Enceladus: the active trader must order two other Players' bonuses while those
-Players narrow their own instructions. A solution that handles Philares by transferring the whole
-operation to its owner is therefore incomplete.
+**Not implemented.** The two passing Philares characterizations in `BugsTest` prove the current
+incorrect behavior. Implement a synthetic parent/child handoff, invert those characterizations into
+the desired behavioral suite, and preserve both forms of `BY` and future-Actor attribution. The
+next design constraints are real-card dealing and Enceladus: the active trader must order two other
+Players' bonuses while those Players narrow their own instructions. A solution that transfers the
+whole operation to a delegate is therefore incomplete.

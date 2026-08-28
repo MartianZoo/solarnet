@@ -1,6 +1,20 @@
 # Monotonicity in optimal solo play
 
-**Status: research note.**
+> **Read when:** working on TR63 exact/conservative optimization, standard-resource monotonicity, or
+> the associated report tool.
+>
+> **Skip when:** implementing ordinary solo rules or evaluating general AI-player architecture.
+>
+> **Status:** research note; no optimizer is implemented.
+
+## Source map
+
+- [`StandardResourceMonotonicityReport.kt`](../../tools/src/main/kotlin/dev/martianzoo/tools/StandardResourceMonotonicityReport.kt)
+  — search for `fun main` to inspect the implemented catalog report.
+- [`SoloGenerationCountdownTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
+  — read only when a proposed optimization depends on committed TR63 timing.
+- [Terraforming Mars `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/cards.pets)
+  — search for a named counterexample such as `Factorum` before relying on the analysis.
 
 This note develops one facet of exact or conservative optimization for the TR63 solo variant. It
 does not describe an implemented optimizer. The immediate goal is to recognize when an additional
@@ -17,20 +31,20 @@ reshuffled is outside the problem and is discarded rather than evaluated.
 Open-deck and hidden-deck play are different problems:
 
 - In open-deck play, deck contents and order are part of the known state. “Best attainable score”
-  has an ordinary exact meaning.
+  has an exact meaning.
 - In hidden-deck play, the player knows only a set or distribution of possible deck orders. We must
   eventually choose whether “best” means best expected score, best guaranteed score, or something
   else. Structural conclusions that hold for every possible deck do not depend on that later choice.
 
-At the client boundary, every ordinary method call both begins and ends with a nonempty player task
+At the client interface, every method call both begins and ends with a nonempty player task
 queue. Starting and finishing the game are the exceptions. The engine may pass through an idle world
 internally, but that state is not observable through this interface. Each client-visible decision is
 therefore one of:
 
-1. choosing which queued task to prepare; or
-2. choosing a concrete narrowing of that task.
+1. selecting one queued task; or
+2. narrowing the selected task, possibly one sub-Specification at a time.
 
-Preparation, execution, triggered effects, and other forced processing after a choice can be viewed
+Resolution, execution, triggered effects, and other forced processing after a choice can be viewed
 as its automatic consequences. The optimizer branches only where the client can choose.
 
 ## Three claims that must not be confused
@@ -44,7 +58,7 @@ claim: adding more `E` can leave the optimum unchanged or raise it, but cannot l
 
 There are three useful strengths of this claim:
 
-- **Catalog-wide:** it holds for every relevant premise and state in the Authority.
+- **Catalog-wide:** it holds for every relevant premise and state in the Catalog.
 - **Premise-wide:** it holds after fixing one `GamePremise`; excluded classes can no longer supply
   counterexamples.
 - **State-conditional:** it holds from one state because every remaining way to create a problematic
@@ -183,10 +197,10 @@ The current canon contains exactly four card effects whose Pets expression creat
 - **Corroder Suits** requires a Venus-tagged target.
 - **Maxwell Base** also requires a Venus-tagged target.
 
-Thus **no card in the currently modeled Solarnet Authority** meets all three requested conditions:
+Thus **no card in the currently modeled Solarnet Catalog** meets all three requested conditions:
 generic resource type, freely chosen target card, and neither an existing-resource nor Venus-tag
 requirement. This is deliberately scoped to modeled content; Prelude 2 and any later official
-material cannot be claimed from an Authority that does not contain them. Applied Science would not
+material cannot be claimed from a Catalog that does not contain them. Applied Science would not
 fill the gap in any event because its target must already have a resource.
 
 ## Safe simplification of the decision tree
@@ -208,7 +222,7 @@ have been taken first.
 
 For each component type, a useful report should contain:
 
-1. the scope: Authority-wide, premise-wide, or one current state;
+1. the scope: Catalog-wide, premise-wide, or one current state;
 2. the status: certified, conditional, counterexample, or not yet certified;
 3. every remaining blocker and the rule that makes it hazardous;
 4. why each discharged blocker is impossible;
@@ -217,4 +231,4 @@ For each component type, a useful report should contain:
 
 This retains the attractive simplicity of monotonic reasoning without pretending that the full card
 catalog is simple. The optimizer may make aggressive reductions where it has a certificate and fall
-back to ordinary branching everywhere else.
+back to branching everywhere else.

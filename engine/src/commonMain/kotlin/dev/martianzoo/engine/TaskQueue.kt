@@ -1,15 +1,15 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Task
-import dev.martianzoo.data.Task.TaskId
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * Contains tasks: what the game is waiting on someone to do. Each task has an assignee, currently
@@ -53,8 +53,8 @@ internal constructor(
   /** Returns the results of executing a function against every task in the queue. */
   public fun <T> extract(extractor: (Task) -> T): List<T> = filtered().map(extractor)
 
-  /** Returns the id of the task marked with [Task.next] if there is one. */
-  public fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
+  /** Returns the id of the selected task if there is one. */
+  public fun selectedTask(): TaskId? = filtered().firstOrNull { it.selected }?.id
 
   /** Returns true if no queue has any tasks. */
   internal fun areAllQueuesEmpty(): Boolean = taskQueues.getAllTaskData().none()
@@ -88,13 +88,13 @@ internal constructor(
     return taskQueues.removeTask(id)
   }
 
-  internal fun editTask(newTask: Task): TaskEditedEvent? {
+  public fun editTask(newTask: Task): TaskEditedEvent? {
     validateAssignee(newTask)
     validateAssignee(getTaskData(newTask.id))
     return taskQueues.editTask(newTask)
   }
 
-  internal fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
+  public fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
 
   internal fun queueFor(assignee: Actor): TaskQueue = taskQueues[assignee]
 

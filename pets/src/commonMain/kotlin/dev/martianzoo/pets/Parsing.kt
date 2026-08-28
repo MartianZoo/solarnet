@@ -6,27 +6,31 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.api.Exceptions.NoNewClassDeclarationsException
-import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ClassParsing.Declarations
 import dev.martianzoo.pets.PetTokenizer.TokenCache
+import dev.martianzoo.pets.api.Exceptions.NoNewClassDeclarationsException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
-import dev.martianzoo.util.ParserGroup
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.util.ParserGroup
 import kotlin.reflect.KClass
 
 /** Various functions for parsing [PetElement]s or [ClassDeclaration]s from text. */
@@ -36,13 +40,15 @@ public object Parsing {
    * examples can be reviewed in `global.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
-    return rejectOwnerLocalClasses(
+    val declarations =
         parse(
             Declarations.declarationFile,
             declarationsSource,
             expectedTypeDesc = "Pets class declarations",
         )
-    )
+    return declarations.flatMap { declaration ->
+      DerivedClassLowerer(declaration.className).lowerDeclaration(declaration)
+    }
   }
 
   /**
@@ -84,7 +90,8 @@ public object Parsing {
     return pet
   }
 
-  internal fun <P : PetNode> parse(
+  // TODO: Contract this temporary tfm-canon seam.
+  public fun <P : PetNode> parse(
       expectedType: KClass<P>,
       elementSource: String,
       derivedClasses: DerivedClassLowerer,
@@ -109,7 +116,7 @@ public object Parsing {
       expectedTypeDesc: String? = null,
   ): T {
     try {
-      return parser.parseToEnd(matches)
+      return parser.parseToEnd(matches).also(::rejectUnsupportedSyntax)
     } catch (e: ParseException) {
       val tokenDesc =
           matches
@@ -128,6 +135,18 @@ public object Parsing {
       )
     } catch (e: RuntimeException) {
       throw PetSyntaxException("Invalid Pets syntax: $source", e)
+    }
+  }
+
+  private fun rejectUnsupportedSyntax(parsed: Any?) {
+    when (parsed) {
+      is ClassDeclaration -> parsed.allNodes.forEach(::rejectUnsupportedSyntax)
+      is PetNode ->
+          parsed.visitDescendants {
+            (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
+            true
+          }
+      is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)
     }
   }
 
@@ -157,12 +176,16 @@ public object Parsing {
     pgb.publish(Cost.parser())
     pgb.publish(Effect.parser())
     pgb.publish(Expression.parser())
+    pgb.publish(Refinement::class, Expression.refinementParser())
+    pgb.publish(FromExpression.parser())
     pgb.publish(InstructionTree.parser())
     pgb.publish(Instruction.parser())
     pgb.publish(Metric.parser())
+    pgb.publish(Property.parser())
     pgb.publish(PropertyName.parser())
     pgb.publish(PropertyValue.parser())
     pgb.publish(Requirement.parser())
+    pgb.publish(Scalar::class, ScaledExpression.scalar())
     pgb.publish(ScaledExpression.parser())
     pgb.publish(Trigger.parser())
 

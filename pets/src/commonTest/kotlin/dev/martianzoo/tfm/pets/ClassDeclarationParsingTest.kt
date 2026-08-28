@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
@@ -17,6 +19,7 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -25,7 +28,7 @@ import kotlin.test.assertFailsWith
 
 internal class ClassDeclarationParsingTest {
   @Test
-  fun propertiesUseBoundsLiteralsMetricsAndRequirements() {
+  internal fun propertiesUseBoundsLiteralsMetricsAndRequirements() {
     val declaration =
         parseClasses(
                 """
@@ -35,11 +38,11 @@ internal class ClassDeclarationParsingTest {
                   row = Number
                   column = 2
                   score = Metric
-                  scoreBasis = COUNT TemperatureStep OR VenusScaleStep
-                  scaledScore = COUNT 8 TemperatureStep
+                  scoreBasis = COUNT "TemperatureStep OR VenusScaleStep"
+                  scaledScore = COUNT "8 TemperatureStep"
                   requirement = Requirement
                   optionalRequirement = Requirement?
-                  specificRequirement = HAS 3 Plant, MAX 2 Steel
+                  specificRequirement = HAS "3 Plant, MAX 2 Steel"
                   This: Area
                 }
                 """
@@ -61,37 +64,52 @@ internal class ClassDeclarationParsingTest {
                 RequirementValue(parse<Requirement>("3 Plant, MAX 2 Steel")),
         )
     declaration.properties.getValue(PropertyName("scoreBasis")).toString() shouldBe
-        "COUNT TemperatureStep OR VenusScaleStep"
+        "COUNT \"TemperatureStep OR VenusScaleStep\""
+    declaration.properties.getValue(PropertyName("specificRequirement")).toString() shouldBe
+        "HAS \"3 Plant, MAX 2 Steel\""
   }
 
   @Test
-  fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
+  internal fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar, Bar") }
-    shouldThrow<PetSyntaxException> {
-      parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }")
-    }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }") }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo @ CLASS Bar") }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { cost = -1 }") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { score = TemperatureStep }") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { score = COUNT TemperatureStep }") }
     shouldThrow<PetSyntaxException> {
-      parseClasses("CLASS Foo { score = TemperatureStep }")
+      parseClasses("CLASS Foo { requirement = HAS TemperatureStep }")
+    }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("""CLASS Foo { requirement = HAS "Temperature\"Step" }""")
     }
   }
 
   @Test
-  fun ownerLocalClassesAreRejectedInsideOrdinaryClassDeclarations() {
-    val source = "CLASS Foo { Bar {}: Baz }"
+  internal fun ownerLocalClassesRequireDeclarationFileContext() {
+    val source = "CLASS Sponsor { This: Mandate { -> Colony<> } }"
+    val declarations = parseClasses(source)
 
-    shouldThrow<PetSyntaxException> { parseClasses(source) }
+    declarations.map { it.className }.shouldContainExactly(cn("Sponsor"), cn("Sponsor_Mandate"))
+    declarations
+        .first()
+        .authoredEffects
+        .shouldContainExactly(parse<Effect>("This: Sponsor_Mandate"))
+    declarations.last().supertypes.shouldContainExactly(parse<Expression>("Mandate"))
+    declarations.last().authoredActions.shouldContainExactly(parse<Action>("-> Colony<>"))
     shouldThrow<PetSyntaxException> { parseOneLinerClass(source) }
   }
 
   @Test
-  fun simpleOneLiners() {
+  internal fun simpleOneLiners() {
     parseClasses("CLASS Foo") // minimal
     parseClasses("ABSTRACT CLASS Foo") // abstract
     parseClasses("CLASS Foo<Bar>") // with spec
     parseClasses("CLASS Foo : Bar") // with supertype
-    parseClasses("CLASS Foo { HAS 1 }") // with same-line body
+    parseClasses("CLASS Foo { HAS MC }") // with same-line body
+    parseClasses(
+        "CLASS MC"
+    ) // short class names use the same grammar in declarations and expressions
     parseClasses(" CLASS Foo") // with space first
     parseClasses("\nCLASS Foo") // with newline first
     parseClasses("CLASS Foo ") // with space after
@@ -99,17 +117,17 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun declarationShortNamesAreNotPetsSyntax() {
+  internal fun declarationShortNamesAreNotPetsSyntax() {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo[FOO]") }
   }
 
   @Test
-  fun ordinaryWhitespaceLineEndingsAndFinalComments() {
+  internal fun ordinaryWhitespaceLineEndingsAndFinalComments() {
     parseClasses("CLASS\tFoo\r\nCLASS\tBar // final comment") shouldHaveSize 2
   }
 
   @Test
-  fun incompleteFinalDeclarationIsRejected() {
+  internal fun incompleteFinalDeclarationIsRejected() {
     listOf(
             "CLASS Foo\nABSTRACT",
             "CLASS Foo\nCLASS",
@@ -118,13 +136,11 @@ internal class ClassDeclarationParsingTest {
             "CLASS Foo\nCLASS Bar { HAS",
             "CLASS Foo\n\"Bar docs\"",
         )
-        .forEach { source ->
-          assertFailsWith<PetSyntaxException>(source) { parseClasses(source) }
-        }
+        .forEach { source -> assertFailsWith<PetSyntaxException>(source) { parseClasses(source) } }
   }
 
   @Test
-  fun slightlyMoreComplex() {
+  internal fun slightlyMoreComplex() {
     parseClasses(
         """
       CLASS Foo
@@ -174,7 +190,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun body() {
+  internal fun body() {
     parseClasses(
             """
               CLASS Bar : Qux { DEFAULT +Bar?
@@ -191,7 +207,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun series() {
+  internal fun series() {
     parseClasses(
         """
           CLASS Die {
@@ -209,7 +225,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun nesting() {
+  internal fun nesting() {
     val cs =
         parseClasses(
             """
@@ -243,7 +259,7 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun nestedOneLiner() {
+  internal fun nestedOneLiner() {
     parseClasses(
         """
       CLASS One {
@@ -255,12 +271,13 @@ internal class ClassDeclarationParsingTest {
   }
 
   @Test
-  fun withDefaults() {
+  internal fun withDefaults() {
     parseClasses(
         """
         ABSTRACT CLASS Component {
            DEFAULT +Component!
            DEFAULT Component<Foo>
+           DEFAULT Component<Foo>:
 
            CLASS What   // comment
 

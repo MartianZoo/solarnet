@@ -1,16 +1,29 @@
 # Implicit type-variable follow-ups
 
-**Status: focused implementation note.** The current semantic model and exact divergences live in
-[TYPES.md](TYPES.md#10-implicit-type-variables). Priority lives in `TODO.md`. The target changes
-below are not implemented.
+> **Read when:** implementing one of the remaining implicit-variable defects after first reading the
+> relevant part of [TYPES.md](TYPES.md#10-implicit-type-variables).
+>
+> **Skip when:** using existing implicit variables, changing dependencies, or considering
+> Splice's generated watchers. Priority lives in [`TODO.md`](../../TODO.md).
+>
+> **Status:** focused audit; the target changes are not implemented.
 
-The runtime already preserves authored variables through effects, actions, task revision and
+## Source map
+
+- [`TypeLinking.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/TypeLinking.kt) — search for
+  `link` and `Region` only after selecting a specific divergence.
+- [`Type.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Type.kt) — inspect structural
+  substitution and narrowing when the selected defect reaches resolved Types.
+- [`DependencyLinkTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/DependencyLinkTest.kt)
+  — read before changing effect/task preservation of linked variables.
+
+The runtime already preserves authored variables through effects, actions, task narrowing and
 splitting, atomic transmutation, and incremental `THEN`. Do not replace working card mechanisms
-merely to begin this project.
+just to begin this project.
 
-## Scope boundaries
+## Scope limits
 
-The generated `CardXC03FWatcher<Player>` components used by Splice are working regression
+The generated `SpliceTacticalGenomicsWatcher<Player>` components used by Splice are working regression
 constraints, not unfinished Type-variable infrastructure. Replacing them would be optional data and
 task-assignment cleanup.
 

@@ -1,8 +1,36 @@
 # Class properties
 
-**Status:** The core class-property mechanism is implemented. This document separates that current
-model from settled semantic decisions and open extensions. Proposed syntax is illustrative unless
-explicitly identified as current.
+> **Read when:** changing class-property syntax, storage, inheritance/narrowing, cardinality,
+> defaults, `RequirementGroup`, printed tags, or a property-backed scalar.
+>
+> **Skip when:** changing component state or Type dependencies; class properties are immutable
+> Class facts.
+>
+> **Status:** core mechanism implemented. Later sections distinguish settled rules from open
+> extensions; proposed syntax is illustrative unless marked current.
+
+## Read only the relevant sections
+
+| Task | Read |
+| --- | --- |
+| Parse/store/read a property | Current model through Reading and evaluating |
+| Decide where a property applies | Applicability is primarily structural |
+| Cost, optional values, or groups | Total values; Cardinality types; Requirement versus RequirementGroup |
+| Inheritance/default behavior | Narrowing and inheritance; Abstract defaults are not overrides |
+| Printed tags or instruction collections | `Instruction*` and printed tags |
+| Add a new property capability | Design constraints for future extensions |
+
+## Source map
+
+- [`Property.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Property.kt) and
+  [`PropertyValue.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/PropertyValue.kt) —
+  inspect AST forms.
+- [`ClassDeclaration.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/ClassDeclaration.kt)
+  — search for `properties` for stored declarations and defaults.
+- [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt) — search for
+  `private fun resolveProperties` for validation and inheritance behavior.
+- [`PropertyTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PropertyTest.kt)
+  — read when behavior crosses Pets declarations and Terraforming Mars content.
 
 Class properties record immutable facts about a Class. They are not fields on component
 occurrences: every component of one concrete Type sees the same class-property facts. A class
@@ -28,11 +56,13 @@ The implemented value families are:
 | Declaration | Meaning | Concrete form |
 | --- | --- | --- |
 | `Number` | non-negative, world-independent integer | `cost = 10` |
-| `Metric` | world-dependent numeric expression; `Number` narrows it | `score = COUNT TemperatureStep` |
-| `Requirement` | one required game condition | `requirement = HAS 3 ScienceTag` |
+| `Metric` | world-dependent numeric expression; `Number` narrows it | `score = COUNT "TemperatureStep"` |
+| `Requirement` | one required game condition | `requirement = HAS "3 ScienceTag"` |
 | `Requirement?` | currently, an absent or present Requirement | the declaration may be omitted by a concrete descendant |
 
 The Kotlin AST names are `Property`, `PropertyName`, and `PropertyValue`.
+`PropertyValue` is a `Specification`, so inheritance uses the same narrowing relation as types,
+quantities, and instructions.
 
 ### Narrowing and inheritance
 
@@ -44,12 +74,12 @@ ABSTRACT CLASS FixedScore : Scored { score = Number }
 CLASS EightPoints : FixedScore { score = 8 }
 ```
 
-Once an ordinary concrete value has been supplied, descendants cannot redeclare it. The same fact
+Once a concrete value has been supplied, descendants cannot redeclare it. The same fact
 coalesces when inherited through multiple paths. Distinct origins and divergent narrowing paths
-conflict even when their printed values happen to match. Every ordinary non-cardinality bound on a
+conflict even when their printed values happen to match. Every non-cardinality bound on a
 concrete Class must have a concrete value.
 
-This rule is intentionally stronger than ordinary object-oriented property overriding. A class
+This rule is intentionally stronger than conventional object-oriented property overriding. A class
 property is a fact about the Class, and inheritance accumulates and narrows facts.
 
 ### Reading and evaluating
@@ -57,16 +87,16 @@ property is a fact about the Class, and inheritance accumulates and narrows fact
 A numeric class-property read is a Metric:
 
 ```text
-Card001.cost
-Class<Card001>.cost
+ColonizerTrainingCamp.cost
+Class<ColonizerTrainingCamp>.cost
 CardFront(HAS 20 cost)
 ```
 
 The first two forms have the same lookup meaning. An unqualified class property inside a refinement
 receives the candidate Type as its receiver.
 
-A stored Metric or Requirement is syntax, not an instruction to evaluate itself whenever read. A
-class effect expands it explicitly:
+A stored Metric or Requirement is quoted to distinguish its inert syntax from the surrounding class
+body; the quotes do not make it text. A class effect expands the parsed syntax explicitly:
 
 ```pets
 This:: Result / EVAL This.score
@@ -83,8 +113,8 @@ A class property should be declared at the highest Class for which asking the qu
 not at a broader Class with a dummy value.
 
 `row` and `column` belong to `MarsArea`, not `Area`. Phobos Space Haven's derived
-`Card021_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
-`Card021_RemoteArea.row` is a nonsense question and fails
+`PhobosSpaceHaven_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
+`PhobosSpaceHaven_RemoteArea.row` is a nonsense question and fails
 because the class property does not exist; it does not return zero or an absent value.
 
 Use a cardinality type only when the question applies to every member of the declaring Class but a
@@ -102,7 +132,7 @@ all the way to zero. Project cards still state their cost explicitly, including 
 zero-cost project cards; there is no useful project-card default of zero.
 
 Therefore `CardFront.cost` remains `Number`, not `Number?`. This also keeps payment and numeric cost
-filters within one ordinary numeric model.
+filters within one numeric model.
 
 There is no global rule that an absent numeric class property means zero. If `Number?` is eventually
 introduced, its empty case supplies no Number and hence no Metric: it cannot count anything. A
@@ -124,7 +154,7 @@ concrete Class; those are implementation vocabulary, not the intended general do
 
 Cardinality queries should observe the number of held values. Bare `HAS property` means at least one
 value. If a cardinality can exceed one, `HAS 2 property` naturally means at least two. These are
-presence/cardinality queries, not ordinary numeric reads of the held value.
+presence/cardinality queries, not numeric reads of the held value.
 
 ### `Requirement?` and directional valence
 
@@ -168,7 +198,7 @@ instruction groups do.
 
 That would make the cardinality interpretation literal. A card could hold zero or more printed
 Requirements, `HAS requirement` would ask whether it has any, and `HAS 2 requirement` would ask
-whether it has at least two. It would also make conjunction's empty identity structural rather than
+whether it has at least two. It would also make conjunction's empty identity structural instead of
 encoding it as a special always-satisfied Requirement.
 
 Questions to settle before changing the AST include:
@@ -188,7 +218,7 @@ Class may safely offer descendants a default class-property value. A concrete de
 that default or state another permitted value explicitly. Once the concrete Class's effective value
 is chosen, it remains final.
 
-This is not ordinary overriding. A default is a fallback used only when a descendant makes no
+This is not conventional overriding. A default is a fallback used only when a descendant makes no
 choice; it is not an inherited concrete fact that is later replaced. The declaration model must
 distinguish:
 
@@ -197,7 +227,7 @@ distinguish:
 - a final fact that every descendant inherits unchanged.
 
 Project-card cost illustrates the first case: each project card should state its cost, and the four
-zero-cost cards should explicitly state zero. A family whose members genuinely share a normal value
+zero-cost cards should explicitly state zero. A family whose members share a normal value
 might use a default. A family whose value is definitionally fixed should narrow to a final fact.
 
 Syntax and multiple-inheritance rules remain open. In particular, competing defaults, nearer
@@ -228,7 +258,7 @@ The direction is promising but not yet a design. It must answer:
 - whether `Instruction*` is a group value, a cardinality-bearing property, or both.
 
 The goal is not merely to move `HandleCardTags` into generated Pets. The result should provide one
-honest source of printed tag facts that supports both pre-existence queries and live materialization.
+source of printed tag facts that supports both pre-existence queries and live materialization.
 
 ## Design constraints for future extensions
 

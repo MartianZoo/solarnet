@@ -1,15 +1,14 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.loader
+import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class DependencyMultiplicityTest {
   @Test
-  fun rejectsDependencyTargetsWithoutAnUpperBoundOfOne() {
+  internal fun rejectsDependencyTargetsWithoutAnUpperBoundOfOne() {
     val table =
         load(
             """
@@ -24,7 +23,7 @@ internal class DependencyMultiplicityTest {
   }
 
   @Test
-  fun acceptsExactPerTypeAndStrongerAggregateBounds() {
+  internal fun acceptsExactPerTypeAndStrongerAggregateBounds() {
     val table =
         load(
             """
@@ -41,7 +40,7 @@ internal class DependencyMultiplicityTest {
   }
 
   @Test
-  fun rejectsNonCountingClassInvariantsWithAPetsException() {
+  internal fun rejectsNonCountingClassInvariantsWithAPetsException() {
     val table =
         load(
             """
@@ -55,7 +54,7 @@ internal class DependencyMultiplicityTest {
     shouldThrow<PetException> { limiter(table) }
   }
 
-  private fun load(classes: String) = loader(classes.trimIndent())
+  private fun load(classes: String) = testClassTable(classes)
 
   private fun limiter(classTable: ClassTable) =
       Limiter(classTable, ComponentGraph.empty(classTable))

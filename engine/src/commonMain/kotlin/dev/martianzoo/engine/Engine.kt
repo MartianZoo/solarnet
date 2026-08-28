@@ -1,13 +1,18 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Actor
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
+import dev.martianzoo.pets.types.ClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -20,12 +25,12 @@ public object Engine {
   ): World = Wiring(premise, locale, inputOnlySynonyms).createWorld()
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
-  internal class Wiring(
+  private class Wiring(
       private val premise: GamePremise,
       locale: String,
       inputOnlySynonyms: Iterable<Pair<String, String>>,
   ) {
-    private val classTable: ClassTable = ClassTable.forPremise(premise).also(::validatePremise)
+    private val classTable = premise.classTable.also(::validatePremise)
     private val vocabulary: Vocabulary =
         premise.createVocabulary(
             classTable.allClassNames,
@@ -33,7 +38,7 @@ public object Engine {
             inputOnlySynonyms,
         )
     private val transformers: Transformers = Transformers(classTable)
-    private val customClasses = CustomClassRuntime(premise.authority, transformers)
+    private val customClasses = CustomClassRuntime(premise.catalog, transformers)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
@@ -46,10 +51,8 @@ public object Engine {
         GameReaderImpl(classTable, components, transformers, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues)
     private val limiter = Limiter(classTable, components)
-    private val atomicOperationBoundary: AtomicOperationBoundary =
-        AtomicOperationBoundary(timeline) {
-          world.onAtomicComplete()
-        }
+    private val atomicOperationScope: AtomicOperationScope =
+        AtomicOperationScope(timeline) { world.onAtomicComplete() }
     private val changerByActor: Map<Actor, Changer> =
         premise.actors.associateWith { Changer(reader, components, events, it) }
     private val instructorByActor: Map<Actor, Instructor> =
@@ -97,7 +100,7 @@ public object Engine {
         val type = classTable.resolve(expression)
         require(
             !type.abstract &&
-                !type.phantom &&
+                classTable.isActive(type) &&
                 !type.rootClass.declaration.custom &&
                 !type.rootClass.isSingletonType()
         ) {
@@ -105,12 +108,16 @@ public object Engine {
         }
       }
 
-      fun countActiveClasses(metric: Metric): Int {
-        require(metric is Count) { "bootstrap validation must count classes: $metric" }
-        require(metric.expression.simple) {
-          "bootstrap validation must count a simple class: $metric"
+      fun countActiveClasses(count: Count): Int {
+        if (count.expression.className == CLASS) {
+          val representedClass = count.expression.arguments.singleOrNull()
+          require(representedClass?.simple == true) {
+            "Module Class invariants must name one simple Class: $count"
+          }
+          return if (classTable.isActive(representedClass.className)) 1 else 0
         }
-        val type = classTable.findActiveClass(metric.expression.className)?.baseType ?: return 0
+        require(count.expression.simple) { "Module invariants must count a simple class: $count" }
+        val type = classTable.findActiveClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
           !klass.abstract &&
               klass.baseType.isSubtypeOf(type) &&
@@ -121,12 +128,26 @@ public object Engine {
         }
       }
 
-      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::countActiveClasses)
+      fun evaluateActiveClasses(metric: Metric): Int =
+          metric.evaluate(
+              ::countActiveClasses,
+              { property -> error("Module premise metrics cannot read properties: $property") },
+              { union -> error("Module premise metrics cannot use OR: $union") },
+          )
 
-      premise.authority.bootstrapValidations.forEach { alternatives ->
-        require(alternatives.any(::holds)) {
-          "game premise fails bootstrap validation: ${alternatives.joinToString(" OR ")}"
-        }
+      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)
+
+      premise.modules
+          .flatMap { moduleName -> classTable.getClass(moduleName).invariants }
+          .filter { requirement -> THIS !in requirement.descendantsOfType<ClassName>() }
+          .forEach { requirement ->
+            require(holds(requirement)) { "game premise fails Module invariant: $requirement" }
+          }
+
+      premise.modules.forEach { moduleName ->
+        val property = classTable.getClass(moduleName).properties[PREMISE_REQUIREMENT]
+        val requirement = (property as? RequirementValue)?.value ?: return@forEach
+        require(holds(requirement)) { "game premise fails $moduleName requirement: $requirement" }
       }
     }
 
@@ -145,7 +166,7 @@ public object Engine {
           classTable,
           transformers,
           vocabulary,
-          atomicOperationBoundary,
+          atomicOperationScope,
       )
     }
   }

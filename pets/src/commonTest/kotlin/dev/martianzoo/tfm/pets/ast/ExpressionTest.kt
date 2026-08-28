@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.pets.testRoundTrip
@@ -9,25 +9,33 @@ import dev.martianzoo.tfm.testlib.te
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 // Most testing is done by AutomatedTest
 internal class ExpressionTest {
   private fun testRoundTrip(petsText: String) = testRoundTrip<Expression>(petsText)
 
   @Test
-  fun simpleSourceToApi() {
+  internal fun simpleSourceToApi() {
     val foo = te("Foo")
     foo shouldBe cn("Foo").expression
     te("Foo<>").argumentsSpecified shouldBe true
   }
 
   @Test
-  fun simpleApiToSource() {
+  internal fun simpleApiToSource() {
     cn("Foo").expression.toString() shouldBe "Foo"
   }
 
   @Test
-  fun simpleRoundTrips() {
+  internal fun exactPetsKeywordsCannotBeClassNames() {
+    assertFailsWith<IllegalArgumentException> { cn("HAS") }
+    assertFailsWith<IllegalArgumentException> { cn("CLASS") }
+    assertFailsWith<IllegalArgumentException> { cn("X") }
+  }
+
+  @Test
+  internal fun simpleRoundTrips() {
     testRoundTrip("Foo")
     testRoundTrip("Foo<>")
     testRoundTrip("Foo<Bar>")
@@ -38,18 +46,19 @@ internal class ExpressionTest {
     testRoundTrip("Foo<Bar>(HAS Baz, 2 Qux)")
     testRoundTrip("Foo(HAS? Bar, MAX 0 Baz)")
     testRoundTrip("Class<Foo>(HAS Foo<Bar>)")
+    testRoundTrip("Has<By, Max>")
     testRoundTrip("!Foo")
     testRoundTrip("Foo<!Bar>")
     testRoundTrip("A_foo")
   }
 
   @Test
-  fun complexRoundTrip() {
+  internal fun complexRoundTrip() {
     testRoundTrip("Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Me>>, Jj>>, Kk>>")
   }
 
   @Test
-  fun complexSourceToApi() {
+  internal fun complexSourceToApi() {
     val parsed = te(" Red< Blue  < This,Teal> , Gold > ")
     parsed shouldBe
         cn("Red")
@@ -60,7 +69,7 @@ internal class ExpressionTest {
   }
 
   @Test
-  fun complexApiToSource() {
+  internal fun complexApiToSource() {
     val expr =
         cn("Aa")
             .of(
@@ -77,7 +86,7 @@ internal class ExpressionTest {
   }
 
   @Test
-  fun classLiteralStuff() {
+  internal fun classLiteralStuff() {
     te("Foo")
     te("Foo<Bar>")
 

@@ -1,9 +1,8 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Or
@@ -17,9 +16,10 @@ import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.ClassTable
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
 
 internal class GameReaderImpl(
     private val classTable: ClassTable,
@@ -30,7 +30,7 @@ internal class GameReaderImpl(
 ) : GameReader {
   override val actors = premise.actors
 
-  override val authority = premise.authority
+  override val catalog = premise.catalog
 
   override fun resolve(expression: Expression) = classTable.resolve(expression)
 
@@ -39,7 +39,7 @@ internal class GameReaderImpl(
 
   // Next 3 are for TypeInfo interface
 
-  override fun isAbstract(e: Expression) = resolve(e).abstract
+  override fun isAbstract(e: Expression) = resolve(e).isAbstract(this)
 
   override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)
@@ -95,7 +95,7 @@ internal class GameReaderImpl(
 
   private fun componentsMatching(expression: Expression) =
       classTable.resolve(expression).let { type ->
-        if (type.phantom) return@let HashMultiset<Component>()
+        if (!classTable.isActive(type)) return@let HashMultiset<Component>()
         if (type.rootClass.declaration.custom) {
           throw ExpressionException(
               "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
@@ -106,7 +106,7 @@ internal class GameReaderImpl(
 
   private fun countExpression(expression: Expression): Int {
     val type = classTable.resolve(expression)
-    if (type.phantom) return 0
+    if (!classTable.isActive(type)) return 0
     if (!type.rootClass.declaration.custom) return components.count(type, this)
 
     return customClasses.count(type, this)
@@ -114,10 +114,11 @@ internal class GameReaderImpl(
 
   override fun count(type: Type) = components.count(type, this)
 
-  override fun containsAny(type: Type) = components.containsAny(type, this)
+  internal fun containsAny(type: Type) = components.containsAny(type, this)
 
   override fun countComponent(concreteType: Type) =
-      if (concreteType.phantom) 0 else components.countComponent(concreteType.toComponent(this))
+      if (!classTable.isActive(concreteType)) 0
+      else components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
 }
