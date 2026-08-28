@@ -132,8 +132,8 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 spatialRelation =
                     ComponentDescriber.SpatialRelation(
-                        "adjacent to",
-                        ComponentDescriber.Noun.Counted("other tile", "other tiles"),
+                        "next to",
+                        ComponentDescriber.Noun.Counted("tile", "tiles"),
                     )
             ),
         klass("Adjacency") to
@@ -173,6 +173,13 @@ internal object TerraformingMarsDescribers {
                         article = "this",
                         singular = "tile",
                         plural = "tiles",
+                        anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
+                    ),
+                requirement =
+                    ComponentDescriber.Requirement(
+                        minimum = count("special tile", "special tiles"),
+                        ownedCount =
+                            ComponentDescriber.Noun.Counted("special tile", "special tiles"),
                     ),
             ),
         klass("Animal") to ComponentDescriber(noun = counted("animal", "animals")),
@@ -291,6 +298,7 @@ internal object TerraformingMarsDescribers {
                         "a",
                         "greenery tile",
                         "greenery tiles",
+                        anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
                     ),
                 requirement =
                     ComponentDescriber.Requirement(

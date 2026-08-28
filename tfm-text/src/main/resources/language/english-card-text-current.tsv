@@ -23,7 +23,7 @@ DomedCrater	Domed Crater	Requires that oxygen is 7% or lower. Gain 3 plants. Pla
 NoctisCity	Noctis City	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile on the reserved area if using a board that has one, otherwise place it normally.
 MethaneFromTitan	Methane From Titan	Requires that oxygen is 2% or higher. Increase your heat production 2 steps and your plant production 2 steps. 2 VPs.
 ImportedHydrogen	Imported Hydrogen	Gain 3 plants, add 3 microbes to any card, or add 2 animals to any card. Place 1 ocean tile.
-ResearchOutpost	Research Outpost	Place a city tile on a land area not adjacent to any other tile.	Effect: When you play a card, pay 1 M€ less.
+ResearchOutpost	Research Outpost	Place a city tile on a land area next to no other tile.	Effect: When you play a card, pay 1 M€ less.
 PhobosSpaceHaven	Phobos Space Haven	Increase your titanium production 1 step. Place a city tile on the reserved area outside Mars. 3 VPs.
 BlackPolarDust	Black Polar Dust	Place 1 ocean tile. Decrease your M€ production 2 steps and increase your heat production 3 steps.
 ArcticAlgae	Arctic Algae	Requires that temperature is -12°C or lower. Gain 1 plant.	Effect: When any ocean tile is placed, gain 2 plants.
@@ -44,7 +44,7 @@ AsteroidMining	Asteroid Mining	Increase your titanium production 2 steps. 2 VPs.
 FoodFactory	Food Factory	Decrease your plant production 1 step and increase your M€ production 4 steps. 1 VP.
 Archaebacteria	Archaebacteria	Requires that temperature is -18°C or lower. Increase your plant production 1 step.
 CarbonateProcessing	Carbonate Processing	Decrease your energy production 1 step and increase your heat production 3 steps.
-NaturalPreserve	Natural Preserve	Requires that oxygen is 4% or lower. Place this tile on a land area not adjacent to any other tile. Increase your M€ production 1 step. 1 VP.
+NaturalPreserve	Natural Preserve	Requires that oxygen is 4% or lower. Place this tile on a land area next to no other tile. Increase your M€ production 1 step. 1 VP.
 NuclearPower	Nuclear Power	Decrease your M€ production 2 steps and increase your energy production 3 steps.
 Algae	Algae	Requires 5 ocean tiles. Gain 1 plant. Increase your plant production 2 steps.
 AdaptedLichen	Adapted Lichen	Increase your plant production 1 step.
@@ -84,11 +84,11 @@ ArtificialLake	Artificial Lake	Requires that temperature is -6°C or higher. Pla
 GeothermalPower	Geothermal Power	Increase your energy production 2 steps.
 Farming	Farming	Requires that temperature is +4°C or higher. Increase your M€ production 2 steps and your plant production 2 steps. Gain 2 plants. 2 VPs.
 DustSeals	Dust Seals	Requires that there are 3 or fewer ocean tiles. 1 VP.
-UrbanizedArea	Urbanized Area	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile on a land area adjacent to 2 or more city tiles.
+UrbanizedArea	Urbanized Area	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile on a land area next to any two city tiles.
 Moss	Moss	Requires 3 ocean tiles. Increase your plant production 1 step. Remove 1 plant.
 GhgFactories	GHG Factories	Decrease your energy production 1 step and increase your heat production 4 steps.
 SubterraneanReservoir	Subterranean Reservoir	Place 1 ocean tile.
-EcologicalZone	Ecological Zone	Requires a greenery tile. Place this tile on a land area adjacent to one or more greenery tiles. 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
+EcologicalZone	Ecological Zone	Requires a greenery tile. Place this tile on a land area next to any greenery tile. 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
 Zeppelins	Zeppelins	Requires that oxygen is 5% or higher. Increase your M€ production 1 step for each city tile on Mars. 1 VP.
 Worms	Worms	Requires that oxygen is 4% or higher. Increase your plant production 1 step for every 2 microbe tags you have.
 Decomposers	Decomposers	Requires that oxygen is 3% or higher. 1 VP per 3 microbes on this card.	Effect: When you play a bio tag, add 1 microbe to this card.
@@ -134,7 +134,7 @@ IceCapMelting	Ice Cap Melting	Requires that temperature is +2°C or higher. Plac
 BiomassCombustors	Biomass Combustors	Requires that oxygen is 6% or higher. Decrease any player's plant production 1 step and increase your energy production 2 steps. -1 VP.
 Livestock	Livestock	Requires that oxygen is 9% or higher. Decrease your plant production 1 step and increase your M€ production 2 steps. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 AquiferPumping	Aquifer Pumping		Action: Spend 8 M€ (steel may be used) to place 1 ocean tile.
-Flooding	Flooding	Place 1 ocean tile or place 1 ocean tile on an area reserved for ocean adjacent to one or more tiles, then remove up to 4 M€ from any player. -1 VP.
+Flooding	Flooding	Place 1 ocean tile or place 1 ocean tile on an area reserved for ocean next to a tile anyone owns, then remove up to 4 M€ from any player. -1 VP.
 EnergySaving	Energy Saving	Increase your energy production 1 step for each city tile.
 LocalHeatTrapping	Local Heat Trapping	Remove 5 heat. Gain 4 plants or add 2 animals to any card.
 PermafrostExtraction	Permafrost Extraction	Requires that temperature is -8°C or higher. Place 1 ocean tile.
@@ -162,7 +162,7 @@ Mine	Mine	Increase your steel production 1 step.
 VestaShipyard	Vesta Shipyard	Increase your titanium production 1 step. 1 VP.
 GreatEscarpmentConsortium	Great Escarpment Consortium	Requires that you have steel production. Decrease any player's steel production 1 step and increase your steel production 1 step.
 MineralDeposit	Mineral Deposit	Gain 5 steel.
-MiningArea	Mining Area	Place this tile on a land area with a steel or titanium placement bonus adjacent to one or more of your tiles and increase the matching production 1 step.
+MiningArea	Mining Area	Place this tile on a land area with a steel or titanium placement bonus next to a tile you own and increase the matching production 1 step.
 BuildingIndustries	Building Industries	Decrease your energy production 1 step and increase your steel production 2 steps.
 LandClaim	Land Claim	[LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>].
 Sponsors	Sponsors	Increase your M€ production 2 steps.
@@ -191,7 +191,7 @@ BusinessNetwork	Business Network	Decrease your M€ production 1 step.	Action: L
 BusinessContacts	Business Contacts	Draw 2 cards.
 BribedCommittee	Bribed Committee	Raise your terraform rating 2 steps. -2 VPs.
 Sabotage	Sabotage	Remove up to 3 titanium, up to 4 steel, or up to 7 M€ from any player.
-IndustrialCenter	Industrial Center	Place this tile on a land area adjacent to one or more city tiles.	Action: Spend 7 M€ to increase your steel production 1 step.
+IndustrialCenter	Industrial Center	Place this tile on a land area next to any city tile.	Action: Spend 7 M€ to increase your steel production 1 step.
 HiredRaiders	Hired Raiders	Steal up to 2 steel or up to 3 M€ from any player.
 Hackers	Hackers	Decrease your energy production 1 step and any player's M€ production 2 steps and increase your M€ production 2 steps. -1 VP.
 Cartel	Cartel	Increase your M€ production 1 step for each Earth tag you have.
@@ -424,7 +424,7 @@ AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 
 PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: When any microbe tag is played, add 1 disease resource to this card or [MAX 0 This: Ok] and [-4 MC.]. When you play a science tag, [TerraformRating FROM Disease<This>!] or [MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok].
 TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Spend one or more energy to look at X project cards. Draw one of them.
 KuiperCooperative	Kuiper Cooperative	Gain 33 M€. Increase your titanium production 1 step.	Action: Add 1 asteroid to this card for each space tag you have. / Effect: When you use a standard project or a standard project, asteroids on this card may be used as 1 M€ each.
-PolderTechDutch	Polder Tech Dutch	Gain 35 M€. As your first action, place 1 ocean tile, then place a greenery tile on a land area adjacent to one or more ocean tiles.	Effect: When you place an ocean tile, gain 1 energy. When you place a greenery tile, gain 1 plant.
+PolderTechDutch	Polder Tech Dutch	Gain 35 M€. As your first action, place 1 ocean tile, then place a greenery tile on a land area next to an ocean tile.	Effect: When you place an ocean tile, gain 1 energy. When you place a greenery tile, gain 1 plant.
 CorporateArchives	Corporate Archives	Gain 13 M€. Look at 7 project cards. Draw 2 of them.
 DoubleDown	Double Down	Copy your other Prelude's direct effect.
 Merger	Merger	Draw 4 corporation cards, then discard 3 corporation cards, then play a corporation card. Remove 42 M€.
@@ -466,8 +466,8 @@ MoholeLake	Mohole Lake	Place 1 ocean tile. Raise temperature 1 step. Gain 3 plan
 Potatoes	Potatoes	Remove 2 plants. Increase your M€ production 2 steps.
 SubCrustMeasurements	Sub-Crust Measurements	Requires 2 science tags. 2 VPs.	Action: Draw 1 card.
 TopsoilContract	Topsoil Contract	Gain 3 plants.	Effect: When you add a microbe to any card, gain 1 M€.
-DeimosDownPromo	Deimos Down*	Raise temperature 3 steps. Place this tile on a land area not adjacent to any city tile. Gain 4 steel. Remove up to 6 plants from any player.
-GreatDamPromo	Great Dam*	Requires 4 ocean tiles. Increase your energy production 2 steps. Place this tile on a land area adjacent to one or more ocean tiles. 1 VP.
+DeimosDownPromo	Deimos Down*	Raise temperature 3 steps. Place this tile on a land area next to no city tile. Gain 4 steel. Remove up to 6 plants from any player.
+GreatDamPromo	Great Dam*	Requires 4 ocean tiles. Increase your energy production 2 steps. Place this tile on a land area next to an ocean tile. 1 VP.
 MagneticFieldGeneratorsPromo	Magnetic Field Generators*	Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your terraform rating 3 steps. Place this tile.
 AsteroidRights	Asteroid Rights	Add 2 asteroids to this card.	Action: Spend 1 M€ to add 1 asteroid to any card, or remove 1 asteroid from this card to increase your M€ production 1 step or gain 2 titanium.
 BactoviralResearch	Bactoviral Research	Draw 1 card. Add 1 microbe to any card for each science tag you have.

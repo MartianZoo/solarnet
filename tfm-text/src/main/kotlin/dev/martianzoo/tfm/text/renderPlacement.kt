@@ -125,22 +125,11 @@ private fun renderSpatialRequirement(
   val target = renderSpatialTarget(relationExpression, relation, describers) ?: return null
 
   return when (requirement) {
-    is Requirement.Min -> {
-      if (target.ownedByYou) {
-        val count = if (requirement.target == 1) "one" else requirement.target.toString()
-        "${relation.phrase} $count or more of your ${target.noun.plural}"
-      } else {
-        val count = if (requirement.target == 1) "one" else requirement.target.toString()
-        "${relation.phrase} $count or more ${target.noun.plural}"
-      }
-    }
+    is Requirement.Min ->
+        "${relation.phrase} ${target.minimumPhrase(requirement.target, describers)}"
     is Requirement.Max -> {
       if (requirement.target != 0) return null
-      if (target.ownedByYou) {
-        "not ${relation.phrase} any of your ${target.noun.plural}"
-      } else {
-        "not ${relation.phrase} any ${target.noun.singular}"
-      }
+      "${relation.phrase} ${target.absencePhrase()}"
     }
     else -> null
   }
@@ -148,8 +137,43 @@ private fun renderSpatialRequirement(
 
 private data class SpatialTarget(
     val noun: ComponentDescriber.Noun.Counted,
-    val ownedByYou: Boolean,
-)
+    val ownership: Ownership,
+    val implicit: Boolean = false,
+    val explicitlyAny: Boolean = false,
+) {
+  enum class Ownership {
+    UNRESTRICTED,
+    YOURS,
+    ANYONES,
+  }
+
+  fun minimumPhrase(count: Int, describers: Describers): String {
+    val noun = if (count == 1) noun.singular else noun.plural
+    val suffix = ownership.suffix()
+    if (count != 1) return "any ${spelledOutCount(count)} $noun$suffix"
+    val determiner =
+        when {
+          implicit -> "another"
+          explicitlyAny && ownership == Ownership.UNRESTRICTED -> "any"
+          ownership == Ownership.UNRESTRICTED && suffix.isEmpty() ->
+              describers.indefiniteArticle(noun)
+          else -> "a"
+        }
+    return "$determiner $noun$suffix"
+  }
+
+  fun absencePhrase(): String {
+    val other = if (implicit) "other " else ""
+    return "no $other${noun.singular}${ownership.suffix()}"
+  }
+
+  private fun Ownership.suffix(): String =
+      when (this) {
+        Ownership.UNRESTRICTED -> ""
+        Ownership.YOURS -> " you own"
+        Ownership.ANYONES -> " anyone owns"
+      }
+}
 
 private fun renderSpatialTarget(
     relationExpression: Expression,
@@ -158,7 +182,9 @@ private fun renderSpatialTarget(
 ): SpatialTarget? {
   val resolvedRelation = describers.resolveExpression(relationExpression) ?: return null
   if (resolvedRelation.sourceDependencies.isEmpty()) {
-    return relation.defaultTarget?.let { SpatialTarget(it, ownedByYou = false) }
+    return relation.defaultTarget?.let {
+      SpatialTarget(it, SpatialTarget.Ownership.UNRESTRICTED, implicit = true)
+    }
   }
   val target = resolvedRelation.sourceDependencies.values.singleOrNull() ?: return null
   val resolvedTarget = describers.resolveExpression(target) ?: return null
@@ -172,13 +198,51 @@ private fun renderSpatialTarget(
     return null
   }
   val placement = describers.positionedFrame(target.className) ?: return null
+  val explicitlyAnyOwner =
+      resolvedTarget.hasOnlySourceDependency(ownerKey, describers.anyoneExpression)
+  val ownership =
+      when {
+        explicitlyAnyOwner &&
+            placement.anyoneMetricOwner != ComponentDescriber.MetricOwner.ANY_PLAYER ->
+            SpatialTarget.Ownership.ANYONES
+        explicitlyAnyOwner -> SpatialTarget.Ownership.UNRESTRICTED
+        describers.isPlayerOwned(target.className) -> SpatialTarget.Ownership.YOURS
+        else -> SpatialTarget.Ownership.UNRESTRICTED
+      }
   return SpatialTarget(
-      ComponentDescriber.Noun.Counted(placement.singular, placement.plural),
-      ownedByYou =
-          resolvedTarget.sourceDependencies.isEmpty() &&
-              placement.unqualifiedMetricOwner == ComponentDescriber.MetricOwner.YOU,
+      spatialTargetNoun(target, placement, describers),
+      ownership,
+      explicitlyAny = explicitlyAnyOwner,
   )
 }
+
+private fun spatialTargetNoun(
+    expression: Expression,
+    placement: ComponentDescriber.ChangeFrame.Positioned,
+    describers: Describers,
+): ComponentDescriber.Noun.Counted {
+  val requirementNoun =
+      describers.fact(expression.className, ComponentDescriber::requirement)?.minimum
+          as? ComponentDescriber.Requirement.Bound.Count
+  return requirementNoun?.noun
+      ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+}
+
+private fun spelledOutCount(count: Int): String =
+    when (count) {
+      0 -> "zero"
+      1 -> "one"
+      2 -> "two"
+      3 -> "three"
+      4 -> "four"
+      5 -> "five"
+      6 -> "six"
+      7 -> "seven"
+      8 -> "eight"
+      9 -> "nine"
+      10 -> "ten"
+      else -> count.toString()
+    }
 
 private fun placementClause(noun: NounPhrase, modifiers: List<Modifier>): Clause.Simple =
     Clause.Simple(Predicate("place", Coordination.one(noun), modifiers))
