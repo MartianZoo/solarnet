@@ -35,6 +35,8 @@ public data class Type(
     val dependencies: DependencySet,
     val refinement: Refinement? = null,
 ) : HasExpression, Specification<Type>, HasClassName by rootClass {
+  // Types are immutable; zero is the uncached sentinel (and a harmless rare recomputation).
+  private var cachedHashCode: Int = 0
 
   internal val classTable: ClassTable = rootClass.classTable
   public val typeDependencies: Set<Dependency.TypeDependency> = dependencies.typeDependencies()
@@ -249,6 +251,15 @@ public data class Type(
 
   private fun requireSameClassTable(that: Type) {
     require(classTable === that.classTable) { "$this and $that belong to different class tables" }
+  }
+
+  override fun hashCode(): Int {
+    if (cachedHashCode != 0) return cachedHashCode
+    var result = rootClass.hashCode()
+    result = 31 * result + dependencies.hashCode()
+    result = 31 * result + (refinement?.hashCode() ?: 0)
+    cachedHashCode = result
+    return result
   }
 
   private fun formRequirement(narrow: Expression, wide: Expression): Requirement {

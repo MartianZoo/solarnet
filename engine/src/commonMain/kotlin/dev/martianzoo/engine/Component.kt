@@ -35,7 +35,7 @@ public value class Component internal constructor(public val type: Type) : HasEx
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type?
     get() =
-        if (type.rootClass.allSuperclasses().any { it.className == OWNER }) {
+        if (type.rootClass.isSubtypeOf(type.rootClass.classTable.getClass(OWNER))) {
           type
         } else {
           type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
