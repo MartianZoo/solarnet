@@ -9,7 +9,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers

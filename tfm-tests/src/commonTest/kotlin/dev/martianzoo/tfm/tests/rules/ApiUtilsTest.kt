@@ -7,11 +7,11 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.util.toStrings
-import dev.martianzoo.tfm.canon.ApiUtils.getOwner
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
-import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmApiUtils.getOwner
+import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe

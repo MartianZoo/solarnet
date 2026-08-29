@@ -6,8 +6,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
 
 internal val milestonesAwardsExpansionBundle: StandardFormBundle by lazy {
   StandardFormBundle(

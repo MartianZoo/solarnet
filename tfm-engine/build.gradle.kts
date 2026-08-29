@@ -7,7 +7,6 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(project(":engine"))
         implementation(project(":pets"))
-        implementation(project(":tfm-canon"))
       }
     }
   }

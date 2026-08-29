@@ -26,9 +26,9 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.canon.TfmClasses.MC
-import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE_CLASSES
+import dev.martianzoo.tfm.engine.TfmApiUtils.mc as MC
+import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceClasses
+import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
 
 /**
  * Wraps and extends a [Gameplay] instance to provide much more convenient functions specific to
@@ -266,7 +266,7 @@ public class TfmGameplay(
 
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
     val billingCause = openPendingBilling()
-    val offeredResource = STANDARD_RESOURCE_CLASSES.singleOrNull { resource ->
+    val offeredResource = standardResourceClasses.singleOrNull { resource ->
       game.tasks
           .extract { it }
           .filter { it.assignee == actor }

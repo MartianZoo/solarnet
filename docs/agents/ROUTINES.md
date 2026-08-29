@@ -3,8 +3,8 @@
 > **Read when:** implementing or reviewing catalog-contributed Routines, direct Routine calls in the
 > REPL, replacement of `tfm_` commands, or the Routine half of a saved-game format.
 >
-> **Status:** proposal plus a narrow `DO`-command prototype. The mature surface and saved-game
-> model described here remain the target.
+> **Status:** proposal plus a catalog-contributed `DO`-command prototype. The mature surface and
+> saved-game model described here remain the target.
 
 ## Goal
 
@@ -29,6 +29,13 @@ The Routine stream is compact input, not a durable encoding of its consequences.
 
 Pure-Pets Routine implementations are a distant possibility, not an initial goal. The first
 implementations are custom Kotlin.
+
+The current prototype models Routine contribution as the engine-level `RoutineProvider` capability,
+separate from the base data-oriented `Catalog` interface. `TfmCatalog` implements that capability;
+each bundle may contribute a name-to-implementation map, and composite catalogs reject duplicate
+names. The core Terraforming Mars bundle owns the initial implementations. `DO` parses a call,
+looks it up through the active World's Catalog, and supplies the live World and Actor-scoped
+Gameplay in a `RoutineContext`.
 
 The prototype uses the current Gameplay operation scopes described in
 [ENGINE.md](ENGINE.md#current-gameplay-surface). Any later client-facing Routine API should follow
@@ -305,7 +312,7 @@ complete component graph incrementally.
 
 ## Open implementation choices
 
-- Exact declaration format for catalog signatures and their Kotlin implementation registry.
+- Typed Routine signatures beyond the prototype's name-to-Kotlin-implementation registry.
 - Saved-file envelope, versioning, premise encoding, and Event Log encoding.
 - Concrete-change encoding and the adjustment algorithm for exact-state restoration.
 - Multiline Routine calls and completion behavior in the interactive REPL.

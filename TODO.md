@@ -4,9 +4,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
-- Implement catalog-contributed Routines and Routine-based replay as specified in
-  [`docs/agents/ROUTINES.md`](docs/agents/ROUTINES.md), beginning with explicit task execution and
-  direct REPL invocation rather than general autoexecution.
+- Continue Routine work as specified in [`docs/agents/ROUTINES.md`](docs/agents/ROUTINES.md): add
+  typed signatures, direct top-level REPL invocation, and Routine-based replay without introducing
+  general player autoexecution.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play, while
   flattening the temporary Gameplay power hierarchy.

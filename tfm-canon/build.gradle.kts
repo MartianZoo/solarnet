@@ -40,7 +40,9 @@ kotlin {
       resources.srcDir(generateCanonResourceIndex)
       dependencies {
         implementation(libs.kotlinx.serialization.json)
+        api(project(":engine"))
         implementation(project(":pets"))
+        implementation(project(":tfm-engine"))
       }
     }
     commonTest { dependencies { implementation(libs.kotest.assertions.core) } }

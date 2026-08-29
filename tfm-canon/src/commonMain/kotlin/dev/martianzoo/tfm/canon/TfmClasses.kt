@@ -30,8 +30,6 @@ public object TfmClasses {
   public val STANDARD_RESOURCE: dev.martianzoo.pets.ast.ClassName = cn("StandardResource")
   public val PRODUCTION: dev.martianzoo.pets.ast.ClassName = cn("Production")
   public val MC: dev.martianzoo.pets.ast.ClassName = cn("MC")
-  public val STANDARD_RESOURCE_CLASSES: Set<ClassName> =
-      setOf(MC, cn("Steel"), cn("Titanium"), cn("Plant"), cn("Energy"), cn("Heat"))
 
   // Okay so it's not really a class name
   public const val PROD: String = "PROD"
