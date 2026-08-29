@@ -693,7 +693,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       }
     }
     ellie.turn {
-      playProject(cn("UnexpectedApplication"), 4)
+      playProject(UnexpectedApplication, 4)
           .expect("-2 ProjectCard, VenusStep, TerraformRating, -2 MC")
     }
     dad.turn {
@@ -865,7 +865,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // for the other four? Because I was going to take this first. Right. Take nine money and
       // then spend four of it." Its floaters go to Jet Stream Microscrappers.
       cardAction2(SulphurEatingBacteria, x = 3).expect("-3 Microbe<$SulphurEatingBacteria>, 9 MC")
-      playProject(cn("StratosphericExpedition"), 4, titanium = 2) {
+      playProject(StratosphericExpedition, 4, titanium = 2) {
             addCardResources(JetStreamMicroscrappers)
           }
           .expect("ProjectCard, 3 Heat, 2 Floater<$JetStreamMicroscrappers>")

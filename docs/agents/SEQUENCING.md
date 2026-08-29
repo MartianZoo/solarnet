@@ -17,7 +17,7 @@
 | Which mechanism should express A-before-B? | Put facts in components; Recoverable dead ends; Choose the weakest mechanism that fits |
 | Must a modifier precede the event it changes? | Model before-trigger effects with a committed precursor |
 | Must reactions complete before the user sees the next choice? | Use automatic effects to preserve player-visible invariants |
-| Does this concern `EACH`, continuations, idle settlement, or atomicity? | Read only the matching proposed or agreed-direction section |
+| Does this concern `EACH`, continuations, yield settlement, or atomicity? | Read only the matching proposed or agreed-direction section |
 | Is this a known family, defect, or phase rule? | Settled families through Workflow precedence |
 | How should a new ordering claim be researched? | Audit method |
 
@@ -68,8 +68,9 @@ Several different concerns are easy to collapse into a vague request for work to
 - **Sequencing:** B cannot precede A. `THEN`, a barrier, or natural unavailability can establish it.
 - **Immediacy:** after A, work cannot be postponed behind a player choice. Automatic `::` expresses
   this.
-- **Idle settlement:** B is created only after a Player's current queue epoch drains. The agreed
-  `Idle<Player>` direction below covers this without admitting an ineligible task early.
+- **Yield settlement:** B is created only after a Player's current queue epoch drains. The agreed
+  `Yield<Player>` and `UntilYield<Player>` direction below covers this without admitting an
+  ineligible task early.
 - **Global completion:** the whole World task pool has drained and remains empty after completion
   work.
 - **Scoped completion:** one delegated operation and its descendants have drained, even if unrelated
@@ -108,19 +109,24 @@ the deliberate exception; engine resolution and execution retain their existing 
 A future priority is immutable task metadata assigned when work is created, not a new capability for
 effects to reach into the task pool.
 
+`UntilYield<Player>` is the narrow lifecycle exception for temporary state that must disappear when
+the owning Player's controlled queue drains. It need not carry future work. Attaching an automatic
+removal effect makes it a continuation; if that effect admits a choice, the choice becomes an
+ordinary new task in the next queue epoch.
+
 Signals such as `PlayCard`, `Trade`, `Accept`, and `Pay` are coherent component events: they state
 what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
 `Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
 
-`Temporary` currently covers two lifecycle policies. Some transient facts listen for `Idle` and
-remove themselves when their Player's work drains. Others represent mandatory unfinished state and
-must keep a task pending or make the operation dead-end. The workflow may proceed only after idle
+`Temporary` covers two lifecycle policies. An `UntilYield<Player>` is automatically consumed at the
+owning Player's next yield. Other temporary components represent mandatory unfinished state and must
+keep a task pending or make the operation dead-end. The workflow may proceed only after yield
 settlement leaves neither tasks nor unfinished temporary state.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
 wait.” `TradeBarrier` is the strongest current example. First investigate whether an honest
-`Idle` listener can replace such a pure scheduling semaphore without losing the selected identity
-or required failure behavior.
+yield-scoped temporary can replace such a pure scheduling semaphore without losing the selected
+identity or required failure behavior.
 
 ## Recoverable dead ends are part of the model
 
@@ -205,7 +211,7 @@ next. Prefer a specific gate such as `MAX 0 TradeBarrier` to `MAX 0 Barrier`.
 A barrier controls legality, not priority. Other currently legal work remains reorderable. Retain a
 component gate when the component carries real state, as `Owed` and `Required` do. When the only
 fact represented is that later work must wait for the relevant task pool to drain, investigate
-whether idle settlement can create that work after the drain; do not create a graph semaphore just
+whether yield settlement can create that work after the drain; do not create a graph semaphore just
 to schedule tasks.
 
 Phase topology and Player control-until-drain belong to [WORKFLOW.md](WORKFLOW.md), not generic
@@ -414,6 +420,10 @@ different needs that should not be collapsed into one vague “automatic `THEN`�
 - a choice frozen from trigger-time state; and
 - completion after every descendant of a delegated operation drains.
 
+These are distinct from an `UntilYield<Player>` with a removal effect below. That pattern resumes
+work only at the next controlled queue drain; it does not provide inline execution, freeze a later
+choice against earlier state, or define a descendant-completion scope.
+
 Marking an action card before `UseAction` prevents a second use but makes Viron's own marker visible
 to Viron's target Requirement, producing the awkward
 `ActionUsedMarker<!Viron>` Complement. Marking it afterward as queued work makes the
@@ -467,19 +477,49 @@ already-finished automatic work as a continuation.
 Keep the current choice-free rule for `::` unless this constrained model is selected and proves that
 it removes more permanent machinery than it adds.
 
-## Player idle settlement (agreed direction)
+## Player yield settlement and yield-scoped temporaries (agreed direction)
 
-**Agreed direction, not implemented.** When a Player's task queue finishes one nonempty epoch, Engine
-emits one owned `Idle<Player>` Signal after the completing atomic operation. Automatic `Idle`
-listeners run in that signal's change context; queued listeners may refill the queue. If work is
-created, normal play continues and the next nonempty-to-empty transition emits another `Idle`.
-Workflow may resume only after idle dispatch leaves no pending task or unfinished temporary state.
+**Agreed direction, not implemented.** When a Player's controlled task queue finishes one nonempty
+epoch, Engine emits one owned `Yield<Player>` Signal after the completing atomic operation.
+`Yield` names a settlement pulse, not a stable World state. It is Engine-created and owned, so a
+Player cannot manufacture it and one Player's drain cannot settle another Player's work.
 
-`Idle` is Engine-created and owned. Ownership binds inherited listeners and prevents one Player's
-empty queue from settling another Player's invoice or EventCard. An idle listener represents
-one-shot completion work and must automatically make its context cease listening, normally by
-removing or transmuting that context. Do not permit Players to manufacture `Idle` or create durable
-listeners that react again on unrelated later turns.
+The only effect that subscribes to `Yield<Player>` is the lifecycle rule declared by
+`UntilYield<Player>`. Enforce that restriction when loading Classes rather than relying on authoring
+convention. Component-specific behavior subscribes to removal instead. Owner-local derived Classes
+can attach such behavior with existing Pets syntax:
+
+```pets
+ABSTRACT CLASS UntilYield : Owned<Player>, Temporary {
+  Yield<Player>:: -This!
+}
+
+This: UntilYield {
+  -This:: WhatHappensNext
+}
+```
+
+Every matching component is therefore consumed exactly once if the settlement commits, whether its
+removal merely cleans up state or continues play. A removal effect must obey the ordinary
+choice-free rule for `::`; it may create a concrete Signal whose queued effects admit new Player
+work. Several yield-scoped temporaries for one Player are unordered siblings and must not depend on
+their registration order.
+
+Settlement repeats to a fixed point:
+
+1. A nonempty-to-empty controlled queue transition emits `Yield<Player>`.
+2. If the pulse consumes one or more yield-scoped temporaries and creates tasks, normal play
+   resumes. The next drain starts another settlement wave.
+3. If it consumes yield-scoped temporaries but creates no tasks, Engine emits another pulse. An
+   `UntilYield` component created during one pulse is eligible only for a later pulse.
+4. A pulse that consumes no yield-scoped temporary lets workflow advance only when no task or
+   unfinished temporary component remains. An unfinished temporary component with no possible task
+   is a dead end, not workflow readiness.
+
+Do not implement this by rewriting whichever task happens to be alone as `THEN Yield`. Queue
+cardinality has no gameplay meaning, can change several times inside one atomic operation, and
+would make task replacement responsible for settlement. Detect the completed epoch outside raw
+task-set mutation and emit only after successful outermost completion.
 
 Queue emptiness must mean controlled work really drained. Under delegated narrowing, the controller
 retains a suspended parent task while another Actor narrows a child; the controller therefore cannot
@@ -487,23 +527,25 @@ become idle early. This is the same control-until-drain requirement described in
 [WORKFLOW.md](WORKFLOW.md) and [IDENTITY.md](IDENTITY.md), not an assumption that assignment and
 control are identical.
 
-Payment is the first proving case. One mandatory abstract payment task offers one currently accepted
-tender unit. A successful payment creates the next such task only while matching `Owed` remains. If
-debt remains but no tender is legal, that task stays pending and unselectable, so the operation
-dead-ends rather than emitting `Idle`. Once debt is gone, no replacement task appears; `Idle`
-removes Billing, existing `-Billing` effects remove its `Accept` capabilities, and invoice
-removal produces the payoff or card entry. There is no completion sentinel and no parallel task to
-decline for every unused tender kind.
+Payment is the first proving case. Billing is an `UntilYield<Player>` component while one mandatory
+abstract payment task offers one currently accepted tender unit. A successful payment creates the
+next such task only while matching `Owed` remains. If debt remains but no tender is legal, that task
+stays pending and unselectable, so the operation dead-ends rather than yielding. Once debt is gone,
+no replacement task appears; the next pulse consumes Billing, existing `-Billing` effects remove
+its `Accept` capabilities, and invoice removal
+produces the payoff or card entry. There is no completion sentinel and no parallel task to decline
+for every unused tender kind.
 
-Event cleanup is the second proving case. An EventCard listens for its owner's next `Idle` and then
-automatically moves to the played-event pile. Solar Probe consequently retains its own Science tag
-through every queued effect of the turn that played it, but not into a possible consecutive turn.
+Event cleanup is the second proving case. A live EventCard is an `UntilYield<Player>` component
+whose removal effect moves it to the played-event pile. Solar Probe consequently retains its own
+Science tag through every queued effect of the turn that played it, but not into a possible
+consecutive turn.
 
-Implement idle detection outside raw task-set mutation so rollback, task replacement, and one
-instruction's admission of consequences cannot expose a false empty transition. Prove exact and
-partial payment, cost reduced to zero, legal overpayment, unavailable tender, card-resource tender,
-an `Idle` listener that queues more work, Solar Probe, consecutive turns by one Player, and a
-suspended delegated child before migrating workflow wakeup or deleting existing barriers.
+Prove exact and partial payment, cost reduced to zero, legal overpayment, unavailable tender,
+card-resource tender, multiple yield-scoped temporaries in one wave, a removal effect that queues
+more work, a removal effect that installs another `UntilYield` component, an unhandled pulse, Solar
+Probe, consecutive turns by one Player, rollback during settlement, and a suspended delegated child
+before migrating workflow wakeup or deleting existing barriers.
 
 ## Atomicity audit hypotheses
 
@@ -569,7 +611,8 @@ this is acceptable only while nothing can observe their relative order.
 
 - **Event cleanup:** an event must remain live through its immediate effect and tags before moving to
   the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag; the
-  agreed repair is automatic cleanup on the owning Player's next `Idle`.
+  agreed repair is to make the live EventCard yield-scoped temporary state consumed during the
+  owning Player's next yield settlement.
 - **Head Start:** every descendant of its first granted action must finish before the second begins.
   Siblings and plain `THEN` are too weak; this requires a completion scope or narrow barrier.
 
@@ -584,9 +627,9 @@ this is acceptable only while nothing can observe their relative order.
 - **Candidate draw/select/play:** Valley Trust, Merger, and New Partner use hand cards in
   incremental chains, so candidates are neither isolated nor forced to continue. Prefer one
   operation-scoped candidate representation if a fix is selected.
-- **Idle settlement:** implement the payment and EventCard proving cases before generalizing. Keep
-  auditable `Owed` and `Required` facts; do not infer successful payment from emptiness alone.
-- **Trade settlement:** determine whether the same idle protocol can delete `TradeBarrier` without
+- **Yield settlement:** implement the payment and EventCard proving cases before generalizing. Keep
+  auditable `Owed` and `Required` facts; do not infer successful payment from queue drain alone.
+- **Trade settlement:** determine whether the same yield protocol can delete `TradeBarrier` without
   losing the selected ColonyTile or letting colony-track reset be observed
   before income and colony bonuses finish.
 - **Automatic-effect order:** remove the current runtime dependence on registration order, then
@@ -628,7 +671,7 @@ For a new A-before-B claim:
 7. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is
    derived from it; do not mistake that local artificial order for broader game precedence.
 8. Otherwise classify the required scope: a local condition calls for a barrier, the entire
-   World task pool calls for global idle settlement, and one delegated descendant tree calls for a
+   World task pool calls for whole-World settlement, and one delegated descendant tree calls for a
    control scope. Do not approximate one with a broader scope simply because it exists today.
 9. Use only a committed mechanism; leave the case open when it requires an exploratory completion
    rule.

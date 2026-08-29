@@ -38,6 +38,7 @@ private constructor(
           shardFor = { shardClass(it.type.rootClass) },
           queryShardsFor = { queryShardClasses(it.rootClass) },
       )
+  private val dependentsByDependency = mutableMapOf<Component, MutableSet<Component>>()
 
   private data class CountListener(
       val type: Type,
@@ -148,11 +149,13 @@ private constructor(
     }
     removing?.let {
       checkDependents(count, it)
-      components.mustRemove(it, count)
+      val remaining = components.mustRemove(it, count)
+      if (remaining == 0) unregisterDependencies(it)
       removeEffects(it, count)
     }
     gaining?.let {
-      components.add(it, count)
+      val newCount = components.add(it, count)
+      if (newCount == count && count > 0) registerDependencies(it)
       addEffects(it, count)
     }
     notifyCountListeners()
@@ -201,10 +204,28 @@ private constructor(
 
   private fun checkDependents(count: Int, removing: Component) {
     if (countComponent(removing) == count) {
-      val dependents =
-          components.distinctElements().filter { removing in it.dependencyComponents }.toList()
-      if (dependents.isNotEmpty()) {
-        throw ExistingDependentsException(dependents.map { it.type })
+      dependentsByDependency[removing]?.let { dependents ->
+        if (dependents.isNotEmpty()) {
+          throw ExistingDependentsException(dependents.map { it.type })
+        }
+      }
+    }
+  }
+
+  private fun registerDependencies(dependent: Component) {
+    dependent.type.typeDependencies.forEach { dependency ->
+      dependentsByDependency
+          .getOrPut(dependency.boundType.toComponent(), ::linkedSetOf)
+          .add(dependent)
+    }
+  }
+
+  private fun unregisterDependencies(dependent: Component) {
+    dependent.type.typeDependencies.forEach { dependency ->
+      val dependencyComponent = dependency.boundType.toComponent()
+      dependentsByDependency[dependencyComponent]?.let { dependents ->
+        dependents.remove(dependent)
+        if (dependents.isEmpty()) dependentsByDependency.remove(dependencyComponent)
       }
     }
   }
