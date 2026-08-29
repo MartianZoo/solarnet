@@ -35,6 +35,7 @@ import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Type
 
 /** One specialized component effect ready for subscription matching and firing. */
 internal class LiveEffect
@@ -45,20 +46,30 @@ private constructor(
     private val triggerClass: ClassName?,
     private val transformers: Transformers,
 ) {
+  // The context is immutable, so its ownership cannot change during this effect's lifetime.
+  private val effectOwner: Player? = context.playerOwner
+
   internal val automatic: Boolean
     get() = effect.automatic
 
   internal val registryKey = RegistryKey(automatic, triggerClass)
 
-  internal fun onChangeToSelf(triggerEvent: ChangeEvent, reader: GameReader): PendingTask? =
-      onChange(triggerEvent, reader, isSelf = true)
+  internal fun onChangeToSelf(
+      triggerEvent: ChangeEvent,
+      reader: GameReader,
+      resolvedChange: ResolvedChange,
+  ): PendingTask? = onChange(triggerEvent, reader, resolvedChange, isSelf = true)
 
-  internal fun onChangeToOther(triggerEvent: ChangeEvent, reader: GameReader): PendingTask? =
-      onChange(triggerEvent, reader, isSelf = false)
+  internal fun onChangeToOther(
+      triggerEvent: ChangeEvent,
+      reader: GameReader,
+      resolvedChange: ResolvedChange,
+  ): PendingTask? = onChange(triggerEvent, reader, resolvedChange, isSelf = false)
 
   private fun onChange(
       triggerEvent: ChangeEvent,
       reader: GameReader,
+      resolvedChange: ResolvedChange,
       isSelf: Boolean,
   ): PendingTask? {
     // An owned effect belongs to the Player owning the component that carries it. This must win
@@ -66,13 +77,12 @@ private constructor(
     // owns the effect and therefore chooses the standard resource. Using the changed tile's Owner
     // instead would incorrectly give that choice to Player1. This is intentionally Player-only:
     // no accepted SoloOpponent rule gives a passive Owner triggered choices or pending work.
-    val effectOwner = context.playerOwner
 
     // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
     // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
     // gameplay scope that happens to execute the effect. A passive Owner is ignored here because
     // ownership alone must not give SoloOpponent task or gameplay authority.
-    val changedComponentPlayer = changedComponentPlayer(triggerEvent, reader)
+    val changedComponentPlayer = resolvedChange.changedComponentPlayer
 
     // If neither the effect nor the changed component supplies ownership, a Player Actor is the
     // last legitimate source for contextual `Owner`. Engine is deliberately excluded: it is an
@@ -83,7 +93,14 @@ private constructor(
     // contextualOwner prevents the assignee from silently becoming the Actor used by authored
     // `BY`, while preserving today's Philares behavior in which its Owner receives the task.
     val assignee = assigneeForTriggeredWork(triggerEvent, effectOwner, changedComponentPlayer)
-    val hit = subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
+    val hit =
+        subscription.checkForHit(
+            triggerEvent,
+            contextualOwner,
+            resolvedChange,
+            isSelf,
+            reader,
+        ) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     val instruction =
         transformers
@@ -110,11 +127,6 @@ private constructor(
       changedComponentPlayer: Player?,
   ): Actor = effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
 
-  private fun changedComponentPlayer(triggerEvent: ChangeEvent, reader: GameReader): Player? {
-    val expression = triggerEvent.change.gaining ?: triggerEvent.change.removing ?: return null
-    return reader.resolve(expression).toComponent().playerOwner
-  }
-
   override fun equals(other: Any?): Boolean =
       other is LiveEffect &&
           subscription == other.subscription &&
@@ -123,19 +135,30 @@ private constructor(
           context == other.context &&
           triggerClass == other.triggerClass
 
-  override fun hashCode(): Int {
+  override fun hashCode(): Int = cachedHashCode
+
+  private val cachedHashCode: Int = run {
     var result = subscription.hashCode()
     result = 31 * result + automatic.hashCode()
     result = 31 * result + effect.instruction.hashCode()
     result = 31 * result + context.hashCode()
     result = 31 * result + (triggerClass?.hashCode() ?: 0)
-    return result
+    result
   }
 
   internal data class RegistryKey(
       private val automatic: Boolean,
       private val triggerClass: ClassName?,
   )
+
+  internal class ResolvedChange(
+      val gaining: Type?,
+      val removing: Type?,
+  ) {
+    val changedComponentPlayer: Player? = (gaining ?: removing)?.toComponent()?.playerOwner
+
+    fun type(matchOnGain: Boolean): Type? = if (matchOnGain) gaining else removing
+  }
 
   internal companion object {
     internal fun compile(
@@ -274,6 +297,7 @@ private constructor(
     abstract fun checkForHit(
         currentEvent: ChangeEvent,
         contextualOwner: Player?,
+        resolvedChange: ResolvedChange,
         isSelf: Boolean,
         reader: GameReader,
     ): Hit?
@@ -286,13 +310,22 @@ private constructor(
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
+          resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
         alternatives.forEach { alternative ->
-          alternative.checkForHit(currentEvent, contextualOwner, isSelf, reader)?.let {
-            return it
-          }
+          alternative
+              .checkForHit(
+                  currentEvent,
+                  contextualOwner,
+                  resolvedChange,
+                  isSelf,
+                  reader,
+              )
+              ?.let {
+                return it
+              }
         }
         return null
       }
@@ -312,15 +345,15 @@ private constructor(
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
+          resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
         reader as GameReaderImpl
         if (isSelf) return null
         val change = currentEvent.change
-        val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
+        val changeType = resolvedChange.type(matchOnGain) ?: return null
         // Will be refinement-aware (#48)
-        val changeType = reader.resolve(expr)
         val matchType = reader.resolve(match)
         val triggerIsOwnedOrSystem =
             matchType.rootClass.allSuperclasses().any {
@@ -366,14 +399,14 @@ private constructor(
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
+          resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
         if (!isSelf) return null
-        val change = currentEvent.change
-        val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
+        val changeType = resolvedChange.type(matchOnGain) ?: return null
 
-        return if (reader.resolve(expr) == context.type) {
+        return if (changeType == context.type) {
           Hit(emptyList(), currentEvent.change.count)
         } else {
           null
@@ -392,6 +425,7 @@ private constructor(
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
+          resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -411,13 +445,27 @@ private constructor(
             if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
             val binding = reader.transformers.checkedSubstituter(selectorType, actorType)
             val hit =
-                inner.transform(binding).checkForHit(currentEvent, contextualOwner, isSelf, reader)
-                    ?: return null
+                inner
+                    .transform(binding)
+                    .checkForHit(
+                        currentEvent,
+                        contextualOwner,
+                        resolvedChange,
+                        isSelf,
+                        reader,
+                    ) ?: return null
             return hit.before(binding)
           }
         }
 
-        var hit = inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
+        var hit =
+            inner.checkForHit(
+                currentEvent,
+                contextualOwner,
+                resolvedChange,
+                isSelf,
+                reader,
+            ) ?: return null
 
         // BY describes the Actor that performed the triggering change, recorded on the event.
         fun specializeSelector(): Expression {
@@ -488,11 +536,18 @@ private constructor(
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
+          resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
         val wouldHit =
-            inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
+            inner.checkForHit(
+                currentEvent,
+                contextualOwner,
+                resolvedChange,
+                isSelf,
+                reader,
+            ) ?: return null
         return if (reader.has(wouldHit.specialize(condition))) wouldHit else null
       }
 
@@ -509,10 +564,18 @@ private constructor(
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
+          resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        val hit = inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
+        val hit =
+            inner.checkForHit(
+                currentEvent,
+                contextualOwner,
+                resolvedChange,
+                isSelf,
+                reader,
+            ) ?: return null
         return hit.bindCount(currentEvent.change.count)
       }
 

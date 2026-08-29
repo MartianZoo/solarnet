@@ -36,6 +36,8 @@ public data class Expression(
     /** Whether the source wrote angle brackets, including an explicit empty `<>`. */
     val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 ) : PetElement(), HasClassName, HasExpression, Specification<Expression> {
+  // Expressions are immutable after parsing; zero is the uncached sentinel.
+  private var cachedHashCode: Int = 0
 
   internal var derivedClassBody: ClassParsing.Body? = null
     private set
@@ -48,6 +50,7 @@ public data class Expression(
   internal fun withDerivedClassBody(body: ClassParsing.Body): Expression = apply {
     check(derivedClassBody == null)
     derivedClassBody = body
+    cachedHashCode = 0
   }
 
   override fun equals(other: Any?): Boolean =
@@ -60,11 +63,14 @@ public data class Expression(
               derivedClassBody == other.derivedClassBody)
 
   override fun hashCode(): Int {
+    if (cachedHashCode != 0) return cachedHashCode
     var result = className.hashCode()
     result = 31 * result + arguments.hashCode()
     result = 31 * result + (refinement?.hashCode() ?: 0)
     result = 31 * result + complement.hashCode()
-    return 31 * result + (derivedClassBody?.hashCode() ?: 0)
+    result = 31 * result + (derivedClassBody?.hashCode() ?: 0)
+    cachedHashCode = result
+    return result
   }
 
   override val expression: Expression
