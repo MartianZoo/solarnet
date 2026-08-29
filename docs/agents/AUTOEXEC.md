@@ -44,8 +44,10 @@ This distinction excludes several engine responsibilities:
 
 - A `::` effect executes inline because the authored game rule makes it automatic.
 - A `:` effect creates a task because the authored rule requires later activity by its assignee.
-- The agreed `Idle<Player>` direction emits an Engine-owned completion Signal after a controlled
-  queue epoch drains; authored idle listeners and the workflow may react without a client policy.
+- The agreed `Yield<Player>` direction emits an Engine-owned settlement Signal after a controlled
+  queue epoch drains; its sole subscriber removes matching `UntilYield<Player>` components, whose
+  removal effects may react, and the workflow advances after an unhandled pulse without a client
+  policy.
 - Validation and recognition of a proven dead end apply whether a client or policy chose the path.
 - Selecting a particular task causes the engine to resolve it against the current World.
 

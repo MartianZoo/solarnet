@@ -25,7 +25,7 @@ internal class Changer(
       actor: Actor = defaultActor,
   ): Pair<ChangeEvent, Boolean> {
     return try {
-      val change = StateChange(count, gaining?.expressionFull, removing?.expressionFull)
+      val change = StateChange(count, gaining?.expression, removing?.expression)
       val event = ChangeEvent(events.nextOrdinal, actor, change, cause)
       events.record(event) { components.applyChange(count, gaining, removing) } to true
     } catch (e: ExistingDependentsException) {

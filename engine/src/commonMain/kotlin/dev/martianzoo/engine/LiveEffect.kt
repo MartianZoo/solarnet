@@ -373,7 +373,7 @@ private constructor(
         val change = currentEvent.change
         val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
 
-        return if (expr == context.expressionFull) {
+        return if (reader.resolve(expr) == context.type) {
           Hit(emptyList(), currentEvent.change.count)
         } else {
           null

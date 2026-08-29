@@ -371,6 +371,8 @@ public class TfmGameplay(
                 previous == null ||
                     previous.copy(selected = task.selected, whyPending = task.whyPending) != task
               }
+              // Unchosen wild-tag offers are handled by cleanup below, not unexpected work.
+              .filterNot { it.isWildTagOffer() }
       if (newPendingTasks.isNotEmpty()) {
         if (newPendingTasks.any { it.whyPending == "abstract" }) {
           throw AbstractException("pending abstract tasks:\n${newPendingTasks.joinToString("\n")}")
@@ -384,16 +386,16 @@ public class TfmGameplay(
 
   private fun declineWildTagOffers() {
     while (true) {
-      val offer =
-          game.tasks
-              .extract { it }
-              .filter { it.assignee == actor }
-              .withIndex()
-              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("WildTagUse") }
-              ?: return
-      doTask("Ok", offer.index + 1)
+      val actorTasks = game.tasks.extract { it }.filter { it.assignee == actor }
+      // A nested operation may intentionally leave another task open; defer cleanup until it ends.
+      if (actorTasks.any { !it.isWildTagOffer() }) return
+      val offer = actorTasks.firstOrNull() ?: return
+      if (!offer.selected) selectTask(offer.id)
+      narrowTask("Ok")
     }
   }
+
+  private fun Task.isWildTagOffer(): Boolean = cause?.context?.className == cn("WildTagUse")
 
   private fun removeWildTagUses() {
     val uses = reader.getComponents("WildTagUse<$actor>")

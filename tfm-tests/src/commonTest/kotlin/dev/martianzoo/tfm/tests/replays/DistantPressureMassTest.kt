@@ -586,7 +586,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.buyCards(RimFreighters, LunarBeam)
     been.discardUnselectedProjectCards(SulphurExports, TopsoilContract)
     keen.buyCards(AdvancedAlloys, CyberiaSystems)
-    keen.discardUnselectedProjectCards(cn("VenusTradeHub"), WaterToVenus)
+    keen.discardUnselectedProjectCards(VenusTradeHub, WaterToVenus)
 
     keen.turn {
       convertPlants { placeTile(5, 5) }
@@ -769,7 +769,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.buyCards(Plantation)
     been.discardUnselectedProjectCards(Zeppelins, AsteroidMiningConsortium, Potatoes)
     keen.buyCards(NitrogenFromTitan, SubZeroSaltFish)
-    keen.discardUnselectedProjectCards(CoronaExtractor, cn("UnexpectedApplication"))
+    keen.discardUnselectedProjectCards(CoronaExtractor, UnexpectedApplication)
     keen.turn {
       playProject(SubZeroSaltFish, 1) { doTask("PROD[-Plant<Been>]") }.expect("0 MC")
       stdAction("TradeSA", 2) {

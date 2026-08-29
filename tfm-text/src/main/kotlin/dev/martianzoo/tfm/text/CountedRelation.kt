@@ -15,12 +15,14 @@ internal data class CountedRelation(
       val singular: String,
       val plural: String,
       val determiner: String,
+      val ownershipSuffix: String,
       val ownedByYou: Boolean,
   ) {
     fun linearize(uppercaseAny: Boolean = false): String =
-        "${if (uppercaseAny && determiner == "any") "ANY" else determiner} $singular"
+        "${if (uppercaseAny && determiner == "any") "ANY" else determiner} " +
+            "$singular$ownershipSuffix"
 
-    fun noun(count: Int): String = if (count == 1) singular else plural
+    fun noun(count: Int): String = "${if (count == 1) singular else plural}$ownershipSuffix"
   }
 
   fun countedObject(count: Int): String = "${target.noun(count)} $phrase ${source.linearize()}"
@@ -53,26 +55,38 @@ private fun renderParticipant(
   val placement = describers.positionedFrame(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
-  val (determiner, ownedByYou) =
+  val (determiner, ownership) =
       when {
-        resolved.sourceDependency(ownerKey) == describers.anyoneExpression -> "any" to false
+        resolved.sourceDependency(ownerKey) == describers.anyoneExpression ->
+            when (placement.anyoneOwnership ?: return null) {
+              ComponentDescriber.OwnershipPhrase.IMPLICIT ->
+                  "any" to ComponentDescriber.OwnershipPhrase.IMPLICIT
+              ComponentDescriber.OwnershipPhrase.ANYONES ->
+                  "a" to ComponentDescriber.OwnershipPhrase.ANYONES
+              ComponentDescriber.OwnershipPhrase.YOURS -> return null
+            }
         resolved.sourceDependencies.isNotEmpty() -> return null
-        placement.article == "this" -> "this" to false
-        describers.isUnqualifiedPlacementOwned(expression) -> "your" to true
-        else -> placement.article to false
+        placement.article == "this" -> "this" to ComponentDescriber.OwnershipPhrase.IMPLICIT
+        else ->
+            when (placement.unqualifiedOwnership) {
+              ComponentDescriber.OwnershipPhrase.YOURS ->
+                  "your" to ComponentDescriber.OwnershipPhrase.YOURS
+              ComponentDescriber.OwnershipPhrase.ANYONES ->
+                  "a" to ComponentDescriber.OwnershipPhrase.ANYONES
+              ComponentDescriber.OwnershipPhrase.IMPLICIT,
+              null -> placement.article to ComponentDescriber.OwnershipPhrase.IMPLICIT
+            }
       }
+  val placementNoun = ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+  val noun = if (determiner == "this") placementNoun else placement.referenceNoun ?: placementNoun
   return CountedRelation.Participant(
-      placement.singular,
-      placement.plural,
+      noun.singular,
+      noun.plural,
       determiner,
-      ownedByYou,
+      ownershipSuffix =
+          if (ownership == ComponentDescriber.OwnershipPhrase.ANYONES) " anyone owns" else "",
+      ownedByYou = ownership == ComponentDescriber.OwnershipPhrase.YOURS,
   )
 }
 
 private val ADJACENCY = cn("Adjacency")
-
-private fun Describers.isUnqualifiedPlacementOwned(expression: Expression): Boolean {
-  val placement = positionedFrame(expression.className) ?: return false
-  if (placement.unqualifiedMetricOwner == ComponentDescriber.MetricOwner.YOU) return true
-  return isPlayerOwned(expression.className)
-}

@@ -50,8 +50,9 @@ internal data class ComponentDescriber(
         internal val article: String,
         internal val singular: String,
         internal val plural: String,
-        internal val unqualifiedMetricOwner: MetricOwner? = null,
-        internal val anyoneMetricOwner: MetricOwner? = null,
+        internal val referenceNoun: Noun.Counted? = null,
+        internal val unqualifiedOwnership: OwnershipPhrase? = null,
+        internal val anyoneOwnership: OwnershipPhrase? = null,
     ) : ChangeFrame
 
     public data object Deck : ChangeFrame
@@ -96,9 +97,10 @@ internal data class ComponentDescriber(
     }
   }
 
-  internal enum class MetricOwner {
-    YOU,
-    ANY_PLAYER,
+  internal enum class OwnershipPhrase {
+    IMPLICIT,
+    YOURS,
+    ANYONES,
   }
 
   internal data class Requirement(

@@ -16,16 +16,19 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   legal concrete narrowing exists. Add focused behavioral coverage for multiple selectable tasks,
   multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
   client policy. Use [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
-- **High priority:** Implement the Player-idle settlement protocol. Emit Engine-owned
-  `Idle<Player>` after a controlled queue epoch drains; let automatic listeners settle temporary
-  state before workflow advances. Replace parallel payment-method tasks with one mandatory abstract
+- **High priority:** Implement Player-yield settlement. Emit Engine-owned `Yield<Player>` after a
+  controlled queue epoch drains; make its sole subscriber remove every matching
+  `UntilYield<Player>` component; allow component-specific removal effects to repopulate the queue;
+  repeat pulses until one removes no such component; then let workflow advance if no unfinished
+  temporary state remains. Replace parallel payment-method tasks with one mandatory abstract
   accepted-tender choice at a time, keep it pending and unselectable while unpaid without legal
-  tender, remove Billing on `Idle` only after debt is gone, and let `-CardInvoice` put the card into
-  play. Move EventCards to the played-event pile on the following `Idle`, fixing Solar Probe without
-  task priority. Preserve invoice removal as the completion event and delete superseded helper-side
-  payment cleanup. Revisit other internal `::` transitions separately from SAFE. Do not convert
-  printed immediate card effects, triggered resource effects such as Manutech, or authored Action
-  results merely because their ordering seems pointless in the current game.
+  tender, make Billing yield-scoped until debt is gone, and let `-CardInvoice` put the card into play.
+  Make live EventCards yield-scoped so their removal moves them to the played-event pile on the
+  following yield, fixing Solar Probe without task priority. Preserve invoice removal as the
+  completion event and delete superseded helper-side payment cleanup. Revisit other internal `::`
+  transitions separately from SAFE. Do not convert printed immediate card effects, triggered
+  resource effects such as Manutech, or authored Action results merely because their ordering seems
+  pointless in the current game.
 - Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion can express
   “after its tag choice or decline”; remove the gameplay helper's god-mode cleanup at that point.
 - **High priority:** Extend Distant Pressure Mass's exact located-card follow mode to other
@@ -115,7 +118,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
   dependencies. Autoexecution policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **Medium priority:** After the payment and EventCard proving cases, test whether Player-idle
+- **Medium priority:** After the payment and EventCard proving cases, test whether Player-yield
   settlement can also delete `TradeBarrier` while retaining the selected ColonyTile and keeping
   fleet movement after every optional production decision.
 - **Medium-high priority:** Finish replacing the legacy “linkage” terminology and machinery with the
