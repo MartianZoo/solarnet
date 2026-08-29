@@ -400,7 +400,8 @@ Place choice-free work according to what it means:
 1. use `::` for a fixed consequence needed to restore a coherent World before Player work;
 2. use an Engine-owned queued task for a deterministic game or workflow event that remains
    meaningfully observable and reorderable only against other equivalent Engine work; or
-3. use scoped completion or `Idle` for cleanup that must wait until all descendants drain.
+3. use scoped completion for cleanup that must wait until all descendants drain, or
+   `UntilYield<Player>` for cleanup owned by the next controlled Player queue drain.
 
 Engine ownership asserts that no participant chooses among semantically different outcomes. The
 Engine runner may therefore drain all eligible owned work strongly; if it encounters distinct legal

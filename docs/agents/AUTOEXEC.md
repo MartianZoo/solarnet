@@ -66,7 +66,7 @@ outcome is uniquely implied, rereading state after each operation. It does not m
 ownership is wrong; reassign or remodel it instead of giving Engine a gameplay preference.
 
 Thus `NONE` disables optional policies that act for Players. It does not disable inline `::`
-effects, owned `Idle` settlement, task resolution after an explicit selection, or deterministic
+effects, owned `Yield` settlement, task resolution after an explicit selection, or deterministic
 Engine progress.
 
 ## Resolution is not a policy
