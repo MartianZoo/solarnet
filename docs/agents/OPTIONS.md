@@ -46,6 +46,10 @@ A Catalog is principally a data provider. It does not make live game-state decis
 Terraforming Mars is one Catalog; a variant that changes fundamental meanings is another.
 Catalogs may reuse Class Names because their namespaces never mix.
 
+Client interaction knowledge remains outside the base `Catalog` contract. The Routine prototype
+uses the separate engine-level `RoutineProvider` capability; `TfmCatalog` implements it so bundles
+can contribute Routine implementations without making Routines part of Pets catalog data.
+
 A Catalog may be assembled from internal bundles, but callers and playable games still use
 exactly one Catalog. Identical declarations may coalesce. Conflicting declarations for one Class
 Name or ambiguous ownership of a Module are invalid.

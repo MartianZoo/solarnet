@@ -88,12 +88,32 @@ refill the queue, and a yield-scoped live EventCard moves to the played-event pi
 yield. See
 [SEQUENCING.md](SEQUENCING.md#player-yield-settlement-and-yield-scoped-temporaries-agreed-direction).
 
+### Player-input staging
+
+Card play and standard-resource Actions expose one operation with ordered stages, not an
+unstructured bag of removals and results. The player first chooses the card or Action. If that
+choice creates Billing, the operation must finish that Billing stage before accepting any of the
+resulting consequence choices. Billing may require zero or more tender selections. Only after it
+closes can the player select direct effects or other queued consequences.
+
+Clients and Routines must recognize payment from the live Billing stage, not by inspecting every
+resource-removal instruction. This distinction is what keeps a direct floater cost, a production
+transformation, or another holder-sensitive removal in the ordinary Pets consequence stage. It
+also makes written payment/consequence interleaving invalid without inventing a special payment
+syntax. See [ROUTINES.md](ROUTINES.md#invocation-contract).
+
 ## Composition
 
 Several additions to `Owed` may precede one invoice. Card buying adds 3 M€ per card, allowing
 Polyphemos and Terralabs Research to alter the same debt before the invoice opens. Fund Award is
 instead three Actions—8, 14, and 20 M€—whose results are gated to the corresponding
 existing Award count; selecting the wrong one cannot complete and rolls back.
+
+Card acquisition first fixes the complete selected set, then establishes all adjusted debt under
+one Billing stage, and transfers the exact cards only after settlement. Starting-card acquisition
+uses the same lifecycle after corporation resources exist; Business Network and later Research use
+it whenever the player commits the contents of `Selecting`. The commitment time may be a player
+choice, but individual debt creation and transfer bookkeeping are not.
 
 Card play creates printed M€ debt, handles tags, then creates
 `CardInvoice<Class<CardFront>>`. Generic card-play modifiers respond to its `Billing<PlayCards>`

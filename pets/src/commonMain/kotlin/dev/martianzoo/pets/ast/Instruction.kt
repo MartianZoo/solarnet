@@ -377,7 +377,10 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction =
         withParts(stages.map { it * factor }, continuation * factor)
 
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(stages + continuation)
+    override fun visitChildren(visitor: Visitor) {
+      visitor.visit(stages)
+      visitor.visit(continuation)
+    }
 
     /** Replaces stages while preserving the authored linkage identities carried by this `THEN`. */
     public fun withInstructions(instructions: List<InstructionTree>): Then {

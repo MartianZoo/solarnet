@@ -26,9 +26,9 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.canon.TfmClasses.MC
-import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE_CLASSES
+import dev.martianzoo.tfm.engine.TfmApiUtils.mc as MC
+import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceClasses
+import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
 
 /**
  * Wraps and extends a [Gameplay] instance to provide much more convenient functions specific to
@@ -75,6 +75,16 @@ public class TfmGameplay(
   public fun buyCards(count: Int): TaskResult =
       gameplay.godMode().continueManual { buySelectedCards(count) }
 
+  /**
+   * Commits every project card currently selected, opening a pending offer first when necessary.
+   */
+  public fun buyCards(): TaskResult =
+      gameplay.godMode().continueManual {
+        closeUnusedPaymentOffers()
+        openPendingProjectCardOffer()
+        buySelectedCards(this@TfmGameplay.count("ProjectCard<Selecting>"))
+      }
+
   private fun OperationBody.buySelectedCards(count: Int) {
     closeUnusedPaymentOffers()
     openPendingProjectCardOffer()
@@ -85,21 +95,47 @@ public class TfmGameplay(
         tasks
             .extract { it }
             .withIndex()
-            .single { (_, task) ->
+            .singleOrNull { (_, task) ->
               val instruction = task.instruction.toString()
-              "ProjectCard" in instruction && "Selecting" in instruction
+              "ProjectCard" in instruction &&
+                  "Selecting" in instruction &&
+                  !instruction.startsWith("BuyCard")
             }
-            .index + 1
-    doTask(
-        if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
-        selectionTaskNumber,
-    )
+            ?.index
+            ?.plus(1)
+    if (selectionTaskNumber != null) {
+      doTask(
+          if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
+          selectionTaskNumber,
+      )
+    } else {
+      require(discarded == 0 && hasPendingBuySelectedCards(tasks)) {
+        "no open project-card selection to commit"
+      }
+    }
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
+    if (hasPendingBuyCard(tasks)) {
+      while (hasPendingBuyCard(tasks)) {
+        if (this@TfmGameplay.count("ProjectCard<Selecting>") > 0) {
+          doTask("BuyCard / ProjectCard<Selecting>")
+        } else {
+          val buyTask = tasks.matching { it.instruction.toString().startsWith("BuyCard") }.single()
+          selectTask(buyTask)
+          if (buyTask in tasks) narrowTask("Ok")
+        }
+      }
+    }
     if (count > 0) {
-      while (hasPendingBuyCard(tasks)) doTask("BuyCard / ProjectCard<Selecting>")
       if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
       payAllMc()
       completePurchasedCards()
+    } else {
+      val emptyTransfer =
+          tasks.matching { it.instruction.toString().startsWith("MAX 0 Invoice") }.singleOrNull()
+      if (emptyTransfer != null) {
+        selectTask(emptyTransfer)
+        if (emptyTransfer in tasks) narrowTask("Ok")
+      }
     }
     if (this@TfmGameplay.count("Selecting") != 0) doTask("-Selecting")
     closeUnusedPaymentOffers()
@@ -230,7 +266,7 @@ public class TfmGameplay(
 
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
     val billingCause = openPendingBilling()
-    val offeredResource = STANDARD_RESOURCE_CLASSES.singleOrNull { resource ->
+    val offeredResource = standardResourceClasses.singleOrNull { resource ->
       game.tasks
           .extract { it }
           .filter { it.assignee == actor }

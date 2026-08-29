@@ -7,6 +7,7 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.canon.ApiUtils
+import dev.martianzoo.tfm.engine.TfmApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
@@ -41,7 +42,7 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
       val player = tfm.actor as? Player ?: error("a player board requires a Player actor")
       val prodMap = ApiUtils.lookUpProductionLevels(tfm.reader, player)
       val resourceMap =
-          ApiUtils.standardResourceNames(tfm.reader).associateBy({ it }) {
+          TfmApiUtils.standardResourceNames(tfm.reader).associateBy({ it }) {
             tfm.reader.count(Count(it.of(player.className)))
           }
 

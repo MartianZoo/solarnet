@@ -37,35 +37,43 @@ internal class Effector(
   private fun liveEffects(component: Component): List<LiveEffect> =
       effects.getOrPut(component) { LiveEffect.compile(component, transformers) }
 
-  internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<PendingTask> =
-      fireSelfEffects(triggerEvent, automatic) + fireOtherEffects(triggerEvent, automatic)
+  internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<PendingTask> {
+    val resolvedChange =
+        LiveEffect.ResolvedChange(
+            gaining = triggerEvent.change.gaining?.let(reader::resolve),
+            removing = triggerEvent.change.removing?.let(reader::resolve),
+        )
+    return fireSelfEffects(triggerEvent, automatic, resolvedChange) +
+        fireOtherEffects(triggerEvent, automatic, resolvedChange)
+  }
 
   private fun fireSelfEffects(
       triggerEvent: ChangeEvent,
       automatic: Boolean? = null,
+      resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
-      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
-          .map(reader::resolve)
+      listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
           .map(Type::toComponent)
           .flatMap { liveEffects(it) }
           .filter { automatic == null || it.automatic == automatic }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
+          .mapNotNull { it.onChangeToSelf(triggerEvent, reader, resolvedChange) }
 
   private fun fireOtherEffects(
       triggerEvent: ChangeEvent,
       automatic: Boolean? = null,
+      resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
-      candidatesFor(triggerEvent, automatic).mapNotNull { (effect, count) ->
-        effect.onChangeToOther(triggerEvent, reader)?.times(count)
+      candidatesFor(automatic, resolvedChange).mapNotNull { (effect, count) ->
+        effect.onChangeToOther(triggerEvent, reader, resolvedChange)?.times(count)
       }
 
   private fun candidatesFor(
-      triggerEvent: ChangeEvent,
       automatic: Boolean?,
+      resolvedChange: LiveEffect.ResolvedChange,
   ): List<Pair<LiveEffect, Int>> {
     val changedClasses =
-        listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
-            .flatMap { reader.resolve(it).rootClass.allSuperclasses() }
+        listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
+            .flatMap { it.rootClass.allSuperclasses() }
             .mapTo(linkedSetOf()) { it.className }
     val automaticValues = automatic?.let(::setOf) ?: setOf(true, false)
 

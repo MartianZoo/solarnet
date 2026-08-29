@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.engine.AutoExecMode
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
@@ -8,7 +9,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -68,13 +69,19 @@ public object TfmWorkflow {
    * Orchestrates the full Terraforming Mars game flow using a single coroutine, so each phase can
    * be written as straight-line sequential code.
    *
+   * @param playerAutoExecMode optionally supplies the automatic execution mode used by each player
+   *   adapter
+   *
    * The coroutine suspends whenever the game has outstanding tasks (choosing cards, placing tiles,
    * etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
    * [Channel.RENDEZVOUS] channel: [Channel.trySend] only succeeds when a [Channel.receive] is
    * already waiting, so signals fired during automatic engine-owned phases are dropped rather than
    * queued, preventing spurious wakeups.
    */
-  public class Auto(private val game: World) {
+  public class Auto(
+      private val game: World,
+      private val playerAutoExecMode: (() -> AutoExecMode)? = null,
+  ) {
 
     private val m = Manual(game)
     private val engineOps: OperationLayer
@@ -234,7 +241,10 @@ public object TfmWorkflow {
       return players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
     }
 
-    private fun opsFor(player: Player) = game.gameplay(player) as OperationLayer
+    private fun opsFor(player: Player) =
+        (game.gameplay(player) as OperationLayer).also {
+          playerAutoExecMode?.let { mode -> it.autoExecMode = mode() }
+        }
 
     private fun hasPassed(player: Player) = opsFor(player).has("Pass")
 

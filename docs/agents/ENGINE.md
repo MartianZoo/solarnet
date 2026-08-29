@@ -316,10 +316,12 @@ follow the dependency graph when card identity matters. Robotic Workforce uses
 `CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
 action-scoped wild holder received the Building interpretation.
 
-`WildTagUse` is `Temporary`, so the action cannot finish while it remains. `TfmGameplay` declines
-unchosen offers and removes all of the acting player's uses after the action body has drained; the
-dependent tags disappear through dependency cascade. A different client must perform the
-same uniquely implied settlement before completing the operation.
+`WildTagUse` is `Temporary`, so the action cannot finish while it remains. An unchosen offer is
+uniquely implied action-scoped settlement: after the action body and all descendants drain, scoped
+completion removes the acting player's remaining uses and their dependent tags disappear through
+dependency cascade. It must finish before workflow offers `SecondAction`; a client Routine and the
+later decision to decline that second action must not own this cleanup. `TfmGameplay` currently
+performs the equivalent settlement directly and should migrate when scoped completion exists.
 
 ## Metrics, refinements, and limits
 

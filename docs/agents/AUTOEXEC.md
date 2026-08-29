@@ -54,6 +54,21 @@ This distinction excludes several engine responsibilities:
 The engine owns those semantics. It does not own a policy for deciding which offered gameplay
 command should happen.
 
+### Engine-owned deterministic work
+
+An Engine assignee is not an autoexecution profile for a Player. It is a semantic assertion that
+the queued work contains no participant decision. Workflow pulses, production, and similar owned
+events should therefore drain strongly even when the Player-policy profile is `NONE`.
+
+Strong draining means repeatedly performing every currently eligible Engine-owned command whose
+outcome is uniquely implied, rereading state after each operation. It does not mean stable-order
+`FIRST`. If Engine-owned work offers semantically distinct legal commands, the instruction or its
+ownership is wrong; reassign or remodel it instead of giving Engine a gameplay preference.
+
+Thus `NONE` disables optional policies that act for Players. It does not disable inline `::`
+effects, owned `Yield` settlement, task resolution after an explicit selection, or deterministic
+Engine progress.
+
 ## Resolution is not a policy
 
 The engine resolves only the task a caller selects. Resolution evaluates facts whose meaning is
