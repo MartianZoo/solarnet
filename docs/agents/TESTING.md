@@ -78,7 +78,7 @@ Convention plugins under `gradle/build-logic` are layered by responsibility. `so
 the policy shared by every Kotlin target: compilation, explicit API mode, dependency alignment,
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
-shared `kotlin.test`, exposes each module's `jvmTest` as `test`, and stages browser-test resources.
+shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
 Module build scripts keep only module-specific configuration; the JavaScript-only application
 configures its target directly. Repository-wide formatting and Yarn policy remain in the root
 build. Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
@@ -127,7 +127,7 @@ clear coverage of these contracts matters more than preserving every current tes
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
 9. **Cross-runtime packaging smoke coverage.** One representative browser game proving that the
-   JavaScript artifact, packaged Canon resources, and engine work together outside the JVM.
+   JavaScript artifact, generated Canon data, and engine work together outside the JVM.
 10. **Real-terminal REPL smoke coverage.** One Expect-driven scenario proving the packaged REPL can
     be launched and used through an actual terminal.
 

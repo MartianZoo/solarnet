@@ -9,7 +9,7 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
- * An internal Catalog-provider bundle loaded from conventionally named Pets and JSON resources.
+ * An internal Catalog-provider bundle built from conventionally named Pets and JSON sources.
  *
  * `classes.pets`, when present, supplies declarations and compact map diagrams; card and language
  * metadata remain JSON. Files for unsupported canonical data are recognized but ignored; other
