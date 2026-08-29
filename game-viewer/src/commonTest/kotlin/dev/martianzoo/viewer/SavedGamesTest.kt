@@ -91,7 +91,7 @@ internal class SavedGamesTest {
   internal fun playerNamesChooseTheTemporaryUpstreamColors() {
     assertEquals("green", playerColor("Dad"))
     assertEquals("green", playerColor("Keen"))
-    assertEquals("purple", playerColor("Jane"))
+    assertEquals("blue", playerColor("Jane"))
     assertEquals("yellow", playerColor("Ellie"))
     assertEquals("blue", playerColor("Mom"))
     assertEquals("blue", playerColor("Chris"))

@@ -35,3 +35,9 @@ tasks.named<ProcessResources>("jsProcessResources") {
           .orElse(rootProject.layout.projectDirectory.dir("_local/images").asFile)
   from(localImages) { into("images") }
 }
+
+// The game viewer's development server is the shared browser-app host. Its webpack configuration
+// also bundles and serves the browser REPL, so make that application available before webpack runs.
+tasks.named("jsBrowserDevelopmentRun") {
+  dependsOn(":web:jsDevelopmentExecutableCompileSync", ":web:jsProcessResources")
+}

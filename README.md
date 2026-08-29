@@ -43,14 +43,15 @@ cd solarnet
 
 ... and then type `help`.
 
-To use the browser version of REgo PLastics instead, run:
+To run the browser apps on one development server, run:
 
 ```
-./gradlew :web:jsBrowserDevelopmentRun --continuous
+./gradlew webAppsDevelopmentRun --continuous
 ```
 
-Then open the local URL Gradle prints. The game runs entirely in the browser. Command history is
-stored in that browser, while refreshing the page starts a new game. The right third of the page
+Then open the local URL Gradle prints. The root page links to the game viewer at `/gameviewer/` and
+the browser REPL at `/webrepl/`. The REPL game runs entirely in the browser. Command history is
+stored in that browser, while refreshing the page starts a new game. The right third of the REPL
 shows a player dashboard tracking player 1's resources, production, Terraform Rating, cards,
 victory points, and tags, with a live Mars map below it.
 

@@ -75,8 +75,8 @@ internal fun playerColor(playerName: String): String =
     when (playerName.firstOrNull()?.uppercaseChar()) {
       'D',
       'K' -> "green"
-      'J' -> "purple"
       'E' -> "yellow"
+      'J',
       'M',
       'C' -> "blue"
       else -> "red"

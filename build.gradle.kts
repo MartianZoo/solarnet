@@ -79,3 +79,9 @@ tasks.register<Exec>("installGitHooks") {
   description = "Configures Git to use the repository's versioned hooks."
   commandLine("git", "config", "core.hooksPath", "githooks")
 }
+
+tasks.register("webAppsDevelopmentRun") {
+  group = "run"
+  description = "Starts one development server for every browser app."
+  dependsOn(":game-viewer:jsBrowserDevelopmentRun")
+}
