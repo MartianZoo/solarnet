@@ -81,8 +81,11 @@ public data class Expression(
   override fun ensureNarrows(that: Expression, info: TypeInfo): Unit =
       info.ensureNarrows(that, this)
 
-  override fun visitChildren(visitor: Visitor): Unit =
-      visitor.visit(listOf(className) + arguments + refinement)
+  override fun visitChildren(visitor: Visitor) {
+    visitor.visit(className)
+    visitor.visit(arguments)
+    visitor.visit(refinement)
+  }
 
   override fun toString(): String = buildString {
     if (complement) append("!")

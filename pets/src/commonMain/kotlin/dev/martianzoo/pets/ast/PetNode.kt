@@ -96,7 +96,12 @@ public sealed class PetNode {
   protected class Visitor(private val shouldContinue: (PetNode) -> Boolean) {
     internal fun visit(nodes: Iterable<PetNode?>): Unit = nodes.forEach(::maybeVisit)
 
-    internal fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
+    internal fun visit(node: PetNode?): Unit = maybeVisit(node)
+
+    internal fun visit(first: PetNode?, second: PetNode?) {
+      maybeVisit(first)
+      maybeVisit(second)
+    }
 
     private fun maybeVisit(node: PetNode?) {
       node?.let { if (shouldContinue(it)) it.visitChildren(this) }
