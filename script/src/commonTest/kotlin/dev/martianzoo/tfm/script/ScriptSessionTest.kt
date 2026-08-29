@@ -180,6 +180,27 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  internal fun logRendersLinkedComponentTypesMinimally() {
+    val repl = ScriptSession()
+    repl.command("mode red")
+    repl.command("as Player1 exec NitriteReducingBacteria<Player1>")
+    repl.command(
+        "as Player1 exec " +
+            "Microbe<Player1, " +
+            "NitriteReducingBacteria<Player1, Class<ProjectCard>, Class<Microbe>>>"
+    )
+
+    listOf(repl.command("log"), repl.command("log full")).forEach { output ->
+      assertTrue(
+          output.any {
+            "+Microbe<NitriteReducingBacteria<Player1>> BY Player1 (manual)" in it
+          }
+      )
+      assertTrue(output.none { "+Microbe<Player1, NitriteReducingBacteria" in it })
+    }
+  }
+
+  @Test
   internal fun failedNewGameLeavesTheCurrentGameUntouched() {
     val repl = ScriptSession()
     val originalGame = repl.game
@@ -358,11 +379,11 @@ internal class ScriptSessionTest {
     assertEquals(expectedPreamble, output.take(4))
     assertContains(
         output,
-        "0000: +5 ProjectCard<Player1, Hand<Player1>> FROM ProjectCard<Player1, Selecting<Player1>> BY Player1 VIA BuySelectedCards<Player1> BECAUSE 0000",
+        "0000: +5 ProjectCard<Hand<Player1>> FROM ProjectCard<Selecting<Player1>> BY Player1 VIA BuySelectedCards<Player1> BECAUSE 0000",
     )
     assertContains(
         output,
-        "0000: +4 ProjectCard<Player2, Hand<Player2>> FROM ProjectCard<Player2, Selecting<Player2>> BY Player2 VIA BuySelectedCards<Player2> BECAUSE 0000",
+        "0000: +4 ProjectCard<Hand<Player2>> FROM ProjectCard<Selecting<Player2>> BY Player2 VIA BuySelectedCards<Player2> BECAUSE 0000",
     )
     assertTrue(
         output.none {
@@ -391,8 +412,8 @@ internal class ScriptSessionTest {
     val byCard = "BY Player2 VIA StripMine<Player2>"
     assertEquals(
         listOf(
-                "+StripMine<Player2, Class<ProjectCard>> BY Player2 (manual)",
-                "+BuildingTag<Player2, StripMine<Player2, Class<ProjectCard>>> $byCard",
+                "+StripMine<Player2> BY Player2 (manual)",
+                "+BuildingTag<StripMine<Player2>> $byCard",
                 "-2 Production<Player2, Class<Energy>> $byCard",
                 "+2 Production<Player2, Class<Steel>> $byCard",
                 "+Production<Player2, Class<Titanium>> $byCard",

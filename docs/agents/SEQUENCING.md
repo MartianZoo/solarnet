@@ -405,30 +405,6 @@ Pharmacy Union is the current model: each queued Science-tag consequence checks 
 Disease count, allowing one consequence to remove the last Disease before another offers the
 corporation flip.
 
-## Proposed fanout composes as siblings, not a loop or join
-
-**Not implemented.** The proposed [`EACH`](EACHPLAYER.md) instruction takes one World snapshot and
-produces one sibling instruction tree per matching concrete Type, multiplied by that Type's
-snapshot multiplicity. It has no authored iteration order or branch-to-branch sequencing. Engine
-traversal order must remain unobservable.
-
-The intended sequencing shapes are deliberately local:
-
-```pets
-A THEN EACH Player { B<Player> }              // completing A produces the B siblings
-EACH Player { A<Player> THEN B<Player> }      // one continuation in each branch
-Trigger:: EACH Player { A<Player> }           // inline only when every A is choice-free
-```
-
-Do not interpret `EACH Player { A<Player> } THEN B` as waiting for every branch or every descendant
-caused by a branch. That is a distributed-completion scope, which plain `THEN` and sibling
-fanout do not provide. If a real rule requires such a join, use or design the narrow completion
-mechanism for that rule instead of changing fanout globally.
-
-Fanout also does not imply delegation. Every branch retains the surrounding assignee, so work that
-a selected Player must narrow should continue to use a meaningful Player-owned listener or an
-explicit future delegation mechanism.
-
 ## Exploratory continuation semantics
 
 **Aspirational hypothesis, not an approved language feature.** The action-card marker exposes three

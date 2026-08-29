@@ -20,7 +20,7 @@ have that branch checked out.
 
 ## Merge requests
 
-When asked to “merge from work1,” run `./_local/merge-from-work work1` and follow its instructions.
+When asked to “merge from work1,” run `./_local/scripts/merge-from-work work1` and follow its instructions.
 If that helper does not exist, tell the user to perform the request from `main`.
 
 All merge and synchronization work must operate only in this project root or temporary storage
@@ -33,7 +33,7 @@ branch-only workflow from this project root and leave every source ref unchanged
 
 ## Explicit post-merge exception
 
-The ignored `_local/advance-worktrees-to-main` helper is the sole exception to the isolation rule.
+The ignored `_local/scripts/advance-worktrees-to-main` helper is the sole exception to the isolation rule.
 Run it only when the user explicitly asks for that separate post-merge step. It may inspect
 registered `workN` working copies and fast-forward only those that are clean and whose branch tips
 are already contained in verified `origin/main`. It must leave dirty, missing, or divergent working

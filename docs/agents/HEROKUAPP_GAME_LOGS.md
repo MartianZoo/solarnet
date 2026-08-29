@@ -26,7 +26,7 @@ test, Git history, commit message, or previous agent summary is not evidence abo
 ## Discover and preserve the evidence first
 
 Do not begin translating actions until the source archive has been inventoried. For a dated test,
-inspect `_local/GameYYYYMMDD/` explicitly, including any source inventory; `_local` may be a symlink
+inspect `_local/replays/GameYYYYMMDD/` explicitly, including any source inventory; `_local` may be a symlink
 that a repository-wide file search does not traverse. Read an `implementation-plan.md` only for its
 general workflow, never for game-specific answers.
 
@@ -40,7 +40,7 @@ Given any player ID from an endgame or player URL, collect the machine-readable 
    score table, score progression, global-parameter contributions, final log entries, and final board.
 4. Inspect every supplied screenshot at original resolution and determine its exact phase from the UI,
    not from its timestamp or directory order.
-5. Save useful sources under `_local/GameYYYYMMDD/` with stable descriptive names. Keep the raw JSON,
+5. Save useful sources under `_local/replays/GameYYYYMMDD/` with stable descriptive names. Keep the raw JSON,
    full log, end-page capture, and original screenshots so later work does not depend on a live archive.
 
 Write the exact local screenshot filename in the test comment. A later rename should be reflected in
@@ -68,7 +68,7 @@ add a test DSL operation for one named component.
 
 The full log is nearly a gold standard for action identity, order, choices, and narrated consequences.
 During reconstruction, copied log lines are useful for auditing the translation line by line. Before
-removing them, preserve the complete raw log under `_local/GameYYYYMMDD/` and compare the replay with
+removing them, preserve the complete raw log under `_local/replays/GameYYYYMMDD/` and compare the replay with
 it for action identity, order, choices, and consequences. Delete the copied lines once a complete
 replay is working and that audit is complete; retain them in an incomplete replay where they still
 support reconstruction. When the test disagrees, first suspect our chronology, payment allocation,

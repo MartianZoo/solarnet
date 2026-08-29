@@ -193,23 +193,26 @@ private fun Describers.placementCountPhrase(expression: Expression, count: Int):
               isGameParticipant(ownerType.rootClass.className))
   val (owner, location) =
       when {
-        ownedByYou && site == null -> (placement.unqualifiedMetricOwner ?: return null) to null
-        explicitlyUnrestricted && site == null ->
-            (placement.anyoneMetricOwner ?: return null) to null
+        ownedByYou && site == null -> (placement.unqualifiedOwnership ?: return null) to null
+        explicitlyUnrestricted && site == null -> (placement.anyoneOwnership ?: return null) to null
         explicitlyUnrestricted && site != null -> {
           val location = site.expression
           if (!location.simple) return null
-          (placement.anyoneMetricOwner ?: return null) to
+          (placement.anyoneOwnership ?: return null) to
               (fact(location.className, ComponentDescriber::metricLocation) ?: return null)
         }
         else -> null
       } ?: return null
   val ownerPhrase =
       when (owner) {
-        ComponentDescriber.MetricOwner.YOU -> " you own"
-        ComponentDescriber.MetricOwner.ANY_PLAYER -> ""
+        ComponentDescriber.OwnershipPhrase.IMPLICIT -> ""
+        ComponentDescriber.OwnershipPhrase.YOURS -> " you own"
+        ComponentDescriber.OwnershipPhrase.ANYONES -> " anyone owns"
       }
-  val noun = if (count == 1) placement.singular else placement.plural
+  val referenceNoun =
+      placement.referenceNoun
+          ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+  val noun = if (count == 1) referenceNoun.singular else referenceNoun.plural
   return "$noun$ownerPhrase${location?.let { " $it" }.orEmpty()}"
 }
 

@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.util.toStrings
 import dev.martianzoo.tfm.engine.*
@@ -16,6 +17,34 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SimpleAddsRemovesTest {
+  @Test
+  internal fun loggedTypesAreMinimalWithoutBreakingSelfEffects() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Token
+                CLASS Card : Owned { HAS MAX 1 This }
+                ABSTRACT CLASS Linked<Card<Owner>> : Owned<Owner>
+                CLASS Holder : Linked {
+                  HAS MAX 1 This
+                  This:: Token
+                }
+                """
+                    .trimIndent()
+            )
+        )
+    val p1 = game.gameplay(PLAYER1).godMode()
+    p1.manual("Card<Player1>")
+    val checkpoint = game.timeline.checkpoint()
+
+    p1.manual("Holder<Player1, Card<Player1>>")
+
+    game.events.changesSince(checkpoint).first().change.gaining shouldBe
+        parse<Expression>("Holder<Player1>")
+    p1.count("Token") shouldBe 1
+  }
+
   @Test
   internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
     val game = Engine.newGame(canonicalPremise())

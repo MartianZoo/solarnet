@@ -25,8 +25,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and proposal |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
 | Action costs, invoices, or action identity | [`ACTIONS.md`](ACTIONS.md) | Current model |
-| Payment excess, tender value, or attribution | [`PAYMENTS.md`](PAYMENTS.md) and the payment entry in [`GAME_HACKS.md`](GAME_HACKS.md#payment-allocation-is-not-yet-auditable) | Audit and proposal |
-| Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model and known defect |
+| Payment excess, tender value, or attribution | [`PAYMENTS.md`](PAYMENTS.md) | Audit and proposal |
+| Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
 | Optional client autoexecution mechanism | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
@@ -40,7 +40,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
 | Remaining implicit-variable defects | [`LINKAGES.md`](LINKAGES.md), after the relevant `TYPES.md` section | Focused audit |
-| Proposed generic component fanout | [`EACHPLAYER.md`](EACHPLAYER.md), plus the fanout section of [`SEQUENCING.md`](SEQUENCING.md#proposed-fanout-composes-as-siblings-not-a-loop-or-join) | Proposal |
+| Proposed generic component fanout | [`EACHPLAYER.md`](EACHPLAYER.md) | Proposal |
 | Eliminating a custom instruction | [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) | Audit |
 
 ### Change content, names, or human rendering
@@ -48,7 +48,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Task | Read | Authority |
 | --- | --- | --- |
 | Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
-| Change English rendering or card layout | [`LANGUAGE.md`](LANGUAGE.md); read [`LANGUAGE_REVIEW.md`](LANGUAGE_REVIEW.md) only for remaining architecture work | Current model; active design record |
+| Change English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md), selecting only the sections routed there | Current model, constraints, and prioritized design record |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
 | Change Prelude 2 scope or its unusual rules | [`PRELUDE2.md`](PRELUDE2.md) | Source and support record |
 | Model Turmoil | Select only the relevant rule family in [`TURMOIL.md`](TURMOIL.md) | Research-backed proposal |

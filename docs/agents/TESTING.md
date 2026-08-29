@@ -215,7 +215,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   When a source gives only a discard count, an exact tracked hand requires the test to select
   names explicitly and label that selection as test inference.
 - Before editing a dated whole-game test, explicitly inspect its matching
-  `_local/GameYYYYMMDD/` directory and read any `implementation-plan.md` there before acting. The
+  `_local/replays/GameYYYYMMDD/` directory and read any `implementation-plan.md` there before acting. The
   repository's `_local` path may be a symlink, which `rg --files` does not traverse, so a general
   file search is not evidence that the test's local sources are absent. A plan supplies workflow,
   not game facts: establish all setup, chronology, values, and reconciliations from original sources.

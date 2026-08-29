@@ -132,8 +132,8 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 spatialRelation =
                     ComponentDescriber.SpatialRelation(
-                        "adjacent to",
-                        ComponentDescriber.Noun.Counted("other tile", "other tiles"),
+                        "next to",
+                        ComponentDescriber.Noun.Counted("tile", "tiles"),
                     )
             ),
         klass("Adjacency") to
@@ -163,7 +163,8 @@ internal object TerraformingMarsDescribers {
                         "a",
                         "tile",
                         "tiles",
-                        unqualifiedMetricOwner = ComponentDescriber.MetricOwner.YOU,
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.ANYONES,
                     )
             ),
         klass("SpecialTile") to
@@ -173,6 +174,9 @@ internal object TerraformingMarsDescribers {
                         article = "this",
                         singular = "tile",
                         plural = "tiles",
+                        referenceNoun = counted("special tile", "special tiles"),
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
             ),
         klass("Animal") to ComponentDescriber(noun = counted("animal", "animals")),
@@ -291,6 +295,8 @@ internal object TerraformingMarsDescribers {
                         "a",
                         "greenery tile",
                         "greenery tiles",
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
                 requirement =
                     ComponentDescriber.Requirement(
@@ -308,7 +314,8 @@ internal object TerraformingMarsDescribers {
                         "a",
                         "city tile",
                         "city tiles",
-                        anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
                 requirement =
                     ComponentDescriber.Requirement(
@@ -327,8 +334,8 @@ internal object TerraformingMarsDescribers {
                         "a",
                         "colony",
                         "colonies",
-                        unqualifiedMetricOwner = ComponentDescriber.MetricOwner.YOU,
-                        anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
                 requirement =
                     ComponentDescriber.Requirement(

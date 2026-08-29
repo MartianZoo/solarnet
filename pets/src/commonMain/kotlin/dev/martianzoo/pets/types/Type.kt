@@ -136,13 +136,7 @@ public data class Type(
   }
 
   private fun minimalDependencyExpressions(): List<Expression> {
-    val narrowed = narrowedDependencies
-    if (narrowed.keys.isEmpty()) return emptyList()
-
     val candidates = dependencies.expressions()
-    val keys = dependencies.keys.toList()
-    val requiredIndices = keys.indices.filter { keys[it] in narrowed.keys }
-    val optionalIndices = keys.indices.filterNot(requiredIndices::contains)
 
     fun expressionsAt(indices: Collection<Int>) = indices.sorted().map(candidates::get)
 
@@ -151,17 +145,14 @@ public data class Type(
     }
         .getOrDefault(false)
 
-    if (resolvesToThis(requiredIndices)) return expressionsAt(requiredIndices)
-
-    for (extraCount in 1..optionalIndices.size) {
+    for (argumentCount in 0..candidates.size) {
       fun find(start: Int, selected: List<Int>): List<Expression>? {
-        if (selected.size == extraCount) {
-          val indices = requiredIndices + selected
-          return expressionsAt(indices).takeIf { resolvesToThis(indices) }
+        if (selected.size == argumentCount) {
+          return expressionsAt(selected).takeIf { resolvesToThis(selected) }
         }
-        val remaining = extraCount - selected.size
-        for (index in start..optionalIndices.size - remaining) {
-          find(index + 1, selected + optionalIndices[index])?.let {
+        val remaining = argumentCount - selected.size
+        for (index in start..candidates.size - remaining) {
+          find(index + 1, selected + index)?.let {
             return it
           }
         }

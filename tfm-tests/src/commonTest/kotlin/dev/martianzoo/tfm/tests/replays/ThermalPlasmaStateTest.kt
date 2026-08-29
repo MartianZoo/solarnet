@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-// Sources: _local/Game20260817/full-log-pb64886c6e682.txt and
-// _local/Game20260817/player-pb64886c6e682.json. The complete Research offers come from the
+// Sources: _local/replays/Game20260817/full-log-pb64886c6e682.txt and
+// _local/replays/Game20260817/player-pb64886c6e682.json. The complete Research offers come from the
 // earlier clone of the same source game at /the-end?id=pe59a6b631bd6.
 internal class ThermalPlasmaStateTest : AbstractSoloTest() {
   override val config =

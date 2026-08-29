@@ -17,7 +17,7 @@
 - [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
   for `Intensity` and `abstract` to see resolution of quantified changes.
 - [`InstructionResolutionTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/InstructionResolutionTest.kt) and
-  [`TaskPreparingTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskPreparingTest.kt)
+  [`TaskResolutionTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskResolutionTest.kt)
   — select scenarios matching the changed resolution phase.
 
 A quantifier controls the count executed by one gain, removal, or transmutation. It does not choose

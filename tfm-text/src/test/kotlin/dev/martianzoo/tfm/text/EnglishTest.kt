@@ -136,6 +136,31 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun describesSpatialPlacementRequirements() {
+    val phrases =
+        mapOf(
+            "HAS 2 Neighbor<CityTile<Anyone>>" to "next to any two city tiles",
+            "HAS 3 Neighbor" to "next to any three tiles",
+            "HAS MAX 0 Neighbor" to "next to no other tile",
+            "HAS MAX 0 Neighbor<CityTile<>>" to "next to no city tile you own",
+            "HAS MAX 0 Neighbor<CityTile<Anyone>>" to "next to no city tile",
+            "HAS MAX 0 Neighbor<OceanTile>" to "next to no ocean tile",
+            "HAS Neighbor<CityTile<>>" to "next to a city tile you own",
+            "HAS Neighbor<CityTile<Anyone>>" to "next to any city tile",
+            "HAS Neighbor<GreeneryTile<Anyone>>" to "next to any greenery tile",
+            "HAS Neighbor<OceanTile>" to "next to an ocean tile",
+            "HAS Neighbor<OwnedTile<Anyone>>" to "next to a tile anyone owns",
+            "HAS Neighbor<OwnedTile>" to "next to a tile you own",
+            "HAS Neighbor<SpecialTile<Anyone>>" to "next to any special tile",
+        )
+
+    phrases.forEach { (requirement, phrase) ->
+      english.describe(parse<InstructionTree>("CityTile<LandArea($requirement)>")) shouldBe
+          "Place a city tile on a land area $phrase."
+    }
+  }
+
+  @Test
   internal fun cardWithoutBottomElementsHasEmptyBottomText() {
     val actionOnly =
         CardDefinition(

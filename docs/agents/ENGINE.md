@@ -129,8 +129,9 @@ instruction defaults so Kotlin translation remains its sole behavior.
 ## Events and timeline
 
 The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, and `TaskEditedEvent`.
-A change records its Actor and Cause. Rendered history uses `BY` for Actor, `VIA` for the
-effect-bearing cause, and `BECAUSE` for causal event ordinal.
+A change records its Actor and Cause, with changed component Types stored as minimal round-tripping
+expressions. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cause, and `BECAUSE`
+for causal event ordinal.
 
 `EventLog.record` and rollback are the single history/mutation interface: application or reversal
 must succeed before the log changes. Each forward or reverse mutation advances an opaque

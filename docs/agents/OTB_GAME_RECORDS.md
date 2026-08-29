@@ -26,7 +26,7 @@ whose primary record is an application log.
 ## Preserve and inventory the original evidence
 
 Before reading an existing dated test, Git history, commit message, derived reconstruction, or
-another game record, inventory the original sources in `_local/GameYYYYMMDD/`. Reconstruct the game
+another game record, inventory the original sources in `_local/replays/GameYYYYMMDD/`. Reconstruct the game
 from those sources independently; old tests and plans may teach current Solarnet syntax but are
 not evidence of what happened.
 

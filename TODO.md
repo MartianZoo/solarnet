@@ -42,12 +42,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Try moving the automatic `This:: EventTag<This>` gain from every generated event card onto
   `EventCard`; ensure class-backed tag inspection sees the inherited authored behavior.
 - IndustrialComplex should top up to 2 production if in QuickStartVariant (add to BugsTest anytime).
-- Preserve linked Type variables through English sequence rendering. Flooding's repeated `Anyone`
-  already links the adjacent tile owner to the later M€ removal, but independently rendered `THEN`
-  stages currently lose that shared identity. Expose the existing semantic link and represent the
-  later participant as a structured reference rather than recognizing Flooding.
-- Finish the remaining English renderer architecture work routed by `docs/agents/LANGUAGE_REVIEW.md`;
-  keep current output coverage and ordinary renderer rules in `docs/agents/LANGUAGE.md`.
+- Continue English renderer architecture work only through the prioritized plan in
+  [`LANGUAGE.md`](docs/agents/LANGUAGE.md#prioritized-architecture-work). The next round must replace
+  existing machinery across a recurring change family; do not add concepts for an isolated card.
 - Try making `VictoryPoint` depend on the scoring `Component` for the fun of it.
 - See if two wild tags on one card is feasible to support, else add to limitations doc.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with
