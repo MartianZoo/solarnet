@@ -104,7 +104,7 @@ internal class TypeTest {
 
     val fish = table.resolve(te("Animal<Player1, Fish<Player1>>"))
     fish.abstract shouldBe false
-    fish.expression.toString() shouldBe "Animal<Player1, Fish<Player1>>"
+    fish.expression.toString() shouldBe "Animal<Fish<Player1>>"
     table.resolve(te("Animal<Player1, Fish>")).also {
       it.abstract shouldBe false
       it shouldBe fish

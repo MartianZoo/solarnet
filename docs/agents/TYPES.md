@@ -173,10 +173,11 @@ unmatched extra argument is an error.
 `Class.matchDependencyKeys()` exposes the key matched by each authored argument when a consumer
 must retain which dependencies were supplied rather than only the fully resolved Type.
 
-A full form states every bound. A minimal form omits bounds equal to the root Class defaults while
-retaining placeholders needed for greedy matching to round-trip. Rendering uses minimal form. A
-Complement's unwritten domain is the known exception to round-tripping; see section 7 and divergence
-12.5.
+A full form states every bound. A minimal form uses the smallest dependency-ordered subset of direct
+arguments that greedily re-resolves to the same Type, including dependency linkages that let one
+argument determine another. Equal-size forms prefer earlier dependencies. Rendering uses minimal
+form. A Complement's unwritten domain is the known exception to round-tripping; see section 7 and
+divergence 12.5.
 
 ## 4. Class literals
 
