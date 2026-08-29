@@ -6,7 +6,11 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
-import dev.martianzoo.tfm.canon.CardDefinition
+import dev.martianzoo.tfm.canon.cardActions
+import dev.martianzoo.tfm.canon.cardEffects
+import dev.martianzoo.tfm.canon.cardImmediate
+import dev.martianzoo.tfm.canon.cardRequirement
+import dev.martianzoo.tfm.canon.cardResourceType
 
 /** English Pets text using the client's complete map of sparse component descriptions. */
 internal class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
@@ -27,12 +31,12 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
       renderRequirement(requirement, describers).value
 
   /** Returns the best available text above [card]'s artwork. */
-  internal fun topText(card: CardDefinition): String = renderTopText(card, describers).value
+  internal fun topText(card: Class): String = renderTopText(card, describers).value
 
   /** Returns the best available text below [card]'s artwork. */
-  internal fun bottomText(card: CardDefinition): String = renderBottomText(card, describers).value
+  internal fun bottomText(card: Class): String = renderBottomText(card, describers).value
 
-  internal fun renderCard(card: CardDefinition): EnglishCardRendering {
+  internal fun renderCard(card: Class): EnglishCardRendering {
     val top = renderTopText(card, describers)
     val bottom = renderBottomText(card, describers)
     return EnglishCardRendering(top.value, bottom.value, top.unresolved + bottom.unresolved)
@@ -40,17 +44,17 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
 
   // Of the card's Effects, only endgame scoring is printed below the artwork.
   private fun renderBottomText(
-      card: CardDefinition,
+      card: Class,
       cardDescribers: Describers,
   ): Rendering<String> {
-    val requirement = card.requirement?.let { renderRequirement(it, cardDescribers) }
+    val requirement = cardRequirement(card)?.let { renderRequirement(it, cardDescribers) }
     val immediateEffects =
-        card.effects.filter(::isImmediateSelfEffect).map {
+        cardEffects(card).filter(::isImmediateSelfEffect).map {
           renderInstructionTree(it.instruction, cardDescribers)
         }
-    val instructions = card.immediate?.let { renderInstructionTree(it, cardDescribers) }
+    val instructions = cardImmediate(card)?.let { renderInstructionTree(it, cardDescribers) }
     val scoring =
-        card.effects
+        cardEffects(card)
             .filter { isEndEffect(it, cardDescribers) }
             .map { renderEffect(it, cardDescribers) }
     return joinRenderings(
@@ -59,20 +63,22 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
   }
 
   private fun renderTopText(
-      card: CardDefinition,
+      card: Class,
       cardDescribers: Describers,
   ): Rendering<String> {
     val persistentEffects =
-        card.effects.filterNot { isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it) }
+        cardEffects(card).filterNot {
+          isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it)
+        }
     val integratedPayment =
         persistentEffects
             .mapIndexedNotNull { index, effect ->
               acceptedFirstActionPaymentResource(effect, cardDescribers)?.let { index to it }
             }
             .singleOrNull()
-            ?.takeIf { card.actions.firstOrNull()?.cost != null }
+            ?.takeIf { cardActions(card).firstOrNull()?.cost != null }
     val actionsWithPayment =
-        card.actions
+        cardActions(card)
             .takeIf { it.isNotEmpty() }
             ?.let { renderActions(it, cardDescribers, integratedPayment?.second) }
     val paymentWasIntegrated = integratedPayment != null
@@ -87,7 +93,7 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
               renderEffects(
                       list,
                       cardDescribers,
-                      cardResourceType = card.resourceType,
+                      cardResourceType = cardResourceType(card),
                   )
                   .map { text -> "Effect: $text" }
             }

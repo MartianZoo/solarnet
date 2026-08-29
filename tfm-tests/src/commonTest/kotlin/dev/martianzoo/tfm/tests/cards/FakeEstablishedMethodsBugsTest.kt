@@ -1,9 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.CardDefinition
-import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.ResearchNetwork
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,16 +13,12 @@ import kotlin.test.Test
 private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
 
 private val fakeEstablishedMethodsDefinition =
-    CardDefinition(
-        CardData(
-            name = "FakeEstablishedMethods",
-            deck = "PRELUDE",
-            immediate = "30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!",
-        )
+    parseOneLinerClass(
+        "CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> { cost = 0; This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>! }"
     )
 
 internal class FakeEstablishedMethodsBugsTest :
-    CardTest(additionalCardDefinitions = setOf(fakeEstablishedMethodsDefinition)) {
+    CardTest(additionalClassDeclarations = setOf(fakeEstablishedMethodsDefinition)) {
   @Test
   internal fun `Established Methods without its note dead-ends when no second project is affordable`() {
     newGame(PreludeExpansion)

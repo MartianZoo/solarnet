@@ -29,8 +29,8 @@
   — search for `neutralize` before changing current executable lowering.
 - [Promo `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/PromoCardPack/cards.pets)
   — search for `CARDS[` to sample canonical authored operations.
-- [`CardDefinitionTest.kt`](../../tfm-canon/src/commonTest/kotlin/dev/martianzoo/tfm/canon/CardDefinitionTest.kt)
-  — read for transform preservation and follow-mode behavior.
+- [`CardClassTest.kt`](../../tfm-canon/src/commonTest/kotlin/dev/martianzoo/tfm/canon/CardClassTest.kt)
+  — read for the loaded card-Class queries and validation.
 
 ## Settled direction
 

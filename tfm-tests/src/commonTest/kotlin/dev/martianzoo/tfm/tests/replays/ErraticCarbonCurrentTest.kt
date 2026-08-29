@@ -1,10 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.CardDefinition
-import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -15,22 +14,15 @@ import kotlin.test.Test
 // Mars Nomads' moving, non-tile map marker is not yet modeled. The replay supplies each sourced
 // placement bonus explicitly while this stand-in preserves the card play and once-per-round action.
 private val marsNomadsDefinition =
-    CardDefinition(
-        CardData(
-            name = "MarsNomads",
-            deck = "PROJECT",
-            actions = listOf("-> Ok"),
-            cost = 13,
-            projectKind = "ACTIVE",
-        )
+    parseOneLinerClass(
+        "CLASS MarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> { cost = 13; -> Ok }"
     )
 
 private val erraticCarbonCurrentCatalog =
     TfmCatalog.compose(
         Canon,
         object : TfmCatalog() {
-          override val explicitClassDeclarations = setOf(marsNomadsDefinition.asClassDeclaration)
-          override val cardDefinitions = setOf(marsNomadsDefinition)
+          override val explicitClassDeclarations = setOf(marsNomadsDefinition)
         },
     )
 

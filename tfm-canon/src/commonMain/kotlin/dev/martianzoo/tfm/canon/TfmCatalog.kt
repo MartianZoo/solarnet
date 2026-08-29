@@ -11,6 +11,9 @@ import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -27,6 +30,7 @@ import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
 import dev.martianzoo.pets.data.ModuleProvenance
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.systemClassDeclarations
+import dev.martianzoo.pets.types.Class as PetClass
 import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.util.associateByStrict
@@ -43,25 +47,80 @@ public open class TfmCatalog : Catalog, RoutineProvider {
       )
 
   final override val classTable: ClassTable by lazy {
-    ClassLoader(this).loadEverything().also(::validateCardTags)
+    ClassLoader(this).loadEverything().also(::validateCards)
   }
 
   private val universe: ClassTable by lazy { classTable }
 
-  private fun validateCardTags(table: ClassTable) {
+  private fun validateCards(table: ClassTable) {
     val tagClass = table.findClass(TAG_CLASS) ?: return
-    cardDefinitions.forEach { card ->
-      card.backedBy(table.getClass(card.className)).tags.elements.forEach { tagName ->
+    val eventCard = table.findClass(TfmClasses.EVENT_CARD)
+    val eventTagRequirement: Requirement = parse("=1 EventTag<This>")
+    eventCard?.let {
+      require(eventTagRequirement in it.declaration.invariants) {
+        "EventCard must declare HAS $eventTagRequirement"
+      }
+    }
+    val projectCard = table.findClass(TfmClasses.PROJECT_CARD)
+    val activeCard = table.findClass(TfmClasses.ACTIVE_CARD)
+    val automatedCard = table.findClass(TfmClasses.AUTOMATED_CARD)
+    cardClassNames.map(table::getClass).forEach { card ->
+      cardTags(card).elements.forEach { tagName ->
         require(table.getClass(tagName).isSubtypeOf(tagClass)) {
           "${card.className} names non-Tag class $tagName as a tag"
+        }
+      }
+      if (TfmClasses.EVENT_TAG in cardTags(card).elements) {
+        require(eventCard != null && card.isSubtypeOf(eventCard)) {
+          "non-EventCard ${card.className} has an EventTag"
+        }
+      }
+      if (
+          projectCard != null &&
+              eventCard != null &&
+              activeCard != null &&
+              automatedCard != null &&
+              cardBack(card)?.isSubtypeOf(projectCard) == true &&
+              !card.isSubtypeOf(eventCard)
+      ) {
+        val hasNontrivialBehavior =
+            cardActions(card).isNotEmpty() ||
+                card.declaration.authoredEffects.any { effect ->
+                  !effect.trigger.isSelfGainTrigger() && !effect.trigger.isEndTrigger()
+                }
+        val active = card.isSubtypeOf(activeCard)
+        val automated = card.isSubtypeOf(automatedCard)
+        require(active == hasNontrivialBehavior && automated == !hasNontrivialBehavior) {
+          "${card.className} must be ActiveCard exactly when it has actions or persistent effects; " +
+              "otherwise it must be AutomatedCard"
         }
       }
     }
   }
 
+  private fun Trigger.isEndTrigger(): Boolean =
+      when (this) {
+        is OnGainOf -> expression.className == TfmClasses.END
+        is Trigger.Or -> triggers.all { it.isEndTrigger() }
+        is Trigger.WrappingTrigger -> inner.isEndTrigger()
+        is Trigger.OnRemoveOf,
+        WhenGain,
+        Trigger.WhenRemove -> false
+      }
+
+  private fun Trigger.isSelfGainTrigger(): Boolean =
+      when (this) {
+        WhenGain -> true
+        is Trigger.Or -> triggers.all { it.isSelfGainTrigger() }
+        is Trigger.WrappingTrigger -> inner.isSelfGainTrigger()
+        is OnGainOf,
+        is Trigger.OnRemoveOf,
+        Trigger.WhenRemove -> false
+      }
+
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
     buildSet {
-      cardDefinitions.mapTo(this, CardDefinition::className)
+      addAll(cardClassNames)
       addAll(goalClassNames(TfmClasses.MILESTONE))
       addAll(goalClassNames(TfmClasses.AWARD))
       addAll(colonyTileClassNames)
@@ -85,17 +144,13 @@ public open class TfmCatalog : Catalog, RoutineProvider {
             }
             if (availabilityModules.isNotEmpty()) {
               val contentClassNames = buildSet {
-                bundle.cardDefinitions.mapTo(this, CardDefinition::className)
+                addAll(bundle.cardResourceClassNames)
                 bundle.marsMapDefinitions.forEach { map ->
                   add(map.className)
                   map.areas.mapTo(this) { area -> area.className }
                 }
               }
                   .toMutableSet()
-              bundle.cardDefinitions.flatMapTo(
-                  contentClassNames,
-                  CardDefinition::contributedClassNames,
-              )
               bundleClassesBelow(bundle, TfmClasses.MILESTONE, includeAbstract = true)
                   .mapTo(contentClassNames, ClassDeclaration::className)
               bundleClassesBelow(bundle, TfmClasses.AWARD, includeAbstract = true)
@@ -173,7 +228,7 @@ public open class TfmCatalog : Catalog, RoutineProvider {
           }
         }
 
-    cardDefinitions
+    cards
         .filter { it.className in explicitlyIncluded }
         .forEach { card ->
           cardCompatibilityRequirement(card)?.let { requirement ->
@@ -210,8 +265,6 @@ public open class TfmCatalog : Catalog, RoutineProvider {
     val moduleNames = included.filterTo(linkedSetOf()) { it in modules }
     val colonyNames = colonyTileClassNames
     val individualNames = included - moduleNames
-    validateSelectedReplacements(moduleNames, included)
-
     val individualSelections = linkedMapOf<ClassName, Boolean>()
     individualNames.forEach { individualSelections[it] = true }
     (explicitlyExcluded - modules.keys).forEach { individualSelections[it] = false }
@@ -370,21 +423,9 @@ public open class TfmCatalog : Catalog, RoutineProvider {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val supportingNamesByCard = cardDefinitions.associate { card ->
-      card.className to card.supportingClassNames
-    }
-    val explicit = explicitClassDeclarations.map { declaration ->
-      val supportingNames = supportingNamesByCard[declaration.className].orEmpty()
-      FollowModeNeutralizer.neutralize(
-          declaration.copy(extraNodes = declaration.extraNodes + supportingNames)
-      )
-    }
+    val explicit = explicitClassDeclarations.map(FollowModeNeutralizer::neutralize)
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
     val requiredNames = buildSet {
-      cardDefinitions.forEach { card ->
-        add(card.className)
-        addAll(card.contributedClassNames)
-      }
       marsMapDefinitions.forEach { map ->
         add(map.className)
         map.areas.mapTo(this) { area -> area.className }
@@ -398,7 +439,6 @@ public open class TfmCatalog : Catalog, RoutineProvider {
   }
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
-    validateReplacements(cardDefinitions)
     val declarations = systemClassDeclarations.toList() + contributedClassDeclarations
     try {
       declarations.distinct().associateByStrict { declaration ->
@@ -484,8 +524,13 @@ public open class TfmCatalog : Catalog, RoutineProvider {
           }
         }
     val ordinaryCards =
-        if (moduleName in owner.moduleContentSelections) null
-        else owner.moduleCardDefinitions[moduleName]
+        if (moduleName in owner.moduleContentSelections) {
+          null
+        } else {
+          owner.moduleCardClassNames[moduleName]?.let { names ->
+            cards.filterTo(linkedSetOf()) { it.className in names }
+          }
+        }
     val contentSelections =
         owner.moduleContentSelections[moduleName]
             ?: if (moduleName == owner.bundleName) {
@@ -507,9 +552,12 @@ public open class TfmCatalog : Catalog, RoutineProvider {
           }
           selectionsFrom(bundlesByName.getValue(content.bundleName), content)
         }
+    owner.moduleClassExclusions[moduleName].orEmpty().forEach { className ->
+      selections.add(ClassSelection(className, included = false))
+    }
     ordinaryCards?.let { cards ->
       selections.addCards(cards)
-      selections.addReplacementExclusions(cards, cardDefinitions)
+      selections.addCardResourceRoots(owner.moduleCardClassNames.getValue(moduleName))
     }
     return selections
   }
@@ -520,12 +568,9 @@ public open class TfmCatalog : Catalog, RoutineProvider {
   ): Set<ClassSelection> = buildSet {
     val kinds = selection.kinds
     if (Kind.CARDS in kinds) {
-      val selectedCards =
-          bundle.cardDefinitions.filter { card ->
-            selection.cardDecks == null || loadedCard(card).deck in selection.cardDecks
-          }
+      val selectedCards = bundleCards(bundle)
       addCards(selectedCards)
-      addReplacementExclusions(selectedCards, cardDefinitions)
+      addCardResourceRoots(bundle.cardResourceClassNames)
     }
     if (Kind.MAPS in kinds) {
       bundle.marsMapDefinitions.forEach { map ->
@@ -565,7 +610,7 @@ public open class TfmCatalog : Catalog, RoutineProvider {
   }
 
   private fun MutableSet<ClassSelection>.addCards(
-      cards: Collection<CardDefinition>,
+      cards: Collection<PetClass>,
       sharedRequirement: Requirement? = null,
   ) {
     cards.mapTo(this) { card ->
@@ -573,6 +618,21 @@ public open class TfmCatalog : Catalog, RoutineProvider {
           card.className,
           requirement = Requirement.join(sharedRequirement, automaticSelectionRequirement(card)),
       )
+    }
+  }
+
+  private fun MutableSet<ClassSelection>.addCardResourceRoots(resourceClassNames: Set<ClassName>) {
+    val referencedNames =
+        resourceClassNames.flatMapTo(linkedSetOf()) { sourceName ->
+          classDeclaration(sourceName)
+              .allNodes
+              .flatMap { node -> node.descendantsOfType<ClassName>() }
+              .filter { referencedName ->
+                referencedName != sourceName && referencedName in resourceClassNames
+              }
+        }
+    (resourceClassNames - cardClassNames - referencedNames).mapTo(this) { className ->
+      ClassSelection(className, requirement = contentCompatibilityRequirement(className))
     }
   }
 
@@ -593,9 +653,9 @@ public open class TfmCatalog : Catalog, RoutineProvider {
     }
   }
 
-  private fun automaticSelectionRequirement(card: CardDefinition): Requirement? {
+  private fun automaticSelectionRequirement(card: PetClass): Requirement? {
     return Requirement.join(
-        loadedCard(card).automaticSelectionRequirement,
+        PRELUDE_DECK_ONLY.takeIf { cardBack(card)?.className == TfmClasses.PRELUDE_CARD },
         cardBundleCompatibilityRequirement(card),
     )
   }
@@ -621,14 +681,14 @@ public open class TfmCatalog : Catalog, RoutineProvider {
           bundleCompatibilityRequirement(className, listOf(classDeclaration(className))),
       )
 
-  private fun cardCompatibilityRequirement(card: CardDefinition): Requirement? =
+  private fun cardCompatibilityRequirement(card: PetClass): Requirement? =
       cardBundleCompatibilityRequirement(card)
 
-  private fun cardBundleCompatibilityRequirement(card: CardDefinition): Requirement? {
-    val declarations =
-        listOf(classDeclaration(card.className)) +
-            card.contributedClassNames.map(::classDeclaration)
-    return bundleCompatibilityRequirement(card.className, declarations)
+  private fun cardBundleCompatibilityRequirement(card: PetClass): Requirement? {
+    return bundleCompatibilityRequirement(
+        card.className,
+        listOf(classDeclaration(card.className)),
+    )
   }
 
   private fun contentCompatibilityRequirement(className: ClassName): Requirement? =
@@ -654,50 +714,6 @@ public open class TfmCatalog : Catalog, RoutineProvider {
           ?.map { moduleName -> Min(1, Count(moduleName.expression)) }
           ?.let(Or::create)
 
-  private fun MutableSet<ClassSelection>.addReplacementExclusions(
-      selected: Collection<CardDefinition>,
-      known: Collection<CardDefinition>,
-  ) {
-    val knownByName = known.associateByStrict(CardDefinition::className)
-    selected.forEach { replacement ->
-      var target = replacement.replaces
-      while (target != null) {
-        val replaced = knownByName.getValue(target)
-        add(
-            ClassSelection(
-                className = replaced.className,
-                included = false,
-                requirement = automaticSelectionRequirement(replacement),
-            )
-        )
-        target = replaced.replaces
-      }
-    }
-  }
-
-  private fun validateSelectedReplacements(
-      moduleNames: Set<ClassName>,
-      configuredClassNames: Set<ClassName>,
-  ) {
-    val selectedContentNames =
-        moduleNames
-            .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(configuredClassNames, universe) }
-            .mapTo(hashSetOf(), ClassSelection::className)
-    validateSelectedReplacements(cardDefinitions.filter { it.className in selectedContentNames })
-  }
-
-  private fun validateSelectedReplacements(selected: Collection<CardDefinition>) {
-    selected
-        .mapNotNull { replacement -> replacement.replaces?.let { it to replacement } }
-        .groupBy({ it.first }, { it.second })
-        .forEach { (target, replacements) ->
-          require(replacements.size == 1) {
-            "multiple selected replacements for $target: ${replacements.map(CardDefinition::className)}"
-          }
-        }
-  }
-
   private fun isSubtypeOf(className: ClassName, possibleSupertype: ClassName): Boolean {
     if (className == possibleSupertype) return true
     return classDeclaration(className).supertypes.any { supertype ->
@@ -707,25 +723,31 @@ public open class TfmCatalog : Catalog, RoutineProvider {
 
   // STRUCTURED CONTENT DATA
 
-  public fun card(name: ClassName): CardDefinition =
-      classBackedCardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
+  public fun card(name: ClassName): PetClass =
+      cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
-  /** The resource type implied by [name]'s content and explicit resource declarations, if any. */
-  public fun cardResourceType(name: ClassName): ClassName? {
-    return card(name).resourceType
+  private val cardClassNames: Set<ClassName> by lazy {
+    if (TfmClasses.CARD_FRONT !in allClassNames) return@lazy emptySet()
+    explicitClassDeclarations
+        .asSequence()
+        .filterNot(ClassDeclaration::abstract)
+        .map(ClassDeclaration::className)
+        .filter { className -> isSubtypeOf(className, TfmClasses.CARD_FRONT) }
+        .toCollection(linkedSetOf())
   }
 
-  private fun loadedCard(card: CardDefinition): CardDefinition =
-      card.backedBy(universe.getClass(card.className))
+  /** Every concrete card face in this Catalog's loaded class universe. */
+  public val cards: Set<PetClass> by lazy {
+    cardClassNames.mapTo(linkedSetOf(), classTable::getClass)
+  }
 
-  public open val cardDefinitions: Set<CardDefinition> = emptySet()
+  private fun bundleCards(bundle: Bundle): Set<PetClass> {
+    val names = bundle.explicitClassDeclarations.mapTo(hashSetOf(), ClassDeclaration::className)
+    return cards.filterTo(linkedSetOf()) { it.className in names }
+  }
 
   private val cardsByClassName by lazy {
-    cardDefinitions.associateByStrict(CardDefinition::className)
-  }
-
-  private val classBackedCardsByClassName by lazy {
-    cardsByClassName.mapValues { (name, card) -> card.backedBy(classTable.getClass(name)) }
+    cards.associateByStrict(PetClass::className)
   }
 
   public fun marsMap(name: ClassName): MarsMapDefinition =
@@ -750,28 +772,10 @@ public open class TfmCatalog : Catalog, RoutineProvider {
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
+    private val PRELUDE_DECK_ONLY: Requirement = parse("PreludeDeck")
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
     private const val MINIMUM_GOAL_POOL_SIZE = 3
-
-    private fun validateReplacements(cards: Collection<CardDefinition>) {
-      val knownByName = cards.associateByStrict(CardDefinition::className)
-      cards.forEach { card ->
-        card.replaces?.let { target ->
-          require(target in knownByName) { "${card.className} replaces unknown card $target" }
-        }
-      }
-      cards.forEach { start ->
-        val path = mutableSetOf<ClassName>()
-        var current: CardDefinition? = start
-        while (current?.replaces != null) {
-          require(path.add(current.className)) {
-            "replacement cycle involving ${current.className}"
-          }
-          current = knownByName.getValue(current.replaces!!)
-        }
-      }
-    }
   }
 
   /** One Catalog assembled from several providers before it is exposed to callers. */
@@ -798,10 +802,6 @@ public open class TfmCatalog : Catalog, RoutineProvider {
 
     override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
       catalogs.flatMapTo(linkedSetOf(), Catalog::explicitClassDeclarations)
-    }
-
-    override val cardDefinitions: Set<CardDefinition> by lazy {
-      catalogs.flatMapTo(linkedSetOf(), TfmCatalog::cardDefinitions)
     }
 
     override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {

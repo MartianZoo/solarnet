@@ -1,4 +1,4 @@
-// Generated from cards.json5.
+// Published Venus Next card declarations.
 CLASS Aphrodite : CardFront<Class<CorporationCard>> {
   cost = 0
 

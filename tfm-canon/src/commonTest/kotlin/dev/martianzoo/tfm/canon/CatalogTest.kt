@@ -10,7 +10,6 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
-import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -48,29 +47,6 @@ internal class CatalogTest {
           .single { it.range.last == 1 }
           .type shouldBe expectedLimitType
     }
-  }
-
-  @Test
-  internal fun structuredCardDataRequiresExplicitPetsDeclarations() {
-    val catalog =
-        object : TfmCatalog() {
-          override val cardDefinitions =
-              setOf(
-                  CardDefinition(
-                      CardData(
-                          name = "ExampleCard",
-                          deck = "PRELUDE",
-                          immediate = "Plant",
-                          components = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"),
-                      )
-                  )
-              )
-        }
-
-    val missing = shouldThrow<IllegalArgumentException> { catalog.classTable }
-
-    missing.message.orEmpty() shouldContain
-        "Structured content lacks explicit Pets declarations: [ExampleCard, Foo]"
   }
 
   @Test
@@ -186,12 +162,11 @@ internal class CatalogTest {
                       setOf(BundleContentSelection(cn("ContentProvider"), setOf(CARDS)))
               )
         }
-    val card = CardDefinition(CardData(name = "ExampleCard"))
+    val card = parseOneLinerClass("CLASS ExampleCard : CardFront<Class<CardBack>>")
     val unrelated = parseOneLinerClass("CLASS Unrelated")
     val contentBundle =
         object : Bundle(cn("ContentProvider")) {
-          override val explicitClassDeclarations = setOf(unrelated, card.asClassDeclaration)
-          override val cardDefinitions = setOf(card)
+          override val explicitClassDeclarations = setOf(unrelated, card)
         }
     val source = TfmCatalog.compose(moduleBundle, contentBundle)
 
@@ -203,7 +178,7 @@ internal class CatalogTest {
 
   @Test
   internal fun moduleWithoutAContentSelectionDoesNotSelectItsBundleDefinitions() {
-    val card = CardDefinition(CardData(name = "ExampleCard"))
+    val card = parseOneLinerClass("CLASS ExampleCard : CardFront<Class<CardBack>>")
     val source =
         object : Bundle(cn("ExampleBundle")) {
           override val explicitClassDeclarations =
@@ -212,9 +187,8 @@ internal class CatalogTest {
                   parseOneLinerClass("ABSTRACT CLASS CardBack"),
                   parseOneLinerClass("ABSTRACT CLASS CardFront<Class<CardBack>>"),
                   parseOneLinerClass("CLASS ExampleModule : Module"),
-                  card.asClassDeclaration,
+                  card,
               )
-          override val cardDefinitions = setOf(card)
         }
 
     val table = ClassTable.forPremise(source.gamePremise(GameConfig("ExampleModule")))
@@ -223,16 +197,48 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun replacementsRemainKnownWhileTheSelectedModuleActivatesOnlyTheReplacement() {
+  internal fun aCardResourceActivatesItsUnreferencedNonCardDeclarations() {
+    val source =
+        StandardFormBundle(
+            name = "CardPack",
+            resourceDirectory = "CardPack",
+            resourceFilenames = setOf("classes.pets", "cards.pets"),
+            resourceReader = { path ->
+              when (path) {
+                "CardPack/classes.pets" ->
+                    """
+                    ABSTRACT CLASS Module
+                    ABSTRACT CLASS CardBack
+                    ABSTRACT CLASS CardFront<Class<CardBack>>
+                    CLASS CardPack : Module
+                    """
+                        .trimIndent()
+                "CardPack/cards.pets" ->
+                    """
+                    CLASS ExampleCard : CardFront<Class<CardBack>>
+                    CLASS PassiveHelper
+                    """
+                        .trimIndent()
+                else -> error("Unexpected resource $path")
+              }
+            },
+        )
+
+    val table = ClassTable.forPremise(source.gamePremise(GameConfig("CardPack")))
+
+    table.isActive(cn("ExampleCard")) shouldBe true
+    table.isActive(cn("PassiveHelper")) shouldBe true
+  }
+
+  @Test
+  internal fun aModuleCanExcludeClassesWithoutReplacementMetadata() {
     val moduleBundle =
         bundle(
             "Base",
             "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
         )
-    val original = CardDefinition(CardData(name = "DeimosDown"))
-    val replacement = CardDefinition(CardData(name = "DeimosDownPromo", replaces = "DeimosDown"))
-    val baseCards = cardBundle("BaseCards", original)
-    val replacementCards = cardBundle("ReplacementCards", replacement)
+    val baseCards = cardBundle("BaseCards", "DeimosDown")
+    val replacementCards = cardBundle("ReplacementCards", "DeimosDownPromo")
     val configuredModuleBundle =
         object : Bundle(cn("ConfiguredModule")) {
           override val explicitClassDeclarations = moduleBundle.explicitClassDeclarations
@@ -244,94 +250,16 @@ internal class CatalogTest {
                           BundleContentSelection(cn("ReplacementCards"), setOf(CARDS)),
                       )
               )
+          override val moduleClassExclusions = mapOf(cn("Base") to setOf(cn("DeimosDown")))
         }
     val source = TfmCatalog.compose(configuredModuleBundle, baseCards, replacementCards)
 
     val table = ClassTable.forPremise(source.gamePremise(GameConfig("Base")))
 
-    source.cardDefinitions.map { it.className }.toSet() shouldBe
+    source.cards.map { it.className }.toSet() shouldBe
         setOf(cn("DeimosDown"), cn("DeimosDownPromo"))
     table.isActive(cn("DeimosDown")) shouldBe false
     table.isActive(cn("DeimosDownPromo")) shouldBe true
-  }
-
-  @Test
-  internal fun replacementExclusionsFollowTheEntireChain() {
-    val moduleBundle =
-        object : Bundle(cn("ModuleProvider")) {
-          override val explicitClassDeclarations =
-              bundle(
-                      "Declarations",
-                      """
-                      ABSTRACT CLASS Module
-                      ABSTRACT CLASS CardBack
-                      ABSTRACT CLASS CardFront<Class<CardBack>>
-                      CLASS Base : Module
-                      CLASS Latest : Module
-                      """
-                          .trimIndent(),
-                  )
-                  .explicitClassDeclarations
-          override val moduleContentSelections =
-              mapOf(
-                  cn("Base") to setOf(BundleContentSelection(cn("OriginalCards"), setOf(CARDS))),
-                  cn("Latest") to setOf(BundleContentSelection(cn("LatestCards"), setOf(CARDS))),
-              )
-        }
-    val original = CardDefinition(CardData(name = "OriginalCard"))
-    val intermediate =
-        CardDefinition(CardData(name = "IntermediateCard", replaces = "OriginalCard"))
-    val latest = CardDefinition(CardData(name = "LatestCard", replaces = "IntermediateCard"))
-    val source =
-        TfmCatalog.compose(
-            moduleBundle,
-            cardBundle("OriginalCards", original),
-            cardBundle("IntermediateCards", intermediate),
-            cardBundle("LatestCards", latest),
-        )
-
-    val table = ClassTable.forPremise(source.gamePremise(GameConfig("Base, Latest")))
-
-    table.isActive(original.className) shouldBe false
-    table.isActive(intermediate.className) shouldBe false
-    table.isActive(latest.className) shouldBe true
-  }
-
-  @Test
-  internal fun multipleSelectedReplacementsForOneDefinitionAreRejected() {
-    val moduleBundle =
-        object : Bundle(cn("ModuleProvider")) {
-          override val explicitClassDeclarations =
-              bundle(
-                      "Declarations",
-                      """
-                      ABSTRACT CLASS Module
-                      ABSTRACT CLASS CardBack
-                      ABSTRACT CLASS CardFront<Class<CardBack>>
-                      CLASS First : Module
-                      CLASS Second : Module
-                      """
-                          .trimIndent(),
-                  )
-                  .explicitClassDeclarations
-          override val moduleContentSelections =
-              mapOf(
-                  cn("First") to setOf(BundleContentSelection(cn("FirstCards"), setOf(CARDS))),
-                  cn("Second") to setOf(BundleContentSelection(cn("SecondCards"), setOf(CARDS))),
-              )
-        }
-    val original = CardDefinition(CardData(name = "OriginalCard"))
-    val first = CardDefinition(CardData(name = "FirstReplacement", replaces = "OriginalCard"))
-    val second = CardDefinition(CardData(name = "SecondReplacement", replaces = "OriginalCard"))
-    val source =
-        TfmCatalog.compose(
-            moduleBundle,
-            cardBundle("OriginalCards", original),
-            cardBundle("FirstCards", first),
-            cardBundle("SecondCards", second),
-        )
-
-    shouldThrow<IllegalArgumentException> { source.gamePremise(GameConfig("First, Second")) }
   }
 
   @Test
@@ -342,7 +270,7 @@ internal class CatalogTest {
                 "Base",
                 "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
             ),
-            cardBundle("Cards", CardDefinition(CardData(name = "ExampleCard"))),
+            cardBundle("Cards", "ExampleCard"),
         )
 
     val premise = source.gamePremise(GameConfig("Base, ExampleCard"))
@@ -358,7 +286,10 @@ internal class CatalogTest {
             """
             ABSTRACT CLASS Module
             ABSTRACT CLASS CardBack
-            ABSTRACT CLASS CardFront<Class<CardBack>>
+            ABSTRACT CLASS CardFront<Class<CardBack>> {
+              cost = Number
+              requirement = Requirement?
+            }
             ABSTRACT CLASS AutomatedCard : CardFront<Class<ProjectCard>>
             CLASS ProjectCard : CardBack
             CLASS Base : Module
@@ -382,59 +313,11 @@ internal class CatalogTest {
           override val moduleContentSelections =
               mapOf(cn("ContentPack") to setOf(BundleContentSelection(cn("Cards"), setOf(CARDS))))
         }
-    val observingCard =
-        CardDefinition(
-            CardData(
-                name = "ObservingCard",
-                deck = "PROJECT",
-                projectKind = "AUTOMATED",
-                requirement = "ObservedState",
-            )
-        )
-    val constructingCard =
-        CardDefinition(
-            CardData(
-                name = "ConstructingCard",
-                deck = "PROJECT",
-                projectKind = "AUTOMATED",
-                immediate = "LockedState",
-            )
-        )
-    val observingMaximumCard =
-        CardDefinition(
-            CardData(
-                name = "ObservingMaximumCard",
-                deck = "PROJECT",
-                projectKind = "AUTOMATED",
-                requirement = "MAX 5 ObservedState",
-            )
-        )
-    val observingRemovalCard =
-        CardDefinition(
-            CardData(
-                name = "ObservingRemovalCard",
-                deck = "PROJECT",
-                projectKind = "AUTOMATED",
-                immediate = "-LockedState.",
-            )
-        )
-    val supportingClassCard =
-        CardDefinition(
-            CardData(
-                name = "SupportingClassCard",
-                deck = "PROJECT",
-                projectKind = "AUTOMATED",
-                components = setOf("CLASS SupportingClass<LockedState>"),
-            )
-        )
-    val independentCard =
-        CardDefinition(
-            CardData(
-                name = "IndependentCard",
-                deck = "PROJECT",
-                projectKind = "AUTOMATED",
-            )
-        )
+    val observingCard = cn("ObservingCard")
+    val constructingCard = cn("ConstructingCard")
+    val observingMaximumCard = cn("ObservingMaximumCard")
+    val observingRemovalCard = cn("ObservingRemovalCard")
+    val independentCard = cn("IndependentCard")
     val source =
         TfmCatalog.compose(
             base,
@@ -442,50 +325,53 @@ internal class CatalogTest {
             contentPack,
             cardBundle(
                 "Cards",
-                observingCard,
-                constructingCard,
-                observingMaximumCard,
-                observingRemovalCard,
-                supportingClassCard,
-                independentCard,
+                """
+                CLASS ObservingCard : AutomatedCard { cost = 0; requirement = HAS "ObservedState" }
+                CLASS ConstructingCard : AutomatedCard { cost = 0; This: LockedState }
+                CLASS ObservingMaximumCard : AutomatedCard { cost = 0; requirement = HAS "MAX 5 ObservedState" }
+                CLASS ObservingRemovalCard : AutomatedCard { cost = 0; This: -LockedState. }
+                CLASS SupportingClassCard : AutomatedCard { cost = 0 }
+                CLASS IndependentCard : AutomatedCard { cost = 0 }
+                CLASS SupportingClass<LockedState>
+                """
+                    .trimIndent(),
             ),
         )
 
     val filtered = ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack")))
-    filtered.isActive(observingCard.className) shouldBe false
-    filtered.isActive(constructingCard.className) shouldBe false
-    filtered.isActive(observingMaximumCard.className) shouldBe false
-    filtered.isActive(observingRemovalCard.className) shouldBe false
-    filtered.isActive(supportingClassCard.className) shouldBe false
-    filtered.isActive(independentCard.className) shouldBe true
+    filtered.isActive(observingCard) shouldBe false
+    filtered.isActive(constructingCard) shouldBe false
+    filtered.isActive(observingMaximumCard) shouldBe false
+    filtered.isActive(observingRemovalCard) shouldBe false
+    filtered.isActive(cn("SupportingClassCard")) shouldBe true
+    filtered.isActive(independentCard) shouldBe true
 
     val automatic =
         ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack, Feature")))
-    automatic.isActive(observingCard.className) shouldBe true
-    automatic.isActive(constructingCard.className) shouldBe true
-    automatic.isActive(observingMaximumCard.className) shouldBe true
-    automatic.isActive(observingRemovalCard.className) shouldBe true
-    automatic.isActive(supportingClassCard.className) shouldBe true
-    automatic.isActive(independentCard.className) shouldBe true
+    automatic.isActive(observingCard) shouldBe true
+    automatic.isActive(constructingCard) shouldBe true
+    automatic.isActive(observingMaximumCard) shouldBe true
+    automatic.isActive(observingRemovalCard) shouldBe true
+    automatic.isActive(cn("SupportingClassCard")) shouldBe true
+    automatic.isActive(independentCard) shouldBe true
 
     listOf(
             observingCard,
             constructingCard,
             observingMaximumCard,
             observingRemovalCard,
-            supportingClassCard,
         )
         .forEach { card ->
           val unavailable =
               shouldThrow<IllegalArgumentException> {
-                source.gamePremise(GameConfig("Base, ${card.className}"))
+                source.gamePremise(GameConfig("Base, $card"))
               }
           unavailable.message.orEmpty() shouldContain "configured content"
         }
 
     val explicitIndependent =
-        ClassTable.forPremise(source.gamePremise(GameConfig("Base, ${independentCard.className}")))
-    explicitIndependent.isActive(independentCard.className) shouldBe true
+        ClassTable.forPremise(source.gamePremise(GameConfig("Base, $independentCard")))
+    explicitIndependent.isActive(independentCard) shouldBe true
   }
 
   private fun catalog(vararg declarations: ClassDeclaration): TfmCatalog =
@@ -498,12 +384,15 @@ internal class CatalogTest {
         override val explicitClassDeclarations = parseClasses(declarations).toSet()
       }
 
-  private fun cardBundle(name: String, vararg cards: CardDefinition): Bundle =
+  private fun cardBundle(name: String, vararg cards: String): Bundle =
       object : Bundle(cn(name)) {
         override val explicitClassDeclarations =
-            cards.flatMapTo(linkedSetOf()) { card ->
-              listOf(card.asClassDeclaration) + card.extraClasses
-            }
-        override val cardDefinitions = cards.toSet()
+            parseClasses(
+                    cards.joinToString("\n") { card ->
+                      if (card.startsWith("CLASS ")) card
+                      else "CLASS $card : CardFront<Class<CardBack>>"
+                    }
+                )
+                .toSet()
       }
 }

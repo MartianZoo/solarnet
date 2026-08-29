@@ -1,4 +1,4 @@
-// Generated from cards.json5.
+// Published Prelude 2 card declarations.
 CLASS NirgalEnterprises : CardFront<Class<CorporationCard>> {
   cost = 0
 

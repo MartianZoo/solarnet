@@ -9,18 +9,19 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
- * An internal Catalog-provider bundle loaded from conventionally named Pets and JSON resources.
+ * An internal Catalog-provider bundle loaded from conventionally named Pets and language resources.
  *
- * `classes.pets`, when present, supplies declarations and compact map diagrams; card and language
- * metadata remain JSON. Files for unsupported canonical data are recognized but ignored; other
- * files produce a warning. A bundle identity is raw source provenance, not a Pets class, so no
- * declaration is required or synthesized for it. Callers whose resources are not in Canon's
- * generated registry can provide [resourceFilenames] and [resourceReader] directly.
+ * `classes.pets` and `cards.pets` supply declarations, while bundle language files and compact map
+ * diagrams supply category-specific metadata. Files for unsupported canonical data are recognized
+ * but ignored; other files produce a warning. A bundle identity is raw source provenance, not a
+ * Pets class, so no declaration is required or synthesized for it. Callers whose resources are not
+ * in Canon's generated registry can provide [resourceFilenames] and [resourceReader] directly.
  */
 internal class StandardFormBundle(
     name: String,
     override val customClasses: Set<CustomClass> = emptySet(),
     override val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap(),
+    override val moduleClassExclusions: Map<ClassName, Set<ClassName>> = emptyMap(),
     override val routines: Map<String, Routine> = emptyMap(),
     private val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
@@ -43,12 +44,31 @@ internal class StandardFormBundle(
     }
   }
 
+  private val cardDeclarationsByResource: Map<ResourceSet, Set<ClassDeclaration>> by lazy {
+    resources.associateWith { resourceSet ->
+      readIfPresent(resourceSet, CARD_PETS_FILENAME, ::parseClasses).toSetStrict()
+    }
+  }
+
+  override val cardResourceClassNames: Set<ClassName> by lazy {
+    cardDeclarationsByResource.values.flatten().mapTo(linkedSetOf(), ClassDeclaration::className)
+  }
+
+  override val moduleCardClassNames: Map<ClassName, Set<ClassName>> by lazy {
+    cardDeclarationsByResource
+        .filterValues(Set<ClassDeclaration>::isNotEmpty)
+        .mapKeys { (resourceSet, _) -> cn(resourceSet.directory.substringAfterLast('/')) }
+        .mapValues { (_, declarations) ->
+          declarations.mapTo(linkedSetOf(), ClassDeclaration::className)
+        }
+  }
+
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
     resources
         .flatMap { resourceSet ->
-          readIfPresent(resourceSet, CLASSES_FILENAME, ::parseClasses) +
-              readIfPresent(resourceSet, CARD_PETS_FILENAME, ::parseClasses)
+          readIfPresent(resourceSet, CLASSES_FILENAME, ::parseClasses)
         }
+        .plus(cardDeclarationsByResource.values.flatten())
         .toSetStrict()
   }
 
@@ -71,23 +91,6 @@ internal class StandardFormBundle(
     }
   }
 
-  private val cardsByResource: Map<ResourceSet, Set<CardDefinition>> by lazy {
-    resources.associateWith { resourceSet ->
-      readIfPresent(resourceSet, CARDS_FILENAME, JsonReader::readCards)
-          .toSetStrict(::CardDefinition)
-    }
-  }
-
-  override val cardDefinitions: Set<CardDefinition> by lazy {
-    cardsByResource.values.flatten().toSetStrict()
-  }
-
-  override val moduleCardDefinitions: Map<ClassName, Set<CardDefinition>> by lazy {
-    cardsByResource
-        .filterValues { it.isNotEmpty() }
-        .mapKeys { (resourceSet, _) -> cn(resourceSet.directory.substringAfterLast('/')) }
-  }
-
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
     resources.flatMapTo(linkedSetOf()) { resourceSet ->
       readIfPresent(resourceSet, CLASSES_FILENAME, MarsMapReader::readMaps)
@@ -107,19 +110,13 @@ internal class StandardFormBundle(
   private fun isExpected(filename: String): Boolean =
       filename == CLASSES_FILENAME ||
           filename == CARD_PETS_FILENAME ||
-          LANGUAGE_FILENAME.matches(filename) ||
-          filename in KNOWN_JSON_FILENAMES
+          LANGUAGE_FILENAME.matches(filename)
 
   private companion object {
-    private const val CARDS_FILENAME: String = "cards.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CLASSES_FILENAME = "classes.pets"
     private const val CARD_PETS_FILENAME = "cards.pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
-    private val KNOWN_JSON_FILENAMES =
-        setOf(
-            CARDS_FILENAME,
-        )
   }
 
   private data class ResourceSet(val directory: String, val filenames: Set<String>)

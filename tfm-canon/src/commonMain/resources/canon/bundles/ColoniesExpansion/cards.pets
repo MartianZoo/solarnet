@@ -1,4 +1,4 @@
-// Generated from cards.json5.
+// Published Colonies card declarations.
 CLASS FakeAridor : CardFront<Class<CorporationCard>> {
   cost = 0
 

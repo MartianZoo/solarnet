@@ -88,12 +88,14 @@ Canonical card classes are loaded from each bundle's authored `cards.pets` along
 `effects` contain the follow-mode compilation used for activation and execution. That
 compilation preserves generic `CardLocation` movements, delegates printed-face predicates to the
 client, and temporarily represents exact Event-pile links with `PlayedEvent`.
-`TfmCatalog.card(name)` returns a `CardDefinition` view backed by that loaded Class,
-so deck, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
-come from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented
+`TfmCatalog.card(name)` returns that loaded Class directly. Narrow card-query functions derive its
+card back, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
+from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented
 `Class<CardBack>` determines its deck. Card resource directories preserve Module-specific card-pool
-grouping. Promo Card Pack contributes three direct class exclusions for the cards its revised
-printings supersede; there is no general replacement registry.
+grouping and activate unreferenced non-card roots; ordinary Pets references activate the remaining
+declarations. The engine alone decides which active Classes instantiate. Promo Card Pack contributes
+three direct class exclusions for the cards its revised printings supersede; there is no general
+replacement registry.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.

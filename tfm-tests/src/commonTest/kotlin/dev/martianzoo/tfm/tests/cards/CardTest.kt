@@ -12,7 +12,6 @@ import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.CardDefinition
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -23,7 +22,6 @@ import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
 
 internal abstract class CardTest(
     private val additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
-    private val additionalCardDefinitions: Set<CardDefinition> = emptySet(),
 ) : TfmTest() {
   protected lateinit var p1: TfmGameplay
     private set
@@ -61,23 +59,14 @@ internal abstract class CardTest(
     } else {
       val additions =
           object : TfmCatalog() {
-            override val explicitClassDeclarations = buildSet {
-              addAll(additionalClassDeclarations)
-              additionalCardDefinitions.forEach { card ->
-                if (none { it.className == card.className }) add(card.asClassDeclaration)
-                card.extraClasses.forEach { supporting ->
-                  if (none { it.className == supporting.className }) add(supporting)
-                }
-              }
-            }
-            override val cardDefinitions = additionalCardDefinitions
+            override val explicitClassDeclarations = additionalClassDeclarations
           }
       TfmCatalog.compose(Canon, additions)
     }
   }
 
   private val hasAdditionalContent: Boolean
-    get() = additionalClassDeclarations.isNotEmpty() || additionalCardDefinitions.isNotEmpty()
+    get() = additionalClassDeclarations.isNotEmpty()
 
   private fun premise(config: GameConfig): GamePremise {
     val premise = catalog.gamePremise(config)
@@ -86,9 +75,7 @@ internal abstract class CardTest(
   }
 
   private fun withAdditionalSelections(premise: GamePremise): GamePremise {
-    val additionalClassNames =
-        additionalClassDeclarations.map(ClassDeclaration::className) +
-            additionalCardDefinitions.map(CardDefinition::className)
+    val additionalClassNames = additionalClassDeclarations.map(ClassDeclaration::className)
     return premise.copy(
         classSelections = premise.classSelections + additionalClassNames.map(::ClassSelection)
     )

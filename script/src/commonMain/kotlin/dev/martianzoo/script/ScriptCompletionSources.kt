@@ -2,6 +2,8 @@ package dev.martianzoo.script
 
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.tfm.canon.cardActions
+import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.tfmCatalog
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {
@@ -36,19 +38,17 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
-      repl.game.reader.tfmCatalog.cardDefinitions.map { sourceCard ->
-        val card = repl.game.reader.tfmCatalog.card(sourceCard.className)
+      repl.game.reader.tfmCatalog.cards.map { card ->
         ScriptCompletion(
             repl.game.vocabulary.petsName(card.className).toString(),
             "cards",
-            card.deck?.name?.lowercase(),
+            cardBack(card)?.className?.toString()?.removeSuffix("Card")?.lowercase(),
         )
       }
 
   fun actionCardNames(): List<ScriptCompletion> =
-      repl.game.reader.tfmCatalog.cardDefinitions
-          .map { repl.game.reader.tfmCatalog.card(it.className) }
-          .filter { card -> card.actions.isNotEmpty() }
+      repl.game.reader.tfmCatalog.cards
+          .filter { card -> cardActions(card).isNotEmpty() }
           .map { card ->
             ScriptCompletion(
                 repl.game.vocabulary.petsName(card.className).toString(),

@@ -69,7 +69,7 @@ ABSTRACT CLASS Area {
     "An area reserved for oceans"
     ABSTRACT CLASS WaterArea
 
-    "An area reserved for Noctis City - TODO: move to cards.json5?"
+    "An area reserved for Noctis City - TODO: move to the owning card resource?"
     ABSTRACT CLASS NoctisArea
   }
 

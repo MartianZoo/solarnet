@@ -40,16 +40,3 @@ tasks.register<JavaExec>("regenerateMapAreas") {
   )
   args(project(":tfm-canon").file("src/commonMain/resources").absolutePath)
 }
-
-tasks.register<JavaExec>("generateCardPets") {
-  group = "build"
-  description = "Generates inspectable Pets declarations for every canonical card bundle."
-  classpath = sourceSets.main.get().runtimeClasspath
-  mainClass.set("dev.martianzoo.tools.GenerateCardPetsKt")
-  inputs.files(
-      project(":tfm-canon").fileTree("src/commonMain/resources/canon/bundles") {
-        include("**/cards.json5")
-      }
-  )
-  args(project(":tfm-canon").file("src/commonMain/resources").absolutePath)
-}

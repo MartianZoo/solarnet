@@ -3,13 +3,12 @@ package dev.martianzoo.benchmarks
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.CardDefinition
-import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -26,21 +25,15 @@ import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
 
 private val fakeEstablishedMethodsDefinition =
-    CardDefinition(
-        CardData(
-            name = "FakeEstablishedMethods",
-            deck = "PRELUDE",
-            immediate = "30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!",
-        )
+    parseOneLinerClass(
+        "CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> { cost = 0; This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>! }"
     )
 
 private val busyPreludeCatalog =
     TfmCatalog.compose(
         Canon,
         object : TfmCatalog() {
-          override val explicitClassDeclarations =
-              setOf(fakeEstablishedMethodsDefinition.asClassDeclaration)
-          override val cardDefinitions = setOf(fakeEstablishedMethodsDefinition)
+          override val explicitClassDeclarations = setOf(fakeEstablishedMethodsDefinition)
         },
     )
 

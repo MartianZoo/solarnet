@@ -1,22 +1,23 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.CardDefinition
-import dev.martianzoo.tfm.canon.CardDefinition.CardData
+import dev.martianzoo.tfm.canon.TfmCatalog
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EnglishTest {
   private val english = English(TerraformingMarsDescribers.descriptions)
-  private val cardsByClassName =
-      Canon.cardDefinitions.map { Canon.card(it.className) }.associateBy { it.className }
+  private val cardsByClassName = Canon.cards.associateBy { it.className }
   private val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
   private val current =
       EnglishCardTextData.parse(readEnglishCardText("english-card-text-current.tsv"))
@@ -98,14 +99,15 @@ internal class EnglishTest {
   @Test
   internal fun integratesPaymentPermissionIntoItsActionCost() {
     val card =
-        CardDefinition(
-            CardData(
-                name = "TitaniumAction",
-                deck = "PROJECT",
-                projectKind = "ACTIVE",
-                actions = listOf("12 MC -> OceanTile", "Asteroid<This> -> VenusStep"),
-                effects = listOf("UseAction<This, First>:: Accept<Class<Titanium>>"),
-            )
+        syntheticCard(
+            """
+            CLASS TitaniumAction : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+              cost = 0
+              UseAction<This, First>:: Accept<Class<Titanium>>
+              12 MC -> OceanTile
+              Asteroid<This> -> VenusStep
+            }
+            """
         )
 
     english.topText(card) shouldBe
@@ -115,13 +117,8 @@ internal class EnglishTest {
   @Test
   internal fun cardWithoutTopElementsHasEmptyTopText() {
     val requirementOnly =
-        CardDefinition(
-            CardData(
-                name = "RequirementOnly",
-                deck = "PROJECT",
-                projectKind = "AUTOMATED",
-                requirement = "OxygenStep",
-            )
+        syntheticCard(
+            "CLASS RequirementOnly : AutomatedCard<Class<ProjectCard>> { cost = 0; requirement = HAS \"OxygenStep\" }"
         )
 
     english.topText(requirementOnly) shouldBe ""
@@ -163,13 +160,8 @@ internal class EnglishTest {
   @Test
   internal fun cardWithoutBottomElementsHasEmptyBottomText() {
     val actionOnly =
-        CardDefinition(
-            CardData(
-                name = "ActionOnly",
-                deck = "PROJECT",
-                projectKind = "ACTIVE",
-                actions = listOf("-> ProjectCard"),
-            )
+        syntheticCard(
+            "CLASS ActionOnly : ActionCard, ActiveCard<Class<ProjectCard>> { cost = 0; -> ProjectCard }"
         )
 
     english.bottomText(actionOnly) shouldBe ""
@@ -196,5 +188,15 @@ internal class EnglishTest {
     val sparseEnglish = English(TerraformingMarsDescribers.descriptions - heat)
 
     sparseEnglish.describe(parse<InstructionTree>("2 Heat")) shouldBe "Gain 2 heat."
+  }
+
+  private fun syntheticCard(source: String): Class {
+    val declarations = parseClasses(source.trimIndent()).toSet()
+    val additions =
+        object : TfmCatalog() {
+          override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
+        }
+    val catalog = TfmCatalog.compose(Canon, additions)
+    return catalog.card(declarations.single().className)
   }
 }

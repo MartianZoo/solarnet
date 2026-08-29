@@ -3,12 +3,13 @@ package dev.martianzoo.tools
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.CardDefinition
-import dev.martianzoo.tfm.canon.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.canon.MarsMapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.canon.cardBack
+import dev.martianzoo.tfm.canon.cardCost
 import kotlin.system.exitProcess
 
 internal enum class SoloTile {
@@ -25,7 +26,7 @@ internal data class Placement(
     val tile: SoloTile,
     val ordinal: Int,
     val area: AreaDefinition,
-    val card: CardDefinition,
+    val card: Class,
     val drawOrdinal: Int,
 )
 
@@ -35,14 +36,14 @@ private class SoloPlacementCalculator(
 ) {
   private val tiles = mutableMapOf<AreaDefinition, SoloTile>()
 
-  fun calculate(cards: List<CardDefinition>): List<Placement> {
+  fun calculate(cards: List<Class>): List<Placement> {
     tiles.clear()
     require(cards.size == 4) { "exactly four cards are required" }
     cards.forEach {
-      require(it.deck == PROJECT) {
+      require(cardBack(it)?.className == cn("ProjectCard")) {
         "${soloPlacementVocabulary.displayName(it.className)} is not a project card"
       }
-      require(mode != PlacementMode.COMPATIBILITY || it.cost > 0) {
+      require(mode != PlacementMode.COMPATIBILITY || cardCost(it) > 0) {
         "${soloPlacementVocabulary.displayName(it.className)} has cost 0, which compatibility mode rejects"
       }
     }
@@ -53,7 +54,7 @@ private class SoloPlacementCalculator(
     }
   }
 
-  private fun calculateOfficialOrder(cards: List<CardDefinition>): List<Placement> {
+  private fun calculateOfficialOrder(cards: List<Class>): List<Placement> {
     val firstCity = placeCity(cards[0], availableCityAreas())
     val secondCity = placeCity(cards[1], availableCityAreas().asReversed())
 
@@ -80,7 +81,7 @@ private class SoloPlacementCalculator(
     )
   }
 
-  private fun calculateCompatibilityOrder(cards: List<CardDefinition>): List<Placement> {
+  private fun calculateCompatibilityOrder(cards: List<Class>): List<Placement> {
     val firstCity = placeCity(cards[0], availableCityAreas())
     val firstGreenery = placeGreenery(cards[1], firstCity)
     val secondCity = placeCity(cards[2], availableCityAreas().asReversed())
@@ -93,19 +94,21 @@ private class SoloPlacementCalculator(
     )
   }
 
-  private fun placeCity(card: CardDefinition, candidates: List<AreaDefinition>): AreaDefinition {
-    val index = index(card.cost)
+  private fun placeCity(card: Class, candidates: List<AreaDefinition>): AreaDefinition {
+    val index = index(cardCost(card))
     require(index < candidates.size) {
-      "${soloPlacementVocabulary.displayName(card.className)} costs ${card.cost}, " +
+      "${soloPlacementVocabulary.displayName(card.className)} costs ${cardCost(card)}, " +
           "but only ${candidates.size} legal city areas remain"
     }
     return candidates[index].also { tiles[it] = SoloTile.CITY }
   }
 
-  private fun placeGreenery(card: CardDefinition, city: AreaDefinition): AreaDefinition {
+  private fun placeGreenery(card: Class, city: AreaDefinition): AreaDefinition {
     val candidates = availableNeighbors(city)
     require(candidates.isNotEmpty()) { "no legal greenery area remains next to ${city.className}" }
-    return candidates[index(card.cost) % candidates.size].also { tiles[it] = SoloTile.GREENERY }
+    return candidates[index(cardCost(card)) % candidates.size].also {
+      tiles[it] = SoloTile.GREENERY
+    }
   }
 
   private fun index(cost: Int): Int =
@@ -161,7 +164,7 @@ internal fun formatPlacements(placements: List<Placement>): String {
     drawOrder.forEachIndexed { index, placement ->
       appendLine(
           "${index + 1}. ${soloPlacementVocabulary.displayName(placement.card.className)}: " +
-              placement.card.cost
+              cardCost(placement.card)
       )
     }
     appendLine("Placements:")
@@ -169,7 +172,7 @@ internal fun formatPlacements(placements: List<Placement>): String {
       val label = placement.tile.name.lowercase().replaceFirstChar(Char::uppercase)
       appendLine(
           "$label ${placement.ordinal}: ${placement.area.className} " +
-              "(${soloPlacementVocabulary.displayName(placement.card.className)}, ${placement.card.cost})"
+              "(${soloPlacementVocabulary.displayName(placement.card.className)}, ${cardCost(placement.card)})"
       )
     }
   }
@@ -179,12 +182,13 @@ internal fun formatPlacements(placements: List<Placement>): String {
 private val soloPlacementCatalog: TfmCatalog = Canon
 
 private val soloPlacementVocabulary: Vocabulary by lazy {
-  val replacedClasses = buildSet {
-    soloPlacementCatalog.cardDefinitions.mapNotNullTo(this) { it.replaces }
-  }
+  val excludedClasses =
+      soloPlacementCatalog.bundles
+          .flatMap { bundle -> bundle.moduleClassExclusions.values.flatten() }
+          .toSet()
   Vocabulary.create(
       soloPlacementCatalog,
-      activeClassNames = soloPlacementCatalog.allClassNames - replacedClasses,
+      activeClassNames = soloPlacementCatalog.allClassNames - excludedClasses,
   )
 }
 
