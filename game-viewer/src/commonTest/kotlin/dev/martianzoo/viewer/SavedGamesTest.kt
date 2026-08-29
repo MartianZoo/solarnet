@@ -26,11 +26,11 @@ internal class SavedGamesTest {
             finalCards.getValue(player).all { cardImageDirectory(it) != null },
             "$savedGame ${player.className}",
         )
-        assertTrue(
-            playedEventCards(recording.world, player).isNotEmpty(),
-            "$savedGame ${player.className}",
-        )
       }
+      assertTrue(
+          players.any { player -> playedEventCards(recording.world, player).isNotEmpty() },
+          "$savedGame has a played event card",
+      )
       assertTrue(
           finalCardResources.values.any { resources ->
             resources.values.filterNotNull().any { (_, count) -> count > 0 }

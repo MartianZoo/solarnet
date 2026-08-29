@@ -241,6 +241,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
+  test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
+  `canon/resource-index.txt`.
 - Model Mars Nomads' moving non-tile marker, adjacency and reservation rules, and destination
   placement bonuses, then remove the replay's test-only stand-in and sourced reconciliations.
 - Move Terraforming Mars payment/action lowering out of generic Pets; its remaining string-level
