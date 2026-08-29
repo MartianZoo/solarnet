@@ -16,6 +16,8 @@ internal constructor(
     override val classTable: ClassTable,
     override val vocabulary: Vocabulary,
     private val gameplayByActor: Map<Actor, Gameplay>,
+    private val timelineImpl: TimelineImpl,
+    private val recordingPositions: RecordingPositions,
 ) : World {
   /** The exact event-backed state revision, including changes later rolled back. */
   internal val revision: WorldRevision
@@ -24,4 +26,14 @@ internal constructor(
   override fun gameplay(actor: Actor): Gameplay = gameplayByActor[actor]!!
 
   override var onAtomicComplete: () -> Unit = {}
+
+  internal fun recording(): GameRecording {
+    val entries = events.entriesSince(Timeline.Checkpoint(0))
+    val positions =
+        (recordingPositions.snapshot().filter { it.ordinal <= entries.size } +
+                Timeline.Checkpoint(entries.size))
+            .distinct()
+    timelineImpl.sealRecording(positions)
+    return GameRecording(this, timelineImpl, entries, positions)
+  }
 }

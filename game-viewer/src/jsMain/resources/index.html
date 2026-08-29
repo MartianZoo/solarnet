@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta http-equiv="Cache-Control" content="no-store">
+    <title>Solarnet Game Viewer</title>
+    <link rel="stylesheet" href="viewer.css?v=20260828-8">
+  </head>
+  <body>
+    <header class="controls">
+      <label for="game-select">Recorded game</label>
+      <select id="game-select"></select>
+      <span id="status" aria-live="polite"></span>
+      <span id="position-label"></span>
+    </header>
+    <main class="viewer">
+      <div class="tabletop">
+        <section class="map-panel" aria-label="Mars map"><div id="mars-map"></div></section>
+        <section class="log-panel" aria-label="Game log">
+          <div class="log-heading">Game log <span>↑ / ↓ to move</span></div>
+          <div id="game-log"></div>
+        </section>
+      </div>
+      <section id="dashboard-panel" class="dashboard-panel player-red" aria-label="Player dashboard">
+        <div id="player-tabs" class="player-tabs" role="tablist" aria-label="Players"></div>
+        <div class="dashboard-scroll">
+        <div id="player-dashboard" class="dashboard">
+          <div class="player-summary">
+            <strong class="player-name" data-stat="player-name">Player 1</strong>
+            <span class="corporation-name" data-stat="corporation-name">—</span>
+            <span class="phase" data-stat="phase">—</span>
+          </div>
+          <div class="resources" aria-label="Resources and production">
+            <div class="resource" data-resource="megacredit"><span class="resource-icon" aria-label="Megacredits"></span><span class="stock" data-stat="megacredit-stock">0</span><span class="production" data-stat="megacredit-production">0</span></div>
+            <div class="resource" data-resource="steel"><span class="resource-icon" aria-label="Steel"></span><span class="stock" data-stat="steel-stock">0</span><span class="production" data-stat="steel-production">0</span></div>
+            <div class="resource" data-resource="titanium"><span class="resource-icon" aria-label="Titanium"></span><span class="stock" data-stat="titanium-stock">0</span><span class="production" data-stat="titanium-production">0</span></div>
+            <div class="resource" data-resource="plant"><span class="resource-icon" aria-label="Plants"></span><span class="stock" data-stat="plant-stock">0</span><span class="production" data-stat="plant-production">0</span></div>
+            <div class="resource" data-resource="energy"><span class="resource-icon" aria-label="Energy"></span><span class="stock" data-stat="energy-stock">0</span><span class="production" data-stat="energy-production">0</span></div>
+            <div class="resource" data-resource="heat"><span class="resource-icon" aria-label="Heat"></span><span class="stock" data-stat="heat-stock">0</span><span class="production" data-stat="heat-production">0</span></div>
+          </div>
+          <div class="totals-and-tags">
+            <div class="primary-total"><span class="stat-icon tr-icon" aria-label="Terraform rating"></span><span data-stat="terraform-rating">0</span></div>
+            <div class="primary-total"><span class="stat-icon cards-icon" aria-label="Project cards"></span><span data-stat="cards">0</span></div>
+            <div class="tags" aria-label="Tags">
+              <div class="tag" data-tag="building"><span class="tag-icon"></span><span data-stat="building-tag">0</span></div>
+              <div class="tag" data-tag="space"><span class="tag-icon"></span><span data-stat="space-tag">0</span></div>
+              <div class="tag" data-tag="science"><span class="tag-icon"></span><span data-stat="science-tag">0</span></div>
+              <div class="tag" data-tag="power"><span class="tag-icon"></span><span data-stat="power-tag">0</span></div>
+              <div class="tag" data-tag="earth"><span class="tag-icon"></span><span data-stat="earth-tag">0</span></div>
+              <div class="tag" data-tag="jovian"><span class="tag-icon"></span><span data-stat="jovian-tag">0</span></div>
+              <div class="tag" data-tag="venus"><span class="tag-icon"></span><span data-stat="venus-tag">0</span></div>
+              <div class="tag" data-tag="plant"><span class="tag-icon"></span><span data-stat="plant-tag">0</span></div>
+              <div class="tag" data-tag="microbe"><span class="tag-icon"></span><span data-stat="microbe-tag">0</span></div>
+              <div class="tag" data-tag="animal"><span class="tag-icon"></span><span data-stat="animal-tag">0</span></div>
+              <div class="tag" data-tag="city"><span class="tag-icon"></span><span data-stat="city-tag">0</span></div>
+              <div class="tag event-tag" data-tag="event"><span class="tag-icon"></span><span data-stat="event-tag">0</span></div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </section>
+      <section class="cards-panel" aria-label="Cards in play">
+        <div id="played-cards"></div>
+      </section>
+    </main>
+    <script src="game-viewer.js?v=20260828-8"></script>
+  </body>
+</html>

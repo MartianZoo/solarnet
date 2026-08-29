@@ -5,14 +5,11 @@ import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
@@ -51,6 +48,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.isVisibleInLog
 import dev.martianzoo.tfm.script.TFM_SCRIPT_CLASS_SYNONYMS
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
@@ -329,7 +327,7 @@ public class ScriptSession(
   internal fun describeExecutionResults(result: TaskResult): List<String> {
     val changes =
         result.changes
-            .filterNot { isHidden(it, game.reader) }
+            .filter { it.isVisibleInLog(game.reader) }
             .map { event -> game.vocabulary.renderPets(event) }
 
     val newTaskLines = taskLines(result.tasksSpawned)
@@ -359,17 +357,6 @@ public class ScriptSession(
   internal fun onlyTask(): Task =
       selectableTasks().singleOrNull()
           ?: throw UsageException("this requires exactly one pending task")
-
-  internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {
-    val g = event.change.gaining
-    val r = event.change.removing
-
-    val changedTypes = listOfNotNull(g, r).map(game::resolve)
-    val hidden = game.resolve(HIDDEN.expression)
-    val phase = game.resolve(cn("Phase").expression)
-    return changedTypes.all { it.isSubtypeOf(hidden) } &&
-        changedTypes.none { it.isSubtypeOf(phase) }
-  }
 
   public fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")

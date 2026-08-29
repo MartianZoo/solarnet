@@ -13,7 +13,6 @@ import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
-import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
@@ -94,22 +93,32 @@ internal abstract class PetTokenizer {
   internal object TokenCache {
     private val ignoreList =
         listOf<Token>(
-            regexToken("backslash-newline", "\\\\\r?\n", true), // ignore these
-            regexToken("horizontal-whitespace", "[ \\t\\r]+", true),
-            regexToken("line-comment", "//[^\\r\\n]*", true),
+            AnchoredRegexToken("backslash-newline", Regex("\\\\\r?\n"), true), // ignore these
+            AnchoredRegexToken("horizontal-whitespace", Regex("[ \\t\\r]+"), true),
+            AnchoredRegexToken("line-comment", Regex("//[^\\r\\n]*"), true),
         )
 
     private val map = mutableMapOf<Pair<String, Boolean>, Token>()
+    private var tokenizer: DefaultTokenizer? = null
 
     fun cacheLiteral(text: String, name: String) =
-        map.getOrPut(name to false) { literalToken(name, text) }
+        map[name to false]
+            ?: literalToken(name, text).also {
+              map[name to false] = it
+              tokenizer = null
+            }
 
     fun cacheRegex(regex: Regex, name: String) =
-        map.getOrPut(name to true) { regexToken(name, regex) }
+        map[name to true]
+            ?: AnchoredRegexToken(name, regex).also {
+              map[name to true] = it
+              tokenizer = null
+            }
 
-    private val toke by lazy { DefaultTokenizer(ignoreList + map.values) }
-
-    fun tokenize(input: String): TokenMatchesSequence = toke.tokenize(input)
+    fun tokenize(input: String): TokenMatchesSequence =
+        (tokenizer ?: DefaultTokenizer(ignoreList + map.values).also { tokenizer = it }).tokenize(
+            input
+        )
   }
 
   private fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)

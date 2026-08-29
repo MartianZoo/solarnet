@@ -21,6 +21,11 @@ private constructor(
     private val addEffects: (Component, Int) -> Unit,
     private val removeEffects: (Component, Int) -> Unit,
 ) {
+  /** A removable listener registered with [listenToCount]. */
+  public fun interface CountSubscription {
+    public fun cancel()
+  }
+
   internal constructor(
       effector: Effector,
       classTable: ClassTable,
@@ -33,6 +38,34 @@ private constructor(
           shardFor = { shardClass(it.type.rootClass) },
           queryShardsFor = { queryShardClasses(it.rootClass) },
       )
+
+  private data class CountListener(
+      val type: Type,
+      val info: TypeInfo,
+      val callback: (Int) -> Unit,
+      var lastCount: Int,
+  )
+
+  private val countListeners = mutableListOf<CountListener>()
+
+  /**
+   * Immediately reports, then observes, the count of [type]. [info] supplies live state for
+   * abstract and refined types. Listener failures do not interrupt game mutation.
+   */
+  public fun listenToCount(
+      type: Type,
+      info: TypeInfo,
+      listener: (Int) -> Unit,
+  ): CountSubscription {
+    requireOwnClassTable(type)
+    val initialCount = count(type, info)
+    val registration = CountListener(type, info, listener, initialCount)
+    countListeners += registration
+    notify(listener, initialCount)
+    return CountSubscription {
+      countListeners.remove(registration)
+    }
+  }
 
   /**
    * Does at least one instance of [component] exist currently? (That is, is [countComponent]
@@ -121,6 +154,25 @@ private constructor(
     gaining?.let {
       components.add(it, count)
       addEffects(it, count)
+    }
+    notifyCountListeners()
+  }
+
+  private fun notifyCountListeners() {
+    countListeners.toList().forEach { registration ->
+      val count = count(registration.type, registration.info)
+      if (count != registration.lastCount) {
+        registration.lastCount = count
+        notify(registration.callback, count)
+      }
+    }
+  }
+
+  private fun notify(listener: (Int) -> Unit, count: Int) {
+    try {
+      listener(count)
+    } catch (_: Throwable) {
+      // Observation must not make an already-applied state change fail.
     }
   }
 

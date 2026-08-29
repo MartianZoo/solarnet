@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.data.GameEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.TaskEvent
 import dev.martianzoo.pets.data.TaskResult
@@ -16,11 +17,13 @@ internal class TimelineImpl(
     private val components: ComponentGraph,
     private val events: EventLog,
     private val tasks: TaskQueues,
+    private val recordingPositions: RecordingPositions,
 ) : Timeline {
 
   override fun checkpoint() = Checkpoint(events.size)
 
   private var commitFloor = Checkpoint(events.firstLocalOrdinal)
+  private var recordedRollbackOrdinals: Set<Int>? = null
 
   override fun commit() {
     commitFloor = checkpoint()
@@ -28,10 +31,21 @@ internal class TimelineImpl(
 
   override fun rollBack(checkpoint: Checkpoint) {
     val ordinal = checkpoint.ordinal
-    require(ordinal >= commitFloor.ordinal) {
-      "Cannot roll back to $ordinal; committed through ${commitFloor.ordinal}"
+    val recordedOrdinals = recordedRollbackOrdinals
+    if (recordedOrdinals == null) {
+      require(ordinal >= commitFloor.ordinal) {
+        "Cannot roll back to $ordinal; committed through ${commitFloor.ordinal}"
+      }
+    } else {
+      require(ordinal in recordedOrdinals) {
+        "Cannot roll back to $ordinal; it is not a recorded position"
+      }
     }
     require(ordinal <= events.size)
+    rollBackStateTo(ordinal)
+  }
+
+  private fun rollBackStateTo(ordinal: Int) {
     events.rollBackTo(ordinal) { entry ->
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)
@@ -45,6 +59,35 @@ internal class TimelineImpl(
             }
       }
     }
+    if (recordedRollbackOrdinals == null) recordingPositions.rollBackTo(ordinal)
+  }
+
+  internal fun seek(recordedEntries: List<GameEvent>, checkpoint: Checkpoint) {
+    require(checkpoint.ordinal in 0..recordedEntries.size)
+    if (events.size > checkpoint.ordinal) {
+      rollBackStateTo(checkpoint.ordinal)
+    } else {
+      recordedEntries.subList(events.size, checkpoint.ordinal).forEach { entry ->
+        when (entry) {
+          is TaskEvent -> tasks.replay(entry)
+          is ChangeEvent ->
+              with(entry.change) {
+                events.record(entry) {
+                  components.applyChange(
+                      count = count,
+                      gaining = gaining?.toComponent(reader),
+                      removing = removing?.toComponent(reader),
+                  )
+                }
+              }
+        }
+      }
+    }
+  }
+
+  internal fun sealRecording(positions: List<Checkpoint>) {
+    check(recordedRollbackOrdinals == null) { "this timeline is already recorded" }
+    recordedRollbackOrdinals = positions.mapTo(linkedSetOf()) { it.ordinal }
   }
 
   internal class AbortOperationException : Exception()
@@ -55,9 +98,9 @@ internal class TimelineImpl(
     try {
       block()
     } catch (_: AbortOperationException) {
-      rollBack(checkpoint)
+      rollBackStateTo(checkpoint.ordinal)
     } catch (e: Exception) {
-      rollBack(checkpoint)
+      rollBackStateTo(checkpoint.ordinal)
       throw e
     }
     return events.activitySince(checkpoint)

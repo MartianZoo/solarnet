@@ -47,12 +47,13 @@ public object Engine {
     private val components = ComponentGraph(effector, classTable)
     private val events = EventLog()
     private val taskQueues = TaskQueues(events, classTable)
+    private val recordingPositions = RecordingPositions()
     private val reader: GameReaderImpl =
         GameReaderImpl(classTable, components, transformers, customClasses, premise)
-    private val timeline = TimelineImpl(reader, components, events, taskQueues)
+    private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
     private val atomicOperationScope: AtomicOperationScope =
-        AtomicOperationScope(timeline) { world.onAtomicComplete() }
+        AtomicOperationScope(timeline, { world.onAtomicComplete() }, recordingPositions)
     private val changerByActor: Map<Actor, Changer> =
         premise.actors.associateWith { Changer(reader, components, events, it) }
     private val instructorByActor: Map<Actor, Instructor> =
@@ -88,6 +89,8 @@ public object Engine {
             classTable,
             vocabulary,
             gameplayByActor,
+            timeline,
+            recordingPositions,
         )
 
     internal fun createWorld(): WholeWorld {

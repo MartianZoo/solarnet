@@ -24,6 +24,7 @@ include(
     "repl",
     "tfm-canon",
     "web",
+    "game-viewer",
     "tools",
     "benchmarks",
 )

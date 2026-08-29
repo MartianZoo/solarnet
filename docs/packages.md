@@ -47,7 +47,7 @@ The engine knows how to modify a Game World by executing card Instructions.
 
 ### <a href="tfm-engine/dev.martianzoo.tfm.engine/index.html">dev.martianzoo.tfm.engine</a>
 
-Terraforming Mars-specific gameplay and workflow code.
+Terraforming Mars-specific gameplay, workflow, and shared presentation rules.
 
 ## module SCRIPT
 
@@ -66,6 +66,12 @@ REgo PLastics, an extremely bad command-line UI to the engine.
 ### <a href="web/dev.martianzoo.web/index.html">dev.martianzoo.web</a>
 
 An early rough browser version of REgo PLastics.
+
+## module GAME-VIEWER
+
+### <a href="game-viewer/dev.martianzoo.viewer/index.html">dev.martianzoo.viewer</a>
+
+A browser viewer for recorded games, with saved replays and event-log timeline navigation.
 
 ## module TOOLS
 

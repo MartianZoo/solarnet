@@ -71,6 +71,7 @@ dependencies {
   dokka(project(":repl"))
   dokka(project(":tfm-canon"))
   dokka(project(":web"))
+  dokka(project(":game-viewer"))
 }
 
 tasks.register<Exec>("installGitHooks") {

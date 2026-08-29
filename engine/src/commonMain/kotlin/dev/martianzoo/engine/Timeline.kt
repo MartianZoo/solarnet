@@ -5,6 +5,10 @@ import dev.martianzoo.pets.data.TaskResult
 public interface Timeline {
   public fun checkpoint(): Checkpoint
 
+  /**
+   * Rolls back to [checkpoint]. After this World is captured as a recording, only its completed
+   * gameplay positions are accepted.
+   */
   public fun rollBack(checkpoint: Checkpoint)
 
   /**

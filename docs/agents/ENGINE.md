@@ -116,6 +116,10 @@ them first, then retries the original removal.
 
 The only state mutation is a count plus optional source and destination. A transmutation removes
 before it adds. Every successful mutation updates live-effect indexes and enters the Event Log.
+`ComponentGraph.listenToCount` observes the live count of one resolved Type, reports its initial
+value immediately, and reports later changes during both forward play and recording navigation.
+The caller supplies the World's `GameReader` for abstract or refined Type evaluation and can cancel
+the returned subscription. Listener failures do not interrupt state mutation.
 
 `Custom` classes never enter the graph. Custom metrics report virtual non-negative counts; custom
 instructions translate concrete input to instruction trees. A custom declaration may use
@@ -143,6 +147,15 @@ reverses component state, tasks, event-backed indexes, and events. The current l
 [SEQUENCING.md](SEQUENCING.md#open-design-or-rules-audits). `AbortOperationException` requests
 rollback without surfacing as a caller error. The commit floor prevents rollback into
 initialization or a workflow stage.
+
+`World.recording()` captures the current event sequence and positions after each successful
+outermost gameplay operation. It also captures the position after the operation-completion callback,
+so synchronously resumed workflow activity is one automatic follow-up step rather than many internal
+task selections. A `GameRecording` can seek backward or forward only among those positions and the
+final state. Seeking mechanically reverses or reapplies captured component and task events; it does
+not run gameplay operations again. Capturing seals the World's public Timeline rollback surface to
+the same positions; internal atomic failure recovery remains able to restore its operation
+checkpoint.
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.

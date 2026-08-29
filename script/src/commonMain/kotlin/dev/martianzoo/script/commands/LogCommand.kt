@@ -6,6 +6,7 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
+import dev.martianzoo.tfm.engine.visibleLogEvents
 
 internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log") {
   override val usage = "log [full]"
@@ -21,11 +22,7 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.completions("full", group = "log options")
 
-  override fun noArgs() =
-      repl.game.events
-          .changesSinceSetup()
-          .filterNot { repl.isHidden(it, repl.game.reader) }
-          .map(repl.game.vocabulary::renderPets)
+  override fun noArgs() = repl.game.visibleLogEvents().map(repl.game.vocabulary::renderPets)
 
   override fun withArgs(args: String): List<String> {
     if (args == "full") {

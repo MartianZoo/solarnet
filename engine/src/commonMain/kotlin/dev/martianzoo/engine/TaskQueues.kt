@@ -111,6 +111,20 @@ private constructor(
         }
       }
 
+  /** Reapplies one previously recorded task event without normalizing it again. */
+  internal fun replay(entry: TaskEvent) {
+    events.record(entry) {
+      when (entry) {
+        is TaskAddedEvent -> addToTaskSet(entry.task)
+        is TaskRemovedEvent -> removeFromTaskSet(entry.task)
+        is TaskEditedEvent -> {
+          removeFromTaskSet(entry.oldTask)
+          addToTaskSet(entry.task)
+        }
+      }
+    }
+  }
+
   // This method can get away without the normalizations/integrity-checks/whatever because it is
   // operating at a purely mechanical level, just undoing changes that were already made.
   // It's crucial that we ensure an entry got logged for every individual taskSet change.
