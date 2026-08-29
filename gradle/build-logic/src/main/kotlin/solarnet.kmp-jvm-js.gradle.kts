@@ -16,21 +16,3 @@ tasks.register("test") {
   description = "Runs this module's JVM test suite."
   dependsOn("jvmTest")
 }
-
-// Karma serves each module's browser tests out of that module's own package directory, so the Canon
-// and Pets resources the tests load have to be copied in next to them.
-val copyResourcesForKarma by
-    tasks.registering(Copy::class) {
-      dependsOn(":tfm-canon:jsProcessResources", ":pets:jsProcessResources")
-      from(project(":tfm-canon").layout.buildDirectory.dir("processedResources/js/main"))
-      from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets")) {
-        into("pets")
-      }
-      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-${project.name}-test"))
-    }
-
-tasks.named("jsBrowserTest") { dependsOn(copyResourcesForKarma) }
-
-rootProject.tasks
-    .matching { it.name == "rootPackageJson" }
-    .configureEach { dependsOn(copyResourcesForKarma) }

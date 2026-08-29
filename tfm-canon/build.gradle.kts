@@ -9,26 +9,30 @@ abstract class GenerateCanonSources : DefaultTask() {
   @get:PathSensitive(PathSensitivity.RELATIVE)
   abstract val inputDirectory: DirectoryProperty
 
+  @get:Input abstract val logicalPrefix: Property<String>
+
   @get:OutputDirectory abstract val outputDirectory: DirectoryProperty
 
   @TaskAction
   fun generate() {
     val input = inputDirectory.get().asFile
+    val prefix = logicalPrefix.get().trim('/')
+    require(prefix.isNotEmpty()) { "Canon logical prefix must not be empty" }
     val resourcesByExpansion =
         input
             .walkTopDown()
-            .filter(File::isFile)
+            .filter { it.isFile && it.extension != "kt" }
             .map { file ->
-              val path = file.relativeTo(input).invariantSeparatorsPath
-              val segments = path.split('/')
-              require(segments.size >= 3 && segments.first() == "bundles") {
-                "Canon resource is not inside an expansion directory: $path"
+              val relativePath = file.relativeTo(input).invariantSeparatorsPath
+              val segments = relativePath.split('/')
+              require(segments.size >= 2) {
+                "Canon source is not inside an expansion directory: $relativePath"
               }
-              val expansion = segments[1]
+              val expansion = segments.first()
               require(expansion.matches(Regex("[A-Za-z_][A-Za-z0-9_]*"))) {
                 "Canon expansion is not a Kotlin identifier: $expansion"
               }
-              expansion to (path to file.readText())
+              expansion to ("$prefix/$relativePath" to file.readText())
             }
             .toList()
             .groupBy({ it.first }, { it.second })
@@ -130,7 +134,8 @@ abstract class GenerateCanonSources : DefaultTask() {
 
 val generateCanonSources by
     tasks.registering(GenerateCanonSources::class) {
-      inputDirectory.set(layout.projectDirectory.dir("src/commonMain/resources/canon"))
+      inputDirectory.set(layout.projectDirectory.dir("src/commonMain/resources/canon/bundles"))
+      logicalPrefix.set("bundles")
       outputDirectory.set(layout.buildDirectory.dir("generated/canonSources"))
     }
 
