@@ -25,8 +25,9 @@
 ## What must be fixed
 
 Payment **sequencing** and payment **allocation evidence** are separate. The agreed sequencing
-direction in [ACTIONS.md](ACTIONS.md#agreed-player-idle-payment-loop) offers one mandatory abstract
-tender choice at a time and lets `Idle<Player>` remove Billing only after no matching debt remains.
+direction in [ACTIONS.md](ACTIONS.md#agreed-player-yield-payment-loop) offers one mandatory abstract
+tender choice at a time and makes Billing an `UntilYield<Player>` consumed by `Yield<Player>` only
+after no matching debt remains.
 That removes parallel tender tasks, explicit rejection of unused methods, and client-side cleanup
 scans. It does not reveal gross value hidden by saturated `Owed` removals and therefore does not by
 itself repair the allocation defect below.
@@ -184,7 +185,7 @@ implement Helion now.
 
 ## Present direction
 
-First replace the distributed parallel-task lifecycle with the single-choice Player-idle loop while
+First replace the distributed parallel-task lifecycle with the single-choice Player-yield loop while
 preserving the exact `Pay` and `PayFromCard` history needed by later allocation work. Do not add a
 separate `Paid` component: invoice removal remains the completion event.
 
