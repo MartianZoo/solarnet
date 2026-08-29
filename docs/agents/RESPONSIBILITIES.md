@@ -80,7 +80,7 @@ classes. They are too small to drive an architecture change. Move them only with
 
 Do not reopen these without new evidence:
 
-- `system.pets` owns the runtime classes `Component`, `Class`, `Hidden`, `System`,
+- `SystemDeclarations.kt` owns the runtime classes `Component`, `Class`, `Hidden`, `System`,
   `Temporary`, `Signal`, `Ok`, `Die`, `Engine`, `Custom`, `Atomized`, `Anyone`,
   `Owner`, and `Owned`. Ownership is generic engine vocabulary; concrete owner kinds remain
   game-specific.

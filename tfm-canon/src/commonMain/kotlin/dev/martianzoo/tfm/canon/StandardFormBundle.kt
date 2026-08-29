@@ -15,7 +15,7 @@ import dev.martianzoo.pets.util.toSetStrict
  * metadata remain JSON. Files for unsupported canonical data are recognized but ignored; other
  * files produce a warning. A bundle identity is raw source provenance, not a Pets class, so no
  * declaration is required or synthesized for it. Callers whose resources are not in Canon's
- * generated index can provide [resourceFilenames] and [resourceReader] directly.
+ * generated registry can provide [resourceFilenames] and [resourceReader] directly.
  */
 internal class StandardFormBundle(
     name: String,

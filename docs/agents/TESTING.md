@@ -287,5 +287,5 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   work with them, JS test runs may not.
 - Mocha owns the per-test timeout; Karma owns browser activity, disconnect, and reconnect
   timeouts. A long synchronous test can block the browser event loop long enough to hit either.
-- A Node test target is not a substitute for the browser suite while Canon resources are loaded
-  with browser `XMLHttpRequest`.
+- A Node test target is not a substitute for the browser suite, which verifies browser compilation
+  and integration.

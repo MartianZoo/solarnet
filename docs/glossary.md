@@ -122,7 +122,8 @@
 - **State Change:** An exact Component gain, removal, or Transmutation that occurred in a Game World. Contrast: Change Instruction.
 - **Structural Activation:**
 - **System:** Engine-only machinery. It extends `Hidden`, cannot be created by a Player, and an unowned System occurrence does not implicitly restrict Effect matching by its Actor.
-- **System Type:** A Pets Type supplied by `system.pets` because the generic engine requires it.
+- **System Type:** A Pets Type supplied by the declarations in `SystemDeclarations.kt` because the
+  generic engine requires it.
 - **Task:** A unit of pending work containing an Instruction, Assignee, optional Cause, and lifecycle metadata. It represents both what must eventually happen and the choices still permitted.
 - **Task Event:**
 - **Task ID:**

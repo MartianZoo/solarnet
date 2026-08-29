@@ -15,7 +15,7 @@ public object SystemClasses {
   // A special fake class name that doesn't actually point to a class
   public val THIS: ClassName = cn("This")
 
-  // Classes defined in system.pets
+  // Classes defined in SystemDeclarations.kt
 
   public val ATOMIZED: ClassName = cn("Atomized")
   public val ACTOR: ClassName = cn("Actor")
@@ -31,7 +31,7 @@ public object SystemClasses {
   public val OWNED: ClassName = cn("Owned")
   public val OWNER: ClassName = cn("Owner")
 
-  // Classes not defined in system.pets but which need to be defined by the game somewhere
+  // Classes not defined in SystemDeclarations.kt but which need to be defined by the game somewhere
 
   public val PLAYER: ClassName = cn("Player")
   public val USE_ACTION: ClassName = cn("UseAction")

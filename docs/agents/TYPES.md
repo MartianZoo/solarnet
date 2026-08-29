@@ -19,7 +19,7 @@
 | Class loading, inheritance, defaults, and inhabitation | [`ClassLoader.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassLoader.kt) |
 | Closed-world lookup and bounds | [`ClassTable.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassTable.kt) |
 | Authored implicit variables and regions | [`TypeLinking.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/TypeLinking.kt), search `Region` |
-| Foundational declaration vocabulary | [`system.pets`](../../pets/src/commonMain/resources/pets/system.pets), search for the named Class |
+| Foundational declaration vocabulary | [`SystemDeclarations.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/SystemDeclarations.kt), search for the named Class |
 
 ## Quick model
 
