@@ -123,7 +123,8 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
     if (arguments.isEmpty()) throw RoutineException("playCard requires a card")
     val cardName = canonicalName(arguments.first())
     val card = game.reader.tfmCatalog.card(cardName)
-    val deck = card.deck?.className ?: throw RoutineException("$cardName is not a playable card")
+    val deck =
+        cardBack(card)?.className ?: throw RoutineException("$cardName is not a playable card")
 
     return executeRoutine {
       val choices = ArrayDeque(arguments.drop(1))
@@ -204,7 +205,7 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
         listOf("First", "Second", "Third").getOrNull(actionNumber - 1)
             ?: throw RoutineException("Action number must be 1, 2, or 3")
     val provider = canonicalName(arguments[1])
-    val providerIsCard = game.reader.tfmCatalog.cardDefinitions.any { it.className == provider }
+    val providerIsCard = game.reader.tfmCatalog.cards.any { it.className == provider }
 
     return executeRoutine {
       val choices = ArrayDeque(arguments.drop(2))
@@ -392,7 +393,7 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
   private fun settlement(arguments: List<String>): Settlement {
     if (arguments.isEmpty()) return Settlement(emptyMap(), emptyList(), emptyList())
     val standardResources = standardResourceNames(game.reader)
-    val cardNames = game.reader.tfmCatalog.cardDefinitions.map { it.className }.toSet()
+    val cardNames = game.reader.tfmCatalog.cards.map { it.className }.toSet()
     val instructions =
         InstructionGroup.of(gameplay.parse<InstructionTree>(arguments.joinToString(", ")))
             .instructions

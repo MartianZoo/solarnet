@@ -139,9 +139,9 @@ The language module currently targets the JVM only. Its source and resource load
 plain JVM source sets even though the Pets and Canon dependencies remain multiplatform.
 
 `english-card-text-goals.tsv` is fallible, reviewed target text. `english-card-text-current.tsv` is
-generated characterization of what the renderer produces for canonical cards. The transitional
-`CardDefinition` passed to the renderer reads its semantic fields from the loaded `cards.pets`
-Class. Neither file is an answer source for production code. Run
+generated characterization of what the renderer produces for canonical cards. The renderer reads
+card semantics from the loaded `cards.pets` Class. Neither file is an answer source for production
+code. Run
 `./gradlew :tfm-text:writeEnglishCardTextCurrent` after an intentional renderer change, then review
 the current-versus-goal diff. Correct a goal row when card data or a systemic rule shows that it is
 mistaken.
@@ -539,8 +539,8 @@ Actions and non-End effects are top elements and do not prevent bottom derivatio
 ## Known layout regions
 
 Immediate instructions are printed below the artwork. The goal rows that split Potatoes, Air
-Raid, or Stratospheric Birds across regions were data errors, not evidence for a layout distinction
-in `CardDefinition` or for dividing one authored immediate group.
+Raid, or Stratospheric Birds across regions were data errors, not evidence for dividing one authored
+immediate group.
 
 Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
 Insurance shows why: its component declarations encode printed setup behavior that is absent from

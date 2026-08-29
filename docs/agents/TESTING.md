@@ -155,8 +155,8 @@ Keep scenarios minimal and legible. Card tests use the base game and two players
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
-Synthetic card scenarios may pass their `CardDefinition` and supporting `ClassDeclaration`s to the
-`CardTest` constructor; both are composed with Canon and selected in that test's premise.
+Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
+constructor; they are composed with Canon and selected in that test's premise.
 Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and `assignWildTag(card, tag)`
 instead of spelling their routine task expressions. The tile and card-resource helpers require a
 single matching pending choice; keep raw `doTask()` calls where multiple placements are pending.

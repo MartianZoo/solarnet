@@ -9,10 +9,17 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.CardDefinition.Deck.PRELUDE
 
 internal val promoCardPackBundle: StandardFormBundle by lazy {
-  StandardFormBundle("PromoCardPack", promoCardPackCustomClasses)
+  StandardFormBundle(
+      "PromoCardPack",
+      promoCardPackCustomClasses,
+      moduleClassExclusions =
+          mapOf(
+              cn("PromoCardPack") to
+                  setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
+          ),
+  )
 }
 
 private val promoCardPackCustomClasses: Set<CustomClass> = setOf(PromoCardPack.CopyPrelude)
@@ -22,13 +29,13 @@ private object PromoCardPack {
   internal object CopyPrelude : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): InstructionTree {
       val card = reader.tfmCatalog.card(cardType.className)
-      if (card.deck != PRELUDE) {
+      if (cardBack(card)?.className != TfmClasses.PRELUDE_CARD) {
         throw NarrowingException("Card ${card.className} is not a prelude card")
       }
       if (card.className == cn("DoubleDown")) {
         throw NarrowingException("Cute, but Double Down can't copy itself")
       }
-      return card.immediate ?: NoOp
+      return cardImmediate(card) ?: NoOp
     }
   }
 }

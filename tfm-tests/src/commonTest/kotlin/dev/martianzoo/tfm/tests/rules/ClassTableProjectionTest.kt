@@ -25,7 +25,6 @@ internal class ClassTableProjectionTest {
     val bundle = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
     fun contributedNames(catalog: TfmCatalog): Set<ClassName> = buildSet {
       catalog.explicitClassDeclarations.mapTo(this) { it.className }
-      catalog.cardDefinitions.mapTo(this) { it.className }
       catalog.marsMapDefinitions.forEach { map ->
         add(map.className)
         map.areas.mapTo(this) { area -> area.className }

@@ -83,7 +83,7 @@ its behavior from another representation. Synthetic tests likewise supply ordina
 declarations.
 
 The remaining structured-content cleanup concerns maps. It must preserve explicit declaration
-authority and the shared class-backed runtime view.
+authority and loaded Classes as the runtime representation.
 
 ## Module
 
@@ -190,9 +190,9 @@ and awards. These should be removed only after declaration authority is complete
 
 Routine card membership comes from the bundle/resource organization itself, not a list of
 individual members and not reconstruction from Class-name prefixes. A card resource directory
-selects its concrete `CardFront` declarations and compatible singleton auxiliaries for the
-same-named Module. Other auxiliary declarations become reachable through ordinary Pets references;
-none has a per-card metadata relationship.
+selects its concrete `CardFront` declarations and unreferenced non-card roots for the same-named
+Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
+which active Classes instantiate. None has a per-card metadata relationship.
 
 A same-named Module should eventually select the Bundle's other ordinary content through the same
 general rule.
@@ -209,9 +209,10 @@ availability annotations solely to preserve a product-shaped source directory.
 ## Card declarations and views
 
 Canonical `cards.pets` carries each card's deck role, tags, cost, play Requirement, actions,
-Effects, and resource role. Runtime card views read those facts from the loaded Class. A concrete
-subclass of `CardFront` is a card; its represented `Class<CardBack>` distinguishes project,
-corporation, and Prelude decks. Auxiliary declarations require no per-card metadata relationship.
+Effects, and resource role. Card consumers use the loaded Class directly, with narrow derived
+queries for those semantics. A concrete subclass of `CardFront` is a card; its represented
+`Class<CardBack>` distinguishes project, corporation, and Prelude decks. Auxiliary declarations
+require no per-card metadata relationship.
 
 ## Map data and runtime views
 
@@ -395,9 +396,8 @@ named domain concept should become generic.
    expansion names.
 3. **Moderate — expansion concepts appear in engine and card APIs.**
    `engine/.../TfmGameplay.kt` publishes `playPrelude` and `venusPercent`.
-   `tfm-canon/.../CardDefinition.kt` and `tfm-canon/.../TfmClasses.kt` make Prelude a built-in deck
-   kind and give it special validation. These are real dependencies, but `PreludeCard` and
-   `VenusStep` are
+   `tfm-canon/.../TfmCatalog.kt` and `tfm-canon/.../TfmClasses.kt` give Prelude cards a special
+   automatic-selection condition. These are real dependencies, but `PreludeCard` and `VenusStep` are
    legitimate Terraforming Mars concepts; removing their names is not inherently a simplification.
 4. **Low — the legacy script layer enumerates concrete products.**
    `script/.../OptionCodeTranslation.kt` names Corporate Era, the map products, Milestones and

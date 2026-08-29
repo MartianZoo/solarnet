@@ -1,10 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.CardDefinition
-import dev.martianzoo.tfm.canon.CardDefinition.CardData
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -15,21 +14,15 @@ import kotlin.test.Test
 private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
 
 private val fakeEstablishedMethodsDefinition =
-    CardDefinition(
-        CardData(
-            name = "FakeEstablishedMethods",
-            deck = "PRELUDE",
-            immediate = "30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!",
-        )
+    parseOneLinerClass(
+        "CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> { cost = 0; This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>! }"
     )
 
 private val solarFusionStreamCatalog =
     TfmCatalog.compose(
         Canon,
         object : TfmCatalog() {
-          override val explicitClassDeclarations =
-              setOf(fakeEstablishedMethodsDefinition.asClassDeclaration)
-          override val cardDefinitions = setOf(fakeEstablishedMethodsDefinition)
+          override val explicitClassDeclarations = setOf(fakeEstablishedMethodsDefinition)
         },
     )
 

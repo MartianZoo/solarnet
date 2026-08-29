@@ -1,4 +1,4 @@
-// Generated from cards.json5.
+// Published Corporate Era card declarations.
 CLASS SaturnSystems : CardFront<Class<CorporationCard>> {
   cost = 0
 

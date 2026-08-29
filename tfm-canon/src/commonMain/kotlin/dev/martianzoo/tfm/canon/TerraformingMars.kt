@@ -36,6 +36,7 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
@@ -90,9 +91,9 @@ private object TerraformingMars {
 
   internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-      val card: CardDefinition = reader.tfmCatalog.card(cardType.className)
+      val card = reader.tfmCatalog.card(cardType.className)
       val immediate =
-          card.immediate
+          cardImmediate(card)
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")
       val matches =
           immediate.descendantsOfType<InstructionTransform>().filter { it.transformKind == PROD }
@@ -109,7 +110,7 @@ private object TerraformingMars {
     override fun count(game: GameReader, type: Type): Int {
       val (cardExpression, targetExpression) = type.expressionFull.arguments
       if (game.countComponent(game.resolve(cardExpression)) == 0) return 0
-      val effects = card(cardExpression, game).effects
+      val effects = cardEffects(card(cardExpression, game))
       val target = targetExpression.arguments.single().className
       return effects.sumOf { it.citationsOutsideRemoval(target) }
     }
@@ -185,7 +186,7 @@ private object TerraformingMars {
         cardBackClassType: Type,
         cardFrontClassType: Type,
     ): Instruction {
-      val deck = cardFromClassType(cardFrontClassType, reader).deck
+      val deck = cardBack(cardFromClassType(cardFrontClassType, reader))
       return if (representedType(cardBackClassType, reader).className == deck?.className) {
         NoOp
       } else {
@@ -249,7 +250,7 @@ private object TerraformingMars {
     ): Instruction {
       val card = cardFromClassType(cardFrontClassType, reader)
       return Then.create(
-          card.tags.entries.map { (tagName, count) ->
+          cardTags(card).entries.map { (tagName, count) ->
             gain(PLAY_TAG.of(tagName.classExpression()), count)
           }
       )
@@ -262,7 +263,7 @@ private object TerraformingMars {
         ignoredOwner: Type,
         classType: Type,
     ): InstructionTree {
-      val effects = cardFromClassType(classType, reader).effects
+      val effects = cardEffects(cardFromClassType(classType, reader))
       return InstructionGroup.of(effects.filter { it.trigger == end }.map { it.instruction })
     }
 
@@ -343,7 +344,7 @@ private object TerraformingMars {
   private fun tally(player: HasClassName, awardType: Type): Expression =
       AWARD_TALLY.of(player.className.expression, awardType.expression)
 
-  private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
+  private fun cardFromClassType(cardClassType: Type, reader: GameReader): Class {
     return reader.tfmCatalog.card(representedType(cardClassType, reader).className)
   }
 
@@ -352,7 +353,7 @@ private object TerraformingMars {
     return reader.resolve(classType.expressionFull.arguments.single())
   }
 
-  private fun card(type: HasClassName, reader: GameReader): CardDefinition =
+  private fun card(type: HasClassName, reader: GameReader): Class =
       reader.tfmCatalog.card(type.className)
 
   private fun cardRequirement(cardType: Type): Requirement? =

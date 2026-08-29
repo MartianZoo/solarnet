@@ -27,6 +27,7 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
+import dev.martianzoo.tfm.canon.cardRequirement
 
 /**
  * Conservative static report of rules that may make a solo player's resource quantity nonmonotonic.
@@ -89,9 +90,7 @@ internal object StandardResourceMonotonicityReport {
     val opaqueUsages = linkedSetOf<OpaqueUsage>()
     val tfmCatalog = premise.catalog as TfmCatalog
     val playRequirements =
-        tfmCatalog.cardDefinitions.associate { sourceCard ->
-          sourceCard.className to tfmCatalog.card(sourceCard.className).requirement
-        }
+        tfmCatalog.cards.associate { card -> card.className to cardRequirement(card) }
 
     table.allClasses().sortedBy(PetsClass::className).forEach { subjectClass ->
       val declaration = subjectClass.declaration

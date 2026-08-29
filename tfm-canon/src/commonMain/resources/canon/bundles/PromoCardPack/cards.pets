@@ -1,4 +1,4 @@
-// Generated from cards.json5.
+// Published promotional card declarations.
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
 
@@ -417,7 +417,6 @@ CLASS TopsoilContract : ActiveCard<Class<ProjectCard>> {
   Microbe: 1 MC
 }
 
-// replaces: DeimosDown
 CLASS DeimosDownPromo : EventCard<Class<ProjectCard>> {
   cost = 31
 
@@ -425,7 +424,6 @@ CLASS DeimosDownPromo : EventCard<Class<ProjectCard>> {
   This: 3 TemperatureStep, SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> {}, 4 Steel, -6 Plant<Anyone>?
 }
 
-// replaces: GreatDam
 CLASS GreatDamPromo : AutomatedCard<Class<ProjectCard>> {
   cost = 15
   requirement = HAS "4 OceanTile"
@@ -435,7 +433,6 @@ CLASS GreatDamPromo : AutomatedCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-// replaces: MagneticFieldGenerators
 CLASS MagneticFieldGeneratorsPromo : AutomatedCard<Class<ProjectCard>> {
   cost = 22
 

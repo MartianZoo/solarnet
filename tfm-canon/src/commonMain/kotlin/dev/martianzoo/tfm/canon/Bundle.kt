@@ -15,8 +15,14 @@ public abstract class Bundle(
    */
   public open val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap()
 
-  /** Ordinary card pools belonging to individual Modules within this bundle. */
-  public open val moduleCardDefinitions: Map<ClassName, Set<CardDefinition>> = emptyMap()
+  /** Class exclusions applied when individual Modules in this bundle are selected. */
+  public open val moduleClassExclusions: Map<ClassName, Set<ClassName>> = emptyMap()
+
+  /** Declarations that live in this bundle's card resource, including auxiliary classes. */
+  internal open val cardResourceClassNames: Set<ClassName> = emptySet()
+
+  /** Card-resource declaration names grouped by the Module matching their resource directory. */
+  internal open val moduleCardClassNames: Map<ClassName, Set<ClassName>> = emptyMap()
 
   final override val bundles: List<Bundle> = listOf(this)
 }

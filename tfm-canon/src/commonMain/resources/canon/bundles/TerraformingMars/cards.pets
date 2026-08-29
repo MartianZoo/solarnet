@@ -1,4 +1,4 @@
-// Generated from cards.json5.
+// Published base-game card declarations.
 CLASS CrediCor : CardFront<Class<CorporationCard>> {
   cost = 0
 

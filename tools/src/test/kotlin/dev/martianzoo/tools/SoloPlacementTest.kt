@@ -1,5 +1,6 @@
 package dev.martianzoo.tools
 
+import dev.martianzoo.tfm.canon.cardCost
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -32,7 +33,7 @@ internal class SoloPlacementTest {
     assertTrue(output.contains("Mining Colony"))
     assertTrue(output.contains("Jupiter Floating Station"))
     assertTrue(!output.contains("MiningColony"))
-    assertEquals(listOf(20, 18, 2, 9), placements.map { it.card.cost })
+    assertEquals(listOf(20, 18, 2, 9), placements.map { cardCost(it.card) })
     assertEquals(4, placements.map { it.area }.toSet().size)
   }
 
