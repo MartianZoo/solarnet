@@ -383,6 +383,32 @@ admission, or as a substitute for a scope that must wait for transitive descenda
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
 scope may be wider than its payment transaction.
 
+### Put choice-free work at its semantic owner
+
+A queued Player task should exist because the Player can make a real choice: whether to act, which
+alternative to select, how to narrow it, or when to perform one of several reorderable effects. Do
+not expose a Player task merely because the implementation needs a pulse or cleanup step.
+
+Place choice-free work according to what it means:
+
+1. use `::` for a fixed consequence needed to restore a coherent World before Player work;
+2. use an Engine-owned queued task for a deterministic game or workflow event that remains
+   meaningfully observable and reorderable only against other equivalent Engine work; or
+3. use scoped completion or `Idle` for cleanup that must wait until all descendants drain.
+
+Engine ownership asserts that no participant chooses among semantically different outcomes. The
+Engine runner may therefore drain all eligible owned work strongly; if it encounters distinct legal
+outcomes, the ownership or instruction is wrong and must be repaired instead of selecting the first.
+Likewise, a helper Signal may remain useful causal vocabulary without becoming a Player command.
+
+Do not make a client Routine mop up these tasks except as a documented temporary bridge. That makes
+a replay pass while hiding the misplaced effect, owner, or completion rule that made the chore
+player-visible.
+
+Action-scoped temporary state follows the same rule. Its uniquely implied settlement must complete
+with the action before workflow offers a second action. Declining that later offer is a separate
+turn decision; it must not double as current-action cleanup.
+
 ### Choose condition time explicitly
 
 These Effects test their Requirements at different times:

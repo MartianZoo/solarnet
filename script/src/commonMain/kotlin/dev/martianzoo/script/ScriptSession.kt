@@ -1,5 +1,7 @@
 package dev.martianzoo.script
 
+import dev.martianzoo.engine.AutoExecMode
+import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
@@ -54,6 +56,7 @@ import dev.martianzoo.tfm.script.TfmColor.HEAT
 import dev.martianzoo.tfm.script.TfmColor.MC
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.PLANT
+import dev.martianzoo.tfm.script.commands.DoCommand
 import dev.martianzoo.tfm.script.commands.TfmActionCommand
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
@@ -68,6 +71,11 @@ public class ScriptSession(
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
+
+  private var playerAutoExecMode: AutoExecMode = FIRST
+
+  internal val autoExecMode: AutoExecMode
+    get() = playerAutoExecMode
 
   internal lateinit var gameplay: TurnLayer
   internal var optionCodes: String = ""
@@ -93,7 +101,7 @@ public class ScriptSession(
   ) {
     val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
-      TfmWorkflow.Auto(candidateGame).launch()
+      TfmWorkflow.Auto(candidateGame, playerAutoExecMode = { playerAutoExecMode }).launch()
     } else {
       TfmWorkflow.Manual(candidateGame).setupPhase()
     }
@@ -178,6 +186,7 @@ public class ScriptSession(
               TfmBoardCommand(this),
               CountCommand(this),
               DescCommand(this),
+              DoCommand(this),
               ExecCommand(this),
               HasCommand(this),
               HelpCommand(this),
@@ -241,6 +250,11 @@ public class ScriptSession(
   internal fun onlyTask(): Task =
       selectableTasks().singleOrNull()
           ?: throw UsageException("this requires exactly one pending task")
+
+  internal fun setAutoExecMode(mode: AutoExecMode) {
+    playerAutoExecMode = mode
+    gameplay.autoExecMode = mode
+  }
 
   internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {
     val g = event.change.gaining

@@ -21,19 +21,20 @@ internal class AutoCommand(private val repl: ScriptSession) : ScriptCommand("aut
         across games.
       """
 
-  override fun noArgs() = listOf("Autoexec mode is: ${repl.gameplay.autoExecMode}")
+  override fun noArgs() = listOf("Autoexec mode is: ${repl.autoExecMode}")
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.completions("none", "safe", "first", group = "auto modes")
 
   override fun withArgs(args: String): List<String> {
-    repl.gameplay.autoExecMode =
+    val mode =
         when (args) {
           "none" -> NONE
           "safe" -> SAFE
           "first" -> FIRST
           else -> throw UsageException()
         }
+    repl.setAutoExecMode(mode)
     return noArgs()
   }
 }

@@ -75,6 +75,16 @@ public class TfmGameplay(
   public fun buyCards(count: Int): TaskResult =
       gameplay.godMode().continueManual { buySelectedCards(count) }
 
+  /**
+   * Commits every project card currently selected, opening a pending offer first when necessary.
+   */
+  public fun buyCards(): TaskResult =
+      gameplay.godMode().continueManual {
+        closeUnusedPaymentOffers()
+        openPendingProjectCardOffer()
+        buySelectedCards(this@TfmGameplay.count("ProjectCard<Selecting>"))
+      }
+
   private fun OperationBody.buySelectedCards(count: Int) {
     closeUnusedPaymentOffers()
     openPendingProjectCardOffer()
@@ -85,21 +95,47 @@ public class TfmGameplay(
         tasks
             .extract { it }
             .withIndex()
-            .single { (_, task) ->
+            .singleOrNull { (_, task) ->
               val instruction = task.instruction.toString()
-              "ProjectCard" in instruction && "Selecting" in instruction
+              "ProjectCard" in instruction &&
+                  "Selecting" in instruction &&
+                  !instruction.startsWith("BuyCard")
             }
-            .index + 1
-    doTask(
-        if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
-        selectionTaskNumber,
-    )
+            ?.index
+            ?.plus(1)
+    if (selectionTaskNumber != null) {
+      doTask(
+          if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
+          selectionTaskNumber,
+      )
+    } else {
+      require(discarded == 0 && hasPendingBuySelectedCards(tasks)) {
+        "no open project-card selection to commit"
+      }
+    }
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
+    if (hasPendingBuyCard(tasks)) {
+      while (hasPendingBuyCard(tasks)) {
+        if (this@TfmGameplay.count("ProjectCard<Selecting>") > 0) {
+          doTask("BuyCard / ProjectCard<Selecting>")
+        } else {
+          val buyTask = tasks.matching { it.instruction.toString().startsWith("BuyCard") }.single()
+          selectTask(buyTask)
+          if (buyTask in tasks) narrowTask("Ok")
+        }
+      }
+    }
     if (count > 0) {
-      while (hasPendingBuyCard(tasks)) doTask("BuyCard / ProjectCard<Selecting>")
       if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
       payAllMc()
       completePurchasedCards()
+    } else {
+      val emptyTransfer =
+          tasks.matching { it.instruction.toString().startsWith("MAX 0 Invoice") }.singleOrNull()
+      if (emptyTransfer != null) {
+        selectTask(emptyTransfer)
+        if (emptyTransfer in tasks) narrowTask("Ok")
+      }
     }
     if (this@TfmGameplay.count("Selecting") != 0) doTask("-Selecting")
     closeUnusedPaymentOffers()
