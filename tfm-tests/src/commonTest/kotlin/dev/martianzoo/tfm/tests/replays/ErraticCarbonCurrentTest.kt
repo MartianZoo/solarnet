@@ -12,8 +12,6 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-private val marsNomads = cn("MarsNomads")
-
 // Mars Nomads' moving, non-tile map marker is not yet modeled. The replay supplies each sourced
 // placement bonus explicitly while this stand-in preserves the card play and once-per-round action.
 private val marsNomadsDefinition =
@@ -222,7 +220,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         ElectroCatapult,
         BeamFromAThoriumAsteroid,
     )
-    pink.buyCards(ReleaseOfInertGases, BusinessNetwork, marsNomads)
+    pink.buyCards(ReleaseOfInertGases, BusinessNetwork, MarsNomads)
     pink.discardUnselectedProjectCards(BioPrintingFacility)
 
     // Database save 98 evidence: after both research purchases.
@@ -243,12 +241,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { convertPlants { placeTile(3, 5) } }
     pink.turn {
       playProject(Harvest, 4)
-      playProject(marsNomads, 13)
+      playProject(MarsNomads, 13)
     }
     blue.turn { convertHeat() }
     pink.turn {
       convertPlants { placeTile(6, 6) }
-      cardAction1(marsNomads)
+      cardAction1(MarsNomads)
     }
     // Unsupported component: moving Mars Nomads granted the destination's complete bonus.
     pink.exMachina("-6 MC, OceanTile<Hellas_5_7>, TerraformRating, 3 Heat, 6 MC")
@@ -281,7 +279,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     pink.turn { playProject(ImportedGhg, 1, titanium = 1) }
     blue.turn { playProject(ExtractorBalloons, 20) }
-    pink.turn { cardAction1(marsNomads) }
+    pink.turn { cardAction1(MarsNomads) }
     // Unsupported component: the Nomads' new area supplied two heat.
     pink.exMachina("2 Heat")
     blue.turn {
@@ -331,7 +329,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       playProject(UndergroundCity, 13, steel = 2) { placeTile(7, 7) }
     }
     pink.turn {
-      cardAction1(marsNomads)
+      cardAction1(MarsNomads)
       convertHeat()
     }
     // Unsupported component: the Nomads' destination bonus placed an ocean and granted steel.
@@ -414,7 +412,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
       cardAction1(AiCentral) { draw(FloatingHabs, ArcticAlgae) }
     }
-    pink.turn { cardAction1(marsNomads) }
+    pink.turn { cardAction1(MarsNomads) }
     // Unsupported component: the Nomads' new area supplied two heat.
     pink.exMachina("2 Heat")
     blue.turn {
@@ -482,7 +480,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     // Unsupported component: this Nomads destination supplies the heat spent by the next action.
     pink.exMachina("2 Heat")
     pink.turn {
-      cardAction1(marsNomads)
+      cardAction1(MarsNomads)
       convertHeat()
     }
     blue.turn {
@@ -556,7 +554,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { fundAward(cn("Suburbian"), 14) }
     pink.turn {
       playProject(Harvest, 4)
-      cardAction1(marsNomads)
+      cardAction1(MarsNomads)
     }
     // Unsupported component: this Nomads destination supplied a project card.
     pink.exMachina("ProjectCard")
