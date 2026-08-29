@@ -119,7 +119,9 @@ Cards can have three types of things "on" them, which all share the superclass `
 
 ### PaymentMechanic
 
-A few types are busily doing weird stuff behind the scenes to let you pay for stuff properly: `Owed`, `Accept`, `Pay`, `PlayCard`, and `PlayTag`. The best way to understand what these are for is to see how they are used on cards in `cards.json5`.
+A few types are busily doing weird stuff behind the scenes to let you pay for stuff properly:
+`Owed`, `Accept`, `Pay`, `PlayCard`, and `PlayTag`. The best way to understand what these are for is
+to see how they are used in the bundle `cards.pets` files.
 
 ## TODO
 
