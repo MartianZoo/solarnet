@@ -1,7 +1,7 @@
 # Syntax
 
-Here's a quick overview of the syntax of the PETS language. The best way to learn is to read the example cards
-in `cards.json5`.
+Here's a quick overview of the syntax of the PETS language. The best way to learn is to read the
+card declarations in the bundle `cards.pets` files.
 
 ## Type expressions
 

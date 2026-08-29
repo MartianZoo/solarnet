@@ -1,13 +1,16 @@
 # Life of an Effect
 
-This document follows one string from canonical card data until its Instructions produce recorded
-State Changes. The example is Recyclon because it passes through most of the interesting stages
-without making any one of them unusually difficult:
+This document follows one Effect in an authored canonical card declaration until its Instructions
+produce recorded State Changes. The example is Recyclon because it passes through most of the
+interesting stages without making any one of them unusually difficult:
 
-```json5
-"effects": [
-  "BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])"
-]
+```pets
+CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
+  cost = 0
+  This:: MicrobeTag<This>, BuildingTag<This>
+  This: 38 MC, PROD[Steel]
+  BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
+}
 ```
 
 At every stage, the important question is not merely “what code ran?” but “what is now safe to
@@ -32,9 +35,9 @@ postconditions remain the semantic contract.
 
 | Stage | What has become known |
 |---|---|
-| JSON5 string | Only card-data checks have run. |
+| Pets source | The card declaration and Effect are still text. |
 | Source Effect | The whole string has been read as one well-formed Effect. |
-| Class Declaration | The Effect belongs to Recyclon alongside its generated card behavior. |
+| Class Declaration | The Effect belongs to Recyclon's parsed declaration. |
 | loaded Class | Recyclon's hierarchy, Dependencies, defaults, and Invariants have Type-system meaning. |
 | Class Effect | Inheritance and every Class-level transformation have been applied. |
 | Component Effect | `Owner`, `This`, and inherited Dependencies have been bound for one concrete Recyclon Type. |
@@ -44,27 +47,23 @@ postconditions remain the semantic contract.
 | Selected Task | The client has chosen the next Task, and current Game World facts have been applied. |
 | State Change | An exact gain or removal has happened and a Change Event records it. |
 
-## 1. The JSON5 string
+## 1. The Pets source
 
 **PetTransformers, in order:** none.
 
-The `effects` value is initially just one field of Recyclon's card data. At this point the surrounding
-data has been checked for basic consistency: `Recyclon` is a valid Class Name, a corporation has no
-project-card cost or requirement, and the named resource Type is nonempty. Missing lists such as
-`actions` receive empty-list values.
+The Effect initially appears as one line in Recyclon's `cards.pets` declaration. Nothing has parsed
+or validated it yet. In particular, it has not been checked against any Class Table, and no omitted
+Dependency or Quantifier has been filled in.
 
-None of that proves that the Effect itself is valid Pets. It has not yet been checked against any
-Class Table, and no omitted Dependency or Quantifier has been filled in.
-
-**Postcondition:** the program has a structurally acceptable card record containing the original
-Effect text. It does not yet have an Effect.
+**Postcondition:** the source resource contains the original Effect text. The program does not yet
+have an Effect.
 
 ## 2. The string becomes a Source Effect
 
 **PetTransformers, in order:** `DerivedClassLowerer`.
 
-The card data reads the entire string as an Effect, not as a general Instruction or some
-other Pets element. Reading must consume the entire string. The result has three principal parts:
+Class parsing reads the entire line as an Effect, not as a general Instruction or some other Pets
+element. Reading must consume the entire string. The result has three principal parts:
 
 ```pets
 Trigger:      BuildingTag<>
@@ -90,32 +89,24 @@ tree.
 queued/automatic choice, and set of authored Type Variables. Its Type Expressions are still source
 expressions; Class-level defaults and validity have not yet been established.
 
-## 3. The card data produces Recyclon's Class Declaration
+## 3. Recyclon's Class Declaration enters the Catalog
 
 **PetTransformers, in order:** `FollowModeNeutralizer`.
 
-A card data record contributes a Content Class. For Recyclon, the behavior-bearing part of its
-generated Class Declaration can be read as:
+Parsing `cards.pets` contributes Recyclon's Class Declaration directly. Its behavior-bearing part
+is:
 
 ```pets
-CLASS Recyclon : ResourceCard<Class<Microbe>> {
-  HAS MAX 1 Recyclon
-
-  This:: MicrobeTag<This>!, BuildingTag<This>!
-  This: 38, PROD[Steel]
+CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
+  cost = 0
+  This:: MicrobeTag<This>, BuildingTag<This>
+  This: 38 MC, PROD[Steel]
   BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
 }
 ```
 
-The last line is our original Source Effect. The card data has placed it after two generated
-Effects:
-
-- The printed tags become an Automatic Effect on Recyclon's creation.
-- The `immediate` field becomes a queued Immediate Instruction.
-
-Recyclon's authored use of `Microbe<This>`, together with the explicit declaration of `Microbe` as
-a `CardResource`, makes it inherit from `ResourceCard<Class<Microbe>>`. The card data adds
-Recyclon's one-copy Invariant and card properties as well. It does not silently merge, remove, or
+The last line is our original Source Effect. The preceding lines directly author the card's tags,
+immediate instruction, cost, deck, and resource role. Parsing does not silently merge, remove, or
 reorder authored Effects. `FollowModeNeutralizer` preserves generic card-location operations while
 delegating printed-face constraints to the follow-mode client. Recyclon's Effect contains no such
 operation and is unchanged.
@@ -130,7 +121,7 @@ behavior or received Class-level defaults.
 `replaceThisExpressionsWith` while resolving certain Class-owned Type Expressions, but does not run
 it over Recyclon's Source Effect.
 
-The Catalog collects Recyclon's generated declaration with the Rule Classes and other Content
+The Catalog collects Recyclon's authored declaration with the Rule Classes and other Content
 Classes. Class Loading turns that mutually referring set into a Class Table. Recyclon thereby
 becomes a Class with a resolved hierarchy through `ResourceCard`, `CardFront`, `TagHolder`, `Card`,
 and `Owned`.
