@@ -24,7 +24,6 @@ public object TfmClasses {
   internal val ACTIVE_CARD = cn("ActiveCard")
   internal val AUTOMATED_CARD = cn("AutomatedCard")
   internal val EVENT_CARD = cn("EventCard")
-  internal val ACTION_CARD = cn("ActionCard")
   internal val RESOURCE_CARD = cn("ResourceCard")
 
   public val STANDARD_RESOURCE: dev.martianzoo.pets.ast.ClassName = cn("StandardResource")

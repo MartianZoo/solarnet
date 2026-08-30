@@ -43,6 +43,10 @@ names. The core Terraforming Mars bundle owns the initial implementations. `DO` 
 looks it up through the active World's Catalog, and supplies the live World and Actor-scoped
 Gameplay in a `RoutineContext`.
 
+Routine implementations belong to the Catalog module and depend only on the generic engine and
+Pets surfaces. They must not call `TfmGameplay`; the transitional `TfmGameplay` facade instead
+dispatches overlapping operations through the Catalog's `RoutineProvider` capability.
+
 The prototype uses the current Gameplay operation scopes described in
 [ENGINE.md](ENGINE.md#current-gameplay-surface). Any later client-facing Routine API should follow
 the command lifecycle and temporary script policy in [API.md](API.md#command-scopes).

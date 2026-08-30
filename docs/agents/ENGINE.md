@@ -449,8 +449,9 @@ receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplicatio
 scheduling points and the proposed direction; it does not describe committed behavior.
 
 `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
-layers. Treat it as transitional; test conveniences and player-facing domain actions need not
-remain one production wrapper.
+layers. Treat it as transitional; its pass, selected-card purchase, and end-turn conveniences now
+dispatch to Catalog Routines, and the remaining test conveniences and player-facing domain actions
+need not remain one production wrapper.
 
 `TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
 for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken

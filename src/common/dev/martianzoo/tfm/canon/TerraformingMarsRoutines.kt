@@ -6,6 +6,7 @@ import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Routine
 import dev.martianzoo.engine.RoutineContext
 import dev.martianzoo.engine.RoutineException
+import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -23,10 +24,11 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
-import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 
 internal val terraformingMarsRoutines: Map<String, Routine> =
     mapOf(
@@ -50,7 +52,6 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
 
   internal fun tasks(arguments: List<String>): TaskResult {
     if (arguments.isEmpty()) throw RoutineException("tasks requires instructions")
-    if (arguments == listOf("Pass")) return tfm().pass()
     if (arguments == listOf("select")) {
       val task =
           game.tasks.extract { it }.filter { it.assignee == gameplay.actor }.singleOrNull()
@@ -388,7 +389,7 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
 
   private fun OperationBody.settleBilling(choices: ArrayDeque<String>) {
     val billingPending =
-        tfm().count("Owed") != 0 ||
+        gameplay.count("Owed") != 0 ||
             tasks
                 .extract { it }
                 .any { task ->
@@ -398,7 +399,7 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
                 }
     if (billingPending) settle(Settlement(emptyMap(), emptyList(), emptyList()))
 
-    while (tfm().count("Owed") != 0) {
+    while (gameplay.count("Owed") != 0) {
       val source =
           choices.removeFirstOrNull()
               ?: throw RoutineException("Routine ended before Billing was settled")
@@ -454,12 +455,162 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
 
   internal fun buyCards(arguments: List<String>): TaskResult {
     if (arguments.isNotEmpty()) throw RoutineException("buyCards takes no arguments")
-    return tfm().buyCards()
+    return executeRoutine {
+      closeUnusedPaymentOffers()
+      openPendingProjectCardOffer()
+      val selected = gameplay.count("ProjectCard<Selecting>")
+      buySelectedCards(selected)
+    }
   }
 
   internal fun endTurn(arguments: List<String>): TaskResult {
     if (arguments.isNotEmpty()) throw RoutineException("endTurn takes no arguments")
-    return tfm().declineSecondAction()
+    return executeRoutine {
+      val secondAction =
+          tasks
+              .extract { it }
+              .filter { it.assignee == gameplay.actor }
+              .withIndex()
+              .filter { (_, task) -> task.isActionPhaseSecondAction() }
+              .singleOrNull()
+              ?: throw TaskException(
+                  "${gameplay.actor} is not waiting on exactly one second-action offer"
+              )
+      doTask("Ok", secondAction.index + 1)
+    }
+  }
+
+  private fun Task.isActionPhaseSecondAction(): Boolean {
+    val origin = cause ?: return false
+    if (origin.context.className != cn("ActionPhase")) return false
+    val trigger = game.events.entryAt(origin.triggerEvent) as? ChangeEvent
+    return trigger?.change?.gaining?.className == cn("SecondAction")
+  }
+
+  private fun OperationBody.buySelectedCards(count: Int) {
+    closeUnusedPaymentOffers()
+    openPendingProjectCardOffer()
+    val offered = gameplay.count("ProjectCard<Selecting>")
+    require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
+    val discarded = offered - count
+    val selectionTaskNumber =
+        tasks
+            .extract { it }
+            .withIndex()
+            .singleOrNull { (_, task) ->
+              val instruction = task.instruction.toString()
+              "ProjectCard" in instruction &&
+                  "Selecting" in instruction &&
+                  !instruction.startsWith("BuyCard")
+            }
+            ?.index
+            ?.plus(1)
+    if (selectionTaskNumber != null) {
+      doTask(
+          if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
+          selectionTaskNumber,
+      )
+    } else {
+      require(discarded == 0 && hasPendingBuySelectedCards(tasks)) {
+        "no open project-card selection to commit"
+      }
+    }
+    if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
+    while (hasPendingBuyCard(tasks)) {
+      if (gameplay.count("ProjectCard<Selecting>") > 0) {
+        doTask("BuyCard / ProjectCard<Selecting>")
+      } else {
+        val buyTask = tasks.matching { it.instruction.toString().startsWith("BuyCard") }.single()
+        gameplay.selectTask(buyTask)
+        if (buyTask in tasks) gameplay.narrowTask("Ok")
+      }
+    }
+    if (count > 0) {
+      if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
+      payAllMc()
+      completePurchasedCards()
+    } else {
+      val emptyTransfer =
+          tasks.matching { it.instruction.toString().startsWith("MAX 0 Invoice") }.singleOrNull()
+      if (emptyTransfer != null) {
+        gameplay.selectTask(emptyTransfer)
+        if (emptyTransfer in tasks) gameplay.narrowTask("Ok")
+      }
+    }
+    if (gameplay.count("Selecting") != 0) doTask("-Selecting")
+    closeUnusedPaymentOffers()
+  }
+
+  private fun OperationBody.openPendingProjectCardOffer() {
+    if (gameplay.count("ProjectCard<Selecting>") != 0) return
+    val offers =
+        tasks
+            .extract { it }
+            .filter { task ->
+              val instruction = task.instruction.toString() + task.then.toString()
+              task.assignee == gameplay.actor &&
+                  "ProjectCard" in instruction &&
+                  "Selecting" in instruction &&
+                  !instruction.startsWith("BuyCard")
+            }
+    if (offers.isEmpty()) return
+    val directOffers = offers.filter { task ->
+      task.instruction.descendantsOfType<Change>().any { change ->
+        change.gaining?.let { gaining ->
+          gaining.className == cn("ProjectCard") &&
+              cn("Selecting") in gaining.descendantsOfType<ClassName>()
+        } == true
+      }
+    }
+    val offer = directOffers.singleOrNull() ?: offers.single()
+    gameplay.selectTask(offer.id)
+    if (gameplay.count("ProjectCard<Selecting>") == 0) doTask("ProjectCard<Selecting>")
+  }
+
+  private fun OperationBody.closeUnusedPaymentOffers() {
+    if (gameplay.count("Owed") != 0) return
+    while (true) {
+      autoExecNow()
+      val offer =
+          tasks
+              .extract { it }
+              .withIndex()
+              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("Accept") } ?: return
+      doTask("Ok", offer.index + 1)
+    }
+  }
+
+  private fun hasPendingBuyCardsInvoice(tasks: TaskQueue): Boolean =
+      tasks
+          .extract { it }
+          .any { task ->
+            task.instruction.toString().let { it.startsWith("Invoice<") && "BuyCards" in it }
+          }
+
+  private fun hasPendingBuySelectedCards(tasks: TaskQueue): Boolean =
+      tasks.extract { it }.any { it.instruction.toString().startsWith("BuySelectedCards") }
+
+  private fun hasPendingBuyCard(tasks: TaskQueue): Boolean =
+      tasks.extract { it }.any { it.instruction.toString().startsWith("BuyCard<") }
+
+  private fun OperationBody.completePurchasedCards() {
+    val transfer =
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.instruction.descendantsOfType<Change>().any { change ->
+                change.gaining?.let { gaining ->
+                  gaining.className == cn("ProjectCard") &&
+                      cn("Hand") in gaining.descendantsOfType<ClassName>()
+                } == true &&
+                    change.removing?.let { removing ->
+                      removing.className == cn("ProjectCard") &&
+                          cn("Selecting") in removing.descendantsOfType<ClassName>()
+                    } == true
+              }
+            }
+            .singleOrNull() ?: return
+    gameplay.selectTask(transfer.id)
   }
 
   private fun executeRoutine(body: BodyLambda): TaskResult =
@@ -546,18 +697,62 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
   }
 
   private fun OperationBody.settle(settlement: Settlement) {
-    if (settlement.cardPayments.isNotEmpty()) tfm().pay()
+    val billingCause = openPendingBilling()
     settlement.cardPayments.forEach(::doTask)
-    with(settlement.standardPayments) {
-      tfm()
-          .pay(
-              mc = get(cn("MC")) ?: 0,
-              steel = get(cn("Steel")) ?: 0,
-              titanium = get(cn("Titanium")) ?: 0,
-              plant = get(cn("Plant")) ?: 0,
-              energy = get(cn("Energy")) ?: 0,
-              heat = get(cn("Heat")) ?: 0,
-          )
+    listOf("Plant", "Energy", "Heat", "Titanium", "Steel", "MC").forEach { currency ->
+      val count = settlement.standardPayments[cn(currency)] ?: 0
+      if (count > 0) doTask("$count Pay<Class<$currency>> FROM $currency")
+    }
+    if (gameplay.count("Owed") == 0) finishBilling(billingCause)
+  }
+
+  private fun OperationBody.openPendingBilling(): Cause? {
+    if (gameplay.count("Owed") != 0) return null
+    val billing =
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.instruction.descendantsOfType<Change>().any { change ->
+                change.gaining?.className == cn("Owed")
+              }
+            }
+            .singleOrNull() ?: return null
+    gameplay.selectTask(billing.id)
+    advanceSingleConcreteTask(billing.cause)
+    return billing.cause
+  }
+
+  private fun OperationBody.payAllMc() {
+    val billingCause = openPendingBilling()
+    val owed = gameplay.count("Owed")
+    if (owed > 0) doTask("$owed Pay<Class<MC>> FROM MC")
+    if (gameplay.count("Owed") == 0) finishBilling(billingCause)
+  }
+
+  private fun OperationBody.finishBilling(billingCause: Cause?) {
+    tasks
+        .matching { it.cause?.context?.className == cn("Accept") }
+        .forEach { taskId ->
+          gameplay.selectTask(taskId)
+          if (taskId in tasks) gameplay.narrowTask("Ok")
+        }
+    autoExecNow()
+    advanceSingleConcreteTask(billingCause)
+  }
+
+  private fun OperationBody.advanceSingleConcreteTask(cause: Cause?) {
+    if (cause == null) return
+    while (true) {
+      val next =
+          tasks
+              .extract { it }
+              .filter { task ->
+                task.cause == cause &&
+                    !task.instruction.isAbstract(reader) &&
+                    gameplay.canSelectTask(task.id)
+              }
+              .singleOrNull() ?: return
+      gameplay.selectTask(next.id)
     }
   }
 
@@ -566,6 +761,4 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
       val standardRemovals: List<Remove>,
       val cardPayments: List<String>,
   )
-
-  private fun tfm(): TfmGameplay = TfmGameplay(game, gameplay.actor, gameplay)
 }

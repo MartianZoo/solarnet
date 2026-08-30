@@ -8,11 +8,11 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
 internal class FirstPartialGameTest : TfmTest() {
@@ -155,7 +155,7 @@ internal class FirstPartialGameTest : TfmTest() {
         assertCounts(20 to "TerraformRating")
 
         assertCounts(34 to "M", 2 to "S", 8 to "T", 3 to "P", 1 to "E", 3 to "H")
-        production().values.shouldContainExactly(2, 2, 7, 0, 1, 0)
+        assertProds(2 to "M", 2 to "S", 7 to "T", 0 to "P", 1 to "E", 0 to "H")
 
         assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
         assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
@@ -170,7 +170,7 @@ internal class FirstPartialGameTest : TfmTest() {
         assertCounts(25 to "TerraformRating")
 
         assertCounts(47 to "M", 6 to "S", 1 to "T", 1 to "P", 2 to "E", 3 to "H")
-        production().values.shouldContainExactly(8, 6, 1, 0, 2, 0)
+        assertProds(8 to "M", 6 to "S", 1 to "T", 0 to "P", 2 to "E", 0 to "H")
 
         assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
         assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")

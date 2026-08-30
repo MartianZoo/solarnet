@@ -6,6 +6,8 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.engine.RoutineContext
+import dev.martianzoo.engine.RoutineProvider
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
@@ -26,9 +28,10 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.engine.TfmApiUtils.mc as MC
-import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceClasses
-import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
+
+private val MC: ClassName = cn("MC")
+private val standardResourceClasses: Set<ClassName> =
+    setOf(MC, cn("Steel"), cn("Titanium"), cn("Plant"), cn("Energy"), cn("Heat"))
 
 /**
  * Wraps and extends a [Gameplay] instance to provide much more convenient functions specific to
@@ -78,15 +81,7 @@ public class TfmGameplay(
   /**
    * Commits every project card currently selected, opening a pending offer first when necessary.
    */
-  public fun buyCards(): TaskResult =
-      gameplay.godMode().continueManual {
-        closeUnusedPaymentOffers()
-        openPendingProjectCardOffer()
-        val selected = this@TfmGameplay.count("ProjectCard<Selecting>")
-        buySelectedCards(selected)
-        declineWildTagOffers()
-        removeWildTagUses()
-      }
+  public fun buyCards(): TaskResult = runRoutine("buyCards")
 
   private fun OperationBody.buySelectedCards(count: Int) {
     closeUnusedPaymentOffers()
@@ -166,7 +161,7 @@ public class TfmGameplay(
       }
     }
     val offer = directOffers.singleOrNull() ?: offers.single()
-    executeTask(offer)
+    selectTask(offer.id)
     if (this@TfmGameplay.count("ProjectCard<Selecting>") == 0) {
       doTask("ProjectCard<Selecting>")
     }
@@ -215,10 +210,10 @@ public class TfmGameplay(
               }
             }
             .singleOrNull() ?: return
-    executeTask(transfer)
+    selectTask(transfer.id)
   }
 
-  public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
+  public fun pass(): TaskResult = inTfmTurn { runRoutine("tasks", listOf("Pass")) }
 
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If
@@ -232,12 +227,15 @@ public class TfmGameplay(
   }
 
   public fun declineSecondAction(): TaskResult {
-    return inTfmTurn {
-      val secondAction =
-          secondActionOffer()
-              ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
-      doTask("Ok", secondAction.index + 1)
-    }
+    return runRoutine("endTurn")
+  }
+
+  private fun runRoutine(name: String, arguments: List<String> = emptyList()): TaskResult {
+    val provider =
+        reader.catalog as? RoutineProvider
+            ?: error("${reader.catalog::class.simpleName} does not provide Routines")
+    val routine = provider.routines[name] ?: error("Unknown Routine: $name")
+    return routine.execute(RoutineContext(game, gameplay), arguments)
   }
 
   private fun secondActionOffer(): IndexedValue<Task>? =
@@ -518,7 +516,7 @@ public class TfmGameplay(
               }
             }
             .singleOrNull() ?: return null
-    executeTask(billing)
+    selectTask(billing.id)
     advanceSingleConcreteTask(billing.cause)
     return billing.cause
   }
@@ -553,12 +551,8 @@ public class TfmGameplay(
                     this@TfmGameplay.canSelectTask(task.id)
               }
               .singleOrNull() ?: return
-      executeTask(next)
+      selectTask(next.id)
     }
-  }
-
-  private fun executeTask(task: Task) {
-    selectTask(task.id)
   }
 
   /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */
@@ -685,9 +679,6 @@ public class TfmGameplay(
     }
     asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
   }
-
-  public fun production(): Map<ClassName, Int> =
-      standardResourceNames(reader).associateWith { production(it) }
 
   public fun production(kind: ClassName): Int =
       count("PROD[$kind]") - if (kind == MC || kind == cn("M")) 5 else 0

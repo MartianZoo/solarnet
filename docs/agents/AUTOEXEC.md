@@ -26,7 +26,7 @@
 | Design a policy interface or driver | Policy pool and driver through Agent provenance |
 | Add analysis, speculative Worlds, or performance guarantees | Analysis and disposable Worlds; Performance contract |
 | Prove that selecting, narrowing, or executing a task is safe | [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) |
-| Plan or review the extraction from engine | Broad implementation direction; First implemented split; Current implementation divergence |
+| Plan or review the extraction from engine | Broad implementation direction; Implementation prerequisites; First implemented split; Current implementation divergence |
 | State the acceptance contract | Required invariants |
 
 ## Core distinction
@@ -243,6 +243,19 @@ justify it. Richer equivalence and exhaustive-search policies should follow only
 This is a broad destination, not a required migration order. Intermediate work must keep current
 behavior and proposed behavior clearly labeled and must not make arbitrary autoexecution choices
 look safe just to keep tests concise.
+
+## Implementation prerequisites
+
+Before the next extraction change, settle three concrete pieces:
+
+- the owning module and command/proposal interface for the first policy driver;
+- who advances work between `OperationBody` statements after engine-owned draining is removed; and
+- the migration harness for tests and callers that currently rely on `FIRST`, making real choices
+  explicit while preserving only behavior backed by a proof.
+
+The required invariants below are the acceptance contract. These three decisions are the missing
+starting contract; the current plan should not be treated as implementation-ready until they are
+specified.
 
 ## First implemented split
 

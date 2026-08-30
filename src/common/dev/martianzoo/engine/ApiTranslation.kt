@@ -93,8 +93,6 @@ internal class ApiTranslation(
   override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =
       preprocessor.transformElement(Parsing.parse(type, text))
 
-  private fun parseInstructionTree(text: String): InstructionTree = parse(text)
-
   private fun parseTaskNarrowing(text: String): ParsedTaskNarrowing {
     val parsed = Parsing.parse<InstructionTree>(text)
     return ParsedTaskNarrowing(
@@ -105,7 +103,7 @@ internal class ApiTranslation(
   }
 
   private fun parseInstructionGroup(text: String): InstructionGroup =
-      InstructionGroup.of(parseInstructionTree(text))
+      InstructionGroup.of(parse<InstructionTree>(text))
 
   // CHANGES
 

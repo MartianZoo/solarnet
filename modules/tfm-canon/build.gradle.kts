@@ -158,7 +158,6 @@ kotlin {
         implementation(libs.kotlinx.serialization.json)
         api(project(":engine"))
         implementation(project(":pets"))
-        implementation(project(":tfm-engine"))
       }
     }
     commonTest {

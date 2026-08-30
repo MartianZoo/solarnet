@@ -1,16 +1,45 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
-import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
 
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
 public object ApiUtils {
+  /** Returns the direct owner dependency of a concrete component type. */
+  public fun getOwner(game: GameReader, component: Type): Type {
+    val ownerType = game.resolve(OWNER.expression)
+    val owner =
+        component.expressionFull.arguments.single { game.resolve(it).narrows(ownerType, game) }
+    return game.resolve(owner)
+  }
+
+  /** Returns [getOwner], requiring that the component is owned by a seated [Player]. */
+  public fun getPlayerOwner(game: GameReader, component: Type): Player {
+    val ownerName = getOwner(game, component).className
+    return game.actors.filterIsInstance<Player>().singleOrNull { it.className == ownerName }
+        ?: error("component is not owned by a Player: $component")
+  }
+
+  /** Returns the name of every concrete class of type `StandardResource`. */
+  public fun standardResourceNames(game: GameReader): Set<ClassName> {
+    val standardResource =
+        game.resolve(ClassName.Companion.cn("StandardResource").classExpression())
+    val names =
+        game
+            .getComponents(standardResource)
+            .map { it.expression.arguments.single().className }
+            .toSet()
+    return game.catalog.allClassNames.filter { it in names }.toSetStrict()
+  }
+
   /**
    * Returns a map with six entries, giving [player]'s current production levels, adjusting mc
    * production to account for our GrossHack.

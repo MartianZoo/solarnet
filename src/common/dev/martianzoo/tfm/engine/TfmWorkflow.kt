@@ -5,11 +5,11 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
 import dev.martianzoo.engine.World
+import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -236,7 +236,8 @@ public object TfmWorkflow {
 
     private fun rotatedByFirstPlayer(): List<Player> {
       val token = game.reader.getComponents("StartToken").single()
-      val firstPlayer = getPlayerOwner(game.reader, token)
+      val ownerName = token.toComponent().owner?.className
+      val firstPlayer = players.single { it.className == ownerName }
       val firstPlayerIndex = players.indexOf(firstPlayer)
       return players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
     }

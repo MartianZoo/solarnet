@@ -56,9 +56,6 @@ internal constructor(
   /** Returns the id of the selected task if there is one. */
   public fun selectedTask(): TaskId? = filtered().firstOrNull { it.selected }?.id
 
-  /** Returns true if no queue has any tasks. */
-  internal fun areAllQueuesEmpty(): Boolean = taskQueues.getAllTaskData().none()
-
   /** Throws if any queue has any tasks. */
   internal fun requireAllQueuesEmpty() {
     val allTasks = taskQueues.getAllTaskData()

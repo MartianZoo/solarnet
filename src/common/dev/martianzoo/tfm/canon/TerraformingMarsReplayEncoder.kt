@@ -389,11 +389,6 @@ internal object TerraformingMarsReplayEncoder : RoutineReplayEncoder {
     source = source.replace(Regex("^1 "), "")
     source = source.replace(Regex("^-1 "), "-")
     source =
-        Regex("([A-Za-z][A-Za-z0-9_]*)<([A-Za-z][A-Za-z0-9_]*)<$actorName>>").replace(source) {
-            match ->
-          "${match.groupValues[1]}<$actorName, ${match.groupValues[2]}>"
-        }
-    source =
         Regex("(-?)(\\d+ )?([A-Za-z][A-Za-z0-9_]*)<([A-Za-z][A-Za-z0-9_]*)<$actorName>>").replace(
             source
         ) { match ->

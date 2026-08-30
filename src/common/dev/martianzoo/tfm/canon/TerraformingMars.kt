@@ -39,11 +39,11 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Grid
+import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
 
 internal val terraformingMarsBundle: StandardFormBundle by lazy {
   StandardFormBundle(
