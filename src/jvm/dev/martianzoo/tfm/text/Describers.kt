@@ -11,10 +11,11 @@ import dev.martianzoo.pets.types.Dependency.Key
 internal class Describers(
     private val descriptions: Map<Class, ComponentDescriber>,
 ) {
-  internal val expressions = ExpressionResolver(descriptions.keys)
+  internal val expressions = ExpressionResolver()
   private val classesByName = expressions.classesByName
 
   init {
+    require(descriptions.keys.all(expressions::isActive))
     validateInheritedFacts()
   }
 
@@ -53,16 +54,11 @@ internal class Describers(
             ComponentDescriber::spatialRelation,
             ComponentDescriber::productionSelection,
             ComponentDescriber::requirement,
-            ComponentDescriber::purchase,
             ComponentDescriber::score,
             ComponentDescriber::deadEndSignal,
-            ComponentDescriber::playTrigger,
-            ComponentDescriber::playedCard,
-            ComponentDescriber::playedTagPhrase,
+            ComponentDescriber::triggerFrame,
             ComponentDescriber::presenceCondition,
-            ComponentDescriber::usedActionTrigger,
             ComponentDescriber::actionUse,
-            ComponentDescriber::spentResourceTrigger,
             ComponentDescriber::paymentRole,
             ComponentDescriber::implicitPaymentResource,
             ComponentDescriber::requirementShortfall,
@@ -94,6 +90,9 @@ internal class Describers(
 
   internal fun changeFrame(className: ClassName): ComponentDescriber.ChangeFrame? =
       fact(className, ComponentDescriber::changeFrame)
+
+  internal fun triggerFrame(className: ClassName): ComponentDescriber.TriggerFrame? =
+      fact(className, ComponentDescriber::triggerFrame)
 
   internal fun positionedFrame(className: ClassName): ComponentDescriber.ChangeFrame.Positioned? =
       changeFrame(className) as? ComponentDescriber.ChangeFrame.Positioned
@@ -228,7 +227,7 @@ internal class Describers(
     tagName(className)?.let { (name) ->
       return "${indefiniteArticle(name)} $name tag"
     }
-    return fact(className, ComponentDescriber::playedTagPhrase)
+    return (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.phrase
   }
 
   internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {

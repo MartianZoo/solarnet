@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
+import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
@@ -64,8 +65,8 @@ internal object TerraformingMarsDescribers {
                 noun = ComponentDescriber.Noun.Fixed("card"),
                 countNoun = ComponentDescriber.Noun.Counted("card", "cards"),
                 cardResourceHolder = ComponentDescriber.Noun.Counted("card", "cards"),
-                playedCard =
-                    ComponentDescriber.PlayedCard(
+                triggerFrame =
+                    Trigger.PlayCard(
                         minimumProperties =
                             mapOf(
                                 "cost" to
@@ -211,11 +212,11 @@ internal object TerraformingMarsDescribers {
                         "different types of resources",
                     )
             ),
-        klass("BioTag") to ComponentDescriber(playedTagPhrase = "a bio tag"),
-        klass("PlanetTag") to ComponentDescriber(playedTagPhrase = "a planet tag"),
-        klass("AnimalTag") to ComponentDescriber(playedTagPhrase = "an animal tag"),
-        klass("PlantTag") to ComponentDescriber(playedTagPhrase = "a plant tag"),
-        klass("MicrobeTag") to ComponentDescriber(playedTagPhrase = "a microbe tag"),
+        klass("BioTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a bio tag")),
+        klass("PlanetTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a planet tag")),
+        klass("AnimalTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("an animal tag")),
+        klass("PlantTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a plant tag")),
+        klass("MicrobeTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a microbe tag")),
         klass("OxygenStep") to
             ComponentDescriber(
                 changeFrame = Frame.Scale("oxygen"),
@@ -346,10 +347,8 @@ internal object TerraformingMarsDescribers {
             ),
         klass("BuyCard") to
             ComponentDescriber(
-                purchase =
-                    ComponentDescriber.Purchase(
-                        noun = ComponentDescriber.Noun.Counted("card", "cards")
-                    ),
+                triggerFrame =
+                    Trigger.Purchase(noun = ComponentDescriber.Noun.Counted("card", "cards")),
             ),
         klass("CopyPrelude") to
             ComponentDescriber(
@@ -377,10 +376,10 @@ internal object TerraformingMarsDescribers {
         klass("PlayCard") to
             ComponentDescriber(
                 changeFrame = Frame.Play,
-                playTrigger = ComponentDescriber.PlayTrigger.CARD,
+                triggerFrame = Trigger.PlayCard(),
             ),
-        klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
-        klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
+        klass("PlayTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag()),
+        klass("UseAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("StandardProject") to
             ComponentDescriber(
                 actionUse =
@@ -464,8 +463,8 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "play a card",
                     )
             ),
-        klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
-        klass("PayFromCard") to ComponentDescriber(spentResourceTrigger = true),
+        klass("Pay") to ComponentDescriber(triggerFrame = Trigger.SpendResource),
+        klass("PayFromCard") to ComponentDescriber(triggerFrame = Trigger.SpendResource),
         klass("Owed") to
             ComponentDescriber(
                 paymentRole = ComponentDescriber.PaymentRole.OWED,

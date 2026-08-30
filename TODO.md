@@ -52,8 +52,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   `EventCard`; ensure class-backed tag inspection sees the inherited authored behavior.
 - IndustrialComplex should top up to 2 production if in QuickStartVariant (add to BugsTest anytime).
 - Continue English renderer architecture work only through the prioritized plan in
-  [`LANGUAGE.md`](docs/agents/LANGUAGE.md#prioritized-architecture-work). The next round must replace
-  existing machinery across a recurring change family; do not add concepts for an isolated card.
+  [`LANGUAGE.md`](docs/agents/LANGUAGE.md#prioritized-architecture-work). Classify effects only when
+  one small model can replace the entry-point matcher chain and delete recurring recognizers; do not
+  force the cross-family payment protocol into that model. First give conditions and counts
+  role-bearing structure, using frames only for verified exclusive alternatives; replace assembled
+  condition and noun strings at the same time. Then decompose event realization and audit surviving
+  effect and card-operation recognizers individually. Do not add concepts for an isolated card.
 - Try making `VictoryPoint` depend on the scoring `Component` for the fun of it.
 - See if two wild tags on one card is feasible to support, else add to limitations doc.
 - Replace the hard-coded First/Second/Third selector lists in Pets lowering and `TfmGameplay` with

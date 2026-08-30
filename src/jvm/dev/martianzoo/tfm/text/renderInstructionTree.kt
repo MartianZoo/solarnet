@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
@@ -269,8 +270,7 @@ private fun renderCardPlaySequence(
   if (
       play.intensity.modality() != Modality.REQUIRED ||
           play.count.fixedQuantity() != 1 ||
-          describers.fact(play.gaining.className, ComponentDescriber::playTrigger) !=
-              ComponentDescriber.PlayTrigger.CARD ||
+          describers.triggerFrame(play.gaining.className) !is TriggerFrame.PlayCard ||
           (!play.gaining.simple && describers.representedExpression(play.gaining)?.simple != true)
   ) {
     return null
