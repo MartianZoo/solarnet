@@ -60,9 +60,9 @@ incoherent exception, parallel mechanism, or disproportionate framework is still
   not activate its expansion.
 
 Source precedents: search for `CLASS GreeneryTile` and `CLASS Photosynthesis` in
-[Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+[Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
 for an intrinsic rule with ambient conditioning. Search for `PharmacyUnion` in
-[Promo `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/PromoCardPack/cards.pets)
+[Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
 only when evaluating a genuinely exceptional published rule.
 
 ## Keep interfaces and evidence honest

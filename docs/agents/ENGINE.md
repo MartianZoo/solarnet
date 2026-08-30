@@ -24,18 +24,18 @@
 
 ## Source map
 
-- [`World.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/World.kt) and
-  [`WholeWorld.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/WholeWorld.kt) — search
+- [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) and
+  [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — search
   for `public interface World` and `public class WholeWorld` for the read surface and live assembly.
-- [`ComponentGraph.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/ComponentGraph.kt) —
+- [`ComponentGraph.kt`](../../src/common/dev/martianzoo/engine/ComponentGraph.kt) —
   inspect for component multiplicity and indexes.
-- [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) and
-  [`PendingTask.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/PendingTask.kt) — inspect
+- [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) and
+  [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt) — inspect
   only for deferred work and resolution.
-- [`EventLog.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/EventLog.kt) and
-  [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — inspect only
+- [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt) and
+  [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
-- [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt) — search for
+- [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt) — search for
   `public interface Gameplay` before changing caller-facing operations.
 
 ## Game construction
@@ -83,16 +83,19 @@ selection from a pool; Quick Start goal variants use complementary Module-count 
 Canon derives goal names, pool membership, selection requirements, and compatibility directly from
 those declarations; there are no parallel goal metadata objects.
 
-Canonical card classes are loaded from each bundle's generated `cards.pets` alongside
+Canonical card classes are loaded from each bundle's authored `cards.pets` alongside
 `classes.pets`. A loaded card declaration retains authored actions and authored effects while its
 `effects` contain the follow-mode compilation used for activation and execution. That
 compilation preserves generic `CardLocation` movements, delegates printed-face predicates to the
 client, and temporarily represents exact Event-pile links with `PlayedEvent`.
-`TfmCatalog.card(name)` returns a transitional `CardDefinition` view backed by that loaded Class,
-so deck, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
-come from Pets. JSON-backed card data remains temporarily for generation, pre-load content
-selection and replacement metadata, tag validation, and card-to-supporting-declaration activation
-links.
+`TfmCatalog.card(name)` returns that loaded Class directly. Narrow card-query functions derive its
+card back, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
+from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented
+`Class<CardBack>` determines its deck. Card resource directories preserve Module-specific card-pool
+grouping and activate unreferenced non-card roots; ordinary Pets references activate the remaining
+declarations. The engine alone decides which active Classes instantiate. Promo Card Pack contributes
+three direct class exclusions for the cards its revised printings supersede; there is no general
+replacement registry.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.

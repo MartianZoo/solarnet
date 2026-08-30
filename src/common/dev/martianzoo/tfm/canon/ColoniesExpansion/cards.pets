@@ -1,0 +1,451 @@
+// Published Colonies card declarations.
+CLASS FakeAridor : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This: 40 MC, Mandate { -> ColonyTileSelection }
+}
+
+CLASS Arklight : ResourceCard<Class<Animal>, Class<CorporationCard>> {
+  cost = 0
+
+  This:: AnimalTag<This>
+  This: 45 MC, PROD[2 MC]
+  AnimalTag<> OR PlantTag<>: Animal<This>
+  End: VictoryPoint / 2 Animal<This>
+}
+
+CLASS Polyphemos : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This: 50 MC, 5 Titanium, PROD[5 MC]
+  BuyCard:: 2 Owed<>
+}
+
+CLASS Poseidon : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This: 45 MC, Mandate { -> Colony<> }
+  Colony<Anyone>: PROD[1 MC]
+}
+
+CLASS StormcraftIncorporated : ActionCard, ResourceCard<Class<Floater>, Class<CorporationCard>> {
+  cost = 0
+
+  This:: JovianTag<This>
+  This: 48 MC
+  Billing<HasActions, WhichAction, Class<Heat>>:: AcceptFromCard<This>
+  PayFromCard<This>:: -2 Owed<Class<Heat>>
+  LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok
+
+  -> Floater
+}
+
+CLASS Airliners : AutomatedCard<Class<ProjectCard>> {
+  cost = 11
+  requirement = HAS "3 Floater"
+
+  This: PROD[2 MC], 2 Floater
+  End: VictoryPoint
+}
+
+CLASS AirRaid : EventCard<Class<ProjectCard>> {
+  cost = 0
+
+  This:: EventTag<This>
+  This: -Floater, 5 MC<Owner FROM Anyone>?
+}
+
+CLASS AtmoCollectors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 15
+
+  This: 2 Floater
+
+  -> Floater<This>
+  Floater<This> -> 2 Titanium OR 3 Energy OR 4 Heat
+}
+
+CLASS CommunityServices : AutomatedCard<Class<ProjectCard>> {
+  cost = 13
+
+  This: PROD[1 MC / CardFront(HAS MAX 0 Tag)]
+  End: VictoryPoint
+}
+
+CLASS Conscription : EventCard<Class<ProjectCard>> {
+  cost = 5
+  requirement = HAS "2 EarthTag"
+
+  This:: EarthTag<This>, EventTag<This>
+  This: NextCardEffect { Billing<PlayCards>:: -16 Owed<> }
+  End: -VictoryPoint
+}
+
+CLASS CoronaExtractor : AutomatedCard<Class<ProjectCard>> {
+  cost = 10
+  requirement = HAS "4 ScienceTag"
+
+  This:: PowerTag<This>, SpaceTag<This>
+  This: PROD[4 Energy]
+}
+
+CLASS CryoSleep : ActiveCard<Class<ProjectCard>> {
+  cost = 10
+
+  This:: ScienceTag<This>
+  Invoice<TradeSA>:: -Owed
+  End: VictoryPoint
+}
+
+CLASS EarthElevator : AutomatedCard<Class<ProjectCard>> {
+  cost = 43
+
+  This:: EarthTag<This>, SpaceTag<This>
+  This: PROD[3 Titanium]
+  End: 4 VictoryPoint
+}
+
+CLASS EcologyResearch : AutomatedCard<Class<ProjectCard>> {
+  cost = 21
+
+  This:: ScienceTag<This>, AnimalTag<This>, MicrobeTag<This>, PlantTag<This>
+  This: PROD[Plant / Colony], Animal, 2 Microbe
+  End: VictoryPoint
+}
+
+CLASS FloaterLeasing : AutomatedCard<Class<ProjectCard>> {
+  cost = 3
+
+  This: PROD[1 MC / 3 Floater]
+}
+
+CLASS FloaterPrototypes : EventCard<Class<ProjectCard>> {
+  cost = 2
+
+  This:: ScienceTag<This>, EventTag<This>
+  This: 2 Floater
+}
+
+CLASS FloaterTechnology : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 7
+
+  This:: ScienceTag<This>
+
+  -> Floater
+}
+
+CLASS GalileanWaystation : AutomatedCard<Class<ProjectCard>> {
+  cost = 15
+
+  This:: SpaceTag<This>
+  This: PROD[1 MC / JovianTag<Anyone>]
+  End: VictoryPoint
+}
+
+CLASS HeavyTaxation : AutomatedCard<Class<ProjectCard>> {
+  cost = 3
+  requirement = HAS "2 EarthTag"
+
+  This:: EarthTag<This>
+  This: PROD[2 MC], 4 MC
+  End: -VictoryPoint
+}
+
+CLASS IceMoonColony : AutomatedCard<Class<ProjectCard>> {
+  cost = 23
+
+  This:: SpaceTag<This>
+  This: Colony<>, OceanTile<>
+}
+
+CLASS ImpactorSwarm : EventCard<Class<ProjectCard>> {
+  cost = 11
+  requirement = HAS "2 JovianTag"
+
+  This:: SpaceTag<This>, EventTag<This>
+  This: 12 Heat, -2 Plant<Anyone>?
+}
+
+CLASS InterplanetaryColonyShip : EventCard<Class<ProjectCard>> {
+  cost = 12
+
+  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
+  This: Colony<>
+}
+
+CLASS JovianLanterns : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 20
+  requirement = HAS "JovianTag"
+
+  This:: JovianTag<This>
+  This: TerraformRating, 2 Floater
+  End: VictoryPoint / 2 Floater<This>
+
+  Titanium -> 2 Floater<This>
+}
+
+CLASS JupiterFloatingStation : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 9
+  requirement = HAS "3 ScienceTag"
+
+  This:: JovianTag<This>
+  End: VictoryPoint
+
+  -> Floater<CardFront(HAS JovianTag)>
+  -> 1 MC / Floater<This> MAX 4
+}
+
+CLASS LunaGovernor : AutomatedCard<Class<ProjectCard>> {
+  cost = 4
+  requirement = HAS "3 EarthTag"
+
+  This:: 2 EarthTag<This>
+  This: PROD[2 MC]
+}
+
+CLASS LunarExports : AutomatedCard<Class<ProjectCard>> {
+  cost = 19
+
+  This:: SpaceTag<This>, EarthTag<This>
+  This: PROD[2 Plant OR 5 MC]
+}
+
+CLASS LunarMining : AutomatedCard<Class<ProjectCard>> {
+  cost = 11
+
+  This:: EarthTag<This>
+  This: PROD[Titanium / 2 EarthTag]
+}
+
+CLASS MarketManipulation : EventCard<Class<ProjectCard>> {
+  cost = 1
+
+  This:: EarthTag<This>, EventTag<This>
+  This: ColonyProduction FROM ColonyProduction
+}
+
+CLASS MartianZoo : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
+  cost = 12
+  requirement = HAS "2 CityTile<Anyone>"
+
+  This:: AnimalTag<This>, BuildingTag<This>
+  EarthTag<>: Animal<This>
+  End: VictoryPoint
+
+  -> 1 MC / Animal<This>
+}
+
+CLASS MiningColony : AutomatedCard<Class<ProjectCard>> {
+  cost = 20
+
+  This:: SpaceTag<This>
+  This: PROD[Titanium], Colony<>
+}
+
+CLASS MinorityRefuge : AutomatedCard<Class<ProjectCard>> {
+  cost = 5
+
+  This:: SpaceTag<This>
+  This: PROD[-2 MC], Colony<>
+}
+
+CLASS MolecularPrinting : AutomatedCard<Class<ProjectCard>> {
+  cost = 11
+
+  This:: ScienceTag<This>
+  This: 1 MC / CityTile<Anyone>, 1 MC / Colony<Anyone>
+  End: VictoryPoint
+}
+
+CLASS NitrogenFromTitan : AutomatedCard<Class<ProjectCard>> {
+  cost = 25
+
+  This:: JovianTag<This>, SpaceTag<This>
+  This: 2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>
+  End: VictoryPoint
+}
+
+CLASS PioneerSettlement : AutomatedCard<Class<ProjectCard>> {
+  cost = 13
+  requirement = HAS "MAX 1 Colony"
+
+  This:: SpaceTag<This>
+  This: PROD[-2 MC], Colony<>
+  End: 2 VictoryPoint
+}
+
+CLASS ProductiveOutpost : AutomatedCard<Class<ProjectCard>> {
+  cost = 0
+
+  This: GiveColonyBonuses
+}
+
+CLASS QuantumCommunications : AutomatedCard<Class<ProjectCard>> {
+  cost = 8
+  requirement = HAS "4 ScienceTag"
+
+  This: PROD[1 MC / Colony<Anyone>]
+  End: VictoryPoint
+}
+
+CLASS RedSpotObservatory : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 17
+  requirement = HAS "3 ScienceTag"
+
+  This:: ScienceTag<This>, JovianTag<This>
+  This: 2 ProjectCard
+  End: 2 VictoryPoint
+
+  -> Floater<This>
+  Floater<This> -> ProjectCard
+}
+
+CLASS RefugeeCamps : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Camp>> {
+  cost = 10
+
+  This:: EarthTag<This>
+  End: VictoryPoint / Camp<This>
+
+  PROD[1 MC] -> Camp<This>
+}
+
+CLASS ResearchColony : AutomatedCard<Class<ProjectCard>> {
+  cost = 20
+
+  This:: ScienceTag<This>, SpaceTag<This>
+  This: Colony<ColonyTile>, 2 ProjectCard
+}
+
+CLASS RimFreighters : ActiveCard<Class<ProjectCard>> {
+  cost = 4
+
+  This:: SpaceTag<This>
+  Invoice<TradeSA>:: -Owed
+}
+
+CLASS SkyDocks : ActiveCard<Class<ProjectCard>> {
+  cost = 18
+  requirement = HAS "2 EarthTag"
+
+  This:: EarthTag<This>, SpaceTag<This>
+  This: ReserveTradeFleet
+  Billing<PlayCards>:: -Owed<>
+  End: 2 VictoryPoint
+}
+
+CLASS SolarProbe : EventCard<Class<ProjectCard>> {
+  cost = 9
+
+  This:: ScienceTag<This>, SpaceTag<This>, EventTag<This>
+  This: ProjectCard / 3 ScienceTag
+  End: VictoryPoint
+}
+
+CLASS SolarReflectors : AutomatedCard<Class<ProjectCard>> {
+  cost = 23
+
+  This:: SpaceTag<This>
+  This: PROD[5 Heat]
+}
+
+CLASS SpacePort : AutomatedCard<Class<ProjectCard>> {
+  cost = 22
+  requirement = HAS "Colony"
+
+  This:: CityTag<This>, BuildingTag<This>
+  This: ReserveTradeFleet, CityTile<>, PROD[-Energy, 4 MC]
+}
+
+CLASS SpacePortColony : AutomatedCard<Class<ProjectCard>> {
+  cost = 27
+  requirement = HAS "Colony"
+
+  This:: SpaceTag<This>
+  This: Colony<ColonyTile>, ReserveTradeFleet
+  End: VictoryPoint / 2 Colony<Anyone>
+}
+
+CLASS SpinOffDepartment : ActiveCard<Class<ProjectCard>> {
+  cost = 10
+
+  This:: BuildingTag<This>
+  This: PROD[2 MC]
+  CardFront(HAS 20 cost): ProjectCard
+}
+
+CLASS SubZeroSaltFish : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
+  cost = 5
+  requirement = HAS "12 TemperatureStep"
+
+  This:: AnimalTag<This>
+  This: PROD[-Plant<Anyone>]
+  End: VictoryPoint / 2 Animal<This>
+
+  -> Animal<This>
+}
+
+CLASS TitanAirScrapping : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 21
+
+  This:: JovianTag<This>
+  End: 2 VictoryPoint
+
+  Titanium -> 2 Floater<This>
+  2 Floater<This> -> TerraformRating
+}
+
+CLASS TitanFloatingLaunchPad : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 18
+
+  This:: JovianTag<This>
+  This: 2 Floater<CardFront(HAS JovianTag)>
+  End: VictoryPoint
+
+  -> Floater<CardFront(HAS JovianTag)>
+  Floater<This> -> Trade
+}
+
+CLASS TitanShuttles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+  cost = 23
+
+  This:: JovianTag<This>, SpaceTag<This>
+  End: VictoryPoint
+
+  -> 2 Floater<CardFront(HAS JovianTag)>
+  X Floater<This> -> X Titanium
+}
+
+CLASS TradeEnvoys : ActiveCard<Class<ProjectCard>> {
+  cost = 6
+
+  Trade<ColonyTile>:: TradeBarrier
+  Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier
+}
+
+CLASS TradingColony : ActiveCard<Class<ProjectCard>> {
+  cost = 18
+
+  This:: SpaceTag<This>
+  This: Colony<>
+  Trade<ColonyTile>:: TradeBarrier
+  Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier
+}
+
+CLASS UrbanDecomposers : AutomatedCard<Class<ProjectCard>> {
+  cost = 6
+  requirement = HAS "CityTile, Colony"
+
+  This:: MicrobeTag<This>
+  This: PROD[Plant], 2 Microbe
+}
+
+CLASS WarpDrive : ActiveCard<Class<ProjectCard>> {
+  cost = 14
+  requirement = HAS "5 ScienceTag"
+
+  This:: ScienceTag<This>
+  PlayTag<Class<SpaceTag>>:: -4 Owed<>
+  End: 2 VictoryPoint
+}
+
+// Supporting declarations contributed by cards in this bundle.
+CLASS Camp : CardResource<ResourceHolder<Class<Camp>>>

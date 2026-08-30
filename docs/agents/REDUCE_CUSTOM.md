@@ -10,17 +10,17 @@
 
 ## Source map
 
-- [`CustomClass.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/api/CustomClass.kt) — inspect
+- [`CustomClass.kt`](../../src/common/dev/martianzoo/pets/api/CustomClass.kt) — inspect
   the general extension interface before claiming a custom can be removed.
-- [`CustomClassRuntime.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/CustomClassRuntime.kt)
+- [`CustomClassRuntime.kt`](../../src/common/dev/martianzoo/engine/CustomClassRuntime.kt)
   — read when the candidate performs live resolution/execution.
-- [`ColoniesExpansion.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/ColoniesExpansion.kt)
+- [`ColoniesExpansion.kt`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion.kt)
   — search for `ColoniesSetup` for that specific candidate.
 
 A custom instruction has been eliminated only when its behavior follows from hand-authored Pets and
-general runtime semantics. Moving the same bespoke behavior into
-`CardDefinition.asClassDeclaration`, `extraClasses`, or Kotlin-generated Pets is worse: it keeps the
-custom code and adds another representation.
+general runtime semantics. Moving the same bespoke behavior into declaration-conversion code,
+`extraClasses`, or Kotlin-generated Pets is worse: it keeps the custom code and adds another
+representation.
 
 Custom metrics are a separate concern.
 

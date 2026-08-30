@@ -21,15 +21,15 @@
 
 ## Source map
 
-- [`Catalog.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Catalog.kt) — inspect the
+- [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt) — inspect the
   generic static contract.
-- [`GameConfig.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GameConfig.kt) and
-  [`GamePremise.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GamePremise.kt) — read
+- [`GameConfig.kt`](../../src/common/dev/martianzoo/pets/data/GameConfig.kt) and
+  [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) — read
   only for unresolved intent and resolved premise state.
-- [`Bundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/Bundle.kt) and
-  [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
+- [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
+  [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when changing Terraforming Mars composition or resolution.
-- [`PremiseViability.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/PremiseViability.kt)
+- [`PremiseViability.kt`](../../src/common/dev/martianzoo/pets/types/PremiseViability.kt)
   — read only for projection closure and viability.
 
 ## Catalog
@@ -37,7 +37,7 @@
 A **Catalog** is one coherent namespace containing everything Solarnet may know about a game:
 
 - authored Class declarations;
-- transitional card and map records used for generation, selection, and presentation;
+- transitional map records used for generation, selection, and presentation;
 - vocabulary and descriptive metadata;
 - premise defaults and validity rules; and
 - the exceptional custom metrics and instructions that cannot be expressed as data.
@@ -56,13 +56,11 @@ Name or ambiguous ownership of a Module are invalid.
 
 ## One master Class Table, projected per game
 
-Class declarations are the Catalog's only common content representation. Card and map records
-remain category-specific transitional inputs; there is no shared `Definition` interface or
-Catalog-wide registry of structured content objects. Catalog assembly requires explicit Pets
-declarations for every card, map, area, and contributed Class and never synthesizes or behaviorally
-supplements one from a structured record. Card data still supplies card-to-contributed-Class names,
-including the supporting subset that activates with the card, until resource grouping expresses
-those relationships.
+Class declarations are the Catalog's only common content representation. Map records remain a
+category-specific transitional input; there is no shared `Definition` interface or Catalog-wide
+registry of structured content objects. Catalog assembly requires explicit Pets declarations for
+every card, map, area, and auxiliary Class and never synthesizes or behaviorally supplements one
+from a structured record. Concrete `CardFront` subclasses form the card registry.
 
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
@@ -74,32 +72,18 @@ Within a Catalog, every Class Name has one meaning. The Catalog loads and valida
 The master table is a schema, not a playable Game World. It is never instantiated because it
 contains mutually exclusive maps, modes, and replacement classes.
 
-## Declaration authority and staged removal
+## Declaration authority
 
-**Status: current declaration authority; remaining cleanup is settled direction.**
+**Status: current.**
 
 Runtime Catalog assembly receives only explicit Class declarations. Canon supplies those
-declarations through bundled `classes.pets` and `cards.pets`. Missing declarations fail Catalog
-loading. Card and map conversion remains available to offline generation code and synthetic tests,
-but runtime assembly neither synthesizes a missing declaration nor supplements its behavior from
-structured source data.
+declarations through bundled `classes.pets` and authored `cards.pets`. Missing declarations fail
+Catalog loading. Runtime assembly neither synthesizes a missing card declaration nor supplements
+its behavior from another representation. Synthetic tests likewise supply ordinary Pets
+declarations.
 
-Transitional metadata may contribute only relationships Pets does not yet express: currently a
-card's contributed-Class names, its activation-linked supporting subset, and its replacement
-target. Compatibility and activation resolve those names back to loaded declarations. The
-remaining cleanup is to express or replace those relationships, move conversion-only parsing and
-rendering toward `tools`, and then remove the runtime structured records.
-
-Changing the remaining metadata relationships changes the inputs to compatibility, viability, and
-activation; do not redesign those policies in the same step.
-
-This rule makes authority observable: editing behavioral JSON without regenerating
-`cards.pets` must not change runtime Class behavior. Regeneration checks may still reject stale
-generated Pets; that is a source-maintenance check, not runtime composition.
-
-Next simplify content grouping, then shrink card metadata, then replace runtime map records with the
-shared class-backed view. Revisit replacement representation last. Each stage must preserve
-explicit declaration authority.
+The remaining structured-content cleanup concerns maps. It must preserve explicit declaration
+authority and loaded Classes as the runtime representation.
 
 ## Module
 
@@ -200,13 +184,18 @@ Two registry-shaped exceptions remain. `Prelude1Deck` routes the original Prelud
 larger Prelude Bundle, while Venus Next explicitly asks its same-named Bundle for cards, milestones,
 and awards. These should be removed only after declaration authority is complete.
 
-### Content grouping direction
+### Content grouping
 
-**Status: settled direction, not implemented.**
+**Status: current for cards; broader simplification remains a direction.**
 
-Routine all-or-none content membership should come from the bundle/resource organization itself, not a
-list of individual members and not reconstruction from Class-name prefixes. A same-named Module
-then selects that Bundle's ordinary cards, direct goals, and colony tiles through one shared rule.
+Routine card membership comes from the bundle/resource organization itself, not a list of
+individual members and not reconstruction from Class-name prefixes. A card resource directory
+selects its concrete `CardFront` declarations and unreferenced non-card roots for the same-named
+Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
+which active Classes instantiate. None has a per-card metadata relationship.
+
+A same-named Module should eventually select the Bundle's other ordinary content through the same
+general rule.
 `Prelude1Deck` should own a separate selectable resource group, represented by its own internal
 Bundle even though it shares a published product with the Prelude rules and project cards. Once the
 common cases use those mechanisms, delete `BundleContentSelection` instead of replacing it with
@@ -217,18 +206,13 @@ selection groups in one Bundle is not a simplification when it requires a routin
 declarations may live in a nonselected provider or coalesce identically; do not add per-Class
 availability annotations solely to preserve a product-shaped source directory.
 
-## Transitional card data
+## Card declarations and views
 
-Canonical `cards.pets` already carries each card's deck role, tags, cost, play Requirement, actions,
-Effects, and resource role. Runtime card views should read those facts from the loaded Class.
-Structured card data remains temporarily useful for offline Pets generation, replacement targets,
-and card-to-supporting-Class contribution links.
-
-After the declaration-authority cutover, shrink runtime card-data consumption in that order. Do not
-remove supporting-Class links until Pets or a resource interface expresses them: content
-compatibility and activation must include the complete loaded contribution, not only the card's own
-declaration. Do not retain runtime declaration generation just to make synthetic card tests
-convenient.
+Canonical `cards.pets` carries each card's deck role, tags, cost, play Requirement, actions,
+Effects, and resource role. Card consumers use the loaded Class directly, with narrow derived
+queries for those semantics. A concrete subclass of `CardFront` is a card; its represented
+`Class<CardBack>` distinguishes project, corporation, and Prelude decks. Auxiliary declarations
+require no per-card metadata relationship.
 
 ## Map data and runtime views
 
@@ -244,12 +228,11 @@ than reverse-encoding Effects through a closed Kotlin symbol table. Solo placeme
 metrics, and script presentation should consume that same view; none should discover membership by
 Class-name prefix.
 
-## Card replacements
+## Revised promo printings
 
-Replacement data remains explicit until a cleaner positive model exists. Unknown targets, cycles,
-and multiple selected replacements for one target must continue to be validated, and exclusions
-must follow complete replacement chains. A future replacement-slot model may remove the negative
-relationship, but deleting the validation first is not simplification.
+Selecting Promo Card Pack directly excludes `DeimosDown`, `GreatDam`, and
+`MagneticFieldGenerators`; their revised promo declarations are selected with the rest of the pack.
+Canon does not model pairwise replacement relationships or a general replacement registry.
 
 ## Invariants
 
@@ -260,8 +243,6 @@ relationship, but deleting the validation first is not simplification.
   premise.
 - Structural activation cannot select an unrequested Module or override an exclusion.
 - Eligible availability and initial existence remain separate.
-- Card replacements must name known cards, must not form cycles, and must not select multiple
-  replacements for one card.
 - Given a Catalog, ambient behavior is a deterministic function of the live Module components.
 
 ## Settled projection-policy direction
@@ -279,7 +260,7 @@ Projection is premise semantics, not dead-code optimization. It must simultaneou
 2. **Optional reference.** An active declaration may observe a concept that is uninhabited in this
    game without importing the feature that introduced it.
 3. **Derived content compatibility.** Content Classes should not repeat expansion prerequisites
-   already implied by their loaded declarations and supporting Classes.
+   already implied by their loaded declarations.
 4. **Faithful content.** Explicit selection must not bypass an expansion dependency and leave a
    card executable but materially unlike itself.
 5. **Early explanation.** Premise construction should distinguish content that is incompatible from
@@ -304,18 +285,17 @@ mode is active. A nonconstructive gate or Trigger may mention an available but u
 go silent intentionally. This keeps mode-conditional cards such as Vitor available in Solo;
 compatibility does not promise that every conditional branch executes in every game.
 
-The rule applies to hand-authored Class declarations and structured standard-action
-declarations. Cards, maps, areas, milestones, awards, colony tiles, and card-local generated
-Classes remain independently selectable content; merely residing in an expansion Bundle does not
-make a content Class expansion-dependent. Module Classes are never availability-locked: premise
-selection alone decides whether a Module is active.
+The rule applies to hand-authored Class declarations and structured standard-action declarations.
+Cards, maps, areas, milestones, awards, and colony tiles remain independently selectable content;
+merely residing in an expansion Bundle does not make a content Class expansion-dependent. Module
+Classes are never availability-locked: premise selection alone decides whether a Module is active.
 
-For content compatibility, inspect every semantic Class reference in the loaded content declaration
-and every supporting declaration contributed with it. Normal Module selection conjoins the owning
-Bundle Modules of those ambient Classes with the content's automatic-selection condition. An
-explicit individual inclusion must satisfy the derived Bundle condition and any separate non-Bundle
-compatibility condition, but may still override the default pool-selection policy. Thus a Colonies
-card that only counts colonies is just as Colonies-dependent as one that places a colony.
+For content compatibility, inspect every semantic Class reference in the loaded content
+declaration. Normal Module selection conjoins the owning Bundle Modules of those ambient Classes
+with the content's automatic-selection condition. An explicit individual inclusion must satisfy the
+derived Bundle condition and any separate non-Bundle compatibility condition, but may still
+override the default pool-selection policy. Thus a Colonies card that only counts colonies is just
+as Colonies-dependent as one that places a colony.
 
 `VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make
 referencing content Venus-dependent. `WorldGovernmentTerraforming` and `FirstPlayerOcean` are shared
@@ -416,9 +396,8 @@ named domain concept should become generic.
    expansion names.
 3. **Moderate — expansion concepts appear in engine and card APIs.**
    `engine/.../TfmGameplay.kt` publishes `playPrelude` and `venusPercent`.
-   `tfm-canon/.../CardDefinition.kt` and `tfm-canon/.../TfmClasses.kt` make Prelude a built-in deck
-   kind and give it special validation. These are real dependencies, but `PreludeCard` and
-   `VenusStep` are
+   `tfm-canon/.../TfmCatalog.kt` and `tfm-canon/.../TfmClasses.kt` give Prelude cards a special
+   automatic-selection condition. These are real dependencies, but `PreludeCard` and `VenusStep` are
    legitimate Terraforming Mars concepts; removing their names is not inherently a simplification.
 4. **Low — the legacy script layer enumerates concrete products.**
    `script/.../OptionCodeTranslation.kt` names Corporate Era, the map products, Milestones and

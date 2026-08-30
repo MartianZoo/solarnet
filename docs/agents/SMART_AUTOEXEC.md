@@ -11,15 +11,15 @@
 
 ## Source map
 
-- [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
+- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
   — search for `autoExecNext`, `enforceSelectLock`, and `selectTask` for current automatic
   execution, selection, and locking semantics.
-- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
+- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
-- [`Effector.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Effector.kt) — search for
+- [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
   `candidatesFor` and `registryOrder` before defining EGS equality.
-- [`Task.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Task.kt) and
-  [`TaskQueue.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueue.kt) — inspect
+- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) and
+  [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) — inspect
   selected state, continuations, causes, normalization, and id-only ordering.
 
 ## Read only the relevant sections

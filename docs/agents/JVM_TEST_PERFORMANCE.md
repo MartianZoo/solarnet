@@ -14,9 +14,9 @@
 
 - [`solarnet.kotlin-base.gradle.kts`](../../gradle/build-logic/src/main/kotlin/solarnet.kotlin-base.gradle.kts)
   — search for `maxParallelForks` before changing JVM worker scaling.
-- [`TfmTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
+- [`TfmTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
   class-level game construction only when profiling setup cost.
-- [`ClassLoader.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassLoader.kt) — read
+- [`ClassLoader.kt`](../../src/common/dev/martianzoo/pets/types/ClassLoader.kt) — read
   only when a fresh profile again points to Class-model construction.
 
 ## End-to-end baseline

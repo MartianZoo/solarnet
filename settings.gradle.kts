@@ -14,20 +14,25 @@ develocity {
 
 rootProject.name = "solarnet"
 
-include(
-    "pets",
-    "tfm-text",
-    "engine",
-    "tfm-engine",
-    "tfm-tests",
-    "script",
-    "repl",
-    "tfm-canon",
-    "web",
-    "game-viewer",
-    "tools",
-    "benchmarks",
-)
+val modules =
+    listOf(
+        "pets",
+        "tfm-text",
+        "engine",
+        "tfm-engine",
+        "tfm-tests",
+        "script",
+        "repl",
+        "tfm-canon",
+        "web",
+        "game-viewer",
+        "tools",
+        "benchmarks",
+    )
+
+include(*modules.toTypedArray())
+
+modules.forEach { module -> project(":$module").projectDir = file("modules/$module") }
 
 dependencyResolutionManagement {
   repositories {

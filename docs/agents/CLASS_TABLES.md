@@ -10,13 +10,13 @@
 
 ## Source map
 
-- [`ClassTable.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/ClassTable.kt) — search
+- [`ClassTable.kt`](../../src/common/dev/martianzoo/pets/types/ClassTable.kt) — search
   for `public abstract class ClassTable` to inspect master-universe and projection operations.
-- [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt) — read before
+- [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt) — read before
   adding any back-reference or universe identity to a structural value.
-- [`GamePremise.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GamePremise.kt) —
+- [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) —
   search for `classTable` to see where the game projection is retained.
-- [`ClassTableProjectionTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/ClassTableProjectionTest.kt)
+- [`ClassTableProjectionTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ClassTableProjectionTest.kt)
   — read when changing inhabitation or Catalog/Class identity invariants.
 
 ## Ownership model

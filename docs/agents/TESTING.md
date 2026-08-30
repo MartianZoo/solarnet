@@ -19,13 +19,13 @@
 
 ## Test-support entry points
 
-- [`TfmTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
+- [`TfmTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
   integrated setup and gameplay scopes.
-- [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
+- [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for the named helper before spelling raw task text.
-- [`CardTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
+- [`CardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
   read for component-focused scenario construction.
-- [`AbstractFullGameTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
+- [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — read only for whole-game chronology.
 
 ## Routine verification
@@ -62,12 +62,18 @@ tasks with `--rerun-tasks` so cached results are not mistaken for verification.
 Do not run Detekt while compilation or tests are known to be failing. Restore the normal test
 signal first, then review static-analysis findings.
 
-`./gradlew dokkaGenerateHtml` generates the local API site at `docs/api/index.html`.
+`./gradlew dokkaGenerateHtml` generates the local API site under the root project's isolated
+`build/dokka/html` directory.
 
 JVM test tasks use at most four parallel forks. This keeps the dominant engine suite substantially
 faster while bounding the additional CPU and memory demand from concurrent test processes.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
+For local wrapper builds, generated project state is isolated by account and worktree under
+`~/.gradle/solarnet-builds/`. This includes Gradle's project cache, Kotlin's persistent data, task
+outputs, and build-process temporary files. CI retains the conventional project-local paths so its
+artifact collection remains stable. Use `./gradlew` rather than a directly installed `gradle` so
+the checked-in isolation configuration is applied.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.
@@ -78,10 +84,12 @@ Convention plugins under `gradle/build-logic` are layered by responsibility. `so
 the policy shared by every Kotlin target: compilation, explicit API mode, dependency alignment,
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
-shared `kotlin.test`, exposes each module's `jvmTest` as `test`, and stages browser-test resources.
-Module build scripts keep only module-specific configuration; the JavaScript-only application
-configures its target directly. Repository-wide formatting and Yarn policy remain in the root
-build. Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
+shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
+Module build scripts under `modules/` keep only module-specific configuration and select their
+non-overlapping package roots from the repository-wide `src/` and `test/` trees; the JavaScript-only
+application configures its target directly. Repository-wide formatting and Yarn policy remain in
+the root build.
+Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.
 
@@ -127,7 +135,7 @@ clear coverage of these contracts matters more than preserving every current tes
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
 9. **Cross-runtime packaging smoke coverage.** One representative browser game proving that the
-   JavaScript artifact, packaged Canon resources, and engine work together outside the JVM.
+   JavaScript artifact, generated Canon data, and engine work together outside the JVM.
 10. **Real-terminal REPL smoke coverage.** One Expect-driven scenario proving the packaged REPL can
     be launched and used through an actual terminal.
 
@@ -155,8 +163,8 @@ Keep scenarios minimal and legible. Card tests use the base game and two players
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
-Synthetic card scenarios may pass their `CardDefinition` and supporting `ClassDeclaration`s to the
-`CardTest` constructor; both are composed with Canon and selected in that test's premise.
+Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
+constructor; they are composed with Canon and selected in that test's premise.
 Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and `assignWildTag(card, tag)`
 instead of spelling their routine task expressions. The tile and card-resource helpers require a
 single matching pending choice; keep raw `doTask()` calls where multiple placements are pending.
@@ -287,5 +295,5 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   work with them, JS test runs may not.
 - Mocha owns the per-test timeout; Karma owns browser activity, disconnect, and reconnect
   timeouts. A long synchronous test can block the browser event loop long enough to hit either.
-- A Node test target is not a substitute for the browser suite while Canon resources are loaded
-  with browser `XMLHttpRequest`.
+- A Node test target is not a substitute for the browser suite, which verifies browser compilation
+  and integration.

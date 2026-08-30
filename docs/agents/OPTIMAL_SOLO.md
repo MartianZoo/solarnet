@@ -9,11 +9,11 @@
 
 ## Source map
 
-- [`StandardResourceMonotonicityReport.kt`](../../tools/src/main/kotlin/dev/martianzoo/tools/StandardResourceMonotonicityReport.kt)
+- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tools/StandardResourceMonotonicityReport.kt)
   — search for `fun main` to inspect the implemented catalog report.
-- [`SoloGenerationCountdownTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
+- [`SoloGenerationCountdownTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
   — read only when a proposed optimization depends on committed TR63 timing.
-- [Terraforming Mars `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/cards.pets)
+- [Terraforming Mars `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.pets)
   — search for a named counterexample such as `Factorum` before relying on the analysis.
 
 This note develops one facet of exact or conservative optimization for the TR63 solo variant. It

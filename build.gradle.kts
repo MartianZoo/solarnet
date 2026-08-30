@@ -45,11 +45,15 @@ plugins.withType<YarnPlugin> {
 // 4-space continuation indent, and trailing commas added but never removed.
 spotless {
   kotlin {
-    target("*/src/**/*.kt")
+    target("src/**/*.kt", "test/**/*.kt")
     ktfmt(libs.versions.ktfmt.get())
   }
   kotlinGradle {
-    target("*.gradle.kts", "*/*.gradle.kts", "gradle/build-logic/src/main/kotlin/*.gradle.kts")
+    target(
+        "*.gradle.kts",
+        "modules/*/*.gradle.kts",
+        "gradle/build-logic/src/main/kotlin/*.gradle.kts",
+    )
     ktfmt(libs.versions.ktfmt.get())
   }
 }
@@ -57,7 +61,7 @@ spotless {
 dokka {
   moduleName.set("Solarnet")
   dokkaPublications.html {
-    outputDirectory.set(file("docs/api"))
+    outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
     includes.from("docs/packages.md")
   }
 }

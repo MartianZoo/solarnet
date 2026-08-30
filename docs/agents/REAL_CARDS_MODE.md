@@ -23,14 +23,14 @@
 
 ## Source map
 
-- [`CardOperation.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/CardOperation.kt)
+- [`CardOperation.kt`](../../src/common/dev/martianzoo/tfm/canon/CardOperation.kt)
   — inspect the canonical hidden-procedure representation.
-- [`FollowModeNeutralizer.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/FollowModeNeutralizer.kt)
+- [`FollowModeNeutralizer.kt`](../../src/common/dev/martianzoo/tfm/canon/FollowModeNeutralizer.kt)
   — search for `neutralize` before changing current executable lowering.
-- [Promo `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/PromoCardPack/cards.pets)
+- [Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
   — search for `CARDS[` to sample canonical authored operations.
-- [`CardDefinitionTest.kt`](../../tfm-canon/src/commonTest/kotlin/dev/martianzoo/tfm/canon/CardDefinitionTest.kt)
-  — read for transform preservation and follow-mode behavior.
+- [`CardClassTest.kt`](../../test/common/dev/martianzoo/tfm/canon/CardClassTest.kt)
+  — read for the loaded card-Class queries and validation.
 
 ## Settled direction
 
