@@ -1,11 +1,13 @@
 plugins { id("solarnet.kmp-jvm-js") }
 
 val commonSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/viewer")
+    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/web/gameviewer")
 val commonTestDirectory =
-    rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/viewer")
-val jsSourceDirectory = rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/viewer")
-val webSourceDirectory = rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/web")
+    rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/web/gameviewer")
+val jsSourceDirectory =
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/gameviewer")
+val sharedSourceDirectory =
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/shared")
 
 kotlin {
   js {
@@ -33,7 +35,7 @@ kotlin {
 
 tasks.named<ProcessResources>("jsProcessResources") {
   from(jsSourceDirectory) { include("*.html", "*.css") }
-  from(webSourceDirectory.dir("assets")) { into("assets") }
+  from(sharedSourceDirectory) { into("assets") }
   val localImages =
       providers
           .gradleProperty("localImagesDir")

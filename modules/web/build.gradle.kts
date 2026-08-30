@@ -3,7 +3,10 @@ plugins {
   id("solarnet.kotlin-base")
 }
 
-val webSourceDirectory = rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/web")
+val webReplSourceDirectory =
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/webrepl")
+val sharedSourceDirectory =
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/shared")
 
 kotlin {
   js {
@@ -13,7 +16,7 @@ kotlin {
 
   sourceSets {
     jsMain {
-      kotlin.setSrcDirs(listOf(webSourceDirectory))
+      kotlin.setSrcDirs(listOf(webReplSourceDirectory))
       dependencies {
         implementation(project(":script"))
         implementation(npm("jquery", "3.7.1"))
@@ -23,7 +26,7 @@ kotlin {
     }
     jsTest {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/web"))
+          listOf(rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/web/webrepl"))
       )
       dependencies { implementation(kotlin("test")) }
     }
@@ -31,5 +34,6 @@ kotlin {
 }
 
 tasks.named<ProcessResources>("jsProcessResources") {
-  from(webSourceDirectory) { include("*.html", "*.css", "assets/**") }
+  from(webReplSourceDirectory) { include("*.html", "*.css") }
+  from(sharedSourceDirectory) { into("assets") }
 }

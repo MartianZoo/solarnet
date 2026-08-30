@@ -1,6 +1,6 @@
 @file:Suppress("UnsafeCastFromDynamic")
 
-package dev.martianzoo.web
+package dev.martianzoo.tfm.web.webrepl
 
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletionEngine

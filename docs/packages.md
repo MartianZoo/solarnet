@@ -63,15 +63,16 @@ REgo PLastics, an extremely bad command-line UI to the engine.
 
 ## module WEB
 
-### <a href="web/dev.martianzoo.web/index.html">dev.martianzoo.web</a>
+### <a href="web/dev.martianzoo.tfm.web.webrepl/index.html">dev.martianzoo.tfm.web.webrepl</a>
 
 An early rough browser version of REgo PLastics.
 
 ## module GAME-VIEWER
 
-### <a href="game-viewer/dev.martianzoo.viewer/index.html">dev.martianzoo.viewer</a>
+### <a href="game-viewer/dev.martianzoo.tfm.web.gameviewer/index.html">dev.martianzoo.tfm.web.gameviewer</a>
 
-A browser viewer for recorded games, with saved replays and event-log timeline navigation.
+A browser viewer for recorded games, with saved replays and event-log timeline navigation. Both
+browser applications use assets owned by `dev/martianzoo/tfm/web/shared`.
 
 ## module TOOLS
 

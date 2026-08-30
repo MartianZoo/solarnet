@@ -1,4 +1,4 @@
-package dev.martianzoo.web
+package dev.martianzoo.tfm.web.webrepl
 
 import kotlin.test.AfterTest
 import kotlin.test.Test

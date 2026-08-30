@@ -1,4 +1,4 @@
-package dev.martianzoo.viewer
+package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine

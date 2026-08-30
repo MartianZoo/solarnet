@@ -1,4 +1,4 @@
-package dev.martianzoo.viewer.cardnames
+package dev.martianzoo.tfm.web.gameviewer.cardnames
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

@@ -1,12 +1,13 @@
-package dev.martianzoo.viewer.games
+package dev.martianzoo.tfm.web.gameviewer.games
 
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.viewer.cardnames.*
+import dev.martianzoo.tfm.web.gameviewer.RecordedGame
+import dev.martianzoo.tfm.web.gameviewer.cardnames.*
 
-public class OtbGame20260818 : dev.martianzoo.viewer.RecordedGame() {
+public class OtbGame20260818 : RecordedGame() {
   private val colonyTiles = listOf("Enceladus", "Miranda", "Europa", "Io", "Pluto")
 
   protected override val config: GameConfig =

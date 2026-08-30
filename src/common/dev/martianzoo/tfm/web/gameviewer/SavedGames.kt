@@ -1,9 +1,9 @@
-package dev.martianzoo.viewer
+package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.viewer.games.OtbGame20260809
-import dev.martianzoo.viewer.games.OtbGame20260818
-import dev.martianzoo.viewer.games.OtbGame20260825
-import dev.martianzoo.viewer.games.OtbGame20260828
+import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260809
+import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260818
+import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260825
+import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260828
 
 public object SavedGames {
   public val all: List<SavedGame> =

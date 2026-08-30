@@ -23,9 +23,14 @@ src/
             ...
         engine/
         script/
+        web/
+          gameviewer/
       tools/
   jvm/dev/martianzoo/
-  js/dev/martianzoo/
+  js/dev/martianzoo/tfm/web/
+    gameviewer/
+    webrepl/
+    shared/
 
 test/
   common/dev/martianzoo/
@@ -57,10 +62,11 @@ JavaScript-specific production code remain separate because target selection is 
 each target gets one shallow repository-wide overlay instead of a parallel tree per module.
 
 Keep tests and benchmarks together, separate from shipped product code, organized first by target
-and then by package. The benchmark package remains owned by its dedicated Gradle module. Keep web
-assets with `dev/martianzoo/web`, configuring their packaged paths explicitly where necessary. Avoid
-filename-suffix compilation filters: source-set membership should be declared through directories
-and Gradle configuration.
+and then by package. The benchmark package remains owned by its dedicated Gradle module. Keep the
+Terraforming Mars browser applications together under `dev/martianzoo/tfm/web`: the Web REPL belongs
+in `webrepl`, the recorded-game viewer in `gameviewer`, and assets used by both in `shared`.
+Configure their packaged paths explicitly. Avoid filename-suffix compilation filters: source-set
+membership should be declared through directories and Gradle configuration.
 
 Changes to this layout must preserve public APIs, resource lookup semantics still in use, generated
 artifacts, module dependencies, JVM tests, and the representative browser game. Validate IDE module

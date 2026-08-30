@@ -1,4 +1,4 @@
-package dev.martianzoo.viewer
+package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.engine.ComponentGraph.CountSubscription
 import dev.martianzoo.engine.GameRecording

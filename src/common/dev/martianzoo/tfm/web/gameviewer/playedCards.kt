@@ -1,4 +1,4 @@
-package dev.martianzoo.viewer
+package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
