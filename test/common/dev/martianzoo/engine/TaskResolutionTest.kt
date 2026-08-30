@@ -4,6 +4,7 @@ import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent
 import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
@@ -32,7 +33,11 @@ internal class TaskResolutionTest {
     val task = tasks.extract { it }.single()
     task.selected shouldBe true
     "${task.instruction}" shouldBe "2 Plant<Player1>?"
-    assertHistoryTypes(TaskAddedEvent::class, TaskEditedEvent::class)
+    assertHistoryTypes(
+        TaskAddedEvent::class,
+        TaskEditedEvent::class,
+        GameplayInputEvent::class,
+    )
   }
 
   @Test
@@ -41,7 +46,11 @@ internal class TaskResolutionTest {
     gameplay.selectTask("-2 Plant?")
 
     tasks.isEmpty() shouldBe true
-    assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
+    assertHistoryTypes(
+        TaskAddedEvent::class,
+        TaskRemovedEvent::class,
+        GameplayInputEvent::class,
+    )
   }
 
   @Test
@@ -55,6 +64,7 @@ internal class TaskResolutionTest {
         TaskEditedEvent::class,
         GameEvent.ChangeEvent::class,
         TaskRemovedEvent::class,
+        GameplayInputEvent::class,
     )
     gameplay.count("Plant") shouldBe 1
   }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.engine.Routine
 import dev.martianzoo.engine.RoutineProvider
+import dev.martianzoo.engine.RoutineReplayEncoder
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
@@ -39,6 +40,7 @@ import dev.martianzoo.tfm.canon.BundleContentSelection.Kind
 /** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
 public open class TfmCatalog : Catalog, RoutineProvider {
   override val routines: Map<String, Routine> = emptyMap()
+  final override val replayEncoder: RoutineReplayEncoder = TerraformingMarsReplayEncoder
 
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
@@ -315,6 +317,7 @@ public open class TfmCatalog : Catalog, RoutineProvider {
         classSelections,
         initialTypes,
         configuredPlayerNames,
+        config,
     )
   }
 

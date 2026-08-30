@@ -6,6 +6,11 @@ import dev.martianzoo.pets.util.pre
 public sealed class GameEvent {
   public abstract val ordinal: Int
 
+  /** Optional provenance metadata. It deliberately does not participate in data-class equality. */
+  public var agent: String? = null
+
+  internal fun agentSuffix(): String = agent?.let { " [agent: $it]" }.orEmpty()
+
   public sealed class TaskEvent : GameEvent() {
     public abstract val task: Task
 
@@ -29,14 +34,14 @@ public sealed class GameEvent {
       require(task.id.ordinal == ordinal)
     }
 
-    override fun toString(): String = taskToString()
+    override fun toString(): String = taskToString() + agentSuffix()
   }
 
   public data class TaskRemovedEvent(
       override val ordinal: Int,
       override val task: Task,
   ) : TaskEvent() {
-    override fun toString(): String = "$ordinal: -Task${task.id}"
+    override fun toString(): String = "$ordinal: -Task${task.id}" + agentSuffix()
   }
 
   public data class TaskEditedEvent(
@@ -48,7 +53,33 @@ public sealed class GameEvent {
       require(task.id == oldTask.id)
     }
 
-    override fun toString(): String = taskToString() + " FROM Task${task.id}"
+    override fun toString(): String = taskToString() + " FROM Task${task.id}" + agentSuffix()
+  }
+
+  /** One successful Player command, kept as input provenance rather than game state. */
+  public data class GameplayInputEvent(
+      override val ordinal: Int,
+      val operationStartOrdinal: Int,
+      val actor: Actor,
+      val kind: Kind,
+      val source: String,
+      val taskNumber: Int? = null,
+  ) : GameEvent() {
+    init {
+      require(operationStartOrdinal <= ordinal)
+    }
+
+    override fun toString(): String =
+        "$ordinal: $kind ${taskNumber?.let { "$it " } ?: ""}$source BY $actor " +
+            "(operation $operationStartOrdinal)" +
+            agentSuffix()
+
+    public enum class Kind {
+      DO_TASK,
+      NARROW_TASK,
+      SELECT_TASK,
+      DIRECT_CHANGES,
+    }
   }
 
   /** All interesting information about a state change that happened in a game. */
@@ -67,6 +98,7 @@ public sealed class GameEvent {
     override fun toString(): String = buildString {
       append("$ordinal: $change BY $actor")
       append(" ${cause ?: "(manual)"}")
+      append(agentSuffix())
     }
 
     /** The part of a `ChangeEvent` that describes only what actually changed. */

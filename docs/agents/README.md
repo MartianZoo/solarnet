@@ -60,7 +60,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | Move generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Audit |
 | Flatten Gameplay or design a client interface | [`API.md`](API.md), after the Gameplay section of [`ENGINE.md`](ENGINE.md#current-gameplay-surface) | Proposal |
-| Implement catalog Routines, direct REPL calls, or Routine-based saved-game replay | [`ROUTINES.md`](ROUTINES.md), then the API/model route it names | Proposal |
+| Implement catalog Routines, direct REPL calls, or Routine-based saved-game replay | [`ROUTINES.md`](ROUTINES.md), then the API/model route it names | Proposal; native-export section is a working rule |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
 
 ### Verify a change

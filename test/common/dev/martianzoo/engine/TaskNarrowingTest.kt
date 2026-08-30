@@ -5,6 +5,7 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent
 import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
@@ -50,14 +51,14 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing an instruction to itself adds no edit after selection`() {
+  internal fun `narrowing an instruction to itself adds only input provenance after selection`() {
     initiate("2 Plant?")
     writer.selectTask("2 Plant?")
     val before = game.timeline.checkpoint()
 
     writer.narrowTask("2 Plant?")
     tasksAsText().shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
-    events.entriesSince(before).shouldBeEmpty()
+    events.entriesSince(before).map { it::class }.shouldContainExactly(GameplayInputEvent::class)
   }
 
   @Test
@@ -74,7 +75,7 @@ internal class TaskNarrowingTest {
     initiate("2 Plant?")
     history().shouldHaveSize(1)
     shouldThrow<NarrowingException> { selectAndNarrow("2 Plant?", "3 Plant!") }
-    history().shouldHaveSize(2)
+    history().shouldHaveSize(3)
     tasks.extract { it.selected }.shouldContainExactly(true)
   }
 
@@ -110,9 +111,11 @@ internal class TaskNarrowingTest {
     assertHistoryTypes(
         TaskAddedEvent::class, // full one
         GameEvent.TaskEditedEvent::class, // selected
+        GameplayInputEvent::class, // selection
         TaskAddedEvent::class, // heat
         TaskAddedEvent::class, // energy
         TaskRemovedEvent::class, // -full one
+        GameplayInputEvent::class, // narrowing
     )
     tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
   }
@@ -222,7 +225,9 @@ internal class TaskNarrowingTest {
     assertHistoryTypes(
         TaskAddedEvent::class,
         GameEvent.TaskEditedEvent::class,
+        GameplayInputEvent::class,
         TaskRemovedEvent::class,
+        GameplayInputEvent::class,
     )
     tasks.isEmpty() shouldBe true
   }

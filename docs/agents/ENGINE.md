@@ -52,9 +52,11 @@ A live Game World is a `World` containing:
 | Actor-scoped `Gameplay` | The supported mutation/query facade |
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
-policy, and validation to produce an immutable `GamePremise`. The premise
-contains one Catalog, selected Modules, signed class selections, seat-ordered display names, and
-exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
+policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
+selected Modules, signed class selections, seat-ordered display names, exact non-singleton types to
+create once, and the source configuration when resolution began from one. Native replay export uses
+that retained source rather than attempting to reverse defaults out of the resolved premise. See
+[OPTIONS.md](OPTIONS.md).
 
 A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
 from that premise shares the projection and its compiled class metadata while retaining independent
@@ -131,10 +133,16 @@ instruction defaults so Kotlin translation remains its sole behavior.
 
 ## Events and timeline
 
-The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, and `TaskEditedEvent`.
-A change records its Actor and Cause, with changed component Types stored as minimal round-tripping
-expressions. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cause, and `BECAUSE`
-for causal event ordinal.
+The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, `TaskEditedEvent`, and the
+diagnostic `GameplayInputEvent`. A change records its Actor and Cause, with changed component Types
+stored as minimal round-tripping expressions. A successful Player command records its submitted
+input and outer command-start ordinal so native export can recover choices without treating Cause
+as input. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cause, and `BECAUSE` for
+causal event ordinal.
+
+Every event has optional diagnostic `agent` provenance. It is rendered when present but excluded
+from event equality and gameplay-state equivalence. The current autoexecution bridge supplies its
+mode as the agent for automatic Player inputs; older direct calls leave it absent.
 
 `EventLog.record` and rollback are the single history/mutation interface: application or reversal
 must succeed before the log changes. Each forward or reverse mutation advances an opaque

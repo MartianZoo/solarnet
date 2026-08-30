@@ -74,6 +74,10 @@ public class ScriptSession(
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
 
+  /** The live World currently owned by this session. */
+  public val world: World
+    get() = game
+
   private var playerAutoExecMode: AutoExecMode = FIRST
 
   internal val autoExecMode: AutoExecMode

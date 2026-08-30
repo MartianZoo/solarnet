@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
@@ -19,7 +20,9 @@ import kotlin.test.Test
 
 internal class TaskAssignmentCharacterizationTest {
   private fun game() =
-      Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>", players = 2))
+      Engine.newGame(
+          testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>\nCLASS EngineToken", players = 2)
+      )
 
   @Test
   internal fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
@@ -50,6 +53,22 @@ internal class TaskAssignmentCharacterizationTest {
     game.tasks.isEmpty() shouldBe true
     p2.count("Token<Player2>") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe PLAYER2
+  }
+
+  @Test
+  internal fun playerNoneDrainsOnlyEngineWork() {
+    val game = game()
+    val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
+    val engine = game.gameplay(ENGINE).also { it.autoExecMode = NONE }
+
+    p2.godMode().addTasks("Token<Player2>")
+    engine.godMode().addTasks("EngineToken")
+    p1.autoExecNow()
+
+    engine.count("EngineToken") shouldBe 1
+    p2.count("Token<Player2>") shouldBe 0
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
   }
 
   @Test

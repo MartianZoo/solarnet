@@ -60,10 +60,11 @@ An Engine assignee is not an autoexecution profile for a Player. It is a semanti
 the queued work contains no participant decision. Workflow pulses, production, and similar owned
 events should therefore drain strongly even when the Player-policy profile is `NONE`.
 
-Strong draining means repeatedly performing every currently eligible Engine-owned command whose
-outcome is uniquely implied, rereading state after each operation. It does not mean stable-order
-`FIRST`. If Engine-owned work offers semantically distinct legal commands, the instruction or its
-ownership is wrong; reassign or remodel it instead of giving Engine a gameplay preference.
+Strong draining means repeatedly performing every currently eligible Engine-owned command,
+rereading state after each operation. The current native-replay bridge may use stable-order `FIRST`
+solely among Engine-assigned tasks: Engine assignment asserts that no participant choice is being
+made. If those tasks actually offer semantically distinct participant outcomes, the instruction or
+its ownership is wrong; reassign or remodel it instead of treating Engine order as a preference.
 
 Thus `NONE` disables optional policies that act for Players. It does not disable inline `::`
 effects, owned `Yield` settlement, task resolution after an explicit selection, or deterministic

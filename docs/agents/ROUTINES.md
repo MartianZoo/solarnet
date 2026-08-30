@@ -4,7 +4,8 @@
 > REPL, replacement of `tfm_` commands, or the Routine half of a saved-game format.
 >
 > **Status:** proposal plus a catalog-contributed `DO`-command prototype. The mature surface and
-> saved-game model described here remain the target.
+> saved-game model described here remain the target. “Native World export” is an agreed working
+> rule for its named miniproject.
 
 ## Goal
 
@@ -26,6 +27,11 @@ Those support two intentionally different restore modes:
    implementation may produce a different game.
 
 The Routine stream is compact input, not a durable encoding of its consequences.
+
+The native World-export miniproject uses that Routine stream as its readable replay format. The
+engine owns the format and `World.export()` API; `script` is only its current importer. This does
+not turn a low-level task or concrete-change dump into an acceptable Routine export. The target
+format is specified below under “Native World export.”
 
 Pure-Pets Routine implementations are a distant possibility, not an initial goal. The first
 implementations are custom Kotlin.
@@ -62,7 +68,8 @@ Actor attribution is persistent in a replay:
 
 ```text
 BECOME Dad
-DO playCard(Pets, -10 MC, Animal<Dad, Pets>, ProjectCard)
+DO playCard(Pets, -10 MC)
+DO tasks(ProjectCard, Animal<Dad, Pets>)
 
 BECOME Ellie
 DO playCard(Psychrophiles, -2 MC)
@@ -74,11 +81,80 @@ isolated exception and restores the prior Actor. A serializer may omit repeated 
 and should keep the current actor across a long sole-player run. Do not introduce `AS Actor { ... }`
 blocks.
 
-Restore-oriented execution forces player-task autoexecution to `NONE`; a future stepwise mode may
-use `SLOW`. Interactive Routine calls may eventually respect the session's current setting and
-report a task already handled automatically as skipped, but the prototype need not support that.
-Set `AUTO NONE` before starting a purple restore so setup tasks are not consumed before the first
-Routine call. Each `DO` also makes that setting sticky for the remainder of the session.
+Every serialized Routine replay sets Player autoexecution to `NONE`. Put `AUTO NONE` before
+`newgame`, and keep it in force for every Player throughout import. A Routine must not restore or
+drain a prior Player `FIRST` setting, even temporarily. The current Engine may use `FIRST` to drain
+already concrete or uniquely implied Engine-assigned work; assignment alone does not make an
+abstract choice deterministic. A World Government Terraforming task, for example, still needs the
+recorded Player narrowing before Engine executes it. Do not reassign Player work or alter its Actor,
+assignee, Cause, or abstractness merely to make it eligible for Engine execution.
+
+## Native World export
+
+> **Status:** agreed miniproject contract. A passing implementation must satisfy all of these gates;
+> uncommitted serializer code and generated artifacts are not evidence that a gate is met.
+
+Before acting on the 0818 export, read its dated
+[implementation plan](../../_local/replays/Game20260818/implementation-plan.md).
+
+`World.export(): String` belongs to `engine` and returns a versioned REgo script that today's
+`script` module can run. Future importers may consume the same engine-owned format. The first
+deliverable is the current-engine player-choice replay, not the separate concrete-change restore
+mode described in the goal.
+
+The exported file must have the same shape as the established
+`_local/routines/OtbGame20260818-generations1-6.rego` replay:
+
+1. the exact version marker `// solarnet world export 1`, followed by `auto none`;
+2. `newgame` using the exact concise unresolved `GameConfig`, not an expanded cooked `GamePremise`
+   containing implicit Modules and negative default selections;
+3. persistent `BECOME` headings for Actor runs;
+4. `DO playCard(...)` and `DO useAction(...)` for headline decisions and their costs;
+5. subsequent `DO tasks(...)` calls for ordinary choices exposed by those decisions;
+6. `DO buyCards()`, `DO endTurn()`, and `DO assignWildTag(...)` where those established Routines
+   express the choice; and
+7. only source-backed direct corrections as brief `mode red` / `exec` / `mode purple` passages.
+
+Do not substitute raw `task` commands for `tasks(...)`, card play, actions, purchases, or turn
+declines that the Routine vocabulary already expresses. Do not serialize fixed workflow, payment
+plumbing, action markers, temporary cleanup, or other choice-free work as Player input. Do not
+switch to green mode to replay internal helper choreography. A same-version round trip that reaches
+the right final graph only because Player `FIRST` silently chooses omitted work fails this contract.
+
+Start from the existing Event Log and its Cause information, but interpret Cause only as ancestry.
+A card or Action may cause a later task that still needs a Player selection or narrowing; that
+choice remains explicit in `tasks(...)`. Omit a caused task only when no participant chose any part
+of its execution. Before adding a new event kind or public API, demonstrate the exact information
+that existing history cannot recover. If the readable Routine call cannot be derived without
+materially widening several modules, stop and report that design pressure; do not compensate with a
+low-level dump, speculative payment probes, catch-all fallbacks, or Player autoexecution.
+
+Successful Player inputs are diagnostic `GameplayInputEvent`s. Their optional `agent` field can
+identify an automatic or other command source, is rendered as an Event Log note, and is excluded
+from event equality. The initial native exporter marks legacy automatic selections with their
+`autoexec` mode; an absent agent means the older direct-call path did not supply an identity. This
+provenance must not become game state or affect replay-state equality.
+
+The engine serializer must remain generic. Obtain configuration and Routine facts from the World,
+premise, and Catalog capabilities; do not embed Terraforming Mars cards, Player names, the 0818
+configuration, or branches for this replay in engine code.
+
+The six-generation replay is an executable golden oracle, not merely a style example. First prove
+that it and a fully explicit reference produce the desired equivalent game state with Player
+`NONE` on both paths. If they do, the overlapping exported command stream must preserve the same
+Routine calls and every ordered, noncommutative choice after its version marker. Arguments within
+one call may appear in either order only when those effects commute and the generated order passes
+the same round-trip state checks. If parity fails, report the mismatch instead of silently changing
+the format. The durable test compares Actors, active Classes, complete Task queues, and the component
+graph after importing both the canonical source and a fresh export.
+
+The completed export is the colocated
+`test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260818-world-export.rego`
+source replay.
+`OtbGame20260818Test` retains the compact independent Kotlin execution path and imports that exact
+REgo source through `ScriptSession`. At the idle endpoint it compares Actors, active Classes,
+pending Tasks, and the complete component multiset. Incidental task-selection events and Event Log
+ordering need not be identical.
 
 ## Signatures and parsing
 
@@ -88,8 +164,8 @@ selector parameters followed, where appropriate, by an `InstructionGroup` parame
 shapes are:
 
 ```text
-playCard(card, choices...)
-useAction(actionNumber, provider, choices...)
+playCard(card, costs...)
+useAction(actionNumber, provider, costs...)
 tasks(instructions...)
 buyCards()
 endTurn()
@@ -131,17 +207,16 @@ narrowings, analogous to a custom instruction producing its substitute instructi
 that list may only select or narrow tasks already in the actor's queue. It must not initiate an
 otherwise unavailable game action ex machina.
 
-A call records one player decision and the further player choices exposed by that decision. It does
-not record fixed bookkeeping. The first selector chooses the headline task; trailing arguments are
-then consumed in written order against the live stages created by that task. A stage may consume no
-arguments when it exposes no player choice.
+A call records one player decision. It does not record fixed bookkeeping or absorb the ordinary
+tasks exposed by that decision. The first selector chooses the headline task; trailing arguments
+may settle only costs. Consequence choices remain pending for a subsequent `tasks(...)` call.
 
-For `playCard` and `useAction`, a live `Billing` stage always settles before consequence choices.
-While that stage exists, leading arguments select its tender tasks. Once Billing closes, remaining
-arguments select the queued consequences. Do not classify an argument as payment merely because it
-is a resource removal: the live operation stage supplies that meaning. Payment and consequences
-therefore cannot be interleaved, and direct card-resource costs remain ordinary consequences when
-there is no Billing stage.
+For `playCard` and `useAction`, a live `Billing` stage always settles before consequences. While
+that stage exists, trailing arguments select its tender tasks. `useAction` may also consume the
+linked first stage of a direct Pets cost such as a card-resource removal. Once costs close, the
+Routine returns and leaves every queued consequence untouched. Do not classify later removals as
+payment merely because they remove a resource: the live operation stage or linked Action cost
+supplies that meaning.
 
 There is no general Player autoexecution in the first version. Work proceeds only through:
 
@@ -175,12 +250,14 @@ tasks. Exhaustive residual execution is also deferred.
 ### `playCard` and `useAction`
 
 `playCard` replaces separate corporation, Prelude, and project-card helpers. It infers the card deck
-from the selected card and narrows an available `PlayCard` task to that card. The remaining
-arguments cover that play's Billing stage first and then its queued player choices:
+from the selected card and narrows an available `PlayCard` task to that card. Its remaining
+arguments cover only that play's Billing stage; queued choices use `tasks(...)`:
 
 ```text
-playCard(Pets, -10 MC, Animal<Dad, Pets>, ProjectCard)
-playCard(DoubleDown, CopyPrelude<MartianIndustries>, PROD[Energy, Steel], 6 MC)
+playCard(Pets, -10 MC)
+tasks(ProjectCard, Animal<Dad, Pets>)
+playCard(DoubleDown)
+tasks(CopyPrelude<MartianIndustries>, PROD[Energy, Steel], 6 MC)
 ```
 
 Payment choices may use standard resources or a card's payment resource:
@@ -191,9 +268,9 @@ playCard(Potatoes, -Microbe<Psychrophiles>)
 useAction(2, TradeSA, -3 Energy)
 ```
 
-The call does not advance to consequence arguments while its invoice retains `Owed`. No payment
-argument is required for a zero-cost invocation. Valid intentional overpayment remains possible.
-A supplied instruction that was not used is an error.
+The call does not return while its invoice retains `Owed`. No payment argument is required for a
+zero-cost invocation. Valid intentional overpayment remains possible. A supplied instruction that
+was not used as a cost is an error.
 
 `playCard` does not run the workflow that might later expose its task. For example, Valley Trust's
 mandate and card-selection tasks are recorded first; only once they have exposed the queued card
@@ -201,11 +278,11 @@ choice does `playCard(DoubleDown)` select it.
 
 Direct card-resource removals and production transformations are ordinary Pets action costs, not
 billing. `AerialMappers` declares `Floater<This> -> ProjectCard`, which lowers to a removal followed
-by its result. Because its Billing stage is empty, the same Routine proceeds directly to those
-choices:
+by its result. `useAction` may perform that linked cost, but the result remains a separate call:
 
 ```text
-useAction(2, AerialMappers, -Floater<Dad, AerialMappers>, ProjectCard)
+useAction(2, AerialMappers, -Floater<Dad, AerialMappers>)
+tasks(ProjectCard)
 ```
 
 Do not route that removal through settlement handling. See `Direct and costless Actions` in
@@ -214,12 +291,14 @@ Do not route that removal through settlement handling. See `Direct and costless 
 Generic `useAction` is preferred over thin aliases:
 
 ```text
-useAction(2, TradeSA, -3 Energy, Trade<Pluto>, 3 ProjectCard)
+useAction(2, TradeSA, -3 Energy)
+tasks(Trade<Pluto>, 3 ProjectCard)
 
-useAction(1, ConvertHeatSA, -8 Heat, TemperatureStep, TerraformRating)
+useAction(1, ConvertHeatSA, -8 Heat)
+tasks(TemperatureStep, TerraformRating)
 
-useAction(1, ConvertPlantsSA, -8 Plant, GreeneryTile<Utopia_4_2>, OxygenStep, Plant,
-    TerraformRating)
+useAction(1, ConvertPlantsSA, -8 Plant)
+tasks(GreeneryTile<Utopia_4_2>, OxygenStep, Plant, TerraformRating)
 ```
 
 Add a named convenience only when it captures more game knowledge than these generic calls.
@@ -234,7 +313,8 @@ resources:
 ```text
 tasks(2 select)
 tasks(10 ProjectCard<Selecting>, -3 ProjectCard<Selecting>)
-playCard(PointLuna, ProjectCard, 38 MC, PROD[Titanium])
+playCard(PointLuna)
+tasks(ProjectCard, 38 MC, PROD[Titanium])
 buyCards()
 ```
 
@@ -297,24 +377,28 @@ when Engine selects the task. Assignee, execution Actor, context owner, and the 
 changed Type must not be collapsed; see `IDENTITY.md`.
 
 Parity checks belong at quiescent player points, when player queues are empty and the workflow is
-about to advance. Compare the complete component graph there. If it matches, ordering differences
-among individual changes and incidental task-selection events do not matter.
+about to advance. Compare Actors, active Classes, complete Task queues, and the component graph
+there. If they match, ordering differences among individual changes and incidental task-selection
+events do not matter.
 
 The recorded concrete changes include engine work and support exact-state restoration. The Routine
 stream is not a replacement for that record.
 
 ## Evidence
 
-`OtbGame20260818Test` is the design replay. The local pre-prototype six-generation mockup,
-automatic-execution trace, and current runnable `.rego` replay are stored under `_local/routines/`.
-`DoCommandTest` follows all six mocked generations in executable `DO` syntax and compares the
-complete component graph incrementally.
+`OtbGame20260818-world-export.rego` is the full source replay and owns the sourced commentary.
+`OtbGame20260818Test` is its compact independent Kotlin parity path. It compares both that source
+replay and a fresh export of the completed Kotlin World against the same complete endpoint. The
+earlier six-generation Routine oracle remains
+`_local/routines/OtbGame20260818-generations1-6.rego` as design history, not duplicated test input.
+Focused `DoCommandTest` cases cover command mode and parsing contracts.
 
 ## Open implementation choices
 
 - Typed Routine signatures beyond the prototype's name-to-Kotlin-implementation registry.
-- Saved-file envelope, versioning, premise encoding, and Event Log encoding.
-- Concrete-change encoding and the adjustment algorithm for exact-state restoration.
+- A richer saved-file envelope around the versioned native export.
+- The smallest additional recorded input fact, if any, that the incremental export gates prove the
+  existing Event Log cannot recover.
 - Multiline Routine calls and completion behavior in the interactive REPL.
 - Whether interactive Routine calls respect current autoexecution and report already-completed
   tasks as skipped.

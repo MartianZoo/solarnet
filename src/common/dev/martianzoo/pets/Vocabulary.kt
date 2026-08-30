@@ -63,9 +63,12 @@ private constructor(
   /** Renders one event for a Pets-oriented event log. */
   public fun renderPets(event: GameEvent): String =
       when (event) {
-        is GameEvent.TaskAddedEvent -> renderTaskEvent(event, "+")
-        is GameEvent.TaskRemovedEvent -> "${event.ordinal}: -Task${event.task.id}"
-        is GameEvent.TaskEditedEvent -> renderTaskEvent(event, "+") + " FROM Task${event.task.id}"
+        is GameEvent.TaskAddedEvent -> renderTaskEvent(event, "+") + event.agentSuffix()
+        is GameEvent.TaskRemovedEvent ->
+            "${event.ordinal}: -Task${event.task.id}" + event.agentSuffix()
+        is GameEvent.TaskEditedEvent ->
+            renderTaskEvent(event, "+") + " FROM Task${event.task.id}" + event.agentSuffix()
+        is GameEvent.GameplayInputEvent -> event.toString()
         is ChangeEvent ->
             buildString {
               append("${event.ordinal}: ${renderPets(event.change)} BY ${petsName(event.actor)}")
@@ -73,6 +76,7 @@ private constructor(
                   event.cause?.let { " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}" }
                       ?: " (manual)"
               )
+              append(event.agentSuffix())
             }
       }
 

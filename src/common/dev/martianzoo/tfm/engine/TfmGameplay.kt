@@ -82,7 +82,10 @@ public class TfmGameplay(
       gameplay.godMode().continueManual {
         closeUnusedPaymentOffers()
         openPendingProjectCardOffer()
-        buySelectedCards(this@TfmGameplay.count("ProjectCard<Selecting>"))
+        val selected = this@TfmGameplay.count("ProjectCard<Selecting>")
+        buySelectedCards(selected)
+        declineWildTagOffers()
+        removeWildTagUses()
       }
 
   private fun OperationBody.buySelectedCards(count: Int) {
@@ -143,20 +146,30 @@ public class TfmGameplay(
 
   private fun OperationBody.openPendingProjectCardOffer() {
     if (this@TfmGameplay.count("ProjectCard<Selecting>") != 0) return
-    val offer =
+    val offers =
         tasks
             .extract { it }
             .filter { task ->
+              val instruction = task.instruction.toString() + task.then.toString()
               task.assignee == actor &&
-                  task.instruction.descendantsOfType<Change>().any { change ->
-                    change.gaining?.let { gaining ->
-                      gaining.className == cn("ProjectCard") &&
-                          cn("Selecting") in gaining.descendantsOfType<ClassName>()
-                    } == true
-                  }
+                  "ProjectCard" in instruction &&
+                  "Selecting" in instruction &&
+                  !instruction.startsWith("BuyCard")
             }
-            .singleOrNull() ?: return
+    if (offers.isEmpty()) return
+    val directOffers = offers.filter { task ->
+      task.instruction.descendantsOfType<Change>().any { change ->
+        change.gaining?.let { gaining ->
+          gaining.className == cn("ProjectCard") &&
+              cn("Selecting") in gaining.descendantsOfType<ClassName>()
+        } == true
+      }
+    }
+    val offer = directOffers.singleOrNull() ?: offers.single()
     executeTask(offer)
+    if (this@TfmGameplay.count("ProjectCard<Selecting>") == 0) {
+      doTask("ProjectCard<Selecting>")
+    }
   }
 
   private fun OperationBody.closeUnusedPaymentOffers() {

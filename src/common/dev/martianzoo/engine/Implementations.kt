@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent
@@ -27,8 +28,10 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
 
@@ -40,6 +43,7 @@ internal class Implementations(
     private val actor: Actor,
     private val instructor: Instructor,
     private val changer: Changer,
+    private val onAutoExec: (Task, Int, AutoExecMode) -> Unit,
 ) {
   // Auto-exec scans the whole game for compatibility with existing workflows, and Task.selected is
   // a whole-game lock. Keep that global visibility as a queue view rather than exposing TaskQueues
@@ -141,24 +145,50 @@ internal class Implementations(
 
   @Suppress("CyclomaticComplexMethod") // TODO: improve this
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
-    if (mode == NONE || allTasks.isEmpty()) return false
+    if (allTasks.isEmpty()) return false
 
-    val options: List<TaskId> =
-        allTasks.selectedTask()?.let(::listOf) ?: allTasks.ids().filter(::canSelectAnyTask)
+    // A Player's NONE policy leaves fixed Engine workflow eligible for the Engine's FIRST policy,
+    // but Player work remains completely untouched. An explicit NONE on Engine still means NONE.
+    val eligible =
+        if (mode == NONE) {
+          if (actor !is Player) return false
+          allTasks.ids().filter { taskId ->
+            queueForAnyTask(taskId).getTaskData(taskId).assignee == ENGINE
+          }
+        } else {
+          allTasks.ids()
+        }
+    if (eligible.isEmpty()) return false
+
+    val selected = allTasks.selectedTask()
+    if (selected != null && selected !in eligible) return false
+    val effectiveMode = if (mode == NONE) FIRST else mode
+
+    val options: List<TaskId> = selected?.let(::listOf) ?: eligible.filter(::canSelectAnyTask)
 
     when (options.size) {
-      0 -> doAnyTask(allTasks.ids().first()).also { error("that should've completed") }
+      0 -> doAnyTask(eligible.first()).also { error("that should've completed") }
       1 -> {
         val taskId = options.single()
         val queue = queueForAnyTask(taskId)
-        selectTask(queue, queue.getTaskData(taskId)) ?: return true
+        val task = queue.getTaskData(taskId)
+        val taskNumber = queue.ids().indexOf(taskId) + 1
+        val selected = selectTask(queue, task)
+        if (selected == null) {
+          onAutoExec(task, taskNumber, effectiveMode)
+          return true
+        }
+        val selectedTask = queue.getTaskData(selected)
         try {
-          if (trySelectedAnyTask()) return true // if this fails we should fail too
+          if (trySelectedAnyTask()) {
+            onAutoExec(selectedTask, taskNumber, effectiveMode)
+            return true // if this fails we should fail too
+          }
         } catch (e: DeadEndException) {
           throw e.cause ?: e
         }
       }
-      else -> if (mode == SAFE) return false
+      else -> if (effectiveMode == SAFE) return false
     }
 
     // We're in unsafe mode. Arbitrarily try tasks in stable iteration order.
@@ -167,7 +197,12 @@ internal class Implementations(
 
     for (taskId in options) {
       try {
-        timeline.atomic { doAnyTask(taskId) }
+        timeline.atomic {
+          val queue = queueForAnyTask(taskId)
+          val taskNumber = queue.ids().indexOf(taskId) + 1
+          val executed = doAnyTask(taskId)
+          onAutoExec(executed, taskNumber, effectiveMode)
+        }
         return true
       } catch (_: AbstractException) {
         // we're in trouble if ALL of these are NotNowExceptions
@@ -356,13 +391,15 @@ internal class Implementations(
     doTask(tasks, taskId)
   }
 
-  private fun doTask(queue: TaskQueue, taskId: TaskId) {
-    val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
+  private fun doTask(queue: TaskQueue, taskId: TaskId): Task {
+    val original = queue.getTaskData(taskId)
+    val selected = selectTask(queue, original) ?: return original
     val selectedTask = queue.getTaskData(selected)
     if (selectedTask.instruction.isAbstract(reader)) {
       throw abstractInstruction(selectedTask.instruction)
     }
     executeSelectedTask(queue, selected)
+    return selectedTask
   }
 
   private fun executeSelectedTask(queue: TaskQueue, taskId: TaskId) {
@@ -378,9 +415,7 @@ internal class Implementations(
     handleTask(queue, selectedTask)
   }
 
-  private fun doAnyTask(taskId: TaskId) {
-    doTask(queueForAnyTask(taskId), taskId)
-  }
+  private fun doAnyTask(taskId: TaskId): Task = doTask(queueForAnyTask(taskId), taskId)
 
   internal fun doTask(
       narrowing: InstructionTree,

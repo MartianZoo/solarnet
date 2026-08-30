@@ -50,6 +50,7 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
 
   internal fun tasks(arguments: List<String>): TaskResult {
     if (arguments.isEmpty()) throw RoutineException("tasks requires instructions")
+    if (arguments == listOf("Pass")) return tfm().pass()
     if (arguments == listOf("select")) {
       val task =
           game.tasks.extract { it }.filter { it.assignee == gameplay.actor }.singleOrNull()
@@ -72,10 +73,65 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
   // These helpers use an OperationBody receiver because task selection exists only inside the
   // active operation; keeping the receiver preserves one task queue and transaction across stages.
   private fun OperationBody.executeChoices(choices: ArrayDeque<String>) {
-    while (choices.isNotEmpty()) executeChoice(choices.removeFirst())
+    while (choices.isNotEmpty()) {
+      executeChoice(choices.removeFirst())
+      executeSelectedConcreteTasks()
+    }
+  }
+
+  private fun OperationBody.executeSelectedConcreteTasks() {
+    while (true) {
+      val selected =
+          tasks
+              .extract { it }
+              .singleOrNull { task ->
+                task.selected && task.assignee == gameplay.actor
+              } ?: break
+      gameplay.selectTask(selected.id)
+      val stillSelected = tasks.extract { it }.singleOrNull { it.selected }
+      if (stillSelected == selected) return
+    }
+    val tradeBarrierCleanup =
+        tasks
+            .extract { it }
+            .singleOrNull { task ->
+              task.assignee == gameplay.actor &&
+                  task.instruction.toString().removeSuffix("!") == "-TradeBarrier"
+            }
+    if (tradeBarrierCleanup != null) gameplay.selectTask(tradeBarrierCleanup.id)
   }
 
   private fun OperationBody.executeChoice(source: String) {
+    try {
+      executeCurrentChoice(source)
+    } catch (failure: TaskException) {
+      if (selectDirectTaskContaining(source)) return
+      if (!advanceFixedPrefixToward(source)) throw failure
+      executeCurrentChoice(source)
+    } catch (failure: NarrowingException) {
+      if (selectDirectTaskContaining(source)) return
+      if (!advanceFixedPrefixToward(source)) throw failure
+      executeCurrentChoice(source)
+    }
+  }
+
+  private fun OperationBody.selectDirectTaskContaining(source: String): Boolean {
+    val normalized = gameplay.parse<InstructionTree>(source).toString()
+    val names = Regex("[A-Z][A-Za-z0-9_]*").findAll(normalized).map { it.value }.toSet()
+    val task =
+        tasks
+            .extract { it }
+            .filter { candidate ->
+              candidate.assignee == gameplay.actor &&
+                  names.isNotEmpty() &&
+                  names.all { it in candidate.instruction.toString() }
+            }
+            .singleOrNull() ?: return false
+    gameplay.selectTask(task.id)
+    return true
+  }
+
+  private fun OperationBody.executeCurrentChoice(source: String) {
     if (Regex("^[1-9]\\d*\\s+.+$").matches(source)) {
       doTaskLikeRepl(source)
       return
@@ -87,6 +143,34 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
       lowered.forEach { instruction ->
         doTaskLikeRepl(withoutDefaultIntensity(instruction).toString())
       }
+    }
+  }
+
+  /** Opens a fixed task prefix whose authored continuation contains the requested later choice. */
+  private fun OperationBody.advanceFixedPrefixToward(source: String): Boolean {
+    val names = Regex("[A-Z][A-Za-z0-9_]*").findAll(source).map { it.value }.toSet()
+    val prefix =
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.assignee == gameplay.actor &&
+                  task.then?.toString()?.let { continuation ->
+                    names.isNotEmpty() && names.all { it in continuation }
+                  } == true
+            }
+            .singleOrNull() ?: return false
+    gameplay.selectTask(prefix.id)
+    while (true) {
+      val fixed =
+          tasks
+              .extract { it }
+              .filter { task ->
+                task.assignee == gameplay.actor &&
+                    !task.instruction.isAbstract(reader) &&
+                    gameplay.canSelectTask(task.id)
+              }
+      if (fixed.size != 1) return true
+      gameplay.selectTask(fixed.single().id)
     }
   }
 
@@ -134,8 +218,8 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
       }
       doTask("PlayCard<Class<$deck>, Class<$cardName>>")
       settleBilling(choices)
+      requireNoUnusedCosts("playCard", choices)
       finishPlayedCard(cardName)
-      executeChoices(choices)
       if (selectingOffer) doTask("-Selecting")
     }
   }
@@ -219,7 +303,46 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
       prepareVariableBilling(choices)
       settleBilling(choices)
       if (provider == cn("HandleMandates")) advanceMandateScaffolding()
-      executeChoices(choices)
+      consumeLinkedActionCost(choices)
+      requireNoUnusedCosts("useAction", choices)
+    }
+  }
+
+  private fun OperationBody.consumeLinkedActionCost(choices: ArrayDeque<String>) {
+    val source = choices.firstOrNull() ?: return
+    val instruction =
+        runCatching {
+              InstructionGroup.of(gameplay.parse<InstructionTree>(source))
+                  .instructions
+                  .singleOrNull()
+            }
+            .getOrNull()
+            ?.let(::withoutDefaultIntensity) as? Change ?: return
+    if (instruction is Gain) return
+
+    val names = instruction.descendantsOfType<ClassName>().map(ClassName::toString).toSet()
+    val matchingTasks =
+        tasks
+            .extract { it }
+            .filter { task ->
+              task.assignee == gameplay.actor &&
+                  task.then != null &&
+                  (runCatching { instruction.narrows(task.instruction, reader) }
+                      .getOrDefault(false) || names.all { it in task.instruction.toString() })
+            }
+    if (matchingTasks.size != 1) return
+
+    choices.removeFirst()
+    executeChoice(source)
+    executeSelectedConcreteTasks()
+  }
+
+  private fun requireNoUnusedCosts(routine: String, choices: ArrayDeque<String>) {
+    if (choices.isNotEmpty()) {
+      throw RoutineException(
+          "$routine accepts only cost arguments; use tasks(...) for consequences: " +
+              choices.joinToString()
+      )
     }
   }
 
