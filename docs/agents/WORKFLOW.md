@@ -11,13 +11,13 @@
 
 ## Source map
 
-- [`TfmWorkflow.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
+- [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
   — search for `public object TfmWorkflow` and the named phase methods for current behavior.
-- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
   — search for `ABSTRACT CLASS Phase`, `CLASS Generation`, and `CLASS EndPhase` for current domain
   vocabulary.
-- [`TfmWorkflowTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/TfmWorkflowTest.kt)
-  and [`EndgameRulesTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/EndgameRulesTest.kt)
+- [`TfmWorkflowTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TfmWorkflowTest.kt)
+  and [`EndgameRulesTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/EndgameRulesTest.kt)
   — select only scenarios matching the changed phase/end transition.
 
 This project is an architectural replacement, not a prerequisite for current Splice, Icy

@@ -25,11 +25,11 @@
 
 ## Nearby source
 
-- [Turmoil card-pack `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TurmoilCardPack/classes.pets)
-  and [`cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TurmoilCardPack/cards.pets)
+- [Turmoil card-pack `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilCardPack/classes.pets)
+  and [`cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilCardPack/cards.pets)
   contain supported promotional cards, not the proposed Turmoil expansion model. Search for a named
   card before deciding whether it is a useful precedent.
-- [`turmoilCardPackBundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/turmoilCardPackBundle.kt)
+- [`turmoilCardPackBundle.kt`](../../src/common/dev/martianzoo/tfm/canon/turmoilCardPackBundle.kt)
   shows the current card-pack limit; do not mistake it for a Turmoil Module.
 
 Sources:

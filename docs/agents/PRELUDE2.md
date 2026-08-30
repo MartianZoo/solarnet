@@ -9,13 +9,13 @@
 
 ## Source map
 
-- [`prelude2ExpansionBundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/prelude2ExpansionBundle.kt)
+- [`prelude2ExpansionBundle.kt`](../../src/common/dev/martianzoo/tfm/canon/prelude2ExpansionBundle.kt)
   — inspect bundle/module composition and source resources.
-- [Prelude 2 `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/Prelude2Expansion/cards.pets)
+- [Prelude 2 `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/Prelude2Expansion/cards.pets)
   — search for the specific card Class before changing behavior.
-- [`cards-dont-work.json5`](../../tfm-canon/src/commonMain/resources/canon/bundles/Prelude2Expansion/cards-dont-work.json5)
+- [`cards-dont-work.json5`](../../src/common/dev/martianzoo/tfm/canon/Prelude2Expansion/cards-dont-work.json5)
   — inspect only when changing the support scope.
-- [`Prelude2CardsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt)
+- [`Prelude2CardsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt)
   — read for the focused supported behavior, not as card-data authority.
 
 ## Sources and scope

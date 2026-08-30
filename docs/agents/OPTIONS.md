@@ -21,15 +21,15 @@
 
 ## Source map
 
-- [`Catalog.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Catalog.kt) — inspect the
+- [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt) — inspect the
   generic static contract.
-- [`GameConfig.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GameConfig.kt) and
-  [`GamePremise.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GamePremise.kt) — read
+- [`GameConfig.kt`](../../src/common/dev/martianzoo/pets/data/GameConfig.kt) and
+  [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) — read
   only for unresolved intent and resolved premise state.
-- [`Bundle.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/Bundle.kt) and
-  [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
+- [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
+  [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when changing Terraforming Mars composition or resolution.
-- [`PremiseViability.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/PremiseViability.kt)
+- [`PremiseViability.kt`](../../src/common/dev/martianzoo/pets/types/PremiseViability.kt)
   — read only for projection closure and viability.
 
 ## Catalog

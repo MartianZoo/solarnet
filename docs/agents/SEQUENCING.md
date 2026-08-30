@@ -23,17 +23,17 @@
 
 ## Source map
 
-- [`TaskQueue.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueue.kt) and
-  [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) — inspect
+- [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) and
+  [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — inspect
   task pooling, narrowing, and the select-lock.
-- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — inspect
+- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — inspect
   splitting, `THEN`, barriers, and resolved forms.
-- [`Effector.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Effector.kt) — search for
+- [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
   `automatic` when changing immediate reaction ordering.
-- [`AtomicOperationScope.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AtomicOperationScope.kt)
-  and [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — read only
+- [`AtomicOperationScope.kt`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt)
+  and [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — read only
   for commit/rollback atomicity.
-- [`ActionSequencingTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt)
+- [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt)
   — read when changing player-visible action ordering.
 
 ## Mental model: preserve the whole valid decision tree

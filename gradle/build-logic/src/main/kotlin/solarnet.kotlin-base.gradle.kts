@@ -68,8 +68,8 @@ dokka {
     jdkVersion.set(17)
     skipEmptyPackages.set(true)
     sourceLink {
-      localDirectory.set(project.file("src"))
-      remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/${project.name}/src"))
+      localDirectory.set(rootProject.file("src"))
+      remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/src"))
       remoteLineSuffix.set("#L")
     }
   }

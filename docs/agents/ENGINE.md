@@ -24,18 +24,18 @@
 
 ## Source map
 
-- [`World.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/World.kt) and
-  [`WholeWorld.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/WholeWorld.kt) — search
+- [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) and
+  [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — search
   for `public interface World` and `public class WholeWorld` for the read surface and live assembly.
-- [`ComponentGraph.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/ComponentGraph.kt) —
+- [`ComponentGraph.kt`](../../src/common/dev/martianzoo/engine/ComponentGraph.kt) —
   inspect for component multiplicity and indexes.
-- [`TaskQueues.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/TaskQueues.kt) and
-  [`PendingTask.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/PendingTask.kt) — inspect
+- [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) and
+  [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt) — inspect
   only for deferred work and resolution.
-- [`EventLog.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/EventLog.kt) and
-  [`Timeline.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Timeline.kt) — inspect only
+- [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt) and
+  [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
-- [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt) — search for
+- [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt) — search for
   `public interface Gameplay` before changing caller-facing operations.
 
 ## Game construction

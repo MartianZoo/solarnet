@@ -11,16 +11,16 @@
 
 ## Source map
 
-- [`Identities.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Identities.kt) — search
+- [`Identities.kt`](../../src/common/dev/martianzoo/pets/data/Identities.kt) — search
   for `public sealed interface Actor` for the operation identity mechanism.
-- [`Task.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/Task.kt) — inspect `assignee`
+- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) — inspect `assignee`
   and `actor` before changing queued work.
-- [`LiveEffect.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/LiveEffect.kt) — search
+- [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
   for `assignee` to see trigger-time routing.
-- [`EffectActorCharacterizationTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
-  and [`TaskAssignmentCharacterizationTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
+- [`EffectActorCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
+  and [`TaskAssignmentCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
   — read before changing current Actor or assignment semantics.
-- [`BugsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/BugsTest.kt) —
+- [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt) —
   search for `Philares` for the characterized delegation gap.
 
 ## Four identities

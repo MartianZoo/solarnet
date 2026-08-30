@@ -10,11 +10,11 @@
 
 ## Source map
 
-- [`TypeLinking.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/TypeLinking.kt) — search for
+- [`TypeLinking.kt`](../../src/common/dev/martianzoo/pets/TypeLinking.kt) — search for
   `link` and `Region` only after selecting a specific divergence.
-- [`Type.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Type.kt) — inspect structural
+- [`Type.kt`](../../src/common/dev/martianzoo/pets/types/Type.kt) — inspect structural
   substitution and narrowing when the selected defect reaches resolved Types.
-- [`DependencyLinkTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/DependencyLinkTest.kt)
+- [`DependencyLinkTest.kt`](../../test/common/dev/martianzoo/engine/DependencyLinkTest.kt)
   — read before changing effect/task preservation of linked variables.
 
 The runtime already preserves authored variables through effects, actions, task narrowing and

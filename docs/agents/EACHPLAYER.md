@@ -11,13 +11,13 @@
 
 ## Implementation entry points
 
-- [`Instruction.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Instruction.kt) —
+- [`Instruction.kt`](../../src/common/dev/martianzoo/pets/ast/Instruction.kt) —
   inspect the sealed instruction model before choosing syntax shape.
-- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
+- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `resolve` to understand resolution and sibling task production.
-- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
   — search for `SetupPhase` to compare current setup-time per-Player effects.
-- [Venus Next `cards.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/cards.pets)
+- [Venus Next `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/VenusNextExpansion/cards.pets)
   — search for `SponsoredAcademiesWatcher` for a current per-Player watcher example.
 
 ## Goal

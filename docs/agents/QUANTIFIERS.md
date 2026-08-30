@@ -10,14 +10,14 @@
 
 ## Source map
 
-- [`Instruction.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Instruction.kt) — search
+- [`Instruction.kt`](../../src/common/dev/martianzoo/pets/ast/Instruction.kt) — search
   for `enum class Intensity` and the change instruction types.
-- [`Limiter.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Limiter.kt) — inspect for
+- [`Limiter.kt`](../../src/common/dev/martianzoo/engine/Limiter.kt) — inspect for
   concrete limits and invariant headroom.
-- [`Instructor.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt) — search
+- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `Intensity` and `abstract` to see resolution of quantified changes.
-- [`InstructionResolutionTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/InstructionResolutionTest.kt) and
-  [`TaskResolutionTest.kt`](../../engine/src/commonTest/kotlin/dev/martianzoo/engine/TaskResolutionTest.kt)
+- [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt) and
+  [`TaskResolutionTest.kt`](../../test/common/dev/martianzoo/engine/TaskResolutionTest.kt)
   — select scenarios matching the changed resolution phase.
 
 A quantifier controls the count executed by one gain, removal, or transmutation. It does not choose

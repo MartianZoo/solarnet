@@ -19,13 +19,13 @@
 
 ## Test-support entry points
 
-- [`TfmTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
+- [`TfmTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmTest.kt) — inspect
   integrated setup and gameplay scopes.
-- [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
+- [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for the named helper before spelling raw task text.
-- [`CardTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
+- [`CardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
   read for component-focused scenario construction.
-- [`AbstractFullGameTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
+- [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — read only for whole-game chronology.
 
 ## Routine verification
@@ -79,9 +79,11 @@ the policy shared by every Kotlin target: compilation, explicit API mode, depend
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
-Module build scripts keep only module-specific configuration; the JavaScript-only application
-configures its target directly. Repository-wide formatting and Yarn policy remain in the root
-build. Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
+Module build scripts under `modules/` keep only module-specific configuration and select their
+non-overlapping package roots from the repository-wide `src/` and `test/` trees; the JavaScript-only
+application configures its target directly. Repository-wide formatting and Yarn policy remain in
+the root build.
+Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.
 

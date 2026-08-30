@@ -21,25 +21,25 @@
 
 ## Source map
 
-- [`English.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/English.kt) — inspect the
+- [`English.kt`](../../src/jvm/dev/martianzoo/tfm/text/English.kt) — inspect the
   public entry points and card-region assembly.
-- [`EnglishSyntax.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/EnglishSyntax.kt) —
+- [`EnglishSyntax.kt`](../../src/jvm/dev/martianzoo/tfm/text/EnglishSyntax.kt) —
   search for `sealed interface Clause` before changing the intermediate representation.
-- [`Rendering.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/Rendering.kt) and
-  [`RenderedInstructions.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/RenderedInstructions.kt)
+- [`Rendering.kt`](../../src/jvm/dev/martianzoo/tfm/text/Rendering.kt) and
+  [`RenderedInstructions.kt`](../../src/jvm/dev/martianzoo/tfm/text/RenderedInstructions.kt)
   — search for `Unresolved` when changing refusal cases.
-- [`ExpressionResolver.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ExpressionResolver.kt)
+- [`ExpressionResolver.kt`](../../src/jvm/dev/martianzoo/tfm/text/ExpressionResolver.kt)
   — read when ownership defaults or dependency-by-key resolution is involved.
-- [`ComponentDescriber.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/ComponentDescriber.kt)
-  and [`TerraformingMarsDescribers.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
+- [`ComponentDescriber.kt`](../../src/jvm/dev/martianzoo/tfm/text/ComponentDescriber.kt)
+  and [`TerraformingMarsDescribers.kt`](../../src/jvm/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
   — search for `ChangeFrame` and the relevant Class Name before adding lexical facts.
-- Choose one family source: [`renderActions.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderActions.kt),
-  [`renderChange.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderChange.kt),
-  [`renderEffect.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderEffect.kt),
-  [`renderInstructionTree.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderInstructionTree.kt),
-  [`renderMetric.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderMetric.kt), or
-  [`renderRequirement.kt`](../../tfm-text/src/main/kotlin/dev/martianzoo/tfm/text/renderRequirement.kt).
-- [`EnglishCardTextCurrentGenerator.kt`](../../tfm-text/src/test/kotlin/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)
+- Choose one family source: [`renderActions.kt`](../../src/jvm/dev/martianzoo/tfm/text/renderActions.kt),
+  [`renderChange.kt`](../../src/jvm/dev/martianzoo/tfm/text/renderChange.kt),
+  [`renderEffect.kt`](../../src/jvm/dev/martianzoo/tfm/text/renderEffect.kt),
+  [`renderInstructionTree.kt`](../../src/jvm/dev/martianzoo/tfm/text/renderInstructionTree.kt),
+  [`renderMetric.kt`](../../src/jvm/dev/martianzoo/tfm/text/renderMetric.kt), or
+  [`renderRequirement.kt`](../../src/jvm/dev/martianzoo/tfm/text/renderRequirement.kt).
+- [`EnglishCardTextCurrentGenerator.kt`](../../test/jvm/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)
   — search for `refusalRows` when changing corpus review output.
 
 ## Architecture constraints

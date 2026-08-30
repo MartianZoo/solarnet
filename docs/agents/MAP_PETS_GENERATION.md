@@ -9,11 +9,11 @@
 
 ## Source map
 
-- [Tharsis `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TharsisMap/classes.pets)
+- [Tharsis `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/classes.pets)
   — search for `TharsisMap` to see an authored diagram and its generated block.
-- [`MarsMapReader.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/MarsMapReader.kt)
+- [`MarsMapReader.kt`](../../src/common/dev/martianzoo/tfm/canon/MarsMapReader.kt)
   — inspect when changing diagram interpretation.
-- [`regenerateMapAreas.kt`](../../tools/src/main/kotlin/dev/martianzoo/tools/regenerateMapAreas.kt) —
+- [`regenerateMapAreas.kt`](../../src/jvm/dev/martianzoo/tools/regenerateMapAreas.kt) —
   search for `fun main` when changing rewrite formatting or round-trip checks.
 
 Canon map topology and bonus metadata are authored as compact diagrams in comments within each

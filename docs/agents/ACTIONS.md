@@ -12,13 +12,13 @@
 
 ## Source map
 
-- [`Action.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Action.kt) — search for
+- [`Action.kt`](../../src/common/dev/martianzoo/pets/ast/Action.kt) — search for
   `public sealed class Cost` to inspect the parsed cost forms.
-- [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
+- [`PetTransformer.kt`](../../src/common/dev/martianzoo/pets/PetTransformer.kt) —
   search for `transformAction` before changing the lowering stage.
-- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
   — search for `ABSTRACT CLASS Billing` to see the runtime protocol.
-- [`VariableAmountActionsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt)
+- [`VariableAmountActionsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt)
   — read when changing X costs or the identity of several Actions on one component.
 
 ## Meaning and scope

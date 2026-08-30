@@ -45,11 +45,15 @@ plugins.withType<YarnPlugin> {
 // 4-space continuation indent, and trailing commas added but never removed.
 spotless {
   kotlin {
-    target("*/src/**/*.kt")
+    target("src/**/*.kt", "test/**/*.kt")
     ktfmt(libs.versions.ktfmt.get())
   }
   kotlinGradle {
-    target("*.gradle.kts", "*/*.gradle.kts", "gradle/build-logic/src/main/kotlin/*.gradle.kts")
+    target(
+        "*.gradle.kts",
+        "modules/*/*.gradle.kts",
+        "gradle/build-logic/src/main/kotlin/*.gradle.kts",
+    )
     ktfmt(libs.versions.ktfmt.get())
   }
 }
