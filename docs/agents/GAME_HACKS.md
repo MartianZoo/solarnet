@@ -18,7 +18,7 @@ repairs belong in [`TODO.md`](../../TODO.md), not here; payment allocation is do
 
 ### 1. M€ production is stored five above the printed value
 
-[`GrossHack`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets) gives every
+[`GrossHack`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) gives every
 player five M€-production components, then removes five M€ during each production phase. This
 represents the printed -5 floor without negative component counts.
 

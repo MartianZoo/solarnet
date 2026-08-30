@@ -9,14 +9,14 @@
 
 ## Source map
 
-- [`ClassName.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ClassName.kt) — inspect
+- [`ClassName.kt`](../../src/common/dev/martianzoo/pets/ast/ClassName.kt) — inspect
   syntax and canonical identity constraints.
-- [`Vocabulary.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/Vocabulary.kt) — read when
+- [`Vocabulary.kt`](../../src/common/dev/martianzoo/pets/Vocabulary.kt) — read when
   changing display lookup, aliases, or inheritance.
-- [`GamePremise.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/GamePremise.kt) —
+- [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) —
   search for `playerNames` only when changing configured Player display names.
 - Bundle `language/en.json5` files under
-  [`tfm-canon/src/commonMain/resources/canon/bundles`](../../tfm-canon/src/commonMain/resources/canon/bundles)
+  [`src/common/dev/martianzoo/tfm/canon`](../../src/common/dev/martianzoo/tfm/canon)
   own localized printed names; inspect only the bundle containing the renamed Class.
 
 Every class has one engine-facing `ClassName`. Pets, declarations, Kotlin implementations, events,

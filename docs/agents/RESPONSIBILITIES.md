@@ -10,13 +10,13 @@
 
 ## Source map
 
-- [`ScaledExpression.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ScaledExpression.kt)
+- [`ScaledExpression.kt`](../../src/common/dev/martianzoo/pets/ast/ScaledExpression.kt)
   — search for `denominationless` only for the parse-time rejection stage.
-- [`PetTransformer.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/PetTransformer.kt) —
+- [`PetTransformer.kt`](../../src/common/dev/martianzoo/pets/PetTransformer.kt) —
   search for `transformAction` only for the Action/turn division.
-- [`TfmCatalog.kt`](../../tfm-canon/src/commonMain/kotlin/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
+- [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
-- [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
+- [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   inspect only for the script application layer.
 
 The generic runtime is mostly reusable, but a few interfaces still mix Pets/engine mechanics with

@@ -49,7 +49,7 @@ naming:
     active: false
   VariableNaming:
     # Full-game test logs use player abbreviations and map labels as variable names.
-    excludes: ['**/engine/src/test/**']
+    excludes: ['**/test/common/dev/martianzoo/tfm/tests/replays/**']
 
 performance:
   ForEachOnRange:

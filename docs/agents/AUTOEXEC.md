@@ -11,11 +11,11 @@
 
 ## Source map
 
-- [`AutoExecMode.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/AutoExecMode.kt) —
+- [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) —
   inspect the current mode vocabulary before proposing policy objects.
-- [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
+- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
   — search for `autoExec` to find the current engine coupling and queue drain.
-- [`TfmWorkflow.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
+- [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
   — search for `game.isIdle()` when changing the current workflow's queue-drained wakeup.
 
 ## Read only the relevant sections

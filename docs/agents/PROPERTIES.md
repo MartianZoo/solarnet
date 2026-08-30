@@ -22,14 +22,14 @@
 
 ## Source map
 
-- [`Property.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/Property.kt) and
-  [`PropertyValue.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/PropertyValue.kt) —
+- [`Property.kt`](../../src/common/dev/martianzoo/pets/ast/Property.kt) and
+  [`PropertyValue.kt`](../../src/common/dev/martianzoo/pets/ast/PropertyValue.kt) —
   inspect AST forms.
-- [`ClassDeclaration.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/data/ClassDeclaration.kt)
+- [`ClassDeclaration.kt`](../../src/common/dev/martianzoo/pets/data/ClassDeclaration.kt)
   — search for `properties` for stored declarations and defaults.
-- [`Class.kt`](../../pets/src/commonMain/kotlin/dev/martianzoo/pets/types/Class.kt) — search for
+- [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt) — search for
   `private fun resolveProperties` for validation and inheritance behavior.
-- [`PropertyTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PropertyTest.kt)
+- [`PropertyTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/PropertyTest.kt)
   — read when behavior crosses Pets declarations and Terraforming Mars content.
 
 Class properties record immutable facts about a Class. They are not fields on component

@@ -11,15 +11,15 @@
 
 ## Source map
 
-- [Terraforming Mars `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/TerraformingMars/classes.pets)
+- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
   — search separately for `CLASS Pay`, `ABSTRACT CLASS Owed`, and `ABSTRACT CLASS Billing` to inspect
   the current distributed protocol.
-- [Colonies `classes.pets`](../../tfm-canon/src/commonMain/resources/canon/bundles/ColoniesExpansion/classes.pets)
+- [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — search for `Stormcraft` only when evaluating source attribution.
-- [`TfmGameplay.kt`](../../tfm-engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmGameplay.kt)
+- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
   — search for `fun pay` for the current client-side rejection stage.
-- [`PaymentSpecializationTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
-  and [`BugsTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/cards/BugsTest.kt)
+- [`PaymentSpecializationTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
+  and [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt)
   — read before choosing a repair.
 
 ## What must be fixed

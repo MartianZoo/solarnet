@@ -11,13 +11,13 @@
 
 ## Source map
 
-- [`Gameplay.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Gameplay.kt) — search for
+- [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt) — search for
   `public interface Gameplay` to see the current power hierarchy.
-- [`ApiTranslation.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/ApiTranslation.kt) —
+- [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) —
   search for `internal class ApiTranslation` before moving string/value adaptation.
-- [`Implementations.kt`](../../engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt)
+- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
   — search for `internal class Implementations` before changing command lifecycle ownership.
-- [`ScriptSession.kt`](../../script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt) —
+- [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   read only when the change also touches the temporary REPL policy layer.
 
 ## Decision

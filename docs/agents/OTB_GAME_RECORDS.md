@@ -11,11 +11,11 @@
 
 ## Code entry points
 
-- [`AbstractFullGameTest.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
+- [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — inspect shared chronology, checkpoint, and endgame helpers.
-- [`OtbGame20260818Test.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/replays/OtbGame20260818Test.kt)
+- [`OtbGame20260818Test.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260818Test.kt)
   — consult only as a syntax example after independently inventorying the new game's evidence.
-- [`TestHelpers.kt`](../../tfm-tests/src/commonTest/kotlin/dev/martianzoo/tfm/tests/TestHelpers.kt) —
+- [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for `exMachina` only when an evidenced physical error needs direct reconciliation.
 
 This procedure covers live physical games reconstructed from mixed evidence such as an audio
