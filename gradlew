@@ -211,6 +211,7 @@ DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 set -- \
         "-Dorg.gradle.appname=$APP_BASE_NAME" \
         -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
+        --init-script "$APP_HOME/gradle/user-isolation.init.gradle.kts" \
         "$@"
 
 # Stop when "xargs" is not available.

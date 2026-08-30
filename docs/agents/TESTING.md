@@ -62,12 +62,18 @@ tasks with `--rerun-tasks` so cached results are not mistaken for verification.
 Do not run Detekt while compilation or tests are known to be failing. Restore the normal test
 signal first, then review static-analysis findings.
 
-`./gradlew dokkaGenerateHtml` generates the local API site at `docs/api/index.html`.
+`./gradlew dokkaGenerateHtml` generates the local API site under the root project's isolated
+`build/dokka/html` directory.
 
 JVM test tasks use at most four parallel forks. This keeps the dominant engine suite substantially
 faster while bounding the additional CPU and memory demand from concurrent test processes.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
+For local wrapper builds, generated project state is isolated by account and worktree under
+`~/.gradle/solarnet-builds/`. This includes Gradle's project cache, Kotlin's persistent data, task
+outputs, and build-process temporary files. CI retains the conventional project-local paths so its
+artifact collection remains stable. Use `./gradlew` rather than a directly installed `gradle` so
+the checked-in isolation configuration is applied.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.

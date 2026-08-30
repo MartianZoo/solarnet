@@ -57,7 +57,7 @@ spotless {
 dokka {
   moduleName.set("Solarnet")
   dokkaPublications.html {
-    outputDirectory.set(file("docs/api"))
+    outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
     includes.from("docs/packages.md")
   }
 }
