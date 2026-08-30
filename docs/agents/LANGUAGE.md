@@ -70,7 +70,7 @@ These decisions constrain every renderer round, including ordinary coverage work
 | Change lexicon | `ChangeFrame` covers countable, held, scale, positioned, deck, procedure, wrapper, and play constructions. | `ComponentDescriber` still mixes recurring language facts with family-specific facts, and one registry owns every bundle. |
 | English structure | Clauses, predicates, noun phrases, coordination, and modifiers are shared by every main family. | Preassembled strings still occupy structural roles, so some factoring compares wording rather than meaning. |
 | Requirements and metrics | Both produce clauses and reuse resolved expressions in important paths. | Their objects and bounds have not yet proved a shared role-bearing model. |
-| Triggers and effects | Common forms compose through clause structures. | `renderEffect.kt` still contains broad shape recognition, trigger-specific event kinds, and string prefaces. |
+| Triggers and effects | `TriggerFrame` consolidates recurring card-play, tag-play, action-use, purchase, and resource-spending events; common forms compose through clause structures. | `renderEffect.kt` still contains broad effect-shape recognition and string prefaces. Action-use wording remains separate because Classes can inherit it independently of an event frame. |
 | Card operations and layout | Canonical operations render from `CardOperation`; `English` assigns card regions. | Semantic rendering is not yet independent enough to name layout as its own client model. |
 
 ## Prioritized architecture work
@@ -204,9 +204,9 @@ relationships come from the complete loaded Class map. Unsupported valid Pets sh
 bracketed canonical Pets instead of failing or consulting a card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
-It has no canonical component registry or implicit Terraforming Mars description source; it only
-looks up the component Class found in the Pets element being rendered. Map values are sparse
-declarations: `Describers` resolves each requested fact independently through that Class's ancestry.
+That map is a real lexical-data seam, not an alternate structural universe: expression resolution
+intentionally uses the canonical Terraforming Mars Class Table. Map values are sparse declarations;
+`Describers` resolves each requested fact independently through that Class's ancestry.
 `TerraformingMarsDescribers` owns the canonical declarations and supplies an empty describer for
 every undeclared canonical Class, keeping its map complete without copying inherited facts into
 each value.

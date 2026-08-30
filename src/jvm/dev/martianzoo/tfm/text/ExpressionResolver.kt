@@ -15,13 +15,11 @@ import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 /**
  * Resolves authored expressions and answers structural Class questions for the English renderer.
  */
-internal class ExpressionResolver(classes: Set<Class>) {
+internal class ExpressionResolver {
   private val classTable = canonClassUniverse
   internal val classesByName = classTable.allClasses().associateBy(Class::className)
 
-  init {
-    require(classes.all(classTable::isActive))
-  }
+  internal fun isActive(componentClass: Class): Boolean = classTable.isActive(componentClass)
 
   internal fun resolve(expression: Expression): ResolvedExpression? =
       resolve(expression, contextualThisKey = null)

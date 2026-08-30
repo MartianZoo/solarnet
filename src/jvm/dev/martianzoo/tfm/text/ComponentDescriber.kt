@@ -12,16 +12,11 @@ internal data class ComponentDescriber(
     internal val spatialRelation: SpatialRelation? = null,
     internal val productionSelection: String? = null,
     internal val requirement: Requirement? = null,
-    internal val purchase: Purchase? = null,
     internal val score: Score? = null,
     internal val deadEndSignal: Boolean? = null,
-    internal val playTrigger: PlayTrigger? = null,
-    internal val playedCard: PlayedCard? = null,
-    internal val playedTagPhrase: String? = null,
+    internal val triggerFrame: TriggerFrame? = null,
     internal val presenceCondition: String? = null,
-    internal val usedActionTrigger: Boolean? = null,
     internal val actionUse: ActionUse? = null,
-    internal val spentResourceTrigger: Boolean? = null,
     internal val paymentRole: PaymentRole? = null,
     internal val implicitPaymentResource: Noun? = null,
     internal val requirementShortfall: Boolean? = null,
@@ -127,17 +122,26 @@ internal data class ComponentDescriber(
 
   internal data class Score(internal val singular: String, internal val plural: String)
 
-  internal data class Purchase(internal val noun: Noun.Counted)
+  /** The recurring event construction associated with this component Class. */
+  internal sealed interface TriggerFrame {
+    public data class PlayCard(
+        internal val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
+    ) : TriggerFrame
+
+    public data class PlayTag(internal val phrase: String? = null) : TriggerFrame
+
+    public data object UseAction : TriggerFrame
+
+    public data class Purchase(internal val noun: Noun.Counted) : TriggerFrame
+
+    public data object SpendResource : TriggerFrame
+  }
 
   internal data class ActionUse(
       internal val objectPhrase: String,
       internal val refundDiscountPredicate: String? = null,
       internal val refundDiscountNoun: Noun.Counted? = null,
       internal val minimumProperties: Map<String, MinimumProperty.Threshold> = emptyMap(),
-  )
-
-  internal data class PlayedCard(
-      internal val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
   )
 
   internal sealed interface MinimumProperty {
@@ -148,11 +152,6 @@ internal data class ComponentDescriber(
     ) : MinimumProperty
 
     public data class Presence(public val noun: String) : MinimumProperty
-  }
-
-  internal enum class PlayTrigger {
-    CARD,
-    TAG,
   }
 
   internal enum class PaymentRole {

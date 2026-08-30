@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
 internal fun renderEffect(
     effect: Effect,
@@ -151,8 +152,7 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
   val trigger = effect.trigger as? OnGainOf ?: return null
   if (
       !trigger.expression.simple ||
-          describers.fact(trigger.expression.className, ComponentDescriber::playTrigger) !=
-              ComponentDescriber.PlayTrigger.CARD
+          describers.triggerFrame(trigger.expression.className) !is TriggerFrame.PlayCard
   ) {
     return null
   }
@@ -184,8 +184,7 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
 private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): String? {
   val trigger = effect.trigger as? OnGainOf ?: return null
   if (!trigger.expression.simple) return null
-  if (describers.fact(trigger.expression.className, ComponentDescriber::purchase) == null)
-      return null
+  if (describers.triggerFrame(trigger.expression.className) !is TriggerFrame.Purchase) return null
   val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   val change = effect.instruction as? Instruction.Change ?: return null
   val adjustment =
@@ -250,7 +249,7 @@ internal fun acceptedFirstActionPaymentResource(
 
   val expression = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
-  if (describers.fact(expression.className, ComponentDescriber::usedActionTrigger) != true) {
+  if (describers.triggerFrame(expression.className) != TriggerFrame.UseAction) {
     return null
   }
   val actionKey = Key(ClassName.cn("UseAction"), 0)
@@ -268,7 +267,7 @@ internal fun acceptedFirstActionPaymentResource(
 private fun Describers.renderActionPaymentTrigger(trigger: Trigger): Clause.Simple? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
-  if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
+  if (triggerFrame(expression.className) != TriggerFrame.UseAction) return null
   val actionKey = Key(ClassName.cn("UseAction"), 0)
   val resolved = resolveExpression(expression, actionKey) ?: return null
   val action = resolved.sourceDependency(actionKey) ?: return null
@@ -404,7 +403,7 @@ private fun renderAcceptedResourcePayment(
   if (accepted.resource == STEEL || accepted.resource == TITANIUM) return null
   val paymentTrigger = (payment.trigger as? OnGainOf)?.expression ?: return null
   if (paymentTrigger.refinement != null || paymentTrigger.complement) return null
-  if (describers.fact(paymentTrigger.className, ComponentDescriber::spentResourceTrigger) != true) {
+  if (describers.triggerFrame(paymentTrigger.className) != TriggerFrame.SpendResource) {
     return null
   }
   val spent = describers.representedClass(paymentTrigger) ?: return null
@@ -447,7 +446,7 @@ private fun renderAcceptedCardResourcePayment(
     return null
   }
   val paymentTrigger = (payment.trigger as? OnGainOf)?.expression ?: return null
-  if (describers.fact(paymentTrigger.className, ComponentDescriber::spentResourceTrigger) != true) {
+  if (describers.triggerFrame(paymentTrigger.className) != TriggerFrame.SpendResource) {
     return null
   }
   val paymentKey = Key(ClassName.cn("PayFromCard"), 0)
@@ -623,10 +622,7 @@ private fun coordinateSharedSubjectPredicates(clauses: List<Clause.Simple>): Cla
 private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
-  if (
-      fact(expression.className, ComponentDescriber::playTrigger) !=
-          ComponentDescriber.PlayTrigger.TAG
-  ) {
+  if (triggerFrame(expression.className) !is TriggerFrame.PlayTag) {
     return null
   }
   val represented = representedClass(expression) ?: return null
@@ -689,7 +685,7 @@ private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? 
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
-  if (fact(expression.className, ComponentDescriber::spentResourceTrigger) != true) return null
+  if (triggerFrame(expression.className) != TriggerFrame.SpendResource) return null
   val resource = representedClass(expression) ?: return null
   return plainGainCategoryNoun(resource.className, 1)
 }
@@ -726,7 +722,7 @@ private fun Describers.renderActionPaymentDiscountTrigger(
 ): PaymentDiscountTrigger? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
-  if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
+  if (triggerFrame(expression.className) != TriggerFrame.UseAction) return null
   val actionKey = Key(ClassName.cn("UseAction"), 0)
   val resolved = resolveExpression(expression, actionKey) ?: return null
   val action = resolved.sourceDependency(actionKey)?.takeIf { it.simple } ?: return null
@@ -780,8 +776,7 @@ private enum class EventKind(
   CREATE(activeVerb = "create", passiveVerb = "is created"),
   INCREASE_PRODUCTION(activeVerb = "increase", activeModifier = "1 step"),
   RAISE(passiveVerb = "is raised", passiveModifier = "1 step"),
-  ADD_TO_CARD(activeVerb = "add", activeModifier = "to any card"),
-  ADD_TO_THIS_CARD(activeVerb = "add", activeModifier = "to this card"),
+  ADD(activeVerb = "add"),
   ;
 
   fun renderTrigger(
@@ -859,25 +854,29 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     return it
   }
   if (expression.refinement != null) return null
-  when (fact(expression.className, ComponentDescriber::playTrigger)) {
-    ComponentDescriber.PlayTrigger.CARD -> {
-      if (expression.simple) return Event(EventKind.PLAY, EventActor.YOU, "a card")
+  when (val frame = triggerFrame(expression.className)) {
+    is TriggerFrame.PlayCard -> {
+      if (expression.simple) {
+        return Event(EventKind.PLAY, EventActor.YOU, "a card")
+      }
       val represented = representedExpression(expression) ?: return null
       return playedCardEvent(represented)
     }
-    ComponentDescriber.PlayTrigger.TAG -> {
-      val tag = representedClass(expression) ?: return null
-      val name = tagName(tag.className)?.first ?: return null
-      return Event(EventKind.PLAY, EventActor.YOU, "${indefiniteArticle(name)} $name tag")
+    is TriggerFrame.PlayTag -> {
+      if (frame.phrase == null) {
+        val tag = representedClass(expression) ?: return null
+        val name = tagName(tag.className)?.first ?: return null
+        return Event(EventKind.PLAY, EventActor.YOU, "${indefiniteArticle(name)} $name tag")
+      }
     }
-    null -> Unit
+    else -> Unit
   }
   playedTagPhrase(expression.className)?.let {
     val resolved = resolveExpression(expression) ?: return null
     if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) return null
     return Event(EventKind.PLAY, EventActor.YOU, it)
   }
-  if (fact(expression.className, ComponentDescriber::usedActionTrigger) == true) {
+  if (triggerFrame(expression.className) == TriggerFrame.UseAction) {
     val actionKey = Key(ClassName.cn("UseAction"), 0)
     val resolved = resolveExpression(expression, actionKey) ?: return null
     val action = resolved.sourceDependency(actionKey) ?: return null
@@ -892,9 +891,10 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (resolvedCardResource != null && cardResourceHasHolder(resolvedCardResource, thisExpression)) {
     cardResourceNoun(expression.className, 1)?.let {
       return Event(
-          EventKind.ADD_TO_THIS_CARD,
+          EventKind.ADD,
           EventActor.YOU,
           "${indefiniteArticle(it)} $it",
+          listOf(Modifier.Phrase("to this card")),
       )
     }
   }
@@ -912,7 +912,12 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       return Event(EventKind.PLAY, EventActor.YOU, "${indefiniteArticle(name)} $name tag")
     }
     cardResourceNoun(expression.className, 1)?.let {
-      return Event(EventKind.ADD_TO_CARD, EventActor.YOU, "${indefiniteArticle(it)} $it")
+      return Event(
+          EventKind.ADD,
+          EventActor.YOU,
+          "${indefiniteArticle(it)} $it",
+          listOf(Modifier.Phrase("to any card")),
+      )
     }
   }
   if (resolved?.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) == true) {
@@ -1017,7 +1022,7 @@ private fun Describers.renderActionUse(expression: Expression): String? {
 
 private fun Describers.purchaseEvent(expression: Expression): Event? {
   if (!expression.simple) return null
-  val purchase = fact(expression.className, ComponentDescriber::purchase) ?: return null
+  val purchase = triggerFrame(expression.className) as? TriggerFrame.Purchase ?: return null
   val noun = purchase.noun.singular
   return Event(
       EventKind.BUY,
@@ -1036,7 +1041,7 @@ private fun Describers.productionEvent(expression: Expression): Event? {
 }
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
-  val description = fact(expression.className, ComponentDescriber::playedCard) ?: return null
+  val description = triggerFrame(expression.className) as? TriggerFrame.PlayCard ?: return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   val actor =
