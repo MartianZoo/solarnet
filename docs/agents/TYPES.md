@@ -146,10 +146,17 @@ New dependencies follow inherited ones. `Cardbound<CardFront<Player>> : Owned<Pl
 `Owned_0` and adds the card dependency. The repeated `Player` links card and owner through an
 implicit variable described in section 10.
 
-When `This` has explicit arguments, replacement keeps those arguments while substituting the
-concrete context Class. Thus an invariant `HAS MAX 1 This<Player>` inherited by `Birds` constrains
-`Birds<Player>` as a whole, rather than separately constraining `Birds<Player1>`,
-`Birds<Player2>`, and so on. Bare `This` still denotes the fully bound context Type.
+Bare `This` denotes the fully bound context Type, while `Class<This>` denotes only its root Class.
+Current replacement also accepts `This` with explicit arguments: it substitutes the context root
+Class but keeps the authored arguments. Thus `This<Player>` in a `Birds<Owner>` context becomes
+`Birds<Player>`, not `Birds<Owner, Player>`.
+
+The only production use with `This` as the root and explicit arguments is the inherited invariant
+`HAS MAX 1 This<Player>` on `CardFront`; it limits the card Class across owners rather than limiting
+each owner-specialized Type separately. No production Effect or dependency needs general
+`This<...>` substitution. The smallest durable model is therefore an invariant-only self-Type
+pattern, not a general expression feature. Do not extend specialized `This` to other syntax unless a
+second semantic use establishes one coherent rule.
 
 ### Dependency targets must be unique
 
@@ -362,12 +369,20 @@ Repeated unspecified icons in one game rule usually mean one shared choice:
 PROD[StandardResource]: StandardResource
 ```
 
-An eligible authored abstract Expression introduces an implicit variable in a choice-producing
-region. Repeating the same authored Expression in a related region refers to that variable.
-Narrowing one occurrence substitutes the same concrete Type at all occurrence paths.
+An eligible authored abstract Expression in a choice-producing region introduces a Type variable.
+Repeating the same authored Expression in a related region refers to that variable. Narrowing one
+occurrence substitutes the same concrete Type at all occurrence paths.
 
-Variables are inferred from authored syntax before defaults and lowering. They do not add a new kind
-of choice; they link existing choices.
+An `Expression` alone cannot say whether one of its Types is literal, an abstract choice domain, or a
+variable occurrence. That meaning comes from its authoring region and surrounding declaration.
+Variables are therefore identified from authored syntax before defaults and lowering, but belong to
+the typed result of elaboration rather than to the spelling that suggested them. They do not add a
+new kind of choice; they link existing choices.
+
+The current AST preserves inferred source Expressions and occurrence paths as linkage metadata.
+The representation direction is for resolved `Type` values to carry variable identity directly, so
+later specialization does not need to rediscover it from an `Expression` or preserve a textual
+coincidence through rewriting.
 
 Within one atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
 `Foo<Same, Here, To> FROM Foo<Same, Here, From>`. Each unchanged argument belongs to both roles and
@@ -399,12 +414,22 @@ do not also infer variables from smaller repeated subexpressions inside them.
 
 ### Contextual bindings
 
-`This` and `Owner` are supplied by context, not normally inferred from repetition.
+`This` and contextual `Owner` are supplied by context, not inferred from repetition.
 
 - `This` means the effect-bearing exact Type. `Class<This>` means its root Class without
-  dependencies. Self triggers `This:` and `-This:` match only changed copies of that exact Type.
-- `Owner` means the exact context owner when one exists. Otherwise it remains abstract and may
-  participate in normal choice semantics.
+  dependencies. Outside the dedicated self-trigger representation, it has no context-free Type and
+  is eliminated when a class effect becomes a component effect. Self triggers `This:` and `-This:`
+  match only changed copies of that exact Type.
+- `Owner` currently means the exact context owner when one exists. Otherwise the same syntax remains
+  the ordinary abstract `Owner` Type and may participate in choice semantics. This dual role is
+  unsafe: a missed contextual binding becomes a valid broad choice rather than an invalid open
+  variable. The typed form should distinguish a contextual owner variable from an intentionally
+  broad Owner-domain Type and reject the former when context closure cannot bind it.
+
+Context also determines when variables bind. Class/component context specializes variables linked
+to declaration dependencies. Trigger context specializes variables shared by a trigger and its
+instruction from the concrete change that matched, and supplies trigger count. These are typed
+variable bindings, not global replacements of every coincidentally equal Class Name.
 
 ### Regions
 
