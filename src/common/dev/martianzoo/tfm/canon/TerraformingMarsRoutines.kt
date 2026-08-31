@@ -9,6 +9,7 @@ import dev.martianzoo.engine.RoutineException
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
@@ -701,6 +702,12 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
     settlement.cardPayments.forEach(::doTask)
     listOf("Plant", "Energy", "Heat", "Titanium", "Steel", "MC").forEach { currency ->
       val count = settlement.standardPayments[cn(currency)] ?: 0
+      if (currency == "MC") {
+        val owed = gameplay.count("Owed")
+        if (count > owed) {
+          throw LimitsException("Overpaying $count MC when only $owed is owed")
+        }
+      }
       if (count > 0) doTask("$count Pay<Class<$currency>> FROM $currency")
     }
     if (gameplay.count("Owed") == 0) finishBilling(billingCause)
