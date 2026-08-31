@@ -17,7 +17,7 @@
 | Which mechanism should express A-before-B? | Put facts in components; Recoverable dead ends; Choose the weakest mechanism that fits |
 | Must a modifier precede the event it changes? | Model before-trigger effects with a committed precursor |
 | Must reactions complete before the user sees the next choice? | Use automatic effects to preserve player-visible invariants |
-| Does this concern `EACH`, continuations, yield settlement, or atomicity? | Read only the matching proposed or agreed-direction section |
+| Does this concern `EACH`, continuations, controlled completion, or atomicity? | Read only the matching proposed section |
 | Is this a known family, defect, or phase rule? | Settled families through Workflow precedence |
 | How should a new ordering claim be researched? | Audit method |
 
@@ -58,8 +58,9 @@ auto-execution implementation is engine-side, but that selection policy belongs 
 and is intended to move there. Its order must not become an engine guarantee or an authored
 precedence rule.
 
-Tests should prove only real precedence. When freedom matters, also prove that legal siblings may be
-reordered.
+Tests should prove only real precedence. When freedom matters, also prove that representative legal
+sibling orders remain executable. Such a freedom test does not require the orders to produce the
+same state; the choice of order may itself be legitimate gameplay.
 
 ## Ask which kind of ordering the rule needs
 
@@ -68,13 +69,14 @@ Several different concerns are easy to collapse into a vague request for work to
 - **Sequencing:** B cannot precede A. `THEN`, a barrier, or natural unavailability can establish it.
 - **Immediacy:** after A, work cannot be postponed behind a player choice. Automatic `::` expresses
   this.
-- **Yield settlement:** B is created only after a Player's current queue epoch drains. The agreed
-  `Yield<Player>` and `UntilYield<Player>` direction below covers this without admitting an
-  ineligible task early.
+- **Controlled completion:** B becomes available only after the currently controlled turn or
+  delegated choice has completed, including its required settlement. The runtime mechanism remains
+  open; a whole Player queue drain is not automatically the correct unit.
 - **Global completion:** the whole World task pool has drained and remains empty after completion
   work.
-- **Scoped completion:** one delegated operation and its descendants have drained, even if unrelated
-  World work remains. This requires a control scope.
+- **Delegated completion:** a selected parent resumes only after its delegated child has completed,
+  even if unrelated World work remains. This requires the suspended-parent relation proposed in
+  [IDENTITY.md](IDENTITY.md), not a general nested-scope facility.
 - **Game-rule atomicity:** no player interleaving or rule observation may split the conceptual
   operation.
 - **Failure atomicity:** `Timeline.atomic` rolls implementation state back after failure.
@@ -109,24 +111,21 @@ the deliberate exception; engine resolution and execution retain their existing 
 A future priority is immutable task metadata assigned when work is created, not a new capability for
 effects to reach into the task pool.
 
-`UntilYield<Player>` is the narrow lifecycle exception for temporary state that must disappear when
-the owning Player's controlled queue drains. It need not carry future work. Attaching an automatic
-removal effect makes it a continuation; if that effect admits a choice, the choice becomes an
-ordinary new task in the next queue epoch.
-
 Signals such as `PlayCard`, `Trade`, `Accept`, and `Pay` are coherent component events: they state
 what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
 `Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
 
-`Temporary` covers two lifecycle policies. An `UntilYield<Player>` is automatically consumed at the
-owning Player's next yield. Other temporary components represent mandatory unfinished state and must
-keep a task pending or make the operation dead-end. The workflow may proceed only after yield
-settlement leaves neither tasks nor unfinished temporary state.
+Temporary components represent mandatory unfinished state. Each needs an honest completion event:
+debt reaching zero, the end of an action turn, or another rule-specific fact. A generic Player queue
+drain must not consume unrelated temporary state merely because it happens to be pending for the
+same Player. The workflow may proceed only after controlled work and its required settlement leave
+neither tasks nor unfinished temporary state.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
-wait.” `TradeBarrier` is the strongest current example. First investigate whether an honest
-yield-scoped temporary can replace such a pure scheduling semaphore without losing the selected
-identity or required failure behavior.
+wait.” `TradeBarrier` is the strongest current example. By contrast, `Owed` records gameplay
+information—an amount and denomination—that other rules can inspect and change. Do not keep a
+component merely as a stop sign when an existing completion event can express the same rule, but do
+not replace a narrow barrier until the simpler mechanism is demonstrated.
 
 ## Recoverable dead ends are part of the model
 
@@ -209,13 +208,13 @@ entry, all optional trade-track choices before fleet movement, or one delegated 
 next. Prefer a specific gate such as `MAX 0 TradeBarrier` to `MAX 0 Barrier`.
 
 A barrier controls legality, not priority. Other currently legal work remains reorderable. Retain a
-component gate when the component carries real state, as `Owed` and `Required` do. When the only
-fact represented is that later work must wait for the relevant task pool to drain, investigate
-whether yield settlement can create that work after the drain; do not create a graph semaphore just
-to schedule tasks.
+component gate when it records gameplay information, as `Owed` and `Required` do. When its only
+meaning is that later work must wait, compare it with a direct completion event; a narrow barrier
+may still be the cheapest honest mechanism while no such event exists.
 
 Phase topology and Player control-until-drain belong to [WORKFLOW.md](WORKFLOW.md), not generic
-barriers. Global queue drain is only the root-scope case of that broader completion model.
+barriers. Whole-World drain is a workflow completion case, not a generic replacement for local
+completion events.
 
 ## Model before-trigger effects with a committed precursor
 
@@ -250,29 +249,10 @@ Current strong examples are:
 - `Trade<ColonyTile>` precedes `FlownTradeFleet<ColonyTile>`. Trade Envoys and Trading Colony
   subscribe to `Trade`, establish a `TradeBarrier`, and finish their optional track decision before
   the already-selected fleet movement can occur.
-- `PlayCard<Class<CardBack>, Class<CardFront>>` is the broader precursor to moving that selected
-  card into its `CardFront` state. After printed debt and tags exist, generic discounts and
-  next-card effects respond to `Billing<PlayCards>`. The concrete `CardInvoice` retains the card
-  Class only for filters that inspect it; gated card entry is mandatory in every successful play
-  operation.
-- `UseAction<ConvertPlantsSA>` and `UseAction<ConvertHeatSA>` create their standard-resource `Owed`
-  amounts and a qualified `Invoice` barrier. Ecoline reduces the plant debt by one. Once the
-  corresponding `Pay` removes the owner's final matching `Owed`, the invoice removes itself and
-  only that conversion's result responds.
-- Every concrete `StandardProject` declares a plain `1 / cost -> result` Action. Action
-  lowering creates M€ debt from the provider's `cost` property and then one qualified invoice.
-  Sell Patents has cost zero, so its invoice completes without payment before cards are exchanged
-  for M€. Discounts reduce `Owed`;
-  Standard Technology's separate 3 M€ reaction follows invoice settlement, remaining a rebate
-  rather than reducing the debt or helping fund the triggering project.
-- `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose
-  `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
-  the same concrete holder. The holder dependency distinguishes cards that use the same resource
-  class, while each card's reaction to its own signal supplies its printed exchange rate.
-- Stormcraft uses that billing path for action costs. When Local Heat Trapping enters play, its
-  separate optional conversion may share the queue with LHT's immediate instructions; because heat
-  is fungible, resolving the conversion before or after the removal has the same final resource
-  totals.
+
+Card play, standard projects, conversion actions, and card-resource tender use the same precursor
+and invoice principles. Their detailed lifecycle belongs to [ACTIONS.md](ACTIONS.md); do not repeat
+that inventory here.
 Two related families should not be described more strongly than the implementation supports:
 
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
@@ -382,12 +362,18 @@ is expressed directly.
 Trade Envoys and Trading Colony deliberately create a `TradeBarrier` automatically while their
 queued optional production decision later removes it.
 
-Do not rely on registration order between two automatic effects. If one must follow the other, make
-the first event trigger the second. Do not use `::` for a player choice, just to manipulate queue
-admission, or as a substitute for a scope that must wait for transitive descendants to finish.
+No gameplay ordering guarantee may depend on mutable runtime state that rollback does not restore.
+In particular, do not rely on registration order between two automatic effects. If one must follow
+the other, make the first event trigger the second. The current self-effects-before-other-effects
+execution order is likewise an implementation detail, not an authoring guarantee.
+
+Provide a pathological test mode that executes eligible automatic siblings in reverse and in a
+reproducibly randomized order. The ordinary suite should pass in those modes; failures expose an
+unstated order dependency. Do not use `::` for a player choice, just to manipulate queue admission,
+or as a substitute for controlled completion.
 
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
-scope may be wider than its payment transaction.
+reach may be wider than its payment transaction.
 
 ### Put choice-free work at its semantic owner
 
@@ -400,8 +386,8 @@ Place choice-free work according to what it means:
 1. use `::` for a fixed consequence needed to restore a coherent World before Player work;
 2. use an Engine-owned queued task for a deterministic game or workflow event that remains
    meaningfully observable and reorderable only against other equivalent Engine work; or
-3. use scoped completion for cleanup that must wait until all descendants drain, or
-   `UntilYield<Player>` for cleanup owned by the next controlled Player queue drain.
+3. use the exact lifecycle's completion event for cleanup that must wait. If no such event exists,
+   leave the mechanism open rather than attaching cleanup to the Player's whole queue.
 
 Engine ownership asserts that no participant chooses among semantically different outcomes. The
 Engine runner may therefore drain all eligible owned work strongly; if it encounters distinct legal
@@ -412,7 +398,7 @@ Do not make a client Routine mop up these tasks except as a documented temporary
 a replay pass while hiding the misplaced effect, owner, or completion rule that made the chore
 player-visible.
 
-Action-scoped temporary state follows the same rule. Its uniquely implied settlement must complete
+Action-local temporary state follows the same rule. Its uniquely implied settlement must complete
 with the action before workflow offers a second action. Declining that later offer is a separate
 turn decision; it must not double as current-action cleanup.
 
@@ -438,6 +424,12 @@ Pharmacy Union is the current model: each queued Science-tag consequence checks 
 Disease count, allowing one consequence to remove the last Disease before another offers the
 corporation flip.
 
+For one automatic batch, the current engine selects every matching effect and evaluates its
+trigger-side condition against the World before any instruction in that batch executes. It then
+executes the resulting instructions against the evolving World. Preserve the snapshot rule while
+removing execution-order guarantees; an automatic sibling must not rely on another sibling having
+already mutated the World.
+
 ## Exploratory continuation semantics
 
 **Aspirational hypothesis, not an approved language feature.** The action-card marker exposes three
@@ -447,9 +439,9 @@ different needs that should not be collapsed into one vague “automatic `THEN`�
 - a choice frozen from trigger-time state; and
 - completion after every descendant of a delegated operation drains.
 
-These are distinct from an `UntilYield<Player>` with a removal effect below. That pattern resumes
-work only at the next controlled queue drain; it does not provide inline execution, freeze a later
-choice against earlier state, or define a descendant-completion scope.
+These are also distinct from end-of-turn settlement. A turn-completion handoff does not provide
+inline execution, freeze a later choice against earlier state, or resume an individual delegated
+child.
 
 Marking an action card before `UseAction` prevents a second use but makes Viron's own marker visible
 to Viron's target Requirement, producing the awkward
@@ -458,8 +450,9 @@ marker deferrable and can permit another use.
 
 An author-local automatic tail might help with hidden bookkeeping, but it would not by itself solve
 Viron: the queued target is resolved against the later World where the marker already exists. It
-also would not solve Head Start or event cleanup, which require descendant completion. Investigate
-the three semantics separately before adding syntax.
+also would not solve Head Start, whose preferred direction uses an end-of-action workflow handoff,
+or the unresolved EventCard lifetime. Investigate the three semantics separately before adding
+syntax.
 
 ### Existing resolution precedent
 
@@ -504,75 +497,35 @@ already-finished automatic work as a continuation.
 Keep the current choice-free rule for `::` unless this constrained model is selected and proves that
 it removes more permanent machinery than it adds.
 
-## Player yield settlement and yield-scoped temporaries (agreed direction)
+## Controlled completion (unresolved)
 
-**Agreed direction, not implemented.** When a Player's controlled task queue finishes one nonempty
-epoch, Engine emits one owned `Yield<Player>` Signal after the completing atomic operation.
-`Yield` names a settlement pulse, not a stable World state. It is Engine-created and owned, so a
-Player cannot manufacture it and one Player's drain cannot settle another Player's work.
+No general completion mechanism is selected. A Player queue drain can combine unrelated work and
+can delay a local completion event until too much other work has finished, so do not use it as the
+generic mechanism. Queue cardinality has no gameplay meaning.
 
-The only effect that subscribes to `Yield<Player>` is the lifecycle rule declared by
-`UntilYield<Player>`. Enforce that restriction when loading Classes rather than relying on authoring
-convention. Component-specific behavior subscribes to removal instead. Owner-local derived Classes
-can attach such behavior with existing Pets syntax:
+Keep the problems separate:
 
-```pets
-ABSTRACT CLASS UntilYield : Owned<Player>, Temporary {
-  Yield<Player>:: -This!
-}
+- **Payment:** replace parallel optional tender tasks with one required payment-choice task at a
+  time. The task means “pay one currently accepted unit”; its concrete refinements name the legal
+  resource or card-resource tenders. After a payment, create another such task only if matching
+  `Owed` remains. Reaching zero debt removes Billing directly and immediately enables its payoff or
+  card entry. Payment completion does not wait for the rest of the Player's queue.
+- **Head Start:** avoid nested completion frames. Treat its first immediate action as work in the
+  current Prelude turn. After normal end-of-action settlement completes, grant a second ordinary
+  action turn. If authoritative evidence requires the two printed actions to form one indivisible
+  operation, document this simpler timing as a deliberate house rule rather than disguising it as
+  exact fidelity. The engine still needs one precise end-of-action completion hook.
+- **EventCard cleanup:** preserve the live card through its own tags and immediate work, but do not
+  use the owning Player's entire queue as its lifetime. The smallest exact cleanup event remains
+  open.
+- **Trade:** retain `TradeBarrier` until a simpler completion event can keep fleet movement after
+  every optional production decision without losing the selected trade operation.
+- **Workflow return:** use the existing Player-turn control frame as the candidate unit. Required
+  action settlement must finish before the workflow offers a second action or passes control.
 
-This: UntilYield {
-  -This:: WhatHappensNext
-}
-```
-
-Every matching component is therefore consumed exactly once if the settlement commits, whether its
-removal merely cleans up state or continues play. A removal effect must obey the ordinary
-choice-free rule for `::`; it may create a concrete Signal whose queued effects admit new Player
-work. Several yield-scoped temporaries for one Player are unordered siblings and must not depend on
-their registration order.
-
-Settlement repeats to a fixed point:
-
-1. A nonempty-to-empty controlled queue transition emits `Yield<Player>`.
-2. If the pulse consumes one or more yield-scoped temporaries and creates tasks, normal play
-   resumes. The next drain starts another settlement wave.
-3. If it consumes yield-scoped temporaries but creates no tasks, Engine emits another pulse. An
-   `UntilYield` component created during one pulse is eligible only for a later pulse.
-4. A pulse that consumes no yield-scoped temporary lets workflow advance only when no task or
-   unfinished temporary component remains. An unfinished temporary component with no possible task
-   is a dead end, not workflow readiness.
-
-Do not implement this by rewriting whichever task happens to be alone as `THEN Yield`. Queue
-cardinality has no gameplay meaning, can change several times inside one atomic operation, and
-would make task replacement responsible for settlement. Detect the completed epoch outside raw
-task-set mutation and emit only after successful outermost completion.
-
-Queue emptiness must mean controlled work really drained. Under delegated narrowing, the controller
-retains a suspended parent task while another Actor narrows a child; the controller therefore cannot
-become idle early. This is the same control-until-drain requirement described in
-[WORKFLOW.md](WORKFLOW.md) and [IDENTITY.md](IDENTITY.md), not an assumption that assignment and
-control are identical.
-
-Payment is the first proving case. Billing is an `UntilYield<Player>` component while one mandatory
-abstract payment task offers one currently accepted tender unit. A successful payment creates the
-next such task only while matching `Owed` remains. If debt remains but no tender is legal, that task
-stays pending and unselectable, so the operation dead-ends rather than yielding. Once debt is gone,
-no replacement task appears; the next pulse consumes Billing, existing `-Billing` effects remove
-its `Accept` capabilities, and invoice removal
-produces the payoff or card entry. There is no completion sentinel and no parallel task to decline
-for every unused tender kind.
-
-Event cleanup is the second proving case. A live EventCard is an `UntilYield<Player>` component
-whose removal effect moves it to the played-event pile. Solar Probe consequently retains its own
-Science tag through every queued effect of the turn that played it, but not into a possible
-consecutive turn.
-
-Prove exact and partial payment, cost reduced to zero, legal overpayment, unavailable tender,
-card-resource tender, multiple yield-scoped temporaries in one wave, a removal effect that queues
-more work, a removal effect that installs another `UntilYield` component, an unhandled pulse, Solar
-Probe, consecutive turns by one Player, rollback during settlement, and a suspended delegated child
-before migrating workflow wakeup or deleting existing barriers.
+Any future engine-owned completion hook must run inside the enclosing atomic transaction before it
+commits, so failure cannot expose partially settled state. Client autoexecution policy is separate
+and must not define when engine settlement occurs.
 
 ## Atomicity audit hypotheses
 
@@ -637,11 +590,12 @@ this is acceptable only while nothing can observe their relative order.
 ## Known defects or missing rules
 
 - **Event cleanup:** an event must remain live through its immediate effect and tags before moving to
-  the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag; the
-  agreed repair is to make the live EventCard yield-scoped temporary state consumed during the
-  owning Player's next yield settlement.
-- **Head Start:** every descendant of its first granted action must finish before the second begins.
-  Siblings and plain `THEN` are too weak; this requires a completion scope or narrow barrier.
+  the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag. The
+  cleanup event remains open; a whole Player queue drain is too broad.
+- **Head Start:** current sibling tasks let its actions interleave. Prefer using the current Prelude
+  turn for the first action and granting a second ordinary action turn only after normal
+  end-of-action settlement, without nested completion frames. Record that timing as a house rule if
+  authoritative evidence requires a stricter indivisible operation.
 
 ## Open design or rules audits
 
@@ -654,13 +608,14 @@ this is acceptable only while nothing can observe their relative order.
 - **Candidate draw/select/play:** Valley Trust, Merger, and New Partner use hand cards in
   incremental chains, so candidates are neither isolated nor forced to continue. Prefer one
   operation-scoped candidate representation if a fix is selected.
-- **Yield settlement:** implement the payment and EventCard proving cases before generalizing. Keep
-  auditable `Owed` and `Required` facts; do not infer successful payment from queue drain alone.
-- **Trade settlement:** determine whether the same yield protocol can delete `TradeBarrier` without
-  losing the selected ColonyTile or letting colony-track reset be observed
-  before income and colony bonuses finish.
+- **Controlled completion:** identify the exact end-of-action hook needed by workflow, Head Start,
+  second-action offers, and `WildTagUse`. Keep auditable `Owed` and `Required` facts; do not infer
+  successful payment from queue drain.
+- **Trade settlement:** retain `TradeBarrier` until a direct completion event can keep fleet
+  movement after every optional production decision without losing the selected trade operation.
 - **Automatic-effect order:** remove the current runtime dependence on registration order, then
-  prove setup, generation, and phase effects respect the replacement semantic or canonical order.
+  prove setup, generation, and phase effects under normal, reverse, and reproducibly randomized
+  automatic-sibling enumeration.
   `registryOrder` is not rollback-stable: removing the last effect-bearing component drops its
   ordinal, and rollback re-adds it after surviving effects. Failed operations and speculative
   execution can therefore change later gameplay; see the analysis in
@@ -668,19 +623,8 @@ this is acceptable only while nothing can observe their relative order.
 
 ## Workflow precedence
 
-These are domain constraints even where the current workflow approximates them:
-
-1. Starting choices precede corporation/Prelude reveal. Corporations and Preludes resolve in player
-   order; starting cards are paid before Prelude play.
-2. Later generations pass first player and run Research before Action. Production follows only after
-   all players pass.
-3. Existing energy converts before new production; production payouts are simultaneous for game
-   rules unless evidence says otherwise.
-4. Solar checks game end before triggering World Government Terraforming, Colonies, and Turmoil
-   together; their relative order has no game significance.
-5. Colonies fleet return still happens in Generation and should move to the Solar trigger.
-6. Solo victory is tested before final greeneries.
-7. Final greenery fully drains one player before the next; scoring follows all consequences.
+Phase and turn precedence belongs to [WORKFLOW.md](WORKFLOW.md#domain-requirements). This document
+owns only the generic sequencing mechanisms used to express those rules.
 
 ## Audit method
 
@@ -697,10 +641,12 @@ For a new A-before-B claim:
 6. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
 7. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is
    derived from it; do not mistake that local artificial order for broader game precedence.
-8. Otherwise classify the required scope: a local condition calls for a barrier, the entire
-   World task pool calls for whole-World settlement, and one delegated descendant tree calls for a
-   control scope. Do not approximate one with a broader scope simply because it exists today.
+8. Otherwise identify the smallest completion fact: a local condition may call for a barrier, an
+   entire workflow step may call for whole-World completion, and a delegated child calls for a
+   suspended parent. Do not introduce nested completion frames by default.
 9. Use only a committed mechanism; leave the case open when it requires an exploratory completion
    rule.
-10. Add a precedence test and, when relevant, a freedom test.
+10. Add a precedence test and, when relevant, a freedom test that demonstrates alternative legal
+    orders. Do not require those orders to converge unless the game rule itself makes order
+    irrelevant.
 11. Classify the result above and update `TODO.md` if work remains.

@@ -367,8 +367,8 @@ choice-free work at its source in this order:
    returned to a Player;
 2. assign queued deterministic game or workflow work to Engine when it is meaningful work but no
    participant chooses its outcome; or
-3. attach cleanup to the owning completion scope when it must wait for descendants, or to
-   `UntilYield<Player>` when it belongs at the next controlled Player queue drain.
+3. attach cleanup to the exact lifecycle completion event when it must wait. Leave the mechanism
+   open when no such event exists instead of using the Player's whole queue as a generic signal.
 
 A Routine may consume such work only as a temporary last resort. Doing so conceals a misplaced
 effect, owner, or completion rule and must be documented as model debt. In particular, scaffolding

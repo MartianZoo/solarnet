@@ -6,9 +6,9 @@
 > **Skip when:** changing an instruction that is not an `Action`, or changing payment
 > allocation after an invoice has already been created; use [PAYMENTS.md](PAYMENTS.md) for that.
 >
-> **Status:** current model except where the Player-yield payment loop is explicitly marked as an
-> agreed, unimplemented direction. Standard-resource costs use billing; direct and costless Actions
-> retain normal Pets sequencing.
+> **Status:** current model except where the single payment-choice loop is explicitly marked as a
+> proposed direction. Standard-resource costs use billing; direct and costless Actions retain
+> normal Pets sequencing.
 
 ## Source map
 
@@ -65,28 +65,31 @@ Fixed costs lower to two effects: one creates the debt and invoice, and the othe
 invoice's removal. X-scaled costs keep their result as a local continuation gated on absence of the
 invoice, preserving the chosen X without encoding it in invoice multiplicity.
 
-### Agreed Player-yield payment loop
+### Proposed single payment-choice loop
 
-The replacement protocol must create one mandatory abstract payment task at a time, not one task
-per accepted tender kind. Its concrete choices are the currently live `Accept<Resource>` and
-`AcceptFromCard<Holder>` capabilities. Spending one unit creates a common payment Signal after whose
-automatic value effects Billing creates exactly one replacement task if matching `Owed` remains.
+Today each accepted tender kind creates its own optional payment task. Paying with one kind can
+leave the unused tasks behind, so callers must decline or clean them up.
+
+Replace those parallel offers with exactly one required task meaning “pay one accepted unit.” Its
+concrete refinements are the currently legal `Accept<Resource>` and
+`AcceptFromCard<Holder>` choices. Spending one unit creates a common payment Signal. After its
+automatic value effects finish, Billing creates one replacement payment-choice task if matching
+`Owed` remains.
 
 If debt remains but no accepted tender is available, the payment task remains present but cannot be
 selected. The queue therefore cannot drain and the encompassing operation dead-ends. Do not add
 a separate `MAX 0 Owed: Ok` completion task: after successful payment it would compete with stale
 unused-tender tasks and recreate the need to decline or clean them.
 
-Billing is an `UntilYield<Player>`. When no debt remains, no replacement payment task is created.
-The queue drains, Engine emits `Yield<Player>`, and the common lifecycle rule removes Billing.
-Existing `-Billing` effects remove the Accept capabilities; `-Invoice` remains the single
-completion event for the Action result. There is still no separate `Paid` component.
+When no debt remains, no replacement task is created and Billing removes itself directly in
+response to the final matching `Owed` removal. Existing `-Billing` effects remove the Accept
+capabilities; `-Invoice` remains the single completion event for the Action result. There is still
+no separate `Paid` component and payment completion does not wait for unrelated Player work.
 
-Card play uses the same settlement. Remove the pending `MAX 0 Barrier: CardFront FROM CardBack` task;
-`-CardInvoice` instead puts the card into play after yield settlement. The card's normal effects may
-refill the queue, and a yield-scoped live EventCard moves to the played-event pile on the following
-yield. See
-[SEQUENCING.md](SEQUENCING.md#player-yield-settlement-and-yield-scoped-temporaries-agreed-direction).
+Card play uses the same debt-zero completion. Remove the pending
+`MAX 0 Barrier: CardFront FROM CardBack` task; `-CardInvoice` instead puts the card into play as soon
+as its debt is settled. EventCard cleanup is a separate unresolved lifetime problem; see
+[SEQUENCING.md](SEQUENCING.md#controlled-completion-unresolved).
 
 ### Player-input staging
 

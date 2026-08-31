@@ -70,8 +70,12 @@ player's then-current rating. Final greeneries cannot rescue a failed objective.
 
 ### Other required precedence
 
+- Starting choices precede corporation and Prelude reveal. Corporations and Preludes resolve in
+  player order, and starting cards are paid before Prelude play.
 - Later Generation phases pass the first-player marker immediately before Research.
-- Existing energy converts to heat before new production.
+- Production begins only after every Player passes. Existing energy converts to heat before new
+  production, and production payouts are simultaneous for game rules unless evidence says
+  otherwise.
 - Solar checks end before World Government Terraforming, colony production, or Turmoil.
 - Colonies fleet return and track advancement belong in its Solar subphase; the current earlier/later
   approximation remains a known gap.
@@ -83,26 +87,22 @@ A Phase component is legitimate Game World state. Readiness, pending work, and w
 Tasks or execution control; do not mirror them as marker components.
 
 Native workflow needs **control-until-drain**, which neither instruction-side `BY` nor
-whole-world idleness provides. Engine retains a control scope while one Player controls a turn;
+whole-world idleness provides. Engine retains one control frame while a Player controls a turn;
 nested choices may be assigned elsewhere, and a suspended parent keeps the controller's queue from
-becoming empty. Engine resumes only after that scope drains. Its exact representation may be a
-frame or suspension relation. It is separate from an `UntilYield<Player>` return component, which
-stores what resumes afterward but does not track delegated descendants. Current task queues provide
-neither mechanism. See [IDENTITY.md](IDENTITY.md).
+becoming empty. Engine resumes the parent only after the delegated child finishes. Current task
+queues do not provide this suspension relation. See [IDENTITY.md](IDENTITY.md).
 
-The agreed completion handshake is an Engine-created `Yield<Player>` Signal after one controlled
-queue epoch drains. Its sole subscriber is the lifecycle effect on `UntilYield<Player>`. A pulse
-consumes all matching components; their removal effects may settle state, enqueue more work, or
-install yield-scoped state for a later pulse. Engine repeats pulses while the queue remains drained.
-Workflow proceeds only after a pulse consumes no such component and no unfinished temporary state
-remains. This replaces the current coroutine's direct whole-World wakeup; raw queue emptiness is not
-sufficient for phase advancement.
+The workflow completion handshake is reopened. Do not use an entire Player queue epoch as the
+generic cleanup or payment event: it can combine unrelated work and settle local state too late.
+For workflow itself, the existing Player-turn control frame is the promising unit. The frame may
+finish only after its tasks, delegated child, and required end-of-action settlement finish. A
+one-shot continuation may then offer a second action or pass control, but its representation is not
+yet selected.
 
-A local workflow return point is an `UntilYield<Player>` component with a removal effect. For
-example, granting one Action turn also stores the one-shot component that decides whether the same
-Player receives a second Action or control passes onward. The durable Phase remains the source of
-phase topology; the return component carries only the concrete work to resume after this queue
-epoch.
+Head Start should not introduce nested control frames. Prefer treating its first immediate action
+as part of the current Prelude turn, then granting one later ordinary action turn after normal
+end-of-action settlement. If authoritative evidence requires both printed actions to be one
+indivisible operation, record this simpler timing as a deliberate house rule.
 
 ## Minimal proposed model
 
@@ -111,8 +111,7 @@ A generic runtime needs only:
 - one selected workflow entry step;
 - durable workflow-step Classes;
 - span-scoped forward precedence among active steps; and
-- the shared `Yield<Player>` and `UntilYield<Player>` settlement protocol after a controlled
-  queue drains.
+- one still-to-be-designed handoff from a fully settled Player turn to its workflow continuation.
 
 Compile topology from active Catalog data. Precedence endpoints are weak references: a constraint
 participates only when its span and both endpoint Classes are independently active. It must never
@@ -135,14 +134,6 @@ ABSTRACT CLASS Workflow<Class<WorkflowStep>> : System
 
 "One durable state in a native workflow"
 ABSTRACT CLASS WorkflowStep : System
-
-"Engine-owned settlement pulse emitted after one Player's controlled queue drains"
-CLASS Yield : Owned<Player>, Signal, System
-
-"Temporary state removed at its owner's next yield"
-ABSTRACT CLASS UntilYield : Owned<Player>, Temporary {
-  Yield<Player>:: -This!
-}
 
 "One contiguous part of a workflow, including its endpoints"
 ABSTRACT CLASS WorkflowSpan<Class<WorkflowStep>, Class<WorkflowStep>> : System
@@ -179,32 +170,27 @@ These references are intentionally weak. The precedence declarations participate
 and both endpoint Classes were activated independently. The runner compiles them from active
 Catalog data; it does not create precedence components in the World.
 
-After a controlled queue drains, Engine emits `Yield<Player>`. Yield-scoped components are removed
-and their removal effects may reopen work. If a pulse consumes such components but admits no tasks,
-Engine emits another pulse. A pulse that consumes none is unhandled; the runner then follows the
-unique successor in the compiled span, transmutates the old Phase to the next, and waits for the new
-step. No successor means termination; multiple immediate successors are invalid. Dynamic local
-branches create yield-scoped return components before granting control; they do not subscribe
-arbitrary durable state to `Yield`.
-
-The transient signal is intended to avoid a second persistent readiness state while preserving the
-exactly-one-Phase invariant. Unordered component fanout is the separate [`EACH`](EACHPLAYER.md)
-proposal. Player-controlled work still requires the delegation model in
-[IDENTITY.md](IDENTITY.md); fanout alone does not transfer control.
+The runner's turn-completion transition remains to be designed. It must finish end-of-action
+settlement before following a local continuation or the unique successor in the compiled span. No
+successor means termination; multiple immediate successors are invalid. Do not add a persistent
+readiness mirror merely to make the runner pollable. Unordered component fanout is the separate
+[`EACH`](EACHPLAYER.md) proposal, and Player-controlled work still requires the delegation model in
+[IDENTITY.md](IDENTITY.md).
 
 ## Implementation gates
 
-1. Implement and validate the `Yield<Player>`/`UntilYield<Player>` protocol with synthetic cases:
-   delayed emission until outermost completion, task refill, multiple yield-scoped components,
-   removal-effect chaining across pulses, an unhandled pulse, dead-end temporary state, and rollback.
-2. Implement Player control-until-drain with parent/child assignment tests.
-3. Prove a generic runner with a synthetic linear span, one inactive/active insertion, one
-   requirement-selected branch, and termination on an unhandled pulse.
-4. Extract only lifecycle, checkpoint, cancellation, and wakeup mechanics from `TfmWorkflow.Auto`.
-5. Move coarse Terraforming Mars topology and expansion insertions into Catalog/Pets data.
-6. Express Corporation, Prelude, Action, and Final Greenery turns using explicit yield-scoped
-   return components.
-7. Migrate callers, then delete both Kotlin Terraforming Mars workflow variants.
+1. Characterize the current end-of-action obligations, including Billing completion,
+   action-local cleanup, second-action offers, and delegated children.
+2. Implement Player control-until-drain with parent/child assignment tests, using one turn frame and
+   no general nested-frame facility.
+3. Select and validate the smallest turn-completion handoff. It must run required engine settlement
+   before workflow continuation and must not use unrelated Player work as its completion test.
+4. Prove a generic runner with a synthetic linear span, one inactive/active insertion, one
+   requirement-selected branch, and termination when no successor exists.
+5. Extract only lifecycle, checkpoint, cancellation, and wakeup mechanics from `TfmWorkflow.Auto`.
+6. Move coarse Terraforming Mars topology and expansion insertions into Catalog/Pets data.
+7. Express Corporation, Prelude, Action, and Final Greenery turns using the selected turn handoff.
+8. Migrate callers, then delete both Kotlin Terraforming Mars workflow variants.
 
 Preserve current integration tests throughout. A native workflow is not successful merely because
 its happy-path phase list is correct.

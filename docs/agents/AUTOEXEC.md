@@ -44,10 +44,8 @@ This distinction excludes several engine responsibilities:
 
 - A `::` effect executes inline because the authored game rule makes it automatic.
 - A `:` effect creates a task because the authored rule requires later activity by its assignee.
-- The agreed `Yield<Player>` direction emits an Engine-owned settlement Signal after a controlled
-  queue epoch drains; its sole subscriber removes matching `UntilYield<Player>` components, whose
-  removal effects may react, and the workflow advances after an unhandled pulse without a client
-  policy.
+- Required end-of-action settlement and workflow continuation remain Engine semantics once their
+  reopened completion handshake is selected; a client policy must not decide when they occur.
 - Validation and recognition of a proven dead end apply whether a client or policy chose the path.
 - Selecting a particular task causes the engine to resolve it against the current World.
 
@@ -67,7 +65,7 @@ made. If those tasks actually offer semantically distinct participant outcomes, 
 its ownership is wrong; reassign or remodel it instead of treating Engine order as a preference.
 
 Thus `NONE` disables optional policies that act for Players. It does not disable inline `::`
-effects, owned `Yield` settlement, task resolution after an explicit selection, or deterministic
+effects, required Engine settlement, task resolution after an explicit selection, or deterministic
 Engine progress.
 
 ## Resolution is not a policy

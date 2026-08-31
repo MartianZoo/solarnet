@@ -24,20 +24,19 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   legal concrete narrowing exists. Add focused behavioral coverage for multiple selectable tasks,
   multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
   client policy. Use [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
-- **High priority:** Implement Player-yield settlement. Emit Engine-owned `Yield<Player>` after a
-  controlled queue epoch drains; make its sole subscriber remove every matching
-  `UntilYield<Player>` component; allow component-specific removal effects to repopulate the queue;
-  repeat pulses until one removes no such component; then let workflow advance if no unfinished
-  temporary state remains. Replace parallel payment-method tasks with one mandatory abstract
-  accepted-tender choice at a time, keep it pending and unselectable while unpaid without legal
-  tender, make Billing yield-scoped until debt is gone, and let `-CardInvoice` put the card into play.
-  Make live EventCards yield-scoped so their removal moves them to the played-event pile on the
-  following yield, fixing Solar Probe without task priority. Preserve invoice removal as the
-  completion event and delete superseded helper-side payment cleanup. Revisit other internal `::`
-  transitions separately from SAFE. Do not convert printed immediate card effects, triggered
-  resource effects such as Manutech, or authored Action results merely because their ordering seems
-  pointless in the current game.
-- Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion can express
+- **High priority:** Replace parallel payment-method tasks with one required abstract choice meaning
+  “pay one accepted unit.” Recreate that choice only while matching `Owed` remains; leave it pending
+  and unselectable when debt remains without legal tender. Remove Billing directly when debt reaches
+  zero, preserve invoice removal as the completion event, let `-CardInvoice` put the card into play
+  without waiting for unrelated Player work, and delete superseded helper-side payment cleanup.
+- **High priority:** Define end-of-action completion before replacing workflow wakeup. Use one
+  existing Player-turn control frame rather than a general nested-frame facility, and ensure Billing,
+  action-local cleanup, and delegated children settle before a second-action offer or control pass.
+  For Head Start, prefer using the current Prelude turn for its first immediate action and granting
+  one later ordinary action turn after settlement; record that timing as a house rule if exact canon
+  requires one indivisible two-action operation. Keep EventCard cleanup open until an event narrower
+  than the Player's whole queue preserves its tags and immediate work.
+- Give `WildTagUse` automatic action-slot lifecycle cleanup once end-of-action completion can express
   “after its tag choice or decline”; remove the gameplay helper's god-mode cleanup at that point.
 - **High priority:** Extend Distant Pressure Mass's exact located-card follow mode to other
   source-complete full-game replays: track every known project-card deck exit through temporary
@@ -130,9 +129,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
   dependencies. Autoexecution policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **Medium priority:** After the payment and EventCard proving cases, test whether Player-yield
-  settlement can also delete `TradeBarrier` while retaining the selected ColonyTile and keeping
-  fleet movement after every optional production decision.
+- **High priority:** Add test modes that execute eligible automatic-effect siblings in reverse and
+  reproducibly randomized orders. Remove gameplay reliance on `registryOrder` and on the current
+  self-effect-before-other-effect implementation order; no ordering guarantee may depend on mutable
+  runtime state that rollback does not restore.
+- **Medium priority:** Retain `TradeBarrier` until a direct completion event can keep fleet movement
+  after every optional production decision without losing the selected trade operation.
 - **Medium-high priority:** Finish replacing the legacy “linkage” terminology and machinery with the
   Type-variable model, including unifying Class-header Type-variable recognition with ordinary
   scopes: bind whole abstract Expressions, keep sibling argument branches independent, propagate
