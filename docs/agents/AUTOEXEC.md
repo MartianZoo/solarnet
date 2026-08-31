@@ -95,8 +95,9 @@ The engine library should eventually supply `slow`: an exhaustive proof policy t
 analysis as necessary to automate every command it can prove preserves the complete net-effect
 decision tree. Uncertainty means no command.
 
-This requires disposable Worlds or an equivalent analysis facility. The policy must enumerate all
-relevant legal commands, explore their continuations, and compare normalized component/task state
+[GAME_WORLDS.md](GAME_WORLDS.md#later-overlay-game-worlds) owns the disposable World model needed
+for this analysis. The policy must enumerate all relevant legal commands, explore their
+continuations, and compare normalized component/task state
 at a shared semantic comparison point. A successful branch, matching headline resources, or the
 absence of a known counterexample is insufficient. Event ordinals, task ids, and policy credit may
 differ only when no later game rule can observe those differences.

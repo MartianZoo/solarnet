@@ -156,11 +156,14 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
   and give benchmarks explicit harness utilities rather than inheriting the test convenience
   surface.
-- **Medium priority:** Finish disposable Game World forks and overlays: overlay components and
-  live effects, copy the small task queues, extend event history from a captured prefix, and
-  preserve one clear World Revision for Selected Tasks. Once overlays carry speculative changes,
-  reconsider `ComponentGraph` as a custom read-mostly structure whose base changes only when the
-  game moves forward.
+- **High priority:** Replace the live-World-seeking `GameRecording` with the independent Recording
+  and request-scoped Checkpoints specified in
+  [`GAME_WORLDS.md`](docs/agents/GAME_WORLDS.md). Support arbitrary event scrolling and both request
+  replay and complete state-recording files, then extract pure rematerialization and reads into
+  `dev.martianzoo.state` so the replay viewer does not require the engine.
+- **Medium priority, after independent Recordings:** Finish disposable engine overlays using an
+  exact base revision plus an authoritative event suffix, with materialized graph, task, and effect
+  indexes only as caches. Preserve one clear World Revision for Selected Tasks.
 - Do not intern every structurally possible Type without a retention policy; families such as
   `Neighbor` can produce a very large domain. If repeated type algebra remains expensive, first
   measure whether an overlay-scoped or otherwise bounded cache can help without becoming state.

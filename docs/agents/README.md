@@ -20,7 +20,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| World construction, components, events, tasks, effects, rollback, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
+| World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
+| Event identity, recordings, checkpoints, scrolling, rollback, forks, or overlays | [`GAME_WORLDS.md`](GAME_WORLDS.md) | Working rules and proposal |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and audit |
 | Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and future extension |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
