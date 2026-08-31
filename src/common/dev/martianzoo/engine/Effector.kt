@@ -5,13 +5,15 @@ import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.invoke
 
 /** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(
     private val transformers: Transformers,
     readerProvider: () -> GameReader,
 ) {
-  private val reader: GameReader by lazy(readerProvider)
+  private val reader: Lazy<GameReader> = lazy(readerProvider)
+
   private val registry = mutableMapOf<LiveEffect.RegistryKey, HashMultiset<LiveEffect>>()
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
@@ -42,8 +44,8 @@ internal class Effector(
   ): List<PendingTask> {
     val resolvedChange =
         LiveEffect.ResolvedChange(
-            gaining = triggerEvent.change.gaining?.let(reader::resolve),
-            removing = triggerEvent.change.removing?.let(reader::resolve),
+            gaining = triggerEvent.change.gaining?.let(reader()::resolve),
+            removing = triggerEvent.change.removing?.let(reader()::resolve),
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)
     val otherEffects = fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
@@ -67,7 +69,7 @@ internal class Effector(
           .map(Type::toComponent)
           .flatMap { liveEffects(it) }
           .filter { automatic == null || it.automatic == automatic }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader, resolvedChange) }
+          .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader(), resolvedChange) }
 
   private fun fireOtherEffects(
       triggerEvent: ChangeEvent,
@@ -76,7 +78,7 @@ internal class Effector(
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
       candidatesFor(automatic, resolvedChange).mapNotNull { (effect, count) ->
-        effect.onChangeToOther(triggerEvent, controller, reader, resolvedChange)?.times(count)
+        effect.onChangeToOther(triggerEvent, controller, reader(), resolvedChange)?.times(count)
       }
 
   private fun candidatesFor(

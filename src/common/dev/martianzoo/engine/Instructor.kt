@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -40,6 +41,7 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.invoke
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It resolves and executes instructions. */
@@ -61,7 +63,9 @@ internal constructor(
   ) : this(reader, limiter, null, null, classTable)
 
   private val automaticEffectStack = mutableListOf<PendingTask>()
-  private val transformDispatcher by lazy { classTable.transformDispatcher() }
+  private val transformDispatcher: Lazy<PetTransformer> = lazy {
+    classTable.transformDispatcher()
+  }
 
   internal fun execute(
       instruction: Instruction,
@@ -426,9 +430,8 @@ internal constructor(
         throw ExpressionException("custom class instructions can only be pure gains: $change")
       }
       val translated =
-          transformDispatcher.transformInstructionTree(
-              customClasses.translateInstruction(gaining!!, reader)
-          )
+          transformDispatcher()
+              .transformInstructionTree(customClasses.translateInstruction(gaining!!, reader))
       return resolveTree(translated)
     }
 

@@ -52,7 +52,8 @@ public open class TfmCatalog : Catalog, RoutineProvider {
     ClassLoader(this).loadEverything().also(::validateCards)
   }
 
-  private val universe: ClassTable by lazy { classTable }
+  private val universe: ClassTable
+    get() = classTable
 
   private fun validateCards(table: ClassTable) {
     val tagClass = table.findClass(TAG_CLASS) ?: return
@@ -787,7 +788,7 @@ public open class TfmCatalog : Catalog, RoutineProvider {
 
     final override val bundles: List<Bundle> = catalogs.flatMap(TfmCatalog::bundles)
 
-    override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
+    override val displayNamesByLanguage: Map<String, Map<ClassName, String>> = run {
       val combined = mutableMapOf<String, MutableMap<ClassName, String>>()
       catalogs.forEach { catalog ->
         catalog.displayNamesByLanguage.forEach { (language, names) ->
@@ -803,24 +804,19 @@ public open class TfmCatalog : Catalog, RoutineProvider {
       combined
     }
 
-    override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-      catalogs.flatMapTo(linkedSetOf(), Catalog::explicitClassDeclarations)
-    }
+    override val explicitClassDeclarations: Set<ClassDeclaration> =
+        catalogs.flatMapTo(linkedSetOf(), Catalog::explicitClassDeclarations)
 
-    override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-      catalogs.flatMapTo(linkedSetOf(), TfmCatalog::marsMapDefinitions)
-    }
+    override val marsMapDefinitions: Set<MarsMapDefinition> =
+        catalogs.flatMapTo(linkedSetOf(), TfmCatalog::marsMapDefinitions)
 
-    override val customClasses: Set<CustomClass> by lazy {
-      catalogs.flatMapTo(linkedSetOf(), Catalog::customClasses)
-    }
+    override val customClasses: Set<CustomClass> =
+        catalogs.flatMapTo(linkedSetOf(), Catalog::customClasses)
 
-    override val routines: Map<String, Routine> by lazy {
-      buildMap {
-        catalogs.forEach { catalog ->
-          catalog.routines.forEach { (name, routine) ->
-            require(put(name, routine) == null) { "Multiple Routines named $name" }
-          }
+    override val routines: Map<String, Routine> = buildMap {
+      catalogs.forEach { catalog ->
+        catalog.routines.forEach { (name, routine) ->
+          require(put(name, routine) == null) { "Multiple Routines named $name" }
         }
       }
     }

@@ -41,7 +41,8 @@ public class TfmGameplay(
     override val actor: Actor,
     private val agent: Agent = game.agent(actor),
 ) : Agent by agent {
-  public val reader: GameReader by game::reader
+  public val reader: GameReader
+    get() = game.reader
 
   private var explicitPaymentChoicesRequired = false
   private var allowUnderpayment = false

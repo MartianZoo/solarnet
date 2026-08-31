@@ -14,9 +14,7 @@ import dev.martianzoo.pets.types.Type
 public abstract class CustomClass(name: String? = null) : HasClassName {
   public constructor(className: ClassName) : this(className.toString())
 
-  final override val className: ClassName by lazy {
-    cn(name ?: requireNotNull(this::class.simpleName))
-  }
+  final override val className: ClassName = cn(name ?: requireNotNull(this::class.simpleName))
 
   /**
    * Pets classes this implementation may resolve or produce at runtime. Class loading follows these

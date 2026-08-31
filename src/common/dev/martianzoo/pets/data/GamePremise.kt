@@ -18,7 +18,9 @@ public data class GamePremise(
     public val sourceConfig: GameConfig? = null,
 ) {
   /** The immutable active-class projection shared by every World built from this premise. */
-  public val classTable: ClassTable by lazy { ClassTable.forPremise(this) }
+  private val classTableLazy = lazy { ClassTable.forPremise(this) }
+  public val classTable: ClassTable
+    get() = classTableLazy.value
 
   /** Canonical Player1 through Player5 class names for the occupied seats. */
   public val playerClassNames: List<ClassName> =

@@ -17,6 +17,8 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.KeyboardEvent
 
+private const val BENCHMARK_PREFIX = "game-viewer"
+
 public fun main() {
   val gameSelect = document.getElementById("game-select") as HTMLSelectElement
   val status = checkNotNull(document.getElementById("status"))
@@ -50,11 +52,11 @@ public fun main() {
     positionLabel.textContent =
         "Position ${displayedIndex + 1} of ${selectablePositions.size} · event ${checkpoint.ordinal}"
     status.textContent = recordingName
-    updatePlayerTabs(active, selectedPlayerIndex)
-    renderDashboard(active, player)
-    renderCards(active, player)
-    updateLogState(active)
-    if (scrollLog) scrollActiveLogStop()
+    measurePhase("render.player-tabs-update") { updatePlayerTabs(active, selectedPlayerIndex) }
+    measurePhase("render.dashboard") { renderDashboard(active, player) }
+    measurePhase("render.cards") { renderCards(active, player) }
+    measurePhase("render.log-state") { updateLogState(active) }
+    if (scrollLog) measurePhase("render.log-scroll") { scrollActiveLogStop() }
   }
 
   fun showPosition(active: GameRecording, index: Int, scrollLog: Boolean = true) {
@@ -71,24 +73,46 @@ public fun main() {
     window.setTimeout(
         {
           try {
+            clearBenchmarkEntries()
+            mark("load.start")
             mapSubscriptions.forEach(CountSubscription::cancel)
-            val active = selected.create().record()
+            val active =
+                selected
+                    .create()
+                    .record(
+                        onGameConstructed = {
+                          mark("construction.end")
+                          measure("construction", "load.start", "construction.end")
+                        },
+                        onReplayCompleted = {
+                          mark("replay.end")
+                          measure("authored-replay", "construction.end", "replay.end")
+                        },
+                    )
             val logEvents = active.world.visibleLogEvents()
             selectablePositions =
                 selectablePositionIndices(active.positions, logEvents.map(ChangeEvent::ordinal))
-            active.seek(selectablePositions.first())
+            mark("preparation.end")
+            measure("recording-and-log-positions", "replay.end", "preparation.end")
+            measurePhase("initial-seek") { active.seek(selectablePositions.first()) }
             recording = active
             recordingName = selected.name
             selectedPlayerIndex = 0
-            mapSubscriptions = renderMap(active)
-            renderPlayerTabs(active) { index ->
-              selectedPlayerIndex = index
-              updatePosition(active, scrollLog = false)
+            mapSubscriptions = measurePhase("render.map") { renderMap(active) }
+            measurePhase("render.player-tabs") {
+              renderPlayerTabs(active) { index ->
+                selectedPlayerIndex = index
+                updatePosition(active, scrollLog = false)
+              }
             }
-            renderLog(active, logEvents, selectablePositions) { index ->
-              showPosition(active, index)
+            measurePhase("render.log") {
+              renderLog(active, logEvents, selectablePositions) { index ->
+                showPosition(active, index)
+              }
             }
             updatePosition(active, scrollLog = true)
+            mark("load.end")
+            measure("load-total", "load.start", "load.end")
             gameSelect.disabled = false
           } catch (failure: Throwable) {
             recording = null
@@ -118,6 +142,60 @@ public fun main() {
       },
   )
   positionLabel.textContent = "Built ${document.lastModified}"
+}
+
+private fun clearBenchmarkEntries() {
+  val phases =
+      listOf(
+          "construction",
+          "authored-replay",
+          "recording-and-log-positions",
+          "initial-seek",
+          "render.map",
+          "render.player-tabs",
+          "render.log",
+          "render.player-tabs-update",
+          "render.dashboard",
+          "render.cards",
+          "render.log-state",
+          "render.log-scroll",
+          "load-total",
+      )
+  phases.forEach { phase ->
+    window.performance.asDynamic().clearMeasures("$BENCHMARK_PREFIX:$phase")
+  }
+  listOf("load.start", "construction.end", "replay.end", "preparation.end", "load.end").forEach {
+      name ->
+    window.performance.asDynamic().clearMarks("$BENCHMARK_PREFIX:$name")
+  }
+}
+
+private fun mark(name: String) {
+  window.performance.asDynamic().mark("$BENCHMARK_PREFIX:$name")
+}
+
+private fun measure(name: String, start: String, end: String) {
+  window.performance
+      .asDynamic()
+      .measure(
+          "$BENCHMARK_PREFIX:$name",
+          "$BENCHMARK_PREFIX:$start",
+          "$BENCHMARK_PREFIX:$end",
+      )
+}
+
+private inline fun <T> measurePhase(name: String, block: () -> T): T {
+  val start = "$name.start"
+  val end = "$name.end"
+  mark(start)
+  return try {
+    block()
+  } finally {
+    mark(end)
+    measure(name, start, end)
+    window.performance.asDynamic().clearMarks("$BENCHMARK_PREFIX:$start")
+    window.performance.asDynamic().clearMarks("$BENCHMARK_PREFIX:$end")
+  }
 }
 
 private fun renderPlayerTabs(recording: GameRecording, onSelect: (Int) -> Unit) {

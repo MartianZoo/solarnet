@@ -62,9 +62,8 @@ public data class Task(
           )
 
   /** Normalized form of [thenIn]. */
-  val then: InstructionGroup? by lazy {
-    thenIn?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
-  }
+  val then: InstructionGroup? =
+      thenIn?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
 
   init {
     require(instruction.descendantsOfType<Gain>().none { it.gaining == DIE.expression }) {

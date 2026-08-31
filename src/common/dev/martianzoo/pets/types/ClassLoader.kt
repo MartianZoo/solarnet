@@ -101,13 +101,13 @@ private constructor(
         }
   }
 
-  private val frozenClasses: Set<Class> by lazy {
-    require(frozen)
-    loadedClasses.keys.mapTo(linkedSetOf(), masterTable::getClass)
-  }
+  private lateinit var frozenClasses: Set<Class>
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
-  override fun allClasses(): Set<Class> = frozenClasses
+  override fun allClasses(): Set<Class> {
+    require(frozen)
+    return frozenClasses
+  }
 
   // LOADING
 
@@ -407,12 +407,12 @@ private constructor(
 
   private var frozen: Boolean = false
 
-  private var properSubclassesByClass: Map<Class, Set<Class>>? = null
+  private var allSubclassesByClass: Map<Class, Set<Class>>? = null
   private var directSubclassesByClass: Map<Class, Set<Class>>? = null
 
-  internal fun properSubclassesOf(klass: Class): Set<Class> {
+  internal fun allSubclassesOf(klass: Class): Set<Class> {
     require(frozen)
-    return checkNotNull(properSubclassesByClass)[klass] ?: emptySet()
+    return checkNotNull(allSubclassesByClass).getValue(klass)
   }
 
   internal fun directSubclassesOf(klass: Class): Set<Class> {
@@ -423,6 +423,7 @@ private constructor(
   internal fun freeze(): ClassTable {
     require(!frozen)
     if (masterSource != null) {
+      frozenClasses = loadedClasses.keys.mapTo(linkedSetOf(), masterTable::getClass)
       frozen = true
       return this
     }
@@ -450,8 +451,8 @@ private constructor(
             .associate { (index, klass) -> klass to index }
     knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
 
-    properSubclassesByClass = knownProperSubclasses.mapValues { (_, subclasses) ->
-      subclasses.toSet()
+    allSubclassesByClass = knownClasses.associateWith { klass ->
+      knownProperSubclasses[klass].orEmpty() + klass
     }
 
     val directSubclasses = mutableMapOf<Class, MutableSet<Class>>()
@@ -462,14 +463,16 @@ private constructor(
     }
     directSubclassesByClass = directSubclasses.mapValues { (_, subclasses) -> subclasses.toSet() }
 
+    frozenClasses = knownClasses.toSet()
     frozen = true
     return this
   }
 
-  public override val allClassNames: Set<ClassName> by lazy {
-    require(frozen)
-    loadedClasses.keys
-  }
+  public override val allClassNames: Set<ClassName>
+    get() {
+      require(frozen)
+      return loadedClasses.keys
+    }
 
   override fun toString(): String = "loader$id"
 

@@ -18,8 +18,10 @@ internal sealed interface Owner : HasClassName, HasExpression
 
 /** One canonical occupied seat; both an [Actor] and an [Owner]. */
 public class Player private constructor(override val className: ClassName) : Actor, Owner {
-  override val expression: Expression by lazy { className.expression }
-  override val expressionFull: Expression by ::expression
+  override val expression: Expression = className.expression
+
+  override val expressionFull: Expression
+    get() = expression
 
   override fun toString(): String = className.toString()
 
@@ -60,8 +62,10 @@ public class Player private constructor(override val className: ClassName) : Act
 
 private data object EngineActor : Actor {
   override val className = cn("Engine")
-  override val expression by lazy { className.expression }
-  override val expressionFull by ::expression
+  override val expression: Expression = className.expression
+
+  override val expressionFull: Expression
+    get() = expression
 
   override fun toString() = className.toString()
 }

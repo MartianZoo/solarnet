@@ -31,9 +31,11 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
     return true
   }
 
-  override val elements: Set<E> by map::keys
+  override val elements: Set<E>
+    get() = map.keys
 
-  override val entries: Set<Entry<E, Int>> by map::entries
+  override val entries: Set<Entry<E, Int>>
+    get() = map.entries
 
   override fun count(element: E): Int = map[element] ?: 0
 

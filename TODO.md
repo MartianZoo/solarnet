@@ -271,6 +271,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Reduce saved-game replay allocation, starting with repeated `DependencySet` iteration/lookups and
+  abstract `ComponentGraph` count queries; validate changes with `SavedGameReplayBenchmark`.
 - Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.

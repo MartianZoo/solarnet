@@ -14,16 +14,16 @@ import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
 
 private val preludeCustomClasses: Set<CustomClass> = setOf(PreludeExpansion.LowestProduction)
 
-internal val preludeExpansionBundle: StandardFormBundle by lazy {
-  StandardFormBundle(
-      "PreludeExpansion",
-      preludeCustomClasses,
-      mapOf(
-          cn("PreludeExpansion") to emptySet(),
-          cn("Prelude1Deck") to setOf(BundleContentSelection(cn("PreludeExpansion"), setOf(CARDS))),
-      ),
-  )
-}
+internal val preludeExpansionBundle: StandardFormBundle =
+    StandardFormBundle(
+        "PreludeExpansion",
+        preludeCustomClasses,
+        mapOf(
+            cn("PreludeExpansion") to emptySet(),
+            cn("Prelude1Deck") to
+                setOf(BundleContentSelection(cn("PreludeExpansion"), setOf(CARDS))),
+        ),
+    )
 
 /** Namespace for Prelude's custom Pets implementations. */
 private object PreludeExpansion {
