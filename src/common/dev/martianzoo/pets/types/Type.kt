@@ -39,7 +39,7 @@ public data class Type(
   private var cachedHashCode: Int = 0
 
   internal val classTable: ClassTable = rootClass.classTable
-  public val typeDependencies: Set<Dependency.TypeDependency> = dependencies.typeDependencies()
+  public val typeDependencies: List<Dependency.TypeDependency> = dependencies.typeDependencies()
 
   /** The class represented by this `Class<Foo>` type, or null when this is not a class literal. */
   public val representedClass: Class? =

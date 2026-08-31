@@ -10,21 +10,19 @@ import dev.martianzoo.pets.types.Dependency.Companion.isForClassType
 import dev.martianzoo.pets.types.Dependency.ComplementDependency
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
-import dev.martianzoo.pets.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-public class DependencySet private constructor(private val deps: Set<Dependency>) :
+public class DependencySet private constructor(private val deps: List<Dependency>) :
     Specification<DependencySet> {
 
   internal companion object {
-    internal fun of(deps: Set<Dependency>): DependencySet {
-      Dependency.validate(deps)
-      return DependencySet(deps)
+    internal fun of(deps: Iterable<Dependency>): DependencySet {
+      val ordered = if (deps is List<Dependency>) deps else deps.toList()
+      Dependency.validate(ordered)
+      return DependencySet(ordered)
     }
 
-    internal fun of() = of(emptySet())
-
-    internal fun of(deps: Iterable<Dependency>) = of(deps.toSetStrict())
+    internal fun of() = DependencySet(emptyList())
   }
 
   public fun flatten(): Map<DependencyPath, Class> {
@@ -55,14 +53,12 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     return type.dependencies.at(path.drop(1))
   }
 
-  public fun typeDependencies(): Set<TypeDependency> =
-      deps.filterIsInstance<TypeDependency>().toSet()
-
-  private fun complementDependencies(): Set<ComplementDependency> =
-      deps.filterIsInstance<ComplementDependency>().toSet()
+  public fun typeDependencies(): List<TypeDependency> = deps.filterIsInstance<TypeDependency>()
 
   public fun concreteDependencyTargets(): Sequence<Type> =
-      (typeDependencies().asSequence() + complementDependencies().asSequence())
+      deps
+          .asSequence()
+          .filter { it is TypeDependency || it is ComplementDependency }
           .flatMap {
             when (it) {
               is TypeDependency -> it.allConcreteSpecializations()
@@ -72,7 +68,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
           }
           .map { it.boundType }
 
-  public val keys: Set<Key> = deps.toSetStrict { it.key }
+  public val keys: List<Key> = deps.map(Dependency::key)
 
   internal val representedClass: Class? =
       if (isForClassType(deps)) getClassForClassType(deps) else null
@@ -120,8 +116,11 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   public infix fun lub(that: DependencySet): DependencySet {
     requireSameClassTable(that)
-    val keys = keys.intersect(that.keys)
-    return of(keys.map { this.get(it) lub that.get(it) })
+    return of(
+        deps.mapNotNull { dependency ->
+          that.getIfPresent(dependency.key)?.let { dependency lub it }
+        }
+    )
   }
 
   override fun ensureNarrows(that: DependencySet, info: TypeInfo) {
@@ -141,10 +140,14 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
       merger: (Dependency, Dependency) -> Dependency,
   ): DependencySet {
     requireSameClassTable(that)
-    val merged =
-        (this.keys + that.keys).map {
-          setOfNotNull(this.getIfPresent(it), that.getIfPresent(it)).reduce(merger)
-        }
+    val merged = buildList {
+      this@DependencySet.deps.forEach { dependency ->
+        add(that.getIfPresent(dependency.key)?.let { merger(dependency, it) } ?: dependency)
+      }
+      that.deps.forEach { dependency ->
+        if (this@DependencySet.getIfPresent(dependency.key) == null) add(dependency)
+      }
+    }
     return of(merged)
   }
 
@@ -167,11 +170,11 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
       of(keysInOrder.mapNotNull(::getIfPresent))
 
   private inline fun map(function: (Type) -> Type) =
-      DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
+      DependencySet(deps.map { if (it is TypeDependency) it.map(function) else it })
 
   internal inline fun mapWithKey(function: (Key, Type) -> Type) =
       DependencySet(
-          deps.toSetStrict {
+          deps.map {
             if (it is TypeDependency) it.map { type -> function(it.key, type) } else it
           }
       )
@@ -179,7 +182,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   internal fun specialize(specs: List<Expression>): DependencySet {
     // This has been a bit optimized
     val partial = matchPartial(specs)
-    return of(keys.map { partial.getIfPresent(it) ?: get(it) })
+    return of(deps.map { partial.getIfPresent(it.key) ?: it })
   }
 
   internal fun replaceAt(path: DependencyPath, replacement: Dependency): DependencySet {
@@ -220,18 +223,19 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   }
 
   internal fun matchPartialInOrder(args: List<Expression>): List<Dependency> {
-    val alreadyMatchedDeps = mutableSetOf<Dependency>()
+    val alreadyMatched = mutableSetOf<Dependency>()
 
-    fun tryMatch(arg: Expression, dep: Dependency): Dependency? {
-      if (dep in alreadyMatchedDeps) return null
-      val intersection: Dependency = dep.intersect(arg) ?: return null
-      alreadyMatchedDeps += dep
-      return intersection
+    fun matchToDependency(arg: Expression): Dependency {
+      deps.forEach { dependency ->
+        if (dependency !in alreadyMatched) {
+          dependency.intersect(arg)?.let {
+            alreadyMatched += dependency
+            return it
+          }
+        }
+      }
+      throw Exceptions.badExpression(arg, toString())
     }
-
-    fun matchToDependency(arg: Expression): Dependency =
-        deps.firstNotNullOfOrNull { tryMatch(arg, it) }
-            ?: throw Exceptions.badExpression(arg, toString())
 
     return args.map(::matchToDependency)
   }
@@ -343,9 +347,12 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     )
   }
 
-  override fun equals(other: Any?): Boolean = other is DependencySet && deps == other.deps
+  override fun equals(other: Any?): Boolean =
+      other is DependencySet &&
+          deps.size == other.deps.size &&
+          deps.all { dependency -> other.getIfPresent(dependency.key) == dependency }
 
-  override fun hashCode(): Int = deps.hashCode()
+  override fun hashCode(): Int = deps.sumOf(Dependency::hashCode)
 
   override fun toString(): String = "$deps"
 
