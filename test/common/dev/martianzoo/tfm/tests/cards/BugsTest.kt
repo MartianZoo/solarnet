@@ -86,16 +86,6 @@ internal class BugsTest : CardTest() {
     p1.count("MC") shouldBe moneyBefore + 15
   }
 
-  // Solar Probe should count its own science tag and draw one card for all three tags.
-  @Test
-  internal fun `Solar Probe incorrectly draws no card during normal play`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    engine.phase("Action")
-    p1.manual("9 MC, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
-
-    p1.playProject(SolarProbe, 9).expect("-9 MC, -ProjectCard")
-  }
-
   @Test
   internal fun `Stealing zero is incorrectly allowed and prevents Mons Insurance compensation`() {
     newGame(PromoCardPack)

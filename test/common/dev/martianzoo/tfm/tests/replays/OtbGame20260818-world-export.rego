@@ -127,7 +127,7 @@ BECOME Dad
 
 // "I play CEO's Favorite Project... put a floater on Aerial Mappers."
 DO playCard(CeosFavoriteProject, -1 MC)
-DO tasks(Floater<Dad, AerialMappers>, PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject)
+DO tasks(Floater<Dad, AerialMappers>)
 DO endTurn()
 BECOME Ellie
 
@@ -187,7 +187,7 @@ BECOME Dad
 // "I play Imported Hydrogen... five titanium and one money. Put two animals on Pets."
 // "The ocean goes row four, column one... I get a plant and a card."
 DO playCard(ImportedHydrogen, -5 Titanium, -1 MC)
-DO tasks(2 Animal<Dad, Pets>, OceanTile<Utopia_4_1>, ProjectCard, TerraformRating, Plant, ProjectCard, PlayedEvent<Class<ImportedHydrogen>> FROM ImportedHydrogen)
+DO tasks(2 Animal<Dad, Pets>, OceanTile<Utopia_4_1>, ProjectCard, TerraformRating, Plant, ProjectCard)
 DO endTurn()
 BECOME Ellie
 
@@ -272,7 +272,7 @@ BECOME Ellie
 
 // "I pay seven for Flooding... row three, column one."
 DO playCard(Flooding, -7 MC)
-DO tasks(OceanTile<Utopia_3_1>, 2 MC, TerraformRating, 3 Plant, PlayedEvent<Class<Flooding>> FROM Flooding)
+DO tasks(OceanTile<Utopia_3_1>, 2 MC, TerraformRating, 3 Plant)
 
 // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
 // production."
@@ -368,7 +368,7 @@ BECOME Ellie
 // Valley Trust tableau in board-13-46-12.jpg: "Hydrogen to Venus. I spend two titanium and
 // five real... add two to Forced Precipitation."
 DO playCard(HydrogenToVenus, -2 Titanium, -5 MC)
-DO tasks(2 Floater<Ellie, ForcedPrecipitation>, VenusStep, TerraformRating, PlayedEvent<Class<HydrogenToVenus>> FROM HydrogenToVenus)
+DO tasks(2 Floater<Ellie, ForcedPrecipitation>, VenusStep, TerraformRating)
 
 // User clarification: Ellie played Hermetic Order of Mars. Her ledger combines its six-M€
 // gain with the following twelve-M€ Stratospheric Birds payment.
@@ -397,7 +397,7 @@ BECOME Dad
 // "Big Asteroid... all titanium... overspending one... four titanium back, two temperature
 // boops... remove one plant."
 DO playCard(BigAsteroid, -7 Titanium)
-DO tasks(-Plant<Ellie>, TemperatureStep, TerraformRating, TemperatureStep, TerraformRating, PROD[Heat], 4 Titanium, PlayedEvent<Class<BigAsteroid>> FROM BigAsteroid)
+DO tasks(-Plant<Ellie>, TemperatureStep, TerraformRating, TemperatureStep, TerraformRating, PROD[Heat], 4 Titanium)
 DO endTurn()
 BECOME Ellie
 
@@ -492,7 +492,7 @@ BECOME Dad
 
 // "Import some GHG for two titanium, one real money, draw a card, get two heat production."
 DO playCard(ImportOfAdvancedGhg, -2 Titanium, -1 MC)
-DO tasks(ProjectCard, PROD[2 Heat], PlayedEvent<Class<ImportOfAdvancedGhg>> FROM ImportOfAdvancedGhg)
+DO tasks(ProjectCard, PROD[2 Heat])
 
 // "For my second, let's just get this other milestone taken care of. Eight to be the
 // Metallurgist."
@@ -520,7 +520,7 @@ DO tasks(MC FROM ProjectCard<Hand>)
 
 // "Hired Raiders, pay one... I'm going to take three money."
 DO playCard(HiredRaiders, -1 MC)
-DO tasks(3 MC<Dad> FROM MC<Ellie>, PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders)
+DO tasks(3 MC<Dad> FROM MC<Ellie>)
 BECOME Ellie
 
 // "Nitrate Reducing Bacteria. I will reduce the nitrates. Spend three of them to gain a TR."
@@ -604,7 +604,7 @@ BECOME Ellie
 // Ellie: "I pay one for Market Manipulation. Increase the colony track one step."
 // Dad: "So she's increasing Pluto." Ellie: "Yes. Decrease Io."
 DO playCard(MarketManipulation, -1 MC)
-DO tasks(ColonyProduction<Pluto> FROM ColonyProduction<Io>, PlayedEvent<Class<MarketManipulation>> FROM MarketManipulation)
+DO tasks(ColonyProduction<Pluto> FROM ColonyProduction<Io>)
 
 // Ellie: "Then I will spend three energy to trade with Pluto, which now gives me three
 // cards." Dad: "Nice. Three cards free and clear."
@@ -640,7 +640,7 @@ BECOME Ellie
 // Ellie: "Air-Scrapping Expedition for 13. Raise Venus one step, and I get a TR. Add three
 // floaters to a Venus card. That'll be Forced Precipitation."
 DO playCard(AirScrappingExpedition, -13 MC)
-DO tasks(3 Floater<Ellie, ForcedPrecipitation>, VenusStep, TerraformRating, PlayedEvent<Class<AirScrappingExpedition>> FROM AirScrappingExpedition)
+DO tasks(3 Floater<Ellie, ForcedPrecipitation>, VenusStep, TerraformRating)
 DO endTurn()
 BECOME Dad
 DO assignWildTag(EarthTag)
@@ -678,7 +678,7 @@ BECOME Dad
 // the top four cards and I pick two of them. Then, because I played an Earth tag, I draw a
 // card and I get a little aminal on Martian Zoo."
 DO playCard(BusinessContacts, -7 MC)
-DO tasks(ProjectCard, Animal<Dad, MartianZoo>, 2 ProjectCard, PlayedEvent<Class<BusinessContacts>> FROM BusinessContacts)
+DO tasks(ProjectCard, Animal<Dad, MartianZoo>, 2 ProjectCard)
 DO endTurn()
 BECOME Ellie
 DO useAction(1, Psychrophiles)
@@ -690,7 +690,7 @@ BECOME Dad
 // titanium. I will draw the card for the Earth tag. I'll get a TR. I'll get four plants. I
 // don't have a microbe card. And I think I'm going to take two animals on Martian Zoo."
 DO playCard(ImportedNitrogen, -6 Titanium)
-DO tasks(2 Animal<Dad, MartianZoo>, ProjectCard, Animal<Dad, MartianZoo>, TerraformRating, 4 Plant, 3 Microbe, PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen)
+DO tasks(2 Animal<Dad, MartianZoo>, ProjectCard, Animal<Dad, MartianZoo>, TerraformRating, 4 Plant, 3 Microbe)
 DO endTurn()
 
 // I forgot the extra animal from MZ's effect
@@ -797,7 +797,7 @@ BECOME Ellie
 // I've got all six standard resources and microbes, animals, floaters. So pay one money, get
 // one TR."
 DO playCard(DiversitySupport, -1 MC)
-DO tasks(TerraformRating, PlayedEvent<Class<DiversitySupport>> FROM DiversitySupport)
+DO tasks(TerraformRating)
 DO endTurn()
 BECOME Dad
 DO assignWildTag(ScienceTag)
@@ -835,7 +835,7 @@ BECOME Dad
 // Dad: "I'm gonna go ahead and use three real and seven titanium. And I'm going to get four
 // plant production, two TR plus another TR for raising temp to minus 12."
 DO playCard(NitrogenRichAsteroid, -7 Titanium, -3 MC)
-DO tasks(PROD[4 Plant], 2 TerraformRating, TemperatureStep, TerraformRating, PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid)
+DO tasks(PROD[4 Plant], 2 TerraformRating, TemperatureStep, TerraformRating)
 DO endTurn()
 BECOME Ellie
 DO useAction(2, ForcedPrecipitation, -2 Floater<Ellie, ForcedPrecipitation>)
@@ -900,14 +900,14 @@ BECOME Dad
 // going to pay seven real for it. I get one heat production, three heat. I get a silver
 // animal on Martian Zoo. I get a card."
 DO playCard(ImportedGhg, -7 MC)
-DO tasks(ProjectCard, Animal<Dad, MartianZoo>, PROD[Heat], 3 Heat, PlayedEvent<Class<ImportedGhg>> FROM ImportedGhg)
+DO tasks(ProjectCard, Animal<Dad, MartianZoo>, PROD[Heat], 3 Heat)
 DO endTurn()
 BECOME Ellie
 
 // Ellie: "Imported Nutrients. I pay a titanium and 11 real, gain four plants, and add four
 // microbes to Nitrite-Reducing Bacteria." Dad: "Man, you're just churning that thing."
 DO playCard(ImportedNutrients, -Titanium, -11 MC)
-DO tasks(4 Microbe<Ellie, NitriteReducingBacteria>, 4 Plant, PlayedEvent<Class<ImportedNutrients>> FROM ImportedNutrients)
+DO tasks(4 Microbe<Ellie, NitriteReducingBacteria>, 4 Plant)
 DO endTurn()
 BECOME Dad
 DO useAction(1, VenusianInsects)
@@ -1036,7 +1036,7 @@ BECOME Dad
 // draw a card from solar logistics. I place two ocean tiles." "So that gets me two TR and 10
 // money."
 DO playCard(IceAsteroid, -4 Titanium, -3 MC)
-DO tasks(OceanTile<Utopia_7_5>, OceanTile<Utopia_8_6>, ProjectCard, 2 MC, 2 MC, TerraformRating, 2 MC, 2 MC, 2 MC, TerraformRating, PlayedEvent<Class<IceAsteroid>> FROM IceAsteroid)
+DO tasks(OceanTile<Utopia_7_5>, OceanTile<Utopia_8_6>, ProjectCard, 2 MC, 2 MC, TerraformRating, 2 MC, 2 MC, 2 MC, TerraformRating)
 
 // "Yeah, what the hell, let's buy a standard project, shall we?" "Aquifer." "I'm just gonna
 // take two plants by placing on four, five."
@@ -1048,7 +1048,7 @@ BECOME Ellie
 // go right here. That would be row six, column five. Yeah. For six money and two plants."
 // "Actually, any chance I can undo and play conscription first?" "Yeah, sure."
 DO playCard(Conscription, -5 MC)
-DO tasks(Conscription_NextCardEffect, PlayedEvent<Class<Conscription>> FROM Conscription)
+DO tasks(Conscription_NextCardEffect)
 DO playCard(Capital, -10 MC)
 DO tasks(CityTile<Utopia_6_5>, PROD[-2 Energy, 5 MC], 2 MC, 2 MC, 2 MC, 2 Plant, CapitalMarker<CityTile<Utopia_6_5, Ellie>>)
 BECOME Dad
@@ -1241,7 +1241,7 @@ DO tasks(8 MC)
 // "I think I'm going to use Martian Zoo to take eight money and then spend eighteen money on
 // lava flows." "Two cards and four money."
 DO playCard(LavaFlows, -18 MC)
-DO tasks(LavaFlows_SpecialTile<Utopia_8_5>, TemperatureStep, TerraformRating, TemperatureStep, TerraformRating, 2 MC, 2 MC, 2 ProjectCard, PlayedEvent<Class<LavaFlows>> FROM LavaFlows)
+DO tasks(LavaFlows_SpecialTile<Utopia_8_5>, TemperatureStep, TerraformRating, TemperatureStep, TerraformRating, 2 MC, 2 MC, 2 ProjectCard)
 
 // Dad's ledger omitted the two TR from Lava Flows' temperature steps.
 mode red
@@ -1379,7 +1379,7 @@ DO tasks(Mogul)
 
 // "Listen, all of y'all. It's sabotage. So... You lose... Seven money, and that's it."
 DO playCard(Sabotage, -1 MC)
-DO tasks(-7 MC<Ellie>, PlayedEvent<Class<Sabotage>> FROM Sabotage)
+DO tasks(-7 MC<Ellie>)
 BECOME Ellie
 
 // "I'm going to spend thirteen money, no titanus." "Lose two money production." "Place a
@@ -1474,7 +1474,7 @@ BECOME Ellie
 // "I'll use local heat trapping. One money. Spend five heat. And I will add two Venusian
 // animals."
 DO playCard(LocalHeatTrapping, -1 MC)
-DO tasks(2 Animal<Ellie, VenusianAnimals>, -5 Heat, PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping)
+DO tasks(2 Animal<Ellie, VenusianAnimals>, -5 Heat)
 DO endTurn()
 BECOME Dad
 
@@ -1509,7 +1509,7 @@ BECOME Dad
 // "Just to be funny, I'm going to play one for land claim, just so you can go there."
 // The source does not identify the claimed area; Utopia_1_1 is a neutral test inference.
 DO playCard(LandClaim, -1 MC)
-DO tasks(LandClaimMarker<Utopia_1_1>, PlayedEvent<Class<LandClaim>> FROM LandClaim)
+DO tasks(LandClaimMarker<Utopia_1_1>)
 DO endTurn()
 BECOME Ellie
 

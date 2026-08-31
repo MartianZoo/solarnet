@@ -15,7 +15,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.Exceptions.abstractInstruction
 import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
 import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
+import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -85,13 +85,14 @@ internal class Implementations(
       initialInstructions: InstructionGroup,
       autoExec: AutoExecMode,
       body: () -> Unit,
-  ) {
+  ): Set<TaskId> {
     val preexistingTasks = allTasks.ids()
     allTasks.selectedTask()?.let {
       throw TaskException("can't start a manual operation while task $it holds the select-lock")
     }
     addTasks(initialInstructions).forEach(::doInitialTask)
     complete(autoExec, preexistingTasks, body)
+    return preexistingTasks
   }
 
   internal fun beginManual(
@@ -124,6 +125,10 @@ internal class Implementations(
       body: () -> Unit,
   ) {
     continueManual(autoExec, body)
+    requireComplete(allowedPendingTasks)
+  }
+
+  internal fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
     if (pending.isNotEmpty()) {
       if (pending.any { it.whyPending == "abstract" }) {
@@ -131,10 +136,10 @@ internal class Implementations(
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
-    if (!reader.has(parse("MAX 0 $TEMPORARY"))) {
+    if (!reader.has(parse("MAX 0 $MUST_CLEAN_UP"))) {
       throw DeadEndException(
-          "temporary components remained after the operation: " +
-              reader.getComponents("Temporary").elements
+          "components requiring cleanup remained after the operation: " +
+              reader.getComponents("MustCleanUp").elements
       )
     }
   }

@@ -214,11 +214,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1 played Investment Loan
       // Player1's megacredits production decreased by 1
       // Player1's megacredits amount increased by 10
-      playProject(InvestmentLoan, 0) {
-            doTask("PROD[-MC]")
-            doTask("10 MC")
-          }
-          .expect("PROD[-1 MC], 10 MC")
+      playProject(InvestmentLoan, 0) { doTask("PROD[-MC]") }.expect("PROD[-1 MC], 10 MC")
       // Player1 played Deuterium Export
       playProject(DeuteriumExport, 11)
       // Player1 used Deuterium Export action
@@ -281,7 +277,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         declineTask()
         doTask("TemperatureStep")
         doTask("TerraformRating")
-        doTask("2 Titanium")
       }
     }
 
@@ -333,7 +328,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("Heat")
             doTask("3 Heat")
             doTask("3 MC")
-            doTask("3 Heat")
           }
           .expect("7 Heat<Player1>, PlayedEvent<Player1>")
     }
@@ -462,7 +456,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("TerraformRating")
             doTask("ProjectCard")
             doTask("3 MC")
-            doTask("3 Heat")
           }
           .expect("3 Heat, -13 MC")
 
@@ -511,8 +504,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("3 MC")
             doTask("3 Heat")
             doTask("TerraformRating")
-            doTask("PROD[Heat]")
-            doTask("Heat")
           }
           .expect("TemperatureStep, -2 Plant<Player2>")
     }
@@ -832,7 +823,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // You drew Titanium Mine
             doTask("-ProjectCard")
             doTask("ProjectCard")
-            doTask("ProjectCard")
           }
           .expect("1 Card, 1 PlayedEvent") // no hand or table cards
     }
@@ -873,7 +863,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(ProjectInspection, 0) {
             doTask("UseAction<$DevelopmentCenter, First>")
             p1.pay(energy = 1)
-            doTask("ProjectCard")
           }
           .expect("PlayedEvent, Card, -Energy")
     }
@@ -1153,7 +1142,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("Plant<Player2>")
         doTask("2 Plant<Player2>")
         repeat(4) { doTask("TerraformRating") }
-        repeat(3) { doTask("2 MC") }
+        repeat(2) { doTask("2 MC") }
       }
       // Player2 used AI Central action
       // Player2 drew 2 card(s)
@@ -1239,10 +1228,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player2 played Harvest
       // Player2's mc amount increased by 12
       // Player2 added 1 animal(s) to Ecological Zone
-      playProject(Harvest, 2) {
-            doTask("Animal<$EcologicalZone>")
-            doTask("12 MC")
-          }
+      playProject(Harvest, 2) { doTask("Animal<$EcologicalZone>") }
           .expect("10 MC, Animal, PlayedEvent")
     }
 
@@ -1313,7 +1299,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("VenusStep")
         doTask("TerraformRating")
         doTask("3 MC")
-        doTask("3 Heat")
       }
     }
 
@@ -1496,7 +1481,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("TemperatureStep")
             doTask("3 MC")
             doTask("3 Heat")
-            doTask("4 Plant")
           }
           .expect("3 Heat")
       // Player1 used Convert Plants standard action
@@ -1625,7 +1609,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("TerraformRating")
         doTask("4 Plant")
         doTask("3 MC")
-        doTask("3 Heat")
       }
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
@@ -1666,7 +1649,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("TerraformRating")
         doTask("2 Steel")
         doTask("3 MC")
-        doTask("TemperatureStep")
       }
     }
     // Player1 used Power Infrastructure action
@@ -1775,7 +1757,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("3 MC")
             doTask("2 MC")
             doTask("Plant")
-            doTask("2 Plant")
           }
           .expect("5 Plant")
     }
@@ -1820,7 +1801,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("Ok")
             doTask("2 ProjectCard")
             doTask("3 MC")
-            doTask("3 Heat")
           }
           .expect("ProjectCard, 3 Heat, 4 Animal")
       // Player1 played Water Splitting Plant

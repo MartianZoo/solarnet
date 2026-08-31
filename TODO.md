@@ -31,19 +31,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   explore every relevant legal command and compare normalized component/task continuations. It may
   spare no analysis cost, but `UNKNOWN` must stop it; do not substitute a heuristic for the promised
   proof.
-- **High priority:** Implement Player-yield settlement. Emit Engine-owned `Yield<Player>` after a
-  controlled queue epoch drains; make its sole subscriber remove every matching
-  `UntilYield<Player>` component; allow component-specific removal effects to repopulate the queue;
-  repeat pulses until one removes no such component; then let workflow advance if no unfinished
-  temporary state remains. Replace parallel payment-method tasks with one mandatory abstract
-  accepted-tender choice at a time, keep it pending and unselectable while unpaid without legal
-  tender, make Billing yield-scoped until debt is gone, and let `-CardInvoice` put the card into play.
-  Make live EventCards yield-scoped so their removal moves them to the played-event pile on the
-  following yield, fixing Solar Probe without task priority. Preserve invoice removal as the
-  completion event and delete superseded helper-side payment cleanup. Revisit other internal `::`
-  transitions separately from SAFE. Do not convert printed immediate card effects, triggered
-  resource effects such as Manutech, or authored Action results merely because their ordering seems
-  pointless in the current game.
+- **High priority:** Try `Temporary` on `TradeBarrier`. It is suitable only if global queue
+  emptiness is the real end of the selected trade operation and its removal still leaves fleet
+  movement after every optional production decision. Then examine payment independently: replace
+  parallel payment-method tasks with one mandatory abstract accepted-tender choice at a time, keep
+  it pending and unselectable while unpaid without legal tender, and preserve invoice removal as
+  the direct completion event. Keep whole-World idle cleanup separate from action-local completion
+  and from cleanup of pending tasks such as `WildTagUse`.
 - **High priority:** Define end-of-action completion before replacing workflow wakeup. Use one
   existing Player-turn control frame rather than a general nested-frame facility, and ensure Billing,
   action-local cleanup, and delegated children settle before a second-action offer or control pass.
@@ -145,9 +139,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and reproducibly randomized enumeration to expose hidden ordering dependencies. Autoexecution
   policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **Medium priority:** After the payment and EventCard proving cases, test whether Player-yield
-  settlement can also delete `TradeBarrier` while retaining the selected ColonyTile and keeping
-  fleet movement after every optional production decision.
 - **Medium-high priority:** Finish refined Type-variable capture as specified in
   `docs/agents/TYPES.md` section 10: evaluate a refined declaration once when its Ground Type is
   captured, then ensure later uses cannot rerun that Requirement.

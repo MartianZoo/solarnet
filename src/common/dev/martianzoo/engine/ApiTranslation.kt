@@ -126,9 +126,16 @@ internal class ApiTranslation(
   // OPERATIONS
 
   override fun manual(initialInstructions: String, body: BodyLambda): TaskResult {
-    return atomic {
-      impl.manual(parseInstructionGroup(initialInstructions), autoExecMode) { Adapter().body() }
-    }
+    var allowedPendingTasks = emptySet<TaskId>()
+    return atomic(
+        block = {
+          allowedPendingTasks =
+              impl.manual(parseInstructionGroup(initialInstructions), autoExecMode) {
+                Adapter().body()
+              }
+        },
+        afterIdleCleanup = { impl.requireComplete(allowedPendingTasks) },
+    )
   }
 
   override fun beginManual(initialInstructions: String, body: BodyLambda): TaskResult {
@@ -144,7 +151,10 @@ internal class ApiTranslation(
   }
 
   override fun finish(body: BodyLambda): TaskResult {
-    return atomic { impl.complete(autoExecMode) { Adapter().body() } }
+    return atomic(
+        block = { impl.complete(autoExecMode) { Adapter().body() } },
+        afterIdleCleanup = { impl.requireComplete() },
+    )
   }
 
   private inner class Adapter : OperationBody {
@@ -232,8 +242,15 @@ internal class ApiTranslation(
 
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
-  private fun atomic(block: () -> Unit): TaskResult =
-      atomicOperationScope.run(block) { impl.autoExecNow(autoExecMode) }
+  private fun atomic(
+      afterIdleCleanup: () -> Unit = {},
+      block: () -> Unit,
+  ): TaskResult =
+      atomicOperationScope.run(
+          block = block,
+          afterIdleCleanup = afterIdleCleanup,
+          beforeOutermostCompletion = { impl.autoExecNow(autoExecMode) },
+      )
 
   private fun recordPlayerInput(
       kind: Kind,

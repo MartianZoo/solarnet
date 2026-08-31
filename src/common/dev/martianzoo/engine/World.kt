@@ -48,7 +48,8 @@ public interface World {
   public val vocabulary: Vocabulary
 
   /** Whether no task or temporary component remains from an unfinished operation. */
-  public fun isIdle(): Boolean = tasks.isEmpty() && reader.has(parse("MAX 0 Temporary"))
+  public fun isIdle(): Boolean =
+      tasks.isEmpty() && reader.has(parse("MAX 0 MustCleanUp, MAX 0 Temporary"))
 
   /** Exports this idle world as a versioned, workflow-driven REgo replay. */
   public fun export(): String

@@ -651,8 +651,6 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       intentionalUnderpay()
       playProject(SolarProbe, 7) {
             draw(Algae, CloudTourism, SpinInducingAsteroid)
-            // The engine does not count Solar Probe's own science tag, so restore the third draw.
-            keen.exMachina("ProjectCard")
             doTask("-ProjectCard")
             discard(SpinInducingAsteroid)
             draw(Trees)

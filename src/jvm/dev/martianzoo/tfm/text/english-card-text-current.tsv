@@ -442,7 +442,7 @@ ProjectInspection	Project Inspection	[UseAction<ActionCard(HAS ActionUsedMarker)
 EnergyMarket	Energy Market		Action: Spend 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
 HiTechLab	Hi-Tech Lab	1 VP.	Action: Spend one or more energy to look at X project cards. Draw one of them.
 InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step for each different tag you have. 1 VP.
-LawSuit	Law Suit	Steal 3 M€ from that player, or as much as possible, then [(MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): CARDS[CardBack<Player<>, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>]]. -1 VP.
+LawSuit	Law Suit	Steal 3 M€ from that player, or as much as possible, then [(MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): PlayedEvent<Player<>, Class<This>> FROM This.]. -1 VP.
 MercurianAlloys	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you spend is worth 1 M€ extra.
 OrbitalCleanup	Orbital Cleanup	Decrease your M€ production 2 steps. 2 VPs.	Action: Gain 1 M€ for each science tag you have.
 RegoPlastics	Rego Plastics	1 VP.	Effect: Each steel you spend is worth 1 M€ extra.
