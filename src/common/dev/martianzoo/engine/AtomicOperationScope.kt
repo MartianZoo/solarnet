@@ -7,6 +7,7 @@ internal class AtomicOperationScope(
     private val timeline: Timeline,
     private val onComplete: () -> Unit,
     private val recordingPositions: RecordingPositions,
+    private val removeTemporaryComponents: () -> Boolean,
 ) {
   private var depth: Int = 0
   private var outermostStartOrdinal: Int? = null
@@ -14,7 +15,11 @@ internal class AtomicOperationScope(
   internal val currentOperationStartOrdinal: Int
     get() = checkNotNull(outermostStartOrdinal)
 
-  internal fun run(block: () -> Unit, beforeOutermostCompletion: () -> Unit): TaskResult {
+  internal fun run(
+      block: () -> Unit,
+      afterIdleCleanup: () -> Unit = {},
+      beforeOutermostCompletion: () -> Unit,
+  ): TaskResult {
     val outermost = depth == 0
     if (outermost) outermostStartOrdinal = timeline.checkpoint().ordinal
     depth++
@@ -22,7 +27,12 @@ internal class AtomicOperationScope(
       timeline
           .atomic {
             block()
-            if (depth == 1) beforeOutermostCompletion()
+            if (depth == 1) {
+              do {
+                beforeOutermostCompletion()
+              } while (removeTemporaryComponents())
+              afterIdleCleanup()
+            }
           }
           .also {
             if (depth == 1) {

@@ -265,8 +265,8 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   Once every other player has passed, keep the remaining player's actions through `pass()` in one
   turn block; workflow-provided `NewTurn` tasks let that block continue across the remaining nominal
   turns.
-- When an Event card's sibling tasks require explicit replay ordering, resolve its immediate work
-  first and leave `PlayedEvent FROM EventCard` last; under SAFE it should be the automatic tail.
+- When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
+  consequences. The engine moves the card to `PlayedEvent` automatically after all queues empty.
 - Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
   immediately play another Prelude or project inside one of those plays.
 - Keep the supplied machine log as a separate source artifact rather than copying its lines into the

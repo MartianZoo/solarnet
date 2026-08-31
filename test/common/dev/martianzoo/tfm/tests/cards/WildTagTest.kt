@@ -26,7 +26,7 @@ internal class WildTagTest : CardTest() {
   }
 
   @Test
-  internal fun `Temporary tags count normally without triggering printed-tag effects`() {
+  internal fun `Wild tags count normally without triggering printed-tag effects`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     p1.manual(
         "$ResearchCoordination, $ResearchNetwork, $PointLuna, $MarsUniversity, 2 ProjectCard"

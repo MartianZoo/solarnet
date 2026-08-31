@@ -219,7 +219,7 @@ CLASS LawSuit : EventCard<Class<ProjectCard>> {
   cost = 2
 
   This:: EventTag<This>
-  This: 3 MC FROM MC<Player<>>. THEN ((MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): CARDS[CardBack<Player<>, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>])
+  This: 3 MC FROM MC<Player<>>. THEN ((MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): PlayedEvent<Player<>, Class<This>> FROM This.)
   End: -VictoryPoint
 }
 
@@ -756,7 +756,7 @@ CLASS CopyPrelude<CardFront<Player>> : Custom, Owned<Player>
 
 CLASS Graphene : CardResource<ResourceHolder<Class<Graphene>>>
 
-CLASS CyberiaSystemsFirstChoice : Cardbound, Temporary
+CLASS CyberiaSystemsFirstChoice : Cardbound, MustCleanUp
 
 CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>
 

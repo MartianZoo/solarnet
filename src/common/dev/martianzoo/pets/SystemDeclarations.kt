@@ -36,13 +36,16 @@ private val systemDeclarationsSource =
     }
 
     // Anything that cannot exist after the task queue clears (i.e., the action ends)
+    ABSTRACT CLASS MustCleanUp : Hidden
+
+    "Instances are removed automatically whenever every task queue is empty"
     ABSTRACT CLASS Temporary : Hidden
 
     "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
-    ABSTRACT CLASS Barrier : Temporary
+    ABSTRACT CLASS Barrier : MustCleanUp
 
     "A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
-    ABSTRACT CLASS Signal : Temporary {
+    ABSTRACT CLASS Signal : MustCleanUp {
       This:: -This!
     }
 

@@ -439,7 +439,7 @@ follow the dependency graph when card identity matters. Robotic Workforce uses
 `CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
 action-scoped wild holder received the Building interpretation.
 
-`WildTagUse` is `Temporary`, so the action cannot finish while it remains. An unchosen offer is
+`WildTagUse` is `MustCleanUp`, so the action cannot finish while it remains. An unchosen offer is
 uniquely implied end-of-action settlement: after the action's work finishes, the selected completion
 hook removes the acting player's remaining uses and their dependent tags disappear through
 dependency cascade. It must finish before workflow offers `SecondAction`. Until that hook exists,
@@ -543,7 +543,7 @@ mediate access to this trusted workhorse instead of weakening or subdividing it;
 
 `manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
-`Temporary` components remain. A pre-existing selected task prevents it from starting.
+`MustCleanUp` components remain. A pre-existing selected task prevents it from starting.
 `sneak()` applies raw changes without normal instruction resolution or effects, but still uses the
 timeline and graph mutation interfaces.
 

@@ -2,8 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -56,7 +58,12 @@ public object Engine {
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
     private val atomicOperationScope: AtomicOperationScope =
-        AtomicOperationScope(timeline, { world.onAtomicComplete() }, recordingPositions)
+        AtomicOperationScope(
+            timeline,
+            { world.onAtomicComplete() },
+            recordingPositions,
+            ::removeTemporaryComponents,
+        )
     private val changerByActor: Map<Actor, Changer> =
         premise.actors.associateWith { Changer(reader, components, events, it) }
     private val instructorByActor: Map<Actor, Instructor> =
@@ -99,6 +106,23 @@ public object Engine {
     internal fun createWorld(): WholeWorld {
       initializer.initialize()
       return world
+    }
+
+    private fun removeTemporaryComponents(): Boolean {
+      if (!taskQueues.all().isEmpty()) return false
+      val temporaryComponents = reader.getComponents(classTable.getClass(TEMPORARY).baseType)
+      if (temporaryComponents.isEmpty()) return false
+
+      temporaryComponents.elements.forEach { type ->
+        val count = reader.countComponent(type)
+        if (count > 0) {
+          instructorByActor
+              .getValue(ENGINE)
+              .execute(remove(type, count), cause = null)
+              .forEach(taskQueues::addTasks)
+        }
+      }
+      return true
     }
 
     private fun validatePremise(classTable: ClassTable) {

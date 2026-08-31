@@ -16,7 +16,7 @@
 - **Autoexec:** A convenience policy that selects or narrows Tasks on an Actor's behalf when it can justify the choice. Resolution and execution are the same automatic engine consequences as for direct Player input.
 - **Automatic Effect:** An Effect written with `::`. Its Triggered Instruction executes inline instead of becoming a queued Task. Antonym: Queued Effect.
 - **Automatic Narrowing:** Narrowing performed by the engine because only one valid choice remains, rather than selected by the Assignee.
-- **Barrier:** A Temporary Component that must be removed before gated work can continue. A Barrier is a common modeling pattern in Pets declarations, not a distinct engine mechanism.
+- **Barrier:** A MustCleanUp Component that must be removed before gated work can continue. A Barrier is a common modeling pattern in Pets declarations, not a distinct engine mechanism.
 - **Bootstrap:** Everything required to construct and initialize a new Game World before `SetupPhase` begins.
 - **Bundle:** An internal grouping of Catalog data for file ownership, provenance, distribution, and loading. A Bundle is not itself a premise input, although a Module can select an entire content category from a named Bundle.
 - **Canon:** The Catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data Bundles.
@@ -81,6 +81,7 @@
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **Multi-instruction:** An Instruction containing two or more comma-separated, unordered child Instructions. It is split into separate Tasks because one Task cannot contain a Multi-instruction.
 - **Multi-requirement:** A Requirement containing two or more child Requirements combined as logical “and.”
+- **MustCleanUp:** A transitional Component Type that must not remain after its operation's Task Queue drains.
 - **Narrowing:** Replacing an Expression, Type, Instruction, or Selected Task with a valid more specific form. For Types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for choices such as Refinements, complements, and linked variables. Task narrowing may fill one sub-Specification at a time; each partial choice is recorded as Task state rather than a State Change, and Resolution may reduce the choices offered for the remaining parts. An Abstract Task becomes executable only after it has narrowed to a Concrete Task.
 - **No-op:** The `Ok` Instruction, which always succeeds without changing state.
 - **Operation:**
@@ -115,7 +116,7 @@
 - **Sequential Instruction:**
 - **Session Vocabulary Canonicalization:**
 - **SetupPhase:** The phase that begins after a Game World is fully bootstrapped and performs domain-significant setup work, such as granting each Player 20 `TerraformRating`.
-- **Signal:** A Hidden Temporary Component that triggers its Effects and immediately removes itself.
+- **Signal:** A Hidden MustCleanUp Component that triggers its Effects and immediately removes itself.
 - **Singleton Type:** A Concrete Type for which initialization automatically creates one Component.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no Tasks or turns.
 - **Source Effect:** An Effect as authored in `.pets` or generated from structured content data, before Class-level inheritance and transformation.
@@ -130,7 +131,7 @@
 - **Task Pool:**
 - **Task Queue:** An Assignee's unordered set of pending Tasks. Stable Task-ID iteration makes arbitrary engine choices reproducible but gives queue order no gameplay meaning.
 - **Task Result:** The Change Events and newly spawned Task IDs returned by a successful operation.
-- **Temporary:** A Component Type that must not remain after its operation's Task Queue drains.
+- **Temporary:** A Component Type that the engine removes automatically whenever every Task Queue is empty.
 - **This:** A built-in contextual binding. In a Class Declaration it remains late-bound through inheritance and is fixed from the exact context Component; in an Effect Trigger it denotes that Component's own gain or removal event.
 - **Transmutation:** One State Change that removes copies of one Component Type and gains the same number of another without exposing an intermediate state.
 - **Trigger:** The part of an Effect that selects the State Changes to which it responds.

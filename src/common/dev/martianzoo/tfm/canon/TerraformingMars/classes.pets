@@ -162,8 +162,8 @@ ABSTRACT CLASS TagHolder : Owned<Player>
 ABSTRACT CLASS CardLocation : Owned<Player> {
   CLASS Hand { HAS =1 This }
   CLASS EventPile { HAS =1 This }
-  CLASS Selecting : Temporary { HAS MAX 1 This }
-  CLASS Revealed : Temporary { HAS MAX 1 This }
+  CLASS Selecting : MustCleanUp { HAS MAX 1 This }
+  CLASS Revealed : MustCleanUp { HAS MAX 1 This }
 }
 
 // Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard
@@ -189,9 +189,9 @@ ABSTRACT CLASS Card : Owned<Player> {
     ABSTRACT CLASS ResourceCard : ResourceHolder
 
     "A red *project* card"
-    ABSTRACT CLASS EventCard {
+    ABSTRACT CLASS EventCard : Temporary {
       HAS =1 EventTag<This>
-      This: CARDS[CardBack<EventPile, Class<This>> FROM This.]
+      -This IF MAX 0 PlayedEvent<Anyone, Class<This>>:: PlayedEvent<Class<This>>
     }
   }
 
@@ -221,7 +221,7 @@ CLASS WildTag : Cardbound {
 }
 
 "The action-scoped meaning chosen for one printed wild tag"
-CLASS WildTagUse<CardFront<Player>> : TagHolder<Player>, Temporary {
+CLASS WildTagUse<CardFront<Player>> : TagHolder<Player>, MustCleanUp {
   HAS MAX 1 This
   HAS MAX 1 Tag<This>
   This: Tag<This>?
@@ -443,14 +443,14 @@ CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
 CLASS RequirementCheck<Class<CardFront>> : Owned<Player>, Signal
 CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
-ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Temporary {
+ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, MustCleanUp {
   CLASS Owed : Barrier {
     DEFAULT +Owed<Class<MC>>
     DEFAULT -Owed<Class<MC>>.
     X This:: Accept<Class<StandardResource>>
   }
 
-  CLASS Accept : Temporary {
+  CLASS Accept : MustCleanUp {
     HAS MAX 1 This
     DEFAULT +Accept.
     Billing: X Pay<Class<StandardResource>> FROM StandardResource?
@@ -464,7 +464,7 @@ ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Tempora
 }
 
 "Offers payment using the resource held by a specific card"
-CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Temporary {
+CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, MustCleanUp {
   HAS MAX 1 This
   Billing: X PayFromCard<ResourceCard> FROM CardResource<ResourceCard>?
   -X Billing:: -This!

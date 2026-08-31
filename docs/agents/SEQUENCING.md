@@ -115,7 +115,7 @@ Signals such as `PlayCard`, `Trade`, `Accept`, and `Pay` are coherent component 
 what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
 `Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
 
-Temporary components represent mandatory unfinished state. Each needs an honest completion event:
+`MustCleanUp` components represent mandatory unfinished state. Each needs an honest completion event:
 debt reaching zero, the end of an action turn, or another rule-specific fact. A generic Player queue
 drain must not consume unrelated temporary state merely because it happens to be pending for the
 same Player. The workflow may proceed only after controlled work and its required settlement leave
@@ -370,7 +370,6 @@ The canon single-colon audit leaves queued effects only when their right side is
 gameplay event or choice, or when current sequencing semantics require a task transition. Several
 implementation-shaped cases are intentionally still queued:
 
-- moving an EventCard to PlayedEvent must wait for the event's immediate work and tags;
 - removing a Mandate must not destroy the context that supplies its selected action;
 - End and played-event scoring must remain reorderable until all score-producing work is present;
 - action-cost adjustments must wait for the base action's Owed components, because sibling
@@ -475,9 +474,8 @@ marker deferrable and can permit another use.
 
 An author-local automatic tail might help with hidden bookkeeping, but it would not by itself solve
 Viron: the queued target is resolved against the later World where the marker already exists. It
-also would not solve Head Start, whose preferred direction uses an end-of-action workflow handoff,
-or the unresolved EventCard lifetime. Investigate the three semantics separately before adding
-syntax.
+also would not solve Head Start, whose preferred direction uses an end-of-action workflow handoff.
+Investigate those semantics separately before adding syntax.
 
 ### Existing resolution precedent
 
@@ -522,6 +520,22 @@ already-finished automatic work as a continuation.
 Keep the current choice-free rule for `::` unless this constrained model is selected and proves that
 it removes more permanent machinery than it adds.
 
+## Whole-World idle cleanup
+
+The `Temporary` class is a narrow component lifetime contract: whenever every task queue is empty,
+the engine removes every live instance of that class before notifying workflow that the operation
+has completed. Removal effects may create more components or tasks. The engine runs ordinary
+automatic work again and repeats cleanup until an idle pass finds nothing to remove. Only that
+empty pass allows the workflow callback. All of this remains inside the enclosing atomic transaction.
+
+`EventCard` uses this contract. Its immediate work and tag reactions therefore finish while the
+live card still exists, and removing it creates the corresponding `PlayedEvent`. Law Suit is the
+deliberate exception in behavior, not machinery: its authored consequence moves the card directly
+to `PlayedEvent`, so there is no EventCard left for idle cleanup.
+
+This rule neither removes pending tasks nor identifies the end of a nested action. `WildTagUse` and
+other task-lifetime problems therefore still need their own exact completion rule.
+
 ## Controlled completion (unresolved)
 
 No general completion mechanism is selected. A Player queue drain can combine unrelated work and
@@ -540,9 +554,6 @@ Keep the problems separate:
   action turn. If authoritative evidence requires the two printed actions to form one indivisible
   operation, document this simpler timing as a deliberate house rule rather than disguising it as
   exact fidelity. The engine still needs one precise end-of-action completion hook.
-- **EventCard cleanup:** preserve the live card through its own tags and immediate work, but do not
-  use the owning Player's entire queue as its lifetime. The smallest exact cleanup event remains
-  open.
 - **Trade:** retain `TradeBarrier` until a simpler completion event can keep fleet movement after
   every optional production decision without losing the selected trade operation.
 - **Workflow return:** use the existing Player-turn control frame as the candidate unit. Required
@@ -617,9 +628,6 @@ this is acceptable only while nothing can observe their relative order.
 
 ## Known defects or missing rules
 
-- **Event cleanup:** an event must remain live through its immediate effect and tags before moving to
-  the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag. The
-  cleanup event remains open; a whole Player queue drain is too broad.
 - **Head Start:** current sibling tasks let its actions interleave. Prefer using the current Prelude
   turn for the first action and granting a second ordinary action turn only after normal
   end-of-action settlement, without nested completion frames. Record that timing as a house rule if

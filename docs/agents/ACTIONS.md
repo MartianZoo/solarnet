@@ -88,8 +88,8 @@ no separate `Paid` component and payment completion does not wait for unrelated 
 
 Card play uses the same debt-zero completion. Remove the pending
 `MAX 0 Barrier: CardFront FROM CardBack` task; `-CardInvoice` instead puts the card into play as soon
-as its debt is settled. EventCard cleanup is a separate unresolved lifetime problem; see
-[SEQUENCING.md](SEQUENCING.md#controlled-completion-unresolved).
+as its debt is settled. EventCard lifetime is handled separately by whole-World idle cleanup; see
+[SEQUENCING.md](SEQUENCING.md#whole-world-idle-cleanup).
 
 ### Player-input staging
 
