@@ -49,7 +49,7 @@ A live Game World is a `World` containing:
 | `EventLog` | Applied component and task history |
 | `Timeline` | Atomicity, rollback, revision, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
-| Actor-scoped `Agent` | The supported mutation/query facade |
+| Actor-scoped `Agent` | The supported mutation/query authority |
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
@@ -141,8 +141,8 @@ as input. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cau
 causal event ordinal.
 
 Every event has optional diagnostic `agent` provenance. It is rendered when present but excluded
-from event equality and gameplay-state equivalence. The current autoexecution bridge supplies its
-mode as the agent for automatic Player inputs; older direct calls leave it absent.
+from event equality and gameplay-state equivalence. An attached autoexecution policy supplies its
+name for commands it issues; direct calls leave it absent.
 
 `EventLog.record` and rollback are the single history/mutation interface: application or reversal
 must succeed before the log changes. Each forward or reverse mutation advances an opaque
@@ -415,11 +415,13 @@ request `InstructionTree`, not `Instruction`.
 
 ## Current Agent surface
 
-`Agent` is the flat, trusted Actor-scoped facade for queries, task commands, manual operations,
-turns, and rules-bypassing `sneak` changes. It is not an authority model; the script module enforces
-its color modes separately. Normal task commands, manual operations, task edits, and `sneak` do not
-all share identical atomic/auto-exec semantics. [API.md](API.md) records the direction for a later
-restricted client API.
+Each World retains exactly one fully permissive `Agent` per Actor. `World.agent(actor)` returns that
+stable object for reads, task commands, manual operations, task insertion/removal, direct changes,
+and autoexecution policy attachment. The old power-interface hierarchy is gone. REPL color modes
+restrict commands in the script client rather than changing the engine object's type.
+
+All public Agent mutations share the outer atomic-completion path. A later permissions model will
+mediate access to this trusted workhorse instead of weakening or subdividing it; see [API.md](API.md).
 
 `manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
@@ -429,18 +431,15 @@ timeline and graph mutation interfaces.
 
 ## Auto-execution and Terraforming Mars workflow
 
-Auto-execution modes are:
+Autoexecution consists of named `Agent.AutoExec` policies attached to Agents. The Engine Agent gets
+the generic deterministic Engine policy at World creation. It advances Engine tasks conservatively
+without performing Player work. At every completion point Engine policies exhaust their work before
+the driver nudges every Agent carrying a Player policy. The generic library also provides the
+whole-pool-singleton `safe` policy; deliberate `first` lives in the Terraforming Mars client library
+and engine-test helper but makes no ordering promise. [AUTOEXEC.md](AUTOEXEC.md) is the owning model.
 
-- `NONE`: do nothing;
-- `SAFE`: proceed only when one selectable option exists; and
-- `FIRST`: choose the first selectable task in stable iteration order.
-
-Scanning is global. Assignee selects the queue; stored Actor controls attribution. Failed candidates
-receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplication in the current
-scheduling points and the proposed direction; it does not describe committed behavior.
-
-`TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
-layers. Treat it as transitional; test conveniences and player-facing domain actions need not
+`TfmGameplay` adds card, payment, production, parameter, and phase conveniences around an Agent.
+Treat it as transitional; test conveniences and player-facing domain actions need not
 remain one production wrapper.
 
 `TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting

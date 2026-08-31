@@ -5,16 +5,24 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ## User Ideas and Agreed Directions
 
 - Continue Routine work as specified in [`docs/agents/ROUTINES.md`](docs/agents/ROUTINES.md): add
-  typed signatures, direct top-level REPL invocation, and Routine-based replay without introducing
-  general player autoexecution.
+  typed signatures, direct top-level REPL invocation, and Routine-based replay with every Agent's
+  autoexecution disabled.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Rename instruction `Intensity` to `Quantifier` throughout.
-- **High priority:** Audit SAFE against its proof obligation: it may select only when exactly one
-  pending task can be selected, and resolution may concretize an instruction only when exactly one
-  legal concrete narrowing exists. Add focused behavioral coverage for multiple selectable tasks,
-  multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
-  client policy. Use [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
+- **High priority:** Continue auditing `AutoExecPolicies.safe` against its proof obligation. It now
+  acts only when the entire World has one pending task assigned to its Agent; it may select an
+  abstract singleton without choosing its narrowing. Prove that execution preserves every
+  continuation before broadening beyond the singleton case. Use
+  [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
+- **High priority:** Make serialized REgo replay disable every autoexec policy, including Engine's
+  default. Extend the explicit input record and Routine vocabulary just enough to represent
+  meaningful Engine-owned commands; do not infer them from component changes or let replay depend
+  on policy guesses.
+- **High priority:** Implement the generic `slow` autoexecution policy after disposable Worlds can
+  explore every relevant legal command and compare normalized component/task continuations. It may
+  spare no analysis cost, but `UNKNOWN` must stop it; do not substitute a heuristic for the promised
+  proof.
 - **High priority:** Implement Player-yield settlement. Emit Engine-owned `Yield<Player>` after a
   controlled queue epoch drains; make its sole subscriber remove every matching
   `UntilYield<Player>` component; allow component-specific removal effects to repopulate the queue;
@@ -117,9 +125,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
 - **High priority:** Make task queues semantically unordered: remove positional task selection and
-  stable-order autoexec precedence, remove `FIRST`, require an id or unambiguous instruction match,
-  and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
-  dependencies. Autoexecution policy belongs outside the engine as specified in
+  stable-order autoexec precedence, give the client-supplied `first` policy no ordering promise,
+  require an id or unambiguous instruction match for explicit commands, and run tests under reverse
+  and reproducibly randomized enumeration to expose hidden ordering dependencies. Autoexecution
+  policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **Medium priority:** After the payment and EventCard proving cases, test whether Player-yield
   settlement can also delete `TradeBarrier` while retaining the selected ColonyTile and keeping
@@ -219,14 +228,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   layers, and narrow `Instruction.narrows`.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- Move autoexecution out of the engine into optional clients of `Agent`: remove implicit drains,
-  replace modes with named policies, record the issuing agent, and initially provide only policies
-  that prove they make no gameplay sacrifice; see
-  [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **Medium priority:** Separate Catalog data from premise resolution, and split `TfmCatalog`'s
   generic declaration aggregation/validation into `Catalog` from the Terraforming Mars registries
   in `TfmCatalog`.
-- Follow `docs/agents/API.md`: keep integrity-preserving mutation internal and design the restrictive client API separately from the flat, trusted `Agent` workhorse.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated dependency/refinement construction without risking correctness.
 

@@ -11,9 +11,9 @@
 
 ## Source map
 
-- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
-  — search for `autoExecNext`, `enforceSelectLock`, and `selectTask` for current automatic
-  execution, selection, and locking semantics.
+- [`AutoExecPolicies.kt`](../../src/common/dev/martianzoo/engine/AutoExecPolicies.kt) and
+  [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) — inspect the
+  current conservative policy, selection probes, and locking semantics.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for

@@ -59,7 +59,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Task | Read | Authority |
 | --- | --- | --- |
 | Move generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Audit |
-| Flatten Agent or design a client interface | [`API.md`](API.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Proposal |
+| Change Agent or design a restricted client interface | [`API.md`](API.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Current model and later direction |
 | Implement catalog Routines, direct REPL calls, or Routine-based saved-game replay | [`ROUTINES.md`](ROUTINES.md), then the API/model route it names | Proposal; native-export section is a working rule |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
 

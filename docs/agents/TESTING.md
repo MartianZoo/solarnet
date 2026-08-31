@@ -198,6 +198,11 @@ Cover meaningful interfaces, negative cases, non-targets, and option combination
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
 
+Assert a particular exception subclass only when callers or game semantics depend on that
+classification. Otherwise prove that the command is rejected, state and history remain atomic, and
+the diagnostic identifies the problem. The current distinction among task, abstractness, and
+narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
+
 `BugsTest` is different: its passing tests characterize known incorrect behavior, and their names
 say what currently happens incorrectly. Prefer such a characterization over a disproportionate
 workaround. Once the bug is fixed, move the useful scenario to its proper behavioral suite.
