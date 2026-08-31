@@ -7,7 +7,7 @@ Solarnet's goals in descending order:
 1. Correctness -- I want it to *eventually* implement the game rules with absolute fidelity. It's doing pretty well so far.
 2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and adding cards is not the priority at the moment (I have over 450 working already).
 3. Simplicity -- I'm trying to keep the Pets language (and the engine itself) as simple and elegant as I can. This will be a constant push-and-pull, though.
-4. Composability -- I'm writing this as series of libraries that other TfM-related projects could theoretically use for other purposes. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a Game World), "repl" (the command-line interface), and "tfm-canon" (a data set containing the officially published cards and other components). At some point I plan to cleave off all the actually-TfM-specific parts of it into another separate module.
+4. Composability -- I'm writing this as a series of libraries that other TfM-related projects could theoretically use for other purposes. The generic Pets language and engine are separate from the Terraforming Mars catalog, gameplay, text, and client modules; see the [package overview](packages.md) for the current split.
 
 Please notice **what is not on this list**!
 
@@ -40,8 +40,8 @@ Turmoil is completely doable but will be completely gross. I'm not in any hurry 
 
 That's part of the idea, for sure! However, a couple caveats:
 
-* There's no actual provision for how to bring fan cards into the system, so for now you would just fork the project and edit the cards.json file. We can talk about a better way to do it, for sure.
-* This will work fine if your fan cards remix existing game mechanics in new ways. If they do things further out of the ordinary you'd just have to write some custom code (like we have in `custom.kt`)... but if it's *further* out of the ordinary than that you might be out of luck. I don't plan on adding a feature unless some officially published card needs it. At some point we could maintain two forks though.
+* There's no user-facing provision for bringing fan cards into the system, so for now you would fork the project and edit a bundle's `cards.pets` file. We can talk about a better way to do it, for sure.
+* This will work fine if your fan cards remix existing game mechanics in new ways. If they do things further out of the ordinary you'd have to write custom Kotlin code, but if they're *further* out of the ordinary than that you might be out of luck. I don't plan on adding a feature unless some officially published card needs it. At some point we could maintain two forks though.
 
 ### What could potentially get built around this?
 

@@ -13,12 +13,12 @@
 | Class             | Example Pets syntax                                         |
 |-------------------|-------------------------------------------------------------|
 | `LargeConvoy`     | `This: OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal`       |
-| `ElectroCatapult` | `Plant -> 7`, `Steel -> 7`                                  |
+| `ElectroCatapult` | `Plant -> 7 MC`, `Steel -> 7 MC`                            |
 | `ArcticAlgae`     | `OceanTile BY Anyone: 2 Plant`                              |
-| `Insulation`      | `This: PROD[X MC FROM Heat]`                        |
-| `EarthCatapult`   | `PlayCard: -2 Owed<Class<MC>>`                      |
-| `CitySP`          | `25 MC -> CityTile<>, PROD[1 MC]`                           |
-| `TerraformRating` | `ProductionPhase: 1`, `End: VictoryPoint`                   |
+| `Insulation`      | `This: PROD[X MC FROM Heat]`                                |
+| `EarthCatapult`   | `Billing<PlayCards>:: -2 Owed<>`                            |
+| `CitySP`          | `1 MC / cost -> CityTile<>, PROD[1 MC]`                     |
+| `TerraformRating` | `ProductionPhase: 1 MC`, `End: VictoryPoint`                |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
 * This means you can add your own fan cards to it pretty easily and without actual "programming" -- so long as the cards don't introduce entirely new game mechanics.
@@ -55,7 +55,7 @@ stored in that browser, while refreshing the page starts a new game. The right t
 shows a player dashboard tracking player 1's resources, production, Terraform Rating, cards,
 victory points, and tags, with a live Mars map below it.
 
-To view the three saved over-the-board games, put the generated game artwork under
+To view the four saved over-the-board games, put the generated game artwork under
 `_local/images`, then run:
 
 ```
