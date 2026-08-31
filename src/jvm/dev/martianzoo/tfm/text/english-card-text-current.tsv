@@ -439,14 +439,14 @@ SnowAlgae	Snow Algae	Requires 2 ocean tiles. Increase your plant production 1 st
 Penguins	Penguins	Requires 8 ocean tiles. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 DuskLaserMining	Dusk Laser Mining	Requires 2 science tags. Decrease your energy production 1 step and increase your titanium production 1 step. Gain 4 titanium.
 ProjectInspection	Project Inspection	[UseAction<ActionCard(HAS ActionUsedMarker)>].
-EnergyMarket	Energy Market		Action: Spend 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
-HiTechLab	Hi-Tech Lab	1 VP.	Action: Spend one or more energy to look at X project cards. Draw one of them.
-InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step for each different tag you have. 1 VP.
+EnergyMarket	Energy Market		Action: Pay 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
+HiTechLab	Hi-Tech Lab	1 VP.	Action: Pay one or more energy to look at X project cards. Draw one of them.
+InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step per different tag you have. 1 VP.
 LawSuit	Law Suit	Steal 3 M€ from that player, or as much as possible, then [(MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): PlayedEvent<Player<>, Class<This>> FROM This.]. -1 VP.
-MercurianAlloys	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you spend is worth 1 M€ extra.
-OrbitalCleanup	Orbital Cleanup	Decrease your M€ production 2 steps. 2 VPs.	Action: Gain 1 M€ for each science tag you have.
-RegoPlastics	Rego Plastics	1 VP.	Effect: Each steel you spend is worth 1 M€ extra.
-SaturnSurfing	Saturn Surfing	Add 1 floater to this card for each Earth tag you have. 1 VP.	Action: Remove 1 floater from this card to gain 1 M€ for each floater on this card (max 4) and gain 1 M€.
+MercurianAlloys	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you pay is worth 1 M€ extra.
+OrbitalCleanup	Orbital Cleanup	Decrease your M€ production 2 steps. 2 VPs.	Action: Gain 1 M€ per science tag you have.
+RegoPlastics	Rego Plastics	1 VP.	Effect: Each steel you pay is worth 1 M€ extra.
+SaturnSurfing	Saturn Surfing	Add 1 floater to this card per Earth tag you have. 1 VP.	Action: Remove 1 floater from this card to gain 1 M€ per floater on this card (max 4) and gain 1 M€.
 StanfordTorus	Stanford Torus	Place a city tile on the reserved area outside Mars. 2 VPs.
 Advertising	Advertising		Effect: When you play a card with a printed cost of 20 M€ or more, increase your M€ production 1 step.
 AsteroidDeflectionSystem	Asteroid Deflection System	Decrease your energy production 1 step. 1 VP per asteroid on this card.	Action: Reveal 1 project card. If it has a space tag, add 1 asteroid to this card. / Effect: Opponents may not remove your plants.
