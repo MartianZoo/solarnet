@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.engine.Gameplay
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.script.ScriptSession
@@ -131,11 +131,11 @@ internal class StinaScriptTest {
 
   // Full-game counterparts live in
   // test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt.
-  private fun Gameplay.assertCounts(vararg expected: Pair<Int, String>) {
+  private fun Agent.assertCounts(vararg expected: Pair<Int, String>) {
     expected.forEach { (count, metric) -> assertEquals(count, count(metric), metric) }
   }
 
-  private fun Gameplay.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
+  private fun Agent.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertCounts(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
   }
 
@@ -148,7 +148,7 @@ internal class StinaScriptTest {
     assertEquals(h, production(cn("H")), "H production")
   }
 
-  private fun Gameplay.assertTags(
+  private fun Agent.assertTags(
       but: Int = 0,
       spt: Int = 0,
       sct: Int = 0,

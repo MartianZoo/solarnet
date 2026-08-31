@@ -10,7 +10,7 @@ internal class AutomaticEffectOrderTest {
     if (randomAutomaticEffectOrderEnabled) return
 
     val world = Engine.newGame(premise) as WholeWorld
-    val engine = world.gameplay(ENGINE).godMode()
+    val engine = world.agent(ENGINE)
     engine.manual("Earlier")
     engine.manual("Later")
     engine.manual("Token")
@@ -25,7 +25,7 @@ internal class AutomaticEffectOrderTest {
     removalContext(world, engine) shouldBe firstContext
   }
 
-  private fun removalContext(world: WholeWorld, engine: Gameplay.GodMode): String {
+  private fun removalContext(world: WholeWorld, engine: Agent): String {
     val before = world.timeline.checkpoint()
     engine.manual("Trigger")
     val removal =

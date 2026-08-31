@@ -34,16 +34,16 @@ internal class DoCommandTest {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("become Player1")
-    repl.gameplay.godMode().manual("30 MC, ProjectCard")
+    repl.agent.manual("30 MC, ProjectCard")
     repl.command("phase Action")
-    repl.gameplay.godMode().beginManual("NewTurn")
+    repl.agent.beginManual("NewTurn")
     repl.command("mode purple")
 
     val output = repl.command("do playCard(Mine, -5 MC)")
 
     assertTrue(output.single().contains("Overpaying 5 MC when only 4 is owed"), output.single())
-    assertEquals(30, repl.gameplay.count("MC"))
-    assertEquals(1, repl.gameplay.count("ProjectCard"))
-    assertEquals(0, repl.gameplay.count("Mine"))
+    assertEquals(30, repl.agent.count("MC"))
+    assertEquals(1, repl.agent.count("ProjectCard"))
+    assertEquals(0, repl.agent.count("Mine"))
   }
 }

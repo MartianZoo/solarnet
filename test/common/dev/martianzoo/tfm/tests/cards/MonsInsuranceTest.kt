@@ -99,8 +99,7 @@ internal class MonsInsuranceTest : CardTest() {
 
     p2.manual("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
     game
-        .gameplay(ENGINE)
-        .godMode()
+        .agent(ENGINE)
         .manual("Plant<Player2>, -Plant<Player2>")
         .expect("0 MC<Player1>, 0 MC<Player2>")
   }
@@ -126,7 +125,7 @@ internal class MonsInsuranceTest : CardTest() {
     p1.manual("-${p1.count("MC")} MC")
     p2.manual("Plant")
 
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
     manual.addTasks("-Plant<Player2>, 2 MC")
     val attack = game.tasks.extract { it }.single { "Plant<Player2>" in it.instruction.toString() }
     manual.selectTask(attack.id)

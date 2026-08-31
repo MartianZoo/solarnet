@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -16,7 +16,7 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 
 internal class Initializer(
-    private val gameplay: Gameplay,
+    private val agent: Agent,
     private val instructor: Instructor,
     private val tasks: TaskQueues,
     private val classTable: ClassTable,
@@ -35,7 +35,7 @@ internal class Initializer(
 
   /** Executes a bootstrap instruction without creating a task for the instruction itself. */
   private fun execute(instruction: String, cause: Cause?): TaskResult = timeline.atomic {
-    instructor.execute(gameplay.parse<Instruction>("$instruction!"), cause).forEach(tasks::addTasks)
+    instructor.execute(agent.parse<Instruction>("$instruction!"), cause).forEach(tasks::addTasks)
   }
 
   /**
@@ -137,11 +137,11 @@ internal class Initializer(
         if (
             (moduleSourcesByTarget[type.className].orEmpty() +
                     sourcesByConstructiveType[type].orEmpty())
-                .any { source -> gameplay.count("$source") == 0 }
+                .any { source -> agent.count("$source") == 0 }
         ) {
           continue
         }
-        if (gameplay.count("${type.expression}") > 0) {
+        if (agent.count("${type.expression}") > 0) {
           remaining.remove(type)
           missingByType.remove(type)
           progress = true
@@ -179,6 +179,6 @@ internal class Initializer(
       missingByType: Map<Type, Collection<Type>>,
   ): Boolean =
       missingByType.values.flatten().any { dependency ->
-        gameplay.count("${dependency.expression}") > 0
+        agent.count("${dependency.expression}") > 0
       }
 }

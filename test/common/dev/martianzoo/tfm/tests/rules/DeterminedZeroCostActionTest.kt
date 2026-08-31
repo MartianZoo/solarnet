@@ -31,8 +31,8 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
     val catalog = TfmCatalog.compose(Canon, extension)
     game = setUpGame(canonicalPremise(catalog = catalog))
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().manual("DeterminedZeroCostAction")
+    p1.manual("DeterminedZeroCostAction")
 
-    p1.godMode().manual("UseAction<DeterminedZeroCostAction, First>").expect("Plant")
+    p1.manual("UseAction<DeterminedZeroCostAction, First>").expect("Plant")
   }
 }

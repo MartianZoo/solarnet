@@ -13,7 +13,7 @@ internal class MiningRightsTest : CardTest() {
   @Test
   internal fun `Links production to its prior area choice without prioritizing it`() {
     newGame()
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual
         .manual("$MiningRights") {
@@ -37,7 +37,7 @@ internal class MiningRightsTest : CardTest() {
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
 
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
     manual.beginManual("$RoboticWorkforce")
     manual.selectTask(
         "CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>"

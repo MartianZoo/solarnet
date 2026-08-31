@@ -16,7 +16,7 @@ call site. Supporting a game or expansion includes contributing its useful Routi
 Routine calls have two related uses:
 
 1. concise, readable interaction in the REPL and replay tests; and
-2. the player-input stream of a saved game.
+2. the Player-facing portion of a saved game's explicit Agent-command stream.
 
 A saved game retains both the Routine stream and the concrete state changes it originally produced.
 Those support two intentionally different restore modes:
@@ -41,15 +41,15 @@ separate from the base data-oriented `Catalog` interface. `TfmCatalog` implement
 each bundle may contribute a name-to-implementation map, and composite catalogs reject duplicate
 names. The core Terraforming Mars bundle owns the initial implementations. `DO` parses a call,
 looks it up through the active World's Catalog, and supplies the live World and Actor-scoped
-Gameplay in a `RoutineContext`.
+Agent in a `RoutineContext`.
 
 Routine implementations belong to the Catalog module and depend only on the generic engine and
 Pets surfaces. They must not call `TfmGameplay`; the transitional `TfmGameplay` facade instead
 dispatches overlapping operations through the Catalog's `RoutineProvider` capability.
 
-The prototype uses the current Gameplay operation scopes described in
-[ENGINE.md](ENGINE.md#current-gameplay-surface). Any later client-facing Routine API should follow
-the command lifecycle and temporary script policy in [API.md](API.md#command-scopes).
+The prototype uses the current Agent lifecycle described in
+[ENGINE.md](ENGINE.md#current-agent-surface). Any later client-facing Routine API should follow
+the command lifecycle and temporary script policy in [API.md](API.md#command-semantics).
 
 ## REPL surface
 
@@ -85,13 +85,13 @@ isolated exception and restores the prior Actor. A serializer may omit repeated 
 and should keep the current actor across a long sole-player run. Do not introduce `AS Actor { ... }`
 blocks.
 
-Every serialized Routine replay sets Player autoexecution to `NONE`. Put `AUTO NONE` before
-`newgame`, and keep it in force for every Player throughout import. A Routine must not restore or
-drain a prior Player `FIRST` setting, even temporarily. The current Engine may use `FIRST` to drain
-already concrete or uniquely implied Engine-assigned work; assignment alone does not make an
-abstract choice deterministic. A World Government Terraforming task, for example, still needs the
-recorded Player narrowing before Engine executes it. Do not reassign Player work or alter its Actor,
-assignee, Cause, or abstractness merely to make it eligible for Engine execution.
+Every serialized Routine replay sets autoexecution to `NONE` for every Agent, including Engine. Put
+`AUTO NONE` before `newgame`, and keep it in force throughout import. A Routine must not restore or
+drain a prior policy setting, even temporarily. Meaningful Engine task commands therefore belong in
+the replay just as meaningful Player task commands do. Assignment alone does not make an abstract
+choice deterministic. A World Government Terraforming task, for example, still needs the recorded
+Player narrowing. Do not reassign Player work or alter its Actor, assignee, Cause, or abstractness
+merely to make it eligible for Engine execution.
 
 ## Native World export
 
@@ -103,7 +103,7 @@ Before acting on the 0818 export, read its dated
 
 `World.export(): String` belongs to `engine` and returns a versioned REgo script that today's
 `script` module can run. Future importers may consume the same engine-owned format. The first
-deliverable is the current-engine player-choice replay, not the separate concrete-change restore
+deliverable is the current-engine explicit-command replay, not the separate concrete-change restore
 mode described in the goal.
 
 The exported file must have the same shape as the established
@@ -120,10 +120,12 @@ The exported file must have the same shape as the established
 7. only source-backed direct corrections as brief `mode red` / `exec` / `mode purple` passages.
 
 Do not substitute raw `task` commands for `tasks(...)`, card play, actions, purchases, or turn
-declines that the Routine vocabulary already expresses. Do not serialize fixed workflow, payment
-plumbing, action markers, temporary cleanup, or other choice-free work as Player input. Do not
-switch to green mode to replay internal helper choreography. A same-version round trip that reaches
-the right final graph only because Player `FIRST` silently chooses omitted work fails this contract.
+declines that the Routine vocabulary already expresses. Do not expand authored `::` effects,
+payment plumbing, action markers, or temporary cleanup into fake Player choices. Meaningful
+Engine-owned tasks that autoexec would otherwise consume still need an explicit Engine-attributed
+command or Routine. Do not switch to green mode merely to replay internal helper choreography. A
+same-version round trip that reaches the right final graph only because any autoexec policy silently
+chooses omitted work fails this contract.
 
 Start from the existing Event Log and its Cause information, but interpret Cause only as ancestry.
 A card or Action may cause a later task that still needs a Player selection or narrowing; that
@@ -131,26 +133,27 @@ choice remains explicit in `tasks(...)`. Omit a caused task only when no partici
 of its execution. Before adding a new event kind or public API, demonstrate the exact information
 that existing history cannot recover. If the readable Routine call cannot be derived without
 materially widening several modules, stop and report that design pressure; do not compensate with a
-low-level dump, speculative payment probes, catch-all fallbacks, or Player autoexecution.
+low-level dump, speculative payment probes, catch-all fallbacks, or autoexecution.
 
-Successful Player inputs are diagnostic `GameplayInputEvent`s. Their optional `agent` field can
+Successful explicit Agent inputs are the intended replay record. The current
+`GameplayInputEvent` records only Player input, so Engine-attributed replay commands require a small
+input-model extension rather than inference from component changes. The optional `agent` field can
 identify an automatic or other command source, is rendered as an Event Log note, and is excluded
-from event equality. The initial native exporter marks legacy automatic selections with their
-`autoexec` mode; an absent agent means the older direct-call path did not supply an identity. This
-provenance must not become game state or affect replay-state equality.
+from event equality. This provenance must not become game state or affect replay-state equality.
 
 The engine serializer must remain generic. Obtain configuration and Routine facts from the World,
 premise, and Catalog capabilities; do not embed Terraforming Mars cards, Player names, the 0818
 configuration, or branches for this replay in engine code.
 
 The six-generation replay is an executable golden oracle, not merely a style example. First prove
-that it and a fully explicit reference produce the desired equivalent game state with Player
-`NONE` on both paths. If they do, the overlapping exported command stream must preserve the same
-Routine calls and every ordered, noncommutative choice after its version marker. Arguments within
-one call may appear in either order only when those effects commute and the generated order passes
-the same round-trip state checks. If parity fails, report the mismatch instead of silently changing
-the format. The durable test compares Actors, active Classes, complete Task queues, and the component
-graph after importing both the canonical source and a fresh export.
+that it and a fully explicit reference produce the desired equivalent game state with every Agent's
+autoexecution disabled on both paths. If they do, the overlapping exported command stream must
+preserve the same Routine calls and every ordered, noncommutative choice after its version marker.
+Arguments within one call may appear in either order only when those effects commute and the
+generated order passes the same round-trip state checks. If parity fails, report the mismatch
+instead of silently changing the format. The durable test compares Actors, active Classes,
+complete Task queues, and the component graph after importing both the canonical source and a
+fresh export.
 
 The completed export is the colocated
 `test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260818-world-export.rego`
@@ -222,11 +225,11 @@ Routine returns and leaves every queued consequence untouched. Do not classify l
 payment merely because they remove a resource: the live operation stage or linked Action cost
 supplies that meaning.
 
-There is no general Player autoexecution in the first version. Work proceeds only through:
+There is no autoexecution during replay. Work proceeds only through:
 
 - task selections made explicitly by Routine Kotlin;
 - inline `::` effects; and
-- deterministic workflow work explicitly owned by Engine.
+- explicit commands for meaningful deterministic workflow work owned by Engine.
 
 A Routine may return with player tasks pending for the next call. Those tasks belong in another call
 only when they represent another player decision rather than a fixed continuation of the headline
@@ -345,9 +348,14 @@ Routine is justified only when the game presents a different player decision.
 ### `endTurn`
 
 `endTurn()` means exactly that the player has been offered a second action and declines it. It
-selects that optional `SecondAction` offer's `Ok` arm. It does not finish the current action, settle
-wild tags, clear temporary state, pass for the generation, or advance workflow. Those are
-completion or Engine responsibilities, and there is no `endCurrentAction` Routine.
+selects that optional `SecondAction` offer's `Ok` arm. It does not itself finish the current action,
+pass for the generation, or advance workflow, and there is no `endCurrentAction` Routine.
+
+For now, the shared Routine completion bridge must settle `WildTagUse?` tasks when they are the
+acting Player's only remaining work, then remove the corresponding `WildTagUse` components. This is
+choice-free cleanup around every Routine call, not part of `endTurn()`'s player-decision meaning.
+The sequencing goal is an exact end-of-action hook that performs this settlement before offering a
+second action or returning control, at which point the Routine bridge should be deleted.
 
 ## Recording conventions
 
@@ -408,6 +416,7 @@ Focused `DoCommandTest` cases cover command mode and parsing contracts.
 - A richer saved-file envelope around the versioned native export.
 - The smallest additional recorded input fact, if any, that the incremental export gates prove the
   existing Event Log cannot recover.
+- The explicit input representation and Routine vocabulary needed for Engine-owned replay commands.
 - Multiline Routine calls and completion behavior in the interactive REPL.
 - Whether interactive Routine calls respect current autoexecution and report already-completed
   tasks as skipped.

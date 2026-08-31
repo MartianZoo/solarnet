@@ -20,10 +20,22 @@ internal class Limiter(
   private val limits: ClassLimitTable = classTable.componentLimits
 
   internal fun findLimit(gaining: Component?, removing: Component?): Int {
-    if (gaining != null) {
-      val missingDeps = gaining.dependencyComponents.filter { it !in components }
-      if (missingDeps.any()) throw DependencyException(missingDeps.map { it.type })
-    }
+    val missingDeps = missingDependencies(gaining)
+    if (missingDeps.any()) throw DependencyException(missingDeps.map { it.type })
+
+    return findLimitWithDependenciesPresent(gaining, removing)
+  }
+
+  internal fun findLimitOrNull(gaining: Component?, removing: Component?): Int? {
+    if (missingDependencies(gaining).any()) return null
+
+    return findLimitWithDependenciesPresent(gaining, removing)
+  }
+
+  private fun findLimitWithDependenciesPresent(
+      gaining: Component?,
+      removing: Component?,
+  ): Int {
 
     // We must ignore any that are in common; the transmutation must hold them constant
     val (gainInvars, removeInvars) =
@@ -40,6 +52,9 @@ internal class Limiter(
     return (headroom + footroom).minOrNull() ?: MAX_VALUE
   }
 
+  private fun missingDependencies(gaining: Component?): List<Component> =
+      gaining?.dependencyComponents?.filter { it !in components }.orEmpty()
+
   internal fun hasExecutableConcreteGain(
       type: Type,
       minimum: Int,
@@ -49,11 +64,7 @@ internal class Limiter(
     require(minimum > 0)
     return classTable.allConcreteSubtypes(type).any { candidate ->
       candidate.narrows(type, info) &&
-          try {
-            findLimit(candidate.toComponent(), null) >= minimum
-          } catch (_: DependencyException) {
-            false
-          }
+          findLimitOrNull(candidate.toComponent(), null)?.let { it >= minimum } == true
     }
   }
 

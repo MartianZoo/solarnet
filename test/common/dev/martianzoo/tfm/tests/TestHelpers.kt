@@ -190,7 +190,7 @@ object TestHelpers {
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
   private fun TaskResult.inferredExpectationOwner(game: World): Player? {
-    // The first change normally retains the gameplay caller. An explicit `BY Engine` loses that
+    // The first change normally retains the agent caller. An explicit `BY Engine` loses that
     // signal, so fall back only when every owned change points to the same Player.
     (changes.firstOrNull()?.actor as? Player)?.let {
       return it

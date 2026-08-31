@@ -46,16 +46,15 @@ internal class PropertyTest {
     val game = Engine.newGame(canonicalPremise(Hellas, players = 2))
     val p1 = game.tfm(PLAYER1)
 
-    p1.godMode()
-        .sneak(
-            "CityTile<Player1, Hellas_7_4>, CityTile<Player1, Hellas_8_4>, " +
-                "CityTile<Player1, Hellas_8_5>, CityTile<Player1, Hellas_9_5>"
-        )
+    p1.sneak(
+        "CityTile<Player1, Hellas_7_4>, CityTile<Player1, Hellas_8_4>, " +
+            "CityTile<Player1, Hellas_8_5>, CityTile<Player1, Hellas_9_5>"
+    )
 
     p1.count("OwnedTile<MarsArea(HAS 8 row)>") shouldBe 3
     p1.has("3 OwnedTile<MarsArea(HAS 8 row)>") shouldBe true
     p1.has("4 OwnedTile<MarsArea(HAS 8 row)>") shouldBe false
-    p1.godMode().manual("PolarExplorer")
+    p1.manual("PolarExplorer")
     p1.count("PolarExplorer") shouldBe 1
   }
 
@@ -63,7 +62,7 @@ internal class PropertyTest {
   internal fun metricPropertiesAreEvaluatedExplicitlyInsideClassEffects() {
     val catalog = TfmCatalog.Composite(Canon, MetricPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
-    val p1 = game.tfm(PLAYER1).godMode()
+    val p1 = game.tfm(PLAYER1)
 
     p1.manual("3 TemperatureStep!, MetricPropertyProbe")
 
@@ -78,8 +77,8 @@ internal class PropertyTest {
   internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
     val catalog = TfmCatalog.Composite(Canon, RequirementPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
-    val p1 = game.tfm(PLAYER1).godMode()
-    val p2 = game.tfm(PLAYER2).godMode()
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
 
     p1.manual("RequirementPropertyMarker")
     p1.manual("OptionalRequirementPropertyProbe") {

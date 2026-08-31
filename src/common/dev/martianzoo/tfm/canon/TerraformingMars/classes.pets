@@ -568,7 +568,7 @@ CLASS FirstPlayerOcean<Player> : Signal
 CLASS StartToken : Owned<Player> {
   HAS MAX 1 StartToken
   Generation: PassLeft<This>
-  FirstPlayerOcean<Player> BY Anyone: OceanTile<> BY Player
+  FirstPlayerOcean<Actor> BY Actor: OceanTile<> BY Actor
   WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
 }
 

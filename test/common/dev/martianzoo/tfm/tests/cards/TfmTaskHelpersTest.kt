@@ -11,7 +11,7 @@ internal class TfmTaskHelpersTest : CardTest() {
   internal fun `Tile placement accepts identical pending placements`() {
     newGame()
 
-    p1.godMode().addTasks("OceanTile<WaterArea>, OceanTile<WaterArea>")
+    p1.addTasks("OceanTile<WaterArea>, OceanTile<WaterArea>")
 
     p1.placeTile(1, 2)
 
@@ -22,7 +22,7 @@ internal class TfmTaskHelpersTest : CardTest() {
   internal fun `Tile placement rejects distinct pending placements`() {
     newGame()
 
-    p1.godMode().addTasks("OceanTile<WaterArea>, GreeneryTile<LandArea>")
+    p1.addTasks("OceanTile<WaterArea>, GreeneryTile<LandArea>")
 
     shouldThrow<IllegalArgumentException> { p1.placeTile(1, 2) }
   }
@@ -31,7 +31,7 @@ internal class TfmTaskHelpersTest : CardTest() {
   internal fun `Declining rejects multiple declinable tasks`() {
     newGame()
 
-    p1.godMode().addTasks("Plant?, Steel?")
+    p1.addTasks("Plant?, Steel?")
 
     shouldThrow<IllegalArgumentException> { p1.declineTask() }
   }
@@ -41,7 +41,7 @@ internal class TfmTaskHelpersTest : CardTest() {
     newGame(VenusNextExpansion)
     p1.manual("$ForcedPrecipitation")
 
-    p1.godMode().addTasks("Floater?, Floater?")
+    p1.addTasks("Floater?, Floater?")
 
     shouldThrow<IllegalArgumentException> { p1.addCardResources(ForcedPrecipitation) }
   }

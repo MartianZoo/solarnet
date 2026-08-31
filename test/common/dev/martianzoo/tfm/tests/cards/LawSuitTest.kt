@@ -115,7 +115,7 @@ internal class LawSuitTest : CardTest() {
     p2.assertCounts(19 to "VictoryPoint")
   }
 
-  private fun dev.martianzoo.engine.Gameplay.OperationBody.choosePlayer2() {
+  private fun dev.martianzoo.engine.Agent.OperationBody.choosePlayer2() {
     doTask("3 MC<Player1> FROM MC<Player2>.")
   }
 }

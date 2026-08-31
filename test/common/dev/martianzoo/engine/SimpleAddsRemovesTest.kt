@@ -34,7 +34,7 @@ internal class SimpleAddsRemovesTest {
                     .trimIndent()
             )
         )
-    val p1 = game.gameplay(PLAYER1).godMode()
+    val p1 = game.agent(PLAYER1)
     p1.manual("Card<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
@@ -48,7 +48,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
     val game = Engine.newGame(canonicalPremise())
-    val p2 = game.tfm(PLAYER2).godMode()
+    val p2 = game.tfm(PLAYER2)
 
     p2.manual("StandardResource") { doTask("Plant") }
 
@@ -57,7 +57,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
-    val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2).godMode()
+    val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2)
 
     shouldThrow<LimitsException> { p2.manual("-Plant") }
   }
@@ -65,7 +65,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualPreservesTasksThatWereAlreadyPending() {
     val game = Engine.newGame(canonicalPremise())
-    val p2 = game.tfm(PLAYER2).godMode()
+    val p2 = game.tfm(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
 
     p2.manual("Heat")
@@ -77,7 +77,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualRejectsASelectedTask() {
     val game = Engine.newGame(canonicalPremise())
-    val p2 = game.tfm(PLAYER2).godMode()
+    val p2 = game.tfm(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
     p2.selectTask(pendingTask)
 
@@ -90,10 +90,10 @@ internal class SimpleAddsRemovesTest {
 
     val checkpoint = game.timeline.checkpoint()
 
-    val eng = game.gameplay(ENGINE)
+    val eng = game.agent(ENGINE)
     eng.count("Heat") shouldBe 0
 
-    val p2 = game.tfm(PLAYER2).godMode()
+    val p2 = game.tfm(PLAYER2)
 
     p2.manual("5 Heat<Player2>!")
     p2.manual("10 Heat<Player1>!")

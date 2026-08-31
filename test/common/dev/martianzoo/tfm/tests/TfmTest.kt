@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.Gameplay.Companion.parse
-import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -31,15 +31,15 @@ internal abstract class TfmTest {
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
   protected fun <T> OperationBody.doWithoutAutoExec(
-      gameplay: TfmGameplay,
+      agent: TfmGameplay,
       body: OperationBody.() -> T,
   ): T {
-    val previousAutoExecMode = gameplay.autoExecMode
-    gameplay.autoExecMode = NONE
+    val previousAutoExecMode = agent.autoExecMode
+    agent.autoExecMode = NONE
     return try {
       body()
     } finally {
-      gameplay.autoExecMode = previousAutoExecMode
+      agent.autoExecMode = previousAutoExecMode
     }
   }
 
@@ -203,7 +203,7 @@ internal abstract class TfmTest {
     val matches =
         tasks.withIndex().filter { (_, task) ->
           (instruction == null ||
-              task.instruction == game.gameplay(task.assignee).parse<Instruction>(instruction)) &&
+              task.instruction == game.agent(task.assignee).parse<Instruction>(instruction)) &&
               (NoOp.narrows(task.instruction, reader) ||
                   task.instruction.descendantsOfType<NoOp>().isNotEmpty())
         }

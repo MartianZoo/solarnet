@@ -15,7 +15,7 @@ internal class TilePlacingTest {
     val game = setUpGame()
     with(game.tfm(PLAYER2)) {
       phase("Action")
-      godMode().manual("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
+      manual("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
       assertFailsWith<NarrowingException> {
         stdProject("CitySP") { doTask("CityTile<Tharsis_3_4>") }
       }
@@ -27,8 +27,8 @@ internal class TilePlacingTest {
     val game = setUpGame()
     val p2 = game.tfm(PLAYER2)
 
-    p2.godMode().manual("CityTile<Tharsis_3_3>")
-    assertFailsWith<LimitsException> { p2.godMode().manual("OceanTile<Tharsis_3_3>!") }
+    p2.manual("CityTile<Tharsis_3_3>")
+    assertFailsWith<LimitsException> { p2.manual("OceanTile<Tharsis_3_3>!") }
   }
 
   @Test
@@ -36,7 +36,7 @@ internal class TilePlacingTest {
     val game = setUpGame()
 
     with(game.tfm(PLAYER1)) {
-      godMode().sneak("100 MC")
+      sneak("100 MC")
       phase("Action")
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_3>") }
       assertFailsWith<NarrowingException> {
@@ -45,7 +45,6 @@ internal class TilePlacingTest {
       // Yer surrounded!
       game
           .tfm(PLAYER2)
-          .godMode()
           .manual(
               "GreeneryTile<Tharsis_3_2>, GreeneryTile<Tharsis_3_3>, " +
                   "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
@@ -62,15 +61,14 @@ internal class TilePlacingTest {
     val p2 = game.tfm(PLAYER2)
 
     // Player1 has greenery next to south pole
-    p1.godMode().manual("4 MC, GreeneryTile<Hellas_9_8>")
+    p1.manual("4 MC, GreeneryTile<Hellas_9_8>")
 
     // Player2 completely surrounds it except for south pole (Hellas_9_7)
-    p2.godMode()
-        .manual("GreeneryTile<Hellas_8_7>, GreeneryTile<Hellas_8_8>, GreeneryTile<Hellas_9_9>")
+    p2.manual("GreeneryTile<Hellas_8_7>, GreeneryTile<Hellas_8_8>, GreeneryTile<Hellas_9_9>")
 
     // Player1 is 2 money short of what they need to place on the south pole
     assertFailsWith<LimitsException> { // do we care which step fails?
-      p1.godMode().manual("GreeneryTile<>") {
+      p1.manual("GreeneryTile<>") {
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OceanTile<Hellas_4_6>")
       }
@@ -79,13 +77,13 @@ internal class TilePlacingTest {
 
     // But too bad, they don't get permission to place elsewhere!
     assertFailsWith<NarrowingException> {
-      p1.godMode().manual("GreeneryTile<>") { doTask("GreeneryTile<Hellas_7_5>") }
+      p1.manual("GreeneryTile<>") { doTask("GreeneryTile<Hellas_7_5>") }
     }
 
     // That concludes our test. But for funsies,
     // Suppose there had already been an ocean to place next to - now it works
-    p2.godMode().manual("OceanTile<Hellas_5_6>")
-    p1.godMode().manual("GreeneryTile<>") {
+    p2.manual("OceanTile<Hellas_5_6>")
+    p1.manual("GreeneryTile<>") {
       doTask("GreeneryTile<Hellas_9_7>")
       doTask("OceanTile<Hellas_4_6>")
     }
@@ -100,10 +98,10 @@ internal class TilePlacingTest {
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      godMode().manual("666 MC, CityTile<Tharsis_8_6>") // shown as [] in comment below
+      manual("666 MC, CityTile<Tharsis_8_6>") // shown as [] in comment below
 
       // try to fool it by having an opponent tile at the XX below
-      godMode().manual("CityTile<Player2, Tharsis_6_7>")
+      manual("CityTile<Player2, Tharsis_6_7>")
 
       // Use the standard project so that the placement rule is in effect
       stdProject("GreenerySP") {

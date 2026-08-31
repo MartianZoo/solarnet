@@ -19,20 +19,19 @@ internal class CustomMetricMilestonesTest {
   @Test
   internal fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
     val p1 = Engine.newGame(canonicalPremise(Elysium, players = 2)).tfm(PLAYER1)
-    p1.godMode()
-        .sneak(
-            "$ColonizerTrainingCamp, $DeepWellHeating, $CloudSeeding, $MartianRails, " +
-                "$WaterImportFromEuropa, $EquatorialMagnetizer, $DomedCrater, $NoctisCity, " +
-                "$MethaneFromTitan, $ResearchOutpost, $PhobosSpaceHaven, $BlackPolarDust, " +
-                "$ArcticAlgae, $Predators"
-        )
+    p1.sneak(
+        "$ColonizerTrainingCamp, $DeepWellHeating, $CloudSeeding, $MartianRails, " +
+            "$WaterImportFromEuropa, $EquatorialMagnetizer, $DomedCrater, $NoctisCity, " +
+            "$MethaneFromTitan, $ResearchOutpost, $PhobosSpaceHaven, $BlackPolarDust, " +
+            "$ArcticAlgae, $Predators"
+    )
 
     p1.count("ActiveCard OR AutomatedCard") shouldBe 14
-    shouldThrow<RequirementException> { p1.godMode().manual("Tycoon15") }
+    shouldThrow<RequirementException> { p1.manual("Tycoon15") }
 
-    p1.godMode().sneak("$EosChasmaNationalPark")
+    p1.sneak("$EosChasmaNationalPark")
     p1.count("ActiveCard OR AutomatedCard") shouldBe 15
-    p1.godMode().manual("Tycoon15")
+    p1.manual("Tycoon15")
     p1.count("Tycoon15") shouldBe 1
   }
 
@@ -50,23 +49,19 @@ internal class CustomMetricMilestonesTest {
             )
         )
     val p1 = game.tfm(PLAYER1)
-    p1.godMode()
-        .manual(
-            "$Ecoline, $ThorGate, $Phobolog, $InventorsGuild, $EarthOffice, " +
-                "$IoMiningIndustries, $Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
-        )
-    game
-        .tfm(PLAYER2)
-        .godMode()
-        .manual("$EarthCatapult, $Mine, $DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
+    p1.manual(
+        "$Ecoline, $ThorGate, $Phobolog, $InventorsGuild, $EarthOffice, " +
+            "$IoMiningIndustries, $Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
+    )
+    game.tfm(PLAYER2).manual("$EarthCatapult, $Mine, $DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
 
     p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 7
     p1.count("Class<Tag>(HAS Tag<Player2>)") shouldBe 3
-    shouldThrow<RequirementException> { p1.godMode().manual("Diversifier") }
+    shouldThrow<RequirementException> { p1.manual("Diversifier") }
 
-    p1.godMode().manual("$Decomposers")
+    p1.manual("$Decomposers")
     p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 8
-    p1.godMode().manual("Diversifier")
+    p1.manual("Diversifier")
     p1.count("Diversifier") shouldBe 1
   }
 
@@ -82,14 +77,14 @@ internal class CustomMetricMilestonesTest {
                 )
             )
             .tfm(PLAYER1)
-    p1.godMode().sneak("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
+    p1.sneak("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
 
     p1.count("CardFront(HAS requirement)") shouldBe 4
-    shouldThrow<RequirementException> { p1.godMode().manual("Tactician5") }
+    shouldThrow<RequirementException> { p1.manual("Tactician5") }
 
-    p1.godMode().sneak("$BreathingFilters")
+    p1.sneak("$BreathingFilters")
     p1.count("CardFront(HAS requirement)") shouldBe 5
-    p1.godMode().manual("Tactician5")
+    p1.manual("Tactician5")
     p1.count("Tactician5") shouldBe 1
   }
 }

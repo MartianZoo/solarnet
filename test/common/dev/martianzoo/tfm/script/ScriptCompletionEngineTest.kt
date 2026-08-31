@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.engine.Gameplay.TaskLayer
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionEngine
 import dev.martianzoo.script.ScriptSession
@@ -73,8 +73,8 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun completesTaskInstructionsAndSingletonTaskActions() {
-    (repl.gameplay.godMode() as TaskLayer).addTasks("2 Plant?")
-    (repl.gameplay.godMode() as TaskLayer).addTasks("3 Heat?")
+    (repl.agent as Agent).addTasks("2 Plant?")
+    (repl.agent as Agent).addTasks("3 Heat?")
 
     assertFalse(values("task ").any { it == "A" || it == "B" })
     assertContainsAll(values("task Pl"), "Plant", "PlantTag")
@@ -84,7 +84,7 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
-    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    val taskLayer = repl.agent as Agent
     taskLayer.addTasks("2 Plant?")
     assertTrue(repl.command("tasks").single().startsWith("[Engine] "))
     assertTrue(repl.command("task select").single().startsWith("* [Engine] "))
@@ -100,7 +100,7 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun selectAndDropRejectMultipleTasks() {
-    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    val taskLayer = repl.agent as Agent
     taskLayer.addTasks("2 Plant?")
     taskLayer.addTasks("3 Heat?")
     repl.command("mode yellow")
@@ -123,7 +123,7 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun treatsAnUnassignedUppercaseTokenAsAnInstruction() {
-    (repl.gameplay.godMode() as TaskLayer).addTasks("StandardAction?")
+    (repl.agent as Agent).addTasks("StandardAction?")
     assertEquals(listOf(null), repl.game.tasks.extract { it.whyPending })
 
     val output = repl.command("task PlayCardSA")
@@ -134,7 +134,7 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun disambiguatesAnInstructionWithItsCurrentTaskPosition() {
-    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    val taskLayer = repl.agent as Agent
     taskLayer.addTasks("Plant? OR Ok")
     taskLayer.addTasks("Heat? OR Ok")
 
@@ -148,7 +148,7 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun taskPositionsAreDerivedAgainAfterRollback() {
-    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    val taskLayer = repl.agent as Agent
     taskLayer.addTasks("Plant? OR Ok")
     taskLayer.addTasks("Heat? OR Ok")
     val checkpoint = repl.game.timeline.checkpoint()

@@ -9,7 +9,6 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -31,9 +30,6 @@ public data class Effect(
       throw PetSyntaxException("$it trigger requires IF or BY")
     }
   }
-
-  public val linkedTypeSources: Set<Expression>
-    get() = recordedLinkedTypeSources
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Effect::class
 
@@ -254,13 +250,11 @@ public data class Effect(
           colons and
           maybeGroup(InstructionTree.parser()) map
           { (trig, immed, instr) ->
-            val effect =
-                Effect(
-                    trigger = trig,
-                    automatic = immed,
-                    instruction = instr,
-                )
-            effect.withLinkedTypeSources(TypeLinking.sourcesAcrossRegions(effect))
+            Effect(
+                trigger = trig,
+                automatic = immed,
+                instruction = instr,
+            )
           }
     }
   }

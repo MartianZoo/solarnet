@@ -71,11 +71,10 @@ public object Engine {
               customClasses,
           )
         }
-    private val gameplayByActor: Map<Actor, Gameplay> =
-        premise.actors.associateWith(::createGameplay)
+    private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
     private val initializer =
         Initializer(
-            gameplayByActor.getValue(ENGINE),
+            agentByActor.getValue(ENGINE),
             instructorByActor.getValue(ENGINE),
             taskQueues,
             classTable,
@@ -91,7 +90,7 @@ public object Engine {
             reader,
             classTable,
             vocabulary,
-            gameplayByActor,
+            agentByActor,
             timeline,
             recordingPositions,
             premise,
@@ -158,7 +157,7 @@ public object Engine {
       }
     }
 
-    private fun createGameplay(actor: Actor): Gameplay {
+    private fun createAgent(actor: Actor): Agent {
       val tasks = taskQueues[actor]
       val changer = changerByActor.getValue(actor)
       val instructor = instructorByActor.getValue(actor)

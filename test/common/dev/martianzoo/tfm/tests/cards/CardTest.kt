@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
@@ -115,16 +115,16 @@ internal abstract class CardTest(
     p2 = players.getOrNull(1)?.let { tfm(it) }
   }
 
-  /** Runs an instruction through the engine while hiding the uninteresting GodMode plumbing. */
+  /** Runs an instruction through the engine while hiding the uninteresting Agent plumbing. */
   protected fun TfmGameplay.manual(
       instruction: String,
       body: BodyLambda = {},
-  ): TaskResult = godMode().manual(instruction, body)
+  ): TaskResult = manual(instruction, body)
 
-  protected fun Gameplay.manual(
+  protected fun Agent.manual(
       instruction: String,
       body: BodyLambda = {},
-  ): TaskResult = godMode().manual(instruction, body)
+  ): TaskResult = manual(instruction, body)
 
   private companion object {
     private data class SetupKey(
