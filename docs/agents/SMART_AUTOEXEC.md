@@ -17,7 +17,7 @@
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
-  `candidatesFor` and `registryOrder` before defining EGS equality.
+  `candidatesFor` and `stableAutomaticOrder` before defining EGS equality.
 - [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) and
   [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) — inspect
   selected state, continuations, causes, normalization, and id-only ordering.
@@ -125,19 +125,12 @@ alpha-renamed only through the semantic-symmetry rule below. At minimum the cand
 `whyPending`, event text, policy credit, and raw ordinals may remain diagnostic only. Cause context
 cannot be dropped today: `TfmGameplay` searches it and sometimes groups tasks by exact cause.
 
-There is a current engine defect behind `registryOrder`. `Effector.candidatesFor` uses it because
-earlier automatic effects may change what later effects observe, while
-[SEQUENCING.md](SEQUENCING.md#use-automatic-effects-to-preserve-player-visible-invariants) says
-gameplay must not rely on registration order between automatic effects. Removing the last copy of
-an effect-bearing component deletes its ordinal; rollback re-adds it with a new ordinal because
-`nextRegistryOrder` is monotonic and is not timeline state. Speculation on the live World therefore
-changes later gameplay even when it records no lasting events. The same defect affects ordinary
-failed operations and rollback-backed task-selection probes.
-
-Do not enshrine that order in EGS. Make automatic-effect sequencing semantic or canonical as owned
-by `SEQUENCING.md`, and require every speculative proof to use a disposable World overlay rather
-than checkpoint-and-restore on the live World. Until that defect is fixed, component/task equality
-cannot prove future equivalence.
+Automatic-effect registration order is no longer gameplay state. Ordinary execution derives a
+reproducible order from immutable pending-work data, while diagnostic execution shuffles eligible
+automatic siblings to expose an improper gameplay dependency. Do not include either incidental
+order in EGS. Speculative proofs still belong in disposable Worlds because their event suffixes,
+materialized indexes, and observations must not touch the live World; see
+[GAME_WORLDS.md](GAME_WORLDS.md#later-overlay-game-worlds).
 
 More generally, event history can be excluded only while game mechanics and custom code cannot read
 it. Derived indexes, caches, random-generator state, workflow fields, and future hidden-information
@@ -418,16 +411,8 @@ replays one accepted order is not sound when:
 
 - it does not explore interleavings with tasks created by the batch, so the concrete `IF`/`PER`
   form of the `A,C,B` counterexample above can pass an immediate-order comparison;
-- component/task comparison omits live-effect registry order, and rollback-backed speculation can
-  itself mutate that order before evaluating the next candidate;
 - one immediate concrete form per original task does not cover legal narrowings; and
 - composing the proof with another policy inherits every unproved assumption in that policy.
-
-The registry defect already has a two-task witness. Let `W1` own automatic effect `A:: Flag` and
-`W2` own `A:: Marker / Flag`, with one of each present. Tasks `-W1, W1` and `W1, -W1` reach the same
-component multiset and empty task pool, so an immediate component/task comparator treats them as
-equivalent. The first order drops and recreates `W1`'s registry ordinal behind `W2`; the second never
-drops it. A later `A` therefore produces different `Marker` results.
 
 Resolution used by analysis must remain read-only or run in a disposable World; otherwise the act
 of proving can itself change later gameplay.

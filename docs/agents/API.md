@@ -215,6 +215,10 @@ Open naming and exact command-scope questions do not change this direction. Do n
 Actor-local auto-exec, native workflow delegation, hidden-information observation, or disposable
 state forks into the mechanical flattening.
 
+[GAME_WORLDS.md](GAME_WORLDS.md) separately settles the capability split: a live workhorse may
+destructively roll back only to Checkpoints, while independent Recording navigation is read-only
+and does not belong on the workhorse.
+
 ## Open questions and risks
 
 These remain intentionally unsettled:
@@ -223,7 +227,6 @@ These remain intentionally unsettled:
    `ActorEngine`.
 2. Which methods are complete commands and which are primitives composed inside another command.
 3. Which coordinated child-object mutations should eventually become direct workhorse operations.
-4. How much timeline control belongs on the root facade versus `World.timeline`.
 
 Risks to preserve during the work:
 

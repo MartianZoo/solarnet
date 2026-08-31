@@ -383,7 +383,9 @@ Trade Envoys and Trading Colony deliberately create a `TradeBarrier` automatical
 queued optional production decision later removes it.
 
 Do not rely on registration order between two automatic effects. If one must follow the other, make
-the first event trigger the second. Do not use `::` for a player choice, just to manipulate queue
+the first event trigger the second. Ordinary execution retains a reproducible order derived from
+immutable pending-work data, while diagnostic execution shuffles eligible automatic siblings to
+expose an improper dependency. Do not use `::` for a player choice, just to manipulate queue
 admission, or as a substitute for a scope that must wait for transitive descendants to finish.
 
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
@@ -659,13 +661,6 @@ this is acceptable only while nothing can observe their relative order.
 - **Trade settlement:** determine whether the same yield protocol can delete `TradeBarrier` without
   losing the selected ColonyTile or letting colony-track reset be observed
   before income and colony bonuses finish.
-- **Automatic-effect order:** remove the current runtime dependence on registration order, then
-  prove setup, generation, and phase effects respect the replacement semantic or canonical order.
-  `registryOrder` is not rollback-stable: removing the last effect-bearing component drops its
-  ordinal, and rollback re-adds it after surviving effects. Failed operations and speculative
-  execution can therefore change later gameplay; see the analysis in
-  [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md#egs-equality-obligations).
-
 ## Workflow precedence
 
 These are domain constraints even where the current workflow approximates them:

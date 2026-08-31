@@ -24,7 +24,7 @@
 | --- | --- |
 | Distinguish engine semantics from client policy | Core distinction; Resolution is not a policy |
 | Design a policy interface or driver | Policy pool and driver through Agent provenance |
-| Add analysis, speculative Worlds, or performance guarantees | Analysis and disposable Worlds; Performance contract |
+| Add analysis, speculative Worlds, or performance guarantees | [GAME_WORLDS.md](GAME_WORLDS.md#later-overlay-game-worlds); Performance contract |
 | Prove that selecting, narrowing, or executing a task is safe | [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) |
 | Plan or review the extraction from engine | Broad implementation direction; First implemented split; Current implementation divergence |
 | State the acceptance contract | Required invariants |
@@ -197,14 +197,11 @@ work or erase the identity of the policy that supplied each command.
 
 ## Analysis and disposable Worlds
 
-Some proof policies need more than local structural inspection. Read-only analysis may use a
-disposable Game World overlay: share immutable declarations, overlay component and live-effect
-state, copy the small task queues, and extend event history only for diagnosis. Every branch is
-discarded after analysis; the chosen command is then applied to the live World.
-
-Overlays do not authorize arbitrary selection. They are useful only when the policy checks the
-complete relevant candidate set and proves forcedness or semantic equivalence. The backing World
-revision must remain explicit so analysis is never applied to a changed state.
+[GAME_WORLDS.md](GAME_WORLDS.md#later-overlay-game-worlds) owns the disposable Overlay model.
+Overlays do not authorize arbitrary selection: a policy must still examine the complete relevant
+candidate set and prove forcedness or semantic equivalence. Every certificate remains tied to the
+exact backing-World revision, and the chosen command is submitted normally to the unchanged live
+World.
 
 ## Performance contract
 

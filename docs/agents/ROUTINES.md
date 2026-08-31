@@ -18,15 +18,16 @@ Routine calls have two related uses:
 1. concise, readable interaction in the REPL and replay tests; and
 2. the player-input stream of a saved game.
 
-A saved game retains both the Routine stream and the concrete state changes it originally produced.
-Those support two intentionally different restore modes:
+A saved container may retain only the Routine request stream or add the complete events and
+Checkpoints it originally produced. Those support two intentionally different modes:
 
-1. reproduce the earlier net component state, issuing adjustments from the recorded changes as
-   needed; or
-2. replay the fixed player choices through the current engine, accepting that changed rules or
-   implementation may produce a different game.
+1. replay the fixed requests through a real engine, accepting the selected engine version's
+   consequences; or
+2. rematerialize the exact recorded state mechanically from complete events, with no engine.
 
-The Routine stream is compact input, not a durable encoding of its consequences.
+The Routine stream is compact input, not a durable encoding of its consequences. The two saved
+forms, their shared container, and independent Recording model belong to
+[GAME_WORLDS.md](GAME_WORLDS.md#two-saved-forms).
 
 The native World-export miniproject uses that Routine stream as its readable replay format. The
 engine owns the format and `World.export()` API; `script` is only its current importer. This does

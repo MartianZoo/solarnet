@@ -1,11 +1,12 @@
 # Engine model
 
-> **Read when:** changing live World construction, components, events, tasks, effects, rollback,
+> **Read when:** changing live World construction, components, tasks, effects,
 > recoverable dead ends, input transformation, or the current `Gameplay` surface.
 >
 > **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
 > [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
-> resolution.
+> resolution. Use [GAME_WORLDS.md](GAME_WORLDS.md) for events, recordings, checkpoints,
+> scrolling, rollback, and overlays.
 >
 > **Status:** current-model map. Follow the source pointers for exact behavior. Future facade and
 > workflow directions live in [API.md](API.md) and [WORKFLOW.md](WORKFLOW.md).
@@ -15,7 +16,8 @@
 | If changing | Read |
 | --- | --- |
 | Game creation or premise activation | Game construction, then Wiring details |
-| Component state, event history, rollback, or forks | Component graph; Events and timeline; Recoverable dead ends |
+| Component state | Component graph |
+| Current event and timeline implementation | Events and timeline, then [GAME_WORLDS.md](GAME_WORLDS.md) for the target model |
 | Tasks, assignment, selection, narrowing, resolution, or execution | Tasks are an unordered choice pool through Execution |
 | Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
 | Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
@@ -133,6 +135,9 @@ instruction defaults so Kotlin translation remains its sole behavior.
 
 ## Events and timeline
 
+[GAME_WORLDS.md](GAME_WORLDS.md) owns the target history, Recording, Checkpoint, rollback, and
+overlay model. This section records only the current engine implementation.
+
 The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, `TaskEditedEvent`, and the
 diagnostic `GameplayInputEvent`. A change records its Actor and Cause, with changed component Types
 stored as minimal round-tripping expressions. A successful Player command records its submitted
@@ -145,29 +150,23 @@ from event equality and gameplay-state equivalence. The current autoexecution br
 mode as the agent for automatic Player inputs; older direct calls leave it absent.
 
 `EventLog.record` and rollback are the single history/mutation interface: application or reversal
-must succeed before the log changes. Each forward or reverse mutation advances an opaque
-`WorldRevision`. Unlike an event-count checkpoint, a revision is never reused after rollback.
-That distinction is intended to let a future overlay or fork detect any mutation of its backing
-World even when the event count returns to the same value.
+must succeed before the log changes. Each current event has one integer ordinal. Each forward or
+reverse mutation advances an opaque `WorldRevision`; unlike the event-count checkpoint, a revision
+is never reused after rollback.
 
 A log may capture another log as an immutable prefix in constant time. Later source events are not
 part of the capture, and the source may not roll back that captured prefix while the suffix exists.
 
-`Timeline` provides checkpoints, atomic blocks, rollback, and a commit floor. An atomic failure
-reverses component state, tasks, event-backed indexes, and events. The current live-effect
-`registryOrder` is an exception: remove/re-add rollback can assign a new ordinal, as audited in
-[SEQUENCING.md](SEQUENCING.md#open-design-or-rules-audits). `AbortOperationException` requests
-rollback without surfacing as a caller error. The commit floor prevents rollback into
-initialization or a workflow stage.
+`Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
+failure reverses component state, tasks, event-backed indexes, and events.
+`AbortOperationException` requests rollback without surfacing as a caller error. The commit floor
+prevents rollback into initialization or a workflow stage.
 
-`World.recording()` captures the current event sequence and positions after each successful
-outermost gameplay operation. It also captures the position after the operation-completion callback,
-so synchronously resumed workflow activity is one automatic follow-up step rather than many internal
-task selections. A `GameRecording` can seek backward or forward only among those positions and the
-final state. Seeking mechanically reverses or reapplies captured component and task events; it does
-not run gameplay operations again. Capturing seals the World's public Timeline rollback surface to
-the same positions; internal atomic failure recovery remains able to restore its operation
-checkpoint.
+`World.recording()` currently captures the event sequence and selected positions around successful
+outermost gameplay completion. `GameRecording.seek` reverses or reapplies those events on the same
+live `World`, and capturing seals its public rollback surface to those positions. This is the
+transitional implementation that [GAME_WORLDS.md](GAME_WORLDS.md#recordings) replaces with an
+independent Recording and request-scoped Checkpoints.
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.
