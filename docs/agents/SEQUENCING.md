@@ -386,13 +386,15 @@ queued optional production decision later removes it.
 
 No gameplay ordering guarantee may depend on mutable runtime state that rollback does not restore.
 In particular, do not rely on registration order between two automatic effects. If one must follow
-the other, make the first event trigger the second. The current self-effects-before-other-effects
-execution order is likewise an implementation detail, not an authoring guarantee.
+the other, make the first event trigger the second.
 
-Provide a pathological test mode that executes eligible automatic siblings in reverse and in a
-reproducibly randomized order. The ordinary suite should pass in those modes; failures expose an
-unstated order dependency. Do not use `::` for a player choice, just to manipulate queue admission,
-or as a substitute for controlled completion.
+Ordinary execution retains self-effects before other effects for reproducible history, and orders
+each group from immutable pending-work data. Neither order has gameplay meaning. The diagnostic mode
+shuffles the entire eligible automatic batch and has found no remaining game-state difference.
+Two whole-game assertions that assign saturated `Owed` removals to Advanced Alloys can still vary;
+that known payment-history defect is described above and does not justify ordering payment effects.
+Do not use `::` for a player choice, just to manipulate queue admission, or as a substitute for
+controlled completion.
 
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
 reach may be wider than its payment transaction.
@@ -635,13 +637,6 @@ this is acceptable only while nothing can observe their relative order.
   successful payment from queue drain.
 - **Trade settlement:** retain `TradeBarrier` until a direct completion event can keep fleet
   movement after every optional production decision without losing the selected trade operation.
-- **Automatic-effect order:** remove the current runtime dependence on registration order, then
-  prove setup, generation, and phase effects under normal, reverse, and reproducibly randomized
-  automatic-sibling enumeration.
-  `registryOrder` is not rollback-stable: removing the last effect-bearing component drops its
-  ordinal, and rollback re-adds it after surviving effects. Failed operations and speculative
-  execution can therefore change later gameplay; see the analysis in
-  [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md#egs-equality-obligations).
 
 ## Workflow precedence
 

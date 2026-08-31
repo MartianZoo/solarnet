@@ -129,10 +129,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
   dependencies. Autoexecution policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **High priority:** Add test modes that execute eligible automatic-effect siblings in reverse and
-  reproducibly randomized orders. Remove gameplay reliance on `registryOrder` and on the current
-  self-effect-before-other-effect implementation order; no ordering guarantee may depend on mutable
-  runtime state that rollback does not restore.
 - **Medium priority:** Retain `TradeBarrier` until a direct completion event can keep fleet movement
   after every optional production decision without losing the selected trade operation.
 - **Medium-high priority:** Finish replacing the legacy “linkage” terminology and machinery with the
