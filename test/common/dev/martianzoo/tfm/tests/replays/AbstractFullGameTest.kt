@@ -114,7 +114,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
       game.tasks.editTask(unselectedTask)
     }
 
-    godMode().sneak(adjustment)
+    sneak(adjustment)
 
     if (selectedId != null) {
       val task = game.tasks.getTaskData(selectedId)
@@ -203,7 +203,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
         .extract { it.assignee }
         .toSet()
         .forEach {
-          game.agent(it).godMode().dropTasks()
+          game.agent(it).dropTasks()
         }
   }
 }

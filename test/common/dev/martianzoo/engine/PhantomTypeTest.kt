@@ -12,12 +12,12 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).agent(ENGINE).godMode()
+  private fun agent() = Engine.newGame(canonicalPremise()).agent(ENGINE)
 
   @Test
   internal fun `inactive types and their class literals count zero`() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(ENGINE).godMode()
+    val agent = game.agent(ENGINE)
     val venusTag = agent.resolve("VenusTag")
 
     agent.count("VenusTag") shouldBe 0

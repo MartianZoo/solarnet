@@ -1,6 +1,5 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Agent.TurnLayer
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
@@ -21,7 +20,7 @@ internal class PhaseCommand(private val repl: ScriptSession) : ScriptCommand("ph
     // TODO Better way to do it??
     val saved = repl.agent
     return try {
-      repl.agent = repl.game.agent(ENGINE) as TurnLayer
+      repl.agent = repl.game.agent(ENGINE)
       repl.describeExecutionResults(repl.access().phase(args.trim()))
     } finally {
       repl.agent = saved

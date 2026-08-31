@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Agent.TaskLayer
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
@@ -15,7 +14,7 @@ internal class GameRecordingTest {
   internal fun recordingSeeksAcrossCompletedOperationsAndNotifiesComponentListeners() {
     val game = Engine.newGame(canonicalPremise())
     val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val tasks = agent.godMode() as TaskLayer
+    val tasks = agent as Agent
     val heat = game.reader.resolve(parse<Expression>("Heat<Player1>"))
     val observedCounts = mutableListOf<Int>()
     val subscription = game.components.listenToCount(heat, game.reader, observedCounts::add)
@@ -53,7 +52,7 @@ internal class GameRecordingTest {
   @Test
   internal fun automaticFollowUpWorkIsOneSeparateRecordedStep() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     var addAutomaticResources = true
     game.onAtomicComplete = {
       if (addAutomaticResources) {

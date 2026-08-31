@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Agent.TaskLayer
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.*
@@ -12,7 +11,7 @@ import kotlin.test.Test
 internal class TaskSelectionTest {
   private val game = setUpGame()
   private val agent = game.agent(PLAYER1).also { it.autoExecMode = AutoExecMode.NONE }
-  private val tasks = agent.godMode() as TaskLayer
+  private val tasks = agent as Agent
 
   @Test
   internal fun `an omitted task number rejects distinct matching tasks`() {

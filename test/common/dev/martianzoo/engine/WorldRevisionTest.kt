@@ -9,7 +9,7 @@ internal class WorldRevisionTest {
   @Test
   internal fun rollbackRestoresTheCheckpointWithoutReusingItsRevision() {
     val world = Engine.newGame(testGamePremise()) as WholeWorld
-    val p1 = world.agent(PLAYER1).godMode()
+    val p1 = world.agent(PLAYER1)
     val checkpoint = world.timeline.checkpoint()
     val originalRevision = world.revision
 

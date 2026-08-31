@@ -1,18 +1,16 @@
 # Engine workhorse and client API direction
 
-> **Read when:** flattening `Agent`, removing a power interface or `godMode()`, changing command
-> transaction scopes, or designing a real client/observation API.
+> **Read when:** changing `Agent` command scopes or designing a real client/observation API.
 >
 > **Skip when:** adding a gameplay operation without changing facade ownership; use the
 > Agent section of [ENGINE.md](ENGINE.md#current-agent-surface).
 >
-> **Status:** proposal. Some read/write data-structure pairs have been collapsed; the `Agent`
-> power hierarchy and `godMode()` remain committed behavior.
+> **Status:** current flat workhorse and proposal for a later restricted client API.
 
 ## Source map
 
 - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
-  `public interface Agent` to see the current power hierarchy.
+  `public interface Agent` to see the current workhorse surface.
 - [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) —
   search for `internal class ApiTranslation` before moving string/value adaptation.
 - [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
@@ -29,30 +27,16 @@ Separate two responsibilities:
 2. **Caller authority:** decide which operations a player, workflow, script color, test, or
    administrator may request.
 
-The existing `engine` module should become one flat, trusted, Actor-scoped workhorse responsible
-for integrity. A later client layer should own roles, permissions, visibility, and safe workflows.
+The `engine` module has one flat, trusted, Actor-scoped workhorse responsible for integrity. A later
+client layer should own roles, permissions, visibility, and safe workflows.
 The `script` module may enforce its color modes locally in the meantime.
 
-Flattening does not mean exposing mutable collections. Every mutation must still pass through the
+A flat facade does not mean exposing mutable collections. Every mutation must still pass through the
 single mechanism that maintains its structure and history.
 
-## Why change
+## Current workhorse
 
-The current hierarchy is nominal rather than protective:
-
-```text
-Agent -> TurnLayer -> OperationLayer -> TaskLayer -> GodMode
-```
-
-`ApiTranslation` implements every layer. `Agent.godMode()` reveals the bottom and callers cast
-the same object back to intermediate layers. Script colors reconstruct policy with those casts.
-
-This complicates signatures without enforcing authority. It also confuses API taxonomy with the
-real safety mechanism: coordinated mutation.
-
-## Target workhorse
-
-One Actor-scoped engine facade should expose the supported trusted operations:
+One Actor-scoped engine facade exposes the supported trusted operations:
 
 - contextual parsing and queries;
 - task selection, narrowing, execution, insertion, and removal;
@@ -60,8 +44,8 @@ One Actor-scoped engine facade should expose the supported trusted operations:
 - read-only task analysis usable by explicit clients and optional autoexecution policies; and
 - conspicuously named rules-bypassing changes.
 
-`godMode()` and the intermediate power interfaces disappear. Keep dangerous primitives internal;
-publish only integrity-preserving operations.
+Dangerous primitives remain internal; the flat facade publishes only integrity-preserving
+operations. The script module enforces its color modes without representing them as engine types.
 
 The workhorse must preserve:
 
@@ -195,25 +179,20 @@ should accumulate every policy:
   test conveniences, and read-model calculations. Those are distinct future clients of the
   workhorse.
 
-This split is an aspiration to guide ownership during the mechanical flattening. It does not
-authorize building the later permission API at the same time.
+This responsibility split remains an aspiration after the facade flattening. It does not authorize
+building the later permission API at the same time.
 
 ## Safe sequence
 
-1. Add behavior tests for script modes, rollback, `TaskResult`, current autoexecution coupling,
-   outermost notification, and reversibility.
-2. Move operations onto one `Agent` workhorse and remove `godMode()` plus the intermediate
-   interfaces without changing behavior.
-3. Replace script casts with centralized checks.
-4. Collapse any remaining read/write API pair one structure at a time while keeping raw mutation
+1. Collapse any remaining read/write API pair one structure at a time while keeping raw mutation
    internal.
-5. Extract and name the command lifecycle.
-6. Remove obsolete bindings, casts, and documentation.
-7. Stop. Design the safe client API separately from actual observation and workflow requirements.
+2. Extract and name the command lifecycle.
+3. Remove obsolete bindings, casts, and documentation.
+4. Stop. Design the safe client API separately from actual observation and workflow requirements.
 
 Open command-scope questions do not change this direction. Do not mix
 Actor-local auto-exec, native workflow delegation, hidden-information observation, or disposable
-state forks into the mechanical flattening.
+state forks into the remaining API work.
 
 ## Open questions and risks
 

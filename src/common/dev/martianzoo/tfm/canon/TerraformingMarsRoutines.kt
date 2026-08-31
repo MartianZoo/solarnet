@@ -460,17 +460,17 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
 
   private fun executeRoutine(body: BodyLambda): TaskResult =
       try {
-        agent.godMode().finish {
+        agent.finish {
           body()
           settleFinishedWildTagUses()
         }
       } catch (_: AbstractException) {
-        agent.godMode().continueManual {
+        agent.continueManual {
           body()
           settleFinishedWildTagUses()
         }
       } catch (_: TaskException) {
-        agent.godMode().continueManual {
+        agent.continueManual {
           body()
           settleFinishedWildTagUses()
         }
@@ -487,7 +487,7 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
       doTask("Ok", task.index + 1)
     }
     val removals = uses.elements.joinToString(", ") { "-${it.expression}" }
-    agent.godMode().manual(removals)
+    agent.manual(removals)
   }
 
   internal fun assignWildTag(arguments: List<String>): TaskResult {

@@ -14,7 +14,7 @@ internal class MarsUniversityTest : CardTest() {
     ) { /* Decline Mars University's discard-and-draw effect. */
       declineTask()
     }
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual
         .manual("$Research") {
@@ -35,7 +35,7 @@ internal class MarsUniversityTest : CardTest() {
     ) { /* Decline Mars University's discard-and-draw effect. */
       declineTask()
     }
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual
         .manual("$Research") {

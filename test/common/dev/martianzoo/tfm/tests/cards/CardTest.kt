@@ -115,16 +115,16 @@ internal abstract class CardTest(
     p2 = players.getOrNull(1)?.let { tfm(it) }
   }
 
-  /** Runs an instruction through the engine while hiding the uninteresting GodMode plumbing. */
+  /** Runs an instruction through the engine while hiding the uninteresting Agent plumbing. */
   protected fun TfmGameplay.manual(
       instruction: String,
       body: BodyLambda = {},
-  ): TaskResult = godMode().manual(instruction, body)
+  ): TaskResult = manual(instruction, body)
 
   protected fun Agent.manual(
       instruction: String,
       body: BodyLambda = {},
-  ): TaskResult = godMode().manual(instruction, body)
+  ): TaskResult = manual(instruction, body)
 
   private companion object {
     private data class SetupKey(

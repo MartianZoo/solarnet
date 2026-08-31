@@ -31,7 +31,7 @@ internal class PharmacyUnionTest : CardTest() {
     p1.manual("$PharmacyUnion")
     p1.manual("-Disease<$PharmacyUnion>")
     val trBefore = p1.count("TerraformRating")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual.manual("$Research") {
       doTask("TerraformRating FROM Disease<$PharmacyUnion>")
@@ -54,7 +54,7 @@ internal class PharmacyUnionTest : CardTest() {
     p1.manual("$PharmacyUnion")
     p1.manual("-2 Disease<$PharmacyUnion>")
     val trBefore = p1.count("TerraformRating")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual.manual("$Research") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
@@ -77,7 +77,7 @@ internal class PharmacyUnionTest : CardTest() {
     p1.manual("-2 Disease<$PharmacyUnion>")
     val moneyBefore = p1.count("MC")
     val trBefore = p1.count("TerraformRating")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual.manual("$RegolithEaters") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")

@@ -15,7 +15,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class DomainExceptionContractTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).agent(PLAYER1).godMode()
+  private fun agent() = Engine.newGame(canonicalPremise()).agent(PLAYER1)
 
   @Test
   internal fun unhandledTransformsAreExpressionFailures() {

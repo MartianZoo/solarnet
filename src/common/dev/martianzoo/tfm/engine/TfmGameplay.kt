@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Agent.OperationBody
-import dev.martianzoo.engine.Agent.TurnLayer
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.BodyLambda
@@ -31,14 +30,14 @@ import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceClasses
 import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
 
 /**
- * Wraps and extends a [Agent] instance to provide much more convenient functions specific to
- * *Terraforming Mars*.
+ * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
+ * Mars*.
  */
 public class TfmGameplay(
     private val game: World,
     override val actor: Actor,
-    private val agent: TurnLayer = game.agent(actor) as TurnLayer,
-) : TurnLayer by agent {
+    private val agent: Agent = game.agent(actor),
+) : Agent by agent {
   public val reader: GameReader by game::reader
 
   private var explicitPaymentChoicesRequired = false
@@ -54,7 +53,7 @@ public class TfmGameplay(
 
   public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
-    asActor(ENGINE).godMode().manual("Generation")
+    asActor(ENGINE).manual("Generation")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
         asPlayer(player).buyCards(cards)
@@ -72,21 +71,19 @@ public class TfmGameplay(
   }
 
   /** Buys the selected number of offered project cards and settles their M€ invoice. */
-  public fun buyCards(count: Int): TaskResult =
-      agent.godMode().continueManual { buySelectedCards(count) }
+  public fun buyCards(count: Int): TaskResult = agent.continueManual { buySelectedCards(count) }
 
   /**
    * Commits every project card currently selected, opening a pending offer first when necessary.
    */
-  public fun buyCards(): TaskResult =
-      agent.godMode().continueManual {
-        closeUnusedPaymentOffers()
-        openPendingProjectCardOffer()
-        val selected = this@TfmGameplay.count("ProjectCard<Selecting>")
-        buySelectedCards(selected)
-        declineWildTagOffers()
-        removeWildTagUses()
-      }
+  public fun buyCards(): TaskResult = agent.continueManual {
+    closeUnusedPaymentOffers()
+    openPendingProjectCardOffer()
+    val selected = this@TfmGameplay.count("ProjectCard<Selecting>")
+    buySelectedCards(selected)
+    declineWildTagOffers()
+    removeWildTagUses()
+  }
 
   private fun OperationBody.buySelectedCards(count: Int) {
     closeUnusedPaymentOffers()
@@ -414,7 +411,7 @@ public class TfmGameplay(
     val uses = reader.getComponents("WildTagUse<$actor>")
     if (uses.isEmpty()) return
     val removals = uses.elements.joinToString(", ") { "-${it.expression}" }
-    godMode().manual(removals)
+    manual(removals)
   }
 
   public fun pay(
@@ -434,7 +431,7 @@ public class TfmGameplay(
     if (autoExecMode != NONE) autoExecMode = SAFE
 
     return try {
-      godMode().continueManual {
+      continueManual {
         val billingCause = openPendingBilling()
         var observedWaste = 0
 
@@ -583,7 +580,7 @@ public class TfmGameplay(
   private fun paymentValue(currency: String): Int {
     val checkpoint = game.timeline.checkpoint()
     return try {
-      godMode().sneak("100 Owed<>, $currency")
+      sneak("100 Owed<>, $currency")
       val owed = count("Owed")
       doTask("Pay<Class<$currency>> FROM $currency")
       owed - count("Owed")
@@ -683,7 +680,7 @@ public class TfmGameplay(
           "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
       )
     }
-    asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
+    asActor(ENGINE).manual("${phase}Phase FROM Phase", body)
   }
 
   public fun production(): Map<ClassName, Int> =

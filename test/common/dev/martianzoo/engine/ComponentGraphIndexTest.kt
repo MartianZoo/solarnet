@@ -14,7 +14,7 @@ internal class ComponentGraphIndexTest {
   @Test
   internal fun componentInMultipleTopLevelBranchesIsCountedOnce() {
     val game = Engine.newGame(canonicalPremise(catalog = IndexProbeCatalog))
-    val agent = game.agent(PLAYER1).godMode()
+    val agent = game.agent(PLAYER1)
     val componentCount = agent.count("Component")
     val checkpoint = game.timeline.checkpoint()
 

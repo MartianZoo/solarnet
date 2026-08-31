@@ -14,7 +14,7 @@ internal class OrTriggerTest {
   @Test
   internal fun simpleSuperclassTriggerFiresForSubclass() {
     val game = newGame()
-    val agent = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 
     agent.beginManual("ConcreteIndexedSignal!") {
       game.tasks
@@ -27,7 +27,7 @@ internal class OrTriggerTest {
   @Test
   internal fun indexingPreservesEffectRegistrationOrderAcrossTriggerClasses() {
     val game = newGame()
-    val agent = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 
     agent.beginManual("ConcreteOrderedSignal!") {
       game.tasks
@@ -40,7 +40,7 @@ internal class OrTriggerTest {
   @Test
   internal fun firstMatchingArmGovernsSpecialization() {
     val game = newGame()
-    val agent = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 
     agent.beginManual("BothSpecializedSignals!") {
       game.tasks

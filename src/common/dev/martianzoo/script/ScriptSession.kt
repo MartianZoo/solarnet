@@ -1,6 +1,6 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.engine.Agent.TurnLayer
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.AutoExecMode
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine
@@ -83,7 +83,7 @@ public class ScriptSession(
   internal val autoExecMode: AutoExecMode
     get() = playerAutoExecMode
 
-  internal lateinit var agent: TurnLayer
+  internal lateinit var agent: Agent
   internal var optionCodes: String = ""
     private set
 
@@ -105,7 +105,7 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgent = candidateGame.agent(ENGINE) as TurnLayer // default autoexec mode
+    val candidateAgent = candidateGame.agent(ENGINE) // default autoexec mode
     if (purple) {
       TfmWorkflow.Auto(candidateGame, playerAutoExecMode = { playerAutoExecMode }).launch()
     } else {
@@ -330,10 +330,10 @@ public class ScriptSession(
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...
   when (mode) {
-        RED -> RedMode(agent.godMode())
-        YELLOW -> YellowMode(agent.godMode())
-        GREEN -> GreenMode(agent.godMode())
-        BLUE -> BlueMode(agent.godMode())
+        RED -> RedMode(agent)
+        YELLOW -> YellowMode(agent)
+        GREEN -> GreenMode(agent)
+        BLUE -> BlueMode(agent)
         PURPLE -> PurpleMode()
       }
 

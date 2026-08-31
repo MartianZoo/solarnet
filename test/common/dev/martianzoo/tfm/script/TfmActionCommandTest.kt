@@ -21,9 +21,9 @@ internal class TfmActionCommandTest {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("become Player1")
-    repl.agent.godMode().manual("PROD[Energy], AiCentral")
+    repl.agent.manual("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.agent.godMode().beginManual("UseAction<UseCardActionSA, First>")
+    repl.agent.beginManual("UseAction<UseCardActionSA, First>")
     repl.command("auto safe")
 
     val output = repl.command("tfm_action AiCentral 1")
@@ -134,9 +134,9 @@ internal class TfmActionCommandTest {
     val repl = ScriptSession()
     repl.command("newgame $options 2")
     repl.command("become Player1")
-    repl.agent.godMode().manual(contents)
+    repl.agent.manual(contents)
     repl.command("phase Action")
-    repl.agent.godMode().beginManual("NewTurn")
+    repl.agent.beginManual("NewTurn")
     return repl
   }
 }

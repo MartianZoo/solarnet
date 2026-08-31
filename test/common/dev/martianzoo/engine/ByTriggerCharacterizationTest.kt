@@ -28,7 +28,7 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByAnyone(actor: Actor) {
     val game = newGame()
-    val agent = game.agent(actor).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(actor).also { it.autoExecMode = NONE }
     agent.sneak("ActorTriggerProbe!")
 
     agent.beginManual("ActorTriggerSignal!") {
@@ -41,7 +41,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerAcceptsPlayer() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     p1.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
     p1.beginManual("-ActorTriggerSignal!") {
@@ -54,7 +54,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
     val game = newGame()
-    val p2 = game.agent(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
 
     p2.beginManual("-OwnedActorTrigger<Player1>!") {
@@ -70,7 +70,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerRejectsEngine() {
     val game = newGame()
-    val engine = game.agent(ENGINE).godMode().also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
     engine.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
     engine.beginManual("-ActorTriggerSignal!")
@@ -81,8 +81,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p1.sneak("OwnedByProbe<Player2>!")
 
     p1.manual("ActorTriggerSignal!")
@@ -98,8 +98,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anUnownedTriggerDefaultsToTheEffectOwner() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p1.sneak("RepeatedOwnerProbe<Player2>!")
     val checkpoint = game.timeline.checkpoint()
 
@@ -126,8 +126,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p1.sneak("OwnedTriggerProbe<Player1>!")
 
     p2.beginManual("OwnedActorTrigger<Player2>!") {
@@ -140,9 +140,9 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
     val game = newGame()
-    val owner = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val other = game.agent(PLAYER2).godMode().also { it.autoExecMode = NONE }
-    val engine = game.agent(ENGINE).godMode().also { it.autoExecMode = NONE }
+    val owner = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val other = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
     owner.sneak("OpponentByProbe<Player1>!")
 
     owner.manual("ActorTriggerSignal!")
@@ -159,8 +159,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun orTriggerMatchesItsRemovalAlternative() {
     val game = newGame()
-    val owner = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val other = game.agent(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val owner = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val other = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     owner.sneak("OpponentByProbe<Player1>!, ActorTriggerSignal!")
 
     other.beginManual("-ActorTriggerSignal!") {

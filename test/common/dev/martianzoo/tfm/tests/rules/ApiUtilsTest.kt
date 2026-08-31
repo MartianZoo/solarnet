@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Agent.GodMode
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -42,7 +42,7 @@ internal class ApiUtilsTest {
             cn("Heat") to 0,
         )
 
-    (game.agent(PLAYER1) as GodMode).sneak("PROD[2 Plant]")
+    (game.agent(PLAYER1) as Agent).sneak("PROD[2 Plant]")
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods2
         .map { it.key to it.value }

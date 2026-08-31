@@ -175,7 +175,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `narrowing to the first stage executes it and admits its THEN continuation`() {
-    writer.godMode().manual("ProjectCard")
+    writer.manual("ProjectCard")
     initiate("(-ProjectCard THEN ProjectCard) OR Ok")
 
     selectAndNarrow("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
@@ -207,7 +207,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `resolution that produces siblings completes the selected structural task`() {
-    writer.godMode().manual("Plant")
+    writer.manual("Plant")
     val original = initiate("Plant: (Steel?, Heat?)").single()
 
     writer.selectTask(original)
@@ -245,7 +245,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `narrowing a selected AMAP target rejects an occupied area`() {
     writer.autoExecMode = AutoExecMode.FIRST
-    writer.godMode().manual("OceanTile<Tharsis_1_2>")
+    writer.manual("OceanTile<Tharsis_1_2>")
     writer.autoExecMode = NONE
     initiate("OceanTile<>")
 
@@ -280,7 +280,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `selection resolves PER before its AMAP target is narrowed`() {
-    writer.godMode().manual("Plant")
+    writer.manual("Plant")
     initiate("OceanTile<> / Plant")
 
     writer.selectTask("OceanTile<> / Plant")
@@ -301,7 +301,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `doing a task evaluates a PER narrowing before matching`() {
-    writer.godMode().manual("3 Heat")
+    writer.manual("3 Heat")
     initiate("X Plant?")
 
     writer.doTask("Plant / Heat")
@@ -390,7 +390,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
-    game.agent(PLAYER2).godMode().manual("3 MC")
+    game.agent(PLAYER2).manual("3 MC")
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
     writer.autoExecNow()
@@ -401,7 +401,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
-    game.agent(PLAYER2).godMode().manual("3 MC")
+    game.agent(PLAYER2).manual("3 MC")
     initiate("3 MC FROM MC<Player>.")
 
     writer.autoExecNow()
@@ -412,7 +412,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `selecting a zero-count AMAP actor after autoexec still binds the continuation`() {
-    writer.godMode().manual("3 MC")
+    writer.manual("3 MC")
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
     writer.autoExecNow()
     writer.autoExecMode = NONE
@@ -426,7 +426,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `selecting an AMAP source binds the later stage before resolution`() {
-    game.agent(PLAYER2).godMode().manual("3 MC")
+    game.agent(PLAYER2).manual("3 MC")
     writer.autoExecMode = NONE
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
@@ -437,7 +437,7 @@ internal class TaskNarrowingTest {
     game.agent(PLAYER2).count("MC") shouldBe 0
   }
 
-  private fun initiate(ins: String) = writer.godMode().addTasks(ins)
+  private fun initiate(ins: String) = writer.addTasks(ins)
 
   private fun selectAndNarrow(current: String, narrowing: String) {
     writer.selectTask(current)

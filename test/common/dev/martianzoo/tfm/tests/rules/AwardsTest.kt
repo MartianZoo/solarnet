@@ -49,10 +49,10 @@ internal class AwardsTest : TfmTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    p1.godMode().sneak("Incorporator, $Ecoline, $InterplanetaryCinematics")
-    p2.godMode().sneak("$MiningGuild, $Mine")
+    p1.sneak("Incorporator, $Ecoline, $InterplanetaryCinematics")
+    p2.sneak("$MiningGuild, $Mine")
 
-    engine.godMode().manual("EndPhase")
+    engine.manual("EndPhase")
 
     p1.assertCounts(0 to "AwardTally<Player1, Incorporator>")
     p2.assertCounts(
@@ -68,12 +68,12 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
 
-    p1.godMode().sneak("Forecaster, $ArtificialLake")
-    p2.godMode().sneak("$Birds, $Algae")
+    p1.sneak("Forecaster, $ArtificialLake")
+    p2.sneak("$Birds, $Algae")
     p1.count("CardFront(HAS requirement)") shouldBe 1
     p2.count("CardFront(HAS requirement)") shouldBe 2
 
-    engine.godMode().manual("EndPhase")
+    engine.manual("EndPhase")
 
     p1.assertCounts(
         1 to "AwardTally<Player1, Forecaster>",
@@ -94,10 +94,10 @@ internal class AwardsTest : TfmTest() {
   internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
     game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().sneak("100 MC")
+    p1.sneak("100 MC")
 
     val first =
-        p1.godMode().manual("UseAction<FundAwardSA, First>") {
+        p1.manual("UseAction<FundAwardSA, First>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Landlord")
         }
@@ -105,7 +105,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     shouldThrow<RequirementException> {
-      p1.godMode().manual("UseAction<FundAwardSA, First>") {
+      p1.manual("UseAction<FundAwardSA, First>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Landlord")
       }
@@ -113,7 +113,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     val second =
-        p1.godMode().manual("UseAction<FundAwardSA, Second>") {
+        p1.manual("UseAction<FundAwardSA, Second>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Scientist")
         }
@@ -121,7 +121,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(78 to "MC", 1 to "Scientist")
 
     val third =
-        p1.godMode().manual("UseAction<FundAwardSA, Third>") {
+        p1.manual("UseAction<FundAwardSA, Third>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Thermalist")
         }
@@ -129,7 +129,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<RequirementException> {
-      p1.godMode().manual("UseAction<FundAwardSA, Third>") {
+      p1.manual("UseAction<FundAwardSA, Third>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Miner")
       }
@@ -144,9 +144,9 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
 
-    p1.godMode().sneak("Thermalist, Miner, Heat")
+    p1.sneak("Thermalist, Miner, Heat")
 
-    engine.godMode().manual("EndPhase")
+    engine.manual("EndPhase")
 
     p1.assertCounts(
         1 to "FirstPlace<Player1, Thermalist>",
@@ -175,14 +175,14 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
 
-    p1.godMode().sneak("Banker, PROD[-4 MC]")
-    p2.godMode().sneak("PROD[-5 MC]")
-    p3.godMode().sneak("PROD[-5 MC]")
+    p1.sneak("Banker, PROD[-4 MC]")
+    p2.sneak("PROD[-5 MC]")
+    p3.sneak("PROD[-5 MC]")
     p1.assertProds(-4 to "MC")
     p2.assertProds(-5 to "MC")
     p3.assertProds(-5 to "MC")
 
-    engine.godMode().manual("EndPhase")
+    engine.manual("EndPhase")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
     p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
@@ -194,10 +194,10 @@ internal class AwardsTest : TfmTest() {
     game = Engine.newGame(canonicalPremise())
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    p1.godMode().sneak("3 VictoryPoint")
-    p2.godMode().sneak("Banker, PROD[1 MC]")
+    p1.sneak("3 VictoryPoint")
+    p2.sneak("Banker, PROD[1 MC]")
 
-    engine.godMode().manual("EndPhase")
+    engine.manual("EndPhase")
 
     p1.assertCounts(0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")

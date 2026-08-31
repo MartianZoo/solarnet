@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.engine.Agent.OperationLayer
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.AutoExecMode
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Timeline
@@ -29,13 +29,12 @@ public object TfmWorkflow {
    * fires the engine op and returns immediately. The caller is then responsible for performing all
    * resulting player actions before calling the next phase method.
    *
-   * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via
-   * [OperationLayer.inTurn] when no task is already pending, so no explicit turn-granting is
-   * needed.
+   * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via [Agent.inTurn] when
+   * no task is already pending, so no explicit turn-granting is needed.
    */
   public class Manual(private val game: World) {
 
-    internal val engineOps: OperationLayer = game.agent(ENGINE) as OperationLayer
+    internal val engineOps: Agent = game.agent(ENGINE)
 
     /**
      * Starts fully effectful game setup; unlike later phases, setup has no prior Phase to remove.
@@ -84,7 +83,7 @@ public object TfmWorkflow {
   ) {
 
     private val m = Manual(game)
-    private val engineOps: OperationLayer
+    private val engineOps: Agent
       get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
@@ -107,9 +106,9 @@ public object TfmWorkflow {
       get() = workflowJob?.isActive == true
 
     /**
-     * Checkpoint saved just before the workflow's most recent [OperationLayer.beginManual] call.
-     * Non-null only while the coroutine is suspended waiting for those tasks to drain. [shutdown]
-     * rolls back to this point to undo the pending workflow task.
+     * Checkpoint saved just before the workflow's most recent [Agent.beginManual] call. Non-null
+     * only while the coroutine is suspended waiting for those tasks to drain. [shutdown] rolls back
+     * to this point to undo the pending workflow task.
      */
     private var shutdownCheckpoint: Timeline.Checkpoint? = null
 
@@ -242,7 +241,7 @@ public object TfmWorkflow {
     }
 
     private fun opsFor(player: Player) =
-        (game.agent(player) as OperationLayer).also {
+        (game.agent(player)).also {
           playerAutoExecMode?.let { mode -> it.autoExecMode = mode() }
         }
 

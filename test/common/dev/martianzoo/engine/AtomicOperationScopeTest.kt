@@ -10,8 +10,8 @@ internal class AtomicOperationScopeTest {
   @Test
   internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
     val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.agent(PLAYER1).godMode()
-    val player2 = game.agent(PLAYER2).godMode()
+    val player1 = game.agent(PLAYER1)
+    val player2 = game.agent(PLAYER2)
     var completions = 0
     game.onAtomicComplete = { completions++ }
 
@@ -27,8 +27,8 @@ internal class AtomicOperationScopeTest {
   @Test
   internal fun nestedAgentCallsDoNotStartAutomaticAdvancement() {
     val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val player2 = game.agent(PLAYER2).godMode()
+    val player1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val player2 = game.agent(PLAYER2)
 
     player2.addTasks("Token")
     player1.manual("Ok") { player2.autoExecNow() }

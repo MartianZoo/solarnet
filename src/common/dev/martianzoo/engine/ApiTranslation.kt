@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Agent.Companion.parse
-import dev.martianzoo.engine.Agent.GodMode
 import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.pets.Parsing
@@ -44,7 +43,7 @@ internal class ApiTranslation(
     xers: Transformers,
     vocabulary: Vocabulary,
     private val atomicOperationScope: AtomicOperationScope,
-) : GodMode { // so it really implements all Agent layers
+) : Agent {
 
   override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
@@ -53,8 +52,6 @@ internal class ApiTranslation(
         autoExecAtomically()
       }
     }
-
-  override fun godMode(): GodMode = this
 
   // READ-ONLY
 

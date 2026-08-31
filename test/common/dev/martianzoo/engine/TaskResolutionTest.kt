@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Agent.TaskLayer
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
@@ -106,7 +105,7 @@ internal class TaskResolutionTest {
     tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
   }
 
-  private fun initiate(ins: String) = (agent as TaskLayer).addTasks(ins)
+  private fun initiate(ins: String) = (agent as Agent).addTasks(ins)
 
   private fun history() = events.entriesSince(start)
 

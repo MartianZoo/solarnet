@@ -134,7 +134,7 @@ public abstract class RecordedGame {
       game.tasks.editTask(unselectedTask)
     }
 
-    godMode().sneak(adjustment)
+    sneak(adjustment)
 
     if (selectedId != null) {
       val task = game.tasks.getTaskData(selectedId)

@@ -8,8 +8,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   typed signatures, direct top-level REPL invocation, and Routine-based replay without introducing
   general player autoexecution.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
-  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play, while
-  flattening the temporary Agent power hierarchy.
+  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Rename instruction `Intensity` to `Quantifier` throughout.
 - **High priority:** Audit SAFE against its proof obligation: it may select only when exactly one
   pending task can be selected, and resolution may concretize an instruction only when exactly one
@@ -227,7 +226,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Separate Catalog data from premise resolution, and split `TfmCatalog`'s
   generic declaration aggregation/validation into `Catalog` from the Terraforming Mars registries
   in `TfmCatalog`.
-- Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately.
+- Follow `docs/agents/API.md`: keep integrity-preserving mutation internal and design the restrictive client API separately from the flat, trusted `Agent` workhorse.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated dependency/refinement construction without risking correctness.
 

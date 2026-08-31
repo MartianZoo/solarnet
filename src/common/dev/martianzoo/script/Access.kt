@@ -1,10 +1,6 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.engine.Agent
-import dev.martianzoo.engine.Agent.GodMode
-import dev.martianzoo.engine.Agent.OperationLayer
-import dev.martianzoo.engine.Agent.TaskLayer
-import dev.martianzoo.engine.Agent.TurnLayer
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 
@@ -15,7 +11,7 @@ internal sealed class Access {
 
   internal abstract fun phase(phase: String): TaskResult
 
-  internal fun doPhase(agent: OperationLayer, phase: String): TaskResult =
+  internal fun doPhase(agent: Agent, phase: String): TaskResult =
       agent.beginManual("${phase}Phase FROM Phase")
 
   internal open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
@@ -30,10 +26,9 @@ internal sealed class Access {
   }
 
   // BLUE: Turn integrity: must perform a valid game turn for this phase
-  internal class BlueMode(agentIn: Agent) : Access() {
-    private val agent = agentIn as TurnLayer
+  internal class BlueMode(private val agent: Agent) : Access() {
 
-    override fun phase(phase: String): TaskResult = doPhase(agent as OperationLayer, phase)
+    override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
     override fun newTurn() = agent.startTurn()
 
@@ -41,8 +36,7 @@ internal sealed class Access {
   }
 
   // GREEN: Operation integrity: clear task queue before starting new operation
-  internal class GreenMode(agentIn: Agent) : Access() {
-    private val agent = agentIn as OperationLayer
+  internal class GreenMode(private val agent: Agent) : Access() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
@@ -52,8 +46,7 @@ internal sealed class Access {
   }
 
   // YELLOW: Task integrity: changes have consequences
-  internal class YellowMode(agentIn: Agent) : Access() {
-    private val agent = agentIn as TaskLayer
+  internal class YellowMode(private val agent: Agent) : Access() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
@@ -67,8 +60,7 @@ internal sealed class Access {
   }
 
   // RED: Change integrity: make changes without triggered effects
-  internal class RedMode(agentIn: Agent) : Access() {
-    private val agent = agentIn as GodMode
+  internal class RedMode(private val agent: Agent) : Access() {
 
     override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 

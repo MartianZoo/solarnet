@@ -26,7 +26,7 @@ internal class FinalGreeneryPhaseTest {
 
     p1.playCorp(Ecoline, 0)
     game.tfm(PLAYER2).playCorp(TharsisRepublic, 0)
-    p1.godMode().sneak("8 Plant")
+    p1.sneak("8 Plant")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
 
@@ -43,7 +43,7 @@ internal class FinalGreeneryPhaseTest {
 
     workflow.setupPhase()
     workflow.corporationPhase()
-    p1.godMode().manual("8 Plant")
+    p1.manual("8 Plant")
     workflow.finalGreeneryPhase()
     p1.startTurn()
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
@@ -64,7 +64,7 @@ internal class FinalGreeneryPhaseTest {
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp(Ecoline, 0)
-    engine.godMode().sneak("-13 SoloGenerationsLeft")
+    engine.sneak("-13 SoloGenerationsLeft")
 
     p1.pass()
 
@@ -91,14 +91,12 @@ internal class FinalGreeneryPhaseTest {
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp(Ecoline, 0)
-    engine
-        .godMode()
-        .sneak(
-            "-13 SoloGenerationsLeft, " +
-                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
-        )
+    engine.sneak(
+        "-13 SoloGenerationsLeft, " +
+            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+    )
 
     p1.pass()
 
@@ -120,14 +118,12 @@ internal class FinalGreeneryPhaseTest {
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp(Ecoline, 0)
-    engine
-        .godMode()
-        .sneak(
-            "-13 SoloGenerationsLeft, " +
-                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
-        )
+    engine.sneak(
+        "-13 SoloGenerationsLeft, " +
+            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+    )
 
     p1.pass()
 
@@ -170,19 +166,17 @@ internal class FinalGreeneryPhaseTest {
     p1.playCorp(CrediCor, 0)
     p2.playCorp(MiningGuild, 0)
     p3.playCorp(InterplanetaryCinematics, 0)
-    p1.godMode().sneak("8 Plant")
-    p2.godMode().sneak("8 Plant")
-    p3.godMode().sneak("8 Plant")
-    engine
-        .godMode()
-        .sneak(
-            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
-                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
-        )
+    p1.sneak("8 Plant")
+    p2.sneak("8 Plant")
+    p3.sneak("8 Plant")
+    engine.sneak(
+        "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+    )
 
     p1.pass()
     p2.pass()
@@ -210,17 +204,15 @@ internal class FinalGreeneryPhaseTest {
 
     p1.playCorp(CrediCor, 0)
     p2.playCorp(MiningGuild, 0)
-    p1.godMode().sneak("$Ecoline, $PolderTechDutch, 10 Plant")
-    engine
-        .godMode()
-        .sneak(
-            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
-                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
-        )
+    p1.sneak("$Ecoline, $PolderTechDutch, 10 Plant")
+    engine.sneak(
+        "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+    )
 
     p1.pass()
     p2.pass()
@@ -247,22 +239,17 @@ internal class FinalGreeneryPhaseTest {
 
     p1.playCorp(CrediCor, 0)
     p2.playCorp(MiningGuild, 0)
-    p1.godMode().sneak("GreeneryTile<Elysium_4_5>")
-    p2.godMode()
-        .sneak(
-            "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " + "GreeneryTile<Elysium_6_6>"
-        )
-    p1.godMode().sneak("$Philares, 10 Plant")
-    engine
-        .godMode()
-        .sneak(
-            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
-                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
-        )
+    p1.sneak("GreeneryTile<Elysium_4_5>")
+    p2.sneak("GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " + "GreeneryTile<Elysium_6_6>")
+    p1.sneak("$Philares, 10 Plant")
+    engine.sneak(
+        "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+    )
 
     p1.pass()
     p2.pass()
@@ -294,23 +281,20 @@ internal class FinalGreeneryPhaseTest {
 
     p1.playCorp(CrediCor, 0)
     p2.playCorp(MiningGuild, 0)
-    p1.godMode().sneak("GreeneryTile<Elysium_4_5>")
-    p2.godMode()
-        .sneak(
-            "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " +
-                "GreeneryTile<Elysium_6_6>, GreeneryTile<Elysium_6_7>"
-        )
-    p1.godMode().sneak("$Ecoline, $Philares, 7 Plant")
-    engine
-        .godMode()
-        .sneak(
-            "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
-                "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
-                "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
-        )
+    p1.sneak("GreeneryTile<Elysium_4_5>")
+    p2.sneak(
+        "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " +
+            "GreeneryTile<Elysium_6_6>, GreeneryTile<Elysium_6_7>"
+    )
+    p1.sneak("$Ecoline, $Philares, 7 Plant")
+    engine.sneak(
+        "-GlobalParameterGameEndBarrier<Class<TemperatureStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OxygenStep>>, " +
+            "-GlobalParameterGameEndBarrier<Class<OceanTile>>, " +
+            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+    )
 
     p1.pass()
     p2.pass()
@@ -334,12 +318,10 @@ internal class FinalGreeneryPhaseTest {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
 
-    engine
-        .godMode()
-        .manual(
-            "GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-        )
+    engine.manual(
+        "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+    )
 
     engine.count("GpComplete<Class<VenusStep>>") shouldBe 0
     engine.count("GameEndBarrier") shouldBe 0
@@ -350,16 +332,14 @@ internal class FinalGreeneryPhaseTest {
     val game = setUpGame(VenusNextExpansion, MandatoryVenusVariant)
     val engine = game.tfm(ENGINE)
 
-    engine
-        .godMode()
-        .manual(
-            "GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-        )
+    engine.manual(
+        "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+    )
 
     engine.count("GameEndBarrier") shouldBe 1
 
-    engine.godMode().manual("GpComplete<Class<VenusStep>>")
+    engine.manual("GpComplete<Class<VenusStep>>")
 
     engine.count("GameEndBarrier") shouldBe 0
   }

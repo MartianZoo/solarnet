@@ -17,7 +17,7 @@ internal class GameWorldAtomicityTest {
   @Test
   internal fun failedOperationRestoresTheWholeWorldTogether() {
     val world = Engine.newGame(premise) as WholeWorld
-    val engine = world.agent(ENGINE).godMode()
+    val engine = world.agent(ENGINE)
     val checkpoint = world.timeline.checkpoint()
     val revision = world.revision
     var successfulCompletions = 0

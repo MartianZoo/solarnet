@@ -415,20 +415,11 @@ request `InstructionTree`, not `Instruction`.
 
 ## Current Agent surface
 
-The committed facade remains a power hierarchy:
-
-```text
-Agent
-  -> TurnLayer
-    -> OperationLayer
-      -> TaskLayer
-        -> GodMode
-```
-
-`ApiTranslation` implements all layers and `godMode()` reveals the bottom, so this is not an
-authority model. Normal task commands, manual operations, task edits, and `sneak` do not all
-share identical atomic/auto-exec semantics. [API.md](API.md) proposes a mechanical flattening before
-a separate safe client API.
+`Agent` is the flat, trusted Actor-scoped facade for queries, task commands, manual operations,
+turns, and rules-bypassing `sneak` changes. It is not an authority model; the script module enforces
+its color modes separately. Normal task commands, manual operations, task edits, and `sneak` do not
+all share identical atomic/auto-exec semantics. [API.md](API.md) records the direction for a later
+restricted client API.
 
 `manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or

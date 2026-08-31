@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Agent.GodMode
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -108,7 +108,7 @@ internal class CanonClassesTest {
     fakeHolder.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
     fakeHolder.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
 
-    val engine = game.agent(ENGINE) as GodMode
+    val engine = game.agent(ENGINE) as Agent
     game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
@@ -118,7 +118,7 @@ internal class CanonClassesTest {
     game.agent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
     game.agent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
-    val player = game.agent(PLAYER1).godMode()
+    val player = game.agent(PLAYER1)
     player.manual("-5 Plant<SoloOpponent>")
     player.manual("PROD[-5 Plant<SoloOpponent>]")
     player.manual("5 Plant<SoloOpponent>")
@@ -172,9 +172,9 @@ internal class CanonClassesTest {
   @Test
   internal fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(PLAYER1) as GodMode
+    val agent = game.agent(PLAYER1) as Agent
     val withVenus =
-        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).agent(PLAYER1) as GodMode
+        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).agent(PLAYER1) as Agent
 
     assertFailsWith<ExpressionException> { agent.count("Class<AnyWordHere>") }
     agent.count("Class<VenusStep>") shouldBe 0
