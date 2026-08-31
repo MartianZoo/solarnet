@@ -54,6 +54,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :repl:realTerminalSmokeTest` runs the separate Expect-based real-terminal test.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.
+- `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
+  while choosing a random execution order for each batch of automatic-effect siblings. This is a
+  diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain their current
+  deterministic order.
 
 Gradle may report tests as `UP-TO-DATE`. That is usually fine. When changing a test runner,
 browser configuration, resource packaging, or a locked JavaScript dependency, force the affected

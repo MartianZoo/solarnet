@@ -258,23 +258,45 @@ Two related families should not be described more strongly than the implementati
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
   Docks use the action-qualified Trade signals to supply the selected payment resource. This is
   generic action dispatch, however, not a promise of one uniform later component Type.
-- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. Each signal creates the base
-  `Owed` amount; Polyphemos and Terralabs Research react to that signal by adding or removing their
-  own `Owed`. An automatic sibling creates the invoice hosted by the live `BuyCards` component,
-  which exposes payment and gates the follow-mode `ProjectCard` gain until settlement. In real-card
-  mode, `BuySelectedCards` broadcasts one `BuyCard` per remaining selected card and moves those
-  exact cards to `Hand` only after the invoice is paid.
+- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. `BuySelectedCards` first
+  creates the complete base `Owed` amount, then broadcasts one `BuyCard` per remaining selected card
+  so Polyphemos and Terralabs Research can adjust that established debt, and only then creates the
+  single invoice hosted by the live `BuyCards` component. The invoice exposes payment and gates the
+  follow-mode `ProjectCard` gain until settlement. In real-card mode, the operation moves those
+  exact selected cards to `Hand` only after the invoice is paid. These three choice-free stages are
+  one inline automatic continuation, so automatic-sibling enumeration cannot reorder them.
 
-The buy-card invoice is currently an automatic sibling of the base debt and every card-specific
-price adjustment. Its registration order is covered by purchase tests, but automatic siblings do
-not provide a semantic ordering guarantee. Replace that dependency with aggregate purchase
-completion that establishes every selected card's adjusted debt before creating the single invoice.
+  The current `BuyCard` signal carries multiplicity but not selected card identity. That is exact
+  for the two existing price modifiers. If a future modifier needs to inspect individual selected
+  cards or make a choice, specialize the pricing fact or purchase operation rather than extending
+  this inline continuation with identity reconstruction or player work.
+- A failed printed global-parameter requirement creates a typed `Required<GlobalParameter>`
+  shortfall, then emits `RequirementCheck<CardFront>`. Inventrix, Morning Star, Adaptation
+  Technology, and Special Design react to that completed check stage rather than competing
+  with shortfall creation as `PlayCard` siblings. The final card entry remains gated on the absence
+  of `Required`.
+
+  `Required` itself remains owner- and parameter-scoped rather than card-scoped. That is sufficient
+  while one card-play attempt establishes and settles its shortfall before another can overlap. If
+  future rules permit overlapping attempts, specialize the shortfall with card or operation identity
+  rather than restoring sibling-order dependence.
 
 `Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
 not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
 `ResetColonyProduction`, and the colony-bonus Signals have the request/continuation shape but no
 current subscribers that need a before-A modification. `Accept` is not a committed precursor at
 all: it exposes an optional payment choice.
+
+Random automatic-effect order exposes a separate limitation in payment history. Steel, Titanium,
+Advanced Alloys, and similar `Pay` reactions all remove the same saturating `Owed`; when their total
+value exceeds the remaining debt, execution order decides which cause receives credit for the last
+units. Reconstructed games still reach the same paid state, but replay summaries of individual
+discounts vary. Do not stabilize those summaries by assigning an order to the sibling effects. The
+better repair is the payment direction in [PAYMENTS.md](PAYMENTS.md): produce complete, source- and
+invoice-qualified tender value first, then consume debt once, retaining enough evidence to validate
+excess payment and attribute every contribution. Until then, this attribution variance is diagnostic
+noise rather than a gameplay regression. That larger, nice-to-have repair is intentionally not
+folded into the card-play sequencing fixes here.
 
 ### Do not make proposed changes triggerable
 

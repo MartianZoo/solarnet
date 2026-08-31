@@ -27,7 +27,7 @@ CLASS Inventrix : CardFront<Class<CorporationCard>> {
 
   This:: ScienceTag<This>
   This: 45 MC, Mandate { -> 3 ProjectCard }
-  PlayCard:: -2 Required<Class<GlobalParameter>>.
+  RequirementCheck:: -2 Required<Class<GlobalParameter>>.
 }
 
 CLASS MiningGuild : CardFront<Class<CorporationCard>> {
@@ -881,7 +881,7 @@ CLASS AdaptationTechnology : ActiveCard<Class<ProjectCard>> {
   cost = 12
 
   This:: ScienceTag<This>
-  PlayCard:: -2 Required<Class<GlobalParameter>>.
+  RequirementCheck:: -2 Required<Class<GlobalParameter>>.
   End: VictoryPoint
 }
 
@@ -1169,7 +1169,7 @@ CLASS SpecialDesign : EventCard<Class<ProjectCard>> {
   cost = 4
 
   This:: ScienceTag<This>, EventTag<This>
-  This: NextCardEffect { PlayCard:: -2 Required<Class<GlobalParameter>>. }
+  This: NextCardEffect { RequirementCheck:: -2 Required<Class<GlobalParameter>>. }
 }
 
 // Supporting declarations contributed by cards in this bundle.
