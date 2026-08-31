@@ -145,10 +145,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and reproducibly randomized enumeration to expose hidden ordering dependencies. Autoexecution
   policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **High priority:** Add test modes that execute eligible automatic-effect siblings in reverse and
-  reproducibly randomized orders. Remove gameplay reliance on `registryOrder` and on the current
-  self-effect-before-other-effect implementation order; no ordering guarantee may depend on mutable
-  runtime state that rollback does not restore.
 - **Medium priority:** After the payment and EventCard proving cases, test whether Player-yield
   settlement can also delete `TradeBarrier` while retaining the selected ColonyTile and keeping
   fleet movement after every optional production decision.

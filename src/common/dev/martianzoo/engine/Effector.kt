@@ -13,8 +13,6 @@ internal class Effector(
 ) {
   private val reader: GameReader by lazy(readerProvider)
   private val registry = mutableMapOf<LiveEffect.RegistryKey, HashMultiset<LiveEffect>>()
-  private val registryOrder = mutableMapOf<LiveEffect, Long>()
-  private var nextRegistryOrder = 0L
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
 
@@ -22,7 +20,6 @@ internal class Effector(
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
         val bucket = registry.getOrPut(effect.registryKey, ::HashMultiset)
-        if (bucket.count(effect) == 0) registryOrder[effect] = nextRegistryOrder++
         bucket.add(effect, delta)
       }
 
@@ -31,7 +28,7 @@ internal class Effector(
         if (delta == 0) return@forEach
         val key = effect.registryKey
         val bucket = checkNotNull(registry[key])
-        if (bucket.mustRemove(effect, delta) == 0) registryOrder.remove(effect)
+        bucket.mustRemove(effect, delta)
         if (bucket.isEmpty()) registry.remove(key)
       }
 
@@ -48,11 +45,16 @@ internal class Effector(
             gaining = triggerEvent.change.gaining?.let(reader::resolve),
             removing = triggerEvent.change.removing?.let(reader::resolve),
         )
-    val pending =
-        fireSelfEffects(triggerEvent, controller, automatic, resolvedChange) +
-            fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
-    return if (automatic == true && randomAutomaticEffectOrderEnabled) pending.shuffled()
-    else pending
+    val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)
+    val otherEffects = fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
+    val pending = selfEffects + otherEffects
+    return when {
+      automatic != true -> pending
+      randomAutomaticEffectOrderEnabled -> pending.shuffled()
+      else ->
+          selfEffects.sortedWith(stableAutomaticOrder) +
+              otherEffects.sortedWith(stableAutomaticOrder)
+    }
   }
 
   private fun fireSelfEffects(
@@ -96,10 +98,17 @@ internal class Effector(
         registry[LiveEffect.RegistryKey(mode, changedClass)]?.let(candidates::addAll)
       }
     }
-    // Effects can be selected through different superclass buckets. Preserve the old registry's
-    // insertion order because automatic effects may observe changes made by earlier effects.
-    return candidates.entries
-        .sortedBy { (effect, _) -> checkNotNull(registryOrder[effect]) }
-        .map { (effect, count) -> effect to count }
+    return candidates.entries.map { (effect, count) -> effect to count }
+  }
+
+  private companion object {
+    /** Reproducible history order only; sibling precedence must not depend on this comparator. */
+    val stableAutomaticOrder: Comparator<PendingTask> =
+        compareBy(
+            { it.cause.context.toString() },
+            { it.actor.toString() },
+            { it.assignee.toString() },
+            { it.instruction.toString() },
+        )
   }
 }
