@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
@@ -37,18 +38,23 @@ internal class Effector(
   private fun liveEffects(component: Component): List<LiveEffect> =
       effects.getOrPut(component) { LiveEffect.compile(component, transformers) }
 
-  internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<PendingTask> {
+  internal fun fire(
+      triggerEvent: ChangeEvent,
+      controller: Actor,
+      automatic: Boolean? = null,
+  ): List<PendingTask> {
     val resolvedChange =
         LiveEffect.ResolvedChange(
             gaining = triggerEvent.change.gaining?.let(reader::resolve),
             removing = triggerEvent.change.removing?.let(reader::resolve),
         )
-    return fireSelfEffects(triggerEvent, automatic, resolvedChange) +
-        fireOtherEffects(triggerEvent, automatic, resolvedChange)
+    return fireSelfEffects(triggerEvent, controller, automatic, resolvedChange) +
+        fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
   }
 
   private fun fireSelfEffects(
       triggerEvent: ChangeEvent,
+      controller: Actor,
       automatic: Boolean? = null,
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
@@ -56,15 +62,16 @@ internal class Effector(
           .map(Type::toComponent)
           .flatMap { liveEffects(it) }
           .filter { automatic == null || it.automatic == automatic }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, reader, resolvedChange) }
+          .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader, resolvedChange) }
 
   private fun fireOtherEffects(
       triggerEvent: ChangeEvent,
+      controller: Actor,
       automatic: Boolean? = null,
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
       candidatesFor(automatic, resolvedChange).mapNotNull { (effect, count) ->
-        effect.onChangeToOther(triggerEvent, reader, resolvedChange)?.times(count)
+        effect.onChangeToOther(triggerEvent, controller, reader, resolvedChange)?.times(count)
       }
 
   private fun candidatesFor(

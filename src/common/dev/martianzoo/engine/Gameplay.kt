@@ -68,8 +68,8 @@ public interface Gameplay {
 
   /**
    * Selects one pending task and resolves its instruction against the current World. An abstract
-   * result remains selected for later [narrowTask] calls. A concrete result executes before this
-   * call returns.
+   * result remains selected for later [narrowTask] calls and may move to its narrower's queue while
+   * retaining its controller. A concrete result executes before this call returns.
    *
    * If resolution produces independent instructions, selecting the structural task completes it and
    * admits those instructions as ordinary pending siblings.

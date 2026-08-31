@@ -1,59 +1,14 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
-import dev.martianzoo.pets.data.Task
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
-  @Test
-  internal fun `Philares incorrectly gives its owner the resource choice immediately`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.manual("$Philares")
-    p2.manual("CityTile<Tharsis_2_3>")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
-
-    manual.beginManual("CityTile<Tharsis_3_3>")
-    manual.addTasks("Plant?")
-
-    val reward = philaresReward()
-    reward.assignee shouldBe PLAYER2
-    shouldThrow<TaskException> { manual.selectTask(reward.id) }
-
-    p2.doTask("Steel")
-    manual.doTask("Plant")
-    p2.count("Steel") shouldBe 1
-    p1.count("Plant") shouldBe 1
-  }
-
-  @Test
-  internal fun `Philares incorrectly lets the active player continue while its reward is unresolved`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.manual("$Philares")
-    p2.manual("CityTile<Tharsis_2_3>")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
-
-    manual.beginManual("CityTile<Tharsis_3_3>")
-    manual.addTasks("Heat?")
-    philaresReward().assignee shouldBe PLAYER2
-
-    manual.doTask("Heat")
-    p2.doTask("Steel")
-
-    p1.count("Heat") shouldBe 1
-    p2.count("Steel") shouldBe 1
-  }
-
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
@@ -143,9 +98,4 @@ internal class BugsTest : CardTest() {
         1 to "$SpaceElevator",
     )
   }
-
-  private fun philaresReward(): Task =
-      game.tasks
-          .extract { it }
-          .single { it.instruction.toString().startsWith("StandardResource<Player2>") }
 }

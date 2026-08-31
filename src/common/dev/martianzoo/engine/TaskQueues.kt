@@ -29,8 +29,8 @@ import dev.martianzoo.pets.types.ClassTable
  * * `a, Die` becomes `Die`
  * * `a OR Die` becomes `a`; if every option is `Die`, the task produces [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
- * * New tasks created have the same assignee, Actor, and cause as the original. Selected tasks
- *   cannot be split
+ * * New tasks created have the same controller, narrower, assignee, Actor, and cause as the
+ *   original. Selected tasks cannot be split
  */
 internal class TaskQueues
 private constructor(
@@ -70,16 +70,34 @@ private constructor(
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
   internal fun addTasks(task: PendingTask) =
-      addTasks(task.instruction, task.assignee, task.cause, task.actor)
+      addTasks(
+          task.instruction,
+          task.assignee,
+          task.cause,
+          task.actor,
+          task.controller,
+          task.narrower,
+      )
 
   internal fun addTasks(
       instruction: InstructionGroup,
       assignee: Actor,
       cause: Cause?,
       actor: Actor = assignee,
+      controller: Actor = assignee,
+      narrower: Actor = actor,
   ): List<TaskAddedEvent> {
     val newTasks =
-        Task.newTasks(TaskId(events.size), assignee, instruction, cause, actor, isAbstract)
+        Task.newTasks(
+            firstId = TaskId(events.size),
+            assignee = assignee,
+            instruction = instruction,
+            cause = cause,
+            actor = actor,
+            controller = controller,
+            narrower = narrower,
+            isAbstract = isAbstract,
+        )
     return newTasks.map {
       require(it.id.ordinal == events.size)
       apply(TaskAddedEvent(events.nextOrdinal, it))

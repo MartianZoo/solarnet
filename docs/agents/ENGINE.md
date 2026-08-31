@@ -184,7 +184,9 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 
 - stable `TaskId`, derived from its original add-event ordinal;
 - one task-shaped `Instruction`;
+- `controller`, which owns the surrounding operation and receives resulting work;
 - `assignee`, whose scoped queue contains it and who may select and narrow it;
+- `narrower`, who supplies choices after selection;
 - `actor`, recorded on resulting changes unless instruction-side `BY` overrides it;
 - `cause`;
 - selected flag;
@@ -202,26 +204,23 @@ B is not immediate and receives no priority over unrelated pending work. Open im
 prevent splitting until an earlier stage fixes their shared Type. Narrowing and resolution normalize
 the task again, so the sequence splits once those shared values become concrete.
 
-### Assignment and Actor
+### Controller, assignment, narrower, and Actor
 
-Assignee and Actor are different. For queued triggered work, the current compatibility rule assigns
-to the Player owner of the effect-bearing component, otherwise the Player owner of the changed
-component, otherwise the triggering Actor. It independently attributes the future change to the
-effect's context owner when present, otherwise the triggering Actor.
+Controller, assignee, narrower, and Actor are different. Queued work triggered during a
+Player-controlled operation enters the retained controller's queue. Its narrower follows the
+effect owner, changed-component owner, or triggering Actor. Engine-driven setup and workflow retain
+that same contextual routing. A queued task's default Actor follows the same contextual order;
+automatic effects execute inline and keep the effect owner when present or the triggering Actor
+otherwise.
 
 Instruction-side `BY` changes only the Actor. Trigger-side `BY` matches only the Actor on the
 trigger event. Splitting, narrowing, resolution, `THEN`, and cross-scope execution preserve the
 stored Actor. See [IDENTITY.md](IDENTITY.md).
 
-There is no parent/child queue suspension or delegated control scope. One selected task globally
-locks selection of competitors. `TfmWorkflow.Auto` starts Player operations directly and waits
-for whole-world idleness instead.
-
-This is a known correctness gap for Philares. The current trigger-time assignment gives the
-Philares owner its resource choice immediately and does not let the active Player choose when to
-select that reward. The target selection-time handoff and its blocking requirement are specified
-in [IDENTITY.md](IDENTITY.md); `BugsTest` preserves the two current incorrect behaviors until that
-handoff exists.
+Selecting an abstract task moves that same selected task to its narrower's queue when needed,
+while retaining its controller. One selected task globally locks selection of competitors.
+Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Auto`
+starts Player operations directly and waits for whole-world idleness instead.
 
 ### Selection, resolution, and narrowing
 

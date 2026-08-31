@@ -6,24 +6,28 @@
 > **Skip when:** changing ownership as a Type dependency without task routing or attribution; read
 > the dependency sections of [TYPES.md](TYPES.md).
 >
-> **Status:** “Four identities” through “Current task assignment” describe committed behavior.
-> “Target delegation model” and “Proposed first slice” are unimplemented.
+> **Status:** describes the current model. The interaction between SAFE auto-selection and
+> cross-Player handoff remains open.
 
 ## Source map
 
 - [`Identities.kt`](../../src/common/dev/martianzoo/pets/data/Identities.kt) — search
   for `public sealed interface Actor` for the operation identity mechanism.
-- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) — inspect `assignee`
-  and `actor` before changing queued work.
+- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) — inspect `controller`, `assignee`,
+  `narrower`, and `actor` before changing queued work.
 - [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
   for `assignee` to see trigger-time routing.
 - [`EffectActorCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
   and [`TaskAssignmentCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
   — read before changing current Actor or assignment semantics.
-- [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt) —
-  search for `Philares` for the characterized delegation gap.
+- [`ByTriggerCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/ByTriggerCharacterizationTest.kt)
+  — preserve trigger-side `BY` matching and binding without treating its queue assertions as the
+  delegation contract.
+- [`TaskDelegationTest.kt`](../../test/common/dev/martianzoo/engine/TaskDelegationTest.kt) and
+  [`PhilaresTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/PhilaresTest.kt) — inspect
+  the generic handoff and its primary game scenario.
 
-## Four identities
+## Six identities
 
 Pets behavior is interpreted in context. Keep these roles separate:
 
@@ -31,12 +35,16 @@ Pets behavior is interpreted in context. Keep these roles separate:
   Requirement, or Metric.
 - **Context owner:** the owner of that component, or the Player scope through which an ad hoc
   instruction entered the engine.
+- **Controller:** the Actor that controls the surrounding operation and receives work caused by it.
 - **Assignee:** the Actor whose task queue contains deferred work and whose scoped gameplay may
-  narrow it.
-- **Actor:** the entity credited with the resulting change. Trigger-side `BY` matches this value.
+  select or narrow it in its current state.
+- **Narrower:** the Actor entitled to supply choices remaining inside a selected abstract task.
+- **Actor:** the default performer credited with the resulting change. Instruction-side `BY` may
+  override it.
 
-A future delegation model adds a fifth role, the **controller**, which owns a surrounding operation
-while another Actor makes a nested choice.
+These roles often coincide, but no equality between them is a game rule. In particular, Icy
+Impactors separates its narrower from its credited Actor, and future hidden-card selection separates
+Engine narrowing from Player attribution.
 
 ## Context specialization
 
@@ -47,8 +55,11 @@ of task routing and Actor attribution.
 
 ## Actor
 
-An instruction's Actor defaults to its context owner. If there is no context owner, it falls back to
-the surrounding execution Actor. Instruction-side `BY` explicitly overrides the default.
+A queued effect instruction's Actor defaults to the effect component's Player owner, then the
+changed component's Player owner, then the surrounding execution Actor. An automatic effect keeps
+the effect owner when present and otherwise the surrounding Actor. An ad hoc instruction defaults
+to its gameplay Actor. Instruction-side `BY` explicitly overrides the performer without changing
+who narrows an abstract task.
 
 The default binds when work is produced. A pending or queued task remembers its future Actor in
 `Task.actor`; later execution through another gameplay scope does not steal attribution. Splitting,
@@ -57,52 +68,37 @@ narrowing, resolution, and `THEN` continuation preserve it.
 A `ChangeEvent` records that Actor. Trigger-side `BY` inspects only the event's Actor. This is why
 stealing a victim's heat is still an action by the attacker.
 
-## Current task assignment
+## Triggered task assignment and delegation
 
-Committed tasks store `assignee` and `actor`. The assignee controls queue membership and narrowing
-rights. The Actor is independent.
+A direct task starts with its gameplay Actor as controller, assignee, narrower, and default Actor.
+Queued work triggered during a Player-controlled operation keeps that Player as controller and
+enters that Player's queue, regardless of which component owns the effect. Its narrower is the
+Player owner of the effect-bearing component, then the Player owner of the changed component, then
+the triggering Actor. Engine-driven setup and workflow retain that contextual routing. The default
+Actor is specialized independently as described above.
 
-For queued triggered work, `LiveEffect` chooses the assignee in this order:
+Selecting a concrete task executes it in place. The change records the task's Actor unless an
+instruction-side `BY` overrides it. Reactions caused by that execution return to the retained
+controller's queue.
 
-1. Player owner of the effect-bearing component;
-2. Player owner of the changed component;
-3. triggering Actor.
+Selecting an abstract task resolves it first, then moves that same selected task to its narrower's
+queue when the narrower differs from the controller. The new assignee narrows it without another
+selection. The global select-lock prevents the controller or any other Actor from selecting or
+executing competing work until the selected task completes. `Task.controller` does not change
+during this handoff.
 
-It chooses the context owner as Actor when present and otherwise keeps the triggering Actor.
-Automatic effects use the same Actor but execute inline without entering a queue.
+If resolution or narrowing replaces the selected task with independent siblings, those siblings
+return to the controller as ordinary unselected work. `THEN` continuations and tasks triggered by
+the delegated change likewise return to the controller. This keeps one task lifecycle rather than
+introducing a second parent representation.
 
-This compatibility rule supports parts of the current Enceladus, Splice, Icy Impactors, and World
-Government Terraforming behavior, but it is not a complete semantic model of control. In
-particular, it does not implement the required Philares control sequence. It incorrectly assigns
-Philares's resource choice to the corporation owner as soon as the adjacency occurs and lets the
-active Player continue other work while that choice remains unresolved. Passing characterizations
-of both defects live in `BugsTest`.
-
-## Target delegation model
-
-A task may eventually need three independently varying operational roles:
-
-- **controller:** chooses which instruction in the surrounding operation proceeds;
-- **narrower:** supplies choices inside that instruction; and
-- **future Actor:** receives event attribution unless instruction-side `BY` overrides it.
-
-The target is for a controller to retain an abstract parent task and decide exactly when to select
-it. Resolution may discover that a different narrower is required, create an already-selected child
-choice in that Actor's queue, and suspend the parent. The delegate does not make a second task
-selection; it only narrows the choice exposed by the controller's selection. While the child is
-outstanding, the controller cannot execute other tasks in that control scope. Narrowing the child
-supplies the parent's narrowing, removes the block, and resumes the parent. Delegation changes
-narrowing authority; it does not silently replace the future Actor.
-
-Examples that constrain the design:
+The constraining cases are:
 
 | Case | Controller | Narrower | Future Actor |
 | --- | --- | --- | --- |
 | Philares | Player placing the adjacent tile | Philares owner | Philares owner |
 | Enceladus bonuses | Active trader orders bonuses | Each colony owner chooses their card | Each colony owner |
 | Icy Impactors | Card owner | StartToken owner chooses an ocean | Card owner via explicit `BY` |
-| World Government Terraforming | Engine workflow | StartToken owner | Engine via explicit `BY Engine` |
-| Real-card deal | Player controlling the draw operation | Engine | Originating task's Actor |
 | Steal | Attacker | Attacker | Attacker |
 | Homeostasis Bureau | Surrounding operation controller | No choice | Card owner |
 | Pharmacy Union | Operation that produced the Microbe tag | No choice | Pharmacy Union owner |
@@ -110,27 +106,53 @@ Examples that constrain the design:
 `!Owner` is a complement Type and has nothing to do with either form of `BY` or postfix
 instruction `!`.
 
-Philares is the primary sequencing constraint. The active Player controls a pending resource task
+Philares is the primary sequencing scenario. The active Player controls a pending resource task
 caused by that Player's placement and may select other eligible siblings before it. Once the active
 Player selects that task, resolution delegates its resource choice to the Philares owner. The active
 Player can do no more work in the scope until the Philares owner narrows the choice and receives the
-resource. Assigning the reward directly to the Philares owner at trigger time is not an acceptable
-approximation because it transfers control too early.
+resource. Assigning the reward directly to the Philares owner at trigger time would transfer control
+too early.
 
-Real-card dealing uses the same interface. A Player controls when an abstract
-`ProjectCard<Player, Hand>` gain is selected. Resolution delegates the remaining exact-face
-narrowing to Engine, which derives the only lawful face from the seed and event history. The Player
-cannot nominate a face, and cannot continue within the suspended scope while the delegated child is
-outstanding.
+### Enceladus
 
-Do not redesign attribution while implementing delegation. First characterize a synthetic
-parent/child handoff and preserve every existing Actor test.
+Enceladus is primarily a narrowing-authority requirement, not an attribution test. The active
+trader controls the order of colony bonuses. Once the trader selects one Enceladus bonus, the owner
+of that particular colony must choose which compatible card receives the microbes. With several
+colonies on Enceladus, each selected bonus may therefore move to a different Player.
 
-## Proposed first slice
+That privilege follows from general ownership semantics. The signal
+`GiveColonyBonus<ColonyTile>` is owned by the colony owner even though Enceladus itself is neutral,
+so its owner becomes the narrower. Crediting the colony owner is also correct, but does not by
+itself prove that the owner received narrowing authority.
 
-**Not implemented.** The two passing Philares characterizations in `BugsTest` prove the current
-incorrect behavior. Implement a synthetic parent/child handoff, invert those characterizations into
-the desired behavioral suite, and preserve both forms of `BY` and future-Actor attribution. The
-next design constraints are real-card dealing and Enceladus: the active trader must order two other
-Players' bonuses while those Players narrow their own instructions. A solution that transfers the
-whole operation to a delegate is therefore incomplete.
+## Test responsibilities
+
+Generic engine tests may inspect `Task.controller`, assignee changes, selection state, and recorded
+Actor to prove the mechanism once. Player-level card and rule tests must stay functional: prove who
+can select or narrow through gameplay calls, prove the controller is blocked through rejected
+gameplay, and prove attribution through a visible trigger-side `BY` consequence when attribution is
+material. They should not filter tasks by cause or Actor, match exact internal task strings, or read
+the Event Log merely to restate engine metadata.
+
+`ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding. Queue routing is
+incidental there and should be removed from those assertions or made explicit in separately named
+delegation tests. Card tests for Pharmacy Union and Splice should assert their normal outcomes and
+which Player can make any offered choice; generic engine coverage should carry the internal routing
+proof.
+
+## Open policy questions
+
+- **Unique Philares reward under SAFE:** P1 creates an adjacency and, after immediate consequences,
+  the Philares resource choice is the only selectable P1-controlled task. SAFE can currently select
+  that task on P1's behalf, so it is already selected in P2's queue before an explicit P1 command.
+  Decide whether that is a legitimate controller auto-selection policy or whether every
+  cross-Player handoff requires an explicit controller selection. When multiple sibling tasks are
+  available, SAFE already leaves the ordering to P1.
+
+## Future extension
+
+Real-card dealing will need a way to name Engine as the narrower without making Engine the default
+performer. A Player must control when an abstract `ProjectCard<Player, Hand>` gain is selected;
+Engine must derive the exact face from the seed and event history; and the originating task's Actor
+must retain attribution. Do not overload ownership or instruction-side `BY` to encode that extra
+role.

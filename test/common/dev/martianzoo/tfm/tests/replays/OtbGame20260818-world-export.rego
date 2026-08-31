@@ -560,6 +560,7 @@ BECOME Ellie
 // "Noctis City... six steel and six real... place a city tile... on three-two."
 DO playCard(NoctisCity, -6 Steel, -6 MC)
 DO tasks(CityTile<Utopia_3_2>, PROD[-Energy, 3 MC], 2 MC)
+DO tasks(select)
 BECOME Dad
 DO tasks(Animal<Dad, Pets>)
 BECOME Ellie
@@ -991,9 +992,7 @@ BECOME Ellie
 // get a card."
 DO playCard(SponsoredAcademies, -7 MC)
 DO tasks(Animal<Ellie, VenusianAnimals>, -ProjectCard<Ellie, Hand>, 2 ProjectCard, SponsoredAcademies_Signal, ProjectCard)
-BECOME Dad
-DO tasks(ProjectCard)
-BECOME Ellie
+DO tasks(ProjectCard<Dad>)
 
 // "La Grange Observatoire." "One titanium and four money." "I believe I get a card."
 DO playCard(LagrangeObservatory, -Titanium, -4 MC)
@@ -1051,6 +1050,7 @@ DO playCard(Conscription, -5 MC)
 DO tasks(Conscription_NextCardEffect, PlayedEvent<Class<Conscription>> FROM Conscription)
 DO playCard(Capital, -10 MC)
 DO tasks(CityTile<Utopia_6_5>, PROD[-2 Energy, 5 MC], 2 MC, 2 MC, 2 MC, 2 Plant, CapitalMarker<CityTile<Utopia_6_5, Ellie>>)
+DO tasks(select)
 BECOME Dad
 DO tasks(Animal<Dad, Pets>)
 

@@ -1036,7 +1036,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("TemperatureStep")
             doTask("2 Plant<Player1>")
             doTask("TerraformRating")
-            p2.doTask("2 Plant<Player2>")
+            doTask("2 Plant<Player2>")
           }
           .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TerraformRating, -7 MC")
       // Player1 claimed Terraformer milestone

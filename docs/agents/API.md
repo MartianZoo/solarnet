@@ -104,7 +104,7 @@ consequences.
 | `Task.selected` | This task holds the select-lock; it need not yet be concrete. |
 | `TaskQueue.selectedTask()` | Returns the Selected Task, if any. |
 | `Gameplay.canSelectTask(id)` | Checks whether Selection and its initial Resolution can succeed. |
-| `Gameplay.selectTask(id)` | Selects and resolves one Pending Task, then executes it immediately if concrete. |
+| `Gameplay.selectTask(id)` | Selects and resolves one Pending Task, delegates an abstract result when needed, then executes it immediately if concrete. |
 | `Gameplay.selectTask(text)` | Convenience matcher with the same Selection semantics. |
 | `Gameplay.narrowTask(text)` | Narrows only the Selected Task, resolves it again, and executes if concrete; partial narrowing remains recorded. |
 | `Instructor.resolve(...)` | Applies World-dependent instruction semantics without making a Player choice. |
@@ -121,7 +121,8 @@ fun narrowTask(narrowing: String): TaskResult
 
 The Selected Task supplies its identity and current wider Specification. String parsing and matching
 remain in `ApiTranslation`. Each mutating call resolves and, once concrete, executes before
-returning; a partial narrowing returns with the same task still selected.
+returning; a partial narrowing returns with the same task still selected, though its assignee may
+have changed while its controller remains stable.
 
 `GameReader.resolve(Expression)` and `ClassTable.resolve(Expression)` keep their names: converting a
 symbolic specification into its contextual meaning is the same concept. Private helpers should

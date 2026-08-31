@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.web.gameviewer.games
 
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
@@ -317,9 +318,16 @@ public class OtbGame20260828 : RecordedGame() {
     dad.turn {
       stdAction("TradeSA", 2) {
         doTask("Trade<Titan>")
-        addCardResources(TitanShuttles, 3)
-        addCardResources(TitanShuttles)
-        joanna.addCardResources(Dirigibles)
+        val previousAutoExecMode = dad.autoExecMode
+        dad.autoExecMode = NONE
+        try {
+          doTask("3 Floater<$TitanShuttles>")
+          doTask("Floater<$TitanShuttles>")
+          dad.selectTask("Floater<Joanna>.")
+          joanna.doTask("Floater<$Dirigibles>")
+        } finally {
+          dad.autoExecMode = previousAutoExecMode
+        }
       }
     }
     joanna.turn {
@@ -449,9 +457,16 @@ public class OtbGame20260828 : RecordedGame() {
     dad.turn {
       stdAction("TradeSA", 2) {
         doTask("Trade<Titan>")
-        addCardResources(TitanShuttles, 2)
-        addCardResources(TitanShuttles)
-        joanna.addCardResources(LocalShading)
+        val previousAutoExecMode = dad.autoExecMode
+        dad.autoExecMode = NONE
+        try {
+          doTask("2 Floater<$TitanShuttles>")
+          doTask("Floater<$TitanShuttles>")
+          dad.selectTask("Floater<Joanna>.")
+          joanna.doTask("Floater<$LocalShading>")
+        } finally {
+          dad.autoExecMode = previousAutoExecMode
+        }
       }
     }
     joanna.turn {

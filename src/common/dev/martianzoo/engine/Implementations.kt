@@ -45,9 +45,9 @@ internal class Implementations(
     private val changer: Changer,
     private val onAutoExec: (Task, Int, AutoExecMode) -> Unit,
 ) {
-  // Auto-exec scans the whole game for compatibility with existing workflows, and Task.selected is
-  // a whole-game lock. Keep that global visibility as a queue view rather than exposing TaskQueues
-  // storage.
+  // Auto-exec scans the whole game for compatibility with existing workflows. Selection and
+  // delegated reassignment are also whole-game concerns, so keep global visibility as a queue view
+  // rather than exposing TaskQueues storage.
   private val allTasks = taskQueues.all()
 
   private object SelectionProbeSucceeded : RuntimeException()
@@ -178,7 +178,7 @@ internal class Implementations(
           onAutoExec(task, taskNumber, effectiveMode)
           return true
         }
-        val selectedTask = queue.getTaskData(selected)
+        val selectedTask = allTasks.getTaskData(selected)
         try {
           if (trySelectedAnyTask()) {
             onAutoExec(selectedTask, taskNumber, effectiveMode)
@@ -240,7 +240,17 @@ internal class Implementations(
    * automatically enqueued.
    */
   private fun handleTask(queue: TaskQueue, task: Task) {
-    task.then?.let { queue.queueFor(task.assignee).addTasks(it, task.cause, task.actor) }
+    task.then?.let {
+      queue
+          .queueFor(task.controller)
+          .addTasks(
+              it,
+              task.cause,
+              task.actor,
+              controller = task.controller,
+              narrower = task.narrower,
+          )
+    }
     queue.removeTask(task.id)
   }
 
@@ -289,7 +299,7 @@ internal class Implementations(
         if (effectiveNarrowing is Instruction) instructor.resolve(effectiveNarrowing)
         else effectiveNarrowing
     replace1WithN(tasks, task, replacement, selected = true, then = continuation)
-    if (taskId in tasks) executeSelectedIfConcrete(tasks, taskId)
+    if (taskId in allTasks) executeSelectedIfConcrete(queueForAnyTask(taskId), taskId)
   }
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
@@ -335,7 +345,7 @@ internal class Implementations(
 
   private fun selectAndExecuteIfConcrete(queue: TaskQueue, taskId: TaskId) {
     val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
-    executeSelectedIfConcrete(queue, selected)
+    executeSelectedIfConcrete(queueForAnyTask(selected), selected)
   }
 
   private fun executeSelectedIfConcrete(queue: TaskQueue, taskId: TaskId) {
@@ -350,7 +360,7 @@ internal class Implementations(
     if (task.selected) return task.id
     val replacement = instructor.resolve(task.instruction)
     replace1WithN(queue, task, replacement, selected = true, then = task.then)
-    return queue.selectedTask()
+    return task.id.takeIf { it in allTasks }
   }
 
   private fun replace1WithN(
@@ -366,23 +376,39 @@ internal class Implementations(
       val updated =
           if (instruction is Then && then == null) {
             Task.newTasks(
-                    original.id,
-                    original.assignee,
-                    group,
-                    original.cause,
-                    original.actor,
-                    reader::isAbstract,
+                    firstId = original.id,
+                    assignee = original.assignee,
+                    instruction = group,
+                    cause = original.cause,
+                    actor = original.actor,
+                    controller = original.controller,
+                    narrower = original.narrower,
+                    isAbstract = reader::isAbstract,
                 )
                 .single()
                 .copy(selected = selected, whyPending = original.whyPending)
           } else {
             original.copy(instructionIn = instruction, selected = selected, thenIn = then)
           }
-      queue.editTask(updated)
+      val reassigned =
+          if (selected && instruction.isAbstract(reader)) {
+            updated.copy(assignee = original.narrower)
+          } else {
+            updated
+          }
+      allTasks.editTask(reassigned)
     } else {
       // Structural completion replaces the selected task with ordinary pending siblings. No child
       // inherits selection; a later player input must select whichever sibling comes next.
-      queue.queueFor(original.assignee).addTasks(group, original.cause, original.actor)
+      queue
+          .queueFor(original.controller)
+          .addTasks(
+              group,
+              original.cause,
+              original.actor,
+              controller = original.controller,
+              narrower = original.narrower,
+          )
       handleTask(queue, original.copy(thenIn = then))
     }
   }
@@ -394,11 +420,12 @@ internal class Implementations(
   private fun doTask(queue: TaskQueue, taskId: TaskId): Task {
     val original = queue.getTaskData(taskId)
     val selected = selectTask(queue, original) ?: return original
-    val selectedTask = queue.getTaskData(selected)
+    val selectedQueue = queueForAnyTask(selected)
+    val selectedTask = selectedQueue.getTaskData(selected)
     if (selectedTask.instruction.isAbstract(reader)) {
       throw abstractInstruction(selectedTask.instruction)
     }
-    executeSelectedTask(queue, selected)
+    executeSelectedTask(selectedQueue, selected)
     return selectedTask
   }
 
@@ -410,6 +437,7 @@ internal class Implementations(
             selectedTask.instruction,
             selectedTask.cause,
             selectedTask.actor,
+            selectedTask.controller,
         )
     newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
     handleTask(queue, selectedTask)

@@ -147,6 +147,17 @@ in a test just to detect that the list changed. Test observable behavior through
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
 exact intermediate task text, or other implementation detail.
 
+Keep task-routing mechanism tests in the generic engine suite. Those tests may inspect task
+controller, assignee, narrower, selection, and event Actor because those are the contract under test. A
+player-level card or rule scenario should instead demonstrate routing through public gameplay:
+which Player can select or narrow, whether competing gameplay is blocked, the resulting state, and,
+when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card
+reactions by exact rendered instruction, `Task.cause`, `Task.actor`, or raw Event Log inspection.
+
+Keep trigger matching separate from queue routing. A `BY` characterization should prove which
+triggers fire and how Actor variables bind through observable changes. Do not make its continued
+success depend on an incidental assignee unless that test is explicitly about delegation.
+
 Keep gameplay and test APIs generic. Never add a Kotlin helper or DSL operation solely to represent
 one card, corporation, Prelude, or other component. Use existing gameplay helpers when their
 operation scopes fit. When component-specific steps must stay inside an outer operation, express

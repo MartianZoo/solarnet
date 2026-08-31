@@ -74,9 +74,9 @@ Several different concerns are easy to collapse into a vague request for work to
   open; a whole Player queue drain is not automatically the correct unit.
 - **Global completion:** the whole World task pool has drained and remains empty after completion
   work.
-- **Delegated completion:** a selected parent resumes only after its delegated child has completed,
-  even if unrelated World work remains. This requires the suspended-parent relation proposed in
-  [IDENTITY.md](IDENTITY.md), not a general nested-scope facility.
+- **Delegated completion:** a selected task may move to another Actor for narrowing while retaining
+  its controller. The global select-lock prevents unrelated work until it completes; follow-up work
+  returns to the controller. See [IDENTITY.md](IDENTITY.md).
 - **Game-rule atomicity:** no player interleaving or rule observation may split the conceptual
   operation.
 - **Failure atomicity:** `Timeline.atomic` rolls implementation state back after failure.
@@ -646,8 +646,9 @@ For a new A-before-B claim:
 7. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is
    derived from it; do not mistake that local artificial order for broader game precedence.
 8. Otherwise identify the smallest completion fact: a local condition may call for a barrier, an
-   entire workflow step may call for whole-World completion, and a delegated child calls for a
-   suspended parent. Do not introduce nested completion frames by default.
+   entire workflow step may call for whole-World completion, and delegated narrowing may call for
+   retaining a controller across task reassignment. Do not introduce nested completion frames by
+   default.
 9. Use only a committed mechanism; leave the case open when it requires an exploratory completion
    rule.
 10. Add a precedence test and, when relevant, a freedom test that demonstrates alternative legal

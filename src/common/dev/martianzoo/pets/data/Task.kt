@@ -26,8 +26,14 @@ public data class Task(
     /** Whose pending-work queue contains this task and whose scoped gameplay may select it. */
     val assignee: Actor,
 
+    /** Who controls the surrounding operation and receives work caused by this task. */
+    val controller: Actor = assignee,
+
+    /** Who supplies choices after this task has been selected. */
+    val narrower: Actor = controller,
+
     /** The Actor recorded for resulting changes unless the instruction contains an explicit BY. */
-    val actor: Actor = assignee,
+    val actor: Actor = narrower,
 
     /** If true, the world may not be modified until this task is completed. */
     val selected: Boolean = false,
@@ -106,13 +112,24 @@ public data class Task(
         instruction: InstructionGroup,
         cause: Cause?,
         actor: Actor = assignee,
+        controller: Actor = assignee,
+        narrower: Actor = actor,
         isAbstract: ((Expression) -> Boolean)? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
       val normalized =
           InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
       return normalized.map {
-        newTask(ids.next(), assignee, actor, it, cause, isAbstract = isAbstract)
+        newTask(
+            ids.next(),
+            assignee,
+            controller,
+            narrower,
+            actor,
+            it,
+            cause,
+            isAbstract = isAbstract,
+        )
       }
     }
 
@@ -164,6 +181,8 @@ public data class Task(
     private fun newTask(
         id: TaskId,
         assignee: Actor,
+        controller: Actor,
+        narrower: Actor,
         actor: Actor,
         instruction: Instruction,
         cause: Cause?,
@@ -174,6 +193,8 @@ public data class Task(
           Task(
               id = id,
               assignee = assignee,
+              controller = controller,
+              narrower = narrower,
               actor = actor,
               selected = automatic,
               instructionIn = instruction,

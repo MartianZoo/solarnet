@@ -696,9 +696,12 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to put my floater on Dirigibles."
       stdAction("TradeSA", 2) {
         doTask("Trade<Titan>")
-        addCardResources(TitanShuttles, 3)
-        addCardResources(TitanShuttles)
-        joanna.addCardResources(Dirigibles)
+        doWithoutAutoExec(dad) {
+          doTask("3 Floater<$TitanShuttles>")
+          doTask("Floater<$TitanShuttles>")
+          dad.selectTask("Floater<Joanna>.")
+          joanna.doTask("Floater<$Dirigibles>")
+        }
       }
     }
     joanna.turn {
@@ -985,9 +988,12 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I guess I'll go ahead and put my floater onto Local Shading."
       stdAction("TradeSA", 2) {
         doTask("Trade<Titan>")
-        addCardResources(TitanShuttles, 2)
-        addCardResources(TitanShuttles)
-        joanna.addCardResources(LocalShading)
+        doWithoutAutoExec(dad) {
+          doTask("2 Floater<$TitanShuttles>")
+          doTask("Floater<$TitanShuttles>")
+          dad.selectTask("Floater<Joanna>.")
+          joanna.doTask("Floater<$LocalShading>")
+        }
       }
     }
     joanna.turn {

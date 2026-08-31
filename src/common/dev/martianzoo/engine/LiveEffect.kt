@@ -56,27 +56,29 @@ private constructor(
 
   internal fun onChangeToSelf(
       triggerEvent: ChangeEvent,
+      controller: Actor,
       reader: GameReader,
       resolvedChange: ResolvedChange,
-  ): PendingTask? = onChange(triggerEvent, reader, resolvedChange, isSelf = true)
+  ): PendingTask? = onChange(triggerEvent, controller, reader, resolvedChange, isSelf = true)
 
   internal fun onChangeToOther(
       triggerEvent: ChangeEvent,
+      controller: Actor,
       reader: GameReader,
       resolvedChange: ResolvedChange,
-  ): PendingTask? = onChange(triggerEvent, reader, resolvedChange, isSelf = false)
+  ): PendingTask? = onChange(triggerEvent, controller, reader, resolvedChange, isSelf = false)
 
   private fun onChange(
       triggerEvent: ChangeEvent,
+      controller: Actor,
       reader: GameReader,
       resolvedChange: ResolvedChange,
       isSelf: Boolean,
   ): PendingTask? {
-    // An owned effect belongs to the Player owning the component that carries it. This must win
-    // over every other identity here: when Player1 places beside Player2's Philares tile, Player2
-    // owns the effect and therefore chooses the standard resource. Using the changed tile's Owner
-    // instead would incorrectly give that choice to Player1. This is intentionally Player-only:
-    // no accepted SoloOpponent rule gives a passive Owner triggered choices or pending work.
+    // An owned effect belongs to the Player owning the component that carries it. That Player is
+    // the default performer and eventual narrower, while the triggering operation's controller
+    // retains the task until selection. This is intentionally Player-only: no accepted
+    // SoloOpponent rule gives a passive Owner triggered choices or pending work.
 
     // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
     // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
@@ -88,11 +90,12 @@ private constructor(
     // last legitimate source for contextual `Owner`. Engine is deliberately excluded: it is an
     // Actor but not an Owner, so treating it as one would manufacture invalid owned components.
     val contextualOwner = effectOwner ?: changedComponentPlayer ?: (triggerEvent.actor as? Player)
+    val defaultActor =
+        effectOwner ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor
+    val narrower = effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
+    val taskController =
+        (controller as? Player) ?: effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
 
-    // Assignment is a separate compatibility rule. Keeping this call separate from
-    // contextualOwner prevents the assignee from silently becoming the Actor used by authored
-    // `BY`, while preserving today's Philares behavior in which its Owner receives the task.
-    val assignee = assigneeForTriggeredWork(triggerEvent, effectOwner, changedComponentPlayer)
     val hit =
         subscription.checkForHit(
             triggerEvent,
@@ -107,25 +110,14 @@ private constructor(
             .evaluateProperties(context.expression, contextualOwner)
             .transformInstructionTree(hit.specialize(effect.instruction))
     return PendingTask(
-        assignee = assignee,
-        actor = effectOwner ?: triggerEvent.actor,
+        assignee = taskController,
+        controller = taskController,
+        narrower = narrower,
+        actor = defaultActor,
         instruction = InstructionGroup.of(instruction),
         cause = cause,
     )
   }
-
-  /**
-   * The compatibility rule for choosing the assignee of work produced by an effect. Authored `BY`
-   * independently tests the Actor recorded on the triggering event.
-   *
-   * Automatic effects are represented temporarily as PendingTasks but execute inline using the
-   * PendingTask's stored Actor, so an effect owner remains the Actor when one exists.
-   */
-  private fun assigneeForTriggeredWork(
-      triggerEvent: ChangeEvent,
-      effectOwner: Player?,
-      changedComponentPlayer: Player?,
-  ): Actor = effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
 
   override fun equals(other: Any?): Boolean =
       other is LiveEffect &&

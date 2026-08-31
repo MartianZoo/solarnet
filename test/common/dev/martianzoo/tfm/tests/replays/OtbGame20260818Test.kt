@@ -897,7 +897,15 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       ScriptSession()
           .also { session ->
             lineSequence().forEachIndexed { index, line ->
-              val output = session.command(line)
+              val output =
+                  try {
+                    session.command(line)
+                  } catch (failure: Exception) {
+                    throw IllegalArgumentException(
+                        "Replay line ${index + 1} failed: $line",
+                        failure,
+                    )
+                  }
               require(output.none { it.startsWith("Usage:") || it.startsWith("¯\\_") }) {
                 "Replay line ${index + 1} failed: $line\n${output.joinToString("\n")}"
               }

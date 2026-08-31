@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -10,6 +11,7 @@ import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.NitriteReducingBacteria
 import dev.martianzoo.tfm.tests.cards.cardnames.RegolithEaters
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -33,9 +35,14 @@ internal class ColoniesRulesTest : CardTest() {
     }
 
     p2.stdAction("TradeSA", 1) {
-      doTask("Trade<Enceladus>")
-      doTask("Microbe<$RegolithEaters>")
-      p1.doTask("Microbe<$NitriteReducingBacteria>")
+      doWithoutAutoExec(p2) {
+        doTask("Trade<Enceladus>")
+        doTask("FlownTradeFleet<Enceladus> FROM ReserveTradeFleet")
+        doTask("Microbe<$RegolithEaters>")
+        shouldThrow<TaskException> { p1.doTask("Microbe<$NitriteReducingBacteria>") }
+        p2.selectTask("Microbe<Player1>.")
+        p1.doTask("Microbe<$NitriteReducingBacteria>")
+      }
     }
 
     p1.count("Microbe<$NitriteReducingBacteria>") shouldBe 7

@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,8 +25,19 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics")
+    val manual = p2.godMode().also { it.autoExecMode = NONE }
+    val p1MoneyBefore = p1.count("MC")
+    val p2MoneyBefore = p2.count("MC")
 
-    p2.manual("$Decomposers") { doTask("2 MC") }.expect("2 MC<Player1>, 2 MC")
+    manual.manual("$Decomposers") {
+      shouldThrow<TaskException> { p1.doTask("2 MC") }
+      doTask("2 MC<Player1>")
+      doTask("2 MC")
+      doTask("Microbe<$Decomposers>")
+    }
+
+    p1.count("MC") shouldBe p1MoneyBefore + 2
+    p2.count("MC") shouldBe p2MoneyBefore + 2
   }
 
   @Test

@@ -59,10 +59,10 @@ internal class ByTriggerCharacterizationTest {
 
     p2.beginManual("-OwnedActorTrigger<Player1>!") {
       game.tasks
-          .extract { it.assignee to it.instruction.toString() }
+          .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(
-              PLAYER1 to "Steel<Player2>!",
-              PLAYER1 to "Heat<Player1>!",
+              "Steel<Player2>!",
+              "Heat<Player1>!",
           )
     }
   }
@@ -131,9 +131,7 @@ internal class ByTriggerCharacterizationTest {
     p1.sneak("OwnedTriggerProbe<Player1>!")
 
     p2.beginManual("OwnedActorTrigger<Player2>!") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "Plant<Player1>!")
+      game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Plant<Player1>!")
     }
   }
 
@@ -150,9 +148,7 @@ internal class ByTriggerCharacterizationTest {
     game.tasks.isEmpty() shouldBe true
 
     other.beginManual("ActorTriggerSignal!") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
+      game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Heat<Player1>!")
     }
   }
 
@@ -164,9 +160,7 @@ internal class ByTriggerCharacterizationTest {
     owner.sneak("OpponentByProbe<Player1>!, ActorTriggerSignal!")
 
     other.beginManual("-ActorTriggerSignal!") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
+      game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Heat<Player1>!")
     }
   }
 

@@ -67,7 +67,8 @@ internal constructor(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor = checkNotNull(defaultActor),
-  ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor) }
+      controller: Actor = actor,
+  ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor, controller) }
 
   /**
    * Executes a resolved first stage; later linked stages resolve against the state they inherit.
@@ -76,16 +77,20 @@ internal constructor(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor = checkNotNull(defaultActor),
-  ): List<PendingTask> = buildList { doExecuteResolved(instruction, cause, this, actor) }
+      controller: Actor = actor,
+  ): List<PendingTask> = buildList {
+    doExecuteResolved(instruction, cause, this, actor, controller)
+  }
 
   private fun doExecute(
       instruction: Instruction,
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
+      controller: Actor,
   ) {
     when (val resolved = resolve(instruction)) {
-      is Instruction -> doExecuteResolved(resolved, cause, deferred, actor)
+      is Instruction -> doExecuteResolved(resolved, cause, deferred, actor, controller)
       is InstructionGroup -> throw abstractInstruction(resolved)
     }
   }
@@ -95,17 +100,18 @@ internal constructor(
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
+      controller: Actor,
   ) {
     when (resolved) {
-      is Change -> executeChange(resolved, cause, deferred, actor)
-      is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved))
+      is Change -> executeChange(resolved, cause, deferred, actor, controller)
+      is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved), controller)
       is Then ->
           resolved.instructions.forEachIndexed { index, tree ->
             val instruction = tree as? Instruction ?: throw abstractInstruction(tree)
             if (index == 0) {
-              doExecuteResolved(instruction, cause, deferred, actor)
+              doExecuteResolved(instruction, cause, deferred, actor, controller)
             } else {
-              doExecute(instruction, cause, deferred, actor)
+              doExecute(instruction, cause, deferred, actor, controller)
             }
           }
       is Or -> throw orWithoutChoice(resolved)
@@ -119,6 +125,7 @@ internal constructor(
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
+      controller: Actor,
   ) {
     val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
     if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
@@ -137,11 +144,11 @@ internal constructor(
               actor = actor,
           )
 
-      val now = effector!!.fire(result, automatic = true)
+      val now = effector!!.fire(result, controller, automatic = true)
       for (task in now) {
         executeAutomaticEffect(task, deferred)
       }
-      deferred += effector.fire(result, automatic = false)
+      deferred += effector.fire(result, controller, automatic = false)
       if (done) break
     }
   }
@@ -158,7 +165,9 @@ internal constructor(
     }
     automaticEffectStack += task
     try {
-      task.instruction.instructions.forEach { doExecute(it, task.cause, deferred, task.actor) }
+      task.instruction.instructions.forEach {
+        doExecute(it, task.cause, deferred, task.actor, task.controller)
+      }
     } finally {
       automaticEffectStack.removeLast()
     }

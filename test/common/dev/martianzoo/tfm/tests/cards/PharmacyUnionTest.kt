@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -23,6 +25,26 @@ internal class PharmacyUnionTest : CardTest() {
     p1.manual("$PharmacyUnion")
 
     p1.manual("$PhysicsComplex").expect("-Disease<$PharmacyUnion>, TerraformRating")
+  }
+
+  @Test
+  internal fun `The microbe tag player orders another player's Pharmacy Union reactions`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p1.manual("$PharmacyUnion")
+    val manual = p2.godMode().also { it.autoExecMode = NONE }
+    val diseaseBefore = p1.count("Disease<$PharmacyUnion>")
+    val moneyBefore = p1.count("MC")
+
+    manual.manual("$Decomposers") {
+      shouldThrow<TaskException> { p1.doTask("Disease<$PharmacyUnion>") }
+      doTask("Disease<$PharmacyUnion<Player1>>!")
+      doTask("-4 MC<Player1>")
+      doTask("Microbe<$Decomposers>")
+    }
+
+    p1.count("Disease<$PharmacyUnion>") shouldBe diseaseBefore + 1
+    p1.count("MC") shouldBe moneyBefore - 4
   }
 
   @Test

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.Player.Companion.PLAYER3
@@ -59,16 +60,31 @@ internal class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Icy Impactors suspends its owner while a third-player start player chooses`() {
+  internal fun `Icy Impactors owner controls when a third-player first player chooses`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     engine.manual("StartToken<Player3> FROM StartToken<Player1>")
     p1.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
+    val previousAutoExecMode = p1.autoExecMode
+    p1.autoExecMode = NONE
 
-    p1.cardAction2(IcyImpactors) {
-      shouldThrow<TaskException> { p1.doTask("OceanTile<Tharsis_1_2> BY Player1") }
-      p3.doTask("OceanTile<Tharsis_1_2> BY Player1")
+    try {
+      p1.cardAction2(IcyImpactors) {
+        val signal = tasks.ids().single()
+        p1.selectTask(signal)
+        val placement = tasks.ids().single()
+        p1.selectTask(placement)
+        val ocean = tasks.ids().single()
+        shouldThrow<TaskException> { p3.doTask("OceanTile<Tharsis_1_2> BY Player1") }
+        p1.selectTask(ocean)
+        p3.doTask("OceanTile<Tharsis_1_2> BY Player1")
+        shouldThrow<TaskException> { p3.doTask("TerraformRating<Player1>") }
+        doTask("2 Steel")
+        doTask("TerraformRating")
+      }
+    } finally {
+      p1.autoExecMode = previousAutoExecMode
     }
 
     p1.count("TerraformRating") shouldBe 21
