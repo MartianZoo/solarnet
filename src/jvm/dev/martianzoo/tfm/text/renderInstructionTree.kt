@@ -339,7 +339,7 @@ private fun renderPer(
   val clause =
       renderLoweredInstructions(instruction.inner, describers).clauses.singleOrNull() ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
-  return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
+  return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("per $metric"))
 }
 
 private fun renderAlternatives(

@@ -234,7 +234,7 @@ ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
   "The printed event icon, derived for every EventCard and forbidden in authored card tags"
   CLASS EventTag : Tag<EventCard>
   ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }
-  ABSTRACT CLASS PlanetTag { CLASS EarthTag, JovianTag }
+  ABSTRACT CLASS PlanetaryTag { CLASS EarthTag, JovianTag }
 }
 
 // RESOURCES, PRODUCTION, AND PAYMENT

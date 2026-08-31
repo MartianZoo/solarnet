@@ -50,13 +50,15 @@ internal class EnglishTest {
     english.describe(parse<Effect>("PlantTag<CardFront<Anyone>, Anyone>: Steel")) shouldBe
         "When any plant tag is played, gain 1 steel."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
-        "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
+        "Pay 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe
         "Remove 1 animal from this card to gain 1 steel."
+    english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
+    english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Remove 2 plants."
     english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe
-        "Add up to 1 animal to this card."
+        "You may add up to 1 animal to this card."
     english.describe(
         parse<InstructionTree>("3 MC<Anyone> FROM MC."),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
@@ -74,8 +76,8 @@ internal class EnglishTest {
         "When you buy a card, pay 2 M€ extra."
     english.describe(parse<Effect>("UseAction<This, First>:: Accept<Class<Titanium>>")) shouldBe
         "When you pay for this action, titanium may be used."
-    english.describe(parse<Effect>("PlayTag<Class<PlanetTag>>:: -2 Owed<>")) shouldBe
-        "When you play a planet tag, pay 2 M€ less."
+    english.describe(parse<Effect>("PlayTag<Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
+        "When you play a planetary tag, pay 2 M€ less."
     english.describe(parse<Effect>("PlayTag<Class<EarthTag>>:: -2 Owed<>")) shouldBe
         "When you play an Earth tag, pay 2 M€ less."
     english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
@@ -111,7 +113,7 @@ internal class EnglishTest {
         )
 
     english.topText(card) shouldBe
-        "Action: Spend 12 M€ (titanium may be used) to place 1 ocean tile, or remove 1 asteroid from this card to raise Venus 1 step."
+        "Action: Pay 12 M€ (titanium may be used) to place 1 ocean tile, or remove 1 asteroid from this card to raise Venus 1 step."
   }
 
   @Test
@@ -127,9 +129,9 @@ internal class EnglishTest {
   @Test
   internal fun interpretsPlayerOwnedTypesInCardOwnershipContext() {
     english.describe(parse<InstructionTree>("2 MC / Colony")) shouldBe
-        "Gain 2 M€ for each colony you own."
+        "Gain 2 M€ per colony you own."
     english.describe(parse<InstructionTree>("2 MC / Colony<Anyone>")) shouldBe
-        "Gain 2 M€ for each colony."
+        "Gain 2 M€ per colony."
   }
 
   @Test

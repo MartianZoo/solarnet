@@ -1,9 +1,10 @@
 count	reason	examples
-26	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesign_NextCardEffect
+24	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesign_NextCardEffect
 14	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2 MC] | Vitor: This IF Class<Award>: Vitor_Mandate
 13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<MC>> / 6 - Production<Class<MC>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
 3	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
-2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X MC | VenusShuttles: 1 MC / 12 - VenusTag -> VenusStep
+2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X MC | VenusShuttles: MC / 12 - VenusTag -> VenusStep
+1	UNKNOWN_ACTION_FRAME	SearchForLife: MC -> Science<This>?
 1	UNKNOWN_REQUIREMENT_FRAME	CrashSiteCleanup: MyResourceWasRemoved<Anyone, Class<Plant>, Owner>
 1	UNSUPPORTED_CARD_RESOURCE_CHANGE	BoardOfDirectors: -Director<This>
 1	UNSUPPORTED_CHANGE_QUANTITY	FloatingTradeHub: X StandardResource

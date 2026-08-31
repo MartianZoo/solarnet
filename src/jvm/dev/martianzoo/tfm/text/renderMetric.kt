@@ -36,12 +36,12 @@ private fun renderScaledCountPhrase(metric: Metric.Scaled, describers: Describer
 
 internal fun Describers.renderMetric(expression: Expression, unit: Int? = null): String? {
   val count = unit ?: 1
-  val prefix = unit?.let { "every $it" } ?: "each"
+  val prefix = unit?.let { "$it " }.orEmpty()
   renderCountedRelation(expression, this)?.let { relation ->
-    return "$prefix ${relation.countedObject(count)}"
+    return "$prefix${relation.countedObject(count)}"
   }
   distinctOwnedKinds(expression, this)?.let { noun ->
-    return "$prefix ${if (count == 1) noun.singular else noun.plural} you have"
+    return "$prefix${if (count == 1) noun.singular else noun.plural} you have"
   }
   renderZeroMaximumFilter(expression, prefix, count)?.let {
     return it
@@ -57,15 +57,15 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   }
   if (expression.simple) {
     cardResourceNoun(expression.className, count)?.let { noun ->
-      return "$prefix $noun you have"
+      return "$prefix$noun you have"
     }
     placementCountPhrase(expression, count)?.let { phrase ->
-      return "$prefix $phrase"
+      return "$prefix$phrase"
     }
     return null
   }
   placementCountPhrase(expression, count)?.let { phrase ->
-    return "$prefix $phrase"
+    return "$prefix$phrase"
   }
   val resolved = resolveCardResource(expression) ?: return null
   if (
@@ -76,7 +76,7 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
     return null
   }
   val noun = cardResourceNoun(expression.className, count) ?: return null
-  return "$prefix $noun on this card"
+  return "$prefix$noun on this card"
 }
 
 private fun Describers.renderUnrestrictedOwnedComponent(
@@ -89,7 +89,7 @@ private fun Describers.renderUnrestrictedOwnedComponent(
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   if (!resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)) return null
-  return "$prefix ANY ${componentNounPhrase(expression.className, count).noun()}"
+  return "${prefix}ANY ${componentNounPhrase(expression.className, count).noun()}"
 }
 
 internal fun distinctOwnedKinds(
@@ -134,7 +134,7 @@ private fun Describers.renderComponentCount(
         else -> return null
       } ?: return null
   val noun = if (count == 1) description.noun.singular else description.noun.plural
-  return "$prefix $noun $suffix"
+  return "$prefix$noun $suffix"
 }
 
 private fun Describers.renderZeroMaximumFilter(
@@ -153,7 +153,7 @@ private fun Describers.renderZeroMaximumFilter(
   if (!excluded.simple) return null
   val inner = fact(excluded.className, ComponentDescriber::countNoun) ?: return null
   val outerNoun = if (count == 1) outer.singular else outer.plural
-  return "$prefix $outerNoun with no ${inner.plural}"
+  return "$prefix$outerNoun with no ${inner.plural}"
 }
 
 private fun renderTagMetric(
@@ -175,7 +175,7 @@ private fun renderTagMetric(
             "your opponents have"
         else -> return null
       }
-  return "$prefix $name ${if (unit == null) "tag" else "tags"} $ownership"
+  return "$prefix$name ${if (unit == null) "tag" else "tags"} $ownership"
 }
 
 private fun Describers.placementCountPhrase(expression: Expression, count: Int): String? {

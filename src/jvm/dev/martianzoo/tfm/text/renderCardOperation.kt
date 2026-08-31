@@ -139,7 +139,14 @@ private fun renderEventRecovery(operation: RecoverEvents): Clause? {
   val count = operation.recovered.count.fixedQuantity() ?: return null
   val cards =
       if (count == 1) "one of your played event cards" else "$count of your played event cards"
-  return clause("return", "up to $cards", Modifier.Phrase("to your hand"))
+  return Clause.Simple(
+      Predicate(
+          "may return",
+          Coordination.one(NounPhrase.text("up to $cards")),
+          listOf(Modifier.Phrase("to your hand")),
+      ),
+      NounPhrase.text("you"),
+  )
 }
 
 private fun renderEventMovement(

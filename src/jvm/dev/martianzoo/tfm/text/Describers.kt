@@ -212,9 +212,10 @@ internal class Describers(
   internal fun tagName(className: ClassName): Pair<String, Boolean>? {
     if (!expressions.concrete(className) || !expressions.isTag(className)) return null
     val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-    val isPlanetTag = expressions.isPlanetTag(className)
-    val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
-    return name to isPlanetTag
+    val isPlanetaryTag = expressions.isPlanetaryTag(className)
+    val name =
+        if (isPlanetaryTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
+    return name to isPlanetaryTag
   }
 
   internal fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {

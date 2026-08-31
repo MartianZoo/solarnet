@@ -196,6 +196,22 @@ Then re-ask whether clauses are a sufficient intermediate representation.
 - Change the active path and delete superseded machinery. Do not maintain parallel converters.
 - Prefer canonical wording derived from meaning over incidental published variation. Preserve
   authored semantic order.
+- Use `raise` and `lower` for global parameters and a player's terraform rating; use `increase` and
+  `decrease` for production. Spell out `terraform rating` in card text.
+- Describe a card-resource location as `this card`, never `here`.
+- Introduce a triggering event with `when`, never `each time`. Describe one event; express the
+  result's multiplicity when one event produces several changes.
+- Render every ratio with `per`, whether its denominator is one or greater and whether or not its
+  result is victory points.
+- Make optional maxima explicit as `you may ... up to`, including when the maximum is greater than
+  one.
+- Use `pay` when standard resources are a cost for obtaining or doing something. Use `remove` for
+  card-resource costs and for standalone or involuntary resource reductions, including standard
+  resources. Do not use `spend` or `lose`. Describe substitution as `may be used as`, without a
+  payment verb.
+- Join a rendered action cost to its result with `to`. Refuse a costed action whose result cannot be
+  expressed as an infinitive; do not split it into separately modalized sentences.
+- Render `PlanetaryTag` as `planetary tag`.
 - Bracket unsupported Pets rather than buying coverage with a one-card mechanism.
 - Do not build a general natural-language framework or support hypothetical games. This renderer is
   for Terraforming Mars.

@@ -592,7 +592,7 @@ private data class PaymentDiscount(
 private fun renderResourcePaymentValue(effect: Effect, describers: Describers): String? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
   val reduction = owedReduction(effect.instruction, describers) ?: return null
-  return "Each $spent you spend is worth ${reduction.count} ${reduction.noun} extra."
+  return "Each $spent you pay is worth ${reduction.count} ${reduction.noun} extra."
 }
 
 private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
@@ -1193,9 +1193,15 @@ private fun renderLinkedProductionReward(effect: Effect, describers: Describers)
       eventTrigger(
           subject = NounPhrase.text("you"),
           verb = "increase",
-          objectPhrase = NounPhrase.text("one of your productions"),
+          objectPhrase = NounPhrase.text("one of your productions one or more steps"),
       )
-  return Sentence(Clause.Prefaced("for each step ${trigger.linearize()}", result)).linearize()
+  return Sentence(
+          Clause.Prefaced(
+              "when ${trigger.linearize()}",
+              result.withModifier(Modifier.Phrase("per step")),
+          ),
+      )
+      .linearize()
 }
 
 internal fun renderEndEffect(effect: Effect, describers: Describers): String? {
@@ -1238,8 +1244,6 @@ private fun renderPerVictoryPoints(
 ): String? {
   val per = instruction as? Per ?: return null
   val points = describers.renderFixedScore(per.inner) ?: return null
-  val metric =
-      renderMetricPhrase(per.metric, describers)?.removePrefix("each ")?.removePrefix("every ")
-          ?: "[${per.metric}]"
+  val metric = renderMetricPhrase(per.metric, describers) ?: "[${per.metric}]"
   return "$points per $metric."
 }

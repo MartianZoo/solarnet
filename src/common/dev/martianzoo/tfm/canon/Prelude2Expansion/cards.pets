@@ -165,7 +165,7 @@ CLASS SpaceLanes : CardFront<Class<PreludeCard>> {
 
   This:: SpaceTag<This>
   This: 3 Titanium
-  PlayTag<Class<PlanetTag>>:: -2 Owed<>
+  PlayTag<Class<PlanetaryTag>>:: -2 Owed<>
 }
 
 CLASS SuitableInfrastructure : CardFront<Class<PreludeCard>> {

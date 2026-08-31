@@ -130,8 +130,8 @@ private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): 
         if (minimum.target != 1) return null
         tagName(minimum) ?: return null
       }
-  val allPlanetTags = tags.all { (_, planet) -> planet }
-  if (!allPlanetTags && tags.any { (_, planet) -> planet }) return null
+  val allPlanetaryTags = tags.all { (_, planetary) -> planetary }
+  if (!allPlanetaryTags && tags.any { (_, planetary) -> planetary }) return null
   val nouns = tags.map { (name) -> "${indefiniteArticle(name)} $name tag" }
   return requirementClause("requires", englishList(nouns))
 }

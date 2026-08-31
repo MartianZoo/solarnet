@@ -30,7 +30,7 @@ CLASS VenusStep : GlobalParameter {
   This IF =8 This: TerraformRating
 }
 
-CLASS VenusTag : PlanetTag {
+CLASS VenusTag : PlanetaryTag {
 }
 
 CLASS Hoverlord : Milestone {

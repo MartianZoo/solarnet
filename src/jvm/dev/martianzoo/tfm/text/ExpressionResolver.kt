@@ -147,7 +147,7 @@ internal class ExpressionResolver {
 
   internal fun isTag(className: ClassName): Boolean = isSubtypeOf(className, TAG)
 
-  internal fun isPlanetTag(className: ClassName): Boolean = isSubtypeOf(className, PLANET_TAG)
+  internal fun isPlanetaryTag(className: ClassName): Boolean = isSubtypeOf(className, PLANETARY_TAG)
 
   internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
 
@@ -182,7 +182,7 @@ internal class ExpressionResolver {
     val CLASS = cn("Class")
     val END = cn("End")
     val GENERATIONAL = cn("Generational")
-    val PLANET_TAG = cn("PlanetTag")
+    val PLANETARY_TAG = cn("PlanetaryTag")
     val PLAYER = cn("Player")
     val TAG = cn("Tag")
   }

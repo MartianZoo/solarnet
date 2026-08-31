@@ -135,7 +135,7 @@ private fun Describers.renderResourceSpend(
   }
   if (!expression.simple || plainGainNoun(expression.className, 1) == null) return null
   val noun = componentNounPhrase(expression.className, 1).copy(count = null)
-  return Predicate("spend", Coordination.one(quantity(noun)))
+  return Predicate("pay", Coordination.one(quantity(noun)))
 }
 
 private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
@@ -237,7 +237,7 @@ private fun Describers.renderDeferredPaymentAction(
   val result = renderInstructions(gated.inner, this)
   val cost =
       Predicate(
-          "spend",
+          "pay",
           Coordination.one(NounPhrase.text("${owed.count} ${owed.noun}")),
           listOf(Modifier.Parenthetical("${acceptance.noun} may be used")),
       )
@@ -250,13 +250,13 @@ private fun renderAction(
 ): RenderedAction? {
   val lowered = lowerProductionSyntax(action)
   describers.renderLinkedXAction(lowered)?.let {
-    return it
+    return it.takeIf(RenderedAction::costCanJoinResult)
   }
   describers.renderLinkedProductionResourceAction(lowered)?.let {
-    return it
+    return it.takeIf(RenderedAction::costCanJoinResult)
   }
   describers.renderDeferredPaymentAction(lowered)?.let {
-    return it
+    return it.takeIf(RenderedAction::costCanJoinResult)
   }
   val gatedCost = lowered.cost as? Cost.Gated
   val gatedInstruction = lowered.instruction as? Gated
@@ -270,6 +270,7 @@ private fun renderAction(
   val separateResultSentences =
       (lowered.instruction as? Instruction.Transform)?.transformKind == CardOperation.TRANSFORM_KIND
   return RenderedAction(cost, result, condition, separateResultSentences)
+      .takeIf(RenderedAction::costCanJoinResult)
 }
 
 private data class RenderedAction(
@@ -288,8 +289,9 @@ private data class RenderedAction(
   fun asSentences(): String {
     if (condition == null) {
       if (cost == null) return result.asSentences()
+      val infinitive = checkNotNull(result.asActionResultInfinitive())
       if (!separateResultSentences) {
-        return completeSentence("${cost.linearize()} to ${result.asCoordinatedClause()}")
+        return completeSentence("${cost.linearize()} to $infinitive")
       }
       val first = completeSentence("${cost.linearize()} to ${result.clauses.first().linearize()}")
       val remaining = result.clauses.drop(1).joinToString(" ") { Sentence(it).linearize() }
@@ -303,9 +305,26 @@ private data class RenderedAction(
 
   fun asAlternative(): String? {
     val clause =
-        cost?.let { "${it.linearize()} to ${result.asCoordinatedClause()}" }
-            ?: result.clauses.singleOrNull()?.linearize()
-            ?: return null
+        cost?.let {
+          val infinitive = result.asActionResultInfinitive() ?: return null
+          "${it.linearize()} to $infinitive"
+        } ?: result.clauses.singleOrNull()?.linearize() ?: return null
     return condition?.let { "$it, $clause" } ?: clause
   }
+
+  fun costCanJoinResult(): Boolean = cost == null || result.asActionResultInfinitive() != null
 }
+
+private fun RenderedInstructions.asActionResultInfinitive(): String? = takeIf {
+  clauses.all(Clause::canBeInfinitive)
+}
+    ?.asCoordinatedClause()
+
+private fun Clause.canBeInfinitive(): Boolean =
+    when (this) {
+      is Clause.Simple -> subject == null
+      is Clause.Coordinated -> clauses.members.all(Clause::canBeInfinitive)
+      is Clause.RawPets -> true
+      is Clause.Prefaced,
+      is Clause.SharedSubject -> false
+    }

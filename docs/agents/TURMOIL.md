@@ -158,7 +158,7 @@ CLASS Scientists : Party {
 }
 
 CLASS Unity : Party {
-  rulingBonus = { 1 / PlanetTag }
+  rulingBonus = { 1 / PlanetaryTag }
 }
 
 CLASS Greens : Party {

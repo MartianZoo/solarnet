@@ -213,7 +213,8 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("BioTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a bio tag")),
-        klass("PlanetTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a planet tag")),
+        klass("PlanetaryTag") to
+            ComponentDescriber(triggerFrame = Trigger.PlayTag("a planetary tag")),
         klass("AnimalTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("an animal tag")),
         klass("PlantTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a plant tag")),
         klass("MicrobeTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a microbe tag")),
