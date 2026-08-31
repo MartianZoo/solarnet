@@ -340,9 +340,14 @@ Routine is justified only when the game presents a different player decision.
 ### `endTurn`
 
 `endTurn()` means exactly that the player has been offered a second action and declines it. It
-selects that optional `SecondAction` offer's `Ok` arm. It does not finish the current action, settle
-wild tags, clear temporary state, pass for the generation, or advance workflow. Those are
-completion or Engine responsibilities, and there is no `endCurrentAction` Routine.
+selects that optional `SecondAction` offer's `Ok` arm. It does not itself finish the current action,
+pass for the generation, or advance workflow, and there is no `endCurrentAction` Routine.
+
+For now, the shared Routine completion bridge must settle `WildTagUse?` tasks when they are the
+acting Player's only remaining work, then remove the corresponding `WildTagUse` components. This is
+choice-free cleanup around every Routine call, not part of `endTurn()`'s player-decision meaning.
+The sequencing goal is an exact end-of-action hook that performs this settlement before offering a
+second action or returning control, at which point the Routine bridge should be deleted.
 
 ## Recording conventions
 

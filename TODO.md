@@ -36,8 +36,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   one later ordinary action turn after settlement; record that timing as a house rule if exact canon
   requires one indivisible two-action operation. Keep EventCard cleanup open until an event narrower
   than the Player's whole queue preserves its tags and immediate work.
-- Give `WildTagUse` automatic action-slot lifecycle cleanup once end-of-action completion can express
-  “after its tag choice or decline”; remove the gameplay helper's god-mode cleanup at that point.
+- Keep Routine completion cleaning up `WildTagUse?` tasks when they are the acting Player's only
+  remaining work. Give `WildTagUse` automatic action-slot lifecycle cleanup once end-of-action
+  completion can express “after its tag choice or decline,” then remove both the Routine and
+  gameplay-helper god-mode bridges.
 - **High priority:** Extend Distant Pressure Mass's exact located-card follow mode to other
   source-complete full-game replays: track every known project-card deck exit through temporary
   areas, hand, play, event pile, or terminal disappearance.

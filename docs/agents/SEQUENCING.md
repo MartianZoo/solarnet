@@ -394,9 +394,10 @@ Engine runner may therefore drain all eligible owned work strongly; if it encoun
 outcomes, the ownership or instruction is wrong and must be repaired instead of selecting the first.
 Likewise, a helper Signal may remain useful causal vocabulary without becoming a Player command.
 
-Do not make a client Routine mop up these tasks except as a documented temporary bridge. That makes
-a replay pass while hiding the misplaced effect, owner, or completion rule that made the chore
-player-visible.
+The current documented exception is `WildTagUse?`: Routine completion must settle those tasks when
+they are the acting Player's only remaining work, then remove the corresponding uses. Do not add
+other Routine cleanup bridges merely to make a replay pass; that can hide the misplaced effect,
+owner, or completion rule that made a chore player-visible.
 
 Action-local temporary state follows the same rule. Its uniquely implied settlement must complete
 with the action before workflow offers a second action. Declining that later offer is a separate
@@ -522,6 +523,9 @@ Keep the problems separate:
   every optional production decision without losing the selected trade operation.
 - **Workflow return:** use the existing Player-turn control frame as the candidate unit. Required
   action settlement must finish before the workflow offers a second action or passes control.
+
+`WildTagUse` is a proving case for that hook: sequencing must replace its documented Routine
+cleanup bridge without removing the bridge before the replacement exists.
 
 Any future engine-owned completion hook must run inside the enclosing atomic transaction before it
 commits, so failure cannot expose partially settled state. Client autoexecution policy is separate
