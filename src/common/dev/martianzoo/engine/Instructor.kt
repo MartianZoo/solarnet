@@ -252,11 +252,7 @@ internal constructor(
             !gaining.rootClass.declaration.custom &&
                 limiter.hasExecutableConcreteGain(gaining, minimum = 1, reader)
           } else {
-            try {
-              limiter.findLimit(gaining.toComponent(), null) > 0
-            } catch (_: DependencyException) {
-              false
-            }
+            limiter.findLimitOrNull(gaining.toComponent(), null)?.let { it > 0 } == true
           }
       gaining == null && removing != null ->
           if (removing.abstract) {
