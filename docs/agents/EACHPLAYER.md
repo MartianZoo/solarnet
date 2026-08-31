@@ -72,8 +72,8 @@ retains its existing Actor-only meaning.
 
 Queued fanout branches inherit the surrounding assignee and may remain abstract there exactly like
 other instructions. Selecting a Player does not assign that branch to the Player. Cases whose
-selected Player must narrow the task should retain meaningful owned listeners until an explicit
-delegation mechanism exists.
+selected Player must narrow the task need a meaningful owned effect or another rule that makes that
+Player the task's narrower; `EACH` selection alone does not imply delegation.
 
 ## Multiplicity
 
@@ -123,8 +123,8 @@ fanout bodies, not complete replacement declarations.
 
 ## Cases that should retain listeners
 
-- Research purchases, final-greenery choices, and other work the selected Player must narrow, at
-  least until assignment/delegation is designed explicitly.
+- Research purchases, final-greenery choices, and other work whose existing owned listeners
+  establish which Player narrows the resulting task. `EACH` alone would lose that routing fact.
 - `StartToken` reactions: the unique token unambiguously identifies the relevant Player and owns the
   ambient rule.
 - Splice and TR-marker reactions: these find the owner of one triggering component rather than

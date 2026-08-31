@@ -46,10 +46,14 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   pointless in the current game.
 - **High priority:** Define end-of-action completion before replacing workflow wakeup. Use one
   existing Player-turn control frame rather than a general nested-frame facility, and ensure Billing,
-  action-local cleanup, and delegated children settle before a second-action offer or control pass.
+  action-local cleanup, and delegated tasks settle before a second-action offer or control pass.
   For Head Start, prefer using the current Prelude turn for its first immediate action and granting
   one later ordinary action turn after settlement; record that timing as a house rule if exact canon
   requires one indivisible two-action operation.
+- Prototype representing the one active task controller as a singleton World Component gained when
+  workflow grants control and retained through delegation and settlement. If every consequence can
+  derive its queue from that fact, remove `Task.controller` and its propagation; choose the final
+  Pets name and shape only after proving the invariant.
 - Keep Routine completion cleaning up `WildTagUse?` tasks when they are the acting Player's only
   remaining work. Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion
   can express “after its tag choice or decline,” then remove both temporary cleanup bridges.
@@ -121,10 +125,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   completion separate.
 - Replace the custom `ColoniesSetup` instruction with ordinary per-player setup signaling, then
   delete its custom declaration, registration, and Kotlin implementation.
-- **High priority:** Implement selection-time delegated narrowing. The controller chooses when to
-  select a parent task, resolution delegates its choice, the delegate alone narrows its child, and
-  the controller remains blocked until that child completes. Prove Engine narrowing for real-card
-  deals and Player delegation for Enceladus.
 - **Low priority:** Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
 - **Low priority:** Support requirement adjustment when one part of a compound card requirement is

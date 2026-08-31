@@ -21,9 +21,9 @@
   — select only scenarios matching the changed phase/end transition.
 
 This project is an architectural replacement, not a prerequisite for current Splice, Icy
-Impactors, Enceladus, or World Government Terraforming behavior. Philares is not a working
-precedent: its required selection-time delegation remains a known gap described in
-[IDENTITY.md](IDENTITY.md).
+Impactors, Enceladus, Philares, or World Government Terraforming behavior. Selection-time
+delegation already preserves a task's controller while moving its selected abstract work to the
+narrower described in [IDENTITY.md](IDENTITY.md).
 
 ## Domain requirements
 
@@ -87,15 +87,16 @@ A Phase component is legitimate Game World state. Readiness, pending work, and w
 Tasks or execution control; do not mirror them as marker components.
 
 Native workflow needs **control-until-drain**, which neither instruction-side `BY` nor
-whole-world idleness provides. Engine retains one control frame while a Player controls a turn;
-nested choices may be assigned elsewhere, and a suspended parent keeps the controller's queue from
-becoming empty. Engine resumes the parent only after the delegated child finishes. Current task
-queues do not provide this suspension relation. See [IDENTITY.md](IDENTITY.md).
+whole-world idleness provides. Selected-task delegation already blocks competing work while the
+same task is narrowed in another Actor's queue, retains its controller, and returns resulting work
+to that controller. The remaining workflow problem is the larger Player-turn lifetime: deciding
+when Billing, action-local cleanup, delegated tasks, and a possible second action have all settled.
+See [IDENTITY.md](IDENTITY.md).
 
 The workflow completion handshake is reopened. Do not use an entire Player queue epoch as the
 generic cleanup or payment event: it can combine unrelated work and settle local state too late.
 For workflow itself, the existing Player-turn control frame is the promising unit. The frame may
-finish only after its tasks, delegated child, and required end-of-action settlement finish. A
+finish only after its tasks, delegated work, and required end-of-action settlement finish. A
 one-shot continuation may then offer a second action or pass control, but its representation is not
 yet selected.
 
@@ -180,9 +181,9 @@ readiness mirror merely to make the runner pollable. Unordered component fanout 
 ## Implementation gates
 
 1. Characterize the current end-of-action obligations, including Billing completion,
-   action-local cleanup, second-action offers, and delegated children.
-2. Implement Player control-until-drain with parent/child assignment tests, using one turn frame and
-   no general nested-frame facility.
+   action-local cleanup, second-action offers, and delegated tasks.
+2. Reuse the tested selected-task delegation model inside one Player-turn frame; do not introduce a
+   parent/child task representation or a general nested-frame facility.
 3. Select and validate the smallest turn-completion handoff. It must run required engine settlement
    before workflow continuation and must not use unrelated Player work as its completion test.
 4. Prove a generic runner with a synthetic linear span, one inactive/active insertion, one
