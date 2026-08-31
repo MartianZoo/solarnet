@@ -5,11 +5,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ## User Ideas and Agreed Directions
 
 - Continue Routine work as specified in [`docs/agents/ROUTINES.md`](docs/agents/ROUTINES.md): add
-  typed signatures, direct top-level REPL invocation, and Routine-based replay without introducing
-  general player autoexecution.
+  typed signatures, direct top-level REPL invocation, and Routine-based replay with every Agent's
+  autoexecution disabled.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
-  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play, while
-  flattening the temporary Gameplay power hierarchy.
+  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Make the ordinary Pets lifecycle explicit and linear: elaborate every authored entry through one
   shared route, preserve Type-variable identity in typed values, distinguish contextual `Owner`
   from an intentional Owner-domain choice, close component and trigger context before Task
@@ -19,27 +18,41 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   Metric- and Requirement-valued properties; reflection-like consumers may inspect or re-submit any
   authored subtree, and re-submission must use the shared elaboration route.
 - Rename instruction `Intensity` to `Quantifier` throughout.
-- **High priority:** Audit SAFE against its proof obligation: it may select only when exactly one
-  pending task can be selected, and resolution may concretize an instruction only when exactly one
-  legal concrete narrowing exists. Add focused behavioral coverage for multiple selectable tasks,
-  multiple live `OR` arms, and multiple legal Type/quantity narrowings before relying on SAFE as a
-  client policy. Use [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
-- **High priority:** Replace parallel payment-method tasks with one required abstract choice meaning
-  “pay one accepted unit.” Recreate that choice only while matching `Owed` remains; leave it pending
-  and unselectable when debt remains without legal tender. Remove Billing directly when debt reaches
-  zero, preserve invoice removal as the completion event, let `-CardInvoice` put the card into play
-  without waiting for unrelated Player work, and delete superseded helper-side payment cleanup.
+- **High priority:** Continue auditing `AutoExecPolicies.safe` against its proof obligation. It now
+  acts only when the entire World has one pending task assigned to its Agent; it may select an
+  abstract singleton without choosing its narrowing. Prove that execution preserves every
+  continuation before broadening beyond the singleton case. Use
+  [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
+- **High priority:** Make serialized REgo replay disable every autoexec policy, including Engine's
+  default. Extend the explicit input record and Routine vocabulary just enough to represent
+  meaningful Engine-owned commands; do not infer them from component changes or let replay depend
+  on policy guesses.
+- **High priority:** Implement the generic `slow` autoexecution policy after disposable Worlds can
+  explore every relevant legal command and compare normalized component/task continuations. It may
+  spare no analysis cost, but `UNKNOWN` must stop it; do not substitute a heuristic for the promised
+  proof.
+- **High priority:** Implement Player-yield settlement. Emit Engine-owned `Yield<Player>` after a
+  controlled queue epoch drains; make its sole subscriber remove every matching
+  `UntilYield<Player>` component; allow component-specific removal effects to repopulate the queue;
+  repeat pulses until one removes no such component; then let workflow advance if no unfinished
+  temporary state remains. Replace parallel payment-method tasks with one mandatory abstract
+  accepted-tender choice at a time, keep it pending and unselectable while unpaid without legal
+  tender, make Billing yield-scoped until debt is gone, and let `-CardInvoice` put the card into play.
+  Make live EventCards yield-scoped so their removal moves them to the played-event pile on the
+  following yield, fixing Solar Probe without task priority. Preserve invoice removal as the
+  completion event and delete superseded helper-side payment cleanup. Revisit other internal `::`
+  transitions separately from SAFE. Do not convert printed immediate card effects, triggered
+  resource effects such as Manutech, or authored Action results merely because their ordering seems
+  pointless in the current game.
 - **High priority:** Define end-of-action completion before replacing workflow wakeup. Use one
   existing Player-turn control frame rather than a general nested-frame facility, and ensure Billing,
   action-local cleanup, and delegated children settle before a second-action offer or control pass.
   For Head Start, prefer using the current Prelude turn for its first immediate action and granting
   one later ordinary action turn after settlement; record that timing as a house rule if exact canon
-  requires one indivisible two-action operation. Keep EventCard cleanup open until an event narrower
-  than the Player's whole queue preserves its tags and immediate work.
+  requires one indivisible two-action operation.
 - Keep Routine completion cleaning up `WildTagUse?` tasks when they are the acting Player's only
-  remaining work. Give `WildTagUse` automatic action-slot lifecycle cleanup once end-of-action
-  completion can express “after its tag choice or decline,” then remove both the Routine and
-  gameplay-helper god-mode bridges.
+  remaining work. Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion
+  can express “after its tag choice or decline,” then remove both temporary cleanup bridges.
 - **High priority:** Extend Distant Pressure Mass's exact located-card follow mode to other
   source-complete full-game replays: track every known project-card deck exit through temporary
   areas, hand, play, event pile, or terminal disappearance.
@@ -127,9 +140,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
 - **High priority:** Make task queues semantically unordered: remove positional task selection and
-  stable-order autoexec precedence, remove `FIRST`, require an id or unambiguous instruction match,
-  and run tests under reverse and reproducibly randomized enumeration to expose hidden ordering
-  dependencies. Autoexecution policy belongs outside the engine as specified in
+  stable-order autoexec precedence, give the client-supplied `first` policy no ordering promise,
+  require an id or unambiguous instruction match for explicit commands, and run tests under reverse
+  and reproducibly randomized enumeration to expose hidden ordering dependencies. Autoexecution
+  policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **High priority:** Add test modes that execute eligible automatic-effect siblings in reverse and
   reproducibly randomized orders. Remove gameplay reliance on `registryOrder` and on the current
@@ -235,14 +249,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   layers, and narrow `Instruction.narrows`.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- Move autoexecution out of the engine into optional clients of `Gameplay`: remove implicit drains,
-  replace modes with named policies, record the issuing agent, and initially provide only policies
-  that prove they make no gameplay sacrifice; see
-  [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **Medium priority:** Separate Catalog data from premise resolution, and split `TfmCatalog`'s
   generic declaration aggregation/validation into `Catalog` from the Terraforming Mars registries
   in `TfmCatalog`.
-- Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated dependency/refinement construction without risking correctness.
 

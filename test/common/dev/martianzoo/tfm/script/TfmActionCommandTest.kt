@@ -12,8 +12,8 @@ internal class TfmActionCommandTest {
 
     val output = repl.command("tfm_action AiCentral 1")
 
-    assertEquals(1, repl.gameplay.count("ActionUsedMarker<AiCentral>"), output.joinToString("\n"))
-    assertEquals(2, repl.gameplay.count("ProjectCard"))
+    assertEquals(1, repl.agent.count("ActionUsedMarker<AiCentral>"), output.joinToString("\n"))
+    assertEquals(2, repl.agent.count("ProjectCard"))
   }
 
   @Test
@@ -21,14 +21,14 @@ internal class TfmActionCommandTest {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("become Player1")
-    repl.gameplay.godMode().manual("PROD[Energy], AiCentral")
+    repl.agent.manual("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.gameplay.godMode().beginManual("UseAction<UseCardActionSA, First>")
+    repl.agent.beginManual("UseAction<UseCardActionSA, First>")
     repl.command("auto safe")
 
     val output = repl.command("tfm_action AiCentral 1")
 
-    assertEquals(1, repl.gameplay.count("ActionUsedMarker<AiCentral>"), output.joinToString("\n"))
+    assertEquals(1, repl.agent.count("ActionUsedMarker<AiCentral>"), output.joinToString("\n"))
   }
 
   @Test
@@ -39,11 +39,11 @@ internal class TfmActionCommandTest {
 
     assertEquals(
         1,
-        repl.gameplay.count("ActionUsedMarker<WaterImportFromEuropa>"),
+        repl.agent.count("ActionUsedMarker<WaterImportFromEuropa>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("MC"))
-    assertEquals(0, repl.gameplay.count("Owed"))
+    assertEquals(0, repl.agent.count("MC"))
+    assertEquals(0, repl.agent.count("Owed"))
     assertTrue(repl.command("tasks").any { "OceanTile" in it })
   }
 
@@ -55,12 +55,12 @@ internal class TfmActionCommandTest {
 
     assertEquals(
         1,
-        repl.gameplay.count("ActionUsedMarker<ElectroCatapult>"),
+        repl.agent.count("ActionUsedMarker<ElectroCatapult>"),
         output.joinToString("\n"),
     )
-    assertEquals(1, repl.gameplay.count("Plant"))
-    assertEquals(0, repl.gameplay.count("Steel"))
-    assertEquals(7, repl.gameplay.count("MC"))
+    assertEquals(1, repl.agent.count("Plant"))
+    assertEquals(0, repl.agent.count("Steel"))
+    assertEquals(7, repl.agent.count("MC"))
   }
 
   @Test
@@ -71,11 +71,11 @@ internal class TfmActionCommandTest {
 
     assertEquals(
         1,
-        repl.gameplay.count("ActionUsedMarker<PowerInfrastructure>"),
+        repl.agent.count("ActionUsedMarker<PowerInfrastructure>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("Energy"))
-    assertEquals(5, repl.gameplay.count("MC"))
+    assertEquals(0, repl.agent.count("Energy"))
+    assertEquals(5, repl.agent.count("MC"))
   }
 
   @Test
@@ -86,11 +86,11 @@ internal class TfmActionCommandTest {
 
     assertEquals(
         1,
-        repl.gameplay.count("ActionUsedMarker<EnergyMarket>"),
+        repl.agent.count("ActionUsedMarker<EnergyMarket>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("MC"))
-    assertEquals(3, repl.gameplay.count("Energy"))
+    assertEquals(0, repl.agent.count("MC"))
+    assertEquals(3, repl.agent.count("Energy"))
   }
 
   @Test
@@ -101,11 +101,11 @@ internal class TfmActionCommandTest {
 
     assertEquals(
         1,
-        repl.gameplay.count("ActionUsedMarker<DevelopmentCenter>"),
+        repl.agent.count("ActionUsedMarker<DevelopmentCenter>"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("Energy"))
-    assertEquals(1, repl.gameplay.count("ProjectCard"))
+    assertEquals(0, repl.agent.count("Energy"))
+    assertEquals(1, repl.agent.count("ProjectCard"))
   }
 
   @Test
@@ -118,9 +118,9 @@ internal class TfmActionCommandTest {
         output.single().contains("there wasn't exactly one matching task"),
         output.joinToString("\n"),
     )
-    assertEquals(0, repl.gameplay.count("ActionUsedMarker<ElectroCatapult>"))
-    assertEquals(1, repl.gameplay.count("Plant"))
-    assertEquals(1, repl.gameplay.count("Energy"))
+    assertEquals(0, repl.agent.count("ActionUsedMarker<ElectroCatapult>"))
+    assertEquals(1, repl.agent.count("Plant"))
+    assertEquals(1, repl.agent.count("Energy"))
   }
 
   @Test
@@ -134,9 +134,9 @@ internal class TfmActionCommandTest {
     val repl = ScriptSession()
     repl.command("newgame $options 2")
     repl.command("become Player1")
-    repl.gameplay.godMode().manual(contents)
+    repl.agent.manual(contents)
     repl.command("phase Action")
-    repl.gameplay.godMode().beginManual("NewTurn")
+    repl.agent.beginManual("NewTurn")
     return repl
   }
 }

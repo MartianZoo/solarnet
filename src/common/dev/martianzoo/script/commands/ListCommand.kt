@@ -25,7 +25,7 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
 
   override fun withArgs(args: String): List<String> {
     val output = mutableListOf<String>()
-    val parentType: Type = repl.gameplay.resolve(args)
+    val parentType: Type = repl.agent.resolve(args)
 
     // TODO When applicable include an explicit `<Anyone>` for clarity's sake
     val displayType = repl.game.vocabulary.renderPets(parentType.expression)

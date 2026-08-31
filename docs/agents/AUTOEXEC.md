@@ -1,304 +1,143 @@
 # Autoexecution policies
 
-> **Read when:** moving autoexecution out of the engine, changing `AutoExecMode`, proving a task safe
-> to execute automatically, or designing an optional client policy.
+> **Read when:** changing policy attachment, scheduling, automatic task commands, policy
+> provenance, or proof-preserving task analysis.
 >
-> **Skip when:** changing authored `::` automatic effects or explicit task execution; those
-> are engine semantics covered by [ENGINE.md](ENGINE.md) and [SEQUENCING.md](SEQUENCING.md).
+> **Skip when:** changing authored `::` effects or explicit task semantics; those belong in
+> [ENGINE.md](ENGINE.md) and [SEQUENCING.md](SEQUENCING.md).
 >
-> **Status:** settled design direction plus current-implementation audit. The policy model is not
-> committed behavior.
+> **Status:** current divergence plus the settled target for policy extraction and stronger safe
+> policies.
 
 ## Source map
 
-- [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) —
-  inspect the current mode vocabulary before proposing policy objects.
-- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
-  — search for `autoExec` to find the current engine coupling and queue drain.
-- [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
-  — search for `game.isIdle()` when changing the current workflow's queue-drained wakeup.
+- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) exposes the current Actor-scoped API
+  and its transitional `autoExecMode` property.
+- [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) defines the current
+  `NONE`, `SAFE`, and `FIRST` modes.
+- [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) owns the current
+  scheduling points and queue drain.
+- [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) owns the proof obligations for stronger policies.
 
-## Read only the relevant sections
+## Settled target model
 
-| Task | Read |
-| --- | --- |
-| Distinguish engine semantics from client policy | Core distinction; Resolution is not a policy |
-| Design a policy interface or driver | Policy pool and driver through Agent provenance |
-| Add analysis, speculative Worlds, or performance guarantees | Analysis and disposable Worlds; Performance contract |
-| Prove that selecting, narrowing, or executing a task is safe | [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) |
-| Plan or review the extraction from engine | Broad implementation direction; Implementation prerequisites; First implemented split; Current implementation divergence |
-| State the acceptance contract | Required invariants |
+Each World will retain exactly one `Agent` for every Actor. `Agent.AutoExec` will be an optional
+plugin installed on one of those Agents. A policy receives:
 
-## Core distinction
+- the Agent it is attached to;
+- the Agent whose command triggered the pass;
+- the whole pending task pool for read-only ordering information.
 
-The engine must be fully usable with no autoexecution enabled. A client can play a complete game by
-issuing explicit gameplay commands. Disabling every policy must perform no autoexecution analysis,
-queue scan, speculative resolution, or other hidden work.
+A policy may inspect freely but may perform at most one command through the Agent to which it is
+attached per `advance` call. It returns `true` exactly when that call changed the World. The driver
+checks this against the event log, then throws away every earlier conclusion and restarts
+scheduling. A policy has no privileged mutation path and cannot acquire another Actor's Agent.
 
-Autoexecution is a pool of optional client policies plugged into the ordinary `Gameplay` API. A
-policy may select or narrow tasks on an Actor's behalf. It has no mutation power
-that an explicit client call lacks, and the resulting gameplay operation must be identical to the
-same call made directly by that client.
+Attaching the same policy instance twice is idempotent. Detachment is explicit. Player policies are
+client choices; the generic library does not attach one for a Player.
 
-This distinction excludes several engine responsibilities:
+## Completion and scheduling
 
-- A `::` effect executes inline because the authored game rule makes it automatic.
-- A `:` effect creates a task because the authored rule requires later activity by its assignee.
-- Required end-of-action settlement and workflow continuation remain Engine semantics once their
-  reopened completion handshake is selected; a client policy must not decide when they occur.
-- Validation and recognition of a proven dead end apply whether a client or policy chose the path.
-- Selecting a particular task causes the engine to resolve it against the current World.
+In the target model, after a successful outer Agent command has completed all of its authored `::`
+consequences, the driver runs before the command reports completion. Operation-body task commands provide the same
+completion point between statements. Re-entry caused by a policy command does not recursively
+start a second driver.
 
-The engine owns those semantics. It does not own a policy for deciding which offered gameplay
-command should happen.
+At every completion point:
 
-### Engine-owned deterministic work
+1. policies attached to the Engine Agent run first;
+2. any successful Engine policy command restarts step 1;
+3. only after every Engine policy declines does the driver nudge every Agent carrying a Player
+   policy; and
+4. a successful Player policy command restarts from Engine again.
 
-An Engine assignee is not an autoexecution profile for a Player. It is a semantic assertion that
-the queued work contains no participant decision. Workflow pulses, production, and similar owned
-events should therefore drain strongly even when the Player-policy profile is `NONE`.
+Agents without eligible work simply decline. Each policy can command only its own Agent. This lets
+cross-Player effects and workflow activity finish without requiring a client to invoke every Agent.
 
-Strong draining means repeatedly performing every currently eligible Engine-owned command,
-rereading state after each operation. The current native-replay bridge may use stable-order `FIRST`
-solely among Engine-assigned tasks: Engine assignment asserts that no participant choice is being
-made. If those tasks actually offer semantically distinct participant outcomes, the instruction or
-its ownership is wrong; reassign or remodel it instead of treating Engine order as a preference.
+Player visitation order is not a semantic promise. Ordinary play currently assumes that competing
+unselected Player decisions are not simultaneously pending, so changing visitation order must not
+change the result. A future simultaneous interaction such as drafting must not expose one Player's
+choice to another through this loop. It should collect private decisions independently and merge
+them into one later World state.
 
-Thus `NONE` disables optional policies that act for Players. It does not disable inline `::`
-effects, required Engine settlement, task resolution after an explicit selection, or deterministic
-Engine progress.
+## Supplied policies
 
-## Resolution is not a policy
+The planned `AutoExecPolicies.engine` is attached automatically when a World is created. It examines Engine's
+first pending task and executes it when execution needs no choice. When it is the only task in the
+World, the policy may instead select it even when it remains abstract; selection does not choose a
+narrowing. It exhausts Engine work before Player policies run, while never performing Player work.
 
-The engine resolves only the task a caller selects. Resolution evaluates facts whose meaning is
-already fixed by the current World, especially gates and metrics, and performs the validation and
-normalization needed to represent that task. This evaluation is conceptually related to narrowing,
-but it is not a search through the player's choices and it does not initiate background work over
-the task pool.
+The planned `AutoExecPolicies.safe` advances only when the entire World contains one pending task and
+that task belongs to the Agent carrying the policy. It executes a concrete executable task, or
+selects an unselected task that still needs a choice. The latter exposes the choice without making
+it. The whole-pool singleton requirement is deliberately conservative.
 
-Forced narrowing is distinct. It examines a choice and proves that some candidates are impossible
-or that only one answer remains. The engine may expose reusable read-only analysis that supports
-such a proof, but ordinary resolution is not contractually required to discover every forced
-narrowing. An optional policy may request the analysis and submit the resulting narrowing through
-the same gameplay command a client would use.
+The target generic library does not provide `first`. `TfmAutoExecPolicies.first` is a client helper that
+may execute any currently legal task belonging to its Agent, and the engine tests own an equivalent
+test-only helper. Its contract makes no FIFO, fairness, or stable-order promise. It stops when no
+task can proceed without another decision. Neither helper is a safety proof.
 
-This distinction keeps resolution small and predictable. Turning every policy off removes
-policy-driven task-pool searches and optional choice-pruning work while leaving gates, metrics,
-validation, local resolution, and explicit gameplay functional.
+## Safe selection
 
-Selection and narrowing are the only Player activities. Resolution follows either, and execution
-follows automatically once the selected task is concrete. A policy may automate either Player
-activity for which it has an adequate reason.
+When an Agent has exactly one task it can see, selecting that task is safe under the current game
+model: the game is waiting on that Actor, and selection exposes rather than answers an abstract
+choice. This rule relies on the absence of live simultaneous Player decisions described above.
 
-## Policy pool and driver
+If an Agent has several tasks and only one passes the current selection probe, choosing that task is
+plausible but not yet proven safe. `canSelectTask` establishes present feasibility only. Another
+task might become feasible after other state changes, so the probe alone does not prove that
+selection preserves every eventual option. Keep the generic policy conservative until a systemic
+rule or `slow` analysis proves the stronger claim.
 
-Each policy should be small, named, independently selectable, and explicit about the reasoning it
-owns. A configured profile is a pool of those policies, not one aggressiveness enum. Many narrowly
-capable agents can be installed, selected, credited, and scheduled without merging their reasoning
-into one omnibus policy.
+## The planned `slow` policy
 
-An application-level driver repeatedly:
+The engine library should eventually supply `slow`: an exhaustive proof policy that spends as much
+analysis as necessary to automate every command it can prove preserves the complete net-effect
+decision tree. Uncertainty means no command.
 
-1. reads current gameplay and task state;
-2. asks the selected policies for a gameplay command;
-3. performs at most one proposed command through the relevant assignee's `Gameplay` API; and
-4. discards every prior conclusion and reads the resulting state again.
+This requires disposable Worlds or an equivalent analysis facility. The policy must enumerate all
+relevant legal commands, explore their continuations, and compare normalized component/task state
+at a shared semantic comparison point. A successful branch, matching headline resources, or the
+absence of a known counterexample is insufficient. Event ordinals, task ids, and policy credit may
+differ only when no later game rule can observe those differences.
 
-The ordering of policies is a client configuration concern. For proof-preserving policies, it
-chooses which valid proof receives credit, not game precedence. A disabled policy retains no right
-to scan or react, and an empty profile makes the driver inert.
-
-The driver may be a decorator, subscriber, command-loop collaborator, or another application
-mechanism. Its concrete shape must preserve the essential dependency direction:
-
-```text
-autoexecution policies -> Gameplay API -> engine semantics
-```
-
-It must not become a callback from engine internals into policy code, a privileged task mutation
-path, or a requirement for workflows to function.
-
-## Policies may make decisions, but ours currently must not
-
-The architecture permits policies that make genuine gameplay decisions. A user could deliberately
-install enough decision-making agents to play an entire game from start to finish. Such agents
-still use the same API, Actor authority, transactions, and event attribution as a person driving a
-client.
-
-That architectural freedom is separate from the policies Solarnet should provide in the near term.
-For now, every supplied policy must prove that its action makes no gameplay sacrifice. In
-particular, there is no `FIRST` policy, no stable-order fallback, and no convenience mode allowed to
-pick an arbitrary viable task. Tests depending on such choices must become explicit instead of
-preserving an unsafe policy for their convenience.
-
-A proof-preserving policy may act only when it establishes that its command removes no
-semantically distinct legal continuation. Useful proof families include:
-
-- exactly one narrowing of a selected task is valid;
-- exactly one task can make any gameplay progress in the current state; or
-- several candidate paths reach the same semantic state at the same comparison point.
-
-The second case is stronger than observing that one call to `canSelectTask` succeeds.
-Another task may still accept an explicit narrowing or another ordinary command. A policy must
-account for every
-way a client can make gameplay progress. When one task is gated on `Foo`, the World has no `Foo`,
-and the only other task gains `Foo`, the gain really is forced: the gated task cannot progress
-until that state change occurs. This policy family is plausible, but it may be deferred until its
-proof criterion and its value to whole-game clients are both clear.
-
-Speculative analysis may return `PROVEN`, `DISPROVEN`, or `UNKNOWN`; uncertainty always stops a
-proof-preserving policy. A successful simulation is not by itself proof that no other legal path
-exists.
-
-Autoexecution must be suspended for an operation as soon as any reachable continuation could later
-delegate an abstract task to another Player for narrowing. Philares is the primary example: the
-Player placing the adjacent tile controls when the reward task is selected, but the Philares owner
-chooses its resource. Even earlier commands that appear locally interchangeable must remain
-explicit, because their timing or order may reveal information that dominates the delegated
-Player's strategy and that a proof-preserving policy cannot calculate. The only exception is a
-command proved necessary before the delegated task can be created in every successful continuation;
-such a command leaves neither Player an alternative ordering or disclosure decision.
-
-## Semantic equivalence
-
-For this purpose the gameplay state is the `ComponentGraph` plus the gameplay-relevant contents of
-`TaskQueues`. Two paths may be equivalent even when they produce different event records, policy
-credits, task ids, or other diagnostic metadata, provided those differences cannot affect later
-gameplay and the component/task states are otherwise the same at the same comparison point.
-
-This relies on a firm architectural rule: game mechanics must not read event history. Custom Class
-implementations currently receive only `GameReader`, which exposes no history. Preserve and enforce
-that restriction so a future custom API cannot silently turn diagnostic history into gameplay state.
-Event history remains essential for explanation, provenance, rollback, replay, and presentation;
-it is simply not an input to game rules.
-
-Equivalence of component/task state is deliberately stronger than equality of headline resources
-or final scores. Temporary components, selected-task state, assignee, Actor, continuations, and any
-other task data that can affect future play all count.
-
-## Agent provenance
-
-Every explicit gameplay command must carry diagnostic agent identity. Actor answers who acts in the
-game; agent answers which client-side decision source issued the command. A direct UI, script, test
-driver, named autoexecution policy, and future game-playing agent may therefore all act as the same
-Player without becoming indistinguishable in history.
-
-The command's agent identity naturally propagates through its inline `::` consequences because
-they are part of that command's causal execution. When a `:` effect queues work, the task-creation
-event retains the originating command's provenance; a later command that selects, narrows, or
-executes that task records its own agent. Agent identity is diagnostic and does not participate in
-semantic-state equivalence.
-
-The application may group one client command with the automatic commands it provokes for display
-or undo. That presentation grouping must not pretend the later policy actions were hidden engine
-work or erase the identity of the policy that supplied each command.
-
-## Analysis and disposable Worlds
-
-Some proof policies need more than local structural inspection. Read-only analysis may use a
-disposable Game World overlay: share immutable declarations, overlay component and live-effect
-state, copy the small task queues, and extend event history only for diagnosis. Every branch is
-discarded after analysis; the chosen command is then applied to the live World.
-
-Overlays do not authorize arbitrary selection. They are useful only when the policy checks the
-complete relevant candidate set and proves forcedness or semantic equivalence. The backing World
-revision must remain explicit so analysis is never applied to a changed state.
-
-## Performance contract
-
-The implementation historically paid for autoexecution after every nested engine/API transition. A
-JFR trace of `ThermalMatterWaveTest` after immediate execution stopped using reversible execution
-preview recorded 3,158 `autoExecNext` calls, 5,413 candidate-resolution probes, and 1,272 atomic API
-entries. There were more than five autoexecution passes and nine resolution probes per explicit
-task selection on average.
-
-The destination removes that structural cost:
-
-- raw `Gameplay` commands never start an autoexecution drain;
-- no selected policies means no autoexecution work;
-- one application driver owns policy advancement;
-- each accepted proposal performs one command and invalidates earlier analysis;
-- policies may subscribe to relevant task changes instead of rescanning the World; and
-- caching or overlays are added only for a demonstrated proof policy and keyed by gameplay state,
-  not diagnostic history.
-
-Performance is a first-class reason for the overhaul, but it reinforces rather than defines the
-division. The engine should not retain policy ownership simply because an internal loop appears
-easier to optimize.
-
-## Broad implementation direction
-
-The current policy loop should move out of `Implementations` and `ApiTranslation`; `AutoExecMode`
-and `FIRST` should disappear from `Gameplay`. The raw API should retain task commands and
-gain only the read-only analysis needed by real policies. An optional application driver should own
-the selected policy profile, advancement points, and diagnostic agent identity.
-
-The first useful profile should be deliberately small: execute a concrete task whose choice is
-already committed, and apply narrowly defined forced narrowings. A sole-progress policy can be added
-if its proof is sound and removing the current behavior causes enough legitimate client burden to
-justify it. Richer equivalence and exhaustive-search policies should follow only concrete needs.
-
-This is a broad destination, not a required migration order. Intermediate work must keep current
-behavior and proposed behavior clearly labeled and must not make arbitrary autoexecution choices
-look safe just to keep tests concise.
-
-## Implementation prerequisites
-
-Before the next extraction change, settle three concrete pieces:
-
-- the owning module and command/proposal interface for the first policy driver;
-- who advances work between `OperationBody` statements after engine-owned draining is removed; and
-- the migration harness for tests and callers that currently rely on `FIRST`, making real choices
-  explicit while preserving only behavior backed by a proof.
-
-The required invariants below are the acceptance contract. These three decisions are the missing
-starting contract; the current plan should not be treated as implementation-ready until they are
-specified.
-
-## First implemented split
-
-Nested facade re-entry no longer starts an implicit drain. `AtomicOperationScope` now invokes
-the configured autoexecution only before the outermost command completes. Explicit `OperationBody`
-task commands still advance between body statements, and the operation lifecycle still has its own
-pre-body and post-body drains because current completion validation depends on them.
-
-This is not the client-policy split yet: modes and the policy loop remain in the engine. It does
-establish one outer command interface, removes incidental cross-Actor re-entry as a scheduling point,
-and makes the remaining operation coupling explicit enough to extract deliberately.
-
-An attempted direct removal of `FIRST` demonstrated why that extraction must come first. With the
-default changed to `SAFE`, 21 of 54 script tests failed and failures immediately spread across the
-engine's card, workflow, and full-game scenarios. Independent consequences commonly coexist in the
-task pool, so `SAFE` leaves operations unfinished even where ordering is semantically immaterial.
-Encoding those decomposition details as explicit choices throughout clients would be the wrong
-migration. A proof of semantic equivalence, or a more direct representation of independent
-automatic consequences, is required before arbitrary ordering can disappear without transferring
-engine internals into client scripts.
+Do not publish a cheaper heuristic under the `slow` name. Build the analysis substrate when a real
+proof policy is implemented; do not add speculative public APIs ahead of it.
 
 ## Current implementation divergence
 
-Committed code still stores `AutoExecMode` on `Gameplay`, defaults it to `FIRST`, invokes draining
-from the outer engine-side API layer and operation lifecycle, scans pending tasks globally, and
-uses stable iteration order to choose among multiple candidates. Candidate discovery catches every
-`Exception`, conflating routine ineligibility with defects, and operation-level drains can still
-repeat analysis.
+Committed code still stores `AutoExecMode` on each `Agent`, defaults it to `FIRST`, and runs the
+queue drain from engine-side command and operation completion points. It does not yet provide
+policy attachment, a separate driver, named policy provenance, or the planned Engine-first policy
+schedule. Treat the sections above and below as the extraction contract, not current behavior.
 
-Those facts describe debt, not compatibility requirements. The project has no known client whose
-dependence on `FIRST` outweighs the core model above.
+## Provenance and replay
+
+Actor identifies who acts in the game. Autoexec name identifies which policy issued a command.
+Policy-issued Player inputs record that diagnostic name on `GameplayInputEvent`; it does not change
+task assignee, effect performer, or semantic state.
+
+The REgo spellings `AUTO NONE`, `AUTO SAFE`, and `AUTO FIRST` remain script-client configuration,
+not engine modes. `FIRST` selects the Terraforming Mars client policy.
+
+Serialized REgo replay is stricter than interactive use: every Agent, including Engine, runs with
+autoexecution disabled. The replay explicitly submits every meaningful Agent task command, making
+the command stream an executable expectation rather than a trace whose omissions are filled by a
+policy. Authored `::` consequences remain effect semantics and are not autoexec.
+
+The current script profile and input record do not yet fully implement this rule. Replay setup must
+be able to detach the default Engine policy, and explicit Engine-attributed commands must become
+representable in the recorded input stream. [ROUTINES.md](ROUTINES.md#native-world-export) owns the
+serialization contract.
 
 ## Required invariants
 
-The finished design should establish that:
-
-- a complete explicit client works with an empty policy profile;
-- an empty profile performs no scans, probes, or automatic task commands;
-- direct and policy-issued copies of the same gameplay command differ only in diagnostic agent
-  provenance, producing identical semantic state and otherwise identical events;
-- automatic rules and state-based resolution behave identically with every policy disabled;
-- each supplied proof-preserving policy is tested against the legal alternatives it claims to
-  preserve;
-- no supplied policy uses stable task order as a gameplay decision;
-- Actor, assignee, cause, and agent provenance remain distinct and correct;
-- game mechanics cannot read event history; and
-- policy advancement is measured once per application command rather than hidden inside nested
-  engine calls.
+- Engine policies exhaust their work before a Player policy is consulted.
+- With all optional Player policies detached, no Player choice is selected automatically.
+- Every policy command uses only the Agent carrying that policy.
+- An Engine policy never performs a Player task.
+- Each accepted command invalidates all prior policy analysis.
+- Every generic supplied policy preserves all semantically distinct legal continuations.
+- Deliberate choice-making lives in a client library, is named as such, and promises no task order.
+- Disabling policies does not change authored `::` effects or explicit command semantics.
+- Serialized replay disables policies for every Agent and records meaningful commands explicitly.

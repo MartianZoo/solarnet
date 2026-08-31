@@ -32,7 +32,7 @@ internal class DoCommand(private val repl: ScriptSession) : ScriptCommand("do") 
         provider.routines[call.name] ?: throw UsageException("Unknown Routine: ${call.name}")
     val result =
         try {
-          routine.execute(RoutineContext(repl.game, repl.gameplay), call.arguments)
+          routine.execute(RoutineContext(repl.game, repl.agent), call.arguments)
         } catch (e: RoutineException) {
           throw UsageException(e.message)
         }

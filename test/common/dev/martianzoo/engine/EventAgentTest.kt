@@ -10,8 +10,8 @@ internal class EventAgentTest {
   @Test
   internal fun automaticPlayerInputRecordsNonIdentifyingAgentProvenance() {
     val game = Engine.newGame(testGamePremise("CLASS Token<Owner>"))
-    val player = game.gameplay(PLAYER1)
-    player.godMode().addTasks("Token<Player1>")
+    val player = game.agent(PLAYER1)
+    player.addTasks("Token<Player1>")
     val before = game.timeline.checkpoint()
 
     player.autoExecNow()

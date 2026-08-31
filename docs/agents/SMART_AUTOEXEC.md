@@ -3,7 +3,7 @@
 > **Read when:** defining what makes an automatic task command safe, designing a smart policy,
 > proving task independence or confluence, or compiling Catalog facts for autoexecution.
 >
-> **Skip when:** changing where policies run or how they call `Gameplay`; those mechanism questions
+> **Skip when:** changing where policies run or how they call `Agent`; those mechanism questions
 > belong in [AUTOEXEC.md](AUTOEXEC.md).
 >
 > **Status:** research and proposed proof rules. None of the candidate analyses is committed
@@ -11,9 +11,9 @@
 
 ## Source map
 
-- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
-  — search for `autoExecNext`, `enforceSelectLock`, and `selectTask` for current automatic
-  execution, selection, and locking semantics.
+- [`AutoExecPolicies.kt`](../../src/common/dev/martianzoo/engine/AutoExecPolicies.kt) and
+  [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) — inspect the
+  current conservative policy, selection probes, and locking semantics.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for

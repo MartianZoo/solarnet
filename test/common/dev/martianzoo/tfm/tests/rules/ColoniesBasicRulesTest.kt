@@ -49,7 +49,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   @BeforeTest
   fun setUp() {
-    p1.godMode().sneak("100 MC, 5 ProjectCard")
+    p1.sneak("100 MC, 5 ProjectCard")
     engine.phase("Action")
   }
 
@@ -94,7 +94,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // is any card in play that may collect their respective resources.
 
     engine.phase("Action")
-    p1.godMode().sneak("100 MC, 5 ProjectCard")
+    p1.sneak("100 MC, 5 ProjectCard")
     p1.playProject(Pets, 10).expect("Miranda, ColonyProduction")
     engine.assertCounts(
         4 to "ColonyTile",
@@ -145,7 +145,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val p1 = engine.asPlayer(PLAYER1)
 
     engine.phase("Action")
-    p1.godMode().sneak("100 MC, 5 ProjectCard")
+    p1.sneak("100 MC, 5 ProjectCard")
 
     shouldThrow<DependencyException> {
       p1.stdProject("BuildColonySP") { doTask("Colony<Miranda>") }
@@ -166,7 +166,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // the Colony Tile track
   @Test
   internal fun `build a colony`() {
-    engine.godMode().sneak("-ColonyProduction<Luna>")
+    engine.sneak("-ColonyProduction<Luna>")
     engine.assertCounts(0 to "ColonyProduction<Luna>")
 
     p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
@@ -182,10 +182,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Only 3 colonies total per Colony Tile are allowed - no exceptions!
   @Test
   internal fun `three colonies max`() {
-    engine.godMode().manual("Colony<Player1, Luna>")
-    engine.godMode().manual("Colony<Player2, Luna>")
-    engine.godMode().manual("Colony<Player3, Luna>")
-    shouldThrow<LimitsException> { engine.godMode().manual("Colony<Player4, Luna>") }
+    engine.manual("Colony<Player1, Luna>")
+    engine.manual("Colony<Player2, Luna>")
+    engine.manual("Colony<Player3, Luna>")
+    shouldThrow<LimitsException> { engine.manual("Colony<Player4, Luna>") }
   }
 
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
@@ -202,11 +202,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // your Trade Fleet from the Trade Fleets Tile to an available Colony Tile.
   @Test
   internal fun `basic trading`() {
-    engine
-        .godMode()
-        .sneak(
-            "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 E<Player1>"
-        )
+    engine.sneak(
+        "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 E<Player1>"
+    )
     p1.assertCounts(6 to "ColonyProduction<Luna>")
     p1.stdAction("TradeSA", 2) {
           doTask("Trade<Luna>")
@@ -221,13 +219,13 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     p1.assertCounts(2 to "ColonyProduction<Luna>")
 
     // A Colony Tile may only hold 1 trade fleet at a time.
-    shouldThrow<LimitsException> { p1.asPlayer(PLAYER2).godMode().manual("Trade<Luna>") }
+    shouldThrow<LimitsException> { p1.asPlayer(PLAYER2).manual("Trade<Luna>") }
 
     // When the generation ends, all trade fleets move back from the Colony Tiles to the Trade
     // Fleets Tile, and all white markers moves 1 step up the Colony track.
     engine.phase("Production")
     TfmWorkflow.Manual(game).solarPhase()
-    engine.godMode().manual("Generation")
+    engine.manual("Generation")
     engine.assertCounts(
         0 to "FlownTradeFleet",
         4 to "ReserveTradeFleet",
@@ -239,6 +237,6 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   internal fun `trade fleet cannot be reused`() {
     p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
 
-    shouldThrow<LimitsException> { p1.godMode().manual("Trade<Triton>") }
+    shouldThrow<LimitsException> { p1.manual("Trade<Triton>") }
   }
 }

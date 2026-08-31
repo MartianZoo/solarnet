@@ -395,7 +395,7 @@ named domain concept should become generic.
    but a future general model for configured starting components could remove the remaining
    expansion names.
 3. **Moderate — expansion concepts appear in engine and card APIs.**
-   `engine/.../TfmGameplay.kt` publishes `playPrelude` and `venusPercent`.
+   `engine/.../TfmAgent.kt` publishes `playPrelude` and `venusPercent`.
    `tfm-canon/.../TfmCatalog.kt` and `tfm-canon/.../TfmClasses.kt` give Prelude cards a special
    automatic-selection condition. These are real dependencies, but `PreludeCard` and `VenusStep` are
    legitimate Terraforming Mars concepts; removing their names is not inherently a simplification.

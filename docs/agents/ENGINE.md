@@ -1,7 +1,7 @@
 # Engine model
 
 > **Read when:** changing live World construction, components, events, tasks, effects, rollback,
-> recoverable dead ends, input transformation, or the current `Gameplay` surface.
+> recoverable dead ends, input transformation, or the current `Agent` surface.
 >
 > **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
 > [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
@@ -19,7 +19,7 @@
 | Tasks, assignment, selection, narrowing, resolution, or execution | Tasks are an unordered choice pool through Execution |
 | Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
 | Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
-| Engine API or autoexecution | Current Gameplay surface; Auto-execution and workflow |
+| Engine API or autoexecution | Current Agent surface; Auto-execution and workflow |
 | Parsing or lowering submitted Pets | Input transformation |
 
 ## Source map
@@ -35,14 +35,14 @@
 - [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt) and
   [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
-- [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt) — search for
-  `public interface Gameplay` before changing caller-facing operations.
-- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt),
-  [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
-  [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) — inspect together
-  for authored elaboration, class/component specialization, and Player-scoped input.
-- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search for `resolve` and
-  `doExecuteResolved` for the selected-task resolution and executable-first-stage contract.
+ - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
+   `public interface Agent` before changing caller-facing operations.
+ - [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt),
+   [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
+   [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) — inspect together
+   for authored elaboration, class/component specialization, and Player-scoped input.
+ - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search for `resolve` and
+   `doExecuteResolved` for the selected-task resolution and executable-first-stage contract.
 
 ## Game construction
 
@@ -55,7 +55,7 @@ A live Game World is a `World` containing:
 | `EventLog` | Applied component and task history |
 | `Timeline` | Atomicity, rollback, revision, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
-| Actor-scoped `Gameplay` | The supported mutation/query facade |
+| Actor-scoped `Agent` | The supported mutation/query authority |
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
@@ -147,8 +147,8 @@ as input. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cau
 causal event ordinal.
 
 Every event has optional diagnostic `agent` provenance. It is rendered when present but excluded
-from event equality and gameplay-state equivalence. The current autoexecution bridge supplies its
-mode as the agent for automatic Player inputs; older direct calls leave it absent.
+from event equality and gameplay-state equivalence. An attached autoexecution policy supplies its
+name for commands it issues; direct calls leave it absent.
 
 `EventLog.record` and rollback are the single history/mutation interface: application or reversal
 must succeed before the log changes. Each forward or reverse mutation advances an opaque
@@ -532,22 +532,15 @@ AST values created inside the engine skip parsing but may use relevant transform
 Transform entry points preserve their declared AST `kind`; a cardinality-changing caller must
 request `InstructionTree`, not `Instruction`.
 
-## Current Gameplay surface
+## Current Agent surface
 
-The committed facade remains a power hierarchy:
+Each World retains exactly one fully permissive `Agent` per Actor. `World.agent(actor)` returns that
+stable object for reads, task commands, manual operations, task insertion/removal, direct changes,
+and autoexecution policy attachment. The old power-interface hierarchy is gone. REPL color modes
+restrict commands in the script client rather than changing the engine object's type.
 
-```text
-Gameplay
-  -> TurnLayer
-    -> OperationLayer
-      -> TaskLayer
-        -> GodMode
-```
-
-`ApiTranslation` implements all layers and `godMode()` reveals the bottom, so this is not an
-authority model. Normal task commands, manual operations, task edits, and `sneak` do not all
-share identical atomic/auto-exec semantics. [API.md](API.md) proposes a mechanical flattening before
-a separate safe client API.
+All public Agent mutations share the outer atomic-completion path. A later permissions model will
+mediate access to this trusted workhorse instead of weakening or subdividing it; see [API.md](API.md).
 
 `manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
@@ -557,20 +550,15 @@ timeline and graph mutation interfaces.
 
 ## Auto-execution and Terraforming Mars workflow
 
-Auto-execution modes are:
+Autoexecution currently uses `Agent.autoExecMode`: `NONE` does nothing, `SAFE` proceeds only when
+one selectable option exists, and `FIRST` chooses the first selectable task in iteration order.
+Scanning is global; assignee selects the queue and stored Actor controls attribution.
+[AUTOEXEC.md](AUTOEXEC.md) records the settled policy-extraction target and its current divergence.
 
-- `NONE`: do nothing;
-- `SAFE`: proceed only when one selectable option exists; and
-- `FIRST`: choose the first selectable task in stable iteration order.
-
-Scanning is global. Assignee selects the queue; stored Actor controls attribution. Failed candidates
-receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplication in the current
-scheduling points and the proposed direction; it does not describe committed behavior.
-
-`TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
-layers. Treat it as transitional; its pass, selected-card purchase, and end-turn conveniences now
-dispatch to Catalog Routines, and the remaining test conveniences and player-facing domain actions
-need not remain one production wrapper.
+ `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
+ `Agent`. Treat it as transitional; its pass, selected-card purchase, and end-turn conveniences now
+ dispatch to Catalog Routines, and the remaining test conveniences and player-facing domain actions
+ need not remain one production wrapper.
 
 `TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
 for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken

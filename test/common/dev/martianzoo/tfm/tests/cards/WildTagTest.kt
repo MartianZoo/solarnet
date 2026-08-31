@@ -14,14 +14,14 @@ internal class WildTagTest : CardTest() {
     p1.manual("$ResearchCoordination")
     engine.phase("Action")
 
-    val otherPlayerTask = p2.godMode().addTasks("UseAction<StandardAction>?").single()
+    val otherPlayerTask = p2.addTasks("UseAction<StandardAction>?").single()
     p1.startTurn()
 
     p1.stdAction("SellPatents") { abort() }
 
-    p2.godMode().dropTask(otherPlayerTask)
+    p2.dropTask(otherPlayerTask)
     // The aborted synthetic action leaves its temporary holder; remove it before ending the test.
-    p1.godMode().manual("-WildTagUse<$ResearchCoordination>")
+    p1.manual("-WildTagUse<$ResearchCoordination>")
     p1.count("WildTagUse") shouldBe 0
   }
 

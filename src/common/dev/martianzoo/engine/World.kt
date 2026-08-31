@@ -15,7 +15,7 @@ import dev.martianzoo.pets.types.ClassTable
  * (respectively).
  *
  * These are live objects rather than read-only/writable interface pairs. Their engine-internal
- * mutation operations live on the same types, while [gameplay] remains the public coordinated route
+ * mutation operations live on the same types, while [agent] remains the public coordinated route
  * for complete world operations.
  *
  * A [GameReader] provides the public component queries, including queries expressed as a Pets
@@ -53,7 +53,7 @@ public interface World {
   /** Exports this idle world as a versioned, workflow-driven REgo replay. */
   public fun export(): String
 
-  public fun gameplay(actor: Actor): Gameplay
+  public fun agent(actor: Actor): Agent
 
   /** Called after every outermost atomic operation completes. */
   public var onAtomicComplete: () -> Unit

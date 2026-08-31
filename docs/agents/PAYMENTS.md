@@ -16,7 +16,7 @@
   the current distributed protocol.
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — search for `Stormcraft` only when evaluating source attribution.
-- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
+- [`TfmAgent.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmAgent.kt)
   — search for `fun pay` for the current client-side rejection stage.
 - [`TerraformingMarsRoutines.kt`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMarsRoutines.kt)
   — search for `fun OperationBody.settle` for Routine payment ordering and the remaining-debt M€

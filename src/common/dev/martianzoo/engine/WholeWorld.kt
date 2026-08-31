@@ -16,7 +16,7 @@ internal constructor(
     override val reader: GameReader,
     override val classTable: ClassTable,
     override val vocabulary: Vocabulary,
-    private val gameplayByActor: Map<Actor, Gameplay>,
+    private val agentByActor: Map<Actor, Agent>,
     private val timelineImpl: TimelineImpl,
     private val recordingPositions: RecordingPositions,
     private val premise: GamePremise,
@@ -25,7 +25,7 @@ internal constructor(
   internal val revision: WorldRevision
     get() = events.revision
 
-  override fun gameplay(actor: Actor): Gameplay = gameplayByActor[actor]!!
+  override fun agent(actor: Actor): Agent = agentByActor[actor]!!
 
   override fun export(): String = exportWorld(this, premise)
 

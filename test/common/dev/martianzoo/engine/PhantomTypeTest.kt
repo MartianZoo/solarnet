@@ -12,18 +12,18 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun gameplay() = Engine.newGame(canonicalPremise()).gameplay(ENGINE).godMode()
+  private fun agent() = Engine.newGame(canonicalPremise()).agent(ENGINE)
 
   @Test
   internal fun `inactive types and their class literals count zero`() {
     val game = Engine.newGame(canonicalPremise())
-    val gameplay = game.gameplay(ENGINE).godMode()
-    val venusTag = gameplay.resolve("VenusTag")
+    val agent = game.agent(ENGINE)
+    val venusTag = agent.resolve("VenusTag")
 
-    gameplay.count("VenusTag") shouldBe 0
-    gameplay.count("Class<VenusTag>") shouldBe 0
+    agent.count("VenusTag") shouldBe 0
+    agent.count("Class<VenusTag>") shouldBe 0
     game.classTable.isActive(venusTag) shouldBe false
-    game.classTable.isActive(gameplay.resolve("Class<VenusTag>")) shouldBe false
+    game.classTable.isActive(agent.resolve("Class<VenusTag>")) shouldBe false
     game.reader.count(venusTag) shouldBe 0
     game.reader.countComponent(venusTag) shouldBe 0
     game.reader.getComponents(venusTag).isEmpty() shouldBe true
@@ -31,32 +31,32 @@ internal class PhantomTypeTest {
 
   @Test
   internal fun `unknown names remain errors`() {
-    val gameplay = gameplay()
+    val agent = agent()
 
-    shouldThrow<ExpressionException> { gameplay.count("Typo") }
-    shouldThrow<ExpressionException> { gameplay.count("Class<Typo>") }
+    shouldThrow<ExpressionException> { agent.count("Typo") }
+    shouldThrow<ExpressionException> { agent.count("Class<Typo>") }
   }
 
   @Test
   internal fun `optional and amap phantom changes do nothing while mandatory changes die`() {
-    val gameplay = gameplay()
+    val agent = agent()
 
-    gameplay.manual("VenusTag?")
-    gameplay.manual("VenusTag.")
-    gameplay.manual("-VenusTag?")
-    gameplay.manual("-VenusTag.")
-    shouldThrow<DeadEndException> { gameplay.manual("VenusTag!") }
-    shouldThrow<DeadEndException> { gameplay.manual("-VenusTag!") }
-    gameplay.count("VenusTag") shouldBe 0
+    agent.manual("VenusTag?")
+    agent.manual("VenusTag.")
+    agent.manual("-VenusTag?")
+    agent.manual("-VenusTag.")
+    shouldThrow<DeadEndException> { agent.manual("VenusTag!") }
+    shouldThrow<DeadEndException> { agent.manual("-VenusTag!") }
+    agent.count("VenusTag") shouldBe 0
   }
 
   @Test
   internal fun `choices discard mandatory phantom branches`() {
-    val gameplay = gameplay()
+    val agent = agent()
 
-    gameplay.manual("VenusTag! OR Plant<Player1>!")
+    agent.manual("VenusTag! OR Plant<Player1>!")
 
-    gameplay.count("Plant<Player1>") shouldBe 1
+    agent.count("Plant<Player1>") shouldBe 1
   }
 
   @Test

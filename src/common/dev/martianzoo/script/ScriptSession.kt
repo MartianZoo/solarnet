@@ -1,9 +1,9 @@
 package dev.martianzoo.script
 
+import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.AutoExecMode
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -83,7 +83,7 @@ public class ScriptSession(
   internal val autoExecMode: AutoExecMode
     get() = playerAutoExecMode
 
-  internal lateinit var gameplay: TurnLayer
+  internal lateinit var agent: Agent
   internal var optionCodes: String = ""
     private set
 
@@ -105,7 +105,7 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer // default autoexec mode
+    val candidateAgent = candidateGame.agent(ENGINE) // default autoexec mode
     if (purple) {
       TfmWorkflow.Auto(candidateGame, playerAutoExecMode = { playerAutoExecMode }).launch()
     } else {
@@ -114,7 +114,7 @@ public class ScriptSession(
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount
     game = candidateGame
-    gameplay = candidateGameplay
+    agent = candidateAgent
     if (purple) mode = PURPLE
   }
 
@@ -271,10 +271,10 @@ public class ScriptSession(
   }
 
   internal fun promptPlain(): String =
-      with(gameplay) {
+      with(agent) {
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
-        "$optionCodes $phase ${game.vocabulary.petsName(gameplay.actor)}/$playerCount @$checkpoint> "
+        "$optionCodes $phase ${game.vocabulary.petsName(agent.actor)}/$playerCount @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -330,10 +330,10 @@ public class ScriptSession(
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...
   when (mode) {
-        RED -> RedMode(gameplay.godMode())
-        YELLOW -> YellowMode(gameplay.godMode())
-        GREEN -> GreenMode(gameplay.godMode())
-        BLUE -> BlueMode(gameplay.godMode())
+        RED -> RedMode(agent)
+        YELLOW -> YellowMode(agent)
+        GREEN -> GreenMode(agent)
+        BLUE -> BlueMode(agent)
         PURPLE -> PurpleMode()
       }
 
@@ -362,7 +362,7 @@ public class ScriptSession(
   private fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
       game.tasks
           .extract { it }
-          .filter { it.assignee == gameplay.actor && (ids == null || it.id in ids) }
+          .filter { it.assignee == agent.actor && (ids == null || it.id in ids) }
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
       selectableTasks(ids).map { task -> game.vocabulary.renderPets(task, displayId = null) }
@@ -373,7 +373,7 @@ public class ScriptSession(
 
   internal fun setAutoExecMode(mode: AutoExecMode) {
     playerAutoExecMode = mode
-    gameplay.autoExecMode = mode
+    agent.autoExecMode = mode
   }
 
   public fun command(wholeCommand: String): List<String> {
@@ -421,7 +421,7 @@ public class ScriptSession(
 
   internal fun player(name: String): Player {
     // In case a configured synonym was used
-    val type: Type = gameplay.resolve(name)
+    val type: Type = agent.resolve(name)
     return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
         ?: throw UsageException("not a participating Player: $name")
   }

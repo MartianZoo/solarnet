@@ -13,7 +13,7 @@ internal class VocabularyIntegrationTest {
             locale = "EN_us",
             inputOnlySynonyms = listOf("Counter" to "Token"),
         )
-    val player = world.gameplay(PLAYER1).godMode()
+    val player = world.agent(PLAYER1)
 
     player.manual("Counter")
 

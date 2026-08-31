@@ -23,13 +23,13 @@ internal class StartTokenTest {
 
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
-    engine.godMode().manual("Generation")
+    engine.manual("Generation")
     engine.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player2>")
 
-    engine.godMode().manual("Generation")
+    engine.manual("Generation")
     engine.assertCounts(0 to "StartToken<Player2>", 1 to "StartToken<Player3>")
 
-    engine.godMode().manual("Generation")
+    engine.manual("Generation")
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player3>")
     engine.assertCounts(1 to "StartToken")
   }
@@ -43,7 +43,7 @@ internal class StartTokenTest {
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    engine.godMode().manual("Generation")
+    engine.manual("Generation")
 
     engine.assertCounts(1 to "StartToken<Me>")
   }
@@ -71,7 +71,7 @@ internal class StartTokenTest {
     val workflow = TfmWorkflow.Auto(game).launch()
 
     p1.playCorp(InterplanetaryCinematics, 7)
-    engine.godMode().sneak("StartToken<Player2> FROM StartToken<Player1>")
+    engine.sneak("StartToken<Player2> FROM StartToken<Player1>")
     p2.playCorp(PharmacyUnion, 5)
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)

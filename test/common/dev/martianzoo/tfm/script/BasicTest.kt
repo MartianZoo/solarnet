@@ -23,7 +23,7 @@ internal class BasicTest {
   @Test
   internal fun configuredInputOnlySynonyms() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER2).godMode()
+    val session = game.tfm(PLAYER2)
 
     session.manual("PROD[5 MC, 4 E]")
     session.manual("ProjectCard")
@@ -40,7 +40,7 @@ internal class BasicTest {
   @Test
   internal fun removeAmap() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1).godMode()
+    val session = game.tfm(PLAYER1)
 
     session.manual("3 Heat!")
     session.manual("4 Heat.")
@@ -51,7 +51,7 @@ internal class BasicTest {
   @Test
   internal fun rollback() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1).godMode()
+    val session = game.tfm(PLAYER1)
 
     session.manual("3 Heat")
     session.manual("4 Heat")
@@ -68,7 +68,7 @@ internal class BasicTest {
   @Test
   internal fun dependencies() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1).godMode()
+    val session = game.tfm(PLAYER1)
 
     assertTrue(game.tasks.isEmpty())
     assertEquals(0, session.count("Microbe"))
@@ -88,7 +88,7 @@ internal class BasicTest {
   @Test
   internal fun counting() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1).godMode()
+    val session = game.tfm(PLAYER1)
     session.manual("42 Heat")
     assertEquals(42, session.count("Heat"))
     assertEquals(10, session.count("4 Heat"))
@@ -106,7 +106,7 @@ internal class BasicTest {
   @Test
   internal fun tempTrigger() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1).godMode()
+    val session = game.tfm(PLAYER1)
     assertEquals(20, session.count("TerraformRating"))
 
     session.manual("2 TemperatureStep")

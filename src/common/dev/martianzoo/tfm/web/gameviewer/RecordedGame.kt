@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.web.gameviewer
 
+import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.GameRecording
-import dev.martianzoo.engine.Gameplay.Companion.parse
-import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.recording
@@ -47,15 +47,15 @@ public abstract class RecordedGame {
   protected abstract fun play()
 
   protected fun <T> OperationBody.doWithoutAutoExec(
-      gameplay: TfmGameplay,
+      agent: TfmGameplay,
       body: OperationBody.() -> T,
   ): T {
-    val previousAutoExecMode = gameplay.autoExecMode
-    gameplay.autoExecMode = NONE
+    val previousAutoExecMode = agent.autoExecMode
+    agent.autoExecMode = NONE
     return try {
       body()
     } finally {
-      gameplay.autoExecMode = previousAutoExecMode
+      agent.autoExecMode = previousAutoExecMode
     }
   }
 
@@ -134,12 +134,12 @@ public abstract class RecordedGame {
       game.tasks.editTask(unselectedTask)
     }
 
-    godMode().sneak(adjustment)
+    sneak(adjustment)
 
     if (selectedId != null) {
       val task = game.tasks.getTaskData(selectedId)
-      game.gameplay(task.assignee).selectTask(selectedId)
-      game.gameplay(task.assignee).autoExecNow()
+      game.agent(task.assignee).selectTask(selectedId)
+      game.agent(task.assignee).autoExecNow()
     }
   }
 
@@ -195,7 +195,7 @@ public abstract class RecordedGame {
     val matches =
         tasks.withIndex().filter { (_, task) ->
           (instruction == null ||
-              task.instruction == game.gameplay(task.assignee).parse<Instruction>(instruction)) &&
+              task.instruction == game.agent(task.assignee).parse<Instruction>(instruction)) &&
               (NoOp.narrows(task.instruction, reader) ||
                   task.instruction.descendantsOfType<NoOp>().isNotEmpty())
         }

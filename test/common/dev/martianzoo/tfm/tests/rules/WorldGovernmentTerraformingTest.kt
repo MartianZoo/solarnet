@@ -20,9 +20,9 @@ internal class WorldGovernmentTerraformingTest {
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    p1.godMode().manual("$Aphrodite")
+    p1.manual("$Aphrodite")
     val mcBefore = p1.count("MC")
-    engine.godMode().manual("StartToken<Player2> FROM StartToken<Player1>")
+    engine.manual("StartToken<Player2> FROM StartToken<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
     TfmWorkflow.Manual(game).solarPhase()
@@ -46,14 +46,12 @@ internal class WorldGovernmentTerraformingTest {
   internal fun `World Government is skipped after every parameter is complete`() {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
-    engine
-        .godMode()
-        .manual(
-            "GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, " +
-                "GpComplete<Class<OceanTile>>, " +
-                "GpComplete<Class<VenusStep>>"
-        )
+    engine.manual(
+        "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>, " +
+            "GpComplete<Class<VenusStep>>"
+    )
     engine.count("GpIncomplete") shouldBe 0
 
     TfmWorkflow.Manual(game).solarPhase()
@@ -65,12 +63,10 @@ internal class WorldGovernmentTerraformingTest {
   internal fun `Solar phase is skipped when production ends the game`() {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
-    engine
-        .godMode()
-        .manual(
-            "GpComplete<Class<TemperatureStep>>, " +
-                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-        )
+    engine.manual(
+        "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+    )
 
     TfmWorkflow.Manual(game).solarPhase()
 

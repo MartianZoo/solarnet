@@ -21,7 +21,7 @@ plays by selecting Tasks and narrowing the selected Task, then observes the engi
 execution, and resulting State Changes. It does not need to know how those consequences are carried
 out internally.
 
-The `Gameplay` API exposes the Player activities as `selectTask` and `narrowTask`; resolution and
+The `Agent` API exposes the Player activities as `selectTask` and `narrowTask`; resolution and
 execution remain engine consequences.
 
 `PetTransformer` is the implementation's common mechanism for turning one Pets tree into another.

@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Gameplay.OperationBody
+import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException
@@ -20,15 +20,8 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
-/**
- * All modifications to a world (not counting rollbacks) are done via this interface.
- *
- * It should not be possible to break the world through this interface, except by calling [godMode]
- * which will then let you do whatever the heck you want. Or, the instance returned by [godMode]
- * could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods you don't
- * need; see those interfaces for more explanation.
- */
-public interface Gameplay {
+/** The single, fully permissive mutation authority for one Actor in a World. */
+public interface Agent {
 
   // READ OPERATIONS
 
@@ -113,29 +106,30 @@ public interface Gameplay {
 
   public var autoExecMode: AutoExecMode
 
-  public fun godMode(): GodMode
+  public fun startTurn(): TaskResult
 
-  // Blue mode
+  public fun inTurn(body: BodyLambda = {}): TaskResult
 
-  public interface TurnLayer : Gameplay {
-    public fun startTurn(): TaskResult
+  /** Starts and completes an operation seeded by one or more independent instructions. */
+  public fun manual(initialInstructions: String, body: BodyLambda = {}): TaskResult
 
-    public fun inTurn(body: BodyLambda = {}): TaskResult
-  }
+  /** Starts a resumable operation seeded by one or more independent instructions. */
+  public fun beginManual(initialInstructions: String, body: BodyLambda = {}): TaskResult
 
-  // Green mode
+  public fun continueManual(body: BodyLambda = {}): TaskResult
 
-  public interface OperationLayer : TurnLayer {
-    /** Starts and completes an operation seeded by one or more independent instructions. */
-    public fun manual(initialInstructions: String, body: BodyLambda = {}): TaskResult
+  public fun finish(body: BodyLambda = {}): TaskResult
 
-    /** Starts a resumable operation seeded by one or more independent instructions. */
-    public fun beginManual(initialInstructions: String, body: BodyLambda = {}): TaskResult
+  /** Adds a manual task for the given [instruction], but does not select or execute it. */
+  public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
-    public fun continueManual(body: BodyLambda = {}): TaskResult
+  /** Removes a task for any reason or no reason at all. */
+  public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
-    public fun finish(body: BodyLambda = {}): TaskResult
-  }
+  /** Removes every task assigned to this Agent's Actor. */
+  public fun dropTasks(): List<TaskRemovedEvent>
+
+  public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
   public interface OperationBody {
     public val tasks: TaskQueue
@@ -150,25 +144,8 @@ public interface Gameplay {
     public fun abort(): Nothing = throw AbortOperationException()
   }
 
-  // Yellow
-  public interface TaskLayer : OperationLayer {
-    /** Adds a manual task for the given [instruction], but does not select or execute it. */
-    public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
-
-    /** Removes a task for any reason or no reason at all. */
-    public fun dropTask(taskId: TaskId): TaskRemovedEvent
-
-    /** Removes every task assigned to this gameplay's Actor. */
-    public fun dropTasks(): List<TaskRemovedEvent>
-  }
-
-  // Red
-  public interface GodMode : TaskLayer {
-    public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
-  }
-
   public companion object {
-    public inline fun <reified P : PetElement> Gameplay.parse(text: String): P {
+    public inline fun <reified P : PetElement> Agent.parse(text: String): P {
       val parsed = parseInternal(P::class, text)
       if (parsed !is P) {
         throw KindException(

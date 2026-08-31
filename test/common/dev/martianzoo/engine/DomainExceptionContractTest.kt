@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -15,45 +15,45 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class DomainExceptionContractTest {
-  private fun gameplay() = Engine.newGame(canonicalPremise()).gameplay(PLAYER1).godMode()
+  private fun agent() = Engine.newGame(canonicalPremise()).agent(PLAYER1)
 
   @Test
   internal fun unhandledTransformsAreExpressionFailures() {
-    val gameplay = gameplay()
+    val agent = agent()
 
-    shouldThrow<ExpressionException> { gameplay.count("WAT[Plant]") }
-    shouldThrow<ExpressionException> { gameplay.has("WAT[Plant]") }
-    shouldThrow<ExpressionException> { gameplay.manual("WAT[Plant]") }
-    shouldThrow<PetSyntaxException> { gameplay.manual("PROD[PROD[Plant]]") }
+    shouldThrow<ExpressionException> { agent.count("WAT[Plant]") }
+    shouldThrow<ExpressionException> { agent.has("WAT[Plant]") }
+    shouldThrow<ExpressionException> { agent.manual("WAT[Plant]") }
+    shouldThrow<PetSyntaxException> { agent.manual("PROD[PROD[Plant]]") }
   }
 
   @Test
   internal fun preprocessingKindChangesUseKindExceptions() {
-    shouldThrow<KindException> { gameplay().parse<Instruction>("2 OxygenStep!") }
+    shouldThrow<KindException> { agent().parse<Instruction>("2 OxygenStep!") }
   }
 
   @Test
   internal fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
-    val gameplay = gameplay()
+    val agent = agent()
 
-    shouldThrow<NoNewClassDeclarationsException> { gameplay.manual("Mandate { -> 3 ProjectCard }") }
-    shouldThrow<PetSyntaxException> { gameplay.manual("Mandate { -> }") }
+    shouldThrow<NoNewClassDeclarationsException> { agent.manual("Mandate { -> 3 ProjectCard }") }
+    shouldThrow<PetSyntaxException> { agent.manual("Mandate { -> }") }
   }
 
   @Test
   internal fun directChangesRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
-    val gameplay = gameplay()
+    val agent = agent()
 
-    shouldThrow<AbstractException> { gameplay.sneak("Plant OR Heat") }
-    shouldThrow<AbstractException> { gameplay.sneak("X Plant") }
-    shouldThrow<ExpressionException> { gameplay.sneak("Plant: Heat") }
+    shouldThrow<AbstractException> { agent.sneak("Plant OR Heat") }
+    shouldThrow<AbstractException> { agent.sneak("X Plant") }
+    shouldThrow<ExpressionException> { agent.sneak("Plant: Heat") }
   }
 
   @Test
   internal fun taskFailuresUseTaskOrDeadEndExceptions() {
-    val gameplay = gameplay()
+    val agent = agent()
 
-    shouldThrow<TaskException> { gameplay.selectTask("Plant") }
-    shouldThrow<DeadEndException> { gameplay.addTasks("Die THEN Plant") }
+    shouldThrow<TaskException> { agent.selectTask("Plant") }
+    shouldThrow<DeadEndException> { agent.addTasks("Die THEN Plant") }
   }
 }

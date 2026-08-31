@@ -27,10 +27,10 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
     val game = game()
-    val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
 
-    p2.godMode().addTasks("Token<Player2>")
+    p2.addTasks("Token<Player2>")
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     shouldThrow<TaskException> { p1.doTask("Token<Player2>") }
@@ -43,11 +43,11 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
     val game = game()
-    val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p2.godMode().addTasks("Token<Player2>")
+    p2.addTasks("Token<Player2>")
     p1.autoExecMode = FIRST
 
     game.tasks.isEmpty() shouldBe true
@@ -58,12 +58,12 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun playerNoneDrainsOnlyEngineWork() {
     val game = game()
-    val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
-    val engine = game.gameplay(ENGINE).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
 
-    p2.godMode().addTasks("Token<Player2>")
-    engine.godMode().addTasks("EngineToken")
+    p2.addTasks("Token<Player2>")
+    engine.addTasks("EngineToken")
     p1.autoExecNow()
 
     engine.count("EngineToken") shouldBe 1
@@ -74,10 +74,10 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun assignedPlayerCanCompleteATaskPerformedByEngine() {
     val game = game()
-    val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p1.godMode().addTasks("Token<Player1> BY Engine")
+    p1.addTasks("Token<Player1> BY Engine")
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER1)
 
     p1.doTask("Token<Player1> BY Engine")
@@ -89,10 +89,10 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun performerOverridePreservesThenTaskSequencing() {
     val game = game()
-    val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p1.godMode().addTasks("(Token<Player1> THEN Marker<Player1>) BY Engine")
+    p1.addTasks("(Token<Player1> THEN Marker<Player1>) BY Engine")
     game.tasks.extract { it.then != null }.shouldContainExactly(true)
 
     p1.doTask("Token<Player1> BY Engine")

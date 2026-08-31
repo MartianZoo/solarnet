@@ -23,7 +23,7 @@ public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,
 
-    /** Whose pending-work queue contains this task and whose scoped gameplay may select it. */
+    /** Whose pending-work queue contains this task and whose scoped Agent may select it. */
     val assignee: Actor,
 
     /** The Actor recorded for resulting changes unless the instruction contains an explicit BY. */
