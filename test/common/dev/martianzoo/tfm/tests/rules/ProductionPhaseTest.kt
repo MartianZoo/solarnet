@@ -16,8 +16,8 @@ internal class ProductionPhaseTest {
     val game = setUpGame()
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().manual("2 Energy, PROD[Energy]")
-    val manual = engine.godMode().also { it.autoExecMode = NONE }
+    p1.manual("2 Energy, PROD[Energy]")
+    val manual = engine.also { it.autoExecMode = NONE }
 
     manual.beginManual("ProductionPhase FROM Phase") {
       p1.count("Energy") shouldBe 0

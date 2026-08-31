@@ -189,15 +189,15 @@ Completing A enqueues B in A's place. B is not immediate and receives no priorit
 tasks. `A1, A2, B1, B2` may be a legal order for two `A THEN B` chains. `THEN` waits for the A
 task, not every transitive consequence it causes.
 
-`THEN` also creates one implicit Type-variable region. Mining Rights and Capital use that linkage
+`THEN` also creates one implicit Type-variable scope. Mining Rights and Capital use that variable
 to carry an area or tile choice into later work; temporal order is not its only purpose.
 
 This can force sequencing that the game rules do not independently require. It is often still the
 most natural expression: one stage owns the Player's choice and the other is derived from that same
 choice, so put the choice-bearing stage first and its derived continuation second. Treat this as a
-linkage constraint, not evidence that unrelated work needs priority. During audit, verify both that
+shared-variable constraint, not evidence that unrelated work needs priority. During audit, verify both that
 the choice really belongs to the first stage and that the artificial order is buying a useful,
-readable linkage rather than concealing a more natural unordered model.
+readable Type-variable relationship rather than concealing a more natural unordered model.
 
 If every producer of A is expected to remember B, the relationship belongs in a trigger instead.
 
@@ -258,23 +258,45 @@ Two related families should not be described more strongly than the implementati
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
   Docks use the action-qualified Trade signals to supply the selected payment resource. This is
   generic action dispatch, however, not a promise of one uniform later component Type.
-- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. Each signal creates the base
-  `Owed` amount; Polyphemos and Terralabs Research react to that signal by adding or removing their
-  own `Owed`. An automatic sibling creates the invoice hosted by the live `BuyCards` component,
-  which exposes payment and gates the follow-mode `ProjectCard` gain until settlement. In real-card
-  mode, `BuySelectedCards` broadcasts one `BuyCard` per remaining selected card and moves those
-  exact cards to `Hand` only after the invoice is paid.
+- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. `BuySelectedCards` first
+  creates the complete base `Owed` amount, then broadcasts one `BuyCard` per remaining selected card
+  so Polyphemos and Terralabs Research can adjust that established debt, and only then creates the
+  single invoice hosted by the live `BuyCards` component. The invoice exposes payment and gates the
+  follow-mode `ProjectCard` gain until settlement. In real-card mode, the operation moves those
+  exact selected cards to `Hand` only after the invoice is paid. These three choice-free stages are
+  one inline automatic continuation, so automatic-sibling enumeration cannot reorder them.
 
-The buy-card invoice is currently an automatic sibling of the base debt and every card-specific
-price adjustment. Its registration order is covered by purchase tests, but automatic siblings do
-not provide a semantic ordering guarantee. Replace that dependency with aggregate purchase
-completion that establishes every selected card's adjusted debt before creating the single invoice.
+  The current `BuyCard` signal carries multiplicity but not selected card identity. That is exact
+  for the two existing price modifiers. If a future modifier needs to inspect individual selected
+  cards or make a choice, specialize the pricing fact or purchase operation rather than extending
+  this inline continuation with identity reconstruction or player work.
+- A failed printed global-parameter requirement creates a typed `Required<GlobalParameter>`
+  shortfall, then emits `RequirementCheck<CardFront>`. Inventrix, Morning Star, Adaptation
+  Technology, and Special Design react to that completed check stage rather than competing
+  with shortfall creation as `PlayCard` siblings. The final card entry remains gated on the absence
+  of `Required`.
+
+  `Required` itself remains owner- and parameter-scoped rather than card-scoped. That is sufficient
+  while one card-play attempt establishes and settles its shortfall before another can overlap. If
+  future rules permit overlapping attempts, specialize the shortfall with card or operation identity
+  rather than restoring sibling-order dependence.
 
 `Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
 not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
 `ResetColonyProduction`, and the colony-bonus Signals have the request/continuation shape but no
 current subscribers that need a before-A modification. `Accept` is not a committed precursor at
 all: it exposes an optional payment choice.
+
+Random automatic-effect order exposes a separate limitation in payment history. Steel, Titanium,
+Advanced Alloys, and similar `Pay` reactions all remove the same saturating `Owed`; when their total
+value exceeds the remaining debt, execution order decides which cause receives credit for the last
+units. Reconstructed games still reach the same paid state, but replay summaries of individual
+discounts vary. Do not stabilize those summaries by assigning an order to the sibling effects. The
+better repair is the payment direction in [PAYMENTS.md](PAYMENTS.md): produce complete, source- and
+invoice-qualified tender value first, then consume debt once, retaining enough evidence to validate
+excess payment and attribute every contribution. Until then, this attribution variance is diagnostic
+noise rather than a gameplay regression. That larger, nice-to-have repair is intentionally not
+folded into the card-play sequencing fixes here.
 
 ### Do not make proposed changes triggerable
 
@@ -643,7 +665,7 @@ For a new A-before-B claim:
 5. If A-without-B is not a coherent state to expose and B is choice-free, use automatic `A:: B`;
    otherwise prefer queued `A: B`.
 6. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
-7. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is
+7. If `THEN` exists for a shared Type variable, verify that A naturally owns the choice and B is
    derived from it; do not mistake that local artificial order for broader game precedence.
 8. Otherwise identify the smallest completion fact: a local condition may call for a barrier, an
    entire workflow step may call for whole-World completion, and delegated narrowing may call for

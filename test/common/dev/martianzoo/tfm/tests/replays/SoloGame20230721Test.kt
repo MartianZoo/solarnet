@@ -231,8 +231,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
             // me played Flooding
             // me placed ocean tile on row 4 position 6
             // me's plants amount increased by 1
-            godMode()
-                .manual(
+            manual(
                     "-7 MC THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<$Conscription>> FROM ProjectCard"
                 ) {
                   placeTile(4, 6)

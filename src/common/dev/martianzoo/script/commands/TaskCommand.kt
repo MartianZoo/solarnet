@@ -45,19 +45,19 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
             return listOf("Task deleted")
           }
           "select" -> {
-            repl.gameplay.selectTask(repl.onlyTask().id)
+            repl.agent.selectTask(repl.onlyTask().id)
             return repl.taskLines()
           }
           else -> {
             if (taskNumber == null) {
-              repl.gameplay.tryTask(request)
+              repl.agent.tryTask(request)
             } else {
               try {
-                repl.gameplay.tryTask(args)
+                repl.agent.tryTask(args)
               } catch (_: TaskException) {
-                repl.gameplay.tryTask(request, taskNumber)
+                repl.agent.tryTask(request, taskNumber)
               } catch (_: NarrowingException) {
-                repl.gameplay.tryTask(request, taskNumber)
+                repl.agent.tryTask(request, taskNumber)
               }
             }
           }

@@ -54,6 +54,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :repl:realTerminalSmokeTest` runs the separate Expect-based real-terminal test.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.
+- `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
+  while choosing a random execution order for each batch of automatic-effect siblings. This is a
+  diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain their current
+  deterministic order.
 
 Gradle may report tests as `UP-TO-DATE`. That is usually fine. When changing a test runner,
 browser configuration, resource packaging, or a locked JavaScript dependency, force the affected
@@ -208,6 +212,11 @@ that a particular type did not change.
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
+
+Assert a particular exception subclass only when callers or game semantics depend on that
+classification. Otherwise prove that the command is rejected, state and history remain atomic, and
+the diagnostic identifies the problem. The current distinction among task, abstractness, and
+narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
 
 `BugsTest` is different: its passing tests characterize known incorrect behavior, and their names
 say what currently happens incorrectly. Prefer such a characterization over a disproportionate

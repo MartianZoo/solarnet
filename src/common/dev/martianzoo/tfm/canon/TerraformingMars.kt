@@ -196,7 +196,8 @@ private object TerraformingMars {
   }
 
   internal object HandlePossibleGpRequirement : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(REQUIRED, GLOBAL_PARAMETER)
+    override val requiredClassNames: Set<ClassName> =
+        setOf(REQUIRED, REQUIREMENT_CHECK, GLOBAL_PARAMETER)
 
     override fun translate(
         reader: GameReader,
@@ -206,7 +207,12 @@ private object TerraformingMars {
       val requirement =
           cardRequirement(representedType(cardClassType, reader)) ?: return FALLBACK_UNAVAILABLE
       return globalParameterShortfall(requirement, reader)?.let { (parameter, count) ->
-        gain(REQUIRED.of(CLASS.of(parameter)), count)
+        Then.create(
+            listOf(
+                gain(REQUIRED.of(CLASS.of(parameter)), count),
+                gain(REQUIREMENT_CHECK.of(cardClassType.expression)),
+            )
+        )
       } ?: FALLBACK_UNAVAILABLE
     }
 
@@ -238,6 +244,7 @@ private object TerraformingMars {
 
   private val PLAY_TAG = cn("PlayTag")
   private val REQUIRED = cn("Required")
+  private val REQUIREMENT_CHECK = cn("RequirementCheck")
   private val GLOBAL_PARAMETER = cn("GlobalParameter")
 
   internal object HandleCardTags : CustomClass() {

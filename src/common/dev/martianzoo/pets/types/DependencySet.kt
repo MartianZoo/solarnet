@@ -30,7 +30,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   public fun flatten(): Map<DependencyPath, Class> {
     return deps
         .flatMap { dep: Dependency ->
-          // Throwing away refinements & links...
+          // This structural Class projection intentionally omits refinements and variable identity.
           buildList {
             add(DependencyPath(dep.key) to dep.boundClass)
             if (dep is TypeDependency) {
@@ -61,7 +61,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   private fun complementDependencies(): Set<ComplementDependency> =
       deps.filterIsInstance<ComplementDependency>().toSet()
 
-  public fun concreteDependencyTargets(): Sequence<Type> =
+  public fun concreteDependencyTargets(): Sequence<GroundType> =
       (typeDependencies().asSequence() + complementDependencies().asSequence())
           .flatMap {
             when (it) {
@@ -166,10 +166,10 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   internal fun subMapInOrder(keysInOrder: Iterable<Key>) =
       of(keysInOrder.mapNotNull(::getIfPresent))
 
-  private inline fun map(function: (Type) -> Type) =
+  private inline fun map(function: (GroundType) -> GroundType) =
       DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
 
-  internal inline fun mapWithKey(function: (Key, Type) -> Type) =
+  internal inline fun mapWithKey(function: (Key, GroundType) -> GroundType) =
       DependencySet(
           deps.toSetStrict {
             if (it is TypeDependency) it.map { type -> function(it.key, type) } else it
@@ -189,7 +189,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
       return of(deps.map { if (it.key == firstKey) replacement else it })
     }
 
-    fun Type.replaceNested(): Type =
+    fun GroundType.replaceNested(): GroundType =
         rootClass
             .withAllDependencies(dependencies.replaceAt(path.drop(1), replacement))
             .refine(refinement)
@@ -236,7 +236,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     return args.map(::matchToDependency)
   }
 
-  internal fun concreteSubtypesSameClass(type: Type): Sequence<Type> {
+  internal fun concreteSubtypesSameClass(type: GroundType): Sequence<GroundType> {
     return if (isForClassType(deps)) {
       type.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
     } else {
@@ -258,7 +258,10 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     }
   }
 
-  internal fun concreteSubtypesSameClass(type: Type, table: ClassTable): Sequence<Type> {
+  internal fun concreteSubtypesSameClass(
+      type: GroundType,
+      table: ClassTable,
+  ): Sequence<GroundType> {
     return if (isForClassType(deps)) {
       table.allSubclasses(getClassForClassType(deps)).asSequence().filterNot(Class::abstract).map {
         it.classType

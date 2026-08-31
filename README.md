@@ -2,13 +2,13 @@
 
 ## Fast facts
 
-* Solarnet is a work-in-progress **game engine** for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*. There are a few really cool things about it.
+* Solarnet is a game engine for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)* as a standalone library. It's just a toy but there are a few really cool things about it.
 
-* If you just want to *play* the game, there's an *excellent* [open-source app](http://github.com/terraforming-mars/terraforming-mars) for doing that. Solarnet is unrelated to that (but very grateful for it).
+* If you just want to *play* the game, use the existing [open-source app](http://github.com/terraforming-mars/terraforming-mars) hosted on [herokuapp](https://terraforming-mars.herokuapp.com). It is excellent; in fact comparing its behavior to Solarnet's is how I find most of my bugs.
 
-* It's "just" a standalone library. Its only job is to *know the rules of the game*: "who can do what when, and what happens if they do?" It covers the "pure logic part" of the game. You can use it to set up game situations and see what happens ([example](https://github.com/MartianZoo/solarnet/blob/main/test/common/dev/martianzoo/tfm/tests/cards/ExcentricSponsorTest.kt)).
+* It's "just" a standalone library. Its only job is to *know the rules of the game*: "who can do what when, and what happens if they do?" It covers the "pure logic part" of the game. You can use it to set up game situations and see what happens.
 
-* The unique behavior of each card, milestone, map area, colony tile, etc. is written in a bespoke language called Pets. These strings are ALL the game engine needs to know about a card (etc.) in order to play it correctly. Some examples:
+* The unique behavior of each card, milestone, map area, colony tile, etc. is written in a language called Pets (no reason, I just like Pets). These strings are all the game engine needs to know about a component in order to play it correctly. Some examples:
 
 | Class             | Example Pets syntax                                         |
 |-------------------|-------------------------------------------------------------|
@@ -16,9 +16,9 @@
 | `ElectroCatapult` | `Plant -> 7 MC`, `Steel -> 7 MC`                            |
 | `ArcticAlgae`     | `OceanTile BY Anyone: 2 Plant`                              |
 | `Insulation`      | `This: PROD[X MC FROM Heat]`                                |
-| `EarthCatapult`   | `Billing<PlayCards>:: -2 Owed<>`                            |
-| `CitySP`          | `1 MC / cost -> CityTile<>, PROD[1 MC]`                     |
-| `TerraformRating` | `ProductionPhase: 1 MC`, `End: VictoryPoint`                |
+| `EarthCatapult`   | `PlayCard:: -2 Owed<MC>`                                    |
+| `TerraformRating` | `ProductionPhase: MC`, `End: VictoryPoint`                  |
+| `CitySP`          | `25 MC -> CityTile<>, PROD[MC]`                             |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
 * This means you can add your own fan cards to it pretty easily and without actual "programming" -- so long as the cards don't introduce entirely new game mechanics.
@@ -27,25 +27,21 @@
 
 * If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Advanced Alloys actually save me that game?" fairly easily. For now that last part requires writing code. The other catch is that you would have to ban the expansions and individual cards from your game that Solarnet doesn't support yet.
 
-* It works! See the Issues tab for exceptions. See [what is supported](https://github.com/MartianZoo/solarnet/blob/main/docs/what-is-supported.md).
-
-* It's **not polished enough** for anyone to "just use". 2026 update: unless you are into agentic stuff like Codex or Claude Code; they figure it out quite easily.
+* It works! See [what is supported](https://github.com/MartianZoo/solarnet/blob/main/docs/what-is-supported.md).
 
 ## Play around with it?
 
-`JAVA_HOME` needs to point to a JDK installation at version 17 or newer.  Then it is *supposed* to be as simple as this:
+It is *supposed* to be as simple as this:
 
 ```
 git clone https://github.com/MartianZoo/solarnet.git
 cd solarnet
+JAVA_HOME=<home of a JDK 17 or newer>
 ./rego
+help
 ```
 
-... and then type `help`.
-
-You can also start a small REPL server with `./regoserve` and issue repl commands to it from the normal command line (`./rc 'repl command here'`).
-
-But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
+I'll be honest, it's not suuper easy to use yet, and you'll have a LOT more success if you let Codex or Claude Code help you -- they learn it quite easily.
 
 ## Learning more
 
@@ -60,16 +56,17 @@ None of this is polished or anything.
 
 ### Docs
 
-I haven't written too much yet. There are too many things I could write down next, so it would really help to hear which topics you most want to know about and then I could just write about those (and *eventually* get around to everything).
+I haven't written too much yet.
 
 * A [FAQ](docs/faq.md)
 * [Cheat sheet](docs/cheat-sheet.md)
 * Overview of [component types](docs/component-types.md) -- not a bad place to start
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md) (incomplete)
-* [Testing and verification](docs/agents/TESTING.md)
 * The growing project [glossary](docs/glossary.md)
 * API docs -- see below
+
+There is also a `docs/agents` directory but that is just crap that agents write for agents to read; I don't personally vouch for any of it.
 
 ### Browse?
 
@@ -83,7 +80,7 @@ Just breeze past all the things that don't make sense. Some of it will!
 
 If you can generate the docs (clone, `./gradlew dokkaGenerateHtml`, then look at `docs/api/index.html`) that would be the ideal way to start. The generated site includes the API documentation for every Solarnet module.
 
-I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thing usable from Java, JavaScript, and some other environments as well.
+I wrote it in [Kotlin](https://kotlinlang.org), which makes the whole thing equally usable from Java, JavaScript, and some other environments as well.
 
 ### Join the discord
 

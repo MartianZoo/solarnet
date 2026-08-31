@@ -1,6 +1,5 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -31,12 +30,12 @@ internal class AsCommand(private val repl: ScriptSession) : ScriptCommand("as") 
   override fun withArgs(args: String): List<String> {
     val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
-    val saved = repl.gameplay
+    val saved = repl.agent
     return try {
-      repl.gameplay = repl.game.gameplay(repl.actor(player)) as TurnLayer
+      repl.agent = repl.game.agent(repl.actor(player))
       repl.command(rest)
     } finally {
-      repl.gameplay = saved
+      repl.agent = saved
     }
   }
 }

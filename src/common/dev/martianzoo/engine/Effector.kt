@@ -48,8 +48,11 @@ internal class Effector(
             gaining = triggerEvent.change.gaining?.let(reader::resolve),
             removing = triggerEvent.change.removing?.let(reader::resolve),
         )
-    return fireSelfEffects(triggerEvent, controller, automatic, resolvedChange) +
-        fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
+    val pending =
+        fireSelfEffects(triggerEvent, controller, automatic, resolvedChange) +
+            fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
+    return if (automatic == true && randomAutomaticEffectOrderEnabled) pending.shuffled()
+    else pending
   }
 
   private fun fireSelfEffects(

@@ -425,14 +425,12 @@ CLASS CitySP : StandardProject {
 
 // PAY AND PLAY
 
-CLASS BuyCard : Owned<Player>, Signal {
-  This:: 3 Owed<>
-  X This:: Invoice<BuyCards, First>
-}
+CLASS BuyCard : Owned<Player>, Signal
 
 "Confirms purchase of every project card remaining in the player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
-  This: (BuyCard / ProjectCard<Selecting>) THEN MAX 0 Invoice: (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>) THEN -Selecting
+  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN Invoice<BuyCards, First>
+  This: MAX 0 Invoice: (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>) THEN -Selecting
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
@@ -441,6 +439,8 @@ CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<Hand>
 }
 
+"Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
+CLASS RequirementCheck<Class<CardFront>> : Owned<Player>, Signal
 CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
 ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Temporary {
@@ -568,7 +568,7 @@ CLASS FirstPlayerOcean<Player> : Signal
 CLASS StartToken : Owned<Player> {
   HAS MAX 1 StartToken
   Generation: PassLeft<This>
-  FirstPlayerOcean<Player> BY Anyone: OceanTile<> BY Player
+  FirstPlayerOcean<Actor> BY Actor: OceanTile<> BY Actor
   WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
 }
 

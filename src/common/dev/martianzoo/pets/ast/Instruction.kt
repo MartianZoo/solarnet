@@ -13,7 +13,6 @@ import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
-import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.OK
@@ -240,12 +239,18 @@ public sealed class Instruction : InstructionTree() {
       super.ensureIsNarrowedBy(proposed, info)
       if (proposed == NoOp) return
       proposed as Transmute
-      for (source in TypeLinking.atomicSources(this, info::isAbstract)) {
+      val variables = typeVariablesFor(info)
+      for (variable in
+          variables.variables.filter {
+            info.isAbstract(variables.expressionOf(it.declaration))
+          }) {
         val bindings =
-            TypeLinking.bindings(gaining, proposed.gaining, source) +
-                TypeLinking.bindings(removing, proposed.removing, source)
+            variables.bindings(gaining, proposed.gaining, variable) +
+                variables.bindings(removing, proposed.removing, variable)
         if (bindings.distinct().size > 1) {
-          throw NarrowingException("Can't set linked type $source differently: ${bindings.toSet()}")
+          throw NarrowingException(
+              "Can't set Type variable $variable differently: ${bindings.toSet()}"
+          )
         }
       }
     }
@@ -356,9 +361,6 @@ public sealed class Instruction : InstructionTree() {
     public val first: Instruction
       get() = stages.first()
 
-    public val linkedTypeSources: Set<Expression>
-      get() = recordedLinkedTypeSources
-
     init {
       require(stages.isNotEmpty())
       if (continuation is Then) {
@@ -382,21 +384,21 @@ public sealed class Instruction : InstructionTree() {
       visitor.visit(continuation)
     }
 
-    /** Replaces stages while preserving the authored linkage identities carried by this `THEN`. */
+    /** Replaces stages while preserving the authored Type variables carried by this `THEN`. */
     public fun withInstructions(instructions: List<InstructionTree>): Then {
       val replacement = createTree(instructions) as? Then ?: error("THEN requires two stages")
-      return replacement.withLinkedTypeSources(linkedTypeSources)
+      return replacement.withTypeVariables(typeVariables)
     }
 
-    /** Replaces the sequence parts while preserving this `THEN`'s linkage identities. */
+    /** Replaces the sequence parts while preserving this `THEN`'s Type variables. */
     internal fun withParts(stages: List<Instruction>, continuation: InstructionTree): Then =
-        Then(stages, continuation).withLinkedTypeSources(linkedTypeSources)
+        Then(stages, continuation).withTypeVariables(typeVariables)
 
     override fun precedence(): Int = 2
 
     override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
 
-    private val hasLinkedX: Boolean by lazy {
+    private val hasSharedX: Boolean by lazy {
       instructions.count { it.descendantsOfType<XScalar>().isNotEmpty() } >= 2
     }
 
@@ -405,35 +407,45 @@ public sealed class Instruction : InstructionTree() {
       if (instructions.size != proposed.instructions.size) {
         throw NarrowingException("Can't change the number of THEN stages")
       }
-      val specialized = bindTypeLinksFrom(proposed, info)
+      val specialized = bindTypeVariablesFrom(proposed, info)
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      if (hasLinkedX) linkedXValue(this, proposed)
+      if (hasSharedX) sharedXValue(this, proposed)
     }
 
-    private fun bindTypeLinksFrom(
+    private fun bindTypeVariablesFrom(
         proposed: Then,
         info: TypeInfo,
         fallback: PetTransformer? = null,
     ): Then {
       var specialized = this
-      for (source in linkedTypeSources.filter(info::isAbstract)) {
+      val variables = typeVariablesFor(info)
+      for (variable in
+          variables.variables.filter {
+            info.isAbstract(variables.expressionOf(it.declaration))
+          }) {
+        val declaration = variables.expressionOf(variable.declaration)
         val bindings =
-            TypeLinking.bindings(this, proposed, source)
-                .filter { it != source && narrowsExpression(it, source, info) }
+            variables
+                .bindings(this, proposed, variable)
+                .filter {
+                  it != declaration && narrowsExpression(it, declaration, info)
+                }
                 .distinct()
         if (bindings.size > 1) {
-          throw NarrowingException("Can't bind linked type $source differently: $bindings")
+          throw NarrowingException("Can't bind Type variable $variable differently: $bindings")
         }
         val binding =
             bindings.singleOrNull()
                 ?: fallback
                     ?.takeIf { bindings.isEmpty() }
-                    ?.transformExpression(source)
-                    ?.takeIf { it != source }
+                    ?.transformExpression(declaration)
+                    ?.takeIf { it != declaration }
         binding?.let {
-          val transformed = PetNode.replacer(source, binding).transformInstruction(specialized)
+          val captured = variable.bound.classTable.resolve(binding.uncomplemented())
+          val transformed =
+              variables.bind(mapOf(variable to captured)).transformInstruction(specialized)
           specialized =
               transformed as? Then ?: error("expression replacement changed THEN into $transformed")
         }
@@ -447,9 +459,7 @@ public sealed class Instruction : InstructionTree() {
         info: TypeInfo,
     ): Boolean = narrow.narrows(wide, info)
 
-    /**
-     * Narrows the first stage and carries every choice linked from that stage into later stages.
-     */
+    /** Narrows the first stage and carries every shared choice into later stages. */
     public fun bindFirstStage(
         proposed: Instruction,
         info: TypeInfo,
@@ -471,34 +481,45 @@ public sealed class Instruction : InstructionTree() {
     ): Then {
       proposed.ensureNarrows(first, info)
       val partial = withParts(listOf(proposed) + stages.drop(1), continuation)
+      val variables = typeVariablesFor(info)
       val authoredBinding =
           PetTransformer.chain(
-              linkedTypeSources.mapNotNull { source ->
+              variables.variables.mapNotNull { variable ->
+                val declaration = variables.expressionOf(variable.declaration)
                 if (
-                    loweredBinding != null && loweredBinding.transformExpression(source) != source
+                    loweredBinding != null &&
+                        loweredBinding.transformExpression(declaration) != declaration
                 ) {
                   return@mapNotNull null
                 }
-                val bindings =
-                    proposed
-                        .descendantsOfType<Expression>()
-                        .filter { it != source && narrowsExpression(it, source, info) }
+                val positionalBindings =
+                    variables
+                        .bindings(first, proposed, variable)
+                        .filter { it != declaration && narrowsExpression(it, declaration, info) }
+                        .map { variable.bound.classTable.resolve(it.uncomplemented()) }
                         .distinct()
+                val bindings = positionalBindings.ifEmpty {
+                  variables.bindingsIn(proposed, variable, info)
+                }
                 if (bindings.size > 1) {
                   throw NarrowingException(
-                      "Can't bind linked type $source differently: ${bindings.toSet()}"
+                      "Can't bind Type variable $variable differently: ${bindings.toSet()}"
                   )
                 }
-                bindings.singleOrNull()?.let { PetNode.replacer(source, it) }
+                bindings.singleOrNull()?.let { variables.bind(mapOf(variable to it)) }
               }
           )
       val specialized =
-          bindTypeLinksFrom(partial, info, PetTransformer.chain(loweredBinding, authoredBinding))
-      val selectedX = if (hasLinkedX) linkedXValue(first, proposed) else null
+          bindTypeVariablesFrom(
+              partial,
+              info,
+              PetTransformer.chain(loweredBinding, authoredBinding),
+          )
+      val selectedX = if (hasSharedX) sharedXValue(first, proposed) else null
       val fullySpecialized =
           selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
       if (requireBinding && fullySpecialized == this) {
-        throw NarrowingException("The first stage does not bind this THEN's type linkage")
+        throw NarrowingException("The first stage does not bind this THEN's Type variable")
       }
       return fullySpecialized.withParts(
           listOf(proposed) + fullySpecialized.stages.drop(1),
@@ -506,7 +527,7 @@ public sealed class Instruction : InstructionTree() {
       )
     }
 
-    private fun linkedXValue(wide: PetNode, narrow: PetNode): Int? {
+    private fun sharedXValue(wide: PetNode, narrow: PetNode): Int? {
       val wideScalars = wide.descendantsOfType<Scalar>()
       val narrowScalars = narrow.descendantsOfType<Scalar>()
       if (wideScalars.none { it is XScalar }) return null
@@ -531,8 +552,13 @@ public sealed class Instruction : InstructionTree() {
       return xValues.singleOrNull()
     }
 
-    internal fun keepLinked(isAbstract: ((Expression) -> Boolean)?) =
-        hasLinkedX || isAbstract?.let(linkedTypeSources::any) == true
+    internal fun keepTogether(isAbstract: ((Expression) -> Boolean)?) =
+        hasSharedX ||
+            isAbstract?.let { check ->
+              typeVariables.variables.any { variable ->
+                check(typeVariables.expressionOf(variable.declaration))
+              }
+            } == true
 
     /** Returns the right-associated continuation enqueued after the first stage. */
     public fun continuationAfterFirst(): InstructionGroup =
@@ -558,8 +584,7 @@ public sealed class Instruction : InstructionTree() {
                         stages.dropLast(1).map { stage ->
                           stage as? Instruction ?: throw PetSyntaxException("Bad THEN")
                         }
-                    val then = Then(leading, stages.last())
-                    then.withLinkedTypeSources(TypeLinking.sourcesAcrossRegions(then))
+                    Then(leading, stages.last())
                   }
                 }
               }

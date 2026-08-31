@@ -23,7 +23,7 @@ public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,
 
-    /** Whose pending-work queue contains this task and whose scoped gameplay may select it. */
+    /** Whose pending-work queue contains this task and whose scoped Agent may select it. */
     val assignee: Actor,
 
     /** Who controls the surrounding operation and receives work caused by this task. */
@@ -202,7 +202,7 @@ public data class Task(
           )
       val normal = task.instruction
 
-      return if (normal is Then && !normal.keepLinked(isAbstract)) {
+      return if (normal is Then && !normal.keepTogether(isAbstract)) {
         task.copy(
             instructionIn = normal.first,
             thenIn = normal.continuationAfterFirst(),

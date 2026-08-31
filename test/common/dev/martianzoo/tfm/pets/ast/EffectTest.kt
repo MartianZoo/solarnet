@@ -7,7 +7,6 @@ import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.Or
 import dev.martianzoo.tfm.pets.testSampleStrings
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -109,14 +108,6 @@ internal class EffectTest {
   internal fun bySelectorsAreExpressions() {
     parse<Effect>("Foo BY !Owner: Bar").toString() shouldBe "Foo BY !Owner: Bar"
     parse<Effect>("Foo BY !Player2: Bar").toString() shouldBe "Foo BY !Player2: Bar"
-  }
-
-  @Test
-  internal fun complementedExpressionsCanLinkAcrossATriggerAndItsInstruction() {
-    parse<Effect>("-Foo<!Player> BY Player: Bar<Player, !Player>")
-        .linkedTypeSources
-        .map { it.toString() }
-        .shouldContainExactlyInAnyOrder("Player", "!Player")
   }
 
   @Test

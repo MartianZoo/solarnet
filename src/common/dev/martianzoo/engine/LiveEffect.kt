@@ -36,6 +36,8 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.TypeVariable
+import dev.martianzoo.pets.types.TypeVariableScope
 
 /** One specialized component effect ready for subscription matching and firing. */
 internal class LiveEffect
@@ -82,8 +84,8 @@ private constructor(
 
     // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
     // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
-    // gameplay scope that happens to execute the effect. A passive Owner is ignored here because
-    // ownership alone must not give SoloOpponent task or gameplay authority.
+    // Agent scope that happens to execute the effect. A passive Owner is ignored here because
+    // ownership alone must not give SoloOpponent task or Agent authority.
     val changedComponentPlayer = resolvedChange.changedComponentPlayer
 
     // If neither the effect nor the changed component supplies ownership, a Player Actor is the
@@ -166,8 +168,8 @@ private constructor(
     ): LiveEffect {
       // Lowering can consume the trigger-side occurrence (for example PROD), so prefer the frozen
       // authored origins even when they can no longer be rediscovered from the transformed tree.
-      val linkedSources = effect.linkedTypeSources
-      val subscription = Subscription.from(effect.trigger, context, linkedSources)
+      val typeVariables = effect.typeVariables
+      val subscription = Subscription.from(effect.trigger, context, typeVariables)
       val triggerClass =
           subscription.classToCheck?.let(transformers.classTable::getClass)?.className
       return LiveEffect(subscription, effect, context, triggerClass, transformers)
@@ -179,16 +181,11 @@ private constructor(
 
       return if (component.owner == null || component.playerOwner != null) {
         transformers.classEffects(component.type.rootClass).map { effect ->
-          // Anyone repeated across a trigger and its result is local to that event, not the
-          // component's contextual Owner. Leave it for subscription matching to specialize.
-          val triggerBindings =
-              effect.linkedTypeSources.filterTo(mutableSetOf()) { it.className == ANYONE }
           val checkedBinding =
-              transformers.checkedEffectSubstituter(
+              transformers.bindEffectVariables(
                   component.type.rootClass.defaultType,
                   component.type,
                   effect,
-                  triggerBindings,
                   ownerBinding,
                   thisBinding,
                   transformers.insertDeferredComplementDefaults(component.expression),
@@ -205,14 +202,26 @@ private constructor(
           }
         }
       } else {
-        val uncheckedBinding =
-            chain(
-                transformers.substituter(component.type.rootClass.defaultType, component.type),
-                ownerBinding,
-                thisBinding,
-                transformers.insertDeferredComplementDefaults(component.expression),
-            )
         transformers.classEffects(component.type.rootClass).mapNotNull { effect ->
+          val contextualizer =
+              chain(
+                  ownerBinding,
+                  thisBinding,
+                  transformers.insertDeferredComplementDefaults(component.expression),
+              )
+          val contextualScope = effect.typeVariables.transformedBy(contextualizer)
+          val variableBinding =
+              contextualScope.bind(
+                  component.type.variableBindingsFrom(
+                      component.type.rootClass.defaultType,
+                      effect.typeVariables.variables,
+                  )
+              )
+          val uncheckedBinding =
+              chain(
+                  contextualizer,
+                  variableBinding,
+              )
           val bound = uncheckedBinding.transformEffect(effect)
           try {
             transformers.classTable.checkAllTypes(bound)
@@ -237,11 +246,11 @@ private constructor(
       fun from(
           trigger: Trigger,
           context: Component,
-          linkedSources: Set<Expression>,
+          typeVariables: TypeVariableScope,
           implicitOwner: Player? = context.playerOwner,
       ): Subscription {
         return when (trigger) {
-          is Or -> AnyOf(trigger.triggers.map { from(it, context, linkedSources, implicitOwner) })
+          is Or -> AnyOf(trigger.triggers.map { from(it, context, typeVariables, implicitOwner) })
           is BasicTrigger -> {
             when (trigger) {
               is WhenGain -> Self(context, matchOnGain = true)
@@ -251,14 +260,14 @@ private constructor(
                       trigger.expression,
                       matchOnGain = true,
                       implicitOwner = implicitOwner,
-                      linkedSources = linkedSources,
+                      typeVariables = typeVariables,
                   )
               is OnRemoveOf ->
                   Regular(
                       trigger.expression,
                       matchOnGain = false,
                       implicitOwner = implicitOwner,
-                      linkedSources = linkedSources,
+                      typeVariables = typeVariables,
                   )
             }
           }
@@ -267,11 +276,17 @@ private constructor(
                 from(
                     trigger.inner,
                     context,
-                    linkedSources,
+                    typeVariables,
                     implicitOwner = if (trigger is ByTrigger) null else implicitOwner,
                 )
             when (trigger) {
-              is ByTrigger -> Personal(inner, trigger.by)
+              is ByTrigger ->
+                  Personal(
+                      inner,
+                      trigger.by,
+                      typeVariables,
+                      typeVariables.variableDeclaredAt(trigger.by),
+                  )
               is IfTrigger -> Conditional(inner, trigger.condition)
               is XTrigger -> CountBinding(inner)
               is Transform -> error("should have been transformed by now: $trigger")
@@ -332,7 +347,7 @@ private constructor(
         val match: Expression,
         val matchOnGain: Boolean,
         val implicitOwner: Player?,
-        val linkedSources: Set<Expression>,
+        val typeVariables: TypeVariableScope,
     ) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
@@ -365,14 +380,15 @@ private constructor(
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerSubstitution =
               if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null
-          val substituter =
-              reader.transformers.checkedLinkageSubstituter(
+          val binder =
+              reader.transformers.bindVariablesFrom(
                   matchType,
                   changeType,
-                  linkedSources,
+                  match,
+                  typeVariables,
                   ownerSubstitution,
               )
-          Hit(listOf(substituter), change.count)
+          Hit(listOf(binder), change.count)
         } else {
           null
         }
@@ -383,7 +399,7 @@ private constructor(
       override fun transform(transformer: PetTransformer): Subscription =
           copy(
               match = transformer.transformExpression(match),
-              linkedSources = linkedSources.mapTo(mutableSetOf(), transformer::transformExpression),
+              typeVariables = typeVariables.transformedBy(transformer),
           )
     }
 
@@ -413,6 +429,8 @@ private constructor(
     private data class Personal(
         val inner: Subscription,
         val selector: Expression,
+        val typeVariables: TypeVariableScope,
+        val actorVariable: TypeVariable?,
     ) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
@@ -425,29 +443,23 @@ private constructor(
         val actor = currentEvent.actor
         val actorType = reader.resolve(actor.expression)
 
-        // A positive abstract Actor selector is also a trigger-local type variable. Bind it before
-        // matching the inner trigger so `Resource<!Player> BY Player` means a resource belonging
-        // to someone other than the concrete Player who performed this event, and so the same
-        // Player can be retained in the triggered instruction.
-        if (!selector.complement && selector.simple && selector.className != ANYONE) {
-          val selectorType = reader.resolve(selector)
-          val actorClass = reader.resolve(ACTOR.expression).rootClass
-          if (selectorType.rootClass.abstract && selectorType.rootClass.isSubtypeOf(actorClass)) {
-            val actorDomain = reader.resolve(ACTOR.expression)
-            if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
-            val binding = reader.transformers.checkedSubstituter(selectorType, actorType)
-            val hit =
-                inner
-                    .transform(binding)
-                    .checkForHit(
-                        currentEvent,
-                        contextualOwner,
-                        resolvedChange,
-                        isSelf,
-                        reader,
-                    ) ?: return null
-            return hit.before(binding)
-          }
+        // An explicit Actor declaration is bound before the inner trigger is matched. Derived
+        // uses such as `!Player` retain their operator while receiving the concrete Actor value.
+        if (actorVariable != null) {
+          val actorDomain = reader.resolve(ACTOR.expression)
+          if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
+          val binding = typeVariables.bind(mapOf(actorVariable to actorType))
+          val hit =
+              inner
+                  .transform(binding)
+                  .checkForHit(
+                      currentEvent,
+                      contextualOwner,
+                      resolvedChange,
+                      isSelf,
+                      reader,
+                  ) ?: return null
+          return hit.before(binding)
         }
 
         var hit =
@@ -520,6 +532,7 @@ private constructor(
           copy(
               inner = inner.transform(transformer),
               selector = transformer.transformExpression(selector),
+              typeVariables = typeVariables.transformedBy(transformer),
           )
     }
 

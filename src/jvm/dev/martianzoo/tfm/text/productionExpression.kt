@@ -60,7 +60,7 @@ private fun parseProductionExpression(
   return ProductionExpression(owner, resource.className)
 }
 
-// TODO: Resolve contextual This through linked type sources, then delete this positional fallback.
+// TODO: Resolve contextual This through its Type Variable, then delete this positional fallback.
 private fun parseContextualProductionExpression(
     expression: Expression,
     describers: Describers,

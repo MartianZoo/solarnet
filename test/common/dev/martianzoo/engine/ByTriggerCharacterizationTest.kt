@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
@@ -28,10 +29,10 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByAnyone(actor: Actor) {
     val game = newGame()
-    val gameplay = game.gameplay(actor).godMode().also { it.autoExecMode = NONE }
-    gameplay.sneak("ActorTriggerProbe!")
+    val agent = game.agent(actor).also { it.autoExecMode = NONE }
+    agent.sneak("ActorTriggerProbe!")
 
-    gameplay.beginManual("ActorTriggerSignal!") {
+    agent.beginManual("ActorTriggerSignal!") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(actor to "Plant<Player1>!")
@@ -41,7 +42,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerAcceptsPlayer() {
     val game = newGame()
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     p1.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
     p1.beginManual("-ActorTriggerSignal!") {
@@ -54,7 +55,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
     val game = newGame()
-    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
 
     p2.beginManual("-OwnedActorTrigger<Player1>!") {
@@ -70,7 +71,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerRejectsEngine() {
     val game = newGame()
-    val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
     engine.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
     engine.beginManual("-ActorTriggerSignal!")
@@ -81,8 +82,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
     val game = newGame()
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p1.sneak("OwnedByProbe<Player2>!")
 
     p1.manual("ActorTriggerSignal!")
@@ -98,8 +99,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anUnownedTriggerDefaultsToTheEffectOwner() {
     val game = newGame()
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p1.sneak("RepeatedOwnerProbe<Player2>!")
     val checkpoint = game.timeline.checkpoint()
 
@@ -126,8 +127,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
     val game = newGame()
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     p1.sneak("OwnedTriggerProbe<Player1>!")
 
     p2.beginManual("OwnedActorTrigger<Player2>!") {
@@ -136,11 +137,28 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
+  internal fun anOwnedTriggerRetainsItsSelectorWhenItsEffectOwnerIsBound() {
+    val table = ProbeCatalog.classTable
+    val component = Component(table.resolve(parse("OwnedTriggerProbe<Player1>")))
+    val transformers = Transformers(table)
+    val sourceEffect = transformers.classEffects(component.type.rootClass).single()
+
+    sourceEffect.typeVariables.variables.associate { variable ->
+      variable.declaration.expression.toString() to
+          sourceEffect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
+    } shouldBe emptyMap()
+
+    LiveEffect.compile(component, transformers)
+        .map { it.effect.toString() }
+        .shouldContainExactly("OwnedActorTrigger<Anyone>: Plant<Player1>!")
+  }
+
+  @Test
   internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
     val game = newGame()
-    val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
-    val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    val owner = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val other = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
     owner.sneak("OpponentByProbe<Player1>!")
 
     owner.manual("ActorTriggerSignal!")
@@ -155,8 +173,8 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun orTriggerMatchesItsRemovalAlternative() {
     val game = newGame()
-    val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val owner = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val other = game.agent(PLAYER2).also { it.autoExecMode = NONE }
     owner.sneak("OpponentByProbe<Player1>!, ActorTriggerSignal!")
 
     other.beginManual("-ActorTriggerSignal!") {

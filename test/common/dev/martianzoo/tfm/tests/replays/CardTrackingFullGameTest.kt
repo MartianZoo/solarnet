@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

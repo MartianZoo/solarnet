@@ -21,8 +21,7 @@ internal class CryoSleepTest : ColoniesCardTest() {
   @Test
   internal fun `Discount lowers the energy invoice before payment`() {
     p1.manual("$CryoSleep, 2 Energy")
-    p1.godMode()
-        .also { it.autoExecMode = NONE }
+    p1.also { it.autoExecMode = NONE }
         .beginManual("UseAction<TradeSA, Second>") {
           doTask("3 Owed<Class<Energy>>")
           doTask("Invoice<TradeSA, Second, Class<Energy>>")

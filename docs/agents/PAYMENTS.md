@@ -16,8 +16,11 @@
   the current distributed protocol.
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — search for `Stormcraft` only when evaluating source attribution.
-- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
+- [`TfmAgent.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmAgent.kt)
   — search for `fun pay` for the current client-side rejection stage.
+- [`TerraformingMarsRoutines.kt`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMarsRoutines.kt)
+  — search for `fun OperationBody.settle` for Routine payment ordering and the remaining-debt M€
+  check.
 - [`PaymentSpecializationTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
   and [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt)
   — read before choosing a repair.
@@ -51,7 +54,8 @@ illegal selection. `BugsTest.Space Elevator incorrectly accepts payment that was
 captures the known failure. `TfmGameplay.pay` prevents some such selections in advance, but its
 per-resource check normally forbids even legal rounding excess. Its explicit escape hatch disables
 that excess check for the payment call rather than proving the complete mixed allocation legal,
-and direct task callers can bypass the helper altogether.
+and direct task callers can bypass the helper altogether. Catalog Routines reject M€ beyond the
+remaining debt but otherwise share the engine's incomplete non-money validation.
 
 Exact payment cannot replace the real rule. Reconstructed games contain legitimate payments whose
 resource values do not sum exactly to the price, so forbidding every excess would reject sourced

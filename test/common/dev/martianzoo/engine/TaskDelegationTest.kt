@@ -13,8 +13,8 @@ internal class TaskDelegationTest {
   @Test
   internal fun `a concrete reaction stays with its controller and credits its owner`() {
     val game = game()
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val engine = game.gameplay(ENGINE).godMode()
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE)
     engine.manual("Observer")
 
     p1.beginManual("ConcreteReactor<Player2>") {
@@ -41,8 +41,8 @@ internal class TaskDelegationTest {
   @Test
   internal fun `selecting an abstract reaction hands it to its owner and retains control`() {
     val game = game()
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
 
     p1.beginManual("AbstractReactor<Player2>") {
       p1.addTasks("Spare<Player1>?, Later<Player1>?")

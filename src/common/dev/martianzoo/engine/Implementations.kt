@@ -551,7 +551,7 @@ internal class Implementations(
     return candidates
         .mapNotNull { (then, selectedFromOr) ->
           try {
-            val loweredBinding = loweredRemovalBinding(then.first, revisedInstruction)
+            val loweredBinding = loweredRemovalBinding(then, revisedInstruction)
             if (selectedFromOr) {
               then.selectFirstStage(revisedInstruction, reader, loweredBinding)
             } else {
@@ -564,11 +564,16 @@ internal class Implementations(
         .singleOrNull()
   }
 
-  private fun loweredRemovalBinding(wide: Instruction, narrow: Instruction): PetTransformer? {
-    val general = (wide as? Change)?.removing ?: return null
+  private fun loweredRemovalBinding(then: Then, narrow: Instruction): PetTransformer? {
+    val general = (then.first as? Change)?.removing ?: return null
     val specific = (narrow as? Change)?.removing ?: return null
     val transformers = (reader as GameReaderImpl).transformers
-    return transformers.checkedSubstituter(reader.resolve(general), reader.resolve(specific))
+    return transformers.bindVariablesFrom(
+        reader.resolve(general),
+        reader.resolve(specific),
+        general,
+        then.typeVariables,
+    )
   }
 
   private fun taskWithInstruction(instruction: Instruction): TaskId =

@@ -19,7 +19,7 @@ internal class VictoryTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    engine.godMode().manual("EndPhase FROM Phase")
+    engine.manual("EndPhase FROM Phase")
 
     p1.count("Victory<Player1>") shouldBe 1
     p2.count("Victory<Player2>") shouldBe 1

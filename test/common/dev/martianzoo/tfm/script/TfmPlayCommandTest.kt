@@ -25,8 +25,8 @@ internal class TfmPlayCommandTest {
 
     repl.command("tfm_play EarthOffice, 1 MC")
 
-    assertEquals(1, repl.gameplay.count("ActionPhase"))
-    assertEquals(1, repl.gameplay.count("EarthOffice<Me>"))
+    assertEquals(1, repl.agent.count("ActionPhase"))
+    assertEquals(1, repl.agent.count("EarthOffice<Me>"))
   }
 
   @Test
@@ -46,8 +46,8 @@ internal class TfmPlayCommandTest {
 
     repl.command("tfm_play OlympusConference, 2 Steel, 6 MC")
 
-    assertEquals(1, repl.gameplay.count("OlympusConference<Player1>"))
-    assertEquals(0, repl.gameplay.count("Steel<Player1>"))
-    assertEquals(0, repl.gameplay.count("Owed<Player1>"))
+    assertEquals(1, repl.agent.count("OlympusConference<Player1>"))
+    assertEquals(0, repl.agent.count("Steel<Player1>"))
+    assertEquals(0, repl.agent.count("Owed<Player1>"))
   }
 }

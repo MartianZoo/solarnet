@@ -25,7 +25,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics")
-    val manual = p2.godMode().also { it.autoExecMode = NONE }
+    val manual = p2.also { it.autoExecMode = NONE }
     val p1MoneyBefore = p1.count("MC")
     val p2MoneyBefore = p2.count("MC")
 

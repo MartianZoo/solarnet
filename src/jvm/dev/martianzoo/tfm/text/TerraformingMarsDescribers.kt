@@ -378,6 +378,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame = Frame.Play,
                 triggerFrame = Trigger.PlayCard(),
             ),
+        klass("RequirementCheck") to ComponentDescriber(triggerFrame = Trigger.PlayCard()),
         klass("PlayTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag()),
         klass("UseAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("StandardProject") to

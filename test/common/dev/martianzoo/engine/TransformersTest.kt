@@ -4,11 +4,15 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -112,6 +116,50 @@ internal class TransformersTest {
     val transformers = Transformers(Canon.classTable)
   }
 
+  @Test
+  internal fun `an action variable survives lowering and binds from its first stage`() {
+    val component = Component(Canon.classTable.resolve(parse("UtopiaInvest<Player1>")))
+    val effect =
+        LiveEffect.compile(component, transformers).single {
+          "4 StandardResource" in it.effect.instruction.toString()
+        }
+    val then = effect.effect.instruction as Then
+    val structuralInfo =
+        object : TypeInfo {
+          override fun isAbstract(e: Expression): Boolean = Canon.classTable.resolve(e).abstract
+
+          override fun ensureNarrows(wide: Expression, narrow: Expression) {
+            Canon.classTable
+                .resolve(narrow)
+                .ensureNarrows(Canon.classTable.resolve(wide), NoGameState)
+          }
+
+          override fun has(requirement: dev.martianzoo.pets.ast.Requirement): Boolean =
+              error("No refinement is expected")
+        }
+
+    then
+        .bindFirstStage(
+            parse("-Production<Player1, Class<Plant>>!"),
+            structuralInfo,
+        )
+        .toString() shouldBe "-Production<Player1, Class<Plant>>! THEN 4 Plant<Player1>!"
+  }
+
+  @Test
+  internal fun `a card-payment offer keeps its resource-card linkage`() {
+    val component =
+        Component(
+            Canon.classTable.resolve(parse("AcceptFromCard<Player1, KuiperCooperative<Player1>>"))
+        )
+
+    LiveEffect.compile(component, transformers)
+        .map { it.effect.toString() }
+        .single { "PayFromCard" in it } shouldBe
+        "Billing<Player1>: X PayFromCard<Player1, KuiperCooperative<Player1>> " +
+            "FROM Asteroid<KuiperCooperative<Player1>>?"
+  }
+
   private fun checkApplyDefaults(
       original: String,
       expected: String,
@@ -177,75 +225,142 @@ internal class TransformersTest {
   }
 
   @Test
-  internal fun `invalid atomic change after trigger specialization becomes Die`() {
-    val general = Canon.classTable.resolve(parse<Expression>("CardFront(HAS BioTag)"))
-    val specific = Canon.classTable.resolve(parse<Expression>("IndustrialMicrobes<Player1>"))
-    val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
-
-    transformers
-        .checkedSubstituter(general, specific)
-        .transformInstruction(instruction)
-        .toString() shouldBe "Plant OR Die!"
-  }
-
-  @Test
-  internal fun `nested abstract dependency specializes to the concrete changed component`() {
+  internal fun `variable specialization leaves an ordinary occurrence of the same class independent`() {
     val general =
         Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
         Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>"))
-    val instruction = parse<Instruction>("Microbe<CardFront<Player1>>")
+    val effect =
+        Canon.classTable
+            .inferTypeVariables()
+            .transformEffect(
+                parse(
+                    "MicrobeTag<Player1, CardFront<Player1>>: " +
+                        "Microbe<CardFront<Player1>> OR Microbe<CardFront<Player2>>"
+                )
+            )
 
     transformers
-        .checkedSubstituter(general, specific)
-        .transformInstruction(instruction)
-        .toString() shouldBe "Microbe<Decomposers<Player1>>"
-  }
-
-  @Test
-  internal fun `specialization reaches a nested dependency when its containing class also specializes`() {
-    val general =
-        Canon.classTable.resolve(
-            parse<Expression>("AcceptFromCard<Player1, ResourceCard<Player1, Class<CardResource>>>")
-        )
-    val specific =
-        Canon.classTable.resolve(parse<Expression>("AcceptFromCard<Player1, Dirigibles<Player1>>"))
-    val instruction = parse<Instruction>("CardResource<ResourceCard>")
-
-    transformers
-        .checkedSubstituter(general, specific)
-        .transformInstruction(instruction)
-        .toString() shouldBe "Floater<Dirigibles>"
-  }
-
-  @Test
-  internal fun `linkage specialization leaves an unlinked occurrence of the same class independent`() {
-    val general =
-        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
-    val specific =
-        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>"))
-    val instruction =
-        parse<Instruction>("Microbe<CardFront<Player1>> OR Microbe<CardFront<Player2>>")
-
-    transformers
-        .checkedLinkageSubstituter(
+        .bindVariablesFrom(
             general,
             specific,
-            setOf(parse("CardFront<Player1>")),
+            parse("MicrobeTag<Player1, CardFront<Player1>>"),
+            effect.typeVariables,
         )
-        .transformInstruction(instruction)
+        .transformInstructionTree(effect.instruction)
         .toString() shouldBe "Microbe<Decomposers<Player1>> OR Microbe<CardFront<Player2>>"
   }
 
   @Test
-  internal fun `linked complemented dependency specializes to the concrete event dependency`() {
-    val general = Canon.classTable.resolve(parse<Expression>("Resource<!Player2>"))
-    val specific = Canon.classTable.resolve(parse<Expression>("Plant<Player3>"))
-    val instruction = parse<Instruction>("Steel<!Player2>")
+  internal fun `Class-token variables retain dependency constraints supplied by each use`() {
+    val playCard = Canon.classTable.getClass(parse<Expression>("PlayCard").className)
+    val effect =
+        transformers.classEffects(playCard).single { "CardInvoice" in it.instruction.toString() }
+    val cardFront =
+        effect.typeVariables.variables.single {
+          it.declaration.expression.toString() == "CardFront"
+        }
 
-    transformers
-        .checkedLinkageSubstituter(general, specific, setOf(parse("!Player2")))
-        .transformInstruction(instruction)
-        .toString() shouldBe "Steel<Player3>"
+    effect.typeVariables.expressionsOf(cardFront).map(Any::toString).toSet() shouldBe
+        setOf("CardFront<Owner>")
+
+    val component =
+        Component(
+            Canon.classTable.resolve(
+                parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>>")
+            )
+        )
+    LiveEffect.compile(component, transformers)
+        .map(LiveEffect::effect)
+        .single {
+          "CardInvoice" in it.instruction.toString()
+        }
+        .instruction
+        .toString() shouldBe
+        "Owed<Player1, Class<MC>>! / AiCentral<Player1>.cost THEN " +
+            "HandleCardTags<Player1, Class<AiCentral>>! " +
+            "THEN CardInvoice<Player1, Class<AiCentral>>! THEN MAX 0 Barrier: " +
+            "AiCentral<Player1> FROM ProjectCard<Hand<Player1>, Player1>!"
+  }
+
+  @Test
+  internal fun `represented Class capture specializes every FakeResourceGiver effect`() {
+    val klass = Canon.classTable.getClass(parse<Expression>("FakeResourceGiver").className)
+    val component = Component(Canon.classTable.resolve(parse("FakeResourceGiver<Class<MC>>")))
+    val resource =
+        klass.typeVariables.single {
+          it.declaration.expression.toString() == "StandardResource"
+        }
+
+    component.type
+        .variableBindingsFrom(klass.defaultType, listOf(resource))[resource]
+        .toString() shouldBe "MC"
+
+    val productionEffect =
+        transformers.classEffects(klass).single {
+          it.instruction.toString().startsWith("42 Production")
+        }
+    productionEffect.typeVariables.variables.associate { variable ->
+      variable.declaration.expression.toString() to
+          productionEffect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
+    } shouldBe mapOf("StandardResource" to setOf("StandardResource<Owner>"))
+
+    LiveEffect.compile(component, transformers).map { it.effect.toString() }.toSet() shouldBe
+        setOf(
+            "SetupPhase: 42 MC<SoloOpponent>!",
+            "SetupPhase: 42 Production<SoloOpponent, Class<MC>>!",
+            "-MC<SoloOpponent> BY Player:: MC<SoloOpponent>! BY Engine",
+            "MC<SoloOpponent> BY Player:: -MC<SoloOpponent>! BY Engine",
+            "-Production<SoloOpponent, Class<MC>> BY Player:: " +
+                "Production<SoloOpponent, Class<MC>>! BY Engine",
+            "Production<SoloOpponent, Class<MC>> BY Player:: " +
+                "-Production<SoloOpponent, Class<MC>>! BY Engine",
+        )
+  }
+
+  @Test
+  internal fun `explicit empty arguments distinguish a fresh Class-body choice`() {
+    val klass = Canon.classTable.getClass(parse<Expression>("MonsInsurance").className)
+    val effect = transformers.classEffects(klass).single { "MyResourceWasRemoved" in it.toString() }
+
+    effect.toString() shouldBe
+        "MyResourceWasRemoved<Anyone, Player<>> OR " +
+            "MyProductionWasDecreased<Anyone, Player<>>: 3 MC<Anyone> FROM MC<Owner>."
+    effect.typeVariables.variables.map { it.declaration.expression.toString() } shouldBe
+        listOf("Anyone")
+    LiveEffect.compile(
+            Component(Canon.classTable.resolve(parse("MonsInsurance<Player1>"))),
+            transformers,
+        )
+        .single { "MyResourceWasRemoved" in it.effect.toString() }
+        .effect
+        .toString() shouldBe
+        "MyResourceWasRemoved<Anyone, Player<>> OR " +
+            "MyProductionWasDecreased<Anyone, Player<>>: 3 MC<Anyone> FROM MC<Player1>."
+  }
+
+  @Test
+  internal fun `trigger variable survives Production lowering`() {
+    val klass = Canon.classTable.getClass(parse<Expression>("Manutech").className)
+    val effect = transformers.classEffects(klass).single { "Production" in it.trigger.toString() }
+
+    effect.typeVariables.variables.associate { variable ->
+      variable.declaration.expression.toString() to
+          effect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
+    } shouldBe mapOf("StandardResource" to setOf("StandardResource<Owner>"))
+    effect.trigger.toString() shouldBe "Production<Owner, Class<StandardResource>>"
+    val trigger = (effect.trigger as Effect.Trigger.OnGainOf).expression
+    val variable = effect.typeVariables.variables.single()
+    val bindings =
+        effect.typeVariables.bindingsFrom(
+            trigger,
+            Canon.classTable.resolve(trigger),
+            Canon.classTable.resolve(parse("Production<Player1, Class<Plant>>")),
+        )
+    bindings[variable].toString() shouldBe "Plant"
+    effect.typeVariables
+        .bind(bindings)
+        .transformInstructionTree(effect.instruction)
+        .toString() shouldBe "Plant<Owner>!"
   }
 }

@@ -30,7 +30,7 @@ CLASS MorningStarInc : CardFront<Class<CorporationCard>> {
 
   This:: VenusTag<This>
   This: 50 MC, Mandate { -> CARDS[3 ProjectCard(HAS VenusTag)] }
-  PlayCard:: -2 Required<Class<VenusStep>>.
+  RequirementCheck:: -2 Required<Class<VenusStep>>.
 }
 
 CLASS Viron : ActionCard<Class<CorporationCard>> {

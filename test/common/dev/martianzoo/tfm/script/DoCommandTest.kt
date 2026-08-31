@@ -4,6 +4,7 @@ import dev.martianzoo.script.ScriptSession
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 internal class DoCommandTest {
   @Test
@@ -26,5 +27,23 @@ internal class DoCommandTest {
   @Test
   internal fun routineCallNameMustUseLowerCamelCase() {
     assertFailsWith<ScriptSession.UsageException> { RoutineCall.parse("Tasks(Plant)") }
+  }
+
+  @Test
+  internal fun playCardRoutineRejectsMcBeyondTheRemainingDebt() {
+    val repl = ScriptSession()
+    repl.command("newgame BRP 2")
+    repl.command("become Player1")
+    repl.agent.manual("30 MC, ProjectCard")
+    repl.command("phase Action")
+    repl.agent.beginManual("NewTurn")
+    repl.command("mode purple")
+
+    val output = repl.command("do playCard(Mine, -5 MC)")
+
+    assertTrue(output.single().contains("Overpaying 5 MC when only 4 is owed"), output.single())
+    assertEquals(30, repl.agent.count("MC"))
+    assertEquals(1, repl.agent.count("ProjectCard"))
+    assertEquals(0, repl.agent.count("Mine"))
   }
 }

@@ -20,7 +20,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| World construction, components, events, tasks, effects, rollback, or Gameplay | [`ENGINE.md`](ENGINE.md) | Current model |
+| World construction, components, events, tasks, effects, rollback, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and audit |
 | Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and proposal |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
@@ -30,6 +30,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
 | Optional client autoexecution mechanism | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
+| Engine diagnostics, event metadata, or runtime traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
 
 ### Change Pets, types, or static game construction
 
@@ -39,7 +40,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
 | Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
-| Remaining implicit-variable defects | [`LINKAGES.md`](LINKAGES.md), after the relevant `TYPES.md` section | Focused audit |
+| Remaining implicit-variable defects | [`TYPE_VARIABLES.md`](TYPE_VARIABLES.md), after the relevant `TYPES.md` section | Focused audit |
 | Proposed generic component fanout | [`EACHPLAYER.md`](EACHPLAYER.md) | Proposal |
 | Eliminating a custom instruction | [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) | Audit |
 
@@ -59,7 +60,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Task | Read | Authority |
 | --- | --- | --- |
 | Move generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Audit |
-| Flatten Gameplay or design a client interface | [`API.md`](API.md), after the Gameplay section of [`ENGINE.md`](ENGINE.md#current-gameplay-surface) | Proposal |
+| Change Agent or design a restricted client interface | [`API.md`](API.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Current model and later direction |
 | Implement catalog Routines, direct REPL calls, or Routine-based saved-game replay | [`ROUTINES.md`](ROUTINES.md), then the API/model route it names | Proposal; native-export section is a working rule |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
 

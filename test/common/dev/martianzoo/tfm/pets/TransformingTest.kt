@@ -114,7 +114,6 @@ internal class TransformingTest {
     (transformed as InstructionGroup).instructions.size shouldBe 3
     val then = transformed.instructions.single { it is Then } as Then
     then.instructions.size shouldBe 2
-    then.linkedTypeSources.shouldContainExactly(player2)
 
     transformer.transformPropertyValue(
         PropertyValue.MetricValue(parse<Metric>("EVAL Foo.score"))

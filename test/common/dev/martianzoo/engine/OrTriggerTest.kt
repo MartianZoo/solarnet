@@ -14,9 +14,9 @@ internal class OrTriggerTest {
   @Test
   internal fun simpleSuperclassTriggerFiresForSubclass() {
     val game = newGame()
-    val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 
-    gameplay.beginManual("ConcreteIndexedSignal!") {
+    agent.beginManual("ConcreteIndexedSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
           .filter { it == "IndexedReward!" }
@@ -27,9 +27,9 @@ internal class OrTriggerTest {
   @Test
   internal fun indexingPreservesEffectRegistrationOrderAcrossTriggerClasses() {
     val game = newGame()
-    val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 
-    gameplay.beginManual("ConcreteOrderedSignal!") {
+    agent.beginManual("ConcreteOrderedSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
           .filter { it.startsWith("OrderedReward") }
@@ -40,9 +40,9 @@ internal class OrTriggerTest {
   @Test
   internal fun firstMatchingArmGovernsSpecialization() {
     val game = newGame()
-    val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 
-    gameplay.beginManual("BothSpecializedSignals!") {
+    agent.beginManual("BothSpecializedSignals!") {
       game.tasks
           .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(

@@ -53,7 +53,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   internal abstract fun intersect(expression: Expression): Dependency?
 
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
-  public data class TypeDependency(override val key: Key, val boundType: Type) :
+  public data class TypeDependency(override val key: Key, val boundType: GroundType) :
       Dependency(), HasExpression by boundType {
 
     override val boundClass by boundType::rootClass
@@ -84,7 +84,8 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
           else -> copy(boundType = boundType lub boundOf(that))
         }
 
-    internal inline fun map(function: (Type) -> Type) = copy(boundType = function(boundType))
+    internal inline fun map(function: (GroundType) -> GroundType) =
+        copy(boundType = function(boundType))
 
     override fun intersect(expression: Expression): Dependency? {
       if (expression.complement) {
@@ -112,15 +113,15 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
           else -> false
         }
 
-    private fun boundOf(that: Dependency): Type =
+    private fun boundOf(that: Dependency): GroundType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
   }
 
   /** A dependency constrained to exclude one narrower type, as in `OwnedTile<!Player1>`. */
   internal data class ComplementDependency(
       override val key: Key,
-      internal val domainType: Type,
-      internal val excludedType: Type,
+      internal val domainType: GroundType,
+      internal val excludedType: GroundType,
   ) : Dependency(), HasExpression {
     init {
       require(excludedType.isSubtypeOf(domainType)) { "$excludedType does not narrow $domainType" }

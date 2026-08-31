@@ -68,7 +68,7 @@ internal class PhilaresTest : CardTest() {
     val p2 = requireP2()
     p2.manual("$Philares")
     p2.manual("CityTile<Tharsis_2_3>")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual.beginManual("CityTile<Tharsis_3_3>") {
       val reward = tasks.ids().single()
@@ -90,7 +90,7 @@ internal class PhilaresTest : CardTest() {
     val p2 = requireP2()
     p2.manual("$Philares")
     p2.manual("CityTile<Tharsis_2_3>")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecMode = NONE }
 
     manual.beginManual("CityTile<Tharsis_3_3>") {
       val reward = tasks.ids().single()

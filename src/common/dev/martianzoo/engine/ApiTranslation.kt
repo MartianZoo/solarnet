@@ -1,9 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.Gameplay.Companion.parse
-import dev.martianzoo.engine.Gameplay.GodMode
-import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -25,6 +24,7 @@ import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
@@ -44,7 +44,7 @@ internal class ApiTranslation(
     xers: Transformers,
     vocabulary: Vocabulary,
     private val atomicOperationScope: AtomicOperationScope,
-) : GodMode { // so it really implements all gameplay layers
+) : Agent {
 
   override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
@@ -53,8 +53,6 @@ internal class ApiTranslation(
         autoExecAtomically()
       }
     }
-
-  override fun godMode(): GodMode = this
 
   // READ-ONLY
 
@@ -84,6 +82,7 @@ internal class ApiTranslation(
           xers.rejectPropertyEvaluations(),
           xers.canonicalize(vocabulary),
           xers.useFullNames(),
+          classTable.inferTypeVariables(),
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(::replaceOwnerWith),
@@ -231,7 +230,7 @@ internal class ApiTranslation(
     if (events.size != eventCount) recordPlayerInput(Kind.DO_TASK, narrowing, taskNumber)
   }
 
-  // autoExecNow() and cross-Actor gameplay calls can re-enter this call site. Its depth is shared
+  // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
   private fun atomic(block: () -> Unit): TaskResult =
       atomicOperationScope.run(block) { impl.autoExecNow(autoExecMode) }

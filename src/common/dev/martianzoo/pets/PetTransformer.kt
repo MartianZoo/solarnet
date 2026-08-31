@@ -24,7 +24,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
-import dev.martianzoo.pets.ast.withLinkedTypeSources
+import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.util.toSetStrict
 import kotlin.reflect.KClass
 
@@ -254,10 +254,11 @@ public abstract class PetTransformer protected constructor() {
                 Instruction.Remove(transformScaledExpression(node.scaledEx), node.intensity)
             is Instruction.Transmute ->
                 Instruction.Transmute(
-                    transformFromExpression(node.fromEx),
-                    transformScalar(node.scalar),
-                    node.intensity,
-                )
+                        transformFromExpression(node.fromEx),
+                        transformScalar(node.scalar),
+                        node.intensity,
+                    )
+                    .withTypeVariables(node.typeVariables.transformedBy(this))
             is Instruction.Per ->
                 Instruction.Per(transformInstruction(node.inner), transformMetric(node.metric))
             is Instruction.By ->
@@ -276,7 +277,7 @@ public abstract class PetTransformer protected constructor() {
                         node.stages.map(::transformInstruction),
                         transformInstructionTree(node.continuation),
                     )
-                    .withLinkedTypeSources(expressions(node.linkedTypeSources))
+                    .withTypeVariables(node.typeVariables.transformedBy(this))
             is Instruction.Or -> Instruction.Or.createTree(trees(node.instructions))
             is Instruction.Transform ->
                 Instruction.Transform(
@@ -306,7 +307,7 @@ public abstract class PetTransformer protected constructor() {
                   trigger = transformTrigger(node.trigger),
                   instruction = transformInstructionTree(node.instruction),
               )
-              .withLinkedTypeSources(expressions(node.linkedTypeSources))
+              .withTypeVariables(node.typeVariables.transformedBy(this))
       is Trigger ->
           when (node) {
             is Trigger.Or -> Trigger.Or(node.triggers.map(::transformTrigger))
@@ -327,9 +328,10 @@ public abstract class PetTransformer protected constructor() {
           }
       is Action ->
           Action(
-              node.cost?.let(::transformCost),
-              transformInstructionTree(node.instruction),
-          )
+                  node.cost?.let(::transformCost),
+                  transformInstructionTree(node.instruction),
+              )
+              .withTypeVariables(node.typeVariables.transformedBy(this))
       is Cost ->
           when (node) {
             is Cost.Spend -> Cost.Spend(transformScaledExpression(node.scaledEx))

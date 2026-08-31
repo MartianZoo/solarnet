@@ -14,7 +14,7 @@ import kotlin.test.Test
 internal class PaymentSpecializationTest {
   @Test
   internal fun `card deck check accepts the matching deck and rejects another`() {
-    val player = setUpGame().tfm(PLAYER1).godMode()
+    val player = setUpGame().tfm(PLAYER1)
 
     player.manual("CheckCardDeck<Class<ProjectCard>, Class<$AcquiredCompany>>")
     shouldThrow<DeadEndException> {
@@ -25,9 +25,9 @@ internal class PaymentSpecializationTest {
   @Test
   internal fun `an Accept can pay only with its specialized resource`() {
     val p1 = setUpGame().tfm(PLAYER1)
-    p1.godMode().manual("Steel, Titanium")
+    p1.manual("Steel, Titanium")
 
-    p1.godMode().beginManual("Owed<Class<Steel>> THEN Invoice<BuyCards, First, Class<Steel>>") {
+    p1.beginManual("Owed<Class<Steel>> THEN Invoice<BuyCards, First, Class<Steel>>") {
       shouldThrow<NarrowingException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
       doTask("Pay<Class<Steel>> FROM Steel")
     }

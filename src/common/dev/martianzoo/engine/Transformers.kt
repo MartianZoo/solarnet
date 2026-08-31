@@ -53,6 +53,8 @@ import dev.martianzoo.pets.types.Defaults.DefaultSpec
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.TypeVariableScope
+import dev.martianzoo.pets.types.inferTypeVariables
 
 public class Transformers(public val classTable: ClassTable) {
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
@@ -73,7 +75,9 @@ public class Transformers(public val classTable: ClassTable) {
     require(classTable.isActive(klass)) { "$klass is not active in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
-          source.declaration.effects.map(attachToClassTransformer(source)::transformEffect)
+          source.declaration.effects
+              .map(source::interpretTypeVariablesIn)
+              .map(attachToClassTransformer(source)::transformEffect)
 
       val evaluator =
           evaluateProperties(
@@ -205,6 +209,7 @@ public class Transformers(public val classTable: ClassTable) {
   private fun attachToClassTransformer(klass: Class): PetTransformer {
     val context = klass.className.has(Min(scaledEx(OK, 1)))
     return chain(
+        classTable.inferTypeVariables(),
         insertDefaults(context),
         atomizer(),
         transformDispatcher,
@@ -437,7 +442,7 @@ public class Transformers(public val classTable: ClassTable) {
                 defaultDeps,
                 context,
                 classTable,
-                deferLinkedDefaults = refinementDepth > 0 && !node.argumentsSpecified,
+                deferVariableDefaults = refinementDepth > 0 && !node.argumentsSpecified,
             )
         return result
       }
@@ -472,7 +477,7 @@ public class Transformers(public val classTable: ClassTable) {
       defaultDeps: DependencySet,
       contextCpt: Expression,
       classTable: ClassTable,
-      deferLinkedDefaults: Boolean = false,
+      deferVariableDefaults: Boolean = false,
   ): Expression {
 
     val klass: Class = classTable.getClass(original.className)
@@ -483,7 +488,7 @@ public class Transformers(public val classTable: ClassTable) {
     val fallbacks: Map<Key, Expression> =
         defaultDeps
             .typeDependencies()
-            .filterNot { deferLinkedDefaults && klass.isLinkedDependency(it.key) }
+            .filterNot { deferVariableDefaults && klass.isEqualityConstrainedDependency(it.key) }
             .associate {
               it.key to it.expression
             }
@@ -506,147 +511,41 @@ public class Transformers(public val classTable: ClassTable) {
         }
   }
 
-  internal fun substituter(general: Type, specific: Type): PetTransformer {
-    val gendeps = general.dependencies
-    val specdeps = specific.dependencies
-    val subs = findSubstitutions(gendeps, specdeps)
-
-    return substituter(subs)
-  }
-
-  private fun substituter(
-      subs: Map<ClassName, Expression>,
-      preserved: Set<Expression> = emptySet(),
-  ): PetTransformer {
-    return object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode {
-        if (node is Expression && node in preserved) return node
-        if (node is Expression) {
-          val transformed = transformChildren(node) as Expression
-          val replacement: Expression? = subs[transformed.className]
-          if (replacement != null) {
-            val expr: Expression =
-                replacement
-                    .appendArguments(transformed.arguments)
-                    .copy(refinement = transformed.refinement, complement = transformed.complement)
-            return expr
-          }
-          return transformed
-        }
-        return transformChildren(node)
-      }
-    }
-  }
-
-  /**
-   * Specializes linked type names and normalizes atomic changes made invalid by that
-   * specialization. Optional phantom changes become `Ok`; dead changes become `Die` so enclosing
-   * choices can discard them.
-   */
-  internal fun checkedSubstituter(
-      general: Type,
-      specific: Type,
-      vararg afterSubstitution: PetTransformer?,
-  ): PetTransformer {
-    return chain(
-        listOf(substituter(specializationSubstitutions(general, specific))) +
-            afterSubstitution +
-            invalidChangesToDie()
-    )
-  }
-
-  /**
-   * Specializes a class effect while retaining complete values for abstract class-header
-   * dependencies used by that effect. Those occurrences are variables linked to the header, not
-   * ordinary requests to replace every instance of the same abstract Class.
-   */
-  internal fun checkedEffectSubstituter(
+  /** Specializes the Class-header variables used by an effect. */
+  internal fun bindEffectVariables(
       general: Type,
       specific: Type,
       effect: Effect,
-      eventLinkedSources: Set<Expression>,
-      vararg afterSubstitution: PetTransformer?,
+      vararg beforeBinding: PetTransformer?,
   ): PetTransformer {
-    val expressions = effect.descendantsOfType<Expression>().toSet()
-    val commonPaths =
-        general.dependencies.flatten().keys.intersect(specific.dependencies.flatten().keys)
-    val dependencyBindings =
-        commonPaths
-            .mapNotNull { path ->
-              val source = general.dependencies.at(path).expression
-              val replacement = specific.dependencies.at(path).expressionFull
-              if (
-                  source.simple &&
-                      classTable.getClass(source.className).abstract &&
-                      source in expressions &&
-                      source !in eventLinkedSources &&
-                      replacement != source
-              ) {
-                source to replacement
-              } else {
-                null
-              }
-            }
-            .groupBy({ it.first }, { it.second })
-            .mapNotNull { (source, replacements) ->
-              replacements.distinct().singleOrNull()?.let { source to it }
-            }
-            .toMap()
-
+    val scope = effect.typeVariables
+    val bindings = specific.variableBindingsFrom(general, scope.variables)
+    val contextualizer = chain(beforeBinding.toList())
+    val contextualScope = scope.transformedBy(contextualizer)
     return chain(
-        listOf(
-            substituter(
-                specializationSubstitutions(general, specific),
-                eventLinkedSources + dependencyBindings.keys,
-            )
-        ) +
-            dependencyBindings.map { (source, replacement) ->
-              PetNode.replacer(source, replacement)
-            } +
-            afterSubstitution +
-            invalidChangesToDie()
+        contextualizer,
+        contextualScope.bind(bindings),
+        invalidChangesToDie(),
     )
   }
 
-  /** Applies trigger narrowing only to the source expressions declared by linkages. */
-  internal fun checkedLinkageSubstituter(
+  /** Applies trigger narrowing only to declared Type-variable expressions. */
+  internal fun bindVariablesFrom(
       general: Type,
       specific: Type,
-      linkedSources: Set<Expression>,
-      vararg afterSubstitution: PetTransformer?,
+      authoredGeneral: Expression,
+      typeVariables: TypeVariableScope,
+      vararg beforeBinding: PetTransformer?,
   ): PetTransformer {
-    val substitutions = specializationSubstitutions(general, specific)
-    val broad = substituter(substitutions)
-    val dependencyPaths = general.dependencies.flatten().keys
-    val linkedReplacements = linkedSources.mapNotNull { source ->
-      val broadReplacement = broad.transformExpression(source)
-      val replacement =
-          if (broadReplacement != source) {
-            broadReplacement
-          } else {
-            dependencyPaths
-                .filter { path ->
-                  val dependency = general.dependencies.at(path)
-                  dependency.expression == source || dependency.expressionFull == source
-                }
-                .map { specific.dependencies.at(it).expressionFull }
-                .distinct()
-                .singleOrNull() ?: source
-          }
-      if (replacement == source) null else PetNode.replacer(source, replacement)
-    }
-    return chain(linkedReplacements + afterSubstitution + invalidChangesToDie())
-  }
-
-  private fun specializationSubstitutions(
-      general: Type,
-      specific: Type,
-  ): Map<ClassName, Expression> {
-    val subs = findSubstitutions(general.dependencies, specific.dependencies).toMutableMap()
-    if (general.rootClass.abstract && specific.rootClass != general.rootClass) {
-      subs[general.className] = specific.className.expression
-    }
-    return subs
+    val bindings =
+        typeVariables.bindingsFrom(authoredGeneral, general.groundType, specific.groundType)
+    val contextualizer = chain(beforeBinding.toList())
+    val contextualScope = typeVariables.transformedBy(contextualizer)
+    return chain(
+        contextualizer,
+        contextualScope.bind(bindings),
+        invalidChangesToDie(),
+    )
   }
 
   private fun invalidChangesToDie(): PetTransformer {
@@ -674,30 +573,5 @@ public class Transformers(public val classTable: ClassTable) {
         return specialized
       }
     }
-  }
-
-  internal fun findSubstitutions(
-      gendeps: DependencySet,
-      specdeps: DependencySet,
-  ): Map<ClassName, Expression> {
-    val commonKeys = gendeps.flatten().keys.intersect(specdeps.flatten().keys)
-    return commonKeys
-        .mapNotNull {
-          val replaced = gendeps.at(it).expressionFull
-          val replacement = specdeps.at(it).expressionFull
-          when {
-            classTable.getClass(replaced.className).abstract &&
-                replaced.className != replacement.className ->
-                replaced.className to replacement.className.expression
-            replaced.simple && replacement != replaced -> replaced.className to replacement
-            else -> null
-          }
-        }
-        // A name can occur in independent slots; only agreement makes it one binding.
-        .groupBy({ it.first }, { it.second })
-        .mapNotNull { (name, replacements) ->
-          replacements.distinct().singleOrNull()?.let { name to it }
-        }
-        .toMap()
   }
 }

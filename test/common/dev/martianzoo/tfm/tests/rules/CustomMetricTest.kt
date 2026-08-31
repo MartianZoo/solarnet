@@ -31,12 +31,12 @@ internal class CustomMetricTest {
     val p1 = game.tfm(PLAYER1)
 
     p1.count("BothBehavior") shouldBe 7
-    shouldThrow<ExpressionException> { p1.godMode().sneak("BothBehavior") }
-    p1.godMode().manual("BothBehavior")
+    shouldThrow<ExpressionException> { p1.sneak("BothBehavior") }
+    p1.manual("BothBehavior")
     p1.count("Plant") shouldBe 1
 
     p1.count("SplitBehavior") shouldBe 9
-    p1.godMode().manual("SplitBehavior")
+    p1.manual("SplitBehavior")
     p1.count("Heat") shouldBe 1
     p1.count("Plant") shouldBe 2
   }
@@ -53,7 +53,7 @@ internal class CustomMetricTest {
 
     p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 0
     ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 3
-    p1.godMode().sneak("Plant<Player1>")
+    p1.sneak("Plant<Player1>")
     p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 17
     ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 4
   }
@@ -62,9 +62,9 @@ internal class CustomMetricTest {
   internal fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
-    shouldThrow<ExpressionException> { p1.godMode().manual("ConcreteOnlyMetric<Player1>") }
-    shouldThrow<ExpressionException> { p1.godMode().sneak("ConcreteOnlyMetric<Player1>") }
-    shouldThrow<ExpressionException> { p1.godMode().sneak("-ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.manual("ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.sneak("ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.sneak("-ConcreteOnlyMetric<Player1>") }
   }
 
   @Test
@@ -73,7 +73,7 @@ internal class CustomMetricTest {
 
     p1.count("MetricTriggerObserver") shouldBe 1
     p1.count("PlantCount<Player1>") shouldBe 0
-    p1.godMode().sneak("Plant<Player1>")
+    p1.sneak("Plant<Player1>")
     p1.count("PlantCount<Player1>") shouldBe 1
     p1.count("Heat<Player1>") shouldBe 0
   }
@@ -83,7 +83,7 @@ internal class CustomMetricTest {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     shouldThrow<CustomCodeException> { p1.count("BrokenMetric") }
-    shouldThrow<CustomCodeException> { p1.godMode().manual("BrokenInstruction") }
+    shouldThrow<CustomCodeException> { p1.manual("BrokenInstruction") }
   }
 }
 

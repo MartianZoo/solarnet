@@ -9,7 +9,7 @@
 - **Actor:** The entity credited with performing a pending or completed change. The Actors are the Players and the administrative Engine.
 - **AMAP:** The `.` Quantifier, meaning “as much as possible.” Resolution calculates the greatest currently possible amount and makes that amount mandatory.
 - **Anyone:** The broad Pets Type used where an ownership expression does not constrain who the Owner is. More specific domain Types include `Owner` and `Actor`.
-- **Assignee:** The Actor whose Task Queue contains a Task and whose scoped Gameplay may select and narrow it. The Assignee chooses among that queue's Tasks and normally makes any optional narrowing; an Instruction-level `BY` may assign the resulting State Changes to a different Performer without changing the Assignee. This is why Philares and Enceladus can give a choice to an Effect's owner, while World Government Terraforming gives its Assignee a choice that Engine performs.
+- **Assignee:** The Actor whose Task Queue contains a Task and whose Agent may select and narrow it. The Assignee chooses among that queue's Tasks and normally makes any optional narrowing; an Instruction-level `BY` may assign the resulting State Changes to a different Performer without changing the Assignee. This is why Philares and Enceladus can give a choice to an Effect's owner, while World Government Terraforming gives its Assignee a choice that Engine performs.
 - **Atomicity:** Indivisibility with respect to a stated scope. One `FROM` is a single Transmutation State Change, so its removal and gain cannot be observed separately. A Timeline operation is failure-atomic: all of its events commit or all are rolled back. An Instruction, Task, or chain of Automatic Effects is not thereby one indivisible gameplay event; intermediate State Changes may fire Effects and be observed by them.
 - **Atomize:** To split one counted Instruction into one Instruction per unit so that each unit is handled and triggers Effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not.
 - **Catalog:** One coherent rule universe: the Class Declarations, structured data, Vocabulary, premise rules, and exceptional Custom implementations available to a game. A game selects exactly one Catalog. `Canon` is the Catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different Catalog.
@@ -66,7 +66,7 @@
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
 - **Game Config:** An unresolved, signed expression of user intent from which defaults, selection policies, and validation produce one exact Game Premise.
 - **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Catalog, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
-- **Game World:** The complete live state of a game: its Component Graph, Task Queues, Event Log, Timeline, Class Table, Vocabulary, and Actor-scoped Gameplay, together with the Catalog and immutable premise behind them.
+- **Game World:** The complete live state of a game: its Component Graph, Task Queues, Event Log, Timeline, Class Table, Vocabulary, and Actor-scoped Agents, together with the Catalog and immutable premise behind them.
 - **Game World Revision:**
 - **Gated Instruction:** An Instruction guarded by a Requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that Task uncompletable unless its Quantifier or enclosing choice permits another result.
 - **Hidden:** A presentation classification for Component Types normally omitted from user-visible output. It is not an Actor or ownership rule.
@@ -89,7 +89,7 @@
 - **Owner:** An entity that may own Components. Components expose their concrete Owner as a resolved Pets Type; Kotlin runtime identities implement `Owner` only when the entity must participate directly, currently Players. Pets also uses `Owner` as a contextual placeholder that must be bound before execution.
 - **Pending Task:** A Task offered in an Assignee's Task Queue but not currently Selected.
 - **Per:**
-- **Performer:** The Actor credited on an Instruction's State Changes. Normally this is the Gameplay Actor, but an Instruction-level `BY` can override the Performer without changing the Task's Assignee.
+- **Performer:** The Actor credited on an Instruction's State Changes. Normally this is the Agent's Actor, but an Instruction-level `BY` can override the Performer without changing the Task's Assignee.
 - **Pets:** Solarnet's specification language for Component Types, rules, and Game World changes.
 - **Pets Name:**
 - **Player:** A seated participant that is both an Owner and an Actor.
@@ -102,7 +102,7 @@
 - **Refinement:** A `HAS` Requirement attached to a Type Expression to restrict the matching Components that qualify.
 - **Refinement Type:** The Type denoted by a Type Expression carrying a Refinement.
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
-- **Represented-Type linkage:** Inside a refined Class literal such as `Class<Tag>(HAS Tag<Player1>)`, the represented Class argument links to matching root-Class occurrences in the Requirement. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the Class token as an owned Component.
+- **Represented-Type variable:** Inside a refined Class literal such as `Class<Tag>(HAS Tag<Player1>)`, the represented Class argument declares the variable used by matching root-Class occurrences in the Requirement. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the Class token as an owned Component.
 - **Requirement:** A Pets predicate evaluated against a Game World, used for queries, gates, Invariants, and Refinements.
 - **Resolution:** The engine's interpretation of an Instruction against the current Game World. It evaluates gates and Metrics, applies Quantifier and Limit rules, translates concrete Custom Instructions, and performs forced narrowing without making Player choices. Resolution follows Selection and repeats after each narrowing. It is engine processing, not a third way for a Player to play.
 - **Root Type:** The Class at the head of a Type Expression, before its written Dependency bounds.
