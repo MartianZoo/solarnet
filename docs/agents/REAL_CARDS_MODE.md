@@ -244,11 +244,10 @@ The abstract task must initially remain under its controller. The Player may sel
 sibling work first. When the Player selects the card gain:
 
 1. resolution recognizes that its remaining face variable is Engine-narrowed;
-2. the parent task is suspended;
-3. an already-selected child task is assigned to Engine while preserving the parent's future Actor;
-4. the controlling scope is blocked from further task execution;
-5. Engine derives and applies the one lawful exact-face narrowing; and
-6. completion of that child resumes and completes the parent, releasing the block.
+2. that same selected task moves to Engine while retaining its controller and future Actor;
+3. the controlling scope is blocked from further task execution;
+4. Engine derives and applies the one lawful exact-face narrowing; and
+5. completing the task releases the block and returns resulting work to its controller.
 
 The Player must never be able to submit a preferred exact face. `BY Engine` is not this mechanism:
 instruction-side `BY` changes event attribution, not narrowing authority or queue control.
@@ -262,14 +261,15 @@ Philares requires the same controller/narrower interface and establishes its tim
 
 1. the active Player retains control of the pending resource task and decides when to select it;
 2. resolution delegates only the Standard Resource narrowing to the Philares owner;
-3. the active Player can do no more work in that control scope while the delegated child is
+3. the active Player can do no more work in that control scope while the delegated task is
    unresolved; and
-4. after the Philares owner chooses and receives the resource, the active Player resumes.
+4. after the Philares owner chooses and receives the resource, resulting work returns to the active
+   Player.
 
-Current code is incorrect: it assigns the reward directly to the Philares owner when adjacency
-occurs and lets the active Player continue while that task is pending. `BugsTest` contains passing
-characterizations of both defects. Real-card work must not build a card-specific substitute for the
-general delegation mechanism specified in [IDENTITY.md](IDENTITY.md).
+Current code implements this precedent with the general delegation mechanism specified in
+[IDENTITY.md](IDENTITY.md). `TaskDelegationTest` proves the mechanism directly, while
+`PhilaresTest` proves controller ordering, owner-only narrowing, and blocking through Player-level
+gameplay.
 
 ## Deterministic dealer projection
 
@@ -537,9 +537,9 @@ rename every card definition.
 1. **Types and defaults:** prove the mutual Class-literal dependencies, singleton areas, direct
    ownership, gain/removal defaults, atomization order, and linked play/Event transitions in a
    synthetic Class Table.
-2. **Delegated narrowing:** implement controller-held selection, child assignment, blocking, and
-   resumption. Fix the two Philares characterizations first, then delegate a synthetic card face to
-   Engine without changing its future Actor.
+2. **Engine narrowing:** extend the current selected-task delegation model so real-card resolution
+   names Engine as the narrower; prove with a synthetic card face that controller timing and the
+   task's future Actor remain unchanged.
 3. **Dealer projection:** derive a tiny three-face deck and discard set from premise plus events;
    prove independent family streams, exhaustion, reshuffle epochs, cache deletion, rollback, replay,
    and forks on JVM and JavaScript.
