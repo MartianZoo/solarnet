@@ -119,7 +119,7 @@ CLASS Capital : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "4 OceanTile"
 
   This:: CityTag<This>, BuildingTag<This>
-  This: CityTile<> THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5 MC]
+  This: CityTile<> THEN CapitalMarker<CityTile<>>, PROD[-2 Energy, 5 MC]
   End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>
 }
 

@@ -181,7 +181,7 @@ public data class Task(
           )
       val normal = task.instruction
 
-      return if (normal is Then && !normal.keepLinked(isAbstract)) {
+      return if (normal is Then && !normal.keepTogether(isAbstract)) {
         task.copy(
             instructionIn = normal.first,
             thenIn = normal.continuationAfterFirst(),

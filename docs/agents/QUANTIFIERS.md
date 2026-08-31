@@ -114,7 +114,7 @@ missing destination dependency makes the pair unavailable for every quantifier; 
 do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP do become `Ok`.
 
 Transmuting a concrete Type into itself is `Ok` when optional or AMAP and is an
-`ExpressionException` when mandatory. A zero AMAP transmutation can still bind linked Types in a
+`ExpressionException` when mandatory. A zero AMAP transmutation can still bind Type Variables in a
 following `THEN`; target selection and component movement are separate consequences of that stage.
 
 ## Abstract pure gains and removals
@@ -155,10 +155,10 @@ custom transmutation are unsupported.
 ## Abstract transmutations
 
 The pure-change domain search deliberately does not preflight abstract transmutations. Source and
-destination Types can contain linked variables, so narrowing must choose one compatible atomic pair
+destination Types can use the same variable, so narrowing must choose one compatible atomic pair
 before its limit is known. Once concrete, the pair follows the concrete transmutation rules.
 
-This permits a selected nonmandatory pair to execute zero and still supply its linked Type to a
+This permits a selected nonmandatory pair to execute zero and still supply its Type Variable to a
 `THEN` continuation. A missing destination dependency remains unavailable rather than becoming an
 AMAP zero.
 
@@ -177,7 +177,7 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
   discarded. `Ok` is a real surviving arm, and equal surviving arms are deduplicated. If no arm
   survives, the `OR` reports the strongest applicable failure rather than becoming `Ok`.
 - `A THEN B`: only `A` resolves initially. `B` resolves against the World produced by `A`, after
-  linked Types selected by `A` have been substituted.
+  Type Variables selected by `A` have been substituted.
 - `A, B`: the instructions become independent sibling tasks. Each resolves against the World in
   which it is selected, and either may be selected first unless another mechanism orders them.
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it

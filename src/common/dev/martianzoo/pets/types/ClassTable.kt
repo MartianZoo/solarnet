@@ -172,7 +172,8 @@ public abstract class ClassTable {
   }
 
   /** Active concrete structural narrowings of [type]. */
-  public fun allConcreteSubtypes(type: Type): Sequence<Type> {
+  public fun allConcreteSubtypes(type: Type): Sequence<GroundType> {
+    val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
     return allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
       val dependencies = type.dependencies glb klass.baseType.dependencies
@@ -185,14 +186,16 @@ public abstract class ClassTable {
   }
 
   /** Active concrete structural narrowings with the same root Class as [type]. */
-  public fun concreteSubtypesSameClass(type: Type): Sequence<Type> {
+  public fun concreteSubtypesSameClass(type: Type): Sequence<GroundType> {
+    val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
     if (type.rootClass.abstract || !isActive(type.rootClass)) return emptySequence()
     return type.dependencies.concreteSubtypesSameClass(type, this).filter(::isActive)
   }
 
   /** The sole active concrete narrowing of [type] that satisfies [info], if there is one. */
-  public fun singleConcreteSubtype(type: Type, info: TypeInfo): Type? {
+  public fun singleConcreteSubtype(type: Type, info: TypeInfo): GroundType? {
+    val type = type.groundType
     if (type.rootClass.className == CLASS && type.refinement != null) {
       return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
     }
@@ -204,7 +207,7 @@ public abstract class ClassTable {
   }
 
   /** Returns the [Type] represented by [expression]. */
-  public abstract fun resolve(expression: Expression): Type
+  public abstract fun resolve(expression: Expression): GroundType
 
   /** Resolves every type expression in [node], throwing if any is invalid. */
   public fun checkAllTypes(node: PetNode): Unit = node.visitDescendants {
@@ -230,8 +233,8 @@ public abstract class ClassTable {
       "constraint types belong to a different Catalog"
     }
     val key = Key(domain.className, 0)
-    val domainDependency = TypeDependency(key, domain)
+    val domainDependency = TypeDependency(key, domain.groundType)
     val constrained = domainDependency.intersect(constraint) ?: return false
-    return TypeDependency(key, candidate).narrows(constrained, info)
+    return TypeDependency(key, candidate.groundType).narrows(constrained, info)
   }
 }

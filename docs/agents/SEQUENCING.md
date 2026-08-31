@@ -189,15 +189,15 @@ Completing A enqueues B in A's place. B is not immediate and receives no priorit
 tasks. `A1, A2, B1, B2` may be a legal order for two `A THEN B` chains. `THEN` waits for the A
 task, not every transitive consequence it causes.
 
-`THEN` also creates one implicit Type-variable region. Mining Rights and Capital use that linkage
+`THEN` also creates one implicit Type-variable scope. Mining Rights and Capital use that variable
 to carry an area or tile choice into later work; temporal order is not its only purpose.
 
 This can force sequencing that the game rules do not independently require. It is often still the
 most natural expression: one stage owns the Player's choice and the other is derived from that same
 choice, so put the choice-bearing stage first and its derived continuation second. Treat this as a
-linkage constraint, not evidence that unrelated work needs priority. During audit, verify both that
+shared-variable constraint, not evidence that unrelated work needs priority. During audit, verify both that
 the choice really belongs to the first stage and that the artificial order is buying a useful,
-readable linkage rather than concealing a more natural unordered model.
+readable Type-variable relationship rather than concealing a more natural unordered model.
 
 If every producer of A is expected to remember B, the relationship belongs in a trigger instead.
 
@@ -643,7 +643,7 @@ For a new A-before-B claim:
 5. If A-without-B is not a coherent state to expose and B is choice-free, use automatic `A:: B`;
    otherwise prefer queued `A: B`.
 6. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
-7. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is
+7. If `THEN` exists for a shared Type variable, verify that A naturally owns the choice and B is
    derived from it; do not mistake that local artificial order for broader game precedence.
 8. Otherwise identify the smallest completion fact: a local condition may call for a barrier, an
    entire workflow step may call for whole-World completion, and a delegated child calls for a

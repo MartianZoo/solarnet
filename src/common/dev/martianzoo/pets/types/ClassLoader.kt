@@ -51,7 +51,7 @@ private constructor(
 
   private val knownClassNames: Set<ClassName> = masterSource?.allClassNames ?: catalog.allClassNames
 
-  private val cache = mutableMapOf<Expression, Type>()
+  private val cache = mutableMapOf<Expression, GroundType>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public override val componentClass: Class =
@@ -84,7 +84,7 @@ private constructor(
   }
 
   /** Returns the [Type] represented by [expression]. */
-  override fun resolve(expression: Expression): Type {
+  override fun resolve(expression: Expression): GroundType {
     if (masterSource != null) return masterSource.resolve(expression)
     if (expression.complement) {
       throw ExpressionException("complement type expression has no standalone type: $expression")

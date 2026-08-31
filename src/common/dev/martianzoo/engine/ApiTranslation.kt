@@ -25,6 +25,7 @@ import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
@@ -84,6 +85,7 @@ internal class ApiTranslation(
           xers.rejectPropertyEvaluations(),
           xers.canonicalize(vocabulary),
           xers.useFullNames(),
+          classTable.inferTypeVariables(),
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(::replaceOwnerWith),

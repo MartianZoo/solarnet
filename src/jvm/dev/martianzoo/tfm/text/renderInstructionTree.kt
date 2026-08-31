@@ -120,7 +120,7 @@ private fun renderSequentialThen(
     instruction: Instruction.Then,
     describers: Describers,
 ): Clause? {
-  // TODO: Preserve linked Type variables when later stages refer to a choice made earlier.
+  // TODO: Preserve Type Variable bindings when later stages refer to a choice made earlier.
   val clauses =
       (instruction.stages + instruction.continuation).map { part ->
         renderLoweredInstructions(part, describers).clauses.singleOrNull() ?: return null
