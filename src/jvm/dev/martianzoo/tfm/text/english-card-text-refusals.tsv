@@ -1,7 +1,7 @@
 count	reason	examples
-24	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesign_NextCardEffect
+24	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | SpecialDesign: SpecialDesign_NextCardEffect
 13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<MC>> / 6 - Production<Class<MC>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
-11	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2 MC] | Vitor: This IF Class<Award>: Vitor_Mandate
+8	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2 MC] | Vitor: This IF Class<Award>: Vitor_Mandate
 3	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
 2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X MC | VenusShuttles: MC / 12 - VenusTag -> VenusStep
 1	UNKNOWN_ACTION_FRAME	SearchForLife: MC -> Science<This>?
@@ -9,7 +9,7 @@ count	reason	examples
 1	UNSUPPORTED_CARD_RESOURCE_CHANGE	BoardOfDirectors: -Director<This>
 1	UNSUPPORTED_CHANGE_QUANTITY	FloatingTradeHub: X StandardResource
 1	UNSUPPORTED_DECLARED_CHANGE	Spire: Spire_Mandate
-1	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): CARDS[CardBack<Player, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>]
+1	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): CARDS[CardBack<Player<>, EventPile, Class<This>> FROM CardBack<EventPile, Class<This>>]
 1	UNSUPPORTED_INSTRUCTION_KIND	WorldGovernmentAdvisor: WorldGovernmentTerraforming BY Engine
 1	UNSUPPORTED_SEQUENCE	SponsoredAcademies: -ProjectCard THEN (2 ProjectCard, SponsoredAcademies_Signal)
 1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	FocusedOrganization: -StandardResource

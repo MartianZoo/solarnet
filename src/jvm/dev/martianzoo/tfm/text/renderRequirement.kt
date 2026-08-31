@@ -6,6 +6,10 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
 
+/** The component expression counted by a cardinality requirement, if it directly counts one. */
+internal fun countedExpression(requirement: Requirement.Counting): Expression? =
+    (requirement.metric as? Metric.Count)?.expression
+
 internal fun renderRequirement(
     requirement: Requirement,
     describers: Describers,
@@ -40,8 +44,7 @@ private fun renderMaximum(requirement: Requirement.Max, describers: Describers):
     describers.renderMaximum(requirement)
 
 private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
-  val metric = requirement.metric as? Metric.Count ?: return null
-  val expression = metric.expression
+  val expression = countedExpression(requirement) ?: return null
   val target = requirement.target
   renderCountedRelation(expression, this)?.let { relation ->
     if (target != 1) return null
@@ -66,8 +69,8 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
 private fun Describers.renderDistinctKindsRequirement(
     requirement: Requirement.Min,
 ): Clause? {
-  val metric = requirement.metric as? Metric.Count ?: return null
-  val noun = distinctOwnedKinds(metric.expression, this) ?: return null
+  val expression = countedExpression(requirement) ?: return null
+  val noun = distinctOwnedKinds(expression, this) ?: return null
   val kinds = if (requirement.target == 1) noun.singular else noun.plural
   val amount =
       if (requirement.target == 1) "${indefiniteArticle(kinds)} $kinds"
@@ -76,8 +79,7 @@ private fun Describers.renderDistinctKindsRequirement(
 }
 
 private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
-  val metric = requirement.metric as? Metric.Count ?: return null
-  val expression = metric.expression
+  val expression = countedExpression(requirement) ?: return null
   val bound = fact(expression.className, ComponentDescriber::requirement)?.maximum ?: return null
   return renderRequirementBound(
       expression,
@@ -92,8 +94,8 @@ private fun Describers.renderRequirementGroup(requirement: Requirement.And): Cla
 
 private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Clause? {
   if (minimum.target != 1) return null
-  val metric = minimum.metric as? Metric.Count ?: return null
-  val production = productionExpression(metric.expression, this) ?: return null
+  val expression = countedExpression(minimum) ?: return null
+  val production = productionExpression(expression, this) ?: return null
   if (production.owner != null) return null
   return requirementClause(
       "requires",
@@ -102,9 +104,9 @@ private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Cl
 }
 
 private fun Describers.renderCardResourceRequirement(requirement: Requirement.Min): Clause? {
-  val metric = requirement.metric as? Metric.Count ?: return null
-  if (!metric.expression.simple) return null
-  val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
+  val expression = countedExpression(requirement) ?: return null
+  if (!expression.simple) return null
+  val noun = cardResourceNoun(expression.className, requirement.target) ?: return null
   val amount =
       if (requirement.target == 1) {
         "${indefiniteArticle(noun)} $noun"
@@ -140,10 +142,10 @@ private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Require
   val nouns =
       requirement.requirements.map { child ->
         val minimum = child as? Requirement.Min ?: return null
-        val metric = minimum.metric as? Metric.Count ?: return null
-        if (!metric.expression.simple) return null
+        val expression = countedExpression(minimum) ?: return null
+        if (!expression.simple) return null
         val noun =
-            fact(metric.expression.className, ComponentDescriber::requirement)?.ownedCount
+            fact(expression.className, ComponentDescriber::requirement)?.ownedCount
                 as? ComponentDescriber.Noun.Counted ?: return null
         if (minimum.target == 1) {
           "${indefiniteArticle(noun.singular)} ${noun.singular}"

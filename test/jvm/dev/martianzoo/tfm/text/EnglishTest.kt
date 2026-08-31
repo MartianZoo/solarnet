@@ -51,6 +51,12 @@ internal class EnglishTest {
         "When any plant tag is played, gain 1 steel."
     english.describe(parse<Effect>("TerraformRating: 2 MC")) shouldBe
         "When you raise your terraform rating 1 step, gain 2 M€."
+    english.describe(parse<Effect>("CardFront(HAS MAX 0 Tag): 4 MC")) shouldBe
+        "When you play a card with no tags, gain 4 M€."
+    english.describe(parse<Effect>("CardFront(HAS =1 Tag): MC")) shouldBe
+        "When you play a card with exactly 1 tag, gain 1 M€."
+    english.describe(parse<Effect>("CardFront(HAS 2 Tag): Science<This>")) shouldBe
+        "When you play a card with 2 or more tags, add 1 science resource to this card."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
         "Pay 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe

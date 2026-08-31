@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Dependency.Key
@@ -124,6 +123,8 @@ internal class Describers(
 
   internal fun isCardResource(className: ClassName): Boolean = expressions.isCardResource(className)
 
+  internal fun isTag(className: ClassName): Boolean = expressions.isTag(className)
+
   internal fun isProduction(className: ClassName): Boolean = expressions.isProduction(className)
 
   internal fun isPlayerOwned(className: ClassName): Boolean = expressions.isPlayerOwned(className)
@@ -219,9 +220,9 @@ internal class Describers(
   }
 
   internal fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {
-    val metric = requirement.metric as? Metric.Count ?: return null
-    if (!metric.expression.simple) return null
-    return tagName(metric.expression.className)
+    val expression = countedExpression(requirement) ?: return null
+    if (!expression.simple) return null
+    return tagName(expression.className)
   }
 
   internal fun playedTagPhrase(className: ClassName): String? {

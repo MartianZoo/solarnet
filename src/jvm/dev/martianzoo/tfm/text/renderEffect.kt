@@ -1065,11 +1065,10 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
   val phrase =
       expression.refinement?.let { refinement ->
         if (refinement.forgiving) return null
-        val minimum = refinement.requirement as? Requirement.Min ?: return null
-        when (val metric = minimum.metric) {
+        val counting = refinement.requirement as? Requirement.Counting ?: return null
+        when (val metric = counting.metric) {
           is Metric.Count -> {
-            if (minimum.target != 1) return null
-            val tagExpression = metric.expression
+            val tagExpression = countedExpression(counting) ?: return null
             if (
                 tagExpression.refinement != null ||
                     tagExpression.complement ||
@@ -1080,10 +1079,33 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
             ) {
               return null
             }
-            val tag = tagName(tagExpression.className)?.first ?: return null
-            "${if (actor == EventActor.UNRESTRICTED) "any" else indefiniteArticle(tag)} $tag $card"
+            val tag = tagName(tagExpression.className)?.first
+            if (counting is Requirement.Min && counting.target == 1 && tag != null) {
+              "${if (actor == EventActor.UNRESTRICTED) "any" else indefiniteArticle(tag)} $tag $card"
+            } else {
+              if (
+                  !isTag(tagExpression.className) ||
+                      (tag == null && playedTagPhrase(tagExpression.className) != null)
+              ) {
+                return null
+              }
+              val singular = tag?.let { "$it tag" } ?: "tag"
+              val plural = tag?.let { "$it tags" } ?: "tags"
+              val quantity =
+                  when (counting) {
+                    is Requirement.Min -> "${counting.target} or more $plural"
+                    is Requirement.Max ->
+                        if (counting.target == 0) "no $plural"
+                        else
+                            "at most ${counting.target} ${if (counting.target == 1) singular else plural}"
+                    is Requirement.Exact ->
+                        "exactly ${counting.target} ${if (counting.target == 1) singular else plural}"
+                  }
+              "$article $card with $quantity"
+            }
           }
           is Property -> {
+            val minimum = counting as? Requirement.Min ?: return null
             if (metric.receiver != null) return null
             val property = description.minimumProperties[metric.propertyName.value] ?: return null
             when (property) {

@@ -4,7 +4,6 @@ import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
 
@@ -92,7 +91,7 @@ private fun renderPlacementBonusRequirement(
     describers: Describers,
 ): String? {
   val minimum = requirement as? Requirement.Min ?: return null
-  val expression = (minimum.metric as? Metric.Count)?.expression ?: return null
+  val expression = countedExpression(minimum) ?: return null
   if (expression.refinement != null || expression.complement) return null
   val bonus =
       describers.fact(expression.className, ComponentDescriber::placementBonus) ?: return null
@@ -108,30 +107,21 @@ private fun renderSpatialRequirement(
     requirement: Requirement,
     describers: Describers,
 ): String? {
-  val relationExpression =
-      when (requirement) {
-        is Requirement.Min -> (requirement.metric as? Metric.Count)?.expression
-        is Requirement.Max -> (requirement.metric as? Metric.Count)?.expression
-        is Requirement.And,
-        is Requirement.Exact,
-        is Requirement.Eval,
-        is Requirement.Or,
-        is Requirement.Transform -> null
-      } ?: return null
+  val counting = requirement as? Requirement.Counting ?: return null
+  val relationExpression = countedExpression(counting) ?: return null
   if (relationExpression.refinement != null || relationExpression.complement) return null
   val relation =
       describers.fact(relationExpression.className, ComponentDescriber::spatialRelation)
           ?: return null
   val target = renderSpatialTarget(relationExpression, relation, describers) ?: return null
 
-  return when (requirement) {
-    is Requirement.Min ->
-        "${relation.phrase} ${target.minimumPhrase(requirement.target, describers)}"
+  return when (counting) {
+    is Requirement.Min -> "${relation.phrase} ${target.minimumPhrase(counting.target, describers)}"
     is Requirement.Max -> {
-      if (requirement.target != 0) return null
+      if (counting.target != 0) return null
       "${relation.phrase} ${target.absencePhrase()}"
     }
-    else -> null
+    is Requirement.Exact -> null
   }
 }
 
