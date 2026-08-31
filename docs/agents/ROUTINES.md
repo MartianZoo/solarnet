@@ -276,6 +276,11 @@ The call does not return while its invoice retains `Owed`. No payment argument i
 zero-cost invocation. Valid intentional overpayment remains possible. A supplied instruction that
 was not used as a cost is an error.
 
+After card-resource and non-money tenders execute, a Routine rejects an M€ amount greater than the
+remaining debt and rolls back the whole call. The engine still cannot validate every non-money
+allocation from saturated `Owed` removals; that separate defect is tracked in
+[PAYMENTS.md](PAYMENTS.md).
+
 `playCard` does not run the workflow that might later expose its task. For example, Valley Trust's
 mandate and card-selection tasks are recorded first; only once they have exposed the queued card
 choice does `playCard(DoubleDown)` select it.
