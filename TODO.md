@@ -4,6 +4,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Make context-specialized observational metric counts safe: after validating the general class effect,
+  reduce a `Metric.Count` to zero when binding `This`, `Owner`, or an authored type variable makes its
+  previously valid type expression structurally disjoint. Preserve errors for malformed expressions,
+  triggers, and constructive instructions; represent disjointness explicitly instead of swallowing
+  `ExpressionException`.
+
 - Continue Routine work as specified in [`docs/agents/ROUTINES.md`](docs/agents/ROUTINES.md): add
   typed signatures, direct top-level REPL invocation, and Routine-based replay with every Agent's
   autoexecution disabled.
