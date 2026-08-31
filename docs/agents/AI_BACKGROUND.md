@@ -16,8 +16,8 @@ AI knowledge.
 
 ## Solarnet source scope
 
-Read the research first, then inspect [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt)
-at `public interface Gameplay` for the current command surface and
+Read the research first, then inspect [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt)
+at `public interface Agent` for the current command surface and
 [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt) at
 `public data class PendingTask` for the structured-choice interface. Neither is yet a
 player-relative observation or machine-learning API.

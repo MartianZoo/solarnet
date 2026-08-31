@@ -1,10 +1,10 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.engine.Gameplay
-import dev.martianzoo.engine.Gameplay.GodMode
-import dev.martianzoo.engine.Gameplay.OperationLayer
-import dev.martianzoo.engine.Gameplay.TaskLayer
-import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.engine.Agent
+import dev.martianzoo.engine.Agent.GodMode
+import dev.martianzoo.engine.Agent.OperationLayer
+import dev.martianzoo.engine.Agent.TaskLayer
+import dev.martianzoo.engine.Agent.TurnLayer
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 
@@ -15,8 +15,8 @@ internal sealed class Access {
 
   internal abstract fun phase(phase: String): TaskResult
 
-  internal fun doPhase(gameplay: OperationLayer, phase: String): TaskResult =
-      gameplay.beginManual("${phase}Phase FROM Phase")
+  internal fun doPhase(agent: OperationLayer, phase: String): TaskResult =
+      agent.beginManual("${phase}Phase FROM Phase")
 
   internal open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
@@ -30,54 +30,54 @@ internal sealed class Access {
   }
 
   // BLUE: Turn integrity: must perform a valid game turn for this phase
-  internal class BlueMode(gameplayIn: Gameplay) : Access() {
-    private val gameplay = gameplayIn as TurnLayer
+  internal class BlueMode(agentIn: Agent) : Access() {
+    private val agent = agentIn as TurnLayer
 
-    override fun phase(phase: String): TaskResult = doPhase(gameplay as OperationLayer, phase)
+    override fun phase(phase: String): TaskResult = doPhase(agent as OperationLayer, phase)
 
-    override fun newTurn() = gameplay.startTurn()
+    override fun newTurn() = agent.startTurn()
 
     override fun exec(instruction: String): TaskResult = error("not allowed in this mode")
   }
 
   // GREEN: Operation integrity: clear task queue before starting new operation
-  internal class GreenMode(gameplayIn: Gameplay) : Access() {
-    private val gameplay = gameplayIn as OperationLayer
+  internal class GreenMode(agentIn: Agent) : Access() {
+    private val agent = agentIn as OperationLayer
 
-    override fun phase(phase: String): TaskResult = doPhase(gameplay, phase)
+    override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
-    override fun newTurn() = gameplay.startTurn()
+    override fun newTurn() = agent.startTurn()
 
-    override fun exec(instruction: String) = gameplay.beginManual(instruction)
+    override fun exec(instruction: String) = agent.beginManual(instruction)
   }
 
   // YELLOW: Task integrity: changes have consequences
-  internal class YellowMode(gameplayIn: Gameplay) : Access() {
-    private val gameplay = gameplayIn as TaskLayer
+  internal class YellowMode(agentIn: Agent) : Access() {
+    private val agent = agentIn as TaskLayer
 
-    override fun phase(phase: String): TaskResult = doPhase(gameplay, phase)
+    override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
-    override fun newTurn() = gameplay.startTurn()
+    override fun newTurn() = agent.startTurn()
 
-    override fun exec(instruction: String) = gameplay.beginManual(instruction)
+    override fun exec(instruction: String) = agent.beginManual(instruction)
 
     override fun dropTask(id: TaskId) {
-      gameplay.dropTask(id)
+      agent.dropTask(id)
     }
   }
 
   // RED: Change integrity: make changes without triggered effects
-  internal class RedMode(gameplayIn: Gameplay) : Access() {
-    private val gameplay = gameplayIn as GodMode
+  internal class RedMode(agentIn: Agent) : Access() {
+    private val agent = agentIn as GodMode
 
-    override fun phase(phase: String): TaskResult = doPhase(gameplay, phase)
+    override fun phase(phase: String): TaskResult = doPhase(agent, phase)
 
-    override fun newTurn() = gameplay.startTurn()
+    override fun newTurn() = agent.startTurn()
 
-    override fun exec(instruction: String) = gameplay.sneak(instruction)
+    override fun exec(instruction: String) = agent.sneak(instruction)
 
     override fun dropTask(id: TaskId) {
-      gameplay.dropTask(id)
+      agent.dropTask(id)
     }
   }
 }

@@ -80,8 +80,8 @@ private constructor(
 
     // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
     // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
-    // gameplay scope that happens to execute the effect. A passive Owner is ignored here because
-    // ownership alone must not give SoloOpponent task or gameplay authority.
+    // Agent scope that happens to execute the effect. A passive Owner is ignored here because
+    // ownership alone must not give SoloOpponent task or Agent authority.
     val changedComponentPlayer = resolvedChange.changedComponentPlayer
 
     // If neither the effect nor the changed component supplies ownership, a Player Actor is the

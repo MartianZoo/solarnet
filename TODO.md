@@ -9,7 +9,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   general player autoexecution.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play, while
-  flattening the temporary Gameplay power hierarchy.
+  flattening the temporary Agent power hierarchy.
 - Rename instruction `Intensity` to `Quantifier` throughout.
 - **High priority:** Audit SAFE against its proof obligation: it may select only when exactly one
   pending task can be selected, and resolution may concretize an instruction only when exactly one
@@ -220,7 +220,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   layers, and narrow `Instruction.narrows`.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- Move autoexecution out of the engine into optional clients of `Gameplay`: remove implicit drains,
+- Move autoexecution out of the engine into optional clients of `Agent`: remove implicit drains,
   replace modes with named policies, record the issuing agent, and initially provide only policies
   that prove they make no gameplay sacrifice; see
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).

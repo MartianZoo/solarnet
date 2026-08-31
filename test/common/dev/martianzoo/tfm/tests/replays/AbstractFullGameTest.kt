@@ -118,8 +118,8 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
     if (selectedId != null) {
       val task = game.tasks.getTaskData(selectedId)
-      game.gameplay(task.assignee).selectTask(selectedId)
-      game.gameplay(task.assignee).autoExecNow()
+      game.agent(task.assignee).selectTask(selectedId)
+      game.agent(task.assignee).autoExecNow()
     }
   }
 
@@ -173,10 +173,10 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   private fun TfmGameplay.assertVps(expected: Int) {
     val onAtomicComplete = game.onAtomicComplete
     val checkpoint = game.timeline.checkpoint()
-    val autoExecModes = game.actors.associateWith { game.gameplay(it).autoExecMode }
+    val autoExecModes = game.actors.associateWith { game.agent(it).autoExecMode }
     game.onAtomicComplete = {}
     try {
-      game.actors.forEach { game.gameplay(it).autoExecMode = FIRST }
+      game.actors.forEach { game.agent(it).autoExecMode = FIRST }
       dropPendingTasksForSnapshot()
       engine.phase("Production") { dropPendingTasksForSnapshot() }
       engine.phase("End") {
@@ -185,7 +185,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
       }
     } finally {
       game.timeline.rollBack(checkpoint)
-      autoExecModes.forEach { (actor, mode) -> game.gameplay(actor).autoExecMode = mode }
+      autoExecModes.forEach { (actor, mode) -> game.agent(actor).autoExecMode = mode }
       game.onAtomicComplete = onAtomicComplete
     }
   }
@@ -203,7 +203,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
         .extract { it.assignee }
         .toSet()
         .forEach {
-          game.gameplay(it).godMode().dropTasks()
+          game.agent(it).godMode().dropTasks()
         }
   }
 }

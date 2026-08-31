@@ -21,7 +21,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun newGameReturnsCommittedCausallyCleanPreSetupBaseline() {
     val game = Engine.newGame(canonicalPremise())
-    val engine = game.gameplay(ENGINE)
+    val engine = game.agent(ENGINE)
 
     engine.count("Phase") shouldBe 0
     engine.count("Generation") shouldBe 0
@@ -91,7 +91,7 @@ internal class BootstrapLifecycleTest {
 
     TfmWorkflow.Manual(game).setupPhase()
 
-    val engine = game.gameplay(ENGINE)
+    val engine = game.agent(ENGINE)
     engine.count("SetupPhase") shouldBe 1
     engine.count("Generation") shouldBe 1
     engine.count("StartToken<Player1>") shouldBe 1
@@ -114,7 +114,7 @@ internal class BootstrapLifecycleTest {
     val game = Engine.newGame(setup)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    val engine = game.gameplay(ENGINE)
+    val engine = game.agent(ENGINE)
     engine.count("SetupPhase") shouldBe 1
     engine.count("CorporationPhase") shouldBe 0
     engine.count("Generation") shouldBe 1

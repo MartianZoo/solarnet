@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.engine.Agent.GodMode
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -63,11 +63,11 @@ internal class CanonClassesTest {
                   colonyTiles = testColonyTiles(2),
               )
           )
-      val gameplay = game.tfm(PLAYER1)
+      val agent = game.tfm(PLAYER1)
 
       withClue(map.name) {
-        gameplay.count("Class<Milestone>") shouldBe 6
-        gameplay.count("Class<Award>") shouldBe 6
+        agent.count("Class<Milestone>") shouldBe 6
+        agent.count("Class<Award>") shouldBe 6
       }
     }
   }
@@ -91,34 +91,34 @@ internal class CanonClassesTest {
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("StandardSoloVariant"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
-    game.gameplay(PLAYER1).count("TerraformRating<Me>") shouldBe 14
+    game.agent(PLAYER1).count("TerraformRating<Me>") shouldBe 14
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
     }
-    game.gameplay(PLAYER1).count("FakeResourceGiver<SoloOpponent>") shouldBe
-        game.gameplay(PLAYER1).count("Class<StandardResource>")
-    game.gameplay(PLAYER1).count("FakeResourceHolder<SoloOpponent>") shouldBe
-        game.gameplay(PLAYER1).count("Class<CardResource>")
-    game.gameplay(PLAYER1).count("FakeResourceHolder<SoloOpponent, Class<Animal>>") shouldBe 1
+    game.agent(PLAYER1).count("FakeResourceGiver<SoloOpponent>") shouldBe
+        game.agent(PLAYER1).count("Class<StandardResource>")
+    game.agent(PLAYER1).count("FakeResourceHolder<SoloOpponent>") shouldBe
+        game.agent(PLAYER1).count("Class<CardResource>")
+    game.agent(PLAYER1).count("FakeResourceHolder<SoloOpponent, Class<Animal>>") shouldBe 1
     game
-        .gameplay(PLAYER1)
+        .agent(PLAYER1)
         .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 42
     val fakeHolder = game.classTable.getClass(cn("FakeResourceHolder"))
     fakeHolder.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
     fakeHolder.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
 
-    val engine = game.gameplay(ENGINE) as GodMode
+    val engine = game.agent(ENGINE) as GodMode
     game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.manual("OceanTile<Tharsis_1_2>")
-    game.gameplay(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
-    game.gameplay(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
+    game.agent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
+    game.agent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
-    val player = game.gameplay(PLAYER1).godMode()
+    val player = game.agent(PLAYER1).godMode()
     player.manual("-5 Plant<SoloOpponent>")
     player.manual("PROD[-5 Plant<SoloOpponent>]")
     player.manual("5 Plant<SoloOpponent>")
@@ -126,16 +126,16 @@ internal class CanonClassesTest {
     player.manual("-5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
     player.manual("5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
-      game.gameplay(PLAYER1).count("$it<Me>") shouldBe 0
+      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.agent(PLAYER1).count("$it<Me>") shouldBe 0
     }
     game
-        .gameplay(PLAYER1)
+        .agent(PLAYER1)
         .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 42
 
     engine.manual("End")
-    game.gameplay(PLAYER1).count("VictoryPoint<Me>") shouldBe 14
+    game.agent(PLAYER1).count("VictoryPoint<Me>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -172,17 +172,16 @@ internal class CanonClassesTest {
   @Test
   internal fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
-    val gameplay = game.gameplay(PLAYER1) as GodMode
+    val agent = game.agent(PLAYER1) as GodMode
     val withVenus =
-        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).gameplay(PLAYER1)
-            as GodMode
+        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).agent(PLAYER1) as GodMode
 
-    assertFailsWith<ExpressionException> { gameplay.count("Class<AnyWordHere>") }
-    gameplay.count("Class<VenusStep>") shouldBe 0
+    assertFailsWith<ExpressionException> { agent.count("Class<AnyWordHere>") }
+    agent.count("Class<VenusStep>") shouldBe 0
     withVenus.count("Class<VenusStep>") shouldBe 1
-    assertFailsWith<ExpressionException> { gameplay.count("AnyWordHere") }
-    assertFailsWith<ExpressionException> { gameplay.resolve("Class<AnyWordHere>") }
-    assertFailsWith<ExpressionException> { gameplay.manual("Class<AnyWordHere>!") }
-    assertFailsWith<ExpressionException> { gameplay.manual("-Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.count("AnyWordHere") }
+    assertFailsWith<ExpressionException> { agent.resolve("Class<AnyWordHere>") }
+    assertFailsWith<ExpressionException> { agent.manual("Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.manual("-Class<AnyWordHere>!") }
   }
 }

@@ -13,9 +13,9 @@ internal class TriggerScalingTest {
   @Test
   internal fun `ordinary triggers scale their result while X triggers produce one result`() {
     val game = Engine.newGame(canonicalPremise(catalog = catalog))
-    val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
 
-    gameplay.beginManual("5 ScalingSignal!") {
+    agent.beginManual("5 ScalingSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(

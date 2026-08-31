@@ -1,18 +1,18 @@
 # Engine workhorse and client API direction
 
-> **Read when:** flattening `Gameplay`, removing a power interface or `godMode()`, changing command
+> **Read when:** flattening `Agent`, removing a power interface or `godMode()`, changing command
 > transaction scopes, or designing a real client/observation API.
 >
 > **Skip when:** adding a gameplay operation without changing facade ownership; use the
-> Gameplay section of [ENGINE.md](ENGINE.md#current-gameplay-surface).
+> Agent section of [ENGINE.md](ENGINE.md#current-agent-surface).
 >
-> **Status:** proposal. Some read/write data-structure pairs have been collapsed; the `Gameplay`
+> **Status:** proposal. Some read/write data-structure pairs have been collapsed; the `Agent`
 > power hierarchy and `godMode()` remain committed behavior.
 
 ## Source map
 
-- [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt) — search for
-  `public interface Gameplay` to see the current power hierarchy.
+- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
+  `public interface Agent` to see the current power hierarchy.
 - [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) —
   search for `internal class ApiTranslation` before moving string/value adaptation.
 - [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt)
@@ -41,10 +41,10 @@ single mechanism that maintains its structure and history.
 The current hierarchy is nominal rather than protective:
 
 ```text
-Gameplay -> TurnLayer -> OperationLayer -> TaskLayer -> GodMode
+Agent -> TurnLayer -> OperationLayer -> TaskLayer -> GodMode
 ```
 
-`ApiTranslation` implements every layer. `Gameplay.godMode()` reveals the bottom and callers cast
+`ApiTranslation` implements every layer. `Agent.godMode()` reveals the bottom and callers cast
 the same object back to intermediate layers. Script colors reconstruct policy with those casts.
 
 This complicates signatures without enforcing authority. It also confuses API taxonomy with the
@@ -103,10 +103,10 @@ consequences.
 | --- | --- |
 | `Task.selected` | This task holds the select-lock; it need not yet be concrete. |
 | `TaskQueue.selectedTask()` | Returns the Selected Task, if any. |
-| `Gameplay.canSelectTask(id)` | Checks whether Selection and its initial Resolution can succeed. |
-| `Gameplay.selectTask(id)` | Selects and resolves one Pending Task, then executes it immediately if concrete. |
-| `Gameplay.selectTask(text)` | Convenience matcher with the same Selection semantics. |
-| `Gameplay.narrowTask(text)` | Narrows only the Selected Task, resolves it again, and executes if concrete; partial narrowing remains recorded. |
+| `Agent.canSelectTask(id)` | Checks whether Selection and its initial Resolution can succeed. |
+| `Agent.selectTask(id)` | Selects and resolves one Pending Task, then executes it immediately if concrete. |
+| `Agent.selectTask(text)` | Convenience matcher with the same Selection semantics. |
+| `Agent.narrowTask(text)` | Narrows only the Selected Task, resolves it again, and executes if concrete; partial narrowing remains recorded. |
 | `Instructor.resolve(...)` | Applies World-dependent instruction semantics without making a Player choice. |
 | `Instructor.executeResolved(...)` | Executes the already-resolved first stage. |
 | `CustomClassRuntime.translateInstruction(...)` | Names the custom-class responsibility directly. |
@@ -202,7 +202,7 @@ authorize building the later permission API at the same time.
 
 1. Add behavior tests for script modes, rollback, `TaskResult`, current autoexecution coupling,
    outermost notification, and reversibility.
-2. Move operations onto one `Gameplay` workhorse and remove `godMode()` plus the intermediate
+2. Move operations onto one `Agent` workhorse and remove `godMode()` plus the intermediate
    interfaces without changing behavior.
 3. Replace script casts with centralized checks.
 4. Collapse any remaining read/write API pair one structure at a time while keeping raw mutation
@@ -211,7 +211,7 @@ authorize building the later permission API at the same time.
 6. Remove obsolete bindings, casts, and documentation.
 7. Stop. Design the safe client API separately from actual observation and workflow requirements.
 
-Open naming and exact command-scope questions do not change this direction. Do not mix
+Open command-scope questions do not change this direction. Do not mix
 Actor-local auto-exec, native workflow delegation, hidden-information observation, or disposable
 state forks into the mechanical flattening.
 
@@ -219,11 +219,9 @@ state forks into the mechanical flattening.
 
 These remain intentionally unsettled:
 
-1. Whether the flat workhorse should still be called `Gameplay`, or instead `EngineSession` or
-   `ActorEngine`.
-2. Which methods are complete commands and which are primitives composed inside another command.
-3. Which coordinated child-object mutations should eventually become direct workhorse operations.
-4. How much timeline control belongs on the root facade versus `World.timeline`.
+1. Which methods are complete commands and which are primitives composed inside another command.
+2. Which coordinated child-object mutations should eventually become direct workhorse operations.
+3. How much timeline control belongs on the root facade versus `World.timeline`.
 
 Risks to preserve during the work:
 

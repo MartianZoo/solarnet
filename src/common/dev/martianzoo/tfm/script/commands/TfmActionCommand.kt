@@ -50,7 +50,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
         cardActions(repl.game.reader.tfmCatalog.card(cardName)).getOrNull(actionNumber.toInt() - 1)
             ?: throw UsageException("$cardName has no action $actionNumber")
     val pauseForWrittenCost = payment.isNotEmpty() && action.cost != null
-    val previousAutoExecMode = repl.gameplay.autoExecMode
+    val previousAutoExecMode = repl.agent.autoExecMode
     var writtenCostPaused = false
     val result =
         try {
@@ -64,7 +64,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
             }
             TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
             if (pauseForWrittenCost) {
-              repl.gameplay.autoExecMode = NONE
+              repl.agent.autoExecMode = NONE
               writtenCostPaused = true
             }
             val taskIdsBeforeAction = repl.game.tasks.ids()
@@ -74,12 +74,12 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
               else TfmPayCommand(repl).withArgs(payment)
             }
             if (pauseForWrittenCost) {
-              repl.gameplay.autoExecMode = previousAutoExecMode
+              repl.agent.autoExecMode = previousAutoExecMode
               writtenCostPaused = false
             }
           }
         } finally {
-          if (writtenCostPaused) repl.gameplay.autoExecMode = previousAutoExecMode
+          if (writtenCostPaused) repl.agent.autoExecMode = previousAutoExecMode
         }
     return repl.describeExecutionResults(result)
   }
@@ -99,8 +99,8 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     }
     directCosts.zip(removals).forEach { (task, removal) ->
       val narrowing = specializeVariableCost(task.instruction, removal)
-      repl.gameplay.selectTask(task.id)
-      repl.gameplay.narrowTask(narrowing.toString())
+      repl.agent.selectTask(task.id)
+      repl.agent.narrowTask(narrowing.toString())
     }
   }
 

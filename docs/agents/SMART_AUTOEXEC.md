@@ -3,7 +3,7 @@
 > **Read when:** defining what makes an automatic task command safe, designing a smart policy,
 > proving task independence or confluence, or compiling Catalog facts for autoexecution.
 >
-> **Skip when:** changing where policies run or how they call `Gameplay`; those mechanism questions
+> **Skip when:** changing where policies run or how they call `Agent`; those mechanism questions
 > belong in [AUTOEXEC.md](AUTOEXEC.md).
 >
 > **Status:** research and proposed proof rules. None of the candidate analyses is committed

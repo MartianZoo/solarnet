@@ -41,10 +41,10 @@ separate from the base data-oriented `Catalog` interface. `TfmCatalog` implement
 each bundle may contribute a name-to-implementation map, and composite catalogs reject duplicate
 names. The core Terraforming Mars bundle owns the initial implementations. `DO` parses a call,
 looks it up through the active World's Catalog, and supplies the live World and Actor-scoped
-Gameplay in a `RoutineContext`.
+Agent in a `RoutineContext`.
 
-The prototype uses the current Gameplay operation scopes described in
-[ENGINE.md](ENGINE.md#current-gameplay-surface). Any later client-facing Routine API should follow
+The prototype uses the current Agent operation scopes described in
+[ENGINE.md](ENGINE.md#current-agent-surface). Any later client-facing Routine API should follow
 the command lifecycle and temporary script policy in [API.md](API.md#command-scopes).
 
 ## REPL surface

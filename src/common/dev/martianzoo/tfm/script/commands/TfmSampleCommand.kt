@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.engine.Agent.TurnLayer
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
@@ -33,7 +33,7 @@ internal class TfmSampleCommand(private val repl: ScriptSession) : ScriptCommand
     if (id != "A") throw UsageException("unknown id: $id")
 
     repl.game = SampleGames.sampleGame(gens.toInt())
-    repl.gameplay = repl.game.gameplay(ENGINE) as TurnLayer // default autoexec mode
+    repl.agent = repl.game.agent(ENGINE) as TurnLayer // default autoexec mode
     return listOf("Okay, did that.")
   }
 }

@@ -99,7 +99,7 @@ internal class MonsInsuranceTest : CardTest() {
 
     p2.manual("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
     game
-        .gameplay(ENGINE)
+        .agent(ENGINE)
         .godMode()
         .manual("Plant<Player2>, -Plant<Player2>")
         .expect("0 MC<Player1>, 0 MC<Player2>")

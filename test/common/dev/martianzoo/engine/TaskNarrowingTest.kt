@@ -26,7 +26,7 @@ internal class TaskNarrowingTest {
   // Kinda gross
   private val tasks: TaskQueue = game.tasks
   private val events = game.events
-  private val writer = game.gameplay(PLAYER1)
+  private val writer = game.agent(PLAYER1)
   private val start = game.timeline.checkpoint()
 
   init {
@@ -390,24 +390,24 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
-    game.gameplay(PLAYER2).godMode().manual("3 MC")
+    game.agent(PLAYER2).godMode().manual("3 MC")
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
     writer.autoExecNow()
 
     tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>. THEN Plant<Player>!")
-    game.gameplay(PLAYER2).count("MC") shouldBe 3
+    game.agent(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
   internal fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
-    game.gameplay(PLAYER2).godMode().manual("3 MC")
+    game.agent(PLAYER2).godMode().manual("3 MC")
     initiate("3 MC FROM MC<Player>.")
 
     writer.autoExecNow()
 
     tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>.")
-    game.gameplay(PLAYER2).count("MC") shouldBe 3
+    game.agent(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
@@ -421,12 +421,12 @@ internal class TaskNarrowingTest {
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
-    game.gameplay(PLAYER2).count("Plant") shouldBe 0
+    game.agent(PLAYER2).count("Plant") shouldBe 0
   }
 
   @Test
   internal fun `selecting an AMAP source binds the later stage before resolution`() {
-    game.gameplay(PLAYER2).godMode().manual("3 MC")
+    game.agent(PLAYER2).godMode().manual("3 MC")
     writer.autoExecMode = NONE
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
@@ -434,7 +434,7 @@ internal class TaskNarrowingTest {
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
-    game.gameplay(PLAYER2).count("MC") shouldBe 0
+    game.agent(PLAYER2).count("MC") shouldBe 0
   }
 
   private fun initiate(ins: String) = writer.godMode().addTasks(ins)

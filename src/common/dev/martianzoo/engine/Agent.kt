@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Gameplay.OperationBody
+import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException
@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  * could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods you don't
  * need; see those interfaces for more explanation.
  */
-public interface Gameplay {
+public interface Agent {
 
   // READ OPERATIONS
 
@@ -117,7 +117,7 @@ public interface Gameplay {
 
   // Blue mode
 
-  public interface TurnLayer : Gameplay {
+  public interface TurnLayer : Agent {
     public fun startTurn(): TaskResult
 
     public fun inTurn(body: BodyLambda = {}): TaskResult
@@ -158,7 +158,7 @@ public interface Gameplay {
     /** Removes a task for any reason or no reason at all. */
     public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
-    /** Removes every task assigned to this gameplay's Actor. */
+    /** Removes every task assigned to this Agent's Actor. */
     public fun dropTasks(): List<TaskRemovedEvent>
   }
 
@@ -168,7 +168,7 @@ public interface Gameplay {
   }
 
   public companion object {
-    public inline fun <reified P : PetElement> Gameplay.parse(text: String): P {
+    public inline fun <reified P : PetElement> Agent.parse(text: String): P {
       val parsed = parseInternal(P::class, text)
       if (parsed !is P) {
         throw KindException(

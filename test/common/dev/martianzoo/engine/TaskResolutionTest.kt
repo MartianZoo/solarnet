@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Gameplay.TaskLayer
+import dev.martianzoo.engine.Agent.TaskLayer
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
@@ -23,12 +23,12 @@ internal class TaskResolutionTest {
   private val tasks = game.tasks
   private val events = game.events
   private val start = game.timeline.checkpoint()
-  private val gameplay = game.gameplay(PLAYER1).also { it.autoExecMode = AutoExecMode.NONE }
+  private val agent = game.agent(PLAYER1).also { it.autoExecMode = AutoExecMode.NONE }
 
   @Test
   internal fun `selecting resolves an abstract task and takes the select-lock`() {
     initiate("2 Plant?")
-    gameplay.selectTask("2 Plant?")
+    agent.selectTask("2 Plant?")
 
     val task = tasks.extract { it }.single()
     task.selected shouldBe true
@@ -43,7 +43,7 @@ internal class TaskResolutionTest {
   @Test
   internal fun `selection that resolves to NoOp completes the task`() {
     initiate("-2 Plant?")
-    gameplay.selectTask("-2 Plant?")
+    agent.selectTask("-2 Plant?")
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(
@@ -56,7 +56,7 @@ internal class TaskResolutionTest {
   @Test
   internal fun `selection executes a concrete task immediately`() {
     initiate("Plant!")
-    gameplay.selectTask("Plant!")
+    agent.selectTask("Plant!")
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(
@@ -66,13 +66,13 @@ internal class TaskResolutionTest {
         TaskRemovedEvent::class,
         GameplayInputEvent::class,
     )
-    gameplay.count("Plant") shouldBe 1
+    agent.count("Plant") shouldBe 1
   }
 
   @Test
   internal fun `selection resolves limits before narrowing`() {
     initiate("-30 TerraformRating?")
-    gameplay.selectTask("-30 TerraformRating?")
+    agent.selectTask("-30 TerraformRating?")
     tasksAsText().shouldContainExactlyInAnyOrder("-20 TerraformRating<Player1>?")
     tasks.extract { it.selected }.shouldContainExactly(true)
   }
@@ -81,7 +81,7 @@ internal class TaskResolutionTest {
   internal fun `selection failure is atomic`() {
     initiate("-Plant!")
     history().shouldHaveSize(1)
-    shouldThrow<LimitsException> { gameplay.selectTask("-Plant!") }
+    shouldThrow<LimitsException> { agent.selectTask("-Plant!") }
 
     history().shouldHaveSize(1)
     tasks.extract { it.selected }.shouldContainExactly(false)
@@ -92,21 +92,21 @@ internal class TaskResolutionTest {
     initiate("Plant?, Heat?")
     val (plant, heat) = tasks.ids().toList()
 
-    gameplay.selectTask(plant)
+    agent.selectTask(plant)
 
-    shouldThrow<TaskException> { gameplay.selectTask(heat) }
+    shouldThrow<TaskException> { agent.selectTask(heat) }
     tasks.selectedTask() shouldBe plant
   }
 
   @Test
   internal fun `selection resolves an OR by pruning impossible options`() {
     initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!")
-    gameplay.selectTask("-TR OR -Plant OR Heat OR Tharsis_5_5!")
+    agent.selectTask("-TR OR -Plant OR Heat OR Tharsis_5_5!")
 
     tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
   }
 
-  private fun initiate(ins: String) = (gameplay as TaskLayer).addTasks(ins)
+  private fun initiate(ins: String) = (agent as TaskLayer).addTasks(ins)
 
   private fun history() = events.entriesSince(start)
 

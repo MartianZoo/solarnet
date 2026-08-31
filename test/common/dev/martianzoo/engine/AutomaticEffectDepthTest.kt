@@ -18,7 +18,7 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
     val world = Engine.newGame(premise) as WholeWorld
-    val engine = world.gameplay(ENGINE).godMode()
+    val engine = world.agent(ENGINE).godMode()
     val checkpoint = world.timeline.checkpoint()
 
     val failure = shouldThrow<RunawayEffectChainException> { engine.manual("ChainA") }

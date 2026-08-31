@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.engine.Agent.OperationLayer
 import dev.martianzoo.engine.AutoExecMode
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -35,7 +35,7 @@ public object TfmWorkflow {
    */
   public class Manual(private val game: World) {
 
-    internal val engineOps: OperationLayer = game.gameplay(ENGINE) as OperationLayer
+    internal val engineOps: OperationLayer = game.agent(ENGINE) as OperationLayer
 
     /**
      * Starts fully effectful game setup; unlike later phases, setup has no prior Phase to remove.
@@ -242,7 +242,7 @@ public object TfmWorkflow {
     }
 
     private fun opsFor(player: Player) =
-        (game.gameplay(player) as OperationLayer).also {
+        (game.agent(player) as OperationLayer).also {
           playerAutoExecMode?.let { mode -> it.autoExecMode = mode() }
         }
 

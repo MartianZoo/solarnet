@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Agent.TaskLayer
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
@@ -14,14 +14,14 @@ internal class GameRecordingTest {
   @Test
   internal fun recordingSeeksAcrossCompletedOperationsAndNotifiesComponentListeners() {
     val game = Engine.newGame(canonicalPremise())
-    val gameplay = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
-    val tasks = gameplay.godMode() as TaskLayer
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val tasks = agent.godMode() as TaskLayer
     val heat = game.reader.resolve(parse<Expression>("Heat<Player1>"))
     val observedCounts = mutableListOf<Int>()
     val subscription = game.components.listenToCount(heat, game.reader, observedCounts::add)
 
     tasks.beginManual("Heat?")
-    gameplay.doTask("Heat!")
+    agent.doTask("Heat!")
     val recording = game.recording()
 
     recording.positions.size shouldBe 3
@@ -34,15 +34,15 @@ internal class GameRecordingTest {
         }
     shouldThrow<IllegalArgumentException> { game.timeline.rollBack(invalidPosition) }
     game.timeline.rollBack(recording.positions.first())
-    gameplay.count("Heat<Player1>") shouldBe 0
+    agent.count("Heat<Player1>") shouldBe 0
     recording.seek(recording.positions.lastIndex)
 
     recording.seek(0)
-    gameplay.count("Heat<Player1>") shouldBe 0
+    agent.count("Heat<Player1>") shouldBe 0
     recording.seek(1)
-    gameplay.count("Heat<Player1>") shouldBe 0
+    agent.count("Heat<Player1>") shouldBe 0
     recording.seek(2)
-    gameplay.count("Heat<Player1>") shouldBe 1
+    agent.count("Heat<Player1>") shouldBe 1
     observedCounts.shouldContainExactly(0, 1, 0, 1, 0, 1)
 
     subscription.cancel()
@@ -53,26 +53,26 @@ internal class GameRecordingTest {
   @Test
   internal fun automaticFollowUpWorkIsOneSeparateRecordedStep() {
     val game = Engine.newGame(canonicalPremise())
-    val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
     var addAutomaticResources = true
     game.onAtomicComplete = {
       if (addAutomaticResources) {
         addAutomaticResources = false
-        gameplay.manual("Plant")
-        gameplay.manual("Steel")
+        agent.manual("Plant")
+        agent.manual("Steel")
       }
     }
 
-    gameplay.manual("Heat")
+    agent.manual("Heat")
     val recording = game.recording()
 
     recording.positions.size shouldBe 3
     recording.seek(1)
-    gameplay.count("Heat<Player1>") shouldBe 1
-    gameplay.count("Plant<Player1>") shouldBe 0
-    gameplay.count("Steel<Player1>") shouldBe 0
+    agent.count("Heat<Player1>") shouldBe 1
+    agent.count("Plant<Player1>") shouldBe 0
+    agent.count("Steel<Player1>") shouldBe 0
     recording.seek(2)
-    gameplay.count("Plant<Player1>") shouldBe 1
-    gameplay.count("Steel<Player1>") shouldBe 1
+    agent.count("Plant<Player1>") shouldBe 1
+    agent.count("Steel<Player1>") shouldBe 1
   }
 }

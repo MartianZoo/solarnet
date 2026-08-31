@@ -1,7 +1,7 @@
 # Engine model
 
 > **Read when:** changing live World construction, components, events, tasks, effects, rollback,
-> recoverable dead ends, input transformation, or the current `Gameplay` surface.
+> recoverable dead ends, input transformation, or the current `Agent` surface.
 >
 > **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
 > [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
@@ -19,7 +19,7 @@
 | Tasks, assignment, selection, narrowing, resolution, or execution | Tasks are an unordered choice pool through Execution |
 | Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
 | Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
-| Engine API or autoexecution | Current Gameplay surface; Auto-execution and workflow |
+| Engine API or autoexecution | Current Agent surface; Auto-execution and workflow |
 | Parsing or lowering submitted Pets | Input transformation |
 
 ## Source map
@@ -35,8 +35,8 @@
 - [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt) and
   [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
-- [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt) — search for
-  `public interface Gameplay` before changing caller-facing operations.
+- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
+  `public interface Agent` before changing caller-facing operations.
 
 ## Game construction
 
@@ -49,7 +49,7 @@ A live Game World is a `World` containing:
 | `EventLog` | Applied component and task history |
 | `Timeline` | Atomicity, rollback, revision, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
-| Actor-scoped `Gameplay` | The supported mutation/query facade |
+| Actor-scoped `Agent` | The supported mutation/query facade |
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
@@ -413,12 +413,12 @@ AST values created inside the engine skip parsing but may use relevant transform
 Transform entry points preserve their declared AST `kind`; a cardinality-changing caller must
 request `InstructionTree`, not `Instruction`.
 
-## Current Gameplay surface
+## Current Agent surface
 
 The committed facade remains a power hierarchy:
 
 ```text
-Gameplay
+Agent
   -> TurnLayer
     -> OperationLayer
       -> TaskLayer

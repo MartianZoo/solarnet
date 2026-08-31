@@ -16,10 +16,10 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun playersCannotCreateSystemComponents() {
     val game = Engine.newGame(canonicalPremise())
-    val player = game.gameplay(PLAYER1).godMode()
+    val player = game.agent(PLAYER1).godMode()
 
     assertFailsWith<DeadEndException> { player.manual("Generation") }
-    game.gameplay(ENGINE).godMode().manual("Generation")
+    game.agent(ENGINE).godMode().manual("Generation")
 
     player.count("Generation") shouldBe 1
   }
@@ -27,19 +27,19 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun noActorCanRemoveModules() {
     val game = Engine.newGame(canonicalPremise())
-    val player = game.gameplay(PLAYER1).godMode()
+    val player = game.agent(PLAYER1).godMode()
 
     assertFailsWith<LimitsException> { player.manual("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
 
-    assertFailsWith<LimitsException> { game.gameplay(ENGINE).godMode().manual("-TharsisMap") }
+    assertFailsWith<LimitsException> { game.agent(ENGINE).godMode().manual("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
   }
 
   @Test
   internal fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
-    val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE).godMode().also { it.autoExecMode = NONE }
     engine.manual("Photosynthesis")
     val checkpoint = game.timeline.checkpoint()
 
@@ -58,7 +58,7 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
     val game = Engine.newGame(canonicalPremise())
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
 
     p1.beginManual("OxygenStep!") {
@@ -75,7 +75,7 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun byOwnerEffectDoesNotTreatEngineAsAnOwner() {
     val game = Engine.newGame(canonicalPremise())
-    val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    val engine = game.agent(ENGINE).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = engine.count("TerraformRating")
 
     engine.manual("OxygenStep!")

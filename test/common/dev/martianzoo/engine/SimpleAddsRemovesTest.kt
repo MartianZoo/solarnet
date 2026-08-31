@@ -34,7 +34,7 @@ internal class SimpleAddsRemovesTest {
                     .trimIndent()
             )
         )
-    val p1 = game.gameplay(PLAYER1).godMode()
+    val p1 = game.agent(PLAYER1).godMode()
     p1.manual("Card<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
@@ -90,7 +90,7 @@ internal class SimpleAddsRemovesTest {
 
     val checkpoint = game.timeline.checkpoint()
 
-    val eng = game.gameplay(ENGINE)
+    val eng = game.agent(ENGINE)
     eng.count("Heat") shouldBe 0
 
     val p2 = game.tfm(PLAYER2).godMode()

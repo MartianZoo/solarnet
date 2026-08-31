@@ -1,6 +1,6 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
@@ -21,9 +21,9 @@ internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has"
       context.petsWords(PetsCompletionRoot.REQUIREMENT)
 
   override fun withArgs(args: String): List<String> {
-    val result = repl.gameplay.has(args)
+    val result = repl.agent.has(args)
     return listOf(
-        "$result: ${repl.game.vocabulary.renderPets(repl.gameplay.parse<Requirement>(args))}"
+        "$result: ${repl.game.vocabulary.renderPets(repl.agent.parse<Requirement>(args))}"
     )
   }
 }

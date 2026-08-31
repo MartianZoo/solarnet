@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.engine.Agent.GodMode
+import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.Gameplay.Companion.parse
-import dev.martianzoo.engine.Gameplay.GodMode
-import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -44,7 +44,7 @@ internal class ApiTranslation(
     xers: Transformers,
     vocabulary: Vocabulary,
     private val atomicOperationScope: AtomicOperationScope,
-) : GodMode { // so it really implements all gameplay layers
+) : GodMode { // so it really implements all Agent layers
 
   override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
@@ -233,7 +233,7 @@ internal class ApiTranslation(
     if (events.size != eventCount) recordPlayerInput(Kind.DO_TASK, narrowing, taskNumber)
   }
 
-  // autoExecNow() and cross-Actor gameplay calls can re-enter this call site. Its depth is shared
+  // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
   private fun atomic(block: () -> Unit): TaskResult =
       atomicOperationScope.run(block) { impl.autoExecNow(autoExecMode) }

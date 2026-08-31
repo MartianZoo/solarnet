@@ -35,7 +35,7 @@ The engine must be fully usable with no autoexecution enabled. A client can play
 issuing explicit gameplay commands. Disabling every policy must perform no autoexecution analysis,
 queue scan, speculative resolution, or other hidden work.
 
-Autoexecution is a pool of optional client policies plugged into the ordinary `Gameplay` API. A
+Autoexecution is a pool of optional client policies plugged into the ordinary `Agent` API. A
 policy may select or narrow tasks on an Actor's behalf. It has no mutation power
 that an explicit client call lacks, and the resulting gameplay operation must be identical to the
 same call made directly by that client.
@@ -103,7 +103,7 @@ An application-level driver repeatedly:
 
 1. reads current gameplay and task state;
 2. asks the selected policies for a gameplay command;
-3. performs at most one proposed command through the relevant assignee's `Gameplay` API; and
+3. performs at most one proposed command through the relevant assignee's `Agent` API; and
 4. discards every prior conclusion and reads the resulting state again.
 
 The ordering of policies is a client configuration concern. For proof-preserving policies, it
@@ -114,7 +114,7 @@ The driver may be a decorator, subscriber, command-loop collaborator, or another
 mechanism. Its concrete shape must preserve the essential dependency direction:
 
 ```text
-autoexecution policies -> Gameplay API -> engine semantics
+autoexecution policies -> Agent API -> engine semantics
 ```
 
 It must not become a callback from engine internals into policy code, a privileged task mutation
@@ -216,7 +216,7 @@ task selection on average.
 
 The destination removes that structural cost:
 
-- raw `Gameplay` commands never start an autoexecution drain;
+- raw `Agent` commands never start an autoexecution drain;
 - no selected policies means no autoexecution work;
 - one application driver owns policy advancement;
 - each accepted proposal performs one command and invalidates earlier analysis;
@@ -231,7 +231,7 @@ easier to optimize.
 ## Broad implementation direction
 
 The current policy loop should move out of `Implementations` and `ApiTranslation`; `AutoExecMode`
-and `FIRST` should disappear from `Gameplay`. The raw API should retain task commands and
+and `FIRST` should disappear from `Agent`. The raw API should retain task commands and
 gain only the read-only analysis needed by real policies. An optional application driver should own
 the selected policy profile, advancement points, and diagnostic agent identity.
 
@@ -266,7 +266,7 @@ engine internals into client scripts.
 
 ## Current implementation divergence
 
-Committed code still stores `AutoExecMode` on `Gameplay`, defaults it to `FIRST`, invokes draining
+Committed code still stores `AutoExecMode` on `Agent`, defaults it to `FIRST`, invokes draining
 from the outer engine-side API layer and operation lifecycle, scans pending tasks globally, and
 uses stable iteration order to choose among multiple candidates. Candidate discovery catches every
 `Exception`, conflating routine ineligibility with defects, and operation-level drains can still

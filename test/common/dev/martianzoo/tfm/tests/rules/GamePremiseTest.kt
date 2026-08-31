@@ -31,8 +31,8 @@ internal class GamePremiseTest {
 
     first.classTable shouldBe second.classTable
     TfmWorkflow.Manual(first).setupPhase()
-    first.gameplay(ENGINE).count("SetupPhase") shouldBe 1
-    second.gameplay(ENGINE).count("SetupPhase") shouldBe 0
+    first.agent(ENGINE).count("SetupPhase") shouldBe 1
+    second.agent(ENGINE).count("SetupPhase") shouldBe 0
   }
 
   @Test
@@ -93,8 +93,8 @@ internal class GamePremiseTest {
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe
         setOf(cn("Player1"), cn("Player2"))
     TfmWorkflow.Manual(game).setupPhase()
-    game.gameplay(Player.PLAYER1).count("TerraformRating<Mom>") shouldBe 20
-    game.gameplay(Player.PLAYER2).count("TerraformRating<Ellie>") shouldBe 20
+    game.agent(Player.PLAYER1).count("TerraformRating<Mom>") shouldBe 20
+    game.agent(Player.PLAYER2).count("TerraformRating<Ellie>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
         Player.PLAYER1
   }

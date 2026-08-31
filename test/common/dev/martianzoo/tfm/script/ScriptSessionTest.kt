@@ -114,7 +114,7 @@ internal class ScriptSessionTest {
     repl.command("become Player1")
 
     assertEquals(listOf("1 Phase"), repl.command("as Engine count Phase"))
-    assertEquals("Player1", repl.gameplay.actor.toString())
+    assertEquals("Player1", repl.agent.actor.toString())
   }
 
   @Test
@@ -164,7 +164,7 @@ internal class ScriptSessionTest {
         repl.command("newgame \"TerraformingMars\" P1 P2"),
     )
     assertEquals(listOf("Hi, P1"), repl.command("become P1"))
-    assertEquals("Player1", repl.gameplay.actor.toString())
+    assertEquals("Player1", repl.agent.actor.toString())
     assertEquals(listOf("Hi, P2"), repl.command("become P2"))
   }
 
@@ -390,9 +390,9 @@ internal class ScriptSessionTest {
           "can't narrow" in it || "select-lock" in it || it.startsWith("pending tasks:")
         }
     )
-    assertEquals(0, repl.gameplay.count("ProjectCard<Player1, Selecting<Player1>>"))
-    assertEquals(0, repl.gameplay.count("ProjectCard<Player2, Selecting<Player2>>"))
-    assertEquals(1, repl.gameplay.count("InventorsGuild<Player1>"))
+    assertEquals(0, repl.agent.count("ProjectCard<Player1, Selecting<Player1>>"))
+    assertEquals(0, repl.agent.count("ProjectCard<Player2, Selecting<Player2>>"))
+    assertEquals(1, repl.agent.count("InventorsGuild<Player1>"))
   }
 
   @Test
@@ -443,7 +443,7 @@ internal class ScriptSessionTest {
 
     val board =
         PlayerBoardToText(
-                TfmGameplay(repl.game, repl.gameplay.actor, repl.gameplay),
+                TfmGameplay(repl.game, repl.agent.actor, repl.agent),
                 false,
             )
             .board()
@@ -475,7 +475,7 @@ internal class ScriptSessionTest {
             "MoholeArea_SpecialTile<Tharsis_9_9>"
     )
     assertTrue(repl.command("tasks").isEmpty())
-    assertEquals(8, repl.gameplay.count("Tile"))
+    assertEquals(8, repl.agent.count("Tile"))
 
     assertEquals(
         """

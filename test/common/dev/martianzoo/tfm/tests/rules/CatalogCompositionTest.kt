@@ -31,7 +31,7 @@ internal class CatalogCompositionTest {
     val game = setUpGame(canonicalPremise(catalog = catalog))
 
     game.classTable.allClassNames.shouldContain(cn("CompositionProbe"))
-    game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
+    game.agent(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
   }
 
   @Test
@@ -52,8 +52,8 @@ internal class CatalogCompositionTest {
 
     val game = Engine.newGame(canonicalPremise(catalog = catalog))
 
-    game.gameplay(PLAYER1).count("BootstrapDependency") shouldBe 1
-    game.gameplay(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
+    game.agent(PLAYER1).count("BootstrapDependency") shouldBe 1
+    game.agent(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
   }
 
   @Test

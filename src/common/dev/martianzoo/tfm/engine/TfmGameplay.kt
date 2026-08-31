@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.engine.Agent
+import dev.martianzoo.engine.Agent.OperationBody
+import dev.martianzoo.engine.Agent.TurnLayer
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Gameplay
-import dev.martianzoo.engine.Gameplay.OperationBody
-import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
@@ -31,14 +31,14 @@ import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceClasses
 import dev.martianzoo.tfm.engine.TfmApiUtils.standardResourceNames
 
 /**
- * Wraps and extends a [Gameplay] instance to provide much more convenient functions specific to
+ * Wraps and extends a [Agent] instance to provide much more convenient functions specific to
  * *Terraforming Mars*.
  */
 public class TfmGameplay(
     private val game: World,
     override val actor: Actor,
-    private val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
-) : TurnLayer by gameplay {
+    private val agent: TurnLayer = game.agent(actor) as TurnLayer,
+) : TurnLayer by agent {
   public val reader: GameReader by game::reader
 
   private var explicitPaymentChoicesRequired = false
@@ -73,13 +73,13 @@ public class TfmGameplay(
 
   /** Buys the selected number of offered project cards and settles their M€ invoice. */
   public fun buyCards(count: Int): TaskResult =
-      gameplay.godMode().continueManual { buySelectedCards(count) }
+      agent.godMode().continueManual { buySelectedCards(count) }
 
   /**
    * Commits every project card currently selected, opening a pending offer first when necessary.
    */
   public fun buyCards(): TaskResult =
-      gameplay.godMode().continueManual {
+      agent.godMode().continueManual {
         closeUnusedPaymentOffers()
         openPendingProjectCardOffer()
         val selected = this@TfmGameplay.count("ProjectCard<Selecting>")

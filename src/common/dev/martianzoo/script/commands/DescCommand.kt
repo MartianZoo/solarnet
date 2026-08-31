@@ -1,6 +1,6 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.engine.TypeDescription
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.Vocabulary
@@ -31,7 +31,7 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
     val (expression, type) =
         if (args == "random") {
           val type =
-              repl.gameplay
+              repl.agent
                   .resolve("$CLASS")
                   .let(repl.game.reader::getComponents)
                   .expressions()
@@ -42,8 +42,8 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
                   .random()
           type.expressionFull to type
         } else {
-          val expression: Expression = repl.gameplay.parse(args)
-          expression to repl.gameplay.resolve(args)
+          val expression: Expression = repl.agent.parse(args)
+          expression to repl.agent.resolve(args)
         }
     return listOf(TypeToText.describe(expression, type, repl.game.classTable, repl.game.vocabulary))
   }
