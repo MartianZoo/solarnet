@@ -328,11 +328,11 @@ follow the dependency graph when card identity matters. Robotic Workforce uses
 action-scoped wild holder received the Building interpretation.
 
 `WildTagUse` is `Temporary`, so the action cannot finish while it remains. An unchosen offer is
-uniquely implied action-scoped settlement: after the action body and all descendants drain, scoped
-completion removes the acting player's remaining uses and their dependent tags disappear through
+uniquely implied end-of-action settlement: after the action's work finishes, the selected completion
+hook removes the acting player's remaining uses and their dependent tags disappear through
 dependency cascade. It must finish before workflow offers `SecondAction`; a client Routine and the
 later decision to decline that second action must not own this cleanup. `TfmGameplay` currently
-performs the equivalent settlement directly and should migrate when scoped completion exists.
+performs the equivalent settlement directly and should migrate when that hook exists.
 
 ## Metrics, refinements, and limits
 

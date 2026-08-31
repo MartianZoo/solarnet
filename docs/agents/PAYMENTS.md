@@ -24,13 +24,12 @@
 
 ## What must be fixed
 
-Payment **sequencing** and payment **allocation evidence** are separate. The agreed sequencing
-direction in [ACTIONS.md](ACTIONS.md#agreed-player-yield-payment-loop) offers one mandatory abstract
-tender choice at a time and makes Billing an `UntilYield<Player>` consumed by `Yield<Player>` only
-after no matching debt remains.
-That removes parallel tender tasks, explicit rejection of unused methods, and client-side cleanup
-scans. It does not reveal gross value hidden by saturated `Owed` removals and therefore does not by
-itself repair the allocation defect below.
+Payment **sequencing** and payment **allocation evidence** are separate. The proposed sequencing
+direction in [ACTIONS.md](ACTIONS.md#proposed-single-payment-choice-loop) offers one required
+abstract tender choice at a time and removes Billing directly when no matching debt remains. That
+removes parallel tender tasks, explicit rejection of unused methods, and client-side cleanup scans.
+It does not reveal gross value hidden by saturated `Owed` removals and therefore does not by itself
+repair the allocation defect below.
 
 The payment system must eventually distinguish three facts:
 
@@ -185,9 +184,10 @@ implement Helion now.
 
 ## Present direction
 
-First replace the distributed parallel-task lifecycle with the single-choice Player-yield loop while
-preserving the exact `Pay` and `PayFromCard` history needed by later allocation work. Do not add a
-separate `Paid` component: invoice removal remains the completion event.
+First replace the distributed parallel-task lifecycle with the single payment-choice loop while
+preserving the exact `Pay` and `PayFromCard` history needed by later allocation work. Complete
+Billing directly from debt reaching zero. Do not add a separate `Paid` component: invoice removal
+remains the completion event.
 
 Do not repair Space Elevator by prohibiting all excess or by relying on automatic-effect order.
 First seek the smallest way to expose complete per-source payment value. Once that evidence exists,
