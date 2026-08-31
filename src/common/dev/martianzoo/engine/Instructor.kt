@@ -70,7 +70,7 @@ internal constructor(
   ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor) }
 
   /**
-   * Executes a resolved first stage; later linked stages resolve against the state they inherit.
+   * Executes a resolved first stage; later shared stages resolve against the state they inherit.
    */
   internal fun executeResolved(
       instruction: Instruction,
@@ -349,7 +349,7 @@ internal constructor(
         change is Transmute &&
             !Change.change(g?.expression, r?.expression, count, intens).narrows(change, reader)
     ) {
-      // Independent auto-narrowing must not choose conflicting values for one atomic linkage.
+      // Independent auto-narrowing must not choose conflicting values for one atomic variable.
       return change
     }
     if (listOfNotNull(g, r).any { !classTable.isActive(it) }) {

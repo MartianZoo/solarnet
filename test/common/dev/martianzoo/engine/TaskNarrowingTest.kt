@@ -361,7 +361,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing a linked THEN to a concrete sequence splits its first stage`() {
+  internal fun `narrowing a variable-sharing THEN to a concrete sequence splits its first stage`() {
     initiate("X Plant? THEN X Heat?")
 
     selectAndNarrow("X Plant? THEN X Heat?", "3 Plant THEN 3 Heat")

@@ -6,11 +6,13 @@ import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
@@ -19,6 +21,7 @@ import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
+import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.pets.types.Dependency.Key
@@ -233,7 +236,7 @@ internal constructor(
   private fun replaceThis(expression: Expression): Expression =
       replaceThisExpressionsWith(className.expression).transformExpression(expression)
 
-  private fun directSupertypes(): Set<Type> =
+  private fun directSupertypes(): Set<GroundType> =
       when {
         className == COMPONENT -> setOf()
         sups.none() -> setOf(loader.componentClass.baseType)
@@ -308,7 +311,7 @@ internal constructor(
     }
   }
 
-  private fun Type.bindSelfAt(paths: List<List<Key>>): Expression {
+  private fun GroundType.bindSelfAt(paths: List<List<Key>>): Expression {
     val pathsByKey = paths.groupBy { it.first() }
     val arguments = dependencies.expressionsFull { dependency ->
       val remainingPaths = pathsByKey[dependency.key]?.map { it.drop(1) }.orEmpty()
@@ -358,77 +361,33 @@ internal constructor(
     result
   }
 
-  private data class DependencyLink(
+  private data class DependencyEquality(
       val expressions: Set<Expression>,
       val paths: Set<DependencyPath>,
   )
 
-  private val declaredDependencyLinks: List<DependencyLink> by lazy {
-    val occurrences = mutableMapOf<Pair<Expression, Key>, MutableSet<DependencyPath>>()
-
-    fun collectSpecializations(expression: Expression, prefix: List<Key>) {
-      if (expression.arguments.isEmpty()) return
-      val dependencySet = loader.load(expression.className).dependencies
-      val resolvedArguments =
-          expression.arguments.map(
-              replacer(THIS, className)::transformExpression,
-          )
-      val matchedDependencies = dependencySet.matchPartialInOrder(resolvedArguments)
-      expression.arguments.zip(matchedDependencies).forEach { (argument, dependency) ->
-        val path = DependencyPath(prefix + dependency.key)
-        if (argument.simple && argument.className != THIS) {
-          occurrences.getOrPut(argument to dependency.key, ::mutableSetOf) += path
-        }
-        collectSpecializations(argument, path.keyList)
-      }
-    }
-
-    declaration.dependencies.forEachIndexed { index, expression ->
-      collectSpecializations(expression, listOf(Key(className, index)))
-    }
-    declaration.supertypes.forEach { collectSpecializations(it, listOf()) }
-
-    occurrences.mapNotNull { (binding, paths) ->
-      if (paths.size < 2) null else DependencyLink(setOf(binding.first), paths)
-    }
-  }
-
-  private val dependencyLinks: List<DependencyLink> by lazy {
-    val merged = mutableListOf<DependencyLink>()
-    (directSuperclasses.flatMap { it.dependencyLinks } + declaredDependencyLinks).forEach { link ->
-      val overlapping = merged.filter { it.paths.any(link.paths::contains) }
-      merged.removeAll(overlapping)
-      merged +=
-          DependencyLink(
-              expressions = link.expressions + overlapping.flatMap { it.expressions },
-              paths = link.paths + overlapping.flatMap { it.paths },
-          )
-    }
-    merged
-  }
-
-  /** Whether this direct dependency is one occurrence of an authored class-header linkage. */
-  public fun isLinkedDependency(key: Key): Boolean = dependencyLinks.any {
+  /** Whether this direct dependency is constrained equal to another header dependency. */
+  public fun isEqualityConstrainedDependency(key: Key): Boolean = dependencyEqualities.any {
     DependencyPath(key) in it.paths
   }
 
-  private fun linkError(link: DependencyLink, dependencies: DependencySet): Nothing =
+  private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
       error(
-          "linked ${link.expressions.joinToString()} dependencies disagree in " +
+          "Type-variable ${equality.expressions.joinToString()} dependencies disagree in " +
               className.of(dependencies.expressionsFull())
       )
 
-  private fun normalizeLinkedDependencies(original: DependencySet): DependencySet {
+  private fun normalizeVariableEqualities(original: DependencySet): DependencySet {
     var dependencies = original
     var changed: Boolean
     do {
       changed = false
-      dependencyLinks.forEach { link ->
-        val linkedDependencies = link.paths.map(dependencies::at)
-        val intersection = linkedDependencies.reduce { left, right ->
-          (left glb right) ?: linkError(link, dependencies)
+      dependencyEqualities.forEach { equality ->
+        val occurrences = equality.paths.map(dependencies::at)
+        val intersection = occurrences.reduce { left, right ->
+          (left glb right) ?: equalityError(equality, dependencies)
         }
-        link.paths.forEach { path ->
+        equality.paths.forEach { path ->
           if (dependencies.at(path) != intersection) {
             dependencies = dependencies.replaceAt(path, intersection)
             changed = true
@@ -439,29 +398,326 @@ internal constructor(
     return dependencies
   }
 
-  internal fun requireLinksSatisfied(dependencies: DependencySet) {
-    dependencyLinks.forEach { link ->
-      if (link.paths.map(dependencies::at).distinct().size > 1) {
-        linkError(link, dependencies)
+  internal fun requireVariableEqualitiesSatisfied(dependencies: DependencySet) {
+    dependencyEqualities.forEach { equality ->
+      if (equality.paths.map(dependencies::at).distinct().size > 1) {
+        equalityError(equality, dependencies)
+      }
+    }
+  }
+
+  private data class HeaderOccurrence(
+      val expression: Expression,
+      val path: DependencyPath,
+      val region: Int,
+      val ordinal: Int,
+  )
+
+  private data class HeaderVariableBinding(
+      val variable: TypeVariable,
+      val aliases: Set<TypeVariable>,
+      val paths: Set<DependencyPath>,
+      val headerExpressions: Set<Expression>,
+  )
+
+  private val headerOccurrences: List<HeaderOccurrence> by lazy {
+    var ordinal = 0
+    buildList {
+      fun eligible(expression: Expression): Boolean =
+          expression.className != THIS &&
+              runCatching { loader.resolve(expression.uncomplemented()).abstract }
+                  .getOrDefault(false)
+
+      fun collectArguments(expression: Expression, prefix: List<Key>, region: Int) {
+        if (expression.arguments.isEmpty()) return
+        val dependencySet = loader.load(expression.className).dependencies
+        val arguments = expression.arguments.map(replacer(THIS, className)::transformExpression)
+        val matched = dependencySet.matchPartialInOrder(arguments)
+        expression.arguments.zip(matched).forEach { (argument, dependency) ->
+          val path = DependencyPath(prefix + dependency.key)
+          if (eligible(argument)) add(HeaderOccurrence(argument, path, region, ordinal++))
+          collectArguments(argument, path.keyList, region)
+        }
+      }
+
+      declaration.dependencies.forEachIndexed { index, expression ->
+        val path = DependencyPath(Key(className, index))
+        if (eligible(expression)) add(HeaderOccurrence(expression, path, index, ordinal++))
+        collectArguments(expression, path.keyList, index)
+      }
+      declaration.supertypes.forEachIndexed { index, expression ->
+        collectArguments(expression, emptyList(), declaration.dependencies.size + index)
+      }
+    }
+  }
+
+  private val headerVariableBindings: List<HeaderVariableBinding> by lazy {
+    data class Seed(
+        var type: GroundType,
+        var declaration: TypeVariable.Site,
+        val usages: MutableList<TypeVariable.Site>,
+        val aliases: MutableSet<TypeVariable>,
+        val paths: MutableSet<DependencyPath>,
+        val headerExpressions: MutableSet<Expression>,
+    )
+
+    fun seed(binding: HeaderVariableBinding) =
+        Seed(
+            binding.variable.bound,
+            TypeVariable.Site(
+                binding.variable.declaration.expression,
+                binding.variable.declaration.region,
+                binding.variable.declaration.ordinal,
+                interpretedGroundType = binding.variable.declaration.groundType,
+            ),
+            binding.variable.usages.mapTo(mutableListOf()) {
+              TypeVariable.Site(
+                  it.expression,
+                  it.region,
+                  it.ordinal,
+                  interpretedGroundType = it.groundType,
+              )
+            },
+            (binding.aliases + binding.variable).toMutableSet(),
+            binding.paths.toMutableSet(),
+            binding.headerExpressions.toMutableSet(),
+        )
+
+    fun Seed.absorb(other: Seed) {
+      usages += other.declaration
+      usages += other.usages
+      aliases += other.aliases
+      paths += other.paths
+      headerExpressions += other.headerExpressions
+    }
+
+    fun Seed.copySeed() =
+        Seed(
+            type,
+            declaration,
+            usages.toMutableList(),
+            aliases.toMutableSet(),
+            paths.toMutableSet(),
+            headerExpressions.toMutableSet(),
+        )
+
+    val seeds = mutableListOf<Seed>()
+    directSuperclasses
+        .flatMap { it.headerVariableBindings }
+        .forEach { inherited ->
+          val incoming = seed(inherited)
+          val overlapping = seeds.filter { it.paths.any(incoming.paths::contains) }
+          overlapping.forEach(incoming::absorb)
+          seeds.removeAll(overlapping)
+          seeds += incoming
+        }
+
+    val occurrenceGroups = mutableListOf<MutableList<HeaderOccurrence>>()
+    headerOccurrences.forEach { occurrence ->
+      val matching = occurrenceGroups.filter { group ->
+        group.any { prior ->
+          prior.expression.sameAuthoredTypeExpressionAs(occurrence.expression) &&
+              sameHeaderVariable(prior, occurrence)
+        }
+      }
+      if (matching.isEmpty()) {
+        occurrenceGroups += mutableListOf(occurrence)
+      } else {
+        val merged = matching.first()
+        matching.drop(1).forEach {
+          merged += it
+          occurrenceGroups.remove(it)
+        }
+        merged += occurrence
+      }
+    }
+
+    occurrenceGroups
+        .sortedBy { occurrences -> occurrences.minOf(HeaderOccurrence::ordinal) }
+        .forEach { occurrences ->
+          val paths = occurrences.mapTo(mutableSetOf(), HeaderOccurrence::path)
+          val overlapping = seeds.filter { it.paths.any(paths::contains) }
+          val target =
+              if (overlapping.isEmpty()) {
+                val first = occurrences.minBy(HeaderOccurrence::ordinal)
+                Seed(
+                    loader.resolve(first.expression.uncomplemented()),
+                    TypeVariable.Site(
+                        first.expression,
+                        first.region,
+                        first.ordinal,
+                        interpretedGroundType = loader.resolve(first.expression.uncomplemented()),
+                    ),
+                    mutableListOf(),
+                    mutableSetOf(),
+                    mutableSetOf(),
+                    mutableSetOf(),
+                )
+              } else {
+                overlapping.first().copySeed().also { merged ->
+                  overlapping.drop(1).forEach(merged::absorb)
+                }
+              }
+          seeds.removeAll(overlapping)
+          occurrences.sortedBy(HeaderOccurrence::ordinal).forEach { occurrence ->
+            if (occurrence.expression !== target.declaration.expression) {
+              target.usages +=
+                  TypeVariable.Site(
+                      occurrence.expression,
+                      occurrence.region,
+                      occurrence.ordinal,
+                      interpretedGroundType =
+                          loader.resolve(occurrence.expression.uncomplemented()),
+                  )
+            }
+            target.headerExpressions += occurrence.expression
+            target.paths += occurrence.path
+          }
+          target.paths += paths
+          seeds += target
+        }
+
+    var bodyOrdinal = headerOccurrences.size
+    declaration.effects.forEachIndexed { effectIndex, effect ->
+      effect.descendantsOfType<Expression>().forEach { expression ->
+        if (expression.className == ANYONE) return@forEach
+        val exact = seeds.filter { seed ->
+          seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)
+        }
+        val matching = exact.ifEmpty {
+          seeds.filter { seed ->
+            seed.headerExpressions.any { header ->
+              header.className == expression.className &&
+                  ((header.simple && expression.arguments.isNotEmpty()) ||
+                      (expression.simple && header.arguments.isNotEmpty()))
+            }
+          }
+        }
+        if (matching.size > 1) {
+          throw PetException("$className uses ambiguous Class Type variable $expression in $effect")
+        }
+        matching
+            .singleOrNull()
+            ?.usages
+            ?.add(
+                TypeVariable.Site(
+                    expression,
+                    declaration.dependencies.size + declaration.supertypes.size + effectIndex,
+                    bodyOrdinal++,
+                    complementedUse = expression.complement,
+                )
+            )
+      }
+    }
+
+    seeds.map { seed ->
+      val variable = TypeVariable(seed.type, seed.declaration, seed.usages)
+      HeaderVariableBinding(
+          variable,
+          seed.aliases + variable,
+          seed.paths,
+          seed.headerExpressions,
+      )
+    }
+  }
+
+  private val dependencyEqualities: List<DependencyEquality> by lazy {
+    headerVariableBindings.mapNotNull { binding ->
+      binding.paths
+          .takeIf { it.size > 1 }
+          ?.let { paths ->
+            DependencyEquality(binding.headerExpressions, paths)
+          }
+    }
+  }
+
+  private fun sameHeaderVariable(
+      first: HeaderOccurrence,
+      second: HeaderOccurrence,
+  ): Boolean {
+    fun hasSuffix(longer: List<Key>, suffix: List<Key>): Boolean =
+        longer.size >= suffix.size && longer.takeLast(suffix.size) == suffix
+
+    val firstPath = first.path.keyList
+    val secondPath = second.path.keyList
+    if (hasSuffix(firstPath, secondPath) || hasSuffix(secondPath, firstPath)) return true
+
+    val firstInSupertype = first.region >= declaration.dependencies.size
+    val secondInSupertype = second.region >= declaration.dependencies.size
+    return firstInSupertype != secondInSupertype && firstPath.last() == secondPath.last()
+  }
+
+  /** Type variables visible in this Class, including inherited declarations. */
+  public val typeVariables: List<TypeVariable> by lazy {
+    headerVariableBindings.map(HeaderVariableBinding::variable)
+  }
+
+  /** Returns the Class-variable occurrences visible in [effect]. */
+  public fun typeVariablesIn(effect: Effect): TypeVariableScope =
+      TypeVariableScope.containing(typeVariables, effect)
+
+  /** Returns [effect] annotated with the Class-header variables it uses. */
+  public fun interpretTypeVariablesIn(effect: Effect): Effect =
+      effect.withTypeVariables(typeVariablesIn(effect))
+
+  internal fun variableBindings(
+      general: GroundType,
+      specific: GroundType,
+      variables: Iterable<TypeVariable>,
+  ): Map<TypeVariable, GroundType> {
+    require(general.rootClass === this)
+    require(specific.rootClass === this)
+    val requested = variables.toSet()
+
+    fun capturedAt(
+        type: GroundType,
+        path: DependencyPath,
+        complemented: Boolean,
+    ): GroundType =
+        when (val dependency = type.dependencies.at(path)) {
+          is TypeDependency -> dependency.boundType
+          is Dependency.ComplementDependency ->
+              if (complemented) dependency.excludedType else dependency.domainType
+          else -> dependency.boundClass.baseType
+        }
+
+    return buildMap {
+      headerVariableBindings.forEach { binding ->
+        val aliases = binding.aliases.intersect(requested)
+        if (aliases.isEmpty()) return@forEach
+        val complemented = binding.variable.declaration.expression.complement
+        val previous =
+            binding.paths
+                .map { path -> capturedAt(general, path, complemented) }
+                .distinct()
+                .singleOrNull()
+                ?: error("Type variable ${binding.variable} has conflicting prior values")
+        val next =
+            binding.paths
+                .map { path -> capturedAt(specific, path, complemented) }
+                .distinct()
+                .singleOrNull() ?: error("Type variable ${binding.variable} has conflicting values")
+        if (next == previous) return@forEach
+        aliases.forEach { variable -> put(variable, next) }
       }
     }
   }
 
   // GETTING TYPES
 
-  public fun withAllDependencies(deps: DependencySet): Type =
-      Type(this, normalizeLinkedDependencies(deps.subMapInOrder(dependencies.keys)))
+  public fun withAllDependencies(deps: DependencySet): GroundType =
+      GroundType(this, normalizeVariableEqualities(deps.subMapInOrder(dependencies.keys)))
 
   /** Least upper bound of all types with rootClass==this */
-  public val baseType: Type by lazy { withAllDependencies(dependencies) }
+  public val baseType: GroundType by lazy { withAllDependencies(dependencies) }
 
-  public val defaultType: Type by lazy {
+  public val defaultType: GroundType by lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
     withAllDependencies(templateDependencies)
   }
 
-  public fun specialize(specs: List<Expression>): Type = baseType.specialize(specs)
+  public fun specialize(specs: List<Expression>): GroundType = baseType.specialize(specs)
 
   /** Returns the dependency key matched by each authored specialization, in authored order. */
   public fun matchDependencyKeys(specs: List<Expression>): List<Key> =
@@ -471,11 +727,11 @@ internal constructor(
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
    * the type `Class<Resource>`.
    */
-  internal val classType: Type by lazy {
+  internal val classType: GroundType by lazy {
     loader.classClass.withAllDependencies(depsForClassType(this))
   }
 
-  public fun concreteTypes(): Sequence<Type> = baseType.concreteSubtypesSameClass()
+  public fun concreteTypes(): Sequence<GroundType> = baseType.concreteSubtypesSameClass()
 
   internal val defaultsDecl by declaration::defaultsDeclaration
 

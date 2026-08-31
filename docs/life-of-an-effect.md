@@ -201,19 +201,14 @@ Bar: This
 Bar: Bar
 ```
 
-- a header-linked `Foo` becomes the inheriting Class's corresponding Type at the Class Effect
+- a Class-header variable declared as `Foo` becomes the inheriting Class's corresponding Type at the
+  Class Effect
   stage;
 - `This` stays late-bound through inheritance and becomes the exact context Component Type only at
   the Component Effect stage.
 
-So a Class Effect on `Bar` can already say `Bar` where the declaration said header-linked `Foo`,
-while still saying `This` elsewhere.
-
-*The current recognition and propagation of Class Header Type Variables has known gaps. The rule
-above is the intended contract; in particular, an unrelated occurrence of the same Class Name
-should not be changed merely because its spelling matches. The current Class Effect chain has no
-separate inheritance transformer for that rule; header-linked replacements currently occur in the
-Component Effect chain described next.*
+So a Class Effect on `Bar` can already use the Class-header variable declared by `Foo`, while still
+saying `This` elsewhere. An unrelated occurrence of the same Class Name remains an ordinary Type.
 
 Recyclon's selected Effect is declared directly on Recyclon, so it does not visibly exercise this
 replacement. Its `This` occurrences do exercise the separate late binding in the next stage.
@@ -225,20 +220,18 @@ Dependency choices—remain open.
 
 ## 6. A concrete Recyclon Type produces a Component Effect
 
-**PetTransformers, in order:** `checkedEffectSubstituter` composes:
+**PetTransformers, in order:** `bindEffectVariables` composes:
 
-1. `substituter`, for ordinary Class and Dependency specialization
-2. zero or more `PetNode.replacer` instances, one for each unambiguous Class Header Dependency
-   binding used by the Effect
-3. `replaceOwnerWith`
-4. `replaceThisExpressionsWith`
-5. `insertDeferredComplementDefaults`
-6. `invalidChangesToDie`
+1. `replaceOwnerWith`
+2. `replaceThisExpressionsWith`
+3. `insertDeferredComplementDefaults`
+4. binding of the Class-header variables actually used by the Effect
+5. `invalidChangesToDie`
 
 The Effect's Types are checked after this chain; that check is not a PetTransformer. On Recyclon,
-step 2 replaces the header-linked `Owner` with `Player1`, and step 4 replaces `This` with the exact
-Recyclon Type. The explicit owner replacement in step 3 then has nothing left to change. There is
-no deferred complement or invalid branch, so steps 5 and 6 also make no visible change.
+step 1 replaces contextual `Owner` with `Player1`, step 2 replaces `This` with the exact Recyclon
+Type, and step 4 captures the component values for any used Class variables. There is no deferred
+complement or invalid branch, so steps 3 and 5 make no visible change.
 
 Suppose Player1's Recyclon has the full Type:
 
@@ -286,17 +279,17 @@ test the Live Effect against relevant Change Events for exactly as long as that 
 
 ## 8. A Change Event produces a Triggered Instruction
 
-**PetTransformers, in order:** `checkedLinkageSubstituter` first uses `substituter` to calculate a
-possible replacement for each linked source, then builds this effective chain over the Instruction:
+**PetTransformers, in order:** `bindVariablesFrom` first binds each Trigger variable from
+the matching Change Event, then builds this effective chain over the Instruction:
 
-1. zero or more `PetNode.replacer` instances for Type Variables linked to the Trigger
+1. binding of the Type Variable usages declared by the Trigger
 2. `replaceOwnerWith`, only if a contextual `Owner` remains in the Trigger
 3. `invalidChangesToDie`
 
 The resulting Instruction is then multiplied by the matching State Change's count; multiplication
-is not a PetTransformer. Recyclon has no trigger-linked Type Variable and its Component Effect has
+is not a PetTransformer. Recyclon has no Trigger-declared Type Variable and its Component Effect has
 already replaced `Owner`, so only step 3 runs over its Instruction and it changes nothing. Manutech
-uses step 1 to replace its linked `StandardResource` with `Plant`.
+uses step 1 to replace its `StandardResource` Type Variable with `Plant`.
 
 Now suppose Player1 plays Titanium Mine. Its printed building tag produces the exact State Change
 that gains a `BuildingTag` dependent on `TitaniumMine<Player1>`. Its Change Event matches:
@@ -331,11 +324,11 @@ Plant<Player1>!
 ```
 
 The two authored occurrences of `StandardResource` are one Type Variable. The exact Trigger match
-narrows it to `Plant`, and that same choice narrows the result. The linkage comes from the authored
-structure; it is not guessed later from two expressions that happen to resemble one another.
+narrows it to `Plant`, and that same choice narrows the result. The declaration and use come from
+the authored scope; they are not guessed later from two resolved Types that happen to resemble one another.
 
-**Postcondition:** the Trigger is finished. Its exact Change Event has fixed every trigger-linked
-Type Variable it can fix, and the result has been repeated by the matched State Change's count. The
+**Postcondition:** the Trigger is finished. Its exact Change Event has bound every Trigger-declared
+Type Variable it can bind, and the result has been repeated by the matched State Change's count. The
 result is an Instruction, but it can still be abstract because choices inside the result belong to
 the Assignee.
 
@@ -354,11 +347,11 @@ text to choose or narrow it, that input first passes through:
 7. `replaceOwnerWith`, when the client is a Player
 8. `Prod.deprodify`
 
-First-stage narrowing can then use `PetNode.replacer` for authored Type Variables shared across
-`THEN`, followed by `bindXTo` when stages share `X`. When a removal's source form was lowered, the
-fallback is `checkedSubstituter`: `substituter` followed by `invalidChangesToDie`. Recyclon's
-`THEN` shares neither a Type Variable nor `X`, and its removal needs no binding, so selecting its
-first stage changes the Task structure directly rather than through one of these PetTransformers.
+First-stage narrowing binds authored Type Variables shared across `THEN` through their recorded
+`TypeVariableScope`, followed by `bindXTo` when stages share `X`. When marked syntax has lowered a
+removal's source form, the same scope captures the selected Ground Type from the lowered form before
+applying `invalidChangesToDie`. Recyclon's `THEN` shares neither a Type Variable nor `X`, and its
+removal needs no binding, so selecting its first stage changes the Task structure directly.
 
 Recyclon used `:`, so its Triggered Instruction becomes a Task in Player1's Task Queue. Had it used
 `::`, it would have been an Automatic Effect and would not offer this client-visible Task.

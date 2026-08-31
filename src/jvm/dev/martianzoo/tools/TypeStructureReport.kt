@@ -113,8 +113,8 @@ private object TypeStructureReport {
             .filter { it.size > 1 }
 
     val flattenedChoiceProducts = concrete.associateWith { flattenedChoiceProduct(it, table) }
-    val dependencyLinks = dependencyLinks(active, table)
-    val concreteTypeCounter = ConcreteTypeCounter(table, dependencyLinks)
+    val dependencyVariablePaths = dependencyVariablePaths(active, table)
+    val concreteTypeCounter = ConcreteTypeCounter(table, dependencyVariablePaths)
     val rootCounts = linkedMapOf<PetsClass, RootCount>()
     val groundMillis = measureTimeMillis {
       concrete.forEach { klass ->
@@ -289,12 +289,12 @@ private object TypeStructureReport {
       line("classes without dependencies", dependencyCounts.count { it == 0 })
       line("classes with inherited dependencies", dependencyCounts.count { it > 0 })
       line(
-          "classes with linked dependency groups",
-          dependencyLinks.count { it.value.isNotEmpty() },
+          "classes with dependency-variable groups",
+          dependencyVariablePaths.count { it.value.isNotEmpty() },
       )
       line(
-          "linked dependency groups",
-          dependencyLinks.values.sumOf(List<Set<DependencyPath>>::size),
+          "dependency-variable groups",
+          dependencyVariablePaths.values.sumOf(List<Set<DependencyPath>>::size),
       )
       appendTop("widest dependency schemas", active, { it.dependencies.keys.size })
       appendTop("deepest dependency schemas", active, { typeDepth(it.baseType) })
@@ -431,7 +431,7 @@ private object TypeStructureReport {
       )
       line(
           "product caveat",
-          "flattening dependency paths can over- or under-count linkage, subtype-specific " +
+          "flattening dependency paths can over- or under-count variable constraints, subtype-specific " +
               "dependencies, covariance, defaults, and complements",
       )
 
@@ -494,7 +494,7 @@ private object TypeStructureReport {
 
   private class ConcreteTypeCounter(
       private val table: ClassTable,
-      private val dependencyLinks: Map<PetsClass, List<Set<DependencyPath>>>,
+      private val dependencyVariablePaths: Map<PetsClass, List<Set<DependencyPath>>>,
   ) {
     private val allConcreteMemo = mutableMapOf<Type, BigInteger>()
     private val sameClassMemo = mutableMapOf<Type, BigInteger>()
@@ -513,7 +513,7 @@ private object TypeStructureReport {
               val represented = table.getClass(type.expressionFull.arguments.single().className)
               BigInteger.valueOf(table.allSubclasses(represented).count { !it.abstract }.toLong())
             }
-            !isPlain(type) || dependencyLinks.getValue(type.rootClass).isNotEmpty() -> {
+            !isPlain(type) || dependencyVariablePaths.getValue(type.rootClass).isNotEmpty() -> {
               streamedSubproblems++
               table.concreteSubtypesSameClass(type).fold(BigInteger.ZERO) { count, _ ->
                 count + BigInteger.ONE
@@ -537,13 +537,13 @@ private object TypeStructureReport {
         }
   }
 
-  private fun dependencyLinks(
+  private fun dependencyVariablePaths(
       classes: List<PetsClass>,
       table: ClassTable,
   ): Map<PetsClass, List<Set<DependencyPath>>> {
     val memo = mutableMapOf<PetsClass, List<Set<DependencyPath>>>()
 
-    fun declaredLinks(klass: PetsClass): List<Set<DependencyPath>> {
+    fun declaredVariables(klass: PetsClass): List<Set<DependencyPath>> {
       val occurrences = mutableMapOf<Pair<Expression, Key>, MutableSet<DependencyPath>>()
       val contextualizer = replaceThisExpressionsWith(klass.className.expression)
 
@@ -568,19 +568,19 @@ private object TypeStructureReport {
       return occurrences.values.filter { it.size > 1 }.map(Set<DependencyPath>::toSet)
     }
 
-    fun linksFor(klass: PetsClass): List<Set<DependencyPath>> =
+    fun variablesFor(klass: PetsClass): List<Set<DependencyPath>> =
         memo.getOrPut(klass) {
           val merged = mutableListOf<Set<DependencyPath>>()
-          val incoming = klass.directSuperclasses.flatMap(::linksFor) + declaredLinks(klass)
-          incoming.forEach { link ->
-            val overlapping = merged.filter { prior -> prior.any(link::contains) }
+          val incoming = klass.directSuperclasses.flatMap(::variablesFor) + declaredVariables(klass)
+          incoming.forEach { paths ->
+            val overlapping = merged.filter { prior -> prior.any(paths::contains) }
             merged.removeAll(overlapping)
-            merged += link + overlapping.flatten()
+            merged += paths + overlapping.flatten()
           }
           merged
         }
 
-    classes.forEach(::linksFor)
+    classes.forEach(::variablesFor)
     return memo
   }
 

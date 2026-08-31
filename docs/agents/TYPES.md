@@ -14,11 +14,13 @@
 | Concept | Source entry point |
 | --- | --- |
 | Class identity and nominal hierarchy | [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt), search `public class Class` |
-| Type arguments, dependency lookup, complements | [`Type.kt`](../../src/common/dev/martianzoo/pets/types/Type.kt), search `public data class Type` |
+| Ground Types, dependency lookup, complements | [`GroundType.kt`](../../src/common/dev/martianzoo/pets/types/GroundType.kt) and [`Type.kt`](../../src/common/dev/martianzoo/pets/types/Type.kt) |
 | Dependency declarations and keys | [`Dependency.kt`](../../src/common/dev/martianzoo/pets/types/Dependency.kt) and [`DependencySet.kt`](../../src/common/dev/martianzoo/pets/types/DependencySet.kt) |
 | Class loading, inheritance, defaults, and inhabitation | [`ClassLoader.kt`](../../src/common/dev/martianzoo/pets/types/ClassLoader.kt) |
 | Closed-world lookup and bounds | [`ClassTable.kt`](../../src/common/dev/martianzoo/pets/types/ClassTable.kt) |
-| Authored implicit variables and regions | [`TypeLinking.kt`](../../src/common/dev/martianzoo/pets/TypeLinking.kt), search `Region` |
+| Authored Type variables and scopes | [`TypeVariable.kt`](../../src/common/dev/martianzoo/pets/types/TypeVariable.kt), [`TypeVariableScope.kt`](../../src/common/dev/martianzoo/pets/types/TypeVariableScope.kt), and [`inferTypeVariables.kt`](../../src/common/dev/martianzoo/pets/types/inferTypeVariables.kt) |
+| Class-scoped variables | [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt), search `headerVariableBindings`, and [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt), search `bindEffectVariables` |
+| Trigger and Actor specialization | [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), search `positive abstract Actor selector` and `Subscription` |
 | Foundational declaration vocabulary | [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt), search for the named Class |
 
 ## Quick model
@@ -30,12 +32,13 @@
 - `Class<X>` names a Class without depending on an X component.
 - Class properties record immutable facts about a Class, not state on component occurrences.
 - Refinements filter candidates by querying the current World.
-- Unresolved `Expression` and resolved `Type` are both `Specification`s. Their roots, dependencies,
+- Unresolved `Expression` and resolved `GroundType` are both `Specification`s. Their roots, dependencies,
   and refinements narrow compositionally, and state-aware checks use `TypeInfo`.
 - Complements exclude a dependency subdomain.
 - Each World has one frozen closed Class Table, allowing concrete enumeration and automatic
   narrowing.
-- Repeated authored abstract Expressions can form implicit Type variables inside defined regions.
+- Eligible authored abstract Expressions declare Type variables whose uses are limited to defined
+  scopes.
 - Catalog-known inactive Classes are uninhabited: nominally resolvable, with provably empty domains.
 
 ## 1. Components and Classes
@@ -85,8 +88,8 @@ explicitly rather than distinguished by an ordinal or hash.
 
 Another expression that needs the exact derived Class may use its assigned canonical name. Writing
 the superclass without a local body still means the whole abstract family; it does not implicitly
-resolve to the local subtype. Existing implicit Type-variable rules continue to link repeated
-abstract dependencies inside the derived Type.
+resolve to the local subtype. Existing implicit Type-variable rules continue to interpret repeated
+abstract dependencies inside the derived Type as uses of one declaration.
 
 This syntax is available only in card-definition expressions. Ordinary Class declarations reject
 it. Manually submitted instructions are still parsed and validated, then rejected with
@@ -143,8 +146,8 @@ CLASS GreeneryTile : Tile<MarsArea>
 redeclared.
 
 New dependencies follow inherited ones. `Cardbound<CardFront<Player>> : Owned<Player>` retains
-`Owned_0` and adds the card dependency. The repeated `Player` links card and owner through an
-implicit variable described in section 10.
+`Owned_0` and adds the card dependency. Both `Player` occurrences use one class-scoped Type variable,
+described in section 10, so the card and owner must agree.
 
 When `This` has explicit arguments, replacement keeps those arguments while substituting the
 concrete context Class. Thus an invariant `HAS MAX 1 This<Player>` inherited by `Birds` constrains
@@ -174,10 +177,10 @@ unmatched extra argument is an error.
 must retain which dependencies were supplied rather than only the fully resolved Type.
 
 A full form states every bound. A minimal form uses the smallest dependency-ordered subset of direct
-arguments that greedily re-resolves to the same Type, including dependency linkages that let one
-argument determine another. Equal-size forms prefer earlier dependencies. Rendering uses minimal
-form. A Complement's unwritten domain is the known exception to round-tripping; see section 7 and
-divergence 12.5.
+arguments that greedily re-resolves to the same Type, including Type-variable equalities that let
+one argument determine another. Equal-size forms prefer earlier dependencies. Rendering uses
+minimal form. A Complement's unwritten domain is the known exception to round-tripping; see section
+7 and divergence 12.5.
 
 ## 4. Class literals
 
@@ -216,9 +219,9 @@ most-general common narrowing; Quantifiers must agree.
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
 
-Inside a refinement, an implicit default is deferred when its dependency participates directly in
-an authored Class-header linkage; candidate substitution can then bind it through the linked
-occurrence. Writing `<>` still explicitly accepts the default.
+Inside a refinement, an implicit default is deferred when its dependency is a direct use of a
+Class-header Type variable; candidate substitution can then bind it through that occurrence.
+Writing `<>` still explicitly accepts the default.
 
 A gain, removal, or trigger that would receive dependency bounds from its use-specific default
 cannot leave its argument list implicit. It must supply at least one argument or write an empty list
@@ -354,7 +357,7 @@ promising a mathematical least upper bound.
 Dependency `lub` retains a Complement only when the other bound already satisfies it or both
 exclude the same Type; otherwise it falls back to the unexcluded domain.
 
-## 10. Implicit Type variables
+## 10. Authored Type variables
 
 Repeated unspecified icons in one game rule usually mean one shared choice:
 
@@ -362,81 +365,191 @@ Repeated unspecified icons in one game rule usually mean one shared choice:
 PROD[StandardResource]: StandardResource
 ```
 
-An eligible authored abstract Expression introduces an implicit variable in a choice-producing
-region. Repeating the same authored Expression in a related region refers to that variable.
-Narrowing one occurrence substitutes the same concrete Type at all occurrence paths.
+Here the `StandardResource` in the trigger declares a Type variable and the second occurrence uses
+it. If the triggering component is `Production<Class<Plant>>`, the effect produces `Plant`; the two
+occurrences are not independent searches below `StandardResource`.
 
-Variables are inferred from authored syntax before defaults and lowering. They do not add a new kind
-of choice; they link existing choices.
+### Type model
 
-Within one atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
-`Foo<Same, Here, To> FROM Foo<Same, Here, From>`. Each unchanged argument belongs to both roles and
-therefore introduces the same linkage as repeating that authored Expression in the full spelling.
+`Type` is the common interpretation consumed by type-system APIs. It has two forms:
 
-### Dependency keys and paths
+| Form | Identity | Meaning |
+| --- | --- | --- |
+| `GroundType` | Root Class, dependencies, and optional refinement | An ordinary resolved structural Type. |
+| `TypeVariable` | Its declaration and lexical scope | One captured Type constrained by its Ground-Type `bound`. |
 
-A dependency key combines the Class that first declared it with its zero-based slot:
-`Tile_0`, `Owned_0`, `Adjacency_0`. Subtypes retain the key. A dependency path follows keys
-through nesting, so `Neighbor_0.Tile_0` differs from `Neighbor_1`.
+A variable is therefore not merely an annotation beside its bound. It is a distinct Type with the
+same ordinary operations. Code that only needs narrowing, dependencies, or Class information uses
+the `Type` API. Code concerned with capture or substitution can inspect whether that Type is a
+`TypeVariable`, then inspect its declaration and uses.
 
-Every Class literal slot uses `Class_0`. This makes sibling literal branches especially vulnerable
-to accidental linkage in the current implementation.
+`GroundType` is preferred to `ProperType`: it says that the value contains no open capture without
+suggesting that a variable is somehow an improper Type. A variable's structural constraint is its
+`bound`; the shorter name is sufficient because every variable has exactly one such constraint.
 
-### Authored matching
+### Declaration, use, and binding
 
-Intended matching canonicalizes names and associates written arguments with dependency keys.
-Whitespace, redundant parentheses, and unambiguous argument order do not matter. Omission,
+An authored abstract `Expression` has one of these roles in a particular scope:
+
+| Role | Meaning |
+| --- | --- |
+| Ordinary bound | Denotes all Types below the resolved expression and makes an independent choice if a consumer requires one. |
+| Variable declaration | Introduces one implicit Type variable whose `bound` is the authored expression interpreted in the enclosing scope. The declaration occurrence is also a use. |
+| Variable use | Denotes the value of one visible declaration, further constrained by its containing expression. It does not make another choice. |
+| Contextual placeholder | Receives a value from game context under a separate rule, as `This` and usually `Owner` do. |
+
+`TypeVariable.Declaration` and `TypeVariable.Usage` are syntax occurrences whose `type` is the same
+`TypeVariable`. A `PetElement` exposes the declarations and uses visible in its own
+`TypeVariableScope`. The scope retains occurrence identity through preprocessing. Ground-only
+consumers may explicitly inspect a variable's `bound`, but must not thereby discard its capture
+identity.
+
+A variable's identity is its declaration and scope, not its Class Name. `Player` can therefore name
+several unrelated variables in separate rules. Only a declaration changes the meaning of matching
+text: an abstract expression with no declaration in scope remains an ordinary bound.
+
+Binding chooses a Ground Type that narrows the variable's bound. Every occurrence then denotes that
+same captured value; binding is not textual Class-name replacement. Each containing expression is
+resolved with the captured value in its recorded dependency position, and any rejected occurrence
+or inconsistent value rejects the proposed narrowing. A declaration need not be the occurrence from
+which a consumer first discovers the value; declaration is a static syntax role, while binding is a
+later specialization operation.
+
+For example, specializing the `CardFront` variable of an `AiCentral` component captures
+`AiCentral<Owner>`, not merely the replacement token `AiCentral`. The captured Ground Type carries
+the dependencies supplied by both the occurrence and the concrete Class.
+
+The intended rule for a refined declaration is to evaluate its Requirement when a candidate is
+captured, then reuse the captured Ground Type without evaluating the Requirement again. The current
+implementation does not yet guarantee this timing; see section 12.
+
+Variables are recognized from authored syntax before defaults, marked-syntax lowering, owner
+substitution, and task splitting. These phases must preserve declaration identity and use paths even
+when the original declaring occurrence is transformed away.
+
+### Declaration and scope table
+
+| Construct | What declares the variable | Scope and uses | What supplies its value | Representative form |
+| --- | --- | --- | --- | --- |
+| Class dependency | Each separately declared abstract dependency root declares one Class-scoped variable. Eligible abstract subexpressions along its nested dependency paths declare projected variables supplied by those paths. | The Class header, its Effects, inherited copies of those Effects, and subtype enumeration. | Specializing or enumerating the component Type. | `CLASS Trade<ColonyTile> ... { This: FlownTradeFleet<ColonyTile> ... }` |
+| Repeated Class-header projection | An abstract header occurrence at one stable dependency key; a matching occurrence at the same key is a use, even through different supertypes. | The complete header and the Class-scoped effect scope above. | Intersection of the dependency bounds, then component-Type specialization. | `CLASS Cardbound<CardFront<Player>> : Owned<Player>` |
+| Triggered Effect | Each maximal abstract expression in a choice-producing trigger position is a potential declaration. | That one trigger, including its `BY` and `IF` clauses, and its one instruction tree. | The concrete changed Type that matched the subscription. | `BioTag<CardFront>: Plant OR CardResource<CardFront>` |
+| Positive abstract Actor selector | A simple positive abstract Actor expression after `BY`, such as `Player`. This is a binder even without repetition. | The qualified trigger and the fired instruction. Uses under operators, such as `!Player`, receive the Actor value before the operator is applied. | The concrete Actor recorded on the triggering event. | `-OwnedActorTrigger<!Player> BY Player: Steel<Player>` |
+| Action | Each maximal abstract expression in a choice-producing cost or result position is a potential declaration. | That one Action; lowering preserves it across the resulting sequence. | Narrowing the cost or result, normally the cost first. | `PROD[StandardResource] -> 4 StandardResource` |
+| `THEN` | Each maximal abstract expression in a stage is a potential declaration. | All stages of that one sequence, including its continuation as it is enqueued. | Narrowing any occurrence; selecting an earlier stage carries its value into later stages. | `Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards` |
+| Atomic transmutation | Each maximal abstract proper subexpression in a gain or removal role is a potential declaration. | That one gain/removal pair. The complete destination and source roots are excluded. | Narrowing either role; both roles must agree. | `CityTile<LandArea> FROM GreeneryTile<LandArea>` |
+
+Class dependencies are still dependency edges to components, not conventional generic parameters.
+Their resolved targets merely provide durable values for the Class-scoped variables. Each
+comma-separated dependency root is independent even when two roots have identical text. Within a
+root, a dependency path follows stable keys through nesting, so `Neighbor_0.Tile_0` and
+`Neighbor_1` remain distinct. A key combines the Class that first declared it with its zero-based
+slot, such as `Tile_0` or `Owned_0`; subtypes retain it.
+
+For example, a concrete `Cardbound<CardFront<Player1>>` supplies both the card value and its projected
+`Player1` owner value. The second `Player` in `Owned<Player>` uses that projection because both
+occurrences address the same inherited owner dependency. The same value then specializes a
+`Token<Player>` occurrence in a Class Effect. In contrast, independently declared roots do not
+become one variable merely because their bounds have the same spelling. A body occurrence that
+could name two such declarations with different values is ambiguous and must be rejected; divergence
+12.4 describes the current silent fallback.
+
+### Authored expression identity
+
+Every eligible abstract occurrence in the table is semantically a potential declaration. If no
+later use exists, retaining a runtime variable object has no observable effect and is optional. This
+is only an implementation economy: repetition does not create the declaration. When uses do exist,
+the earliest potential declaration in authored order owns them.
+
+A local use normally requires exactly the same authored expression. Matching is structural equality of
+the parsed AST, which naturally ignores whitespace and parser-erased grouping but performs no
+resolution, default insertion, or dependency-order canonicalization. Omission, argument order,
 refinement, and Complement syntax remain meaningful authored differences:
 
 ```text
 Tile != Tile<Area>
 OceanTile != OceanTile<MarsArea>
 Owner != Anyone
+Player != !Player
+Player != Player<>
 ```
 
-Only an abstract Expression can introduce a variable. Choose eligible maximal repeated Expressions;
-do not also infer variables from smaller repeated subexpressions inside them.
+The whole authored expression is the surface name of an inferred local variable. Resolving two different
+expressions to the same Ground Type does not make them uses of one variable. Recognition chooses
+maximal expressions, so repeating `Card<Owner>` declares one card variable rather than also
+inferring an independent variable from its nested `Owner` text.
 
-### Contextual bindings
+There are two lexical extensions. First, text matching a visible Class variable is a use of that
+variable rather than a fresh declaration. This applies throughout the Class body. A simple Class
+variable may also occupy the root of an occurrence with arguments: `CardFront<Owner>` uses the
+Class variable `CardFront` while constraining its owner dependency. Class-header occurrences are
+identified by stable dependency paths, so inherited projections can be uses even when their whole
+containing expressions differ.
 
-`This` and `Owner` are supplied by context, not normally inferred from repetition.
+A rule needing a distinct local capture must use a distinct authored expression. For example,
+`StartToken<Player>` uses `FirstPlayerOcean<Actor> BY Actor: OceanTile<> BY Actor` so the concrete
+performing Actor is captured independently of the StartToken's Class variable. If a future rule
+needs a fresh variable with the same structural bound, explicit empty arguments can distinguish it:
+Mons Insurance and Law Suit write `Player<>` rather than their visible Class variable `Player`.
+Pets will need explicit declaration syntax if that distinction stops being sufficient.
+
+Second, if `Player` is visible, `!Player` contains a derived use of that variable. Binding first
+specializes `Player`, then applies Complement, so narrowing the positive variable widens the
+complemented domain. The whole `!Player` expression may simultaneously declare a dependent variable
+under the ordinary declaration rules. In
+`-OwnedActorTrigger<!Player> BY Player: Heat<!Player>`, the Actor capture `T` is bound first; the
+event capture `U` is then selected under `!T`; and the result uses `U`. This retains the distinction
+between “anyone except this Actor” and the particular non-Actor value observed in the event.
+
+### Non-declaring repetition
+
+| Repetition site | Why it does not declare a shared variable |
+| --- | --- |
+| Comma siblings in one instruction group | They are independent instructions, not successive choice regions. |
+| Separate arms of one `OR` | Choosing an arm must not choose Types for another arm. |
+| Occurrences only inside Requirements | A Requirement observes candidates; it does not produce the choice it tests. |
+| The root expression directly counted by a Metric | A count ranges over the root domain rather than choosing one root Type. Nested choice-producing expressions may still participate. |
+| Complete source and destination roots of a transmutation | The two roots may intentionally differ, as in `ColonyProduction FROM ColonyProduction`; only repeated proper subexpressions assert equality. |
+| Sibling argument branches | Each branch has its own dependency path. An enclosing repeated maximal expression may still declare a variable. |
+| Separate dependency roots in one Class header | Each root declares its own component dependency. Equality must come from a shared nested dependency projection. |
+| A Complement with no visible declaration for its positive operand | It remains an ordinary difference bound and cannot declare that missing positive variable. |
+| A concrete expression or `This` | There is no open choice to bind. `This` is contextual. |
+
+These rows prevent declaration; they do not hide uses of a variable declared in an enclosing scope.
+For example, a trigger declaration may have uses inside an `OR` arm or an `IF` Requirement, and a
+Class-header declaration may have uses in several comma-separated Effects.
+
+### Contextual and other binders
 
 - `This` means the effect-bearing exact Type. `Class<This>` means its root Class without
   dependencies. Self triggers `This:` and `-This:` match only changed copies of that exact Type.
-- `Owner` means the exact context owner when one exists. Otherwise it remains abstract and may
-  participate in normal choice semantics.
+- `Owner` means the exact context owner when one exists. Otherwise it remains abstract and may be
+  eligible for normal variable declaration and choice semantics.
+- `BY Anyone` is an unrestricted Actor filter, not a declaration. `BY !Owner` and other complemented
+  selectors are filters, not binders. A positive simple abstract Actor subtype such as `BY Player`
+  uses the explicit binder rule in the table.
+- Trigger `X` and repeated `X` in `THEN` bind a scalar event count, not a Type variable.
+- A refined `Class<Tag>` binds the represented candidate Class while testing its Requirement, as
+  described in section 6. That represented-Class substitution is not an authored Type variable.
 
-### Regions
+### Lifetime and specialization
 
-Variables link only across defined related regions:
+Class-scoped variables survive inheritance and enumeration. Component specialization substitutes
+only their recorded uses in Effects; an unrelated occurrence of the same Class remains an ordinary
+bound. Effect-local variables remain open while the effect is installed, then a matching event
+specializes their trigger, condition, Actor selector, and instruction together. This is trigger
+specialization, not global replacement of every occurrence of the same abstract Class.
 
-- repeated matching bounds in one Class header when they refer to the same inherited dependency;
-- a header variable and matching occurrences in that Class's Effects;
-- trigger and instruction;
-- action cost and result;
-- stages of one `THEN`; and
-- different roles inside one atomic instruction, except complete source and destination roots.
+Action and `THEN` variables survive lowering and queuing. An open variable prevents the relevant
+stages from splitting into independent tasks until an earlier choice supplies its value. Within one
+atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
+`Foo<Same, Here, To> FROM Foo<Same, Here, From>`; each unchanged argument occupies both roles and
+therefore uses one atomic variable.
 
-Comma siblings, separate `OR` arms, independent roots declared by one Class, sibling argument
-branches, and requirement-only repetition do not introduce shared variables. Counted root
-Expressions do not participate, though nested Expressions may. Outside Class headers, an Expression
-containing a Complement should not participate.
-
-A variable can be introduced outside an `OR` or Requirement and have occurrences inside it.
-
-The proposed [`EACH`](EACHPLAYER.md) fanout would add one region linking its selector to repeated
-authored occurrences in its body. Each enumerated concrete selector Type would substitute through
-those paths. It would not bind contextual `Owner` or `This` and would reject a body with no linked
-selector occurrence. This region is not implemented.
-
-### Narrowing
-
-A proposed subtype is substituted at every occurrence path and every containing Expression is
-resolved again. Any rejecting occurrence or disagreement fails.
-
-Variables survive inheritance and enumeration. A Class-header owner link therefore permits only
-matching owner/card pairs. Outside headers, an open variable prevents task splitting across its
-regions until earlier work chooses its Type.
+The proposed [`EACH`](EACHPLAYER.md) fanout would make its selector a declaration whose scope is its
+body. Each enumerated concrete selector Type would substitute through the recorded use paths. It
+would not bind contextual `Owner` or `This` and would reject a body with no use of the selector. This
+construct is not implemented.
 
 ## 11. Uninhabited Classes and Types
 
@@ -491,44 +604,23 @@ uninhabited Type. See
 
 ## 12. Known divergences
 
-Do not document these as intended semantics or “fix” them incidentally. [LINKAGES.md](LINKAGES.md)
-coordinates the related variable work.
+Do not document these as intended semantics or fix them incidentally. The
+[Type-variable audit](TYPE_VARIABLES.md) coordinates the related work.
 
-### 12.1 Sibling nested bounds can share a variable
-
-Class-header matching uses dependency keys too broadly, so nested occurrences in sibling argument
-branches may couple. Every Class literal uses `Class_0`, making repeated literal slots a subtle
-case.
-
-### 12.2 Complement narrowing accepts wider abstract candidates
+### 12.1 Complement narrowing accepts wider abstract candidates
 
 The current test accepts a candidate that narrows the domain without narrowing the excluded Type.
 Thus abstract `SpaceTag` counts as narrowing `SpaceTag<!Player1>` even though it still admits
 Player 1. Concrete candidates behave as intended.
 
-### 12.3 Class headers match only bare Class Names
-
-A separate header mechanism sees only bare names. A repeated argument-carrying, refined, or
-complemented Expression does not link as a unit; matching reaches inside it. Abstractness is not
-consulted.
-
-### 12.4 Header-to-Effect propagation substitutes Class Names
-
-The implementation compares header/component bounds and rewrites matching Class Names throughout
-Effects, even at unrelated source positions. Conflicting replacements for one name are silently
-skipped rather than rejected.
-
-### 12.5 Complement domains do not round-trip
+### 12.2 Complement domains do not round-trip
 
 Written and full forms show the exclusion but omit a separately narrowed domain. Printing and
-resolving can therefore widen a Complement produced by `glb` or variable narrowing.
+resolving can therefore widen a Complement produced by `glb` or Type-variable narrowing.
 
-### 12.6 Nested Complements do not block variable matching
+### 12.3 Refined captures can be evaluated more than once
 
-Outside headers, only a Complement at the candidate Expression's root is excluded from recognition.
-A composite such as `OwnedTile<!Owner>` can still repeat as a variable today.
-
-### 12.7 Matching does not canonicalize argument order
-
-The current matcher compares raw ordered authored trees. Two unambiguous writings with reordered
-dependency arguments resolve to the same Type but create separate variables.
+Binding records a Ground Type and realizes it only at the declared occurrence positions. However,
+a repeated refined spelling can still leave the same Requirement on more than one realized
+occurrence, so a changing World may evaluate it at different times. Capturing must consume the
+declaration's refinement once and make later uses refer only to that result.

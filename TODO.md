@@ -125,11 +125,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** After the payment and EventCard proving cases, test whether Player-yield
   settlement can also delete `TradeBarrier` while retaining the selected ColonyTile and keeping
   fleet movement after every optional production decision.
-- **Medium-high priority:** Finish replacing the legacy “linkage” terminology and machinery with the
-  Type-variable model, including unifying Class-header Type-variable recognition with ordinary
-  scopes: bind whole abstract Expressions, keep sibling argument branches independent, propagate
-  variables into Effects only at their named Expressions, and reject conflicting replacements
-  (`docs/agents/TYPES.md` §12.1, §12.3, §12.4).
+- **Medium-high priority:** Finish refined Type-variable capture as specified in
+  `docs/agents/TYPES.md` section 10: evaluate a refined declaration once when its Ground Type is
+  captured, then ensure later uses cannot rerun that Requirement.
+- Make expressions inserted by defaults participate in ordinary trigger Type-variable linkage as
+  though the expanded form had been written explicitly. Preserve authored distinctions such as
+  `Player` versus `Player<>`, and remove `fixEffectForUnownedContext` once owner propagation follows
+  from that general rule.
 - **Medium-high priority:** Heavily revamp the `TfmGameplay` and test-helper APIs: move test-only
   actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
   and give benchmarks explicit harness utilities rather than inheriting the test convenience
@@ -284,7 +286,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Bring the JVM English renderer under Detekt through the planned intermediate-representation
   decomposition; avoid mechanical helper extraction or blanket suppression of the 47 legacy
   complexity findings.
-- Resolve contextual placement-site `This` in the English renderer through its linked type source,
+- Resolve contextual placement-site `This` in the English renderer through its type-variable source,
   then delete its remaining positional recognition.
 - Remove the context-free concrete-Type enumeration family from `Type`, `Class`, `Dependency`, and
   `DependencySet`; route structural and game-filtered enumeration through an explicit `ClassTable`
@@ -327,6 +329,5 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   directory.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
-- Canonicalize unambiguous authored dependency arguments by key before implicit-variable matching, so equivalent argument orders share a variable as intended (`docs/agents/TYPES.md` §12.7).
 - Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

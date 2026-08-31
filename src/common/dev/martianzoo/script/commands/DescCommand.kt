@@ -98,7 +98,7 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
             long form:   ${vocabulary.renderPets(type.expressionFull)}
             supertypes:  ${desc.supertypes.joinToString { vocabulary.renderPets(it.expressionFull) }}
             cmpt types:  ${desc.componentTypesCount}
-            subs:        ${desc.substitutions.entries.joinToString(prefix = "{", postfix = "}") { (key, value) -> "${vocabulary.petsName(key)}=${vocabulary.renderPets(value)}" }}
+            variables:   ${desc.variableBindings.entries.joinToString(prefix = "{", postfix = "}") { (variable, value) -> "${vocabulary.renderPets(variable.declaration.expression)}=${vocabulary.renderPets(value.expression)}" }}
         """
               .trimIndent()
 

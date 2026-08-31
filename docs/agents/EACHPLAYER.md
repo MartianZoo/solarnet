@@ -147,7 +147,7 @@ fanout bodies, not complete replacement declarations.
    composite selector without implementing execution. Reject a body with no linked selector
    occurrence.
 3. Add synthetic engine tests proving snapshot concrete-Type fanout, implicit selector/body
-   linkage, preserved surrounding `Owner` and `This`, inherited Actor/assignee, multiplicity
+   variable scope, preserved surrounding `Owner` and `This`, inherited Actor/assignee, multiplicity
    scaling, and reorderable siblings.
 4. Prove the three sequencing shapes above and a negative test showing that fanout adds no global
    join.

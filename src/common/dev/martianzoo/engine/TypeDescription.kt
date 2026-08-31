@@ -3,11 +3,12 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.toSetStrict
 
 public class TypeDescription
@@ -40,8 +41,8 @@ public constructor(
   public val supertypes: List<Type> =
       rootClass.allSuperclasses().map { it.withAllDependencies(type.dependencies) }
 
-  public val substitutions: Map<ClassName, Expression> =
-      transformers.findSubstitutions(type.rootClass.defaultType.dependencies, type.dependencies)
+  public val variableBindings: Map<TypeVariable, GroundType> =
+      type.variableBindingsFrom(type.rootClass.defaultType, type.rootClass.typeVariables)
 
   public val componentTypesCount: Int = classTable.allConcreteSubtypes(type).take(100).count()
 

@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
@@ -135,6 +136,23 @@ internal class ByTriggerCharacterizationTest {
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER1 to "Plant<Player1>!")
     }
+  }
+
+  @Test
+  internal fun anOwnedTriggerRetainsItsSelectorWhenItsEffectOwnerIsBound() {
+    val table = ProbeCatalog.classTable
+    val component = Component(table.resolve(parse("OwnedTriggerProbe<Player1>")))
+    val transformers = Transformers(table)
+    val sourceEffect = transformers.classEffects(component.type.rootClass).single()
+
+    sourceEffect.typeVariables.variables.associate { variable ->
+      variable.declaration.expression.toString() to
+          sourceEffect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
+    } shouldBe emptyMap()
+
+    LiveEffect.compile(component, transformers)
+        .map { it.effect.toString() }
+        .shouldContainExactly("OwnedActorTrigger<Anyone>: Plant<Player1>!")
   }
 
   @Test

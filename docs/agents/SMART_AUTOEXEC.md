@@ -183,7 +183,7 @@ reach a dead end.
 
 This is stronger and more useful in the following form. If `r` is a valid partial narrowing and
 every viable concrete completion of the current task also narrows `r`, applying `r` is safe. It can
-bind a forced target, quantity, Actor, linked type, or `OR` arm while leaving unrelated choices
+bind a forced target, quantity, Actor, shared Type variable, or `OR` arm while leaving unrelated choices
 open. Unique concrete narrowing is the special case where `r` is already concrete.
 
 ### Two concrete tasks with equal immediate orders

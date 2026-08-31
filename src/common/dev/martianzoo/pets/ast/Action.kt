@@ -8,7 +8,6 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
@@ -39,10 +38,11 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
           is Then -> listOf(lhs) + instruction.instructions
           else -> listOf(lhs, instruction)
         }
-    val actionSources = TypeLinking.sourcesAcrossRegions(this)
-    val resultSources = (instruction as? Then)?.linkedTypeSources.orEmpty()
-    val result = Then.createTree(allInstructions) as Then
-    return result.withLinkedTypeSources(actionSources + resultSources)
+    val lowered = Then.createTree(allInstructions) as Then
+    val nestedScope = (instruction as? Then)?.typeVariables
+    return lowered.withTypeVariables(
+        if (nestedScope == null) typeVariables else typeVariables + nestedScope
+    )
   }
 
   public sealed class Cost : PetNode() {
