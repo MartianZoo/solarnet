@@ -39,7 +39,7 @@ public data class GroundType(
   override val groundType: GroundType
     get() = this
 
-  override val typeDependencies: Set<Dependency.TypeDependency> = dependencies.typeDependencies()
+  override val typeDependencies: List<Dependency.TypeDependency> = dependencies.typeDependencies()
 
   /** The class represented by this `Class<Foo>` type, or null when this is not a class literal. */
   override val representedClass: Class? =

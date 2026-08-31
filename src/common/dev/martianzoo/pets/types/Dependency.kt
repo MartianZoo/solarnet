@@ -265,18 +265,24 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   internal companion object {
     // Note these don't really belong here; they're just here so that FakeDependency can be private
 
-    internal fun validate(deps: Set<Dependency>) {
+    internal fun validate(deps: List<Dependency>) {
+      deps.indices.forEach { index ->
+        for (previous in 0 until index) {
+          require(deps[index].key != deps[previous].key) { "duplicate dependency keys: $deps" }
+        }
+      }
       require(deps.none { it is FakeDependency } || deps.single() is FakeDependency)
-      require(deps.map { it.boundClass.classTable }.distinct().size <= 1) {
+      val classTable = deps.firstOrNull()?.boundClass?.classTable
+      require(deps.all { it.boundClass.classTable === classTable }) {
         "dependencies belong to different class tables"
       }
     }
 
-    internal fun isForClassType(set: Set<Dependency>) = set.singleOrNull() is FakeDependency
+    internal fun isForClassType(deps: List<Dependency>) = deps.singleOrNull() is FakeDependency
 
-    internal fun getClassForClassType(set: Set<Dependency>): Class =
-        (set.single() as FakeDependency).boundClass
+    internal fun getClassForClassType(deps: List<Dependency>): Class =
+        (deps.single() as FakeDependency).boundClass
 
-    internal fun depsForClassType(klass: Class) = DependencySet.of(setOf(FakeDependency(klass)))
+    internal fun depsForClassType(klass: Class) = DependencySet.of(listOf(FakeDependency(klass)))
   }
 }

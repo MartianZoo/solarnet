@@ -42,7 +42,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
   public val abstract: Boolean
     get() = groundType.abstract
 
-  public val typeDependencies: Set<Dependency.TypeDependency>
+  public val typeDependencies: List<Dependency.TypeDependency>
     get() = groundType.typeDependencies
 
   public val representedClass: Class?
