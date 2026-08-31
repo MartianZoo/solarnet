@@ -775,7 +775,12 @@ private enum class EventKind(
   PLACE(activeVerb = "place", passiveVerb = "is placed"),
   CREATE(activeVerb = "create", passiveVerb = "is created"),
   INCREASE_PRODUCTION(activeVerb = "increase", activeModifier = "1 step"),
-  RAISE(passiveVerb = "is raised", passiveModifier = "1 step"),
+  RAISE(
+      activeVerb = "raise",
+      activeModifier = "1 step",
+      passiveVerb = "is raised",
+      passiveModifier = "1 step",
+  ),
   ADD(activeVerb = "add"),
   ;
 
@@ -846,6 +851,11 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   productionEvent(expression)?.let {
     return it
+  }
+  if (expression.refinement == null) {
+    scaleFrame(expression.className)?.let {
+      return Event(EventKind.RAISE, EventActor.YOU, it.subject)
+    }
   }
   purchaseEvent(expression)?.let {
     return it

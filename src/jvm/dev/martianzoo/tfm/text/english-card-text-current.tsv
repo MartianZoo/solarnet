@@ -341,8 +341,8 @@ Recession	Recession	Gain 10 M€.
 SoilBacteria	Soil Bacteria	Draw 2 microbe cards. Gain 3 plants.	Effect: When you play a plant tag or a microbe tag, gain 1 plant.
 SpaceLanes	Space Lanes	Gain 3 titanium.	Effect: When you play a planet tag, pay 2 M€ less.
 SuitableInfrastructure	Suitable Infrastructure	Gain 5 steel.	Effect: When you use an action, [-SuitableInfrastructurePaid.]. [NewTurn IF PreludePhase:: -SuitableInfrastructurePaid.]. [X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.].
-TerraformingDeal	Terraforming Deal		Effect: [TerraformRating: 2 MC].
-VenusContract	Venus Contract	Draw 1 Venus card. Raise your terraform rating 1 step.	Effect: [VenusStep: 3 MC].
+TerraformingDeal	Terraforming Deal		Effect: When you raise your terraform rating 1 step, gain 2 M€.
+VenusContract	Venus Contract	Draw 1 Venus card. Raise your terraform rating 1 step.	Effect: When you raise Venus 1 step, gain 3 M€.
 VenusL1Shade	Venus L1 Shade	Raise Venus 3 steps.
 WorldGovernmentAdvisor	World Government Advisor	Raise your terraform rating 2 steps. Draw 1 card.	Action: [WorldGovernmentTerraforming BY Engine].
 CeresTechMarket	Ceres Tech Market	Gain 2 M€ for each colony you own. 1 VP.	Action: [X ProjectCard -> 2X MC].
@@ -484,7 +484,7 @@ AstraMechanica	Astra Mechanica	Return up to one of your played event cards to yo
 CarbonNanosystems	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space tag or a city tag, graphene resources on this card may be used as 4 M€ each.
 CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. [CopyProductionBox<CardFront(HAS BuildingTag)>], then [CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)>], then [CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)>], then [-CyberiaSystemsFirstChoice].
 HermeticOrderOfMars	Hermetic Order Of Mars	Requires that oxygen is 4% or lower. Increase your M€ production 2 steps. [MC / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)].
-HomeostasisBureau	Homeostasis Bureau	Increase your heat production 2 steps.	Effect: [TemperatureStep: 3 MC].
+HomeostasisBureau	Homeostasis Bureau	Increase your heat production 2 steps.	Effect: When you raise temperature 1 step, gain 3 M€.
 KaguyaTech	Kaguya Tech	Increase your M€ production 2 steps. Draw 1 card. [CityTile<LandArea> FROM GreeneryTile<LandArea>].
 MartianLumberCorp	Martian Lumber Corp	Requires 2 greenery tiles. Increase your plant production 1 step.	Effect: When you play a building tag, plants may be used as 3 M€ each.
 NeptunianPowerConsultants	Neptunian Power Consultants	[NeptunianOption]. 1 VP per hydroelectric resource on this card.	Effect: When any ocean tile is placed, [UseAction<NeptunianOption>?].

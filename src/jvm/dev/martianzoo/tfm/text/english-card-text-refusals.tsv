@@ -1,7 +1,7 @@
 count	reason	examples
 24	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesign_NextCardEffect
-14	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2 MC] | Vitor: This IF Class<Award>: Vitor_Mandate
 13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<MC>> / 6 - Production<Class<MC>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
+11	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2 MC] | Vitor: This IF Class<Award>: Vitor_Mandate
 3	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
 2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X MC | VenusShuttles: MC / 12 - VenusTag -> VenusStep
 1	UNKNOWN_ACTION_FRAME	SearchForLife: MC -> Science<This>?
