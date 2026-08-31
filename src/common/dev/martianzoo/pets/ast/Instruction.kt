@@ -26,6 +26,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.util.invoke
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
@@ -101,32 +102,23 @@ public sealed class Instruction : InstructionTree() {
     public abstract val intensity: Intensity?
 
     override fun isAbstract(info: TypeInfo): Boolean {
-      return amount.isAbstract(info) ||
+      return count.isAbstract(info) ||
+          intensity?.isAbstract(info) != false ||
           (gaining?.isAbstract(info) == true) ||
           (removing?.isAbstract(info) == true)
-    }
-
-    private val amount: Amount by lazy { Amount(count, intensity) }
-
-    private data class Amount(val scalar: Scalar, val intensity: Intensity?) :
-        Specification<Amount> {
-      override fun isAbstract(info: TypeInfo): Boolean =
-          scalar.isAbstract(info) || intensity?.isAbstract(info) != false
-
-      override fun ensureNarrows(that: Amount, info: TypeInfo) {
-        intensity!!.ensureNarrows(that.intensity!!, info)
-        if (that.intensity == OPTIONAL && scalar is ActualScalar && that.scalar is ActualScalar) {
-          if (scalar.value > that.scalar.value) throw NarrowingException("")
-        } else {
-          scalar.ensureNarrows(that.scalar, info)
-        }
-      }
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed == NoOp && intensity == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
-      proposed.amount.ensureNarrows(amount, info)
+      proposed.intensity!!.ensureNarrows(intensity!!, info)
+      val proposedCount = proposed.count
+      val authoredCount = count
+      if (intensity == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar) {
+        if (proposedCount.value > authoredCount.value) throw NarrowingException("")
+      } else {
+        proposedCount.ensureNarrows(authoredCount, info)
+      }
       gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
       removing?.let { proposed.removing!!.ensureNarrows(it, info) }
     }
@@ -351,7 +343,7 @@ public sealed class Instruction : InstructionTree() {
       val continuation: InstructionTree,
   ) : Instruction() {
     /** This sequence's stages in source order. */
-    public val instructions: List<InstructionTree> by lazy { stages + continuation }
+    public val instructions: List<InstructionTree> = stages + continuation
 
     public val first: Instruction
       get() = stages.first()
@@ -396,7 +388,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
 
-    private val hasLinkedX: Boolean by lazy {
+    private val hasLinkedX: Lazy<Boolean> = lazy {
       instructions.count { it.descendantsOfType<XScalar>().isNotEmpty() } >= 2
     }
 
@@ -409,7 +401,7 @@ public sealed class Instruction : InstructionTree() {
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      if (hasLinkedX) linkedXValue(this, proposed)
+      if (hasLinkedX()) linkedXValue(this, proposed)
     }
 
     private fun bindTypeLinksFrom(
@@ -494,7 +486,7 @@ public sealed class Instruction : InstructionTree() {
           )
       val specialized =
           bindTypeLinksFrom(partial, info, PetTransformer.chain(loweredBinding, authoredBinding))
-      val selectedX = if (hasLinkedX) linkedXValue(first, proposed) else null
+      val selectedX = if (hasLinkedX()) linkedXValue(first, proposed) else null
       val fullySpecialized =
           selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
       if (requireBinding && fullySpecialized == this) {
@@ -532,7 +524,7 @@ public sealed class Instruction : InstructionTree() {
     }
 
     internal fun keepLinked(isAbstract: ((Expression) -> Boolean)?) =
-        hasLinkedX || isAbstract?.let(linkedTypeSources::any) == true
+        hasLinkedX() || isAbstract?.let(linkedTypeSources::any) == true
 
     /** Returns the right-associated continuation enqueued after the first stage. */
     public fun continuationAfterFirst(): InstructionGroup =

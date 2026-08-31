@@ -58,19 +58,19 @@ public data class MarsMapDefinition(
       InstructionGroup.of(parse<InstructionTree>(it))
     }
 
-    public val asClassDeclaration: ClassDeclaration by lazy {
-      ClassDeclaration(
-          className = className,
-          kind = CONCRETE,
-          supertypes = setOf(kind.expression),
-          properties =
-              mapOf(
-                  PropertyName("row") to NumberValue(row),
-                  PropertyName("column") to NumberValue(column),
-              ),
-          authoredEffects = toEffects(bonus),
-      )
-    }
+    public val asClassDeclaration: ClassDeclaration
+      get() =
+          ClassDeclaration(
+              className = className,
+              kind = CONCRETE,
+              supertypes = setOf(kind.expression),
+              properties =
+                  mapOf(
+                      PropertyName("row") to NumberValue(row),
+                      PropertyName("column") to NumberValue(column),
+                  ),
+              authoredEffects = toEffects(bonus),
+          )
 
     public val className: ClassName = cn("${mapName}_${row}_$column")
   }

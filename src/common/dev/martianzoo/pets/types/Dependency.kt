@@ -56,8 +56,11 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   public data class TypeDependency(override val key: Key, val boundType: Type) :
       Dependency(), HasExpression by boundType {
 
-    override val boundClass by boundType::rootClass
-    override val className: ClassName by boundClass::className
+    override val boundClass: Class
+      get() = boundType.rootClass
+
+    override val className: ClassName
+      get() = boundClass.className
 
     internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
         boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
@@ -66,7 +69,8 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     // Hierarchy
 
-    override val abstract: Boolean by boundType::abstract
+    override val abstract: Boolean
+      get() = boundType.abstract
 
     override fun isSubtypeOf(that: Dependency): Boolean = boundType.isSubtypeOf(boundOf(that))
 
@@ -126,8 +130,12 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
       require(excludedType.isSubtypeOf(domainType)) { "$excludedType does not narrow $domainType" }
     }
 
-    override val boundClass by domainType::rootClass
-    override val className by excludedType::className
+    override val boundClass: Class
+      get() = domainType.rootClass
+
+    override val className: ClassName
+      get() = excludedType.className
+
     override val expression: Expression = excludedType.expression.copy(complement = true)
     override val expressionFull: Expression = excludedType.expressionFull.copy(complement = true)
 
@@ -212,15 +220,21 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   private data class FakeDependency(override val boundClass: Class) : Dependency() {
     override val key: Key = Key(CLASS, 0)
 
-    override val className by boundClass::className
-    override val expression by className::expression
-    override val expressionFull by ::expression
+    override val className: ClassName
+      get() = boundClass.className
+
+    override val expression: Expression
+      get() = className.expression
+
+    override val expressionFull: Expression
+      get() = expression
 
     override fun toString() = "$key=$expressionFull"
 
     // Hierarchy
 
-    override val abstract by boundClass::abstract
+    override val abstract: Boolean
+      get() = boundClass.abstract
 
     override fun isSubtypeOf(that: Dependency) = boundClass.isSubtypeOf(boundOf(that))
 

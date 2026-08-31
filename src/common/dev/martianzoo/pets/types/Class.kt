@@ -24,6 +24,7 @@ import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
+import dev.martianzoo.pets.util.invoke
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
@@ -60,19 +61,14 @@ internal constructor(
   }
 
   /** A textual explanation for this class. */
-  public val docstring: String? by declaration::docstring
+  public val docstring: String?
+    get() = declaration.docstring
 
   private val resolvedProperties: Map<PropertyName, PropertyFact> = resolveProperties()
 
   /** Every property bound or value supplied by this class and its supertypes. */
   public val properties: Map<PropertyName, PropertyValue> = resolvedProperties.mapValues {
     it.value.value
-  }
-
-  /** Every independently enforced invariant inherited by this concrete class. */
-  public val invariants: Set<Requirement> by lazy {
-    if (abstract) emptySet()
-    else allSuperclasses().flatMap { split(it.declaration.invariants) }.toSet()
   }
 
   init {
@@ -160,7 +156,8 @@ internal constructor(
 
   // HIERARCHY
 
-  public val abstract: Boolean by declaration::abstract
+  public val abstract: Boolean
+    get() = declaration.abstract
 
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
@@ -195,7 +192,7 @@ internal constructor(
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
         else -> {
-          allSubclasses.singleOrNull {
+          allSubclasses().singleOrNull {
             it.isIntersectionType() &&
                 this in it.directSuperclasses &&
                 that in it.directSuperclasses
@@ -228,7 +225,8 @@ internal constructor(
     }
   }
 
-  private val sups by declaration::supertypes
+  private val sups: Set<Expression>
+    get() = declaration.supertypes
 
   private fun replaceThis(expression: Expression): Expression =
       replaceThisExpressionsWith(className.expression).transformExpression(expression)
@@ -240,19 +238,21 @@ internal constructor(
         else -> sups.toSetStrict { loader.resolve(replaceThis(it)) }
       }
 
-  private val allSuperclasses: Set<Class> by lazy {
-    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
-  }
+  private val allSuperclasses: Set<Class> =
+      (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
+
+  /** Every independently enforced invariant inherited by this concrete class. */
+  public val invariants: Set<Requirement> =
+      if (abstract) emptySet()
+      else allSuperclasses.flatMap { split(it.declaration.invariants) }.toSet()
 
   /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
   public fun allSuperclasses(): Set<Class> = allSuperclasses
 
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
-  private val allSubclasses: Set<Class> by lazy { loader.properSubclassesOf(this) + this }
-
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  public fun allSubclasses(): Set<Class> = allSubclasses
+  public fun allSubclasses(): Set<Class> = loader.allSubclassesOf(this)
 
   public fun directSubclasses(): Set<Class> = loader.directSubclassesOf(this)
 
@@ -263,21 +263,20 @@ internal constructor(
    * `OwnedTile` components, it would be a bug if a component like `CommercialDistrict_SpecialTile`
    * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
-  public fun isIntersectionType(): Boolean = intersectionType
+  public fun isIntersectionType(): Boolean = intersectionType()
 
-  private val intersectionType: Boolean by lazy {
+  private val intersectionType: Lazy<Boolean> = lazy {
     directSuperclasses.size >= 2 &&
         loader
             .allClasses()
             .filter { klass -> directSuperclasses.all(klass::isSubtypeOf) }
             .all(::isSupertypeOf)
   }
-
   // DEPENDENCIES
 
   /** The dependency positions whose values are bound to the inheriting class. */
-  private val selfBindings: Set<DependencyPath> by lazy {
-    val inherited = directSuperclasses.flatMap { it.selfBindings }
+  private val selfBindings: Lazy<Set<DependencyPath>> = lazy {
+    val inherited = directSuperclasses.flatMap { it.selfBindings() }
     val declared = sups.flatMap { sourceSupertype ->
       val superclass = loader.getClass(sourceSupertype.className)
       val arguments = sourceSupertype.arguments
@@ -322,11 +321,11 @@ internal constructor(
     return expressionFull.replaceArguments(arguments)
   }
 
-  private val inheritedDeps: DependencySet by lazy {
+  private val inheritedDeps: Lazy<DependencySet> = lazy {
     val inherited =
         directSupertypes().map { supertype ->
           val superclass = supertype.rootClass
-          val pathsByKey = superclass.selfBindings.groupBy { it.keyList.first() }
+          val pathsByKey = superclass.selfBindings().groupBy { it.keyList.first() }
           supertype.dependencies.mapWithKey { key, boundType ->
             val paths = pathsByKey[key]?.map { it.keyList.drop(1) }.orEmpty()
             if (paths.isEmpty()) {
@@ -338,32 +337,32 @@ internal constructor(
         }
     inherited.reduceOrNull { left, right -> (left glb right)!! } ?: DependencySet.of()
   }
-
-  private val declaredDeps by lazy {
+  private val declaredDeps: Lazy<DependencySet> = lazy {
     DependencySet.of(
         declaration.dependencies.mapIndexed { index, expression ->
           TypeDependency(Key(className, index), loader.resolve(expression))
         }
     )
   }
-
-  // `by lazy` enables dependency cycles, yay
-  public val dependencies: DependencySet by lazy {
+  // Laziness enables dependency cycles.
+  private val dependenciesLazy = lazy {
     val result =
         if (className == CLASS) {
           depsForClassType(loader.componentClass)
         } else {
-          inheritedDeps.merge(declaredDeps) { _, _ -> error("unexpected") }
+          inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
         }
     result
   }
+  public val dependencies: DependencySet
+    get() = dependenciesLazy.value
 
   private data class DependencyLink(
       val expressions: Set<Expression>,
       val paths: Set<DependencyPath>,
   )
 
-  private val declaredDependencyLinks: List<DependencyLink> by lazy {
+  private val declaredDependencyLinks: Lazy<List<DependencyLink>> = lazy {
     val occurrences = mutableMapOf<Pair<Expression, Key>, MutableSet<DependencyPath>>()
 
     fun collectSpecializations(expression: Expression, prefix: List<Key>) {
@@ -392,10 +391,10 @@ internal constructor(
       if (paths.size < 2) null else DependencyLink(setOf(binding.first), paths)
     }
   }
-
-  private val dependencyLinks: List<DependencyLink> by lazy {
+  private val dependencyLinks: Lazy<List<DependencyLink>> = lazy {
     val merged = mutableListOf<DependencyLink>()
-    (directSuperclasses.flatMap { it.dependencyLinks } + declaredDependencyLinks).forEach { link ->
+    (directSuperclasses.flatMap { it.dependencyLinks() } + declaredDependencyLinks()).forEach { link
+      ->
       val overlapping = merged.filter { it.paths.any(link.paths::contains) }
       merged.removeAll(overlapping)
       merged +=
@@ -408,9 +407,10 @@ internal constructor(
   }
 
   /** Whether this direct dependency is one occurrence of an authored class-header linkage. */
-  public fun isLinkedDependency(key: Key): Boolean = dependencyLinks.any {
-    DependencyPath(key) in it.paths
-  }
+  public fun isLinkedDependency(key: Key): Boolean =
+      dependencyLinks().any {
+        DependencyPath(key) in it.paths
+      }
 
   private fun linkError(link: DependencyLink, dependencies: DependencySet): Nothing =
       error(
@@ -423,7 +423,7 @@ internal constructor(
     var changed: Boolean
     do {
       changed = false
-      dependencyLinks.forEach { link ->
+      dependencyLinks().forEach { link ->
         val linkedDependencies = link.paths.map(dependencies::at)
         val intersection = linkedDependencies.reduce { left, right ->
           (left glb right) ?: linkError(link, dependencies)
@@ -440,7 +440,7 @@ internal constructor(
   }
 
   internal fun requireLinksSatisfied(dependencies: DependencySet) {
-    dependencyLinks.forEach { link ->
+    dependencyLinks().forEach { link ->
       if (link.paths.map(dependencies::at).distinct().size > 1) {
         linkError(link, dependencies)
       }
@@ -453,13 +453,17 @@ internal constructor(
       Type(this, normalizeLinkedDependencies(deps.subMapInOrder(dependencies.keys)))
 
   /** Least upper bound of all types with rootClass==this */
-  public val baseType: Type by lazy { withAllDependencies(dependencies) }
+  private val baseTypeLazy = lazy { withAllDependencies(dependencies) }
+  public val baseType: Type
+    get() = baseTypeLazy.value
 
-  public val defaultType: Type by lazy {
+  private val defaultTypeLazy = lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
     withAllDependencies(templateDependencies)
   }
+  public val defaultType: Type
+    get() = defaultTypeLazy.value
 
   public fun specialize(specs: List<Expression>): Type = baseType.specialize(specs)
 
@@ -471,15 +475,20 @@ internal constructor(
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
    * the type `Class<Resource>`.
    */
-  internal val classType: Type by lazy {
+  private val classTypeLazy = lazy {
     loader.classClass.withAllDependencies(depsForClassType(this))
   }
+  internal val classType: Type
+    get() = classTypeLazy.value
 
   public fun concreteTypes(): Sequence<Type> = baseType.concreteSubtypesSameClass()
 
-  internal val defaultsDecl by declaration::defaultsDeclaration
+  internal val defaultsDecl
+    get() = declaration.defaultsDeclaration
 
-  public val defaults: Defaults by lazy { Defaults.forClass(this) }
+  private val defaultsLazy = lazy { Defaults.forClass(this) }
+  public val defaults: Defaults
+    get() = defaultsLazy.value
 
   override fun equals(other: Any?): Boolean =
       other is Class && other.className == className && other.loader == loader

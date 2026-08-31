@@ -13,14 +13,17 @@ import dev.martianzoo.pets.util.toSetStrict
 public class TypeDescription
 public constructor(
     private val classTable: ClassTable,
-    type: Type,
+    private val type: Type,
 ) {
 
-  private val rootClass: Class by type::rootClass
+  private val rootClass: Class
+    get() = type.rootClass
+
   private val transformers = Transformers(classTable)
   private val active = classTable.isActive(type)
 
-  public val docstring: String? by rootClass::docstring
+  public val docstring: String?
+    get() = rootClass.docstring
 
   public val superclassNames: Set<ClassName> = rootClass.allSuperclasses().classNames()
   public val subclassNames: Set<ClassName> =
@@ -32,7 +35,8 @@ public constructor(
 
   public val classInvariants: Set<Requirement> = rootClass.invariants
 
-  public val baseType: Type by rootClass::baseType
+  public val baseType: Type
+    get() = rootClass.baseType
 
   public val concreteTypesForThisClassCount: Int =
       classTable.concreteSubtypesSameClass(baseType).take(100).count()

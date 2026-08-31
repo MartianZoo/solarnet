@@ -151,8 +151,9 @@ internal class ApiTranslation(
   }
 
   private inner class Adapter : OperationBody {
-    override val tasks by this@ApiTranslation::tasks
-    override val reader by this@ApiTranslation::reader
+    override val tasks = this@ApiTranslation.tasks
+
+    override val reader = this@ApiTranslation.reader
 
     override fun doTask(narrowing: String, taskNumber: Int?) {
       this@ApiTranslation.doTask(narrowing, taskNumber)

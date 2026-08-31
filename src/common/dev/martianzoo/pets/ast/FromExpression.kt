@@ -21,8 +21,11 @@ public sealed class FromExpression : PetNode() {
 
   /** An argument retained unchanged by a compact transmutation. */
   public data class Unchanged(public val expression: Expression) : FromExpression() {
-    override val toExpression: Expression by this::expression
-    override val fromExpression: Expression by this::expression
+    override val toExpression: Expression
+      get() = expression
+
+    override val fromExpression: Expression
+      get() = expression
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 

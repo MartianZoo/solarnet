@@ -53,13 +53,16 @@ import dev.martianzoo.pets.types.Defaults.DefaultSpec
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.invoke
 
 public class Transformers(public val classTable: ClassTable) {
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
-  private val transformDispatcher by lazy { classTable.transformDispatcher() }
+  private val transformDispatcher: Lazy<PetTransformer> = lazy {
+    classTable.transformDispatcher()
+  }
 
   /** Expands the marked Pets syntax configured by this game's Catalog. */
-  public fun transformMarkedSyntax(): PetTransformer = transformDispatcher
+  public fun transformMarkedSyntax(): PetTransformer = transformDispatcher()
 
   /** Rewrites session-localized input names to their canonical engine names. */
   public fun canonicalize(vocabulary: Vocabulary): PetTransformer =
@@ -191,7 +194,7 @@ public class Transformers(public val classTable: ClassTable) {
                 atomizer(),
                 insertDefaults(context),
                 owner?.let(::replaceOwnerWith),
-                transformDispatcher,
+                transformDispatcher(),
             )
         return when (expanded) {
           is Metric -> finishing.transformMetric(expanded)
@@ -207,7 +210,7 @@ public class Transformers(public val classTable: ClassTable) {
     return chain(
         insertDefaults(context),
         atomizer(),
-        transformDispatcher,
+        transformDispatcher(),
         fixEffectForUnownedContext(klass),
     )
   }

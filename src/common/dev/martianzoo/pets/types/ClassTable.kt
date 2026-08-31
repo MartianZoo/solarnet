@@ -111,7 +111,9 @@ public abstract class ClassTable {
   internal abstract val masterTable: ClassTable
 
   /** Immutable component-count limits compiled for the classes active in this table. */
-  public val componentLimits: ClassLimitTable by lazy { ClassLimitTable.create(this) }
+  private val componentLimitsLazy = lazy { ClassLimitTable.create(this) }
+  public val componentLimits: ClassLimitTable
+    get() = componentLimitsLazy.value
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public abstract val componentClass: Class

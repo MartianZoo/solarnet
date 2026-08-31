@@ -3,7 +3,9 @@ package dev.martianzoo.pets.util
 // TODO: Replace this fixed-size mutable set/grid hybrid with a collection whose contracts match.
 internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
 
-  override val rowCount: Int by rows::size
+  override val rowCount: Int
+    get() = rows.size
+
   override val columnCount: Int by rows[0]::size
 
   @Suppress("TooGenericExceptionCaught") // TODO fix
@@ -51,7 +53,8 @@ internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstr
   private class MutableColumn<E>(val rows: List<List<E?>>, val columnIndex: Int) :
       AbstractMutableList<E?>() {
 
-    override val size by rows::size
+    override val size: Int
+      get() = rows.size
 
     override fun get(index: Int) = rows[index][columnIndex]
 
@@ -83,7 +86,8 @@ internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstr
       }
     }
 
-    override val size by grid::rowCount
+    override val size: Int
+      get() = grid.rowCount
 
     override fun get(index: Int) = grid.row(index).getOrNull(columnMinusRow + index)
 

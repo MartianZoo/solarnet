@@ -78,7 +78,8 @@ public class ClassName private constructor(public val asString: String) :
   override fun visitChildren(visitor: Visitor): Unit = Unit
 
   override val expression: Expression = Expression(this)
-  override val expressionFull: Expression by ::expression
+  override val expressionFull: Expression
+    get() = expression
 
   override fun equals(other: Any?): Boolean = other is ClassName && other.asString == asString
 

@@ -181,7 +181,7 @@ internal fun formatPlacements(placements: List<Placement>): String {
 
 private val soloPlacementCatalog: TfmCatalog = Canon
 
-private val soloPlacementVocabulary: Vocabulary by lazy {
+private val soloPlacementVocabulary: Vocabulary = run {
   val excludedClasses =
       soloPlacementCatalog.bundles
           .flatMap { bundle -> bundle.moduleClassExclusions.values.flatten() }

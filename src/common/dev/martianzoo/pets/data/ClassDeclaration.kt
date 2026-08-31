@@ -140,18 +140,17 @@ public data class ClassDeclaration(
         listOf(universal, gainOnly, removeOnly, triggerOnly).flatMap { it.specs }.toSet()
   }
 
-  public val allNodes: Set<PetNode> by lazy {
-    setOf<PetNode>() +
-        className +
-        supertypes +
-        dependencies +
-        invariants +
-        effects +
-        defaultsDeclaration.allNodes +
-        properties.keys +
-        properties.values +
-        extraNodes
-  }
+  public val allNodes: Set<PetNode> =
+      setOf<PetNode>() +
+          className +
+          supertypes +
+          dependencies +
+          invariants +
+          effects +
+          defaultsDeclaration.allNodes +
+          properties.keys +
+          properties.values +
+          extraNodes
 
   /** Returns this declaration as standalone, parseable Pets source. */
   override fun toString(): String = toString(oneLine = false)

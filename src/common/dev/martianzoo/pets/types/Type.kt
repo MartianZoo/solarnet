@@ -125,17 +125,23 @@ public data class Type(
               }
       )
 
-  override val expression: Expression by lazy {
+  private val expressionLazy = lazy {
     toExpressionUsingSpecs(minimalDependencyExpressions())
   }
+  override val expression: Expression
+    get() = expressionLazy.value
 
-  override val expressionFull: Expression by lazy {
+  private val expressionFullLazy = lazy {
     toExpressionUsingSpecs(dependencies.expressionsFull())
   }
+  override val expressionFull: Expression
+    get() = expressionFullLazy.value
 
-  public val narrowedDependencies: DependencySet by lazy {
+  private val narrowedDependenciesLazy = lazy {
     dependencies.minus(rootClass.dependencies)
   }
+  public val narrowedDependencies: DependencySet
+    get() = narrowedDependenciesLazy.value
 
   private fun minimalDependencyExpressions(): List<Expression> {
     val candidates = dependencies.expressions()

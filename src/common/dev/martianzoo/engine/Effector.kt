@@ -4,13 +4,15 @@ import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.invoke
 
 /** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(
     private val transformers: Transformers,
     readerProvider: () -> GameReader,
 ) {
-  private val reader: GameReader by lazy(readerProvider)
+  private val reader: Lazy<GameReader> = lazy(readerProvider)
+
   private val registry = mutableMapOf<LiveEffect.RegistryKey, HashMultiset<LiveEffect>>()
   private val registryOrder = mutableMapOf<LiveEffect, Long>()
   private var nextRegistryOrder = 0L
@@ -40,8 +42,8 @@ internal class Effector(
   internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<PendingTask> {
     val resolvedChange =
         LiveEffect.ResolvedChange(
-            gaining = triggerEvent.change.gaining?.let(reader::resolve),
-            removing = triggerEvent.change.removing?.let(reader::resolve),
+            gaining = triggerEvent.change.gaining?.let(reader()::resolve),
+            removing = triggerEvent.change.removing?.let(reader()::resolve),
         )
     return fireSelfEffects(triggerEvent, automatic, resolvedChange) +
         fireOtherEffects(triggerEvent, automatic, resolvedChange)
@@ -56,7 +58,7 @@ internal class Effector(
           .map(Type::toComponent)
           .flatMap { liveEffects(it) }
           .filter { automatic == null || it.automatic == automatic }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, reader, resolvedChange) }
+          .mapNotNull { it.onChangeToSelf(triggerEvent, reader(), resolvedChange) }
 
   private fun fireOtherEffects(
       triggerEvent: ChangeEvent,
@@ -64,7 +66,7 @@ internal class Effector(
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
       candidatesFor(automatic, resolvedChange).mapNotNull { (effect, count) ->
-        effect.onChangeToOther(triggerEvent, reader, resolvedChange)?.times(count)
+        effect.onChangeToOther(triggerEvent, reader(), resolvedChange)?.times(count)
       }
 
   private fun candidatesFor(

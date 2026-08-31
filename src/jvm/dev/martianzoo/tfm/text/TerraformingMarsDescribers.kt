@@ -7,11 +7,7 @@ import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
-  internal val descriptions: Map<Class, ComponentDescriber> by lazy {
-    canonClassUniverse.allClasses().associateWith { declarations[it] ?: ComponentDescriber() }
-  }
-
-  private val declarations: Map<Class, ComponentDescriber> by lazy {
+  private val declarations: Map<Class, ComponentDescriber> = run {
     uniqueDeclarations(
         klass("Component") to
             ComponentDescriber(
@@ -479,6 +475,9 @@ internal object TerraformingMarsDescribers {
         klass("Required") to ComponentDescriber(requirementShortfall = true),
     )
   }
+
+  internal val descriptions: Map<Class, ComponentDescriber> =
+      canonClassUniverse.allClasses().associateWith { declarations[it] ?: ComponentDescriber() }
 
   private fun uniqueDeclarations(
       vararg entries: Pair<Class, ComponentDescriber>,

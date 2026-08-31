@@ -44,58 +44,52 @@ internal class StandardFormBundle(
     }
   }
 
-  private val cardDeclarationsByResource: Map<ResourceSet, Set<ClassDeclaration>> by lazy {
-    resources.associateWith { resourceSet ->
-      readIfPresent(resourceSet, CARD_PETS_FILENAME, ::parseClasses).toSetStrict()
-    }
-  }
+  private val cardDeclarationsByResource: Map<ResourceSet, Set<ClassDeclaration>> =
+      resources.associateWith { resourceSet ->
+        readIfPresent(resourceSet, CARD_PETS_FILENAME, ::parseClasses).toSetStrict()
+      }
 
-  override val cardResourceClassNames: Set<ClassName> by lazy {
-    cardDeclarationsByResource.values.flatten().mapTo(linkedSetOf(), ClassDeclaration::className)
-  }
+  override val cardResourceClassNames: Set<ClassName> =
+      cardDeclarationsByResource.values.flatten().mapTo(linkedSetOf(), ClassDeclaration::className)
 
-  override val moduleCardClassNames: Map<ClassName, Set<ClassName>> by lazy {
-    cardDeclarationsByResource
-        .filterValues(Set<ClassDeclaration>::isNotEmpty)
-        .mapKeys { (resourceSet, _) -> cn(resourceSet.directory.substringAfterLast('/')) }
-        .mapValues { (_, declarations) ->
-          declarations.mapTo(linkedSetOf(), ClassDeclaration::className)
-        }
-  }
+  override val moduleCardClassNames: Map<ClassName, Set<ClassName>> =
+      cardDeclarationsByResource
+          .filterValues(Set<ClassDeclaration>::isNotEmpty)
+          .mapKeys { (resourceSet, _) -> cn(resourceSet.directory.substringAfterLast('/')) }
+          .mapValues { (_, declarations) ->
+            declarations.mapTo(linkedSetOf(), ClassDeclaration::className)
+          }
 
-  override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    resources
-        .flatMap { resourceSet ->
-          readIfPresent(resourceSet, CLASSES_FILENAME, ::parseClasses)
-        }
-        .plus(cardDeclarationsByResource.values.flatten())
-        .toSetStrict()
-  }
+  override val explicitClassDeclarations: Set<ClassDeclaration> =
+      resources
+          .flatMap { resourceSet ->
+            readIfPresent(resourceSet, CLASSES_FILENAME, ::parseClasses)
+          }
+          .plus(cardDeclarationsByResource.values.flatten())
+          .toSetStrict()
 
-  override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
-    buildMap<String, MutableMap<ClassName, String>> {
-      resources.forEach { resourceSet ->
-        resourceSet.filenames.forEach { filename ->
-          LANGUAGE_FILENAME.matchEntire(filename)?.groupValues?.get(1)?.let { language ->
-            val names = getOrPut(language, ::linkedMapOf)
-            JsonReader.readDisplayNames(read(resourceSet, filename)).forEach {
-                (className, displayName) ->
-              val previous = names.put(className, displayName)
-              require(previous == null || previous == displayName) {
-                "Conflicting $language display names for $className: $previous and $displayName"
+  override val displayNamesByLanguage: Map<String, Map<ClassName, String>> =
+      buildMap<String, MutableMap<ClassName, String>> {
+        resources.forEach { resourceSet ->
+          resourceSet.filenames.forEach { filename ->
+            LANGUAGE_FILENAME.matchEntire(filename)?.groupValues?.get(1)?.let { language ->
+              val names = getOrPut(language, ::linkedMapOf)
+              JsonReader.readDisplayNames(read(resourceSet, filename)).forEach {
+                  (className, displayName) ->
+                val previous = names.put(className, displayName)
+                require(previous == null || previous == displayName) {
+                  "Conflicting $language display names for $className: $previous and $displayName"
+                }
               }
             }
           }
         }
       }
-    }
-  }
 
-  override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-    resources.flatMapTo(linkedSetOf()) { resourceSet ->
-      readIfPresent(resourceSet, CLASSES_FILENAME, MarsMapReader::readMaps)
-    }
-  }
+  override val marsMapDefinitions: Set<MarsMapDefinition> =
+      resources.flatMapTo(linkedSetOf()) { resourceSet ->
+        readIfPresent(resourceSet, CLASSES_FILENAME, MarsMapReader::readMaps)
+      }
 
   private fun read(resourceSet: ResourceSet, filename: String): String =
       resourceReader("${resourceSet.directory}/$filename")

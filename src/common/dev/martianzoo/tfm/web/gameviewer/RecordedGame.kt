@@ -38,9 +38,16 @@ public abstract class RecordedGame {
   protected open val catalog: TfmCatalog = Canon
   protected open val inputOnlySynonyms: List<Pair<String, String>> = CLASS_SYNONYMS
 
-  public fun record(): GameRecording {
+  public fun record(): GameRecording = record({}, {})
+
+  internal fun record(
+      onGameConstructed: () -> Unit,
+      onReplayCompleted: () -> Unit,
+  ): GameRecording {
     game = Engine.newGame(catalog.gamePremise(config), inputOnlySynonyms = inputOnlySynonyms)
+    onGameConstructed()
     play()
+    onReplayCompleted()
     return game.recording()
   }
 

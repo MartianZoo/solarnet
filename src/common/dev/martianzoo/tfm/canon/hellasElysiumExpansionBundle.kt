@@ -1,5 +1,4 @@
 package dev.martianzoo.tfm.canon
 
-internal val hellasElysiumExpansionBundle: StandardFormBundle by lazy {
-  StandardFormBundle("HellasElysiumExpansion")
-}
+internal val hellasElysiumExpansionBundle: StandardFormBundle =
+    StandardFormBundle("HellasElysiumExpansion")

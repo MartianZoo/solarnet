@@ -45,19 +45,6 @@ import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
 
-internal val terraformingMarsBundle: StandardFormBundle by lazy {
-  StandardFormBundle(
-      "TerraformingMars",
-      terraformingMarsCustomClasses,
-      routines = terraformingMarsRoutines,
-      additionalResourceDirectories =
-          setOf(
-              "bundles/CorporateEraExpansion",
-              "bundles/TharsisMap",
-          ),
-  )
-}
-
 private val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
         TerraformingMars.CreateAdjacencies,
@@ -72,6 +59,18 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.CitationsIgnoringRemoves,
         TerraformingMars.MapBonus,
         TerraformingMars.CopyProductionBox,
+    )
+
+internal val terraformingMarsBundle: StandardFormBundle =
+    StandardFormBundle(
+        "TerraformingMars",
+        terraformingMarsCustomClasses,
+        routines = terraformingMarsRoutines,
+        additionalResourceDirectories =
+            setOf(
+                "bundles/CorporateEraExpansion",
+                "bundles/TharsisMap",
+            ),
     )
 
 /** Namespace for the core game's custom Pets implementations. */

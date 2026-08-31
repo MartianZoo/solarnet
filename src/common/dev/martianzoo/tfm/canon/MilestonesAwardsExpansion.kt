@@ -9,15 +9,14 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.engine.TfmApiUtils.getPlayerOwner
 
-internal val milestonesAwardsExpansionBundle: StandardFormBundle by lazy {
-  StandardFormBundle(
-      "MilestonesAwardsExpansion",
-      setOf(
-          MilestonesAwardsExpansion.GainsOf,
-          MilestonesAwardsExpansion.TileInLargestGroup,
-      ),
-  )
-}
+internal val milestonesAwardsExpansionBundle: StandardFormBundle =
+    StandardFormBundle(
+        "MilestonesAwardsExpansion",
+        setOf(
+            MilestonesAwardsExpansion.GainsOf,
+            MilestonesAwardsExpansion.TileInLargestGroup,
+        ),
+    )
 
 private object MilestonesAwardsExpansion {
   object GainsOf : CustomMetric() {

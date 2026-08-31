@@ -39,7 +39,8 @@ public class TfmGameplay(
     override val actor: Actor,
     private val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
 ) : TurnLayer by gameplay {
-  public val reader: GameReader by game::reader
+  public val reader: GameReader
+    get() = game.reader
 
   private var explicitPaymentChoicesRequired = false
   private var allowUnderpayment = false
