@@ -37,6 +37,12 @@
   for history, atomicity, rollback, or revisions.
 - [`Gameplay.kt`](../../src/common/dev/martianzoo/engine/Gameplay.kt) — search for
   `public interface Gameplay` before changing caller-facing operations.
+- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt),
+  [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
+  [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) — inspect together
+  for authored elaboration, class/component specialization, and Player-scoped input.
+- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search for `resolve` and
+  `doExecuteResolved` for the selected-task resolution and executable-first-stage contract.
 
 ## Game construction
 
@@ -271,20 +277,127 @@ sibling comes next is a new Selection.
 
 ### Execution
 
-Execution accepts resolved concrete work without resolving its first stage again. A `Change` goes
-through `Changer`, logging, automatic effects, and queued effects. `By` selects an Actor. A
-normalized `Then` inside inline execution runs its concrete stages; queued `THEN` tails were
-separated when the task was created. `NoOp` does nothing. An unresolved gate, `OR`, scalar, Type, or
-instruction group is an error.
+Execution accepts a selected Task whose first stage has already been resolved against the locked
+World. The current executable-first-stage algebra is implicit in `Instructor.doExecuteResolved`:
+
+- `NoOp`;
+- a `Change` with an actual count, mandatory intensity, and concrete component Types;
+- `By` around executable work, with one concrete participating Actor; or
+- `Then` with an executable first stage and later Pets stages that resolve only when reached.
+
+`Gated`, `Per`, `Or`, custom gains, marked transforms, and instruction groups cannot be the resolved
+first stage. Resolution must consume, choose, translate, or split them first. Later `THEN` stages
+remain Pets because their gates, metrics, limits, and linked values must observe the World produced
+by earlier stages.
+
+These facts are checked by `isAbstract`, casts, and `when` branches while the value remains a
+`pets.ast.Instruction`. A dedicated executable-first-stage type could encode the same small algebra
+directly, store concrete component Types and an Actor rather than Expressions, and retain later Pets
+only as an explicit continuation. That would change representation, not execution semantics.
+
+A `Change` goes through `Changer`, logging, automatic effects, and queued effects. `By` selects an
+Actor. `NoOp` does nothing. Queued `THEN` tails were separated when the Task was created.
 
 Queued effects return `PendingTask` values and receive ids only when admitted. Inline automatic
 effects never receive task ids.
 
 ## Effects
 
-Authored behavior progresses through source effect, loaded class effect, concrete component effect,
-live effect, then triggered instruction. The `Effector` indexes live component-effect pairs with
-their component multiplicity.
+### Life of an effect
+
+The normal path is a progression toward less implicit, more directly executable data:
+
+1. **Authored AST.** This is Pets in its convenient source form, whether it came from a declaration,
+   client input, or a custom implementation returning source-shaped Pets. It may omit dependencies
+   supplied by `DEFAULT`, contain marked syntax such as `PROD[...]`, and refer to contextual `This`
+   or `Owner`.
+2. **Elaborated Pets.** The authoring context identifies which eligible Type occurrences are uses of
+   the same Type variable before rewriting can obscure that fact. Desugaring then makes defaults
+   explicit, converts actions to effects, splits counted atomized gains, and replaces registered
+   marked syntax with ordinary Pets. The result remains in the authorable Pets language; it is just
+   less convenient to write. It may nevertheless carry typed variable identity that cannot be
+   reconstructed by stringifying one subtree and parsing it without its original region context.
+3. **Context-closed Pets.** Successive contexts bind the variables they own and write their values
+   into the typed tree. Class/component attachment binds `This`, contextual `Owner`, and class-header
+   variables. Trigger matching binds trigger-local variables and counts. Player-scoped Gameplay
+   directly substitutes its Player for contextual `Owner`. For example, `Plant` submitted through
+   Player 2's Gameplay ultimately becomes `Plant<Player2>` and no longer needs that scope to retain
+   its meaning. “Contextualization” names the operation; “context-closed” names the resulting
+   independence without suggesting that information was discarded.
+4. **Resolved first stage.** Selection locks the World, then state-dependent gates, metrics, limits,
+   choices, custom instructions, and abstract Types are resolved as far as the first executable
+   stage requires. The exact output contract is described under Execution; later `THEN` stages stay
+   as Pets until their turn.
+
+The implementation does not enforce these as different Kotlin representations. It reuses the same
+`PetNode` hierarchy, and some operations combine adjacent steps. The operational effect names map
+onto the progression as follows:
+
+- A declaration retains `authoredEffects` and `authoredActions`. Its executable `effects` also
+  include actions converted to effects and may contain Catalog-specific source compilation.
+- `Transformers.classEffects` collects inherited effects for an active Class, inserts defaults,
+  atomizes, lowers marked syntax, and evaluates properties as far as the Class context permits. A
+  class effect may still contain context-relative or event-relative values.
+- `LiveEffect.compile` specializes a class effect to one exact component Type. Apart from the
+  dedicated self-trigger representation, `This` now has no contextual role: ordinary occurrences
+  have become the exact component Type. A contextual `Owner` is also bound when that context has one.
+  The resulting component effect is wrapped with its subscription as a live effect.
+- Trigger matching supplies event-local linkage values and counts, producing the instruction that
+  becomes inline automatic work or a queued Task.
+
+Ad-hoc client input skips the class/component-effect steps. Its input pipeline desugars it and closes
+over the Player context before admitting Tasks. It may remain abstract because a Player choice is
+still required; context-closed does not mean concrete or resolved.
+
+`This` is a fake Class name with no context-free Type. Outside the dedicated self-trigger form, it is
+meaningful only in declaration syntax that supplies a Class or component context and it disappears
+by the component-effect stage. `Class<This>` retains the root Class identity without dependencies.
+Static Class construction and the current specialized `This<...>` invariant behavior are specified
+in [TYPES.md](TYPES.md#inherited-and-narrowed-dependencies).
+
+`Owner` currently conflates two roles: a contextual value to bind and the ordinary abstract `Owner`
+Type, whose concrete choices include seated Players and `SoloOpponent`. Consequently, failure to
+bind a contextual occurrence can silently turn it into a broad choice. A context-closed form needs
+to distinguish an intentionally open Owner-domain choice from an unbound contextual variable;
+merely leaving the same `Owner` Expression behind cannot prove which was intended.
+
+### Authored form as data
+
+Authored AST is deliberately retained rather than consumed. It is immutable parsed rule data, not a
+token-preserving source tree: parsing has already normalized syntax, lowered owner-local derived
+Class declarations, and identified Type-variable occurrences. Consumers are free to inspect,
+analyze, copy, or re-submit it. The useful contract is therefore its stable semantic shape, not a
+whitelist of permitted consumers: authored effects remain separate from action-lowered or
+Catalog-compiled executable effects; omitted defaults and marked syntax remain visible; stored
+Metric and Requirement values remain inert; and no component or trigger binding has been applied.
+
+`authoredEffects` and `authoredActions` enforce this source/executable split. Property values do not
+yet have parallel authored and executable slots: Catalog source compilation can rewrite the value
+stored on the loaded declaration. That is a gap in the otherwise useful authored-data contract, not
+a reason for consumers to depend on whichever compilation happened to run first.
+
+Known mechanisms that return authored data to normal elaboration include:
+
+- stored Metric- and Requirement-valued properties remain inert until `EVAL` includes them in a
+  class effect;
+- `CopyProductionBox` locates and returns the one authored `PROD[...]` subtree;
+- `CopyPrelude` returns the copied card's authored immediate instruction; and
+- `GetEventVps` returns authored end-game effect instructions.
+
+Card tags, card requirements, authored actions, `GainsOf`, and `CitationsIgnoringRemoves` also inspect
+authored syntax, but currently use it as metadata rather than re-executing it. These accesses are
+reflection-like: ordinary execution moves forward through the lifecycle, while source inspection
+explicitly reaches into preserved directives as data. Re-submitted data must re-enter through the
+same elaboration path as any other authored Pets.
+
+There is no single elaboration entry point today. `ApiTranslation`, `Transformers.classEffects`,
+property evaluation, and `CustomClassRuntime` assemble overlapping transformer chains, while
+`Instructor` applies marked-syntax handling after custom translation. Their shared intended
+contract is one authored-to-elaborated operation, parameterized by the active Class Table, Catalog
+handlers, and the contextual bindings available at that stage. Reflection-like re-entry should call
+that same operation rather than reconstructing a private subset of the pipeline.
+
+The `Effector` indexes live component-effect pairs with their component multiplicity.
 
 Triggers are self-gain `This:`, self-removal `-This:`, gain/remove subscriptions to another Type,
 and `OR` combinations. Wrappers add:
@@ -402,6 +515,11 @@ Actor-scoped string input passes through this order:
 4. dependency defaults;
 5. contextual `Owner` replacement for Player scopes; and
 6. marked-syntax handlers registered by the World's Catalog.
+
+In the lifecycle terminology above, this elaborates authored input and closes it over the Gameplay
+Player. It need not yet be concrete or resolved, because the submitted work may deliberately leave
+choices for Task narrowing. The current implementation performs the `Owner` substitution directly;
+no separate domain context object participates.
 
 A Catalog maps transform names to handlers bound to an active `ClassTable`. The generic
 dispatcher traverses the AST, prevents same-kind nesting, and preserves unregistered transforms so

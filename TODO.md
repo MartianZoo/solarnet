@@ -10,6 +10,14 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play, while
   flattening the temporary Gameplay power hierarchy.
+- Make the ordinary Pets lifecycle explicit and linear: elaborate every authored entry through one
+  shared route, preserve Type-variable identity in typed values, distinguish contextual `Owner`
+  from an intentional Owner-domain choice, close component and trigger context before Task
+  execution, and translate each resolved first stage to a small executable-work type while retaining
+  later `THEN` stages as Pets.
+- Preserve authored Pets as stable semantic data independently of executable compilation, including
+  Metric- and Requirement-valued properties; reflection-like consumers may inspect or re-submit any
+  authored subtree, and re-submission must use the shared elaboration route.
 - Rename instruction `Intensity` to `Quantifier` throughout.
 - **High priority:** Audit SAFE against its proof obligation: it may select only when exactly one
   pending task can be selected, and resolution may concretize an instruction only when exactly one
