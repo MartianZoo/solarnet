@@ -62,10 +62,10 @@ There are several basic elements to the language.
 * Instructions (`-2 Plant` means "lose two plants")
 * Requirements (`MAX 4 TemperatureStep` means "is the temperature at most -22 C?")
 * Metrics (`OwnedTile<!Owner>` means "owned tiles belonging to opponents")
-* Effects (`EventCard: 3` means "when you play an event card, gain 3 MC")
-* Actions (`Steel -> 5` means "spend 1 steel to gain 5 MC")
+* Effects (`EventCard: 3 MC` means "when you play an event card, gain 3 MC")
+* Actions (`Steel -> 5 MC` means "spend 1 steel to gain 5 MC")
 * Component expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on a land area next to >=2 city tiles", no matter which of the above element kinds it appears in)
 * ChangeEvents, aka game log entries (`469: +OxygenStep BY Player2 VIA GreeneryTile<Player2, Tharsis_5_5> BECAUSE 448`)
-* Class declarations (`CLASS TerraformRating { ProductionPhase: 1; End: VictoryPoint }`)
+* Class declarations (`CLASS TerraformRating { ProductionPhase: 1 MC; End: VictoryPoint }`)
 
 See a [syntax reference](syntax.md)

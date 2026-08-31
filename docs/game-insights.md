@@ -5,7 +5,7 @@ Here's a few insights into the deep design of the game that working on this has 
     * Gaining tiles defaults to certain kinds of areas (`OceanTile<WaterArea>`, `SpecialTile<LandArea>`)
     * Gaining a colony defaults to `Colony<ColonyTile(HAS MAX 0 Colony)>` -- a colony tile where you don't already have a colony.
     * Gaining a GlobalParameter or a CardResource applies the "as many as possible" modifier by default
-* We'd expect PharmacyUnion to have `This: 54`. But, like no other corporation, it has to have `This:: 54` instead; that is, we have to force that effect to be *immediate* instead of queued. This is because otherwise the engine tries to process the two "remove 4 money" instructions first *before* taking the money! Which, by the game rules, you *would* be able to do (don't try it IRL, you will not make friends).
+* We'd expect PharmacyUnion to have `This: 54 MC`. But, like no other corporation, it has to have `This:: 54 MC` instead; that is, we have to force that effect to be *immediate* instead of queued. This is because otherwise the engine tries to process the two "remove 4 money" instructions first *before* taking the money! Which, by the game rules, you *would* be able to do (don't try it IRL, you will not make friends).
 * There are "conditional triggers" which are needed only by:
     * track bonuses (`This IF =3 This: PROD[Heat]`)
     * SearchForLife (`End IF Science<This>: 3 VictoryPoint`)

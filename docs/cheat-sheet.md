@@ -18,7 +18,7 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 
 * `Plant` means to gain a plant
 * `-Plant` means to remove one
-* `4` is a shortcut for `4 MC`
+* `4 MC` means to gain 4 MC
 * `Plant / PlantTag` means to gain a plant for each plant tag you have
 * `PROD[Plant / PlantTag]` means to increase plant production for each plant tag you have
 * `PROD[Plant OR (3 PlantTag: 4 Plant)]` means to increase plant production 1 step, or, if you have 3 plant tags, 4 steps
@@ -30,7 +30,7 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 
 ## other syntax
 
-* `Steel -> 5` is an action, meaning to spend one steel to gain 5 MC
-* `X Microbe<This> -> 3X` means to spend one or more microbes from this card to get 3 MC each
+* `Steel -> 5 MC` is an action, meaning to spend one steel to gain 5 MC
+* `X Microbe<This> -> 3X MC` means to spend one or more microbes from this card to get 3 MC each
 * `CityTile<Anyone>: PROD[1 MC]` is a triggered effect, meaning when anyone gains a city tile, you get a money production
 * A requirement of `MAX 5 OxygenStep` means the oxygen level must be 5% or lower to do the thing

@@ -64,7 +64,7 @@ A simple example of an owned component type is `VictoryPoint`.
 
 ```
 CLASS TerraformRating {
-    ProductionPhase: 1
+    ProductionPhase: 1 MC
     End: VictoryPoint
 }
 ```

@@ -30,7 +30,7 @@ Various non-Terraforming-specific helpers.
 
 English text for Terraforming Mars cards.
 
-## module CANON
+## module TFM-CANON
 
 ### <a href="tfm-canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
 
