@@ -43,32 +43,6 @@ cd solarnet
 
 ... and then type `help`.
 
-To run the browser apps on one development server, run:
-
-```
-./gradlew webAppsDevelopmentRun --continuous
-```
-
-Then open the local URL Gradle prints. The root page links to the game viewer at `/gameviewer/` and
-the browser REPL at `/webrepl/`. The REPL game runs entirely in the browser. Command history is
-stored in that browser, while refreshing the page starts a new game. The right third of the REPL
-shows a player dashboard tracking player 1's resources, production, Terraform Rating, cards,
-victory points, and tags, with a live Mars map below it.
-
-To view the four saved over-the-board games, put the generated game artwork under
-`_local/images`, then run:
-
-```
-./gradlew :game-viewer:jsBrowserDevelopmentRun --continuous
-```
-
-Choose a game from the initially empty dropdown to open its earliest recorded position. Player tabs
-switch the dashboard and ordered card display, including live card-resource counters and a separate
-played-event section. Event-log dividers mark completed actions and grouped automatic engine work;
-click one or use the up/down arrow keys to move the recorded game world backward and forward. This
-viewer has no gameplay controls. A worktree whose `_local` directory is elsewhere can pass
-`-PlocalImagesDir=/path/to/images` to the Gradle command.
-
 You can also start a small REPL server with `./regoserve` and issue repl commands to it from the normal command line (`./rc 'repl command here'`).
 
 But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
