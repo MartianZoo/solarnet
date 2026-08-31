@@ -392,13 +392,13 @@ reveal every inspected card in order and discard nonmatches.
 A card procedure's follow-mode compilation creates the Player's temporary `Selecting` area before
 the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing that area
 discards every card still dependent on it through the engine's dependency cascade.
-`Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then invokes one
-unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's selection
-and broadcasts the same multiplicity of `BuyCard`; those per-card signals create the base debt and
-let Polyphemos and Terralabs Research react by adding or removing `Owed`. Once the resulting invoice
-is fully paid, the purchase operation moves those exact selected cards to `Hand`. Its optional
-removal count is the offered count, so the player may discard any subset before buying the
-remainder; corporation setup uses ten, Research uses four, Venus Orbital Survey uses whatever
+`Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then
+invokes one unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's
+selection, creates the complete base debt, broadcasts the same multiplicity of `BuyCard` so
+Polyphemos and Terralabs Research can adjust that established `Owed`, and then creates one invoice.
+Once the invoice is fully paid, the purchase operation moves those exact selected cards to `Hand`.
+Its optional removal count is the offered count, so the player may discard any subset before buying
+the remainder; corporation setup uses ten, Research uses four, Venus Orbital Survey uses whatever
 non-Venus cards remain from two, and single-card purchase actions use one.
 
 Area-qualified card observations use the same transform. `ProjectCard<Hand>` counts only project
