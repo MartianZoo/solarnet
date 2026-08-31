@@ -30,6 +30,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
 | Optional client autoexecution mechanism | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
+| Engine diagnostics, event metadata, or runtime traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
 
 ### Change Pets, types, or static game construction
 
