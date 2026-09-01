@@ -21,6 +21,7 @@
 | Authored Type variables and scopes | [`TypeVariable.kt`](../../src/common/dev/martianzoo/pets/types/TypeVariable.kt), [`TypeVariableScope.kt`](../../src/common/dev/martianzoo/pets/types/TypeVariableScope.kt), and [`inferTypeVariables.kt`](../../src/common/dev/martianzoo/pets/types/inferTypeVariables.kt) |
 | Class-scoped variables | [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt), search `headerVariableBindings`, and [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt), search `bindEffectVariables` |
 | Trigger and Actor specialization | [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), search `positive abstract Actor selector` and `Subscription` |
+| Type-variable behavior tests | [`TypeVariableTest.kt`](../../test/common/dev/martianzoo/pets/types/TypeVariableTest.kt), [`DependencyVariableTest.kt`](../../test/common/dev/martianzoo/engine/DependencyVariableTest.kt), and [`TransformersTest.kt`](../../test/common/dev/martianzoo/engine/TransformersTest.kt) |
 | Foundational declaration vocabulary | [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt), search for the named Class |
 
 ## Quick model
@@ -187,7 +188,7 @@ A full form states every bound. A minimal form uses the smallest dependency-orde
 arguments that greedily re-resolves to the same Type, including Type-variable equalities that let
 one argument determine another. Equal-size forms prefer earlier dependencies. Rendering uses
 minimal form. A Complement's unwritten domain is the known exception to round-tripping; see section
-7 and divergence 12.5.
+7 and divergence 12.2.
 
 ## 4. Class literals
 
@@ -226,11 +227,19 @@ most-general common narrowing; Quantifiers must agree.
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
 
+`Owner` is not intrinsically a contextual placeholder. As with another abstract expression, its
+role follows from its authored occurrence and visible scope. An `Owner` projected from a Class
+header such as `Owned<Owner>` is that Class variable; an independently authored eligible `Owner`
+can be a local variable. An `Owner` inserted only by a default has no authored declaration of its
+own. It retains the context expected by that default without creating a new shared choice.
+
 Default insertion elaborates an authored Expression; it does not author another Type-variable
 declaration. Existing variables retain their recorded occurrence identity as their expressions gain
 default arguments. Separate inserted expressions do not become one choice merely because their
 text, resolved Type, declaring default, or in-memory object is shared. Contextual `Owner` is closed
 by the ownership and triggering-Actor rules, not by inventing a Type variable during expansion.
+Authored-variable recognition must not be rerun on the expanded syntax: that would turn elaboration
+results into declarations and erase source distinctions such as `Player` versus `Player<>`.
 
 Inside a refinement, an implicit default is deferred when its dependency is a direct use of a
 Class-header Type variable; candidate substitution can then bind it through that occurrence.
@@ -469,8 +478,7 @@ For example, a concrete `Cardbound<CardFront<Player1>>` supplies both the card v
 occurrences address the same inherited owner dependency. The same value then specializes a
 `Token<Player>` occurrence in a Class Effect. In contrast, independently declared roots do not
 become one variable merely because their bounds have the same spelling. A body occurrence that
-could name two such declarations with different values is ambiguous and must be rejected; divergence
-12.4 describes the current silent fallback.
+could name two such declarations with different values is ambiguous and is rejected.
 
 ### Authored expression identity
 
@@ -570,6 +578,28 @@ The proposed [`EACH`](EACHPLAYER.md) fanout would make its selector a declaratio
 body. Each enumerated concrete selector Type would substitute through the recorded use paths. It
 would not bind contextual `Owner` or `This` and would reject a body with no use of the selector. This
 construct is not implemented.
+
+### Implementation direction
+
+Use one authored-occurrence model and shared matching primitives with the scope rules above. Do not
+assume that Class-header specialization, trigger capture, and `THEN` continuation need one
+recognition algorithm: they receive values from different events and may cleanly retain separate
+policies. Consolidate a policy only when its declaration, scope, and binding rules are actually the
+same.
+
+Every policy should record stable occurrence paths before defaults and lowering. Later
+transformations must carry those paths forward; allocation identity, rendered text, resolved
+equivalence, and reordered arguments are not evidence that two occurrences share a variable. In
+particular, adding default arguments to an already recorded occurrence preserves that occurrence's
+identity but does not turn the inserted arguments into authored declarations.
+
+The current implementation can fall back to expression identity or equality after transformations.
+Replacing that recovery with durable occurrence identity is working direction. Preserve the
+construct-specific behavior covered by the Type-variable tests in the source map while doing so.
+
+The generated `SpliceTacticalGenomicsWatcher<Player>` components are a working content mechanism,
+not unfinished Type-variable infrastructure. Replacing them would be optional content and
+task-assignment cleanup.
 
 ## 11. Uninhabited Classes and Types
 
