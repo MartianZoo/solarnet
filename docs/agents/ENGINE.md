@@ -1,12 +1,11 @@
 # Engine model
 
 > **Read when:** changing live World construction, components, events, tasks, effects, rollback,
-> recoverable dead ends, input transformation, or the current `Agent` surface.
+> recoverable dead ends, input transformation, recordings, or the current `Agent` surface.
 >
 > **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
 > [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
-> resolution. Use [GAME_WORLDS.md](GAME_WORLDS.md) for events, recordings, checkpoints,
-> scrolling, rollback, and overlays.
+> resolution.
 >
 > **Status:** current-model map. Follow the source pointers for exact behavior. Future facade and
 > workflow directions live in [API.md](API.md) and [WORKFLOW.md](WORKFLOW.md).
@@ -17,7 +16,7 @@
 | --- | --- |
 | Game creation or premise activation | Game construction, then Wiring details |
 | Component state | Component graph |
-| Current event and timeline implementation | Events and timeline, then [GAME_WORLDS.md](GAME_WORLDS.md) for the target model |
+| Current event, timeline, or recording implementation | Events and timeline |
 | Tasks, assignment, selection, narrowing, resolution, or execution | Tasks are an unordered choice pool through Execution |
 | Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
 | Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
@@ -61,10 +60,8 @@ A live Game World is a `World` containing:
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
-selected Modules, signed class selections, seat-ordered display names, exact non-singleton types to
-create once, and the source configuration when resolution began from one. Native replay export uses
-that retained source rather than attempting to reverse defaults out of the resolved premise. See
-[OPTIONS.md](OPTIONS.md).
+selected Modules, signed class selections, seat-ordered display names, and exact non-singleton types
+to create once. See [OPTIONS.md](OPTIONS.md).
 
 A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
 from that premise shares the projection and its compiled class metadata while retaining independent
@@ -141,19 +138,10 @@ instruction defaults so Kotlin translation remains its sole behavior.
 
 ## Events and timeline
 
-[GAME_WORLDS.md](GAME_WORLDS.md) owns the target history, Recording, Checkpoint, rollback, and
-overlay model. This section records only the current engine implementation.
-
-The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, `TaskEditedEvent`, and the
-diagnostic `GameplayInputEvent`. A change records its Actor and Cause, with changed component Types
-stored as minimal round-tripping expressions. A successful Player command records its submitted
-input and outer command-start ordinal so native export can recover choices without treating Cause
-as input. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cause, and `BECAUSE` for
-causal event ordinal.
-
-Every event has optional diagnostic `agent` provenance. It is rendered when present but excluded
-from event equality and gameplay-state equivalence. An attached autoexecution policy supplies its
-name for commands it issues; direct calls leave it absent.
+The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, and `TaskEditedEvent`. A change
+records its Actor and Cause, with changed component Types stored as minimal round-tripping
+expressions. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cause, and `BECAUSE`
+for causal event ordinal.
 
 `EventLog.record` and rollback are the single history/mutation interface: application or reversal
 must succeed before the log changes. Each current event has one integer ordinal. Each forward or
@@ -168,11 +156,11 @@ failure reverses component state, tasks, event-backed indexes, and events.
 `AbortOperationException` requests rollback without surfacing as a caller error. The commit floor
 prevents rollback into initialization or a workflow stage.
 
-`World.recording()` currently captures the event sequence and selected positions around successful
-outermost gameplay completion. `GameRecording.seek` reverses or reapplies those events on the same
-live `World`, and capturing seals its public rollback surface to those positions. This is the
-transitional implementation that [GAME_WORLDS.md](GAME_WORLDS.md#recordings) replaces with an
-independent Recording and request-scoped Checkpoints.
+`World.recording()` captures the event sequence and selected positions around successful outermost
+Agent completion. `GameRecording.seek` reverses or reapplies those events on the same live `World`,
+and capturing seals its public rollback surface to those positions. This coupling is transitional:
+recording navigation should own independent read state so seeking neither mutates nor seals its
+source World. Persistence and speculative execution require separate design review.
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.
@@ -442,7 +430,7 @@ action-scoped wild holder received the Building interpretation.
 uniquely implied end-of-action settlement: after the action's work finishes, the selected completion
 hook removes the acting player's remaining uses and their dependent tags disappear through
 dependency cascade. It must finish before workflow offers `SecondAction`. Until that hook exists,
-the shared Routine completion bridge cleans up `WildTagUse?` tasks when they are the acting Player's
+the shared `TfmGameplay` completion bridge cleans up `WildTagUse?` tasks when they are the acting Player's
 only remaining work, then removes the uses directly; `TfmGameplay` has an equivalent turn-helper
 bridge. Both should disappear when sequencing owns end-of-action settlement.
 
@@ -554,9 +542,8 @@ Scanning is global; assignee selects the queue and stored Actor controls attribu
 [AUTOEXEC.md](AUTOEXEC.md) records the settled policy-extraction target and its current divergence.
 
  `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
- `Agent`. Treat it as transitional; its pass, selected-card purchase, and end-turn conveniences now
- dispatch to Catalog Routines, and the remaining test conveniences and player-facing domain actions
- need not remain one production wrapper.
+ `Agent`. Treat it as transitional; its test conveniences and player-facing domain actions need not
+ remain one production wrapper.
 
 `TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
 for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken

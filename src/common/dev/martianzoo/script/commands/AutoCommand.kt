@@ -17,11 +17,10 @@ internal class AutoCommand(private val repl: ScriptSession) : ScriptCommand("aut
         `safe` executes a task only when no other task could currently succeed, preserving every
         choice allowed by the game. `first` also makes arbitrary, reproducible choices when several
         tasks could succeed; this is convenient, but it can make suboptimal moves. With no argument,
-        `auto` reports the current mode. The setting is sticky until you `exit` or `rebuild`, even
-        across games.
+        `auto` reports the current mode.
       """
 
-  override fun noArgs() = listOf("Autoexec mode is: ${repl.autoExecMode}")
+  override fun noArgs() = listOf("Autoexec mode is: ${repl.agent.autoExecMode}")
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.completions("none", "safe", "first", group = "auto modes")
@@ -34,7 +33,7 @@ internal class AutoCommand(private val repl: ScriptSession) : ScriptCommand("aut
           "first" -> FIRST
           else -> throw UsageException()
         }
-    repl.setAutoExecMode(mode)
+    repl.agent.autoExecMode = mode
     return noArgs()
   }
 }

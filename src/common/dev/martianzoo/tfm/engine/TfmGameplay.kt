@@ -5,8 +5,6 @@ import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.RoutineContext
-import dev.martianzoo.engine.RoutineProvider
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
@@ -80,7 +78,14 @@ public class TfmGameplay(
   /**
    * Commits every project card currently selected, opening a pending offer first when necessary.
    */
-  public fun buyCards(): TaskResult = runRoutine("buyCards")
+  public fun buyCards(): TaskResult = agent.continueManual {
+    closeUnusedPaymentOffers()
+    openPendingProjectCardOffer()
+    val selected = this@TfmGameplay.count("ProjectCard<Selecting>")
+    buySelectedCards(selected)
+    declineWildTagOffers()
+    removeWildTagUses()
+  }
 
   private fun OperationBody.buySelectedCards(count: Int) {
     closeUnusedPaymentOffers()
@@ -212,7 +217,7 @@ public class TfmGameplay(
     selectTask(transfer.id)
   }
 
-  public fun pass(): TaskResult = inTfmTurn { runRoutine("tasks", listOf("Pass")) }
+  public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
 
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If
@@ -226,15 +231,12 @@ public class TfmGameplay(
   }
 
   public fun declineSecondAction(): TaskResult {
-    return runRoutine("endTurn")
-  }
-
-  private fun runRoutine(name: String, arguments: List<String> = emptyList()): TaskResult {
-    val provider =
-        reader.catalog as? RoutineProvider
-            ?: error("${reader.catalog::class.simpleName} does not provide Routines")
-    val routine = provider.routines[name] ?: error("Unknown Routine: $name")
-    return routine.execute(RoutineContext(game, agent), arguments)
+    return inTfmTurn {
+      val secondAction =
+          secondActionOffer()
+              ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
+      doTask("Ok", secondAction.index + 1)
+    }
   }
 
   private fun secondActionOffer(): IndexedValue<Task>? =

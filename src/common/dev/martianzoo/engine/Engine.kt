@@ -12,11 +12,8 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
-import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent
-import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent.Kind
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
@@ -100,7 +97,6 @@ public object Engine {
             agentByActor,
             timeline,
             recordingPositions,
-            premise,
         )
 
     internal fun createWorld(): WholeWorld {
@@ -194,26 +190,11 @@ public object Engine {
               actor,
               instructor,
               changer,
-          ) { task, taskNumber, mode ->
-            if (task.assignee is Player) {
-              val event =
-                  GameplayInputEvent(
-                      events.nextOrdinal,
-                      atomicOperationScope.currentOperationStartOrdinal,
-                      task.assignee,
-                      Kind.DO_TASK,
-                      task.instruction.toString(),
-                      taskNumber,
-                  )
-              event.agent = "autoexec $mode"
-              events.record(event) {}
-            }
-          }
+          )
       return ApiTranslation(
           actor,
           reader,
           timeline,
-          events,
           implementations,
           tasks,
           classTable,

@@ -84,9 +84,7 @@ Important later questions include:
 ## Public API policy
 
 There are no known external clients requiring obsolete aliases. Rename or remove public APIs when
-the model improves instead of keeping compatibility wrappers. Script or replay syntax is a separate
+the model improves instead of keeping compatibility wrappers. Script syntax is a separate
 user-visible contract: call out any needed change before adopting it.
 
-[GAME_WORLDS.md](GAME_WORLDS.md) separately owns immutable recordings, live checkpoints, and
-future disposable Worlds. Independent recording navigation is read-only and does not belong on
-the trusted Agent command surface.
+Recording navigation is read-only and does not belong on the trusted Agent command surface.

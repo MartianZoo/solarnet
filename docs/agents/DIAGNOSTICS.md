@@ -1,6 +1,6 @@
 # Engine diagnostics
 
-> **Read when:** investigating engine sequencing, task assignment, autoexecution, replay divergence,
+> **Read when:** investigating engine sequencing, task assignment, autoexecution, state divergence,
 > or another failure whose runtime cause is not apparent from the final World.
 >
 > **Skip when:** the failure is already explained by a focused assertion or ordinary source-level
@@ -16,20 +16,19 @@ read captured runtime evidence before reconstructing execution from source searc
 
 Diagnostics have two different homes:
 
-- Existing `GameEvent`s remain the durable account of changes, task lifecycle, and successful
-  gameplay input. We may add a few optional diagnostic properties to those events, but no new event
-  kinds merely to describe debugging activity.
+- Existing `GameEvent`s remain the durable account of changes and task lifecycle. We may add a few
+  optional diagnostic properties to those events, but no new event kinds merely to describe
+  debugging activity.
 - An opt-in debug log records attempts, alternatives, and declined decisions that produced no
-  event. It is investigative output, not game history or replay input.
+  event. It is investigative output, not game history or game input.
 
 Keeping these separate is important. The event log says what happened; the debug log can say what
 the engine considered and why it did nothing.
 
 ## Small event-schema enrichment
 
-The current useful anchors are event ordinal, `ChangeEvent.cause`, task id and task contents,
-`GameplayInputEvent.operationStartOrdinal`, and optional `GameEvent.agent` provenance. Prefer using
-and rendering those consistently before adding fields.
+The current useful anchors are event ordinal, `ChangeEvent.cause`, task id, and task contents.
+Prefer using and rendering those consistently before adding fields.
 
 The first additional property to consider is:
 
@@ -41,11 +40,11 @@ This is deliberately an arbitrary string rather than a new hierarchy. It can hol
 of information that belongs with an event but is not part of game meaning, such as a resolution
 explanation or relevant pre-transition context.
 
-Like `agent`, `diagnostics` should:
+`diagnostics` should:
 
 - be optional and have no effect on gameplay;
 - be excluded from event equality and gameplay-state equivalence;
-- not become a replay input or a substitute for `ChangeEvent.cause`;
+- not become game input or a substitute for `ChangeEvent.cause`;
 - appear only in explicitly diagnostic rendering, so normal history remains readable; and
 - carry no stable machine-readable format promise.
 
@@ -54,8 +53,7 @@ autoexec skip this task?" cannot belong to an event when the skipped decision pr
 
 Avoid adding several typed fields speculatively. A possible later exception is making operation
 correlation available on more event kinds, if real trace analysis shows it cannot be recovered
-reliably from the existing operation-start ordinal and causal links. That need should be
-demonstrated first.
+reliably from causal links. That need should be demonstrated first.
 
 ## Opt-in debug logging
 
@@ -70,16 +68,16 @@ Ordinary debug logging should cover decision points that do not necessarily chan
 
 The output should be written through a configurable sink, not unconditional `println` calls. Each
 record should include enough correlation context to join it back to game history when applicable:
-the next event ordinal or most recent event ordinal, World revision, operation-start ordinal, task
-id, Actor, and Agent. Not every record needs every value.
+the next event ordinal or most recent event ordinal, World revision, task id, and Actor. Not every
+record needs every value.
 
 The debug log is allowed to be verbose and implementation-shaped. It must not affect scheduling,
-ordering, equality, replay, or exported World state. Logging should be disabled by default and
+ordering, equality, or World state. Logging should be disabled by default and
 cheap when disabled.
 
 ## Investigation procedure for agents
 
-For sequencing, delegation, autoexec, or replay discrepancies:
+For sequencing, delegation, autoexec, or runtime discrepancies:
 
 1. Create the smallest reliable reproduction.
 2. Enable diagnostic event rendering and the relevant debug-log categories.
@@ -92,5 +90,5 @@ For sequencing, delegation, autoexec, or replay discrepancies:
    proposed fix.
 
 The eventual helper command should perform steps 2 and 3 in one invocation and print the artifact
-paths. Its interface should select a test or replay plus debug categories; it should not synchronize
+paths. Its interface should select a test or scenario plus debug categories; it should not synchronize
 Git history, change the reproduction, or silently run a broad test suite.

@@ -46,7 +46,7 @@ procedure here and game-specific uncertainties in the source inventory or tempor
 
 ## Automate evidence collation without replacing judgment
 
-A future replay-evidence command should make the procedure above repeatable and cheap while
+A future evidence-collation command should make the procedure above repeatable and cheap while
 preserving the distinction between source, observation, and inference. It should operate only on a
 named `_local/replays/GameYYYYMMDD/` directory and never overwrite original evidence.
 
@@ -58,12 +58,10 @@ The command should be able to:
   evidence table in which every fact retains an exact source locator;
 - generate a chronological-skeleton and action-inventory draft while leaving uncertain Actor,
   identity, ordering, and attribution explicitly unresolved;
-- translate settled actions into a compact Routine-based REgo candidate rather than expanding
-  routine behavior into long sequences of low-level task commands;
-- run the candidate script and the corresponding Kotlin replay, capturing source-backed checkpoint
-  results, rendered events, diagnostic output, and final `World.export()` text; and
-- report the first divergence between the two replay forms or between replay state and an observed
-  checkpoint, including a discrepancy worksheet for the affected interval.
+- run the corresponding Kotlin reconstruction, capturing source-backed checkpoint results,
+  rendered events, and diagnostic output; and
+- report the first divergence between reconstructed state and an observed checkpoint, including a
+  discrepancy worksheet for the affected interval.
 
 Generated indexes, drafts, traces, and comparisons belong under a clearly marked `derived/`
 subdirectory. They are navigation and analysis aids, not new evidence. Every generated assertion or

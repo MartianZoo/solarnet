@@ -1,8 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.engine.Routine
-import dev.martianzoo.engine.RoutineProvider
-import dev.martianzoo.engine.RoutineReplayEncoder
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
@@ -38,10 +35,7 @@ import dev.martianzoo.pets.util.associateByStrict
 import dev.martianzoo.tfm.canon.BundleContentSelection.Kind
 
 /** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
-public open class TfmCatalog : Catalog, RoutineProvider {
-  override val routines: Map<String, Routine> = emptyMap()
-  final override val replayEncoder: RoutineReplayEncoder = TerraformingMarsReplayEncoder
-
+public open class TfmCatalog : Catalog {
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
           TfmClasses.PROD to Prod::handler,
@@ -318,7 +312,6 @@ public open class TfmCatalog : Catalog, RoutineProvider {
         classSelections,
         initialTypes,
         configuredPlayerNames,
-        config,
     )
   }
 
@@ -812,13 +805,5 @@ public open class TfmCatalog : Catalog, RoutineProvider {
 
     override val customClasses: Set<CustomClass> =
         catalogs.flatMapTo(linkedSetOf(), Catalog::customClasses)
-
-    override val routines: Map<String, Routine> = buildMap {
-      catalogs.forEach { catalog ->
-        catalog.routines.forEach { (name, routine) ->
-          require(put(name, routine) == null) { "Multiple Routines named $name" }
-        }
-      }
-    }
   }
 }

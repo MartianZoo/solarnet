@@ -99,11 +99,11 @@ choice creates Billing, the operation must finish that Billing stage before acce
 resulting consequence choices. Billing may require zero or more tender selections. Only after it
 closes can the player select direct effects or other queued consequences.
 
-Clients and Routines must recognize payment from the live Billing stage, not by inspecting every
+Client helpers must recognize payment from the live Billing stage, not by inspecting every
 resource-removal instruction. This distinction is what keeps a direct floater cost, a production
 transformation, or another holder-sensitive removal in the ordinary Pets consequence stage. It
 also makes written payment/consequence interleaving invalid without inventing a special payment
-syntax. See [ROUTINES.md](ROUTINES.md#invocation-contract).
+syntax.
 
 ## Composition
 

@@ -5,7 +5,6 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.GameEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent
 import dev.martianzoo.pets.data.GameEvent.TaskEvent
 import dev.martianzoo.pets.data.TaskResult
 
@@ -50,7 +49,6 @@ internal class TimelineImpl(
     events.rollBackTo(ordinal) { entry ->
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)
-        is GameplayInputEvent -> Unit
         is ChangeEvent ->
             with(entry.change) {
               components.applyChange(
@@ -72,7 +70,6 @@ internal class TimelineImpl(
       recordedEntries.subList(events.size, checkpoint.ordinal).forEach { entry ->
         when (entry) {
           is TaskEvent -> tasks.replay(entry)
-          is GameplayInputEvent -> events.record(entry) {}
           is ChangeEvent ->
               with(entry.change) {
                 events.record(entry) {

@@ -51,9 +51,6 @@ public interface World {
   public fun isIdle(): Boolean =
       tasks.isEmpty() && reader.has(parse("MAX 0 MustCleanUp, MAX 0 Temporary"))
 
-  /** Exports this idle world as a versioned, workflow-driven REgo replay. */
-  public fun export(): String
-
   public fun agent(actor: Actor): Agent
 
   /** Called after every outermost atomic operation completes. */

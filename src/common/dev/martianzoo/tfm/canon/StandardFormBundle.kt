@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.engine.Routine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
@@ -22,7 +21,6 @@ internal class StandardFormBundle(
     override val customClasses: Set<CustomClass> = emptySet(),
     override val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap(),
     override val moduleClassExclusions: Map<ClassName, Set<ClassName>> = emptyMap(),
-    override val routines: Map<String, Routine> = emptyMap(),
     private val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,

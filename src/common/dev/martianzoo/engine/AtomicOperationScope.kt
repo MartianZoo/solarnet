@@ -10,18 +10,12 @@ internal class AtomicOperationScope(
     private val removeTemporaryComponents: () -> Boolean,
 ) {
   private var depth: Int = 0
-  private var outermostStartOrdinal: Int? = null
-
-  internal val currentOperationStartOrdinal: Int
-    get() = checkNotNull(outermostStartOrdinal)
 
   internal fun run(
       block: () -> Unit,
       afterIdleCleanup: () -> Unit = {},
       beforeOutermostCompletion: () -> Unit,
   ): TaskResult {
-    val outermost = depth == 0
-    if (outermost) outermostStartOrdinal = timeline.checkpoint().ordinal
     depth++
     return try {
       timeline
@@ -43,7 +37,6 @@ internal class AtomicOperationScope(
           }
     } finally {
       depth--
-      if (outermost) outermostStartOrdinal = null
     }
   }
 }
