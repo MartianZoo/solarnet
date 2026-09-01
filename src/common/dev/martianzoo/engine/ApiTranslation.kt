@@ -17,7 +17,10 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.ClassTable
@@ -33,10 +36,9 @@ import kotlin.reflect.KClass
  */
 internal class ApiTranslation(
     override val actor: Actor,
-    private val reader: GameReader,
-    private val timeline: Timeline,
+    override val reader: GameReader,
     private val impl: Implementations,
-    private val tasks: TaskQueue,
+    override val tasks: TaskQueue,
     private val classTable: ClassTable,
     xers: Transformers,
     vocabulary: Vocabulary,
@@ -103,18 +105,35 @@ internal class ApiTranslation(
 
   // CHANGES
 
-  override fun sneak(changes: String, fakeCause: Cause?): TaskResult = timeline.atomic {
+  override fun sneak(changes: String, fakeCause: Cause?): TaskResult = atomicWithoutAutoExec {
     impl.sneak(parseInstructionGroup(changes), fakeCause)
   }
 
   // TASKS
 
-  override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> =
-      impl.addTasks(parseInstructionGroup(instruction), firstCause)
+  override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> {
+    var added = emptyList<TaskId>()
+    atomicWithoutAutoExec { added = impl.addTasks(parseInstructionGroup(instruction), firstCause) }
+    return added
+  }
 
-  override fun dropTask(taskId: TaskId) = impl.dropTask(taskId)
+  override fun editTask(task: Task): TaskEditedEvent? {
+    var edited: TaskEditedEvent? = null
+    atomicWithoutAutoExec { edited = impl.editTask(task) }
+    return edited
+  }
 
-  override fun dropTasks() = impl.dropTasks()
+  override fun dropTask(taskId: TaskId): TaskRemovedEvent {
+    lateinit var removed: TaskRemovedEvent
+    atomicWithoutAutoExec { removed = impl.dropTask(taskId) }
+    return removed
+  }
+
+  override fun dropTasks(): List<TaskRemovedEvent> {
+    var removed = emptyList<TaskRemovedEvent>()
+    atomicWithoutAutoExec { removed = impl.dropTasks() }
+    return removed
+  }
 
   // OPERATIONS
 
@@ -198,6 +217,8 @@ internal class ApiTranslation(
 
   override fun canSelectTask(taskId: TaskId) = impl.canSelectTask(taskId)
 
+  override fun canExecuteTask(taskId: TaskId) = impl.canExecuteTask(taskId)
+
   override fun selectTask(taskId: TaskId) = atomic { impl.selectTask(taskId) }
 
   override fun selectTask(instruction: String) = atomic {
@@ -224,6 +245,8 @@ internal class ApiTranslation(
     )
   }
 
+  override fun tryTask(taskId: TaskId) = atomic { impl.tryTask(taskId) }
+
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
   private fun atomic(
@@ -235,6 +258,11 @@ internal class ApiTranslation(
           afterIdleCleanup = afterIdleCleanup,
           beforeOutermostCompletion = { impl.autoExecNow(autoExecMode) },
       )
+
+  // Direct mutation did not invoke legacy autoexecution before it joined the shared command scope.
+  // Policy-driven advancement will replace this distinction in the later scheduler slice.
+  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
+      atomicOperationScope.run(block) {}
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

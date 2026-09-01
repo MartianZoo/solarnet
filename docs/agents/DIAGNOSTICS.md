@@ -1,7 +1,7 @@
-# Engine diagnostics
+# Runtime diagnostics
 
-> **Read when:** investigating engine sequencing, task assignment, autoexecution, state divergence,
-> or another failure whose runtime cause is not apparent from the final World.
+> **Read when:** investigating engine sequencing, task assignment, permissions, autoexecution,
+> replay divergence, or another failure whose runtime cause is not apparent from the final World.
 >
 > **Skip when:** the failure is already explained by a focused assertion or ordinary source-level
 > debugging.
@@ -14,13 +14,17 @@
 Make one small reproduction explain what the engine actually did. An investigator should normally
 read captured runtime evidence before reconstructing execution from source searches.
 
-Diagnostics have two different homes:
+Diagnostics have layer-specific homes:
 
 - Existing `GameEvent`s remain the durable account of changes and task lifecycle. We may add a few
   optional diagnostic properties to those events, but no new event kinds merely to describe
   debugging activity.
-- An opt-in debug log records attempts, alternatives, and declined decisions that produced no
-  event. It is investigative output, not game history or game input.
+- An opt-in engine debug log records resolution, execution, effects, and rollback attempts that
+  produced no event.
+- Actor access, Agent Drivers, and generic pulse dispatch keep their own opt-in logs for Actor
+  binding, caller provenance, wake-ups, policy eligibility, and declined decisions. Those layers may
+  correlate with engine revisions and events but do not move policy reasoning into engine
+  diagnostics.
 
 Keeping these separate is important. The event log says what happened; the debug log can say what
 the engine considered and why it did nothing.
@@ -57,10 +61,14 @@ reliably from causal links. That need should be demonstrated first.
 
 ## Opt-in debug logging
 
-Ordinary debug logging should cover decision points that do not necessarily change the World:
+Together, layer-owned debug logging should cover decision points that do not necessarily change the
+World:
 
-- tasks and policies considered by autoexecution, including the reason each declined;
-- task-pool and Agent eligibility checks;
+- tasks and policies considered by an Agent Driver, including the reason each declined, in the
+  Driver log;
+- `ActorAccess` binding and mutation forwarding in the access log;
+- pulse delivery, revision invalidation, and fixed-point detection in the dispatcher log;
+- core task-pool assignment and legality checks in the engine log;
 - narrowing, resolution, and execution attempts;
 - assignment, Actor, and queue choices when they are computed;
 - automatic-effect ordering decisions; and

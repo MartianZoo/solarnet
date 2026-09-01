@@ -1,12 +1,14 @@
-# Generic and Terraforming Mars responsibility audit
+# Runtime and Terraforming Mars responsibility audit
 
-> **Read when:** moving code across generic/Terraforming Mars packages, changing bare-number rejection or
-> Action lowering, splitting Catalog responsibilities, or separating script/workflow mechanics.
+> **Read when:** moving code across state, engine, permissions, autoexecution, generic, or
+> Terraforming Mars packages; changing bare-number rejection or Action lowering; splitting Catalog
+> responsibilities; or separating script/workflow mechanics.
 >
 > **Skip when:** a move follows the dependency direction already explicit in the source and Gradle
 > build files, or when the only motivation is support for a hypothetical unrelated game.
 >
-> **Status:** audit, not a mandate to generalize Solarnet.
+> **Status:** selected runtime dependency direction plus an audit of remaining generic/domain
+> placement. It is not a mandate to generalize Solarnet.
 
 ## Source map
 
@@ -18,9 +20,45 @@
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   inspect only for the script application layer.
+- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) and
+  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) — current engine-owned
+  APIs that the selected layering direction will extract.
 
 The generic runtime is mostly reusable, but a few interfaces still mix Pets/engine mechanics with
-Terraforming Mars or REgo application policy. `TODO.md` decides whether any dependency is worth changing.
+Terraforming Mars or REgo application policy. `TODO.md` decides whether any dependency is worth
+changing.
+
+## Selected runtime dependency direction
+
+The target runtime has four responsibilities with one-way dependencies:
+
+1. **State and task model:** records the component graph, one unordered pending-task pool, task
+   assignees, events, and readable projections.
+2. **Engine:** exposes a few direct Actor-attributed mutations, validates them against current state,
+   and calculates their atomic consequences. It owns resolution, execution, effects, task creation,
+   rollback, and the rule that only the current assignee may perform an ordinary task mutation. It
+   has no `ActorAccess`, `Agent`, permissions, or autoexecution concept.
+3. **Actor access:** creates passive Actor-scoped `ActorAccess` conduits over an engine World. Each
+   forwards the engine's distinct methods and may present convenient filtered reads. Any number may
+   exist for one Actor, but callers never use one to bypass that Actor's unique Agent. Granular
+   permissions are postponed, so the initial access object is maximally permissive.
+4. **Agents and applications:** create exactly one Agent per Actor. Every explicit and autonomous
+   mutation for that Actor passes through it. Its private `AgentDriver` owns policies and strategy.
+   A generic session dispatcher fans out coherent-revision pulses and reaches a policy-relative
+   stable point synchronously; it knows nothing about tasks or policy meaning.
+
+Task assignment remains engine-enforced game state; caller authorization belongs above engine.
+Those are not substitutes for each other. The engine is intentionally indifferent to why an
+authorized caller chose one legal mutation instead of another.
+
+**Current divergence:** `Agent`, `AutoExecMode`, queue draining, and client-facing string translation
+all live in `:engine`. `TaskQueues` already stores one task set and creates assignee-filtered
+`TaskQueue` views, so the target removes the promoted many-queue model rather than changing the
+underlying semantic state.
+
+Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
+surface, passive `ActorAccess`, sole-issuer Agent lifetime, and generic coherent-revision pulse;
+then move one coherent dependency slice at a time.
 
 ## Terraforming Mars behavior outside `tfm`
 
@@ -80,12 +118,12 @@ classes. They are too small to drive an architecture change. Move them only with
 
 Do not reopen these without new evidence:
 
-- `SystemDeclarations.kt` owns the runtime classes `Component`, `Class`, `Hidden`, `System`,
-  `MustCleanUp`, `Temporary`, `Signal`, `Ok`, `Die`, `Engine`, `Custom`, `Atomized`, `Anyone`,
-  `Owner`, and `Owned`. Ownership is generic engine vocabulary; concrete owner kinds remain
-  game-specific.
-- `Initializer` creates only engine/singleton baseline state; Terraforming Mars workflow creates
-  `SetupPhase`.
+- `SystemDeclarations.kt` owns the generic runtime vocabulary. In the target model that includes a
+  concrete `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
+  mutation-processing mechanism. Current source still calls that Actor and Component `Engine`.
+- Terraforming Mars workflow creates `SetupPhase`. The target bootstrap should reach ordinary
+  Admin task execution as early as the state model honestly permits; the exact pre-task seed state
+  remains to be selected.
 - Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
   structural reachability.
 - Runtime players use canonical seat identities; configured names are Vocabulary aliases.

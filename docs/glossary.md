@@ -6,18 +6,22 @@
 - **Action:** (1) A Pets element, written with `->`, that combines an optional cost with an Instruction and usually belongs to a card or Standard Action. (2) One of the actions granted to a Player on a turn: starting it seeds that Player's Task Queue, and it lasts until that queue drains.
 - **Activation Edge:** A reference from an Active Class to another Class that must also be active. Structural Dependencies and a Custom implementation's required Class Names create Activation Edges; merely mentioning a represented Class in a `Class<...>` Metric does not.
 - **Active Class:** A Class whose declaration and behavior participate in a particular game-specific Class-table Projection. Only Active Classes can contribute automatically created singleton Components, enumeration candidates, generated choices, and live Effects. A Catalog-known Class that is not active is represented there as an Uninhabited Class. Antonym: Uninhabited Class.
-- **Actor:** The entity credited with performing a pending or completed change. The Actors are the Players and the administrative Engine.
+- **Actor:** The entity credited with performing a pending or completed change. An N-Player game has those Players plus the administrative Admin Actor.
+- **ActorAccess:** The passive, permissions-aware conduit through which an Agent invokes engine mutations for its Actor. The first access model is maximally permissive; callers do not bypass the Actor's unique Agent to use it.
+- **Admin:** The non-Player Actor and Component that performs neutral table activity. Admin may receive, select, and narrow ordinary Tasks, including real choices made by an installed policy.
+- **Agent:** The unique mutation issuer for one Actor in one configured Game World. Explicit client requests and autonomous decisions both pass through it; its private Agent Driver chooses the latter. It is not a Task Queue or core-engine concept.
+- **Agent Driver:** The private part of an Agent that autonomously chooses further legal actions according to installed policies.
 - **AMAP:** The `.` Quantifier, meaning “as much as possible.” Resolution calculates the greatest currently possible amount and makes that amount mandatory.
 - **Anyone:** The broad Pets Type used where an ownership expression does not constrain who the Owner is. More specific domain Types include `Owner` and `Actor`.
-- **Assignee:** The Actor whose Task Queue contains a Task and whose Agent may select and narrow it. The Assignee chooses among that queue's Tasks and normally makes any optional narrowing; an Instruction-level `BY` may assign the resulting State Changes to a different Performer without changing the Assignee. This is why Philares and Enceladus can give a choice to an Effect's owner, while World Government Terraforming gives its Assignee a choice that Engine performs.
+- **Assignee:** The Actor permitted by game state to select and narrow a Task. The Assignee chooses among its filtered view of the global Task Pool and normally makes any optional narrowing; an Instruction-level `BY` may assign the resulting State Changes to a different Performer without changing the Assignee. This is why Philares and Enceladus can give a choice to an Effect's owner, while World Government Terraforming gives its Assignee a choice that Admin performs.
 - **Atomicity:** Indivisibility with respect to a stated scope. One `FROM` is a single Transmutation State Change, so its removal and gain cannot be observed separately. A Timeline operation is failure-atomic: all of its events commit or all are rolled back. An Instruction, Task, or chain of Automatic Effects is not thereby one indivisible gameplay event; intermediate State Changes may fire Effects and be observed by them.
 - **Atomize:** To split one counted Instruction into one Instruction per unit so that each unit is handled and triggers Effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not.
 - **Catalog:** One coherent rule universe: the Class Declarations, structured data, Vocabulary, premise rules, and exceptional Custom implementations available to a game. A game selects exactly one Catalog. `Canon` is the Catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different Catalog.
-- **Autoexec:** A convenience policy that selects or narrows Tasks on an Actor's behalf when it can justify the choice. Resolution and execution are the same automatic engine consequences as for direct Player input.
+- **Autoexec:** An Agent Driver policy that autonomously selects or narrows Tasks. It may be proof-preserving, aggressive, or deliberately peculiar; resolution and execution remain ordinary engine consequences.
 - **Automatic Effect:** An Effect written with `::`. Its Triggered Instruction executes inline instead of becoming a queued Task. Antonym: Queued Effect.
-- **Automatic Narrowing:** Narrowing performed by the engine because only one valid choice remains, rather than selected by the Assignee.
+- **Automatic Narrowing:** Narrowing performed without an explicit client choice because only one valid option is proved to remain. An unselected Task may be narrowed only from immutable facts; mutable-World resolution waits for Selection.
 - **Barrier:** A MustCleanUp Component that must be removed before gated work can continue. A Barrier is a common modeling pattern in Pets declarations, not a distinct engine mechanism.
-- **Bootstrap:** Everything required to construct and initialize a new Game World before `SetupPhase` begins.
+- **Bootstrap:** The shortest special prefix needed to construct a World and establish Admin as an ordinary Actor. Once Admin can carry out assigned Tasks through the normal lifecycle, bootstrap is over; later game setup remains ordinary Admin work.
 - **Bundle:** An internal grouping of Catalog data for file ownership, provenance, distribution, and loading. A Bundle is not itself a premise input, although a Module can select an entire content category from a named Bundle.
 - **Canon:** The Catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data Bundles.
 - **Card Back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card Backs and Card Fronts are distinct Types that transmute into each other; an Owner may know a Back's represented Front without making that Card Front exist in the Game World.
@@ -59,14 +63,14 @@
 - **Double-colon Effect:** See **Automatic Effect**.
 - **Drain:** To become empty. A Task Queue draining can advance Workflow.
 - **Effect:** A Trigger, an Instruction, and the choice between automatic and queued dispatch, attached to a Class or specialized for a Component.
-- **Engine:** The non-Player Actor that performs administrative operations.
+- **Engine:** The passive mechanism that validates direct Actor-attributed mutations and calculates their state consequences. It is not an Actor or Component; see **Admin**.
 - **Event Log:** The ordered history of State Changes and Task lifecycle events in a Game World.
 - **Expression:** A Pets source or AST representation of a Type. Distinct Expressions may resolve to the same Type, and one Expression may resolve differently in different Contexts.
 - **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A card implementation that specifically depends on that trust model has an identifier ending in `F`.
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
 - **Game Config:** An unresolved, signed expression of user intent from which defaults, selection policies, and validation produce one exact Game Premise.
 - **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Catalog, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
-- **Game World:** The complete live state of a game: its Component Graph, Task Queues, Event Log, Timeline, Class Table, Vocabulary, and Actor-scoped Agents, together with the Catalog and immutable premise behind them.
+- **Game World:** The complete live engine state of a game: its Component Graph, global Task Pool, Event Log, Timeline, Class Table, and Vocabulary, together with the Catalog and immutable premise behind them. ActorAccess, Agents, Agent Drivers, and generic pulse dispatch are configured above that state.
 - **Game World Revision:**
 - **Gated Instruction:** An Instruction guarded by a Requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that Task uncompletable unless its Quantifier or enclosing choice permits another result.
 - **Hidden:** A presentation classification for Component Types normally omitted from user-visible output. It is not an Actor or ownership rule.
@@ -90,11 +94,12 @@
 - **Owner:** An entity that may own Components. Components expose their concrete Owner as a resolved Pets Type; Kotlin runtime identities implement `Owner` only when the entity must participate directly, currently Players. Pets also uses `Owner` as a contextual placeholder that must be bound before execution.
 - **Pending Task:** A Task offered in an Assignee's Task Queue but not currently Selected.
 - **Per:**
-- **Performer:** The Actor credited on an Instruction's State Changes. Normally this is the Agent's Actor, but an Instruction-level `BY` can override the Performer without changing the Task's Assignee.
+- **Performer:** The Actor credited on an Instruction's State Changes. Normally this is the Task's stored Actor, but an Instruction-level `BY` can override the Performer without changing the Task's Assignee.
 - **Pets:** Solarnet's specification language for Component Types, rules, and Game World changes.
 - **Pets Name:**
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **Player-relative Observation:**
+- **Policy-relative Stable Point:** A coherent World revision at which every Agent Driver has inspected that revision and declined to issue another mutation. It depends on the installed policies and does not imply an empty global Task Pool.
 - **Production Box:** Terraforming Mars-specific `PROD[...]` notation that Preprocessing lowers into production-Component operations.
 - **Quantifier:** The policy on a Change Instruction: mandatory (`!`), optional (`?`), or AMAP (`.`).
 - **Queue Position:**
@@ -115,7 +120,7 @@
 - **Selection:** The Player activity that chooses one Pending Task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a Timeline commit; commit retains its transactional meaning after execution.
 - **Sequential Instruction:**
 - **Session Vocabulary Canonicalization:**
-- **SetupPhase:** The phase that begins after a Game World is fully bootstrapped and performs domain-significant setup work, such as granting each Player 20 `TerraformRating`.
+- **SetupPhase:** An ordinary domain phase in which Admin performs significant setup work, such as granting each Player 20 `TerraformRating`; structural bootstrap should already have ended.
 - **Signal:** A Hidden MustCleanUp Component that triggers its Effects and immediately removes itself.
 - **Singleton Type:** A Concrete Type for which initialization automatically creates one Component.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no Tasks or turns.
@@ -128,10 +133,10 @@
 - **Task:** A unit of pending work containing an Instruction, Assignee, optional Cause, and lifecycle metadata. It represents both what must eventually happen and the choices still permitted.
 - **Task Event:**
 - **Task ID:**
-- **Task Pool:**
-- **Task Queue:** An Assignee's unordered set of pending Tasks. Stable Task-ID iteration makes arbitrary engine choices reproducible but gives queue order no gameplay meaning.
+- **Task Pool:** The one unordered set of pending Tasks in a Game World. Every Task records its Assignee.
+- **Task Queue:** A filtered view of the global Task Pool for one Assignee, not independently stored state. Enumeration order has no gameplay meaning.
 - **Task Result:** The Change Events and newly spawned Task IDs returned by a successful operation.
-- **Temporary:** A Component Type that the engine removes automatically whenever every Task Queue is empty.
+- **Temporary:** A Component Type that the engine removes automatically whenever the global Task Pool is empty.
 - **This:** A built-in contextual binding. In a Class Declaration it remains late-bound through inheritance and is fixed from the exact context Component; in an Effect Trigger it denotes that Component's own gain or removal event.
 - **Transmutation:** One State Change that removes copies of one Component Type and gains the same number of another without exposing an intermediate state.
 - **Trigger:** The part of an Effect that selects the State Changes to which it responds.
@@ -147,4 +152,4 @@
 - **Variable Scope:**
 - **Vocabulary:** A session's locale-specific mapping among Class Names, natural Display Names, parseable Pets Names, and input-only Class Synonyms.
 - **Whole-world Idleness:**
-- **Workflow:** The higher-level driver that orchestrates game phases and waits for the appropriate Task Queues or control scopes to drain.
+- **Workflow:** The higher-level driver that orchestrates game phases and waits for the appropriate filtered Task view or control scope to drain.

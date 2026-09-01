@@ -30,6 +30,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
@@ -50,6 +51,8 @@ internal class Implementations(
   private val allTasks = taskQueues.all()
 
   private object SelectionProbeSucceeded : RuntimeException()
+
+  private object ExecutionProbeSucceeded : RuntimeException()
 
   // CHANGES LAYER
 
@@ -73,6 +76,8 @@ internal class Implementations(
 
   internal fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
       tasks.addTasks(instructions, firstCause).map { it.task.id }
+
+  internal fun editTask(task: Task): TaskEditedEvent? = tasks.editTask(task)
 
   internal fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
@@ -300,6 +305,21 @@ internal class Implementations(
       }
       false
     } catch (_: SelectionProbeSucceeded) {
+      true
+    } catch (_: Exception) {
+      false
+    }
+  }
+
+  @Suppress("TooGenericExceptionCaught") // Keep this probe aligned with canSelectTask for now.
+  internal fun canExecuteTask(taskId: TaskId): Boolean {
+    return try {
+      timeline.atomic {
+        doTask(taskId)
+        throw ExecutionProbeSucceeded
+      }
+      false
+    } catch (_: ExecutionProbeSucceeded) {
       true
     } catch (_: Exception) {
       false
@@ -585,7 +605,7 @@ internal class Implementations(
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {
-      explainTask(id, "currently impossible")
+      explainNotNow(id)
     }
   }
 
@@ -602,8 +622,15 @@ internal class Implementations(
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {
-      explainTask(id, "currently impossible")
+      explainNotNow(id)
     }
+  }
+
+  private fun explainNotNow(taskId: TaskId) {
+    val reason =
+        if (tasks.getTaskData(taskId).instruction.isAbstract(reader)) "abstract"
+        else "currently impossible"
+    explainTask(taskId, reason)
   }
 
   // Similar to tryTask, but a NotNowException is unrecoverable once selection holds the lock.

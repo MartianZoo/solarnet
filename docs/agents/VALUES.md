@@ -48,6 +48,22 @@ incoherent exception, parallel mechanism, or disproportionate framework is still
 - Stop when a small request starts requiring new vocabulary across several modules. Explain the
   pressure instead of normalizing a disproportionate design.
 
+## Respect layer responsibility
+
+- Evaluate each layer against the contract it owns. Do not make a lower layer responsible for the
+  quality, strategy, or product behavior chosen by a caller above it.
+- State and engine layers preserve game facts, validate legal mutations, and calculate their atomic
+  consequences. They do not decide which legal mutation a client ought to make.
+- An Actor-access layer is the place where caller authority and visible state may eventually be
+  restricted. Its first design is intentionally maximally permissive; do not invent granular policy
+  before a real caller requires it. An Agent sits above access and uses the same mutation path for
+  explicitly requested and Driver-chosen actions.
+- An autoexecution policy may be cautious, adversarial, whimsical, or game-playing. Lower layers do
+  not care which legal option it selects; named policy guarantees belong to that policy and its
+  application.
+- Do not push application preferences downward merely to guarantee a pleasant default. Conversely,
+  do not omit a lower-layer invariant because an upper layer currently behaves well.
+
 ## Keep Pets central
 
 - Pets should read like the physical game: compact, composable, and precise about ownership,

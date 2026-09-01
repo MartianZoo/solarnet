@@ -31,8 +31,8 @@ Banker must retain.
 ### 2. The solo opponent has replenished backing stocks, not possessions
 
 Solo rules make neutral resources and production available whenever an attack needs them. Pets
-backs that capability with resources owned by `SoloOpponent` and compensating Engine changes after
-a player changes the stock.
+backs that capability with resources owned by `SoloOpponent` and compensating Admin changes after
+a player changes the stock. Current source still spells that Actor `Engine`.
 
 Removing, stealing, and converting from this stock are supported: their player-facing results are
 real. Content must not enumerate or score the solo opponent's resource or production components,

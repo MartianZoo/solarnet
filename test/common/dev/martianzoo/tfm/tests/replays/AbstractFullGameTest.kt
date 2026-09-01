@@ -2,16 +2,15 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.exMachina
 import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -88,39 +87,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
   protected fun TfmGameplay.exMachina(adjustment: String) {
-    val selectedId = game.tasks.selectedTask()
-    if (selectedId != null) {
-      val selectedTask = game.tasks.getTaskData(selectedId)
-      var expectedTask = selectedTask
-      val unselectedTask =
-          game.events
-              .entriesSince(Checkpoint(0))
-              .asReversed()
-              .asSequence()
-              .map { event ->
-                check(event is TaskEditedEvent && event.task == expectedTask) {
-                  "unexpected event after selection of task $selectedId: $event"
-                }
-                if (!event.oldTask.selected && event.task.selected) return@map event.oldTask
-
-                check(event.task == event.oldTask.copy(whyPending = event.task.whyPending)) {
-                  "unexpected edit after selection of task $selectedId: $event"
-                }
-                expectedTask = event.oldTask
-                null
-              }
-              .firstNotNullOf { it }
-
-      game.tasks.editTask(unselectedTask)
-    }
-
-    sneak(adjustment)
-
-    if (selectedId != null) {
-      val task = game.tasks.getTaskData(selectedId)
-      game.agent(task.assignee).selectTask(selectedId)
-      game.agent(task.assignee).autoExecNow()
-    }
+    game.exMachina(this, adjustment)
   }
 
   protected fun TfmGameplay.assertDashMiddle(

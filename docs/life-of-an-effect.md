@@ -16,13 +16,14 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
 At every stage, the important question is not merely “what code ran?” but “what is now safe to
 assume about the Pets tree?” Those postconditions are called out explicitly.
 
-The last part takes the point of view of a Task Queue client which does not use Autoexec. The client
-plays by selecting Tasks and narrowing the selected Task, then observes the engine's resolution,
-execution, and resulting State Changes. It does not need to know how those consequences are carried
-out internally.
+The last part takes the point of view of a client using one Actor's filtered Task view without
+Autoexec. The client plays by selecting Tasks and narrowing the selected Task, then observes the
+engine's resolution, execution, and resulting State Changes. It does not need to know how those
+consequences are carried out internally.
 
-The `Agent` API exposes the Player activities as `selectTask` and `narrowTask`; resolution and
-execution remain engine consequences.
+The current and target Agent APIs expose Player activities such as `selectTask` and `narrowTask`.
+In the target layering, every explicit and Driver-chosen mutation passes through that unique Agent,
+which uses private `ActorAccess`. Resolution and execution remain engine consequences.
 
 `PetTransformer` is the implementation's common mechanism for turning one Pets tree into another.
 Each numbered stage below lists the PetTransformers which touch our Effect, in execution order. A

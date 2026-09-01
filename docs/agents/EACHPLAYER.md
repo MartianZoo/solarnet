@@ -109,7 +109,7 @@ An automatic triggering Effect already provides the automatic form of fanout. Do
 
 | Current behavior | Candidate fanout | Context verdict |
 | --- | --- | --- |
-| Starting TR and corporation cards on `Player` | `EACH Player { 20 TerraformRating<Player> }`; `EACH Player { CorporationCard<Player> }` | Pure recipient fanout |
+| Starting TR and corporation cards on `Player` | `EACH Player { 20 TerraformRating<Player> }`; `EACH Player { CorporationCard<Player> }` | Pure recipient fanout; surrounding Admin attribution remains explicit |
 | `PreludeSetup<Player>` singleton listeners | `EACH Player { 2 PreludeCard<Player> }` | Pure recipient fanout |
 | Award tallying through every `Player` | `EACH Player { AwardTally<Player, This> / EVAL This.metric }` | Pure scoring fanout |
 | Sponsored Academies' owner-local `Signal` and Player watchers | `-ProjectCard THEN (3 ProjectCard, EACH (Player except Owner) { ProjectCard<Player> })` | Schematic opponent fanout; difference-selector syntax unresolved |
@@ -120,6 +120,11 @@ An automatic triggering Effect already provides the automatic form of fanout. Do
 
 The exact surrounding triggers and gates remain part of each rule. The table demonstrates candidate
 fanout bodies, not complete replacement declarations.
+
+For setup fanout, the target model has Admin perform the surrounding setup task. `EACH` chooses the
+recipients but does not itself change Actor attribution. Starting TR and similar conversions should
+therefore adopt Admin attribution when this proposal is implemented, rather than changing the
+current listener first and guessing at the later fanout lifecycle.
 
 ## Cases that should retain listeners
 

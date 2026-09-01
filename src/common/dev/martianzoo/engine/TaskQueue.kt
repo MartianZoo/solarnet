@@ -13,8 +13,8 @@ import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * Contains tasks: what the game is waiting on someone to do. Each task has an assignee, currently
- * represented by an [Actor]. Normally, a state should never be observed in which administrative
- * tasks remain, as the engine should always be able to take care of them itself before returning.
+ * represented by an [Actor]. Normally, a Player-facing call should not return while administrative
+ * tasks remain; the configured administrative policy should settle them first.
  *
  * It is possible to retrieve the [Task] corresponding to a task id but this is generally
  * discouraged and the API doesn't make it easy.
@@ -95,7 +95,7 @@ internal constructor(
     return taskQueues.removeTask(id)
   }
 
-  public fun editTask(newTask: Task): TaskEditedEvent? {
+  internal fun editTask(newTask: Task): TaskEditedEvent? {
     validateAssignee(newTask)
     validateAssignee(getTaskData(newTask.id))
     return taskQueues.editTask(newTask)

@@ -6,7 +6,7 @@ For now, I'll have to address this to the reader who is already familiar with th
 
 ## Components
 
-A Game World consists entirely of a multiset of **Component** instances (plus Task Queues, which we can ignore for now). Each Component has a Concrete **Type**. Components are distinguishable by their *Type alone*; there are no occurrence-specific attributes or fields. Classes may carry immutable properties, so every Component of the same Concrete Type necessarily has the same values. Accordingly, Components are always immutable.
+A Game World consists entirely of a multiset of **Component** instances (plus one pending Task Pool, which we can ignore for now). Each Component has a Concrete **Type**. Components are distinguishable by their *Type alone*; there are no occurrence-specific attributes or fields. Classes may carry immutable properties, so every Component of the same Concrete Type necessarily has the same values. Accordingly, Components are always immutable.
 
 For example, when the game begins there are 20 instances of `TerraformRating<Player1>`, 20 of `TerraformRating<Player2>`, etc. The first 20 are indistinguishable from each other, and only their type distinguishes them from the latter 20. I'll try to use the term "component" consistently to mean a *single* instance, a.k.a a single occurrence of a component type (e.g., there were 40 components discussed in our example).
 

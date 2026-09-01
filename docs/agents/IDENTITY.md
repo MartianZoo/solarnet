@@ -1,13 +1,13 @@
 # Context, assignment, and actor identity
 
-> **Read when:** changing context specialization, event Actor attribution, task queue assignment,
-> `BY`, selection-time delegated narrowing, Philares, or Engine-selected hidden cards.
+> **Read when:** changing context specialization, event Actor attribution, task assignment, `BY`,
+> Admin, selection-time delegated narrowing, Philares, or Admin-selected hidden cards.
 >
 > **Skip when:** changing ownership as a Type dependency without task routing or attribution; read
 > the dependency sections of [TYPES.md](TYPES.md).
 >
-> **Status:** describes the current model. The interaction between SAFE auto-selection and
-> cross-Player handoff remains open.
+> **Status:** current identity semantics plus the selected Engine/Admin naming direction. The
+> interaction between SAFE auto-selection and cross-Player handoff remains open.
 
 ## Source map
 
@@ -38,15 +38,32 @@ Pets behavior is interpreted in context. Keep these roles separate:
 - **Context owner:** the owner of that component, or the Player scope through which an ad hoc
   instruction entered the engine.
 - **Controller:** the Actor that controls the surrounding operation and receives work caused by it.
-- **Assignee:** the Actor whose task queue contains deferred work and whose scoped gameplay may
-  select or narrow it in its current state.
+- **Assignee:** the Actor permitted by game state to select or narrow the deferred work in its
+  current state.
 - **Narrower:** the Actor entitled to supply choices remaining inside a selected abstract task.
 - **Actor:** the default performer credited with the resulting change. Instruction-side `BY` may
   override it.
 
 These roles often coincide, but no equality between them is a game rule. In particular, Icy
 Impactors separates its narrower from its credited Actor, and future hidden-card selection separates
-Engine narrowing from Player attribution.
+Admin narrowing from Player attribution.
+
+## Admin and engine
+
+`Admin` is the concrete non-Player Actor and Component that performs neutral table activity. An
+N-Player game has those N seated Player Actors plus Admin. Admin may control, receive, select, and
+narrow tasks, including abstract choices such as a dealt card face or die result. No identity rule
+requires Admin's decisions to be deterministic or outcome-preserving.
+
+Kotlin `Engine` is different: it is the passive mechanism that validates an Actor mutation and
+calculates the resulting state transition. It is not an Actor, Component, task assignee, narrower,
+or event performer. Current code and Pets still call the administrative Actor `Engine`; that is
+migration state, not the target vocabulary.
+
+Core engine state records a Task's assignee and enforces that ordinary task mutations name that
+Actor. A passive `ActorAccess` binds calls to an Actor and may present a convenient filtered view of
+the one global task pool. The initial access layer is otherwise maximally permissive. Above it, the
+Actor's unique Agent is the sole issuer of both explicit and Driver-chosen mutations.
 
 ## Context specialization
 
@@ -94,9 +111,9 @@ Actor rather than another Type expression.
 
 A direct task starts with its gameplay Actor as controller, assignee, narrower, and default Actor.
 Queued work triggered during a Player-controlled operation keeps that Player as controller and
-enters that Player's queue, regardless of which component owns the effect. Its narrower is the
+assignee, regardless of which component owns the effect. Its narrower is the
 Player owner of the effect-bearing component, then the Player owner of the changed component, then
-the triggering Actor. Engine-driven setup and workflow retain that contextual routing. The default
+the triggering Actor. Admin-driven setup and workflow retain that contextual routing. The default
 Actor is specialized independently as described above.
 
 Selecting a concrete task executes it in place. The change records the task's Actor unless an
@@ -156,7 +173,7 @@ gameplay, and prove attribution through a visible trigger-side `BY` consequence 
 material. They should not filter tasks by cause or Actor, match exact internal task strings, or read
 the Event Log merely to restate engine metadata.
 
-`ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding. Queue routing is
+`ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding. Task assignment is
 incidental there and should be removed from those assertions or made explicit in separately named
 delegation tests. Card tests for Pharmacy Union and Splice should assert their normal outcomes and
 which Player can make any offered choice; generic engine coverage should carry the internal routing
@@ -173,8 +190,8 @@ proof.
 
 ## Future extension
 
-Real-card dealing will need a way to name Engine as the narrower without making Engine the default
+Real-card dealing will need a way to name Admin as the narrower without making Admin the default
 performer. A Player must control when an abstract `ProjectCard<Player, Hand>` gain is selected;
-Engine must derive the exact face from the seed and event history; and the originating task's Actor
-must retain attribution. Do not overload ownership or instruction-side `BY` to encode that extra
-role.
+the installed Admin policy may derive the exact face from seed and event history; and the
+originating task's Actor must retain attribution. Do not overload ownership or instruction-side
+`BY` to encode that extra role.

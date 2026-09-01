@@ -1,93 +1,98 @@
-# Autoexecution policies
+# Agent Drivers and policy-relative stable points
 
-> **Read when:** changing policy attachment, scheduling, automatic task commands, policy
-> provenance, or proof-preserving task analysis.
+> **Read when:** changing Agent Drivers, policy installation, settled-state pulses, autonomous task
+> actions, policy provenance, or proof-preserving task analysis.
 >
-> **Skip when:** changing authored `::` effects or explicit task semantics; those belong in
-> [ENGINE.md](ENGINE.md) and [SEQUENCING.md](SEQUENCING.md).
+> **Skip when:** changing authored `::` effects, explicit task semantics, or Actor access. Those
+> belong in [ENGINE.md](ENGINE.md), [SEQUENCING.md](SEQUENCING.md), and [API.md](API.md).
 >
-> **Status:** current divergence plus the settled target for policy extraction and stronger safe
-> policies.
+> **Status:** selected layer ownership and forward-looking synchronous-settlement contract. Current
+> code still implements autoexecution inside `:engine` through `AutoExecMode`.
 
 ## Source map
 
-- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) exposes the current Actor-scoped API
-  and its transitional `autoExecMode` property.
-- [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) defines the current
-  `NONE`, `SAFE`, and `FIRST` modes.
-- [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) owns the current
-  scheduling points and queue drain.
-- [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) owns the proof obligations for stronger policies.
+- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt),
+  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt),
+  [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt), and
+  [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) contain the
+  current engine-owned implementation to extract.
+- [API.md](API.md) owns the unique Agent and its private `ActorAccess` conduit.
+- [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) owns optional proof guarantees for supplied policies.
 
-## Settled target model
+## Agent Driver
 
-Each World will retain exactly one `Agent` for every Actor. `Agent.AutoExec` will be an optional
-plugin installed on one of those Agents. A policy receives:
+Every configured Game World has exactly one Agent per Actor. Every explicit and autonomous mutation
+for that Actor enters through the same Agent. The Agent owns an `AgentDriver`, the working name for
+the part that autonomously chooses further actions according to installed policies.
 
-- the Agent it is attached to;
-- the Agent whose command triggered the pass;
-- the whole pending task pool for read-only ordering information.
+An Agent need not expose its policies, their storage shape, or their precedence. It merely accepts
+explicit requests, receives wake-up pulses, and acts. Policy installation configures that behavior;
+the Agent handles any interaction among installed policies internally.
 
-A policy may inspect freely but may perform at most one command through the Agent to which it is
-attached per `advance` call. It returns `true` exactly when that call changed the World. The driver
-checks this against the event log, then throws away every earlier conclusion and restarts
-scheduling. A policy has no privileged mutation path and cannot acquire another Actor's Agent.
+Any subset of Actors may be fully autonomous. There is no separate AI-player kind: adding policies
+to the same Agent progressively reduces the decisions left for a human until its Driver covers every
+legal choice. A normal game makes Admin fully autonomous and leaves Player autonomy to application
+configuration.
 
-Attaching the same policy instance twice is idempotent. Detachment is explicit. Player policies are
-client choices; the generic library does not attach one for a Player.
+The initial access layer is maximally permissive. A Driver can therefore choose anything that the
+same Agent could issue for an explicit client request, including strategically bad or peculiar
+actions. Engine and access layers enforce their own validity rules, not strategy. Stronger promises
+belong to a named policy and its tests.
 
-## Completion and scheduling
+## Generic settled-state pulse
 
-In the target model, after a successful outer Agent command has completed all of its authored `::`
-consequences, the driver runs before the command reports completion. Operation-body task commands provide the same
-completion point between statements. Re-entry caused by a policy command does not recursively
-start a second driver.
+The engine knows nothing about Agents, Drivers, policies, or autonomy. After any outermost mutation
+finishes, it emits a generic pulse identifying the coherent committed World revision. Task insertion
+does not emit early pulses while effects, normalization, sibling creation, or rollback are still in
+progress.
 
-At every completion point:
+A session-level dispatcher fans that pulse out to Agents. The dispatcher is generic coordination,
+not an autoexec component: it does not inspect tasks, choose actions, or know why an Agent responds.
+It queues nested pulses and drains them iteratively rather than recursively:
 
-1. policies attached to the Engine Agent run first;
-2. any successful Engine policy command restarts step 1;
-3. only after every Engine policy declines does the driver nudge every Agent carrying a Player
-   policy; and
-4. a successful Player policy command restarts from Engine again.
+1. one explicit or autonomous Agent mutation reaches coherent engine completion;
+2. the dispatcher marks every Agent ready to inspect the new revision;
+3. a woken Agent may issue at most one further mutation through its private `ActorAccess`;
+4. any resulting revision invalidates all earlier observations and schedules a fresh pass; and
+5. the outermost Agent call returns only after every woken Agent declines from the same revision.
 
-Agents without eligible work simply decline. Each policy can command only its own Agent. This lets
-cross-Player effects and workflow activity finish without requiring a client to invoke every Agent.
+Agent visitation order is dispatcher mechanics, not game precedence. An Agent owns its policy and
+task-choice strategy. No rule or policy proof may rely on incidental Agent, policy, or task
+enumeration. Tests should reverse and reproducibly randomize those enumerations.
 
-Player visitation order is not a semantic promise. Ordinary play currently assumes that competing
-unselected Player decisions are not simultaneously pending, so changing visitation order must not
-change the result. A future simultaneous interaction such as drafting must not expose one Player's
-choice to another through this loop. It should collect private decisions independently and merge
-them into one later World state.
+## Policy-relative stable point
 
-## Supplied policies
+A configured session is at a **policy-relative stable point** when every Agent Driver has inspected
+the same World revision and declined to issue another mutation. “Stable” is relative to the exact
+installed policies: changing them may make another action available without changing engine state.
+It does not mean that the global task pool is empty.
 
-The planned `AutoExecPolicies.engine` is attached automatically when a World is created. It examines Engine's
-first pending task and executes it when execution needs no choice. When it is the only task in the
-World, the policy may instead select it even when it remains abstract; selection does not choose a
-narrowing. It exhausts Engine work before Player policies run, while never performing Player work.
+A fully autonomous Agent promises to decline only when it has no legal action covered by its
+contract. A task may still be assigned to it when game state temporarily makes that task illegal,
+for example while another Actor's selected task holds the select-lock. The generic guarantee is
+therefore a fixed point of legal Agent actions, not literal queue emptiness.
 
-The planned `AutoExecPolicies.safe` advances only when the entire World contains one pending task and
-that task belongs to the Agent carrying the policy. It executes a concrete executable task, or
-selects an unselected task that still needs a choice. The latter exposes the choice without making
-it. The whole-pool singleton requirement is deliberately conservative.
+Normal Admin behavior has a stronger application expectation: before a Player-facing Agent call
+returns, no Admin-assigned task remains. Admin work should be admitted and sequenced so its Driver
+can settle it before Players observe the result. If a supposedly normal stable point retains Admin
+work, first suspect incomplete Admin policy, premature task admission, or incorrect sequencing. A
+genuine rule that must leave Admin blocked on a Player choice should be modeled and documented
+explicitly rather than silently weakening this expectation.
 
-The target generic library does not provide `first`. `TfmAutoExecPolicies.first` is a client helper that
-may execute any currently legal task belonging to its Agent, and the engine tests own an equivalent
-test-only helper. Its contract makes no FIFO, fairness, or stable-order promise. It stops when no
-task can proceed without another decision. Neither helper is a safety proof.
+## Supplied policy families
 
-## Safe selection
+`safe` may act only when it proves that its mutation preserves every continuation named by its
+contract. Because initial `ActorAccess` may inspect the whole World, it can prove whole-pool claims
+without a special engine API. Selecting an abstract task without narrowing may be allowed when the
+policy proves that it does not steal another controller's decision.
 
-When an Agent has exactly one task it can see, selecting that task is safe under the current game
-model: the game is waiting on that Actor, and selection exposes rather than answers an abstract
-choice. This rule relies on the absence of live simultaneous Player decisions described above.
+`first` is intentionally choice-making. It may issue any currently legal mutation, makes no FIFO or
+fairness promise, and may change the outcome. Generic and Terraforming Mars applications may each
+supply one; the engine does not.
 
-If an Agent has several tasks and only one passes the current selection probe, choosing that task is
-plausible but not yet proven safe. `canSelectTask` establishes present feasibility only. Another
-task might become feasible after other state changes, so the probe alone does not prove that
-selection preserves every eventual option. Keep the generic policy conservative until a systemic
-rule or `slow` analysis proves the stronger claim.
+`slow` is a future exhaustive proof policy. It may use disposable Worlds only through a permitted
+hypothetical-analysis facility and must decline on uncertainty. [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md)
+defines that optional guarantee. A caller may instead install a policy with no such promise.
 
 ## The planned `slow` policy
 
@@ -108,18 +113,24 @@ proof policy is implemented; do not add speculative public APIs ahead of it.
 
 Committed code still stores `AutoExecMode` on each `Agent`, defaults it to `FIRST`, and runs the
 queue drain from engine-side command and operation completion points. It does not yet provide
-policy attachment, a separate driver, or the planned Engine-first policy
-schedule. As a transitional progress rule, a Player using `NONE` still drains only Engine-assigned
-work from the shared queue. Treat the sections above and below as the extraction contract, not
-current behavior.
+policy attachment, a separate driver, or the planned Admin-first policy schedule. As a transitional
+progress rule, a Player using `NONE` still drains only Engine-assigned work from the shared queue.
+Treat the sections above and below as the extraction contract, not current behavior.
 
-## Required invariants
+Admin's default may execute concrete work, select abstract work, narrow choices, and intelligently
+choose among available Admin tasks. Admin is not inherently deterministic or choice-free. Its legal
+powers come from game state; its autonomous behavior comes from its Driver configuration.
 
-- Engine policies exhaust their work before a Player policy is consulted.
-- With all optional Player policies detached, no Player choice is selected automatically.
-- Every policy command uses only the Agent carrying that policy.
-- An Engine policy never performs a Player task.
-- Each accepted command invalidates all prior policy analysis.
-- Every generic supplied policy preserves all semantically distinct legal continuations.
-- Deliberate choice-making lives in a client library, is named as such, and promises no task order.
-- Disabling policies does not change authored `::` effects or explicit command semantics.
+## Required properties
+
+- Engine and state modules contain no Agent, Driver, access, or policy behavior.
+- A configured Game World has exactly one Agent per Actor.
+- Every explicit and autonomous Actor mutation enters through that Agent and private `ActorAccess`.
+- The engine emits only a generic coherent-revision pulse.
+- The session dispatcher queues nested pulses and reaches a policy-relative fixed point before the
+  outermost Agent call returns.
+- Every accepted mutation invalidates all prior Agent analysis.
+- An Agent, not the dispatcher, owns policy and task-choice strategy.
+- Policy, Agent, and task enumeration order have no game meaning.
+- A normal Player-facing stable point contains no Admin-assigned work.
+- Disabling autonomous Drivers leaves explicit Agent mutation semantics unchanged.

@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
@@ -26,6 +27,12 @@ public interface Agent {
   // READ OPERATIONS
 
   public val actor: Actor
+
+  /** The current World view used to interpret this Actor's tasks. */
+  public val reader: GameReader
+
+  /** Tasks currently assigned to this Actor. */
+  public val tasks: TaskQueue
 
   /**
    * Parses and preprocesses [text]. Preprocessing may change its major kind; callers that require a
@@ -58,6 +65,9 @@ public interface Agent {
 
   /** Tells whether [selectTask] will complete normally. */
   public fun canSelectTask(taskId: TaskId): Boolean
+
+  /** Tells whether selecting [taskId] would also execute it without further narrowing. */
+  public fun canExecuteTask(taskId: TaskId): Boolean
 
   /**
    * Selects one pending task and resolves its instruction against the current World. An abstract
@@ -102,6 +112,9 @@ public interface Agent {
 
   public fun tryTask(narrowing: String, taskNumber: Int? = null): TaskResult
 
+  /** Tries to select and execute [taskId], leaving it pending when it needs a choice. */
+  public fun tryTask(taskId: TaskId): TaskResult
+
   public fun autoExecNow(): TaskResult
 
   public var autoExecMode: AutoExecMode
@@ -123,10 +136,15 @@ public interface Agent {
   /** Adds a manual task for the given [instruction], but does not select or execute it. */
   public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
+  /** Replaces pending task data for this Agent's Actor. */
+  // TODO: Replace with checked narrowTask; keep arbitrary task edits engine-internal.
+  public fun editTask(task: Task): TaskEditedEvent?
+
   /** Removes a task for any reason or no reason at all. */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
   /** Removes every task assigned to this Agent's Actor. */
+  // TODO: Delete this bulk ex-machina convenience; callers should drop explicit task ids.
   public fun dropTasks(): List<TaskRemovedEvent>
 
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult

@@ -6,7 +6,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Define player-decision attribution through causal ancestry. `Hidden` components may be transparent
   links between an event and its most closely connected player decision, but postpone choosing the
-  exact traversal rule and how it combines `Cause` with `GameplayInputEvent`.
+  exact traversal rule and how it combines `Cause` with recorded gameplay input.
 - Decide whether `System` should prevent Player removal as well as Player creation. Audit legitimate
   player-caused cleanup and transmutation before strengthening the current creation-only rule.
 - Decide whether persistent auxiliary action providers such as `NeptunianOption` and
@@ -21,6 +21,27 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   leave it non-System for now.
 - Decide whether the persistent invoice hosts `BuyCards` and `PlayCards` are `System` while the
   latter awaits its dedicated lifecycle redesign.
+- **High priority:** Extract the selected runtime layers in dependency order: one global task/state
+  model; a passive core engine with the audited direct mutations; maximally permissive passive
+  `ActorAccess`; then one sole-issuer Agent per Actor with a private `AgentDriver`. Add one generic
+  coherent-revision pulse dispatcher above access and synchronously drain it to a policy-relative
+  stable point. Do not add a generic request algebra, empty modules, granular permission policies,
+  or compatibility wrappers ahead of demonstrated need; see
+  [`RESPONSIBILITIES.md`](docs/agents/RESPONSIBILITIES.md#selected-runtime-dependency-direction).
+- **High priority:** Rename the administrative Actor and real Actor Component from `Engine` to
+  `Admin`. Preserve Kotlin `Engine`, engine packages, resolution, and execution terminology for the
+  passive mechanism that calculates consequences. Classify every `BY Engine`, task assignment,
+  bootstrap event, script spelling, replay record, and prose occurrence by meaning rather than
+  applying a blind replacement.
+- **High priority:** Minimize special bootstrap. Identify the smallest state that must exist before
+  Admin can legitimately receive and carry out ordinary tasks, create no more directly, and make
+  the handoff visible in history without inventing a component merely to serve as a Cause.
+- **High priority:** Replace public arbitrary `editTask(Task)` with checked `narrowTask`, permitting
+  unselected narrowing only when it discards options without consulting mutable World state. Delete
+  the public bulk `dropTasks` convenience; one explicit ex-machina task removal is sufficient.
+- Audit current `::` effects against Admin-assigned tasks. Keep fixed rule consequences inline;
+  represent neutral table activity or choice as Admin work. Timing before the next Player request
+  does not by itself select either representation.
 - Make context-specialized observational metric counts safe: after validating the general class effect,
   reduce a `Metric.Count` to zero when binding `This`, `Owner`, or an authored type variable makes its
   previously valid type expression structurally disjoint. Preserve errors for malformed expressions,
@@ -40,15 +61,16 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   authored subtree, and re-submission must use the same applicable elaboration stages as fresh
   authored input.
 - Rename instruction `Intensity` to `Quantifier` throughout.
-- **High priority:** Continue auditing `AutoExecPolicies.safe` against its proof obligation. It now
-  acts only when the entire World has one pending task assigned to its Agent; it may select an
-  abstract singleton without choosing its narrowing. Prove that execution preserves every
-  continuation before broadening beyond the singleton case. Use
+- **High priority:** After `ActorAccess`, sole-issuer Agent, and `AgentDriver` slices land, audit the
+  supplied `safe` policy against its proof obligation. The forward-looking policy acts only when
+  the entire World has one pending task assigned to its Actor; it may select an abstract singleton
+  without choosing its narrowing. Prove that execution preserves every continuation before
+  broadening beyond the singleton case. Use
   [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
-- **High priority:** Implement the generic `slow` autoexecution policy after disposable Worlds can
-  explore every relevant legal command and compare normalized component/task continuations. It may
-  spare no analysis cost, but `UNKNOWN` must stop it; do not substitute a heuristic for the promised
-  proof.
+- **High priority:** Implement the `slow` autoexecution policy above `ActorAccess` after a permitted
+  hypothetical-analysis capability can use disposable Worlds to explore every relevant legal
+  command and compare normalized component/task continuations. It may spare no analysis cost, but
+  `UNKNOWN` must stop it; do not substitute a heuristic for the promised proof.
 - **High priority:** Try `Temporary` on `TradeBarrier`. It is suitable only if global queue
   emptiness is the real end of the selected trade operation and its removal still leaves fleet
   movement after every optional production decision. Then examine payment independently: replace
@@ -145,18 +167,17 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Prototype the bidirectional represented-family link in
   [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact
   `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
-- Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
 - **High priority:** Identify the signal Classes that workflows or APIs can create directly even
   though no selected Module activates them. Make their owning Modules activate them explicitly,
   then remove the `ClassLoader` rule that activates every reachable Trigger root.
 - **High priority:** Allow a partial instruction to narrow the matching portion of the selected task
   while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
-- **High priority:** Make task queues semantically unordered: remove positional task selection and
-  stable-order autoexec precedence, give the client-supplied `first` policy no ordering promise,
-  require an id or unambiguous instruction match for explicit commands, and run tests under reverse
-  and reproducibly randomized enumeration to expose hidden ordering dependencies. Autoexecution
-  policy belongs outside the engine as specified in
+- **High priority:** Make the single task pool semantically unordered: remove positional task
+  selection and stable-order autoexec precedence, give the client-supplied `first` policy no
+  ordering promise, require an id or unambiguous instruction match for explicit commands, and run
+  tests under reverse and reproducibly randomized enumeration to expose hidden ordering
+  dependencies. Autoexecution belongs above `ActorAccess` as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **Medium-high priority:** Heavily revamp the `TfmGameplay` and test-helper APIs: move test-only
   actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
@@ -312,7 +333,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Preserve and enforce the existing `GameReader` constraint that prevents game mechanics, including
   custom Classes, from reading `EventLog`; add an architectural check so event history remains
   diagnostic and gameplay-state equivalence can depend only on the `ComponentGraph` and
-  gameplay-relevant `TaskQueues`.
+  gameplay-relevant global task pool.
 - Filter inactive gated provenance from `Initializer` source ordering so false mutual gains cannot
   create a bootstrap cycle absent from the selected configuration.
 - Retain projection-decision provenance so premise diagnostics can explain automatic filtering and
