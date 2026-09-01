@@ -42,6 +42,23 @@ is necessary, but an implementation that merely works can still be a design fail
   normalizing disproportionate complexity.
 - Use precise domain language. An API that reads unlike the real game is not finished.
 
+### Try the simpler approach first
+
+Optimize for the smallest coherent design, not the first implementation that passes tests.
+Simplicity is an acceptance criterion, not a later cleanup step.
+
+- State the intended invariant in one sentence before editing.
+- Begin by looking for code or concepts that can be removed, then try to compose existing
+  mechanisms before adding another one.
+- Set a complexity budget appropriate to the request. Treat a disproportionate diff as evidence
+  against the approach even when tests pass.
+- Treat a second representation of the same fact as a signal to stop and reconsider the design.
+- Pause before introducing a new processing phase, representation, or cross-module protocol.
+  Report the design pressure and propose the smallest promising alternative before proceeding.
+- Review permanent conceptual cost and diff size before calling the work successful.
+- If no clean implementation is evident, leave the TODO unresolved and explain why rather than
+  hiding the uncertainty under compensating machinery.
+
 Read [`docs/agents/VALUES.md`](docs/agents/VALUES.md) only when designing, implementing, or reviewing
 a behavior or architecture change.
 
