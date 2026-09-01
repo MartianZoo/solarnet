@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -9,6 +10,49 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
+  @Test
+  internal fun `Ecology Experts incorrectly does not trigger Viral Enhancers with its own tags`() {
+    newGame(PreludeExpansion, CorporateEraExpansion)
+    engine.phase("Prelude")
+    p1.manual("9 MC, ProjectCard, PreludeCard")
+
+    p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
+
+    p1.assertCounts(1 to "Plant")
+  }
+
+  @Test
+  internal fun `Ecology Experts incorrectly does not trigger Ecological Zone with its plant tag`() {
+    newGame(PreludeExpansion)
+    engine.phase("Prelude")
+    p1.manual("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
+
+    p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
+
+    p1.assertCounts(2 to "Animal<$EcologicalZone>")
+  }
+
+  @Test
+  internal fun `Mars University incorrectly allows two discards before either draw`() {
+    newGame(CorporateEraExpansion)
+    p1.manual(
+        "5 ProjectCard, $MarsUniversity"
+    ) { /* Decline Mars University's discard-and-draw effect. */
+      declineTask()
+    }
+    val manual = p1.also { it.autoExecMode = NONE }
+
+    manual
+        .manual("$Research") {
+          doTask("2 ProjectCard")
+          doTask("-ProjectCard")
+          doTask("-ProjectCard")
+          doTask("ProjectCard")
+          doTask("ProjectCard")
+        }
+        .expect("2 ProjectCard")
+  }
+
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
