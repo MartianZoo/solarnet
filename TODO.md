@@ -145,9 +145,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and reproducibly randomized enumeration to expose hidden ordering dependencies. Autoexecution
   policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- **Medium-high priority:** Finish refined Type-variable capture as specified in
-  `docs/agents/TYPES.md` section 10: evaluate a refined declaration once when its Ground Type is
-  captured, then ensure later uses cannot rerun that Requirement.
 - Make expressions inserted by defaults participate in ordinary trigger Type-variable linkage as
   though the expanded form had been written explicitly. Preserve authored distinctions such as
   `Player` versus `Player<>`, and remove `fixEffectForUnownedContext` once owner propagation follows

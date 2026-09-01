@@ -390,6 +390,10 @@ same ordinary operations. Code that only needs narrowing, dependencies, or Class
 the `Type` API. Code concerned with capture or substitution can inspect whether that Type is a
 `TypeVariable`, then inspect its declaration and uses.
 
+Every variable bound is a Ground Type. A dependent declaration first receives any visible capture
+used inside its authored expression, then resolves that specialized expression as its own Ground-Type
+bound. No authored construct requires a variable to remain open inside another variable's bound.
+
 `GroundType` is preferred to `ProperType`: it says that the value contains no open capture without
 suggesting that a variable is somehow an improper Type. A variable's structural constraint is its
 `bound`; the shorter name is sufficient because every variable has exactly one such constraint.
@@ -426,9 +430,9 @@ For example, specializing the `CardFront` variable of an `AiCentral` component c
 `AiCentral<Owner>`, not merely the replacement token `AiCentral`. The captured Ground Type carries
 the dependencies supplied by both the occurrence and the concrete Class.
 
-The intended rule for a refined declaration is to evaluate its Requirement when a candidate is
-captured, then reuse the captured Ground Type without evaluating the Requirement again. The current
-implementation does not yet guarantee this timing; see section 12.
+A refined declaration evaluates its Requirement when a candidate is captured. Binding consumes that
+declaration refinement, so every later occurrence reuses the captured Ground Type without evaluating
+the Requirement again. A distinct use-site refinement remains a separate constraint.
 
 Variables are recognized from authored syntax before defaults, marked-syntax lowering, owner
 substitution, and task splitting. These phases must preserve declaration identity and use paths even
@@ -611,8 +615,8 @@ uninhabited Type. See
 
 ## 12. Known divergences
 
-Do not document these as intended semantics or fix them incidentally. The
-[Type-variable audit](TYPE_VARIABLES.md) coordinates the related work.
+Do not document these as intended semantics or fix them incidentally. The Complement direction must
+be settled as one design problem before either divergence is changed.
 
 ### 12.1 Complement narrowing accepts wider abstract candidates
 
@@ -624,10 +628,3 @@ Player 1. Concrete candidates behave as intended.
 
 Written and full forms show the exclusion but omit a separately narrowed domain. Printing and
 resolving can therefore widen a Complement produced by `glb` or Type-variable narrowing.
-
-### 12.3 Refined captures can be evaluated more than once
-
-Binding records a Ground Type and realizes it only at the declared occurrence positions. However,
-a repeated refined spelling can still leave the same Requirement on more than one realized
-occurrence, so a changing World may evaluate it at different times. Capturing must consume the
-declaration's refinement once and make later uses refer only to that result.

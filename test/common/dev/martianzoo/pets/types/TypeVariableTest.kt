@@ -2,9 +2,12 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -106,6 +109,41 @@ internal class TypeVariableTest {
     actorBound.typeVariables.bind(bindings).transformEffect(actorBound).toString() shouldBe
         "Resource<Passive> BY Player1: Notice<Passive>"
     complemented.declaration.expression.toString() shouldBe "!Player"
+  }
+
+  @Test
+  internal fun `binding consumes a refined declaration after its candidate is captured`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Resource",
+            "CLASS Plant : Resource",
+            "ABSTRACT CLASS Marker<Resource>",
+            "ABSTRACT CLASS Token<Resource>",
+        )
+    val authored = parse<Effect>("Resource(HAS Marker): Token<Resource(HAS Marker)>")
+    val effect = table.inferTypeVariables().transformEffect(authored)
+    val variable = effect.typeVariables.variables.single()
+    val binding = table.resolve(parse<Expression>("Plant"))
+    var evaluations = 0
+    val info =
+        object : TypeInfo {
+          override fun isAbstract(e: Expression): Boolean = error("unused")
+
+          override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
+
+          override fun has(requirement: Requirement): Boolean {
+            evaluations++
+            return true
+          }
+        }
+
+    binding.narrows(variable.bound, info) shouldBe true
+
+    effect.typeVariables
+        .bind(mapOf(variable to binding))
+        .transformEffect(effect)
+        .toString() shouldBe "Plant: Token<Plant>"
+    evaluations shouldBe 1
   }
 
   @Test

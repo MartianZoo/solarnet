@@ -6,8 +6,8 @@
 > **Skip when:** using existing implicit variables, changing dependencies, or considering
 > Splice's generated watchers. Priority lives in [`TODO.md`](../../TODO.md).
 >
-> **Status:** implementation checklist for the captured-Type design specified in `TYPES.md` section
-> 10.
+> **Status:** current captured-Type implementation constraints and its remaining default-expansion
+> follow-up.
 
 ## Source map
 
@@ -35,11 +35,14 @@ behavior.
 
 ## Remaining work
 
-1. Evaluate a refined variable bound once when capturing its Ground Type, then reuse that capture
-   without rerunning the Requirement.
-2. Decide whether dependent captures need a variable-valued bound in the public model. The current
-   ordered binding correctly specializes a Complement from its visible positive variable before
-   capturing the complete expression, while `TypeVariable.bound` remains a `GroundType`.
+Make expressions inserted by defaults inherit the recorded trigger-variable identity they would
+have in the explicitly expanded form. Preserve authored distinctions such as `Player` versus
+`Player<>`; default expansion must propagate occurrences, not rerun authored-expression recognition.
+
+Dependent captures do not need variable-valued bounds. Ordered binding first specializes any
+visible positive variable inside the dependent expression, then captures the complete expression
+under a Ground-Type bound. Keep `TypeVariable.bound` a `GroundType` unless an authored rule proves
+that this model is insufficient.
 
 ## Direction
 
@@ -67,6 +70,5 @@ Preserve observable behavior for:
   and
 - independent Adjacency branches, Market Manipulation operands, comma siblings, and `OR` arms.
 
-Add a focused negative behavioral test for each remaining divergence before removing its old
-implementation. This note is complete when the Type-variable entries in
-[TYPES.md](TYPES.md#12-known-divergences) are gone.
+Add a focused negative behavioral test before changing the remaining default-expansion behavior.
+This note is complete when that entry is gone from `TODO.md`.

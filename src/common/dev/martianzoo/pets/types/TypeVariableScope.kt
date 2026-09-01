@@ -201,10 +201,24 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     }
   }
 
-  /** Returns a transformer that applies [bindings] only at recorded occurrences. */
+  /**
+   * Returns a transformer that applies captured [bindings] only at recorded occurrences. A
+   * declaration refinement was checked while its binding was captured and is consumed here.
+   */
   public fun bind(bindings: Map<TypeVariable, GroundType>): PetTransformer {
     val replacements = entries.flatMap { entry ->
       val replacement = bindings[entry.variable] ?: return@flatMap emptyList()
+      val capturedRefinement =
+          if (entry.variable.declaration in entry.currentExpressions) {
+            entry.currentExpressions.getValue(entry.variable.declaration).refinement
+          } else {
+            entry.variable.bound.refinement
+          }
+
+      fun GroundType.consumeCapturedRefinement(): GroundType =
+          if (refinement == capturedRefinement) copy(refinement = null) else this
+
+      val captured = replacement.consumeCapturedRefinement()
       entry.currentExpressions.flatMap { (occurrence, source) ->
         val constraint =
             if (source.complement && !occurrence.appliesComplementOperator) {
@@ -213,7 +227,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               replacement.classTable.resolve(source.uncomplemented())
             }
         val occurrenceBinding =
-            (replacement glb constraint)
+            (captured glb constraint.consumeCapturedRefinement())
                 ?: throw NarrowingException(
                     "$replacement does not satisfy Type-variable occurrence $source"
                 )
