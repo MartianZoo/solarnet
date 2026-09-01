@@ -17,6 +17,8 @@
   `narrower`, and `actor` before changing queued work.
 - [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
   for `assignee` to see trigger-time routing.
+- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — search for
+  `fixEffectForUnownedContext` to see ownerless Effects acquire their event-Actor filter.
 - [`EffectActorCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
   and [`TaskAssignmentCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
   — read before changing current Actor or assignment semantics.
@@ -67,6 +69,26 @@ narrowing, resolution, and `THEN` continuation preserve it.
 
 A `ChangeEvent` records that Actor. Trigger-side `BY` inspects only the event's Actor. This is why
 stealing a victim's heat is still an action by the attacker.
+
+## Implicit trigger Owner
+
+The icon grammar gives an ordinary trigger on a Player-owned card an implicit Actor filter. For
+example, `OceanTile` on that card means `OceanTile BY Owner`; writing `OceanTile BY Anyone`
+explicitly cancels the filter. This is trigger matching, not task attribution and not an authored
+Type variable.
+
+An ownerless rule can also require the triggering Player as context for its result. The canonical
+case is `GlobalParameter`:
+
+```pets
+This: TerraformRating
+```
+
+Defaults elaborate the result to `TerraformRating<Owner>`, but the Trigger contains no `Owner` to
+bind. Class-Effect transformation therefore supplies `BY Owner`. Trigger matching accepts a Player
+Actor, rejects Engine as an Owner, and uses that Player to close the result's contextual `Owner`.
+No default-occurrence propagation can replace this rule because the value comes from the event's
+Actor rather than another Type expression.
 
 ## Triggered task assignment and delegation
 

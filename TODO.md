@@ -17,9 +17,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Make the ordinary Pets lifecycle explicit and linear: elaborate every authored entry through one
   shared route, preserve Type-variable identity in typed values, distinguish contextual `Owner`
-  from an intentional Owner-domain choice, close component and trigger context before Task
-  execution, and translate each resolved first stage to a small executable-work type while retaining
-  later `THEN` stages as Pets.
+  from an intentional Owner-domain choice, preserve the icon grammar's implicit `BY Owner` and
+  explicit `BY Anyone`, close component and trigger context before Task execution, and translate
+  each resolved first stage to a small executable-work type while retaining later `THEN` stages as
+  Pets.
 - Preserve authored Pets as stable semantic data independently of executable compilation, including
   Metric- and Requirement-valued properties; reflection-like consumers may inspect or re-submit any
   authored subtree, and re-submission must use the shared elaboration route.
@@ -145,10 +146,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   and reproducibly randomized enumeration to expose hidden ordering dependencies. Autoexecution
   policy belongs outside the engine as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
-- Make expressions inserted by defaults participate in ordinary trigger Type-variable linkage as
-  though the expanded form had been written explicitly. Preserve authored distinctions such as
-  `Player` versus `Player<>`, and remove `fixEffectForUnownedContext` once owner propagation follows
-  from that general rule.
 - **Medium-high priority:** Heavily revamp the `TfmGameplay` and test-helper APIs: move test-only
   actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
   and give benchmarks explicit harness utilities rather than inheriting the test convenience

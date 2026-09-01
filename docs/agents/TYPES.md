@@ -226,6 +226,12 @@ most-general common narrowing; Quantifiers must agree.
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
 
+Default insertion elaborates an authored Expression; it does not author another Type-variable
+declaration. Existing variables retain their recorded occurrence identity as their expressions gain
+default arguments. Separate inserted expressions do not become one choice merely because their
+text, resolved Type, declaring default, or in-memory object is shared. Contextual `Owner` is closed
+by the ownership and triggering-Actor rules, not by inventing a Type variable during expansion.
+
 Inside a refinement, an implicit default is deferred when its dependency is a direct use of a
 Class-header Type variable; candidate substitution can then bind it through that occurrence.
 Writing `<>` still explicitly accepts the default.
@@ -435,8 +441,9 @@ declaration refinement, so every later occurrence reuses the captured Ground Typ
 the Requirement again. A distinct use-site refinement remains a separate constraint.
 
 Variables are recognized from authored syntax before defaults, marked-syntax lowering, owner
-substitution, and task splitting. These phases must preserve declaration identity and use paths even
-when the original declaring occurrence is transformed away.
+substitution, and task splitting. These phases preserve existing declaration identity and use paths
+even when an occurrence's spelling changes; they do not discover new declarations from elaborated
+syntax.
 
 ### Declaration and scope table
 
@@ -534,7 +541,9 @@ Class-header declaration may have uses in several comma-separated Effects.
 
 - `This` means the effect-bearing exact Type. `Class<This>` means its root Class without
   dependencies. Self triggers `This:` and `-This:` match only changed copies of that exact Type.
-- `Owner` means the exact context owner when one exists. Otherwise it remains abstract and may be
+- `Owner` means the exact context owner when one exists. An ownerless triggered rule may instead
+  receive the event's Player Actor under the implicit trigger rule in
+  [IDENTITY.md](IDENTITY.md#implicit-trigger-owner). Otherwise it remains abstract and may be
   eligible for normal variable declaration and choice semantics.
 - `BY Anyone` is an unrestricted Actor filter, not a declaration. `BY !Owner` and other complemented
   selectors are filters, not binders. A positive simple abstract Actor subtype such as `BY Player`

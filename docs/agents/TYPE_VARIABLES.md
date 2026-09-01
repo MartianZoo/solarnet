@@ -1,19 +1,22 @@
-# Type-variable follow-ups
+# Type-variable design constraints
 
-> **Read when:** implementing one of the remaining implicit-variable defects after first reading the
-> relevant part of [TYPES.md](TYPES.md#10-authored-type-variables).
+> **Read when:** changing implicit-variable recognition, occurrence preservation, or binding after
+> first reading the relevant part of [TYPES.md](TYPES.md#10-authored-type-variables).
 >
-> **Skip when:** using existing implicit variables, changing dependencies, or considering
-> Splice's generated watchers. Priority lives in [`TODO.md`](../../TODO.md).
+> **Skip when:** using existing implicit variables, changing defaults without changing variable
+> semantics, or considering Splice's generated watchers. Priority lives in
+> [`TODO.md`](../../TODO.md).
 >
-> **Status:** current captured-Type implementation constraints and its remaining default-expansion
-> follow-up.
+> **Status:** current captured-Type implementation constraints.
 
 ## Source map
 
 - [`TypeVariableScope.kt`](../../src/common/dev/martianzoo/pets/types/TypeVariableScope.kt) and
   [`inferTypeVariables.kt`](../../src/common/dev/martianzoo/pets/types/inferTypeVariables.kt) —
   inspect recognition, declaration sites, and use sites.
+- [`Defaults.kt`](../../src/common/dev/martianzoo/pets/types/Defaults.kt) and
+  [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — inspect default
+  cooking and insertion without treating them as variable declaration sites.
 - [`Type.kt`](../../src/common/dev/martianzoo/pets/types/Type.kt) — inspect structural
   substitution and narrowing when the selected defect reaches resolved Types.
 - [`TypeVariableTest.kt`](../../test/common/dev/martianzoo/pets/types/TypeVariableTest.kt) — read
@@ -33,11 +36,21 @@ incidentally here. Settle the Complement domain/difference-Type model described 
 [TYPES.md](TYPES.md#7-complement-bounds) and `TODO.md` before finalizing complemented variable
 behavior.
 
-## Remaining work
+## Default expansion
 
-Make expressions inserted by defaults inherit the recorded trigger-variable identity they would
-have in the explicitly expanded form. Preserve authored distinctions such as `Player` versus
-`Player<>`; default expansion must propagate occurrences, not rerun authored-expression recognition.
+Authored-variable recognition runs before defaults. Expansion transforms the recorded spelling of
+an existing occurrence; it does not introduce a declaration merely because the inserted expression
+is abstract, repeats elsewhere, resolves to the same Type, or happens to be the same Kotlin object.
+Thus Manutech's two authored `StandardResource` occurrences remain one variable when both expand to
+`StandardResource<Owner>`, while the inserted contextual `Owner` is not a second variable.
+
+Do not rerun authored-expression recognition over expanded syntax. That would erase distinctions
+such as `Player` versus `Player<>` and turn elaboration results into source declarations. If a
+future Pets rule intentionally makes one default introduce a shared abstract choice, specify that
+rule from game syntax and prove it with observable behavior before adding explicit provenance.
+Allocation identity is never semantic provenance. Any justified provenance must be recorded per
+occurrence when that default is inserted, and Effect-only processing must remain explicit at its
+caller: `insertDefaults` also serves property expansion and is not itself an Effect-only phase.
 
 Dependent captures do not need variable-valued bounds. Ordered binding first specializes any
 visible positive variable inside the dependent expression, then captures the complete expression
@@ -69,6 +82,3 @@ Preserve observable behavior for:
 - action, transmutation, and `THEN` cases such as Flooding, Utopia Invest, Kaguya Tech, and Cyberia;
   and
 - independent Adjacency branches, Market Manipulation operands, comma siblings, and `OR` arms.
-
-Add a focused negative behavioral test before changing the remaining default-expansion behavior.
-This note is complete when that entry is gone from `TODO.md`.

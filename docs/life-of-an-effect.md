@@ -141,21 +141,27 @@ game knows whether Recyclon is Active. These facts may now be used to form its C
 
 **PetTransformers, in order:**
 
-1. `insertTriggerDefaults`
-2. `insertGainRemoveDefaults`
-3. `insertExpressionDefaults`
-4. `atomizer`
-5. `Prod.deprodify`
-6. `fixEffectForUnownedContext`, only when the Effect's declaring Class is neither `Owned` nor an
+1. `inferTypeVariables`
+2. `insertTriggerDefaults`
+3. `insertGainRemoveDefaults`
+4. `insertExpressionDefaults`
+5. `atomizer`
+6. `Prod.deprodify`
+7. `fixEffectForUnownedContext`, only when the Effect's declaring Class is neither `Owned` nor an
    `Owner`
-7. `evaluateProperties`, using the inheriting Class as Context and leaving abstract property values
+8. `evaluateProperties`, using the inheriting Class as Context and leaving abstract property values
    for a later stage
 
-The first three are the expanded contents of `insertDefaults`. Steps 1–6 form
+The three default passes are the expanded contents of `insertDefaults`. Steps 1–7 form
 `attachToClassTransformer` and run separately on each Source Effect with its declaring Class as
-Context. After Effects from every superclass have been collected, step 7 runs on all of them with
-Recyclon as Context. For this Effect, steps 1–3 and 5 cause the visible changes below; steps 4, 6,
-and 7 leave it alone.
+Context. After Effects from every superclass have been collected, step 8 runs on all of them with
+Recyclon as Context.
+
+Step 7 does nothing to Recyclon or Manutech because both belong to an `Owned` hierarchy. Its
+canonical case is the ownerless `GlobalParameter` rule `This: TerraformRating`. Defaults elaborate
+the result to `TerraformRating<Owner>!`, but its Trigger has no owner expression. The step produces
+`This BY Owner: TerraformRating<Owner>!`, allowing a triggering Player—but not Engine—to supply the
+contextual owner. This is an implicit Actor rule from the icon grammar, not Type-variable linkage.
 
 Recyclon's Class Effects consist of the Source Effects contributed by Recyclon and all its
 superclasses, transformed for Recyclon as far as possible without choosing a concrete Component.
@@ -288,8 +294,9 @@ the matching Change Event, then builds this effective chain over the Instruction
 
 The resulting Instruction is then multiplied by the matching State Change's count; multiplication
 is not a PetTransformer. Recyclon has no Trigger-declared Type Variable and its Component Effect has
-already replaced `Owner`, so only step 3 runs over its Instruction and it changes nothing. Manutech
-uses step 1 to replace its `StandardResource` Type Variable with `Plant`.
+already replaced `Owner`, so only step 3 runs over its Instruction and it changes nothing. A
+Manutech Component Effect has likewise already replaced contextual `Owner` with its card owner's
+Player Type; step 1 then replaces its `StandardResource` Type Variable with `Plant`.
 
 Now suppose Player1 plays Titanium Mine. Its printed building tag produces the exact State Change
 that gains a `BuildingTag` dependent on `TitaniumMine<Player1>`. Its Change Event matches:
@@ -310,7 +317,8 @@ One matching tag produces one copy of the Instruction. Tags are atomized, so gai
 tags produces two separately observable tag gains rather than one counted tag event.
 
 Recyclon has no Type Variable crossing from Trigger to Instruction, so matching the exact Titanium
-Mine tag does not further change its result. Manutech shows the missing case:
+Mine tag does not further change its result. Manutech shows one authored variable surviving default
+expansion and component contextualization:
 
 ```pets
 // Source Effect
@@ -319,13 +327,17 @@ PROD[StandardResource]: StandardResource
 // Class Effect
 Production<Owner, Class<StandardResource>>: StandardResource<Owner>!
 
+// Component Effect on Manutech<Player1>
+Production<Player1, Class<StandardResource>>: StandardResource<Player1>!
+
 // Triggered by gaining Production<Player1, Class<Plant>>
 Plant<Player1>!
 ```
 
 The two authored occurrences of `StandardResource` are one Type Variable. The exact Trigger match
-narrows it to `Plant`, and that same choice narrows the result. The declaration and use come from
-the authored scope; they are not guessed later from two resolved Types that happen to resemble one another.
+narrows it to `Plant`, and that same choice narrows the result. Default expansion changes the
+recorded occurrence spellings without declaring another variable from the inserted `Owner`.
+Component specialization independently replaces that contextual placeholder with `Player1`.
 
 **Postcondition:** the Trigger is finished. Its exact Change Event has bound every Trigger-declared
 Type Variable it can bind, and the result has been repeated by the matched State Change's count. The
@@ -341,11 +353,12 @@ text to choose or narrow it, that input first passes through:
 2. `rejectPropertyEvaluations`
 3. `canonicalize`
 4. `useFullNames`
-5. `atomizer`
-6. `insertTriggerDefaults`, `insertGainRemoveDefaults`, and `insertExpressionDefaults`, together
+5. `inferTypeVariables`
+6. `atomizer`
+7. `insertTriggerDefaults`, `insertGainRemoveDefaults`, and `insertExpressionDefaults`, together
    exposed as `insertDefaults`
-7. `replaceOwnerWith`, when the client is a Player
-8. `Prod.deprodify`
+8. `replaceOwnerWith`, when the client is a Player
+9. `Prod.deprodify`
 
 First-stage narrowing binds authored Type Variables shared across `THEN` through their recorded
 `TypeVariableScope`, followed by `bindXTo` when stages share `X`. When marked syntax has lowered a

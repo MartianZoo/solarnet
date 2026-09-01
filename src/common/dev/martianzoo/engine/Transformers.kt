@@ -220,6 +220,7 @@ public class Transformers(public val classTable: ClassTable) {
     )
   }
 
+  /** Adds icon-grammar `BY Owner` when an ownerless Effect's result needs its event's Player. */
   private fun fixEffectForUnownedContext(klass: Class): PetTransformer? {
     if (klass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
     return object : PetTransformer() {
