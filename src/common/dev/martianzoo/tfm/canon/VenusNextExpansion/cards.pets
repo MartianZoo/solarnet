@@ -463,7 +463,7 @@ CLASS VenusianPlants : AutomatedCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS SponsoredAcademiesWatcher : Owned<Player> {
+CLASS SponsoredAcademiesWatcher : Owned<Player>, System {
   HAS =1 This
   SponsoredAcademies_Signal BY Anyone: ProjectCard
 }

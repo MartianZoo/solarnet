@@ -129,7 +129,7 @@ Neptunian Power Consultants creates a live owned auxiliary `HasActions` componen
 that component's Action, whose result puts the Hydroelectric resource on Neptunian Power
 Consultants.
 
-St. Joseph of Cupertino Mission creates one unowned `CathedralAction`. Each owned Cathedral offers
+St. Joseph of Cupertino Mission creates one unowned `CathedralOption`. Each owned Cathedral offers
 that Action to its city owner, so the city owner is also the payer and recipient.
 
 Standard projects use the same rule while retaining authored Actions such as

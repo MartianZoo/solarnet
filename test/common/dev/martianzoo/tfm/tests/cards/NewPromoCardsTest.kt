@@ -186,7 +186,7 @@ internal class NewPromoCardsTest : CardTest() {
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
       doTask("Cathedral<CityTile<Player2, Tharsis_4_2>>")
-      p2.stdAction("CathedralAction")
+      p2.stdAction("CathedralOption")
     }
 
     p2.assertCounts(0 to "MC", 1 to "ProjectCard")

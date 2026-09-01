@@ -612,7 +612,7 @@ CLASS SolarLogistics : ActiveCard<Class<ProjectCard>> {
 CLASS StJosephOfCupertinoMission : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 7
 
-  This: CathedralAction
+  This: CathedralOption
   UseAction<This, First>:: Accept<Class<Steel>>
   End: VictoryPoint / Cathedral<Anyone>
 
@@ -740,12 +740,12 @@ CLASS FloydContinuum : ActionCard, ActiveCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS SpliceTacticalGenomicsWatcher : Owned<Player> {
+CLASS SpliceTacticalGenomicsWatcher : Owned<Player>, System {
   HAS =1 This
   MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 MC
 }
 
-CLASS MonsInsuranceWatcher : Owned<Player> {
+CLASS MonsInsuranceWatcher : Owned<Player>, System {
   HAS =1 This
   MonsInsurance<Anyone> IF MAX 0 MonsInsurance<Owner>: PROD[-2 MC] BY Owner
 }
@@ -765,16 +765,16 @@ CLASS NeptunianOption : HasActions, Owned {
   5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>
 }
 
-CLASS CathedralAction : HasActions {
+CLASS CathedralOption : HasActions {
   2 MC -> ProjectCard
 }
 
 CLASS Cathedral<CityTile<Owner>> : Owned<Owner> {
   HAS MAX 1 This
-  This: UseAction<CathedralAction>?
+  This: UseAction<CathedralOption>?
 }
 
-CLASS VerminWatcher : Owned<Player> {
+CLASS VerminWatcher : Owned<Player>, System {
   HAS =1 This
   End IF 10 Animal<Anyone, Vermin<Anyone>>: -VictoryPoint / CityTile<Owner>
 }

@@ -4,6 +4,23 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Define player-decision attribution through causal ancestry. `Hidden` components may be transparent
+  links between an event and its most closely connected player decision, but postpone choosing the
+  exact traversal rule and how it combines `Cause` with `GameplayInputEvent`.
+- Decide whether `System` should prevent Player removal as well as Player creation. Audit legitimate
+  player-caused cleanup and transmutation before strengthening the current creation-only rule.
+- Decide whether persistent auxiliary action providers such as `NeptunianOption` and
+  `CathedralOption` should ever be hidden. Keep them visible while they are live choices offered to
+  players.
+- Treat meaningful owned, non-Signal, non-Temporary state as visible by default. Audit the remaining
+  hidden owned bookkeeping (`SuitableInfrastructurePaid`, `MyResourceWasRemoved`, and
+  `MyProductionWasDecreased`) while retaining explicit derived and engine-scaffolding exceptions.
+- Decide whether `Adjacency` is a visible physical/iconographic relationship or hidden derived
+  structure; distinguish it from `Neighbor`, and keep it visible until that decision is settled.
+- Revisit whether `DelayedColonyTile` is `System` after settling causal and presentation semantics;
+  leave it non-System for now.
+- Decide whether the persistent invoice hosts `BuyCards` and `PlayCards` are `System` while the
+  latter awaits its dedicated lifecycle redesign.
 - Make context-specialized observational metric counts safe: after validating the general class effect,
   reduce a `Metric.Count` to zero when binding `This`, `Owner`, or an authored type variable makes its
   previously valid type expression structurally disjoint. Preserve errors for malformed expressions,

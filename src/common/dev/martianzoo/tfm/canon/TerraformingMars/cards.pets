@@ -1173,7 +1173,7 @@ CLASS SpecialDesign : EventCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS HasRaisedTr : Generational, Hidden, Owned {
+CLASS HasRaisedTr : Generational, Owned {
   HAS MAX 1 This
 }
 

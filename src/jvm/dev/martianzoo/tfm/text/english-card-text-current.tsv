@@ -386,7 +386,7 @@ AppliedScience	Applied Science	[WildTag<This>]. Add 6 science resources to this 
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 prelude card. Discard 1 prelude card or remove 12 M€, then [-Director<This>], then play a prelude card.
 ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 titanium.	Effect: When any colony is placed, gain 2 M€.
-EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. [2 AdvanceColonyTracks].
+EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. [2 AdvanceColonyTracks BY Engine].	
 FloatingTradeHub	Floating Trade Hub		Action: Add 2 floaters to any card, or remove one or more floaters from this card to [X StandardResource].
 FocusedOrganization	Focused Organization	Draw 1 card. Gain a standard resource.	Action: Discard 1 card, then [-StandardResource], then [FocusedOrganizationGain].
 IndustrialComplex	Industrial Complex	Remove 18 M€. [Production<Class<MC>> / 6 - Production<Class<MC>>]. [Production<Class<Steel>> / 1 - Production<Class<Steel>>]. [Production<Class<Titanium>> / 1 - Production<Class<Titanium>>]. [Production<Class<Plant>> / 1 - Production<Class<Plant>>]. [Production<Class<Energy>> / 1 - Production<Class<Energy>>]. [Production<Class<Heat>> / 1 - Production<Class<Heat>>].
@@ -490,7 +490,7 @@ MartianLumberCorp	Martian Lumber Corp	Requires 2 greenery tiles. Increase your p
 NeptunianPowerConsultants	Neptunian Power Consultants	[NeptunianOption]. 1 VP per hydroelectric resource on this card.	Effect: When any ocean tile is placed, [UseAction<NeptunianOption>?].
 RedShips	Red Ships	Requires that oxygen is 4% or higher.	Action: [MC / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)].
 SolarLogistics	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, pay 2 M€ less. When any space event card is played, draw 1 card.
-StJosephOfCupertinoMission	St Joseph Of Cupertino Mission	[CathedralAction]. 1 VP per ANY cathedral.	Action: Pay 5 M€ (steel may be used) to [Cathedral<Anyone, CityTile<Anyone>>].
+StJosephOfCupertinoMission	St Joseph Of Cupertino Mission	[CathedralOption]. 1 VP per ANY cathedral.	Action: Pay 5 M€ (steel may be used) to [Cathedral<Anyone, CityTile<Anyone>>].
 Teslaract	Teslaract	Raise your terraform rating 1 step.	Action: Decrease your energy production 1 step to increase your plant production 1 step.
 SoilEnrichment	Soil Enrichment	Remove 1 microbe from any card. Gain 5 plants.
 Supermarkets	Supermarkets	Requires ANY 2 city tiles. Increase your M€ production 2 steps. 1 VP.
