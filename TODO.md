@@ -71,13 +71,26 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   hypothetical-analysis capability can use disposable Worlds to explore every relevant legal
   command and compare normalized component/task continuations. It may spare no analysis cost, but
   `UNKNOWN` must stop it; do not substitute a heuristic for the promised proof.
-- **High priority:** Try `Temporary` on `TradeBarrier`. It is suitable only if global queue
-  emptiness is the real end of the selected trade operation and its removal still leaves fleet
-  movement after every optional production decision. Then examine payment independently: replace
-  parallel payment-method tasks with one mandatory abstract accepted-tender choice at a time, keep
-  it pending and unselectable while unpaid without legal tender, and preserve invoice removal as
-  the direct completion event. Keep whole-World idle cleanup separate from action-local completion
-  and from cleanup of pending tasks such as `WildTagUse`.
+- **High priority:** Make automatic sibling execution order-independent. Select and condition the
+  complete batch against trigger-time state, try each concrete sibling in a nested atomic scope,
+  retain temporarily unrunnable siblings for another pass after progress, and fail when a full pass
+  makes none. Add a seeded tester that compares normalized component and task outcomes across
+  permutations, and run it across Canon; exact event order need not match.
+- **High priority; next sequencing change:** Replace `Trade`'s immediate Signal and per-card
+  `TradeBarrier` instances with one concrete `Temporary Trade<ColonyTile>`. Let every pre-flight
+  reaction drain while that selected operation remains live, then make its automatic removal move
+  the committed reserve fleet; retain income, colony bonuses, and track reset as effects of fleet
+  movement.
+- **High priority; very soon after Trade:** Replace parallel payment-method tasks with one
+  mandatory abstract accepted-tender choice at a time. After each tender, offer the next choice only
+  while matching `Owed` remains; keep unpaid debt pending even when no legal tender is currently
+  available, and preserve invoice removal as the direct completion event. Prove the model first with
+  M€, one alternative standard resource, and one card-resource tender before migrating every payment
+  source.
+- **High priority:** Make `End` the `Temporary` endgame-scoring operation. Queue every score-producing
+  `End` reaction, create `FinalScore` automatically only when that work and its consequences drain,
+  and move award measurement under `End`: automatic `AwardTally` creation should precede queued
+  `AssignAwardPlaces` without either current `THEN`.
 - **High priority:** Define end-of-action completion before replacing workflow wakeup. Use one
   existing Player-turn control frame rather than a general nested-frame facility, and ensure Billing,
   action-local cleanup, and delegated tasks settle before a second-action offer or control pass.
@@ -173,11 +186,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **High priority:** Allow a partial instruction to narrow the matching portion of the selected task
   while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
-- **High priority:** Make the single task pool semantically unordered: remove positional task
-  selection and stable-order autoexec precedence, give the client-supplied `first` policy no
-  ordering promise, require an id or unambiguous instruction match for explicit commands, and run
-  tests under reverse and reproducibly randomized enumeration to expose hidden ordering
-  dependencies. Autoexecution belongs above `ActorAccess` as specified in
+- **High priority:** Separate task semantics from presentation order. Retain a deterministic view,
+  treat task numbers only as ephemeral UI shorthand, record durable input by id or unambiguous
+  instruction match, and let the `first` Agent Driver remain a valid unsophisticated policy over the
+  executable tasks in that view. Add a seeded random policy that chooses an executable task rather
+  than randomizing stored positions. Autoexecution belongs above `ActorAccess` as specified in
   [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **Medium-high priority:** Heavily revamp the `TfmGameplay` and test-helper APIs: move test-only
   actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
@@ -234,11 +247,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   the follow-mode declaration still keeps the 42 M€ payment as an independent sibling to preserve
   current behavior.
 - **Medium priority:** Continue the unresolved sequencing work identified by the canon effect-mode
-  audit: settle the action-marker/Viron tension, event and Mandate context lifetime, scoring
-  completion, same-trigger action-cost dependencies, and the remaining mixed phase triggers,
-  including existing automatic effects triggered only by Engine workflow events. Before inventing
-  an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and
-  descendant-completion semantics.
+  audit: settle same-trigger action-cost dependencies and the remaining mixed phase triggers,
+  including existing automatic effects triggered only by Engine workflow events. Treat Mandates as
+  a separate postponed action-availability problem: the component providing standard actions should
+  be absent while a Mandate exists.
 - **Low priority:** When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - **Medium priority:** Model the solo setup choice that selects four colony tiles and removes one
   before assembling the playable Game World.

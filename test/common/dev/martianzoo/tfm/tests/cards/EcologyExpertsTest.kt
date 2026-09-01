@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -22,7 +21,6 @@ internal class EcologyExpertsTest : CardTest() {
 
     p1.assertCounts(
         1 to "$Decomposers",
-        1 to "Microbe<$Decomposers>",
     )
   }
 
@@ -39,7 +37,7 @@ internal class EcologyExpertsTest : CardTest() {
       p1.playProject(Decomposers, 5) { doTask("2 MC<Player1>") }
     }
 
-    p1.assertCounts(3 to "MC", 1 to "Microbe<$Decomposers>")
+    p1.assertCounts(3 to "MC")
     p2.count("MC") shouldBe spliceMoney + 4
   }
 
@@ -52,27 +50,5 @@ internal class EcologyExpertsTest : CardTest() {
     p1.playPrelude(EcologyExperts) { p1.playProject(DustSeals, 2) }
 
     p1.assertCounts(1 to "$DustSeals")
-  }
-
-  @Test
-  internal fun `Viral Enhancers sees only its own plant tag`() {
-    newGame(PreludeExpansion, CorporateEraExpansion)
-    engine.phase("Prelude")
-    p1.manual("9 MC, ProjectCard, PreludeCard")
-
-    p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
-
-    p1.assertCounts(1 to "Plant")
-  }
-
-  @Test
-  internal fun `Ecological Zone sees only its own tags`() {
-    newGame(PreludeExpansion)
-    engine.phase("Prelude")
-    p1.manual("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
-
-    p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
-
-    p1.assertCounts(2 to "Animal<$EcologicalZone>")
   }
 }

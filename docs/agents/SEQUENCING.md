@@ -17,7 +17,7 @@
 | Which mechanism should express A-before-B? | Put facts in components; Recoverable dead ends; Choose the weakest mechanism that fits |
 | Must a modifier precede the event it changes? | Model before-trigger effects with a committed precursor |
 | Must reactions complete before the user sees the next choice? | Use automatic effects to preserve player-visible invariants |
-| Does this concern `EACH`, continuations, controlled completion, or atomicity? | Read only the matching proposed section |
+| Does this concern `EACH`, controlled completion, or atomicity? | Read only the matching proposed section |
 | Is this a known family, defect, or phase rule? | Settled families through Workflow precedence |
 | How should a new ordering claim be researched? | Audit method |
 
@@ -35,12 +35,17 @@
   for commit/rollback atomicity.
 - [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt)
   — read when changing player-visible action ordering.
+- [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt)
+  and `SOLARNET_RANDOM_AUTOMATIC_EFFECTS` in [`TESTING.md`](TESTING.md) — inspect when changing
+  automatic-sibling scheduling or its diagnostic modes.
 
 ## Mental model: preserve the whole valid decision tree
 
-Pending tasks are an unordered pool. Stable task ids and auto-exec iteration are implementation
-conveniences, never game precedence. A player may normally interleave a card's direct effects,
-persistent reactions, and already-triggered consequences.
+Pending tasks are a semantically unordered pool. A deterministic presentation order is useful for
+reproducible history and a comprehensible client, but it never creates game precedence. Task numbers
+are ephemeral labels in that presentation; durable input should identify a task by id or by an
+unambiguous instruction match. A player may normally interleave a card's direct effects, persistent
+reactions, and already-triggered consequences.
 
 This freedom is a major part of engine correctness, not a rare exception. Many groups of changes
 may be resolved in any order. Preserve all of those orders even when no current card, component, or
@@ -52,12 +57,13 @@ Placing an ocean precedes Arctic Algae; raising production precedes Manutech. On
 consequence joins the pool without priority.
 
 The engine's contract is to support every rules-valid committed state and no rules-invalid one; it
-does not choose a play policy. An Agent Driver may deliberately trade away flexibility for
-convenience by selecting work in an order the user will probably accept, or it may play safe and
-ask. This includes an Admin Driver intelligently ordering Admin's ordinary tasks. The current
-auto-execution implementation is engine-side, but that policy belongs in the Agent and is intended
-to move there. Its order must not become an engine guarantee or an authored precedence rule; the
-generic pulse dispatcher only coordinates wake-ups.
+does not choose a play policy. The `first` Agent Driver is a legitimate, deliberately
+unsophisticated policy: it chooses the first executable task in the current presentation. A safe
+Driver may instead stop and ask, a seeded random Driver may choose among executable tasks without
+randomizing their stored presentation, and an Admin Driver may intelligently order Admin's ordinary
+tasks. The current auto-execution implementation is engine-side, but those policies belong in the
+Agent and are intended to move there. No policy order may become an engine guarantee or an authored
+precedence rule; the generic pulse dispatcher only coordinates wake-ups.
 
 Tests should prove only real precedence. When freedom matters, also prove that representative legal
 sibling orders remain executable. Such a freedom test does not require the orders to produce the
@@ -109,10 +115,11 @@ does not make them task metadata.
 Tasks say what activities remain available or mandatory. Keep them sealed after creation: authored
 game behavior must not edit, reprioritize, cancel, or remove another task. Player narrowing remains
 the deliberate exception; engine resolution and execution retain their existing mechanical roles.
-A future priority is immutable task metadata assigned when work is created, not a new capability for
-effects to reach into the task pool.
+If presentation eventually follows authored Class, hierarchy, Effect, and right-hand-side order,
+encode that provenance as immutable metadata assigned when work is created. Do not derive gameplay
+precedence from it or give effects a capability to reach into the task pool.
 
-Signals such as `PlayCard`, `Trade`, `Accept`, and `Pay` are coherent component events: they state
+Signals such as `PlayCard`, `Accept`, and `Pay` are coherent component events: they state
 what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
 `Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
 
@@ -123,10 +130,11 @@ same Player. The workflow may proceed only after controlled work and its require
 neither tasks nor unfinished temporary state.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
-wait.” `TradeBarrier` is the strongest current example. By contrast, `Owed` records gameplay
-information—an amount and denomination—that other rules can inspect and change. Do not keep a
-component merely as a stop sign when an existing completion event can express the same rule, but do
-not replace a narrow barrier until the simpler mechanism is demonstrated.
+wait.” `TradeBarrier` is the strongest current example and is selected for removal through the live
+`Temporary Trade` operation described below. By contrast, `Owed` records gameplay information—an
+amount and denomination—that other rules can inspect and change. Do not keep a component merely as
+a stop sign when an existing completion event can express the same rule, but do not replace a narrow
+barrier until the simpler mechanism is demonstrated.
 
 ## Recoverable dead ends are part of the model
 
@@ -205,8 +213,7 @@ If every producer of A is expected to remember B, the relationship belongs in a 
 ### 4. Use a narrow barrier for distributed completion
 
 A barrier makes later work illegal until separately produced work finishes: card payment before
-entry, all optional trade-track choices before fleet movement, or one delegated operation before the
-next. Prefer a specific gate such as `MAX 0 TradeBarrier` to `MAX 0 Barrier`.
+entry or one delegated operation before the next. Prefer a specific gate to a broad `MAX 0 Barrier`.
 
 A barrier controls legality, not priority. Other currently legal work remains reorderable. Retain a
 component gate when it records gameplay information, as `Owed` and `Required` do. When its only
@@ -241,15 +248,12 @@ too late, or when A alone cannot distinguish how it was obtained. It is not just
 some reactions priority. Never let P degrade into a notification that callers may emit without
 performing A, or duplicate all A reactions onto both types.
 
-Current strong examples are:
+The current strong example is:
 
 - `PlayTag<Class<Tag>>` precedes the corresponding real Tag. Card play creates one `PlayTag` per
   printed tag before payment settles; discounts and alternative payment effects subscribe there.
   Successful card entry then creates the card's real Tags automatically with their printed
   multiplicity.
-- `Trade<ColonyTile>` precedes `FlownTradeFleet<ColonyTile>`. Trade Envoys and Trading Colony
-  subscribe to `Trade`, establish a `TradeBarrier`, and finish their optional track decision before
-  the already-selected fleet movement can occur.
 
 Card play, standard projects, conversion actions, and card-resource tender use the same precursor
 and invoice principles. Their detailed lifecycle belongs to [ACTIONS.md](ACTIONS.md); do not repeat
@@ -327,6 +331,10 @@ A:: B
 A: C
 ```
 
+The `A:: B` reaction itself never enters a `TaskQueue` and is never selectable. The implementation
+uses a `PendingTask` value only as an internal carrier while `Instructor` executes B inline. B may
+cause ordinary queued work, but that later work is not the automatic reaction itself.
+
 The primary reason to write `A:: B` is that the World after A but before B is not a coherent state to
 hand back to a client or Player. A may have exposed half of one conceptual fact, temporarily broken
 an invariant, or created hidden structure that the rest of the game must be able to assume exists.
@@ -350,6 +358,24 @@ independent reactions to A. Nor does `::` make the entire execution internally u
 automatic effects can still produce observable component changes and trigger further effects. It
 specifically prevents queued player work from interleaving with the invariant restoration.
 
+For automatic siblings caused by the same change, no execution order has gameplay meaning. The
+trigger precedes every one of its effects, and nested causes precede their own effects, but Class
+loading, hierarchy traversal, registration, and collection order establish no further promise. The
+engine selects the complete matching sibling batch and evaluates every trigger-side condition
+against the World at trigger time before executing any sibling.
+
+The current executor attempts the selected siblings once in its chosen order; an otherwise concrete
+sibling that is not runnable aborts the operation. The selected direction is a retrying batch:
+
+1. attempt each remaining sibling in unspecified order inside its own nested atomic scope;
+2. roll back and retain a sibling that is temporarily unrunnable;
+3. after any success, make another pass over the retained siblings; and
+4. fail the encompassing operation if one complete pass makes no progress.
+
+Retry never re-tests whether the Effect triggered, and it never turns an abstract instruction or
+Player choice into automatic work. This permits automatic siblings to declare only real causal
+dependencies instead of caring about incidental enumeration order.
+
 Settled uses include:
 
 - generated card tags before printed queued effects and tag reactions;
@@ -368,33 +394,27 @@ decision whose queue entry must be suppressed. Use `::` there only when exposing
 the trigger and its consequence would violate a concrete invariant.
 
 The canon single-colon audit leaves queued effects only when their right side is a recognizable
-gameplay event or choice, or when current sequencing semantics require a task transition. Several
-implementation-shaped cases are intentionally still queued:
-
-- removing a Mandate must not destroy the context that supplies its selected action;
-- End and played-event scoring must remain reorderable until all score-producing work is present;
-- action-cost adjustments must wait for the base action's Owed components, because sibling
-  automatic effects have no order; and
-- the solo production correction must wait for production payouts before removing M€.
+gameplay event or choice, or when current sequencing semantics require a task transition. Two
+implementation-shaped cases are intentionally still queued: action-cost adjustments must wait for
+the base action's `Owed` components, and the solo production correction must wait for production
+payouts before removing M€.
 
 These are limitations of the current completion model, not evidence that those operations are
 meaningful user decisions. Do not turn them automatic until their required lifetime or dependency
 is expressed directly.
 
-Trade Envoys and Trading Colony deliberately create a `TradeBarrier` automatically while their
-queued optional production decision later removes it.
-
 No gameplay ordering guarantee may depend on mutable runtime state that rollback does not restore.
-In particular, do not rely on registration order between two automatic effects. If one must follow
-the other, make the first event trigger the second.
+In particular, do not rely on registration order between two automatic effects. If one must always
+follow the other, make the first event trigger the second. Use retry only when the earlier effect can
+be identified systemically by the later effect's natural temporary unavailability.
 
-Ordinary execution retains self-effects before other effects for reproducible history, and orders
-each group from immutable pending-work data. Neither order has gameplay meaning. The diagnostic mode
-shuffles the entire eligible automatic batch and has found no remaining game-state difference.
-Two whole-game assertions that assign saturated `Owed` removals to Advanced Alloys can still vary;
-that known payment-history defect is described above and does not justify ordering payment effects.
-Do not use `::` for a player choice, just to manipulate queue admission, or as a substitute for
-controlled completion.
+Ordinary execution retains a deterministic diagnostic order. The diagnostic mode shuffles each
+automatic sibling batch, and Canon must continue to pass under that mode. Strengthen this into a
+seeded tester that executes the same operation under several permutations and compares normalized
+component state and queued-task multisets. Exact event order need not match. The known attribution
+variance from saturating `Owed` removals remains a payment-evidence defect, not a reason to order
+payment effects. Do not use `::` for a Player choice, just to manipulate queue admission, or as a
+substitute for controlled completion.
 
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
 reach may be wider than its payment transaction.
@@ -456,76 +476,9 @@ Disease count, allowing one consequence to remove the last Disease before anothe
 corporation flip.
 
 For one automatic batch, the current engine selects every matching effect and evaluates its
-trigger-side condition against the World before any instruction in that batch executes. It then
-executes the resulting instructions against the evolving World. Preserve the snapshot rule while
-removing execution-order guarantees; an automatic sibling must not rely on another sibling having
-already mutated the World.
-
-## Exploratory continuation semantics
-
-**Aspirational hypothesis, not an approved language feature.** The action-card marker exposes three
-different needs that should not be collapsed into one vague “automatic `THEN`”:
-
-- an inline choice-free continuation immediately after selected work;
-- a choice frozen from trigger-time state; and
-- completion after every descendant of a delegated operation drains.
-
-These are also distinct from end-of-turn settlement. A turn-completion handoff does not provide
-inline execution, freeze a later choice against earlier state, or resume an individual delegated
-child.
-
-Marking an action card before `UseAction` prevents a second use but makes Viron's own marker visible
-to Viron's target Requirement, producing the awkward
-`ActionUsedMarker<!Viron>` Complement. Marking it afterward as queued work makes the
-marker deferrable and can permit another use.
-
-An author-local automatic tail might help with hidden bookkeeping, but it would not by itself solve
-Viron: the queued target is resolved against the later World where the marker already exists. It
-also would not solve Head Start, whose preferred direction uses an end-of-action workflow handoff.
-Investigate those semantics separately before adding syntax.
-
-### Existing resolution precedent
-
-The engine already combines resolution and forced continuation in several narrower ways:
-
-- `Instructor` resolves every instruction immediately before inline execution, including the
-  instruction of an automatic effect.
-- Selecting an ordinary task resolves it; selection may leave an abstract task locked against every
-  other World mutation until that task finishes.
-- Narrowing a selected task automatically resolves the narrowed instruction again, because the
-  selected task still owns the next mutation.
-- Auto-exec may select an ordinary task as a convenience policy.
-
-These are useful machinery, but they do not currently give `::` a choice point. An automatic
-instruction that remains abstract after resolution fails instead of entering the task pool. No
-current rule admits an abstract automatic instruction and immediately resolves it because it was
-automatic.
-
-### A constrained deferred-automatic hypothesis
-
-One possible extension would allow at most one abstract instruction in a dynamic chain of `::`
-effects. The engine would finish every other automatic effect, admit that instruction as a task,
-immediately select and resolve it, and use the select-lock to make it the only work the Player may
-change or execute.
-
-Nothing earlier remains suspended across that task transition. When the Player narrows the selected
-instruction to concrete, it executes normally and its own automatic effects run normally. If one of those also
-remains abstract, the chain has violated the one-choice limit.
-
-This is substantially narrower than giving every deferred automatic task general priority. Its
-meaning would be “the invariant-restoring operation needs one forced choice,” not “this queued
-choice should happen sooner.” Trade Envoys could potentially express its optional track increase
-this way without creating and later removing a `TradeBarrier`.
-
-The small syntax rule does not by itself settle the runtime semantics. Before exposing the choice,
-the engine must drain every other choice-free automatic consequence that can affect its resolution;
-otherwise effect registration order could change the available choices. It must also reject a
-second abstract instruction in the same causal chain and decide whether a selected instruction group
-is one operation or illegally expands into several unlocked tasks. None of this requires retaining
-already-finished automatic work as a continuation.
-
-Keep the current choice-free rule for `::` unless this constrained model is selected and proves that
-it removes more permanent machinery than it adds.
+trigger-side condition against the World before any instruction in that batch executes. Preserve
+that snapshot rule when implementing retries; an automatic sibling must not acquire or lose its
+trigger merely because another sibling has already mutated the World.
 
 ## Whole-World idle cleanup
 
@@ -539,6 +492,35 @@ empty pass allows the workflow callback. All of this remains inside the enclosin
 live card still exists, and removing it creates the corresponding `PlayedEvent`. Law Suit is the
 deliberate exception in behavior, not machinery: its authored consequence moves the card directly
 to `PlayedEvent`, so there is no EventCard left for idle cleanup.
+
+The reusable shape is a concrete operation component whose gain creates all work that must precede
+completion and whose automatic removal effect emits its fixed completion consequence:
+
+```pets
+CLASS Operation : Temporary {
+  -This:: Completion
+}
+```
+
+Use this only when whole-World idleness is the real completion fact. It deliberately waits for all
+queued work, not merely the tasks caused directly by `Operation`. That is exact for endgame scoring
+and for a Trade performed inside one otherwise isolated controlled action; it is too broad for an
+arbitrary nested action or one cleanup item among unrelated Player work.
+
+Two selected applications remain to be implemented:
+
+- **Endgame scoring:** make `End` the live `Temporary` scoring operation. Its gain queues every
+  `End` scoring reaction. Once those tasks and all of their consequences drain, removing `End`
+  automatically creates `FinalScore`, which may then assign victory. Awards should subscribe to
+  `End`, create `MeasureAward<Award>`, establish every Player's `AwardTally` automatically, and queue
+  `AssignAwardPlaces<Award>` from that completed measurement event. This removes the current
+  `End THEN FinalScore` and `MeasureAward THEN AssignAwardPlaces` orderings while preserving the
+  real completion facts.
+- **Trade:** make the concrete selected `Trade<ColonyTile>` the live `Temporary` operation. Its gain
+  queues every pre-flight reaction, including Trade Envoys and Trading Colony track choices. Once
+  those drain, removing `Trade` automatically moves the committed reserve fleet to that colony.
+  Fleet movement then queues income, individual colony bonuses, and track reset under their existing
+  trigger-time rules. `TradeBarrier` and its per-card cleanup tails become unnecessary.
 
 This rule neither removes pending tasks nor identifies the end of a nested action. `WildTagUse` and
 other task-lifetime problems therefore still need their own exact completion rule.
@@ -561,8 +543,6 @@ Keep the problems separate:
   action turn. If authoritative evidence requires the two printed actions to form one indivisible
   operation, document this simpler timing as a deliberate house rule rather than disguising it as
   exact fidelity. The engine still needs one precise end-of-action completion hook.
-- **Trade:** retain `TradeBarrier` until a simpler completion event can keep fleet movement after
-  every optional production decision without losing the selected trade operation.
 - **Workflow return:** use the existing Player-turn control frame as the candidate unit. Required
   action settlement must finish before the workflow offers a second action or passes control.
 
@@ -617,6 +597,9 @@ These current encodings are considered principled:
 - Spend-enabled effects establishing `Owed`, `Accept`, and a barrier before their payoff.
 - Trade income and individual colony bonuses as reorderable siblings. Do not chain all colony
   bonuses after income.
+- `UseCardActionSA` creating the selected card's `ActionUsedMarker` before `UseAction`. The marker
+  prevents a second use as soon as the card is definitively chosen. Viron consequently and
+  explicitly excludes itself from the already-used cards it may repeat.
 
 Current behavior also correctly relies on natural unavailability for Immigrant City and some Energy
 Tapping states. Colony placement currently queues track adjustment and placement bonus as siblings;
@@ -640,22 +623,22 @@ this is acceptable only while nothing can observe their relative order.
   end-of-action settlement, without nested completion frames. Record that timing as a house rule if
   authoritative evidence requires a stricter indivisible operation.
 
+Mandates are intentionally outside this sequencing audit. The selected future model removes the
+component that offers ordinary standard actions while a Mandate exists, making those actions
+naturally unavailable. That postponed action-availability work does not require priority among the
+Mandate's tasks.
+
 ## Open design or rules audits
 
 - **Mars University:** current incremental `THEN` permits two discards before either draw when two
   activations trigger. Determine from authoritative evidence whether each discard/draw exchange is
   indivisible.
-- **Action marker and Viron:** marker-first prevents reuse but pollutes Viron's target requirement;
-  marker-last can be deferred. Distinguish frozen trigger-time choice, forced inline continuation,
-  and descendant completion before adding syntax.
 - **Candidate draw/select/play:** Valley Trust, Merger, and New Partner use hand cards in
   incremental chains, so candidates are neither isolated nor forced to continue. Prefer one
   operation-scoped candidate representation if a fix is selected.
 - **Controlled completion:** identify the exact end-of-action hook needed by workflow, Head Start,
   second-action offers, and `WildTagUse`. Keep auditable `Owed` and `Required` facts; do not infer
   successful payment from queue drain.
-- **Trade settlement:** retain `TradeBarrier` until a direct completion event can keep fleet
-  movement after every optional production decision without losing the selected trade operation.
 
 ## Workflow precedence
 
