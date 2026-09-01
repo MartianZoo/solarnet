@@ -43,6 +43,7 @@ internal class Implementations(
     private val actor: Actor,
     private val instructor: Instructor,
     private val changer: Changer,
+    private val onTaskCompleted: () -> Unit,
     private val onAutoExec: (Task, Int, AutoExecMode) -> Unit,
 ) {
   // Auto-exec scans the whole game for compatibility with existing workflows. Selection and
@@ -446,6 +447,9 @@ internal class Implementations(
         )
     newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
     handleTask(queue, selectedTask)
+    // A nested task can be the last work caused by a Temporary. Make its completion consequence
+    // available before control returns to the surrounding operation body.
+    onTaskCompleted()
   }
 
   private fun doAnyTask(taskId: TaskId): Task = doTask(queueForAnyTask(taskId), taskId)

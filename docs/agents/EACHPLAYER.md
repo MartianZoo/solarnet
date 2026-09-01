@@ -115,7 +115,7 @@ An automatic triggering Effect already provides the automatic form of fanout. Do
 | Sponsored Academies' owner-local `Signal` and Player watchers | `-ProjectCard THEN (3 ProjectCard, EACH (Player except Owner) { ProjectCard<Player> })` | Schematic opponent fanout; difference-selector syntax unresolved |
 | Mons Insurance setup watchers | `EACH Player { MAX 0 MonsInsurance<Player>: PROD[-2 MC<Player>] BY Player }` | Must name Player so solo opponent is excluded |
 | Vermin's end-game Player watchers | `EACH Player { -VictoryPoint<Player> / CityTile<Player> }` | Pure scoring fanout |
-| Kotlin `ColoniesSetup` fleet loop | `EACH Player { ReserveTradeFleet<Player> }` | Pure setup fanout |
+| Kotlin `ColoniesSetup` fleet loop | `EACH Player { AvailableTradeFleet<Player> }` | Pure setup fanout |
 | Turmoil Global Events affecting Resource Cards | `EACH ResourceCard { ... ResourceCard ... }` | Confirms the selector cannot be Player-specific |
 
 The exact surrounding triggers and gates remain part of each rule. The table demonstrates candidate

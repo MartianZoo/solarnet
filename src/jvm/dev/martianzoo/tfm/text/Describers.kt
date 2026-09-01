@@ -129,6 +129,8 @@ internal class Describers(
 
   internal fun isPlayerOwned(className: ClassName): Boolean = expressions.isPlayerOwned(className)
 
+  internal fun isTemporary(className: ClassName): Boolean = expressions.isTemporary(className)
+
   internal fun isGameParticipant(className: ClassName): Boolean =
       expressions.isGameParticipant(className)
 

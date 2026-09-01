@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
@@ -12,6 +13,8 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent
 import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent.Kind
 import dev.martianzoo.pets.data.GamePremise
@@ -109,20 +112,62 @@ public object Engine {
     }
 
     private fun removeTemporaryComponents(): Boolean {
-      if (!taskQueues.all().isEmpty()) return false
       val temporaryComponents = reader.getComponents(classTable.getClass(TEMPORARY).baseType)
       if (temporaryComponents.isEmpty()) return false
 
+      val entries = events.entriesSince(Timeline.Checkpoint(0))
+      val pendingAncestry = pendingTaskAncestry(entries)
+      var removedAny = false
       temporaryComponents.elements.forEach { type ->
         val count = reader.countComponent(type)
-        if (count > 0) {
+        if (count == 0) return@forEach
+        val originEvents = originEventsForLiveComponents(type.expression, count, entries)
+        if (originEvents.none { it in pendingAncestry }) {
           instructorByActor
               .getValue(ENGINE)
               .execute(remove(type, count), cause = null)
               .forEach(taskQueues::addTasks)
+          removedAny = true
         }
       }
-      return true
+      return removedAny
+    }
+
+    private fun pendingTaskAncestry(entries: List<GameEvent>): Set<Int> = buildSet {
+      taskQueues
+          .all()
+          .extract { it.cause?.triggerEvent }
+          .filterNotNull()
+          .forEach { triggerEvent ->
+            var ordinal: Int? = triggerEvent
+            while (ordinal != null && add(ordinal)) {
+              ordinal = (entries[ordinal] as? ChangeEvent)?.cause?.triggerEvent
+            }
+          }
+    }
+
+    private fun originEventsForLiveComponents(
+        expression: Expression,
+        liveCount: Int,
+        entries: List<GameEvent>,
+    ): Set<Int> {
+      var laterRemovals = 0
+      var originsNeeded = liveCount
+      val origins = linkedSetOf<Int>()
+      entries.asReversed().filterIsInstance<ChangeEvent>().forEach { event ->
+        if (event.change.removing == expression) laterRemovals += event.change.count
+        if (event.change.gaining == expression) {
+          val canceled = minOf(event.change.count, laterRemovals)
+          laterRemovals -= canceled
+          val surviving = event.change.count - canceled
+          if (surviving > 0) {
+            origins += event.ordinal
+            originsNeeded -= surviving
+            if (originsNeeded <= 0) return origins
+          }
+        }
+      }
+      error("could not find $liveCount live gain events for $expression")
     }
 
     private fun validatePremise(classTable: ClassTable) {
@@ -194,6 +239,7 @@ public object Engine {
               actor,
               instructor,
               changer,
+              ::runTemporaryCleanup,
           ) { task, taskNumber, mode ->
             if (task.assignee is Player) {
               val event =
@@ -221,6 +267,10 @@ public object Engine {
           vocabulary,
           atomicOperationScope,
       )
+    }
+
+    private fun runTemporaryCleanup() {
+      while (removeTemporaryComponents()) {}
     }
   }
 }

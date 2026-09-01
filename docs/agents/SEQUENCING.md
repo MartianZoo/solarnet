@@ -129,8 +129,8 @@ same Player. The workflow may proceed only after controlled work and its require
 neither tasks nor unfinished temporary state.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
-wait.” `TradeBarrier` is the strongest current example and is selected for removal through the live
-`Temporary Trade` operation described below. By contrast, `Owed` records gameplay information—an
+wait.” The former `TradeBarrier` was such a stop sign and disappeared when the live `Temporary Trade`
+operation supplied the real completion event. By contrast, `Owed` records gameplay information—an
 amount and denomination—that other rules can inspect and change. Do not keep a component merely as
 a stop sign when an existing completion event can express the same rule, but do not replace a narrow
 barrier until the simpler mechanism is demonstrated.
@@ -473,13 +473,19 @@ trigger-side condition against the World before any instruction in that batch ex
 that snapshot rule when implementing retries; an automatic sibling must not acquire or lose its
 trigger merely because another sibling has already mutated the World.
 
-## Whole-World idle cleanup
+## Causal temporary cleanup
 
-The `Temporary` class is a narrow component lifetime contract: whenever every task queue is empty,
-the engine removes every live instance of that class before notifying workflow that the operation
-has completed. Removal effects may create more components or tasks. The engine runs ordinary
-automatic work again and repeats cleanup until an idle pass finds nothing to remove. Only that
-empty pass allows the workflow callback. All of this remains inside the enclosing atomic transaction.
+The `Temporary` class is a narrow component lifetime contract. A live instance records an operation
+whose gain event may cause queued work. Once no pending task descends from that gain through the
+event-cause chain, the engine removes the instance. Unrelated pending tasks do not delay it. This is
+the relevant completion fact: all work caused by that operation has drained, not that every Player
+has exhausted every other choice.
+
+The engine checks after each task finishes, including a task selected inside a larger operation
+body. A removal consequence is therefore available to the rest of that same controlled action.
+Removal effects may create more components or tasks; cleanup repeats until every newly completed
+Temporary has also been removed. Workflow advances only when the World separately reaches full
+idleness. All of this remains inside the enclosing atomic transaction.
 
 `EventCard` uses this contract. Its immediate work and tag reactions therefore finish while the
 live card still exists, and removing it creates the corresponding `PlayedEvent`. Law Suit is the
@@ -495,25 +501,27 @@ CLASS Operation : Temporary {
 }
 ```
 
-Use this only when whole-World idleness is the real completion fact. It deliberately waits for all
-queued work, not merely the tasks caused directly by `Operation`. That is exact for endgame scoring
-and for a Trade performed inside one otherwise isolated controlled action; it is too broad for an
-arbitrary nested action or one cleanup item among unrelated Player work.
+Use this only when completion means that all causally descended tasks have settled. It is not an
+end-of-action hook and does not absorb unrelated Player work.
 
-Two selected applications remain to be implemented:
+Endgame scoring is the remaining selected application:
 
-- **Endgame scoring:** make `End` the live `Temporary` scoring operation. Its gain queues every
-  `End` scoring reaction. Once those tasks and all of their consequences drain, removing `End`
-  automatically creates `FinalScore`, which may then assign victory. Awards should subscribe to
-  `End`, create `MeasureAward<Award>`, establish every Player's `AwardTally` automatically, and queue
-  `AssignAwardPlaces<Award>` from that completed measurement event. This removes the current
-  `End THEN FinalScore` and `MeasureAward THEN AssignAwardPlaces` orderings while preserving the
-  real completion facts.
-- **Trade:** make the concrete selected `Trade<ColonyTile>` the live `Temporary` operation. Its gain
-  queues every pre-flight reaction, including Trade Envoys and Trading Colony track choices. Once
-  those drain, removing `Trade` automatically moves the committed reserve fleet to that colony.
-  Fleet movement then queues income, individual colony bonuses, and track reset under their existing
-  trigger-time rules. `TradeBarrier` and its per-card cleanup tails become unnecessary.
+- make `End` the live `Temporary` scoring operation. Its gain queues every `End` scoring reaction;
+- once those tasks and all of their consequences drain, remove `End` and automatically create
+  `FinalScore`, which may then assign victory; and
+- make Awards subscribe to `End`, establish every Player's `AwardTally` automatically through
+  `MeasureAward<Award>`, and queue `AssignAwardPlaces<Award>` from that completed measurement event.
+
+This removes the current `End THEN FinalScore` and `MeasureAward THEN AssignAwardPlaces` orderings
+while preserving the real completion facts.
+
+`Trade<ColonyTile>` now uses the pattern directly and is itself the fleet's live transitional state.
+Gaining it automatically consumes one `AvailableTradeFleet` and queues every pre-flight reaction,
+including Trade Envoys and Trading Colony track choices. Once those descendants drain, cleanup
+replaces it with `CompletedTrade<ColonyTile>`. That completion event queues income, individual
+colony bonuses, and track reset under their existing trigger-time rules. `CompletedTrade` is
+generational; removing it restores one `AvailableTradeFleet`. The abstract `TradeFleet` count is
+therefore conserved through available, active, and completed states.
 
 This rule neither removes pending tasks nor identifies the end of a nested action. `WildTagUse` and
 other task-lifetime problems therefore still need their own exact completion rule.

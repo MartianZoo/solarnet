@@ -260,7 +260,7 @@ BECOME Ellie
 
 // "I'm trading with Pluto... paying three energy, and I get three cards."
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Pluto>, FlownTradeFleet<Ellie, Pluto> FROM ReserveTradeFleet<Ellie>, 3 ProjectCard, ResetColonyProduction<Pluto>, -4 ColonyProduction<Pluto>)
+DO tasks(Trade<Pluto>, 3 ProjectCard, ResetColonyProduction<Pluto>, -4 ColonyProduction<Pluto>)
 DO endTurn()
 BECOME Dad
 
@@ -381,7 +381,7 @@ BECOME Dad
 DO useAction(1, EnergyMarket, -6 MC)
 DO tasks(3 Energy)
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Io>, FlownTradeFleet<Dad, Io> FROM ReserveTradeFleet<Dad>, 10 Heat, ResetColonyProduction<Io>, -5 ColonyProduction<Io>)
+DO tasks(Trade<Io>, 10 Heat, ResetColonyProduction<Io>, -5 ColonyProduction<Io>)
 BECOME Ellie
 
 // Valley Trust tableau in board-13-46-12.jpg: Stratospheric Birds. The played card consumes
@@ -391,7 +391,7 @@ DO tasks(-Floater<Ellie, ForcedPrecipitation>)
 
 // "I spend three energy to trade with Miranda. Three animals on Stratospheric Birds."
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Miranda>, FlownTradeFleet<Ellie, Miranda> FROM ReserveTradeFleet<Ellie>, 3 Animal<Ellie, StratosphericBirds>, ResetColonyProduction<Miranda>, -5 ColonyProduction<Miranda>)
+DO tasks(Trade<Miranda>, 3 Animal<Ellie, StratosphericBirds>, ResetColonyProduction<Miranda>, -5 ColonyProduction<Miranda>)
 BECOME Dad
 
 // "Big Asteroid... all titanium... overspending one... four titanium back, two temperature
@@ -463,7 +463,7 @@ DO buyCards()
 // "I will spend three energy to trade with Enceladus. That is five microbes going to
 // Nitrate Reducing Bacteria."
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Enceladus>, FlownTradeFleet<Ellie, Enceladus> FROM ReserveTradeFleet<Ellie>, 5 Microbe<Ellie, NitriteReducingBacteria>, ResetColonyProduction<Enceladus>, -6 ColonyProduction<Enceladus>)
+DO tasks(Trade<Enceladus>, 5 Microbe<Ellie, NitriteReducingBacteria>, ResetColonyProduction<Enceladus>, -6 ColonyProduction<Enceladus>)
 DO endTurn()
 BECOME Dad
 
@@ -610,7 +610,7 @@ DO tasks(ColonyProduction<Pluto> FROM ColonyProduction<Io>)
 // Ellie: "Then I will spend three energy to trade with Pluto, which now gives me three
 // cards." Dad: "Nice. Three cards free and clear."
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Pluto>, FlownTradeFleet<Ellie, Pluto> FROM ReserveTradeFleet<Ellie>, 3 ProjectCard, ResetColonyProduction<Pluto>, -4 ColonyProduction<Pluto>)
+DO tasks(Trade<Pluto>, 3 ProjectCard, ResetColonyProduction<Pluto>, -4 ColonyProduction<Pluto>)
 BECOME Dad
 
 // Dad: "I guess I'll play a Martian Zoo. I believe that cost me full price. I want to pay
@@ -784,7 +784,7 @@ BECOME Ellie
 DO playCard(IceMoonColony, -2 Titanium, -17 MC)
 DO tasks(Colony<Ellie, Miranda>, Animal<Ellie, StratosphericBirds>, OceanTile<Utopia_8_7>, 2 MC, TerraformRating, 2 Plant)
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Miranda>, FlownTradeFleet<Ellie, Miranda> FROM ReserveTradeFleet<Ellie>, 2 Animal<Ellie, StratosphericBirds>, ProjectCard, ResetColonyProduction<Miranda>, -2 ColonyProduction<Miranda>)
+DO tasks(Trade<Miranda>, 2 Animal<Ellie, StratosphericBirds>, ProjectCard, ResetColonyProduction<Miranda>, -2 ColonyProduction<Miranda>)
 BECOME Dad
 
 // Ellie: "And for my second action, three energy to trade with Miranda. I get two aminals and
@@ -886,7 +886,7 @@ DO tasks(PROD[-Energy<Dad>, Energy])
 DO endTurn()
 BECOME Dad
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Europa>, FlownTradeFleet<Dad, Europa> FROM ReserveTradeFleet<Dad>, PROD[Plant], ResetColonyProduction<Europa>, -6 ColonyProduction<Europa>)
+DO tasks(Trade<Europa>, PROD[Plant], ResetColonyProduction<Europa>, -6 ColonyProduction<Europa>)
 DO endTurn()
 BECOME Ellie
 
@@ -979,7 +979,7 @@ DO tasks(VenusStep, TerraformRating)
 // "Then I'm going to spend three floaters, trade with Aran. This might not be the right call,
 // but enchiladas, actually." "Yeah, gain three microbes."
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Enceladus>, FlownTradeFleet<Ellie, Enceladus> FROM ReserveTradeFleet<Ellie>, 3 Microbe<Ellie, NitriteReducingBacteria>, ResetColonyProduction<Enceladus>, -3 ColonyProduction<Enceladus>)
+DO tasks(Trade<Enceladus>, 3 Microbe<Ellie, NitriteReducingBacteria>, ResetColonyProduction<Enceladus>, -3 ColonyProduction<Enceladus>)
 BECOME Dad
 
 // "I will use aerial mappers to remove a floater from aerial mappers and get a card."
@@ -1182,7 +1182,7 @@ DO tasks(Animal<Ellie, VenusianAnimals>)
 
 // "And I spend two energy to trade with Miranda for two animals and a card."
 DO useAction(2, TradeSA, -2 Energy)
-DO tasks(Trade<Miranda>, FlownTradeFleet<Ellie, Miranda> FROM ReserveTradeFleet<Ellie>, 2 Animal<Ellie, StratosphericBirds>, ProjectCard, ResetColonyProduction<Miranda>, -2 ColonyProduction<Miranda>)
+DO tasks(Trade<Miranda>, 2 Animal<Ellie, StratosphericBirds>, ProjectCard, ResetColonyProduction<Miranda>, -2 ColonyProduction<Miranda>)
 BECOME Dad
 
 // "I will use my business network to look at a card. Absolutely not."
@@ -1332,7 +1332,7 @@ DO tasks(Asteroid<Dad, AsteroidRights>)
 
 // "But I'll take the cards using three energy for the Pluto, take two cards."
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Pluto>, FlownTradeFleet<Dad, Pluto> FROM ReserveTradeFleet<Dad>, 2 ProjectCard, ResetColonyProduction<Pluto>, -3 ColonyProduction<Pluto>)
+DO tasks(Trade<Pluto>, 2 ProjectCard, ResetColonyProduction<Pluto>, -3 ColonyProduction<Pluto>)
 DO tasks(Pass)
 BECOME Ellie
 
@@ -1365,7 +1365,7 @@ BECOME Ellie
 // I'll
 // put the aminal on Venusian."
 DO useAction(2, TradeSA, -2 Energy)
-DO tasks(Trade<Miranda>, FlownTradeFleet<Ellie, Miranda> FROM ReserveTradeFleet<Ellie>, Animal<Ellie, VenusianAnimals>, ProjectCard, ResetColonyProduction<Miranda>, -ColonyProduction<Miranda>)
+DO tasks(Trade<Miranda>, Animal<Ellie, VenusianAnimals>, ProjectCard, ResetColonyProduction<Miranda>, -ColonyProduction<Miranda>)
 
 // "Productive outpost for zero... Gain all my colony bonuses, which is literally just draw a
 // card."
@@ -1495,7 +1495,7 @@ BECOME Dad
 // "Now, I'm going to fly my little boat to Angelatus." "I get three and one." "They all four
 // go on to the New Zealand insects."
 DO useAction(2, TradeSA, -3 Energy)
-DO tasks(Trade<Enceladus>, ColonyProduction<Enceladus>, FlownTradeFleet<Dad, Enceladus> FROM ReserveTradeFleet<Dad>, 3 Microbe<Dad, VenusianInsects>, Microbe<Dad, VenusianInsects>, ResetColonyProduction<Enceladus>, -2 ColonyProduction<Enceladus>)
+DO tasks(Trade<Enceladus>, ColonyProduction<Enceladus>, 3 Microbe<Dad, VenusianInsects>, Microbe<Dad, VenusianInsects>, ResetColonyProduction<Enceladus>, -2 ColonyProduction<Enceladus>)
 DO endTurn()
 BECOME Ellie
 

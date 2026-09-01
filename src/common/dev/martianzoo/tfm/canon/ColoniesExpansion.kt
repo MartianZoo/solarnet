@@ -20,16 +20,16 @@ internal val coloniesExpansionBundle: StandardFormBundle =
 
 /** Namespace for Colonies' custom Pets implementations. */
 private object ColoniesExpansion {
-  private val RESERVE_TRADE_FLEET = cn("ReserveTradeFleet")
+  private val AVAILABLE_TRADE_FLEET = cn("AvailableTradeFleet")
 
   internal object ColoniesSetup : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(RESERVE_TRADE_FLEET)
+    override val requiredClassNames: Set<ClassName> = setOf(AVAILABLE_TRADE_FLEET)
 
     override fun translate(reader: GameReader): Instruction {
       val fleetInstructions =
           reader
               .getComponents("Player")
-              .map { player -> gain(RESERVE_TRADE_FLEET.of(player.expression)) }
+              .map { player -> gain(AVAILABLE_TRADE_FLEET.of(player.expression)) }
               .toList()
       return Then.create(fleetInstructions)
     }

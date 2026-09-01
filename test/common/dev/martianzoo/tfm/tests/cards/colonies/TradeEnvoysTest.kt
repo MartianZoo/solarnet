@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards.colonies
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class TradeEnvoysTest : ColoniesCardTest() {
@@ -75,7 +76,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  internal fun `All track decisions precede the trade when both cards are active`() {
+  internal fun `All track decisions precede fleet movement when both cards are active`() {
     p1.manual("2 ProjectCard, 50 MC")
     p1.playProject(TradeEnvoys, 6)
     p1.playProject(TradingColony, 18) {
@@ -86,13 +87,22 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
     p1.stdAction("TradeSA") {
       doTask("Trade<Luna>")
+      p1.count("CompletedTrade<Luna>") shouldBe 0
+      p1.count("AvailableTradeFleet") shouldBe 0
+      p1.count("Trade<Luna>") shouldBe 1
+      p1.count("TradeFleet") shouldBe 1
       doTask("ColonyProduction<Luna>")
+      p1.count("CompletedTrade<Luna>") shouldBe 0
       // Decline Trade Envoys' additional optional Luna colony-track increase.
       declineTask()
+      p1.count("CompletedTrade<Luna>") shouldBe 0
     }
 
     p1.assertCounts(
         0 to "ColonyProduction<Luna>",
+        0 to "Trade",
+        1 to "CompletedTrade<Luna>",
+        1 to "TradeFleet",
     )
   }
 }

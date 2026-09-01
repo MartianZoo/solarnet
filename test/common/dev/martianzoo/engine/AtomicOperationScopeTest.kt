@@ -42,7 +42,7 @@ internal class AtomicOperationScopeTest {
   }
 
   @Test
-  internal fun idleCleanupCanCreateMoreWorkBeforeWorkflowAdvances() {
+  internal fun temporaryCompletionDoesNotWaitForUnrelatedTasks() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -57,13 +57,8 @@ internal class AtomicOperationScopeTest {
     var workflowPulses = 0
     game.onAtomicComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
-    player.addTasks("Blocker")
-    player.manual("CleanupProbe")
-
-    player.count("CleanupProbe") shouldBe 1
-    workflowPulses shouldBe 0
-
-    player.doTask("Blocker")
+    player.addTasks("CleanupProbe, Blocker")
+    player.doTask("CleanupProbe")
 
     player.count("CleanupProbe") shouldBe 0
     player.count("Followup") shouldBe 0
@@ -73,8 +68,48 @@ internal class AtomicOperationScopeTest {
     player.doTask("Followup")
 
     player.count("Followup") shouldBe 1
+    game.tasks.isEmpty() shouldBe false
+    workflowPulses shouldBe 0
+
+    player.doTask("Blocker")
+
     game.tasks.isEmpty() shouldBe true
     workflowPulses shouldBe 1
+  }
+
+  @Test
+  internal fun temporaryCompletionRunsAsSoonAsItsNestedWorkDrains() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS CleanupProbe : Owned<Player>, Temporary {
+                  This: Prerequisite<Owner>
+                  -This: Followup<Owner>
+                }
+                CLASS Prerequisite : Owned<Player> { This: Consequence<Owner> }
+                CLASS Consequence : Owned<Player>
+                CLASS Followup : Owned<Player>
+                CLASS Blocker
+                """
+            )
+        )
+    val player = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+
+    player.addTasks("Blocker")
+    player.manual("CleanupProbe") {
+      player.count("CleanupProbe") shouldBe 1
+      doTask("Prerequisite")
+      player.count("CleanupProbe") shouldBe 1
+      doTask("Consequence")
+      player.count("CleanupProbe") shouldBe 0
+      doTask("Followup")
+    }
+
+    player.count("Followup") shouldBe 1
+    game.tasks.isEmpty() shouldBe false
+    player.doTask("Blocker")
+    game.isIdle() shouldBe true
   }
 
   @Test

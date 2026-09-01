@@ -378,16 +378,15 @@ The continuation is not executed or resolved early. `THEN` promises only that th
 cannot precede completion of the first; it does not give either stage priority over unrelated
 Tasks.
 
-Trade Envoys illustrates why separation can sometimes wait longer:
+Capital illustrates why separation can sometimes wait longer:
 
 ```pets
-Trade<ColonyTile>:
-  ColonyProduction<ColonyTile>? THEN -TradeBarrier
+CityTile<> THEN CapitalMarker<CityTile<>>
 ```
 
-The repeated `ColonyTile` is a Type Variable shared by the Trigger and first stage. The Sequential
-Instruction must retain that link until an exact event such as `Trade<Luna>` narrows the first stage
-to `ColonyProduction<Luna>?`. Only then is the first stage safely independent of its continuation.
+The repeated `CityTile` is a Type Variable shared by both stages. The Sequential Instruction must
+retain that link until the placement narrows the first stage to one exact City Tile. Only then can
+the continuation create the marker for that selected Tile.
 
 **Postcondition:** the selected Task is a valid narrowing of the offered Task, and any later `THEN`
 stages have been retained with the same Assignee, Cause, and Performer. No later stage can appear
