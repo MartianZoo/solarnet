@@ -52,11 +52,12 @@ Placing an ocean precedes Arctic Algae; raising production precedes Manutech. On
 consequence joins the pool without priority.
 
 The engine's contract is to support every rules-valid committed state and no rules-invalid one; it
-does not choose a play policy. A client may deliberately trade away flexibility for convenience by
-selecting work in an order the user will probably accept, or it may play safe and ask. The current
-auto-execution implementation is engine-side, but that selection policy belongs on the client side
-and is intended to move there. Its order must not become an engine guarantee or an authored
-precedence rule.
+does not choose a play policy. An Agent Driver may deliberately trade away flexibility for
+convenience by selecting work in an order the user will probably accept, or it may play safe and
+ask. This includes an Admin Driver intelligently ordering Admin's ordinary tasks. The current
+auto-execution implementation is engine-side, but that policy belongs in the Agent and is intended
+to move there. Its order must not become an engine guarantee or an authored precedence rule; the
+generic pulse dispatcher only coordinates wake-ups.
 
 Tests should prove only real precedence. When freedom matters, also prove that representative legal
 sibling orders remain executable. Such a freedom test does not require the orders to produce the
@@ -361,7 +362,7 @@ Settled uses include:
   cause; and
 - helper Signals caused by player activity whose only purpose is to fan out later gameplay work.
 
-Effects triggered only by Engine workflow events, such as `SetupPhase`, use queued `:` by default.
+Effects triggered only by Admin workflow events, such as `SetupPhase`, use queued `:` by default.
 The workflow already determines when those effects become available, and there is no end-user
 decision whose queue entry must be suppressed. Use `::` there only when exposing the World between
 the trigger and its consequence would violate a concrete invariant.
@@ -407,15 +408,21 @@ not expose a Player task merely because the implementation needs a pulse or clea
 Place choice-free work according to what it means:
 
 1. use `::` for a fixed consequence needed to restore a coherent World before Player work;
-2. use an Engine-owned queued task for a deterministic game or workflow event that remains
-   meaningfully observable and reorderable only against other equivalent Engine work; or
+2. use an Admin-assigned queued task for neutral game or workflow activity that remains meaningfully
+   observable; or
 3. use the exact lifecycle's completion event for cleanup that must wait. If no such event exists,
    leave the mechanism open rather than attaching cleanup to the Player's whole queue.
 
-Engine ownership asserts that no participant chooses among semantically different outcomes. The
-Engine runner may therefore drain all eligible owned work strongly; if it encounters distinct legal
-outcomes, the ownership or instruction is wrong and must be repaired instead of selecting the first.
-Likewise, a helper Signal may remain useful causal vocabulary without becoming a Player command.
+Admin assignment says that the neutral table Actor, rather than a Player, selects or narrows the
+work. It does not assert that every outcome is equivalent. A default Admin policy may act
+aggressively, while another permitted policy may make different legal choices. That strategy is not
+an engine concern. Likewise, a helper Signal may remain useful causal vocabulary without becoming a
+Player command.
+
+The separation between inline `::` effects and Admin tasks requires a dedicated audit. A fixed rule
+consequence belongs to engine execution even when it completes before the next Actor mutation. Work
+belongs to Admin when the game meaningfully presents it as activity or choice by the neutral table
+Actor. Timing alone does not decide the representation.
 
 The current documented exception is `WildTagUse?`: Routine completion must settle those tasks when
 they are the acting Player's only remaining work, then remove the corresponding uses. Do not add

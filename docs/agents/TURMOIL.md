@@ -388,7 +388,7 @@ pretending those rows are additional physical cards.
 ```pets
 CLASS AquiferReleasedByPublicCouncil<EventSlot> :
     GlobalEvent<EventSlot, MarsFirst, Greens> {
-  instruction = { (StartToken: OceanTile BY Engine) OR Ok, Plant / Influence, Steel / Influence }
+  instruction = { (StartToken: OceanTile BY Admin) OR Ok, Plant / Influence, Steel / Influence }
 }
 
 CLASS AsteroidMining<EventSlot> : GlobalEvent<EventSlot, Reds, Unity> {
@@ -404,7 +404,7 @@ CLASS Diversity<EventSlot> : GlobalEvent<EventSlot, Scientists, Scientists> {
 }
 
 CLASS DryDeserts<EventSlot> : GlobalEvent<EventSlot, Reds, Unity> {
-  instruction = { (StartToken: -OceanTile BY Engine) OR Ok, StandardResource / Influence * }
+  instruction = { (StartToken: -OceanTile BY Admin) OR Ok, StandardResource / Influence * }
 }
 
 CLASS EcoSabotage<EventSlot> : GlobalEvent<EventSlot, Greens, Reds> {
@@ -480,7 +480,7 @@ CLASS ScientificCommunity<EventSlot> : GlobalEvent<EventSlot, Reds, Scientists> 
 }
 
 CLASS SnowCover<EventSlot> : GlobalEvent<EventSlot, Kelvinists, Kelvinists> {
-  instruction = { StartToken: -2 TemperatureStep BY Engine, ProjectCard / Influence }
+  instruction = { StartToken: -2 TemperatureStep BY Admin, ProjectCard / Influence }
 }
 
 CLASS SolarFlare<EventSlot> : GlobalEvent<EventSlot, Unity, Kelvinists> {
@@ -508,7 +508,7 @@ CLASS SuccessfulOrganisms<EventSlot> : GlobalEvent<EventSlot, MarsFirst, Scienti
 }
 
 CLASS VolcanicEruptions<EventSlot> : GlobalEvent<EventSlot, Scientists, Kelvinists> {
-  instruction = { (StartToken: 2 TemperatureStep BY Engine) OR Ok, PROD[Heat / Influence] }
+  instruction = { (StartToken: 2 TemperatureStep BY Admin) OR Ok, PROD[Heat / Influence] }
 }
 
 CLASS WarOnEarth<EventSlot> : GlobalEvent<EventSlot, MarsFirst, Kelvinists> {
@@ -563,9 +563,10 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 ```
 
 A Player-authored parameter gain supplies a contextual Player, so the effect creates that Player's
-mandatory TerraformRating. World Government Terraforming is authored `BY Engine`; Engine is not a
-Player, and the current effect machinery silently produces no TerraformRating task when it cannot
-obtain a contextual Player.
+mandatory TerraformRating. In the target vocabulary World Government Terraforming is authored
+`BY Admin`; Admin is not a Player, and the current effect machinery silently produces no
+TerraformRating task when it cannot obtain a contextual Player. Current source still spells the
+Actor `Engine`.
 
 That outcome is correct for the game, but its present explanation may not be. Investigate whether
 the rule should instead state its applicability explicitly:

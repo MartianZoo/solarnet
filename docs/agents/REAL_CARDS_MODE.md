@@ -6,8 +6,9 @@
 > **Skip when:** changing committed follow-mode behavior without making authored hidden procedures
 > executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms.
 >
-> **Status:** proposal with a settled central model. Follow mode is committed and remains the
-> default; type syntax, dealer algorithm, and observation interface remain unproved.
+> **Status:** proposal with a settled card/state shape and layer ownership. Follow mode is committed
+> and remains the default; type syntax, the default dealer algorithm, and observation interface
+> remain unproved.
 
 ## Read only the relevant gate
 
@@ -32,7 +33,7 @@
 - [`CardClassTest.kt`](../../test/common/dev/martianzoo/tfm/canon/CardClassTest.kt)
   — read for the loaded card-Class queries and validation.
 
-## Settled direction
+## Settled card and state direction
 
 Real-card mode lets Solarnet shuffle, deal, reveal, draft, play, and discard exact physical cards.
 The smallest coherent model discovered so far is:
@@ -40,12 +41,12 @@ The smallest coherent model discovered so far is:
 1. A card exists as a Component only while it is associated with a Player.
 2. Every such card is directly `Owned` by that Player and depends on one unowned singleton card-area
    Component.
-3. Deck and discard are not Components. They are deterministic projections of the selected card
-   set, an immutable seed, and exact card-transition history.
+3. Deck and discard are not Components. The default Admin dealer policy derives them from the
+   selected card set, an immutable seed, and exact card-transition history.
 4. A card back carries its represented `Class<CardFront>`; a card front carries its
    `Class<CardBack>` family.
 5. Counted physical-card instructions atomize before defaults and ownership specialization.
-6. A Player controls when a card gain is selected, but Engine alone narrows the remaining exact-face
+6. A Player controls when a card gain is selected, but Admin alone narrows the remaining exact-face
    choice. Selection-time resolution delegates that narrowing and blocks the controlling scope until
    it completes.
 7. Information hiding will eventually project exact Types to less concrete Types. It does not
@@ -57,8 +58,8 @@ an area dependency.
 
 ## State model
 
-The authoritative game still has one Event Log. Real-card mode adds no mutable deck list, discard
-list, RNG cursor, or second card database beside it.
+The authoritative game still has one Event Log. The default dealer policy adds no mutable deck
+list, discard list, RNG cursor, or second card database beside it.
 
 The premise fixes:
 
@@ -68,12 +69,13 @@ The premise fixes:
 - the shuffle and seed-derivation algorithm version; and
 - the real-card Module selection.
 
-The Event Log records exact in-world card gains, movements, plays, and removals. Deck order, discard
-membership, reshuffle epoch, and next position are derived by folding those facts. A cache may retain
-the fold at an event cursor, but deleting that cache and replaying must reproduce the same result.
+The Event Log records exact in-world card gains, movements, plays, and removals. The default policy
+derives deck order, discard membership, reshuffle epoch, and next position by folding those facts. A
+cache may retain the fold at an event cursor, but deleting that cache and replaying must reproduce
+the same result.
 
-The Event Log is already durable game state. A derived deck projection is therefore not a second
-authority.
+The Event Log is already durable game state. A derived dealer projection is policy state that can
+be reconstructed, not a second game authority.
 
 ## In-world type model
 
@@ -230,7 +232,7 @@ ProjectCard<Player1>     // default area Hand; exact face still unresolved
 -ProjectCard<Player1>    // choose an exact Hand card, then discard it
 ```
 
-Positive entry gains receive Engine narrowing. Hand removals remain Player choices because the
+Positive entry gains receive Admin narrowing. Hand removals remain Player choices because the
 exact candidate cards already exist in that Player's World-visible domain.
 
 ## Selection-time delegation
@@ -238,19 +240,25 @@ exact candidate cards already exist in that Player's World-visible domain.
 An abstract card gain contains two decisions owned by different parties:
 
 - the controlling Player decides when the promised draw or reveal proceeds; and
-- Engine determines which exact face the deterministic deck supplies.
+- Admin determines which exact face is supplied. The normal Admin policy consults the deterministic
+  dealer projection.
 
 The abstract task must initially remain under its controller. The Player may select other eligible
 sibling work first. When the Player selects the card gain:
 
-1. resolution recognizes that its remaining face variable is Engine-narrowed;
-2. that same selected task moves to Engine while retaining its controller and future Actor;
+1. resolution recognizes that its remaining face variable is Admin-narrowed;
+2. that same selected task moves to Admin while retaining its controller and future Actor;
 3. the controlling scope is blocked from further task execution;
-4. Engine derives and applies the one lawful exact-face narrowing; and
+4. Admin's Agent Driver chooses an exact face and its Agent issues the narrowing; and
 5. completing the task releases the block and returns resulting work to its controller.
 
-The Player must never be able to submit a preferred exact face. `BY Engine` is not this mechanism:
+The Player must never be able to submit a preferred exact face. `BY Admin` is not this mechanism:
 instruction-side `BY` changes event attribution, not narrowing authority or queue control.
+
+Core engine enforces that only Admin narrows this task and that the submitted face is a currently
+legal narrowing. It does not require that face to be next in the default policy's shuffle. The
+named dealer policy owns that stronger promise; another permitted Admin policy may choose
+differently. Replay records the chosen exact face either way.
 
 Counted gains delegate one atom at a time. The first exact gain enters the Event Log before the next
 atom is selected, so the second atom necessarily derives the following face.
@@ -271,9 +279,9 @@ Current code implements this precedent with the general delegation mechanism spe
 `PhilaresTest` proves controller ordering, owner-only narrowing, and blocking through Player-level
 gameplay.
 
-## Deterministic dealer projection
+## Default deterministic dealer policy
 
-For each deck family and epoch, derive a permutation from:
+For each deck family and epoch, the default policy derives a permutation from:
 
 ```text
 shuffle(
@@ -321,9 +329,9 @@ explicit dealer rule, not a selector fallback that invents a candidate.
 - The premise's algorithm version lets old histories be validated after implementation changes.
 - A cache is indexed by history identity or event cursor and never advances independently.
 
-Resolution computes a candidate without mutating dealer state. Executing the exact gain appends the
-event that advances the projection. This avoids an off-timeline RNG cursor and keeps failed
-resolution observational.
+The default policy computes a candidate without mutating game or policy state. Executing the exact
+gain appends the event from which its next projection is derived. This avoids an off-timeline RNG
+cursor and keeps failed resolution observational.
 
 ## Reveals, searches, and printed predicates
 
@@ -487,7 +495,7 @@ output would leak identities.
 Exact visibility policy, irreversible publication, and rollback knowledge remain later gates. For
 now:
 
-- Engine rules and dealer projection use the exact master history;
+- the normal Admin dealer policy uses the exact master history;
 - a Player sees exact own-Hand and own-Selecting faces when the rules permit;
 - `Revealed`, `InPlay`, and `EventPile` are normally public; and
 - no observation API exposes future derived deck order.
@@ -519,8 +527,8 @@ rename every card definition.
 - owned card-area Components or vicarious ownership through a dependency;
 - a mutable Kotlin deck, discard list, or RNG cursor as independent authority;
 - Player narrowing of an exact face supplied by chance;
-- immediate Engine auto-selection that bypasses controller timing and delegation;
-- `BY Engine` as a substitute for changing the narrower;
+- immediate Admin auto-selection that bypasses controller timing and delegation;
+- `BY Admin` as a substitute for changing the narrower;
 - direct deck-to-discard movement;
 - filtering the shuffled set before reveal;
 - a minimum-lookahead instruction quantifier;
@@ -537,8 +545,8 @@ rename every card definition.
 1. **Types and defaults:** prove the mutual Class-literal dependencies, singleton areas, direct
    ownership, gain/removal defaults, atomization order, and linked play/Event transitions in a
    synthetic Class Table.
-2. **Engine narrowing:** extend the current selected-task delegation model so real-card resolution
-   names Engine as the narrower; prove with a synthetic card face that controller timing and the
+2. **Admin narrowing:** extend the current selected-task delegation model so real-card resolution
+   names Admin as the narrower; prove with a synthetic card face that controller timing and the
    task's future Actor remain unchanged.
 3. **Dealer projection:** derive a tiny three-face deck and discard set from premise plus events;
    prove independent family streams, exhaustion, reshuffle epochs, cache deletion, rollback, replay,
@@ -555,13 +563,17 @@ exceptions specific to ProjectCard.
 
 ## Acceptance properties
 
+Properties about shuffled order and seed reproducibility below are promises of the named default
+dealer policy. Core engine acceptance covers task assignment, legal narrowing, execution, and
+recorded outcomes without judging that policy's strategy.
+
 **Target criteria, not current guarantees:**
 
 1. The premise-selected face set partitions exactly across derived deck, derived discard, backs,
    and fronts.
 2. `N ProjectCard` creates N atomized gains and consumes N sequential faces without replacement.
 3. The controlling Player decides when each gain is selected but cannot narrow its face.
-4. Resolution delegates face narrowing to Engine and blocks the controller until completion.
+4. Resolution delegates face narrowing to Admin and blocks the controller until completion.
 5. Equal seed, algorithm version, deck family, and history produce equal outcomes across platforms.
 6. Rollback and retry reproduce an outcome; forks share outcomes until their histories diverge.
 7. Reshuffle uses exactly the discard set derived at the exhaustion point.
@@ -583,4 +595,4 @@ exceptions specific to ProjectCard.
 
 None changes the central model: directly owned in-World cards, unowned singleton areas, no Deck or
 Discard Components, deterministic dealer state derived from premise plus history, and
-selection-time delegation of exact-face narrowing to Engine.
+selection-time delegation of exact-face narrowing to Admin.

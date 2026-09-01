@@ -3,17 +3,23 @@
 > **Read when:** defining what makes an automatic task command safe, designing a smart policy,
 > proving task independence or confluence, or compiling Catalog facts for autoexecution.
 >
-> **Skip when:** changing where policies run or how they call `Agent`; those mechanism questions
+> **Skip when:** changing where policies run or how Agents use `ActorAccess`; those mechanism questions
 > belong in [AUTOEXEC.md](AUTOEXEC.md).
 >
 > **Status:** research and proposed proof rules. None of the candidate analyses is committed
-> behavior.
+> behavior. These are optional guarantees for policies above Actor access, not engine invariants.
+
+This analysis may inspect only what `ActorAccess` exposes. The initially selected access is
+maximally permissive, so the first proof policy may inspect the whole World. Any disposable-World
+exploration must still arrive through an explicit hypothetical-analysis facility available through
+that access; a policy does not gain raw engine mutation objects merely by promising safety. If a
+later restricted access omits a fact required by a proof, the result is `UNKNOWN`.
 
 ## Source map
 
-- [`AutoExecPolicies.kt`](../../src/common/dev/martianzoo/engine/AutoExecPolicies.kt) and
-  [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) — inspect the
-  current conservative policy, selection probes, and locking semantics.
+- **Forward-looking:** `AutoExecPolicies.kt` will contain the conservative policy.
+  [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) currently owns
+  the selection and execution probes and locking semantics that policy will use.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
@@ -98,8 +104,8 @@ handle forced commands for an authorized assignee and single-assignee pools; cro
 needs an explicit agency-preserving certificate. Call a command *policy-safe* only when it is both
 outcome-safe and agency-preserving.
 
-Every accepted action invalidates the proof. The driver must read the new state and prove the next
-command independently.
+Every accepted action invalidates the proof. The Agent Driver must read the new state and prove the
+next command independently when the generic pulse dispatcher wakes its Agent again.
 
 ## EGS equality obligations
 
@@ -113,7 +119,8 @@ S ≈ T  implies  N(S) = N(T)
 A merely lossy projection does not establish this. The intended omissions have narrower existing
 arguments: components have no instance identity and equal Types are indistinguishable copies
 ([ENGINE.md](ENGINE.md#component-graph)); game mechanics may not read event history
-([AUTOEXEC.md](AUTOEXEC.md#semantic-equivalence)); and opaque task ids and ordinals may be
+([GAME_WORLDS.md](GAME_WORLDS.md#state-and-engine-ownership)); and opaque task ids and ordinals may
+be
 alpha-renamed only through the semantic-symmetry rule below. At minimum the candidate EGS contains:
 
 - the exact component multiset, including dependencies and ownership;
@@ -140,7 +147,7 @@ state must likewise be derived from EGS or included in it when they affect legal
 
 ### Empty queue
 
-If there are no tasks, doing nothing is safe. This is the inert driver case, not an automatic
+If there are no tasks, doing nothing is safe. This is the inert Agent case, not an automatic
 gameplay command.
 
 ### One task
@@ -210,7 +217,8 @@ original paths.
 ## Measure before expanding
 
 Changing the default to `SAFE` left 21 of 54 script tests unfinished because independent
-consequences commonly coexist ([AUTOEXEC.md](AUTOEXEC.md#first-implemented-split)). That establishes
+consequences commonly coexist
+([SEQUENCING.md](SEQUENCING.md#mental-model-preserve-the-whole-valid-decision-tree)). That establishes
 need, but not which ambitious proof rule will pay for itself.
 
 Before implementing a deferred rule, run a diagnostic-only policy over the replay suites and record
@@ -244,9 +252,11 @@ the strongest inexpensive common facts rather than demand that `C` contain one e
 include a singleton concrete subtype while quantity remains optional, or one live `OR` arm whose
 own target is still abstract.
 
-For an unselected task, the same rule needs a stability proof: no legal preceding action can make a
-discarded refinement viable or invalidate the common fact. Catalog write summaries can sometimes
-prove that the relevant type domain, metric, gate, and limits cannot change.
+An explicit Actor may narrow an unselected task by deliberately discarding options, provided the
+checked narrowing introduces none and consults no mutable World state. A proof-preserving Driver has
+a stronger obligation: it may perform an unselected forced narrowing only when no legal preceding
+action can make a discarded refinement viable or invalidate the common fact. Catalog write
+summaries can sometimes prove that the relevant type domain, metric, gate, and limits cannot change.
 
 ### 4. Sole semantic progress
 

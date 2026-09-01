@@ -21,7 +21,7 @@
 | Tasks, assignment, selection, narrowing, resolution, or execution | Tasks are an unordered choice pool through Execution |
 | Triggered or automatic behavior | Effects; then the relevant section of [SEQUENCING.md](SEQUENCING.md) |
 | Limits, refinements, AMAP, or quantification | Metrics, refinements, and limits; then [QUANTIFIERS.md](QUANTIFIERS.md) |
-| Engine API or autoexecution | Current Agent surface; Auto-execution and workflow |
+| Core mutation API or current autoexecution | Current Agent surface; Current auto-execution and workflow; then [API.md](API.md) |
 | Parsing or lowering submitted Pets | Input transformation |
 
 ## Source map
@@ -53,11 +53,16 @@ A live Game World is a `World` containing:
 | Part | Meaning |
 | --- | --- |
 | `ComponentGraph` | Present state: a multiset of concrete components |
-| `TaskQueues` / `TaskQueue` | Deferred work and player choices |
+| Global task pool | Deferred work and Actor choices, with one assignee on each Task |
 | `EventLog` | Applied component and task history |
 | `Timeline` | Atomicity, rollback, revision, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
-| Actor-scoped `Agent` | The supported mutation/query authority |
+| Mutation executor | Validation and atomic calculation for direct Actor-attributed calls |
+
+The target core engine has no `ActorAccess`, Agent, permissions, or autoexecution API. Those layers
+consume the World and its small direct mutation surface from above; see
+[RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) and
+[API.md](API.md). Current code still combines these responsibilities.
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
@@ -107,9 +112,33 @@ declarations. The engine alone decides which active Classes instantiate. Promo C
 three direct class exclusions for the cards its revised printings supersede; there is no general
 replacement registry.
 
-`Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
-initialization complete, and commits the pre-setup baseline. It does not create a Phase.
-Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful operation.
+`Engine.newGame(premise)` currently wires the World, creates the `Engine` Actor Component and
+singleton components, marks initialization complete, and commits the pre-setup baseline. It does
+not create a Phase. Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful
+operation.
+
+**Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
+Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
+Bootstrap should create only the state that cannot yet arise from an ordinary Admin task, then hand
+control to Admin as soon as possible. Discover that minimum during extraction rather than requiring
+an up-front inventory. Do not prolong special initialization merely because the current
+`Initializer` can create more directly.
+
+Keep three bootstrap layers distinct:
+
+1. **Structural construction** forms the Class Table, empty state indexes, history, timeline, and
+   passive mutation executor. There is not yet an Actor mutation to record.
+2. **Actor bootstrap** establishes the minimum concrete state needed for Admin to exist as an Actor
+   Component and receive ordinary work. Add other directly created premise state only when the
+   ordinary task route proves circular.
+3. **Game initialization** begins at the earliest point where history can honestly say that Admin
+   is selecting, narrowing, and executing assigned tasks. Singleton creation, Module activation,
+   Player creation, and later `SetupPhase` should move into this ordinary phase wherever the model
+   can express them without circular prerequisites.
+
+The goal is not to call every constructor step an Admin action. It is to make the special prefix as
+short and explicit as possible, then use the ordinary task lifecycle for everything after the
+handoff.
 
 In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
 selected data families, Class representatives, and generic specialization fanout. Initialization
@@ -152,8 +181,9 @@ as input. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cau
 causal event ordinal.
 
 Every event has optional diagnostic `agent` provenance. It is rendered when present but excluded
-from event equality and gameplay-state equivalence. An attached autoexecution policy supplies its
-name for commands it issues; direct calls leave it absent.
+from event equality and gameplay-state equivalence. Current engine-owned autoexecution supplies its
+name for commands it issues; forward-looking access and application layers may attach caller,
+Agent, or policy provenance to a direct mutation.
 
 `EventLog.record` and rollback are the single history/mutation interface: application or reversal
 must succeed before the log changes. Each current event has one integer ordinal. Each forward or
@@ -184,7 +214,7 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 - stable `TaskId`, derived from its original add-event ordinal;
 - one task-shaped `Instruction`;
 - `controller`, which owns the surrounding operation and receives resulting work;
-- `assignee`, whose scoped queue contains it and who may select and narrow it;
+- `assignee`, who may select and narrow it;
 - `narrower`, who supplies choices after selection;
 - `actor`, recorded on resulting changes unless instruction-side `BY` overrides it;
 - `cause`;
@@ -193,6 +223,10 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 - diagnostic `whyPending`.
 
 A temporary 1-based display position may disambiguate equal-looking tasks. It is not an id.
+
+Semantically there is one World task pool. Actor-specific queues are current filtered API views,
+not independent state containers. `ActorAccess.tasks` may present the fiction of one Actor's queue
+without promoting that view into the engine model.
 
 `InstructionTree` is the broad AST kind. `Instruction` is one task-shaped root.
 `InstructionGroup` is a normalized comma-separated batch. Queue admission splits a group into one
@@ -206,8 +240,8 @@ the task again, so the sequence splits once those shared values become concrete.
 ### Controller, assignment, narrower, and Actor
 
 Controller, assignee, narrower, and Actor are different. Queued work triggered during a
-Player-controlled operation enters the retained controller's queue. Its narrower follows the
-effect owner, changed-component owner, or triggering Actor. Engine-driven setup and workflow retain
+Player-controlled operation retains that controller as assignee. Its narrower follows the effect
+owner, changed-component owner, or triggering Actor. Admin-driven setup and workflow retain
 that same contextual routing. A queued task's default Actor follows the same contextual order;
 automatic effects execute inline and keep the effect owner when present or the triggering Actor
 otherwise.
@@ -225,14 +259,19 @@ starts Player operations directly and waits for whole-world idleness instead.
 
 This is the current task lifecycle.
 
-Players play through exactly two kinds of activity:
+Actors play through two kinds of ordinary activity:
 
 1. select one pending task, making it the work that must finish next; or
-2. narrow the selected task by supplying one or more of its remaining choices.
+2. narrow a task by supplying one or more of its remaining choices.
 
 Resolution and execution are engine consequences of those activities. Selection is an ordering
-promise, not a Timeline commit; commit retains its transactional meaning after execution. A Player
-with neither a selectable task nor narrowing authority over the selected task has nothing to do.
+promise, not a Timeline commit; commit retains its transactional meaning after execution. An Actor
+with neither a selectable task nor any legal task narrowing has nothing to do.
+
+The target API permits an unselected task to be narrowed only by a check that discards options
+without consulting mutable World state. It does not resolve or execute the task. Current public
+`narrowTask` requires selection, while public `editTask(Task)` is an overpowered transitional route
+that must be replaced by this checked operation.
 
 `InstructionTree` and its narrowable parts implement `Specification`: `isAbstract` reports whether
 an externally supplied choice remains, while `narrows` and `ensureNarrows` compare two
@@ -317,9 +356,9 @@ The normal path is a progression toward less implicit, more directly executable 
    reconstructed by stringifying one subtree and parsing it without its original region context.
 3. **Context-closed Pets.** Successive contexts bind the variables they own and write their values
    into the typed tree. Class/component attachment binds `This`, contextual `Owner`, and class-header
-   variables. Trigger matching binds trigger-local variables and counts. A Player-scoped Agent
-   directly substitutes its Player for contextual `Owner`. For example, `Plant` submitted through
-   Player 2's Agent ultimately becomes `Plant<Player2>` and no longer needs that scope to retain
+   variables. Trigger matching binds trigger-local variables and counts. A request submitted in a
+   Player scope directly substitutes that Player for contextual `Owner`. For example, `Plant`
+   submitted as Player 2 ultimately becomes `Plant<Player2>` and no longer needs that scope to retain
    its meaning. “Contextualization” names the operation; “context-closed” names the resulting
    independence without suggesting that information was discarded.
 4. **Resolved first stage.** Selection locks the World, then state-dependent gates, metrics, limits,
@@ -506,7 +545,7 @@ and Asteroid Deflection System, remain direct removal triggers. Do not replace t
 
 ## Input transformation
 
-Actor-scoped string input passes through this order:
+Current Actor-scoped string input passes through this order:
 
 1. localized Vocabulary canonicalization and input-only synonyms;
 2. Class-Name resolution against the World table;
@@ -515,10 +554,15 @@ Actor-scoped string input passes through this order:
 5. contextual `Owner` replacement for Player scopes; and
 6. marked-syntax handlers registered by the World's Catalog.
 
-In the lifecycle terminology above, this elaborates authored input and closes it over the Agent
+In the lifecycle terminology above, this elaborates authored input and closes it over the acting
 Player. It need not yet be concrete or resolved, because the submitted work may deliberately leave
 choices for Task narrowing. The current implementation performs the `Owner` substitution directly;
 no separate domain context object participates.
+
+Forward-looking access or application code may own string parsing and call direct typed engine
+methods; the core engine still owns validation, contextual closing required by game semantics,
+resolution, and execution. The extraction must not let one layer elaborate a different Pets
+meaning from another.
 
 A Catalog maps transform names to handlers bound to an active `ClassTable`. The generic
 dispatcher traverses the AST, prevents same-kind nesting, and preserves unregistered transforms so
@@ -533,12 +577,11 @@ request `InstructionTree`, not `Instruction`.
 ## Current Agent surface
 
 Each World retains exactly one fully permissive `Agent` per Actor. `World.agent(actor)` returns that
-stable object for reads, task commands, manual operations, task insertion/removal, direct changes,
-and autoexecution policy attachment. The old power-interface hierarchy is gone. REPL color modes
-restrict commands in the script client rather than changing the engine object's type.
+stable object for reads, task commands, manual operations, task insertion/removal, and direct
+changes. The old power-interface hierarchy is gone. REPL color modes restrict commands in the script client
+rather than changing the engine object's type. Autoexecution policy attachment is forward-looking.
 
-All public Agent mutations share the outer atomic-completion path. A later permissions model will
-mediate access to this trusted workhorse instead of weakening or subdividing it; see [API.md](API.md).
+All public Agent mutations share the outer atomic-completion path.
 
 `manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
@@ -546,12 +589,27 @@ auto-exec, preserves previously pending unselected tasks, and fails if newly cre
 `sneak()` applies raw changes without normal instruction resolution or effects, but still uses the
 timeline and graph mutation interfaces.
 
-## Auto-execution and Terraforming Mars workflow
+**Forward-looking:** the passive Actor-scoped capability moves above the core engine and is renamed
+`ActorAccess`, as described in [API.md](API.md). The core instead exposes the audited distinct
+mutation families against one task pool; it does not gain a universal request type merely to unify
+them. Actor assignment remains core game semantics. The first access layer is deliberately
+maximally permissive, including explicitly named ex-machina operations; granular caller roles are
+postponed. Agent then means the sole issuer of explicit and Driver-chosen mutations for one Actor.
+Public arbitrary task editing becomes checked narrowing, and the bulk task-drop convenience is
+deleted.
+
+## Current auto-execution and Terraforming Mars workflow
 
 Autoexecution currently uses `Agent.autoExecMode`: `NONE` does nothing, `SAFE` proceeds only when
 one selectable option exists, and `FIRST` chooses the first selectable task in iteration order.
 Scanning is global; assignee selects the queue and stored Actor controls attribution.
-[AUTOEXEC.md](AUTOEXEC.md) records the settled policy-extraction target and its current divergence.
+
+**Forward-looking:** core engine contains no autoexecution. An access layer creates passive
+`ActorAccess` conduits. Above it, an application creates one Agent per Actor; each owns its private
+`AgentDriver`. The engine emits a generic coherent-revision pulse, and a session dispatcher wakes
+Agents to a policy-relative stable point before the outer Agent call returns. A normal application
+makes Admin fully autonomous, but the engine is indifferent to every legal policy choice.
+[AUTOEXEC.md](AUTOEXEC.md) owns that target and records the current divergence.
 
  `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
  `Agent`. Treat it as transitional; its pass, selected-card purchase, and end-turn conveniences now
@@ -567,9 +625,13 @@ in [WORKFLOW.md](WORKFLOW.md).
 
 ## Wiring details
 
-`Engine.Wiring` is the manual composition root. Class Table, Event Log, Component Graph, Effector,
-Timeline, and other World-level services are shared. Each Actor receives its own `Changer`,
-`Instructor`, `Implementations`, and `ApiTranslation` scope.
+`Engine.Wiring` is the current manual composition root. Class Table, Event Log, Component Graph,
+Effector, Timeline, and other World-level services are shared. Each Actor currently receives its
+own `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` scope.
+
+The target core composition retains only the Actor context required to calculate one direct
+mutation. Passive filtered views belong to `ActorAccess`; unique long-lived Agents, their Drivers,
+and generic pulse dispatch belong above that.
 
 Kotlin keeps `Actor` and `Owner` distinct. Current Players are both. A passive Pets Owner such as
 `SoloOpponent` has no gameplay scope or task queue.

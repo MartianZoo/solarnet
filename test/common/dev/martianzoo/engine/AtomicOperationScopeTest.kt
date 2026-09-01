@@ -141,7 +141,7 @@ internal class AtomicOperationScopeTest {
   }
 
   @Test
-  internal fun temporaryComponentOutsideAnAgentOperationPreventsIdleWorld() {
+  internal fun directMutationPerformsIdleCleanupBeforeCompletion() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -154,7 +154,26 @@ internal class AtomicOperationScopeTest {
 
     player.sneak("CleanupProbe")
 
+    player.count("CleanupProbe") shouldBe 0
     game.tasks.isEmpty() shouldBe true
-    game.isIdle() shouldBe false
+    game.isIdle() shouldBe true
+  }
+
+  @Test
+  internal fun directAgentMutationsReportAtomicCompletion() {
+    val game = Engine.newGame(testGamePremise())
+    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    var completions = 0
+    game.onAtomicComplete = { completions++ }
+
+    agent.sneak("Token")
+    val taskId = agent.addTasks("-Token?").single()
+    val task = agent.tasks.getTaskData(taskId)
+    agent.editTask(task.copy(whyPending = "waiting for test choice"))
+    agent.dropTask(taskId)
+
+    completions shouldBe 4
+    agent.count("Token") shouldBe 1
+    agent.tasks.isEmpty() shouldBe true
   }
 }

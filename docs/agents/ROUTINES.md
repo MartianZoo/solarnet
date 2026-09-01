@@ -6,6 +6,9 @@
 > **Status:** proposal plus a catalog-contributed `DO`-command prototype. The mature surface and
 > saved-game model described here remain the target. “Native World export” is an agreed working
 > rule for its named miniproject.
+>
+> Requirements below that disable autonomous Agent Drivers or record Admin mutations are
+> forward-looking; they depend on the later Agent and input-record slices.
 
 ## Goal
 
@@ -16,12 +19,12 @@ call site. Supporting a game or expansion includes contributing its useful Routi
 Routine calls have two related uses:
 
 1. concise, readable interaction in the REPL and replay tests; and
-2. the Player-facing portion of a saved game's explicit Agent-command stream.
+2. the Player-facing portion of a saved game's explicit Actor-mutation stream.
 
-A saved container may retain only the Routine request stream or add the complete events and
+A saved container may retain only the Routine mutation stream or add the complete events and
 Checkpoints it originally produced. Those support two intentionally different modes:
 
-1. replay the fixed requests through a real engine, accepting the selected engine version's
+1. replay the fixed mutations through a real engine, accepting the selected engine version's
    consequences; or
 2. rematerialize the exact recorded state mechanically from complete events, with no engine.
 
@@ -29,10 +32,12 @@ The Routine stream is compact input, not a durable encoding of its consequences.
 forms, their shared container, and independent Recording model belong to
 [GAME_WORLDS.md](GAME_WORLDS.md#two-saved-forms).
 
-The native World-export miniproject uses that Routine stream as its readable replay format. The
-engine owns the format and `World.export()` API; `script` is only its current importer. This does
-not turn a low-level task or concrete-change dump into an acceptable Routine export. The target
-format is specified below under “Native World export.”
+The native World-export miniproject uses that Routine stream as its readable replay format. Its
+current `World.export()` ownership predates the selected runtime layering. The mature mutation
+serializer must live at or above Agent because it records Actor calls and optional Agent or policy
+provenance; core engine supplies direct mutation results and does not own Agents. This does not
+turn a low-level task or concrete-change dump into an acceptable Routine export. The target format
+is specified below under “Native World export.”
 
 Pure-Pets Routine implementations are a distant possibility, not an initial goal. The first
 implementations are custom Kotlin.
@@ -44,13 +49,14 @@ names. The core Terraforming Mars bundle owns the initial implementations. `DO` 
 looks it up through the active World's Catalog, and supplies the live World and Actor-scoped
 Agent in a `RoutineContext`.
 
-Routine implementations belong to the Catalog module and depend only on the generic engine and
-Pets surfaces. They must not call `TfmGameplay`; the transitional `TfmGameplay` facade instead
+Forward-looking Routine implementations use only the Agent mutation surface plus the Catalog
+vocabulary needed to express their interaction. They must not call `TfmGameplay`;
+the transitional `TfmGameplay` facade instead
 dispatches overlapping operations through the Catalog's `RoutineProvider` capability.
 
 The prototype uses the current Agent lifecycle described in
 [ENGINE.md](ENGINE.md#current-agent-surface). Any later client-facing Routine API should follow
-the command lifecycle and temporary script policy in [API.md](API.md#command-semantics).
+the selected Agent model in [API.md](API.md#agent).
 
 ## REPL surface
 
@@ -86,13 +92,13 @@ isolated exception and restores the prior Actor. A serializer may omit repeated 
 and should keep the current actor across a long sole-player run. Do not introduce `AS Actor { ... }`
 blocks.
 
-Every serialized Routine replay sets autoexecution to `NONE` for every Agent, including Engine. Put
+Every serialized Routine replay disables autonomous Agent Drivers, including Admin's. Put
 `AUTO NONE` before `newgame`, and keep it in force throughout import. A Routine must not restore or
-drain a prior policy setting, even temporarily. Meaningful Engine task commands therefore belong in
-the replay just as meaningful Player task commands do. Assignment alone does not make an abstract
-choice deterministic. A World Government Terraforming task, for example, still needs the recorded
-Player narrowing. Do not reassign Player work or alter its Actor, assignee, Cause, or abstractness
-merely to make it eligible for Engine execution.
+drain a prior policy setting, even temporarily. Meaningful Admin task mutations therefore
+belong in the replay just as meaningful Player task commands do. Assignment alone does not make an
+abstract choice deterministic. A World Government Terraforming task, for example, still needs the
+recorded Player narrowing. Do not reassign Player work or alter its Actor, assignee, Cause, or
+abstractness merely to make it eligible for Admin execution.
 
 ## Native World export
 
@@ -102,10 +108,11 @@ merely to make it eligible for Engine execution.
 Before acting on the 0818 export, read its dated
 [implementation plan](../../_local/replays/Game20260818/implementation-plan.md).
 
-`World.export(): String` belongs to `engine` and returns a versioned REgo script that today's
-`script` module can run. Future importers may consume the same engine-owned format. The first
-deliverable is the current-engine explicit-command replay, not the separate concrete-change restore
-mode described in the goal.
+The current miniproject keeps `World.export(): String` in `engine` and returns a versioned REgo
+script that today's `script` module can run. That is migration order, not mature ownership: after
+the access extraction, the mutation serializer moves with the Actor-mutation record. The first
+deliverable remains the current-engine explicit-command replay, not the separate concrete-change
+restore mode described in the goal.
 
 The exported file must have the same shape as the established
 `_local/routines/OtbGame20260818-generations1-6.rego` replay:
@@ -123,7 +130,7 @@ The exported file must have the same shape as the established
 Do not substitute raw `task` commands for `tasks(...)`, card play, actions, purchases, or turn
 declines that the Routine vocabulary already expresses. Do not expand authored `::` effects,
 payment plumbing, action markers, or temporary cleanup into fake Player choices. Meaningful
-Engine-owned tasks that autoexec would otherwise consume still need an explicit Engine-attributed
+Admin-assigned tasks that autoexec would otherwise consume still need an explicit Admin-attributed
 command or Routine. Do not switch to green mode merely to replay internal helper choreography. A
 same-version round trip that reaches the right final graph only because any autoexec policy silently
 chooses omitted work fails this contract.
@@ -136,19 +143,19 @@ that existing history cannot recover. If the readable Routine call cannot be der
 materially widening several modules, stop and report that design pressure; do not compensate with a
 low-level dump, speculative payment probes, catch-all fallbacks, or autoexecution.
 
-Successful explicit Agent inputs are the intended replay record. The current
-`GameplayInputEvent` records only Player input, so Engine-attributed replay commands require a small
+Successful explicit Actor mutations are the intended replay record. The current
+`GameplayInputEvent` records only Player input, so Admin-attributed replay commands require a small
 input-model extension rather than inference from component changes. The optional `agent` field can
 identify an automatic or other command source, is rendered as an Event Log note, and is excluded
 from event equality. This provenance must not become game state or affect replay-state equality.
 
-The engine serializer must remain generic. Obtain configuration and Routine facts from the World,
-premise, and Catalog capabilities; do not embed Terraforming Mars cards, Player names, the 0818
-configuration, or branches for this replay in engine code.
+The serializer must remain generic. Obtain configuration and Routine facts from the World, access
+record, premise, and Catalog capabilities; do not embed Terraforming Mars cards,
+Player names, the 0818 configuration, or branches for this replay in generic code.
 
 The six-generation replay is an executable golden oracle, not merely a style example. First prove
-that it and a fully explicit reference produce the desired equivalent game state with every Agent's
-autoexecution disabled on both paths. If they do, the overlapping exported command stream must
+that it and a fully explicit reference produce the desired equivalent game state with autonomous
+Agent Drivers disabled on both paths. If they do, the overlapping exported command stream must
 preserve the same Routine calls and every ordered, noncommutative choice after its version marker.
 Arguments within one call may appear in either order only when those effects commute and the
 generated order passes the same round-trip state checks. If parity fails, report the mismatch
@@ -230,7 +237,7 @@ There is no autoexecution during replay. Work proceeds only through:
 
 - task selections made explicitly by Routine Kotlin;
 - inline `::` effects; and
-- explicit commands for meaningful deterministic workflow work owned by Engine.
+- explicit commands for meaningful workflow work assigned to Admin.
 
 A Routine may return with player tasks pending for the next call. Those tasks belong in another call
 only when they represent another player decision rather than a fixed continuation of the headline
@@ -370,17 +377,17 @@ second action or returning control, at which point the Routine bridge should be 
 - Decline an optional second-action offer with `endTurn()`; use `tasks(Pass)` for a generation pass.
 - Prefer persistent `BECOME` grouping for actor attribution.
 - World Government Terraforming is an ordinary task with explicit attribution, for example
-  `tasks(OxygenStep! BY Engine)` or `tasks(OceanTile<Utopia_9_8>! BY Engine)`.
+  `tasks(OxygenStep! BY Admin)` or `tasks(OceanTile<Utopia_9_8>! BY Admin)`.
 
-## Choice-free and Engine-owned work
+## Inline and Admin-assigned work
 
 The Routine stream contains player decisions, not chores needed to make the model continue. Repair
 choice-free work at its source in this order:
 
 1. use an inline `::` effect when the consequence must already be true before a coherent World is
    returned to a Player;
-2. assign queued deterministic game or workflow work to Engine when it is meaningful work but no
-   participant chooses its outcome; or
+2. assign queued neutral game or workflow activity to Admin when the table authority performs or
+   chooses it; or
 3. attach cleanup to the exact lifecycle completion event when it must wait. Leave the mechanism
    open when no such event exists instead of using the Player's whole queue as a generic signal.
 
@@ -389,10 +396,10 @@ effect, owner, or completion rule and must be documented as model debt. In parti
 signals such as a mandate pulse should not become player-facing Routine arguments merely because a
 current implementation queues them.
 
-Production, colony advancement, research offers, trade bookkeeping, and workflow pulses should be
-Engine-selected deterministic work. Player-owned types and effect context must remain intact even
-when Engine selects the task. Assignee, execution Actor, context owner, and the owner encoded in a
-changed Type must not be collapsed; see `IDENTITY.md`.
+Production, colony advancement, research offers, trade bookkeeping, and workflow pulses require an
+audit between fixed inline consequences and Admin activity. Player-owned types and effect context
+must remain intact even when Admin selects the task. Assignee, execution Actor, context owner, and
+the owner encoded in a changed Type must not be collapsed; see `IDENTITY.md`.
 
 Parity checks belong at quiescent player points, when player queues are empty and the workflow is
 about to advance. Compare Actors, active Classes, complete Task queues, and the component graph
@@ -417,7 +424,8 @@ Focused `DoCommandTest` cases cover command mode and parsing contracts.
 - A richer saved-file envelope around the versioned native export.
 - The smallest additional recorded input fact, if any, that the incremental export gates prove the
   existing Event Log cannot recover.
-- The explicit input representation and Routine vocabulary needed for Engine-owned replay commands.
+- The explicit input representation and Routine vocabulary needed for Admin-assigned replay
+  commands.
 - Multiline Routine calls and completion behavior in the interactive REPL.
 - Whether interactive Routine calls respect current autoexecution and report already-completed
   tasks as skipped.

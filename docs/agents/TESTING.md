@@ -306,6 +306,8 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   practical so the remaining unexplained gap is bounded as narrowly as possible.
   If auto-exec has already selected the next task, the helper rolls that selection back and repeats
   it after the adjustment so state-dependent instructions are resolved again.
+  Both replay bases delegate that lifecycle to the shared `World.exMachina` implementation; do not
+  fork its task-history traversal.
   Keep unexplained state reconciliations as standalone timeline statements.
   Never place a manual or other raw adjustment inside an unrelated action body to evade a selected-task or
   operation-scope restriction; use an explicit test mechanism or fix the helper/API instead.

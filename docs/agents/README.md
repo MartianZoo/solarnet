@@ -23,15 +23,15 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
 | Event identity, recordings, checkpoints, scrolling, rollback, forks, or overlays | [`GAME_WORLDS.md`](GAME_WORLDS.md) | Working rules and proposal |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and audit |
-| Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and future extension |
+| Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
 | Action costs, invoices, or action identity | [`ACTIONS.md`](ACTIONS.md) | Current model |
 | Payment excess, tender value, or attribution | [`PAYMENTS.md`](PAYMENTS.md) | Audit and proposal |
 | Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
-| Optional client autoexecution mechanism | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
+| Agent Drivers, coherent-state pulses, or policy-relative stable points | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
-| Engine diagnostics, event metadata, or runtime traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
+| Runtime diagnostics, event metadata, or traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
 
 ### Change Pets, types, or static game construction
 
@@ -60,8 +60,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Task | Read | Authority |
 | --- | --- | --- |
-| Move generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Audit |
-| Change Agent or design a restricted client interface | [`API.md`](API.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Current model and later direction |
+| Move runtime layers or generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Selected direction and audit |
+| Extract Actor access, sole-issuer Agent, Agent Driver, or pulse dispatcher | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Current divergence and selected direction |
 | Implement catalog Routines, direct REPL calls, or Routine-based saved-game replay | [`ROUTINES.md`](ROUTINES.md), then the API/model route it names | Proposal; native-export section is a working rule |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
 

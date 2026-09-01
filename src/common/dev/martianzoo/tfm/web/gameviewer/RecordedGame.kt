@@ -5,7 +5,6 @@ import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.GameRecording
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.ast.ClassName
@@ -16,7 +15,6 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
@@ -27,6 +25,7 @@ import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.exMachina
 
 public abstract class RecordedGame {
   protected lateinit var game: World
@@ -121,33 +120,7 @@ public abstract class RecordedGame {
   }
 
   protected fun TfmGameplay.exMachina(adjustment: String) {
-    val selectedId = game.tasks.selectedTask()
-    if (selectedId != null) {
-      val selectedTask = game.tasks.getTaskData(selectedId)
-      var expectedTask = selectedTask
-      val unselectedTask =
-          game.events
-              .entriesSince(Checkpoint(0))
-              .asReversed()
-              .asSequence()
-              .map { event ->
-                check(event is TaskEditedEvent && event.task == expectedTask)
-                if (!event.oldTask.selected && event.task.selected) return@map event.oldTask
-                check(event.task == event.oldTask.copy(whyPending = event.task.whyPending))
-                expectedTask = event.oldTask
-                null
-              }
-              .firstNotNullOf { it }
-      game.tasks.editTask(unselectedTask)
-    }
-
-    sneak(adjustment)
-
-    if (selectedId != null) {
-      val task = game.tasks.getTaskData(selectedId)
-      game.agent(task.assignee).selectTask(selectedId)
-      game.agent(task.assignee).autoExecNow()
-    }
+    game.exMachina(this, adjustment)
   }
 
   private fun tilePlacement(
