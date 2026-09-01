@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.ClassTable
 
 /** The live, complete implementation of a [World]. */
@@ -19,15 +18,12 @@ internal constructor(
     private val agentByActor: Map<Actor, Agent>,
     private val timelineImpl: TimelineImpl,
     private val recordingPositions: RecordingPositions,
-    private val premise: GamePremise,
 ) : World {
   /** The exact event-backed state revision, including changes later rolled back. */
   internal val revision: WorldRevision
     get() = events.revision
 
   override fun agent(actor: Actor): Agent = agentByActor[actor]!!
-
-  override fun export(): String = exportWorld(this, premise)
 
   override var onAtomicComplete: () -> Unit = {}
 

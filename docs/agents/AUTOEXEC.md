@@ -95,9 +95,8 @@ The engine library should eventually supply `slow`: an exhaustive proof policy t
 analysis as necessary to automate every command it can prove preserves the complete net-effect
 decision tree. Uncertainty means no command.
 
-[GAME_WORLDS.md](GAME_WORLDS.md#later-overlay-game-worlds) owns the disposable World model needed
-for this analysis. The policy must enumerate all relevant legal commands, explore their
-continuations, and compare normalized component/task state
+The disposable World model needed for this analysis remains unplanned. The policy must enumerate
+all relevant legal commands, explore their continuations, and compare normalized component/task state
 at a shared semantic comparison point. A successful branch, matching headline resources, or the
 absence of a known counterexample is insufficient. Event ordinals, task ids, and policy credit may
 differ only when no later game rule can observe those differences.
@@ -109,27 +108,10 @@ proof policy is implemented; do not add speculative public APIs ahead of it.
 
 Committed code still stores `AutoExecMode` on each `Agent`, defaults it to `FIRST`, and runs the
 queue drain from engine-side command and operation completion points. It does not yet provide
-policy attachment, a separate driver, named policy provenance, or the planned Engine-first policy
-schedule. Treat the sections above and below as the extraction contract, not current behavior.
-
-## Provenance and replay
-
-Actor identifies who acts in the game. Autoexec name identifies which policy issued a command.
-Policy-issued Player inputs record that diagnostic name on `GameplayInputEvent`; it does not change
-task assignee, effect performer, or semantic state.
-
-The REgo spellings `AUTO NONE`, `AUTO SAFE`, and `AUTO FIRST` remain script-client configuration,
-not engine modes. `FIRST` selects the Terraforming Mars client policy.
-
-Serialized REgo replay is stricter than interactive use: every Agent, including Engine, runs with
-autoexecution disabled. The replay explicitly submits every meaningful Agent task command, making
-the command stream an executable expectation rather than a trace whose omissions are filled by a
-policy. Authored `::` consequences remain effect semantics and are not autoexec.
-
-The current script profile and input record do not yet fully implement this rule. Replay setup must
-be able to detach the default Engine policy, and explicit Engine-attributed commands must become
-representable in the recorded input stream. [ROUTINES.md](ROUTINES.md#native-world-export) owns the
-serialization contract.
+policy attachment, a separate driver, or the planned Engine-first policy
+schedule. As a transitional progress rule, a Player using `NONE` still drains only Engine-assigned
+work from the shared queue. Treat the sections above and below as the extraction contract, not
+current behavior.
 
 ## Required invariants
 
@@ -141,4 +123,3 @@ serialization contract.
 - Every generic supplied policy preserves all semantically distinct legal continuations.
 - Deliberate choice-making lives in a client library, is named as such, and promises no task order.
 - Disabling policies does not change authored `::` effects or explicit command semantics.
-- Serialized replay disables policies for every Agent and records meaningful commands explicitly.

@@ -17,8 +17,6 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent
-import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent.Kind
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
@@ -37,7 +35,6 @@ internal class ApiTranslation(
     override val actor: Actor,
     private val reader: GameReader,
     private val timeline: Timeline,
-    private val events: EventLog,
     private val impl: Implementations,
     private val tasks: TaskQueue,
     private val classTable: ClassTable,
@@ -106,12 +103,8 @@ internal class ApiTranslation(
 
   // CHANGES
 
-  override fun sneak(changes: String, fakeCause: Cause?): TaskResult {
-    val operationStartOrdinal = timeline.checkpoint().ordinal
-    return timeline.atomic {
-      impl.sneak(parseInstructionGroup(changes), fakeCause)
-      recordPlayerInput(Kind.DIRECT_CHANGES, changes, operationStartOrdinal = operationStartOrdinal)
-    }
+  override fun sneak(changes: String, fakeCause: Cause?): TaskResult = timeline.atomic {
+    impl.sneak(parseInstructionGroup(changes), fakeCause)
   }
 
   // TASKS
@@ -201,21 +194,14 @@ internal class ApiTranslation(
   override fun narrowTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
     impl.narrowTask(parsed.instruction, parsed.intensityOmitted)
-    recordPlayerInput(Kind.NARROW_TASK, narrowing)
   }
 
   override fun canSelectTask(taskId: TaskId) = impl.canSelectTask(taskId)
 
-  override fun selectTask(taskId: TaskId) = atomic {
-    val task = tasks.getTaskData(taskId)
-    val taskNumber = tasks.ids().indexOf(taskId) + 1
-    impl.selectTask(taskId)
-    recordPlayerInput(Kind.SELECT_TASK, task.instruction.toString(), taskNumber)
-  }
+  override fun selectTask(taskId: TaskId) = atomic { impl.selectTask(taskId) }
 
   override fun selectTask(instruction: String) = atomic {
     impl.selectTask(parse<Instruction>(instruction))
-    recordPlayerInput(Kind.SELECT_TASK, instruction)
   }
 
   override fun doTask(narrowing: String, taskNumber: Int?) = atomic {
@@ -226,19 +212,16 @@ internal class ApiTranslation(
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
     )
-    recordPlayerInput(Kind.DO_TASK, narrowing, taskNumber)
   }
 
   override fun tryTask(narrowing: String, taskNumber: Int?) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    val eventCount = events.size
     impl.tryTask(
         parsed.instruction,
         taskNumber,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
     )
-    if (events.size != eventCount) recordPlayerInput(Kind.DO_TASK, narrowing, taskNumber)
   }
 
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
@@ -252,25 +235,6 @@ internal class ApiTranslation(
           afterIdleCleanup = afterIdleCleanup,
           beforeOutermostCompletion = { impl.autoExecNow(autoExecMode) },
       )
-
-  private fun recordPlayerInput(
-      kind: Kind,
-      source: String,
-      taskNumber: Int? = null,
-      operationStartOrdinal: Int = atomicOperationScope.currentOperationStartOrdinal,
-  ) {
-    if (actor !is Player) return
-    events.record(
-        GameplayInputEvent(
-            events.nextOrdinal,
-            operationStartOrdinal,
-            actor,
-            kind,
-            source,
-            taskNumber,
-        )
-    ) {}
-  }
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

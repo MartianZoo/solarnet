@@ -10,9 +10,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   triggers, and constructive instructions; represent disjointness explicitly instead of swallowing
   `ExpressionException`.
 
-- Continue Routine work as specified in [`docs/agents/ROUTINES.md`](docs/agents/ROUTINES.md): add
-  typed signatures, direct top-level REPL invocation, and Routine-based replay with every Agent's
-  autoexecution disabled.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Make the ordinary Pets lifecycle explicit and linear: elaborate every authored entry through one
@@ -30,10 +27,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   abstract singleton without choosing its narrowing. Prove that execution preserves every
   continuation before broadening beyond the singleton case. Use
   [`SMART_AUTOEXEC.md`](docs/agents/SMART_AUTOEXEC.md) as the proof contract.
-- **High priority:** Make serialized REgo replay disable every autoexec policy, including Engine's
-  default. Extend the explicit input record and Routine vocabulary just enough to represent
-  meaningful Engine-owned commands; do not infer them from component changes or let replay depend
-  on policy guesses.
 - **High priority:** Implement the generic `slow` autoexecution policy after disposable Worlds can
   explore every relevant legal command and compare normalized component/task continuations. It may
   spare no analysis cost, but `UNKNOWN` must stop it; do not substitute a heuristic for the promised
@@ -55,9 +48,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   workflow grants control and retained through delegation and settlement. If every consequence can
   derive its queue from that fact, remove `Task.controller` and its propagation; choose the final
   Pets name and shape only after proving the invariant.
-- Keep Routine completion cleaning up `WildTagUse?` tasks when they are the acting Player's only
-  remaining work. Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped completion
-  can express “after its tag choice or decline,” then remove both temporary cleanup bridges.
+- Keep `TfmGameplay` completion cleaning up `WildTagUse?` tasks when they are the acting Player's
+  only remaining work. Give `WildTagUse` automatic action-slot lifecycle cleanup once scoped
+  completion can express “after its tag choice or decline,” then remove both temporary cleanup
+  bridges.
 - **High priority:** Extend Distant Pressure Mass's exact located-card follow mode to other
   source-complete full-game replays: track every known project-card deck exit through temporary
   areas, hand, play, event pile, or terminal disappearance.
@@ -150,17 +144,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   actions such as `playCorp` and `playProject` out of production, remove or replace `SampleGames`,
   and give benchmarks explicit harness utilities rather than inheriting the test convenience
   surface.
-- **High priority:** Replace the live-World-seeking `GameRecording` with the independent Recording
-  and request-scoped Checkpoints specified in
-  [`GAME_WORLDS.md`](docs/agents/GAME_WORLDS.md). Support arbitrary event scrolling and both request
-  replay and complete state-recording files, then extract pure rematerialization and reads into
-  `dev.martianzoo.state` so the replay viewer does not require the engine.
-- **Medium priority, after independent Recordings:** Finish disposable engine overlays using an
-  exact base revision plus an authoritative event suffix, with materialized graph, task, and effect
-  indexes only as caches. Preserve one clear World Revision for Selected Tasks.
+- Improve `GameRecording` so viewer navigation does not mutate or seal its source World. Keep this
+  as an in-process viewer model until a separately reviewed persistence design exists.
 - Do not intern every structurally possible Type without a retention policy; families such as
   `Neighbor` can produce a very large domain. If repeated type algebra remains expensive, first
-  measure whether an overlay-scoped or otherwise bounded cache can help without becoming state.
+  measure whether a World-scoped or otherwise bounded cache can help without becoming state.
 - **Medium priority:** Move more expansion-specific knowledge out of Kotlin and into Module/Pets
   data, starting with workflow phase insertion and Terraforming Mars registries that enumerate
   expansions directly.
@@ -187,7 +175,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Low priority:** Provide one strict player-relative observation and visible-history interface that cannot expose opponents' cards, hidden deck order, or private events; use that same interface for training, evaluation, and live play.
 - **Low priority:** Provide a stable, machine-learning-friendly action interface that enumerates or scores complete legal choices while preserving the relationship among the engine's lower-level card, payment, target, quantity, and placement tasks.
 - Support parallel or batched game simulation for AI search and training.
-- Add a replay format or dataset pipeline.
 - Compare players across identical random seeds so evaluation does not confuse luck with strength.
 - **Low priority:** Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and the remaining Prelude 2 cards; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
 
@@ -255,8 +242,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ### Low Priority
 
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
-- After `OverlayWorld`, consider retaining standalone Task resolution's successful speculative
-  event suffix so later execution can fast-forward it when the backing Game World has not changed.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
@@ -265,8 +250,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Reduce saved-game replay allocation, starting with repeated `DependencySet` iteration/lookups and
-  abstract `ComponentGraph` count queries; validate changes with `SavedGameReplayBenchmark`.
+- Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
+  iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
+  `SavedGameReplayBenchmark`.
 - Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.

@@ -156,7 +156,6 @@ kotlin {
       kotlin.srcDir(generateCanonSources)
       dependencies {
         implementation(libs.kotlinx.serialization.json)
-        api(project(":engine"))
         implementation(project(":pets"))
       }
     }

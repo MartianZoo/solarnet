@@ -1,40 +1,11 @@
 plugins { id("solarnet.kmp-jvm-js") }
 
-val otbGame20260818Replay =
-    rootProject.layout.projectDirectory.file(
-        "test/common/dev/martianzoo/tfm/tests/replays/OtbGame20260818-world-export.rego"
-    )
-val generatedReplaySources =
-    layout.buildDirectory.dir("generated/sources/replays/commonTest/kotlin")
-val generateReplaySources by tasks.registering {
-  inputs.file(otbGame20260818Replay)
-  outputs.dir(generatedReplaySources)
-  doLast {
-    val replay = inputs.files.singleFile.readText()
-    val delimiter = "\"\"\""
-    require(delimiter !in replay) { "REgo replay cannot contain a Kotlin raw-string delimiter" }
-    val output =
-        outputs.files.singleFile.resolve(
-            "dev/martianzoo/tfm/tests/replays/OtbGame20260818Replay.kt"
-        )
-    output.parentFile.mkdirs()
-    output.writeText(
-        "package dev.martianzoo.tfm.tests.replays\n\n" +
-            "internal val otbGame20260818Replay: String =\n" +
-            "    $delimiter\n" +
-            replay +
-            "$delimiter.trimIndent()\n"
-    )
-  }
-}
-
 kotlin {
   sourceSets {
     commonTest {
       kotlin.setSrcDirs(
           listOf(rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"))
       )
-      kotlin.srcDir(generateReplaySources)
       dependencies {
         implementation(libs.kotest.assertions.core)
         implementation(project(":engine"))

@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
-import dev.martianzoo.pets.data.GameEvent.GameplayInputEvent
 import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
@@ -35,7 +34,6 @@ internal class TaskResolutionTest {
     assertHistoryTypes(
         TaskAddedEvent::class,
         TaskEditedEvent::class,
-        GameplayInputEvent::class,
     )
   }
 
@@ -48,7 +46,6 @@ internal class TaskResolutionTest {
     assertHistoryTypes(
         TaskAddedEvent::class,
         TaskRemovedEvent::class,
-        GameplayInputEvent::class,
     )
   }
 
@@ -63,7 +60,6 @@ internal class TaskResolutionTest {
         TaskEditedEvent::class,
         GameEvent.ChangeEvent::class,
         TaskRemovedEvent::class,
-        GameplayInputEvent::class,
     )
     agent.count("Plant") shouldBe 1
   }

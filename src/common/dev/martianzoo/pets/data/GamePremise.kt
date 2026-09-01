@@ -14,8 +14,6 @@ public data class GamePremise(
     public val initialComponentTypes: Set<Expression>,
     /** User-facing player names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
-    /** The unresolved configuration that was cooked into this premise, when one exists. */
-    public val sourceConfig: GameConfig? = null,
 ) {
   /** The immutable active-class projection shared by every World built from this premise. */
   private val classTableLazy = lazy { ClassTable.forPremise(this) }

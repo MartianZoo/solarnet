@@ -65,7 +65,6 @@ internal val terraformingMarsBundle: StandardFormBundle =
     StandardFormBundle(
         "TerraformingMars",
         terraformingMarsCustomClasses,
-        routines = terraformingMarsRoutines,
         additionalResourceDirectories =
             setOf(
                 "bundles/CorporateEraExpansion",

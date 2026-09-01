@@ -43,7 +43,6 @@ internal class Implementations(
     private val actor: Actor,
     private val instructor: Instructor,
     private val changer: Changer,
-    private val onAutoExec: (Task, Int, AutoExecMode) -> Unit,
 ) {
   // Auto-exec scans the whole game for compatibility with existing workflows. Selection and
   // delegated reassignment are also whole-game concerns, so keep global visibility as a queue view
@@ -152,8 +151,8 @@ internal class Implementations(
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
     if (allTasks.isEmpty()) return false
 
-    // A Player's NONE policy leaves fixed Engine workflow eligible for the Engine's FIRST policy,
-    // but Player work remains completely untouched. An explicit NONE on Engine still means NONE.
+    // Until Engine has its own scheduled policy, a disabled Player policy still advances
+    // deterministic Engine-owned work without touching any Player task.
     val eligible =
         if (mode == NONE) {
           if (actor !is Player) return false
@@ -176,19 +175,9 @@ internal class Implementations(
       1 -> {
         val taskId = options.single()
         val queue = queueForAnyTask(taskId)
-        val task = queue.getTaskData(taskId)
-        val taskNumber = queue.ids().indexOf(taskId) + 1
-        val selected = selectTask(queue, task)
-        if (selected == null) {
-          onAutoExec(task, taskNumber, effectiveMode)
-          return true
-        }
-        val selectedTask = allTasks.getTaskData(selected)
+        selectTask(queue, queue.getTaskData(taskId)) ?: return true
         try {
-          if (trySelectedAnyTask()) {
-            onAutoExec(selectedTask, taskNumber, effectiveMode)
-            return true // if this fails we should fail too
-          }
+          if (trySelectedAnyTask()) return true // if this fails we should fail too
         } catch (e: DeadEndException) {
           throw e.cause ?: e
         }
@@ -202,12 +191,7 @@ internal class Implementations(
 
     for (taskId in options) {
       try {
-        timeline.atomic {
-          val queue = queueForAnyTask(taskId)
-          val taskNumber = queue.ids().indexOf(taskId) + 1
-          val executed = doAnyTask(taskId)
-          onAutoExec(executed, taskNumber, effectiveMode)
-        }
+        timeline.atomic { doAnyTask(taskId) }
         return true
       } catch (_: AbstractException) {
         // we're in trouble if ALL of these are NotNowExceptions

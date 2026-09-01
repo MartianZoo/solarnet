@@ -129,8 +129,7 @@ Automatic-effect registration order is no longer gameplay state. Ordinary execut
 reproducible order from immutable pending-work data, while diagnostic execution shuffles eligible
 automatic siblings to expose an improper gameplay dependency. Do not include either incidental
 order in EGS. Speculative proofs still belong in disposable Worlds because their event suffixes,
-materialized indexes, and observations must not touch the live World; see
-[GAME_WORLDS.md](GAME_WORLDS.md#later-overlay-game-worlds).
+materialized indexes, and observations must not touch the live World.
 
 More generally, event history can be excluded only while game mechanics and custom code cannot read
 it. Derived indexes, caches, random-generator state, workflow fields, and future hidden-information

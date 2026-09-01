@@ -417,9 +417,9 @@ Engine runner may therefore drain all eligible owned work strongly; if it encoun
 outcomes, the ownership or instruction is wrong and must be repaired instead of selecting the first.
 Likewise, a helper Signal may remain useful causal vocabulary without becoming a Player command.
 
-The current documented exception is `WildTagUse?`: Routine completion must settle those tasks when
-they are the acting Player's only remaining work, then remove the corresponding uses. Do not add
-other Routine cleanup bridges merely to make a replay pass; that can hide the misplaced effect,
+The current documented exception is `WildTagUse?`: `TfmGameplay` completion must settle those tasks
+when they are the acting Player's only remaining work, then remove the corresponding uses. Do not
+add other client cleanup bridges merely to make a test pass; that can hide the misplaced effect,
 owner, or completion rule that made a chore player-visible.
 
 Action-local temporary state follows the same rule. Its uniquely implied settlement must complete
@@ -559,7 +559,7 @@ Keep the problems separate:
 - **Workflow return:** use the existing Player-turn control frame as the candidate unit. Required
   action settlement must finish before the workflow offers a second action or passes control.
 
-`WildTagUse` is a proving case for that hook: sequencing must replace its documented Routine
+`WildTagUse` is a proving case for that hook: sequencing must replace its documented `TfmGameplay`
 cleanup bridge without removing the bridge before the replacement exists.
 
 Any future engine-owned completion hook must run inside the enclosing atomic transaction before it

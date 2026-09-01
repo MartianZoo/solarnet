@@ -58,7 +58,6 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         count <metric>      -> counts something in the world, like `count Tag<Player2>`
         list <expression>   -> lists all instances of some type in the current world
       EXECUTION
-        do <RoutineCall>    -> executes a machine-authored Routine in purple mode
         exec <instruction>  -> initiates an arbitrary instruction if current mode allows it
         tasks               -> shows your current to-do list
         task <taskid>       -> performs a task on your to-do list

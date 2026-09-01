@@ -11,7 +11,7 @@
 
 | Task | Read |
 | --- | --- |
-| Choose commands or suite scope | Routine verification |
+| Choose commands or suite scope | Standard verification |
 | Change Gradle/dependencies/source sets | Build configuration |
 | Write or move a test | Test design through the relevant test category |
 | Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
@@ -28,7 +28,7 @@
 - [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — read only for whole-game chronology.
 
-## Routine verification
+## Standard verification
 
 The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target

@@ -1,8 +1,6 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.engine.Agent
-import dev.martianzoo.engine.AutoExecMode
-import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Vocabulary
@@ -58,7 +56,6 @@ import dev.martianzoo.tfm.script.TfmColor.HEAT
 import dev.martianzoo.tfm.script.TfmColor.MC
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.PLANT
-import dev.martianzoo.tfm.script.commands.DoCommand
 import dev.martianzoo.tfm.script.commands.TfmActionCommand
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
@@ -73,15 +70,6 @@ public class ScriptSession(
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
-
-  /** The live World currently owned by this session. */
-  public val world: World
-    get() = game
-
-  private var playerAutoExecMode: AutoExecMode = FIRST
-
-  internal val autoExecMode: AutoExecMode
-    get() = playerAutoExecMode
 
   internal lateinit var agent: Agent
   internal var optionCodes: String = ""
@@ -107,7 +95,7 @@ public class ScriptSession(
   ) {
     val candidateAgent = candidateGame.agent(ENGINE) // default autoexec mode
     if (purple) {
-      TfmWorkflow.Auto(candidateGame, playerAutoExecMode = { playerAutoExecMode }).launch()
+      TfmWorkflow.Auto(candidateGame).launch()
     } else {
       TfmWorkflow.Manual(candidateGame).setupPhase()
     }
@@ -306,7 +294,6 @@ public class ScriptSession(
               TfmBoardCommand(this),
               CountCommand(this),
               DescCommand(this),
-              DoCommand(this),
               ExecCommand(this),
               HasCommand(this),
               HelpCommand(this),
@@ -370,11 +357,6 @@ public class ScriptSession(
   internal fun onlyTask(): Task =
       selectableTasks().singleOrNull()
           ?: throw UsageException("this requires exactly one pending task")
-
-  internal fun setAutoExecMode(mode: AutoExecMode) {
-    playerAutoExecMode = mode
-    agent.autoExecMode = mode
-  }
 
   public fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")
