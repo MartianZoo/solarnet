@@ -29,15 +29,16 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
-- Make the ordinary Pets lifecycle explicit and linear: elaborate every authored entry through one
-  shared route, preserve Type-variable identity in typed values, distinguish contextual `Owner`
-  from an intentional Owner-domain choice, preserve the icon grammar's implicit `BY Owner` and
-  explicit `BY Anyone`, close component and trigger context before Task execution, and translate
-  each resolved first stage to a small executable-work type while retaining later `THEN` stages as
-  Pets.
+- Make the ordinary Pets lifecycle explicit and staged: give every authored entry the same stages
+  where their semantics are the same while keeping construct-specific specialization explicit.
+  Preserve Type-variable identity in typed values, preserve whether an `Owner` occurrence came from
+  authored scope or default insertion, preserve the icon grammar's implicit `BY Owner` and explicit
+  `BY Anyone`, close component and trigger context before Task execution, and translate each
+  resolved first stage to a small executable-work type while retaining later `THEN` stages as Pets.
 - Preserve authored Pets as stable semantic data independently of executable compilation, including
   Metric- and Requirement-valued properties; reflection-like consumers may inspect or re-submit any
-  authored subtree, and re-submission must use the shared elaboration route.
+  authored subtree, and re-submission must use the same applicable elaboration stages as fresh
+  authored input.
 - Rename instruction `Intensity` to `Quantifier` throughout.
 - **High priority:** Continue auditing `AutoExecPolicies.safe` against its proof obligation. It now
   acts only when the entire World has one pending task assigned to its Agent; it may select an
@@ -225,7 +226,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - **Low priority:** Rethink Complement Types as one design problem, including domain preservation, abstract-candidate
   narrowing, Complement combination, and nested-variable behavior, before patching the individual
-  failures (`docs/agents/TYPES.md` §12.2, §12.5, §12.6).
+  failures (`docs/agents/TYPES.md` §7 and §12.1–12.2).
 - Generalize corporation-play support so Merger can play its second corporation without also
   assuming corporation-phase card buying or a separate full turn; then remove the raw
   `PlayCard<CorporationCard>` calls from the solo whole-game tests.

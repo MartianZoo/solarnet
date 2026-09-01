@@ -37,11 +37,10 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Classes, Types, dependencies, refinements, implicit variables, or uninhabited types | The relevant numbered section of [`TYPES.md`](TYPES.md) | Current model |
+| Classes, Types, dependencies, refinements, implicit variables, or uninhabited types | The relevant numbered section of [`TYPES.md`](TYPES.md) | Current model and type-variable working direction |
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
 | Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
-| Implicit-variable design constraints and regression cases | [`TYPE_VARIABLES.md`](TYPE_VARIABLES.md), after the relevant `TYPES.md` section | Current model and focused audit |
 | Proposed generic component fanout | [`EACHPLAYER.md`](EACHPLAYER.md) | Proposal |
 | Eliminating a custom instruction | [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) | Audit |
 
