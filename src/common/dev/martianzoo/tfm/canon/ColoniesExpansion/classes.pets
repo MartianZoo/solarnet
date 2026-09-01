@@ -212,7 +212,7 @@ CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
 CLASS GiveColonyBonus<ColonyTile> : Owned<Player>, Signal
 
 "Advances every colony tile track one step, as in production and Early Colonization"
-CLASS AdvanceColonyTracks : Signal
+CLASS AdvanceColonyTracks : Signal, System
 
 "Requests one colony bonus payment for each colony the player owns"
 CLASS GiveColonyBonuses : Owned<Player>, Signal

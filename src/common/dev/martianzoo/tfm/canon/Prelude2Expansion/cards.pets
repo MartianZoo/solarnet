@@ -80,7 +80,7 @@ CLASS EarlyColonization : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: SpaceTag<This>
-  This: Colony<>, 3 Energy, 2 AdvanceColonyTracks
+  This: Colony<>, 3 Energy, 2 AdvanceColonyTracks BY Engine
 }
 
 CLASS FloatingTradeHub : ActionCard, ResourceCard<Class<Floater>, Class<PreludeCard>> {
@@ -319,7 +319,7 @@ CLASS FocusedOrganizationGain : Owned<Player>, Signal {
   This: ProjectCard, StandardResource
 }
 
-CLASS RecessionWatcher : Owned<Player> {
+CLASS RecessionWatcher : Owned<Player>, System {
   HAS =1 This
   Recession<Anyone> IF MAX 0 Recession<Owner>: -5 MC<Owner>. BY Owner, PROD[-1 MC<Owner>.] BY Owner
 }

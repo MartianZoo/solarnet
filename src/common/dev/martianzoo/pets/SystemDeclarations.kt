@@ -39,7 +39,7 @@ private val systemDeclarationsSource =
     ABSTRACT CLASS MustCleanUp : Hidden
 
     "Instances are removed automatically whenever every task queue is empty"
-    ABSTRACT CLASS Temporary : Hidden
+    ABSTRACT CLASS Temporary
 
     "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
     ABSTRACT CLASS Barrier : MustCleanUp

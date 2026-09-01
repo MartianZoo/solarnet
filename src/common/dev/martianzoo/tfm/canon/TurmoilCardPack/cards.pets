@@ -35,7 +35,7 @@ CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
 // Supporting declarations contributed by cards in this bundle.
 CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>
 
-CLASS HasRaisedTr : Generational, Hidden, Owned {
+CLASS HasRaisedTr : Generational, Owned {
   HAS MAX 1 This
 }
 

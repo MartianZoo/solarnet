@@ -160,8 +160,8 @@ ABSTRACT CLASS TagHolder : Owned<Player>
 
 "A place where an unplayed card can be associated with a player"
 ABSTRACT CLASS CardLocation : Owned<Player> {
-  CLASS Hand { HAS =1 This }
-  CLASS EventPile { HAS =1 This }
+  CLASS Hand : System { HAS =1 This }
+  CLASS EventPile : System { HAS =1 This }
   CLASS Selecting : MustCleanUp { HAS MAX 1 This }
   CLASS Revealed : MustCleanUp { HAS MAX 1 This }
 }
@@ -318,7 +318,7 @@ CLASS SecondPlace<Award> : Owned<Player> {
 ABSTRACT CLASS HasActions { HAS MAX 1 This }
 
 "Identifies one of the actions offered by a component"
-ABSTRACT CLASS WhichAction {
+ABSTRACT CLASS WhichAction : System {
   HAS =1 This
   CLASS First, Second, Third
 }
@@ -529,16 +529,16 @@ ABSTRACT CLASS Generational {
 }
 
 "Indicates that greenery placement raises oxygen"
-CLASS Photosynthesis {
+CLASS Photosynthesis : System {
   HAS MAX 1 This
   FinalGreeneryPhase: -This!
 }
 
 "Records that a particular global parameter track has not reached its maximum"
-CLASS GpIncomplete<Class<GlobalParameter>> { HAS MAX 1 This }
+CLASS GpIncomplete<Class<GlobalParameter>> : Hidden { HAS MAX 1 This }
 
 "Records that a particular global parameter track has reached its maximum"
-CLASS GpComplete<Class<GlobalParameter>> {
+CLASS GpComplete<Class<GlobalParameter>> : Hidden {
   HAS MAX 1 This
   This:: -GpIncomplete<Class<GlobalParameter>>!
 }
@@ -547,7 +547,7 @@ CLASS GpComplete<Class<GlobalParameter>> {
 ABSTRACT CLASS GameEndBarrier
 
 "A required global parameter that has not yet reached its maximum"
-CLASS GlobalParameterGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier {
+CLASS GlobalParameterGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
   HAS MAX 1 This
   GpComplete<Class<GlobalParameter>>:: -This!
 }
@@ -648,7 +648,7 @@ CLASS SoloGenerationsLeft : GameEndBarrier
 CLASS SoloVictoryCheck : Signal, System
 
 "The passive owner of the removable neutral stock in solo mode"
-CLASS SoloOpponent : Owner {
+CLASS SoloOpponent : Owner, System {
   HAS MAX 1 This
   SetupPhase: SoloStartingPlacement
 }
@@ -661,7 +661,7 @@ CLASS SoloStartingPlacement : Signal, System, Owned<SoloOpponent> {
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
-CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
+CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent>, System {
   HAS =1 This
   SetupPhase: 42 StandardResource
   SetupPhase: PROD[42 StandardResource]
@@ -672,7 +672,7 @@ CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
-CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent> {
+CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
   HAS =1 This
   SetupPhase: 42 CardResource<This>
   -CardResource<This> BY Player:: CardResource<This> BY Engine
@@ -718,5 +718,5 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
 CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden
 
 CLASS MeasureAward<Award> : Signal, System
-CLASS AwardTally<Award> : Owned<Player>
+CLASS AwardTally<Award> : Owned<Player>, Hidden
 CLASS AssignAwardPlaces<Award> : Custom
