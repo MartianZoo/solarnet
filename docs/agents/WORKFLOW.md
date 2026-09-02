@@ -60,7 +60,7 @@ chooses `Ok` to finish before the next player begins.
 
 Every solo game runs its configured generation count even if its objective is reached early. Each
 `SoloGenerationsLeft` is a `GameEndBarrier`; creating a Generation removes one, so the last
-generation is played with none. At the post-production check:
+generation is played with none. When the workflow emits `CheckGameEnd` after final production:
 
 - if the configured objective is satisfied, run Final Greenery then End;
 - otherwise abort without final greeneries or scoring and record a zero-score loss.

@@ -2,7 +2,7 @@
 CLASS TerraformingMars : Module {
   HAS =1 Mode
   HAS =1 Class<Production>
-  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
+  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<CheckGameEnd>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
   HAS =1 Class<UseAction>, =1 Class<NewTurn>, =1 Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
@@ -554,6 +554,9 @@ CLASS GpComplete<Class<GlobalParameter>> : Hidden {
 "Something that prevents the game from ending at the post-production check"
 ABSTRACT CLASS GameEndBarrier
 
+"Signals the post-production check after the final GameEndBarrier is removed"
+CLASS CheckGameEnd : Signal, System
+
 "A required global parameter that has not yet reached its maximum"
 CLASS GpGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
   HAS MAX 1 This
@@ -605,11 +608,11 @@ ABSTRACT CLASS Mode : Module {
     SetupPhase: Generation
 
     EndPhase: End THEN FinalScore
-    FinalScore: MultiplayerVictoryCheck
+    FinalScore: AssignMultiplayerVictory
   }
 }
 
-CLASS MultiplayerVictoryCheck : Custom
+CLASS AssignMultiplayerVictory : Custom
 
 // SOLO MODE
 
@@ -618,12 +621,12 @@ CLASS SoloMode : Mode {
   HAS =1 Player
   autoSelectWhen = HAS "=1 Player"
 
-  HAS =1 SoloVariant, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>, =1 Class<SoloVictoryCheck>
+  HAS =1 SoloVariant, =1 Class<SoloStandardResourceReserve>, =1 Class<SoloCardResourceReserve>
 
   This:: SoloOpponent
   This IF MAX 0 Tr63SoloVariant:: StandardSoloVariant.
-  SetupPhase:: GenerationSetup THEN Generation
-  GenerationSetup: 14 SoloGenerationsLeft
+  SetupPhase:: SoloGenerationSetup THEN Generation
+  SoloGenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
   SetupPhase: -6 TerraformRating<Player1>
   EndPhase: End THEN FinalScore
@@ -635,25 +638,22 @@ ABSTRACT CLASS SoloVariant : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloVariant {
-    SoloVictoryCheck IF MAX 0 GpIncomplete: Victory<Player1>.
+    CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player1>.
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloVariant {
     This:: BufferGasSP
 
-    SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
+    CheckGameEnd IF 63 TerraformRating<Player1>: Victory<Player1>.
   }
 }
 
 "Lets selected variants initialize solo state immediately before generation 1 begins"
-CLASS GenerationSetup : Signal, System
+CLASS SoloGenerationSetup : Signal, System
 
 "One generation that must begin before a solo game may end"
 CLASS SoloGenerationsLeft : GameEndBarrier
-
-"Checks whether the solo player satisfied the configured victory objective"
-CLASS SoloVictoryCheck : Signal, System
 
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {
@@ -669,7 +669,7 @@ CLASS SoloStartingPlacement : Signal, System, Owned<SoloOpponent> {
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
-CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent>, System {
+CLASS SoloStandardResourceReserve<Class<StandardResource>> : Owned<SoloOpponent>, System {
   HAS =1 This
   SetupPhase: 42 StandardResource
   SetupPhase: PROD[42 StandardResource]
@@ -680,7 +680,7 @@ CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent>, System {
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
-CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
+CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
   HAS =1 This
   SetupPhase: 42 CardResource<This>
   -CardResource<This> BY Player:: CardResource<This> BY Engine

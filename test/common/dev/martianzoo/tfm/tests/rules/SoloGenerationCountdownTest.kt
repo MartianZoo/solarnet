@@ -56,7 +56,7 @@ internal class SoloGenerationCountdownTest {
     player.count("TerraformRating<Me>") shouldBe 15
 
     player.manual("48 TerraformRating")
-    engine.manual("SoloVictoryCheck")
+    engine.manual("CheckGameEnd")
 
     player.count("Victory<Me>") shouldBe 1
   }

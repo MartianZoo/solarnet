@@ -55,7 +55,7 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.GetEventVps,
         TerraformingMars.PassLeft,
         TerraformingMars.AssignAwardPlaces,
-        TerraformingMars.MultiplayerVictoryCheck,
+        TerraformingMars.AssignMultiplayerVictory,
         TerraformingMars.CitationsIgnoringRemoves,
         TerraformingMars.MapBonus,
         TerraformingMars.CopyProductionBox,
@@ -327,7 +327,7 @@ private object TerraformingMars {
 
   private val VICTORY = cn("Victory")
 
-  internal object MultiplayerVictoryCheck : CustomClass() {
+  internal object AssignMultiplayerVictory : CustomClass() {
     override val requiredClassNames: Set<ClassName> = setOf(VICTORY)
 
     override fun translate(reader: GameReader): Instruction {

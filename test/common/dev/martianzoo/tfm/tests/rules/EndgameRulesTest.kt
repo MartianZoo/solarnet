@@ -36,7 +36,7 @@ internal class EndgameRulesTest : CardTest() {
   internal fun `Standard solo victory requires completing all base global parameters`() {
     newGame(players = 1)
     exhaustSoloCountdown()
-    engine.manual("SoloVictoryCheck")
+    engine.manual("CheckGameEnd")
     p1.count("Victory") shouldBe 0
 
     newGame(players = 1)
@@ -45,7 +45,7 @@ internal class EndgameRulesTest : CardTest() {
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
     exhaustSoloCountdown()
-    engine.manual("SoloVictoryCheck")
+    engine.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -57,7 +57,7 @@ internal class EndgameRulesTest : CardTest() {
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
-    engine.manual("SoloVictoryCheck")
+    engine.manual("CheckGameEnd")
     p1.count("Victory") shouldBe 0
 
     newGame(VenusNextExpansion, players = 1)
@@ -65,7 +65,7 @@ internal class EndgameRulesTest : CardTest() {
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
             "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>"
     )
-    engine.manual("SoloVictoryCheck")
+    engine.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -85,12 +85,12 @@ internal class EndgameRulesTest : CardTest() {
     p1.manual("48 TerraformRating")
     engine.manual(
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>, SoloVictoryCheck"
+            "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>, CheckGameEnd"
     )
     p1.count("Victory") shouldBe 0
 
     p1.manual("TerraformRating")
-    engine.manual("SoloVictoryCheck")
+    engine.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -101,7 +101,7 @@ internal class EndgameRulesTest : CardTest() {
     p1.manual("49 TerraformRating")
     p1.manual("-TerraformRating")
 
-    engine.manual("SoloVictoryCheck")
+    engine.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 0
   }

@@ -240,14 +240,6 @@ There is no Unicode normalization because non-ASCII display text is currently re
 `SecondAction`, the Signal for the second action slot of an action-phase turn, collides in the
 reader's head with `Action2`, but is expected to go away entirely; do not rename it in the meantime.
 
-### Victory determination
-
-`SoloVictoryCheck` is a `Signal` whose outcome is declared in Pets per solo variant;
-`MultiplayerVictoryCheck` is a `CustomClass` that computes an argmax in Kotlin. The parallel names
-promise a shared mechanism that does not exist. Both exist to create the right set of `Victory`
-components and should be unified behind one signal, with the multiplayer tiebreak supplied as a
-Custom attached to it. **Naming and mechanism both undecided.**
-
 ### Vocabulary that nobody can read
 
 `Mandate` and `MandateSignal` are trying to be concise and have ended up meaning nothing to a
@@ -255,16 +247,16 @@ reader. Replace `Mandate` with something that says what it is — `ForcedAction`
 `RequiredNextAction` are the candidates — and let `MandateSignal` and the `HandleMandates` standard
 action follow from whatever it becomes. **Names undecided.**
 
-### Miscellaneous
-
-- `SoloGenerationsLeft` is plural for a component you hold fourteen of — **name undecided**.
-
 ### Independent-toggle Modules
 
 The convention that chooses `Option` or `Variant` for an independent-toggle Module remains
 undecided.
 
 ### Known and accepted
+
+`SoloGenerationsLeft` deliberately names the counted collection: a solo game begins with fourteen
+and removes one whenever a Generation begins. The plural reads naturally at its principal uses and
+is clearer than treating each copy as a separately named token.
 
 `Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query

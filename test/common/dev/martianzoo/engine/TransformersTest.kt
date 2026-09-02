@@ -284,9 +284,11 @@ internal class TransformersTest {
   }
 
   @Test
-  internal fun `represented Class capture specializes every FakeResourceGiver effect`() {
-    val klass = Canon.classTable.getClass(parse<Expression>("FakeResourceGiver").className)
-    val component = Component(Canon.classTable.resolve(parse("FakeResourceGiver<Class<MC>>")))
+  internal fun `represented Class capture specializes every SoloStandardResourceReserve effect`() {
+    val klass =
+        Canon.classTable.getClass(parse<Expression>("SoloStandardResourceReserve").className)
+    val component =
+        Component(Canon.classTable.resolve(parse("SoloStandardResourceReserve<Class<MC>>")))
     val resource =
         klass.typeVariables.single {
           it.declaration.expression.toString() == "StandardResource"

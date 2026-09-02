@@ -157,7 +157,6 @@ public object TfmWorkflow {
         generation()
       }
       if (hasComponent("SoloMode")) {
-        engineOps.manual("SoloVictoryCheck")
         if (!engineOps.has("Victory<${players.single()}>")) return
       }
       finalGreeneryPhase()
@@ -184,7 +183,11 @@ public object TfmWorkflow {
     }
 
     private suspend fun solarPhase(): Boolean {
-      if (m.solarPhase() == null) return false
+      if (m.solarPhase() == null) {
+        engineOps.manual("CheckGameEnd")
+        awaitTasksDrained()
+        return false
+      }
       letPlayerFinish()
       return true
     }

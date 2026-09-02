@@ -42,8 +42,8 @@ internal class CanonClassesTest {
     val game = Engine.newGame(premise)
     game.classTable.allClassNames.shouldNotContain(cn("SoloMode"))
     game.classTable.allClassNames.shouldNotContain(cn("SoloOpponent"))
-    game.classTable.allClassNames.shouldNotContain(cn("FakeResourceGiver"))
-    game.classTable.allClassNames.shouldNotContain(cn("FakeResourceHolder"))
+    game.classTable.allClassNames.shouldNotContain(cn("SoloStandardResourceReserve"))
+    game.classTable.allClassNames.shouldNotContain(cn("SoloCardResourceReserve"))
     game.classTable.allClassNames.shouldNotContain(cn("PreludeCard"))
     game.classTable.allClassNames.shouldNotContain(cn("PreludePhase"))
   }
@@ -96,17 +96,19 @@ internal class CanonClassesTest {
       game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
     }
-    game.agent(PLAYER1).count("FakeResourceGiver<SoloOpponent>") shouldBe
+    game.agent(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
         game.agent(PLAYER1).count("Class<StandardResource>")
-    game.agent(PLAYER1).count("FakeResourceHolder<SoloOpponent>") shouldBe
+    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
         game.agent(PLAYER1).count("Class<CardResource>")
-    game.agent(PLAYER1).count("FakeResourceHolder<SoloOpponent, Class<Animal>>") shouldBe 1
+    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
     game
         .agent(PLAYER1)
-        .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 42
-    val fakeHolder = game.classTable.getClass(cn("FakeResourceHolder"))
-    fakeHolder.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
-    fakeHolder.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
+        .count(
+            "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+        ) shouldBe 42
+    val soloReserve = game.classTable.getClass(cn("SoloCardResourceReserve"))
+    soloReserve.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
+    soloReserve.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
 
     val engine = game.agent(ENGINE) as Agent
     game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
@@ -123,8 +125,8 @@ internal class CanonClassesTest {
     player.manual("PROD[-5 Plant<SoloOpponent>]")
     player.manual("5 Plant<SoloOpponent>")
     player.manual("PROD[5 Plant<SoloOpponent>]")
-    player.manual("-5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
-    player.manual("5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
+    player.manual("-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
+    player.manual("5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
       game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
@@ -132,7 +134,9 @@ internal class CanonClassesTest {
     }
     game
         .agent(PLAYER1)
-        .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 42
+        .count(
+            "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+        ) shouldBe 42
 
     engine.manual("End")
     game.agent(PLAYER1).count("VictoryPoint<Me>") shouldBe 14

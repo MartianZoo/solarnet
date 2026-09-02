@@ -58,7 +58,7 @@ Colony class declarations and the three resource-delay selections are hand-autho
 These perform general selections Pets cannot currently express:
 
 - `AssignAwardPlaces`
-- `MultiplayerVictoryCheck`
+- `AssignMultiplayerVictory`
 
 Revisit the last pair only if one general relational-selection facility serves both. Do not add
 isolated ranking syntax to erase their Kotlin implementations.
