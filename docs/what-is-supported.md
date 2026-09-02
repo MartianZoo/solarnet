@@ -63,4 +63,3 @@ We don't think these interpretations are wrong, but we don't know for certain.
 * We follow the convention that the "X" icon and the phrase "any number" *exclude* zero as a choice, but the phrase "up to" *includes* zero as a valid choice. Exception: a STEAL effect is not allowed to "steal zero". If you are the only player with money, you can't play Air Raid. If your hand is empty you can't play Public Plans.
 * If your MiningRights tile is somewhere with both steel and titanium bonuses, and then you RoboticWorkforce it, the game doesn't "remember" your original choice; you get to choose again.
 * In a solo game, TharsisRepublic gets +2 M€ production no matter when it is played.
-* Recession's losses and M€ production decreases are performed by each opponent, not by the card owner. The printed wording does not make the actor explicit; this interpretation means Mons Insurance does not compensate an opponent for their Recession loss.

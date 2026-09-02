@@ -1,8 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.engine.Agent.OperationBody
+import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -326,30 +330,103 @@ internal class Prelude2CardsTest : CardTest() {
     newGame(Prelude2Expansion, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    p2.manual("3 MC, PROD[-5 MC]")
-    p3.manual("10 MC, PROD[2 MC]")
+    p2.manual("4 MC, PROD[-4 MC]")
+    p3.manual("5 MC, PROD[2 MC]")
+    engine.phase("Prelude")
 
-    p1.manual("$Recession")
+    p1.playPrelude(Recession)
 
+    p1.count("$Recession") shouldBe 1
     p1.count("MC") shouldBe 10
     p2.count("MC") shouldBe 0
-    p3.count("MC") shouldBe 5
+    p3.count("MC") shouldBe 0
     p2.assertProds(-5 to "MC")
     p3.assertProds(1 to "MC")
   }
 
   @Test
-  internal fun `Recession losses are performed by each opponent`() {
-    newGame(Prelude2Expansion, PromoCardPack, players = 3)
+  internal fun `Recession is unplayable when an opponent is at minimum mc production`() {
+    newGame(PreludeExpansion, Prelude2Expansion)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
-    p2.manual("5 MC")
-    p3.manual("$MonsInsurance")
+    engine.phase("Prelude")
+    p1.playPrelude(Donation)
+    p2.playPrelude(Loan)
+    p1.playPrelude(BoardOfDirectors)
+    p2.playPrelude(Biolab)
+    engine.phase("Action")
+    p1.manual("ProjectCard")
+    p1.sellPatents(1)
+    p2.playProject(BlackPolarDust, 15) { placeTile(2, 6) }
+    p2.playProject(PeroxidePower, 7)
+    p2.assertProds(-5 to "MC")
+    val p1MoneyBefore = p1.count("MC")
+    val directorsBefore = p1.count("Director<$BoardOfDirectors>")
 
-    p1.manual("$Recession")
+    shouldThrow<LimitsException> {
+      p1.cardAction1(BoardOfDirectors) {
+        doTask(
+            "-12 MC THEN -Director<$BoardOfDirectors> THEN " +
+                "PlayCard<Class<PreludeCard>, Class<$Recession>>"
+        )
+      }
+    }
 
-    // Mons Insurance does not compensate an opponent for their self-performed Recession loss.
-    p2.count("MC") shouldBe 0
+    p1.count("$Recession") shouldBe 0
+    p1.count("MC") shouldBe p1MoneyBefore
+    p1.count("Director<$BoardOfDirectors>") shouldBe directorsBefore
+    p2.count("MC") shouldBe 8
+    p2.assertProds(-5 to "MC")
+  }
+
+  @Test
+  internal fun `Recession ordering determines which victim receives partial Mons compensation`() {
+    newGame(PreludeExpansion, Prelude2Expansion, PromoCardPack, players = 5)
+    val playerActors = Player.players(5)
+    val players = playerActors.map { game.tfm(it) }
+    val mons = players[1]
+    val victims = players.drop(2)
+    val victimActors = playerActors.drop(2)
+    mons.manual("$MonsInsurance")
+    mons.manual("-27 MC")
+    victims.forEach { it.manual("5 MC") }
+    engine.phase("Prelude")
+    p1.autoExecMode = SAFE
+
+    fun OperationBody.settle(
+        victim: Player,
+        secondPayout: Int = 3,
+    ) {
+      doTask("-5 MC<$victim> BY Player1")
+      doTask("3 MC<$victim> FROM MC<Player2>")
+      doTask("PROD[-1 MC<$victim>] BY Player1")
+      doTask("$secondPayout MC<$victim> FROM MC<Player2>")
+    }
+
+    p1.playPrelude(Recession) {
+      doTask("-5 MC<Player2> BY Player1")
+      doTask("PROD[-1 MC<Player2>] BY Player1")
+      doTask("3 MC<Player2> FROM MC<Player2>")
+      doTask("3 MC<Player2> FROM MC<Player2>")
+      settle(victimActors[0])
+      settle(victimActors[2])
+      settle(victimActors[1], secondPayout = 1)
+    }
+
+    // https://boardgamegeek.com/thread/3334230/article/44565901#44565901
+    mons.count("MC") shouldBe 0
+    victims.map { it.count("MC") } shouldBe listOf(6, 4, 6)
+    mons.count("PreludeCard") shouldBe 2
+
+    shouldThrow<LimitsException> { mons.playPrelude(MainBeltAsteroids) }
+    shouldThrow<LimitsException> { mons.playPrelude(BusinessEmpire) }
+
+    mons.startTurn()
+    mons.doTask("-PreludeCard")
+    mons.playPrelude(BusinessEmpire)
+
+    mons.count("MC") shouldBe 9
+    mons.count("$BusinessEmpire") shouldBe 1
+    mons.count("PreludeCard") shouldBe 0
   }
 
   @Test

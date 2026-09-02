@@ -32,6 +32,12 @@ The source set contains 40 cards that do not require Turmoil. Per the selected s
 Program is unsupported, and the 11 projects and 3 Preludes whose manifest compatibility includes
 Turmoil are omitted entirely.
 
+[Jacob Fryxelius's Recession ruling](https://boardgamegeek.com/thread/3334230/article/44565901#44565901)
+confirms that its player performs both losses: Mons Insurance pays each other victim 3 M€ for the
+resource loss and another 3 M€ for the production decrease. Each opponent loses up to 5 M€, but
+must be able to decrease M€ production one step; an opponent already at the production floor makes
+Recession unplayable.
+
 ## Current scope
 
 The executable manifest contains 38 cards: 5 corporations, 12 projects, and 21 Preludes. The one
@@ -55,5 +61,5 @@ by a follow-mode client. Their canonical card data now retains that printed proc
 
 The focused card tests cover the genuinely new behavior, including World Government option
 combinations, production floors, all-colony-track advancement, minimum
-tag metrics, the derived `EventTag`, opponent-authored Recession losses, and the two follow-mode
+tag metrics, the derived `EventTag`, Recession losses authored by its player, and the two follow-mode
 Venus Orbital Survey outcomes.
