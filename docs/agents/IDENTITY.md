@@ -61,9 +61,9 @@ or event performer. Current code and Pets still call the administrative Actor `E
 migration state, not the target vocabulary.
 
 Core engine state records a Task's assignee and enforces that ordinary task mutations name that
-Actor. A passive `ActorAccess` binds calls to an Actor and may present a convenient filtered view of
-the one global task pool. The initial access layer is otherwise maximally permissive. Above it, the
-Actor's unique Agent is the sole issuer of both explicit and Driver-chosen mutations.
+Actor. The Actor's unique Agent binds normal client calls to that Actor, presents a convenient
+filtered view of the one global task pool, and issues both explicit and policy-chosen mutations.
+Lower-level engine mutation remains available for deliberate workflow, replay, cheat, and test use.
 
 ## Context specialization
 

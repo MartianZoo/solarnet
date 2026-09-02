@@ -1,7 +1,7 @@
-# Agent and Actor-access API
+# Agent API
 
-> **Read when:** changing the core mutation surface, `ActorAccess`, `Agent`, `World.agent`,
-> task-command authority, script access modes, or client-visible state.
+> **Read when:** changing the core mutation surface, `Agent`, `World.agent`, task-command
+> authority, script access modes, or client-visible state.
 >
 > **Status:** selected layering direction with substantial current implementation divergence. The
 > current flat Agent remains described here only as migration evidence.
@@ -18,15 +18,15 @@
 - [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
   access modes.
 - [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target
-  dependency direction; [AUTOEXEC.md](AUTOEXEC.md) owns Agent Drivers and stable points.
+  dependency direction; [AUTOEXEC.md](AUTOEXEC.md) owns Agent policies and stable points.
 
 ## Core mutation surface
 
-The core engine has no `ActorAccess`, `Agent`, permissions policy, or autoexecution concept. It
-offers a few distinct mutation methods, validates each call against one live World, and returns its
-atomic result. A task retains one assignee in the global unordered task pool. Ordinary task calls
-name the acting Actor, and the engine rejects action by anyone other than the task's current
-assignee. That is game semantics, not caller permission.
+The core engine has no `Agent`, permissions policy, or autoexecution concept. It offers a few
+distinct mutation methods, validates each call against one live World, and returns its atomic
+result. A task retains one assignee in the global unordered task pool. Ordinary task calls name the
+acting Actor, and the engine rejects action by anyone other than the task's current assignee. That
+is game semantics, not caller permission.
 
 The audited mutation families are:
 
@@ -62,40 +62,39 @@ retains state-aware resolution and immediate execution when the result becomes c
 
 Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
 is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that
-normalization belongs to engine task admission or an Agent Driver remains open; both must use the
+normalization belongs to engine task admission or an Agent policy remains open; both must use the
 same checked narrowing relation.
-
-## ActorAccess
-
-`ActorAccess` is the working name for the passive, permissions-aware conduit between one Agent and
-the engine. It binds direct engine calls to one Actor and may provide convenient filtered reads over
-the one global task pool. It owns no queue, timeline, transaction, policy, or autonomous behavior.
-Any number may exist for one Actor and World without creating competing decision-makers.
-
-Granular permissions are explicitly postponed. The first `ActorAccess` is maximally permissive: it
-may inspect the whole World and expose every mutation family, including ex-machina operations. The
-engine still enforces game semantics such as assignment and legal narrowing. Later restrictions,
-hidden-information projections, maintenance roles, and session authentication require evidence
-from an actual higher-layer need.
 
 ## Agent
 
-A configured Game World has exactly one Agent per Actor, including Admin. Every mutation attributed
-to that Actor passes through the Agent, whether chosen autonomously or explicitly requested by an
-interactive client, script, replay, test, or workflow. The Agent serializes those requests and uses
-`ActorAccess`; callers never bypass it to mutate the engine.
+A configured Game World has exactly one Agent per Actor, including Admin. Every ordinary mutation
+chosen autonomously or explicitly requested by an interactive client enters through that Actor's
+Agent. Replay correction, tests, and workflows may deliberately use the lower-level engine API.
+The Agent serializes its requests and calls the engine's Actor-attributed methods directly. An Agent
+with no active autoexecution policy is a thin Actor-scoped client facade; a separate passive access
+object would add no present responsibility and is not planned.
 
-An Agent also owns the Driver that may autonomously choose further actions for its Actor. This
-makes human and artificial players one model: a human-directed Agent has uncovered choices, while
-installing enough policies can make the same Agent fully autonomous. The Agent need not reveal its
-policy collection, precedence, or internal decision process. [AUTOEXEC.md](AUTOEXEC.md) owns the
-Driver and pulse contract.
+`Agent.reader` is a `ScopedGameReader`. In Player scope, contextual input such as `Plant` is
+interpreted as `Plant<that Player>`, matching the current contextual `Owner` substitution.
+`agent.reader.unscoped` returns the underlying `GameReader` so callers can deliberately inspect the
+whole game without leaving the Agent API.
+
+An Agent owns the policies that may autonomously choose further actions for its Actor. This makes
+human and artificial players one model: a human-directed Agent may have no active policies, while
+installing enough policies can make the same Agent fully autonomous. Public `autoExecNow` and
+policy addition/removal belong on Agent. Policy ordering and implementation remain internal unless
+a concrete client need requires more control. [AUTOEXEC.md](AUTOEXEC.md) owns the policy and shared
+autoexecution-loop contract.
+
+One factory constructs the complete immutable Actor-to-Agent map for an engine game so all Agents
+share the same autoexecution loop. Applications retain that map or the particular Agents they need;
+the factory does not introduce another public game wrapper.
 
 ## Layer responsibility
 
-Actor access depends on engine; engine does not depend on access. Agent depends on Actor access and
-receives no raw engine mutation object. Therefore every explicit and autonomous action uses the
-same authority and validation path.
+Agent depends on engine; engine does not depend on Agent. Every ordinary explicit and autonomous
+action for one Actor enters through the same Agent methods and therefore uses the same validation
+path.
 
 The engine is indifferent to why an Actor chose one legal action. A policy that always chooses one
 die face, a bot that plays badly, and a human strategy are equal from the engine's perspective.
@@ -105,22 +104,28 @@ There are no known external clients requiring obsolete aliases. Rename or remove
 the model improves instead of keeping compatibility wrappers. Script syntax is a separate
 user-visible contract: call out any needed change before adopting it.
 
-Recording navigation is read-only and does not belong on the trusted Agent command surface.
+Direct engine mutation remains deliberately available to callers that choose the lower-level
+module. This is architectural guidance, not an attempt to prevent trusted clients from cheating.
+Ex-machina task addition/removal and concrete state changes belong to that engine API. The current
+`manual`, resumable-operation, turn, and completion conveniences may remain as engine test helpers
+while tests are migrated; they do not define the player-facing Agent contract.
+
+Recording navigation is read-only and does not belong on the Agent command surface.
 
 ## Admin
 
 A configured N-Player game has N seated Player Actors plus one Admin Actor. `Admin` is a real Pets
 Component extending `Actor`, not another name for the engine mechanism. The application creates an
-Agent for every Actor and normally makes Admin fully autonomous.
+Agent for every Actor and normally gives Admin enough policies to be fully autonomous.
 
 Admin can receive abstract tasks and make choices. Card dealing, dice, neutral setup, and similar
-rules may assign or delegate narrowing to Admin. Whether an Admin Driver follows a seeded dealer,
-chooses adversarially, or uses another legal strategy is not an engine or access-layer concern.
+rules may assign or delegate narrowing to Admin. Whether Admin policies follow a seeded dealer,
+choose adversarially, or use another legal strategy is not an engine concern.
 
 ## Remaining question
 
 - Should provably permanent forced narrowing happen during engine task admission, or should an
-  Agent Driver record it as an Actor mutation? Decide from whether the simplification represents a
+  Agent policy record it as an Actor mutation? Decide from whether the simplification represents a
   game action or merely removes a specification that never denoted more than one possibility.
 
 ## Current implementation divergence
@@ -131,10 +136,10 @@ is still named `Engine`. Public task mutation has been reduced to checked narrow
 single-task removal. The extraction should preserve behavior while successively:
 
 1. reduce core entry to the audited direct mutation families;
-2. move passive Actor binding above engine as `ActorAccess`;
-3. replace public many-queue language with one task pool plus filtered views;
-4. make Agent the sole mutation issuer and unique Driver host for one Actor; and
-5. move Driver policy and generic pulse dispatch above Actor access.
+2. create `:agent` above `:engine`, with one stable Agent per Actor and an Actor-scoped reader;
+3. replace public many-queue language with one engine task pool plus Agent-filtered views;
+4. move parsing, policy ownership, and the shared autoexecution loop into `:agent`; and
+5. migrate normal clients to Agent while keeping direct engine cheats and test helpers explicit.
 
 Do not retain obsolete aliases merely to preserve the current public API. User-visible script
 syntax must be migrated deliberately.

@@ -57,13 +57,13 @@ Placing an ocean precedes Arctic Algae; raising production precedes Manutech. On
 consequence joins the pool without priority.
 
 The engine's contract is to support every rules-valid committed state and no rules-invalid one; it
-does not choose a play policy. The `first` Agent Driver is a legitimate, deliberately
-unsophisticated policy: it chooses the first executable task in the current presentation. A safe
-Driver may instead stop and ask, a seeded random Driver may choose among executable tasks without
-randomizing their stored presentation, and an Admin Driver may intelligently order Admin's ordinary
+does not choose a play policy. The `first` Agent policy is legitimate and deliberately
+unsophisticated: it chooses the first executable task in the current presentation. A safe policy
+may instead stop and ask, a seeded random policy may choose among executable tasks without
+randomizing their stored presentation, and an Admin policy may intelligently order Admin's ordinary
 tasks. The current auto-execution implementation is engine-side, but those policies belong in the
 Agent and are intended to move there. No policy order may become an engine guarantee or an authored
-precedence rule; the generic pulse dispatcher only coordinates wake-ups.
+precedence rule; the shared autoexecution loop only gives Agents chances to act.
 
 Tests should prove only real precedence. When freedom matters, also prove that representative legal
 sibling orders remain executable. Such a freedom test does not require the orders to produce the

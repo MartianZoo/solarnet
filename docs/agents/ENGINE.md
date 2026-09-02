@@ -58,10 +58,13 @@ A live Game World is a `World` containing:
 | `ClassTable` | The closed vocabulary and type relationships |
 | Mutation executor | Validation and atomic calculation for direct Actor-attributed calls |
 
-The target core engine has no `ActorAccess`, Agent, permissions, or autoexecution API. Those layers
-consume the World and its small direct mutation surface from above; see
+The planned `:state` library owns a narrower `GameWorld`: concrete component data, readable
+projections, and fully concrete gain, removal, and transmutation only. It has no Instructions,
+tasks, effects, Agent, or autoexecution. The engine consumes that state API and owns task and
+instruction semantics. The planned `:agent` library consumes the engine and supplies the normal
+Actor-scoped client API and optional policies. See
 [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) and
-[API.md](API.md). Current code still combines these responsibilities.
+[API.md](API.md). Current code still combines these responsibilities in `World` and `:engine`.
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
@@ -154,11 +157,22 @@ Removing the last target cascades: `ComponentGraph` reports existing dependents,
 them first, then retries the original removal.
 
 The only state mutation is a count plus optional source and destination. A transmutation removes
-before it adds. Every successful mutation updates live-effect indexes and enters the Event Log.
+before it adds. Currently every successful mutation updates live-effect indexes and enters the
+combined Event Log.
 `ComponentGraph.listenToCount` observes the live count of one resolved Type, reports its initial
 value immediately, and reports later changes during both forward play and recording navigation.
 The caller supplies the World's `GameReader` for abstract or refined Type evaluation and can cancel
 the returned subscription. Listener failures do not interrupt state mutation.
+
+**Forward-looking:** `GameWorld` applies only a fully concrete gain, removal, or transmutation. It
+does not index or fire effects. The engine invokes that operation and reacts to a neutral description
+of what changed. Prefer a return value if it preserves the required ordering; if synchronous
+notification is necessary, state accepts a generic callback expressed only in state vocabulary.
+The callback must not name the engine, effects, tasks, or Instructions.
+
+`sneak` therefore remains an engine cheat, not a state operation. Normal execution and `sneak`
+apply the same concrete `GameWorld` mutation; the engine decides whether to process the reported
+change through effects.
 
 `Custom` classes never enter the graph. Custom metrics report virtual non-negative counts; custom
 instructions translate concrete input to instruction trees. A custom declaration may use
@@ -212,7 +226,7 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 A temporary 1-based display position may disambiguate equal-looking tasks. It is not an id.
 
 Semantically there is one World task pool. Actor-specific queues are current filtered API views,
-not independent state containers. `ActorAccess.tasks` may present the fiction of one Actor's queue
+not independent state containers. `Agent.tasks` may present the fiction of one Actor's queue
 without promoting that view into the engine model.
 
 `InstructionTree` is the broad AST kind. `Instruction` is one task-shaped root.
@@ -576,13 +590,13 @@ auto-exec, preserves previously pending unselected tasks, and fails if newly cre
 `sneak()` applies raw changes without normal instruction resolution or effects, but still uses the
 timeline and graph mutation interfaces.
 
-**Forward-looking:** the passive Actor-scoped capability moves above the core engine and is renamed
-`ActorAccess`, as described in [API.md](API.md). The core instead exposes the audited distinct
-mutation families against one task pool; it does not gain a universal request type merely to unify
-them. Actor assignment remains core game semantics. The first access layer is deliberately
-maximally permissive, including explicitly named ex-machina operations; granular caller roles are
-postponed. Agent then means the sole issuer of explicit and Driver-chosen mutations for one Actor.
-Public task mutation is already limited to checked narrowing and explicit single-task removal.
+**Forward-looking:** `:agent` owns the normal Actor-scoped client API. Agent calls the core engine's
+audited mutation families directly against one task pool; a separate passive access object is not
+needed. Actor assignment remains engine semantics. Agent is the sole issuer of ordinary explicit
+and policy-chosen mutations for one Actor. Direct engine primitives remain available for workflows,
+replay correction, cheats, and tests; preventing trusted callers from using them is not a current
+goal. Public task mutation is already limited to checked narrowing and explicit single-task
+removal.
 
 ## Current auto-execution and Terraforming Mars workflow
 
@@ -590,12 +604,13 @@ Autoexecution currently uses `Agent.autoExecMode`: `NONE` does nothing, `SAFE` p
 one selectable option exists, and `FIRST` chooses the first selectable task in iteration order.
 Scanning is global; assignee selects the queue and stored Actor controls attribution.
 
-**Forward-looking:** core engine contains no autoexecution. An access layer creates passive
-`ActorAccess` conduits. Above it, an application creates one Agent per Actor; each owns its private
-`AgentDriver`. The engine emits a generic coherent-revision pulse, and a session dispatcher wakes
-Agents to a policy-relative stable point before the outer Agent call returns. A normal application
-makes Admin fully autonomous, but the engine is indifferent to every legal policy choice.
-[AUTOEXEC.md](AUTOEXEC.md) owns that target and records the current divergence.
+**Forward-looking:** core engine contains no autoexecution. An application creates one Agent per
+Actor, and each Agent owns its optional policies. After one engine mutation and its immediate
+consequences finish, shared Agent wiring gives every Agent a chance to act. If one acts, the wiring
+starts over against the changed game; the original Agent call returns after a complete pass in
+which none acts. A normal application makes Admin fully autonomous, but the engine is indifferent
+to every legal policy choice. [AUTOEXEC.md](AUTOEXEC.md) owns that target and records the current
+divergence.
 
  `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
  `Agent`. Treat it as transitional; its test conveniences and player-facing domain actions need not
@@ -614,9 +629,9 @@ in [WORKFLOW.md](WORKFLOW.md).
 Effector, Timeline, and other World-level services are shared. Each Actor currently receives its
 own `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` scope.
 
-The target core composition retains only the Actor context required to calculate one direct
-mutation. Passive filtered views belong to `ActorAccess`; unique long-lived Agents, their Drivers,
-and generic pulse dispatch belong above that.
+The target engine composition retains only the Actor context required to calculate one direct
+mutation. The separate state composition retains no Actor decision context. Actor-filtered reads,
+unique long-lived Agents, their policies, and the shared autoexecution loop belong in `:agent`.
 
 Kotlin keeps `Actor` and `Owner` distinct. Current Players are both. A passive Pets Owner such as
 `SoloOpponent` has no gameplay scope or task queue.
