@@ -37,6 +37,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   self-removal should default to mandatory.
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
 - Split `Instructor.resolveChange` into narrowing, custom translation, and limit-checking stages.
+- Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
+  names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
+  Terraforming Mars data sitting in the language core, and it is the only reason generic Action
+  lowering knows any game's vocabulary.
+- Delete `Task.whyPending`'s use as state. Only `"abstract"` and `"currently impossible"` are ever
+  stored, and `"abstract"` is recomputed from `instruction.isAbstract(reader)` in `explainNotNow`
+  anyway, yet `Implementations.requireComplete` and `TfmGameplay` branch on the string literal. Ask
+  the instruction, and leave `whyPending` a pure diagnostic message.
+- Delete `pets/util/PairingChecker.kt`, along with its own tokenizer and grammar. It has no
+  production caller; `PairingCheckerTest` is its only reference in the repository.
 ### Hypothetical Card Behavior
 
 - Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a
@@ -76,3 +86,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
 - Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.
+- Share the one three-valued abstract interpreter over Pets that currently exists twice. `Truth`,
+  `truthOfAll`, `truthOfAny`, `isUninhabited`, `truthOf`, and `triggerReachable` appear as private
+  members of both `ClassLoader` and `PremiseViability`, near-verbatim; `ClassLoader`'s copy alone
+  additionally consults `configuredCount`. The two run adjacently in one pipeline —
+  `ClassTable.forPremise` calls `PremiseViability.validate` right after loading — so extracting one
+  implementation parameterized by the inhabitance question each caller answers is safe, and leaves
+  uninhabited-Type reasoning with a single definition.

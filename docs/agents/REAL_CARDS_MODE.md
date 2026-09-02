@@ -28,6 +28,8 @@
   — inspect the canonical hidden-procedure representation.
 - [`FollowModeNeutralizer.kt`](../../src/common/dev/martianzoo/tfm/canon/FollowModeNeutralizer.kt)
   — search for `neutralize` before changing current executable lowering.
+- [`ClassDeclaration.kt`](../../src/common/dev/martianzoo/pets/data/ClassDeclaration.kt)
+  — search for `executableEffects`, the shadow effects list this mode installs.
 - [Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
   — search for `CARDS[` to sample canonical authored operations.
 - [`CardClassTest.kt`](../../test/common/dev/martianzoo/tfm/canon/CardClassTest.kt)
@@ -521,6 +523,38 @@ Develop real-card lowering by operation family while preserving the correspondin
 
 Shared definitions with no transition difference need one form. Do not mechanically duplicate or
 rename every card definition.
+
+### Retire `ClassDeclaration.executableEffects`
+
+**Working direction:** find a way to lower follow mode without a second stored copy of a class's
+effects.
+
+`ClassDeclaration` carries a nullable `executableEffects` beside `authoredEffects`, so a class can
+hold two representations of the same behavior. Its only writer anywhere is
+`FollowModeNeutralizer.neutralize`; `DerivedClassLowerer` then has to thread it through, and
+`ClassDeclaration.effects` silently prefers it. A mode-specific shadow field on the language's core
+declaration type is the wrong home for what is really one Catalog's lowering choice.
+
+This is worth solving now rather than after real mode lands, because real mode adds a *second*
+lowering of the same authored `CARDS[...]` sources. Two shadow fields, or one field whose meaning
+depends on the selected Module, would be worse than today.
+
+Directions to try, cheapest first:
+
+1. **Lower at Catalog load, keep one field.** If neutralization runs while the Catalog is being
+   built, the loaded declaration can simply *be* the executable one and `authoredEffects` stays the
+   only stored effects list. Check what still needs the authored form: today it is `renderChange`
+   (`authoredEffectsWithActions`) and `TfmCatalog`'s action check. If those callers can read the
+   authored form from the parsed source or from a rendering-only side table, the field disappears.
+2. **Make the mode a projection, not a rewrite.** Follow mode is already a Module selection. If the
+   `CARDS[...]` handler is chosen per premise and applied during class loading, both modes read one
+   authored declaration and neither stores a rewritten copy.
+3. **Give the operation a component.** If the card-operation families in “Canonical card-operation
+   source” become declared classes rather than a marker plus a recognizer, most of what
+   `FollowModeNeutralizer` rewrites becomes ordinary mode-specific effects on mode-specific classes,
+   and there is nothing left to shadow.
+
+Any of these is acceptable. Storing both forms is not, once there is a third consumer.
 
 ## Rejected designs
 

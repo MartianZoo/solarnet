@@ -329,6 +329,37 @@ The written form records the exclusion but not an independently narrowed domain.
 consequences and defects are listed in section 12; do not patch individual symptoms before deciding
 whether Complements are genuine difference Types.
 
+**Working direction: keep trying to remove Complements from the type system.** They are not paying
+for themselves. The whole Catalog authors `!` in eight places, in three shapes:
+
+| Shape | Sites |
+| --- | --- |
+| `BY !Owner` on a trigger | `ProtectedHabitats`, `AsteroidDeflectionSystem`, `LandClaimMarker` |
+| Complemented argument in a trigger, carried into its instruction | `ResourceRemovalWatcher`, `ProductionDecreaseWatcher`, `Philares` |
+| Complemented argument in a count or refinement | `TollStation`'s `SpaceTag<!Owner>`, `Viron`'s `ActionUsedMarker<!Viron>` |
+
+Against that, Complements cost a third `Dependency` case with its own `glb`, `lub`, `narrows`,
+`intersect`, and `allConcreteSpecializations`; Complement branches through `TypeVariableScope`,
+`Class`, and `inferTypeVariables`; a whole extra defaults pass
+(`Transformers.insertDeferredComplementDefaults`, invoked twice from `LiveEffect` precisely because
+the second shape carries a Complement into an instruction); and both entries in section 12.
+
+Before extending them, try to eliminate them, shape by shape:
+
+- The `BY !Owner` sites ask about the *event's performer*, not about a Type. If trigger matching
+  could express "performed by anyone other than this component's owner" directly, those three uses
+  stop being Types at all, and they are the ones whose exclusion never needs to survive into an
+  instruction.
+- The watcher sites need the excluded party's identity *in the resulting instruction*, so they are
+  the real test. Decide whether that is a Type question or a binding question; if the trigger can
+  bind "the other owner" as an ordinary value, the deferred defaults pass goes with it.
+- The counting sites are arithmetic. Check whether a refinement over the ownership dependency, or
+  subtraction of two ordinary counts, expresses each one exactly.
+
+If every site can be re-expressed, delete Complements rather than settling section 12. If some site
+genuinely cannot, that site is the evidence needed to decide whether Complements are difference
+Types — record it here.
+
 ## 8. Class Tables
 
 Every Type belongs to one immutable Catalog-wide master universe. Values from different master
@@ -552,7 +583,10 @@ Class-header declaration may have uses in several comma-separated Effects.
 - `Owner` means the exact context owner when one exists. An ownerless triggered rule may instead
   receive the event's Player Actor under the implicit trigger rule in
   [IDENTITY.md](IDENTITY.md#implicit-trigger-owner). Otherwise it remains abstract and may be
-  eligible for normal variable declaration and choice semantics.
+  eligible for normal variable declaration and choice semantics. `Owner` is also a real Class, and
+  `Anyone` exists only to name that bound without the contextual meaning; whether that overload
+  should survive is audited in
+  [IDENTITY.md](IDENTITY.md#owner-is-overloaded-as-a-class-and-as-a-contextual-variable).
 - `BY Anyone` is an unrestricted Actor filter, not a declaration. `BY !Owner` and other complemented
   selectors are filters, not binders. A positive simple abstract Actor subtype such as `BY Player`
   uses the explicit binder rule in the table.
