@@ -16,6 +16,8 @@ import dev.martianzoo.pets.api.Exceptions.abstractInstruction
 import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -26,11 +28,11 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
@@ -53,6 +55,17 @@ internal class Implementations(
   private object SelectionProbeSucceeded : RuntimeException()
 
   private object ExecutionProbeSucceeded : RuntimeException()
+
+  private val immutableClassFacts =
+      object : TypeInfo {
+        override fun isAbstract(e: Expression): Boolean = reader.resolve(e).isAbstract(this)
+
+        override fun ensureNarrows(wide: Expression, narrow: Expression) {
+          reader.resolve(narrow).ensureNarrows(reader.resolve(wide), this)
+        }
+
+        override fun has(requirement: Requirement): Boolean = false
+      }
 
   // CHANGES LAYER
 
@@ -77,11 +90,7 @@ internal class Implementations(
   internal fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
       tasks.addTasks(instructions, firstCause).map { it.task.id }
 
-  internal fun editTask(task: Task): TaskEditedEvent? = tasks.editTask(task)
-
   internal fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
-
-  internal fun dropTasks(): List<TaskRemovedEvent> = tasks.ids().map(tasks::removeTask)
 
   // OPERATIONS LAYER
 
@@ -266,6 +275,39 @@ internal class Implementations(
 
   internal fun narrowTask(narrowing: InstructionTree, intensityOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("$actor has no selected task")
+    narrowSelectedTask(taskId, narrowing, intensityOmitted)
+  }
+
+  internal fun narrowTask(
+      taskId: TaskId,
+      narrowing: InstructionTree,
+      intensityOmitted: Boolean = false,
+  ) {
+    val task = tasks.getTaskData(taskId)
+    if (actor != task.assignee) {
+      throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
+    }
+    enforceSelectLock(taskId)
+    if (task.selected) {
+      narrowSelectedTask(taskId, narrowing, intensityOmitted)
+      return
+    }
+
+    val effectiveNarrowing =
+        effectiveNarrowing(narrowing, task.instruction, intensityOmitted, immutableClassFacts)
+    effectiveNarrowing.ensureNarrows(task.instruction, immutableClassFacts)
+    if (effectiveNarrowing == task.instruction) return
+    val instruction =
+        effectiveNarrowing as? Instruction
+            ?: throw TaskException("one task can't be narrowed to independent tasks")
+    tasks.editTask(task.copy(instructionIn = instruction, whyPending = null))
+  }
+
+  private fun narrowSelectedTask(
+      taskId: TaskId,
+      narrowing: InstructionTree,
+      intensityOmitted: Boolean,
+  ) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
       throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
@@ -520,9 +562,10 @@ internal class Implementations(
       narrowing: InstructionTree,
       existing: InstructionTree,
       intensityOmitted: Boolean,
+      info: TypeInfo = reader,
   ): InstructionTree {
     if (!intensityOmitted || narrowing !is Change) return narrowing
-    if (narrowing.narrows(existing, reader)) return narrowing
+    if (narrowing.narrows(existing, info)) return narrowing
 
     fun inheritIntensity(change: Change): InstructionTree =
         when (narrowing) {
@@ -539,7 +582,7 @@ internal class Implementations(
         }
     return choices
         .mapNotNull { choice ->
-          inheritIntensity(choice).takeIf { inherited -> inherited.narrows(choice, reader) }
+          inheritIntensity(choice).takeIf { inherited -> inherited.narrows(choice, info) }
         }
         .distinct()
         .singleOrNull() ?: narrowing

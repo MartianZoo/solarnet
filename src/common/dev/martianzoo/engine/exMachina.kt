@@ -1,9 +1,7 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
@@ -23,7 +21,7 @@ public fun World.exMachina(adjustingAgent: Agent, adjustment: String) {
   val previousAutoExecMode = selectedAgent.autoExecMode
   selectedAgent.autoExecMode = NONE
   try {
-    selectedAgent.editTask(taskBeforeSelection(selectedId))
+    tasks.editTask(taskBeforeSelection(selectedId))
     adjustingAgent.sneak(adjustment)
     selectedAgent.selectTask(selectedId)
   } finally {

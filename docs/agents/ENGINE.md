@@ -255,10 +255,10 @@ Resolution and execution are engine consequences of those activities. Selection 
 promise, not a Timeline commit; commit retains its transactional meaning after execution. An Actor
 with neither a selectable task nor any legal task narrowing has nothing to do.
 
-The target API permits an unselected task to be narrowed only by a check that discards options
-without consulting mutable World state. It does not resolve or execute the task. Current public
-`narrowTask` requires selection, while public `editTask(Task)` is an overpowered transitional route
-that must be replaced by this checked operation.
+The current API permits an unselected task to be narrowed by id only when a compositional check
+discards options without consulting mutable World state. It does not resolve or execute the task.
+Selected-task narrowing remains state-aware and resolves again before executing a concrete result.
+Arbitrary task replacement is private engine bookkeeping.
 
 `InstructionTree` and its narrowable parts implement `Specification`: `isAbstract` reports whether
 an externally supplied choice remains, while `narrows` and `ensureNarrows` compare two
@@ -582,8 +582,7 @@ mutation families against one task pool; it does not gain a universal request ty
 them. Actor assignment remains core game semantics. The first access layer is deliberately
 maximally permissive, including explicitly named ex-machina operations; granular caller roles are
 postponed. Agent then means the sole issuer of explicit and Driver-chosen mutations for one Actor.
-Public arbitrary task editing becomes checked narrowing, and the bulk task-drop convenience is
-deleted.
+Public task mutation is already limited to checked narrowing and explicit single-task removal.
 
 ## Current auto-execution and Terraforming Mars workflow
 

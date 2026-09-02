@@ -43,8 +43,9 @@ narrowing, and error handling. `manual`, turn, and phase conveniences compose ex
 addition with ordinary task action. None justifies a universal request type or
 `engine.submit(actor, request)`.
 
-Delete the current public `dropTasks` bulk convenience. Replace public `editTask(Task)` with checked
-task narrowing; arbitrary task-data edits remain private engine bookkeeping.
+The current flat Agent now exposes one checked id-based narrowing and one explicit ex-machina task
+removal. It has no arbitrary task replacement or bulk task-removal command. Internal task-data edits
+remain engine bookkeeping, including restoration around an evidenced replay correction.
 
 ## Narrowing before selection
 
@@ -56,6 +57,8 @@ An unselected task may receive a state-independent narrowing, such as replacing 
 subtype established by immutable Class facts. It remains unselected and unexecuted. This operation
 must not evaluate AMAP, a gate, a Metric, current viability, or any other mutable-World fact.
 Selection establishes the promise to act next and the select-lock before those facts are resolved.
+The current `Agent.narrowTask(taskId, narrowing)` implements this check; the selected-task overload
+retains state-aware resolution and immediate execution when the result becomes concrete.
 
 Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
 is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that
@@ -124,7 +127,8 @@ chooses adversarially, or uses another legal strategy is not an engine or access
 
 Today `Agent`, parsing, direct mutation powers, `autoExecMode`, and atomic completion all live in
 `:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, and the Actor
-is still named `Engine`. The extraction should preserve behavior while successively:
+is still named `Engine`. Public task mutation has been reduced to checked narrowing and explicit
+single-task removal. The extraction should preserve behavior while successively:
 
 1. reduce core entry to the audited direct mutation families;
 2. move passive Actor binding above engine as `ActorAccess`;
