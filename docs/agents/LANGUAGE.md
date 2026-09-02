@@ -131,8 +131,7 @@ needs. Add another layer only when a current decision cannot be represented hone
 
 ## Prioritized architecture work
 
-[`TODO.md`](../../TODO.md) decides scheduling. When English architecture is selected, use this
-dependency order.
+When English architecture is selected, use this dependency order.
 
 ### 1. Structure conditions and counts
 

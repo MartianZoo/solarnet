@@ -25,8 +25,8 @@
   APIs that the selected layering direction will extract.
 
 The generic runtime is mostly reusable, but a few interfaces still mix Pets/engine mechanics with
-Terraforming Mars or REgo application policy. `TODO.md` decides whether any dependency is worth
-changing.
+Terraforming Mars or REgo application policy. Any selected change must follow the focused directions
+below; their presence does not schedule it.
 
 ## Selected runtime dependency direction
 

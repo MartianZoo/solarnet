@@ -579,7 +579,7 @@ Also characterize whether World Government Terraforming ought to fail under the 
 rule rather than relying on the missing context to suppress the effect. An AMAP TerraformRating
 gain is another possibility to examine, but it must not casually redefine AMAP: an existing target
 with zero invariant headroom is different from a missing Player dependency. The investigation is
-tracked in [`TODO.md`](../../TODO.md).
+tracked by this open question.
 
 ## Open language and modeling questions
 

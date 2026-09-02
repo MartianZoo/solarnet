@@ -8,7 +8,7 @@ current task, read its “Read when” note and named sections, then inspect the
 - **Current model:** a map of committed behavior. Source and tests win when details differ.
 - **Working rule:** a design constraint for new work, even if current code diverges.
 - **Proposal:** unimplemented or partial direction; never permission to implement the whole idea.
-- **Audit:** known gaps or suspicious ownership. [`TODO.md`](../../TODO.md) decides priority.
+- **Audit:** known gaps or suspicious ownership within the document's focused subject.
 - **Research:** preserved evidence and conclusions, not product behavior.
 - **Procedure:** steps to follow for a particular kind of work.
 
@@ -89,8 +89,8 @@ Read [`WORKTREES.md`](WORKTREES.md). It is mandatory for these operations and ir
 
 ## Maintain this collection
 
-- Put prioritized work in [`TODO.md`](../../TODO.md); these documents must not become competing
-  backlogs.
+- Keep focused programs of work in the smallest owning document. Use [`TODO.md`](../../TODO.md)
+  only for miscellaneous work not already covered by one of these focused plans.
 - Keep current behavior, proposed behavior, and desired rules visibly separate.
 - Link to production source and meaningful tests instead of copying inventories that can drift.
 - For a source location, give the file and a stable search string, never a line number.

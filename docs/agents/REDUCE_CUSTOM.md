@@ -4,7 +4,7 @@
 > with hand-authored Pets and general runtime semantics.
 >
 > **Skip when:** just implementing a custom operation or metric, or when no custom is being
-> removed. [`TODO.md`](../../TODO.md) decides priority.
+> removed.
 >
 > **Status:** audit.
 

@@ -139,7 +139,8 @@ scoring. Preserve every clearly ordered operation. Do not reorder actions to eli
 If the sources instead show an illegal physical action cadence that the workflow cannot represent,
 do not silently change ownership or invent a missing action. Isolate an extra action's evidenced
 state change at its exact checkpoint when possible; otherwise make the smallest chronology distortion
-and say exactly what moved and why. Record the missing general mechanism in `TODO.md`.
+and say exactly what moved and why. Keep a game-specific uncertainty with that game's source
+inventory; update the smallest owning focused document only when a reusable mechanism is selected.
 
 Follow the current full-game test style instead of copying an old revision:
 

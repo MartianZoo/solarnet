@@ -669,4 +669,5 @@ For a new A-before-B claim:
 10. Add a precedence test and, when relevant, a freedom test that demonstrates alternative legal
     orders. Do not require those orders to converge unless the game rule itself makes order
     irrelevant.
-11. Classify the result above and update `TODO.md` if work remains.
+11. Classify the result above. Update the owning section here when focused work remains; use
+    `TODO.md` only for a miscellaneous follow-up outside this plan.
