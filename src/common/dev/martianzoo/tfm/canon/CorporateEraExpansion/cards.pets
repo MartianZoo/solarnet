@@ -189,7 +189,7 @@ CLASS AdvancedAlloys : ActiveCard<Class<ProjectCard>> {
   cost = 9
 
   This:: ScienceTag<This>
-  Pay<Class<Metal>>:: -Owed<>
+  This:: GrantedResourceValue<Class<Titanium>, This>, GrantedResourceValue<Class<Steel>, This>
 }
 
 CLASS MarsUniversity : ActiveCard<Class<ProjectCard>> {

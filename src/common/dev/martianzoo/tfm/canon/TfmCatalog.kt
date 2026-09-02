@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -82,8 +83,15 @@ public open class TfmCatalog : Catalog {
       ) {
         val hasNontrivialBehavior =
             cardActions(card).isNotEmpty() ||
-                card.declaration.authoredEffects.any { effect ->
-                  !effect.trigger.isSelfGainTrigger() && !effect.trigger.isEndTrigger()
+                cardEffects(card).any { effect ->
+                  when {
+                    effect.trigger.isEndTrigger() -> false
+                    !effect.trigger.isSelfGainTrigger() -> true
+                    else ->
+                        effect.instruction.descendantsOfType<Gain>().any { gain ->
+                          table.getClass(gain.gaining.className).carriesPersistentBehavior()
+                        }
+                  }
                 }
         val active = card.isSubtypeOf(activeCard)
         val automated = card.isSubtypeOf(automatedCard)
@@ -113,6 +121,14 @@ public open class TfmCatalog : Catalog {
         is OnGainOf,
         is Trigger.OnRemoveOf,
         Trigger.WhenRemove -> false
+      }
+
+  private fun PetClass.carriesPersistentBehavior(): Boolean =
+      allSuperclasses().any { superclass ->
+        superclass.declaration.authoredActions.isNotEmpty() ||
+            superclass.declaration.authoredEffects.any { effect ->
+              !effect.trigger.isSelfGainTrigger() && !effect.trigger.isEndTrigger()
+            }
       }
 
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {

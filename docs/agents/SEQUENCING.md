@@ -292,16 +292,16 @@ not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentT
 current subscribers that need a before-A modification. `Accept` is not a committed precursor at
 all: it exposes an optional payment choice.
 
-Random automatic-effect order exposes a separate limitation in payment history. Steel, Titanium,
-Advanced Alloys, and similar `Pay` reactions all remove the same saturating `Owed`; when their total
-value exceeds the remaining debt, execution order decides which cause receives credit for the last
-units. Reconstructed games still reach the same paid state, but replay summaries of individual
-discounts vary. Do not stabilize those summaries by assigning an order to the sibling effects. The
-better repair is the payment direction in [PAYMENTS.md](PAYMENTS.md): produce complete, source- and
-invoice-qualified tender value first, then consume debt once, retaining enough evidence to validate
-excess payment and attribute every contribution. Until then, this attribution variance is diagnostic
-noise rather than a gameplay regression. That larger, nice-to-have repair is intentionally not
-folded into the card-play sequencing fixes here.
+Random automatic-effect order exposes a separate limitation in payment history. The applicable
+`ResourceValue` components all remove the same saturating `Owed`; when their total value exceeds the
+remaining debt, execution order decides which source receives credit for the last units.
+Reconstructed games still reach the same paid state, but replay summaries of individual value
+contributions vary. Do not stabilize those summaries by assigning an order to the sibling effects.
+The better repair is the payment direction in [PAYMENTS.md](PAYMENTS.md): produce complete, source-
+and invoice-qualified tender value first, then consume debt once, retaining enough evidence to
+validate excess payment and attribute every contribution. Until then, this attribution variance is
+diagnostic noise rather than a gameplay regression. That larger, nice-to-have repair is
+intentionally not folded into the card-play sequencing fixes here.
 
 ### Do not make proposed changes triggerable
 

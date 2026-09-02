@@ -151,10 +151,12 @@ The component graph is only a multiset of concrete Types. Components have no fie
 identity. Equal Types are indistinguishable copies. The Kotlin `Component` type is therefore an
 unboxed value wrapper when its use site permits, not an interned state object.
 
-A concrete component may depend on other concrete components through its Type. Every possible
-dependency target must have an applicable maximum-one invariant so the edge identifies one vertex.
-Removing the last target cascades: `ComponentGraph` reports existing dependents, `Changer` removes
-them first, then retries the original removal.
+A concrete component may depend on other concrete components through its Type. Every dependency
+target admitted by a concrete class must have an applicable maximum-one invariant so the edge
+identifies one vertex. An abstract class may defer that proof, but each concrete subclass must
+narrow or otherwise satisfy the inherited dependency bound. Removing the last target cascades:
+`ComponentGraph` reports existing dependents, `Changer` removes them first, then retries the original
+removal.
 
 The only state mutation is a count plus optional source and destination. A transmutation removes
 before it adds. Currently every successful mutation updates live-effect indexes and enters the

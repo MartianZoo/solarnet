@@ -12,8 +12,8 @@
 ## Source map
 
 - [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
-  — search separately for `CLASS Pay`, `ABSTRACT CLASS Owed`, and `ABSTRACT CLASS Billing` to inspect
-  the current distributed protocol.
+  — search separately for `CLASS Pay`, `CLASS ResourceValue`, `ABSTRACT CLASS Owed`, and
+  `ABSTRACT CLASS Billing` to inspect the current distributed protocol.
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — search for `Stormcraft` only when evaluating source attribution.
 - [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
@@ -38,12 +38,14 @@ The payment system must eventually distinguish three facts:
 3. how much of the combined value was needed to settle the invoice.
 
 Today it preserves the first fact but not the other two. `Pay` and `PayFromCard` remove the selected
-resource. Automatic effects then remove `Owed`, stopping harmlessly when no matching debt remains.
-For example, one Steel removes two M€ of debt through the Steel rule and possibly another
-through Advanced Alloys. (`Pay` itself handles payment whose resource matches the debt denomination.)
-If the earlier removals exhaust the debt, the later effect records no contribution. The result
-depends on automatic-effect execution order, although that order is not a game rule and must not
-decide which card receives credit.
+resource. Each owned `ResourceValue` for that resource then removes one M€-denominated `Owed`,
+stopping harmlessly when no matching debt remains. Players start with two `BaseResourceValue`
+components for steel and three for titanium. Advanced Alloys and the single-resource modifier cards
+grant source-dependent values; Martian Lumber Corp demonstrates the same rule with three plant
+values. M€ has no `ResourceValue`: `Pay` already settles debt when the paid resource and invoice
+denominations match. If the earlier removals exhaust the debt, a later value component records no
+contribution. The result depends on automatic-effect execution order, although that order is not a
+game rule and must not decide which source receives credit.
 
 Consequently the engine cannot tell the difference between value that was never offered and value
 that was offered but unnecessary. Direct task execution can therefore settle an invoice after an
@@ -97,11 +99,11 @@ the allocation if any reduced selection still covers the invoice.
 
 This is a legitimate division of responsibility in a follow-mode engine, especially when the
 engine exposes low-level choices rather than owning the player's whole move. It also has the lowest
-engine cost. The present model nevertheless supplies too little evidence for a general client to do
-this reliably: saturated `Owed` removals conceal gross value, and payment conversions may be
-transitive. Client validation becomes credible only if payment evaluation or its event history
-exposes the full contribution of each source unit. Raw task callers would still be able to create
-an illegal history, and that limitation must remain explicit.
+engine cost. Owned `ResourceValue` counts expose the direct value of accepted standard resources,
+with each modifier recorded as the source of its granted values. The model still supplies too little
+evidence for a general client to handle every conversion reliably: saturated `Owed` removals conceal
+gross value, and payment conversions may be transitive. Raw task callers would still be able to
+create an illegal history, and that limitation must remain explicit.
 
 ### Give the last, least-valued unit AMAP settlement
 
@@ -161,8 +163,10 @@ card-resource, and modifier rules as a whole.
 
 ## What Helion and Stormcraft reveal
 
-Helion support is low priority and is not part of the current payment-fix scope. The combination is
-still a useful test of whether a proposed model composes.
+Helion support is low priority and is not part of the current payment-fix scope. Ordinary Heat cubes
+could use the same `ResourceValue<Class<Heat>>` representation now exercised by plants, steel, and
+titanium. The combination with Stormcraft is still a useful test of whether a proposed model
+composes.
 
 Stormcraft currently responds to a Heat `Billing` by offering `PayFromCard<Stormcraft>`, then that
 signal directly removes two `Owed<Heat>`. If Helion makes Heat acceptable for an M€ invoice, simply

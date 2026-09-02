@@ -386,7 +386,10 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       // Discounts earned
       // Random automatic order may attribute fewer saturated removals here; see SEQUENCING.md.
-      sum.net("$AdvancedAlloys", "Owed<Player1>") shouldBe -96
+      sum.net(
+          "GrantedResourceValue<Player1, Class<Metal>, $AdvancedAlloys<Player1>>",
+          "Owed<Player1>",
+      ) shouldBe -92
       sum.net("$Shuttles", "Owed<Player1>") shouldBe -14
       sum.net("$CryoSleep", "Owed<Player1, Class<Energy>>") shouldBe -2
       sum.net("$CryoSleep", "Owed<Player1, Class<Titanium>>") shouldBe -2
