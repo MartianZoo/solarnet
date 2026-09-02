@@ -21,8 +21,8 @@ Diagnostics have layer-specific homes:
   debugging activity.
 - An opt-in engine debug log records resolution, execution, effects, and rollback attempts that
   produced no event.
-- Actor access, Agent Drivers, and generic pulse dispatch keep their own opt-in logs for Actor
-  binding, caller provenance, wake-ups, policy eligibility, and declined decisions. Those layers may
+- Agent scoping, policies, and the shared autoexecution loop keep their own opt-in logs for caller
+  provenance, engine completion, policy eligibility, and declined decisions. Those records may
   correlate with engine revisions and events but do not move policy reasoning into engine
   diagnostics.
 
@@ -64,10 +64,9 @@ reliably from causal links. That need should be demonstrated first.
 Together, layer-owned debug logging should cover decision points that do not necessarily change the
 World:
 
-- tasks and policies considered by an Agent Driver, including the reason each declined, in the
-  Driver log;
-- `ActorAccess` binding and mutation forwarding in the access log;
-- pulse delivery, revision invalidation, and fixed-point detection in the dispatcher log;
+- tasks and policies considered by an Agent, including the reason each declined, in the Agent log;
+- Actor scoping and engine mutation forwarding in the Agent log;
+- engine completion, revision invalidation, and fixed-point detection in the shared-loop log;
 - core task-pool assignment and legality checks in the engine log;
 - narrowing, resolution, and execution attempts;
 - assignment, Actor, and queue choices when they are computed;

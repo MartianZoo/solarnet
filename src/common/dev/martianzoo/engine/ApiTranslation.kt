@@ -17,10 +17,8 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.ClassTable
@@ -117,21 +115,9 @@ internal class ApiTranslation(
     return added
   }
 
-  override fun editTask(task: Task): TaskEditedEvent? {
-    var edited: TaskEditedEvent? = null
-    atomicWithoutAutoExec { edited = impl.editTask(task) }
-    return edited
-  }
-
   override fun dropTask(taskId: TaskId): TaskRemovedEvent {
     lateinit var removed: TaskRemovedEvent
     atomicWithoutAutoExec { removed = impl.dropTask(taskId) }
-    return removed
-  }
-
-  override fun dropTasks(): List<TaskRemovedEvent> {
-    var removed = emptyList<TaskRemovedEvent>()
-    atomicWithoutAutoExec { removed = impl.dropTasks() }
     return removed
   }
 
@@ -213,6 +199,11 @@ internal class ApiTranslation(
   override fun narrowTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
     impl.narrowTask(parsed.instruction, parsed.intensityOmitted)
+  }
+
+  override fun narrowTask(taskId: TaskId, narrowing: String) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.narrowTask(taskId, parsed.instruction, parsed.intensityOmitted)
   }
 
   override fun canSelectTask(taskId: TaskId) = impl.canSelectTask(taskId)

@@ -168,8 +168,7 @@ internal class AtomicOperationScopeTest {
 
     agent.sneak("Token")
     val taskId = agent.addTasks("-Token?").single()
-    val task = agent.tasks.getTaskData(taskId)
-    agent.editTask(task.copy(whyPending = "waiting for test choice"))
+    agent.narrowTask(taskId, "-Token")
     agent.dropTask(taskId)
 
     completions shouldBe 4

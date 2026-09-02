@@ -6,6 +6,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.engine.World
+import dev.martianzoo.engine.exMachina
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -25,7 +26,6 @@ import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.exMachina
 
 public abstract class RecordedGame {
   protected lateinit var game: World

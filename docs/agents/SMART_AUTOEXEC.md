@@ -3,17 +3,17 @@
 > **Read when:** defining what makes an automatic task command safe, designing a smart policy,
 > proving task independence or confluence, or compiling Catalog facts for autoexecution.
 >
-> **Skip when:** changing where policies run or how Agents use `ActorAccess`; those mechanism questions
+> **Skip when:** changing where policies run or how Agents expose reads; those mechanism questions
 > belong in [AUTOEXEC.md](AUTOEXEC.md).
 >
 > **Status:** research and proposed proof rules. None of the candidate analyses is committed
-> behavior. These are optional guarantees for policies above Actor access, not engine invariants.
+> behavior. These are optional guarantees for Agent policies, not engine invariants.
 
-This analysis may inspect only what `ActorAccess` exposes. The initially selected access is
-maximally permissive, so the first proof policy may inspect the whole World. Any disposable-World
-exploration must still arrive through an explicit hypothetical-analysis facility available through
-that access; a policy does not gain raw engine mutation objects merely by promising safety. If a
-later restricted access omits a fact required by a proof, the result is `UNKNOWN`.
+This analysis may inspect the whole game through the unscoped `GameReader` reachable from Agent's
+scoped reader. Any disposable-World exploration must still arrive through an explicit
+hypothetical-analysis facility; a policy does not gain raw engine mutation objects merely by
+promising safety. If a later restricted reader omits a fact required by a proof, the result is
+`UNKNOWN`.
 
 ## Source map
 
@@ -104,8 +104,8 @@ handle forced commands for an authorized assignee and single-assignee pools; cro
 needs an explicit agency-preserving certificate. Call a command *policy-safe* only when it is both
 outcome-safe and agency-preserving.
 
-Every accepted action invalidates the proof. The Agent Driver must read the new state and prove the
-next command independently when the generic pulse dispatcher wakes its Agent again.
+Every accepted action invalidates the proof. The Agent must read the new state and prove the next
+command independently when the shared autoexecution loop gives it another chance to act.
 
 ## EGS equality obligations
 

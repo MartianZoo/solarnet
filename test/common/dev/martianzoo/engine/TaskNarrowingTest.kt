@@ -61,6 +61,53 @@ internal class TaskNarrowingTest {
   }
 
   @Test
+  internal fun `an unselected task can be narrowed by immutable Class facts`() {
+    val taskId = initiate("StandardResource?").single()
+
+    writer.narrowTask(taskId, "Plant?")
+
+    val task = tasks.getTaskData(taskId)
+    task.instruction.toString() shouldBe "Plant<Player1>?"
+    task.selected shouldBe false
+    writer.count("Plant") shouldBe 0
+  }
+
+  @Test
+  internal fun `unselected narrowing cannot rely on current World state`() {
+    val taskId = initiate("WaterArea(HAS MAX 0 Tile)!").single()
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<NarrowingException> { writer.narrowTask(taskId, "Tharsis_5_5!") }
+
+    tasks.getTaskData(taskId).instruction.toString() shouldBe "WaterArea(HAS MAX 0 Tile)!"
+    tasks.getTaskData(taskId).selected shouldBe false
+    events.entriesSince(before).shouldBeEmpty()
+  }
+
+  @Test
+  internal fun `id-based narrowing of a selected task executes when concrete`() {
+    val taskId = initiate("2 Plant?").single()
+    writer.selectTask(taskId)
+
+    writer.narrowTask(taskId, "Plant!")
+
+    writer.count("Plant") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `unselected narrowing cannot cut ahead of the select lock`() {
+    val selectedId = initiate("Plant?").single()
+    val otherId = initiate("Heat?").single()
+    writer.selectTask(selectedId)
+
+    shouldThrow<TaskException> { writer.narrowTask(otherId, "Heat!") }
+
+    tasks.getTaskData(selectedId).selected shouldBe true
+    tasks.getTaskData(otherId).instruction.toString() shouldBe "Heat<Player1>?"
+  }
+
+  @Test
   internal fun `a concrete narrowing executes immediately`() {
     initiate("2 Plant?")
 
