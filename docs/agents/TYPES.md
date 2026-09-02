@@ -583,7 +583,10 @@ Class-header declaration may have uses in several comma-separated Effects.
 - `Owner` means the exact context owner when one exists. An ownerless triggered rule may instead
   receive the event's Player Actor under the implicit trigger rule in
   [IDENTITY.md](IDENTITY.md#implicit-trigger-owner). Otherwise it remains abstract and may be
-  eligible for normal variable declaration and choice semantics.
+  eligible for normal variable declaration and choice semantics. `Owner` is also a real Class, and
+  `Anyone` exists only to name that bound without the contextual meaning; whether that overload
+  should survive is audited in
+  [IDENTITY.md](IDENTITY.md#owner-is-overloaded-as-a-class-and-as-a-contextual-variable).
 - `BY Anyone` is an unrestricted Actor filter, not a declaration. `BY !Owner` and other complemented
   selectors are filters, not binders. A positive simple abstract Actor subtype such as `BY Player`
   uses the explicit binder rule in the table.

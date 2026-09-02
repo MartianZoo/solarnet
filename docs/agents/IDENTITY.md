@@ -1,13 +1,15 @@
 # Context, assignment, and actor identity
 
 > **Read when:** changing context specialization, event Actor attribution, task assignment, `BY`,
-> Admin, selection-time delegated narrowing, Philares, or Admin-selected hidden cards.
+> Admin, selection-time delegated narrowing, Philares, Admin-selected hidden cards, or the
+> `Owner`/`Anyone` contextual-variable overload.
 >
-> **Skip when:** changing ownership as a Type dependency without task routing or attribution; read
-> the dependency sections of [TYPES.md](TYPES.md).
+> **Skip when:** changing ownership as a Type dependency without task routing, attribution, or the
+> contextual `Owner` spelling; read the dependency sections of [TYPES.md](TYPES.md).
 >
 > **Status:** current identity semantics plus the selected Engine/Admin naming direction. The
-> interaction between SAFE auto-selection and cross-Player handoff remains open.
+> interaction between SAFE auto-selection and cross-Player handoff remains open, as do the two
+> entries under Open audits.
 
 ## Source map
 
@@ -19,6 +21,8 @@
   for `assignee` to see trigger-time routing.
 - [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — search for
   `fixEffectForUnownedContext` to see ownerless Effects acquire their event-Actor filter.
+- [`Defaults.kt`](../../src/common/dev/martianzoo/pets/types/Defaults.kt) — search for
+  `Owner also acts as a contextual variable` before changing how `Owner` resolves in defaults.
 - [`EffectActorCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
   and [`TaskAssignmentCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
   — read before changing current Actor or assignment semantics.
@@ -187,6 +191,65 @@ proof.
   Decide whether that is a legitimate controller auto-selection policy or whether every
   cross-Player handoff requires an explicit controller selection. When multiple sibling tasks are
   available, SAFE already leaves the ordering to P1.
+
+## Open audits
+
+Both entries below are investigations, not selected directions. Do not implement either as a local
+patch; each is worth doing only if it removes a representation rather than moving one.
+
+### Is `narrower` a stored fact or a derived one?
+
+`Task` stores four Actor fields — `assignee`, `controller`, `narrower`, `actor` — and
+`LiveEffect.onChange` computes four near-identical fallback chains side by side (`contextualOwner`,
+`defaultActor`, `narrower`, `taskController`), differing only in whether a passive Owner, an
+automatic effect, or a non-Player Actor is admitted. Four stored roles fed by four almost-equal
+derivations is the shape that usually means one fact is being written down several times.
+
+The hypothesis to test: the fact the engine actually needs is the **context owner** of the
+instruction. When the instruction is abstract, the context owner is automatically the narrower.
+When it is concrete there is no narrowing to delegate and the active Player simply performs it, but
+the context owner is still material, because the resulting change is recorded as done `BY` the
+context owner.
+
+If that holds, `narrower` is derivable from the context owner plus abstractness, and possibly
+`actor` is too. To settle it:
+
+1. Check each row of the constraining-cases table above against the hypothesis. Icy Impactors is
+   the discriminating row, because it deliberately uses instruction-side `BY` to keep the future
+   Actor with the card owner while the StartToken owner narrows — so context owner and Actor are
+   provably separable there.
+2. Establish where each of the four `LiveEffect` chains genuinely diverges and whether a game rule
+   requires that divergence, or whether it is compensating for a missing context owner.
+3. Only then decide which fields survive.
+
+Do not delete a field before step 2 is written down. `TaskDelegationTest` and `PhilaresTest` prove
+the current mechanism and should keep passing unchanged through any refactor.
+
+### `Owner` is overloaded as a Class and as a contextual variable
+
+`Owner` is simultaneously a real Class (superclass of `Player` and `SoloOpponent`) and the spelling
+of the contextual owner variable. `Anyone` exists only to escape the second meaning: it is an
+abstract Class whose sole subclass is `Owner`, so the two denote the same set of components, and
+`Foo<Anyone>` means "the `Owner` bound, but do not substitute the contextual owner."
+
+That single overload is the common cause of a scattered set of workarounds:
+
+- the `OWNER` carve-out in `Defaults.gatherDefaultDeps` ("Owner also acts as a contextual variable"),
+  which sits directly under a `TODO: this is complex and this human doesn't understand it`;
+- the `arguments.isEmpty() && refinement == null` guard in `Transforming.replaceOwnerWith`;
+- `Transformers.insertDeferredComplementDefaults` and `hasDeferredOwnerComplement`; and
+- five `IMPL:` comments in Catalog sources recording bounds that **cannot be written**. Three
+  (`OwnedTile`, `Resource`, `Production`) say the declared `Owner` bound would erase the contextual
+  binding the `Owned` default inserts; two (`MyResourceWasRemoved`, `MyProductionWasDecreased`) say
+  it would lose the concrete victim while specializing a complemented `!Player`.
+
+Those last two overlap with the Complement direction in
+[TYPES.md](TYPES.md#7-complement-bounds); if contextual ownership gets its own spelling, recheck
+whether the watcher sites still need a Complement at all.
+
+The direction to investigate is giving the contextual owner a spelling distinct from the Class name,
+so `Anyone` and the carve-outs can go and a class can declare `Owner` as a real bound. Confirm first
+that no rule genuinely needs `Anyone` and `Owner` to be different Types.
 
 ## Future extension
 
