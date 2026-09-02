@@ -83,10 +83,6 @@ measuring or changing JVM test throughput; its measurements are a dated baseline
 - Read [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md) only for the TR63 monotonicity analysis or the associated
   report tool.
 
-### Merge or synchronize branches
-
-Read [`WORKTREES.md`](WORKTREES.md). It is mandatory for these operations and irrelevant otherwise.
-
 ## Maintain this collection
 
 - Keep focused programs of work in the smallest owning document. Use [`TODO.md`](../../TODO.md)
