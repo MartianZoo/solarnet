@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -153,8 +152,6 @@ internal class ExpressionResolver {
   internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
 
   internal fun isPlayerOwned(className: ClassName): Boolean = isSubtypeOf(className, OWNED)
-
-  internal fun isTemporary(className: ClassName): Boolean = isSubtypeOf(className, TEMPORARY)
 
   internal fun isGameParticipant(className: ClassName): Boolean = isSubtypeOf(className, PLAYER)
 

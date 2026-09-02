@@ -32,7 +32,7 @@ Premise assembly now creates each selected colony tile directly. The remaining c
 creates one reserve fleet per player. It could become setup signaling:
 
 - base player setup emits `PlayerSetup<This>`; and
-- the live Colonies Module responds by creating that player's `AvailableTradeFleet`.
+- the live Colonies Module responds by creating that player's `ReserveTradeFleet`.
 
 ### `PassLeft`
 

@@ -227,8 +227,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     TfmWorkflow.Manual(game).solarPhase()
     engine.manual("Generation")
     engine.assertCounts(
-        0 to "CompletedTrade",
-        4 to "AvailableTradeFleet",
+        0 to "FlownTradeFleet",
+        4 to "ReserveTradeFleet",
         2 to "ColonyProduction<Ceres>",
     )
   }

@@ -368,6 +368,7 @@ internal object TerraformingMarsReplayEncoder : RoutineReplayEncoder {
           source.startsWith("BuySelectedCards<") ||
           source.startsWith("BuyCard<") ||
           source.startsWith("-Selecting<") ||
+          source.removeSuffix("!") == "-TradeBarrier" ||
           isOkInputSource(source)
 
   private fun isOkInput(input: GameplayInputEvent): Boolean = isOkInputSource(input.source)
@@ -560,6 +561,8 @@ internal object TerraformingMarsReplayEncoder : RoutineReplayEncoder {
       when {
         choice.startsWith("Trade<") -> 0
         choosesColonyProduction && choice.startsWith("ColonyProduction<") -> 1
+        choosesColonyProduction && choice.startsWith("FlownTradeFleet<") -> 2
+        choice.startsWith("FlownTradeFleet<") -> 1
         choice.startsWith("ResetColonyProduction<") -> 4
         choice.contains("ColonyProduction<") -> 5
         choosesColonyProduction -> 3

@@ -92,6 +92,14 @@ internal class TerraformingMarsRoutineExecutor(private val context: RoutineConte
       val stillSelected = tasks.extract { it }.singleOrNull { it.selected }
       if (stillSelected == selected) return
     }
+    val tradeBarrierCleanup =
+        tasks
+            .extract { it }
+            .singleOrNull { task ->
+              task.assignee == agent.actor &&
+                  task.instruction.toString().removeSuffix("!") == "-TradeBarrier"
+            }
+    if (tradeBarrierCleanup != null) agent.selectTask(tradeBarrierCleanup.id)
   }
 
   private fun OperationBody.executeChoice(source: String) {

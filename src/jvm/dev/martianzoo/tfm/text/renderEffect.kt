@@ -358,9 +358,10 @@ internal fun renderEffects(
       index += consumed
       continue
     }
-    renderTradeTrackChoice(effects[index], describers)?.let { sentence ->
+    renderBarrierSequencedTrackChoice(effects.drop(index), describers)?.let { (sentence, consumed)
+      ->
       sentences += sentence
-      index++
+      index += consumed
       continue
     }
     val discount = paymentDiscount(effects[index], describers)
@@ -472,13 +473,33 @@ private fun renderAcceptedCardResourcePayment(
   ) to 2
 }
 
-private fun renderTradeTrackChoice(
-    effect: Effect,
+private fun renderBarrierSequencedTrackChoice(
+    effects: List<Effect>,
     describers: Describers,
-): String? {
-  if (effect.automatic) return null
-  val trackGain =
-      InstructionGroup.of(effect.instruction).instructions.singleOrNull() as? Gain ?: return null
+): Pair<String, Int>? {
+  val barrierEffect = effects.getOrNull(0) ?: return null
+  val trackEffect = effects.getOrNull(1) ?: return null
+  if (
+      !barrierEffect.automatic ||
+          trackEffect.automatic ||
+          barrierEffect.trigger != trackEffect.trigger
+  ) {
+    return null
+  }
+  val barrierGain =
+      InstructionGroup.of(barrierEffect.instruction).instructions.singleOrNull() as? Gain
+          ?: return null
+  if (
+      barrierGain.intensity.modality() != Modality.REQUIRED ||
+          !barrierGain.gaining.simple ||
+          barrierGain.count.fixedQuantity() != 1 ||
+          describers.fact(barrierGain.gaining.className, ComponentDescriber::paymentRole) !=
+              ComponentDescriber.PaymentRole.BARRIER
+  ) {
+    return null
+  }
+  val sequence = trackEffect.instruction as? Then ?: return null
+  val trackGain = sequence.stages.singleOrNull() as? Gain ?: return null
   if (
       trackGain.intensity.modality() != Modality.OPTIONAL ||
           trackGain.gaining.refinement != null ||
@@ -488,16 +509,23 @@ private fun renderTradeTrackChoice(
     return null
   }
   val track = describers.scaleFrame(trackGain.gaining.className) ?: return null
-  val triggerExpression = (effect.trigger as? OnGainOf)?.expression ?: return null
-  if (!describers.isTemporary(triggerExpression.className)) return null
+  val barrierRemoval = sequence.continuation as? Remove ?: return null
+  if (
+      barrierRemoval.intensity.modality() != Modality.REQUIRED ||
+          barrierRemoval.removing != barrierGain.gaining ||
+          barrierRemoval.count.fixedQuantity() != 1
+  ) {
+    return null
+  }
+  val triggerExpression = (trackEffect.trigger as? OnGainOf)?.expression ?: return null
   val resolvedGain = describers.resolveExpression(trackGain.gaining) ?: return null
   val resolvedTrigger = describers.resolveExpression(triggerExpression) ?: return null
   val selectedTrack = resolvedGain.sourceDependencies.values.singleOrNull() ?: return null
   if (resolvedTrigger.sourceDependencies.values.singleOrNull() != selectedTrack) return null
-  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+  val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
   return completeSentence(
       "when ${trigger.linearize()}, you may first increase that ${track.subject} 1 step"
-  )
+  ) to 2
 }
 
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {

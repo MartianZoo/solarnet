@@ -42,16 +42,21 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   retain temporarily unrunnable siblings for another pass after progress, and fail when a full pass
   makes none. Add a seeded tester that compares normalized component and task outcomes across
   permutations, and run it across Canon; exact event order need not match.
-- **High priority; next sequencing change:** Replace parallel payment-method tasks with one
+- **High priority; next sequencing change:** Replace `Trade`'s immediate Signal and per-card
+  `TradeBarrier` instances with one concrete `Temporary Trade<ColonyTile>`. Let every pre-flight
+  reaction drain while that selected operation remains live, then make its automatic removal move
+  the committed reserve fleet; retain income, colony bonuses, and track reset as effects of fleet
+  movement.
+- **High priority; very soon after Trade:** Replace parallel payment-method tasks with one
   mandatory abstract accepted-tender choice at a time. After each tender, offer the next choice only
   while matching `Owed` remains; keep unpaid debt pending even when no legal tender is currently
   available, and preserve invoice removal as the direct completion event. Prove the model first with
   M€, one alternative standard resource, and one card-resource tender before migrating every payment
   source.
 - **High priority:** Make `End` the `Temporary` endgame-scoring operation. Queue every score-producing
-  `End` reaction, create `FinalScore` automatically only when that causal work and its consequences
-  drain, and move award measurement under `End`: automatic `AwardTally` creation should precede
-  queued `AssignAwardPlaces` without either current `THEN`.
+  `End` reaction, create `FinalScore` automatically only when that work and its consequences drain,
+  and move award measurement under `End`: automatic `AwardTally` creation should precede queued
+  `AssignAwardPlaces` without either current `THEN`.
 - **High priority:** Define end-of-action completion before replacing workflow wakeup. Use one
   existing Player-turn control frame rather than a general nested-frame facility, and ensure Billing,
   action-local cleanup, and delegated tasks settle before a second-action offer or control pass.
