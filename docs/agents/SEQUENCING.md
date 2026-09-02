@@ -130,8 +130,8 @@ same Player. The workflow may proceed only after controlled work and its require
 neither tasks nor unfinished temporary state.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
-wait.” `TradeBarrier` is the strongest current example and is selected for removal through the live
-`Temporary Trade` operation described below. By contrast, `Owed` records gameplay information—an
+wait." Trade's `TradeBarrier` is instead an exact count of unresolved prerequisites whose last
+removal emits completion. By contrast, `Owed` records gameplay information—an
 amount and denomination—that other rules can inspect and change. Do not keep a component merely as
 a stop sign when an existing completion event can express the same rule, but do not replace a narrow
 barrier until the simpler mechanism is demonstrated.
@@ -507,7 +507,7 @@ queued work, not merely the tasks caused directly by `Operation`. That is exact 
 and for a Trade performed inside one otherwise isolated controlled action; it is too broad for an
 arbitrary nested action or one cleanup item among unrelated Player work.
 
-Two selected applications remain to be implemented:
+One selected application remains to be implemented:
 
 - **Endgame scoring:** make `End` the live `Temporary` scoring operation. Its gain queues every
   `End` scoring reaction. Once those tasks and all of their consequences drain, removing `End`
@@ -516,11 +516,14 @@ Two selected applications remain to be implemented:
   `AssignAwardPlaces<Award>` from that completed measurement event. This removes the current
   `End THEN FinalScore` and `MeasureAward THEN AssignAwardPlaces` orderings while preserving the
   real completion facts.
-- **Trade:** make the concrete selected `Trade<ColonyTile>` the live `Temporary` operation. Its gain
-  queues every pre-flight reaction, including Trade Envoys and Trading Colony track choices. Once
-  those drain, removing `Trade` automatically moves the committed reserve fleet to that colony.
-  Fleet movement then queues income, individual colony bonuses, and track reset under their existing
-  trigger-time rules. `TradeBarrier` and its per-card cleanup tails become unnecessary.
+
+Trade cannot use this rule because unrelated action-scoped work, such as a wild-tag choice, may
+legitimately keep the global task pool nonempty. `Trade<ColonyTile>` is instead the generational
+record. Its automatic `MAX 0 (Trade - TradeFleet)` check rejects an over-capacity gain atomically
+and creates one `TradeBarrier` as a completion latch. Each pre-flight card creates another for its
+own choice. Removing the last prerequisite emits the owner-attributed `FinishTrade` signal, which
+queues income, individual colony bonuses, and track reset. The persistent `TradeFleet` count
+expresses capacity; no fleet state transmutation remains.
 
 This rule neither removes pending tasks nor identifies the end of a nested action. `WildTagUse` and
 other task-lifetime problems therefore still need their own exact completion rule.

@@ -396,7 +396,7 @@ Trade Envoys illustrates why separation can sometimes wait longer:
 
 ```pets
 Trade<ColonyTile>:
-  ColonyProduction<ColonyTile>? THEN -TradeBarrier
+  ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>
 ```
 
 The repeated `ColonyTile` is a Type Variable shared by the Trigger and first stage. The Sequential

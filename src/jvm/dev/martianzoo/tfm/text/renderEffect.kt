@@ -491,7 +491,8 @@ private fun renderBarrierSequencedTrackChoice(
           ?: return null
   if (
       barrierGain.intensity.modality() != Modality.REQUIRED ||
-          !barrierGain.gaining.simple ||
+          barrierGain.gaining.refinement != null ||
+          barrierGain.gaining.complement ||
           barrierGain.count.fixedQuantity() != 1 ||
           describers.fact(barrierGain.gaining.className, ComponentDescriber::paymentRole) !=
               ComponentDescriber.PaymentRole.BARRIER
@@ -522,6 +523,11 @@ private fun renderBarrierSequencedTrackChoice(
   val resolvedTrigger = describers.resolveExpression(triggerExpression) ?: return null
   val selectedTrack = resolvedGain.sourceDependencies.values.singleOrNull() ?: return null
   if (resolvedTrigger.sourceDependencies.values.singleOrNull() != selectedTrack) return null
+  val barrierDependencies =
+      describers.resolveExpression(barrierGain.gaining)?.sourceDependencies?.values ?: return null
+  if (barrierDependencies.isNotEmpty() && barrierDependencies.singleOrNull() != selectedTrack) {
+    return null
+  }
   val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
   return completeSentence(
       "when ${trigger.linearize()}, you may first increase that ${track.subject} 1 step"

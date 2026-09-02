@@ -5,6 +5,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
@@ -221,14 +222,14 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // A Colony Tile may only hold 1 trade fleet at a time.
     shouldThrow<LimitsException> { p1.asPlayer(PLAYER2).manual("Trade<Luna>") }
 
-    // When the generation ends, all trade fleets move back from the Colony Tiles to the Trade
-    // Fleets Tile, and all white markers moves 1 step up the Colony track.
+    // When the generation ends, the recorded trades clear and all white markers move 1 step up the
+    // Colony track. The players' trade-fleet capacities remain.
     engine.phase("Production")
     TfmWorkflow.Manual(game).solarPhase()
     engine.manual("Generation")
     engine.assertCounts(
-        0 to "FlownTradeFleet",
-        4 to "ReserveTradeFleet",
+        0 to "Trade",
+        4 to "TradeFleet",
         2 to "ColonyProduction<Ceres>",
     )
   }
@@ -237,6 +238,25 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   internal fun `trade fleet cannot be reused`() {
     p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
 
-    shouldThrow<LimitsException> { p1.manual("Trade<Triton>") }
+    shouldThrow<NotNowException> { p1.manual("Trade<Player1, Triton>") }
+    shouldThrow<NotNowException> { p1.manual("Trade<Triton>, TradeFleet") }
+    p1.assertCounts(
+        1 to "Trade<Luna>",
+        0 to "Trade<Triton>",
+        1 to "TradeFleet",
+    )
+  }
+
+  @Test
+  internal fun `additional trade fleet permits a later trade`() {
+    p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
+    p1.manual("TradeFleet")
+    p1.manual("Trade<Triton>")
+
+    p1.assertCounts(
+        1 to "Trade<Luna>",
+        1 to "Trade<Triton>",
+        2 to "TradeFleet",
+    )
   }
 }
