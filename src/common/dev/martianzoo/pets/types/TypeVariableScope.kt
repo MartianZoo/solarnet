@@ -327,6 +327,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           val ordinal: Int,
           val ancestors: Set<Expression>,
           val parentExpression: Expression?,
+          val parentArgumentIndex: Int?,
           val inRequirement: Boolean,
           val directlyCounted: Boolean,
       )
@@ -338,6 +339,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             region: Int,
             ancestors: Set<Expression>,
             parentExpression: Expression?,
+            parentArgumentIndex: Int?,
             inRequirement: Boolean,
             directlyCounted: Boolean,
             regionRoot: Boolean,
@@ -352,17 +354,25 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                     ordinal++,
                     ancestors,
                     parentExpression,
+                    parentArgumentIndex,
                     inRequirement,
                     directlyCounted,
                 )
             )
           }
-          node.immediateChildren().forEach { child ->
+          node.immediateChildren().forEachIndexed { childIndex, child ->
+            val childArgumentIndex =
+                if (expression != null && childIndex in 1..expression.arguments.size) {
+                  childIndex - 1
+                } else {
+                  null
+                }
             collect(
                 child,
                 region,
                 nextAncestors,
                 expression ?: parentExpression,
+                childArgumentIndex,
                 inRequirement || node is Requirement,
                 node is Metric.Count && child is Expression,
                 false,
@@ -371,7 +381,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         }
 
         regions.forEachIndexed { index, region ->
-          collect(region, index, emptySet(), null, false, false, true)
+          collect(region, index, emptySet(), null, null, false, false, true)
         }
       }
 
@@ -379,8 +389,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         val expression = found.expression
         if (!expression.complement) return classTable.resolve(expression)
         val parent = checkNotNull(found.parentExpression)
-        val argumentIndex = parent.arguments.indexOfFirst { it === expression }
-        check(argumentIndex >= 0)
+        val argumentIndex = checkNotNull(found.parentArgumentIndex)
         val parentType = classTable.resolve(parent)
         val key = parentType.rootClass.matchDependencyKeys(parent.arguments)[argumentIndex]
         return (parentType.dependencies.get(key) as ComplementDependency).domainType
