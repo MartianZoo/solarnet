@@ -50,9 +50,11 @@ Spire uses the shared card-resource payment protocol: starting a standard projec
 from Spire, and each resulting payment signal removes 2 M€ of debt. Other payments never receive
 that offer.
 
-Prelude and Prelude 2 are independent modules. Each owns the shared Prelude setup and phase protocol,
-so selecting either activates it once; selecting both changes only the eligible card pool. The
-standard Prelude phase already models the rulebook's failed-Prelude fallback as discard plus 15 M€.
+`PreludeExpansion` owns the shared Prelude setup and phase protocol. `Prelude1Deck` is selected by
+default. `Prelude2Expansion` selects `Prelude2Deck`, which constructively selects the rules Module
+and adds the Prelude 2 card pool; the deck may also be selected directly. Selecting both decks
+changes only the eligible card pool. The standard Prelude phase already models the rulebook's
+failed-Prelude fallback as discard plus 15 M€.
 Active Preludes compose with the existing action-card machinery, and active/effect-only Preludes
 may naturally omit an immediate instruction.
 Comments ending in `[F]` identify cards whose hidden filtered draw or reveal result must be supplied

@@ -32,7 +32,7 @@ internal class ValleyTrustTest : CardTest() {
     val game =
         newGame(
             GameConfig(
-                "ValleyTrust, Prelude2Expansion, -Prelude1Deck",
+                "ValleyTrust, Prelude2Deck, -Prelude1Deck",
                 "Player1",
                 "Player2",
             )

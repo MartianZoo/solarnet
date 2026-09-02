@@ -1,4 +1,9 @@
-"Expansion adding active preludes and cards that combine Prelude with other expansions"
-CLASS Prelude2Expansion : PreludeDeck {
+"Published Prelude 2 expansion"
+CLASS Prelude2Expansion : Module {
+  This:: Prelude2Deck.
+}
+
+"Prelude 2 card pool, including active preludes and cards that combine expansions"
+CLASS Prelude2Deck : PreludeDeck {
   This:: PreludeExpansion.
 }

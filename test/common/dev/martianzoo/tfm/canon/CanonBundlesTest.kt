@@ -44,9 +44,9 @@ internal class CanonBundlesTest {
     promosWithoutColonies.isActive(cn("StrategicBasePlanning")) shouldBe false
     promosWithColonies.isActive(cn("StrategicBasePlanning")) shouldBe true
 
-    val prelude2VenusWithoutColonies = table(cn("Prelude2Expansion"), cn("VenusNextExpansion"))
+    val prelude2VenusWithoutColonies = table(cn("Prelude2Deck"), cn("VenusNextExpansion"))
     val prelude2VenusWithColonies =
-        table(cn("Prelude2Expansion"), cn("VenusNextExpansion"), cn("ColoniesExpansion"))
+        table(cn("Prelude2Deck"), cn("VenusNextExpansion"), cn("ColoniesExpansion"))
     prelude2VenusWithoutColonies.isActive(cn("VenusTradeHub")) shouldBe false
     prelude2VenusWithColonies.isActive(cn("VenusTradeHub")) shouldBe true
   }

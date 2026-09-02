@@ -14,7 +14,7 @@
 
 | Task | Read |
 | --- | --- |
-| Component/area representation | State model through Ordinary transitions |
+| Component/location representation | State model through Ordinary transitions |
 | Defaults, counted cards, or delegated face choice | Defaults and atomization; Selection-time delegation |
 | Shuffle, replay, rollback, or forks | Deterministic dealer projection |
 | Reveal, search, or card predicates | Reveals, searches, and printed predicates |
@@ -39,8 +39,9 @@ Real-card mode lets Solarnet shuffle, deal, reveal, draft, play, and discard exa
 The smallest coherent model discovered so far is:
 
 1. A card exists as a Component only while it is associated with a Player.
-2. Every such card is directly `Owned` by that Player and depends on one unowned singleton card-area
-   Component.
+2. Every such card is directly `Owned` by that Player. A card back also depends on one unowned
+   singleton card-location Component; a card front needs no location because its existence already
+   means it is in play.
 3. Deck and discard are not Components. The default Admin dealer policy derives them from the
    selected card set, an immutable seed, and exact card-transition history.
 4. A card back carries its represented `Class<CardFront>`; a card front carries its
@@ -52,9 +53,9 @@ The smallest coherent model discovered so far is:
 7. Information hiding will eventually project exact Types to less concrete Types. It does not
    require unknown-card Components in the master World.
 
-Deck, discard, and card areas have deliberately different roles: the first two are derived dealer
-state, while areas are plain unowned Components. Ownership never propagates vicariously through
-an area dependency.
+Deck, discard, and card locations have deliberately different roles: the first two are derived
+dealer state, while locations are plain unowned Components. Ownership never propagates vicariously
+through a location dependency.
 
 ## State model
 
@@ -82,16 +83,16 @@ be reconstructed, not a second game authority.
 Exact syntax is provisional, but the dependency shape is settled:
 
 ```pets
-ABSTRACT CLASS CardArea { HAS =1 This }
+ABSTRACT CLASS CardLocation { HAS =1 This }
 
-CLASS Hand : CardArea
-CLASS EventPile : CardArea
-CLASS Selecting : CardArea
-CLASS Revealed : CardArea
+CLASS Hand : CardLocation
+CLASS EventPile : CardLocation
+CLASS Selecting : CardLocation
+CLASS Revealed : CardLocation
 
-ABSTRACT CLASS Card<CardArea> : Owned<Owner>
-ABSTRACT CLASS CardBack<Class<CardFront>> : Card
-ABSTRACT CLASS CardFront<Class<CardBack>> : Owned<Owner>, TagHolder
+ABSTRACT CLASS Card : Owned<Owner>
+ABSTRACT CLASS CardBack<CardLocation, Class<CardFront>> : Card
+ABSTRACT CLASS CardFront<Class<CardBack>> : Card, TagHolder
 
 ABSTRACT CLASS ProjectFront : CardFront<Class<ProjectCard>>
 CLASS ProjectCard : CardBack<Class<ProjectFront>>, Atomized
@@ -104,14 +105,11 @@ CLASS CorporationCard : CardBack<Class<CorporationFront>>, Atomized
 ```
 
 The rendered argument order may differ after dependency inheritance is proved. Semantically, an
-exact card back includes:
+exact card includes:
 
 ```text
-card family + Player owner + card area + represented front Class
+card family + Player owner + represented opposite-face Class + card location when it is a back
 ```
-
-An exact front instead carries its Player owner and represented back Class; it has no card-area
-dependency.
 
 For example:
 
@@ -132,20 +130,21 @@ and event cleanup preserve physical identity without a separate deck-family chec
 Exactly one representation of a face exists in the World at a time. Playing transmutates its back
 into its exact front; it does not retain a parallel back Component underneath the live card.
 
-## Card areas
+## Card locations
 
-Areas are singletons and are never owned. The card's direct `Owner` dependency partitions each area
-by Player.
+Locations are singletons and are never owned. The card's direct `Owner` dependency partitions each
+location by Player. Only card backs have a location; the presence of a card front in the World is
+the single representation of that card being in play.
 
-| Area | Typical representation | Meaning |
+| Location | Representation | Meaning |
 | --- | --- | --- |
 | `Hand` | back | acquired card available to its Player |
 | `EventPile` | back | completed Event retained for scoring or recovery |
 | `Selecting` | back | temporary Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
 
-Direct ownership is intentionally present even in temporary areas. It identifies whose choice or
-reveal operation the card belongs to and supplies the usual contextual `Owner`, task routing,
+Direct ownership is intentionally present even in temporary locations. It identifies whose choice
+or reveal operation the card belongs to and supplies the usual contextual `Owner`, task routing,
 defaults, and queries.
 
 Ownership does not determine visibility. `Revealed` may be public, while another Player's `Hand`
@@ -155,14 +154,15 @@ Deck and discard are absent from this table because they are not Components or P
 
 ## Normal transitions
 
-Once an exact card is in the World, area changes remain ordinary atomic transmutations:
+Once an exact card is in the World, location and face changes remain ordinary atomic
+transmutations:
 
 | Operation | State change |
 | --- | --- |
 | Move into a selection pool | exact `Selecting FROM Hand` |
 | Keep a revealed card | exact `Hand FROM Revealed` |
-| Play | exact front from matching back at `Hand` |
-| Finish Event | matching back at `EventPile` from exact front |
+| Play | exact front matching back at `Hand` |
+| Finish Event | matching back at `EventPile FROM` exact front |
 | Recover Event | exact `Hand FROM EventPile` |
 
 Playing Decomposers is conceptually:
@@ -172,7 +172,7 @@ Decomposers<Player1, Class<ProjectCard>>
   FROM ProjectCard<Player1, Hand, Class<Decomposers>>
 ```
 
-Finishing an Event reverses the representation and changes its area:
+Finishing an Event reverses the representation and changes its location:
 
 ```text
 ProjectCard<Player1, EventPile, Class<SearchForLife>>
@@ -193,7 +193,7 @@ the World for the derived discard.
 | Draw | exact gain at `Hand` | consume next face from deck |
 | Reveal | exact gain at `Revealed` | consume next face from deck |
 | Offer cards | exact gain at `Selecting` | consume next face from deck |
-| Discard from an area | exact pure removal | add that face to discard |
+| Discard from a location | exact pure removal | add that face to discard |
 
 Nothing ever moves directly from deck to discard. Even a rejected card from Search for Life first
 exists at `Revealed`; its later pure removal records the separate discard transition.
@@ -229,7 +229,7 @@ counted OceanTile placement must split before choosing different areas.
 The familiar forms remain meaningful:
 
 ```text
-ProjectCard<Player1>     // default area Hand; exact face still unresolved
+ProjectCard<Player1>     // default location Hand; exact face still unresolved
 -ProjectCard<Player1>    // choose an exact Hand card, then discard it
 ```
 
@@ -310,7 +310,7 @@ It advances from exact events:
 
 - an exact entry gain consumes the next expected face;
 - an exact pure card-back removal adds that face to discard;
-- in-World area and front/back transmutations leave the dealer projection unchanged.
+- in-World location and front/back transmutations leave the dealer projection unchanged.
 
 When the current order is exhausted, the next entry request deterministically shuffles the exact
 discard set with the next epoch seed, clears derived discard, and consumes the first resulting face.
@@ -373,7 +373,7 @@ ProjectCard<
 ```
 
 Do not make plain `HAS` silently traverse every represented Class, and do not create live tag
-Components for cards not represented by a live front.
+Components for card backs.
 
 ## Canonical card-operation source
 
@@ -398,9 +398,9 @@ shorthand over the represented front's immutable printed metadata. It does not c
 `HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
 reveal every inspected card in order and discard nonmatches.
 
-A card procedure's follow-mode compilation creates the Player's temporary `Selecting` area before
-the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing that area
-discards every card still dependent on it through the engine's dependency cascade.
+A card procedure's follow-mode compilation creates the Player's temporary `Selecting` location
+before the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing
+that location discards every card still dependent on it through the engine's dependency cascade.
 `Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then
 invokes one unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's
 selection, creates the complete base debt, broadcasts the same multiplicity of `BuyCard` so
@@ -451,7 +451,7 @@ The current source-level operation inventory is:
 | Reveal chosen hand cards temporarily | Public Plans |
 
 The remaining card gains and removals still use the follow-mode shorthand directly; they
-do not preserve deck or hand-area procedure yet.
+do not preserve deck or hand-location procedure yet.
 
 ## Conservation
 
@@ -498,7 +498,7 @@ now:
 
 - the normal Admin dealer policy uses the exact master history;
 - a Player sees exact own-Hand and own-Selecting faces when the rules permit;
-- `Revealed`, `EventPile`, and played fronts are normally public; and
+- `Revealed`, card fronts, and `EventPile` are normally public; and
 - no observation API exposes future derived deck order.
 
 Do not add `KnownTo` Components, fake playable unknown fronts, or ownership-based visibility rules.
@@ -524,8 +524,8 @@ rename every card definition.
 
 ## Rejected designs
 
-- Deck or Discard as CardArea Components;
-- owned card-area Components or vicarious ownership through a dependency;
+- Deck or Discard as CardLocation Components;
+- owned card-location Components or vicarious ownership through a dependency;
 - a mutable Kotlin deck, discard list, or RNG cursor as independent authority;
 - Player narrowing of an exact face supplied by chance;
 - immediate Admin auto-selection that bypasses controller timing and delegation;
@@ -543,7 +543,7 @@ rename every card definition.
 
 ## Implementation gates
 
-1. **Types and defaults:** prove the mutual Class-literal dependencies, singleton areas, direct
+1. **Types and defaults:** prove the mutual Class-literal dependencies, singleton locations, direct
    ownership, gain/removal defaults, atomization order, and linked play/Event transitions in a
    synthetic Class Table.
 2. **Admin narrowing:** extend the current selected-task delegation model so real-card resolution
@@ -552,7 +552,7 @@ rename every card definition.
 3. **Dealer projection:** derive a tiny three-face deck and discard set from premise plus events;
    prove independent family streams, exhaustion, reshuffle epochs, cache deletion, rollback, replay,
    and forks on JVM and JavaScript.
-4. **Card lifecycle:** move exact cards through every area, front, and back state and prove the
+4. **Card lifecycle:** move exact cards through every location, front, and back state and prove the
    conservation partition.
 5. **Operation families:** migrate one draw, reveal, choice, search, draft, play/Event, and recovery
    rule without card-specific engine branches.
@@ -594,6 +594,6 @@ recorded outcomes without judging that policy's strategy.
 - the precise visibility matrix and irreversible knowledge limit; and
 - whether any supported future variant truly needs repeated or distinguishable copies.
 
-None changes the central model: directly owned in-World cards, unowned singleton areas, no Deck or
-Discard Components, deterministic dealer state derived from premise plus history, and
+None changes the central model: directly owned in-World cards, unowned singleton locations, no Deck
+or Discard Components, deterministic dealer state derived from premise plus history, and
 selection-time delegation of exact-face narrowing to Admin.

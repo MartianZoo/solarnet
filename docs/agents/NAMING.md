@@ -6,9 +6,8 @@
 >
 > **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
 >
-> **Status:** current model, except [Pending renames](#pending-renames), which records agreed
-> changes that have **not** been applied. Treat every name in that section as still spelled the
-> "current" way in committed code.
+> **Status:** current model. [Pending naming work](#pending-naming-work) records unresolved names or
+> mechanisms; settle each one before implementation.
 
 ## Source map
 
@@ -180,8 +179,8 @@ supertype just to justify a suffix. Three loose families exist today:
 
 1. **Content packs** — published products contributing cards and components, named with the
    product's own noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`,
-   `PreludeExpansion`. `CardPack` marks our own partial import of a product's cards without its
-   rules: `PromoCardPack`, `TurmoilCardPack`.
+   `PreludeExpansion`, `Prelude2Expansion`. `CardPack` marks our own partial import of a product's
+   cards without its rules: `PromoCardPack`, `TurmoilCardPack`.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `Mode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloVariant` and
@@ -234,21 +233,7 @@ Vocabulary instead of `ClassName.toString()`.
 
 There is no Unicode normalization because non-ASCII display text is currently rejected.
 
-## Pending renames
-
-### Remove a false subtype relationship
-
-- **Delete `PaymentMechanic`.** It has zero references outside its own declaration — no
-  polymorphic query, no dependency use, no Kotlin reference. It only hoists
-  `<Class<StandardResource>>`, `Owned<Player>`, and `MustCleanUp` onto `Owed`, `Accept`, and `Pay`,
-  and the latter two are redundant on all three subtypes anyway. Adding `AcceptFromCard` and
-  `PayFromCard` to it is not possible without dropping its dependency, at which point nothing is
-  left. Declaring all five at top level makes `Accept`/`AcceptFromCard` honest siblings and removes
-  one abstraction.
-- **`Prelude2Expansion` (the Class) → `Prelude2Deck`,** making it a real sibling of `Prelude1Deck`
-  under `PreludeDeck`. The bundle keeps the name `Prelude2Expansion`; the deck then needs a
-  `moduleContentSelections` entry exactly mirroring `Prelude1Deck`'s in
-  [`PreludeExpansion.kt`](../../src/common/dev/martianzoo/tfm/canon/PreludeExpansion.kt).
+## Pending naming work
 
 ### Second action signal
 
@@ -272,31 +257,27 @@ action follow from whatever it becomes. **Names undecided.**
 
 ### Miscellaneous
 
-- Move `FakeAridor` out of `ColoniesExpansion/cards.pets` into a test-only fixture; `Aridor` is
-  already reserved in that bundle's `cards-dont-work.json5`.
 - `SoloGenerationsLeft` is plural for a component you hold fourteen of — **name undecided**.
+
+### Independent-toggle Modules
+
+The convention that chooses `Option` or `Variant` for an independent-toggle Module remains
+undecided.
 
 ### Known and accepted
 
 `Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
-`MAX 0 Barrier` at
-[`classes.pets:439`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets:439),
-which spans `Owed`, `Billing`, `Required`, and `TradeBarrier`. `GameEndBarrier` extends nothing,
-means "the game may not end yet", and is queried by name from
-[`TfmWorkflow.kt:54`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt:54) and four tests.
-We are keeping the shared word. The trap to watch: a new class that blocks game end will compile
-just as happily under `Barrier`, and would then silently join the payment query — check which
-supertype you mean.
+`MAX 0 Barrier` in
+[`classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets), which spans
+`Owed`, `Billing`, `Required`, and `TradeBarrier`. `GameEndBarrier` extends nothing, means "the game
+may not end yet", and is queried by name from
+[`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are
+keeping the shared word. The trap to watch: a new class that blocks game end will compile just as
+happily under `Barrier`, and would then silently join the payment query — check which supertype you
+mean.
 
 `TerraformRating` names the track while instantiating one step of it. `TerraformRatingStep` is more
 correct; we are not doing it.
-
-## Open questions
-
-- What replaces `SoloGenerationsLeft`?
-- What does `Mandate` become, and what do `MandateSignal` and `HandleMandates` become with it?
-- What convention picks the suffix for an independent-toggle Module?
-- How do `SoloVictoryCheck` and `MultiplayerVictoryCheck` unify, and what is the result called?
 
 [camel-case]: https://google.github.io/styleguide/javaguide.html#s5.3-camel-case

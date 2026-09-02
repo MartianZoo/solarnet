@@ -453,24 +453,22 @@ CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
 CLASS RequirementCheck<Class<CardFront>> : Owned<Player>, Signal
 CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
-ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, MustCleanUp {
-  CLASS Owed : Barrier {
-    DEFAULT +Owed<Class<MC>>
-    DEFAULT -Owed<Class<MC>>.
-    X This:: Accept<Class<StandardResource>>
-  }
+CLASS Owed<Class<StandardResource>> : Owned<Player>, Barrier {
+  DEFAULT +Owed<Class<MC>>
+  DEFAULT -Owed<Class<MC>>.
+  X This:: Accept<Class<StandardResource>>
+}
 
-  CLASS Accept : MustCleanUp {
-    HAS MAX 1 This
-    DEFAULT +Accept.
-    Billing: X Pay<Class<StandardResource>> FROM StandardResource?
-    -X Billing:: -This!
-  }
+CLASS Accept<Class<StandardResource>> : Owned<Player>, MustCleanUp {
+  HAS MAX 1 This
+  DEFAULT +Accept.
+  Billing: X Pay<Class<StandardResource>> FROM StandardResource?
+  -X Billing:: -This!
+}
 
-  CLASS Pay : Signal {
-    DEFAULT +Pay<Class<MC>>
-    This:: -Owed<Class<StandardResource>>
-  }
+CLASS Pay<Class<StandardResource>> : Owned<Player>, Signal {
+  DEFAULT +Pay<Class<MC>>
+  This:: -Owed<Class<StandardResource>>
 }
 
 "Offers payment using the resource held by a specific card"

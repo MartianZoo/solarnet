@@ -1,10 +1,4 @@
 // Published Colonies card declarations.
-CLASS FakeAridor : CardFront<Class<CorporationCard>> {
-  cost = 0
-
-  This: 40 MC, Mandate { -> ColonyTileSelection }
-}
-
 CLASS Arklight : ResourceCard<Class<Animal>, Class<CorporationCard>> {
   cost = 0
 

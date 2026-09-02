@@ -114,11 +114,11 @@ Cards can have three types of things "on" them, which all share the superclass `
 
 `Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`. Its declaration repeats the `Owner` bound in both places, making the two owners always the same. Thus `Animal<Player2, Predators>` and `Animal<Predators<Player2>>` mean the same concrete type, while specifying different owners is invalid.
 
-### PaymentMechanic
+### Payments
 
-A few types are busily doing weird stuff behind the scenes to let you pay for stuff properly:
-`Owed`, `Accept`, `Pay`, `PlayCard`, and `PlayTag`. The best way to understand what these are for is
-to see how they are used in the bundle `cards.pets` files.
+The top-level `Owed`, `Accept`, and `Pay` classes model ordinary resource payments;
+`AcceptFromCard` and `PayFromCard` are their card-resource counterparts. The best way to understand
+the protocol is to see how these classes are used in the bundle `cards.pets` files.
 
 ## TODO
 

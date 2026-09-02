@@ -105,7 +105,7 @@ internal class GamePremiseTest {
         Engine.newGame(
                 Canon.gamePremise(
                     GameConfig(
-                        "Prelude2Expansion, -Prelude1Deck",
+                        "Prelude2Deck, -Prelude1Deck",
                         "Player1",
                         "Player2",
                     )

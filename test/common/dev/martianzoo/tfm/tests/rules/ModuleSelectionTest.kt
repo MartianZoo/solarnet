@@ -168,13 +168,23 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Prelude 2 implies the Prelude rules and original deck",
+                description = "the Prelude 2 deck implies the Prelude rules and original deck",
+                config = "Prelude2Deck",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap,
+                    PreludeExpansion, Prelude1Deck, Prelude2Deck
+                    """,
+            ),
+            Configuration(
+                description = "the Prelude 2 expansion includes its deck",
                 config = "Prelude2Expansion",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude1Deck, Prelude2Expansion
+                    PreludeExpansion, Prelude1Deck, Prelude2Expansion, Prelude2Deck
                     """,
             ),
             Configuration(
@@ -184,7 +194,7 @@ internal class ModuleSelectionTest {
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude2Expansion
+                    PreludeExpansion, Prelude2Expansion, Prelude2Deck
                     """,
             ),
 
@@ -285,8 +295,13 @@ internal class ModuleSelectionTest {
                 config = "Prelude1Deck",
             ),
             Rejection(
-                description = "Prelude 2 implies Prelude rules, so those rules cannot be excluded",
-                config = "Prelude2Expansion, -PreludeExpansion",
+                description =
+                    "the Prelude 2 deck implies Prelude rules, so those rules cannot be excluded",
+                config = "Prelude2Deck, -PreludeExpansion",
+            ),
+            Rejection(
+                description = "the Prelude 2 expansion constructively includes its deck",
+                config = "Prelude2Expansion, -Prelude2Deck",
             ),
             Rejection(
                 description = "Prelude rules require at least one Prelude deck",

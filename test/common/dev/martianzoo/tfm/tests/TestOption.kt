@@ -20,6 +20,7 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   PreludeExpansion,
   Prelude1Deck,
   Prelude2Expansion,
+  Prelude2Deck,
   ColoniesExpansion,
   TurmoilCardPack,
   PromoCardPack,

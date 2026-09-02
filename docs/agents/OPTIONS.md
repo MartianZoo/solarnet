@@ -158,8 +158,9 @@ selected map as the cause of its Areas.
 
 `PreludeExpansion` supplies the Prelude rules and phase. It selects `Prelude1Deck` by default and
 requires at least one `PreludeDeck`. The original deck may therefore be explicitly excluded only
-when another deck such as `Prelude2Expansion` is selected. `Prelude2Expansion` supplies its card
-pool and constructively selects `PreludeExpansion`; it therefore cannot be configured without the
+when another deck such as `Prelude2Deck` is selected. `Prelude2Expansion` constructively selects
+`Prelude2Deck`, while the deck supplies its card pool and constructively selects `PreludeExpansion`.
+The deck may also be selected directly. Neither route permits the Prelude 2 cards without the
 Prelude rules, while the phase and solo generation adjustment still come only from
 `PreludeExpansion`.
 
@@ -176,9 +177,10 @@ configuration. Exceptional cross-Bundle or narrowed selections remain
 expressible, but Canon's normal expansions do not require a central registry to restate their
 ownership.
 
-Two registry-shaped exceptions remain. `Prelude1Deck` routes the original Prelude cards from the
-larger Prelude Bundle, while Venus Next explicitly asks its same-named Bundle for cards, milestones,
-and awards. These should be removed only after declaration authority is complete.
+Three registry-shaped exceptions remain. `Prelude1Deck` routes the original Prelude cards from the
+larger Prelude Bundle, `Prelude2Deck` routes cards from the differently named Prelude 2 Bundle when
+selected directly, and Venus Next explicitly asks its same-named Bundle for cards, milestones, and
+awards. These should be removed only after declaration authority is complete.
 
 ### Content grouping
 
