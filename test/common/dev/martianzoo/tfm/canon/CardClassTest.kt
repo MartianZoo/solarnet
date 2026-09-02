@@ -79,6 +79,32 @@ internal class CardClassTest {
     shouldThrow<IllegalArgumentException> { invalid.classTable }
   }
 
+  @Test
+  internal fun sourceOwnedPersistentComponentsMakeProjectCardsActive() {
+    val valid =
+        catalogWith(
+            """
+            ABSTRACT CLASS PersistentCapability<CardFront<Player>> : Owned<Player> {
+              Generation: MC
+            }
+
+            CLASS ConcreteCapability : PersistentCapability
+
+            CLASS ComponentBacked : ActiveCard<Class<ProjectCard>> {
+              cost = 0
+              This:: ConcreteCapability<This>
+            }
+
+            CLASS OneTimeAutomatic : AutomatedCard<Class<ProjectCard>> {
+              cost = 0
+              This:: 2 MC
+            }
+            """
+        )
+
+    valid.classTable
+  }
+
   private fun catalogWith(source: String): TfmCatalog {
     val additions =
         object : TfmCatalog() {

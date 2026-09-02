@@ -958,8 +958,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     engine.assertCounts(
         1 to "Traveller",
         1 to "OceanTile<Utopia_8_7>",
-        2 to "ReserveTradeFleet",
-        0 to "FlownTradeFleet",
+        2 to "TradeFleet",
+        0 to "Trade",
     )
     assertColonyProductions(3, 2, 1, 3, 2)
     assertSidebar(gen = 9, temp = -10, oxygen = 4, oceans = 5, venus = 26)

@@ -57,13 +57,13 @@ Placing an ocean precedes Arctic Algae; raising production precedes Manutech. On
 consequence joins the pool without priority.
 
 The engine's contract is to support every rules-valid committed state and no rules-invalid one; it
-does not choose a play policy. The `first` Agent Driver is a legitimate, deliberately
-unsophisticated policy: it chooses the first executable task in the current presentation. A safe
-Driver may instead stop and ask, a seeded random Driver may choose among executable tasks without
-randomizing their stored presentation, and an Admin Driver may intelligently order Admin's ordinary
+does not choose a play policy. The `first` Agent policy is legitimate and deliberately
+unsophisticated: it chooses the first executable task in the current presentation. A safe policy
+may instead stop and ask, a seeded random policy may choose among executable tasks without
+randomizing their stored presentation, and an Admin policy may intelligently order Admin's ordinary
 tasks. The current auto-execution implementation is engine-side, but those policies belong in the
 Agent and are intended to move there. No policy order may become an engine guarantee or an authored
-precedence rule; the generic pulse dispatcher only coordinates wake-ups.
+precedence rule; the shared autoexecution loop only gives Agents chances to act.
 
 Tests should prove only real precedence. When freedom matters, also prove that representative legal
 sibling orders remain executable. Such a freedom test does not require the orders to produce the
@@ -130,8 +130,8 @@ same Player. The workflow may proceed only after controlled work and its require
 neither tasks nor unfinished temporary state.
 
 The suspicious case is therefore narrower: a component whose entire payload is “some task must
-wait.” `TradeBarrier` is the strongest current example and is selected for removal through the live
-`Temporary Trade` operation described below. By contrast, `Owed` records gameplay information—an
+wait." Trade's `TradeBarrier` is instead an exact count of unresolved prerequisites whose last
+removal emits completion. By contrast, `Owed` records gameplay information—an
 amount and denomination—that other rules can inspect and change. Do not keep a component merely as
 a stop sign when an existing completion event can express the same rule, but do not replace a narrow
 barrier until the simpler mechanism is demonstrated.
@@ -292,16 +292,16 @@ not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentT
 current subscribers that need a before-A modification. `Accept` is not a committed precursor at
 all: it exposes an optional payment choice.
 
-Random automatic-effect order exposes a separate limitation in payment history. Steel, Titanium,
-Advanced Alloys, and similar `Pay` reactions all remove the same saturating `Owed`; when their total
-value exceeds the remaining debt, execution order decides which cause receives credit for the last
-units. Reconstructed games still reach the same paid state, but replay summaries of individual
-discounts vary. Do not stabilize those summaries by assigning an order to the sibling effects. The
-better repair is the payment direction in [PAYMENTS.md](PAYMENTS.md): produce complete, source- and
-invoice-qualified tender value first, then consume debt once, retaining enough evidence to validate
-excess payment and attribute every contribution. Until then, this attribution variance is diagnostic
-noise rather than a gameplay regression. That larger, nice-to-have repair is intentionally not
-folded into the card-play sequencing fixes here.
+Random automatic-effect order exposes a separate limitation in payment history. The applicable
+`ResourceValue` components all remove the same saturating `Owed`; when their total value exceeds the
+remaining debt, execution order decides which source receives credit for the last units.
+Reconstructed games still reach the same paid state, but replay summaries of individual value
+contributions vary. Do not stabilize those summaries by assigning an order to the sibling effects.
+The better repair is the payment direction in [PAYMENTS.md](PAYMENTS.md): produce complete, source-
+and invoice-qualified tender value first, then consume debt once, retaining enough evidence to
+validate excess payment and attribute every contribution. Until then, this attribution variance is
+diagnostic noise rather than a gameplay regression. That larger, nice-to-have repair is
+intentionally not folded into the card-play sequencing fixes here.
 
 ### Do not make proposed changes triggerable
 
@@ -507,7 +507,7 @@ queued work, not merely the tasks caused directly by `Operation`. That is exact 
 and for a Trade performed inside one otherwise isolated controlled action; it is too broad for an
 arbitrary nested action or one cleanup item among unrelated Player work.
 
-Two selected applications remain to be implemented:
+One selected application remains to be implemented:
 
 - **Endgame scoring:** make `End` the live `Temporary` scoring operation. Its gain queues every
   `End` scoring reaction. Once those tasks and all of their consequences drain, removing `End`
@@ -516,11 +516,14 @@ Two selected applications remain to be implemented:
   `AssignAwardPlaces<Award>` from that completed measurement event. This removes the current
   `End THEN FinalScore` and `MeasureAward THEN AssignAwardPlaces` orderings while preserving the
   real completion facts.
-- **Trade:** make the concrete selected `Trade<ColonyTile>` the live `Temporary` operation. Its gain
-  queues every pre-flight reaction, including Trade Envoys and Trading Colony track choices. Once
-  those drain, removing `Trade` automatically moves the committed reserve fleet to that colony.
-  Fleet movement then queues income, individual colony bonuses, and track reset under their existing
-  trigger-time rules. `TradeBarrier` and its per-card cleanup tails become unnecessary.
+
+Trade cannot use this rule because unrelated action-scoped work, such as a wild-tag choice, may
+legitimately keep the global task pool nonempty. `Trade<ColonyTile>` is instead the generational
+record. Its automatic `MAX 0 (Trade - TradeFleet)` check rejects an over-capacity gain atomically
+and creates one `TradeBarrier` as a completion latch. Each pre-flight card creates another for its
+own choice. Removing the last prerequisite emits the owner-attributed `FinishTrade` signal, which
+queues income, individual colony bonuses, and track reset. The persistent `TradeFleet` count
+expresses capacity; no fleet state transmutation remains.
 
 This rule neither removes pending tasks nor identifies the end of a nested action. `WildTagUse` and
 other task-lifetime problems therefore still need their own exact completion rule.

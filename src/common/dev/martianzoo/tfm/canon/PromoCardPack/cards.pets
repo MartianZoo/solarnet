@@ -228,7 +228,7 @@ CLASS MercurianAlloys : ActiveCard<Class<ProjectCard>> {
   requirement = HAS "2 ScienceTag"
 
   This:: SpaceTag<This>
-  Pay<Class<Titanium>>:: -Owed<>
+  This:: GrantedResourceValue<Class<Titanium>, This>
 }
 
 CLASS OrbitalCleanup : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -245,7 +245,7 @@ CLASS RegoPlastics : ActiveCard<Class<ProjectCard>> {
   cost = 10
 
   This:: BuildingTag<This>
-  Pay<Class<Steel>>:: -Owed<>
+  This:: GrantedResourceValue<Class<Steel>, This>
   End: VictoryPoint
 }
 
@@ -578,9 +578,9 @@ CLASS MartianLumberCorp : ActiveCard<Class<ProjectCard>> {
   requirement = HAS "2 GreeneryTile"
 
   This:: BuildingTag<This>, PlantTag<This>
+  This:: 3 GrantedResourceValue<Class<Plant>, This>
   This: PROD[Plant]
   PlayTag<Class<BuildingTag>>:: Accept<Class<Plant>>
-  Pay<Class<Plant>>:: -3 Owed<>
 }
 
 CLASS NeptunianPowerConsultants : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Hydroelectric>> {

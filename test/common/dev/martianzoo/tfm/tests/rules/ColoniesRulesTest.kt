@@ -37,7 +37,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.stdAction("TradeSA", 1) {
       doWithoutAutoExec(p2) {
         doTask("Trade<Enceladus>")
-        doTask("FlownTradeFleet<Enceladus> FROM ReserveTradeFleet")
+        doTask("-TradeBarrier<Enceladus>")
         doTask("Microbe<$RegolithEaters>")
         shouldThrow<TaskException> { p1.doTask("Microbe<$NitriteReducingBacteria>") }
         p2.selectTask("Microbe<Player1>.")

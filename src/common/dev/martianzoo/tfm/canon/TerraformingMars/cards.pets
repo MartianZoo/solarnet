@@ -42,8 +42,8 @@ CLASS Phobolog : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: SpaceTag<This>
+  This:: GrantedResourceValue<Class<Titanium>, This>
   This: 23 MC, 10 Titanium
-  Pay<Class<Titanium>>:: -Owed<>
 }
 
 CLASS TharsisRepublic : CardFront<Class<CorporationCard>> {

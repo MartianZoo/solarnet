@@ -560,7 +560,7 @@ internal constructor(
               }
           seeds.removeAll(overlapping)
           occurrences.sortedBy(HeaderOccurrence::ordinal).forEach { occurrence ->
-            if (occurrence.expression !== target.declaration.expression) {
+            if (occurrence.ordinal != target.declaration.ordinal) {
               target.usages +=
                   TypeVariable.Site(
                       occurrence.expression,

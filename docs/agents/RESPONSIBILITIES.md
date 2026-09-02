@@ -30,35 +30,50 @@ below; their presence does not schedule it.
 
 ## Selected runtime dependency direction
 
-The target runtime has four responsibilities with one-way dependencies:
+The target runtime has three library responsibilities with one-way dependencies:
 
-1. **State and task model:** records the component graph, one unordered pending-task pool, task
-   assignees, events, and readable projections.
-2. **Engine:** exposes a few direct Actor-attributed mutations, validates them against current state,
-   and calculates their atomic consequences. It owns resolution, execution, effects, task creation,
-   rollback, and the rule that only the current assignee may perform an ordinary task mutation. It
-   has no `ActorAccess`, `Agent`, permissions, or autoexecution concept.
-3. **Actor access:** creates passive Actor-scoped `ActorAccess` conduits over an engine World. Each
-   forwards the engine's distinct methods and may present convenient filtered reads. Any number may
-   exist for one Actor, but callers never use one to bypass that Actor's unique Agent. Granular
-   permissions are postponed, so the initial access object is maximally permissive.
-4. **Agents and applications:** create exactly one Agent per Actor. Every explicit and autonomous
-   mutation for that Actor passes through it. Its private `AgentDriver` owns policies and strategy.
-   A generic session dispatcher fans out coherent-revision pulses and reaches a policy-relative
-   stable point synchronously; it knows nothing about tasks or policy meaning.
+1. **State:** owns `GameWorld`, the data of one game. It stores concrete components and supports
+   readable projections plus only fully concrete gain, removal, and transmutation. It has no
+   `Instruction`, task, selection, resolution, effect, Agent, or autoexecution concept.
+2. **Engine:** depends on state. It owns instructions, the unordered task pool, assignment,
+   selection, narrowing, resolution, execution, effects, and atomic game operations. Once an
+   instruction has become a fully concrete state change, the engine asks `GameWorld` to apply it and
+   reacts to the resulting change. The engine exposes its basic mutation primitives directly for
+   workflows, replay correction, cheats, and tests; it does not try to prevent clients from using
+   them.
+3. **Agent:** depends on engine and is the normal client API. It creates exactly one Agent per Actor,
+   gives each Agent an Actor-scoped reader with deliberate access to the unscoped reader, and keeps
+   task selection and narrowing small. Each Agent owns its optional autoexecution policies. Shared
+   wiring repeatedly gives all Agents a chance to act after an engine mutation until none does.
 
-Task assignment remains engine-enforced game state; caller authorization belongs above engine.
-Those are not substitutes for each other. The engine is intentionally indifferent to why an
-authorized caller chose one legal mutation instead of another.
+Applications compose those libraries and add game-specific workflow and presentation. Agent
+construction returns an immutable Actor-to-Agent map; its shared loop remains private wiring rather
+than another public game wrapper. A separate passive Actor-access abstraction is not currently
+justified.
 
-**Current divergence:** `Agent`, `AutoExecMode`, queue draining, and client-facing string translation
-all live in `:engine`. `TaskQueues` already stores one task set and creates assignee-filtered
-`TaskQueue` views, so the target removes the promoted many-queue model rather than changing the
-underlying semantic state.
+The exact state-to-engine notification mechanism remains open until extraction. Prefer returning a
+neutral concrete-change result when that preserves required ordering. If state must invoke a
+synchronous callback, the callback is supplied by its caller and speaks only in state vocabulary;
+`GameWorld` still has no knowledge of effects or the engine.
+
+The concrete-change value is owned by state and contains resolved component Types and counts. It is
+not an `Instruction` subtype and does not carry task continuation, Actor attribution, cause, or
+effect behavior. Because one engine operation can change both `GameWorld` and the task pool, the
+engine retains coordination of atomic rollback and combined history across both.
+
+Task assignment remains an engine-enforced game rule. Preventing a caller from choosing the direct
+engine API is out of scope. The engine is intentionally indifferent to why an Actor or trusted
+caller chose one legal mutation instead of another.
+
+**Current divergence:** there is no `:state` or `:agent` module. Current `World` combines component
+state, tasks, events, timeline, and Agent lookup, while `Agent`, `AutoExecMode`, queue draining, and
+client-facing string translation all live in `:engine`. `TaskQueues` already stores one task set and
+creates assignee-filtered `TaskQueue` views, so task extraction changes ownership rather than task
+semantics.
 
 Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
-surface, passive `ActorAccess`, sole-issuer Agent lifetime, and generic coherent-revision pulse;
-then move one coherent dependency slice at a time.
+surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared
+autoexecution loop; then move one coherent dependency slice at a time.
 
 ## Terraforming Mars behavior outside `tfm`
 
@@ -127,7 +142,6 @@ Do not reopen these without new evidence:
 - Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
   structural reachability.
 - Runtime players use canonical seat identities; configured names are Vocabulary aliases.
-- `World` is the generic live Game World and construction accepts a generic `GamePremise`.
 
 If a dependency change is selected, prefer deleting a backward dependency or moving one whole policy
 over adding adapters on both sides.

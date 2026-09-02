@@ -15,8 +15,6 @@ CLASS TerraformingMars : Module {
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
-  Pay<Class<Steel>>:: -2 Owed<>
-  Pay<Class<Titanium>>:: -3 Owed<>
 }
 
 "Starts each player with one production of every standard resource"
@@ -32,6 +30,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   This:: GrossHack<This> BY Engine
   SetupPhase:: 20 TerraformRating<This>
+  SetupPhase:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
   SetupPhase IF QuickStartVariant: PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]
   CorporationPhase:: CorporationCard
   ResearchPhase:: Selecting
@@ -267,6 +266,17 @@ ABSTRACT CLASS Resource : Owned {
     CLASS Floater : CardResource<ResourceHolder<Class<Floater>>>
   }
 }
+
+"A component that makes a standard resource worth one M€ when paid"
+ABSTRACT CLASS ResourceValue<Class<StandardResource>> : Owned<Player> {
+  Pay<Class<StandardResource>>:: -Owed<>
+}
+
+"One M€ of a standard resource's ordinary payment value"
+CLASS BaseResourceValue : ResourceValue
+
+"One M€ of resource value represented separately from the component granting it"
+CLASS GrantedResourceValue<CardFront> : ResourceValue
 
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
 // IMPL: This should narrow ownership to Owner, but bare production uses the same contextual

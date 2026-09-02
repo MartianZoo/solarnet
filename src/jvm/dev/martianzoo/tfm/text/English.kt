@@ -47,11 +47,13 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
       card: Class,
       cardDescribers: Describers,
   ): Rendering<String> {
+    val resourceValueEffects = renderCardResourceValueEffects(cardEffects(card), cardDescribers)
     val requirement = cardRequirement(card)?.let { renderRequirement(it, cardDescribers) }
     val immediateEffects =
-        cardEffects(card).filter(::isImmediateSelfEffect).map {
-          renderInstructionTree(it.instruction, cardDescribers)
-        }
+        cardEffects(card)
+            .filterNot { it in resourceValueEffects.first }
+            .filter(::isImmediateSelfEffect)
+            .map { renderInstructionTree(it.instruction, cardDescribers) }
     val instructions = cardImmediate(card)?.let { renderInstructionTree(it, cardDescribers) }
     val scoring =
         cardEffects(card)
@@ -66,10 +68,11 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
       card: Class,
       cardDescribers: Describers,
   ): Rendering<String> {
+    val resourceValueEffects = renderCardResourceValueEffects(cardEffects(card), cardDescribers)
     val persistentEffects =
-        cardEffects(card).filterNot {
-          isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it)
-        }
+        cardEffects(card)
+            .filterNot { it in resourceValueEffects.first }
+            .filterNot { isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it) }
     val integratedPayment =
         persistentEffects
             .mapIndexedNotNull { index, effect ->
@@ -83,7 +86,7 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
             ?.let { renderActions(it, cardDescribers, integratedPayment?.second) }
     val paymentWasIntegrated = integratedPayment != null
     val actions = actionsWithPayment?.map { text -> "Action: $text" }
-    val effects =
+    val renderedPersistentEffects =
         persistentEffects
             .filterIndexed { index, _ ->
               !paymentWasIntegrated || index != integratedPayment?.first
@@ -91,12 +94,20 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
               renderEffects(
-                      list,
-                      cardDescribers,
-                      cardResourceType = cardResourceType(card),
-                  )
-                  .map { text -> "Effect: $text" }
+                  list,
+                  cardDescribers,
+                  cardResourceType = cardResourceType(card),
+              )
             }
+    val effects =
+        joinRenderings(
+                listOfNotNull(
+                    renderedPersistentEffects,
+                    resourceValueEffects.second?.let(Rendering.Companion::resolved),
+                )
+            )
+            .takeIf { it.value.isNotEmpty() }
+            ?.map { text -> "Effect: $text" }
     return joinRenderings(listOfNotNull(actions, effects), " / ")
   }
 

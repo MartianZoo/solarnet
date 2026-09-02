@@ -18,13 +18,16 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
 
   init {
     val invalidDependencies =
-        classTable.allClasses().mapNotNull { dependent ->
-          dependent.dependencies
-              .concreteDependencyTargets()
-              .filter(classTable::isActive)
-              .firstOrNull { target -> limitsFor(target).all { it.range.last > 1 } }
-              ?.let { dependent to it }
-        }
+        classTable
+            .allClasses()
+            .filterNot { it.abstract }
+            .mapNotNull { dependent ->
+              dependent.dependencies
+                  .concreteDependencyTargets()
+                  .filter(classTable::isActive)
+                  .firstOrNull { target -> limitsFor(target).all { it.range.last > 1 } }
+                  ?.let { dependent to it }
+            }
 
     if (invalidDependencies.isNotEmpty()) {
       throw invalidPetDefinition(

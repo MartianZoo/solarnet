@@ -36,7 +36,7 @@ internal constructor(
       val interpretedGroundType: GroundType? = null,
   )
 
-  /** One authored occurrence of a Type variable. */
+  /** One declaration or usage of a Type variable in authored syntax. */
   public sealed class Occurrence
   protected constructor(
       final override val typeVariable: TypeVariable,
@@ -48,7 +48,6 @@ internal constructor(
     final override val expression: Expression
       get() = site.expression
 
-    /** The expression as originally authored. */
     /** Zero-based choice-region index within the declaring scope. */
     public val region: Int
       get() = site.region

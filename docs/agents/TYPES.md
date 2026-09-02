@@ -458,7 +458,7 @@ syntax.
 
 | Construct | What declares the variable | Scope and uses | What supplies its value | Representative form |
 | --- | --- | --- | --- | --- |
-| Class dependency | Each separately declared abstract dependency root declares one Class-scoped variable. Eligible abstract subexpressions along its nested dependency paths declare projected variables supplied by those paths. | The Class header, its Effects, inherited copies of those Effects, and subtype enumeration. | Specializing or enumerating the component Type. | `CLASS Trade<ColonyTile> ... { This: FlownTradeFleet<ColonyTile> ... }` |
+| Class dependency | Each separately declared abstract dependency root declares one Class-scoped variable. Eligible abstract subexpressions along its nested dependency paths declare projected variables supplied by those paths. | The Class header, its Effects, inherited copies of those Effects, and subtype enumeration. | Specializing or enumerating the component Type. | `CLASS Trade<ColonyTile> ... { This: TradeBarrier<ColonyTile> ... }` |
 | Repeated Class-header projection | An abstract header occurrence at one stable dependency key; a matching occurrence at the same key is a use, even through different supertypes. | The complete header and the Class-scoped effect scope above. | Intersection of the dependency bounds, then component-Type specialization. | `CLASS Cardbound<CardFront<Player>> : Owned<Player>` |
 | Triggered Effect | Each maximal abstract expression in a choice-producing trigger position is a potential declaration. | That one trigger, including its `BY` and `IF` clauses, and its one instruction tree. | The concrete changed Type that matched the subscription. | `BioTag<CardFront>: Plant OR CardResource<CardFront>` |
 | Positive abstract Actor selector | A simple positive abstract Actor expression after `BY`, such as `Player`. This is a binder even without repetition. | The qualified trigger and the fired instruction. Uses under operators, such as `!Player`, receive the Actor value before the operator is applied. | The concrete Actor recorded on the triggering event. | `-OwnedActorTrigger<!Player> BY Player: Steel<Player>` |
@@ -587,15 +587,24 @@ recognition algorithm: they receive values from different events and may cleanly
 policies. Consolidate a policy only when its declaration, scope, and binding rules are actually the
 same.
 
-Every policy should record stable occurrence paths before defaults and lowering. Later
-transformations must carry those paths forward; allocation identity, rendered text, resolved
-equivalence, and reordered arguments are not evidence that two occurrences share a variable. In
-particular, adding default arguments to an already recorded occurrence preserves that occurrence's
-identity but does not turn the inserted arguments into authored declarations.
+Stable authored-occurrence paths may eventually replace the current fallbacks to expression
+identity or equality after transformations. That is a possible mechanism, not an accepted next
+step. No known card, rule, or normal engine operation currently demonstrates that those fallbacks
+produce wrong behavior.
 
-The current implementation can fall back to expression identity or equality after transformations.
-Replacing that recovery with durable occurrence identity is working direction. Preserve the
-construct-specific behavior covered by the Type-variable tests in the source map while doing so.
+Do not add occurrence tokens, `Expression.Linkage`, or cross-pipeline provenance propagation from
+this design description alone. First demonstrate a focused failure through normal Pets elaboration
+or game execution. A synthetic test whose only contract is preserving a proposed identity
+representation is not sufficient evidence. Any solution must also show why a smaller correction to
+the affected construct's existing recognition policy cannot preserve the real behavior.
+
+A rejected implementation is preserved locally as stash
+`codex/type-variable-linkage-review-2026-09-02` (stash commit
+`8f2c9617401d3d630097fa52209e46a586930194`). Inspect it before revisiting this mechanism. It added
+217 net lines across the expression model, preprocessing, scope analysis, engine resolution, and
+construct-specific lowering without establishing an observable failure. The stash is evidence of
+cost and explored failure modes, not a design to restore wholesale; because Git stashes are local,
+the evidence gate above remains authoritative when the object is unavailable.
 
 The generated `SpliceTacticalGenomicsWatcher<Player>` components are a working content mechanism,
 not unfinished Type-variable infrastructure. Replacing them would be optional content and

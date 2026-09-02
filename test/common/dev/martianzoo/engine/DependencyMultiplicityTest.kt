@@ -40,6 +40,40 @@ internal class DependencyMultiplicityTest {
   }
 
   @Test
+  internal fun defersMultiplicityValidationForAbstractDependentClasses() {
+    val table =
+        load(
+            """
+            ABSTRACT CLASS Target
+            CLASS UniqueTarget : Target { HAS MAX 1 This }
+            CLASS RepeatableTarget : Target
+            ABSTRACT CLASS AbstractDependent<Target>
+            CLASS ConcreteDependent : AbstractDependent<UniqueTarget>
+            """
+        )
+
+    limiter(table)
+  }
+
+  @Test
+  internal fun validatesInheritedAbstractBoundsWhenTheDependentClassIsConcrete() {
+    val table =
+        load(
+            """
+            ABSTRACT CLASS Target
+            CLASS UniqueTarget : Target { HAS MAX 1 This }
+            CLASS RepeatableTarget : Target
+            ABSTRACT CLASS AbstractDependent<Target>
+            CLASS ConcreteDependent<Target> : AbstractDependent<Target>
+            """
+        )
+
+    val failure = shouldThrow<PetException> { limiter(table) }
+
+    failure.message shouldContain "ConcreteDependent -> RepeatableTarget"
+  }
+
+  @Test
   internal fun rejectsNonCountingClassInvariantsWithAPetsException() {
     val table =
         load(

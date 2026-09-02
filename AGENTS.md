@@ -80,4 +80,3 @@ a behavior or architecture change.
 | Reconstructing a digital or physical game | The appropriate replay guide selected by [`docs/agents/README.md`](docs/agents/README.md#reconstruct-a-game) |
 | The user explicitly asks for Terraforming Mars rule research | Only a post by Jacob Fryxelius is authoritative for a disputed ruling. The FAQ PDF is useful only as an index to those posts. Do not initiate rule research merely because a task touches game behavior. |
 | Changing a public API | Preserve no obsolete API for compatibility; there are no known clients. Also read the API/model route in the handbook. |
-| Merging branches or synchronizing work | [`docs/agents/WORKTREES.md`](docs/agents/WORKTREES.md) |

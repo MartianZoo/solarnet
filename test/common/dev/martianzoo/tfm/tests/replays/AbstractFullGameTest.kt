@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.exMachina
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -10,7 +11,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.exMachina
 import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -167,10 +167,9 @@ internal abstract class AbstractFullGameTest : TfmTest() {
         .filter { it.count("ProjectCard<Selecting>") > 0 }
         .forEach { it.buyCards(0) }
     game.tasks
-        .extract { it.assignee }
-        .toSet()
-        .forEach {
-          game.agent(it).dropTasks()
+        .extract { it.id to it.assignee }
+        .forEach { (id, assignee) ->
+          game.agent(assignee).dropTask(id)
         }
   }
 }

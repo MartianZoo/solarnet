@@ -249,7 +249,7 @@ sibling work first. When the Player selects the card gain:
 1. resolution recognizes that its remaining face variable is Admin-narrowed;
 2. that same selected task moves to Admin while retaining its controller and future Actor;
 3. the controlling scope is blocked from further task execution;
-4. Admin's Agent Driver chooses an exact face and its Agent issues the narrowing; and
+4. Admin's Agent policy chooses an exact face and its Agent issues the narrowing; and
 5. completing the task releases the block and returns resulting work to its controller.
 
 The Player must never be able to submit a preferred exact face. `BY Admin` is not this mechanism:
