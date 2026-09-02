@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
 internal class EnglishTest {
@@ -122,6 +123,23 @@ internal class EnglishTest {
 
     english.topText(card) shouldBe
         "Action: Pay 12 M€ (titanium may be used) to place 1 ocean tile, or remove 1 asteroid from this card to raise Venus 1 step."
+  }
+
+  @Test
+  internal fun refusesTrackChoiceWhoseTypedBarrierSelectsAnotherTrack() {
+    val card =
+        syntheticCard(
+            """
+            CLASS MismatchedTradeBarrier : ActiveCard<Class<ProjectCard>> {
+              cost = 0
+              Trade<ColonyTile>:: TradeBarrier<Luna>
+              Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<Luna>
+            }
+            """
+        )
+
+    english.topText(card) shouldNotBe
+        "Effect: When you trade, you may first increase that colony tile track 1 step."
   }
 
   @Test

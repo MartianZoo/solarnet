@@ -327,7 +327,7 @@ CLASS SkyDocks : ActiveCard<Class<ProjectCard>> {
   requirement = HAS "2 EarthTag"
 
   This:: EarthTag<This>, SpaceTag<This>
-  This: ReserveTradeFleet
+  This: TradeFleet
   Billing<PlayCards>:: -Owed<>
   End: 2 VictoryPoint
 }
@@ -352,7 +352,7 @@ CLASS SpacePort : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "Colony"
 
   This:: CityTag<This>, BuildingTag<This>
-  This: ReserveTradeFleet, CityTile<>, PROD[-Energy, 4 MC]
+  This: TradeFleet, CityTile<>, PROD[-Energy, 4 MC]
 }
 
 CLASS SpacePortColony : AutomatedCard<Class<ProjectCard>> {
@@ -360,7 +360,7 @@ CLASS SpacePortColony : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "Colony"
 
   This:: SpaceTag<This>
-  This: Colony<ColonyTile>, ReserveTradeFleet
+  This: Colony<ColonyTile>, TradeFleet
   End: VictoryPoint / 2 Colony<Anyone>
 }
 
@@ -417,8 +417,8 @@ CLASS TitanShuttles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<C
 CLASS TradeEnvoys : ActiveCard<Class<ProjectCard>> {
   cost = 6
 
-  Trade<ColonyTile>:: TradeBarrier
-  Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier
+  Trade<ColonyTile>:: TradeBarrier<ColonyTile>
+  Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>
 }
 
 CLASS TradingColony : ActiveCard<Class<ProjectCard>> {
@@ -426,8 +426,8 @@ CLASS TradingColony : ActiveCard<Class<ProjectCard>> {
 
   This:: SpaceTag<This>
   This: Colony<>
-  Trade<ColonyTile>:: TradeBarrier
-  Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier
+  Trade<ColonyTile>:: TradeBarrier<ColonyTile>
+  Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>
 }
 
 CLASS UrbanDecomposers : AutomatedCard<Class<ProjectCard>> {

@@ -358,7 +358,7 @@ internal object TerraformingMarsDescribers {
         klass("Mandate") to ComponentDescriber(changeFrame = Frame.Wrapper("as your first action")),
         klass("Award") to
             ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),
-        klass("ReserveTradeFleet") to
+        klass("TradeFleet") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("Trade Fleet", "Trade Fleets"),
                 changeFrame = Frame.Countable,
