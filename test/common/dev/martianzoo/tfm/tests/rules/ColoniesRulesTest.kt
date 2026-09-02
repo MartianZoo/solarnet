@@ -34,7 +34,7 @@ internal class ColoniesRulesTest : CardTest() {
       doTask("3 Microbe<$NitriteReducingBacteria>")
     }
 
-    p2.stdAction("TradeSA", 1) {
+    p2.stdAction("TradeAction", 1) {
       doWithoutAutoExec(p2) {
         doTask("Trade<Enceladus>")
         doTask("-TradeBarrier<Enceladus>")
@@ -61,7 +61,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.manual("3 Energy")
     engine.phase("Action")
 
-    p2.stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }
+    p2.stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
 
     p1.count("ProjectCard") shouldBe 0
     p2.count("ProjectCard") shouldBe 1

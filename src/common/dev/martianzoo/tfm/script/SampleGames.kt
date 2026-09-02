@@ -126,7 +126,7 @@ internal object SampleGames {
     p2.cardAction2(cn("Factorum"))
     p1.cardAction1(cn("DevelopmentCenter"))
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
-    p2.playProject(cn("PowerPlantCard"), 2, steel = 1)
+    p2.playProject(cn("PowerPlant"), 2, steel = 1)
     p2.cardAction1(cn("AquiferPumping")) {
       p2.pay(8)
       doTask("OceanTile<Tharsis_1_5>")
@@ -157,7 +157,7 @@ internal object SampleGames {
     if (gens-- == 0) return game
     engine.nextGeneration(3, 1)
 
-    p1.stdAction("ClaimMilestoneSA") { doTask("Builder8") }
+    p1.stdAction("ClaimMilestone") { doTask("Builder8") }
     p1.cardAction1(cn("DevelopmentCenter"))
     p2.playProject(cn("EarthCatapult"), 23)
     p2.playProject(cn("InventionContest"), 0) { doTask("-ProjectCard") }
@@ -166,7 +166,7 @@ internal object SampleGames {
     p2.playProject(cn("BioPrintingFacility"), 1, steel = 2)
     p2.cardAction1(cn("BioPrintingFacility"))
     p1.cardAction2(cn("DeuteriumExport"))
-    p1.playProject(cn("ProjectInspection"), 0) { doTask("UseAction<DevelopmentCenter, First>") }
+    p1.playProject(cn("ProjectInspection"), 0) { doTask("UseAction<DevelopmentCenter, Action1>") }
     p2.cardAction1(cn("Factorum"))
     p2.playProject(cn("PowerSupplyConsortium"), 3) { doTask("PROD[-E<Player1>]") }
     p1.playProject(cn("FloatingHabs"), 5)
@@ -193,7 +193,7 @@ internal object SampleGames {
     p2.cardAction2(cn("RotatorImpacts"))
     p2.playProject(cn("IshtarMining"), 3)
     p1.playProject(cn("MoholeLake"), 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
-    p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }
+    p1.stdAction("ClaimMilestone") { doTask("Terraformer35") }
     p2.convertHeat()
     p2.convertPlants { doTask("GreeneryTile<Tharsis_8_6>") }
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
@@ -224,7 +224,7 @@ internal object SampleGames {
     p2.convertPlants { doTask("GreeneryTile<Tharsis_9_7>") }
     p1.playProject(cn("RegoPlastics"), 10)
     p1.playProject(cn("SfMemorial"), 1, steel = 2)
-    p2.stdAction("ClaimMilestoneSA") { doTask("Gardener") }
+    p2.stdAction("ClaimMilestone") { doTask("Gardener") }
     p2.cardAction1(cn("DirectedImpactors")) {
       p2.pay(6)
       doTask("Asteroid<RotatorImpacts>")

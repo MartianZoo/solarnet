@@ -266,7 +266,7 @@ Two related families should not be described more strongly than the implementati
 - `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. `BuySelectedCards` first
   creates the complete base `Owed` amount, then broadcasts one `BuyCard` per remaining selected card
   so Polyphemos and Terralabs Research can adjust that established debt, and only then creates the
-  single invoice hosted by the live `BuyCards` component. The invoice exposes payment and gates the
+  single invoice hosted by the live `CardPurchase` component. The invoice exposes payment and gates the
   follow-mode `ProjectCard` gain until settlement. In real-card mode, the operation moves those
   exact selected cards to `Hand` only after the invoice is paid. These three choice-free stages are
   one inline automatic continuation, so automatic-sibling enumeration cannot reorder them.
@@ -600,7 +600,7 @@ These current encodings are considered principled:
 - Spend-enabled effects establishing `Owed`, `Accept`, and a barrier before their payoff.
 - Trade income and individual colony bonuses as reorderable siblings. Do not chain all colony
   bonuses after income.
-- `UseCardActionSA` creating the selected card's `ActionUsedMarker` before `UseAction`. The marker
+- `UseCardAction` creating the selected card's `ActionUsedMarker` before `UseAction`. The marker
   prevents a second use as soon as the card is definitively chosen. Viron consequently and
   explicitly excludes itself from the already-used cards it may repeat.
 

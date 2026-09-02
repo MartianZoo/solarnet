@@ -81,10 +81,10 @@ public open class BusyPreludePhaseBenchmark {
 
     workflow.preludePhase()
     me.playPrelude(cn("FakeEstablishedMethods")) {
-      doTask("UseAction<PlayCardSA, First>")
+      doTask("UseAction<PlayCardFromHand, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>>")
       me.pay(0)
-      doTask("UseAction<PlayCardSA, First>")
+      doTask("UseAction<PlayCardFromHand, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>>")
       me.pay(0)
     }
@@ -100,10 +100,10 @@ public open class BusyPreludePhaseBenchmark {
     me.stdAction("HandleMandates") {
       me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<FakeEstablishedMethods>")
-        doTask("UseAction<PlayCardSA, First>")
+        doTask("UseAction<PlayCardFromHand, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>>")
         me.pay(0)
-        doTask("UseAction<PlayCardSA, First>")
+        doTask("UseAction<PlayCardFromHand, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>>")
         me.pay(0)
       }

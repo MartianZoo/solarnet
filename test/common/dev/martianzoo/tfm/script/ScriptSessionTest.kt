@@ -305,7 +305,7 @@ internal class ScriptSessionTest {
             .trimIndent(),
     )
     command(
-        "task UseAction<ConvertHeatSA, First>",
+        "task UseAction<ConvertHeat, Action1>",
         """
         New tasks pending:
         * [Player2] X Pay<Player2, Class<Heat>> FROM Heat<Player2>? (abstract)
@@ -322,7 +322,7 @@ internal class ScriptSessionTest {
         "tfm_pay 8 Heat",
         """
         0000: +8 Pay<Player2, Class<Heat>> FROM Heat<Player2> BY Player2 VIA Accept<Player2, Class<Heat>> BECAUSE 0000
-        0000: +TemperatureStep BY Player2 VIA ConvertHeatSA BECAUSE 0000
+        0000: +TemperatureStep BY Player2 VIA ConvertHeat BECAUSE 0000
         0000: +TerraformRating<Player2> BY Player2 VIA TemperatureStep BECAUSE 0000
         """
             .trimIndent(),
@@ -361,7 +361,7 @@ internal class ScriptSessionTest {
         phase Action
 
         become Player1
-        turn; task UseAction<PlayCardSA, First>; tfm_play InventorsGuild; tfm_pay 9 MC
+        turn; task UseAction<PlayCardFromHand, Action1>; tfm_play InventorsGuild; tfm_pay 9 MC
         """
             .trimIndent()
             .split(Regex(" *[\n;] *"))

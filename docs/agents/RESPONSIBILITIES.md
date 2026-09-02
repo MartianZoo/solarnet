@@ -79,7 +79,7 @@ autoexecution loop; then move one coherent dependency slice at a time.
 
 ### Turn/action protocol is split across layers
 
-Generic Pets and engine code know `Action`, `UseAction`, `WhichAction`, `NewTurn`, and turn-start
+Generic Pets and engine code know `Action`, `UseAction`, `ActionSlot`, `NewTurn`, and turn-start
 translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
 documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
 under Terraforming Mars. The half-generic placement is the defect.

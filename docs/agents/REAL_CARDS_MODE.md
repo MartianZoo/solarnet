@@ -85,14 +85,13 @@ Exact syntax is provisional, but the dependency shape is settled:
 ABSTRACT CLASS CardArea { HAS =1 This }
 
 CLASS Hand : CardArea
-CLASS InPlay : CardArea
 CLASS EventPile : CardArea
 CLASS Selecting : CardArea
 CLASS Revealed : CardArea
 
 ABSTRACT CLASS Card<CardArea> : Owned<Owner>
 ABSTRACT CLASS CardBack<Class<CardFront>> : Card
-ABSTRACT CLASS CardFront<Class<CardBack>> : Card, TagHolder
+ABSTRACT CLASS CardFront<Class<CardBack>> : Owned<Owner>, TagHolder
 
 ABSTRACT CLASS ProjectFront : CardFront<Class<ProjectCard>>
 CLASS ProjectCard : CardBack<Class<ProjectFront>>, Atomized
@@ -105,17 +104,20 @@ CLASS CorporationCard : CardBack<Class<CorporationFront>>, Atomized
 ```
 
 The rendered argument order may differ after dependency inheritance is proved. Semantically, an
-exact card includes:
+exact card back includes:
 
 ```text
-card family + Player owner + card area + represented opposite-face Class
+card family + Player owner + card area + represented front Class
 ```
+
+An exact front instead carries its Player owner and represented back Class; it has no card-area
+dependency.
 
 For example:
 
 ```text
 ProjectCard<Player1, Hand, Class<Decomposers>>
-Decomposers<Player1, InPlay, Class<ProjectCard>>
+Decomposers<Player1, Class<ProjectCard>>
 ProjectCard<Player1, EventPile, Class<Decomposers>>
 ```
 
@@ -138,7 +140,6 @@ by Player.
 | Area | Typical representation | Meaning |
 | --- | --- | --- |
 | `Hand` | back | acquired card available to its Player |
-| `InPlay` | front | active, automated, corporation, or temporarily live Event |
 | `EventPile` | back | completed Event retained for scoring or recovery |
 | `Selecting` | back | temporary Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
@@ -160,14 +161,14 @@ Once an exact card is in the World, area changes remain ordinary atomic transmut
 | --- | --- |
 | Move into a selection pool | exact `Selecting FROM Hand` |
 | Keep a revealed card | exact `Hand FROM Revealed` |
-| Play | exact front at `InPlay FROM` matching back at `Hand` |
-| Finish Event | matching back at `EventPile FROM` exact front at `InPlay` |
+| Play | exact front from matching back at `Hand` |
+| Finish Event | matching back at `EventPile` from exact front |
 | Recover Event | exact `Hand FROM EventPile` |
 
 Playing Decomposers is conceptually:
 
 ```text
-Decomposers<Player1, InPlay, Class<ProjectCard>>
+Decomposers<Player1, Class<ProjectCard>>
   FROM ProjectCard<Player1, Hand, Class<Decomposers>>
 ```
 
@@ -175,7 +176,7 @@ Finishing an Event reverses the representation and changes its area:
 
 ```text
 ProjectCard<Player1, EventPile, Class<SearchForLife>>
-  FROM SearchForLife<Player1, InPlay, Class<ProjectCard>>
+  FROM SearchForLife<Player1, Class<ProjectCard>>
 ```
 
 The represented face and back family must link across both sides of each atomic instruction. Never
@@ -372,7 +373,7 @@ ProjectCard<
 ```
 
 Do not make plain `HAS` silently traverse every represented Class, and do not create live tag
-Components for cards outside `InPlay`.
+Components for cards not represented by a live front.
 
 ## Canonical card-operation source
 
@@ -497,7 +498,7 @@ now:
 
 - the normal Admin dealer policy uses the exact master history;
 - a Player sees exact own-Hand and own-Selecting faces when the rules permit;
-- `Revealed`, `InPlay`, and `EventPile` are normally public; and
+- `Revealed`, `EventPile`, and played fronts are normally public; and
 - no observation API exposes future derived deck order.
 
 Do not add `KnownTo` Components, fake playable unknown fronts, or ownership-based visibility rules.

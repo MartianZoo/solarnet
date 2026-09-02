@@ -151,7 +151,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     ellie.turn {
       // "I will spend two energy to trade with Luna. That's seven from the track plus my bonus of
       // two, so nine." "Jesus."
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-2 Energy, 9 MC")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-2 Energy, 9 MC")
       // "One more thing. I spent one for Fuel Generators, lose a money production, and gain energy
       // production. And I think that's it."
       playProject(FueledGenerators, 1)
@@ -204,7 +204,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       }
       // "Then I'm going to use my second action to grab all these floaters." "Remember to get 3
       // for your placing." "Holy shit. I get three and three and one. I get seven floaters."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
         addCardResources(TitanShuttles, 3)
         addCardResources(TitanShuttles)
@@ -327,7 +327,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
 
     ellie.turn {
       // "I think I will start by paying two titanium to trade with Io. That's ten heat for me."
-      stdAction("TradeSA", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 10 Heat")
+      stdAction("TradeAction", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 10 Heat")
       // "Probably should have done this sooner, but Business Network."
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
@@ -336,7 +336,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // take five planta. When you want to convert plants to greenery, you hit plants, but then
       // there's this 'plant forest'—for whatever reason they call it plant forest. It automatically
       // gives me the TR and takes away the eight plants and everything."
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }.expect("-3 Energy, 5 Plant")
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }.expect("-3 Energy, 5 Plant")
       // "My forest is gonna go on 3-2, so that it's next to my city and gets two money from ocean.
       // That raises oxygen to two percent, and we got my TR already. That was my two actions."
       convertPlants { placeTile(3, 2) }.expect("-8 Plant, 2 MC, TerraformRating")
@@ -485,7 +485,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Are you saying that to piss me off?"
       // "Yes."
       // "Nice."
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 Energy, 14 MC, 2 MC<Ellie>")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 Energy, 14 MC, 2 MC<Ellie>")
     }
     joanna.turn {
       // "I'm gonna play Ice Moon Colony. I'm gonna spend two titanium, which equals six money, and
@@ -694,7 +694,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Yay!"
       // "I put my three and one on my only floater card, Titan Travels."
       // "I'm going to put my floater on Dirigibles."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
         doWithoutAutoExec(dad) {
           doTask("3 Floater<$TitanShuttles>")
@@ -719,7 +719,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     ellie.turn {
       // "Now that I have much enticed, spend two energies to trade with Luna. I get 12. You get 12
       // and I get four."
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-2 Energy, 12 MC, 4 MC<Dad>")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-2 Energy, 12 MC, 4 MC<Dad>")
       // "And I will Business Network."
       // "You are business networking."
       // "Nah."
@@ -890,7 +890,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Oh, put your boat on."
       // "Yes, thank you."
       claimMilestone(cn("Engineer"))
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-2 Energy, 12 MC, 4 MC<Dad>")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-2 Energy, 12 MC, 4 MC<Dad>")
     }
     dad.turn {
       // "This kind of sucks. I shouldn't have taken so many cards. Okay, well, alright. I'm not
@@ -986,7 +986,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "To Titan."
       // "And Joanna gets one floater, and I get two plus one floaters."
       // "I guess I'll go ahead and put my floater onto Local Shading."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
         doWithoutAutoExec(dad) {
           doTask("2 Floater<$TitanShuttles>")

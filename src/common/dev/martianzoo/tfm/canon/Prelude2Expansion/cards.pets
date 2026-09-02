@@ -4,8 +4,8 @@ CLASS NirgalEnterprises : CardFront<Class<CorporationCard>> {
 
   This:: PowerTag<This>, PlantTag<This>, BuildingTag<This>
   This: 30 MC, PROD[Energy, Plant, Steel]
-  Invoice<ClaimMilestoneSA>:: -Owed<> / Owed<>
-  Invoice<FundAwardSA>:: -Owed<> / Owed<>
+  Invoice<ClaimMilestone>:: -Owed<> / Owed<>
+  Invoice<FundAward>:: -Owed<> / Owed<>
 }
 
 CLASS PalladinShipping : ActionCard<Class<CorporationCard>> {

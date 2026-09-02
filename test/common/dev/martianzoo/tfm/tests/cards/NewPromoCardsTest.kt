@@ -137,7 +137,7 @@ internal class NewPromoCardsTest : CardTest() {
 
     p1.stdProject("AquiferSP") {
       doTask("OceanTile<Tharsis_1_2>")
-      doTask("UseAction<NeptunianOption, First>")
+      doTask("UseAction<NeptunianOption, Action1>")
       p1.pay(mc = 1, steel = 2)
     }
 

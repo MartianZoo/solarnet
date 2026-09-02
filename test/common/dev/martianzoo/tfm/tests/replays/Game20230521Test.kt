@@ -803,7 +803,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 claimed Builder milestone
     p1.turn {
-      stdAction("ClaimMilestoneSA") { doTask("Builder8") }.expect("Milestone")
+      stdAction("ClaimMilestone") { doTask("Builder8") }.expect("Milestone")
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Quantum Extractor
@@ -861,7 +861,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1 drew 1 card(s)
       // You drew Floating Habs
       playProject(ProjectInspection, 0) {
-            doTask("UseAction<$DevelopmentCenter, First>")
+            doTask("UseAction<$DevelopmentCenter, Action1>")
             p1.pay(energy = 1)
           }
           .expect("PlayedEvent, Card, -Energy")
@@ -1029,7 +1029,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           }
           .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TerraformRating, -7 MC")
       // Player1 claimed Terraformer milestone
-      stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }.expect("-8 MC")
+      stdAction("ClaimMilestone") { doTask("Terraformer35") }.expect("-8 MC")
     }
 
     // Player2 used Convert Heat standard action
@@ -1191,7 +1191,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 claimed Gardener milestone
     p2.turn {
-      stdAction("ClaimMilestoneSA") { doTask("Gardener") }
+      stdAction("ClaimMilestone") { doTask("Gardener") }
       // Player2 used Directed Impactors action
       cardAction1(DirectedImpactors) {
         p2.pay(6)
@@ -1325,7 +1325,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(Trees, 13) { doTask("Plant") }
       // Player1 funded Banker award
-      stdAction("FundAwardSA") { doTask("Banker") }
+      stdAction("FundAward") { doTask("Banker") }
     }
 
     // Player2 used Search For Life action
@@ -1349,7 +1349,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 funded Venuphile award
     p1.turn {
-      stdAction("FundAwardSA", which = 2) { doTask("Venuphile") }
+      stdAction("FundAward", which = 2) { doTask("Venuphile") }
       // Player1 passed
       pass()
     }
@@ -1846,7 +1846,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
     // Player1 funded Thermalist award
     p1.turn {
-      stdAction("FundAwardSA", which = 3) { doTask("Thermalist") }
+      stdAction("FundAward", which = 3) { doTask("Thermalist") }
       // Player1 used Convert Plants standard action
       convertPlants {
             // Player1 placed greenery tile on row 4 position 4

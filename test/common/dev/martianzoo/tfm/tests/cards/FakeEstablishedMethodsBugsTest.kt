@@ -29,7 +29,7 @@ internal class FakeEstablishedMethodsBugsTest :
         shouldThrow<AbstractException> {
           p1.playPrelude(fakeEstablishedMethods) {
             p1.manual("-20 MC")
-            doTask("UseAction<GreenerySP, First>")
+            doTask("UseAction<GreenerySP, Action1>")
             p1.autoExecNow()
           }
         }
@@ -51,7 +51,7 @@ internal class FakeEstablishedMethodsBugsTest :
       offers.size shouldBe 2
 
       repeat(2) { projectIndex ->
-        doTask("UseAction<PowerPlantSP, First>")
+        doTask("UseAction<PowerPlantSP, Action1>")
 
         tasks
             .extract { it }

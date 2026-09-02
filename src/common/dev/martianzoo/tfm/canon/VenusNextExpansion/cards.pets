@@ -300,7 +300,7 @@ CLASS RotatorImpacts : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<
   requirement = HAS "MAX 7 VenusStep"
 
   This:: SpaceTag<This>
-  UseAction<This, First>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accept<Class<Titanium>>
 
   6 MC -> Asteroid<This>
   Asteroid<This> -> VenusStep

@@ -18,7 +18,7 @@ internal class HellasMapTest : CardTest() {
     p2.manual("GreeneryTile<Hellas_8_6>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_9_5>")
     p1.manual("8 Plant")
 
-    p1.stdAction("ConvertPlantsSA") {
+    p1.stdAction("ConvertPlants") {
       shouldThrow<NarrowingException> { doTask("GreeneryTile<Hellas_1_5>") }
       abort()
     }

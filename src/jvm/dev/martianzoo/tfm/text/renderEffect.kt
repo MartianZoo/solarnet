@@ -260,7 +260,7 @@ internal fun acceptedFirstActionPaymentResource(
   ) {
     return null
   }
-  if (resolved.sourceDependency(ACTION_SELECTOR) != ClassName.cn("First").expression) return null
+  if (resolved.sourceDependency(ACTION_SELECTOR) != ClassName.cn("Action1").expression) return null
   return acceptance.noun
 }
 

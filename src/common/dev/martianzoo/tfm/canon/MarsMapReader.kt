@@ -85,7 +85,7 @@ public object MarsMapReader {
           'C' to "ProjectCard",
           'E' to "Energy",
           'H' to "Heat",
-          'X' to "TcColonyBonus",
+          'X' to "CimmeriaColonyBonus",
           'O' to "OceanTile<>",
           '-' to "-6 MC",
       )

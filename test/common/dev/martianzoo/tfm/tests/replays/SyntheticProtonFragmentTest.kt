@@ -23,7 +23,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
           HellasMap
           PreludeExpansion, PromoCardPack
 
-          Mayor, Diversifier, Trader, Sponsor, Tycoon10
+          Mayor, Diversifier, Trader, Sponsor, Tycoon
           Biologist, SpaceBaron, Forecaster, Botanist, Collector
           """,
           "Player1",
@@ -191,14 +191,14 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     // Dad does not meet Diversifier before Corporate Stronghold enters play.
     shouldThrow<RequirementException> {
-      dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
+      dad.stdAction("ClaimMilestone") { doTask("Diversifier") }
     }
     dad.playProject(CorporateStronghold, 7, steel = 2) {
           placeTile(2, 4)
         }
         .expect("Disease<Player1>")
     mom.assertCounts(7 to "Plant")
-    dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
+    dad.stdAction("ClaimMilestone") { doTask("Diversifier") }
 
     mom.playProject(IndustrialCenter, 4) {
       placeTile(2, 3)
@@ -307,10 +307,10 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     // Ellie does not meet Tycoon before Hermetic Order of Mars enters play.
     shouldThrow<RequirementException> {
-      ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
+      ellie.stdAction("ClaimMilestone") { doTask("Tycoon") }
     }
     ellie.playProject(HermeticOrderOfMars, 8).expect("PROD[2 MC], -2 MC")
-    ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
+    ellie.stdAction("ClaimMilestone") { doTask("Tycoon") }
 
     dad.playProject(Ants, 9) { doTask("2 MC") }
     dad.cardAction1(Ants) {
@@ -374,7 +374,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       doTask("-Microbe<Player1, $Psychrophiles<Player1>>")
     }
 
-    mom.stdAction("ClaimMilestoneSA") { doTask("Trader") }
+    mom.stdAction("ClaimMilestone") { doTask("Trader") }
     mom.playProject(ProtectedValley, 9, steel = 5) {
           doTask("2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
           placeTile(1, 1)
@@ -449,7 +449,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     mom.cardAction1(Psychrophiles)
     mom.playProject(BioPrintingFacility, 1, steel = 3)
 
-    ellie.stdAction("FundAwardSA") { doTask("SpaceBaron") }
+    ellie.stdAction("FundAward") { doTask("SpaceBaron") }
     ellie.playProject(AsteroidCard, titanium = 4) {
       dad.draw(SterlingVents)
       doTask("-3 Plant<Player3>")
@@ -511,7 +511,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.cardAction1(Ants) {
       doTask("-Microbe<Player1, $Recyclon<Player1>>")
     }
-    dad.stdAction("FundAwardSA", which = 2) { doTask("Forecaster") }
+    dad.stdAction("FundAward", which = 2) { doTask("Forecaster") }
 
     mom.stdProject("AquiferSP") {
       placeTile(5, 6)
@@ -574,7 +574,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     mom.playProject(InventionContest, 2) { mom.draw(WaterImportFromEuropa) }
     mom.playProject(ProjectInspection, mc = 0) {
-      doTask("UseAction<$Hospitals, First>")
+      doTask("UseAction<$Hospitals, Action1>")
     }
 
     ellie.cardAction1(SaturnSurfing)
@@ -688,7 +688,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
     dad.cardAction1(WeatherBalloons)
 
-    mom.stdAction("FundAwardSA", which = 3) { doTask("Botanist") }
+    mom.stdAction("FundAward", which = 3) { doTask("Botanist") }
     mom.cardAction1(IndustrialCenter)
 
     ellie.pass()
@@ -718,9 +718,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     ellie.declineTask()
 
     assertCardTrackingComplete()
-    mom.cardsInHand shouldBe emptySet()
-    ellie.cardsInHand shouldBe emptySet()
-    dad.cardsInHand shouldBe emptySet()
+    mom.cardsHand shouldBe emptySet()
+    ellie.cardsHand shouldBe emptySet()
+    dad.cardsHand shouldBe emptySet()
 
     with(mom) {
       assertResources(m = 56, s = 5, t = 0, p = 6, e = 4, h = 13)

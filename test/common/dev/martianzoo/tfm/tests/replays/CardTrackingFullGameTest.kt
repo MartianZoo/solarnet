@@ -123,7 +123,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
-    return stdAction("SellPatents") {
+    return stdAction("SellPatentsSP") {
       doTask("${cardClasses.size} MC FROM ProjectCard<Hand>!")
       discard(*cardClasses)
     }
@@ -143,7 +143,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     }
   }
 
-  protected val TfmGameplay.cardsInHand: Set<ClassName>
+  protected val TfmGameplay.cardsHand: Set<ClassName>
     get() {
       syncCardPlays()
       return cards.filterValues { it == Hand(player) }.keys

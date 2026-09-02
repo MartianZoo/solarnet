@@ -26,7 +26,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
     p1.manual("$StormcraftIncorporated, Floater<$StormcraftIncorporated>, 6 Heat")
 
     p1.stdAction(
-            "ConvertHeatSA",
+            "ConvertHeat",
             payment = {
               doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
               doTask("6 Pay<Class<Heat>> FROM Heat")

@@ -261,13 +261,13 @@ internal class Prelude2CardsTest : CardTest() {
     val startingMoney = p1.count("MC")
 
     p1.manual("NewTurn") {
-      doTask("UseAction<PowerPlantSP, First>")
+      doTask("UseAction<PowerPlantSP, Action1>")
       doTask("Pay<Class<MC>> FROM MC / Owed<>")
     }
     p1.count("MC") shouldBe startingMoney - 9
 
     p1.manual("SecondAction") {
-      doTask("UseAction<PowerPlantSP, First>")
+      doTask("UseAction<PowerPlantSP, Action1>")
       doTask("Pay<Class<MC>> FROM MC / Owed<>")
     }
 

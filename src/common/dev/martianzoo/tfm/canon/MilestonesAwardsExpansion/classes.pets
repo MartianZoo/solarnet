@@ -10,15 +10,15 @@ CLASS GainsOf<CardFront, Class<Component>> : Custom
 // Reprinted goals retain the canonical declarations owned by their original map bundles. Only new
 // goals and revised goals with distinct implementations are declared here.
 
-CLASS Builder7 : Milestone { requirement = HAS "7 BuildingTag" }
+CLASS Builder : Milestone { requirement = HAS "7 BuildingTag" }
 CLASS Engineer : Milestone { requirement = HAS "10 PROD[Energy OR Heat]" }
 CLASS Farmer : Milestone { requirement = HAS "5 (Animal OR Microbe)" }
 CLASS Geologist : Milestone { requirement = HAS "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))" }
 CLASS Landshaper : Milestone { requirement = HAS "CityTile, GreeneryTile, SpecialTile" }
-CLASS Legend4 : Milestone { requirement = HAS "CARDS[4 CardBack<EventPile>]" }
+CLASS Legend : Milestone { requirement = HAS "CARDS[4 CardBack<EventPile>]" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
 CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
-CLASS Pioneer4 : Milestone { requirement = HAS "4 Colony" }
+CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
 // GrossHack contributes five synthetic M€ production components, so 21 models the printed
 // combined production threshold of 16.
 CLASS Producer : Milestone {
@@ -31,10 +31,10 @@ CLASS Producer22 : Milestone {
 }
 CLASS Spacefarer : Milestone { requirement = HAS "4 SpaceTag" }
 CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
-CLASS Tactician4 : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
-CLASS Terraformer29 : Milestone { requirement = HAS "29 TerraformRating" }
+CLASS Tactician : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
+CLASS Terraformer : Milestone { requirement = HAS "29 TerraformRating" }
 CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }
-CLASS Tycoon10 : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" }
+CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" }
 
 CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }

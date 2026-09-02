@@ -395,7 +395,7 @@ internal object TerraformingMarsDescribers {
                             ),
                     )
             ),
-        klass("ConvertPlantsSA") to
+        klass("ConvertPlants") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -411,7 +411,7 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "use the Power Plant standard project",
                     )
             ),
-        klass("ClaimMilestoneSA") to
+        klass("ClaimMilestone") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -419,7 +419,7 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "claim a milestone",
                     )
             ),
-        klass("FundAwardSA") to
+        klass("FundAward") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -427,7 +427,7 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "fund an award",
                     )
             ),
-        klass("TradeSA") to
+        klass("TradeAction") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -445,7 +445,7 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "use an action",
                     )
             ),
-        klass("BuyCards") to
+        klass("CardPurchase") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -453,7 +453,7 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "buy a card",
                     )
             ),
-        klass("PlayCards") to
+        klass("CardPlay") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(

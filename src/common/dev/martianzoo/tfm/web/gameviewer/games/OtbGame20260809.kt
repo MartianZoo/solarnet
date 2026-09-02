@@ -233,12 +233,12 @@ public class OtbGame20260809 : RecordedGame() {
 
     ellie.exMachina("-3 MC")
 
-    dad.turn { stdAction("TradeSA", 2) { doTask("Trade<Luna>") } }
+    dad.turn { stdAction("TradeAction", 2) { doTask("Trade<Luna>") } }
 
     ellie.turn {
       cardAction1(EnergyMarket, x = 3)
 
-      stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }
     }
 
     ellie.exMachina("6 MC")
@@ -289,7 +289,7 @@ public class OtbGame20260809 : RecordedGame() {
     dad.buyCards(0)
 
     dad.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Triton>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Triton>") }
 
       playProject(CupolaCity, 14) {
         placeTile(3, 3)
@@ -301,7 +301,7 @@ public class OtbGame20260809 : RecordedGame() {
         placeTile(4, 8)
       }
 
-      stdAction("ClaimMilestoneSA") { doTask("Landshaper") }
+      stdAction("ClaimMilestone") { doTask("Landshaper") }
     }
 
     dad.turn {
@@ -334,7 +334,7 @@ public class OtbGame20260809 : RecordedGame() {
       cardAction1(Ironworks)
     }
 
-    dad.turn { stdAction("FundAwardSA") { doTask("Venuphile") } }
+    dad.turn { stdAction("FundAward") { doTask("Venuphile") } }
 
     ellie.pass()
 
@@ -427,14 +427,14 @@ public class OtbGame20260809 : RecordedGame() {
     dad.turn {
       playProject(Penguins, 5)
 
-      stdAction("TradeSA", 3) {
+      stdAction("TradeAction", 3) {
         doTask("Trade<Miranda>")
         addCardResources(Penguins)
       }
     }
 
     ellie.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }
 
       cardAction1(Ironworks)
     }
@@ -464,18 +464,18 @@ public class OtbGame20260809 : RecordedGame() {
         placeTile(4, 5)
       }
 
-      stdAction("ClaimMilestoneSA") { doTask("Mayor") }
+      stdAction("ClaimMilestone") { doTask("Mayor") }
     }
 
     dad.turn { playProject(Extremophiles, 1) }
 
-    ellie.turn { stdAction("ClaimMilestoneSA") { doTask("Producer") } }
+    ellie.turn { stdAction("ClaimMilestone") { doTask("Producer") } }
 
     dad.turn {
       cardAction1(VenusianInsects)
     }
 
-    ellie.turn { stdAction("FundAwardSA", which = 2) { doTask("Botanist") } }
+    ellie.turn { stdAction("FundAward", which = 2) { doTask("Botanist") } }
 
     dad.turn { playProject(Satellites, 2, titanium = 2) }
 
@@ -505,7 +505,7 @@ public class OtbGame20260809 : RecordedGame() {
     dad.buyCards(0)
 
     ellie.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
 
       stdProject("CitySP") { placeTile(1, 4) }
     }
@@ -528,7 +528,7 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(IndustrialMicrobes, 0, steel = 4)
     }
 
-    dad.turn { stdAction("FundAwardSA", which = 3) { doTask("Magnate") } }
+    dad.turn { stdAction("FundAward", which = 3) { doTask("Magnate") } }
 
     ellie.turn {
       playProject(MethaneFromTitan, 12, titanium = 4)
@@ -579,7 +579,7 @@ public class OtbGame20260809 : RecordedGame() {
     dad.buyCards(3)
 
     dad.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(VenusianInsects)
       }
@@ -644,7 +644,7 @@ public class OtbGame20260809 : RecordedGame() {
     }
 
     ellie.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(SubZeroSaltFish)
       }
@@ -697,7 +697,7 @@ public class OtbGame20260809 : RecordedGame() {
     dad.turn {
       cardAction1(RestrictedArea)
 
-      stdAction("TradeSA", 2) { doTask("Trade<Triton>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Triton>") }
     }
 
     dad.exMachina("2 MC")
@@ -721,7 +721,7 @@ public class OtbGame20260809 : RecordedGame() {
     dad.turn { cardAction2(RotatorImpacts) }
 
     ellie.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(NitriteReducingBacteria)
       }
@@ -768,7 +768,7 @@ public class OtbGame20260809 : RecordedGame() {
     dad.turn { cardAction1(Penguins) }
 
     ellie.turn {
-      playProject(ProjectInspection, 0) { doTask("UseAction<$NitriteReducingBacteria, Second>") }
+      playProject(ProjectInspection, 0) { doTask("UseAction<$NitriteReducingBacteria, Action2>") }
     }
 
     dad.turn { cardAction1(StratosphericBirds) }

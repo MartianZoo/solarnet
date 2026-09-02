@@ -11,7 +11,7 @@ CLASS Ecoline : CardFront<Class<CorporationCard>> {
 
   This:: PlantTag<This>
   This: 36 MC, 3 Plant, PROD[2 Plant]
-  Invoice<ConvertPlantsSA, First>:: -Owed<Class<Plant>>
+  Invoice<ConvertPlants, Action1>:: -Owed<Class<Plant>>
 }
 
 CLASS InterplanetaryCinematics : CardFront<Class<CorporationCard>> {
@@ -62,7 +62,7 @@ CLASS ThorGate : CardFront<Class<CorporationCard>> {
   This:: PowerTag<This>
   This: 48 MC, PROD[Energy]
   PlayTag<Class<PowerTag>>:: -3 Owed<>
-  Invoice<PowerPlantSP, First>:: -3 Owed<>
+  Invoice<PowerPlantSP, Action1>:: -3 Owed<>
 }
 
 CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
@@ -148,7 +148,7 @@ CLASS WaterImportFromEuropa : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 25
 
   This:: JovianTag<This>, SpaceTag<This>
-  UseAction<This, First>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accept<Class<Titanium>>
   End: VictoryPoint / JovianTag
 
   12 MC -> OceanTile<>
@@ -199,7 +199,7 @@ CLASS ResearchOutpost : ActiveCard<Class<ProjectCard>> {
 
   This:: ScienceTag<This>, CityTag<This>, BuildingTag<This>
   This: CityTile<LandArea(HAS MAX 0 Neighbor)>
-  Billing<PlayCards>:: -Owed<>
+  Billing<CardPlay>:: -Owed<>
 }
 
 CLASS PhobosSpaceHaven : AutomatedCard<Class<ProjectCard>> {
@@ -1084,7 +1084,7 @@ CLASS AquiferPumping : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 18
 
   This:: BuildingTag<This>
-  UseAction<This, First>:: Accept<Class<Steel>>
+  UseAction<This, Action1>:: Accept<Class<Steel>>
 
   8 MC -> OceanTile<>
 }

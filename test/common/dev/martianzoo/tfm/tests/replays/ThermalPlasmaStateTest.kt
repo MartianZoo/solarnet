@@ -91,13 +91,13 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(AiCentral) { draw(ForcedPrecipitation, ProjectInspection) }
       playProject(MediaGroup, 6)
       playProject(ProjectInspection, 0) {
-            doTask("UseAction<$AiCentral, First>")
+            doTask("UseAction<$AiCentral, Action1>")
             draw(GreatEscarpmentConsortium, RestrictedArea)
           }
           .expect("3 M")
       playProject(RotatorImpacts, titanium = 2)
       cardAction1(RotatorImpacts) { pay(titanium = 2) }
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("13 M")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("13 M")
       playProject(RestrictedArea, 11) {
         placeTile(3, 7)
         draw(CallistoPenalMines, Shuttles, Extremophiles)
@@ -125,7 +125,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(RestrictedArea) { draw(SoilEnrichment) }
       cardAction1(AiCentral) { draw(TransNeptuneProbe, ProtectedGrowth) }
       cardAction2(RotatorImpacts) { draw(Worms) }
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Pluto>")
         draw(IndustrialCenter, BigAsteroid, MethaneFromTitan, WeatherBalloons)
       }
@@ -155,7 +155,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(AiCentral) { draw(UrbanizedArea, MedicalLab) }
       cardAction1(RestrictedArea) { draw(BlackPolarDust) }
       cardAction1(Steelworks)
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       cardAction1(Extremophiles) { addCardResources(SulphurEatingBacteria) }
       cardAction1(ForcedPrecipitation)
       playProject(InvestmentLoan, 3).expect("PROD[-M], 10 M")
@@ -181,7 +181,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction2(ForcedPrecipitation)
       cardAction2(RotatorImpacts)
       cardAction1(Steelworks)
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("7 M")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("7 M")
       playProject(OlympusConference, steel = 5)
       playProject(StaticHarvesting, 5).expect("0 M")
       playProject(ProtectedGrowth, 2).expect("1 M")
@@ -248,7 +248,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(ForcedPrecipitation)
       cardAction1(Thermophiles) { addCardResources(Thermophiles) }
       playProject(CarbonateProcessing, steel = 3)
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Pluto>")
         draw(BusinessContacts, DomedCrater, LavaFlows)
       }
@@ -276,7 +276,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       wgt("VenusStep")
       buyCards(Airliners)
 
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("7 M")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("7 M")
       cardAction1(RestrictedArea) { draw(ReleaseOfInertGases) }
       convertHeat()
       cardAction1(AiCentral) { draw(AtmoCollectors, InventionContest) }
@@ -357,7 +357,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       playProject(Mangrove, 12) { placeTile(3, 5) }.expect("-4 M")
       stdProject("CitySP") { placeTile(4, 5) }.expect("-21 M")
       playProject(Algae, 10)
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       stdProject("AquiferSP") { placeTile(5, 4) }.expect("-16 M")
       convertPlants { placeTile(5, 5) }.expect("4 M")
       convertPlants { placeTile(3, 4) }.expect("4 M")
@@ -368,7 +368,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       declineTask()
 
       assertCardTrackingComplete()
-      cardsInHand shouldBe emptySet()
+      cardsHand shouldBe emptySet()
       // Final state and score come from /api/player?id=pb64886c6e682.
       assertProduction(m = 3, s = 1, t = 2, p = 4, e = 11, h = 13)
       assertResources(m = 70, s = 1, t = 4, p = 4, e = 11, h = 14)

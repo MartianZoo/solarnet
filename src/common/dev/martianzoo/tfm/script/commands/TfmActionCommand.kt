@@ -45,7 +45,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val match = Regex("""^(.+?)\s+([123])$""").matchEntire(actionArgs) ?: throw UsageException()
     val cardName = repl.game.vocabulary.canonicalName(cn(match.groupValues[1]))
     val actionNumber = match.groupValues[2]
-    val whichAction = listOf("First", "Second", "Third")[actionNumber.toInt() - 1]
+    val whichAction = listOf("Action1", "Action2", "Action3")[actionNumber.toInt() - 1]
     val action =
         cardActions(repl.game.reader.tfmCatalog.card(cardName)).getOrNull(actionNumber.toInt() - 1)
             ?: throw UsageException("$cardName has no action $actionNumber")
@@ -60,7 +60,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
                     .matching { it.instruction.toString().contains("StandardAction") }
                     .any()
             if (choosingStandardAction) {
-              TaskCommand(repl).withArgs("UseAction<UseCardActionSA, First>")
+              TaskCommand(repl).withArgs("UseAction<UseCardAction, Action1>")
             }
             TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
             if (pauseForWrittenCost) {

@@ -21,9 +21,9 @@ internal class ActionSequencingTest {
   @Test
   internal fun `invoice settlement unlocks only its matching action selector`() {
     listOf(
-            Triple("First", "MC", 9),
-            Triple("Second", "Energy", 3),
-            Triple("Third", "Titanium", 3),
+            Triple("Action1", "MC", 9),
+            Triple("Action2", "Energy", 3),
+            Triple("Action3", "Titanium", 3),
         )
         .forEach { (selector, resource, amount) ->
           val game = setUpGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
@@ -31,9 +31,9 @@ internal class ActionSequencingTest {
           p1.manual("$amount $resource")
           val manual = p1.also { it.autoExecMode = NONE }
 
-          manual.beginManual("UseAction<TradeSA, $selector>") {
+          manual.beginManual("UseAction<TradeAction, $selector>") {
             doTask("$amount Owed<Class<$resource>>")
-            doTask("Invoice<TradeSA, $selector, Class<$resource>>")
+            doTask("Invoice<TradeAction, $selector, Class<$resource>>")
             doTask("$amount Pay<Class<$resource>> FROM $resource")
 
             val tradeTasks =
@@ -52,7 +52,7 @@ internal class ActionSequencingTest {
     p1.manual("$Steelworks, 4 Energy")
     game.tfm(ENGINE).phase("Action")
 
-    p1.manual("UseAction<$Steelworks, First>") { p1.pay(energy = 4) }
+    p1.manual("UseAction<$Steelworks, Action1>") { p1.pay(energy = 4) }
 
     p1.count("Steel") shouldBe 2
     p2.count("Steel") shouldBe 0
@@ -65,7 +65,7 @@ internal class ActionSequencingTest {
     p1.manual("25 MC")
     val manual = p1.also { it.autoExecMode = NONE }
 
-    manual.beginManual("UseAction<CitySP, First>")
+    manual.beginManual("UseAction<CitySP, Action1>")
     manual.doTask("Owed<> / CitySP.cost")
     p1.count("Owed<>") shouldBe 25
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("Production<") } shouldBe
@@ -73,8 +73,8 @@ internal class ActionSequencingTest {
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
         true
 
-    manual.doTask("Invoice<CitySP, First>")
-    p1.count("Invoice<CitySP, First>") shouldBe 1
+    manual.doTask("Invoice<CitySP, Action1>")
+    p1.count("Invoice<CitySP, Action1>") shouldBe 1
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("Production<") } shouldBe
         true
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
@@ -82,7 +82,7 @@ internal class ActionSequencingTest {
 
     manual.doTask("25 Pay<Class<MC>> FROM MC")
     p1.count("Owed<>") shouldBe 0
-    p1.count("Invoice<CitySP, First>") shouldBe 0
+    p1.count("Invoice<CitySP, Action1>") shouldBe 0
 
     val results =
         game.tasks
@@ -120,7 +120,7 @@ internal class ActionSequencingTest {
     val manual = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     manual.manual("$SymbioticFungus, $Ants")
 
-    manual.beginManual("UseAction<UseCardActionSA, First>") {
+    manual.beginManual("UseAction<UseCardAction, Action1>") {
       doTask("ActionUsedMarker<$SymbioticFungus>")
       shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()

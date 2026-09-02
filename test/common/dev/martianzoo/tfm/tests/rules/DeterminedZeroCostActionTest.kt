@@ -21,7 +21,7 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
                       CLASS DeterminedZeroCostAction : ActionCard, ActiveCard<Class<ProjectCard>> {
                         HAS MAX 1 This
                         cost = 0
-                        UseAction<Owner, This, First>: -1 MC<Owner> / CityTile<Anyone> THEN Plant<Owner>
+                        UseAction<Owner, This, Action1>: -1 MC<Owner> / CityTile<Anyone> THEN Plant<Owner>
                       }
                       """
                           .trimIndent()
@@ -33,6 +33,6 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
     val p1 = game.tfm(PLAYER1)
     p1.manual("DeterminedZeroCostAction")
 
-    p1.manual("UseAction<DeterminedZeroCostAction, First>").expect("Plant")
+    p1.manual("UseAction<DeterminedZeroCostAction, Action1>").expect("Plant")
   }
 }

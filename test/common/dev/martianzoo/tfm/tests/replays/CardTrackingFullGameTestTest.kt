@@ -14,14 +14,14 @@ internal class CardTrackingFullGameTestTest : CardTrackingFullGameTest() {
   @Test
   internal fun namedDrawsReturnsPlaysAndDiscardsMaintainThePlayersHand() {
     p1.manual("3 ProjectCard") { p1.draw(AcquiredCompany, AdaptedLichen, AsteroidMining) }
-    p1.cardsInHand shouldBe setOf(AcquiredCompany, AdaptedLichen, AsteroidMining)
+    p1.cardsHand shouldBe setOf(AcquiredCompany, AdaptedLichen, AsteroidMining)
 
     p1.manual("$AcquiredCompany FROM ProjectCard")
     shouldThrow<IllegalStateException> { p1.draw(AcquiredCompany) }
     p1.manual("ProjectCard") { p1.returnToHand(AcquiredCompany) }
     p1.manual("-2 ProjectCard") { p1.discard(AcquiredCompany, AdaptedLichen) }
 
-    p1.cardsInHand shouldBe setOf(AsteroidMining)
+    p1.cardsHand shouldBe setOf(AsteroidMining)
     assertCardTrackingComplete()
   }
 }

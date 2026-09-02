@@ -38,15 +38,15 @@ internal class TransformingTest {
       actionToEffect(parsedA, index) shouldBe parsedE
     }
 
-    checkActionToEffect("5 MC -> Ok", 1, "UseAction<This, First>: -5 MC! THEN Ok")
-    checkActionToEffect("Foo -> Bar, Qux", 3, "UseAction<This, Third>: -Foo! THEN (Bar, Qux)")
+    checkActionToEffect("5 MC -> Ok", 1, "UseAction<This, Action1>: -5 MC! THEN Ok")
+    checkActionToEffect("Foo -> Bar, Qux", 3, "UseAction<This, Action3>: -Foo! THEN (Bar, Qux)")
     checkActionToEffect(
         "Microbe<Anyone> -> Microbe<This>!",
         1,
-        "UseAction<This, First>: -Microbe<Anyone>! THEN Microbe<This>!",
+        "UseAction<This, Action1>: -Microbe<Anyone>! THEN Microbe<This>!",
     )
 
-    checkActionToEffect("Plant -> Plant", 2, "UseAction<This, Second>: -Plant! THEN Plant")
+    checkActionToEffect("Plant -> Plant", 2, "UseAction<This, Action2>: -Plant! THEN Plant")
 
     shouldThrow<IllegalArgumentException> { actionToEffect(parse("-> Ok"), 4) }
   }
@@ -56,8 +56,8 @@ internal class TransformingTest {
     val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parse)
     actionListToEffects(actions)
         .shouldContainExactly(
-            parse<Effect>("UseAction<This, First>: Foo"),
-            parse<Effect>("UseAction<This, Second>: -Foo! THEN 5 Bar"),
+            parse<Effect>("UseAction<This, Action1>: Foo"),
+            parse<Effect>("UseAction<This, Action2>: -Foo! THEN 5 Bar"),
         )
   }
 

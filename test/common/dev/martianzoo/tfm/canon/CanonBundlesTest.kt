@@ -18,8 +18,8 @@ internal class CanonBundlesTest {
     utopia.isActive(cn("CimmeriaMap")) shouldBe false
     cimmeria.isActive(cn("CimmeriaMap")) shouldBe true
     cimmeria.isActive(cn("UtopiaMap")) shouldBe false
-    utopia.isActive(cn("TcColonyBonus")) shouldBe false
-    cimmeria.isActive(cn("TcColonyBonus")) shouldBe true
+    utopia.isActive(cn("CimmeriaColonyBonus")) shouldBe false
+    cimmeria.isActive(cn("CimmeriaColonyBonus")) shouldBe true
   }
 
   @Test

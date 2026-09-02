@@ -196,7 +196,7 @@ private fun renderWrapper(
       !resolvedTrigger.hasOnlySourceDependencies(
           mapOf(
               actionKey to describers.thisExpression,
-              whichActionKey to ClassName.cn("First").expression,
+              whichActionKey to ClassName.cn("Action1").expression,
           )
       ) || trigger.refinement != null || trigger.complement
   ) {

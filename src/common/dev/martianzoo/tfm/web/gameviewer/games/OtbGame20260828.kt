@@ -89,7 +89,7 @@ public class OtbGame20260828 : RecordedGame() {
       cardAction1(Celestic) { addCardResources(LocalShading) }
     }
     ellie.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
       playProject(FueledGenerators, 1)
     }
     joanna.pass()
@@ -112,7 +112,7 @@ public class OtbGame20260828 : RecordedGame() {
         doTask("Colony<Titan>")
         addCardResources(TitanShuttles)
       }
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
         addCardResources(TitanShuttles, 3)
         addCardResources(TitanShuttles)
@@ -178,11 +178,11 @@ public class OtbGame20260828 : RecordedGame() {
     joanna.buyCards(1)
 
     ellie.turn {
-      stdAction("TradeSA", 3) { doTask("Trade<Io>") }
+      stdAction("TradeAction", 3) { doTask("Trade<Io>") }
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
     dad.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(3, 2) }
     }
     joanna.turn {
@@ -248,7 +248,7 @@ public class OtbGame20260828 : RecordedGame() {
 
     dad.turn {
       playProject(ResearchColony, 16, titanium = 1) { doTask("Colony<Luna>") }
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
     }
     joanna.turn {
       playProject(IceMoonColony, 17, titanium = 2) {
@@ -316,7 +316,7 @@ public class OtbGame20260828 : RecordedGame() {
       claimMilestone(cn("Merchant"))
     }
     dad.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
         val previousAutoExecMode = dad.autoExecMode
         dad.autoExecMode = NONE
@@ -336,7 +336,7 @@ public class OtbGame20260828 : RecordedGame() {
       }
     }
     ellie.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
     dad.turn {
@@ -419,7 +419,7 @@ public class OtbGame20260828 : RecordedGame() {
 
     ellie.turn {
       claimMilestone(cn("Engineer"))
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
     }
     dad.turn {
       cardAction1(SpaceElevator)
@@ -455,7 +455,7 @@ public class OtbGame20260828 : RecordedGame() {
       }
     }
     dad.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
         val previousAutoExecMode = dad.autoExecMode
         dad.autoExecMode = NONE

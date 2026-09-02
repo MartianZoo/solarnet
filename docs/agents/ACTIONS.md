@@ -54,7 +54,7 @@ denomination. A non-M€ creation retains `Class<Resource>` as accurate data nam
 it does not substitute a Class token for the live behavior provider.
 
 On removal, bare `-Owed` deliberately leaves the denomination generic; `-Owed<>` explicitly accepts
-the M€ dependency default. Thus one `Invoice<TradeSA>` reaction can discount every Trade action
+the M€ dependency default. Thus one `Invoice<TradeAction>` reaction can discount every Trade action
 without enumerating its three payment resources.
 
 Discounts and surcharges modify `Owed` before the invoice exists. Accepted substitutes such as
@@ -119,7 +119,7 @@ it whenever the player commits the contents of `Selecting`. The commitment time 
 choice, but individual debt creation and transfer bookkeeping are not.
 
 Card play creates printed M€ debt, handles tags, then creates
-`CardInvoice<Class<CardFront>>`. Generic card-play modifiers respond to its `Billing<PlayCards>`
+`CardInvoice<Class<CardFront>>`. Generic card-play modifiers respond to its `Billing<CardPlay>`
 supertype, whose persistent owner covers standard actions, preludes, and other card-play routes.
 Only modifiers that inspect the selected not-yet-live card use the specialized invoice and its Card
 Class. The card moves face up only after all resulting barriers are gone, including requirement

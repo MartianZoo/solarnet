@@ -38,14 +38,14 @@ public class OtbGame20260825 : RecordedGame() {
       playPrelude(FocusedOrganization) { doTask("Titanium") }
 
       playPrelude(HeadStart) {
-        doTask("UseAction<UseCardActionSA, First>", 1)
+        doTask("UseAction<UseCardAction, Action1>", 1)
         doTask("ActionUsedMarker<$FocusedOrganization>")
         cardAction1(FocusedOrganization) {
           doTask("-MC", 2)
           doTask("Titanium", 2)
         }
 
-        doTask("UseAction<PlayCardSA, First>")
+        doTask("UseAction<PlayCardFromHand, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>>")
         pay(4)
       }
@@ -81,7 +81,7 @@ public class OtbGame20260825 : RecordedGame() {
       }
 
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, First>")
+        doTask("UseAction<$AquiferPumping, Action1>")
         pay(8)
         placeTile(9, 6)
       }
@@ -111,7 +111,7 @@ public class OtbGame20260825 : RecordedGame() {
     dad.turn { cardAction1(SpaceElevator) }
     ellie.turn {
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, First>")
+        doTask("UseAction<$AquiferPumping, Action1>")
         pay(8)
         placeTile(8, 4)
       }
@@ -152,7 +152,7 @@ public class OtbGame20260825 : RecordedGame() {
       cardAction1(AquiferPumping) {
         pay(8)
         placeTile(9, 9)
-        doTask("UseAction<NeptunianOption, First>")
+        doTask("UseAction<NeptunianOption, Action1>")
         pay(5)
       }
 
@@ -163,10 +163,10 @@ public class OtbGame20260825 : RecordedGame() {
     }
     ellie.turn {
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, First>")
+        doTask("UseAction<$AquiferPumping, Action1>")
         pay(8)
         placeTile(8, 9)
-        doTask("UseAction<NeptunianOption, First>")
+        doTask("UseAction<NeptunianOption, Action1>")
         pay(5)
       }
     }
@@ -195,15 +195,15 @@ public class OtbGame20260825 : RecordedGame() {
       cardAction1(AquiferPumping) {
         pay(8)
         placeTile(7, 9)
-        doTask("UseAction<NeptunianOption, First>")
+        doTask("UseAction<NeptunianOption, Action1>")
         pay(5)
       }
 
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, First>")
+        doTask("UseAction<$AquiferPumping, Action1>")
         pay(8)
         placeTile(1, 5)
-        doTask("UseAction<NeptunianOption, First>")
+        doTask("UseAction<NeptunianOption, Action1>")
         pay(5)
       }
     }
@@ -272,7 +272,7 @@ public class OtbGame20260825 : RecordedGame() {
     }
     ellie.turn {
       cardAction1(Viron) {
-        doTask("UseAction<$GhgProducingBacteria, Second>")
+        doTask("UseAction<$GhgProducingBacteria, Action2>")
       }
     }
     dad.pass()
@@ -358,7 +358,7 @@ public class OtbGame20260825 : RecordedGame() {
     ellie.turn {
       cardAction1(OreProcessor)
 
-      cardAction1(Viron) { doTask("UseAction<$GhgProducingBacteria, Second>") }
+      cardAction1(Viron) { doTask("UseAction<$GhgProducingBacteria, Action2>") }
     }
     dad.turn {
       cardAction1(SulphurEatingBacteria)

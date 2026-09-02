@@ -388,7 +388,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // ER claimed Planner milestone
     // ER ended turn
     ER.turn {
-      stdAction("ClaimMilestoneSA") { doTask("Planner") }
+      stdAction("ClaimMilestone") { doTask("Planner") }
     }
 
     // KB used Convert Heat standard action

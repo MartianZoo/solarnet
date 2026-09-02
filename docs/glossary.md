@@ -34,7 +34,7 @@
 - **Class Effect:** An Effect inherited by and transformed for a loaded Class, but not yet specialized for a concrete Component Type.
 - **Class Header:** The Class Name, declared supertypes, and newly introduced Dependencies, excluding body elements such as defaults, Invariants, and Effects.
 - **Class Literal:** A Type such as `Class<Steel>` that denotes the Class `Steel` without depending on a `Steel` Component; its angle-bracketed argument is represented data, not a Dependency target.
-- **Class Name:** A Class's sole stable engine identity within a Catalog. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer29`. Configuration never changes the Declaration denoted by a given Class Name.
+- **Class Name:** A Class's sole stable engine identity within a Catalog. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. Configuration never changes the Declaration denoted by a given Class Name.
 - **Class Synonym:** A configured, input-only convenience spelling such as `TR` for `TerraformRating`. It is never rendered or stored.
 - **Class Table:** An immutable set of mutually compatible Classes that resolves Type Expressions into Types. A Catalog has one master Class Table; each Game World uses a Class-table Projection containing Active Classes plus Catalog-known Uninhabited Classes.
 - **Class-table Projection:** A game-specific Class Table derived from a Catalog's master Class Table. Active Classes carry behavior and enumerate concrete possibilities, while other Catalog-known identities remain resolvable as Uninhabited Classes.

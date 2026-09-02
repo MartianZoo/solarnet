@@ -29,10 +29,10 @@ internal class AwardsTest : TfmTest() {
         .allSubclasses()
         .filter { !it.abstract && game.classTable.isActive(it.className) }
         .shouldBeEmpty()
-    game.classTable.isActive(cn("ClaimMilestoneSA")) shouldBe false
-    game.classTable.isActive(cn("FundAwardSA")) shouldBe false
+    game.classTable.isActive(cn("ClaimMilestone")) shouldBe false
+    game.classTable.isActive(cn("FundAward")) shouldBe false
     engine.assertCounts(
-        1 to "PlayCardSA",
+        1 to "PlayCardFromHand",
         1 to "AquiferSP",
     )
   }
@@ -97,7 +97,7 @@ internal class AwardsTest : TfmTest() {
     p1.sneak("100 MC")
 
     val first =
-        p1.manual("UseAction<FundAwardSA, First>") {
+        p1.manual("UseAction<FundAward, Action1>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Landlord")
         }
@@ -105,7 +105,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     shouldThrow<RequirementException> {
-      p1.manual("UseAction<FundAwardSA, First>") {
+      p1.manual("UseAction<FundAward, Action1>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Landlord")
       }
@@ -113,7 +113,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     val second =
-        p1.manual("UseAction<FundAwardSA, Second>") {
+        p1.manual("UseAction<FundAward, Action2>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Scientist")
         }
@@ -121,7 +121,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(78 to "MC", 1 to "Scientist")
 
     val third =
-        p1.manual("UseAction<FundAwardSA, Third>") {
+        p1.manual("UseAction<FundAward, Action3>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Thermalist")
         }
@@ -129,7 +129,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<RequirementException> {
-      p1.manual("UseAction<FundAwardSA, Third>") {
+      p1.manual("UseAction<FundAward, Action3>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Miner")
       }

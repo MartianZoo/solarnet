@@ -73,11 +73,11 @@ internal abstract class TfmTest {
               .extract { it }
               .any {
                 it.instruction.toString().let { text ->
-                  text.startsWith("Invoice<") && "BuyCards" in text
+                  text.startsWith("Invoice<") && "CardPurchase" in text
                 }
               }
       ) {
-        doTask("Invoice<BuyCards, First>")
+        doTask("Invoice<CardPurchase, Action1>")
       }
       doTask("Pay<Class<MC>> FROM MC / Owed<>")
     }

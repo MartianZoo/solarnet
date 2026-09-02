@@ -2,7 +2,7 @@
 CLASS ColoniesExpansion : Module {
   premiseRequirement = HAS "(=1 Player, =4 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))"
 
-  This:: TradeSA, BuildColonySP
+  This:: TradeAction, BuildColonySP
   SetupPhase IF MAX 0 SoloColoniesSetup: ColoniesSetup
   SetupPhase IF SoloMode: PROD[-2 MC<Player1>]
   SolarPhase: AdvanceColonyTracks
@@ -15,7 +15,7 @@ CLASS SoloColoniesSetup : Owned<Player>, System {
 }
 
 "Trade with a colony tile"
-CLASS TradeSA : StandardAction {
+CLASS TradeAction : StandardAction {
   9 MC -> Trade
   3 Energy -> Trade
   3 Titanium -> Trade

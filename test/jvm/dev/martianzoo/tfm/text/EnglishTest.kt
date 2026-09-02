@@ -74,16 +74,16 @@ internal class EnglishTest {
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe
         "Requires that oxygen is 6% or lower."
     english.describe(
-        parse<Effect>("Invoice<ConvertPlantsSA, First>:: -Owed<Class<Plant>>")
+        parse<Effect>("Invoice<ConvertPlants, Action1>:: -Owed<Class<Plant>>")
     ) shouldBe "When you convert plants to greenery, pay 1 plant less."
-    english.describe(parse<Effect>("Billing<PlayCards>:: -2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("Billing<CardPlay>:: -2 Owed<>")) shouldBe
         "When you play a card, pay 2 M€ less."
     english.describe(
         parse<Effect>("CardInvoice<Class<CardFront>(HAS requirement)>:: -2 Owed<>")
     ) shouldBe "When you play a card with a requirement, pay 2 M€ less."
     english.describe(parse<Effect>("BuyCard:: 2 Owed<>")) shouldBe
         "When you buy a card, pay 2 M€ extra."
-    english.describe(parse<Effect>("UseAction<This, First>:: Accept<Class<Titanium>>")) shouldBe
+    english.describe(parse<Effect>("UseAction<This, Action1>:: Accept<Class<Titanium>>")) shouldBe
         "When you pay for this action, titanium may be used."
     english.describe(parse<Effect>("PlayTag<Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
         "When you play a planetary tag, pay 2 M€ less."
@@ -114,7 +114,7 @@ internal class EnglishTest {
             """
             CLASS TitaniumAction : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
               cost = 0
-              UseAction<This, First>:: Accept<Class<Titanium>>
+              UseAction<This, Action1>:: Accept<Class<Titanium>>
               12 MC -> OceanTile
               Asteroid<This> -> VenusStep
             }

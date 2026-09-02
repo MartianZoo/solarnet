@@ -18,7 +18,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Philantropist counts victory point gains but not Vitor's reference`() {
     newGame(
         GameConfig(
-            "PreludeExpansion, Philantropist, Builder7, Engineer",
+            "PreludeExpansion, Philantropist, Builder, Engineer",
             "Player1",
             "Player2",
         )
@@ -36,7 +36,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Geologist counts owned tiles with owned neighbors`() {
     newGame(
         GameConfig(
-            "Geologist, Builder7, Engineer",
+            "Geologist, Builder, Engineer",
             "Player1",
             "Player2",
         )
@@ -76,7 +76,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
     p1.manual("8 M")
     engine.phase("Action")
-    p1.stdAction("FundAwardSA") { doTask("Landscaper") }
+    p1.stdAction("FundAward") { doTask("Landscaper") }
 
     p1.count("Landscaper") shouldBe 1
     p1.count("OwnedTile") shouldBe 5
@@ -87,7 +87,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     val game =
         newGame(
             GameConfig(
-                "Merchant, Builder7, Engineer",
+                "Merchant, Builder, Engineer",
                 "Player1",
                 "Player2",
             )
@@ -96,7 +96,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
     engine.phase("Action")
 
-    p1.stdAction("ClaimMilestoneSA") { doTask("Merchant") }
+    p1.stdAction("ClaimMilestone") { doTask("Merchant") }
 
     p1.count("Merchant") shouldBe 1
   }
@@ -105,7 +105,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Producer22 requires combined production of twenty two`() {
     newGame(
         GameConfig(
-            "Producer22, Builder7, Engineer, -CorporateEraExpansion",
+            "Producer22, Builder, Engineer, -CorporateEraExpansion",
             "Player1",
             "Player2",
         )
@@ -117,7 +117,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
     p1.manual("PROD[6 MC, Steel, Titanium, Plant, Energy, Heat]")
     p1.count("PROD[StandardResource]") shouldBe 22
-    p1.stdAction("ClaimMilestoneSA") { doTask("Producer22") }
+    p1.stdAction("ClaimMilestone") { doTask("Producer22") }
     p1.count("Milestone") shouldBe 1
   }
 
@@ -126,7 +126,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     shouldThrow<LimitsException> {
       newGame(
           GameConfig(
-              "Producer, Builder7, Engineer, -CorporateEraExpansion",
+              "Producer, Builder, Engineer, -CorporateEraExpansion",
               "Player1",
               "Player2",
           )
@@ -135,7 +135,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     shouldThrow<IllegalArgumentException> {
       newGame(
           GameConfig(
-              "Producer22, Builder7, Engineer",
+              "Producer22, Builder, Engineer",
               "Player1",
               "Player2",
           )

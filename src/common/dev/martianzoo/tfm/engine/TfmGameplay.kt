@@ -128,7 +128,7 @@ public class TfmGameplay(
       }
     }
     if (count > 0) {
-      if (hasPendingBuyCardsInvoice(tasks)) doTask("Invoice<BuyCards, First>")
+      if (hasPendingCardPurchaseInvoice(tasks)) doTask("Invoice<CardPurchase, Action1>")
       payAllMc()
       completePurchasedCards()
     } else {
@@ -184,11 +184,11 @@ public class TfmGameplay(
     }
   }
 
-  private fun hasPendingBuyCardsInvoice(tasks: TaskQueue): Boolean =
+  private fun hasPendingCardPurchaseInvoice(tasks: TaskQueue): Boolean =
       tasks
           .extract { it }
           .any { task ->
-            task.instruction.toString().let { it.startsWith("Invoice<") && "BuyCards" in it }
+            task.instruction.toString().let { it.startsWith("Invoice<") && "CardPurchase" in it }
           }
 
   private fun hasPendingBuySelectedCards(tasks: TaskQueue): Boolean =
@@ -269,11 +269,11 @@ public class TfmGameplay(
   }
 
   public fun claimMilestone(milestone: ClassName): TaskResult =
-      stdAction("ClaimMilestoneSA") { doTask("$milestone") }
+      stdAction("ClaimMilestone") { doTask("$milestone") }
 
   public fun fundAward(award: ClassName, amountPaid: Int): TaskResult {
     val which = count("Award") + 1
-    return stdAction("FundAwardSA", which, payment = { pay(amountPaid) }) { doTask("$award") }
+    return stdAction("FundAward", which, payment = { pay(amountPaid) }) { doTask("$award") }
   }
 
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
@@ -296,11 +296,11 @@ public class TfmGameplay(
   }
 
   public fun convertPlants(body: BodyLambda = {}): TaskResult {
-    return stdAction("ConvertPlantsSA", body = body)
+    return stdAction("ConvertPlants", body = body)
   }
 
   public fun convertHeat(body: BodyLambda = {}): TaskResult {
-    return stdAction("ConvertHeatSA", body = body)
+    return stdAction("ConvertHeat", body = body)
   }
 
   public fun stdProject(
@@ -353,7 +353,7 @@ public class TfmGameplay(
       body: BodyLambda,
   ) {
     if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
-      doTask("UseAction<PlayCardSA, First>")
+      doTask("UseAction<PlayCardFromHand, Action1>")
     }
     doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
@@ -621,7 +621,7 @@ public class TfmGameplay(
       x: Int? = null,
       body: BodyLambda = {},
   ): TaskResult {
-    return stdAction("UseCardActionSA") {
+    return stdAction("UseCardAction") {
       doTask("ActionUsedMarker<$cardName>")
       useCardAction(which, cardName, x, body)
     }
@@ -661,14 +661,14 @@ public class TfmGameplay(
 
   private fun whichAction(which: Int): String =
       when (which) {
-        1 -> "First"
-        2 -> "Second"
-        3 -> "Third"
+        1 -> "Action1"
+        2 -> "Action2"
+        3 -> "Action3"
         else -> throw IllegalArgumentException("A component can offer only three actions: $which")
       }
 
   public fun sellPatents(count: Int): TaskResult =
-      stdAction("SellPatents") {
+      stdAction("SellPatentsSP") {
         doTask("$count MC FROM ProjectCard<Hand>!")
       }
 

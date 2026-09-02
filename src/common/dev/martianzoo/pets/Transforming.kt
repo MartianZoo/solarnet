@@ -132,7 +132,7 @@ public object Transforming {
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
   private fun actionSelector(index1Ref: Int): ClassName =
-      listOf(cn("First"), cn("Second"), cn("Third")).getOrNull(index1Ref - 1)
+      listOf(cn("Action1"), cn("Action2"), cn("Action3")).getOrNull(index1Ref - 1)
           ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
 
   public fun immediateToEffect(

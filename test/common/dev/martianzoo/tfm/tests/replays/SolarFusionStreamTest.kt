@@ -41,7 +41,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
           ElysiumMap
           PreludeExpansion, PromoCardPack, FakeEstablishedMethods
 
-          Builder7, Philantropist, Spacefarer, Terraformer29, Energizer
+          Builder, Philantropist, Spacefarer, Terraformer, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
           """,
           "JR",
@@ -111,9 +111,9 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
       playPrelude(fakeEstablishedMethods) {
-            doTask("UseAction<PowerPlantSP, First>")
+            doTask("UseAction<PowerPlantSP, Action1>")
             pay(11)
-            doTask("UseAction<PowerPlantSP, First>")
+            doTask("UseAction<PowerPlantSP, Action1>")
             pay(11)
           }
           .expect("8 MC")
@@ -161,7 +161,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.playProject(Pets, 10)
     KB.assignWildTag(ResearchNetwork, "BuildingTag")
     KB.playProject(StaticHarvesting, 4).expect("-1 MC")
-    KB.stdAction("ClaimMilestoneSA") { doTask("Energizer") }
+    KB.stdAction("ClaimMilestone") { doTask("Energizer") }
     ER.cardAction1(IndustrialCenter)
     ER.declineSecondAction()
     JR.playProject(SterlingVents, 5)
@@ -180,7 +180,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(TychoMagnetics, x = 2) { ER.draw(LightningHarvest) }
     ER.cardAction1(IndustrialCenter)
     JR.playProject(NaturalPreserve, 9) { placeTile(8, 4) }
-    JR.stdAction("ClaimMilestoneSA") { doTask("Builder7") }
+    JR.stdAction("ClaimMilestone") { doTask("Builder") }
     KB.cardAction1(RestrictedArea) { KB.draw(MartianLumberCorp) }
     KB.playProject(OlympusConference, 9, steel = 0)
     ER.pass()
@@ -249,7 +249,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
       ER.buyCards(0)
     }
-    JR.stdAction("ClaimMilestoneSA") { doTask("Philantropist") }
+    JR.stdAction("ClaimMilestone") { doTask("Philantropist") }
     JR.playProject(SpaceElevator, 27)
     KB.playProject(HiredRaiders, 0) { doTask("2 Steel<KB> FROM Steel<ER>") }
         .expect("-3 MC<KB>, 3 MC<ER>")
@@ -338,7 +338,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.buyCards(BigAsteroid, Research)
 
     JR.cardAction1(SpaceMirrors)
-    JR.stdAction("FundAwardSA") { doTask("Banker") }
+    JR.stdAction("FundAward") { doTask("Banker") }
     KB.convertPlants { placeTile(5, 2) }
     KB.cardAction1(RestrictedArea) { KB.draw(Potatoes) }
     ER.cardAction1(TychoMagnetics, x = 1) { ER.draw(DeimosDownPromo) }
@@ -436,7 +436,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       doTask("CopyProductionBox<$GhgFactories>")
     }
     JR.playProject(PhobosSpaceHaven, 22, titanium = 1)
-    JR.stdAction("FundAwardSA", which = 2) { doTask("Founder") }
+    JR.stdAction("FundAward", which = 2) { doTask("Founder") }
     KB.sellPatents(DomedCrater)
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
@@ -502,7 +502,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(RedShips)
     ER.playProject(PublicBaths, mc = 0, steel = 2)
     KB.cardAction1(Ants)
-    KB.stdAction("FundAwardSA", which = 3) { doTask("Benefactor") }
+    KB.stdAction("FundAward", which = 3) { doTask("Benefactor") }
     ER.sellPatents(SpecialDesign)
     ER.sellPatents(Trees)
     KB.assignWildTag(ResearchNetwork, "ScienceTag")
@@ -548,9 +548,9 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.declineTask()
 
     assertCardTrackingComplete()
-    JR.cardsInHand shouldBe setOf(CloudSeeding)
-    KB.cardsInHand shouldBe emptySet()
-    ER.cardsInHand shouldBe emptySet()
+    JR.cardsHand shouldBe setOf(CloudSeeding)
+    KB.cardsHand shouldBe emptySet()
+    ER.cardsHand shouldBe emptySet()
 
     JR.assertResources(m = 81, s = 1, t = 4, p = 3, e = 5, h = 10)
     JR.assertProduction(m = 42, s = 1, t = 2, p = 6, e = 5, h = 0)

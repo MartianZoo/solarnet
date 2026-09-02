@@ -45,6 +45,6 @@ internal class CapitalTest : CardTest() {
     p1.manual("$Capital") { placeTile(1, 1) }
     engine.phase("Action")
 
-    shouldThrow<RequirementException> { p1.stdAction("ClaimMilestoneSA") { doTask("Manager") } }
+    shouldThrow<RequirementException> { p1.stdAction("ClaimMilestone") { doTask("Manager") } }
   }
 }

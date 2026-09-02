@@ -362,9 +362,9 @@ internal object StandardResourceMonotonicityReport {
         }
     val actionIndex =
         when (action?.arguments?.lastOrNull()?.className?.toString()) {
-          "First" -> 1
-          "Second" -> 2
-          "Third" -> 3
+          "Action1" -> 1
+          "Action2" -> 2
+          "Action3" -> 3
           else -> null
         }
     return if (actionIndex == null) {

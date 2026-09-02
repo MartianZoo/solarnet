@@ -278,7 +278,7 @@ private constructor(
       }
       require(result.isNotEmpty()) { "Display name has no identifier characters: $displayName" }
       val validResult =
-          if (result.length > 6 && result[1] !in 'a'..'z' && result[1] != '_') {
+          if (result.length > 6 && result[1] in 'A'..'Z') {
             result.substring(0, 1) + "_" + result.substring(1)
           } else {
             result

@@ -3,7 +3,7 @@
 
     // L1 Trade Terminal needs a clean way to select up to three distinct resource-holding cards.
     {
-      "name": "LagrangeOneTradeTerminal",
+      "name": "L1TradeTerminal",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 25,

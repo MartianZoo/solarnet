@@ -13,7 +13,7 @@ import kotlin.test.Test
 internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
   // Government, two players, and these full-random milestone and award pools.
-  // Unsupported component: Builder7 and Sponsor substitute for unsupported Thawer and Briber.
+  // Unsupported component: Builder and Sponsor substitute for unsupported Thawer and Briber.
   // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
   // individually without enabling PromoCardPack.
   override val config =
@@ -22,7 +22,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
           HellasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, Merger
 
-          Energizer, Builder7, Generalist, Diversifier, Terraformer29, Sponsor
+          Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
           """,
           "Pink",
@@ -362,7 +362,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
       assignWildTag(NobelPrize, "MicrobeTag")
       // Green claimed Diversifier milestone
-      stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
+      stdAction("ClaimMilestone") { doTask("Diversifier") }
     }
     pink.turn {
       // Pink played Titanium Mine
@@ -491,7 +491,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 2 titanium
       playProject(SolarWindPower, titanium = 3)
       // Pink claimed Generalist milestone
-      stdAction("ClaimMilestoneSA") { doTask("Generalist") }
+      stdAction("ClaimMilestone") { doTask("Generalist") }
     }
     green.turn {
       // Green used Ironworks action
@@ -536,7 +536,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green funded Contractor award
-      stdAction("FundAwardSA") { doTask("Contractor") }
+      stdAction("FundAward") { doTask("Contractor") }
       // Green ended turn
     }
     pink.turn {
@@ -586,8 +586,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green lost 7 plants because of Pink
       playProject(DeimosDown, 14, titanium = 5) { doTask("-7 Plant<Green>") }
           .expect("4 Steel, -7 Plant<Green>")
-      // Pink claimed Terraformer29 milestone
-      stdAction("ClaimMilestoneSA") { doTask("Terraformer29") }
+      // Pink claimed Terraformer milestone
+      stdAction("ClaimMilestone") { doTask("Terraformer") }
     }
     green.turn {
       // Green played Terraforming Contract
@@ -1074,7 +1074,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       // Pink funded Landscaper award
-      stdAction("FundAwardSA", which = 2) { doTask("Landscaper") }
+      stdAction("FundAward", which = 2) { doTask("Landscaper") }
       // Pink ended turn
     }
     // Green passed
@@ -1141,7 +1141,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // You drew Toll Station,Fueled Generators
       playProject(TechnologyDemonstration, titanium = 1) { draw(TollStation, FueledGenerators) }
       // Pink funded Founder award
-      stdAction("FundAwardSA", which = 3) { doTask("Founder") }.expect("Award")
+      stdAction("FundAward", which = 3) { doTask("Founder") }.expect("Award")
     }
     green.turn {
       // Green used Ironworks action
@@ -1272,8 +1272,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
 
     // This game id was ga5237bd2fb08
     assertCardTrackingComplete()
-    pink.cardsInHand shouldBe emptySet()
-    green.cardsInHand shouldBe emptySet()
+    pink.cardsHand shouldBe emptySet()
+    green.cardsHand shouldBe emptySet()
     engine.assertCounts(1 to "EndPhase")
 
     pink.assertCounts(

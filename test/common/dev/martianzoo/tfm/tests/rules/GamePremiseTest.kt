@@ -155,7 +155,7 @@ internal class GamePremiseTest {
             GameConfig(
                 """
                 HellasMap,
-                Coastguard, Landshaper, Builder7,
+                Coastguard, Landshaper, Builder,
                 Botanist, Founder, Administrator
                 """,
                 "Player1",
@@ -177,7 +177,7 @@ internal class GamePremiseTest {
     val premise =
         Canon.gamePremise(
             GameConfig(
-                "HellasMap, Landshaper, Builder7, Coastguard",
+                "HellasMap, Landshaper, Builder, Coastguard",
                 "Player1",
                 "Player2",
             )
@@ -221,8 +221,8 @@ internal class GamePremiseTest {
     Canon.classTable.getClass(cn("Award")).allSubclasses().none {
       table.isActive(it.className)
     } shouldBe true
-    table.isActive(cn("ClaimMilestoneSA")) shouldBe false
-    table.isActive(cn("FundAwardSA")) shouldBe false
+    table.isActive(cn("ClaimMilestone")) shouldBe false
+    table.isActive(cn("FundAward")) shouldBe false
 
     shouldThrow<IllegalArgumentException> {
       Engine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))

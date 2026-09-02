@@ -181,7 +181,7 @@ CLASS EarthCatapult : ActiveCard<Class<ProjectCard>> {
   cost = 23
 
   This:: EarthTag<This>
-  Billing<PlayCards>:: -2 Owed<>
+  Billing<CardPlay>:: -2 Owed<>
   End: 2 VictoryPoint
 }
 
@@ -412,7 +412,7 @@ CLASS AntiGravityTechnology : ActiveCard<Class<ProjectCard>> {
   requirement = HAS "7 ScienceTag"
 
   This:: ScienceTag<This>
-  Billing<PlayCards>:: -2 Owed<>
+  Billing<CardPlay>:: -2 Owed<>
   End: 3 VictoryPoint
 }
 
@@ -508,7 +508,7 @@ CLASS IndenturedWorkers : EventCard<Class<ProjectCard>> {
   cost = 0
 
   This:: EventTag<This>
-  This: NextCardEffect { Billing<PlayCards>:: -8 Owed<> }
+  This: NextCardEffect { Billing<CardPlay>:: -8 Owed<> }
   End: -VictoryPoint
 }
 

@@ -18,6 +18,11 @@ import kotlin.test.Test
 
 internal class ClassDeclarationTest {
   @Test
+  internal fun parsesClassNameWithInitialLetterNumberSegment() {
+    Parsing.parseClasses("CLASS L1TradeTerminal").single().className shouldBe cn("L1TradeTerminal")
+  }
+
+  @Test
   internal fun rendersAsParseablePets() {
     val source =
         """
@@ -94,14 +99,14 @@ internal class ClassDeclarationTest {
     val eff: Effect = parse<Effect>("This: DoStuff")
     val invoice =
         parse<Effect>(
-            "UseAction<This, First>: Owed<Class<Steel>> THEN " +
-                "Invoice<This, First, Class<Steel>>"
+            "UseAction<This, Action1>: Owed<Class<Steel>> THEN " +
+                "Invoice<This, Action1, Class<Steel>>"
         )
-    val paid = parse<Effect>("-Invoice<This, First>: 5 MC")
+    val paid = parse<Effect>("-Invoice<This, Action1>: 5 MC")
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
     val trigger = cn("Trigger").expression
-    val first = cn("First")
+    val first = cn("Action1")
 
     decl.className shouldBe foo
     decl.abstract shouldBe true

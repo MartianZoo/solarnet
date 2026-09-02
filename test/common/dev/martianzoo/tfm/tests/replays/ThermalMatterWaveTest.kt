@@ -76,7 +76,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       convertHeat()
       playProject(CryoSleep, 10)
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
             doTask("Trade<Ceres>")
           }
           .expect("-2 Energy, 6 Steel")
@@ -94,7 +94,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction2(TitanShuttles) {
         doTask("-8 Floater<$TitanShuttles> THEN 8 Titanium")
       }
-      stdAction("TradeSA", 3) { doTask("Trade<Triton>") }
+      stdAction("TradeAction", 3) { doTask("Trade<Triton>") }
       playProject(SterlingVents, 2, steel = 1).expect("PROD[2 Energy, -2 Heat]")
       playProject(ElectroCatapult, 8, steel = 3)
       cardAction1(ElectroCatapult)
@@ -134,7 +134,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(TitanShuttles) { addCardResources(SaturnSurfing) }
       cardAction1(SaturnSurfing)
       cardAction2(RotatorImpacts) { draw(SpinOffDepartment) }
-      stdAction("TradeSA", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 13 Heat")
+      stdAction("TradeAction", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 13 Heat")
       convertHeat()
       convertHeat()
       playProject(SpinOffDepartment, 4, steel = 2)
@@ -202,7 +202,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
         draw(Comet)
         doTask("-ProjectCard")
       }
-      stdAction("TradeSA", 1) { doTask("Trade<Triton>") }
+      stdAction("TradeAction", 1) { doTask("Trade<Triton>") }
       playProject(Comet, 1, titanium = 5) {
         draw(SolarPower, Predators, EquatorialMagnetizer)
         // Decline removing an opponent's plants.
@@ -294,7 +294,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       playProject(Shuttles, 2, titanium = 2).expect("PROD[2 MC, -Energy]")
       playProject(PioneerSettlement, 3, titanium = 2) { doTask("Colony<Triton>") }
-      stdAction("TradeSA", 2) { doTask("Trade<Io>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Io>") }
       convertHeat()
       convertHeat()
       playProject(TitanFloatingLaunchPad, 18) {
@@ -368,7 +368,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       declineTask()
 
       assertCardTrackingComplete()
-      cardsInHand shouldBe emptySet()
+      cardsHand shouldBe emptySet()
 
       assertResources(m = 106, s = 4, t = 6, p = 4, e = 1, h = 17)
       assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)

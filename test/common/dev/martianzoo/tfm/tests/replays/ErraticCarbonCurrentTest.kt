@@ -38,7 +38,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           VenusNextExpansion, PreludeExpansion, PromoCardPack
           MarsNomads
 
-          RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer29
+          RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer
           Traveller, Collector, Excentric, Investor, Suburbian, Magnate
           """,
           "Blue",
@@ -243,7 +243,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     // Unsupported component: moving Mars Nomads granted the destination's complete bonus.
     pink.exMachina("-6 MC, OceanTile<Hellas_5_7>, TerraformRating, 3 Heat, 6 MC")
     blue.turn { playProject(Windmills, 5) }
-    pink.turn { claimMilestone(cn("Terraformer29")) }
+    pink.turn { claimMilestone(cn("Terraformer")) }
     blue.pass()
     pink.pass()
     blue.wgt("OxygenStep")
@@ -613,8 +613,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.declineTask()
 
     assertCardTrackingComplete()
-    blue.cardsInHand shouldBe emptySet()
-    pink.cardsInHand shouldBe emptySet()
+    blue.cardsHand shouldBe emptySet()
+    pink.cardsHand shouldBe emptySet()
     checkHandSizes()
     engine.assertCounts(1 to "EndPhase")
 

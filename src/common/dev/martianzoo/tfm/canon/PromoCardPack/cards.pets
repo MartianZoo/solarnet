@@ -324,7 +324,7 @@ CLASS DirectedImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCa
   cost = 8
 
   This:: SpaceTag<This>
-  UseAction<This, First>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accept<Class<Titanium>>
 
   6 MC -> Asteroid
   Asteroid<This> -> TemperatureStep
@@ -507,7 +507,7 @@ CLASS IcyImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   cost = 15
 
   This:: SpaceTag<This>
-  UseAction<This, First>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accept<Class<Titanium>>
 
   10 MC -> 2 Asteroid<This>
   Asteroid<This> -> FirstPlayerOcean<Owner>
@@ -613,7 +613,7 @@ CLASS StJosephOfCupertinoMission : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 7
 
   This: CathedralOption
-  UseAction<This, First>:: Accept<Class<Steel>>
+  UseAction<This, Action1>:: Accept<Class<Steel>>
   End: VictoryPoint / Cathedral<Anyone>
 
   5 MC -> Cathedral<Anyone, CityTile<Anyone>>

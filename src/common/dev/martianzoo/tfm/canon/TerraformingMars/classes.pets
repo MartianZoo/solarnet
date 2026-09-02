@@ -7,7 +7,7 @@ CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
-  This:: PlayCardSA, UseCardActionSA, ConvertPlantsSA, ConvertHeatSA, SellPatents, HandleMandates
+  This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, HandleMandates
   This:: GpIncomplete<Class<TemperatureStep>>, GpIncomplete<Class<OxygenStep>>, GpIncomplete<Class<OceanTile>>
   This IF Mode, MAX 0 MarsMap:: TharsisMap
 
@@ -328,19 +328,19 @@ CLASS SecondPlace<Award> : Owned<Player> {
 ABSTRACT CLASS HasActions { HAS MAX 1 This }
 
 "Identifies one of the actions offered by a component"
-ABSTRACT CLASS WhichAction : System {
+ABSTRACT CLASS ActionSlot : System {
   HAS =1 This
-  CLASS First, Second, Third
+  CLASS Action1, Action2, Action3
 }
 
 "A Signal a player sends to indicate an action they want to perform"
-CLASS UseAction<HasActions, WhichAction> : Owned<Player>, Signal {
+CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal {
   This IF Mandate: MAX 0 Mandate: Ok
 }
 
 ABSTRACT CLASS Mandate : Owned<Player>, HasActions {
   HAS MAX 1 This
-  MandateSignal: UseAction<This, First>
+  MandateSignal: UseAction<This, Action1>
   MandateSignal: -This!
 }
 
@@ -360,37 +360,37 @@ ABSTRACT CLASS StandardAction : HasActions {
   HAS =1 This
 
   "Play a project card from hand"
-  CLASS PlayCardSA { -> PlayCard<Class<ProjectCard>> }
+  CLASS PlayCardFromHand { -> PlayCard<Class<ProjectCard>> }
 
   "Claim an available milestone"
-  CLASS ClaimMilestoneSA { 8 MC -> Milestone }
+  CLASS ClaimMilestone { 8 MC -> Milestone }
 
   "Fund an available award"
-  CLASS FundAwardSA {
+  CLASS FundAward {
     8 MC -> (=0 Award: Award)
     14 MC -> (=1 Award: Award)
     20 MC -> (=2 Award: Award)
   }
 
   "Use an action on a card"
-  CLASS UseCardActionSA { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
+  CLASS UseCardAction { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
 
   "Convert plants into a greenery tile"
-  CLASS ConvertPlantsSA { 8 Plant -> GreeneryTile<> }
+  CLASS ConvertPlants { 8 Plant -> GreeneryTile<> }
 
   "Convert heat into a temperature increase"
-  CLASS ConvertHeatSA { 8 Heat -> TemperatureStep }
+  CLASS ConvertHeat { 8 Heat -> TemperatureStep }
 
   "Resolve a mandatory action before taking another standard action"
   CLASS HandleMandates { -> Mandate: MandateSignal }
 }
 
 "The persistent operation that owns research-phase and corporation-setup card purchases"
-CLASS BuyCards : HasActions { HAS =1 This }
+CLASS CardPurchase : HasActions { HAS =1 This }
 
 // TODO: Replace this stable invoice host with a live late-stage card-play operation.
 "The persistent operation that owns card play regardless of how the play was initiated"
-CLASS PlayCards : HasActions { HAS =1 This }
+CLASS CardPlay : HasActions { HAS =1 This }
 
 "A standard project, as the game defines it"
 ABSTRACT CLASS StandardProject : StandardAction {
@@ -398,7 +398,7 @@ ABSTRACT CLASS StandardProject : StandardAction {
 }
 
 "Sell any number of patents"
-CLASS SellPatents : StandardProject {
+CLASS SellPatentsSP : StandardProject {
   cost = 0
   1 MC / cost -> X MC FROM ProjectCard<Hand>
 }
@@ -439,7 +439,7 @@ CLASS BuyCard : Owned<Player>, Signal
 
 "Confirms purchase of every project card remaining in the player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
-  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN Invoice<BuyCards, First>
+  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN Invoice<CardPurchase, Action1>
   This: MAX 0 Invoice: (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>) THEN -Selecting
 }
 
@@ -484,7 +484,7 @@ CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>,
 CLASS PayFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal
 
 "A finalized debt; removing it signals that its denomination has been fully paid"
-ABSTRACT CLASS Billing<HasActions, WhichAction, Class<StandardResource>> : Owned<Player>, Barrier {
+ABSTRACT CLASS Billing<HasActions, ActionSlot, Class<StandardResource>> : Owned<Player>, Barrier {
   HAS MAX 1 This
   This IF MAX 0 Owed<Class<StandardResource>>:: -This!
   -X Owed<Class<StandardResource>> IF MAX 0 Owed<Class<StandardResource>>:: -This!
@@ -492,15 +492,15 @@ ABSTRACT CLASS Billing<HasActions, WhichAction, Class<StandardResource>> : Owned
 
 "The invoice produced by an action with a standard-resource cost"
 CLASS Invoice : Billing {
-  DEFAULT +Invoice<HasActions, WhichAction, Class<MC>>
+  DEFAULT +Invoice<HasActions, ActionSlot, Class<MC>>
 }
 
 "The finalized debt for playing a particular card"
-CLASS CardInvoice<Class<CardFront>> : Billing<PlayCards, First, Class<MC>>
+CLASS CardInvoice<Class<CardFront>> : Billing<CardPlay, Action1, Class<MC>>
 
 "A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
-  Billing<PlayCards>:: -This!
+  Billing<CardPlay>:: -This!
 }
 
 // PHASES
@@ -521,7 +521,7 @@ ABSTRACT CLASS Phase : System {
   CLASS ProductionPhase
   CLASS SolarPhase
   CLASS FinalGreeneryPhase {
-    NewTurn: UseAction<ConvertPlantsSA, First>?
+    NewTurn: UseAction<ConvertPlants, Action1>?
   }
   CLASS EndPhase
 }
@@ -557,7 +557,7 @@ CLASS GpComplete<Class<GlobalParameter>> : Hidden {
 ABSTRACT CLASS GameEndBarrier
 
 "A required global parameter that has not yet reached its maximum"
-CLASS GlobalParameterGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
+CLASS GpGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
   HAS MAX 1 This
   GpComplete<Class<GlobalParameter>>:: -This!
 }
@@ -602,8 +602,8 @@ ABSTRACT CLASS Mode : Module {
     HAS 2 Player
     autoSelectWhen = HAS "2 Player"
 
-    This:: ClaimMilestoneSA, FundAwardSA
-    This:: GlobalParameterGameEndBarrier<Class<TemperatureStep>>, GlobalParameterGameEndBarrier<Class<OxygenStep>>, GlobalParameterGameEndBarrier<Class<OceanTile>>
+    This:: ClaimMilestone, FundAward
+    This:: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: Generation
 
     EndPhase: End THEN FinalScore

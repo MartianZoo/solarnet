@@ -53,7 +53,11 @@ internal abstract class PetTokenizer {
   internal val _requirement = regex(Regex("""Requirement\b"""), "Requirement")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
-  internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z_][A-Za-z0-9_]*\b"""), "UpperCamel")
+  internal val _upperCamelRE =
+      regex(
+          Regex("""\b[A-Z](?:[a-z_][A-Za-z0-9_]*|[0-9]+[A-Z][a-z_][A-Za-z0-9_]*)\b"""),
+          "UpperCamel",
+      )
   internal val _allCapsWordRE = regex(Regex("""([A-Z][A-Z0-9]{0,5})\b"""), "ALLCAPS")
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][A-Za-z0-9]*\b"""), "lowerCamel")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")

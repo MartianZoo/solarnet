@@ -25,7 +25,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
 
-          Ecologist, Merchant, Metallurgist, Tactician4, Hoverlord
+          Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
           ${colonyTiles.joinToString()}
           """,
@@ -281,7 +281,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     ellie.turn {
       // "I'm trading with Pluto... paying three energy, and I get three cards."
-      stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 3 ProjectCard")
+      stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 3 ProjectCard")
     }
 
     dad.turn {
@@ -404,7 +404,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "Use my Energy Market to pay six, which gives me three energy, and then use that three
       // energy to send my little boat to Io and take ten heat."
       cardAction1(EnergyMarket, x = 3)
-      stdAction("TradeSA", 2) { doTask("Trade<Io>") }.expect("-3 E, 10 H")
+      stdAction("TradeAction", 2) { doTask("Trade<Io>") }.expect("-3 E, 10 H")
     }
 
     ellie.turn {
@@ -412,7 +412,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // one Forced Precipitation floater.
       playProject(StratosphericBirds, 12) { doTask("-Floater<$ForcedPrecipitation>") }
       // "I spend three energy to trade with Miranda. Three animals on Stratospheric Birds."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(StratosphericBirds)
       }
@@ -488,7 +488,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     ellie.turn {
       // "I will spend three energy to trade with Enceladus. That is five microbes going to
       // Nitrate Reducing Bacteria."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(NitriteReducingBacteria)
       }
@@ -499,7 +499,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // become the Ecologist."
       playProject(IndustrialMicrobes, 12).expect("PROD[S, E]")
       assignWildTag(ResearchCoordination, "MicrobeTag")
-      stdAction("ClaimMilestoneSA") { doTask("Ecologist") }
+      stdAction("ClaimMilestone") { doTask("Ecologist") }
     }
 
     // Dad never narrated or logged Industrial Microbes' steel and energy production; both remain
@@ -517,9 +517,9 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       playProject(ImportOfAdvancedGhg, 1, titanium = 2).expect("PROD[2 H]")
       // "For my second, let's just get this other milestone taken care of. Eight to be the
       // Metallurgist."
-      stdAction("ClaimMilestoneSA") { doTask("Metallurgist") }
+      stdAction("ClaimMilestone") { doTask("Metallurgist") }
     }
-    ellie.turn { stdAction("ClaimMilestoneSA") { doTask("Tactician4") } }
+    ellie.turn { stdAction("ClaimMilestone") { doTask("Tactician") } }
     dad.turn {
       // "Use Floating Habs to spend two money to put a floater on Aerial Mappers, and use that to
       // draw a card."
@@ -593,7 +593,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       assertCounts(
           33 to "TR",
           17 to "CardFront",
-          1 to "Tactician4",
+          1 to "Tactician",
           1 to "$HermeticOrderOfMars",
           2 to "OwnedTile",
           1 to "CityTile<Utopia_3_2>",
@@ -622,7 +622,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     dad.turn {
       // Dad: "Sure. Let's pay eight to fund Traveller. I have funded the Traveller award."
-      stdAction("FundAwardSA") { doTask("Traveller") }
+      stdAction("FundAward") { doTask("Traveller") }
     }
 
     ellie.turn {
@@ -633,7 +633,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       }
       // Ellie: "Then I will spend three energy to trade with Pluto, which now gives me three
       // cards." Dad: "Nice. Three cards free and clear."
-      stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 3 ProjectCard")
+      stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 3 ProjectCard")
     }
 
     dad.turn {
@@ -790,7 +790,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           .expect("Animal, OceanTile, TR, -15 M, 2 P")
       // Ellie: "And for my second action, three energy to trade with Miranda. I get two aminals and
       // a card."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
             doTask("Trade<Miranda>")
             addCardResources(StratosphericBirds)
           }
@@ -876,7 +876,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     dad.turn {
       // Dad: "I guess that means if I want to trade, I better do it now. I'll trade for three
       // energy and I'll do Europa. So I get a plant production."
-      stdAction("TradeSA", 2) { doTask("Trade<Europa>") }.expect("-3 E, PROD[P]")
+      stdAction("TradeAction", 2) { doTask("Trade<Europa>") }.expect("-3 E, PROD[P]")
     }
 
     ellie.turn { cardAction1(StratosphericBirds).expect("Animal") }
@@ -987,7 +987,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       cardAction2(ExtractorBalloons).expect("-2 Floater, VenusStep, TR")
       // "Then I'm going to spend three floaters, trade with Aran. This might not be the right call,
       // but enchiladas, actually." "Yeah, gain three microbes."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(NitriteReducingBacteria)
       }
@@ -1202,7 +1202,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // animal."
       playProject(CryoSleep, 8).expect("Animal<$VenusianAnimals>, -ProjectCard")
       // "And I spend two energy to trade with Miranda for two animals and a card."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
             doTask("Trade<Miranda>")
             addCardResources(StratosphericBirds)
           }
@@ -1334,7 +1334,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       sellPatents(1).expect("1 MC, -ProjectCard")
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }.expect("-1 MC, Asteroid")
       // "But I'll take the cards using three energy for the Pluto, take two cards."
-      stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 2 ProjectCard")
+      stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 2 ProjectCard")
       pass()
     }
 
@@ -1410,7 +1410,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I will... pay two energy to trade with Miranda... for one aminal and a card. This time
       // I'll
       // put the aminal on Venusian."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
             doTask("Trade<Miranda>")
             addCardResources(VenusianAnimals)
           }
@@ -1422,7 +1422,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     dad.turn {
       // "I pay fourteen... Mogul." "Yeah. I think I got that one."
-      stdAction("FundAwardSA", which = 2) { doTask("Mogul") }
+      stdAction("FundAward", which = 2) { doTask("Mogul") }
       // "Listen, all of y'all. It's sabotage. So... You lose... Seven money, and that's it."
       playProject(Sabotage, 1) { doTask("-7 M<Ellie>") }.expect("-ProjectCard")
     }
@@ -1518,7 +1518,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     dad.turn {
       // "Now, I'm going to fly my little boat to Angelatus." "I get three and one." "They all four
       // go on to the New Zealand insects."
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         doTask("ColonyProduction<Enceladus>")
         doTask("3 Microbe<$VenusianInsects>")

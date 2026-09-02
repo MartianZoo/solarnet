@@ -18,7 +18,7 @@ CLASS WorldGovernmentOption : Module {
 "Makes Venus a required global parameter for ending a multiplayer game"
 CLASS MandatoryVenusVariant : Module {
   premiseRequirement = HAS "MultiplayerMode, VenusNextExpansion"
-  This:: GlobalParameterGameEndBarrier<Class<VenusStep>>
+  This:: GpGameEndBarrier<Class<VenusStep>>
 }
 
 "Represents a 2% increase in Venus... terraformedness"

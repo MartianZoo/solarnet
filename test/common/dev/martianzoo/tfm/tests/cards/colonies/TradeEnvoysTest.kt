@@ -12,7 +12,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
     p1.playProject(TradeEnvoys, 6)
     engine.manual("3 ColonyProduction<Luna>")
 
-    p1.stdAction("TradeSA") {
+    p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")
       doTask("ColonyProduction<Luna>")
     }
@@ -45,7 +45,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
     engine.manual("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
 
-    p1.stdAction("TradeSA") { doTask("Trade<Luna>") }
+    p1.stdAction("TradeAction") { doTask("Trade<Luna>") }
 
     p1.assertCounts(
         0 to "ColonyProduction<Luna>",
@@ -62,7 +62,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
     }
     engine.manual("ColonyProduction<Europa>")
 
-    p1.stdAction("TradeSA") {
+    p1.stdAction("TradeAction") {
       doTask("Trade<Europa>")
       // Decline Trade Envoys' optional Europa colony-track increase.
       declineTask()
@@ -84,7 +84,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
     }
     engine.manual("3 ColonyProduction<Luna>")
 
-    p1.stdAction("TradeSA") {
+    p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")
       doTask("ColonyProduction<Luna>")
       // Decline Trade Envoys' additional optional Luna colony-track increase.

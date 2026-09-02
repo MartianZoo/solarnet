@@ -17,7 +17,7 @@ public class OtbGame20260818 : RecordedGame() {
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
 
-          Ecologist, Merchant, Metallurgist, Tactician4, Hoverlord
+          Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
           ${colonyTiles.joinToString()}
           """,
@@ -185,7 +185,7 @@ public class OtbGame20260818 : RecordedGame() {
     dad.buyCards(2)
 
     ellie.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
     }
 
     dad.turn {
@@ -267,13 +267,13 @@ public class OtbGame20260818 : RecordedGame() {
 
     dad.turn {
       cardAction1(EnergyMarket, x = 3)
-      stdAction("TradeSA", 2) { doTask("Trade<Io>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Io>") }
     }
 
     ellie.turn {
       playProject(StratosphericBirds, 12) { doTask("-Floater<$ForcedPrecipitation>") }
 
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(StratosphericBirds)
       }
@@ -329,7 +329,7 @@ public class OtbGame20260818 : RecordedGame() {
     ellie.buyCards(1)
 
     ellie.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(NitriteReducingBacteria)
       }
@@ -338,7 +338,7 @@ public class OtbGame20260818 : RecordedGame() {
     dad.turn {
       playProject(IndustrialMicrobes, 12)
       assignWildTag(ResearchCoordination, "MicrobeTag")
-      stdAction("ClaimMilestoneSA") { doTask("Ecologist") }
+      stdAction("ClaimMilestone") { doTask("Ecologist") }
     }
 
     dad.exMachina("PROD[-S, -E]")
@@ -350,9 +350,9 @@ public class OtbGame20260818 : RecordedGame() {
     dad.turn {
       playProject(ImportOfAdvancedGhg, 1, titanium = 2)
 
-      stdAction("ClaimMilestoneSA") { doTask("Metallurgist") }
+      stdAction("ClaimMilestone") { doTask("Metallurgist") }
     }
-    ellie.turn { stdAction("ClaimMilestoneSA") { doTask("Tactician4") } }
+    ellie.turn { stdAction("ClaimMilestone") { doTask("Tactician") } }
     dad.turn {
       cardAction1(FloatingHabs) { addCardResources(AerialMappers) }
       cardAction2(AerialMappers)
@@ -398,7 +398,7 @@ public class OtbGame20260818 : RecordedGame() {
     ellie.buyCards(3)
 
     dad.turn {
-      stdAction("FundAwardSA") { doTask("Traveller") }
+      stdAction("FundAward") { doTask("Traveller") }
     }
 
     ellie.turn {
@@ -406,7 +406,7 @@ public class OtbGame20260818 : RecordedGame() {
         doTask("ColonyProduction<Pluto> FROM ColonyProduction<Io>")
       }
 
-      stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
     }
 
     dad.turn {
@@ -506,7 +506,7 @@ public class OtbGame20260818 : RecordedGame() {
         placeTile(8, 7)
       }
 
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(StratosphericBirds)
       }
@@ -564,7 +564,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     dad.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Europa>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Europa>") }
     }
 
     ellie.turn { cardAction1(StratosphericBirds) }
@@ -610,7 +610,7 @@ public class OtbGame20260818 : RecordedGame() {
     ellie.turn {
       cardAction2(ExtractorBalloons)
 
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(NitriteReducingBacteria)
       }
@@ -729,7 +729,7 @@ public class OtbGame20260818 : RecordedGame() {
     ellie.turn {
       playProject(CryoSleep, 8)
 
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(StratosphericBirds)
       }
@@ -821,7 +821,7 @@ public class OtbGame20260818 : RecordedGame() {
       sellPatents(1)
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
 
-      stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
       pass()
     }
 
@@ -837,7 +837,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     ellie.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(VenusianAnimals)
       }
@@ -846,7 +846,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     dad.turn {
-      stdAction("FundAwardSA", which = 2) { doTask("Mogul") }
+      stdAction("FundAward", which = 2) { doTask("Mogul") }
 
       playProject(Sabotage, 1) { doTask("-7 M<Ellie>") }
     }
@@ -911,7 +911,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     dad.turn {
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         doTask("ColonyProduction<Enceladus>")
         doTask("3 Microbe<$VenusianInsects>")

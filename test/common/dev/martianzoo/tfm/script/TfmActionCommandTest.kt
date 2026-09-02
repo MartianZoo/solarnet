@@ -23,7 +23,7 @@ internal class TfmActionCommandTest {
     repl.command("become Player1")
     repl.agent.manual("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.agent.beginManual("UseAction<UseCardActionSA, First>")
+    repl.agent.beginManual("UseAction<UseCardAction, Action1>")
     repl.command("auto safe")
 
     val output = repl.command("tfm_action AiCentral 1")

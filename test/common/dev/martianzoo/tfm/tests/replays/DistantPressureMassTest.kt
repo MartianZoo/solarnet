@@ -19,7 +19,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
           HellasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
 
-          Ecologist, Terraformer29, Terran, Mayor, Merchant, Researcher
+          Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
           Electrician, Industrialist, Highlander, Investor, Scientist, Manufacturer
           Ceres, Ganymede, Io, Miranda, Titan
           """,
@@ -267,7 +267,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     keen.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
     been.turn {
-      stdAction("TradeSA") { doTask("Trade<Ganymede>") }.expect("5 Plant")
+      stdAction("TradeAction") { doTask("Trade<Ganymede>") }.expect("5 Plant")
       convertPlants {
         placeTile(3, 7)
         draw(LunaGovernor)
@@ -305,14 +305,14 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.buyCards(FueledGenerators, CupolaCity, GiantIceAsteroid)
     keen.discardUnselectedProjectCards(FloatingRefinery)
 
-    keen.turn { stdAction("TradeSA", 3) { doTask("Trade<Ceres>") } }
+    keen.turn { stdAction("TradeAction", 3) { doTask("Trade<Ceres>") } }
     been.turn {
       playProject(CorporateStronghold, 11) { placeTile(3, 5) }.expect("PROD[3 MC, -Energy], -9 MC")
       claimMilestone(cn("Mayor"))
     }
     keen.turn { playProject(FueledGenerators, 0) }
     been.turn {
-      stdAction("TradeSA", 3) {
+      stdAction("TradeAction", 3) {
         doTask("Trade<Titan>")
         addCardResources(ExtractorBalloons, 1)
         addCardResources(ForcedPrecipitation, 3)
@@ -357,7 +357,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction2(ExtractorBalloons)
       cardAction2(ForcedPrecipitation)
     }
-    keen.turn { stdAction("TradeSA", 3) { doTask("Trade<Io>") } }
+    keen.turn { stdAction("TradeAction", 3) { doTask("Trade<Io>") } }
     been.turn { convertPlants { placeTile(2, 5) } }
     keen.turn { cardAction1(BusinessNetwork) { buyCards(RestrictedArea) } }
     been.turn { playProject(EarthOffice, 1) }
@@ -441,7 +441,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         draw(MoholeArea)
       }
     }
-    been.turn { stdAction("TradeSA", 3) { doTask("Trade<Ganymede>") } }
+    been.turn { stdAction("TradeAction", 3) { doTask("Trade<Ganymede>") } }
     keen.turn { playProject(SterlingVents, 1, steel = 1) }
     been.turn { convertHeat() }
     keen.turn { cardAction1(WaterSplittingPlant) }
@@ -511,7 +511,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       fundAward(cn("Scientist"), 8)
     }
     been.turn {
-      stdAction("TradeSA", 3) {
+      stdAction("TradeAction", 3) {
         doTask("Trade<Titan>")
         addCardResources(ExtractorBalloons, 1)
         addCardResources(ForcedPrecipitation, 3)
@@ -623,7 +623,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
     been.turn {
       playProject(RimFreighters, 1, titanium = 1)
-      stdAction("TradeSA", 3) { doTask("Trade<Ceres>") }
+      stdAction("TradeAction", 3) { doTask("Trade<Ceres>") }
     }
     keen.turn {
       cardAction1(RestrictedArea) {
@@ -710,14 +710,14 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       playProject(UrbanizedArea, 10) { placeTile(3, 4) }
     }
     keen.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Io>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Io>") }
       convertPlants { placeTile(6, 5) }
     }
     been.turn {
       cardAction2(AerialMappers) {
         draw(BactoviralResearch)
       }
-      stdAction("TradeSA", 3) { doTask("Trade<Ganymede>") }.expect("5 Plant<Been>, Plant<Keen>")
+      stdAction("TradeAction", 3) { doTask("Trade<Ganymede>") }.expect("5 Plant<Been>, Plant<Keen>")
     }
     keen.turn {
       playProject(Capital, 1, steel = 7) { placeTile(6, 6) }.expect("PROD[5 MC, -2 Energy], 3 MC")
@@ -770,7 +770,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.discardUnselectedProjectCards(CoronaExtractor, UnexpectedApplication)
     keen.turn {
       playProject(SubZeroSaltFish, 1) { doTask("PROD[-Plant<Been>]") }.expect("0 MC")
-      stdAction("TradeSA", 2) {
+      stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(SubZeroSaltFish)
       }
@@ -784,7 +784,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       stdProject("CitySP") { placeTile(7, 5) }
     }
     been.turn {
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(1, 3) }
     }
     keen.turn {
@@ -851,8 +851,8 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.declineTask()
 
     assertCardTrackingComplete()
-    keen.cardsInHand shouldBe setOf(SolarWindPower)
-    been.cardsInHand shouldBe emptySet()
+    keen.cardsHand shouldBe setOf(SolarWindPower)
+    been.cardsHand shouldBe emptySet()
     checkHandSizes()
     engine.assertCounts(1 to "EndPhase")
 

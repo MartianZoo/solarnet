@@ -17,8 +17,8 @@ internal class SkyDocksTest : ColoniesCardTest() {
   @Test
   internal fun `Allows a second trade in the same generation`() {
     p1.manual("$SkyDocks, 18 MC")
-    p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
-    p1.stdAction("TradeSA", 1) { doTask("Trade<Triton>") }
+    p1.stdAction("TradeAction", 1) { doTask("Trade<Luna>") }
+    p1.stdAction("TradeAction", 1) { doTask("Trade<Triton>") }
     p1.assertCounts(2 to "TradeFleet")
   }
 

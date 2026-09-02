@@ -73,7 +73,9 @@ internal class MergerTest : CardTest() {
     )
     p1.playCorp(Polyphemos, 0)
     engine.phase("Prelude")
-    p1.playPrelude(Merger) { doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>") }
+    p1.playPrelude(Merger) {
+      doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>")
+    }
 
     p1.manual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(mc = 3)

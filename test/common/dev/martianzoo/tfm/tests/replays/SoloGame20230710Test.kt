@@ -34,11 +34,11 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       }
 
       playPrelude(HeadStart) {
-        doTask("UseAction<PlayCardSA, First>")
+        doTask("UseAction<PlayCardFromHand, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>>")
         pay(4, steel = 3)
 
-        doTask("UseAction<PlayCardSA, First>")
+        doTask("UseAction<PlayCardFromHand, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>")
         pay(6)
         doTask("ProjectCard FROM Science<$OlympusConference>")
@@ -80,7 +80,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       nextRound("VenusStep", 1)
 
       playProject(EnergySaving, 15)
-      stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }.expect("4 E")
+      stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }.expect("4 E")
 
       nextRound("OceanTile<Tharsis_5_5>", 1)
 
@@ -94,14 +94,14 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat()
       convertHeat()
       stdProject("BuildColonySP") { doTask("Colony<Luna>") }
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15 MC")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15 MC")
       playProject(GiantSolarShade, 27).expect("Card")
       playProject(GeothermalPower, 2, steel = 3)
 
       nextRound("VenusStep", 2)
 
       convertHeat().expect("PROD[Heat]")
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(6, 3) }.expect("-6 Plant, TR")
 
       playProject(MineralDeposit, 5)
@@ -128,7 +128,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       convertHeat()
       convertHeat()
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
 
       playProject(GiantIceAsteroid, 18, titanium = 4) {
         doTask("-6 Plant<SoloOpponent>")
@@ -158,7 +158,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       }
       stdProject("AirScrappingSP").expect("-12 MC")
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       sellPatents(3)
       convertPlants { placeTile(8, 7) }
       playProject(PermafrostExtraction, 7) { placeTile(9, 9) }
@@ -190,7 +190,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       playProject(RefugeeCamps, 9)
       cardAction1(RefugeeCamps)
-      stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }
 
       nextRound("VenusStep", 4)
 
@@ -206,7 +206,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       cardAction1(RefugeeCamps)
       playProject(IceCapMelting, 4) { placeTile(1, 4) }
 
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
       playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science<$OlympusConference>") }
       stdProject("CitySP") { placeTile(6, 5) }
       playProject(UrbanizedArea, steel = 3) { placeTile(7, 5) }
@@ -239,11 +239,11 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playProject(MagneticFieldDome, 1, steel = 1)
       stdProject("GreenerySP") { placeTile(9, 6) }
       playProject(InterstellarColonyShip, 1, titanium = 5)
-      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
       stdProject("CitySP") { placeTile(9, 5) }
       playProject(SpacePort, 3, steel = 6) { placeTile(6, 2) }
       sellPatents(1)
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(7, 6) }
       stdProject("GreenerySP") { placeTile(7, 3) }
       stdProject("AirScrappingSP")

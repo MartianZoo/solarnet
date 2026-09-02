@@ -17,7 +17,7 @@ internal class WildTagTest : CardTest() {
     val otherPlayerTask = p2.addTasks("UseAction<StandardAction>?").single()
     p1.startTurn()
 
-    p1.stdAction("SellPatents") { abort() }
+    p1.stdAction("SellPatentsSP") { abort() }
 
     p2.dropTask(otherPlayerTask)
     // The aborted synthetic action leaves its temporary holder; remove it before ending the test.

@@ -79,7 +79,7 @@ internal class ScriptCompletionEngineTest {
     assertFalse(values("task ").any { it == "A" || it == "B" })
     assertContainsAll(values("task Pl"), "Plant", "PlantTag")
     assertTrue("select" in values("task se"))
-    assertContainsAll(values("task 1 Play"), "PlayCard", "Player1")
+    assertContainsAll(values("task 1 Play"), "PlayCardFromHand", "Player1")
   }
 
   @Test
@@ -126,7 +126,7 @@ internal class ScriptCompletionEngineTest {
     (repl.agent as Agent).addTasks("StandardAction?")
     assertEquals(listOf(null), repl.game.tasks.extract { it.whyPending })
 
-    val output = repl.command("task PlayCardSA")
+    val output = repl.command("task PlayCardFromHand")
 
     assertEquals(listOf("um, nothing happened"), output)
     assertEquals(listOf("abstract"), repl.game.tasks.extract { it.whyPending })

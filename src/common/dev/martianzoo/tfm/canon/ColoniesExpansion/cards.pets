@@ -33,7 +33,7 @@ CLASS StormcraftIncorporated : ActionCard, ResourceCard<Class<Floater>, Class<Co
 
   This:: JovianTag<This>
   This: 48 MC
-  Billing<HasActions, WhichAction, Class<Heat>>:: AcceptFromCard<This>
+  Billing<HasActions, ActionSlot, Class<Heat>>:: AcceptFromCard<This>
   PayFromCard<This>:: -2 Owed<Class<Heat>>
   LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok
 
@@ -76,7 +76,7 @@ CLASS Conscription : EventCard<Class<ProjectCard>> {
   requirement = HAS "2 EarthTag"
 
   This:: EarthTag<This>, EventTag<This>
-  This: NextCardEffect { Billing<PlayCards>:: -16 Owed<> }
+  This: NextCardEffect { Billing<CardPlay>:: -16 Owed<> }
   End: -VictoryPoint
 }
 
@@ -92,7 +92,7 @@ CLASS CryoSleep : ActiveCard<Class<ProjectCard>> {
   cost = 10
 
   This:: ScienceTag<This>
-  Invoice<TradeSA>:: -Owed
+  Invoice<TradeAction>:: -Owed
   End: VictoryPoint
 }
 
@@ -319,7 +319,7 @@ CLASS RimFreighters : ActiveCard<Class<ProjectCard>> {
   cost = 4
 
   This:: SpaceTag<This>
-  Invoice<TradeSA>:: -Owed
+  Invoice<TradeAction>:: -Owed
 }
 
 CLASS SkyDocks : ActiveCard<Class<ProjectCard>> {
@@ -328,7 +328,7 @@ CLASS SkyDocks : ActiveCard<Class<ProjectCard>> {
 
   This:: EarthTag<This>, SpaceTag<This>
   This: TradeFleet
-  Billing<PlayCards>:: -Owed<>
+  Billing<CardPlay>:: -Owed<>
   End: 2 VictoryPoint
 }
 

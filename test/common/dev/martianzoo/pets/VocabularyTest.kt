@@ -14,10 +14,10 @@ internal class VocabularyTest {
   internal fun englishDisplayNamesSeparateClassNameWords() {
     defaultEnglishDisplayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"
     defaultEnglishDisplayName(cn("BeamFromAThoriumAsteroid")) shouldBe "Beam From AThorium Asteroid"
-    defaultEnglishDisplayName(cn("Builder7")) shouldBe "Builder 7"
+    defaultEnglishDisplayName(cn("Builder8")) shouldBe "Builder 8"
     defaultEnglishDisplayName(cn("NaturalPreserve_SpecialTile")) shouldBe
         "Natural Preserve Special Tile"
-    defaultEnglishDisplayName(cn("UseCardActionSA")) shouldBe "Use Card Action SA"
+    defaultEnglishDisplayName(cn("PlayCardFromHand")) shouldBe "Play Card From Hand"
 
     val vocabulary = Vocabulary.create(setOf(cn("ColonizerTrainingCamp")), emptyMap())
     vocabulary.displayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"
@@ -33,7 +33,7 @@ internal class VocabularyTest {
     petsClassName("UNMI Contractor") shouldBe cn("UnmiContractor")
     petsClassName("PolderTECH Dutch") shouldBe cn("PolderTechDutch")
     petsClassName("Asteroid (Card)") shouldBe cn("AsteroidCard")
-    petsClassName("L1 Trade Terminal") shouldBe cn("L_1TradeTerminal")
+    petsClassName("L1 Trade Terminal") shouldBe cn("L1TradeTerminal")
   }
 
   @Test

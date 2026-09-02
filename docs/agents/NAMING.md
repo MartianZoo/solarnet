@@ -65,8 +65,13 @@ worth exercising, a test-only fixture.
 ### Supertype suffixes
 
 Do not append a supertype's name to a subtype *mechanically*, as a substitute for the type system:
-not `BankerMilestone`, not `PowerPlantSP`, not `ClaimMilestoneSA`. The declaration already records
-the supertype, and an initialism bolted on to every member of a category is noise.
+not `BankerMilestone` or `ClaimMilestoneSA`. The declaration already records the supertype, and an
+initialism bolted on to every member of a category is usually noise.
+
+Standard projects deliberately use the `SP` suffix consistently, including `PowerPlantSP`,
+`AsteroidSP`, and `SellPatentsSP`. The game uses “standard project” as the name of this action
+family, and the uniform suffix distinguishes its members from cards, resources, and ordinary game
+concepts without deciding each collision differently.
 
 We are not zealots about this. A category word that reads naturally in English earns its place, and
 most of ours do: `GreeneryTile`, `BuildingTag`, `ActionPhase`, `ColonyTile`, and `ProjectCard` all
@@ -88,18 +93,17 @@ Grep the candidate in trigger position before deciding:
   cards. It is a real game concept that happens to share the published game's icon with the standard
   action. So the concept keeps `Trade` and the standard action becomes `TradeAction`, and we are
   improving on the printed game by distinguishing them at all.
-- The `PlayCard` signal appears in six places, every one of them an invocation; nothing triggers on
-  it, because cards observe `PlayTag` instead. It is plumbing, so it yields `PlayCard` to the
-  standard action and takes a new name.
+- `PlayCard` names the reusable card-play operation invoked by standard turns, setup, and card
+  effects. The standard action is specifically `PlayCardFromHand`.
 
 Worked cases:
 
 | Collision | Bare name goes to | Qualified |
 | --- | --- | --- |
-| Power Plant: card vs. standard project | standard project `PowerPlant` | `PowerPlantCard` |
-| Asteroid: card vs. resource vs. standard project | standard project `Asteroid` | `AsteroidCard`, `AsteroidResource` |
+| Power Plant: card vs. standard project | card `PowerPlant` | standard project `PowerPlantSP` |
+| Asteroid: card vs. resource vs. standard project | resource `Asteroid` | `AsteroidCard`, `AsteroidSP` |
 | Trade: game concept vs. standard action | concept `Trade` | `TradeAction` |
-| Play card: standard action vs. internal signal | standard action `PlayCard` | the signal, renamed |
+| Play card: operation vs. standard action | operation `PlayCard` | `PlayCardFromHand` |
 | Mandate: component vs. its signal | component `Mandate` | `MandateSignal` |
 | Reprinted goals | the newer, revised printing | the superseded one (see below) |
 
@@ -159,6 +163,8 @@ looking it up.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `LandClaimMarker`,
   `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
   `StartMarker` reads wrong.
+- **Card locations** use noun phrases for places (`Hand`, `EventPile`) and participles for
+  explicitly transient states (`Selecting`, `Revealed`, and eventually `Drafting`).
 - **Singular vs. plural** may distinguish one-of from all-of over the same subject —
   `GiveColonyBonus` (one colony) against `GiveColonyBonuses` (every colony the player owns) — and
   may distinguish a whole operation from its per-item step, as `BuySelectedCards` does over
@@ -230,34 +236,6 @@ There is no Unicode normalization because non-ASCII display text is currently re
 
 ## Pending renames
 
-**None of this is applied yet.** Committed code still uses the "current" spellings.
-
-### Drop the `SP` / `SA` suffixes
-
-Only four of eleven were forced by a collision. Removing them also deletes fourteen `en.json5`
-entries that exist solely to strip the suffix back off, and adds four.
-
-| Current | New | Knock-on |
-| --- | --- | --- |
-| `PowerPlantSP` | `PowerPlant` | card `PowerPlant` → `PowerPlantCard`, display `Power Plant` |
-| `AsteroidSP` | `Asteroid` | resource `Asteroid` → `AsteroidResource`, display `Asteroid`; `AsteroidCard` unchanged |
-| `AquiferSP` | `Aquifer` | drop `en.json5` entry |
-| `GreenerySP` | `Greenery` | drop entry |
-| `CitySP` | `City` | drop entry |
-| `BufferGasSP` | `BufferGas` | drop entry |
-| `BuildColonySP` | `BuildColony` | drop entry |
-| `AirScrappingSP` | `AirScrapping` | keep entry, value `Air-Scrapping` |
-| `ClaimMilestoneSA` | `ClaimMilestone` | drop entry |
-| `FundAwardSA` | `FundAward` | drop entry |
-| `ConvertPlantsSA` | `ConvertPlants` | drop entry |
-| `ConvertHeatSA` | `ConvertHeat` | drop entry |
-| `UseCardActionSA` | `UseCardAction` | drop entry |
-| `PlayCardSA` | `PlayCard` | requires renaming the `PlayCard` signal first (nothing triggers on it) — **name undecided** |
-| `TradeSA` | `TradeAction` | Colonies signal `Trade` keeps the bare name; keep entry, value `Trade` |
-
-`SellPatents` and `HandleMandates` become consistent by doing nothing, though `HandleMandates` still
-reads like a `Custom` and renders as "Handle Mandates" in the UI.
-
 ### Remove a false subtype relationship
 
 - **Delete `PaymentMechanic`.** It has zero references outside its own declaration — no
@@ -272,46 +250,10 @@ reads like a `Custom` and renders as "Handle Mandates" in the UI.
   `moduleContentSelections` entry exactly mirroring `Prelude1Deck`'s in
   [`PreludeExpansion.kt`](../../src/common/dev/martianzoo/tfm/canon/PreludeExpansion.kt).
 
-### Milestone and award reprints
+### Second action signal
 
-Award the bare name to the revised `MilestonesAwardsExpansion` printing; drop the corresponding
-`en.json5` entry, which becomes the default.
-
-| Gets the bare name | Keeps its qualifier |
-| --- | --- |
-| `Builder7` → `Builder` | `Builder8` (Tharsis) |
-| `Legend4` → `Legend` | `Legend5` (Hellas/Elysium) |
-| `Pioneer4` → `Pioneer` | `Pioneer3` (Utopia/Cimmeria) |
-| `Tactician4` → `Tactician` | `Tactician5` (Hellas/Elysium) |
-| `Terraformer29` → `Terraformer` | `Terraformer35` (Tharsis) |
-| `Tycoon10` → `Tycoon` | `Tycoon15` (Hellas/Elysium) |
-
-`Producer` / `Producer22` and `Generalist` / `Generalist2` are already correct and need no change:
-the standard version holds the bare name and the `QuickStartVariant` version carries its own goal.
-
-### Abbreviations
-
-- `TcColonyBonus` → `CimmeriaColonyBonus`
-- `GlobalParameterGameEndBarrier` → `GpGameEndBarrier`
-
-### Ordinals and action slots
-
-- `First`, `Second`, `Third` → `Action1`, `Action2`, `Action3`
-- `WhichAction` → `ActionSlot`, giving `UseAction<HasActions, ActionSlot>` and
-  `Billing<HasActions, ActionSlot, Class<StandardResource>>`
-- `SecondAction`, the Signal for the second action slot of an action-phase turn, collides in the
-  reader's head with `Action2`, but is expected to go away entirely; do not rename it in the
-  meantime.
-
-### Invoice hosts
-
-`BuyCards` and `PlayCards` are synthetic `HasActions` components that exist only to be the first
-argument of `Billing<HasActions, WhichAction, Class<StandardResource>>` — they label a cost bucket.
-The plural spelling puts them one letter from the unrelated `BuyCard` signal and (after the SA
-rename) from the `PlayCard` standard action. Rename them as the operations they are:
-`BuyCards` → `CardPurchase`, `PlayCards` → `CardPlay`. `BuyCard` (the per-card hook that discount
-and surcharge cards trigger on) and `BuySelectedCards` (the whole-purchase operation) are both
-pulling their weight and keep their names.
+`SecondAction`, the Signal for the second action slot of an action-phase turn, collides in the
+reader's head with `Action2`, but is expected to go away entirely; do not rename it in the meantime.
 
 ### Victory determination
 
@@ -320,16 +262,6 @@ pulling their weight and keep their names.
 promise a shared mechanism that does not exist. Both exist to create the right set of `Victory`
 components and should be unified behind one signal, with the multiplayer tiebreak supplied as a
 Custom attached to it. **Naming and mechanism both undecided.**
-
-### Card locations
-
-`CardLocation` holds two different kinds of member, and they should read differently on purpose:
-
-- **Places** a card sits in are noun phrases, and read best prefixed: `Hand` → `InHand`,
-  `EventPile` → `InEventPile`, giving `ProjectCard<InHand>` at the use sites.
-- **Explicitly transient states** are participles: `Selecting`, `Revealed`, and `Drafting` when it
-  arrives. These stay as they are. Regularizing them against each other buys nothing — `Revealing`
-  is no better than `Revealed` despite the pro-forma similarity.
 
 ### Vocabulary that nobody can read
 
@@ -343,14 +275,6 @@ action follow from whatever it becomes. **Names undecided.**
 - Move `FakeAridor` out of `ColoniesExpansion/cards.pets` into a test-only fixture; `Aridor` is
   already reserved in that bundle's `cards-dont-work.json5`.
 - `SoloGenerationsLeft` is plural for a component you hold fourteen of — **name undecided**.
-- `LagrangeOneTradeTerminal` → `L1TradeTerminal`; update `en.json5`, `cards-dont-work.json5`, and
-  both `cardNameConstants.kt` files.
-- Add the missing `SixteenPsyche` display entry with value `16 Psyche`; it currently renders as
-  "Sixteen Psyche".
-- Retitle `Board of Directors`, `Hermetic Order of Mars`, `St. Joseph of Cupertino Mission`, and
-  `Anti-desertification Techniques` to Title Case.
-- Delete the 36 `en.json5` entries whose value already equals `defaultEnglishDisplayName` — 35 in
-  `Prelude2Expansion` and `MC` in `TerraformingMars`.
 
 ### Known and accepted
 
@@ -370,7 +294,7 @@ correct; we are not doing it.
 
 ## Open questions
 
-- What replaces the `PlayCard` signal and `SoloGenerationsLeft`?
+- What replaces `SoloGenerationsLeft`?
 - What does `Mandate` become, and what do `MandateSignal` and `HandleMandates` become with it?
 - What convention picks the suffix for an independent-toggle Module?
 - How do `SoloVictoryCheck` and `MultiplayerVictoryCheck` unify, and what is the result called?
