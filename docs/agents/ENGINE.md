@@ -488,6 +488,30 @@ the shared `TfmGameplay` completion bridge cleans up `WildTagUse?` tasks when th
 only remaining work, then removes the uses directly; `TfmGameplay` has an equivalent turn-helper
 bridge. Both should disappear when sequencing owns end-of-action settlement.
 
+#### Looking for a better wild-tag mechanism
+
+**Working direction:** this representation is not settled; keep looking for a smaller one.
+
+`WildTagUse` is the only reason the trigger-only `DEFAULT` channel exists. `DEFAULT Tag<CardFront>:`
+is the single trigger default authored anywhere, in this Catalog or in `SystemDeclarations`, and it
+buys a fourth `DefaultKind`, a fourth `DefaultsDeclaration` field with its merge and rendering arms,
+a fourth `Defaults.DefaultSpec`, and `Transformers.insertTriggerDefaults`. A mechanism that supports
+one class through a whole default channel is a candidate for replacement, not for extension.
+
+The two facts the design must keep separate are (a) a chosen wild meaning is a real tag, countable
+by bare tag metrics and refinements, and (b) an effect that reacts to printed tags must not see it.
+Look for a shape that gets (b) from something already in the model rather than from a new default
+kind. Candidates worth trying before anything else:
+
+- make the printed/chosen distinction a Class distinction rather than a holder distinction, so
+  ordinary nominal subtyping supplies the trigger filter;
+- give `WildTag` an occurrence-per-action-slot directly, so no second holder Class is needed; or
+- decide that `Tag<CardFront>` should be the ordinary `DEFAULT` for every usage, and let the two
+  refinement sites that genuinely want either holder say so explicitly.
+
+Do not settle any of these before checking it against Robotic Workforce and the
+multiple-wild-tags-on-one-card entry in [`TODO.md`](../../TODO.md).
+
 ## Metrics, refinements, and limits
 
 `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
