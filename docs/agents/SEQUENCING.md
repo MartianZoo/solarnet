@@ -674,3 +674,34 @@ For a new A-before-B claim:
     irrelevant.
 11. Classify the result above. Update the owning section here when focused work remains; use
     `TODO.md` only for a miscellaneous follow-up outside this plan.
+
+## Open questions for the next revision
+
+1. Should the new document primarily be a design plan, or also remain the authoritative explanation
+   of current sequencing?
+2. Do we still strongly endorse the unordered-task-pool model?
+3. Should deterministic presentation order remain explicitly non-semantic?
+4. Is preserving every rules-valid ordering still a major goal, even without a demonstrated card
+   interaction?
+5. Should recoverable dead ends remain preferred over proactively pruning risky choices?
+6. Do components still represent facts while tasks represent unfinished activity, with tasks
+   immutable after creation?
+7. Is `THEN` fundamentally a local continuation, or do we want to reduce or remove it over time?
+8. Is automatic `::` still best understood as restoring a coherent player-visible World?
+9. Do we still want retrying automatic sibling batches, or has that become speculative complexity?
+10. Should trigger conditions continue to use a snapshot taken before any automatic sibling runs?
+11. Is whole-World idle cleanup a lasting primitive, or an experiment we should contain?
+12. Do we want a general controlled-completion concept, or lifecycle-specific completion events
+    only?
+13. Is “end of the current action, including required settlement” the next central problem?
+14. Should payment be treated here as a proving case, or delegated entirely to `PAYMENTS.md`?
+15. Which concrete case should drive the next design: `WildTagUse`, Head Start, endgame scoring,
+    card purchase, or something else?
+16. Should uncertain Terraforming Mars rulings remain here, or move into focused research notes?
+17. Should settled card-by-card examples mostly disappear in favor of a few representative cases
+    and source links?
+18. Should rejected ideas such as generic `PRE` stay as concise guardrails, or be removed?
+19. Do we want an ordered roadmap with explicit stopping points, or principles plus an unordered
+    audit list?
+20. What would make the rewrite successful six months from now: quick reorientation,
+    implementation guidance, preserved reasoning, or all three in a much shorter form?
