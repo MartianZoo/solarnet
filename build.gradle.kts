@@ -30,13 +30,28 @@ subprojects {
   }
 }
 
-val pinnedYarnResolutions = mapOf("serialize-javascript" to "7.0.3", "fast-uri" to "3.1.4")
+val pinnedYarnResolutions =
+    mapOf(
+        "body-parser" to "1.20.6",
+        "brace-expansion" to "2.1.4",
+        "browserslist" to "4.28.8",
+        "diff" to "8.0.3",
+        "fast-uri" to "3.1.6",
+        "js-yaml" to "4.3.1",
+        "nanoid" to "3.3.18",
+        "qs" to "6.16.0",
+        "serialize-javascript" to "7.0.5",
+        "socket.io-parser" to "4.2.7",
+        "uuid" to "11.1.1",
+        "webpack" to "5.104.1",
+        "webpack-dev-server" to "5.2.6",
+    )
 
 plugins.withType<YarnPlugin> {
   the<YarnRootEnvSpec>().version.set("1.22.22")
   pinnedYarnResolutions.forEach(the<YarnRootExtension>()::resolution)
 
-  // Kotlin 2.2.21 does not track Yarn resolutions as inputs to this generated file. Without this,
+  // Kotlin does not track Yarn resolutions as inputs to this generated file. Without this,
   // a stale build/js/package.json can omit new resolutions and repeatedly fight the lockfile.
   tasks.named("rootPackageJson") { inputs.property("pinnedYarnResolutions", pinnedYarnResolutions) }
 }
