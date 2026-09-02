@@ -11,90 +11,118 @@
 These are the durable criteria for design and review. Repository-level instructions in
 [`AGENTS.md`](../../AGENTS.md) remain authoritative for how to work.
 
-## Product aspiration
+## Aim for exceptional library design
 
-All else being equal, Solarnet aims to support every official Terraforming Mars card and rule,
-including expansions, exactly as the designer intends. Compromises on fidelity should be rare,
-small, and explicit.
+Solarnet is meant to be a showpiece of library design, not merely a complete application or a rules
+implementation that passes its tests. Its concepts, contracts, dependencies, and composition should
+be unusually clear. The whole should feel like the natural assembly of understandable parts.
 
-Completeness does not override conceptual integrity. A feature that works only by adding an
-incoherent exception, parallel mechanism, or disproportionate framework is still a design failure.
+Design quality is a product requirement. Correctness against the project's declared behavior is
+necessary, but an implementation that depends on incoherent exceptions, mirrored models,
+privileged integration paths, or a disproportionate framework is still a failure. Prefer the
+smallest coherent set of rules from which the desired behavior follows.
 
-## Model the game, not the implementation
+When choosing investments, prefer, in order:
 
-- Correct behavior is necessary but not sufficient. Prefer a small set of coherent rules from which
-  card behavior follows naturally.
-- Keep effects with the game component that owns the rule. Use a cross-cutting system component only
-  when the rule is genuinely switchable or ambient.
-- Greenery-to-oxygen lives intrinsically on `GreeneryTile`, conditioned on the ambient
-  `Photosynthesis` state. `PharmacyUnion` is the opposite kind of exception: its published rule
-  genuinely needs special treatment.
-- Prefer hand-authored Pets plus general runtime semantics. A custom instruction is honest when it
-  bridges metadata or a capability Pets does not have; Kotlin-generated Pets is not automatically
-  simpler.
-- When the user explicitly asks for Terraforming Mars rule research, verify disputed rulings against
-  a post by Jacob Fryxelius; rulebooks and physical components remain primary evidence for their
-  printed content. Do not initiate rule research during routine implementation work.
+1. A smaller, clearer, and more coherent model.
+2. Better library responsibilities, contracts, and composition.
+3. Better fidelity, usability, diagnostics, or performance where a demonstrated need selects them.
+4. Broader coverage of official Terraforming Mars material.
+5. Fan material, unrelated games, compatibility, and speculative flexibility only when explicitly
+   selected.
 
-## Minimize permanent concepts
+This order chooses what to improve; it does not excuse defects. Preserve invariants, make only
+claims the implementation satisfies, and hold lower-priority work to the same design standard.
+
+## Build libraries that compose
+
+Treat Solarnet as a collection of libraries, even when one application is their only current
+consumer. Good separation directly improves that application: responsibilities become easier to
+explain, dependencies easier to control, behavior easier to test, and parts easier to replace and
+combine. Usefulness in unforeseen contexts should emerge from that discipline rather than from
+designing for unusual hypothetical consumers.
+
+- Give each library one intelligible responsibility and a small, expressive contract.
+- A caller should depend only on the capabilities it uses. Every module dependency must be
+  logically justified by the responsibility of the depending module.
+- Prefer one-way dependencies. Avoid cycles, ambient initialization, shared global state, and
+  assumptions that unrelated application layers are present.
+- Test modules independently and test meaningful compositions across them.
+- Do not promise API stability yet. Change an interface when doing so produces a better design;
+  there are no compatibility clients to preserve.
+- Use KDoc to make contracts and their intent increasingly self-explanatory. Add separate module
+  documentation when the subject warrants it.
+
+There is no predetermined correct module size. If one group of classes can be explained as doing X
+and another as doing Y, consider separate fine-grained Gradle modules. A second consumer is not
+required. Do not split cohesive behavior merely to increase the module count, and remain willing to
+combine modules again when experience shows that a division is artificial. Module structure is a
+design tool, not a ratchet.
+
+Composition does not require broad abstraction. Separate the real capabilities Solarnet has, then
+connect their honest contracts. Do not add flexibility for arbitrary games, hypothetical clients,
+hostile callers, or imagined performance needs.
+
+## Model the game honestly
+
+Solarnet ultimately aspires to support every official Terraforming Mars card and rule exactly as the
+designer intends, but completeness is deliberately a low priority. At this stage, design cleanup is
+more important than forcing every official rule into the current model.
+
+When exact fidelity would require disproportionate or poorly understood machinery, select the
+clearest coherent variant the model can support and document the difference from the official rule.
+A variant is a deliberate rule, not a new label for accidental behavior. Do not misrepresent it as
+exact, and do not preserve a bad design merely because it happens to cover one more card. Revisit
+documented variants as the model improves.
+
+Adding cards is valuable primarily because varied and difficult rules test the model. A card may
+reveal that existing concepts compose well, expose a missing general rule, or identify an honest
+special case. Select card work for that design evidence, not to maximize a coverage count. Repeated
+card-shaped workarounds indicate that the model is missing something.
+
+Keep rules with the game component that owns them. Use a cross-cutting system component only when a
+rule is genuinely ambient or switchable. `GreeneryTile` conditioned on `Photosynthesis` in
+[Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+is the precedent for intrinsic behavior under an ambient rule; `PharmacyUnion` in
+[Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets) is the
+precedent for a published rule that genuinely needs exceptional treatment.
+
+When the user explicitly requests Terraforming Mars rule research, use rulebooks and physical
+components as primary evidence for printed content and verify disputed rulings against a post by
+Jacob Fryxelius. Do not initiate rule research during routine implementation work.
+
+## Keep concepts few and ownership precise
 
 - First ask what can be removed, then whether existing Pets and domain mechanisms compose cleanly.
-- Prefer one source of truth and one systemic rule over wrappers, mirrored state, parallel APIs, or
-  per-component exceptions.
-- Do not build flexibility for hypothetical games, clients, hostile callers, or performance needs.
-  The known project is allowed to constrain the design.
-- A hardcoded narrow fact can be cheaper than a framework. Conversely, repeated implementation-shaped
-  workarounds are evidence that the general model is missing something.
-- Stop when a small request starts requiring new vocabulary across several modules. Explain the
-  pressure instead of normalizing a disproportionate design.
-
-## Respect layer responsibility
-
-- Evaluate each layer against the contract it owns. Do not make a lower layer responsible for the
-  quality, strategy, or product behavior chosen by a caller above it.
-- State and engine layers preserve game facts, validate legal mutations, and calculate their atomic
-  consequences. They do not decide which legal mutation a client ought to make.
-- An Actor-access layer is the place where caller authority and visible state may eventually be
-  restricted. Its first design is intentionally maximally permissive; do not invent granular policy
-  before a real caller requires it. An Agent sits above access and uses the same mutation path for
-  explicitly requested and Driver-chosen actions.
-- An autoexecution policy may be cautious, adversarial, whimsical, or game-playing. Lower layers do
-  not care which legal option it selects; named policy guarantees belong to that policy and its
-  application.
-- Do not push application preferences downward merely to guarantee a pleasant default. Conversely,
-  do not omit a lower-layer invariant because an upper layer currently behaves well.
+- Prefer one source of truth and one systemic rule over wrappers, duplicated representations,
+  parallel APIs, and per-component exceptions.
+- A hardcoded narrow fact can cost less than a framework. Repeated implementation-shaped exceptions
+  can instead be evidence that a general concept is missing.
+- Stop when a small request starts creating vocabulary across several modules. Explain the design
+  pressure rather than normalizing disproportionate complexity.
+- Evaluate each layer against the contract it owns. Lower layers preserve facts, validate legal
+  mutations, and calculate consequences; caller policy and strategy belong above them.
+- Do not push application preferences downward to guarantee a pleasant default, and do not omit a
+  lower-layer invariant merely because an upper layer currently behaves well.
 
 ## Keep Pets central
 
-- Pets should read like the physical game: compact, composable, and precise about ownership,
-  identity, timing, and choice.
-- Components have types and multiplicity, not fields or incidental object identity. Add another
-  representation only when the rules truly distinguish it.
-- A Catalog supplies coherent data. Modules select ambient rules. A GamePremise describes one
-  exact game. Do not blur these roles.
-- Load only the vocabulary a game needs. Mentioning an inactive optional type in a safe query must
-  not activate its expansion.
+Pets should read like the physical game: compact, composable, and precise about ownership, identity,
+timing, and choice. Prefer hand-authored Pets plus general runtime semantics. A custom instruction is
+honest when it bridges metadata or a capability Pets does not have; Kotlin-generated Pets is not
+automatically simpler.
 
-Source precedents: search for `CLASS GreeneryTile` and `CLASS Photosynthesis` in
-[Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
-for an intrinsic rule with ambient conditioning. Search for `PharmacyUnion` in
-[Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
-only when evaluating a genuinely exceptional published rule.
+Components have types and multiplicity, not fields or incidental object identity. A Catalog
+supplies coherent data, Modules select ambient rules, and a GamePremise describes one exact game.
+Do not blur these roles or activate optional vocabulary merely by mentioning it in a safe query.
 
 ## Keep interfaces and evidence honest
 
-- Use small, typed APIs and the narrowest visibility. There are no compatibility clients to protect.
-- Preserve engine invariants even for trusted, rules-bypassing operations.
+- Use small, typed APIs and the narrowest visibility consistent with their responsibility.
+- Preserve engine invariants even for trusted or rules-bypassing operations.
 - Domain input must fail with domain errors. Programmer-error exceptions indicate invalid Kotlin or
   an impossible engine state.
-- Prefer scenario and integration tests that prove observable rules. Do not duplicate production
-  catalogs in tests or assert incidental task text and ordering.
+- Prefer readable scenario and integration tests that prove observable behavior and library
+  composition. Do not duplicate production catalogs or assert incidental task text and ordering.
 - A passing narrow test proves only its assertion. Review the final diff and state what was not
   verified.
-
-## Spend effort deliberately
-
-After fidelity, prioritize completeness, simplicity, and composability. Official material matters;
-fan material, unrelated games, Turmoil, polished UX, compatibility, and performance are lower
-priorities unless explicitly selected. Keep reports concise, ranked, and useful for the next
-decision.
