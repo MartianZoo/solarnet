@@ -43,12 +43,14 @@ public class TfmGameplay(
     get() = game.reader
 
   private var explicitPaymentChoicesRequired = false
+  private var explicitUnusedActionCardsRequired = false
   private var allowUnderpayment = false
   private var expectedOverpaymentWaste: Int? = null
 
   private fun asActor(actor: Actor) =
       TfmGameplay(game, actor).also {
         if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
+        if (explicitUnusedActionCardsRequired) it.requireExplicitUnusedActionCards()
       }
 
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
@@ -217,7 +219,29 @@ public class TfmGameplay(
     selectTask(transfer.id)
   }
 
-  public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
+  public fun pass(): TaskResult {
+    require(!explicitUnusedActionCardsRequired) {
+      "$actor must list unused action cards with pass(unused = ...)"
+    }
+    return passWithoutUnusedActionCardCheck()
+  }
+
+  public fun pass(unused: ClassName, vararg additionallyUnused: ClassName): TaskResult =
+      pass(unused = setOf(unused, *additionallyUnused))
+
+  public fun pass(unused: Set<ClassName>): TaskResult {
+    val actual =
+        reader
+            .getComponents(resolve("ActionCard"))
+            .elements
+            .filter { count("ActionUsedMarker<${it.className}>") == 0 }
+            .map { it.className }
+            .toSet()
+    require(actual == unused) { "$actor has unused action cards $actual, not $unused" }
+    return passWithoutUnusedActionCardCheck()
+  }
+
+  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTfmTurn { doTask("Pass") }
 
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If
@@ -581,6 +605,10 @@ public class TfmGameplay(
 
   public fun requireExplicitPaymentChoices(): TfmGameplay = apply {
     explicitPaymentChoicesRequired = true
+  }
+
+  public fun requireExplicitUnusedActionCards(): TfmGameplay = apply {
+    explicitUnusedActionCardsRequired = true
   }
 
   private fun paymentValue(currency: String): Int {

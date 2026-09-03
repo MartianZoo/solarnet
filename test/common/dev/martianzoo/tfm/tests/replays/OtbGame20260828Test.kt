@@ -5,7 +5,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -57,9 +56,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260828() {
     TfmWorkflow.Auto(game).launch()
-    val green = game.tfm(Player.PLAYER1)
-    val blue = game.tfm(Player.PLAYER2)
-    val yellow = game.tfm(Player.PLAYER3)
+    val green = p1.requireExplicitUnusedActionCards()
+    val blue = p2.requireExplicitUnusedActionCards()
+    val yellow = p3.requireExplicitUnusedActionCards()
 
     // "Okay, I am the start player, and I play Paladin Shipping. That gives me 36 money and five
     // titanium. Then I use this little buy-cards slider to buy four cards."
@@ -119,6 +118,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm gonna play Titan Shuttles." "Oh, shit, that's competition." "Yep. Floater on floater
       // warfare. Floatfare." "I will spend three titanium, which counts as nine money, so I need
       // 14 more. That's my turn."
+      // Green explicitly considers keeping titanium for Palladin Shipping, then keeps two.
+      intentionalUnderpay()
       playProject(TitanShuttles, 14, titanium = 3)
     }
     blue.turn {
@@ -153,7 +154,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     // She forgot to reduce her money production (fixed later)
     yellow.exMachina("PROD[MC]")
 
-    green.passWithUnusedActionCards(PalladinShipping)
+    green.pass(unused = PalladinShipping)
     blue.turn {
       // "I'm going to play Nitrite Reducing Bacteria. That costs me 11 money."
       // "You immediately get three free microbes on Nitrite Reducing Bacteria."
@@ -182,8 +183,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // production. And I think that's it."
       playProject(FueledGenerators, 1)
     }
-    blue.passWithUnusedActionCards()
-    yellow.passWithUnusedActionCards()
+    blue.pass(unused = emptySet())
+    yellow.pass(unused = emptySet())
 
     // "I will raise the oxygen to one percent as my World Government step."
     green.wgt("OxygenStep").expect("0 TerraformRating")
@@ -259,12 +260,17 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     yellow.turn {
       // "On top of Solar Logistics, I will place Optimal Aerobraking. For that, I will spend
       // seven." "We cannot let her get space events."
+      // Yellow keeps Solar Logistics' two titanium to trade with Io next generation.
+      intentionalUnderpay()
       playProject(OptimalAerobraking, 7)
     }
     green.turn {
       // "Here we go. Spache Elevator." "Am I spending all titanium for it? I'm gonna hold back one
       // titanium. I'm gonna spend nine titanium. Not 99, just nine." "Stupid fucking Spache
       // Elevator."
+      // The retained titanium and Space Elevator's new production pay for Palladin Shipping next
+      // generation.
+      intentionalUnderpay()
       playProject(SpaceElevator, titanium = 9)
     }
     blue.turn {
@@ -276,6 +282,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Imported Advanced GHG. Increase heat production two steps. I get a card for Solar
       // Logistics,
       // and from Optimal Aerobraking I get three money and three heat."
+      // Yellow continues to keep two titanium to trade with Io next generation.
+      intentionalUnderpay()
       playProject(ImportOfAdvancedGhg, 7).expect("-4 MC, 3 Heat, PROD[2 Heat]")
     }
     green.turn {
@@ -288,7 +296,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // production." "Yep. Potatoes are mine. Andy Weir up in here."
       playProject(Potatoes, 2)
     }
-    yellow.passWithUnusedActionCards()
+    yellow.pass(unused = emptySet())
     green.turn {
       // "I'm spending three steel and 12 real on Research Outpost, which lets me place a city tile.
       // I can place it right here, pay five money, and get another colony, which I'm just gonna
@@ -317,13 +325,13 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(JetStreamMicroscrappers) }
     }
-    green.passWithUnusedActionCards(PalladinShipping)
+    green.pass(unused = PalladinShipping)
     blue.turn {
       // "Then I'm going to use my Jet Stream Microscrappers action to remove two floaters and raise
       // Venus one step." "Ah shit, I made it easier for [Yellow] to get the bonus."
       cardAction2(JetStreamMicroscrappers)
     }
-    blue.passWithUnusedActionCards()
+    blue.pass(unused = emptySet())
 
     // "I'm going to raise Venus." "Venus is now at eight. No one gets the card. We're still at one
     // oxygen, two oceans, and no temperature raises yet."
@@ -448,18 +456,18 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertHeat()
       convertHeat().expect("PROD[Heat]")
     }
-    green.passWithUnusedActionCards()
+    green.pass(unused = emptySet())
     blue.turn {
       // The recording goes silent here. Blue's app adds one TR, and these three unused actions
       // are the ordinary card sequence that produces exactly that result.
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(JetStreamMicroscrappers) }
     }
-    yellow.passWithUnusedActionCards(PowerInfrastructure)
+    yellow.pass(unused = PowerInfrastructure)
     blue.turn {
       cardAction2(JetStreamMicroscrappers)
     }
-    blue.passWithUnusedActionCards()
+    blue.pass(unused = emptySet())
 
     // board-18-39-07.jpg: end of the Generation 3 action phase, before production.
     assertSidebar(gen = 3, temp = -24, oxygen = 2, oceans = 2, venus = 10)
@@ -570,6 +578,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Yes."
       // "I have money."
       // "Yeah, yeah, fuck you."
+      // No reason for keeping the steel is evident. Yellow next spends it, together with one steel
+      // from production, to buy Electro Catapult; both cards accept steel at the same value.
+      intentionalUnderpay()
       playProject(LavaTubeSettlement, 15) { placeTile(6, 2) }
     }
     green.turn {
@@ -614,7 +625,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I use Power Infrastructure: spend an energy to gain money."
       cardAction1(PowerInfrastructure, x = 1)
     }
-    green.passWithUnusedActionCards(PalladinShipping)
+    green.pass(unused = PalladinShipping)
     blue.turn {
       // "I will take my Jet Stream Microscrappers action to remove two floaters and raise Venus to
       // 14."
@@ -635,8 +646,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(Dirigibles) }
     }
-    yellow.passWithUnusedActionCards()
-    blue.passWithUnusedActionCards()
+    yellow.pass(unused = emptySet())
+    blue.pass(unused = emptySet())
 
     // board-18-58-23.jpg: end of the Generation 4 action phase.
     assertSidebar(gen = 4, temp = -24, oxygen = 3, oceans = 4, venus = 16)
@@ -840,7 +851,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       sellPatents(2)
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
     }
-    green.passWithUnusedActionCards(PalladinShipping, DirectedImpactors)
+    green.pass(unused = PalladinShipping, DirectedImpactors)
     blue.turn {
       // "I'm going to use my Extremophiles action to add two floaters to my Dirigibles."
       // "I'm going to play Extremophiles."
@@ -857,7 +868,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Reducing Bacteria."
       cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) }
     }
-    yellow.passWithUnusedActionCards(PowerInfrastructure)
+    yellow.pass(unused = PowerInfrastructure)
     blue.turn {
       // "I guess I'm going to use my Celestic action to add a dirigible."
       cardAction1(Celestic) { addCardResources(Dirigibles) }
@@ -875,7 +886,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
             doTask("4 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
           },
       )
-      pass()
+      pass(unused = emptySet())
     }
 
     // "Okay, Jaybird, what do you want to move for World Government? Venus, temperature, oxygen,
@@ -1072,6 +1083,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // I'm gonna pay four titanium and five real. And I get a trade fleet."
       // "Yeah, you do. Heck. H-E-K-K."
       convertPlants { placeTile(2, 2) }
+      // Green keeps exactly the two titanium used for Palladin Shipping later this generation.
+      intentionalUnderpay()
       playProject(
           SkyDocks,
           5,
@@ -1146,7 +1159,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I gain two money per Earth."
       playProject(VenusGovernor, 2)
     }
-    green.passWithUnusedActionCards(DirectedImpactors)
+    green.pass(unused = DirectedImpactors)
     blue.turn {
       // "I'm going to use my Stratopolis action to add two floaters to Jet Stream Microscrappers."
       cardAction1(Stratopolis) { addCardResources(JetStreamMicroscrappers, 2) }
@@ -1223,7 +1236,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "How do you have so much shit to do? I freaking pass."
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
     }
-    blue.passWithUnusedActionCards()
+    blue.pass(unused = emptySet())
     yellow.turn {
       // "Heat boop. Heat up to 14—minus 14."
       // "Oh shit, I have not been tracking the temperature or anything up to minus 14."
@@ -1232,7 +1245,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Yeah."
       // "Has been for a while. Always has been."
       convertHeat()
-      pass()
+      pass(unused = emptySet())
     }
 
     // "We decided that we would do World Government, which is whose choice?"
@@ -1333,8 +1346,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Pay four titanium and thirteen real money for L1 Trade Terminal."
-      // Yellow paid the printed cost despite her four M€ of applicable card discounts.
-      intentionalOverpay(4)
+      // The replay-local card's cost includes the four M€ of applicable discounts Yellow ignored.
       // "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
       playProject(fakeL1TradeTerminal, 13, titanium = 4)
     }
@@ -1444,7 +1456,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertHeat()
       convertHeat()
     }
-    green.passWithUnusedActionCards(DirectedImpactors)
+    green.pass(unused = DirectedImpactors)
     blue.turn {
       // "Take my Red Ships action, for which I get nothing."
       cardAction1(RedShips)
@@ -1454,7 +1466,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertHeat()
       convertHeat()
     }
-    blue.passWithUnusedActionCards()
+    blue.pass(unused = emptySet())
     yellow.turn {
       // "Power Infrastructure, spend two energy, gain two money."
       cardAction1(PowerInfrastructure, x = 2)
@@ -1487,7 +1499,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 7, temp = 8, oxygen = 6, oceans = 9, venus = 26)
 
-    yellow.passWithUnusedActionCards()
+    yellow.pass(unused = emptySet())
     // "It is my turn to be the world government ... I'm going to eat up a Venus slot."
     green.wgt("VenusStep").expect("0 TerraformRating")
     with(green) {
@@ -1539,7 +1551,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(CryoSleep, 10)
       // "Solar Probe: two titanium, three monies. ... I get two, but then a third for Solar, and I
       // also get three money, three heat from the thing."
-      intentionalOverpay(4)
       playProject(SolarProbe, 3, titanium = 2)
     }
     green.turn {
@@ -1694,7 +1705,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(Ants, 7)
       cardAction1(Ants)
     }
-    green.passWithUnusedActionCards(PalladinShipping, DirectedImpactors)
+    green.pass(unused = PalladinShipping, DirectedImpactors)
     blue.turn {
       // "I take my Titan Air Scrapping action. I remove two floaters and I gain a TR."
       cardAction2(TitanAirScrapping)
@@ -1707,6 +1718,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I take my Red Spot Observatory action and I draw a card, please."
       cardAction2(RedSpotObservatory)
     }
+    // Blue did not remove the floater spent by the Observatory draw: the generation-end photo
+    // still shows it, and every flexible floater action this generation has another destination.
+    blue.exMachina("Floater<$RedSpotObservatory>")
     yellow.turn {
       // "Paid two things for Floating Habs. Add to self."
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
@@ -1729,7 +1743,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm gonna play a greenery. ... row eight, column eight. For two money and two plants."
       convertPlants { placeTile(8, 8) }
     }
-    yellow.passWithUnusedActionCards()
+    yellow.pass(unused = emptySet())
     blue.turn {
       // "I take my Red Ships action and I gain one money."
       cardAction1(RedShips)
@@ -1757,7 +1771,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 8, temp = 8, oxygen = 10, oceans = 9, venus = 30)
 
-    blue.passWithUnusedActionCards()
+    blue.pass(unused = emptySet())
     // "[Blue] would be the world government, but there's no choice. ... raise the oxygen."
     blue.wgt("OxygenStep").expect("0 TerraformRating")
     with(green) {
@@ -1789,6 +1803,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // myself a TR."
       cardAction1(WaterSplittingPlant)
       // "Build the Immigrant City ... cost me nine ... 9-8 for two money and a plant."
+      // Green keeps his steel for Space Elevator, where it is worth five M€ instead of two.
+      intentionalUnderpay()
       playProject(ImmigrantCity, 9) { placeTile(9, 8) }
     }
     blue.turn {
@@ -1806,12 +1822,14 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Energy Market an energy production into eight monies."
       cardAction2(EnergyMarket)
     }
+    // Green forgot to take his Immigrant City effect.
+    green.exMachina("PROD[-MC]")
     green.turn {
       // "Play Open City. It cost me 19 ... go to 5-3."
+      // Green continues to keep the same steel for his next Space Elevator action.
+      intentionalUnderpay()
       playProject(OpenCity, 19) { placeTile(5, 3) }
     }
-    // Green forgot to take his Immigrant City effect
-    green.exMachina("PROD[-MC]")
 
     blue.turn {
       // "I'm going to plant forest ... at 7-7 ... that gives you two plants."
@@ -1845,11 +1863,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Spend three energy to fly to Ganymede and take one plant."
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }.expect("-3 Energy, Plant")
     }
-    // Earliest: after Blue's generation-8 Observatory draw. Latest: before this draw, whose
-    // narration explicitly says a floater is present. An omitted flexible-floater placement is
-    // likelier than a second Observatory action because each card action is once per generation;
-    // the exact source action is not identified.
-    blue.exMachina("Floater<$RedSpotObservatory>")
     blue.turn {
       // "Take my Red Spot Observatory action ... draw a card."
       cardAction2(RedSpotObservatory)
@@ -1929,12 +1942,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       cardAction1(Dirigibles) { addCardResources(Celestic) }
     }
     yellow.turn {
-      // "Add to Floating Habs."
-      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
+      // "I'm going to use aerial mappers to add to floating heads."
+      cardAction1(AerialMappers) { addCardResources(FloatingHabs) }
     }
-    // Yellow did not announce or log Floating Habs' two-M€ action cost; every later app balance,
-    // including the two M€ she spends on Vesta's Shipyard, retains it.
-    yellow.exMachina("2 MC")
     green.turn {
       // "Plant forest ... here for a card and two money." The final board identifies 8-7.
       stdProject("GreenerySP") { placeTile(8, 7) }
@@ -1959,7 +1969,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Plant a forest ... seven, six ... a plant and two steel."
       convertPlants { placeTile(7, 6) }
     }
-    green.passWithUnusedActionCards(PalladinShipping, DirectedImpactors)
+    green.pass(unused = PalladinShipping, DirectedImpactors)
     blue.turn {
       // "Take my Red Ships action ... one, two, three, four."
       cardAction1(RedShips).expect("4 MC")
@@ -1984,7 +1994,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Pay seven for Insects ... increase plant production ... for each plant tag ... three."
       playProject(Insects, 7)
     }
-    blue.passWithUnusedActionCards(JetStreamMicroscrappers)
+    blue.pass(unused = JetStreamMicroscrappers)
     yellow.turn {
       // "Stanford Torus ... four titanium ... reserved area."
       playProject(StanfordTorus, titanium = 4)
@@ -1999,7 +2009,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Yellow's app ledger records one final M€ after Vesta and before Pass.
       sellPatents(1)
     }
-    yellow.passWithUnusedActionCards(AerialMappers)
+    // Floating Habs being unused makes sense since it has an even number of floaters (eight).
+    yellow.pass(unused = FloatingHabs)
 
     // All three applogs after the final production phase and before final greenery placement.
     with(green) {

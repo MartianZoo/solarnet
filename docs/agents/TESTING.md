@@ -305,6 +305,9 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   underpayment, and prefer correcting an unsupported allocation over declaring intent. For a
   recorded physical game, first search the transcript and player-board logs for an explicit payment
   composition; prefer that direct evidence to inference from a later balance.
+- Call `requireExplicitUnusedActionCards()` on replay players when every pass should audit unused
+  action cards. Those players must use `pass(unused = CardA, CardB)` or
+  `pass(unused = emptySet())`; the pass fails if the complete set does not match.
 - The herokuapp and Solarnet map coordinates differ: herokuapp counts from the first tile whereas
   Solarnet uses slant-columns.
 - Prefer supplied logs, images, and local map data over investigating another application's

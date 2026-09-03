@@ -85,11 +85,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     unusedActionCards shouldBe expectedUnusedActionCards
   }
 
-  protected fun TfmGameplay.passWithUnusedActionCards(vararg cardNames: ClassName) {
-    assertUnusedActionCards(*cardNames)
-    pass()
-  }
-
   /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
   protected fun TfmGameplay.exMachina(adjustment: String) {
     game.exMachina(this, adjustment)

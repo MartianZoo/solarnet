@@ -15,6 +15,17 @@ import kotlin.test.Test
 
 internal class TfmGameplayTest : CardTest() {
   @Test
+  internal fun `Explicit pass requires the unused action cards`() {
+    newGame()
+    p1.requireExplicitUnusedActionCards()
+    engine.phase("Action")
+
+    shouldThrow<IllegalArgumentException> { p1.pass() }
+    shouldThrow<IllegalArgumentException> { p1.pass(unused = AquiferPumping) }
+    p1.pass(unused = emptySet())
+  }
+
+  @Test
   internal fun `Declining a second action rejects an unrelated optional task`() {
     newGame()
 
