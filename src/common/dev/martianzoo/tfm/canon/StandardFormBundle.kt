@@ -11,10 +11,11 @@ import dev.martianzoo.pets.util.toSetStrict
  * An internal Catalog-provider bundle built from conventionally named Pets and JSON sources.
  *
  * `classes.pets` and `cards.pets` supply declarations, while bundle language files and compact map
- * diagrams supply category-specific metadata. Files for unsupported canonical data are recognized
- * but ignored; other files produce a warning. A bundle identity is raw source provenance, not a
- * Pets class, so no declaration is required or synthesized for it. Callers whose resources are not
- * in Canon's generated registry can provide [resourceFilenames] and [resourceReader] directly.
+ * diagrams supply category-specific metadata. Each is read by name or by language pattern, so a
+ * directory may hold anything else without affecting the bundle. A bundle identity is raw source
+ * provenance, not a Pets class, so no declaration is required or synthesized for it. Callers whose
+ * resources are not in Canon's generated registry can provide [resourceFilenames] and
+ * [resourceReader] directly.
  */
 internal class StandardFormBundle(
     name: String,
@@ -35,10 +36,6 @@ internal class StandardFormBundle(
   init {
     resources.forEach { resourceSet ->
       require(resourceSet.filenames.isNotEmpty()) { "No resources in ${resourceSet.directory}" }
-      val unexpected = resourceSet.filenames.filterNot(::isExpected).sorted()
-      if (unexpected.isNotEmpty()) {
-        println("Warning: ignoring unexpected files in ${resourceSet.directory}: $unexpected")
-      }
     }
   }
 
@@ -98,11 +95,6 @@ internal class StandardFormBundle(
       parse: (String) -> List<T>,
   ): List<T> =
       if (filename in resourceSet.filenames) parse(read(resourceSet, filename)) else emptyList()
-
-  private fun isExpected(filename: String): Boolean =
-      filename == CLASSES_FILENAME ||
-          filename == CARD_PETS_FILENAME ||
-          LANGUAGE_FILENAME.matches(filename)
 
   private companion object {
     private const val DEFAULT_DIRECTORY = "bundles"

@@ -34,6 +34,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |
+| Promos through 2026-08 | Project | New Holland | Hybrid tile |
 | Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
 | Promos through 2026-08 | Global events | All 5 | Turmoil |
 | Prelude 2 | Project | L1 Trade Terminal (`P78`) | Distinct |

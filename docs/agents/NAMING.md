@@ -58,8 +58,8 @@ printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes
 which is currently the only such case.
 
 A placeholder implementation still uses the real name. Never ship a class whose name announces its
-own incompleteness — a partially implemented card belongs in `cards-dont-work.json5` plus, if it is
-worth exercising, a test-only fixture.
+own incompleteness — an unimplemented card belongs in the `docs/what-is-supported.md` table plus, if
+it is worth exercising, a test-only fixture.
 
 ### Supertype suffixes
 
