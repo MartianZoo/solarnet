@@ -107,6 +107,8 @@ private val MAP_OPTIONS =
         TestOption.Tharsis,
         TestOption.Hellas,
         TestOption.Elysium,
+        TestOption.Amazonis,
+        TestOption.Vastitas,
         TestOption.Utopia,
         TestOption.Cimmeria,
     )

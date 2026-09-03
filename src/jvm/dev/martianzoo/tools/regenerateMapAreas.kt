@@ -64,10 +64,7 @@ internal fun renderDiagram(map: MarsMapDefinition): String {
     buildString {
       append("// ")
       row.forEach { area ->
-        val center =
-            centerOffset +
-                (area.column - 1) * CELL_WIDTH -
-                (area.row - 1) * ROW_SLANT
+        val center = centerOffset + (area.column - 1) * CELL_WIDTH - (area.row - 1) * ROW_SLANT
         val start = center - (area.code.length - 1) / 2
         while (length < COMMENT_PREFIX_WIDTH + start) append(' ')
         append(area.code)

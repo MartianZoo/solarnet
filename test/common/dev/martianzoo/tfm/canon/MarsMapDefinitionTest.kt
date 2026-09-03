@@ -15,9 +15,9 @@ internal class MarsMapDefinitionTest {
 
       // The map areas below are code-generated based on the following comment
       //
-      // VS L
-      // V2P WPP WPC
-      // LSS LC
+      //      VS L
+      //  V2P WPP WPC
+      //     LSS LC
       //
 
       CLASS Demo_1_1 : VolcanicArea { row = 1; column = 1; Tile<This>: Steel }

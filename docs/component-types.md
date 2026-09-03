@@ -13,9 +13,9 @@ First, `Component` is the root of the Class hierarchy; *every* instance of anyth
 The abstract class `GlobalParameter` has three concrete subclasses in the base game: `TemperatureStep`, `OxygenStep`, and `OceanTile` (which is *also* a subclass of `Tile`). Venus Next adds `VenusStep`. These count "steps", so for example when there are six occurrences of `TemperatureStep` in the game that means the temperature is -18 C.
 
 The `StandardGpTrackRules` component contains the limits, terminal steps, and track bonuses. For
-example, it says `OxygenStep IF =8 OxygenStep: TemperatureStep`. Keeping those rules on one
-component allows another published set of tracks to replace them without changing the
-global-parameter classes.
+example, it says `OxygenStep IF =8 OxygenStep: TemperatureStep`. When
+`ExtendedGlobalParametersRule` is active, it replaces the standard component and owns the longer
+limits and bonuses without changing the global-parameter classes.
 
 Completion removes the matching `GpIncomplete` marker, and the resulting `GpComplete` component
 rejects any attempted removal after completion.

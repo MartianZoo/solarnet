@@ -1,0 +1,269 @@
+"Counts the tiles in a player's largest contiguous group of owned tiles"
+CLASS TileInLargestGroup : Owned<Player>, Custom
+
+"Enforces the longer global-parameter tracks printed on Amazonis Planitia"
+CLASS ExtendedGlobalParametersRule : Module {
+  autoSelectWhen = HAS "AmazonisMap"
+
+  HAS MAX 22 TemperatureStep
+  HAS MAX 18 OxygenStep
+  HAS MAX 11 OceanTile
+
+  TemperatureStep IF =3 TemperatureStep: PROD[Heat]
+  TemperatureStep IF =5 TemperatureStep: PROD[Heat]
+  TemperatureStep IF =9 TemperatureStep: PROD[Plant]
+  TemperatureStep IF =15 TemperatureStep: OceanTile<>
+  TemperatureStep IF =22 TemperatureStep:: GpComplete<Class<TemperatureStep>>
+
+  OxygenStep IF =7 OxygenStep: ProjectCard
+  OxygenStep IF =11 OxygenStep: TemperatureStep
+  OxygenStep IF =18 OxygenStep:: GpComplete<Class<OxygenStep>>
+
+  OceanTile<MarsArea> IF =11 OceanTile:: GpComplete<Class<OceanTile>>
+}
+
+// Amazonis Planitia milestones, then awards, in board order.
+CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }
+CLASS Landshaper : Milestone { requirement = HAS "CityTile, GreeneryTile, SpecialTile" }
+CLASS Merchant3 : Milestone {
+  requirement = HAS "3 MC, 3 Steel, 3 Titanium, 3 Plant, 3 Energy, 3 Heat"
+}
+CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
+// CLASS Lobbyist : Milestone { requirement = HAS "7 Delegate<Owner, Party>" }
+
+CLASS Collector : Award { metric = COUNT "Class<Resource>(HAS Resource<Owner>)" }
+CLASS Innovator : Award { metric = COUNT "CardFront OR CardBack<EventPile>" }
+CLASS Constructor : Award { metric = COUNT "Colony OR CityTile" }
+CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }
+CLASS Physicist : Award { metric = COUNT "ScienceTag OR SpaceTag" }
+
+// Vastitas Borealis milestones, then awards, in board order.
+CLASS Agronomist : Milestone { requirement = HAS "4 PlantTag" }
+CLASS Engineer : Milestone { requirement = HAS "10 PROD[Energy OR Heat]" }
+CLASS Spacefarer : Milestone { requirement = HAS "4 SpaceTag" }
+CLASS Geologist : Milestone { requirement = HAS "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))" }
+CLASS Farmer : Milestone { requirement = HAS "5 (Animal OR Microbe)" }
+
+CLASS Traveller : Award { metric = COUNT "JovianTag OR EarthTag" }
+CLASS Landscaper : Award { metric = COUNT "TileInLargestGroup" }
+CLASS Highlander : Award { metric = COUNT "OwnedTile<MarsArea(HAS MAX 0 Neighbor<OceanTile>)>" }
+CLASS Promoter : Award { metric = COUNT "CARDS[CardBack<EventPile>]" }
+CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
+
+CLASS AmazonisMap : MarsMap
+
+// The map areas below are code-generated based on the following comment
+//                  LS   LSS    LS    LC   LTT    L
+//
+//               W     LD    LS    L     LP   WPP   WTT
+//
+//           WSS    L    LCC    L     LP    W     LP   LPP
+//
+//         LT    W     L     L     LP    LP   LPP    LP   LPC
+//
+//     VSS    LP    LR    LP    WC    LP   LPP    LP    LR   WPP
+//
+//   LP    LP   LPP   LPP   WPP   WPP   LSPP   LP    L     LP    WC
+//
+//      LP   LPP   WPP   LEE    LE   LEE    L     LP    LP    VD
+//
+//         LP   WCC    LP    LE   LEE    LP   VDD    LS    L
+//
+//           WST    L     LT    L     L    LPP    L     VT
+//
+//               W     L     LR    L    L3P   LPP   VSS
+//
+//                  L    LST   LSS    L     LP    LC
+
+CLASS Amazonis_01_01 :     LandArea { row = 1; column = 1; Tile<This>: Steel }
+CLASS Amazonis_01_02 :     LandArea { row = 1; column = 2; Tile<This>: 2 Steel }
+CLASS Amazonis_01_03 :     LandArea { row = 1; column = 3; Tile<This>: Steel }
+CLASS Amazonis_01_04 :     LandArea { row = 1; column = 4; Tile<This>: ProjectCard }
+CLASS Amazonis_01_05 :     LandArea { row = 1; column = 5; Tile<This>: 2 Titanium }
+CLASS Amazonis_01_06 :     LandArea { row = 1; column = 6 }
+
+CLASS Amazonis_02_01 :    WaterArea { row = 2; column = 1 }
+CLASS Amazonis_02_02 :     LandArea { row = 2; column = 2 }
+CLASS Amazonis_02_03 :     LandArea { row = 2; column = 3; Tile<This>: Steel }
+CLASS Amazonis_02_04 :     LandArea { row = 2; column = 4 }
+CLASS Amazonis_02_05 :     LandArea { row = 2; column = 5; Tile<This>: Plant }
+CLASS Amazonis_02_06 :    WaterArea { row = 2; column = 6; Tile<This>: 2 Plant }
+CLASS Amazonis_02_07 :    WaterArea { row = 2; column = 7; Tile<This>: 2 Titanium }
+
+CLASS Amazonis_03_01 :    WaterArea { row = 3; column = 1; Tile<This>: 2 Steel }
+CLASS Amazonis_03_02 :     LandArea { row = 3; column = 2 }
+CLASS Amazonis_03_03 :     LandArea { row = 3; column = 3; Tile<This>: 2 ProjectCard }
+CLASS Amazonis_03_04 :     LandArea { row = 3; column = 4 }
+CLASS Amazonis_03_05 :     LandArea { row = 3; column = 5; Tile<This>: Plant }
+CLASS Amazonis_03_06 :    WaterArea { row = 3; column = 6 }
+CLASS Amazonis_03_07 :     LandArea { row = 3; column = 7; Tile<This>: Plant }
+CLASS Amazonis_03_08 :     LandArea { row = 3; column = 8; Tile<This>: 2 Plant }
+
+CLASS Amazonis_04_01 :     LandArea { row = 4; column = 1; Tile<This>: Titanium }
+CLASS Amazonis_04_02 :    WaterArea { row = 4; column = 2 }
+CLASS Amazonis_04_03 :     LandArea { row = 4; column = 3 }
+CLASS Amazonis_04_04 :     LandArea { row = 4; column = 4 }
+CLASS Amazonis_04_05 :     LandArea { row = 4; column = 5; Tile<This>: Plant }
+CLASS Amazonis_04_06 :     LandArea { row = 4; column = 6; Tile<This>: Plant }
+CLASS Amazonis_04_07 :     LandArea { row = 4; column = 7; Tile<This>: 2 Plant }
+CLASS Amazonis_04_08 :     LandArea { row = 4; column = 8; Tile<This>: Plant }
+CLASS Amazonis_04_09 :     LandArea { row = 4; column = 9; Tile<This>: Plant, ProjectCard }
+
+CLASS Amazonis_05_01 : VolcanicArea { row = 5; column = 1; Tile<This>: 2 Steel }
+CLASS Amazonis_05_02 :     LandArea { row = 5; column = 2; Tile<This>: Plant }
+CLASS Amazonis_05_03 :     LandArea { row = 5; column = 3; Tile<This>: StandardResource }
+CLASS Amazonis_05_04 :     LandArea { row = 5; column = 4; Tile<This>: Plant }
+CLASS Amazonis_05_05 :    WaterArea { row = 5; column = 5; Tile<This>: ProjectCard }
+CLASS Amazonis_05_06 :     LandArea { row = 5; column = 6; Tile<This>: Plant }
+CLASS Amazonis_05_07 :     LandArea { row = 5; column = 7; Tile<This>: 2 Plant }
+CLASS Amazonis_05_08 :     LandArea { row = 5; column = 8; Tile<This>: Plant }
+CLASS Amazonis_05_09 :     LandArea { row = 5; column = 9; Tile<This>: StandardResource }
+CLASS Amazonis_05_10 :    WaterArea { row = 5; column = 10; Tile<This>: 2 Plant }
+
+CLASS Amazonis_06_01 :     LandArea { row = 6; column = 1; Tile<This>: Plant }
+CLASS Amazonis_06_02 :     LandArea { row = 6; column = 2; Tile<This>: Plant }
+CLASS Amazonis_06_03 :     LandArea { row = 6; column = 3; Tile<This>: 2 Plant }
+CLASS Amazonis_06_04 :     LandArea { row = 6; column = 4; Tile<This>: 2 Plant }
+CLASS Amazonis_06_05 :    WaterArea { row = 6; column = 5; Tile<This>: 2 Plant }
+CLASS Amazonis_06_06 :    WaterArea { row = 6; column = 6; Tile<This>: 2 Plant }
+CLASS Amazonis_06_07 :     LandArea { row = 6; column = 7; Tile<This>: Steel, 2 Plant }
+CLASS Amazonis_06_08 :     LandArea { row = 6; column = 8; Tile<This>: Plant }
+CLASS Amazonis_06_09 :     LandArea { row = 6; column = 9 }
+CLASS Amazonis_06_10 :     LandArea { row = 6; column = 10; Tile<This>: Plant }
+CLASS Amazonis_06_11 :    WaterArea { row = 6; column = 11; Tile<This>: ProjectCard }
+
+CLASS Amazonis_07_02 :     LandArea { row = 7; column = 2; Tile<This>: Plant }
+CLASS Amazonis_07_03 :     LandArea { row = 7; column = 3; Tile<This>: 2 Plant }
+CLASS Amazonis_07_04 :    WaterArea { row = 7; column = 4; Tile<This>: 2 Plant }
+CLASS Amazonis_07_05 :     LandArea { row = 7; column = 5; Tile<This>: 2 Energy }
+CLASS Amazonis_07_06 :     LandArea { row = 7; column = 6; Tile<This>: Energy }
+CLASS Amazonis_07_07 :     LandArea { row = 7; column = 7; Tile<This>: 2 Energy }
+CLASS Amazonis_07_08 :     LandArea { row = 7; column = 8 }
+CLASS Amazonis_07_09 :     LandArea { row = 7; column = 9; Tile<This>: Plant }
+CLASS Amazonis_07_10 :     LandArea { row = 7; column = 10; Tile<This>: Plant }
+CLASS Amazonis_07_11 : VolcanicArea { row = 7; column = 11 }
+
+CLASS Amazonis_08_03 :     LandArea { row = 8; column = 3; Tile<This>: Plant }
+CLASS Amazonis_08_04 :    WaterArea { row = 8; column = 4; Tile<This>: 2 ProjectCard }
+CLASS Amazonis_08_05 :     LandArea { row = 8; column = 5; Tile<This>: Plant }
+CLASS Amazonis_08_06 :     LandArea { row = 8; column = 6; Tile<This>: Energy }
+CLASS Amazonis_08_07 :     LandArea { row = 8; column = 7; Tile<This>: 2 Energy }
+CLASS Amazonis_08_08 :     LandArea { row = 8; column = 8; Tile<This>: Plant }
+CLASS Amazonis_08_09 : VolcanicArea { row = 8; column = 9 }
+CLASS Amazonis_08_10 :     LandArea { row = 8; column = 10; Tile<This>: Steel }
+CLASS Amazonis_08_11 :     LandArea { row = 8; column = 11 }
+
+CLASS Amazonis_09_04 :    WaterArea { row = 9; column = 4; Tile<This>: Steel, Titanium }
+CLASS Amazonis_09_05 :     LandArea { row = 9; column = 5 }
+CLASS Amazonis_09_06 :     LandArea { row = 9; column = 6; Tile<This>: Titanium }
+CLASS Amazonis_09_07 :     LandArea { row = 9; column = 7 }
+CLASS Amazonis_09_08 :     LandArea { row = 9; column = 8 }
+CLASS Amazonis_09_09 :     LandArea { row = 9; column = 9; Tile<This>: 2 Plant }
+CLASS Amazonis_09_10 :     LandArea { row = 9; column = 10 }
+CLASS Amazonis_09_11 : VolcanicArea { row = 9; column = 11; Tile<This>: Titanium }
+
+CLASS Amazonis_10_05 :    WaterArea { row = 10; column = 5 }
+CLASS Amazonis_10_06 :     LandArea { row = 10; column = 6 }
+CLASS Amazonis_10_07 :     LandArea { row = 10; column = 7; Tile<This>: StandardResource }
+CLASS Amazonis_10_08 :     LandArea { row = 10; column = 8 }
+CLASS Amazonis_10_09 :     LandArea { row = 10; column = 9; Tile<This>: 3 Plant }
+CLASS Amazonis_10_10 :     LandArea { row = 10; column = 10; Tile<This>: 2 Plant }
+CLASS Amazonis_10_11 : VolcanicArea { row = 10; column = 11; Tile<This>: 2 Steel }
+
+CLASS Amazonis_11_06 :     LandArea { row = 11; column = 6 }
+CLASS Amazonis_11_07 :     LandArea { row = 11; column = 7; Tile<This>: Steel, Titanium }
+CLASS Amazonis_11_08 :     LandArea { row = 11; column = 8; Tile<This>: 2 Steel }
+CLASS Amazonis_11_09 :     LandArea { row = 11; column = 9 }
+CLASS Amazonis_11_10 :     LandArea { row = 11; column = 10; Tile<This>: Plant }
+CLASS Amazonis_11_11 :     LandArea { row = 11; column = 11; Tile<This>: ProjectCard }
+
+CLASS VastitasMap : MarsMap
+
+// The map areas below are code-generated based on the following comment
+//               LP    L     VS    L     L
+//
+//           LPP   LPP    L     L     LP    VC
+//
+//         LC   WPP   WPP   LPP    LP    L     L
+//
+//     VSS    LT   WPP    LP    L     LC    LP    LD
+//
+//   L     L     WP   LPP   LF4   WPP   WPP   WPP   LCC
+//
+//     LCC    L     LP   WHH   WHHP   WC    LP   LTT
+//
+//         VT    LS    W    WHH   LPP    LP    L
+//
+//            LP    L     LP   LPS    LS    LP
+//
+//               LD    L     LC    LS    LT
+
+CLASS Vastitas_1_1 :     LandArea { row = 1; column = 1; Tile<This>: Plant }
+CLASS Vastitas_1_2 :     LandArea { row = 1; column = 2 }
+CLASS Vastitas_1_3 : VolcanicArea { row = 1; column = 3; Tile<This>: Steel }
+CLASS Vastitas_1_4 :     LandArea { row = 1; column = 4 }
+CLASS Vastitas_1_5 :     LandArea { row = 1; column = 5 }
+
+CLASS Vastitas_2_1 :     LandArea { row = 2; column = 1; Tile<This>: 2 Plant }
+CLASS Vastitas_2_2 :     LandArea { row = 2; column = 2; Tile<This>: 2 Plant }
+CLASS Vastitas_2_3 :     LandArea { row = 2; column = 3 }
+CLASS Vastitas_2_4 :     LandArea { row = 2; column = 4 }
+CLASS Vastitas_2_5 :     LandArea { row = 2; column = 5; Tile<This>: Plant }
+CLASS Vastitas_2_6 : VolcanicArea { row = 2; column = 6; Tile<This>: ProjectCard }
+
+CLASS Vastitas_3_1 :     LandArea { row = 3; column = 1; Tile<This>: ProjectCard }
+CLASS Vastitas_3_2 :    WaterArea { row = 3; column = 2; Tile<This>: 2 Plant }
+CLASS Vastitas_3_3 :    WaterArea { row = 3; column = 3; Tile<This>: 2 Plant }
+CLASS Vastitas_3_4 :     LandArea { row = 3; column = 4; Tile<This>: 2 Plant }
+CLASS Vastitas_3_5 :     LandArea { row = 3; column = 5; Tile<This>: Plant }
+CLASS Vastitas_3_6 :     LandArea { row = 3; column = 6 }
+CLASS Vastitas_3_7 :     LandArea { row = 3; column = 7 }
+
+CLASS Vastitas_4_1 : VolcanicArea { row = 4; column = 1; Tile<This>: 2 Steel }
+CLASS Vastitas_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Titanium }
+CLASS Vastitas_4_3 :    WaterArea { row = 4; column = 3; Tile<This>: 2 Plant }
+CLASS Vastitas_4_4 :     LandArea { row = 4; column = 4; Tile<This>: Plant }
+CLASS Vastitas_4_5 :     LandArea { row = 4; column = 5 }
+CLASS Vastitas_4_6 :     LandArea { row = 4; column = 6; Tile<This>: ProjectCard }
+CLASS Vastitas_4_7 :     LandArea { row = 4; column = 7; Tile<This>: Plant }
+CLASS Vastitas_4_8 :     LandArea { row = 4; column = 8 }
+
+CLASS Vastitas_5_1 :     LandArea { row = 5; column = 1 }
+CLASS Vastitas_5_2 :     LandArea { row = 5; column = 2 }
+CLASS Vastitas_5_3 :    WaterArea { row = 5; column = 3; Tile<This>: Plant }
+CLASS Vastitas_5_4 :     LandArea { row = 5; column = 4; Tile<This>: 2 Plant }
+CLASS Vastitas_5_5 :     LandArea { row = 5; column = 5; Tile<This>: TemperatureStep, -4 MC }
+CLASS Vastitas_5_6 :    WaterArea { row = 5; column = 6; Tile<This>: 2 Plant }
+CLASS Vastitas_5_7 :    WaterArea { row = 5; column = 7; Tile<This>: 2 Plant }
+CLASS Vastitas_5_8 :    WaterArea { row = 5; column = 8; Tile<This>: 2 Plant }
+CLASS Vastitas_5_9 :     LandArea { row = 5; column = 9; Tile<This>: 2 ProjectCard }
+
+CLASS Vastitas_6_2 :     LandArea { row = 6; column = 2; Tile<This>: 2 ProjectCard }
+CLASS Vastitas_6_3 :     LandArea { row = 6; column = 3 }
+CLASS Vastitas_6_4 :     LandArea { row = 6; column = 4; Tile<This>: Plant }
+CLASS Vastitas_6_5 :    WaterArea { row = 6; column = 5; Tile<This>: 2 Heat }
+CLASS Vastitas_6_6 :    WaterArea { row = 6; column = 6; Tile<This>: 2 Heat, Plant }
+CLASS Vastitas_6_7 :    WaterArea { row = 6; column = 7; Tile<This>: ProjectCard }
+CLASS Vastitas_6_8 :     LandArea { row = 6; column = 8; Tile<This>: Plant }
+CLASS Vastitas_6_9 :     LandArea { row = 6; column = 9; Tile<This>: 2 Titanium }
+
+CLASS Vastitas_7_3 : VolcanicArea { row = 7; column = 3; Tile<This>: Titanium }
+CLASS Vastitas_7_4 :     LandArea { row = 7; column = 4; Tile<This>: Steel }
+CLASS Vastitas_7_5 :    WaterArea { row = 7; column = 5 }
+CLASS Vastitas_7_6 :    WaterArea { row = 7; column = 6; Tile<This>: 2 Heat }
+CLASS Vastitas_7_7 :     LandArea { row = 7; column = 7; Tile<This>: 2 Plant }
+CLASS Vastitas_7_8 :     LandArea { row = 7; column = 8; Tile<This>: Plant }
+CLASS Vastitas_7_9 :     LandArea { row = 7; column = 9 }
+
+CLASS Vastitas_8_4 :     LandArea { row = 8; column = 4; Tile<This>: Plant }
+CLASS Vastitas_8_5 :     LandArea { row = 8; column = 5 }
+CLASS Vastitas_8_6 :     LandArea { row = 8; column = 6; Tile<This>: Plant }
+CLASS Vastitas_8_7 :     LandArea { row = 8; column = 7; Tile<This>: Plant, Steel }
+CLASS Vastitas_8_8 :     LandArea { row = 8; column = 8; Tile<This>: Steel }
+CLASS Vastitas_8_9 :     LandArea { row = 8; column = 9; Tile<This>: Plant }
+
+CLASS Vastitas_9_5 :     LandArea { row = 9; column = 5 }
+CLASS Vastitas_9_6 :     LandArea { row = 9; column = 6 }
+CLASS Vastitas_9_7 :     LandArea { row = 9; column = 7; Tile<This>: ProjectCard }
+CLASS Vastitas_9_8 :     LandArea { row = 9; column = 8; Tile<This>: Steel }
+CLASS Vastitas_9_9 :     LandArea { row = 9; column = 9; Tile<This>: Titanium }

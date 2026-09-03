@@ -157,8 +157,9 @@ retained map record supplies the grid and compact display data, and the creation
 selected map as the cause of its Areas.
 
 Concrete track-rule components own global-parameter limits, terminal steps, and printed bonuses.
-The base and Venus modules create their respective standard track-rule components alongside the
-incomplete markers for the parameters they introduce.
+The base and Venus modules create their respective standard track-rule components when
+`ExtendedGlobalParametersRule` is absent. Selecting that rule replaces both components with the
+longer limits and bonuses. `AmazonisMap` selects the rule by default; an explicit exclusion wins.
 
 `PreludeExpansion` supplies the Prelude 1 rules and phase. It selects `Prelude1CardPack` by default
 and requires at least one `PreludeCardPack`. Either card pack, or both together, may instead be
@@ -178,7 +179,8 @@ directly and never becomes a live component.
 A Bundle may contain several Modules while retaining their separate card pools. A Module
 named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map Module
 selects its own map definition, areas, and the concrete milestone and award Classes named by its map
-configuration. Exceptional cross-Bundle or narrowed selections remain
+configuration. Source-local custom implementations used by goals share the goals' availability
+rather than the owning maps' availability. Exceptional cross-Bundle or narrowed selections remain
 expressible, but Canon's normal expansions do not require a central registry to restate their
 ownership.
 
