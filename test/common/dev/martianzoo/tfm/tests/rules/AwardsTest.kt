@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -52,7 +53,7 @@ internal class AwardsTest : TfmTest() {
     p1.sneak("Incorporator, $Ecoline, $InterplanetaryCinematics")
     p2.sneak("$MiningGuild, $Mine")
 
-    engine.manual("EndPhase")
+    engine.manual("End")
 
     p1.assertCounts(0 to "AwardTally<Player1, Incorporator>")
     p2.assertCounts(
@@ -73,7 +74,7 @@ internal class AwardsTest : TfmTest() {
     p1.count("CardFront(HAS requirement)") shouldBe 1
     p2.count("CardFront(HAS requirement)") shouldBe 2
 
-    engine.manual("EndPhase")
+    engine.manual("End")
 
     p1.assertCounts(
         1 to "AwardTally<Player1, Forecaster>",
@@ -146,7 +147,7 @@ internal class AwardsTest : TfmTest() {
 
     p1.sneak("Thermalist, Miner, Heat")
 
-    engine.manual("EndPhase")
+    engine.manual("End")
 
     p1.assertCounts(
         1 to "FirstPlace<Player1, Thermalist>",
@@ -182,7 +183,7 @@ internal class AwardsTest : TfmTest() {
     p2.assertProds(-5 to "MC")
     p3.assertProds(-5 to "MC")
 
-    engine.manual("EndPhase")
+    engine.manual("End")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
     p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
@@ -190,16 +191,27 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  internal fun awardPointsArePaidBeforeMultiplayerVictoryIsChecked() {
+  internal fun awardPlacementMayPrecedeOtherScoringButVictoryWaitsForAllScoring() {
     game = Engine.newGame(canonicalPremise())
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    p1.sneak("3 VictoryPoint")
-    p2.sneak("Banker, PROD[1 MC]")
+    p1.manual("3 VictoryPoint, TerraformRating")
+    p2.manual("Banker, PROD[1 MC]")
+    val manual = engine.also { it.autoExecMode = NONE }
+    p1.autoExecMode = NONE
 
-    engine.manual("EndPhase")
+    manual.beginManual("End")
+    manual.selectTask("MeasureAward<Banker>")
+    manual.selectTask("AssignAwardPlaces<Banker>")
 
-    p1.assertCounts(0 to "Victory<Player1>")
+    p1.assertCounts(3 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
+    p2.assertCounts(5 to "VictoryPoint<Player2>", 0 to "Victory<Player2>")
+    engine.count("End") shouldBe 1
+
+    p1.doTask("VictoryPoint")
+
+    p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")
+    engine.count("End") shouldBe 0
   }
 }

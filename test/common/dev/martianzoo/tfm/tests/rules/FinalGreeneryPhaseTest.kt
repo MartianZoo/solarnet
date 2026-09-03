@@ -69,7 +69,7 @@ internal class FinalGreeneryPhaseTest {
     p1.pass()
 
     engine.count("FinalGreeneryPhase") shouldBe 0
-    engine.count("EndPhase") shouldBe 0
+    engine.count("End") shouldBe 0
     engine.count("Victory<Me>") shouldBe 0
     engine.count("TemperatureStep") shouldBe 0
     engine.count("OxygenStep") shouldBe 0
@@ -128,7 +128,7 @@ internal class FinalGreeneryPhaseTest {
     p1.pass()
 
     engine.count("FinalGreeneryPhase") shouldBe 0
-    engine.count("EndPhase") shouldBe 0
+    engine.count("End") shouldBe 0
     engine.count("Victory<Me>") shouldBe 0
     workflow.isRunning shouldBe false
     workflow.shutdown()

@@ -45,7 +45,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     engine.phase("Action")
 
     p1.stdAction("FundAward") { doTask("Incorporator") }
-    engine.phase("End")
+    engine.manual("End FROM Phase")
 
     p1.assertCounts(22 to "VictoryPoint")
     p2.assertCounts(25 to "VictoryPoint")
@@ -60,7 +60,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     engine.phase("Action")
 
     p1.stdAction("FundAward") { doTask("Suburbian") }
-    engine.phase("End")
+    engine.manual("End FROM Phase")
 
     p1.assertCounts(25 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")
@@ -75,7 +75,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     engine.phase("Action")
 
     p1.stdAction("FundAward") { doTask("Founder") }
-    engine.phase("End")
+    engine.manual("End FROM Phase")
 
     p1.assertCounts(
         1 to "AwardTally<Player1, Founder>",

@@ -854,7 +854,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.cardsHand shouldBe setOf(SolarWindPower)
     been.cardsHand shouldBe emptySet()
     checkHandSizes()
-    engine.assertCounts(1 to "EndPhase")
+    engine.assertCounts(0 to "Phase")
 
     keen.assertCounts(47 to "TerraformRating", 117 to "VictoryPoint", 1 to "Victory")
     been.assertCounts(45 to "TerraformRating", 99 to "VictoryPoint", 0 to "Victory")

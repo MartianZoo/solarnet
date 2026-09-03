@@ -138,7 +138,7 @@ internal class CanonClassesTest {
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
 
-    engine.manual("End")
+    engine.manual("End FROM Phase")
     game.agent(PLAYER1).count("VictoryPoint<Me>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }
