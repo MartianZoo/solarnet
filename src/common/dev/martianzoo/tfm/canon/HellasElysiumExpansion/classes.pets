@@ -51,7 +51,7 @@ CLASS ElysiumMap : MarsMap
 //
 //            LS    LC   LHH   LHH    LT    LT
 //
-//               L    LHH   LO-   LHH    L
+//               L    LHH   LO6   LHH    L
 
 CLASS Hellas_1_1 :    WaterArea { row = 1; column = 1; Tile<This>: 2 Plant }
 CLASS Hellas_1_2 :     LandArea { row = 1; column = 2; Tile<This>: 2 Plant }

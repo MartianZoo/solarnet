@@ -172,9 +172,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 ## Keep Pets central
 
 Pets should read like the physical game: compact, composable, and precise about ownership, identity,
-timing, and choice. Prefer hand-authored Pets plus general runtime semantics. A custom instruction is
-honest when it bridges metadata or a capability Pets does not have; Kotlin-generated Pets is not
-automatically simpler.
+timing, and choice. Prefer hand-authored Pets plus general runtime semantics. Every custom class or
+instruction is evidence that Pets cannot yet express part of the game and therefore a design-failure
+signal, not an ordinary implementation technique. Avoid custom Kotlin whenever a coherent Pets
+formulation exists. When it is unavoidable, keep it minimal and identify the general missing Pets
+capability it exposes; Kotlin-generated Pets is not automatically simpler.
 
 Components have types and multiplicity, not fields or incidental object identity. A Catalog
 supplies coherent data, Modules select ambient rules, and a GamePremise describes one exact game.

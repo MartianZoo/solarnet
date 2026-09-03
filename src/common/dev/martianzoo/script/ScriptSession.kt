@@ -236,26 +236,12 @@ public class ScriptSession(
                   row = area.row,
                   column = area.column,
                   kind = area.kind.toString().removeSuffix("Area").lowercase(),
-                  bonuses = expandMapBonusCodes(area.code.drop(1)),
+                  bonuses = area.expandedBonusCodes.map(Char::toString),
                   tile = tile?.first,
                   owner = tile?.second,
               )
             },
     )
-  }
-
-  private fun expandMapBonusCodes(code: String): List<String> {
-    val result = mutableListOf<String>()
-    var count = 1
-    code.forEach { character ->
-      if (character.isDigit()) {
-        count = character.digitToInt()
-      } else {
-        repeat(count) { result += character.toString() }
-        count = 1
-      }
-    }
-    return result
   }
 
   internal fun promptPlain(): String =

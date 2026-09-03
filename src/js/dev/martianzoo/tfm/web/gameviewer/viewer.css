@@ -39,6 +39,7 @@ body { display: flex; flex-direction: column; overflow: auto; background: #08080
 .volcano-marker { fill: rgba(25, 19, 17, 0.82); }
 .noctis-label { fill: rgba(34, 29, 18, 0.86); font-size: 16px; font-weight: 700; text-anchor: middle; }
 .bonus-icon { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8)); }
+.bonus-text { fill: #fff; stroke: #000; stroke-width: 3px; paint-order: stroke; font-size: 14px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
 .map-tile { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.9)); }
 .owner-cube { stroke: rgba(255, 255, 255, 0.9); stroke-width: 2; }
 .player-red { --player-color: 153, 17, 0; }
@@ -79,33 +80,33 @@ body { display: flex; flex-direction: column; overflow: auto; background: #08080
 .stock, .production, .primary-total > :last-child, .tag > :last-child { font-weight: 700; text-align: center; text-shadow: 0 2px 2px #000; }
 .stock { grid-row: 2; grid-column: 1; align-self: end; font-size: 30px; line-height: 1; }
 .production { grid-row: 1; grid-column: 2; align-self: start; color: #bb8760; font-size: 18px; line-height: 22px; text-shadow: 0 0 1px #000; }
-[data-resource="megacredit"] .resource-icon { background-image: url("images/resources/MC.png"); }
-[data-resource="steel"] .resource-icon { background-image: url("images/resources/Steel.png"); }
-[data-resource="titanium"] .resource-icon { background-image: url("images/resources/Titanium.png"); }
-[data-resource="plant"] .resource-icon { background-image: url("images/resources/Plant.png"); }
-[data-resource="energy"] .resource-icon { background-image: url("images/resources/Energy.png"); }
-[data-resource="heat"] .resource-icon { background-image: url("images/resources/Heat.png"); }
+[data-resource="megacredit"] .resource-icon { background-image: url("images/MC.png"); }
+[data-resource="steel"] .resource-icon { background-image: url("images/Steel.png"); }
+[data-resource="titanium"] .resource-icon { background-image: url("images/Titanium.png"); }
+[data-resource="plant"] .resource-icon { background-image: url("images/Plant.png"); }
+[data-resource="energy"] .resource-icon { background-image: url("images/Energy.png"); }
+[data-resource="heat"] .resource-icon { background-image: url("images/Heat.png"); }
 .totals-and-tags { display: flex; min-width: 390px; flex: 1 1 auto; align-items: center; gap: 8px; }
 .primary-total, .tag { display: flex; flex-direction: column; align-items: center; gap: 7px; }
 .primary-total { min-width: 40px; font-size: 22px; }
 .stat-icon { width: 40px; height: 34px; }
-.tr-icon { background-image: url("images/other/TerraformRating.png"); }
-.cards-icon { background-image: url("images/other/ProjectCard.png"); }
+.tr-icon { background-image: url("images/TerraformRating.png"); }
+.cards-icon { background-image: url("images/ProjectCard.png"); }
 .tags { display: flex; min-width: max-content; flex: 1 1 auto; flex-wrap: nowrap; justify-content: flex-start; gap: 8px; }
 .tag { min-width: 34px; color: #e8e8e8; font-size: 18px; }
 .tag-icon { width: 34px; height: 34px; filter: brightness(0.9); }
-[data-tag="building"] .tag-icon { background-image: url("images/tags/BuildingTag.png"); }
-[data-tag="space"] .tag-icon { background-image: url("images/tags/SpaceTag.png"); }
-[data-tag="science"] .tag-icon { background-image: url("images/tags/ScienceTag.png"); }
-[data-tag="power"] .tag-icon { background-image: url("images/tags/PowerTag.png"); }
-[data-tag="earth"] .tag-icon { background-image: url("images/tags/EarthTag.png"); }
-[data-tag="jovian"] .tag-icon { background-image: url("images/tags/JovianTag.png"); }
-[data-tag="venus"] .tag-icon { background-image: url("images/tags/VenusTag.png"); }
-[data-tag="plant"] .tag-icon { background-image: url("images/tags/PlantTag.png"); }
-[data-tag="microbe"] .tag-icon { background-image: url("images/tags/MicrobeTag.png"); }
-[data-tag="animal"] .tag-icon { background-image: url("images/tags/AnimalTag.png"); }
-[data-tag="city"] .tag-icon { background-image: url("images/tags/CityTag.png"); }
-[data-tag="event"] .tag-icon { background-image: url("images/tags/EventTag.png"); }
+[data-tag="building"] .tag-icon { background-image: url("images/BuildingTag.png"); }
+[data-tag="space"] .tag-icon { background-image: url("images/SpaceTag.png"); }
+[data-tag="science"] .tag-icon { background-image: url("images/ScienceTag.png"); }
+[data-tag="power"] .tag-icon { background-image: url("images/PowerTag.png"); }
+[data-tag="earth"] .tag-icon { background-image: url("images/EarthTag.png"); }
+[data-tag="jovian"] .tag-icon { background-image: url("images/JovianTag.png"); }
+[data-tag="venus"] .tag-icon { background-image: url("images/VenusTag.png"); }
+[data-tag="plant"] .tag-icon { background-image: url("images/PlantTag.png"); }
+[data-tag="microbe"] .tag-icon { background-image: url("images/MicrobeTag.png"); }
+[data-tag="animal"] .tag-icon { background-image: url("images/AnimalTag.png"); }
+[data-tag="city"] .tag-icon { background-image: url("images/CityTag.png"); }
+[data-tag="event"] .tag-icon { background-image: url("images/EventTag.png"); }
 
 .cards-panel { min-height: 0; overflow: auto; background: #1b1b1b; }
 #played-cards { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 14px 12px; padding: 16px 18px; }

@@ -71,7 +71,7 @@ internal class ScriptSessionTest {
         listOf("H", "H", "H"),
         hellas.areas.single { it.row == 5 && it.column == 7 }.bonuses,
     )
-    assertEquals(listOf("O", "-"), hellas.areas.single { it.row == 9 && it.column == 7 }.bonuses)
+    assertEquals(listOf("O", "6"), hellas.areas.single { it.row == 9 && it.column == 7 }.bonuses)
   }
 
   @Test
