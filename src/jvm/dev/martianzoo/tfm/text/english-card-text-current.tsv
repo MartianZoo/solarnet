@@ -276,7 +276,7 @@ CheungShingMars	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 
 PointLuna	Point Luna	Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag, draw 1 card.
 RobinsonIndustries	Robinson Industries	Gain 47 M€.	Action: Pay 4 M€ to increase one of your lowest productions 1 step.
 ValleyTrust	Valley Trust	Gain 37 M€. As your first action, draw 3 prelude cards, then discard 2 prelude cards, then play a prelude card.	Effect: When you play a science tag, pay 2 M€ less.
-Vitor	Vitor	Gain 45 M€.	Effect: [This IF Class<Award>: Vitor_Mandate]. [CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC].
+Vitor	Vitor	Gain 45 M€.	Effect: [This IF Class<Award>: Vitor_RequiredAction]. [CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC].
 AlliedBank	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
 AquiferTurbines	Aquifer Turbines	Place 1 ocean tile. Increase your energy production 2 steps. Remove 3 M€.
 Biofuels	Biofuels	Increase your plant production 1 step and your energy production 1 step. Gain 2 plants.
@@ -380,7 +380,7 @@ NirgalEnterprises	Nirgal Enterprises	Gain 30 M€. Increase your energy producti
 PalladinShipping	Palladin Shipping	Gain 36 M€ and 5 titanium.	Action: Pay 2 titanium to raise temperature 1 step. / Effect: When you play a space event card, gain 1 titanium.
 SagittaFrontierServices	Sagitta Frontier Services	Gain 31 M€. Increase your energy production 1 step and your M€ production 2 steps. Draw 1 card with no tags.	Effect: When you play a card with no tags, gain 4 M€. When you play a card with exactly 1 tag, gain 1 M€.
 EcoTec	EcoTec	Gain 42 M€. Increase your plant production 1 step.	Effect: When you play a bio tag, gain 1 plant or add 1 microbe to any card.
-Spire	Spire	Gain 50 M€. [Spire_Mandate].	Effect: When you play a card with 2 or more tags, add 1 science resource to this card. When you use a standard project, except selling patents, science resources on this card may be used as 2 M€ each.
+Spire	Spire	Gain 50 M€. [Spire_RequiredAction].	Effect: When you play a card with 2 or more tags, add 1 science resource to this card. When you use a standard project, except selling patents, science resources on this card may be used as 2 M€ each.
 AppliedScience	Applied Science	[WildTag<This>]. Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 prelude card. Discard 1 prelude card or remove 12 M€, then [-Director<This>], then play a prelude card.

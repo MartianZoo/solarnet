@@ -76,7 +76,7 @@ internal class VironTest : CardTest() {
     newGame(VenusNextExpansion)
     engine.phase("Action")
     p1.manual("$Viron, $Celestic")
-    p1.stdAction("HandleMandates").expect("2 ProjectCard")
+    p1.stdAction("DoRequiredActions").expect("2 ProjectCard")
     p1.cardAction1(Celestic) { addCardResources(Celestic) }
 
     p1.cardAction1(Viron) {

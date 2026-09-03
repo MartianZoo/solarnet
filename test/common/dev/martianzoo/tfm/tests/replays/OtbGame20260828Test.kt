@@ -98,7 +98,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     joanna.turn {
       // "I had a plan; it's gone now." "Your first action should be to draw this stuff."
       // "There's one: Jet Stream Microscrappers. And Floater Technology. Very cool."
-      stdAction("HandleMandates").expect("2 ProjectCard")
+      stdAction("DoRequiredActions").expect("2 ProjectCard")
       // "Now I'm gonna play Local Shading. Pay four for it. And I guess that's my two actions."
       playProject(LocalShading, 4)
     }

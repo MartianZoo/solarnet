@@ -12,10 +12,10 @@ internal class PoseidonTest : CardTest() {
   internal fun `Places its colony as the first action`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.playCorp(Poseidon, 0).expect("45 MC")
-    p1.assertCounts(1 to "Mandate", 0 to "Colony")
+    p1.assertCounts(1 to "RequiredAction", 0 to "Colony")
 
     engine.phase("Action")
-    p1.stdAction("HandleMandates") { doTask("Colony<Luna>") }.expect("Colony<Luna>")
-    p1.assertCounts(0 to "Mandate")
+    p1.stdAction("DoRequiredActions") { doTask("Colony<Luna>") }.expect("Colony<Luna>")
+    p1.assertCounts(0 to "RequiredAction")
   }
 }

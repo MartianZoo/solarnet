@@ -38,7 +38,7 @@ CLASS Spire : ResourceCard<Class<Science>, Class<CorporationCard>> {
   cost = 0
 
   This:: CityTag<This>, EarthTag<This>
-  This: 50 MC, Mandate { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }
+  This: 50 MC, RequiredAction { -> CARDS[4 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>] }
   CardFront(HAS 2 Tag): Science<This>
   UseAction<StandardProject(HAS cost)>:: AcceptFromCard<This>
   PayFromCard<This>:: -2 Owed<>

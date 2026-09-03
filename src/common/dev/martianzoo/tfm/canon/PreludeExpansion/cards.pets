@@ -27,7 +27,7 @@ CLASS ValleyTrust : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 37 MC, Mandate { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }
+  This: 37 MC, RequiredAction { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }
   PlayTag<Class<ScienceTag>>:: -2 Owed<>
 }
 
@@ -36,7 +36,7 @@ CLASS Vitor : CardFront<Class<CorporationCard>> {
 
   This:: EarthTag<This>
   This: 45 MC
-  This IF Class<Award>: Mandate { -> Award }
+  This IF Class<Award>: RequiredAction { -> Award }
   CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC
 }
 

@@ -18,7 +18,7 @@ internal class VitorTest : CardTest() {
     p1.phase("Action")
     p1.assertCounts(0 to "Award", 33 to "MC")
 
-    p1.stdAction("HandleMandates") { doTask("Landlord") }
+    p1.stdAction("DoRequiredActions") { doTask("Landlord") }
     p1.assertCounts(1 to "Landlord", 33 to "MC")
   }
 

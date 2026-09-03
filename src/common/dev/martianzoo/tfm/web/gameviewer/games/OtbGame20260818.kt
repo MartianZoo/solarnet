@@ -51,7 +51,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     ellie.turn {
-      stdAction("HandleMandates") {
+      stdAction("DoRequiredActions") {
         playPrelude(DoubleDown) { doTask("CopyPrelude<$MartianIndustries>") }
       }
 

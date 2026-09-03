@@ -107,7 +107,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "For my first action, I flip cards until I get 3 Venus tags. Let's see how this goes."
     // "I draw Venusian Insects, Air-Scrapping Expedition, and Atalanta Planitia Lab."
-    dad.turn { stdAction("HandleMandates").expect("3 ProjectCard") }
+    dad.turn { stdAction("DoRequiredActions").expect("3 ProjectCard") }
 
     // (11:33 am) "I pitch a card for money, and I spend all my nine money on Robotic Workforce."
     ellie.turn {

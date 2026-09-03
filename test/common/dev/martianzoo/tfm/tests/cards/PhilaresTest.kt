@@ -58,7 +58,7 @@ internal class PhilaresTest : CardTest() {
     p1.manual("$Philares")
     p1.manual("23 MC")
     engine.phase("Action")
-    p1.stdAction("HandleMandates") { placeTile(4, 2) }
+    p1.stdAction("DoRequiredActions") { placeTile(4, 2) }
     p1.stdProject("GreenerySP") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")
   }
 

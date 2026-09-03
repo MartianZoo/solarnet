@@ -11,7 +11,7 @@ CLASS Celestic : ActionCard, ResourceCard<Class<Floater>, Class<CorporationCard>
   cost = 0
 
   This:: VenusTag<This>
-  This: 42 MC, Mandate { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }
+  This: 42 MC, RequiredAction { -> CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)] }
   End: VictoryPoint / 3 Floater<This>
 
   -> Floater
@@ -29,7 +29,7 @@ CLASS MorningStarInc : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: VenusTag<This>
-  This: 50 MC, Mandate { -> CARDS[3 ProjectCard(HAS VenusTag)] }
+  This: 50 MC, RequiredAction { -> CARDS[3 ProjectCard(HAS VenusTag)] }
   RequirementCheck:: -2 Required<Class<VenusStep>>.
 }
 

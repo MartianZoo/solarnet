@@ -57,7 +57,7 @@ public class OtbGame20260828 : RecordedGame() {
       playProject(TitanShuttles, 14, titanium = 3)
     }
     joanna.turn {
-      stdAction("HandleMandates")
+      stdAction("DoRequiredActions")
       playProject(LocalShading, 4)
     }
     ellie.turn {

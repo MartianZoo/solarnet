@@ -628,10 +628,10 @@ this is acceptable only while nothing can observe their relative order.
   end-of-action settlement, without nested completion frames. Record that timing as a house rule if
   authoritative evidence requires a stricter indivisible operation.
 
-Mandates are intentionally outside this sequencing audit. The selected future model removes the
-component that offers ordinary standard actions while a Mandate exists, making those actions
-naturally unavailable. That postponed action-availability work does not require priority among the
-Mandate's tasks.
+Required actions are intentionally outside this sequencing audit. The selected future model removes
+the component that offers ordinary standard actions while a RequiredAction exists, making those
+actions naturally unavailable. That postponed action-availability work does not require priority
+among the RequiredAction's tasks.
 
 ## Open design or rules audits
 

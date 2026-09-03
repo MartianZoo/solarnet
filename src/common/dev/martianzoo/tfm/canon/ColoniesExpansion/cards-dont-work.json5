@@ -4,7 +4,7 @@
     {
       "name": "Aridor",
       "deck": "CORPORATION",
-      "immediate": "40, Mandate { -> ColonyTileSelection }",
+      "immediate": "40, RequiredAction { -> ColonyTileSelection }",
       "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1 MC]" ],
     },
 

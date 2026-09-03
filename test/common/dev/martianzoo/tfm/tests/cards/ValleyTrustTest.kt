@@ -17,7 +17,7 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22 MC")
 
     engine.phase("Action")
-    p1.stdAction("HandleMandates") { p1.playPrelude(MartianIndustries) }
+    p1.stdAction("DoRequiredActions") { p1.playPrelude(MartianIndustries) }
         .expect("PROD[Steel, Energy]")
   }
 
@@ -60,7 +60,7 @@ internal class ValleyTrustTest : CardTest() {
   }
 
   @Test
-  internal fun `Must resolve mandate before another standard action`() {
+  internal fun `Must perform required action before another standard action`() {
     newGame(PreludeExpansion)
     p1.playCorp(ValleyTrust, 5)
     engine.phase("Action")
@@ -88,6 +88,6 @@ internal class ValleyTrustTest : CardTest() {
 
     p1.playCorp(ValleyTrust, 5)
     engine.phase("Action")
-    p1.stdAction("HandleMandates") { p1.playPrelude(selectedPrelude) }
+    p1.stdAction("DoRequiredActions") { p1.playPrelude(selectedPrelude) }
   }
 }

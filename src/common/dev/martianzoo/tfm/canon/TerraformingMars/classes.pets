@@ -7,7 +7,7 @@ CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
-  This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, HandleMandates
+  This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
   This:: GpIncomplete<Class<TemperatureStep>>, GpIncomplete<Class<OxygenStep>>, GpIncomplete<Class<OceanTile>>
   This IF MAX 0 MarsMap:: TharsisMap
 
@@ -335,16 +335,16 @@ ABSTRACT CLASS ActionSlot : System {
 
 "A Signal a player sends to indicate an action they want to perform"
 CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal {
-  This IF Mandate: MAX 0 Mandate: Ok
+  This IF RequiredAction: MAX 0 RequiredAction: Ok
 }
 
-ABSTRACT CLASS Mandate : Owned<Player>, HasActions {
+ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions {
   HAS MAX 1 This
-  MandateSignal: UseAction<This, Action1>
-  MandateSignal: -This!
+  RequiredActionsSignal: UseAction<This, Action1>
+  RequiredActionsSignal: -This!
 }
 
-CLASS MandateSignal : Owned<Player>, Signal
+CLASS RequiredActionsSignal : Owned<Player>, Signal
 
 "This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
 CLASS NewTurn : Owned<Player>, Signal
@@ -381,8 +381,8 @@ ABSTRACT CLASS StandardAction : HasActions {
   "Convert heat into a temperature increase"
   CLASS ConvertHeat { 8 Heat -> TemperatureStep }
 
-  "Resolve a mandatory action before taking another standard action"
-  CLASS HandleMandates { -> Mandate: MandateSignal }
+  "Perform a required action before taking another standard action"
+  CLASS DoRequiredActions { -> RequiredAction: RequiredActionsSignal }
 }
 
 "The persistent operation that owns research-phase and corporation-setup card purchases"

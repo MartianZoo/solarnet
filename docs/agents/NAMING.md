@@ -103,7 +103,7 @@ Worked cases:
 | Asteroid: card vs. resource vs. standard project | resource `Asteroid` | `AsteroidCard`, `AsteroidSP` |
 | Trade: game concept vs. standard action | concept `Trade` | `TradeAction` |
 | Play card: operation vs. standard action | operation `PlayCard` | `PlayCardFromHand` |
-| Mandate: component vs. its signal | component `Mandate` | `MandateSignal` |
+| Required action: component vs. its signal | component `RequiredAction` | `RequiredActionsSignal` |
 | Reprinted goals | the newer, revised printing | the superseded one (see below) |
 
 ### Reprints and variants
@@ -242,13 +242,6 @@ There is no Unicode normalization because non-ASCII display text is currently re
 
 `SecondAction`, the Signal for the second action slot of an action-phase turn, collides in the
 reader's head with `Action2`, but is expected to go away entirely; do not rename it in the meantime.
-
-### Vocabulary that nobody can read
-
-`Mandate` and `MandateSignal` are trying to be concise and have ended up meaning nothing to a
-reader. Replace `Mandate` with something that says what it is — `ForcedAction` and
-`RequiredNextAction` are the candidates — and let `MandateSignal` and the `HandleMandates` standard
-action follow from whatever it becomes. **Names undecided.**
 
 ### Independent-toggle Modules
 

@@ -87,15 +87,17 @@ internal class ClassDeclarationParsingTest {
 
   @Test
   internal fun ownerLocalClassesRequireDeclarationFileContext() {
-    val source = "CLASS Sponsor { This: Mandate { -> Colony<> } }"
+    val source = "CLASS Sponsor { This: RequiredAction { -> Colony<> } }"
     val declarations = parseClasses(source)
 
-    declarations.map { it.className }.shouldContainExactly(cn("Sponsor"), cn("Sponsor_Mandate"))
+    declarations
+        .map { it.className }
+        .shouldContainExactly(cn("Sponsor"), cn("Sponsor_RequiredAction"))
     declarations
         .first()
         .authoredEffects
-        .shouldContainExactly(parse<Effect>("This: Sponsor_Mandate"))
-    declarations.last().supertypes.shouldContainExactly(parse<Expression>("Mandate"))
+        .shouldContainExactly(parse<Effect>("This: Sponsor_RequiredAction"))
+    declarations.last().supertypes.shouldContainExactly(parse<Expression>("RequiredAction"))
     declarations.last().authoredActions.shouldContainExactly(parse<Action>("-> Colony<>"))
     shouldThrow<PetSyntaxException> { parseOneLinerClass(source) }
   }

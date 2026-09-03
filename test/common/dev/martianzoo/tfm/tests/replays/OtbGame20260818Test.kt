@@ -72,7 +72,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     ellie.turn {
       // "I use Valley Trust and I get Double Down, which I play... copy Martian Industries."
-      stdAction("HandleMandates") {
+      stdAction("DoRequiredActions") {
             playPrelude(DoubleDown) { doTask("CopyPrelude<$MartianIndustries>") }
           }
           .expect("PROD[S, E], 6 MC")

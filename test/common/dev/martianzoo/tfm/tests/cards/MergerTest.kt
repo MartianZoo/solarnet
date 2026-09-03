@@ -27,7 +27,7 @@ internal class MergerTest : CardTest() {
   internal fun `Resolves both corporations' starting benefits`() {
     engine.phase("Action")
 
-    p1.stdAction("HandleMandates") {
+    p1.stdAction("DoRequiredActions") {
       p1.assertCounts(8 to "ProjectCard", 1 to "PreludeCard")
       p1.assertProds(
           0 to "MC",

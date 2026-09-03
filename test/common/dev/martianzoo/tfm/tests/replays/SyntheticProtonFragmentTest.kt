@@ -106,7 +106,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // Splice Tactical Genomics' mandatory first action prevents Dad from playing Lichen first.
     shouldThrow<RequirementException> { dad.playProject(Lichen, 7) }
 
-    dad.stdAction("HandleMandates") {
+    dad.stdAction("DoRequiredActions") {
       dad.draw(Ants, CorporateStronghold, SolarLogistics, DiversitySupport)
     }
     dad.playProject(Lichen, 7)

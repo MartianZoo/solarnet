@@ -26,7 +26,7 @@ CLASS Inventrix : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: ScienceTag<This>
-  This: 45 MC, Mandate { -> 3 ProjectCard }
+  This: 45 MC, RequiredAction { -> 3 ProjectCard }
   RequirementCheck:: -2 Required<Class<GlobalParameter>>.
 }
 
@@ -50,7 +50,7 @@ CLASS TharsisRepublic : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 40 MC, Mandate { -> CityTile<> }
+  This: 40 MC, RequiredAction { -> CityTile<> }
   This IF SoloMode: PROD[2 MC]
   CityTile<Anyone, MarsArea>: PROD[1 MC]
   CityTile: 3 MC

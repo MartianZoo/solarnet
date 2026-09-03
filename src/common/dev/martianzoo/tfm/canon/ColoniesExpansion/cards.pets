@@ -18,7 +18,7 @@ CLASS Polyphemos : CardFront<Class<CorporationCard>> {
 CLASS Poseidon : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 45 MC, Mandate { -> Colony<> }
+  This: 45 MC, RequiredAction { -> Colony<> }
   Colony<Anyone>: PROD[1 MC]
 }
 

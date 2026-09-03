@@ -14,7 +14,7 @@ internal class PolderTechDutchTest : CardTest() {
     p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")
 
-    p1.stdAction("HandleMandates") {
+    p1.stdAction("DoRequiredActions") {
           placeTile(1, 4)
           shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_1_5>") }
           shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_2_1>") }
@@ -30,7 +30,7 @@ internal class PolderTechDutchTest : CardTest() {
     newGame(PromoCardPack)
     p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")
-    p1.stdAction("HandleMandates") {
+    p1.stdAction("DoRequiredActions") {
       placeTile(1, 4)
       placeTile(1, 3)
     }

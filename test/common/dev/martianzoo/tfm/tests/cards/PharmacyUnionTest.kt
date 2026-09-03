@@ -16,7 +16,7 @@ internal class PharmacyUnionTest : CardTest() {
 
     p1.manual("$PharmacyUnion").expect("46 MC, ProjectCard, 2 Disease<$PharmacyUnion>")
 
-    p1.assertCounts(0 to "Mandate")
+    p1.assertCounts(0 to "RequiredAction")
   }
 
   @Test

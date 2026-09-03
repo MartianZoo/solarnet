@@ -103,7 +103,7 @@ internal class ScriptSessionTest {
   internal fun execReportsThatOwnerLocalClassesCannotBeAddedToALiveGame() {
     assertEquals(
         listOf("New Class declarations are not allowed after the Class Table is frozen"),
-        ScriptSession().command("exec Mandate { -> 3 ProjectCard }"),
+        ScriptSession().command("exec RequiredAction { -> 3 ProjectCard }"),
     )
   }
 

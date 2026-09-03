@@ -183,10 +183,10 @@ internal class Prelude2CardsTest : CardTest() {
     p1.manual("$Spire")
     engine.phase("Action")
 
-    p1.stdAction("HandleMandates")
+    p1.stdAction("DoRequiredActions")
 
     p1.count("ProjectCard") shouldBe 1
-    p1.count("Mandate") shouldBe 0
+    p1.count("RequiredAction") shouldBe 0
   }
 
   @Test
@@ -210,7 +210,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.manual("$Research")
     p1.count("Science<$Spire>") shouldBe startingScience + 1
     engine.phase("Action")
-    p1.stdAction("HandleMandates")
+    p1.stdAction("DoRequiredActions")
 
     p1.stdProject(
             "PowerPlantSP",
@@ -236,7 +236,7 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `Selling patents does not offer Spire science for later debts`() {
     newGame(Prelude2Expansion)
     p1.manual("$Spire, Science<$Spire>, ProjectCard<Hand>")
-    p1.manual("-Mandate!")
+    p1.manual("-RequiredAction!")
     engine.phase("Action")
     p1.sellPatents(1)
 

@@ -11,7 +11,7 @@ CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: MicrobeTag<This>
-  This: 44 MC, Mandate { -> CARDS[ProjectCard(HAS MicrobeTag)] }
+  This: 44 MC, RequiredAction { -> CARDS[ProjectCard(HAS MicrobeTag)] }
   MicrobeTag<Anyone, CardFront<Anyone>>: 2 MC
 }
 
@@ -36,7 +36,7 @@ CLASS Philares : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 47 MC, Mandate { -> GreeneryTile<> }
+  This: 47 MC, RequiredAction { -> GreeneryTile<> }
   Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource
 }
 
@@ -84,7 +84,7 @@ CLASS PolderTechDutch : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 35 MC, Mandate { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }
+  This: 35 MC, RequiredAction { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }
   OceanTile: Energy
   GreeneryTile: Plant
 }

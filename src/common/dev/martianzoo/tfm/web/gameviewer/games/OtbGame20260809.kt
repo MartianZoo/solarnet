@@ -59,7 +59,7 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn { stdAction("HandleMandates") }
+    dad.turn { stdAction("DoRequiredActions") }
 
     ellie.turn {
       sellPatents(1)

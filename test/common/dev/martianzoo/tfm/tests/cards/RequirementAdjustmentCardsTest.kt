@@ -13,7 +13,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
-    p1.stdAction("HandleMandates")
+    p1.stdAction("DoRequiredActions")
     p1.manual(
         "10 MC, ProjectCard, OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, " +
             "OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
@@ -29,7 +29,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
-    p1.stdAction("HandleMandates")
+    p1.stdAction("DoRequiredActions")
     p1.manual(
         "30 MC, 4 ProjectCard, OceanTile<Tharsis_1_2>, " +
             "OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>"
@@ -47,7 +47,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
-    p1.stdAction("HandleMandates")
+    p1.stdAction("DoRequiredActions")
     p1.manual("50 MC, 5 ProjectCard, 11 TemperatureStep, $AdaptationTechnology")
 
     p1.playProject(SpecialDesign, 4)
@@ -62,7 +62,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
     newGame(VenusNextExpansion)
     p1.playCorp(MorningStarInc, 0)
     engine.phase("Action")
-    p1.stdAction("HandleMandates")
+    p1.stdAction("DoRequiredActions")
     p1.manual("30 MC, 3 ProjectCard, 9 VenusStep")
 
     p1.playProject(RotatorImpacts, 6)

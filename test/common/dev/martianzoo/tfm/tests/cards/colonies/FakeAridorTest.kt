@@ -16,7 +16,7 @@ private val fakeAridorDeclarations =
             """
             CLASS FakeAridor : CardFront<Class<CorporationCard>> {
               cost = 0
-              This: 40 MC, Mandate { -> ColonyTileSelection }
+              This: 40 MC, RequiredAction { -> ColonyTileSelection }
             }
             """
                 .trimIndent()
@@ -25,14 +25,14 @@ private val fakeAridorDeclarations =
 
 internal class FakeAridorTest : CardTest(additionalClassDeclarations = fakeAridorDeclarations) {
   @Test
-  internal fun `mandate adds one selected colony tile`() {
+  internal fun `required action adds one selected colony tile`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.playCorp(fakeAridor, 0).expect("40 MC")
-    p1.assertCounts(1 to "Mandate")
+    p1.assertCounts(1 to "RequiredAction")
 
     engine.phase("Action")
-    p1.stdAction("HandleMandates") { doTask("Europa") }.expect("Europa, ColonyProduction")
-    p1.assertCounts(0 to "Mandate")
+    p1.stdAction("DoRequiredActions") { doTask("Europa") }.expect("Europa, ColonyProduction")
+    p1.assertCounts(0 to "RequiredAction")
   }
 
   @Test
@@ -43,7 +43,7 @@ internal class FakeAridorTest : CardTest(additionalClassDeclarations = fakeArido
     p1.manual("Floater<$TitanShuttles>")
 
     engine.phase("Action")
-    p1.stdAction("HandleMandates") { doTask("DelayedTitan") }.expect("Titan, ColonyProduction")
+    p1.stdAction("DoRequiredActions") { doTask("DelayedTitan") }.expect("Titan, ColonyProduction")
     engine.assertCounts(1 to "Titan", 0 to "DelayedTitan")
   }
 }

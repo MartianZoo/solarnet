@@ -44,7 +44,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       playPrelude(Biolab).expect("3 Card")
       playPrelude(NewPartner) { playPrelude(BusinessEmpire) }.expect("PROD[7 MC]")
 
-      stdAction("HandleMandates") { playPrelude(GalileanMining) }.expect("PROD[2 T]")
+      stdAction("DoRequiredActions") { playPrelude(GalileanMining) }.expect("PROD[2 T]")
       playProject(IndenturedWorkers, 0)
       playProject(IndustrialMicrobes, 4).expect("PROD[S, E], MicrobeTag")
 

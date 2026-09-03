@@ -19,7 +19,8 @@ import dev.martianzoo.pets.util.suf
 
 /**
  * Classes can offer actions like `Plant -> 7` for players to manually trigger. In practice these
- * are used by the Pets classes `StandardAction`, `StandardProject`, `ActionCard`, and `Mandate`.
+ * are used by the Pets classes `StandardAction`, `StandardProject`, `ActionCard`, and
+ * `RequiredAction`.
  *
  * Actions eventually get converted into triggered [Effect]s.
  */

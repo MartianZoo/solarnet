@@ -36,8 +36,10 @@ internal class DomainExceptionContractTest {
   internal fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
     val agent = agent()
 
-    shouldThrow<NoNewClassDeclarationsException> { agent.manual("Mandate { -> 3 ProjectCard }") }
-    shouldThrow<PetSyntaxException> { agent.manual("Mandate { -> }") }
+    shouldThrow<NoNewClassDeclarationsException> {
+      agent.manual("RequiredAction { -> 3 ProjectCard }")
+    }
+    shouldThrow<PetSyntaxException> { agent.manual("RequiredAction { -> }") }
   }
 
   @Test

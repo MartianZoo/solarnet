@@ -65,11 +65,11 @@ negative.
 ### Owner-local derived Classes
 
 A card definition can declare a component Class at its point of use without choosing its canonical
-name explicitly. For example, a card instruction can gain `Mandate { -> 3 ProjectCard }`, or use
+name explicitly. For example, a card instruction can gain `RequiredAction { -> 3 ProjectCard }`, or use
 `CityTile<RemoteArea {}>`. Card-definition construction lowers these to declarations with
-stable owner-derived names such as `Inventrix_Mandate` and `PhobosSpaceHaven_RemoteArea` before building the
-Class Table. They have exactly the existing Class and component semantics; there is no runtime
-anonymous identity.
+stable owner-derived names such as `Inventrix_RequiredAction` and
+`PhobosSpaceHaven_RemoteArea` before building the Class Table. They have exactly the existing Class
+and component semantics; there is no runtime anonymous identity.
 
 The body follows the complete expression. For example,
 `SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}` becomes the use-site expression
@@ -82,10 +82,10 @@ The local body may contain invariants, properties, effects, and actions. It may 
 `DEFAULT` clauses or nested Class declarations. The generated Class inherits applicable defaults
 from its supertypes.
 
-Use this for a Class local to one definition, especially mandates, temporary effects, special tiles,
-and remote areas. A shared Class, a Custom implementation, or a component with several semantic
-roles should remain explicit. Multiple local Classes with the same natural suffix must be declared
-explicitly rather than distinguished by an ordinal or hash.
+Use this for a Class local to one definition, especially required actions, temporary effects,
+special tiles, and remote areas. A shared Class, a Custom implementation, or a component with
+several semantic roles should remain explicit. Multiple local Classes with the same natural suffix
+must be declared explicitly rather than distinguished by an ordinal or hash.
 
 Another expression that needs the exact derived Class may use its assigned canonical name. Writing
 the superclass without a local body still means the whole abstract family; it does not implicitly
@@ -684,8 +684,8 @@ remains dormant. The loader rechecks every active declaration as the closure gro
 Trigger domain can make its constructive body reachable later.
 
 Reachability currently proves exact facts from uninhabited Count domains through `AND` and `OR`
-Requirements. Thus Vitor can remain active in solo while its `Class<Award>`-gated Mandate and the
-entire Award domain remain uninhabited. Anything the analysis cannot prove unreachable remains
+Requirements. Thus Vitor can remain active in solo while its `Class<Award>`-gated RequiredAction
+and the entire Award domain remain uninhabited. Anything the analysis cannot prove unreachable remains
 conservatively reachable. Known declarations outside the closure become uninhabited when the
 projection freezes.
 

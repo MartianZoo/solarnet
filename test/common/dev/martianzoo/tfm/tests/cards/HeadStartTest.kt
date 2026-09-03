@@ -27,14 +27,14 @@ internal class HeadStartTest : CardTest() {
   }
 
   @Test
-  internal fun `Head Start must use its first granted action to resolve a mandate`() {
+  internal fun `Head Start must use its first granted action to perform a required action`() {
     newGame(PreludeExpansion, PromoCardPack)
     p1.playCorp(ValleyTrust, 5)
     engine.phase("Prelude")
     p1.manual("10 ProjectCard, PreludeCard")
 
     p1.playPrelude(HeadStart) {
-      doTask("UseAction<HandleMandates, Action1>")
+      doTask("UseAction<DoRequiredActions, Action1>")
       doTask("PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>")
       doTask("UseAction<PowerPlantSP, Action1>")
       doTask("11 Pay<Class<MC>> FROM MC")
