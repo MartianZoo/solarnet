@@ -14,7 +14,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
           """
           ElysiumMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
-          Tr63SoloVariant
+          Tr63SoloObjective
           Ceres, Enceladus, Luna, Triton
           """,
           "Me",

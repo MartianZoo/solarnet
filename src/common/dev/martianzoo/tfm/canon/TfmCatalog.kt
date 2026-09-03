@@ -668,7 +668,7 @@ public open class TfmCatalog : Catalog {
 
   private fun automaticSelectionRequirement(card: PetClass): Requirement? {
     return Requirement.join(
-        PRELUDE_DECK_ONLY.takeIf { cardBack(card)?.className == TfmClasses.PRELUDE_CARD },
+        PRELUDE_CARD_PACK_ONLY.takeIf { cardBack(card)?.className == TfmClasses.PRELUDE_CARD },
         cardBundleCompatibilityRequirement(card),
     )
   }
@@ -698,10 +698,20 @@ public open class TfmCatalog : Catalog {
       cardBundleCompatibilityRequirement(card)
 
   private fun cardBundleCompatibilityRequirement(card: PetClass): Requirement? {
-    return bundleCompatibilityRequirement(
-        card.className,
-        listOf(classDeclaration(card.className)),
-    )
+    val declarations = linkedMapOf<ClassName, ClassDeclaration>()
+    val pending = ArrayDeque<ClassName>().apply { add(card.className) }
+    while (pending.isNotEmpty()) {
+      val declaration = classDeclaration(pending.removeFirst())
+      if (declarations.put(declaration.className, declaration) != null) continue
+      declaration.allNodes
+          .flatMap { node -> node.descendantsOfType<ClassName>() }
+          .filterTo(pending) { referencedName -> referencedName in cardAuxiliaryClassNames }
+    }
+    return bundleCompatibilityRequirement(card.className, declarations.values.toList())
+  }
+
+  private val cardAuxiliaryClassNames: Set<ClassName> by lazy {
+    bundles.flatMapTo(linkedSetOf()) { bundle -> bundle.cardResourceClassNames } - cardClassNames
   }
 
   private fun contentCompatibilityRequirement(className: ClassName): Requirement? =
@@ -785,7 +795,7 @@ public open class TfmCatalog : Catalog {
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
-    private val PRELUDE_DECK_ONLY: Requirement = parse("PreludeDeck")
+    private val PRELUDE_CARD_PACK_ONLY: Requirement = parse("PreludeCardPack")
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
     private const val MINIMUM_GOAL_POOL_SIZE = 3

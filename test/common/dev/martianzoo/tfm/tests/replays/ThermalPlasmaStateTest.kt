@@ -15,7 +15,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
           """
           ElysiumMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
-          Tr63SoloVariant
+          Tr63SoloObjective
           Ganymede, Luna, Miranda, Pluto
           """,
           "Me",

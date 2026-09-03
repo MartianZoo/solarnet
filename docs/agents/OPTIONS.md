@@ -156,13 +156,14 @@ selected. Creating the selected map creates all of its Areas through the map ins
 retained map record supplies the grid and compact display data, and the creation history keeps the
 selected map as the cause of its Areas.
 
-`PreludeExpansion` supplies the Prelude rules and phase. It selects `Prelude1Deck` by default and
-requires at least one `PreludeDeck`. The original deck may therefore be explicitly excluded only
-when another deck such as `Prelude2Deck` is selected. `Prelude2Expansion` constructively selects
-`Prelude2Deck`, while the deck supplies its card pool and constructively selects `PreludeExpansion`.
-The deck may also be selected directly. Neither route permits the Prelude 2 cards without the
-Prelude rules, while the phase and solo generation adjustment still come only from
-`PreludeExpansion`.
+`PreludeExpansion` supplies the Prelude 1 rules and phase. It selects `Prelude1CardPack` by default
+and requires at least one `PreludeCardPack`. Either card pack, or both together, may instead be
+selected without enabling the Prelude 1 rules; they only determine which cards can enter a merged
+Prelude deck. `Prelude2Expansion` constructively selects both `PreludeExpansion` and
+`Prelude2CardPack`. When `PreludeExpansion` is already selected, adding either
+`Prelude2Expansion` or `Prelude2CardPack` therefore contributes the same cards. The Prelude 1 pack
+remains the default and may be explicitly excluded. The phase and solo generation adjustment come
+only from `PreludeExpansion`.
 
 ## Bundle
 
@@ -177,9 +178,9 @@ configuration. Exceptional cross-Bundle or narrowed selections remain
 expressible, but Canon's normal expansions do not require a central registry to restate their
 ownership.
 
-Three registry-shaped exceptions remain. `Prelude1Deck` routes the original Prelude cards from the
-larger Prelude Bundle, `Prelude2Deck` routes cards from the differently named Prelude 2 Bundle when
-selected directly, and Venus Next explicitly asks its same-named Bundle for cards, milestones, and
+Three registry-shaped exceptions remain. `Prelude1CardPack` routes the Prelude 1 cards from the
+larger Prelude Expansion Bundle, `Prelude2CardPack` routes cards from the differently named Prelude
+2 Expansion Bundle, and Venus Next explicitly asks its same-named Bundle for cards, milestones, and
 awards. These should be removed only after declaration authority is complete.
 
 ### Content grouping
@@ -193,11 +194,10 @@ Module. Ordinary Pets references activate the remaining declarations, and the en
 which active Classes instantiate. None has a per-card metadata relationship.
 
 A same-named Module should eventually select the Bundle's other ordinary content through the same
-general rule.
-`Prelude1Deck` should own a separate selectable resource group, represented by its own internal
-Bundle even though it shares a published product with the Prelude rules and project cards. Once the
-common cases use those mechanisms, delete `BundleContentSelection` instead of replacing it with
-directory-basename or map-suffix policy.
+general rule. `Prelude1CardPack` should own a separate selectable resource group, represented by
+its own internal Bundle even though it shares a published product with the Prelude 1 rules and
+project cards. Once the common cases use those mechanisms, delete `BundleContentSelection` instead
+of replacing it with directory-basename or map-suffix policy.
 
 Physical product packaging does not require one internal Bundle. Conversely, combining several
 selection groups in one Bundle is not a simplification when it requires a routing registry. Shared
@@ -297,9 +297,11 @@ as Colonies-dependent as one that places a colony.
 
 `VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make
 referencing content Venus-dependent. `WorldGovernmentTerraforming` and `FirstPlayerOcean` are shared
-protocols in the base Bundle, so `WorldGovernmentOption` and non-Venus cards may use them without
-enabling Venus Next. `PreludeCard` belongs to the Prelude Bundle; Valley Trust's mandate reference
-therefore derives its Prelude dependency without a card property.
+protocols in the base Bundle, so `WorldGovernmentRule` and non-Venus cards may use them without
+enabling Venus Next. `PreludeCard` belongs to the Prelude Expansion Bundle; Valley Trust's mandate
+reference therefore derives its Prelude 1 dependency without a card property. Automatic
+Prelude-card selection also requires a `PreludeCardPack`, so its draw uses exactly the selected
+pack or packs.
 
 Concrete awards retain their authored multiplayer-only condition. Explicit selection checks that
 condition too, so solo cannot bypass the rule.

@@ -1,6 +1,6 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
-  HAS =1 Mode
+  HAS =1 GameMode
   HAS =1 Class<Production>
   HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<CheckGameEnd>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
   HAS =1 Class<UseAction>, =1 Class<NewTurn>, =1 Class<SecondAction>
@@ -9,7 +9,7 @@ CLASS TerraformingMars : Module {
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, HandleMandates
   This:: GpIncomplete<Class<TemperatureStep>>, GpIncomplete<Class<OxygenStep>>, GpIncomplete<Class<OceanTile>>
-  This IF Mode, MAX 0 MarsMap:: TharsisMap
+  This IF MAX 0 MarsMap:: TharsisMap
 
   CorporationPhase: Photosynthesis
 
@@ -594,8 +594,8 @@ ABSTRACT CLASS Module : System {
 }
 
 "Exactly one player-count Module active in a playable game"
-ABSTRACT CLASS Mode : Module {
-  HAS MAX 1 Mode
+ABSTRACT CLASS GameMode : Module {
+  HAS MAX 1 GameMode
   premiseRequirement = HAS "=1 TerraformingMars"
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
@@ -617,14 +617,14 @@ CLASS AssignMultiplayerVictory : Custom
 // SOLO MODE
 
 "Solo play with a neutral opponent and a fixed generation limit"
-CLASS SoloMode : Mode {
+CLASS SoloMode : GameMode {
   HAS =1 Player
   autoSelectWhen = HAS "=1 Player"
 
-  HAS =1 SoloVariant, =1 Class<SoloStandardResourceReserve>, =1 Class<SoloCardResourceReserve>
+  HAS =1 SoloObjective, =1 Class<SoloStandardResourceReserve>, =1 Class<SoloCardResourceReserve>
 
   This:: SoloOpponent
-  This IF MAX 0 Tr63SoloVariant:: StandardSoloVariant.
+  This IF MAX 0 SoloObjective:: StandardSoloObjective.
   SetupPhase:: SoloGenerationSetup THEN Generation
   SoloGenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
@@ -633,16 +633,16 @@ CLASS SoloMode : Mode {
 }
 
 "Exactly one solo objective Module active in a solo game"
-ABSTRACT CLASS SoloVariant : Module {
-  HAS MAX 1 SoloVariant, =1 SoloMode
+ABSTRACT CLASS SoloObjective : Module {
+  HAS MAX 1 SoloObjective, =1 SoloMode
 
   "The original solo victory objective: complete every required global parameter"
-  CLASS StandardSoloVariant {
+  CLASS StandardSoloObjective {
     CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player1>.
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
-  CLASS Tr63SoloVariant {
+  CLASS Tr63SoloObjective {
     This:: BufferGasSP
 
     CheckGameEnd IF 63 TerraformRating<Player1>: Victory<Player1>.

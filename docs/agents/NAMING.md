@@ -127,7 +127,7 @@ some requirement expressions carry a GrossHack offset that the name must not inh
 
 Spell a concept out when it stands alone; abbreviate it only where it is a *component* of a longer
 name. `GlobalParameter`, `TerraformRating`, and `VictoryPoint` are classes; `GpComplete`,
-`GpGameEndBarrier`, `Tr63SoloVariant`, `HasRaisedTr`, and `GetEventVps` are compounds. Do not mix
+`GpGameEndBarrier`, `Tr63SoloObjective`, `HasRaisedTr`, and `GetEventVps` are compounds. Do not mix
 the two forms in one name.
 
 Bundle-specific abbreviations are not allowed as prefixes: write `CimmeriaColonyBonus`, not
@@ -177,16 +177,19 @@ looking it up.
 Most `Module` subtypes extend `Module` directly, and that is fine — they need no intermediate
 supertype just to justify a suffix. Three loose families exist today:
 
-1. **Content packs** — published products contributing cards and components, named with the
-   product's own noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`,
-   `PreludeExpansion`, `Prelude2Expansion`. `CardPack` marks our own partial import of a product's
-   cards without its rules: `PromoCardPack`, `TurmoilCardPack`.
+1. **Content and card packs** — published products contributing cards and components use their own
+   noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
+   `Prelude2Expansion`. `CardPack` marks a card-only selection that can be included independently
+   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, `PromoCardPack`, and
+   `TurmoilCardPack`. The published expansions and their Bundles retain the official
+   `PreludeExpansion` and `Prelude2Expansion` names; the card packs use `Prelude1` and `Prelude2`
+   to distinguish their contributions to the merged Prelude deck.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
-   `Mode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloVariant` and
-   `Tr63SoloVariant` under `SoloVariant`; `Prelude1Deck` and `Prelude2Deck` under `PreludeDeck`.
+   `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
+   `Tr63SoloObjective` under `SoloObjective`.
 3. **Independent toggles** — optional rules switched on or off on their own:
-   `QuickStartVariant`, `WorldGovernmentOption`, `MandatoryVenusVariant`.
+   `QuickStartVariant`, `WorldGovernmentRule`, `MandatoryVenusVariant`.
 
 The third family currently uses two words for one kind. **A convention for choosing that suffix is
 deferred**; nothing here is a violation until we settle one, and no new abstract supertype is wanted

@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.Tr63SoloVariant
+import dev.martianzoo.tfm.tests.TestOption.Tr63SoloObjective
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import io.kotest.matchers.shouldBe
@@ -81,7 +81,7 @@ internal class EndgameRulesTest : CardTest() {
 
   @Test
   internal fun `TR 63 solo ignores completed parameters below 63 and wins at 63`() {
-    newGame(VenusNextExpansion, Tr63SoloVariant, players = 1)
+    newGame(VenusNextExpansion, Tr63SoloObjective, players = 1)
     p1.manual("48 TerraformRating")
     engine.manual(
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
@@ -97,7 +97,7 @@ internal class EndgameRulesTest : CardTest() {
 
   @Test
   internal fun `TR 63 solo evaluates the current rating rather than past attainment`() {
-    newGame(Tr63SoloVariant, players = 1)
+    newGame(Tr63SoloObjective, players = 1)
     p1.manual("49 TerraformRating")
     p1.manual("-TerraformRating")
 

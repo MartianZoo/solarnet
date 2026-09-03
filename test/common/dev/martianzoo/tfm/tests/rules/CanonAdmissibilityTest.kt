@@ -14,14 +14,14 @@ import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.Elysium
 import dev.martianzoo.tfm.tests.TestOption.Hellas
-import dev.martianzoo.tfm.tests.TestOption.Prelude2Deck
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.Prelude2Expansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.Tharsis
 import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
 import dev.martianzoo.tfm.tests.TestOption.Utopia
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
-import dev.martianzoo.tfm.tests.TestOption.WorldGovernmentOption
+import dev.martianzoo.tfm.tests.TestOption.WorldGovernmentRule
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -59,13 +59,13 @@ internal class CanonAdmissibilityTest {
             ColoniesExpansion,
             TurmoilCardPack,
             PromoCardPack,
-            WorldGovernmentOption,
+            WorldGovernmentRule,
         )
 
     val world = Engine.newGame(canonicalPremise(*selected, colonyTiles = colonies))
 
     selected.forEach { world.classTable.isActive(it.className) shouldBe true }
-    world.classTable.isActive(Prelude2Deck.className) shouldBe true
+    world.classTable.isActive(Prelude2CardPack.className) shouldBe true
     colonies.forEach { world.classTable.isActive(it) shouldBe true }
     world.classTable.isActive(cn("CimmeriaMap")) shouldBe true
     world.isIdle() shouldBe true

@@ -59,7 +59,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
     newGame(
         GameConfig(
-            "VenusNextExpansion, -WorldGovernmentOption",
+            "VenusNextExpansion, -WorldGovernmentRule",
             "Player1",
             "Player2",
         )
@@ -71,7 +71,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
   @Test
   internal fun `World Government can be selected without Venus`() {
-    newGame(GameConfig("WorldGovernmentOption", "Player1", "Player2"))
+    newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
 
     TfmWorkflow.Manual(game).solarPhase()
     p1.doTask("TemperatureStep! BY Engine")

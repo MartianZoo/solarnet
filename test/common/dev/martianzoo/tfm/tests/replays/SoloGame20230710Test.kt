@@ -11,7 +11,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       GameConfig(
           """
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
-          Tr63SoloVariant
+          Tr63SoloObjective
           Callisto, Ganymede, Luna, Miranda
           """,
           "Me",

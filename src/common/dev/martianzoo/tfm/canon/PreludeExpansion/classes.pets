@@ -1,16 +1,15 @@
-"Expansion giving each player two prelude cards to accelerate the opening game"
+"The published Prelude 1 rules"
 CLASS PreludeExpansion : Module {
-  HAS PreludeDeck, =1 Class<PreludeSetup>, =1 Class<PreludePhase>
+  HAS PreludeCardPack, =1 Class<PreludeSetup>, =1 Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 }
 
 "A selectable pool of Prelude cards"
-ABSTRACT CLASS PreludeDeck : Module
+ABSTRACT CLASS PreludeCardPack : Module
 
-"The original Prelude card pool, selected by default with the Prelude rules"
-CLASS Prelude1Deck : PreludeDeck {
+"The Prelude 1 card pool, selected by default with the Prelude 1 rules"
+CLASS Prelude1CardPack : PreludeCardPack {
   autoSelectWhen = HAS "PreludeExpansion"
-  premiseRequirement = HAS "PreludeExpansion"
 }
 
 "Deals each player the two generic card backs consumed during PreludePhase"
