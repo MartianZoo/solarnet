@@ -23,6 +23,7 @@
 | Inheritance/default behavior | Narrowing and inheritance; Abstract defaults are not overrides |
 | Printed tags or instruction collections | `Instruction*` and printed tags |
 | Add a new property capability | Design constraints for future extensions |
+| Judge whether properties are worth their cost | Why class properties earn their cost |
 
 ## Source map
 
@@ -110,6 +111,24 @@ This:: (EVAL This.requirement: Ok)
 Expansion substitutes the concrete receiver for `This`, supplies the effect's contextual Owner,
 and then applies the normal defaults and lowering. Expansion may wait until trigger matching has
 specialized an abstract receiver. `EVAL` is invalid in an arbitrary count query.
+
+## Why class properties earn their cost
+
+**Disposition: at peace with it.** Do not report the property mechanism as removable complexity.
+
+A count of declaring classes makes properties look lightly used: `Number` has three declarations,
+`Requirement?` three, `Requirement` only `Milestone`, and `Metric` only `Award`. That measurement is
+misleading. Without class properties the same immutable Class facts had to be obtained by major
+cheats, which made the project's claims about Pets farcical — the language could not state a fact
+the game plainly prints on a card.
+
+Declaring-class count is therefore the wrong measure for this mechanism. The right questions are
+whether a property kind expresses a printed fact honestly and whether reading it composes with
+ordinary Pets. Both hold today.
+
+Growth is expected rather than suspicious: [TURMOIL.md](TURMOIL.md#open-language-and-modeling-questions)
+wants instruction-valued properties for party ruling bonuses. Judge a proposed new kind by
+“Design constraints for future extensions” below, not by how many classes will declare it.
 
 ## Applicability is primarily structural
 

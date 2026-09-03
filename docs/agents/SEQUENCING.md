@@ -165,6 +165,14 @@ to pre-prune such branches. Prefer the simpler rule-and-rollback model when it s
 legal completion reachable, prevents every illegal result from committing, and rolls back the
 entire speculative operation.
 
+**Disposition: at peace with the two-stage shape.** `Transformers.invalidChangesToDie` rewrites a
+change whose Type is inactive into a `Die` gain, and `Task.normalizeForTask` then walks for `Die`
+and prunes, throwing `DeadEndException` when no arm survives. Two passes look like one fact written
+twice; they are a bottom value and its normalization, which is the right shape.
+`PremiseViability.validate` runs the same reasoning statically for a third time, and that one earns
+its place by failing a bad premise at setup instead of mid-game. The genuine duplication is only the
+three-valued interpreter it copies from `ClassLoader`, tracked in [TODO.md](../../TODO.md).
+
 ## Choose the weakest mechanism that fits
 
 Only impose sequencing when the game rules demand it or an otherwise valid operation cannot be

@@ -35,6 +35,23 @@ One component may declare up to three Pets Actions. `First`, `Second`, and `Thir
 card cannot settle one another. Invoice providers are live `HasActions` components, not their
 Class tokens. `HasActions` is singleton-shaped because a dependency must identify one component.
 
+### Why the Action cost form is a product requirement
+
+**Disposition: at peace with it.** Do not report `Action` or `Cost` as removable sugar.
+
+`Cost` is a second AST that parallels `Instruction` — `Spend`, `Gated`, `Per`, `Multi`, `Transform`,
+each with its own precedence and parser combinators — and it is fully desugared before the engine
+ever sees it, so nothing under `engine/` references it. On a cost/benefit ledger that reads as pure
+duplication, bought only so an author may write `8 Plant ->` instead of `-8 Plant THEN`.
+
+That reading is wrong. The `cost -> result` form is how the physical game prints an action, many
+cards use it, and Pets reading like the printed card is a product requirement rather than a
+convenience — see [VALUES.md](VALUES.md#keep-pets-central). The parallel AST is the accepted price
+of that requirement.
+
+What would still be worth reporting is a `Cost` form with no authored user, or a `Cost` construct
+that survives into the engine instead of desugaring.
+
 ## Standard-resource costs
 
 A standard-resource Action has this lifecycle:

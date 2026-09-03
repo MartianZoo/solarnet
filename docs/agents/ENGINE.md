@@ -544,6 +544,20 @@ that shared lookup with the live component graph to compute current headroom and
 [QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete limits, abstract domains, dependencies, and
 instruction composition determine the result.
 
+**Disposition: at peace with the operator set.** `Metric.Max`, `Metric.Subtract`, and `Metric.Or`
+each have only a handful of authored uses, almost all inside `Award.metric`, so a sweep for
+single-client machinery flags them. The measurement is backwards: the algebra is *under*-built, not
+over-built. `Subtract` saturates but there is no `Add`, and
+[TURMOIL.md](TURMOIL.md#open-language-and-modeling-questions) needs one for global events that add
+Influence after a capped or grouped Metric. Union and sum are also genuinely different operators —
+Awards need `Or`'s non-double-counting union, Turmoil needs arithmetic addition — so neither can
+stand in for the other. Propose completing this algebra, not trimming it.
+
+Separately, `AssignAwardPlaces` is a `Custom` because "rank owners by a Metric under a declared tie
+rule" is inexpressible, and Turmoil's `PartyLeader` and `Dominant` maintenance want the same
+primitive with different tie rules. That convergence, not the operator count, is the live design
+question here.
+
 ## Recoverable dead ends
 
 Task selection is speculative until the encompassing operation completes. A locally valid choice may

@@ -91,4 +91,7 @@ measuring or changing JVM test throughput; its measurements are a dated baseline
 - Link to production source and meaningful tests instead of copying inventories that can drift.
 - For a source location, give the file and a stable search string, never a line number.
 - Update the smallest owning document and avoid repeating a rule in several places.
-- Delete resolved audit and migration history unless it still explains a live constraint.
+- Delete resolved audit and migration history unless it still explains a live constraint. A decision
+  to keep a cost is such a constraint: record it, with its reasoning, in the owning document and
+  index it under “Dispositioned complexity findings” in [`VALUES.md`](VALUES.md) so later reviews do
+  not rediscover it.

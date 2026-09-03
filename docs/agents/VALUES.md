@@ -10,7 +10,7 @@
 > **Skip when:** performing a mechanical, behavior-preserving edit whose design ownership is already
 > settled.
 >
-> **Status:** durable working rules.
+> **Status:** durable working rules, plus a register of complexity findings already dispositioned.
 
 These are the durable criteria for design and review. Repository-level instructions in
 [`AGENTS.md`](../../AGENTS.md) remain authoritative for how to work.
@@ -108,6 +108,66 @@ Jacob Fryxelius. Do not initiate rule research during routine implementation wor
   mutations, and calculate consequences; caller policy and strategy belong above them.
 - Do not push application preferences downward to guarantee a pleasant default, and do not omit a
   lower-layer invariant merely because an upper layer currently behaves well.
+
+## Dispositioned complexity findings
+
+Reviews that sweep for removable complexity keep rediscovering the same machinery. Record what was
+decided about each finding so the next sweep spends its effort on something new.
+
+Use one of these dispositions:
+
+| Disposition | Meaning |
+| --- | --- |
+| **At peace with it** | Deliberate and expected to last. Do not propose removing it; the reasoning says why the apparent cost is worth it, or why the measurement that flagged it was misleading. |
+| **Accepted for now** | The cost is real and a better option would be taken, but none is known or an external constraint holds. The entry names what would change the answer. |
+| **Already being fixed** | Work is in flight. The entry names the owning document; report new evidence there rather than as a new finding. |
+| **Will be obsolete** | It disappears as a consequence of other selected work. Do not spend design effort on it directly. |
+
+An entry records a decision that was made, not a rule that cannot change. Overturn one by showing
+its reasoning wrong — new evidence, a changed constraint, or a second client that shifts the
+balance. Do not overturn one merely by rediscovering the same cost.
+
+Keep the substantive reasoning in the owning document and keep this table to one line per finding.
+
+### At peace with it
+
+- **Class properties as a mechanism** — [PROPERTIES.md](PROPERTIES.md#why-class-properties-earn-their-cost).
+  Few property kinds, one or two declaring classes each; without them the same facts needed major
+  cheats. Declaring-class count is not the measure.
+- **Pets `Action` cost sugar and the parallel `Cost` AST** —
+  [ACTIONS.md](ACTIONS.md#why-the-action-cost-form-is-a-product-requirement). `cost ->` is a product
+  requirement used by many cards.
+- **The metric operator set** — [ENGINE.md](ENGINE.md#metrics-refinements-and-limits). `Max`,
+  `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
+  over-built.
+- **The `Die` produce/consume pipeline** —
+  [SEQUENCING.md](SEQUENCING.md#recoverable-dead-ends-are-part-of-the-model). `Transformers.invalidChangesToDie` emits the
+  marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
+  duplicated fact. `PremiseViability`'s separate static check buys fail-fast at premise time instead
+  of a confusing mid-game `DeadEndException`. Only the interpreter it duplicates from `ClassLoader`
+  is genuine duplication, and that is in [TODO.md](../../TODO.md).
+
+### Accepted for now
+
+- **`BigInt`** — a bespoke immutable bit mask serving one field, `Class.abstractSupertypeBits`.
+  Common code has no `java.util.BitSet`, so the alternative is a slower supertype test on a hot
+  path. Revisit if a multiplatform bitset becomes available or if the test stops being hot.
+
+### Already being fixed
+
+- **`Temporary` and `MustCleanUp` idle cleanup** —
+  [SEQUENCING.md](SEQUENCING.md#whole-world-idle-cleanup). Two engine sweeps at the same moment with
+  opposite policies, one of which has a single client. `AtomicOperationScope` and `Engine` are
+  actively moving.
+- **`CARDS[...]` and the `CardOperation` recognizer** —
+  [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md#canonical-card-operation-source). Authored intent is
+  discarded and then reconstructed by pattern matching. Known, and owned by that document.
+
+### Will be obsolete
+
+- **The `TfmGameplay` `WildTagUse` completion bridges** —
+  [ENGINE.md](ENGINE.md#terraforming-mars-wild-tags). They disappear when sequencing owns
+  end-of-action settlement.
 
 ## Keep Pets central
 
