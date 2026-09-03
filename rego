@@ -13,9 +13,13 @@ fi
 
 # Rebuild in a loop as long as the process exits with the "rebuild" exit code
 while true; do
-    ./gradlew :repl:shadowJar || exit
+    jar_path=$(./gradlew --quiet :repl:shadowJarPath | tail -n 1)
+    if [[ ! -f "$jar_path" ]]; then
+        printf 'Error: could not build the REPL jar.\n' >&2
+        exit 1
+    fi
 
-    "$JAVA_CMD" -jar repl/build/libs/repl-all.jar
+    "$JAVA_CMD" -jar "$jar_path"
     exit_code=$?
     if (( exit_code != REBUILD_EXIT_CODE )); then
         exit "$exit_code"
