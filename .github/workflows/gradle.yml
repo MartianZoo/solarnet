@@ -36,4 +36,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: 'repl-all.jar'
-        path: 'repl/build/libs/repl-all.jar'
+        path: 'modules/repl/build/libs/repl-all.jar'

@@ -9,7 +9,12 @@ else
     readonly JAVA_CMD=java
 fi
 
-./gradlew :repl:shadowJar || exit
-"$JAVA_CMD" -jar repl/build/libs/repl-all.jar --serve &
+jar_path=$(./gradlew --quiet :repl:shadowJarPath | tail -n 1)
+if [[ ! -f "$jar_path" ]]; then
+    printf 'Error: could not build the REPL jar.\n' >&2
+    exit 1
+fi
+
+"$JAVA_CMD" -jar "$jar_path" --serve &
 disown
 echo "Rego server starting on port 2315 (use ./rc to send commands)..."
