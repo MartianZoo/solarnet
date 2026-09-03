@@ -1,5 +1,9 @@
 # Catalogs, Modules, and game premises
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** changing Catalog, Module, Bundle, `GameConfig`, `GamePremise`, selection defaults,
 > projection closure, or viability classification.
 >

@@ -1,5 +1,9 @@
 # Deriving English from Pets
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** changing English output, renderer structure, lexical facts, card-region layout,
 > refusal behavior, or generated card-text evidence.
 >

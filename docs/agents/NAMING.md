@@ -1,5 +1,9 @@
 # Class names and vocabulary
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** naming or renaming a Class, resolving a printed-name collision, adding a Module,
 > changing player aliases, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.

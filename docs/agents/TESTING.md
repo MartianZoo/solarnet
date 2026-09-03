@@ -1,5 +1,9 @@
 # Testing and verification
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** choosing or running verification, writing/moving a test, changing build
 > configuration, reconstructing a game, formatting, or benchmarking.
 >

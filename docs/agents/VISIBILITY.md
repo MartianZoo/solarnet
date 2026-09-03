@@ -1,5 +1,9 @@
 # Kotlin visibility
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** reducing declaration visibility, responding to explicit-API diagnostics, moving a
 > caller across modules, or conducting a whole-project visibility audit.
 >

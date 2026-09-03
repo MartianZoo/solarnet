@@ -1,5 +1,9 @@
 # Reducing custom Pets instructions
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** deliberately replacing `ColoniesSetup`, `PassLeft`, or another custom instruction
 > with hand-authored Pets and general runtime semantics.
 >
