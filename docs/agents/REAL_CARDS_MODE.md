@@ -1,5 +1,9 @@
 # Shuffle-and-deal real-card mode
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** designing or implementing physical cards, deck/discard derivation, shuffle/deal,
 > reveal/search, hidden information, dealer narrowing, or a real-card observation interface.
 >

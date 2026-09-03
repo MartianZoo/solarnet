@@ -6,6 +6,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Decide whether the README should carry a fan-project/non-affiliation note for FryxGames,
+  and whether `english-published-wording-evidence.tsv` needs any accompanying statement. The
+  understanding so far is that only printed *flavor* text is claimed, and that file holds rules
+  wording rather than flavor text.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
@@ -61,6 +65,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Fix the REPL's interactive startup: under a real terminal it prints a bare prompt and progress
+  dots but never reaches the `Welcome to REgo PLastics` banner, even after two minutes, while a
+  piped session reaches it immediately. This blocks `:repl:realTerminalSmokeTest`, whose Expect
+  script times out on its first expectation, and it is what a user meets when running `./rego`.
+  Once startup is fixed, re-check the rest of `repl-smoke.exp` against current command output and
+  add the test to the CI workflow, which already installs Expect for it.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
   iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
   `SavedGameReplayBenchmark`.
