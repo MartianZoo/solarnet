@@ -20,26 +20,26 @@ public class OtbGame20260809 : RecordedGame() {
           Botanist, Founder, Landlord, Magnate, Metropolist, Venuphile
           Callisto, Luna, Triton, Miranda, Enceladus
           """,
-          "Ellie",
-          "Dad",
+          "Yellow",
+          "Green",
       )
 
   protected override fun play() {
     TfmWorkflow.Auto(game).launch()
-    val ellie = game.tfm(Player.PLAYER1)
-    val dad = game.tfm(Player.PLAYER2)
+    val yellow = game.tfm(Player.PLAYER1)
+    val green = game.tfm(Player.PLAYER2)
 
-    ellie.playCorp(MonsInsurance, 6)
+    yellow.playCorp(MonsInsurance, 6)
 
-    dad.playCorp(MorningStarInc, 4)
+    green.playCorp(MorningStarInc, 4)
 
-    ellie.turn {
+    yellow.turn {
       playPrelude(DomeFarming)
 
       playPrelude(SocietySupport)
     }
 
-    dad.turn {
+    green.turn {
       playPrelude(NitrogenShipment)
 
       playPrelude(GreatAquifer) {
@@ -49,7 +49,7 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    ellie.turn {
+    yellow.turn {
       playProject(AquiferPumping, 18)
 
       cardAction1(AquiferPumping) {
@@ -59,53 +59,53 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn { stdAction("DoRequiredActions") }
+    green.turn { stdAction("DoRequiredActions") }
 
-    ellie.turn {
+    yellow.turn {
       sellPatents(1)
       playProject(RoboticWorkforce, 9) {
         doTask("CopyProductionBox<$DomeFarming>")
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(Moss, 4)
     }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.pass()
+    green.pass()
 
-    ellie.wgt("OxygenStep")
+    yellow.wgt("OxygenStep")
 
-    dad.buyCards(2)
+    green.buyCards(2)
 
-    ellie.buyCards(2)
+    yellow.buyCards(2)
 
-    dad.turn { playProject(ReleaseOfInertGases, 14) }
+    green.turn { playProject(ReleaseOfInertGases, 14) }
 
-    ellie.turn {
+    yellow.turn {
       cardAction1(AquiferPumping) {
         pay(8)
         placeTile(4, 7)
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(TerraformingContract, 8)
     }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.pass()
+    green.pass()
 
-    dad.wgt("VenusStep")
+    green.wgt("VenusStep")
 
-    dad.buyCards(3)
+    green.buyCards(3)
 
-    ellie.buyCards(1)
+    yellow.buyCards(1)
 
-    ellie.turn {
+    yellow.turn {
       cardAction1(AquiferPumping) {
         pay(8)
 
@@ -117,28 +117,28 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(GiantSolarShade, 27)
     }
 
-    ellie.turn {
+    yellow.turn {
       playProject(OptimalAerobraking, 7)
       playProject(Comet, 21) {
         placeTile(5, 8)
 
-        doTask("-3 Plant<Dad>")
+        doTask("-3 Plant<Green>")
       }
     }
 
-    dad.turn { playProject(VenusianInsects, 5) }
+    green.turn { playProject(VenusianInsects, 5) }
 
-    ellie.turn { playProject(Algae, 10) }
+    yellow.turn { playProject(Algae, 10) }
 
-    dad.turn { playProject(TopsoilContract, 8) }
+    green.turn { playProject(TopsoilContract, 8) }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       cardAction1(VenusianInsects)
 
       playProject(VenusGovernor, 4)
@@ -152,17 +152,17 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    ellie.wgt("OxygenStep")
+    yellow.wgt("OxygenStep")
 
-    dad.buyCards(3)
+    green.buyCards(3)
 
-    ellie.buyCards(3)
+    yellow.buyCards(3)
 
-    dad.turn {
+    green.turn {
       cardAction1(VenusianInsects)
     }
 
-    ellie.turn {
+    yellow.turn {
       playProject(ImportedHydrogen, 16) {
         doTask("3 Plant")
 
@@ -175,17 +175,17 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(PeroxidePower, 7)
     }
 
-    ellie.turn {
+    yellow.turn {
       playProject(SponsoredAcademies, 9)
     }
 
-    dad.turn { stdProject("PowerPlantSP") }
+    green.turn { stdProject("PowerPlantSP") }
 
-    ellie.turn {
+    yellow.turn {
       convertPlants {
         placeTile(3, 6)
       }
@@ -195,13 +195,13 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(MartianSurvey, 9)
     }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       cardAction1(SearchForLife) {
         declineTask()
       }
@@ -215,13 +215,13 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    dad.wgt("VenusStep")
+    green.wgt("VenusStep")
 
-    ellie.buyCards(3)
+    yellow.buyCards(3)
 
-    dad.buyCards(3)
+    green.buyCards(3)
 
-    ellie.turn {
+    yellow.turn {
       cardAction1(AquiferPumping) {
         pay(8)
 
@@ -231,64 +231,64 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(EnergyMarket, 3)
     }
 
-    ellie.exMachina("-3 MC")
+    yellow.exMachina("-3 MC")
 
-    dad.turn { stdAction("TradeAction", 2) { doTask("Trade<Luna>") } }
+    green.turn { stdAction("TradeAction", 2) { doTask("Trade<Luna>") } }
 
-    ellie.turn {
+    yellow.turn {
       cardAction1(EnergyMarket, x = 3)
 
       stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }
     }
 
-    ellie.exMachina("6 MC")
+    yellow.exMachina("6 MC")
 
-    dad.turn { playProject(EarthCatapult, 23) }
+    green.turn { playProject(EarthCatapult, 23) }
 
-    ellie.turn { playProject(IshtarMining, 5) }
+    yellow.turn { playProject(IshtarMining, 5) }
 
-    dad.turn {
+    green.turn {
       playProject(LunarMining, 9)
     }
 
-    ellie.turn {
+    yellow.turn {
       convertHeat()
       convertHeat()
     }
 
-    dad.turn { cardAction1(VenusianInsects) }
+    green.turn { cardAction1(VenusianInsects) }
 
-    ellie.turn { playProject(Ironworks, 11) }
+    yellow.turn { playProject(Ironworks, 11) }
 
-    dad.turn {
+    green.turn {
       cardAction1(SearchForLife) {
         declineTask()
       }
     }
 
-    ellie.turn { cardAction1(Ironworks) }
+    yellow.turn { cardAction1(Ironworks) }
 
-    dad.pass()
+    green.pass()
 
-    ellie.turn {
+    yellow.turn {
       convertPlants {
         placeTile(1, 5)
       }
 
       playProject(BiomassCombustors, 4) {
-        doTask("PROD[-Plant<Dad>]")
+        doTask("PROD[-Plant<Green>]")
       }
 
       pass()
     }
 
-    ellie.wgt("VenusStep")
+    yellow.wgt("VenusStep")
 
-    ellie.buyCards(2)
+    yellow.buyCards(2)
 
-    dad.buyCards(0)
+    green.buyCards(0)
 
-    dad.turn {
+    green.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Triton>") }
 
       playProject(CupolaCity, 14) {
@@ -296,7 +296,7 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    ellie.turn {
+    yellow.turn {
       playProject(EcologicalZone, 12) {
         placeTile(4, 8)
       }
@@ -304,13 +304,13 @@ public class OtbGame20260809 : RecordedGame() {
       stdAction("ClaimMilestone") { doTask("Landshaper") }
     }
 
-    dad.turn {
+    green.turn {
       convertPlants {
         placeTile(2, 2)
       }
     }
 
-    ellie.turn {
+    yellow.turn {
       convertPlants {
         placeTile(5, 9)
       }
@@ -318,27 +318,27 @@ public class OtbGame20260809 : RecordedGame() {
       convertHeat()
     }
 
-    dad.turn { playProject(RotatorImpacts, 1, titanium = 1) }
+    green.turn { playProject(RotatorImpacts, 1, titanium = 1) }
 
-    ellie.turn {
+    yellow.turn {
       playProject(KelpFarming, 17)
     }
 
-    dad.turn {
+    green.turn {
       playProject(NuclearPower, 6, steel = 1)
     }
 
-    ellie.turn {
+    yellow.turn {
       cardAction1(EnergyMarket, x = 2)
 
       cardAction1(Ironworks)
     }
 
-    dad.turn { stdAction("FundAward") { doTask("Venuphile") } }
+    green.turn { stdAction("FundAward") { doTask("Venuphile") } }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       playProject(VenusianPlants, 11) {
         addCardResources(VenusianInsects)
       }
@@ -354,13 +354,13 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    dad.wgt("TemperatureStep")
+    green.wgt("TemperatureStep")
 
-    ellie.buyCards(3)
+    yellow.buyCards(3)
 
-    dad.buyCards(4)
+    green.buyCards(4)
 
-    ellie.turn {
+    yellow.turn {
       stdProject("CitySP") {
         placeTile(1, 2)
       }
@@ -370,41 +370,41 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(BigAsteroid, 7, titanium = 6) {
-        doTask("-4 Plant<Ellie>")
+        doTask("-4 Plant<Yellow>")
       }
     }
 
-    ellie.turn {
+    yellow.turn {
       playProject(NitrophilicMoss, 8)
     }
 
-    dad.turn {
+    green.turn {
       playProject(TitanFloatingLaunchPad, 16) {
         addCardResources(TitanFloatingLaunchPad)
       }
     }
 
-    ellie.turn { cardAction1(EnergyMarket, x = 2) }
+    yellow.turn { cardAction1(EnergyMarket, x = 2) }
 
-    dad.turn { sellPatents(1) }
+    green.turn { sellPatents(1) }
 
-    ellie.turn { cardAction1(Ironworks) }
+    yellow.turn { cardAction1(Ironworks) }
 
-    dad.turn { playProject(TransNeptuneProbe, 1, titanium = 1) }
+    green.turn { playProject(TransNeptuneProbe, 1, titanium = 1) }
 
-    ellie.turn {
+    yellow.turn {
       playProject(MercurianAlloys, 3)
 
       playProject(SolarWindPower, 3, titanium = 2)
     }
 
-    dad.turn { cardAction2(RotatorImpacts) }
+    green.turn { cardAction2(RotatorImpacts) }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       cardAction2(TitanFloatingLaunchPad) {
         doTask("Trade<Enceladus>")
         addCardResources(VenusianInsects)
@@ -419,12 +419,12 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    ellie.wgt("TemperatureStep")
+    yellow.wgt("TemperatureStep")
 
-    dad.buyCards(2)
-    ellie.buyCards(2)
+    green.buyCards(2)
+    yellow.buyCards(2)
 
-    dad.turn {
+    green.turn {
       playProject(Penguins, 5)
 
       stdAction("TradeAction", 3) {
@@ -433,17 +433,17 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    ellie.turn {
+    yellow.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }
 
       cardAction1(Ironworks)
     }
 
-    dad.turn {
+    green.turn {
       playProject(StratosphericBirds, 10)
     }
 
-    ellie.turn {
+    yellow.turn {
       stdProject("CitySP") {
         placeTile(3, 5)
       }
@@ -453,13 +453,13 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(Birds, 8) {
-        doTask("PROD[-2 Plant<Ellie>]")
+        doTask("PROD[-2 Plant<Yellow>]")
       }
     }
 
-    ellie.turn {
+    yellow.turn {
       convertPlants {
         placeTile(4, 5)
       }
@@ -467,21 +467,21 @@ public class OtbGame20260809 : RecordedGame() {
       stdAction("ClaimMilestone") { doTask("Mayor") }
     }
 
-    dad.turn { playProject(Extremophiles, 1) }
+    green.turn { playProject(Extremophiles, 1) }
 
-    ellie.turn { stdAction("ClaimMilestone") { doTask("Producer") } }
+    yellow.turn { stdAction("ClaimMilestone") { doTask("Producer") } }
 
-    dad.turn {
+    green.turn {
       cardAction1(VenusianInsects)
     }
 
-    ellie.turn { stdAction("FundAward", which = 2) { doTask("Botanist") } }
+    yellow.turn { stdAction("FundAward", which = 2) { doTask("Botanist") } }
 
-    dad.turn { playProject(Satellites, 2, titanium = 2) }
+    green.turn { playProject(Satellites, 2, titanium = 2) }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       cardAction1(Penguins)
       cardAction1(StratosphericBirds)
       cardAction1(Birds)
@@ -499,18 +499,18 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    dad.wgt("TemperatureStep")
+    green.wgt("TemperatureStep")
 
-    ellie.buyCards(3)
-    dad.buyCards(0)
+    yellow.buyCards(3)
+    green.buyCards(0)
 
-    ellie.turn {
+    yellow.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
 
       stdProject("CitySP") { placeTile(1, 4) }
     }
 
-    dad.turn {
+    green.turn {
       playProject(EosChasmaNationalPark, 14) {
         addCardResources(Penguins)
       }
@@ -520,41 +520,41 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    ellie.turn { playProject(RegoPlastics, 10) }
+    yellow.turn { playProject(RegoPlastics, 10) }
 
-    dad.turn { cardAction1(VenusianInsects) }
+    green.turn { cardAction1(VenusianInsects) }
 
-    ellie.turn {
+    yellow.turn {
       playProject(IndustrialMicrobes, 0, steel = 4)
     }
 
-    dad.turn { stdAction("FundAward", which = 3) { doTask("Magnate") } }
+    green.turn { stdAction("FundAward", which = 3) { doTask("Magnate") } }
 
-    ellie.turn {
+    yellow.turn {
       playProject(MethaneFromTitan, 12, titanium = 4)
     }
 
-    dad.turn { playProject(MaxwellBase, 16) }
+    green.turn { playProject(MaxwellBase, 16) }
 
-    ellie.turn { convertHeat() }
+    yellow.turn { convertHeat() }
 
-    dad.turn { cardAction1(MaxwellBase) { addCardResources(StratosphericBirds) } }
+    green.turn { cardAction1(MaxwellBase) { addCardResources(StratosphericBirds) } }
 
-    ellie.turn {
+    yellow.turn {
       playProject(NitriteReducingBacteria, 11)
     }
 
-    dad.turn { cardAction2(RotatorImpacts) }
+    green.turn { cardAction2(RotatorImpacts) }
 
-    ellie.turn { cardAction2(NitriteReducingBacteria) }
+    yellow.turn { cardAction2(NitriteReducingBacteria) }
 
-    dad.turn {
+    green.turn {
       cardAction1(Extremophiles) { addCardResources(VenusianInsects) }
     }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       cardAction1(Penguins)
       cardAction1(StratosphericBirds)
       cardAction1(Birds)
@@ -573,19 +573,19 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    ellie.wgt("TemperatureStep")
+    yellow.wgt("TemperatureStep")
 
-    ellie.buyCards(2)
-    dad.buyCards(3)
+    yellow.buyCards(2)
+    green.buyCards(3)
 
-    dad.turn {
+    green.turn {
       stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(VenusianInsects)
       }
     }
 
-    ellie.turn {
+    yellow.turn {
       stdProject("CitySP") {
         placeTile(5, 5)
       }
@@ -595,72 +595,72 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(RestrictedArea, 9) {
         placeTile(7, 6)
       }
     }
 
-    ellie.turn {
-      playProject(SubZeroSaltFish, 5) { doTask("PROD[-Plant<Dad>]") }
+    yellow.turn {
+      playProject(SubZeroSaltFish, 5) { doTask("PROD[-Plant<Green>]") }
     }
 
-    dad.exMachina("3 M<Ellie> FROM M<Dad>")
+    green.exMachina("3 M<Yellow> FROM M<Green>")
 
-    dad.turn { cardAction1(RestrictedArea) }
+    green.turn { cardAction1(RestrictedArea) }
 
-    dad.exMachina("2 MC")
+    green.exMachina("2 MC")
 
-    ellie.turn {
+    yellow.turn {
       playProject(MedicalLab, 1, steel = 4)
     }
 
-    dad.turn {
+    green.turn {
       playProject(AtalantaPlanitiaLab, 8)
     }
 
-    ellie.turn {
+    yellow.turn {
       playProject(VenusSoils, 20) { addCardResources(NitriteReducingBacteria) }
     }
 
-    dad.turn {
+    green.turn {
       playProject(InventionContest, 0)
 
       playProject(LawSuit, 0) {
-        doTask("3 MC<Dad> FROM MC<Ellie>.")
+        doTask("3 MC<Green> FROM MC<Yellow>.")
       }
     }
 
-    ellie.turn { cardAction1(SubZeroSaltFish) }
+    yellow.turn { cardAction1(SubZeroSaltFish) }
 
-    dad.turn {
+    green.turn {
       stdProject("GreenerySP") { placeTile(4, 3) }
     }
 
-    ellie.turn { cardAction1(NitriteReducingBacteria) }
+    yellow.turn { cardAction1(NitriteReducingBacteria) }
 
-    dad.turn {
+    green.turn {
       playProject(Harvest, 2)
     }
 
-    ellie.turn {
+    yellow.turn {
       stdAction("TradeAction", 2) {
         doTask("Trade<Miranda>")
         addCardResources(SubZeroSaltFish)
       }
     }
 
-    dad.turn { playProject(FloatingHabs, 3) }
+    green.turn { playProject(FloatingHabs, 3) }
 
-    ellie.turn { cardAction1(EnergyMarket, x = 3) }
+    yellow.turn { cardAction1(EnergyMarket, x = 3) }
 
-    dad.turn {
+    green.turn {
       cardAction1(TitanFloatingLaunchPad) { addCardResources(TitanFloatingLaunchPad) }
     }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       cardAction1(VenusianInsects)
 
       cardAction1(Penguins)
@@ -682,27 +682,27 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    dad.wgt("TemperatureStep")
+    green.wgt("TemperatureStep")
 
-    dad.exMachina("Plant")
+    green.exMachina("Plant")
 
-    ellie.buyCards(2)
-    dad.buyCards(4)
+    yellow.buyCards(2)
+    green.buyCards(4)
 
-    ellie.turn {
+    yellow.turn {
       convertHeat()
       convertHeat()
     }
 
-    dad.turn {
+    green.turn {
       cardAction1(RestrictedArea)
 
       stdAction("TradeAction", 2) { doTask("Trade<Triton>") }
     }
 
-    dad.exMachina("2 MC")
+    green.exMachina("2 MC")
 
-    ellie.turn {
+    yellow.turn {
       convertPlants {
         placeTile(5, 4)
       }
@@ -710,53 +710,53 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(Gyropolis, 11, steel = 3) { placeTile(5, 3) }
     }
 
-    ellie.exMachina("PROD[-3 MC, 2 E]")
+    yellow.exMachina("PROD[-3 MC, 2 E]")
 
-    dad.turn {
+    green.turn {
       cardAction1(VenusianInsects)
     }
 
-    ellie.turn { cardAction2(NitriteReducingBacteria) }
+    yellow.turn { cardAction2(NitriteReducingBacteria) }
 
-    dad.turn { cardAction2(RotatorImpacts) }
+    green.turn { cardAction2(RotatorImpacts) }
 
-    ellie.turn {
+    yellow.turn {
       stdAction("TradeAction", 2) {
         doTask("Trade<Enceladus>")
         addCardResources(NitriteReducingBacteria)
       }
     }
 
-    dad.turn {
+    green.turn {
       playProject(JovianLanterns, 18) { addCardResources(JovianLanterns) }
     }
 
-    dad.exMachina("1 MC")
+    green.exMachina("1 MC")
 
-    ellie.turn { sellPatents(1) }
+    yellow.turn { sellPatents(1) }
 
-    dad.turn {
+    green.turn {
       playProject(TerraformingGanymede, 10, titanium = 7)
 
       convertHeat()
     }
 
-    ellie.turn { playProject(MolecularPrinting, 11) }
+    yellow.turn { playProject(MolecularPrinting, 11) }
 
-    ellie.exMachina("-1 MC")
+    yellow.exMachina("-1 MC")
 
-    dad.turn { cardAction1(JovianLanterns) }
+    green.turn { cardAction1(JovianLanterns) }
 
-    ellie.turn {
+    yellow.turn {
       stdProject("AsteroidSP")
       stdProject("AsteroidSP")
     }
 
-    dad.turn {
+    green.turn {
       playProject(FloaterLeasing, 1)
     }
 
-    ellie.turn {
+    yellow.turn {
       sellPatents(2)
 
       playProject(EcologyResearch, 21) {
@@ -765,38 +765,38 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    dad.turn { cardAction1(Penguins) }
+    green.turn { cardAction1(Penguins) }
 
-    ellie.turn {
+    yellow.turn {
       playProject(ProjectInspection, 0) { doTask("UseAction<$NitriteReducingBacteria, Action2>") }
     }
 
-    dad.turn { cardAction1(StratosphericBirds) }
+    green.turn { cardAction1(StratosphericBirds) }
 
-    ellie.turn {
+    yellow.turn {
       convertPlants {
         placeTile(4, 2)
       }
     }
 
-    dad.turn {
+    green.turn {
       cardAction1(Birds)
       cardAction1(Extremophiles) { addCardResources(VenusianInsects) }
     }
 
-    ellie.turn {
+    yellow.turn {
       cardAction2(EnergyMarket)
     }
 
-    dad.turn {
+    green.turn {
       playProject(ViralEnhancers, 7)
 
       playProject(AdvancedEcosystems, 9)
     }
 
-    ellie.pass()
+    yellow.pass()
 
-    dad.turn {
+    green.turn {
       convertPlants {
         placeTile(4, 4)
       }
@@ -818,13 +818,13 @@ public class OtbGame20260809 : RecordedGame() {
       pass()
     }
 
-    ellie.convertPlants {
+    yellow.convertPlants {
       placeTile(6, 4)
     }
-    ellie.convertPlants { placeTile(5, 2) }
+    yellow.convertPlants { placeTile(5, 2) }
 
-    ellie.declineTask()
+    yellow.declineTask()
 
-    dad.declineTask()
+    green.declineTask()
   }
 }

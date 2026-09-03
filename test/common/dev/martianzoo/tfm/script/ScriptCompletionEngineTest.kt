@@ -34,9 +34,9 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun completesConfiguredPlayerNames() {
-    repl.command("newgame \"TerraformingMars\" Mom Ellie")
+    repl.command("newgame \"TerraformingMars\" Blue Yellow")
 
-    assertContainsAll(values("become "), "Mom", "Ellie")
+    assertContainsAll(values("become "), "Blue", "Yellow")
     assertFalse(values("become ").any { it == "Player1" || it == "Player2" })
   }
 

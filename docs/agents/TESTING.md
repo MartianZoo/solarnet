@@ -65,7 +65,6 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources. A benchmark error fails the task instead of producing an empty successful report.
-- `./gradlew :repl:realTerminalSmokeTest` runs the separate Expect-based real-terminal test.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
@@ -156,8 +155,6 @@ clear coverage of these contracts matters more than preserving every current tes
    contract. These are useful interface coverage even though they are not a development priority.
 9. **Cross-runtime packaging smoke coverage.** One representative browser game proving that the
    JavaScript artifact, generated Canon data, and engine work together outside the JVM.
-10. **Real-terminal REPL smoke coverage.** One Expect-driven scenario proving the packaged REPL can
-    be launched and used through an actual terminal.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.

@@ -23,7 +23,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         When using Colonies, list the selected colony tile names after the player count.
         Instead of the legacy option-code form, quote a comma-separated list of canonical class
         names and then list one to five player names in seat order. Prefix a configuration
-        name with `-` to exclude it. Player names may be new names such as `Mom` or `Ellie`. The
+        name with `-` to exclude it. Player names may be new names such as `Green` or `Yellow`. The
         quoted configuration resembles Pets names but is not Pets syntax.
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
