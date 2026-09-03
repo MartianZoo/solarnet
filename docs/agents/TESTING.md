@@ -48,6 +48,16 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   check.
 - `./gradlew :tfm-tests:allTestsIncludingBrowser` runs every Terraforming Mars functional test on
   both the JVM and browser.
+- `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
+  Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
+  `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
+  module. Its weights favor nested selectors, refinements, sequences, gates, and per-unit metrics so
+  the raw Pets can exercise downstream consumers structurally.
+- `./gradlew :tfm-text:writeRandomCardEnglishText -PrandomCardInput=PATH
+  -PrandomCardEnglishOutput=PATH` renders top and bottom English for one saved random-card report.
+  Add `-PrandomCardEnglishComparisonOutput=PATH` for a compact report pairing one bracket-free card
+  region with only its contributing Pets. This separate consumer keeps the random-card generator
+  independent of the language module.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources. A benchmark error fails the task instead of producing an empty successful report.

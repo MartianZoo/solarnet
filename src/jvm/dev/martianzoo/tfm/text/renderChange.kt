@@ -308,6 +308,7 @@ private fun renderCountableChange(
 
 private fun Describers.renderEligiblePlayer(expression: Expression): String? {
   if (expression == anyoneExpression) return "any player"
+  if (expression == playerExpression) return "that player"
   if (
       expression.className != anyoneExpression.className ||
           resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false ||

@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
@@ -1238,7 +1239,19 @@ private fun renderTriggeredInstructions(
     describers: Describers,
 ): String? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
-  val result = renderInstructions(effect.instruction, describers)
+  val instruction =
+      if (
+          effect.trigger.descendantsOfType<Expression>().contains(describers.anyoneExpression) &&
+              effect.instruction
+                  .descendantsOfType<Expression>()
+                  .contains(describers.anyoneExpression)
+      ) {
+        PetNode.replacer(describers.anyoneExpression, describers.playerExpression)
+            .transformInstructionTree(effect.instruction)
+      } else {
+        effect.instruction
+      }
+  val result = renderInstructions(instruction, describers)
   return completeSentence("when ${trigger.linearize()}, ${result.asCoordinatedClause()}")
 }
 
@@ -1290,6 +1303,11 @@ internal fun renderEndEffect(effect: Effect, describers: Describers): String? {
 internal fun isEndEffect(effect: Effect, describers: Describers): Boolean {
   return isEndTrigger(effect.trigger, describers)
 }
+
+internal fun isUnconditionalFixedScore(effect: Effect, describers: Describers): Boolean =
+    effect.trigger !is IfTrigger &&
+        isEndEffect(effect, describers) &&
+        describers.renderFixedScore(effect.instruction) != null
 
 private fun isEndTrigger(trigger: Trigger, describers: Describers): Boolean =
     when (trigger) {

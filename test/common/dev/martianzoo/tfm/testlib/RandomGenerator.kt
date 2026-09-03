@@ -12,6 +12,7 @@ import kotlin.reflect.KClass
 internal abstract class RandomGenerator<B : Any>(
     private val registry: Registry<B>,
     private val scaling: (Int) -> Double,
+    private val random: Random = Random.Default,
 ) {
   abstract class Registry<B : Any> {
     private val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
@@ -63,7 +64,7 @@ internal abstract class RandomGenerator<B : Any>(
   // Helpers
 
   private fun nextInt(limit: Int): Int {
-    val d = Random.Default.nextDouble()
+    val d = random.nextDouble()
     val x = scaling(depth!!)
     require(x in -1.0..1.0)
 

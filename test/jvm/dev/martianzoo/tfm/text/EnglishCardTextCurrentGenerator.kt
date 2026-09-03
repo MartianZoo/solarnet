@@ -22,7 +22,7 @@ private object EnglishCardTextCurrentGenerator {
           )
           .also { columns -> require(columns.none { '\t' in it || '\n' in it || '\r' in it }) }
           .joinToString("\t")
-          .trimEnd('\t')
+          .removeSuffix("\t")
     }
     output.writeText(
         (listOf("class_name\tenglish_name\tbottom_text\ttop_text") + rows).joinToString(

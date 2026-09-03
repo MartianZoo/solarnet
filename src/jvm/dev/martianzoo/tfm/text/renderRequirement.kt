@@ -51,7 +51,7 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
     val objectPhrase =
         if (relation.source.ownedByYou) {
           "${indefiniteArticle(relation.source.singular)} ${relation.source.singular} " +
-              "${relation.phrase} ${relation.target.linearize(uppercaseAny = true)}"
+              "${relation.phrase} ${relation.target.linearize()}"
         } else {
           relation.asRequirement()
         }
@@ -209,17 +209,18 @@ private fun Describers.renderCountBound(
                 } else {
                   "$target $noun"
                 }
-            requirementClause("requires", amount)
+            requirementClause("requires", "that you have $amount")
           }
           explicitlyAnyOwner -> {
-            val amount = if (target == 1) "ANY $noun" else "ANY $target $noun"
+            val amount = if (target == 1) "any $noun" else "any $target $noun"
             requirementClause("requires", amount)
           }
           else -> requirementClause("requires", "$target $noun")
         }
     BoundDirection.MAXIMUM ->
         when {
-          owned -> requirementClause("requires", "$target or fewer ${bound.noun.plural}")
+          owned ->
+              requirementClause("requires", "that you have $target or fewer ${bound.noun.plural}")
           else ->
               requirementClause("requires", "that there are $target or fewer ${bound.noun.plural}")
         }
