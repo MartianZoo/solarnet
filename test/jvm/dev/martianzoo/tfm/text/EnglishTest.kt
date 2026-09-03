@@ -58,6 +58,9 @@ internal class EnglishTest {
         "When you play a card with exactly 1 tag, gain 1 M€."
     english.describe(parse<Effect>("CardFront(HAS 2 Tag): Science<This>")) shouldBe
         "When you play a card with 2 or more tags, add 1 science resource to this card."
+    english.describe(
+        parse<Effect>("AnimalTag<CardFront<Anyone>, Anyone>: -2 Heat<Anyone>?")
+    ) shouldBe "When any animal tag is played, you may remove up to 2 heat from that player."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
         "Pay 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe
@@ -65,6 +68,8 @@ internal class EnglishTest {
     english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
+    english.describe(parse<InstructionTree>("-3 MC THEN TemperatureStep")) shouldBe
+        "Pay 3 M€ to raise temperature 1 step."
     english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Remove 2 plants."
     english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe
         "You may add up to 1 animal to this card."
@@ -93,10 +98,11 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place 1 ocean tile."
     english.describe(parse<InstructionTree>("CityTile")) shouldBe "Place a city tile."
     english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
+    english.describe(parse<Requirement>("Colony")) shouldBe "Requires that you have a colony."
     english.describe(parse<Requirement>("VenusTag, EarthTag, JovianTag")) shouldBe
         "Requires a Venus tag, an Earth tag, and a Jovian tag."
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
-        "1 VP per ANY cathedral."
+        "1 VP per any cathedral."
 
     english.describe(parse<InstructionTree>("Animal")) shouldBe "Add 1 animal to any card."
   }
@@ -157,7 +163,9 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("2 MC / Colony")) shouldBe
         "Gain 2 M€ per colony you own."
     english.describe(parse<InstructionTree>("2 MC / Colony<Anyone>")) shouldBe
-        "Gain 2 M€ per colony."
+        "Gain 2 M€ per any colony."
+    english.describe(parse<InstructionTree>("2 MC / CityTile<Anyone>")) shouldBe
+        "Gain 2 M€ per any city tile."
   }
 
   @Test
@@ -193,6 +201,21 @@ internal class EnglishTest {
         )
 
     english.bottomText(actionOnly) shouldBe ""
+  }
+
+  @Test
+  internal fun omitsUnconditionalFixedScoresFromCardText() {
+    val fixedScore =
+        syntheticCard(
+            "CLASS FixedScore : AutomatedCard<Class<ProjectCard>> { cost = 0; End: 2 VictoryPoint }"
+        )
+    val metricScore =
+        syntheticCard(
+            "CLASS MetricScore : AutomatedCard<Class<ProjectCard>> { cost = 0; End: VictoryPoint / Colony<Anyone> }"
+        )
+
+    english.bottomText(fixedScore) shouldBe ""
+    english.bottomText(metricScore) shouldBe "1 VP per any colony."
   }
 
   @Test

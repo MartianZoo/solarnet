@@ -566,7 +566,7 @@ internal object StandardResourceMonotonicityReport {
           GameConfig.create(
               included =
                   listOf(
-                          "Tr63SoloVariant",
+                          "Tr63SoloObjective",
                           "VenusNextExpansion",
                           "PreludeExpansion",
                           "ColoniesExpansion",

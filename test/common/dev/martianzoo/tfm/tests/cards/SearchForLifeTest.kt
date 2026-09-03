@@ -11,7 +11,7 @@ internal class SearchForLifeTest : CardTest() {
     engine.phase("Action")
     p1.manual("$SearchForLife, 1 MC")
     p1.cardAction1(SearchForLife) { doTask("Science<$SearchForLife>") }
-    engine.phase("End")
+    engine.manual("End FROM Phase")
     p1.assertCounts(23 to "VictoryPoint")
   }
 }

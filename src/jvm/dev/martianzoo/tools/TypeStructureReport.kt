@@ -446,7 +446,7 @@ private object TypeStructureReport {
   }
 
   private val reportOptionClassNames =
-      selectedOptions + cn("MultiplayerMode") + cn("WorldGovernmentOption")
+      selectedOptions + cn("MultiplayerMode") + cn("WorldGovernmentRule")
 
   private data class ExpressionStats(
       val expressionOccurrences: Int,

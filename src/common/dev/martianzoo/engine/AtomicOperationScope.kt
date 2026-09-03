@@ -22,9 +22,7 @@ internal class AtomicOperationScope(
           .atomic {
             block()
             if (depth == 1) {
-              do {
-                beforeOutermostCompletion()
-              } while (removeTemporaryComponents())
+              performIdleCleanup(beforeOutermostCompletion)
               afterIdleCleanup()
             }
           }
@@ -32,11 +30,18 @@ internal class AtomicOperationScope(
             if (depth == 1) {
               recordingPositions.record(timeline.checkpoint().ordinal)
               onComplete()
+              timeline.atomic { performIdleCleanup(beforeOutermostCompletion) }
               recordingPositions.record(timeline.checkpoint().ordinal)
             }
           }
     } finally {
       depth--
     }
+  }
+
+  private fun performIdleCleanup(beforeOutermostCompletion: () -> Unit) {
+    do {
+      beforeOutermostCompletion()
+    } while (removeTemporaryComponents())
   }
 }

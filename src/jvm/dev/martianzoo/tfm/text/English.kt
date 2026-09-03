@@ -58,6 +58,7 @@ internal class English public constructor(descriptions: Map<Class, ComponentDesc
     val scoring =
         cardEffects(card)
             .filter { isEndEffect(it, cardDescribers) }
+            .filterNot { isUnconditionalFixedScore(it, cardDescribers) }
             .map { renderEffect(it, cardDescribers) }
     return joinRenderings(
         listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring

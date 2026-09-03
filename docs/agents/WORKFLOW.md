@@ -14,7 +14,7 @@
 - [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
   — search for `public object TfmWorkflow` and the named phase methods for current behavior.
 - [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
-  — search for `ABSTRACT CLASS Phase`, `CLASS Generation`, and `CLASS EndPhase` for current domain
+  — search for `ABSTRACT CLASS Phase`, `CLASS Generation`, and `CLASS End` for current domain
   vocabulary.
 - [`TfmWorkflowTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TfmWorkflowTest.kt)
   and [`EndgameRulesTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/EndgameRulesTest.kt)

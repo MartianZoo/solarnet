@@ -100,12 +100,12 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun preludeRulesCanUseOnlyThePrelude2CardPool() {
+  internal fun prelude1RulesCanUseOnlyThePrelude2CardPool() {
     val table =
         Engine.newGame(
                 Canon.gamePremise(
                     GameConfig(
-                        "Prelude2Deck, -Prelude1Deck",
+                        "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
                         "Player1",
                         "Player2",
                     )

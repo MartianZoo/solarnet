@@ -128,7 +128,7 @@ internal class EllieGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    engine.phase("End")
+    engine.manual("End FROM Phase")
 
     val sum = Summarizer(game)
     sum.net("GreeneryTile", "VictoryPoint") shouldBe 0

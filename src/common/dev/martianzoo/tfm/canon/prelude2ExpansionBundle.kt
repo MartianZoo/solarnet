@@ -8,7 +8,8 @@ internal val prelude2ExpansionBundle: StandardFormBundle =
         "Prelude2Expansion",
         moduleContentSelections =
             mapOf(
-                cn("Prelude2Deck") to
-                    setOf(BundleContentSelection(cn("Prelude2Expansion"), setOf(CARDS)))
+                cn("Prelude2Expansion") to emptySet(),
+                cn("Prelude2CardPack") to
+                    setOf(BundleContentSelection(cn("Prelude2Expansion"), setOf(CARDS))),
             ),
     )

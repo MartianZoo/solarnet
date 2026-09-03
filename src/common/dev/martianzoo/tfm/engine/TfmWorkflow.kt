@@ -60,7 +60,7 @@ public object TfmWorkflow {
     public fun researchPhase(body: BodyLambda = {}): TaskResult =
         engineOps.manual("ResearchPhase FROM Phase", body)
 
-    public fun endPhase(): TaskResult = engineOps.manual("EndPhase FROM Phase")
+    public fun endPhase(): TaskResult = engineOps.manual("End FROM Phase")
   }
 
   /**

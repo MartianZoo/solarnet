@@ -8,8 +8,8 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   TerraformingMars,
   SoloMode,
   MultiplayerMode,
-  StandardSoloVariant,
-  Tr63SoloVariant,
+  StandardSoloObjective,
+  Tr63SoloObjective,
   CorporateEraExpansion,
   Tharsis("TharsisMap"),
   Hellas("HellasMap"),
@@ -18,13 +18,13 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   Cimmeria("CimmeriaMap"),
   VenusNextExpansion,
   PreludeExpansion,
-  Prelude1Deck,
+  Prelude1CardPack,
   Prelude2Expansion,
-  Prelude2Deck,
+  Prelude2CardPack,
   ColoniesExpansion,
   TurmoilCardPack,
   PromoCardPack,
-  WorldGovernmentOption,
+  WorldGovernmentRule,
   MandatoryVenusVariant;
 
   internal val className: ClassName = cn(configuredName ?: name)

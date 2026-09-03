@@ -109,7 +109,7 @@ internal class Effector(
         compareBy(
             { it.cause.context.toString() },
             { it.actor.toString() },
-            { it.assignee.toString() },
+            { it.controller.toString() },
             { it.instruction.toString() },
         )
   }

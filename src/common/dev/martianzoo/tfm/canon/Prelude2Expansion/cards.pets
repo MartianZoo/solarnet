@@ -1,4 +1,4 @@
-// Published Prelude 2 card declarations.
+// Prelude 2 card pack declarations.
 CLASS NirgalEnterprises : CardFront<Class<CorporationCard>> {
   cost = 0
 

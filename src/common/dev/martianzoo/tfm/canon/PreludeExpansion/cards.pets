@@ -1,4 +1,4 @@
-// Published Prelude card declarations.
+// Prelude 1 card pack declarations.
 CLASS CheungShingMars : CardFront<Class<CorporationCard>> {
   cost = 0
 

@@ -43,7 +43,7 @@ internal class ClassTableProjectionTest {
 
   @Test
   internal fun `Prelude classes stay unloaded without Prelude`() {
-    // Promo has Prelude cards, but its ordinary selection filters them without a Prelude deck.
+    // Promo has Prelude cards, but its ordinary selection filters them without a Prelude card pack.
     matchingClasses("prelude", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
   }
 
@@ -81,7 +81,7 @@ internal class ClassTableProjectionTest {
   internal fun `AssignMultiplayerVictory stays unloaded in solo`() =
       assertNotLoaded("AssignMultiplayerVictory", baseSolo)
 
-  // Mode and player-count divisions
+  // Game-mode and player-count divisions
 
   @Test
   internal fun `SoloGenerationSetup stays unloaded in multiplayer`() =

@@ -268,7 +268,7 @@ atom is selected, so the second atom necessarily derives the following face.
 
 ### Philares is the controlling precedent
 
-Philares requires the same controller/narrower interface and establishes its timing semantics:
+Philares establishes the current controller/delegation timing semantics:
 
 1. the active Player retains control of the pending resource task and decides when to select it;
 2. resolution delegates only the Standard Resource narrowing to the Philares owner;

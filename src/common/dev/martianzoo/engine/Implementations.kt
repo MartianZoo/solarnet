@@ -36,6 +36,7 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.Task.Selection
 import dev.martianzoo.pets.data.Task.TaskId
 
 internal class Implementations(
@@ -251,7 +252,6 @@ internal class Implementations(
               task.cause,
               task.actor,
               controller = task.controller,
-              narrower = task.narrower,
           )
     }
     queue.removeTask(task.id)
@@ -334,7 +334,7 @@ internal class Implementations(
     val replacement =
         if (effectiveNarrowing is Instruction) instructor.resolve(effectiveNarrowing)
         else effectiveNarrowing
-    replace1WithN(tasks, task, replacement, selected = true, then = continuation)
+    replace1WithN(tasks, task, replacement, then = continuation)
     if (taskId in allTasks) executeSelectedIfConcrete(queueForAnyTask(taskId), taskId)
   }
 
@@ -410,7 +410,7 @@ internal class Implementations(
     enforceSelectLock(task.id)
     if (task.selected) return task.id
     val replacement = instructor.resolve(task.instruction)
-    replace1WithN(queue, task, replacement, selected = true, then = task.then)
+    replace1WithN(queue, task, replacement, then = task.then)
     return task.id.takeIf { it in allTasks }
   }
 
@@ -418,7 +418,6 @@ internal class Implementations(
       queue: TaskQueue,
       original: Task,
       replacement: InstructionTree,
-      selected: Boolean,
       then: InstructionGroup?,
   ) {
     val group = InstructionGroup.of(replacement)
@@ -428,26 +427,24 @@ internal class Implementations(
           if (instruction is Then && then == null) {
             Task.newTasks(
                     firstId = original.id,
-                    assignee = original.assignee,
+                    controller = original.controller,
                     instruction = group,
                     cause = original.cause,
                     actor = original.actor,
-                    controller = original.controller,
-                    narrower = original.narrower,
                     isAbstract = reader::isAbstract,
                 )
                 .single()
-                .copy(selected = selected, whyPending = original.whyPending)
+                .copy(whyPending = original.whyPending)
           } else {
-            original.copy(instructionIn = instruction, selected = selected, thenIn = then)
+            original.copy(instructionIn = instruction, thenIn = then)
           }
-      val reassigned =
-          if (selected && instruction.isAbstract(reader)) {
-            updated.copy(assignee = original.narrower)
+      val selection =
+          if (original.selection == Selection.DELEGATED || instruction.isAbstract(reader)) {
+            Selection.DELEGATED
           } else {
-            updated
+            Selection.SELECTED
           }
-      allTasks.editTask(reassigned)
+      allTasks.editTask(updated.copy(selection = selection))
     } else {
       // Structural completion replaces the selected task with ordinary pending siblings. No child
       // inherits selection; a later player input must select whichever sibling comes next.
@@ -458,7 +455,6 @@ internal class Implementations(
               original.cause,
               original.actor,
               controller = original.controller,
-              narrower = original.narrower,
           )
       handleTask(queue, original.copy(thenIn = then))
     }
@@ -490,7 +486,7 @@ internal class Implementations(
             selectedTask.actor,
             selectedTask.controller,
         )
-    newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
+    newTasks.forEach { queue.queueFor(it.controller).addTasks(it) }
     handleTask(queue, selectedTask)
   }
 

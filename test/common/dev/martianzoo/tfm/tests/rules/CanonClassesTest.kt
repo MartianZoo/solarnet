@@ -89,7 +89,7 @@ internal class CanonClassesTest {
     val game = setUpGame(premise)
     game.classTable.allClassNames.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
-    game.reader.count(game.reader.resolve(te("StandardSoloVariant"))) shouldBe 1
+    game.reader.count(game.reader.resolve(te("StandardSoloObjective"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
     game.agent(PLAYER1).count("TerraformRating<Me>") shouldBe 14
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
@@ -138,7 +138,7 @@ internal class CanonClassesTest {
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
 
-    engine.manual("End")
+    engine.manual("End FROM Phase")
     game.agent(PLAYER1).count("VictoryPoint<Me>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }

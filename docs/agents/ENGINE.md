@@ -240,21 +240,22 @@ B is not immediate and receives no priority over unrelated pending work. Open im
 prevent splitting until an earlier stage fixes their shared Type. Narrowing and resolution normalize
 the task again, so the sequence splits once those shared values become concrete.
 
-### Controller, assignment, narrower, and Actor
+### Controller, assignment, and Actor
 
-Controller, assignee, narrower, and Actor are different. Queued work triggered during a
-Player-controlled operation retains that controller as assignee. Its narrower follows the effect
-owner, changed-component owner, or triggering Actor. Admin-driven setup and workflow retain
-that same contextual routing. A queued task's default Actor follows the same contextual order;
-automatic effects execute inline and keep the effect owner when present or the triggering Actor
-otherwise.
+Task stores two Actors: the controller and contextual Actor. Queued work triggered during a
+Player-controlled operation retains that controller. Its contextual Actor follows the effect owner,
+changed-component owner, or triggering Actor. Admin-driven setup and workflow retain that same
+routing. A three-state lifecycle distinguishes unselected work, controller-selected work, and work
+delegated after selection. The assignee is the controller in the first two states and the contextual
+Actor in the third. That Actor also supplies the queued task's default performer. Automatic effects
+execute inline and keep the effect owner when present or the triggering Actor otherwise.
 
 Instruction-side `BY` changes only the Actor. Trigger-side `BY` matches only the Actor on the
 trigger event. Splitting, narrowing, resolution, `THEN`, and cross-scope execution preserve the
 stored Actor. See [IDENTITY.md](IDENTITY.md).
 
-Selecting an abstract task moves that same selected task to its narrower's queue when needed,
-while retaining its controller. One selected task globally locks selection of competitors.
+Selecting an abstract task moves that same selected task to its contextual Actor's queue when
+needed, while retaining its controller. One selected task globally locks selection of competitors.
 Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Auto`
 starts Player operations directly and waits for whole-world idleness instead.
 

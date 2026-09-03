@@ -39,13 +39,13 @@ internal class SoloGenerationCountdownTest {
 
   @Test
   internal fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
-    val game = setUpGame(Tr63SoloVariant, players = 1)
+    val game = setUpGame(Tr63SoloObjective, players = 1)
     val engine = game.tfm(ENGINE)
     val player = game.tfm(PLAYER1)
     finishNeutralSetup(engine)
 
-    player.count("Tr63SoloVariant") shouldBe 1
-    player.count("StandardSoloVariant") shouldBe 0
+    player.count("Tr63SoloObjective") shouldBe 1
+    player.count("StandardSoloObjective") shouldBe 0
     game.classTable.isActive(cn("BufferGasSP")) shouldBe true
 
     player.manual("16 MC")

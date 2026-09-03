@@ -381,7 +381,7 @@ public class TfmGameplay(
               .filter { task ->
                 val previous = preexistingTasks[task.id]
                 previous == null ||
-                    previous.copy(selected = task.selected, whyPending = task.whyPending) != task
+                    previous.copy(selection = task.selection, whyPending = task.whyPending) != task
               }
               // Unchosen wild-tag offers are handled by cleanup below, not unexpected work.
               .filterNot { it.isWildTagOffer() }

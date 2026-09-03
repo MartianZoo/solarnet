@@ -17,7 +17,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       GameConfig(
           """
           VenusNextExpansion, PreludeExpansion, PromoCardPack, TurmoilCardPack
-          -WorldGovernmentOption
+          -WorldGovernmentRule
           """,
           "Player1",
           "Player2",
