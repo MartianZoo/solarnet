@@ -19,7 +19,7 @@ internal class ActorTest {
     assertSame(PLAYER1, Player(cn("Player1")))
     Player.isValid(cn("Player5")) shouldBe true
     Player.isValid("Player6") shouldBe false
-    assertFails { Player(cn("Ellie")) }
+    assertFails { Player(cn("Yellow")) }
     (ENGINE is Player) shouldBe false
     (ENGINE is Owner) shouldBe false
     assertFails { Player(cn("Engine")) }

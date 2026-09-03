@@ -72,13 +72,12 @@ internal fun playedEventCards(game: World, player: Player): List<ClassName> {
       .toList()
 }
 
+/** The styles the viewer stylesheet defines a `player-` rule for. */
+private val VIEWER_COLORS = setOf("blue", "green", "purple", "red", "yellow")
+
+/**
+ * The style suffix for [playerName]. Saved games name their players by color, so the name is
+ * normally the answer; anything else falls back to one style.
+ */
 internal fun playerColor(playerName: String): String =
-    when (playerName.firstOrNull()?.uppercaseChar()) {
-      'D',
-      'K' -> "green"
-      'E' -> "yellow"
-      'J',
-      'M',
-      'C' -> "blue"
-      else -> "red"
-    }
+    playerName.lowercase().takeIf { it in VIEWER_COLORS } ?: "red"

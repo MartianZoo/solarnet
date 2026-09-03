@@ -74,27 +74,27 @@ internal class GamePremiseTest {
 
   @Test
   internal fun configuredPlayerNamesBecomeVocabularyAliasesForCanonicalPlayers() {
-    val mom = cn("Mom")
-    val ellie = cn("Ellie")
-    val config = GameConfig("-CorporateEraExpansion", "Mom", "Ellie")
-    GameConfig(config.toString(), "Mom", "Ellie") shouldBe config
+    val blue = cn("Blue")
+    val yellow = cn("Yellow")
+    val config = GameConfig("-CorporateEraExpansion", "Blue", "Yellow")
+    GameConfig(config.toString(), "Blue", "Yellow") shouldBe config
     val premise = Canon.gamePremise(config)
 
-    premise.playerNames.shouldContainExactly(mom, ellie)
+    premise.playerNames.shouldContainExactly(blue, yellow)
     premise.playerClassNames.shouldContainExactly(cn("Player1"), cn("Player2"))
     premise.classSelections shouldBe emptySet()
 
     val game = Engine.newGame(premise)
-    Canon.classTable.findClass(mom) shouldBe null
-    game.classTable.findClass(mom) shouldBe null
+    Canon.classTable.findClass(blue) shouldBe null
+    game.classTable.findClass(blue) shouldBe null
     game.actors.shouldContainExactly(Player.PLAYER1, Player.PLAYER2, ENGINE)
-    game.vocabulary.canonicalName(mom) shouldBe cn("Player1")
-    game.vocabulary.petsName(cn("Player1")) shouldBe mom
+    game.vocabulary.canonicalName(blue) shouldBe cn("Player1")
+    game.vocabulary.petsName(cn("Player1")) shouldBe blue
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe
         setOf(cn("Player1"), cn("Player2"))
     TfmWorkflow.Manual(game).setupPhase()
-    game.agent(Player.PLAYER1).count("TerraformRating<Mom>") shouldBe 20
-    game.agent(Player.PLAYER2).count("TerraformRating<Ellie>") shouldBe 20
+    game.agent(Player.PLAYER1).count("TerraformRating<Blue>") shouldBe 20
+    game.agent(Player.PLAYER2).count("TerraformRating<Yellow>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
         Player.PLAYER1
   }
@@ -125,7 +125,7 @@ internal class GamePremiseTest {
     }
     shouldThrow<IllegalArgumentException> { Canon.gamePremise(GameConfig("VenusNextExpansion")) }
     shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(GameConfig("Mom, Ellie, VenusNextExpansion", "Player1"))
+      Canon.gamePremise(GameConfig("Blue, Yellow, VenusNextExpansion", "Player1"))
     }
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("", "One", "Two", "Three", "Four", "Five", "Six"))

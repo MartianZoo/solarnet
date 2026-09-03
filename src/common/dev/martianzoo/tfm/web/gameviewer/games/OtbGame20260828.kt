@@ -22,92 +22,92 @@ public class OtbGame20260828 : RecordedGame() {
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
           ${colonyTiles.joinToString()}
           """,
-          "Dad",
-          "Joanna",
-          "Ellie",
+          "Green",
+          "Blue",
+          "Yellow",
       )
 
   protected override fun play() {
     TfmWorkflow.Auto(game).launch()
-    val dad = game.tfm(Player.PLAYER1)
-    val joanna = game.tfm(Player.PLAYER2)
-    val ellie = game.tfm(Player.PLAYER3)
+    val green = game.tfm(Player.PLAYER1)
+    val blue = game.tfm(Player.PLAYER2)
+    val yellow = game.tfm(Player.PLAYER3)
 
-    dad.playCorp(PalladinShipping, 4)
-    joanna.playCorp(Celestic, 5)
-    ellie.playCorp(PointLuna, 5)
+    green.playCorp(PalladinShipping, 4)
+    blue.playCorp(Celestic, 5)
+    yellow.playCorp(PointLuna, 5)
 
-    dad.turn {
+    green.turn {
       playPrelude(Biofuels)
       playPrelude(Supplier)
     }
-    joanna.turn {
+    blue.turn {
       playPrelude(GreatAquifer) {
         doTask("OceanTile<Cimmeria_2_1>")
         doTask("OceanTile<Cimmeria_9_5>")
       }
       playPrelude(AtmosphericEnhancers) { doTask("2 VenusStep") }
     }
-    ellie.turn {
+    yellow.turn {
       playPrelude(OrbitalConstructionYard)
       playPrelude(EarlyColonization) { doTask("Colony<Luna>") }
     }
 
-    dad.turn {
+    green.turn {
       playProject(TitanShuttles, 14, titanium = 3)
     }
-    joanna.turn {
+    blue.turn {
       stdAction("HandleMandates")
       playProject(LocalShading, 4)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(RimFreighters, 1, titanium = 1)
     }
-    dad.turn {
+    green.turn {
       cardAction1(TitanShuttles) { addCardResources(TitanShuttles) }
     }
-    joanna.turn {
+    blue.turn {
       playProject(FloaterTechnology, 7)
       cardAction1(FloaterTechnology) { addCardResources(LocalShading) }
     }
-    ellie.turn {
+    yellow.turn {
       playProject(BusinessNetwork, 4)
     }
 
-    ellie.exMachina("PROD[MC]")
+    yellow.exMachina("PROD[MC]")
 
-    dad.pass()
-    joanna.turn {
+    green.pass()
+    blue.turn {
       playProject(NitriteReducingBacteria, 11)
       cardAction2(LocalShading)
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(NitriteReducingBacteria)
       cardAction1(Celestic) { addCardResources(LocalShading) }
     }
-    ellie.turn {
+    yellow.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
       playProject(FueledGenerators, 1)
     }
-    joanna.pass()
-    ellie.pass()
+    blue.pass()
+    yellow.pass()
 
-    dad.wgt("OxygenStep")
+    green.wgt("OxygenStep")
 
-    joanna.buyCards(2)
-    ellie.buyCards(2)
-    dad.buyCards(3)
+    blue.buyCards(2)
+    yellow.buyCards(2)
+    green.buyCards(3)
 
-    joanna.turn {
+    blue.turn {
       cardAction2(LocalShading)
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(BusinessNetwork) { buyCards(1) }
     }
-    dad.turn {
+    green.turn {
       playProject(MinorityRefuge, 2, titanium = 1) {
         doTask("Colony<Titan>")
         addCardResources(TitanShuttles)
@@ -118,278 +118,278 @@ public class OtbGame20260828 : RecordedGame() {
         addCardResources(TitanShuttles)
       }
     }
-    joanna.turn {
+    blue.turn {
       playProject(JetStreamMicroscrappers, 12)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(SolarLogistics, 5, titanium = 5)
     }
-    dad.turn {
+    green.turn {
       cardAction2(TitanShuttles, x = 9)
     }
-    joanna.turn {
+    blue.turn {
       playProject(Dirigibles, 11)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(OptimalAerobraking, 7)
     }
-    dad.turn {
+    green.turn {
       playProject(SpaceElevator, titanium = 9)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(NitriteReducingBacteria)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(ImportOfAdvancedGhg, 7)
     }
-    dad.turn {
+    green.turn {
       cardAction1(SpaceElevator)
     }
-    joanna.turn {
+    blue.turn {
       playProject(Potatoes, 2)
     }
-    ellie.pass()
-    dad.turn {
+    yellow.pass()
+    green.turn {
       playProject(ResearchOutpost, 12, steel = 3) {
         placeTile(3, 3)
         doTask("Colony<Luna>")
       }
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(FloaterTechnology) { addCardResources(LocalShading) }
     }
-    dad.turn {
+    green.turn {
       playProject(PeroxidePower, 6)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(JetStreamMicroscrappers) }
     }
-    dad.pass()
-    joanna.turn {
+    green.pass()
+    blue.turn {
       cardAction2(JetStreamMicroscrappers)
     }
-    joanna.pass()
+    blue.pass()
 
-    joanna.wgt("VenusStep")
+    blue.wgt("VenusStep")
 
-    ellie.buyCards(3)
-    dad.buyCards(2)
-    joanna.buyCards(1)
+    yellow.buyCards(3)
+    green.buyCards(2)
+    blue.buyCards(1)
 
-    ellie.turn {
+    yellow.turn {
       stdAction("TradeAction", 3) { doTask("Trade<Io>") }
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
-    dad.turn {
+    green.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(3, 2) }
     }
-    joanna.turn {
+    blue.turn {
       playProject(IoSulphurResearch, 17) { doTask("3 ProjectCard") }
     }
-    ellie.turn {
+    yellow.turn {
       playProject(CarbonateProcessing, 6)
     }
-    dad.turn {
+    green.turn {
       playProject(MiningArea, 3) { placeTile(4, 3) }
       claimMilestone(cn("Landshaper"))
     }
-    joanna.turn {
+    blue.turn {
       playProject(MarsUniversity, 8) { declineTask() }
     }
-    ellie.turn {
+    yellow.turn {
       playProject(PowerInfrastructure, 4)
     }
-    dad.turn {
+    green.turn {
       cardAction1(SpaceElevator)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(NitriteReducingBacteria)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(FusionPower, 14)
     }
-    dad.turn {
+    green.turn {
       cardAction1(TitanShuttles) { addCardResources(TitanShuttles) }
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(LocalShading)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(HousePrinting, 10)
     }
-    dad.turn {
+    green.turn {
       cardAction1(PalladinShipping)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(FloaterTechnology) { addCardResources(LocalShading) }
     }
-    ellie.turn {
+    yellow.turn {
       convertHeat()
       convertHeat()
     }
-    dad.pass()
-    joanna.turn {
+    green.pass()
+    blue.turn {
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(JetStreamMicroscrappers) }
     }
-    ellie.pass()
-    joanna.turn {
+    yellow.pass()
+    blue.turn {
       cardAction2(JetStreamMicroscrappers)
     }
-    joanna.pass()
+    blue.pass()
 
-    ellie.wgt("VenusStep")
+    yellow.wgt("VenusStep")
 
-    dad.buyCards(3)
-    joanna.buyCards(3)
-    ellie.buyCards(1)
+    green.buyCards(3)
+    blue.buyCards(3)
+    yellow.buyCards(1)
 
-    dad.turn {
+    green.turn {
       playProject(ResearchColony, 16, titanium = 1) { doTask("Colony<Luna>") }
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
     }
-    joanna.turn {
+    blue.turn {
       playProject(IceMoonColony, 17, titanium = 2) {
         placeTile(8, 9)
         doTask("Colony<Titan>")
         addCardResources(JetStreamMicroscrappers, 3)
       }
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
-    ellie.exMachina("-3 MC, PROD[-MC]")
-    dad.turn {
+    yellow.exMachina("-3 MC, PROD[-MC]")
+    green.turn {
       cardAction1(SpaceElevator)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(NitriteReducingBacteria)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(LavaTubeSettlement, 15) { placeTile(6, 2) }
     }
-    dad.turn {
+    green.turn {
       playProject(TowingAComet, 22) { placeTile(7, 9) }
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(LocalShading)
     }
-    ellie.turn {
+    yellow.turn {
       sellPatents(1)
     }
-    dad.turn {
+    green.turn {
       cardAction1(TitanShuttles) { addCardResources(TitanShuttles) }
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(FloaterTechnology) { addCardResources(LocalShading) }
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(PowerInfrastructure, x = 1)
     }
-    dad.pass()
-    joanna.turn {
+    green.pass()
+    blue.turn {
       cardAction2(JetStreamMicroscrappers)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(WaterToVenus, titanium = 3)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(Dirigibles) }
     }
-    ellie.pass()
-    joanna.pass()
+    yellow.pass()
+    blue.pass()
 
-    dad.wgt("OceanTile<Cimmeria_1_1>")
+    green.wgt("OceanTile<Cimmeria_1_1>")
 
-    joanna.buyCards(2)
-    ellie.buyCards(3)
-    dad.buyCards(3)
+    blue.buyCards(2)
+    yellow.buyCards(3)
+    green.buyCards(3)
 
-    joanna.turn {
+    blue.turn {
       playProject(ProtectedValley, 23) { placeTile(9, 9) }
     }
-    ellie.turn {
+    yellow.turn {
       playProject(SubterraneanReservoir, 11) { placeTile(1, 5) }
       claimMilestone(cn("Merchant"))
     }
-    dad.turn {
+    green.turn {
       stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
-        val previousAutoExecMode = dad.autoExecMode
-        dad.autoExecMode = NONE
+        val previousAutoExecMode = green.autoExecMode
+        green.autoExecMode = NONE
         try {
           doTask("3 Floater<$TitanShuttles>")
           doTask("Floater<$TitanShuttles>")
-          dad.selectTask("Floater<Joanna>.")
-          joanna.doTask("Floater<$Dirigibles>")
+          green.selectTask("Floater<Blue>.")
+          blue.doTask("Floater<$Dirigibles>")
         } finally {
-          dad.autoExecMode = previousAutoExecMode
+          green.autoExecMode = previousAutoExecMode
         }
       }
     }
-    joanna.turn {
+    blue.turn {
       playProject(Stratopolis, 16) {
         doTask("2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
       }
     }
-    ellie.turn {
+    yellow.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
-    dad.turn {
+    green.turn {
       cardAction1(SpaceElevator)
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(NitriteReducingBacteria)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(ElectroCatapult, 13, steel = 2)
       cardAction1(ElectroCatapult)
     }
-    dad.turn {
+    green.turn {
       cardAction2(TitanShuttles, x = 8)
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(LocalShading)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$FusionPower>") }
     }
-    dad.turn {
+    green.turn {
       playProject(IoMiningIndustries, 10, titanium = 10)
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(JetStreamMicroscrappers)
     }
-    ellie.turn {
+    yellow.turn {
       convertHeat()
       convertHeat()
     }
-    dad.turn {
+    green.turn {
       playProject(DirectedImpactors, 7)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(FloaterTechnology) { addCardResources(Dirigibles) }
     }
-    ellie.turn {
+    yellow.turn {
       sellPatents(1)
       playProject(FloatingHabs, 5)
     }
-    dad.turn {
+    green.turn {
       playProject(ReleaseOfInertGases, 13)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(Stratopolis) { addCardResources(Dirigibles, 2) }
     }
-    ellie.turn {
+    yellow.turn {
       sellPatents(2)
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
     }
-    dad.pass()
-    joanna.turn {
+    green.pass()
+    blue.turn {
       playProject(
           Extremophiles,
           payment = {
@@ -398,8 +398,8 @@ public class OtbGame20260828 : RecordedGame() {
       )
       cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) }
     }
-    ellie.pass()
-    joanna.turn {
+    yellow.pass()
+    blue.turn {
       cardAction1(Celestic) { addCardResources(Dirigibles) }
       cardAction1(Dirigibles) { addCardResources(Dirigibles) }
       playProject(
@@ -411,138 +411,138 @@ public class OtbGame20260828 : RecordedGame() {
       pass()
     }
 
-    joanna.wgt("OxygenStep")
+    blue.wgt("OxygenStep")
 
-    joanna.buyCards(2)
-    ellie.buyCards(4)
-    dad.buyCards(4)
+    blue.buyCards(2)
+    yellow.buyCards(4)
+    green.buyCards(4)
 
-    ellie.turn {
+    yellow.turn {
       claimMilestone(cn("Engineer"))
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
     }
-    dad.turn {
+    green.turn {
       cardAction1(SpaceElevator)
     }
-    joanna.turn {
+    blue.turn {
       playProject(RedShips, 2)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(ImportedGhg, 2, titanium = 1)
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
-    dad.turn {
+    green.turn {
       playProject(ResearchCoordination, 3)
     }
-    joanna.turn {
+    blue.turn {
       playProject(SnowAlgae, 12)
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(ElectroCatapult)
       playProject(Cartel, 6)
     }
-    dad.turn {
+    green.turn {
       playProject(OlympusConference, 9)
     }
-    joanna.turn {
+    blue.turn {
       playProject(RedSpotObservatory, 17) {
         doTask("-ProjectCard")
       }
     }
-    ellie.turn {
+    yellow.turn {
       playProject(StratosphericExpedition, titanium = 4) {
         addCardResources(FloatingHabs, 2)
       }
     }
-    dad.turn {
+    green.turn {
       stdAction("TradeAction", 2) {
         doTask("Trade<Titan>")
-        val previousAutoExecMode = dad.autoExecMode
-        dad.autoExecMode = NONE
+        val previousAutoExecMode = green.autoExecMode
+        green.autoExecMode = NONE
         try {
           doTask("2 Floater<$TitanShuttles>")
           doTask("Floater<$TitanShuttles>")
-          dad.selectTask("Floater<Joanna>.")
-          joanna.doTask("Floater<$LocalShading>")
+          green.selectTask("Floater<Blue>.")
+          blue.doTask("Floater<$LocalShading>")
         } finally {
-          dad.autoExecMode = previousAutoExecMode
+          green.autoExecMode = previousAutoExecMode
         }
       }
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(NitriteReducingBacteria)
     }
-    ellie.turn {
-      playProject(HiredRaiders, 1) { doTask("3 M<Ellie> FROM M<Dad>") }
+    yellow.turn {
+      playProject(HiredRaiders, 1) { doTask("3 M<Yellow> FROM M<Green>") }
     }
-    dad.turn {
+    green.turn {
       cardAction2(TitanShuttles, x = 3)
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(LocalShading)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(CuttingEdgeTechnology, 12)
     }
-    dad.turn {
+    green.turn {
       convertPlants { placeTile(2, 2) }
       assignWildTag(ResearchCoordination, "EarthTag")
       playProject(SkyDocks, 5, titanium = 4)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(FloaterTechnology) { addCardResources(RedSpotObservatory) }
     }
-    ellie.turn {
+    yellow.turn {
       playProject(IshtarExpedition, 4)
     }
-    dad.turn {
+    green.turn {
       playProject(InventorsGuild, 7) {
         doTask("Science<Player1, OlympusConference<Player1>>")
       }
       cardAction1(InventorsGuild) { buyCards(1) }
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) }
     }
-    ellie.exMachina("6 MC")
-    ellie.turn {
+    yellow.exMachina("6 MC")
+    yellow.turn {
       playProject(AerialMappers, 11)
     }
-    dad.turn {
+    green.turn {
       cardAction1(PalladinShipping)
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(RedSpotObservatory)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(VenusGovernor, 2)
     }
-    dad.pass()
-    joanna.turn {
+    green.pass()
+    blue.turn {
       cardAction1(Stratopolis) { addCardResources(JetStreamMicroscrappers, 2) }
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(PowerInfrastructure, x = 2)
     }
-    joanna.turn {
+    blue.turn {
       cardAction2(JetStreamMicroscrappers)
     }
-    ellie.turn {
+    yellow.turn {
       playProject(FloatingRefinery, 7)
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(Dirigibles) { addCardResources(Dirigibles) }
     }
-    ellie.turn {
+    yellow.turn {
       convertHeat()
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(Celestic) { addCardResources(Celestic) }
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(AerialMappers) { addCardResources(AerialMappers) }
     }
-    joanna.turn {
+    blue.turn {
       playProject(
           IshtarMining,
           2,
@@ -552,21 +552,21 @@ public class OtbGame20260828 : RecordedGame() {
           },
       )
     }
-    ellie.turn {
+    yellow.turn {
       cardAction2(FloatingRefinery) { doTask("-2 Floater<$FloatingRefinery>") }
     }
-    joanna.turn {
+    blue.turn {
       cardAction1(RedShips)
     }
-    ellie.turn {
+    yellow.turn {
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
     }
-    joanna.pass()
-    ellie.turn {
+    blue.pass()
+    yellow.turn {
       convertHeat()
       pass()
     }
 
-    ellie.wgt("VenusStep")
+    yellow.wgt("VenusStep")
   }
 }

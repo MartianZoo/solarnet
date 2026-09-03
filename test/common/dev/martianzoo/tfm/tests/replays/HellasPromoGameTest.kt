@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class EllieGameTest : AbstractFullGameTest() {
+internal class HellasPromoGameTest : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
@@ -27,7 +27,7 @@ internal class EllieGameTest : AbstractFullGameTest() {
       )
 
   @Test
-  internal fun ellieGame() {
+  internal fun hellasPromoGame() {
     val workflow = TfmWorkflow.Auto(game).launch()
     workflow.isRunning shouldBe true
 

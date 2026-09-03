@@ -40,10 +40,10 @@ internal class GameConfigTest {
 
   @Test
   internal fun acceptsArbitraryPlayerClassNamesSeparately() {
-    val config = GameConfig("TerraformingMars", "Mom", "Ellie")
+    val config = GameConfig("TerraformingMars", "Blue", "Yellow")
 
     config.includedClassNames.shouldContainExactly(cn("TerraformingMars"))
-    config.playerNames.shouldContainExactly(cn("Mom"), cn("Ellie"))
+    config.playerNames.shouldContainExactly(cn("Blue"), cn("Yellow"))
     config.toString() shouldBe "TerraformingMars"
   }
 
@@ -51,7 +51,7 @@ internal class GameConfigTest {
   internal fun rejectsDuplicateAndNonClassEntries() {
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, -TerraformingMars") }
-    shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars", "Mom", "Mom") }
+    shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars", "Blue", "Blue") }
     shouldThrow<IllegalArgumentException> { GameConfig("2 Player") }
     shouldThrow<IllegalArgumentException> { GameConfig("Select<Class<ColonizerTrainingCamp>>") }
   }
