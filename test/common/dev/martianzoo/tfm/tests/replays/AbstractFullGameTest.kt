@@ -146,7 +146,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
       game.actors.forEach { game.agent(it).autoExecMode = FIRST }
       dropPendingTasksForSnapshot()
       engine.phase("Production") { dropPendingTasksForSnapshot() }
-      engine.phase("End") {
+      engine.manual("End FROM Phase") {
         dropPendingTasksForSnapshot()
         assertCounts(expected to "VictoryPoint")
       }

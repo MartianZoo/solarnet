@@ -19,7 +19,7 @@ internal class CommercialDistrictTest : CardTest() {
     p1.manual("$CommercialDistrict") { placeTile(3, 3) }
     p2.manual("CityTile<Tharsis_3_4>")
 
-    engine.phase("End")
+    engine.manual("End FROM Phase")
     p1.assertCounts(22 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")
   }

@@ -190,7 +190,7 @@ internal class NewPromoCardsTest : CardTest() {
     }
 
     p2.assertCounts(0 to "MC", 1 to "ProjectCard")
-    engine.phase("End")
+    engine.manual("End FROM Phase")
     p1.assertCounts(21 to "VictoryPoint")
   }
 

@@ -109,7 +109,7 @@ internal class LawSuitTest : CardTest() {
     p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
     p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
 
-    engine.phase("End")
+    engine.manual("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")
     p2.assertCounts(19 to "VictoryPoint")

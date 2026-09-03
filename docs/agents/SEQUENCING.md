@@ -486,7 +486,9 @@ The `Temporary` class is a narrow component lifetime contract: whenever every ta
 the engine removes every live instance of that class before notifying workflow that the operation
 has completed. Removal effects may create more components or tasks. The engine runs ordinary
 automatic work again and repeats cleanup until an idle pass finds nothing to remove. Only that
-empty pass allows the workflow callback. All of this remains inside the enclosing atomic transaction.
+empty pass allows the workflow callback. Work started synchronously by that callback is coalesced
+into one automatic follow-up step, and the same cleanup loop runs before its resulting position is
+recorded. Each cleanup pass remains inside an atomic transaction.
 
 `EventCard` uses this contract. Its immediate work and tag reactions therefore finish while the
 live card still exists, and removing it creates the corresponding `PlayedEvent`. Law Suit is the
@@ -507,15 +509,15 @@ queued work, not merely the tasks caused directly by `Operation`. That is exact 
 and for a Trade performed inside one otherwise isolated controlled action; it is too broad for an
 arbitrary nested action or one cleanup item among unrelated Player work.
 
-One selected application remains to be implemented:
+Endgame scoring is the second current application:
 
-- **Endgame scoring:** make `End` the live `Temporary` scoring operation. Its gain queues every
-  `End` scoring reaction. Once those tasks and all of their consequences drain, removing `End`
-  automatically creates `FinalScore`, which may then assign victory. Awards should subscribe to
-  `End`, create `MeasureAward<Award>`, establish every Player's `AwardTally` automatically, and queue
-  `AssignAwardPlaces<Award>` from that completed measurement event. This removes the current
-  `End THEN FinalScore` and `MeasureAward THEN AssignAwardPlaces` orderings while preserving the
-  real completion facts.
+- **Endgame scoring:** `End` is the live `Temporary` scoring operation. Its gain queues every
+  `End` scoring reaction. It is also the terminal `Phase`. Once those tasks and all of their
+  consequences drain, removing `End` leaves no live phase and queues multiplayer victory
+  assignment directly. Awards queue `MeasureAward<Award>` from `End`; that event establishes every
+  Player's `AwardTally` automatically and queues `AssignAwardPlaces<Award>`. This replaces the
+  former `EndPhase`, `FinalScore`, and two `THEN` orderings while preserving the real completion
+  facts.
 
 Trade cannot use this rule because unrelated action-scoped work, such as a wild-tag choice, may
 legitimately keep the global task pool nonempty. `Trade<ColonyTile>` is instead the generational
@@ -695,8 +697,8 @@ For a new A-before-B claim:
     only?
 13. Is “end of the current action, including required settlement” the next central problem?
 14. Should payment be treated here as a proving case, or delegated entirely to `PAYMENTS.md`?
-15. Which concrete case should drive the next design: `WildTagUse`, Head Start, endgame scoring,
-    card purchase, or something else?
+15. Which concrete case should drive the next design: `WildTagUse`, Head Start, card purchase, or
+    something else?
 16. Should uncertain Terraforming Mars rulings remain here, or move into focused research notes?
 17. Should settled card-by-card examples mostly disappear in favor of a few representative cases
     and source links?

@@ -102,6 +102,32 @@ internal class AtomicOperationScopeTest {
   }
 
   @Test
+  internal fun workStartedByCompletionCallbackAlsoReceivesIdleCleanup() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS CleanupProbe : Temporary { -This:: Done }
+                CLASS Done
+                """
+            )
+        )
+    val player = game.agent(PLAYER1)
+    var startFollowUp = true
+    game.onAtomicComplete = {
+      if (startFollowUp) {
+        startFollowUp = false
+        player.sneak("CleanupProbe")
+      }
+    }
+
+    player.manual("Ok")
+
+    player.count("CleanupProbe") shouldBe 0
+    player.count("Done") shouldBe 1
+  }
+
+  @Test
   internal fun completedManualOperationRejectsTaskCreatedByIdleCleanup() {
     val game =
         Engine.newGame(

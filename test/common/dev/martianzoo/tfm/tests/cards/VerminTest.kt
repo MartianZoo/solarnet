@@ -31,7 +31,7 @@ internal class VerminTest : CardTest() {
     p2.manual("CityTile<Tharsis_3_2>")
     p3.manual("CityTile<Tharsis_3_3>")
 
-    engine.phase("End")
+    engine.manual("End FROM Phase")
 
     p1.assertCounts(18 to "VictoryPoint")
     p2.assertCounts(19 to "VictoryPoint")
@@ -45,7 +45,7 @@ internal class VerminTest : CardTest() {
     p1.manual("$Vermin, 7 Animal<$Vermin>, CityTile<Tharsis_2_1>")
     p2.manual("CityTile<Tharsis_3_2>")
 
-    engine.phase("End")
+    engine.manual("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")

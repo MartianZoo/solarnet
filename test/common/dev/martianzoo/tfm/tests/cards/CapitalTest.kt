@@ -33,7 +33,7 @@ internal class CapitalTest : CardTest() {
 
     p1.assertCounts(1 to "CityTile<Tharsis_3_3>")
     p1.manual("GreeneryTile<Tharsis_2_3>")
-    engine.phase("End")
+    engine.manual("End FROM Phase")
     p1.assertCounts(27 to "VictoryPoint")
   }
 

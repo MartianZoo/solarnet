@@ -2,7 +2,7 @@
 CLASS TerraformingMars : Module {
   HAS =1 Mode
   HAS =1 Class<Production>
-  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<CheckGameEnd>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
+  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<CheckGameEnd>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<End>
   HAS =1 Class<UseAction>, =1 Class<NewTurn>, =1 Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
@@ -311,7 +311,7 @@ ABSTRACT CLASS Award {
   HAS MAX 1 This
   HAS MAX 3 Award
   metric = Metric
-  EndPhase:: MeasureAward<This> THEN AssignAwardPlaces<This>
+  End: MeasureAward<This>
 }
 
 CLASS FirstPlace<Award> : Owned<Player> {
@@ -503,9 +503,9 @@ ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
 
 // PHASES
 
-"The current game phase; exactly one exists from the start of SetupPhase onward"
+"The current game phase; exactly one exists from Setup through the live End operation"
 ABSTRACT CLASS Phase : System {
-  HAS =1 Phase
+  HAS MAX 1 Phase
 
   CLASS SetupPhase
   CLASS CorporationPhase {
@@ -521,7 +521,6 @@ ABSTRACT CLASS Phase : System {
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction<ConvertPlants, Action1>?
   }
-  CLASS EndPhase
 }
 
 // TIME FLOW
@@ -563,11 +562,8 @@ CLASS GpGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
   GpComplete<Class<GlobalParameter>>:: -This!
 }
 
-"This Signal causes components to pay out victory points"
-CLASS End : Signal, System
-
-"Signals that the final score is available"
-CLASS FinalScore : Signal, System
+"A live scoring operation removed after every scoring task has completed"
+CLASS End : Phase, Temporary
 
 "Asks the first player to choose one mandatory global-parameter increase performed by Engine"
 CLASS WorldGovernmentTerraforming : Signal, System
@@ -606,9 +602,7 @@ ABSTRACT CLASS Mode : Module {
     This:: ClaimMilestone, FundAward
     This:: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: Generation
-
-    EndPhase: End THEN FinalScore
-    FinalScore: AssignMultiplayerVictory
+    -End: AssignMultiplayerVictory
   }
 }
 
@@ -629,7 +623,6 @@ CLASS SoloMode : Mode {
   SoloGenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
   SetupPhase: -6 TerraformRating<Player1>
-  EndPhase: End THEN FinalScore
 }
 
 "Exactly one solo objective Module active in a solo game"
@@ -725,6 +718,8 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
 "Adding a Tile automatically creates one of these per adjacent area"
 CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden
 
-CLASS MeasureAward<Award> : Signal, System
+CLASS MeasureAward<Award> : Signal, System {
+  This: AssignAwardPlaces<Award>
+}
 CLASS AwardTally<Award> : Owned<Player>, Hidden
 CLASS AssignAwardPlaces<Award> : Custom
