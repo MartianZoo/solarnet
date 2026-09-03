@@ -42,8 +42,8 @@ public data class Defaults(
       val haveDefault: List<Class> = klass.allSuperclasses().filter { extractor(it) != null }
 
       // Anything that was overridden by *any* of our superclasses must be discarded
-      val lasdfasdf = haveDefault.flatMap { it.properSuperclasses() }.toSet()
-      val inheritFrom = haveDefault - lasdfasdf
+      val overridden = haveDefault.flatMap { it.properSuperclasses() }.toSet()
+      val inheritFrom = haveDefault - overridden
       val candidates: List<T> = inheritFrom.map { extractor(it)!! }.distinct()
 
       return if (candidates.any()) merger(candidates) else null
