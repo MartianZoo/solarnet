@@ -150,7 +150,7 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `World Government Advisor works with Venus while World Government is disabled`() {
     newGame(
         GameConfig(
-            "Prelude2Expansion, VenusNextExpansion, -WorldGovernmentOption",
+            "Prelude2Expansion, VenusNextExpansion, -WorldGovernmentRule",
             "Player1",
             "Player2",
         )

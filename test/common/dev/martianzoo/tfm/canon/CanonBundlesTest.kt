@@ -44,18 +44,24 @@ internal class CanonBundlesTest {
     promosWithoutColonies.isActive(cn("StrategicBasePlanning")) shouldBe false
     promosWithColonies.isActive(cn("StrategicBasePlanning")) shouldBe true
 
-    val prelude2VenusWithoutColonies = table(cn("Prelude2Deck"), cn("VenusNextExpansion"))
+    val prelude2VenusWithoutColonies =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("VenusNextExpansion"))
     val prelude2VenusWithColonies =
-        table(cn("Prelude2Deck"), cn("VenusNextExpansion"), cn("ColoniesExpansion"))
+        table(
+            cn("PreludeExpansion"),
+            cn("Prelude2CardPack"),
+            cn("VenusNextExpansion"),
+            cn("ColoniesExpansion"),
+        )
     prelude2VenusWithoutColonies.isActive(cn("VenusTradeHub")) shouldBe false
     prelude2VenusWithColonies.isActive(cn("VenusTradeHub")) shouldBe true
   }
 
   @Test
   internal fun secondaryModuleDoesNotEnableItsOwningExpansionBundle() {
-    val worldGovernmentOnly = table(cn("WorldGovernmentOption"))
+    val worldGovernmentOnly = table(cn("WorldGovernmentRule"))
 
-    worldGovernmentOnly.isActive(cn("WorldGovernmentOption")) shouldBe true
+    worldGovernmentOnly.isActive(cn("WorldGovernmentRule")) shouldBe true
     worldGovernmentOnly.isActive(cn("VenusTag")) shouldBe false
     worldGovernmentOnly.isActive(cn("VenusStep")) shouldBe false
   }

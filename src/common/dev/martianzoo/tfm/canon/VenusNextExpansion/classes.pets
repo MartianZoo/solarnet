@@ -9,7 +9,7 @@ CLASS AirScrappingSP : StandardProject {
 }
 
 "Adds World Government Terraforming to the solar phase"
-CLASS WorldGovernmentOption : Module {
+CLASS WorldGovernmentRule : Module {
   autoSelectWhen = HAS "VenusNextExpansion"
 
   SolarPhase IF GpIncomplete:: WorldGovernmentTerraforming

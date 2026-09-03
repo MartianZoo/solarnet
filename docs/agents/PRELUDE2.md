@@ -22,7 +22,7 @@
 
 The official English rulebook is stored locally at
 `_local/rulebooks/prelude-2.pdf`. It was downloaded from FryxGames and visually checked after
-rendering all four pages. Prelude 2 uses the original Prelude rules, keeps active Preludes in play
+rendering all four pages. Prelude 2 uses the Prelude 1 rules, keeps active Preludes in play
 without treating them as blue cards, filters cards by their required expansion icons, and awards
 15 M€ when a revealed Prelude cannot be fully performed.
 
@@ -50,11 +50,13 @@ Spire uses the shared card-resource payment protocol: starting a standard projec
 from Spire, and each resulting payment signal removes 2 M€ of debt. Other payments never receive
 that offer.
 
-`PreludeExpansion` owns the shared Prelude setup and phase protocol. `Prelude1Deck` is selected by
-default. `Prelude2Expansion` selects `Prelude2Deck`, which constructively selects the rules Module
-and adds the Prelude 2 card pool; the deck may also be selected directly. Selecting both decks
-changes only the eligible card pool. The standard Prelude phase already models the rulebook's
-failed-Prelude fallback as discard plus 15 M€.
+`PreludeExpansion` owns the shared Prelude setup and phase protocol and selects
+`Prelude1CardPack` by default. Either Prelude card pack may be selected independently without
+enabling those rules. `Prelude2Expansion` selects both `PreludeExpansion` and
+`Prelude2CardPack`; adding the card pack directly to a Prelude game contributes the same card pool.
+The default Prelude 1 pack may be explicitly excluded. Selecting both packs merges their cards into
+one eligible Prelude deck. The standard Prelude phase already models the rulebook's failed-Prelude
+fallback as discard plus 15 M€.
 Active Preludes compose with the existing action-card machinery, and active/effect-only Preludes
 may naturally omit an immediate instruction.
 Comments ending in `[F]` identify cards whose hidden filtered draw or reveal result must be supplied

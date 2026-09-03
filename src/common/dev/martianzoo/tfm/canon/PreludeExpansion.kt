@@ -12,21 +12,21 @@ import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
 
-private val preludeCustomClasses: Set<CustomClass> = setOf(PreludeExpansion.LowestProduction)
+private val prelude1CustomClasses: Set<CustomClass> = setOf(Prelude1.LowestProduction)
 
 internal val preludeExpansionBundle: StandardFormBundle =
     StandardFormBundle(
         "PreludeExpansion",
-        preludeCustomClasses,
+        prelude1CustomClasses,
         mapOf(
             cn("PreludeExpansion") to emptySet(),
-            cn("Prelude1Deck") to
+            cn("Prelude1CardPack") to
                 setOf(BundleContentSelection(cn("PreludeExpansion"), setOf(CARDS))),
         ),
     )
 
-/** Namespace for Prelude's custom Pets implementations. */
-private object PreludeExpansion {
+/** Namespace for Prelude 1's custom Pets implementations. */
+private object Prelude1 {
   internal object LowestProduction : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val resourceClass = type.expressionFull.arguments.single { it.className == CLASS }

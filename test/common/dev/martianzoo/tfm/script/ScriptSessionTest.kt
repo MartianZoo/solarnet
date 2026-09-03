@@ -143,15 +143,15 @@ internal class ScriptSessionTest {
         listOf(
             "New 2-player game created with config: " +
                 "MultiplayerMode, TerraformingMars, TharsisMap, VenusNextExpansion, " +
-                "-CorporateEraExpansion, -WorldGovernmentOption; players: Player1, Player2",
+                "-CorporateEraExpansion, -WorldGovernmentRule; players: Player1, Player2",
             "Purple mode: workflow active",
         ),
         repl.command(
             "newgame \"MultiplayerMode, TerraformingMars, TharsisMap, VenusNextExpansion, " +
-                "-CorporateEraExpansion, -WorldGovernmentOption\" Player1 Player2 purple"
+                "-CorporateEraExpansion, -WorldGovernmentRule\" Player1 Player2 purple"
         ),
     )
-    assertEquals(listOf("0 WorldGovernmentOption"), repl.command("count WorldGovernmentOption"))
+    assertEquals(listOf("0 WorldGovernmentRule"), repl.command("count WorldGovernmentRule"))
     assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
   }
 

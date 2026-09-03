@@ -14,7 +14,7 @@ internal class GameConfigTest {
             """
             TerraformingMars, TharsisMap
 
-            VenusNextExpansion, -WorldGovernmentOption
+            VenusNextExpansion, -WorldGovernmentRule
             """
                 .trimIndent(),
             "Player1",
@@ -26,10 +26,10 @@ internal class GameConfigTest {
         cn("TharsisMap"),
         cn("VenusNextExpansion"),
     )
-    config.excludedClassNames.shouldContainExactly(cn("WorldGovernmentOption"))
+    config.excludedClassNames.shouldContainExactly(cn("WorldGovernmentRule"))
     config.playerNames.shouldContainExactly(cn("Player1"), cn("Player2"))
     config.toString() shouldBe
-        "TerraformingMars, TharsisMap, VenusNextExpansion, -WorldGovernmentOption"
+        "TerraformingMars, TharsisMap, VenusNextExpansion, -WorldGovernmentRule"
   }
 
   @Test

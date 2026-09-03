@@ -23,8 +23,8 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, PromoCardPack, Tr63SoloVariant
-          -WorldGovernmentOption
+          VenusNextExpansion, PreludeExpansion, PromoCardPack, Tr63SoloObjective
+          -WorldGovernmentRule
           """,
           "Me",
       )

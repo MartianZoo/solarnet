@@ -41,7 +41,7 @@ internal class ModuleSelectionTest {
                 players = 1,
                 selectsExactly =
                     """
-                    TerraformingMars, CorporateEraExpansion, SoloMode, StandardSoloVariant,
+                    TerraformingMars, CorporateEraExpansion, SoloMode, StandardSoloObjective,
                     TharsisMap
                     """,
             ),
@@ -101,12 +101,12 @@ internal class ModuleSelectionTest {
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    VenusNextExpansion, WorldGovernmentOption
+                    VenusNextExpansion, WorldGovernmentRule
                     """,
             ),
             Configuration(
                 description = "World Government can be explicitly disabled in a Venus game",
-                config = "VenusNextExpansion, -WorldGovernmentOption",
+                config = "VenusNextExpansion, -WorldGovernmentRule",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
@@ -121,17 +121,17 @@ internal class ModuleSelectionTest {
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    VenusNextExpansion, WorldGovernmentOption, MandatoryVenusVariant
+                    VenusNextExpansion, WorldGovernmentRule, MandatoryVenusVariant
                     """,
             ),
             Configuration(
                 description = "World Government can be selected without Venus Next",
-                config = "WorldGovernmentOption",
+                config = "WorldGovernmentRule",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    WorldGovernmentOption
+                    WorldGovernmentRule
                     """,
             ),
             Configuration(
@@ -140,8 +140,8 @@ internal class ModuleSelectionTest {
                 players = 1,
                 selectsExactly =
                     """
-                    TerraformingMars, CorporateEraExpansion, SoloMode, StandardSoloVariant,
-                    TharsisMap, VenusNextExpansion, WorldGovernmentOption
+                    TerraformingMars, CorporateEraExpansion, SoloMode, StandardSoloObjective,
+                    TharsisMap, VenusNextExpansion, WorldGovernmentRule
                     """,
             ),
             Configuration(
@@ -152,49 +152,77 @@ internal class ModuleSelectionTest {
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap, VenusNextExpansion, WorldGovernmentOption
+                    TharsisMap, VenusNextExpansion, WorldGovernmentRule
                     """,
             ),
 
-            // PRELUDE CARD POOLS
+            // PRELUDE CARD PACKS AND RULES
             Configuration(
-                description = "Prelude rules include the original Prelude deck by default",
+                description = "Prelude 1 rules include the Prelude 1 card pack by default",
                 config = "PreludeExpansion",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude1Deck
+                    PreludeExpansion, Prelude1CardPack
                     """,
             ),
             Configuration(
-                description = "the Prelude 2 deck implies the Prelude rules and original deck",
-                config = "Prelude2Deck",
+                description = "the Prelude 1 card pack alone does not enable Prelude 1 rules",
+                config = "Prelude1CardPack",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap, Prelude1CardPack
+                    """,
+            ),
+            Configuration(
+                description = "the Prelude 2 card pack alone does not enable Prelude 1 rules",
+                config = "Prelude2CardPack",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap, Prelude2CardPack
+                    """,
+            ),
+            Configuration(
+                description = "both Prelude card packs can be selected without Prelude 1 rules",
+                config = "Prelude1CardPack, Prelude2CardPack",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap, Prelude1CardPack, Prelude2CardPack
+                    """,
+            ),
+            Configuration(
+                description = "Prelude 1 rules can add the Prelude 2 card pack directly",
+                config = "PreludeExpansion, Prelude2CardPack",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude1Deck, Prelude2Deck
+                    PreludeExpansion, Prelude1CardPack, Prelude2CardPack
                     """,
             ),
             Configuration(
-                description = "the Prelude 2 expansion includes its deck",
+                description = "the Prelude 2 expansion includes its card pack",
                 config = "Prelude2Expansion",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude1Deck, Prelude2Expansion, Prelude2Deck
+                    PreludeExpansion, Prelude1CardPack, Prelude2Expansion, Prelude2CardPack
                     """,
             ),
             Configuration(
-                description = "Prelude 2 can replace rather than supplement the original deck",
-                config = "Prelude2Expansion, -Prelude1Deck",
+                description =
+                    "Prelude 2 can replace rather than supplement the Prelude 1 card pack",
+                config = "Prelude2Expansion, -Prelude1CardPack",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude2Expansion, Prelude2Deck
+                    PreludeExpansion, Prelude2Expansion, Prelude2CardPack
                     """,
             ),
 
@@ -247,11 +275,11 @@ internal class ModuleSelectionTest {
             ),
             Configuration(
                 description = "63 TR replaces the standard solo objective",
-                config = "Tr63SoloVariant",
+                config = "Tr63SoloObjective",
                 players = 1,
                 selectsExactly =
                     """
-                    TerraformingMars, CorporateEraExpansion, SoloMode, Tr63SoloVariant,
+                    TerraformingMars, CorporateEraExpansion, SoloMode, Tr63SoloObjective,
                     TharsisMap
                     """,
             ),
@@ -291,25 +319,16 @@ internal class ModuleSelectionTest {
     val rejections =
         listOf(
             Rejection(
-                description = "the original Prelude deck requires the Prelude rules",
-                config = "Prelude1Deck",
+                description = "the Prelude 2 expansion constructively includes its card pack",
+                config = "Prelude2Expansion, -Prelude2CardPack",
             ),
             Rejection(
-                description =
-                    "the Prelude 2 deck implies Prelude rules, so those rules cannot be excluded",
-                config = "Prelude2Deck, -PreludeExpansion",
+                description = "the Prelude 2 expansion constructively includes the Prelude 1 rules",
+                config = "Prelude2Expansion, -PreludeExpansion",
             ),
             Rejection(
-                description = "the Prelude 2 expansion constructively includes its deck",
-                config = "Prelude2Expansion, -Prelude2Deck",
-            ),
-            Rejection(
-                description = "Prelude rules require at least one Prelude deck",
-                config = "PreludeExpansion, -Prelude1Deck",
-            ),
-            Rejection(
-                description = "Valley Trust requires a viable Prelude deck",
-                config = "ValleyTrust",
+                description = "Prelude 1 rules require at least one Prelude card pack",
+                config = "PreludeExpansion, -Prelude1CardPack",
             ),
             Rejection(
                 description = "a two-player Colonies game rejects one fewer than five tiles",
@@ -343,7 +362,7 @@ internal class ModuleSelectionTest {
             ),
             Rejection(
                 description = "a multiplayer game cannot select a solo objective",
-                config = "Tr63SoloVariant",
+                config = "Tr63SoloObjective",
             ),
             Rejection(
                 description = "mandatory Venus is multiplayer-only",
@@ -352,12 +371,12 @@ internal class ModuleSelectionTest {
             ),
             Rejection(
                 description = "a solo game cannot select two solo objectives",
-                config = "StandardSoloVariant, Tr63SoloVariant",
+                config = "StandardSoloObjective, Tr63SoloObjective",
                 players = 1,
             ),
             Rejection(
                 description = "a solo game cannot exclude its only objective",
-                config = "-StandardSoloVariant",
+                config = "-StandardSoloObjective",
                 players = 1,
             ),
         )

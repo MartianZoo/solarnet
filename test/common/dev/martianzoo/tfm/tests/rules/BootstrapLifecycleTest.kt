@@ -53,10 +53,10 @@ internal class BootstrapLifecycleTest {
     val soloOpponent = changes.single { it.change.gaining?.className == cn("SoloOpponent") }
 
     soloOpponent.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
-    val standardVariant = changes.single {
-      it.change.gaining?.className == cn("StandardSoloVariant")
+    val standardObjective = changes.single {
+      it.change.gaining?.className == cn("StandardSoloObjective")
     }
-    standardVariant.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
+    standardObjective.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
   }
 
   @Test
