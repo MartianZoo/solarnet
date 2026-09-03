@@ -51,6 +51,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   the instruction, and leave `whyPending` a pure diagnostic message.
 - Delete `pets/util/PairingChecker.kt`, along with its own tokenizer and grammar. It has no
   production caller; `PairingCheckerTest` is its only reference in the repository.
+- Investigate why all wild-tag assignments must currently run before selecting a card or action.
+  Only assignments needed to satisfy a requirement should be early; assignments used by queued
+  effects such as per-tag gains should resolve normally from the task queue.
 ### Hypothetical Card Behavior
 
 - Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a
@@ -71,6 +74,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   script times out on its first expectation, and it is what a user meets when running `./rego`.
   Once startup is fixed, re-check the rest of `repl-smoke.exp` against current command output and
   add the test to the CI workflow, which already installs Expect for it.
+- Model L1 Trade Terminal's three-distinct-card resource choice, then replace the replay-local
+  `FakeL1TradeTerminal` declaration with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
   iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
   `SavedGameReplayBenchmark`.

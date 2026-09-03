@@ -72,12 +72,23 @@ internal fun playedEventCards(game: World, player: Player): List<ClassName> {
       .toList()
 }
 
-/** The styles the viewer stylesheet defines a `player-` rule for. */
-private val VIEWER_COLORS = setOf("blue", "green", "purple", "red", "yellow")
+private val supportedPlayerColors = listOf("red", "yellow", "green", "blue", "purple")
 
-/**
- * The style suffix for [playerName]. Saved games name their players by color, so the name is
- * normally the answer; anything else falls back to one style.
- */
-internal fun playerColor(playerName: String): String =
-    playerName.lowercase().takeIf { it in VIEWER_COLORS } ?: "red"
+internal fun assignPlayerColors(playerNames: List<String>): List<String> {
+  require(playerNames.size <= supportedPlayerColors.size) {
+    "Only ${supportedPlayerColors.size} distinct player colors are available"
+  }
+
+  val unclaimedColors = supportedPlayerColors.toMutableList()
+  val assignedColors = MutableList<String?>(playerNames.size) { null }
+  playerNames.forEachIndexed { index, playerName ->
+    val requestedColor = playerName.lowercase()
+    if (unclaimedColors.remove(requestedColor)) assignedColors[index] = requestedColor
+  }
+  assignedColors.indices
+      .filter { assignedColors[it] == null }
+      .forEach { index ->
+        assignedColors[index] = unclaimedColors.removeFirst()
+      }
+  return assignedColors.filterNotNull()
+}

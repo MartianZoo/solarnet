@@ -169,8 +169,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      assignWildTag(ResearchCoordination, "VenusTag")
-      playProject(VenusGovernor, 4)
+      playProject(VenusGovernor, 4, butFirst = assignAllWildTags("VenusTag"))
     }
 
     yellow.pass()
@@ -201,8 +200,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      assignWildTag(ResearchCoordination, "ScienceTag")
-      playProject(MercurianAlloys, 3)
+      playProject(MercurianAlloys, 3, butFirst = assignAllWildTags("ScienceTag"))
     }
 
     yellow.turn {
@@ -227,8 +225,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      assignWildTag(ResearchCoordination, "ScienceTag")
-      playProject(FloatingHabs, 5)
+      playProject(FloatingHabs, 5, butFirst = assignAllWildTags("ScienceTag"))
     }
 
     yellow.turn {
@@ -289,8 +286,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      assignWildTag(ResearchCoordination, "EarthTag")
-      playProject(LunarMining, 11)
+      playProject(LunarMining, 11, butFirst = assignAllWildTags("EarthTag"))
     }
 
     yellow.turn { cardAction1(StratosphericBirds) }
@@ -303,8 +299,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      assignWildTag(ResearchCoordination, "EarthTag")
-      playProject(LunaMetropolis, 1, titanium = 5)
+      playProject(LunaMetropolis, 1, titanium = 5, butFirst = assignAllWildTags("EarthTag"))
     }
 
     yellow.turn {
@@ -337,8 +332,9 @@ public class OtbGame20260818 : RecordedGame() {
 
     green.turn {
       playProject(IndustrialMicrobes, 12)
-      assignWildTag(ResearchCoordination, "MicrobeTag")
-      stdAction("ClaimMilestone") { doTask("Ecologist") }
+      stdAction("ClaimMilestone", beforeAction = assignAllWildTags("MicrobeTag")) {
+        doTask("Ecologist")
+      }
     }
 
     green.exMachina("PROD[-S, -E]")
@@ -428,8 +424,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      assignWildTag(ResearchCoordination, "EarthTag")
-      playProject(MirandaResort, titanium = 3)
+      playProject(MirandaResort, titanium = 3, butFirst = assignAllWildTags("EarthTag"))
     }
 
     yellow.turn {
@@ -521,8 +516,9 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      assignWildTag(ResearchCoordination, "ScienceTag")
-      playProject(Plantation, 15) { placeTile(5, 3) }
+      playProject(Plantation, 15, butFirst = assignAllWildTags("ScienceTag")) {
+        placeTile(5, 3)
+      }
 
       playProject(KaguyaTech, 10) { doTask("CityTile<Utopia_5_3> FROM GreeneryTile<Utopia_5_3>") }
     }
@@ -703,9 +699,7 @@ public class OtbGame20260818 : RecordedGame() {
       cardAction1(MartianZoo)
 
       cardAction1(VenusianInsects)
-      assignWildTag(ResearchCoordination, "PlantTag")
-
-      playProject(Insects, 9)
+      playProject(Insects, 9, butFirst = assignAllWildTags("PlantTag"))
       pass()
     }
 
@@ -813,8 +807,7 @@ public class OtbGame20260818 : RecordedGame() {
         doTask("CopyProductionBox<$IndustrialMicrobes>")
       }
 
-      assignWildTag(ResearchCoordination, "ScienceTag")
-      playProject(DawnCity, titanium = 3)
+      playProject(DawnCity, titanium = 3, butFirst = assignAllWildTags("ScienceTag"))
 
       cardAction1(VenusianInsects)
 

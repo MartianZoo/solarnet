@@ -129,8 +129,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn {
       playProject(Lichen, 7)
       // Test inference: Research Network's wild tag supplies the fourth bio tag.
-      assignWildTag("PlantTag")
-      claimMilestone(cn("Ecologist"))
+      claimMilestone(cn("Ecologist"), beforeAction = assignAllWildTags("PlantTag"))
     }
     blue.pass()
     pink.wgt("OxygenStep")
@@ -155,9 +154,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     blue.turn {
       // Blue has no printed Earth tags yet, so Space Hotels needs both wild tags.
-      assignWildTag("EarthTag")
-      assignWildTag("EarthTag")
-      playProject(SpaceHotels, 12)
+      playProject(
+          SpaceHotels,
+          12,
+          butFirst = assignAllWildTags("EarthTag"),
+      )
     }
     pink.pass()
     blue.turn {
@@ -275,12 +276,18 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     // Unsupported component: the Nomads' new area supplied two heat.
     pink.exMachina("2 Heat")
     blue.turn {
-      assignWildTag("PlantTag")
-      assignWildTag("PlantTag")
-      playProject(Insects, 8).expect("PROD[6 Plant]")
-      assignWildTag("MicrobeTag")
-      assignWildTag("MicrobeTag")
-      playProject(Worms, 7).expect("PROD[2 Plant]")
+      playProject(
+              Insects,
+              8,
+              butFirst = assignAllWildTags("PlantTag"),
+          )
+          .expect("PROD[6 Plant]")
+      playProject(
+              Worms,
+              7,
+              butFirst = assignAllWildTags("MicrobeTag"),
+          )
+          .expect("PROD[2 Plant]")
     }
     pink.turn { sellPatents(BuildingIndustries, MartianSurvey) }
     blue.turn { cardAction2(ExtractorBalloons) }
@@ -315,9 +322,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
     }
     blue.turn {
-      assignWildTag("PowerTag")
-      assignWildTag("PowerTag")
-      playProject(PowerGrid, 17).expect("PROD[4 Energy]")
+      playProject(
+              PowerGrid,
+              17,
+              butFirst = assignAllWildTags("PowerTag"),
+          )
+          .expect("PROD[4 Energy]")
       playProject(UndergroundCity, 13, steel = 2) { placeTile(7, 7) }
     }
     pink.turn {
@@ -362,8 +372,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn {
       playProject(OlympusConference, 5, steel = 2).expect("Science<$OlympusConference>")
       // Research Outpost and Olympus Conference supply the other two science tags.
-      assignWildTag("ScienceTag")
-      playProject(AiCentral, 20) {
+      playProject(AiCentral, 20, butFirst = assignAllWildTags("ScienceTag")) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
         draw(InterstellarColonyShip)
       }
@@ -465,9 +474,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     blue.turn {
       // Three printed science tags remain in play; Invention Contest is already an event.
-      assignWildTag("ScienceTag")
-      assignWildTag("ScienceTag")
-      playProject(InterstellarColonyShip, 23)
+      playProject(
+          InterstellarColonyShip,
+          23,
+          butFirst = assignAllWildTags("ScienceTag"),
+      )
     }
     // Unsupported component: this Nomads destination supplies the heat spent by the next action.
     pink.exMachina("2 Heat")

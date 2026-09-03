@@ -193,9 +193,12 @@ name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting 
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
-Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and `assignWildTag(card, tag)`
-instead of spelling their routine task expressions. The tile and card-resource helpers require a
-single matching pending choice; keep raw `doTask()` calls where multiple placements are pending.
+Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and
+`assignAllWildTags(tag)` instead of spelling their routine task expressions. The tile and
+card-resource helpers require a single matching pending choice; keep raw `doTask()` calls where
+multiple placements are pending. An action-phase wild-tag choice exists only after the standard
+action is selected: assign it from `playProject(butFirst = ...)` or another action helper's
+`beforeAction` block.
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action

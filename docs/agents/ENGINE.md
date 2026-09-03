@@ -472,10 +472,11 @@ chain. `:` effects become tasks. Use
 ### Terraforming Mars wild tags
 
 `Tag` depends on `TagHolder`; `CardFront` is one such holder. Printed tags therefore remain ordinary
-components such as `PlantTag<CardFront>`. A `WildTag` creates a distinct `WildTagUse` holder for
-each `NewTurn` in Action or Prelude and each action-phase `SecondAction`. The temporary holder offers
-the owner `Tag<This>?`, so a chosen wild meaning is a real tag and participates in bare tag
-metrics and requirements.
+components such as `PlantTag<CardFront>`. In the action phase, a `WildTag` creates a distinct
+`WildTagUse` holder when its owner chooses a `UseAction<StandardAction>`; choosing `Pass` creates
+none. Prelude turns create the holder from `NewTurn` because they do not use the standard-action
+signal. The temporary holder offers the owner `Tag<This>?`, so a chosen wild meaning is a real tag
+and participates in bare tag metrics and requirements.
 
 The holder distinction is also the trigger distinction. `Tag` has the trigger default
 `Tag<CardFront>:`, so an effect that reacts only to printed tags can explicitly accept it with

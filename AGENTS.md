@@ -12,6 +12,11 @@ correctness edits unless the user explicitly asks for more. Agent-maintained doc
 `docs/agents/`; when a change makes one inaccurate, update the smallest owning document selected by
 the router.
 
+Keep embedded Pets declarations multiline when they do not fit comfortably on one line; do not
+replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep gameviewer recordings compact:
+source evidence, commentary, and assertions belong in the corresponding replay test, not in the
+recording used by the viewer.
+
 ## Always apply these principles
 
 ### Interpret the request before acting

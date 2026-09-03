@@ -45,7 +45,7 @@ internal class FakeEstablishedMethodsBugsTest :
 
     p1.playPrelude(ResearchNetwork)
     p1.startTurn()
-    p1.assignWildTag(ResearchNetwork, "PowerTag")
+    p1.continueManual(assignAllWildTags("PowerTag"))
     p1.playPrelude(fakeEstablishedMethods) {
       val offers = standardActionOfferIds()
       offers.size shouldBe 2

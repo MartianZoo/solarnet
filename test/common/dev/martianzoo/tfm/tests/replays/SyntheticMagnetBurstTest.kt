@@ -221,9 +221,12 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.turn {
       // Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
       // tag.
-      assignWildTag(NobelPrize, "PowerTag")
       // Green played Power Supply Consortium
-      playProject(PowerSupplyConsortium, 5) {
+      playProject(
+          PowerSupplyConsortium,
+          5,
+          butFirst = assignAllWildTags("PowerTag"),
+      ) {
         // Green stole 1 energy production from Pink
         doTask("PROD[-Energy<Pink>]")
         // Green gained 2 M€ from Suitable Infrastructure
@@ -355,14 +358,22 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.turn {
       // Green played Miranda Resort
       // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
-      assignWildTag(NobelPrize, "EarthTag")
       // Green gained 3 M€ production
       // Green gained 2 M€ from Suitable Infrastructure
-      playProject(MirandaResort, 12).expect("PROD[3 MC], -10 MC")
+      playProject(
+              MirandaResort,
+              12,
+              butFirst = assignAllWildTags("EarthTag"),
+          )
+          .expect("PROD[3 MC], -10 MC")
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
-      assignWildTag(NobelPrize, "MicrobeTag")
       // Green claimed Diversifier milestone
-      stdAction("ClaimMilestone") { doTask("Diversifier") }
+      stdAction(
+          "ClaimMilestone",
+          beforeAction = assignAllWildTags("MicrobeTag"),
+      ) {
+        doTask("Diversifier")
+      }
     }
     pink.turn {
       // Pink played Titanium Mine
@@ -642,10 +653,13 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.turn {
       // Green played Tectonic Stress Power
       // Nobel Prize's wild icon counts as Green's second science tag.
-      assignWildTag(NobelPrize, "ScienceTag")
       // Green gained 3 energy production
       // Green gained 2 M€ from Suitable Infrastructure
-      playProject(TectonicStressPower, 18)
+      playProject(
+          TectonicStressPower,
+          18,
+          butFirst = assignAllWildTags("ScienceTag"),
+      )
       // Green passed
       pass()
     }
@@ -1051,10 +1065,9 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       playProject(HousePrinting, 10)
       // Green played Insects
       // Nobel Prize's wild icon counts as Green's second plant tag.
-      assignWildTag(NobelPrize, "PlantTag")
       // Green gained 2 plant production
       // Green gained 2 M€ from Suitable Infrastructure
-      playProject(Insects, 9)
+      playProject(Insects, 9, butFirst = assignAllWildTags("PlantTag"))
     }
     pink.turn {
       // Pink used Space Elevator action

@@ -224,9 +224,8 @@ CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 "A printed wild tag creates one temporary holder for each action slot"
 CLASS WildTag : Cardbound {
   HAS MAX 1 This
-  // In the closed phase set, only Corporation and Final Greenery have non-wild NewTurns.
-  NewTurn<Owner> IF MAX 0 CorporationPhase, MAX 0 FinalGreeneryPhase:: WildTagUse<CardFront>
-  SecondAction<Owner>:: WildTagUse<CardFront>
+  NewTurn<Owner> IF PreludePhase:: WildTagUse<CardFront>
+  UseAction<StandardAction> IF ActionPhase:: WildTagUse<CardFront>
 }
 
 "The action-scoped meaning chosen for one printed wild tag"

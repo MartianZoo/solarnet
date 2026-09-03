@@ -202,10 +202,13 @@ private fun renderPlayerTabs(recording: GameRecording, onSelect: (Int) -> Unit) 
   val game = recording.world
   val tabs = checkNotNull(document.getElementById("player-tabs"))
   tabs.innerHTML = ""
-  game.actors.filterIsInstance<Player>().forEachIndexed { index, player ->
-    val name = game.vocabulary.displayName(player.className)
+  val players = game.actors.filterIsInstance<Player>()
+  val playerNames = players.map { game.vocabulary.displayName(it.className) }
+  val playerColors = assignPlayerColors(playerNames)
+  players.forEachIndexed { index, _ ->
+    val name = playerNames[index]
     val tab = document.createElement("button")
-    tab.className = "player-tab player-${playerColor(name)}"
+    tab.className = "player-tab player-${playerColors[index]}"
     tab.setAttribute("type", "button")
     tab.setAttribute("role", "tab")
     tab.setAttribute("data-player-index", index.toString())
@@ -223,10 +226,13 @@ private fun updatePlayerTabs(recording: GameRecording, selectedPlayerIndex: Int)
     if (selected) tab.classList.add("active") else tab.classList.remove("active")
     tab.setAttribute("aria-selected", selected.toString())
   }
-  val player = recording.world.actors.filterIsInstance<Player>()[selectedPlayerIndex]
-  val name = recording.world.vocabulary.displayName(player.className)
+  val playerNames =
+      recording.world.actors.filterIsInstance<Player>().map {
+        recording.world.vocabulary.displayName(it.className)
+      }
+  val playerColors = assignPlayerColors(playerNames)
   document.getElementById("dashboard-panel")?.className =
-      "dashboard-panel player-${playerColor(name)}"
+      "dashboard-panel player-${playerColors[selectedPlayerIndex]}"
 }
 
 private fun renderDashboard(recording: GameRecording, player: Player) {
@@ -296,6 +302,9 @@ private fun renderCards(recording: GameRecording, player: Player) {
   container.innerHTML = ""
   val cards = playedCards(game, player)
   val events = playedEventCards(game, player)
+  val players = game.actors.filterIsInstance<Player>()
+  val playerNames = players.map { game.vocabulary.displayName(it.className) }
+  val color = assignPlayerColors(playerNames)[players.indexOf(player)]
   if (cards.isEmpty() && events.isEmpty()) {
     val empty = document.createElement("p")
     empty.className = "empty-cards"
@@ -339,7 +348,6 @@ private fun renderCards(recording: GameRecording, player: Player) {
     }
     if (actionUsed) {
       val marker = document.createElement("span")
-      val color = playerColor(game.vocabulary.displayName(player.className))
       marker.className = "action-used-marker player-$color"
       marker.setAttribute("role", "img")
       marker.setAttribute("aria-label", "Action used")
@@ -470,6 +478,9 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
   val target = document.getElementById("map-state-${area.row}-${area.column}") ?: return
   val (centerX, centerY) = areaCenter(area)
   val tile = reader.getComponents(reader.resolve(TILE.of(area.className))).singleOrNull()
+  val players = game.actors.filterIsInstance<Player>()
+  val playerNames = players.map { game.vocabulary.displayName(it.className) }
+  val playerColors = assignPlayerColors(playerNames)
   target.innerHTML =
       if (tile == null) {
         emptyAreaSvg(area, centerX, centerY)
@@ -479,12 +490,9 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
                 .firstOrNull { Player.isValid(it.className) }
                 ?.className
                 ?.let { ownerName ->
-                  game.actors
-                      .filterIsInstance<Player>()
-                      .firstOrNull { it.className == ownerName }
-                      ?.let { game.vocabulary.displayName(it.className) }
+                  players.indexOfFirst { it.className == ownerName }.takeIf { it >= 0 }
                 }
-                ?.let(::playerColor)
+                ?.let { playerColors[it] }
         buildString {
           val imageBox =
               if (tile.className.toString() == "GreeneryTile") {

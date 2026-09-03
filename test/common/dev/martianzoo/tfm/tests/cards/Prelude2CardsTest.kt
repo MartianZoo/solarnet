@@ -60,8 +60,13 @@ internal class Prelude2CardsTest : CardTest() {
 
     engine.phase("Action")
     p1.startTurn()
-    p1.assignWildTag(AppliedScience, "PlantTag")
-    p1.cardAction1(AppliedScience) { doTask("Plant") }.expect("Plant")
+    p1.cardAction1(
+            AppliedScience,
+            beforeAction = assignAllWildTags("PlantTag"),
+        ) {
+          doTask("Plant")
+        }
+        .expect("Plant")
 
     p1.count("Science<$AppliedScience>") shouldBe 5
   }

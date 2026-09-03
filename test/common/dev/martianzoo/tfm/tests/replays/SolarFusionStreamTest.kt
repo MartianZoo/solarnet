@@ -159,8 +159,12 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       placeTile(3, 3)
     }
     JR.playProject(Pets, 10)
-    KB.assignWildTag(ResearchNetwork, "BuildingTag")
-    KB.playProject(StaticHarvesting, 4).expect("-1 MC")
+    KB.playProject(
+            StaticHarvesting,
+            4,
+            butFirst = assignAllWildTags("BuildingTag"),
+        )
+        .expect("-1 MC")
     KB.stdAction("ClaimMilestone") { doTask("Energizer") }
     ER.cardAction1(IndustrialCenter)
     ER.declineSecondAction()
@@ -186,8 +190,11 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.pass()
     JR.playProject(EnergyMarket, 3)
     JR.declineSecondAction()
-    KB.assignWildTag(ResearchNetwork, "ScienceTag")
-    KB.playProject(QuantumExtractor, 12) {
+    KB.playProject(
+        QuantumExtractor,
+        12,
+        butFirst = assignAllWildTags("ScienceTag"),
+    ) {
       KB.draw(EarthOffice)
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
@@ -205,8 +212,11 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       JR.draw(HermeticOrderOfMars)
       doTask("CityTile<Elysium_2_6> FROM GreeneryTile<Elysium_2_6>")
     }
-    KB.assignWildTag(ResearchNetwork, "ScienceTag")
-    KB.playProject(MassConverter, 7)
+    KB.playProject(
+        MassConverter,
+        7,
+        butFirst = assignAllWildTags("ScienceTag"),
+    )
     KB.playProject(InvestmentLoan, 0)
     ER.cardAction1(TychoMagnetics, x = 2) { ER.draw(GiantSpaceMirror) }
     ER.playProject(InventorsGuild, 9)
@@ -505,8 +515,11 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.stdAction("FundAward", which = 3) { doTask("Benefactor") }
     ER.sellPatents(SpecialDesign)
     ER.sellPatents(Trees)
-    KB.assignWildTag(ResearchNetwork, "ScienceTag")
-    KB.playProject(BactoviralResearch, 7) {
+    KB.playProject(
+        BactoviralResearch,
+        7,
+        butFirst = assignAllWildTags("ScienceTag"),
+    ) {
       KB.draw(PermafrostExtraction)
       addCardResources(Ants)
     }
@@ -518,8 +531,11 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.sellPatents(BiomassCombustors)
     // Consequence reconstruction: ER gained one money production.
     ER.stdProject("CitySP") { placeTile(6, 2) }
-    KB.assignWildTag(ResearchNetwork, "MicrobeTag")
-    KB.playProject(Worms, 5)
+    KB.playProject(
+        Worms,
+        5,
+        butFirst = assignAllWildTags("MicrobeTag"),
+    )
     KB.playProject(ImportedNutrients, 1, titanium = 1) {
       ER.draw(TransNeptuneProbe)
       addCardResources(Ants)

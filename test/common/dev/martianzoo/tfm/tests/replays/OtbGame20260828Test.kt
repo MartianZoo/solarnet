@@ -1,23 +1,49 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
+import kotlin.test.assertEquals
+
+// L1 Trade Terminal's general three-distinct-card selection is not yet modeled. This replay-local
+// card preserves its ordinary play, trade effect, tags, and VP; the sourced resource destinations
+// are supplied at the play site.
+private val fakeL1TradeTerminal = cn("FakeL1TradeTerminal")
+private val fakeL1TradeTerminalDefinition =
+    parseClasses(
+        """
+        CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
+          cost = 25
+          This:: SpaceTag<This>
+          This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
+          Trade<ColonyTile>:: TradeBarrier<ColonyTile>
+          Trade<ColonyTile>: (2 ColonyProduction<ColonyTile> OR Ok) THEN -TradeBarrier<ColonyTile>
+          End: 2 VictoryPoint
+        }
+        """
+    )
+
+private val otbGame20260828Catalog = Canon.withNonstandardClasses(fakeL1TradeTerminalDefinition)
 
 /** Three-player physical game begun Friday, 2026-08-28. */
 internal class OtbGame20260828Test : AbstractFullGameTest() {
   private val colonyTiles = listOf("Ganymede", "Io", "Luna", "Miranda", "Titan")
+  override val catalog = otbGame20260828Catalog
 
   override val config =
       GameConfig(
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
+          FakeL1TradeTerminal
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
@@ -124,10 +150,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(BusinessNetwork, 4)
     }
 
-    // She forgot to reduce her money production, and fixed it later
+    // She forgot to reduce her money production (fixed later)
     yellow.exMachina("PROD[MC]")
 
-    green.pass()
+    green.passWithUnusedActionCards(PalladinShipping)
     blue.turn {
       // "I'm going to play Nitrite Reducing Bacteria. That costs me 11 money."
       // "You immediately get three free microbes on Nitrite Reducing Bacteria."
@@ -156,8 +182,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // production. And I think that's it."
       playProject(FueledGenerators, 1)
     }
-    blue.pass()
-    yellow.pass()
+    blue.passWithUnusedActionCards()
+    yellow.passWithUnusedActionCards()
 
     // "I will raise the oxygen to one percent as my World Government step."
     green.wgt("OxygenStep").expect("0 TerraformRating")
@@ -262,7 +288,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // production." "Yep. Potatoes are mine. Andy Weir up in here."
       playProject(Potatoes, 2)
     }
-    yellow.pass()
+    yellow.passWithUnusedActionCards()
     green.turn {
       // "I'm spending three steel and 12 real on Research Outpost, which lets me place a city tile.
       // I can place it right here, pay five money, and get another colony, which I'm just gonna
@@ -291,13 +317,13 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(JetStreamMicroscrappers) }
     }
-    green.pass()
+    green.passWithUnusedActionCards(PalladinShipping)
     blue.turn {
       // "Then I'm going to use my Jet Stream Microscrappers action to remove two floaters and raise
       // Venus one step." "Ah shit, I made it easier for [Yellow] to get the bonus."
       cardAction2(JetStreamMicroscrappers)
     }
-    blue.pass()
+    blue.passWithUnusedActionCards()
 
     // "I'm going to raise Venus." "Venus is now at eight. No one gets the card. We're still at one
     // oxygen, two oceans, and no temperature raises yet."
@@ -422,18 +448,18 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertHeat()
       convertHeat().expect("PROD[Heat]")
     }
-    green.pass()
+    green.passWithUnusedActionCards()
     blue.turn {
       // The recording goes silent here. Blue's app adds one TR, and these three unused actions
       // are the ordinary card sequence that produces exactly that result.
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(JetStreamMicroscrappers) }
     }
-    yellow.pass()
+    yellow.passWithUnusedActionCards(PowerInfrastructure)
     blue.turn {
       cardAction2(JetStreamMicroscrappers)
     }
-    blue.pass()
+    blue.passWithUnusedActionCards()
 
     // board-18-39-07.jpg: end of the Generation 3 action phase, before production.
     assertSidebar(gen = 3, temp = -24, oxygen = 2, oceans = 2, venus = 10)
@@ -588,7 +614,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I use Power Infrastructure: spend an energy to gain money."
       cardAction1(PowerInfrastructure, x = 1)
     }
-    green.pass()
+    green.passWithUnusedActionCards(PalladinShipping)
     blue.turn {
       // "I will take my Jet Stream Microscrappers action to remove two floaters and raise Venus to
       // 14."
@@ -609,8 +635,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       cardAction1(Dirigibles) { addCardResources(JetStreamMicroscrappers) }
       cardAction1(Celestic) { addCardResources(Dirigibles) }
     }
-    yellow.pass()
-    blue.pass()
+    yellow.passWithUnusedActionCards()
+    blue.passWithUnusedActionCards()
 
     // board-18-58-23.jpg: end of the Generation 4 action phase.
     assertSidebar(gen = 4, temp = -24, oxygen = 3, oceans = 4, venus = 16)
@@ -814,7 +840,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       sellPatents(2)
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
     }
-    green.pass()
+    green.passWithUnusedActionCards(PalladinShipping, DirectedImpactors)
     blue.turn {
       // "I'm going to use my Extremophiles action to add two floaters to my Dirigibles."
       // "I'm going to play Extremophiles."
@@ -831,7 +857,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Reducing Bacteria."
       cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) }
     }
-    yellow.pass()
+    yellow.passWithUnusedActionCards(PowerInfrastructure)
     blue.turn {
       // "I guess I'm going to use my Celestic action to add a dirigible."
       cardAction1(Celestic) { addCardResources(Dirigibles) }
@@ -945,10 +971,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(Cartel, 6)
     }
 
-    // Earliest: Cartel's payment. Latest: before Optimal Aerobraking's next recorded M€ balance.
-    // Most likely: Yellow forgot Cartel's six-M€ effective cost; the transcript announces its
-    // production and draw but no payment, and placing the mistake here produces perfect agreement
-    // with every later app balance despite the app's ordinary transaction grouping.
+    // She forgot to pay for Cartel (fixed later)
     yellow.exMachina("6 MC")
 
     green.turn {
@@ -1049,8 +1072,12 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // I'm gonna pay four titanium and five real. And I get a trade fleet."
       // "Yeah, you do. Heck. H-E-K-K."
       convertPlants { placeTile(2, 2) }
-      assignWildTag(ResearchCoordination, "EarthTag")
-      playProject(SkyDocks, 5, titanium = 4)
+      playProject(
+          SkyDocks,
+          5,
+          titanium = 4,
+          butFirst = assignAllWildTags("EarthTag"),
+      )
     }
     blue.turn {
       // "I'm using my Floater Technology action to put a floater somewhere fun, I guess. I don't
@@ -1074,7 +1101,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Use it tonight."
       // "Yeah, that's not bad. I'll pay three for that."
       playProject(InventorsGuild, 7) {
-        doTask("Science<Player1, OlympusConference<Player1>>")
+        doTask("ProjectCard FROM Science<$OlympusConference>")
       }
       cardAction1(InventorsGuild) { buyCards(1) }
     }
@@ -1119,7 +1146,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I gain two money per Earth."
       playProject(VenusGovernor, 2)
     }
-    green.pass()
+    green.passWithUnusedActionCards(DirectedImpactors)
     blue.turn {
       // "I'm going to use my Stratopolis action to add two floaters to Jet Stream Microscrappers."
       cardAction1(Stratopolis) { addCardResources(JetStreamMicroscrappers, 2) }
@@ -1196,7 +1223,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "How do you have so much shit to do? I freaking pass."
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
     }
-    blue.pass()
+    blue.passWithUnusedActionCards()
     yellow.turn {
       // "Heat boop. Heat up to 14—minus 14."
       // "Oh shit, I have not been tracking the temperature or anything up to minus 14."
@@ -1217,7 +1244,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     with(green) {
       assertProduction(m = 3, s = 1, t = 3, p = 1, e = 5, h = 0)
       assertResources(m = 31, s = 1, t = 3, p = 1, e = 5, h = 8)
-      assertCounts(28 to "TerraformRating", 7 to "ProjectCard")
+      assertCounts(28 to "TerraformRating", 8 to "ProjectCard")
     }
     with(blue) {
       assertProduction(m = 12, s = 0, t = 1, p = 1, e = 0, h = 1)
@@ -1230,5 +1257,845 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       assertCounts(29 to "TerraformRating", 7 to "ProjectCard")
     }
     assertSidebar(gen = 7, temp = -14, oxygen = 6, oceans = 6, venus = 22)
+
+    // "We made [Yellow] pay six to account for her previous mistake. And then I bought three cards
+    // and [Yellow] bought three cards. Yeah, and [Blue]'s buying one card."
+    yellow.exMachina("-6 MC")
+    green.buyCards(3)
+    yellow.buyCards(3)
+    blue.buyCards(1)
+
+    green.turn {
+      // "Do you mind if we say that I played Market Manipulation just before I did that?" "Sure."
+      // "I'll reduce Titan." Luna's raised track makes the following trade worth three more M€.
+      playProject(MarketManipulation, 0) {
+        doTask("ColonyProduction<Luna FROM Titan>")
+      }
+      // "I want to fly my boat to Luna. And I get 14 money and yellow gets two." After correcting
+      // Market Manipulation's order, Green records the full 17 M€ trade result.
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 Energy, 17 MC, 2 MC<Yellow>")
+    }
+    blue.turn {
+      // "I'm going to play Indentured Workers, Giant Ice Asteroid."
+      playProject(IndenturedWorkers, 0)
+      // "I'm going to pay one titanium and 25 money." "I took your one plant, and I'm going to
+      // place two oceans." "Row nine, column ... six and seven."
+      playProject(GiantIceAsteroid, 25, titanium = 1) {
+        doTask("-Plant<Green>")
+        placeTile(9, 6)
+        placeTile(9, 7)
+      }
+    }
+    yellow.turn {
+      // "I will Business Network. Look at the card. Keep."
+      cardAction1(BusinessNetwork) { buyCards(1) }
+      // "Technology Demonstration. I paid five, which will be one titanium, two real. Draw two
+      // cards, but actually I draw three because of that. And I gain my three money, three heat."
+      playProject(TechnologyDemonstration, 2, titanium = 1)
+    }
+    green.turn {
+      // "Play Invention Contest for free. That gives me a little ... science resource on Olympus
+      // Conference. And then I look at three cards from the deck. And I get to keep ... this one."
+      playProject(InventionContest, 0) {
+        declineTask() // Research Coordination is not used for this play.
+      }
+    }
+    blue.turn {
+      // "Use my Nitrite Reducing Bacteria action to remove three microbes and raise my TR."
+      cardAction2(NitriteReducingBacteria)
+    }
+    yellow.turn {
+      // "I will Asteroid. That's four titanium and two real." "[Blue], you lose three plants."
+      playProject(AsteroidCard, 2, titanium = 4) { doTask("-3 Plant<Blue>") }
+    }
+    green.turn {
+      // "Quantum Extractor. That costs me 11. It gives me four energy production."
+      playProject(QuantumExtractor, 11) {
+        doTask("ProjectCard FROM Science<$OlympusConference>")
+      }
+    }
+    blue.turn {
+      // "Use my Floater Technology action to add a floater to Local Shading."
+      cardAction1(FloaterTechnology) { addCardResources(LocalShading) }
+    }
+    yellow.turn {
+      // "Use Floating Refinery. Remove two things ... to take a titanium and two money."
+      cardAction2(FloatingRefinery) { doTask("-2 Floater<$FloatingRefinery>") }
+    }
+    green.assertCounts(3 to "Titanium") // Green applog entry 170 starts from three titanium.
+    green.turn {
+      // "Use two titanium and my Paladin action ... to raise the temperature to minus six."
+      cardAction1(PalladinShipping)
+    }
+    blue.turn {
+      // "Take my Local Shading action to turn that floater into a money production."
+      cardAction2(LocalShading)
+    }
+    yellow.turn {
+      // "Pay four titanium and thirteen real money for L1 Trade Terminal."
+      // Yellow paid the printed cost despite her four M€ of applicable card discounts.
+      intentionalOverpay(4)
+      // "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
+      playProject(fakeL1TradeTerminal, 13, titanium = 4)
+    }
+    green.turn {
+      // "Use my Space Elevator to destroy one steel and gain five real."
+      cardAction1(SpaceElevator)
+    }
+    blue.turn {
+      // "Use my Stratopolis action to add two floaters to Jetstream Microscrapper."
+      cardAction1(Stratopolis) { addCardResources(JetStreamMicroscrappers, 2) }
+    }
+    yellow.turn {
+      // "Spend two energies to trade with Io ... 13 heateroonies for me."
+      stdAction("TradeAction", 2) {
+            doTask("Trade<Io>")
+            doTask("2 ColonyProduction<Io>")
+          }
+          .expect("-2 Energy, 13 Heat")
+    }
+    green.turn {
+      // "Use my Inventors' Guild and decide whether to buy this ... card. Nothing."
+      cardAction1(InventorsGuild) { buyCards(0) }
+    }
+    blue.turn {
+      // "Spend two floaters and raise Venus one step. Venus is at 24 and I get a TR."
+      cardAction2(JetStreamMicroscrappers)
+    }
+    yellow.turn {
+      // "I will spend a steel to gain seven real."
+      cardAction2(ElectroCatapult)
+    }
+    green.turn {
+      // "I will play Molecular Printing. That cost me nine ... it gives me eight."
+      playProject(MolecularPrinting, 9) {
+        declineTask() // Research Coordination is not used for this play.
+      }
+    }
+    blue.turn {
+      // "Use my Extremophiles action to add a microbe to Nitrate Reducing Bacteria."
+      cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) }
+    }
+    yellow.turn {
+      // "Aerial Mappers remove to card."
+      cardAction2(AerialMappers)
+    }
+    green.turn {
+      // "Anti-Gravity Technology. I pay 12 for that."
+      // "I have one, two, three, four, five, six, seven science tags."
+      // The seven are Research Outpost, Research Colony, Olympus Conference, Inventors' Guild,
+      // Quantum Extractor, Molecular Printing, and Research Coordination's wild tag.
+      playProject(
+          AntiGravityTechnology,
+          12,
+          butFirst = assignAllWildTags("ScienceTag"),
+      ) {
+        doTask("ProjectCard FROM Science<$OlympusConference>")
+      }
+    }
+    blue.turn {
+      // "Get ready for some grass. Grass is grass production and three plants."
+      playProject(Grass, 11)
+    }
+    yellow.turn {
+      // "Comet for Venus. I pay 11. Raise Venus one step ... you lose four money."
+      playProject(CometForVenus, 11) { doTask("-4 MC<Blue>") }
+    }
+    green.turn {
+      // "Take my Titan Shuttles action to put two Jovian floaters on Titan Shuttles."
+      cardAction1(TitanShuttles) { addCardResources(TitanShuttles, 2) }
+    }
+    blue.turn {
+      // "Take my Red Spot Observatory action to add a floater to Red Spot Observatory."
+      cardAction1(RedSpotObservatory)
+    }
+    yellow.turn {
+      // "Five for Sister Planet Support ... increase money production three steps and take a card."
+      playProject(SisterPlanetSupport, 3)
+    }
+    green.turn {
+      // "This makes it four Earth tags. And that cost me seven money ... two titanium production."
+      playProject(LunarMining, 7, butFirst = assignAllWildTags("EarthTag"))
+    }
+    blue.turn {
+      // "Use the Dirigibles action to add a floater to Celestic."
+      cardAction1(Dirigibles) { addCardResources(Celestic) }
+    }
+    yellow.turn {
+      // "Luna Governor ... for free. Two money production, two cards."
+      playProject(LunaGovernor, 0)
+    }
+    green.turn {
+      // "Atmoscoop ... one titanium and 13 real. ... two floaters on Titan Shuttles. I raise the
+      // temperature to minus two and get my two TR."
+      playProject(Atmoscoop, 13, titanium = 1) {
+        doTask("2 TemperatureStep")
+        addCardResources(TitanShuttles, 2)
+      }
+      // "I convert heat ... another TR for the ocean ... two-six for one plant and two money."
+      convertHeat { placeTile(2, 6) }
+    }
+    blue.turn {
+      // "Use my Celestic action to add a floater to Celestic."
+      cardAction1(Celestic) { addCardResources(Celestic) }
+    }
+    yellow.turn {
+      // "I do two heat boops. Temp is at plus four now."
+      convertHeat()
+      convertHeat()
+    }
+    green.passWithUnusedActionCards(DirectedImpactors)
+    blue.turn {
+      // "Take my Red Ships action, for which I get nothing."
+      cardAction1(RedShips)
+    }
+    yellow.turn {
+      // "I'm going to do two heat boops. Another two heat? ... temp is maxed."
+      convertHeat()
+      convertHeat()
+    }
+    blue.passWithUnusedActionCards()
+    yellow.turn {
+      // "Power Infrastructure, spend two energy, gain two money."
+      cardAction1(PowerInfrastructure, x = 2)
+      // "Pay three for Energy Market. Use the effect of lose an energy production. Gain eight."
+      playProject(EnergyMarket, 3)
+      cardAction2(EnergyMarket)
+      // "Floating Habs, spend two and add ... to itself."
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
+      // "Spend my 11 monies on Cloud Tourism, increase money production one step per set of Earth
+      // and Venus tags." "Cloud Tourism, add to self."
+      playProject(CloudTourism, 11)
+      cardAction1(CloudTourism)
+    }
+
+    // board-16-51-02.jpg: all players have passed in generation 7, before production.
+    with(green) {
+      assertProduction(m = 3, s = 1, t = 5, p = 1, e = 9, h = 0)
+      assertResources(m = 2, s = 0, t = 0, p = 1, e = 2, h = 0)
+      assertCounts(33 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 13, s = 0, t = 1, p = 2, e = 0, h = 1)
+      assertResources(m = 10, s = 0, t = 0, p = 6, e = 0, h = 1)
+      assertCounts(39 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 20, s = 1, t = 2, p = 0, e = 3, h = 8)
+      assertResources(m = 2, s = 1, t = 0, p = 0, e = 0, h = 1)
+      assertCounts(35 to "TerraformRating")
+    }
+    assertSidebar(gen = 7, temp = 8, oxygen = 6, oceans = 9, venus = 26)
+
+    yellow.passWithUnusedActionCards()
+    // "It is my turn to be the world government ... I'm going to eat up a Venus slot."
+    green.wgt("VenusStep").expect("0 TerraformRating")
+    with(green) {
+      assertProduction(m = 3, s = 1, t = 5, p = 1, e = 9, h = 0)
+      assertResources(m = 38, s = 1, t = 5, p = 2, e = 9, h = 2)
+      assertCounts(33 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 13, s = 0, t = 1, p = 2, e = 0, h = 1)
+      assertResources(m = 62, s = 0, t = 1, p = 8, e = 0, h = 2)
+      assertCounts(39 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 20, s = 1, t = 2, p = 0, e = 3, h = 8)
+      assertResources(m = 57, s = 2, t = 2, p = 0, e = 3, h = 9)
+      assertCounts(35 to "TerraformRating")
+    }
+    assertSidebar(gen = 8, temp = 8, oxygen = 6, oceans = 9, venus = 28)
+
+    // Research: "I buy one card." "I'm gonna buy two cards." "I buy one card."
+    blue.buyCards(1)
+    green.buyCards(2)
+    yellow.buyCards(1)
+
+    blue.turn {
+      // "Use my Stratopolis action to add two floaters to Jetstream Microscrappers and then my
+      // Jetstream Microscrappers action to raise Venus."
+      cardAction1(Stratopolis) { addCardResources(JetStreamMicroscrappers, 2) }
+      cardAction2(JetStreamMicroscrappers)
+    }
+    yellow.turn {
+      // "Suppose I can start with a Business Network."
+      cardAction1(BusinessNetwork) { buyCards(0) }
+      // "Atalanta Planitia Lab. For a ten. I draw two cards. ... Only eight because my cutting
+      // edge."
+      playProject(AtalantaPlanitiaLab, 8)
+    }
+    green.turn {
+      // "I'm gonna pay 22. Damn, two awards. Industrialist and Space Baron."
+      fundAward(cn("Industrialist"), 8)
+      fundAward(cn("SpaceBaron"), 14)
+    }
+    blue.turn {
+      // "I'm gonna play Gene Repair. So it costs 12 money and I gain two money production."
+      playProject(GeneRepair, 12) { declineTask() }
+    }
+    yellow.turn {
+      // "I'm gonna play Cry Yourself to Sleep for 10."
+      playProject(CryoSleep, 10)
+      // "Solar Probe: two titanium, three monies. ... I get two, but then a third for Solar, and I
+      // also get three money, three heat from the thing."
+      intentionalOverpay(4)
+      playProject(SolarProbe, 3, titanium = 2)
+    }
+    green.turn {
+      // "I pay three energy to fly my boat to Luna. I get 14 and [Yellow] gets two."
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 Energy, 14 MC, 2 MC<Yellow>")
+      // "Pay three energy to fly another boat to Ganymede for five plants."
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }.expect("-3 Energy, 5 Plant")
+    }
+    blue.turn {
+      // "I'm gonna play Orbital Cleanup. ... I put 17. ... give myself three more money. ... my
+      // titanium ... three more money."
+      playProject(OrbitalCleanup, 11, titanium = 1)
+    }
+    yellow.turn {
+      // "First remove an Aerial Mapper to draw another card."
+      cardAction2(AerialMappers)
+    }
+    green.turn {
+      // "Something's waiting for us in the bushes of love. And that cost me six money. It gives me
+      // two plant production and two plants."
+      playProject(Bushes, 6)
+      // "Then I plant forest ... three, four to the right of my city."
+      convertPlants { placeTile(3, 4) }
+    }
+    blue.turn {
+      // "For 10 money, I'm going to play Bacto Viral Research. ... discard a card from hand to draw
+      // a card. ... add all six of mine to my nitrate reducing bacteria."
+      playProject(BactoviralResearch, 10) {
+        doTask("-ProjectCard")
+        addCardResources(NitriteReducingBacteria)
+      }
+    }
+    yellow.turn {
+      // "Pitch a steel for seven real."
+      cardAction2(ElectroCatapult)
+    }
+    green.turn {
+      // "Pitch a steel for five real."
+      cardAction1(SpaceElevator)
+    }
+    blue.turn {
+      // "Now I'm going to play Titan Air Scrapping for 21 money."
+      playProject(TitanAirScrapping, 21)
+    }
+    yellow.turn {
+      // "Floating Refinery, spend two floaters ... gain a titanium and two monies."
+      cardAction2(FloatingRefinery) { doTask("-2 Floater<$FloatingRefinery>") }
+    }
+    green.turn {
+      // "Play Quantum Communications because it costs me four and it gives me five money
+      // production."
+      playProject(QuantumCommunications, 4)
+    }
+    blue.turn {
+      // "Use my nitrate reducing bacteria action to ... increase my TR."
+      cardAction2(NitriteReducingBacteria)
+    }
+    yellow.turn {
+      // "Spend two energy, get two money."
+      cardAction1(PowerInfrastructure, x = 2)
+    }
+    green.turn {
+      // "I'm going to use Inventor's Guild. No. I'm not going to buy it."
+      cardAction1(InventorsGuild) { buyCards(0) }
+    }
+    blue.turn {
+      // "I use Floater Technology to add a floater to Local Shading."
+      cardAction1(FloaterTechnology) { addCardResources(LocalShading) }
+    }
+    yellow.turn {
+      // "Add a Cloud Tourism, if you will."
+      cardAction1(CloudTourism)
+    }
+    green.turn {
+      // "Water Splitting Plant. That costs me eight."
+      playProject(WaterSplittingPlant, 8)
+    }
+    blue.turn {
+      // "Take my Local Shading action ... increase my money production by one step."
+      cardAction2(LocalShading)
+    }
+    yellow.turn {
+      // "For 12 plus 4, Mangrove. ... that'll be 8-4. Get two money. Get a TR."
+      playProject(Mangrove, 10) { placeTile(8, 4) }
+    }
+    green.turn {
+      // "Use my Water Splitting Plant ... lose three energy."
+      cardAction1(WaterSplittingPlant)
+    }
+    blue.turn {
+      // "Use my Dirigibles action to add a floater to Titan Air Scrapping."
+      cardAction1(Dirigibles) { addCardResources(TitanAirScrapping) }
+    }
+    yellow.turn {
+      // "Tundra Farming. Right, for 16. ... increase plant production one step, increase money
+      // production two steps, and gain a plant."
+      playProject(TundraFarming, 14)
+      // "I got Livestock. ... Decrease your plant production one step. Increase your money
+      // production two steps."
+      playProject(Livestock, 11)
+    }
+    green.turn {
+      // "I've spent seven on Breathing Filters and I'm putting a science resource on Olympus
+      // Conference."
+      playProject(BreathingFilters, 7) {
+        declineTask() // Research Coordination is not used for this play.
+      }
+    }
+    blue.turn {
+      // "I take my Extremophiles action and put a microbe on Nitrate Reducing Bacteria."
+      cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) }
+    }
+    yellow.turn {
+      // L1 Trade Terminal: "I boost the thing two things first."
+      // "Because I have two of these bonuses, only pay one energy to trade. And it'll be with
+      // Miranda. ... I get two animals to Livestock."
+      stdAction("TradeAction", 2) {
+        doTask("Trade<Miranda>")
+        doTask("2 ColonyProduction<Miranda>")
+        addCardResources(Livestock)
+      }
+    }
+    green.turn {
+      // "I'm going to play a Trans-Neptune Probe ... it's free. ... remove a science resource from
+      // Olympus Conference and I draw a card."
+      playProject(TransNeptuneProbe, 0) {
+        doTask("ProjectCard FROM Science<$OlympusConference>")
+      }
+    }
+    blue.turn {
+      // "I'm going to take my Orbital Cleanup action and I gain six money because I have six
+      // science tags."
+      cardAction1(OrbitalCleanup)
+    }
+    yellow.turn {
+      // "Spend 5 for Mineral Deposit, gain 5 steel."
+      playProject(MineralDeposit, 5)
+      // "Spend 4 steel and 1 real on Mining Rights. ... 8, 6."
+      playProject(MiningRights, 1, steel = 4) { placeTile(8, 6) }
+    }
+    green.turn {
+      // "Use Titan Shuttles to add 2 floaters to Titan Shuttles."
+      cardAction1(TitanShuttles) { addCardResources(TitanShuttles, 2) }
+    }
+    blue.turn {
+      // "Use my Celestic action to add a floater to Titan Air Scrapping."
+      cardAction1(Celestic) { addCardResources(TitanAirScrapping) }
+    }
+    yellow.turn {
+      // "Ants, pay 7, remember my Cutting Edge this time. ... immediately ants one of your
+      // nitrites."
+      playProject(Ants, 7)
+      cardAction1(Ants)
+    }
+    green.passWithUnusedActionCards(PalladinShipping, DirectedImpactors)
+    blue.turn {
+      // "I take my Titan Air Scrapping action. I remove two floaters and I gain a TR."
+      cardAction2(TitanAirScrapping)
+    }
+    yellow.turn {
+      // "I add a Livestock."
+      cardAction1(Livestock)
+    }
+    blue.turn {
+      // "I take my Red Spot Observatory action and I draw a card, please."
+      cardAction2(RedSpotObservatory)
+    }
+    yellow.turn {
+      // "Paid two things for Floating Habs. Add to self."
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
+    }
+    blue.turn {
+      // "I'm gonna buy some Algae. Cost me 10 money. And I gain one plant and two plant
+      // productions."
+      playProject(Algae, 10)
+    }
+    yellow.turn {
+      // "Energy Market, lose energy production, gain eight."
+      cardAction2(EnergyMarket)
+      // "Spend my thirteen on Asteroid Mining Consortium. ... decrease [Blue]'s titanium
+      // production by one, increase my own."
+      playProject(AsteroidMiningConsortium, 11) {
+        doTask("PROD[-Titanium<Blue>]")
+      }
+    }
+    blue.turn {
+      // "I'm gonna play a greenery. ... row eight, column eight. For two money and two plants."
+      convertPlants { placeTile(8, 8) }
+    }
+    yellow.passWithUnusedActionCards()
+    blue.turn {
+      // "I take my Red Ships action and I gain one money."
+      cardAction1(RedShips)
+      // "I can sell these three ... patents."
+      sellPatents(3)
+      // "I have seven money and I can play my Lichen! ... one more plant production."
+      playProject(Lichen, 7)
+    }
+    // board-17-27-05.jpg: generation 8 is complete; app ledgers provide the exact pre-production
+    // resource checkpoint because the photograph was captured while players were pressing Produce.
+    with(green) {
+      assertProduction(m = 8, s = 1, t = 5, p = 3, e = 9, h = 0)
+      assertResources(m = 4, s = 0, t = 5, p = 1, e = 0, h = 2)
+      assertCounts(35 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 14, s = 0, t = 0, p = 5, e = 0, h = 1)
+      assertResources(m = 0, s = 0, t = 0, p = 3, e = 0, h = 2)
+      assertCounts(43 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 24, s = 1, t = 4, p = 0, e = 2, h = 8)
+      assertResources(m = 2, s = 2, t = 2, p = 1, e = 0, h = 12)
+      assertCounts(36 to "TerraformRating")
+    }
+    assertSidebar(gen = 8, temp = 8, oxygen = 10, oceans = 9, venus = 30)
+
+    blue.passWithUnusedActionCards()
+    // "[Blue] would be the world government, but there's no choice. ... raise the oxygen."
+    blue.wgt("OxygenStep").expect("0 TerraformRating")
+    with(green) {
+      assertResources(m = 47, s = 1, t = 10, p = 4, e = 9, h = 2)
+      assertCounts(35 to "TerraformRating")
+    }
+    with(blue) {
+      assertResources(m = 57, s = 0, t = 0, p = 8, e = 0, h = 3)
+      assertCounts(43 to "TerraformRating")
+    }
+    with(yellow) {
+      assertResources(m = 62, s = 3, t = 6, p = 1, e = 2, h = 20)
+      assertCounts(36 to "TerraformRating")
+    }
+    assertSidebar(gen = 9, temp = 8, oxygen = 11, oceans = 9, venus = 30)
+    // Research: Yellow buys one, Green buys one, and Blue buys none.
+    yellow.buyCards(1)
+    green.buyCards(1)
+    blue.buyCards(0)
+
+    yellow.turn {
+      // Yellow's applog records two 23-M€ greenery standard projects. "Oxygen to 13 ... 7-3 ...
+      // and 7-4 for a titanium."
+      stdProject("GreenerySP") { placeTile(7, 3) }
+      stdProject("GreenerySP") { placeTile(7, 4) }
+    }
+    green.turn {
+      // "Use Water Splitting Plant to use up three energy and take the last oxygen ... I give
+      // myself a TR."
+      cardAction1(WaterSplittingPlant)
+      // "Build the Immigrant City ... cost me nine ... 9-8 for two money and a plant."
+      playProject(ImmigrantCity, 9) { placeTile(9, 8) }
+    }
+    blue.turn {
+      // "Take the city standard project ... this is 8-5."
+      stdProject("CitySP") { placeTile(8, 5) }
+      assertCounts(36 to "MC")
+      // "Place a city for 25 more money ... 6-8." [sic]
+      stdProject("CitySP") { placeTile(7, 8) }
+    }
+    yellow.turn {
+      // "Play Kaguya Tech for 10 ... 7-3 ... flipping the tile ... becoming a city."
+      playProject(KaguyaTech, 10) {
+        doTask("CityTile<Cimmeria_7_3> FROM GreeneryTile<Cimmeria_7_3>")
+      }
+      // "Energy Market an energy production into eight monies."
+      cardAction2(EnergyMarket)
+    }
+    green.turn {
+      // "Play Open City. It cost me 19 ... go to 5-3."
+      playProject(OpenCity, 19) { placeTile(5, 3) }
+    }
+    // Green forgot to take his Immigrant City effect
+    green.exMachina("PROD[-MC]")
+
+    blue.turn {
+      // "I'm going to plant forest ... at 7-7 ... that gives you two plants."
+      convertPlants { placeTile(7, 7) }
+    }
+    yellow.turn {
+      // "Never did a Business Network. ... draw a card? No."
+      cardAction1(BusinessNetwork) { buyCards(0) }
+      // "Topsoil Contract for eight. ... no, no, no. Six. Solar Logistics."
+      playProject(TopsoilContract, 6)
+    }
+    green.turn {
+      // "Use my Space Elevator to consume a steel and take five real."
+      cardAction1(SpaceElevator)
+    }
+    blue.turn {
+      // "Take my Nitrate Reducing Bacteria action. Remove three microbes, increase my TR."
+      cardAction2(NitriteReducingBacteria)
+    }
+    yellow.turn {
+      // "Spend an energy to trade with Miranda ... get two animals ... Livestock."
+      stdAction("TradeAction", 2) {
+        doTask("Trade<Miranda>")
+        doTask("2 ColonyProduction<Miranda>")
+        addCardResources(Livestock)
+      }
+    }
+    green.turn {
+      // "Spend three energy to trade with Luna ... get 14 and yellow gets two."
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 Energy, 14 MC, 2 MC<Yellow>")
+      // "Spend three energy to fly to Ganymede and take one plant."
+      stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }.expect("-3 Energy, Plant")
+    }
+    // Earliest: after Blue's generation-8 Observatory draw. Latest: before this draw, whose
+    // narration explicitly says a floater is present. An omitted flexible-floater placement is
+    // likelier than a second Observatory action because each card action is once per generation;
+    // the exact source action is not identified.
+    blue.exMachina("Floater<$RedSpotObservatory>")
+    blue.turn {
+      // "Take my Red Spot Observatory action ... draw a card."
+      cardAction2(RedSpotObservatory)
+      // "Sell this patent for one money."
+      sellPatents(1)
+    }
+    yellow.turn {
+      // "Take your final nitrite ... and my thing gives me a money."
+      cardAction1(Ants) {
+        doTask("-Microbe<Player2, $NitriteReducingBacteria<Player2>>")
+      }
+    }
+    green.turn {
+      // "Now I can plant forest ... six, four to get one titanium and two steel."
+      convertPlants { placeTile(6, 4) }
+    }
+    blue.turn {
+      // "Take my Stratopolis action to add two floaters to Titan Air Scrapping."
+      // Resolve the action on its own eligible card before reproducing Blue's illegal
+      // destination.
+      cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) }
+    }
+    blue.exMachina("-2 Floater<$Stratopolis>, 2 Floater<$TitanAirScrapping>")
+    yellow.turn {
+      // "Power Infrastructure, spend an energy, gain a money."
+      cardAction1(PowerInfrastructure, x = 1)
+    }
+    green.turn {
+      // "Use Inventors' Guild ... two cards, out of cards."
+      cardAction1(InventorsGuild) { buyCards(0) }
+    }
+    blue.turn {
+      // "Titan Air Scrapping ... move two floaters and increase my TR."
+      cardAction2(TitanAirScrapping)
+    }
+    yellow.turn {
+      // "I'm gonna Livestock."
+      cardAction1(Livestock)
+    }
+    green.turn {
+      // The green tableau and the turn order identify Green as the Interstellar Colony Ship player.
+      // "Cost me 18, which I'll spend at six titanium." Solar Logistics gives Yellow the card.
+      playProject(InterstellarColonyShip, titanium = 6)
+    }
+    // Green forgets the Palladin effect for paying a space event
+    green.exMachina("-Titanium")
+    blue.turn {
+      // "Orbital Cleanup. I gain six monies."
+      cardAction1(OrbitalCleanup)
+    }
+    yellow.turn {
+      // The clipped "Cloud..." response between Blue's cleanup and Green's turn is Yellow's
+      // otherwise-unused Cloud Tourism action, corroborated by its final-tableau floater.
+      cardAction1(CloudTourism)
+    }
+    green.turn {
+      // "Use Titan Shuttles to take six titanium."
+      cardAction2(TitanShuttles, x = 6)
+    }
+    blue.turn {
+      // "I'm gonna fund Benefactor ... cost me 20."
+      fundAward(cn("Benefactor"), 20)
+    }
+    yellow.turn {
+      // "Add a floater to Floating Refinery."
+      cardAction1(FloatingRefinery)
+    }
+    green.turn {
+      // "I might as well play it ... spend two steel and ... only spent 13. ... draw two cards."
+      playProject(AiCentral, 13, steel = 2) {
+        declineTask() // Research Coordination is not used for this play.
+      }
+      cardAction1(AiCentral)
+    }
+    blue.turn {
+      // "Use my Dirigibles action to add a floater to Celestic."
+      cardAction1(Dirigibles) { addCardResources(Celestic) }
+    }
+    yellow.turn {
+      // "Add to Floating Habs."
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
+    }
+    // Yellow did not announce or log Floating Habs' two-M€ action cost; every later app balance,
+    // including the two M€ she spends on Vesta's Shipyard, retains it.
+    yellow.exMachina("2 MC")
+    green.turn {
+      // "Plant forest ... here for a card and two money." The final board identifies 8-7.
+      stdProject("GreenerySP") { placeTile(8, 7) }
+    }
+    blue.turn {
+      // "Use my Floater Technology action to add a floater to Celestic."
+      cardAction1(FloaterTechnology) { addCardResources(Celestic) }
+    }
+    yellow.turn {
+      // "I sell a patent."
+      sellPatents(1)
+    }
+    green.turn {
+      // "I'm going to sell 5 patentos."
+      sellPatents(5)
+    }
+    blue.turn {
+      // "Use my Celestic action to add a floater to Celestic."
+      cardAction1(Celestic) { addCardResources(Celestic) }
+    }
+    yellow.turn {
+      // "Plant a forest ... seven, six ... a plant and two steel."
+      convertPlants { placeTile(7, 6) }
+    }
+    green.passWithUnusedActionCards(PalladinShipping, DirectedImpactors)
+    blue.turn {
+      // "Take my Red Ships action ... one, two, three, four."
+      cardAction1(RedShips).expect("4 MC")
+    }
+    yellow.turn {
+      // "Spend a steel to gain ... seven real."
+      cardAction2(ElectroCatapult)
+    }
+    blue.turn {
+      // "Take my Local Shading action to add a floater to Local Shading."
+      cardAction1(LocalShading)
+    }
+    yellow.turn {
+      // "Pay seven for Robot Pollinators ... three plants."
+      playProject(RobotPollinators, 7)
+    }
+    blue.turn {
+      // "Take my Extremophiles action and add a microbe to Extremophiles."
+      cardAction1(Extremophiles) { addCardResources(Extremophiles) }
+    }
+    yellow.turn {
+      // "Pay seven for Insects ... increase plant production ... for each plant tag ... three."
+      playProject(Insects, 7)
+    }
+    blue.passWithUnusedActionCards(JetStreamMicroscrappers)
+    yellow.turn {
+      // "Stanford Torus ... four titanium ... reserved area."
+      playProject(StanfordTorus, titanium = 4)
+      // "Sell one, two, three, four, five patents."
+      sellPatents(5)
+      // "Carbon Nanosystems ... four steel ... and then six real."
+      playProject(CarbonNanosystems, 6, steel = 4)
+      // "Vesta's Shipyard ... three titanium ... Carbon Nano is worth four ... my two real."
+      playProject(VestaShipyard, 2, titanium = 3) {
+        doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+      }
+      // Yellow's app ledger records one final M€ after Vesta and before Pass.
+      sellPatents(1)
+    }
+    yellow.passWithUnusedActionCards(AerialMappers)
+
+    // All three applogs after the final production phase and before final greenery placement.
+    with(green) {
+      assertProduction(m = 15, s = 1, t = 5, p = 3, e = 6, h = 0)
+      assertResources(m = 59, s = 1, t = 16, p = 3, e = 6, h = 2)
+      assertCounts(36 to "TerraformRating", 0 to "$InventionContest")
+    }
+    with(blue) {
+      assertProduction(m = 16, s = 0, t = 0, p = 5, e = 0, h = 1)
+      assertResources(m = 67, s = 0, t = 0, p = 9, e = 0, h = 4)
+      assertCounts(45 to "TerraformRating", 0 to "$CryoSleep")
+    }
+    with(yellow) {
+      assertProduction(m = 26, s = 1, t = 5, p = 4, e = 1, h = 8)
+      assertResources(m = 65, s = 1, t = 5, p = 8, e = 1, h = 28)
+      assertCounts(
+          38 to "TerraformRating",
+          1 to "$CryoSleep",
+          1 to "$AerialMappers",
+          1 to "$Insects",
+      )
+    }
+    assertSidebar(gen = 9, temp = 8, oxygen = 14, oceans = 9, venus = 30)
+
+    // Final greenery placement, in start-player order.
+    yellow.convertPlants { placeTile(6, 3) }
+    yellow.declineTask()
+    green.declineTask()
+    blue.convertPlants { placeTile(6, 8) }
+    blue.declineTask()
+
+    green.assertCounts(
+        0 to "ProjectCard",
+        1 to "Science<$OlympusConference>",
+        1 to "CardResource", // and that's it
+    )
+    blue.assertCounts(
+        0 to "ProjectCard",
+        6 to "Floater<$Celestic>",
+        1 to "Floater<$LocalShading>",
+        0 to "Floater<$JetStreamMicroscrappers>",
+        0 to "Floater<$Dirigibles>",
+        0 to "Floater<$Stratopolis>",
+        0 to "Floater<$RedSpotObservatory>",
+        0 to "Microbe<$NitriteReducingBacteria>",
+        1 to "Microbe<$Extremophiles>",
+        8 to "CardResource", // and that's it
+    )
+    yellow.assertCounts(
+        0 to "ProjectCard",
+        8 to "Floater<$FloatingHabs>",
+        0 to "Floater<$AerialMappers>",
+        1 to "Floater<$FloatingRefinery>",
+        3 to "Floater<$CloudTourism>",
+        2 to "Microbe<$Ants>",
+        6 to "Animal<$Livestock>",
+        0 to "Graphene<$CarbonNanosystems>",
+        20 to "CardResource", // and that's it
+    )
+
+    val score = Summarizer(game)
+    assertEquals(5, score.net("FirstPlace", "VictoryPoint<Blue>"))
+    assertEquals(4, score.net("GreeneryTile", "VictoryPoint<Blue>"))
+    assertEquals(5, score.net("CityTile", "VictoryPoint<Blue>"))
+    assertEquals(13, score.net("Card", "VictoryPoint<Blue>"))
+    green.assertCounts(88 to "VictoryPoint", 0 to "Victory")
+    blue.assertCounts(72 to "VictoryPoint", 0 to "Victory")
+    yellow.assertCounts(94 to "VictoryPoint", 1 to "Victory")
+
+    assertEquals(
+        """
+        |                      1     2     3     4     5     6     7     8     9
+        |                     /     /     /     /     /     /     /     /     /
+        |
+        | 1 -             [O]    LP    VS    LP   [O]
+        |
+        | 2 -          [O]   [G1]   L     L    LPS   [O]
+        |
+        | 3 -        L    [G1]  [C1]  [G1]   L     LP    L
+        |
+        | 4 -     VS    L    [S1]   L    LSS    L    VTT    LC
+        |
+        | 5 -  L     L    [C1]   LS    LS    LC    L    LSC    W
+        |
+        | 6 -    [C3]  [G3]  [G1]   L     LT   LSS   [G2]  LSS
+        |
+        | 7 -       [C3]  [G3]   L    [G3]  [G2]  [C2]  [O]
+        |
+        | 8 -          [G3]  [C2]  [S3]  [G1]  [G2]  [O]
+        |
+        | 9 -             [O]   [O]   [O]   [C1]  [G2]
+        """
+            .trimMargin(),
+        TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)
+            .render()
+            .joinToString("\n"),
+    )
   }
 }

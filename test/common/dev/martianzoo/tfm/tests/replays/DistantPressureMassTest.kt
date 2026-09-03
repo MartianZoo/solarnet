@@ -208,8 +208,10 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       shouldThrow<RequirementException> {
         claimMilestone(cn("Researcher"))
       }
-      assignWildTag(AppliedScience, "ScienceTag")
-      claimMilestone(cn("Researcher"))
+      claimMilestone(
+          cn("Researcher"),
+          beforeAction = assignAllWildTags("ScienceTag"),
+      )
     }
     been.turn {
       cardAction1(ForcedPrecipitation)
@@ -321,8 +323,11 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
-      assignWildTag(ResearchCoordination, "EarthTag")
-      playProject(LunarMining, 9)
+      playProject(
+          LunarMining,
+          9,
+          butFirst = assignAllWildTags("EarthTag"),
+      )
     }
     been.turn { playProject(SisterPlanetSupport, 7) }
     keen.turn {
@@ -647,9 +652,12 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.turn { playProject(LunarBeam, 10) }
     keen.turn {
       // The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
-      assignWildTag(AppliedScience, "ScienceTag")
       intentionalUnderpay()
-      playProject(SolarProbe, 7) {
+      playProject(
+              SolarProbe,
+              7,
+              butFirst = assignAllWildTags("ScienceTag"),
+          ) {
             draw(Algae, CloudTourism, SpinInducingAsteroid)
             doTask("-ProjectCard")
             discard(SpinInducingAsteroid)

@@ -257,19 +257,23 @@ public class TfmGameplay(
   public fun stdAction(
       stdAction: String,
       which: Int = 1,
+      beforeAction: BodyLambda = {},
       payment: BodyLambda = { payInvoiceFromItsResourceIfOffered() },
       body: BodyLambda = {},
   ): TaskResult {
     // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
     return inTfmTurn {
       doTask("UseAction<$stdAction, ${whichAction(which)}>")
+      beforeAction()
       payment()
       body()
     }
   }
 
-  public fun claimMilestone(milestone: ClassName): TaskResult =
-      stdAction("ClaimMilestone") { doTask("$milestone") }
+  public fun claimMilestone(
+      milestone: ClassName,
+      beforeAction: BodyLambda = {},
+  ): TaskResult = stdAction("ClaimMilestone", beforeAction = beforeAction) { doTask("$milestone") }
 
   public fun fundAward(award: ClassName, amountPaid: Int): TaskResult {
     val which = count("Award") + 1
@@ -330,10 +334,11 @@ public class TfmGameplay(
       mc: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      butFirst: BodyLambda = {},
       payment: BodyLambda = { pay(mc, steel, titanium) },
       body: BodyLambda = {},
   ): TaskResult {
-    return inTfmTurn { playProjectWithinOperation(cardName, payment, body) }
+    return inTfmTurn { playProjectWithinOperation(cardName, butFirst, payment, body) }
   }
 
   public fun OperationBody.playProject(
@@ -341,20 +346,23 @@ public class TfmGameplay(
       mc: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      butFirst: BodyLambda = {},
       payment: BodyLambda = { pay(mc, steel, titanium) },
       body: BodyLambda = {},
   ) {
-    playProjectWithinOperation(cardName, payment, body)
+    playProjectWithinOperation(cardName, butFirst, payment, body)
   }
 
   private fun OperationBody.playProjectWithinOperation(
       cardName: ClassName,
+      butFirst: BodyLambda,
       payment: BodyLambda,
       body: BodyLambda,
   ) {
     if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
       doTask("UseAction<PlayCardFromHand, Action1>")
     }
+    butFirst()
     doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
     payment()
@@ -587,17 +595,31 @@ public class TfmGameplay(
     }
   }
 
-  public fun cardAction1(cardName: ClassName, body: BodyLambda = {}): TaskResult =
-      cardAction(1, cardName, body = body)
+  public fun cardAction1(
+      cardName: ClassName,
+      beforeAction: BodyLambda = {},
+      body: BodyLambda = {},
+  ): TaskResult = cardAction(1, cardName, beforeAction = beforeAction, body = body)
 
-  public fun cardAction1(cardName: ClassName, x: Int, body: BodyLambda = {}): TaskResult =
-      cardAction(1, cardName, x, body)
+  public fun cardAction1(
+      cardName: ClassName,
+      x: Int,
+      beforeAction: BodyLambda = {},
+      body: BodyLambda = {},
+  ): TaskResult = cardAction(1, cardName, x, beforeAction, body)
 
-  public fun cardAction2(cardName: ClassName, body: BodyLambda = {}): TaskResult =
-      cardAction(2, cardName, body = body)
+  public fun cardAction2(
+      cardName: ClassName,
+      beforeAction: BodyLambda = {},
+      body: BodyLambda = {},
+  ): TaskResult = cardAction(2, cardName, beforeAction = beforeAction, body = body)
 
-  public fun cardAction2(cardName: ClassName, x: Int, body: BodyLambda = {}): TaskResult =
-      cardAction(2, cardName, x, body)
+  public fun cardAction2(
+      cardName: ClassName,
+      x: Int,
+      beforeAction: BodyLambda = {},
+      body: BodyLambda = {},
+  ): TaskResult = cardAction(2, cardName, x, beforeAction, body)
 
   public fun OperationBody.cardAction1(cardName: ClassName, body: BodyLambda = {}) {
     useCardAction(1, cardName, body = body)
@@ -619,9 +641,10 @@ public class TfmGameplay(
       which: Int,
       cardName: ClassName,
       x: Int? = null,
+      beforeAction: BodyLambda = {},
       body: BodyLambda = {},
   ): TaskResult {
-    return stdAction("UseCardAction") {
+    return stdAction("UseCardAction", beforeAction = beforeAction) {
       doTask("ActionUsedMarker<$cardName>")
       useCardAction(which, cardName, x, body)
     }

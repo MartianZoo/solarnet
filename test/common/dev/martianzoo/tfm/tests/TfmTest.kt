@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -103,18 +104,11 @@ internal abstract class TfmTest {
     doTask("$choice! BY Engine")
   }
 
-  protected fun TfmGameplay.assignWildTag(card: ClassName, tag: String): TaskResult =
-      doTask("$tag<WildTagUse<$card>>")
-
-  protected fun TfmGameplay.assignWildTag(tag: String): TaskResult =
-      doTask(wildTagAssignment(pendingTasks(), tag))
-
-  protected fun OperationBody.assignWildTag(card: ClassName, tag: String) {
-    doTask("$tag<WildTagUse<$card>>")
-  }
-
-  protected fun OperationBody.assignWildTag(tag: String) {
-    doTask(wildTagAssignment(tasks.extract { it }, tag))
+  protected fun assignAllWildTags(tag: String): BodyLambda = {
+    while (true) {
+      val assignment = wildTagAssignment(tasks.extract { it }, tag) ?: break
+      doTask(assignment)
+    }
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {
@@ -214,13 +208,12 @@ internal abstract class TfmTest {
     return matches.single().index + 1
   }
 
-  private fun wildTagAssignment(tasks: List<Task>, tag: String): String {
+  private fun wildTagAssignment(tasks: List<Task>, tag: String): String? {
     val use =
         tasks
             .asSequence()
             .flatMap { it.instruction.descendantsOfType<Expression>() }
-            .firstOrNull { it.className == cn("WildTagUse") }
-            ?: throw IllegalArgumentException("No pending wild-tag task")
+            .firstOrNull { it.className == cn("WildTagUse") } ?: return null
     val card = requireNotNull(use.arguments.lastOrNull()?.className)
     return "$tag<WildTagUse<$card>>"
   }

@@ -86,8 +86,6 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       playProject(ResearchCoordination, 4)
-      assignWildTag(ResearchCoordination, "PlantTag")
-      assignWildTag(ResearchNetwork, "PlantTag")
       declineSecondAction()
     }
     jon.pass()
@@ -118,9 +116,10 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
 
     jacopo.turn {
       playProject(Archaebacteria, 6)
-      assignWildTag(ResearchCoordination, "PlantTag")
-      assignWildTag(ResearchNetwork, "PlantTag")
-      claimMilestone(cn("Ecologist"))
+      claimMilestone(
+          cn("Ecologist"),
+          beforeAction = assignAllWildTags("PlantTag"),
+      )
     }
     jon.turn {
       playProject(IndustrialCenter, 4) { placeTile(4, 8) }

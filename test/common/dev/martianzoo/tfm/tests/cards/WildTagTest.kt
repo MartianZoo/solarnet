@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class WildTagTest : CardTest() {
   @Test
-  internal fun `Another player's earlier task does not change a wild tag offer's position`() {
+  internal fun `Choosing an action creates its wild tag offer`() {
     newGame(PreludeExpansion)
     val p2 = requireP2()
     p1.manual("$ResearchCoordination")
@@ -16,12 +16,14 @@ internal class WildTagTest : CardTest() {
 
     val otherPlayerTask = p2.addTasks("UseAction<StandardAction>?").single()
     p1.startTurn()
+    p1.count("WildTagUse") shouldBe 0
 
-    p1.stdAction("SellPatentsSP") { abort() }
+    p1.stdAction("SellPatentsSP", payment = {}) {
+      p1.count("WildTagUse") shouldBe 1
+      abort()
+    }
 
     p2.dropTask(otherPlayerTask)
-    // The aborted synthetic action leaves its temporary holder; remove it before ending the test.
-    p1.manual("-WildTagUse<$ResearchCoordination>")
     p1.count("WildTagUse") shouldBe 0
   }
 
@@ -39,23 +41,29 @@ internal class WildTagTest : CardTest() {
     engine.phase("Action")
     p1.startTurn()
 
-    p1.count("WildTagUse") shouldBe 2
-    p1.assignWildTag("EarthTag")
-    p1.assignWildTag("ScienceTag")
+    p1.count("WildTagUse") shouldBe 0
+    p1.stdAction(
+        "SellPatentsSP",
+        beforeAction = {
+          p1.count("WildTagUse") shouldBe 2
+          doTask("EarthTag<WildTagUse<$ResearchCoordination>>")
+          doTask("ScienceTag<WildTagUse<$ResearchNetwork>>")
 
-    p1.count("EarthTag") shouldBe 2
-    p1.count("EarthTag<CardFront>") shouldBe 1
-    p1.count("ScienceTag") shouldBe 2
-    p1.count("ScienceTag<CardFront>") shouldBe 1
-    p1.count("ProjectCard") shouldBe cardsBeforeWildTags
-
-    p1.sellPatents(1)
+          p1.count("EarthTag") shouldBe 2
+          p1.count("EarthTag<CardFront>") shouldBe 1
+          p1.count("ScienceTag") shouldBe 2
+          p1.count("ScienceTag<CardFront>") shouldBe 1
+          p1.count("ProjectCard") shouldBe cardsBeforeWildTags
+        },
+    ) {
+      doTask("1 MC FROM ProjectCard<Hand>!")
+    }
 
     p1.count("EarthTag") shouldBe 1
     p1.count("ScienceTag") shouldBe 1
     p1.count("WildTagUse") shouldBe 0
     p1.startTurn()
-    p1.count("WildTagUse") shouldBe 2
+    p1.count("WildTagUse") shouldBe 0
     p1.pass()
     p1.count("WildTagUse") shouldBe 0
   }
@@ -67,9 +75,13 @@ internal class WildTagTest : CardTest() {
     p1.count("WildTag") shouldBe 1
     engine.phase("Action")
     p1.startTurn()
-    p1.assignWildTag(ResearchNetwork, "BuildingTag")
 
-    p1.playProject(RoboticWorkforce, 9) {
+    p1.playProject(
+            RoboticWorkforce,
+            9,
+            // Robotic Workforce follows this holder back to the card whose production it copies.
+            butFirst = { doTask("BuildingTag<WildTagUse<$ResearchNetwork>>") },
+        ) {
           doTask("CopyProductionBox<$ResearchNetwork>")
         }
         .expect("PROD[1 MC]")
@@ -85,7 +97,7 @@ internal class WildTagTest : CardTest() {
     p1.startTurn()
     p1.playPrelude(ResearchNetwork)
     p1.startTurn()
-    p1.assignWildTag(ResearchNetwork, "EarthTag")
+    p1.continueManual(assignAllWildTags("EarthTag"))
 
     p1.playPrelude(ExcentricSponsor) { p1.playProject(SpaceHotels, 0) }.expect("PROD[4 MC]")
   }
@@ -98,7 +110,7 @@ internal class WildTagTest : CardTest() {
     p1.startTurn()
     p1.playPrelude(ResearchNetwork)
     p1.startTurn()
-    p1.assignWildTag(ResearchNetwork, "PowerTag")
+    p1.continueManual(assignAllWildTags("PowerTag"))
 
     p1.playPrelude(ExcentricSponsor) { p1.playProject(PowerGrid, 0) }.expect("PROD[2 Energy]")
   }

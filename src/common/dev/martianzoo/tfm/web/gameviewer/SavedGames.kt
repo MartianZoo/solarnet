@@ -11,6 +11,6 @@ public object SavedGames {
           SavedGame("August 9, 2026", ::OtbGame20260809),
           SavedGame("August 18, 2026", ::OtbGame20260818),
           SavedGame("August 25, 2026", ::OtbGame20260825),
-          SavedGame("August 28, 2026 (partial)", ::OtbGame20260828),
+          SavedGame("August 28, 2026", ::OtbGame20260828),
       )
 }

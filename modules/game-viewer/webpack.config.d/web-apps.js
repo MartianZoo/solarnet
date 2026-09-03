@@ -25,6 +25,7 @@ if (process.env.WEBPACK_SERVE) {
   };
 
   config.devServer.open = false;
+  config.devServer.allowedHosts = ["newazure.local"];
   config.devServer.static = apps.map((app) => ({
     directory: app.resources,
     publicPath: `/${app.route}`,
