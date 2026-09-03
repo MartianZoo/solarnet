@@ -94,7 +94,6 @@ private constructor(
     val contextualOwner = effectOwner ?: changedComponentPlayer ?: (triggerEvent.actor as? Player)
     val defaultActor =
         effectOwner ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor
-    val narrower = effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
     val taskController =
         (controller as? Player) ?: effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
 
@@ -112,9 +111,7 @@ private constructor(
             .evaluateProperties(context.expression, contextualOwner)
             .transformInstructionTree(hit.specialize(effect.instruction))
     return PendingTask(
-        assignee = taskController,
         controller = taskController,
-        narrower = narrower,
         actor = defaultActor,
         instruction = InstructionGroup.of(instruction),
         cause = cause,

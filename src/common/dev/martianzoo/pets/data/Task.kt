@@ -23,20 +23,17 @@ public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,
 
-    /** Whose pending-work queue contains this task and whose scoped Agent may select it. */
-    val assignee: Actor,
-
     /** Who controls the surrounding operation and receives work caused by this task. */
-    val controller: Actor = assignee,
+    val controller: Actor,
 
-    /** Who supplies choices after this task has been selected. */
-    val narrower: Actor = controller,
+    /**
+     * Who supplies choices after selection and performs resulting changes unless the instruction
+     * contains an explicit BY.
+     */
+    val actor: Actor = controller,
 
-    /** The Actor recorded for resulting changes unless the instruction contains an explicit BY. */
-    val actor: Actor = narrower,
-
-    /** If true, the world may not be modified until this task is completed. */
-    val selected: Boolean = false,
+    /** Where this task is in its selection lifecycle. */
+    val selection: Selection = Selection.UNSELECTED,
 
     /**
      * What to do. Can be abstract. If so, it must be narrowed until concrete before it executes.
@@ -53,6 +50,14 @@ public data class Task(
     /** Why is the task still here? */
     val whyPending: String? = null,
 ) {
+
+  /** Whose pending-work queue contains this task and whose scoped Agent may act on it. */
+  public val assignee: Actor
+    get() = if (selection == Selection.DELEGATED) actor else controller
+
+  /** If true, the world may not be modified until this task is completed. */
+  public val selected: Boolean
+    get() = selection != Selection.UNSELECTED
 
   /** Normalized form of [instructionIn]. */
   public val instruction: Instruction =
@@ -107,12 +112,10 @@ public data class Task(
   public companion object {
     public fun newTasks(
         firstId: TaskId,
-        assignee: Actor,
+        controller: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
-        actor: Actor = assignee,
-        controller: Actor = assignee,
-        narrower: Actor = actor,
+        actor: Actor = controller,
         isAbstract: ((Expression) -> Boolean)? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
@@ -121,9 +124,7 @@ public data class Task(
       return normalized.map {
         newTask(
             ids.next(),
-            assignee,
             controller,
-            narrower,
             actor,
             it,
             cause,
@@ -179,23 +180,17 @@ public data class Task(
 
     private fun newTask(
         id: TaskId,
-        assignee: Actor,
         controller: Actor,
-        narrower: Actor,
         actor: Actor,
         instruction: Instruction,
         cause: Cause?,
-        automatic: Boolean = false,
         isAbstract: ((Expression) -> Boolean)? = null,
     ): Task {
       val task =
           Task(
               id = id,
-              assignee = assignee,
               controller = controller,
-              narrower = narrower,
               actor = actor,
-              selected = automatic,
               instructionIn = instruction,
               cause = cause,
           )
@@ -223,5 +218,12 @@ public data class Task(
     override fun compareTo(other: TaskId): Int = ordinal.compareTo(other.ordinal)
 
     override fun toString(): String = ordinal.toString()
+  }
+
+  /** The selection states that determine a task's assignee and whether it locks the World. */
+  public enum class Selection {
+    UNSELECTED,
+    SELECTED,
+    DELEGATED,
   }
 }

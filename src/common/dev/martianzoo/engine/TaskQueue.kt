@@ -67,24 +67,21 @@ internal constructor(
       cause: Cause?,
       actor: Actor? = null,
       controller: Actor? = null,
-      narrower: Actor? = null,
   ): List<TaskAddedEvent> {
     val inferredAssignee = assignee ?: error("global queue view can't infer a task assignee")
     val inferredActor = actor ?: inferredAssignee
     return taskQueues.addTasks(
         instruction,
-        inferredAssignee,
+        controller ?: inferredAssignee,
         cause,
         inferredActor,
-        controller ?: inferredAssignee,
-        narrower ?: inferredActor,
     )
   }
 
   internal fun addTasks(task: PendingTask): List<TaskAddedEvent> {
-    if (assignee != null && task.assignee != assignee) {
+    if (assignee != null && task.controller != assignee) {
       throw TaskException(
-          "$assignee's queue can't contain pending work assigned to ${task.assignee}: $task"
+          "$assignee's queue can't contain pending work controlled by ${task.controller}: $task"
       )
     }
     return taskQueues.addTasks(task)

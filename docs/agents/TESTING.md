@@ -154,7 +154,7 @@ test-facing layer: test the card, rule, or workflow result rather than a private
 exact intermediate task text, or other implementation detail.
 
 Keep task-routing mechanism tests in the generic engine suite. Those tests may inspect task
-controller, assignee, narrower, selection, and event Actor because those are the contract under test. A
+controller, derived assignee, selection, and event Actor because those are the contract under test. A
 player-level card or rule scenario should instead demonstrate routing through public gameplay:
 which Player can select or narrow, whether competing gameplay is blocked, the resulting state, and,
 when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card

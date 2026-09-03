@@ -8,17 +8,17 @@
 > contextual `Owner` spelling; read the dependency sections of [TYPES.md](TYPES.md).
 >
 > **Status:** current identity semantics plus the selected Engine/Admin naming direction. The
-> interaction between SAFE auto-selection and cross-Player handoff remains open, as do the two
-> entries under Open audits.
+> interaction between SAFE auto-selection and cross-Player handoff remains open, as does the entry
+> under Open audit.
 
 ## Source map
 
 - [`Identities.kt`](../../src/common/dev/martianzoo/pets/data/Identities.kt) — search
   for `public sealed interface Actor` for the operation identity mechanism.
-- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) — inspect `controller`, `assignee`,
-  `narrower`, and `actor` before changing queued work.
+- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) — inspect `controller`, the derived
+  `assignee`, `actor`, and selection state before changing queued work.
 - [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
-  for `assignee` to see trigger-time routing.
+  for `taskController` to see trigger-time routing.
 - [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — search for
   `fixEffectForUnownedContext` to see ownerless Effects acquire their event-Actor filter.
 - [`Defaults.kt`](../../src/common/dev/martianzoo/pets/types/Defaults.kt) — search for
@@ -48,9 +48,11 @@ Pets behavior is interpreted in context. Keep these roles separate:
 - **Actor:** the default performer credited with the resulting change. Instruction-side `BY` may
   override it.
 
-These roles often coincide, but no equality between them is a game rule. In particular, Icy
-Impactors separates its narrower from its credited Actor, and future hidden-card selection separates
-Admin narrowing from Player attribution.
+These roles often coincide. Current queued work stores its controller and contextual Actor once.
+Its three-state selection lifecycle determines which of them is the assignee. The contextual Actor
+supplies any remaining choice and is the default performer. Icy Impactors uses instruction-side
+`BY` to separate its credited Actor. Future hidden-card selection would add a new case in which
+Admin chooses without becoming the default performer.
 
 ## Admin and engine
 
@@ -64,10 +66,11 @@ calculates the resulting state transition. It is not an Actor, Component, task a
 or event performer. Current code and Pets still call the administrative Actor `Engine`; that is
 migration state, not the target vocabulary.
 
-Core engine state records a Task's assignee and enforces that ordinary task mutations name that
-Actor. The Actor's unique Agent binds normal client calls to that Actor, presents a convenient
-filtered view of the one global task pool, and issues both explicit and policy-chosen mutations.
-Lower-level engine mutation remains available for deliberate workflow, replay, cheat, and test use.
+Core engine state derives a Task's current assignee from its selection state and enforces that
+ordinary task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
+Actor, presents a convenient filtered view of the one global task pool, and issues both explicit and
+policy-chosen mutations. Lower-level engine mutation remains available for deliberate workflow,
+replay, cheat, and test use.
 
 ## Context specialization
 
@@ -84,7 +87,7 @@ the effect owner when present and otherwise the surrounding Actor. An ad hoc ins
 to its gameplay Actor. Instruction-side `BY` explicitly overrides the performer without changing
 who narrows an abstract task.
 
-The default binds when work is produced. A pending or queued task remembers its future Actor in
+The default binds when work is produced. A pending or queued task remembers its contextual Actor in
 `Task.actor`; later execution through another gameplay scope does not steal attribution. Splitting,
 narrowing, resolution, and `THEN` continuation preserve it.
 
@@ -113,21 +116,20 @@ Actor rather than another Type expression.
 
 ## Triggered task assignment and delegation
 
-A direct task starts with its gameplay Actor as controller, assignee, narrower, and default Actor.
-Queued work triggered during a Player-controlled operation keeps that Player as controller and
-assignee, regardless of which component owns the effect. Its narrower is the
-Player owner of the effect-bearing component, then the Player owner of the changed component, then
-the triggering Actor. Admin-driven setup and workflow retain that contextual routing. The default
-Actor is specialized independently as described above.
+A direct task starts with its gameplay Actor as controller and contextual Actor. Queued work
+triggered during a Player-controlled operation keeps that Player as controller, regardless of which
+component owns the effect. Its contextual Actor is the Player owner of the effect-bearing component,
+then the Player owner of the changed component, then the triggering Actor. Admin-driven setup and
+workflow retain that routing. An unselected task's assignee is its controller.
 
 Selecting a concrete task executes it in place. The change records the task's Actor unless an
 instruction-side `BY` overrides it. Reactions caused by that execution return to the retained
 controller's queue.
 
-Selecting an abstract task resolves it first, then moves that same selected task to its narrower's
-queue when the narrower differs from the controller. The new assignee narrows it without another
-selection. The global select-lock prevents the controller or any other Actor from selecting or
-executing competing work until the selected task completes. `Task.controller` does not change
+Selecting an abstract task resolves it first, then moves that same selected task to its contextual
+Actor's queue when that Actor differs from the controller. The derived assignee narrows it without
+another selection. The global select-lock prevents the controller or any other Actor from selecting
+or executing competing work until the selected task completes. `Task.controller` does not change
 during this handoff.
 
 If resolution or narrowing replaces the selected task with independent siblings, those siblings
@@ -170,12 +172,12 @@ itself prove that the owner received narrowing authority.
 
 ## Test responsibilities
 
-Generic engine tests may inspect `Task.controller`, assignee changes, selection state, and recorded
-Actor to prove the mechanism once. Player-level card and rule tests must stay functional: prove who
-can select or narrow through gameplay calls, prove the controller is blocked through rejected
-gameplay, and prove attribution through a visible trigger-side `BY` consequence when attribution is
-material. They should not filter tasks by cause or Actor, match exact internal task strings, or read
-the Event Log merely to restate engine metadata.
+Generic engine tests may inspect `Task.controller`, derived assignee changes, selection state, and
+recorded Actor to prove the mechanism once. Player-level card and rule tests must stay functional:
+prove who can select or narrow through gameplay calls, prove the controller is blocked through
+rejected gameplay, and prove attribution through a visible trigger-side `BY` consequence when
+attribution is material. They should not filter tasks by cause or Actor, match exact internal task
+strings, or read the Event Log merely to restate engine metadata.
 
 `ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding. Task assignment is
 incidental there and should be removed from those assertions or made explicit in separately named
@@ -192,38 +194,7 @@ proof.
   cross-Player handoff requires an explicit controller selection. When multiple sibling tasks are
   available, SAFE already leaves the ordering to P1.
 
-## Open audits
-
-Both entries below are investigations, not selected directions. Do not implement either as a local
-patch; each is worth doing only if it removes a representation rather than moving one.
-
-### Is `narrower` a stored fact or a derived one?
-
-`Task` stores four Actor fields — `assignee`, `controller`, `narrower`, `actor` — and
-`LiveEffect.onChange` computes four near-identical fallback chains side by side (`contextualOwner`,
-`defaultActor`, `narrower`, `taskController`), differing only in whether a passive Owner, an
-automatic effect, or a non-Player Actor is admitted. Four stored roles fed by four almost-equal
-derivations is the shape that usually means one fact is being written down several times.
-
-The hypothesis to test: the fact the engine actually needs is the **context owner** of the
-instruction. When the instruction is abstract, the context owner is automatically the narrower.
-When it is concrete there is no narrowing to delegate and the active Player simply performs it, but
-the context owner is still material, because the resulting change is recorded as done `BY` the
-context owner.
-
-If that holds, `narrower` is derivable from the context owner plus abstractness, and possibly
-`actor` is too. To settle it:
-
-1. Check each row of the constraining-cases table above against the hypothesis. Icy Impactors is
-   the discriminating row, because it deliberately uses instruction-side `BY` to keep the future
-   Actor with the card owner while the StartToken owner narrows — so context owner and Actor are
-   provably separable there.
-2. Establish where each of the four `LiveEffect` chains genuinely diverges and whether a game rule
-   requires that divergence, or whether it is compensating for a missing context owner.
-3. Only then decide which fields survive.
-
-Do not delete a field before step 2 is written down. `TaskDelegationTest` and `PhilaresTest` prove
-the current mechanism and should keep passing unchanged through any refactor.
+## Open audit
 
 ### `Owner` is overloaded as a Class and as a contextual variable
 

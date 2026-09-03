@@ -118,7 +118,7 @@ internal class TaskAssignmentCharacterizationTest {
     val cause = Cause(parse<Expression>("Token"), triggerEvent = 0)
     val pending =
         PendingTask(
-            assignee = PLAYER2,
+            controller = PLAYER2,
             instruction = InstructionGroup(listOf(parse<Instruction>("Token<Player2>!"))),
             cause = cause,
         )
@@ -140,7 +140,7 @@ internal class TaskAssignmentCharacterizationTest {
     val queues = TaskQueues(events)
     val pending =
         PendingTask(
-            assignee = PLAYER2,
+            controller = PLAYER2,
             instruction = InstructionGroup(listOf(parse<Instruction>("Token<Player2>!"))),
             cause = Cause(parse<Expression>("Token"), triggerEvent = 0),
         )
