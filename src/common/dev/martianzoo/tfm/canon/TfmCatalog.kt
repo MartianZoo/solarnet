@@ -143,6 +143,19 @@ public open class TfmCatalog : Catalog {
   /** Organizational bundles from which this Catalog is assembled. */
   public open val bundles: List<Bundle> = emptyList()
 
+  /** Concrete subclasses of [superclass] whose declarations live in [bundleName]. */
+  public fun classNamesInBundle(
+      bundleName: ClassName,
+      superclass: ClassName,
+  ): Set<ClassName> {
+    val matchingBundles = bundles.filter { it.bundleName == bundleName }
+    require(matchingBundles.size == 1) {
+      "expected one bundle named $bundleName; found ${matchingBundles.size}"
+    }
+    return bundleClassesBelow(matchingBundles.single(), superclass)
+        .mapTo(linkedSetOf(), ClassDeclaration::className)
+  }
+
   final override val classAvailabilityModules: Map<ClassName, Set<ClassName>> by lazy {
     buildMap<ClassName, MutableSet<ClassName>> {
           bundles.forEach { bundle ->
@@ -283,6 +296,23 @@ public open class TfmCatalog : Catalog {
     }
 
     val moduleNames = included.filterTo(linkedSetOf()) { it in modules }
+    val selectedMilestoneNames =
+        selectGoalPool(
+            moduleNames,
+            included,
+            explicitlyIncluded,
+            explicitlyExcluded,
+            TfmClasses.MILESTONE,
+        )
+    val selectedAwardNames =
+        selectGoalPool(
+            moduleNames,
+            included,
+            explicitlyIncluded,
+            explicitlyExcluded,
+            TfmClasses.AWARD,
+        )
+    included = included + selectedMilestoneNames + selectedAwardNames
     val colonyNames = colonyTileClassNames
     val individualNames = included - moduleNames
     val individualSelections = linkedMapOf<ClassName, Boolean>()
@@ -291,12 +321,12 @@ public open class TfmCatalog : Catalog {
     addExactGoalSelections(
         individualSelections,
         goalClassNames(TfmClasses.MILESTONE),
-        explicitlyIncluded,
+        selectedMilestoneNames,
     )
     addExactGoalSelections(
         individualSelections,
         goalClassNames(TfmClasses.AWARD),
-        explicitlyIncluded,
+        selectedAwardNames,
     )
     val classSelections =
         individualSelections
@@ -313,18 +343,8 @@ public open class TfmCatalog : Catalog {
             .filter { it.included && it.appliesTo(included, universe) }
             .mapTo(hashSetOf(), ClassSelection::className)
     if (MULTIPLAYER_MODE in moduleNames) {
-      requireGoalPoolSize(
-          moduleNames,
-          explicitlyIncluded,
-          explicitlyExcluded,
-          TfmClasses.MILESTONE,
-      )
-      requireGoalPoolSize(
-          moduleNames,
-          explicitlyIncluded,
-          explicitlyExcluded,
-          TfmClasses.AWARD,
-      )
+      requireGoalPoolSize(selectedMilestoneNames, TfmClasses.MILESTONE)
+      requireGoalPoolSize(selectedAwardNames, TfmClasses.AWARD)
     }
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "initial ColonyTiles must be provided by a selected Module"
@@ -364,21 +384,34 @@ public open class TfmCatalog : Catalog {
     }
   }
 
-  private fun requireGoalPoolSize(
+  private fun selectGoalPool(
       moduleNames: Set<ClassName>,
+      configuredClassNames: Set<ClassName>,
       explicitlyIncluded: Set<ClassName>,
       explicitlyExcluded: Set<ClassName>,
       goalClass: ClassName,
-  ) {
+  ): Set<ClassName> {
     val knownGoals = goalClassNames(goalClass)
     val explicitlySelected = explicitlyIncluded intersect knownGoals
-    val selectedGoals =
-        ((explicitlySelected.takeIf { it.isNotEmpty() }
-            ?: moduleNames
-                .flatMap { modules.getValue(it) }
-                .filter(ClassSelection::included)
-                .mapTo(linkedSetOf(), ClassSelection::className)) intersect knownGoals) -
-            explicitlyExcluded
+    if (explicitlySelected.isNotEmpty()) return explicitlySelected
+    if (MULTIPLAYER_MODE !in moduleNames) return emptySet()
+
+    return bundles
+        .filter { bundle -> bundle.bundleName in moduleNames }
+        .flatMap { bundle -> classNamesInBundle(bundle.bundleName, goalClass) }
+        .map { className ->
+          val declaration = classDeclaration(className)
+          ClassSelection(
+              className,
+              requirement = goalAutomaticSelectionRequirement(declaration, goalClass),
+          )
+        }
+        .filter { selection -> selection.appliesTo(configuredClassNames, universe) }
+        .mapTo(linkedSetOf(), ClassSelection::className)
+        .minus(explicitlyExcluded)
+  }
+
+  private fun requireGoalPoolSize(selectedGoals: Set<ClassName>, goalClass: ClassName) {
     require(selectedGoals.size >= MINIMUM_GOAL_POOL_SIZE) {
       "a multiplayer game requires at least $MINIMUM_GOAL_POOL_SIZE $goalClass classes; " +
           "found ${selectedGoals.size}: ${selectedGoals.sortedBy(ClassName::toString)}"
@@ -416,9 +449,8 @@ public open class TfmCatalog : Catalog {
   private fun addExactGoalSelections(
       selections: MutableMap<ClassName, Boolean>,
       goalNames: Set<ClassName>,
-      explicitlyIncluded: Set<ClassName>,
+      selectedNames: Set<ClassName>,
   ) {
-    val selectedNames = explicitlyIncluded intersect goalNames
     if (selectedNames.isEmpty()) return
     goalNames.forEach { selections[it] = it in selectedNames }
   }
@@ -431,13 +463,10 @@ public open class TfmCatalog : Catalog {
   private fun bundleClassesBelow(
       bundle: Bundle,
       superclass: ClassName,
-      directOnly: Boolean = false,
       includeAbstract: Boolean = false,
   ): List<ClassDeclaration> =
       bundle.explicitClassDeclarations.filter { declaration ->
-        (includeAbstract || !declaration.abstract) &&
-            if (directOnly) declaration.supertypes.any { it.className == superclass }
-            else isSubtypeOf(declaration.className, superclass)
+        (includeAbstract || !declaration.abstract) && isSubtypeOf(declaration.className, superclass)
       }
 
   // CLASS DECLARATIONS
@@ -507,40 +536,24 @@ public open class TfmCatalog : Catalog {
         }
   }
 
-  private fun selectionsFor(moduleName: ClassName): Set<ClassSelection> {
-    val owners = bundles.filter {
-      moduleName in it.contributedClassDeclarations.map { d -> d.className }
+  private fun owningBundle(className: ClassName): Bundle? {
+    val owners = bundles.filter { bundle ->
+      bundle.explicitClassDeclarations.any { it.className == className }
     }
     require(owners.size <= 1) {
-      "Module $moduleName has ambiguous bundle ownership: ${owners.map(Bundle::bundleName)}"
+      "$className has ambiguous bundle ownership: ${owners.map(Bundle::bundleName)}"
     }
-    val owner = owners.singleOrNull() ?: return emptySet()
+    return owners.singleOrNull()
+  }
+
+  private fun selectionsFor(moduleName: ClassName): Set<ClassSelection> {
+    val owner = owningBundle(moduleName) ?: return emptySet()
     owner.marsMapDefinitions
         .singleOrNull { it.className == moduleName }
         ?.let { map ->
           return buildSet {
             add(ClassSelection(map.className))
             map.areas.forEach { area -> add(ClassSelection(area.className)) }
-            map.defaultMilestones
-                .takeIf { it.isNotEmpty() }
-                ?.let { names ->
-                  val goals = names.map(::classDeclaration)
-                  addGoals(
-                      goals,
-                      TfmClasses.MILESTONE,
-                      parse("MultiplayerMode, MAX 0 Milestone"),
-                  )
-                }
-            map.defaultAwards
-                .takeIf { it.isNotEmpty() }
-                ?.let { names ->
-                  val goals = names.map(::classDeclaration)
-                  addGoals(
-                      goals,
-                      TfmClasses.AWARD,
-                      parse("MultiplayerMode, MAX 0 Award"),
-                  )
-                }
           }
         }
     val ordinaryCards =
@@ -610,14 +623,6 @@ public open class TfmCatalog : Catalog {
         }
       }
     }
-    if (Kind.MILESTONES in kinds) {
-      val goals = bundleClassesBelow(bundle, TfmClasses.MILESTONE, directOnly = true)
-      addGoals(goals, TfmClasses.MILESTONE)
-    }
-    if (Kind.AWARDS in kinds) {
-      val goals = bundleClassesBelow(bundle, TfmClasses.AWARD, directOnly = true)
-      addGoals(goals, TfmClasses.AWARD)
-    }
     if (Kind.COLONY_TILES in kinds) {
       bundle.explicitClassDeclarations
           .filter { declaration ->
@@ -653,23 +658,6 @@ public open class TfmCatalog : Catalog {
         }
     (resourceClassNames - cardClassNames - referencedNames).mapTo(this) { className ->
       ClassSelection(className, requirement = contentCompatibilityRequirement(className))
-    }
-  }
-
-  private fun MutableSet<ClassSelection>.addGoals(
-      goals: Collection<ClassDeclaration>,
-      goalClass: ClassName,
-      sharedRequirement: Requirement? = null,
-  ) {
-    goals.mapTo(this) { declaration ->
-      ClassSelection(
-          declaration.className,
-          requirement =
-              Requirement.join(
-                  sharedRequirement,
-                  goalAutomaticSelectionRequirement(declaration, goalClass),
-              ),
-      )
     }
   }
 

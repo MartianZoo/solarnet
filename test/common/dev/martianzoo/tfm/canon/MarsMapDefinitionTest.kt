@@ -28,8 +28,6 @@ internal class MarsMapDefinitionTest {
   internal fun readsMapDefinitionFromPetsComment() {
     val map: MarsMapDefinition = MarsMapReader.readMaps(demoMapPets).single()
     map.className shouldBe cn("DemoMap")
-    map.defaultMilestones shouldBe emptySet()
-    map.defaultAwards shouldBe emptySet()
     map.areas.shouldHaveSize(7)
     map.areas[1, 1]!!.code shouldBe "VS"
     map.areas[1, 1]!!.bonusText shouldBe "Steel"

@@ -144,12 +144,13 @@ representations. In solo play four are selected; setup asks the player to remove
 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
-multiplayer, each map selects the concrete members of its explicitly configured milestone and award
-pools. Pool membership is not represented by gameplay supertypes. A multiplayer premise is invalid
-unless its configured selection contains at least three milestone and three award Classes. Venus
-Next selects its single published milestone and award directly as conditional bundle content.
-Explicitly naming any milestones or awards makes that category an exact pool, so named goals
-replace only their own category. Selecting colony tiles also requests their initial components.
+multiplayer, each Bundle whose same-named Module is selected contributes its applicable concrete
+milestone and award Classes as defaults. Premise resolution discovers those Classes by their
+authored Bundle membership and freezes the resulting pools as exact signed selections in
+`GamePremise`. A multiplayer premise is invalid unless the result contains at least three milestone
+and three award Classes. Explicitly naming any milestones or awards makes that category an exact
+pool, so named goals replace only their own category. Selecting colony tiles also requests their
+initial components.
 Solo Colonies uses three tiles, two-player Colonies uses five, and games with at least three players
 use two more tiles than players.
 
@@ -180,18 +181,16 @@ A **Bundle** is an internal unit of ownership, provenance, distribution, and loa
 declarations, category-specific card or map data, and custom implementations. It is not selected
 directly and never becomes a live component.
 
-A Bundle may contain several Modules while retaining their separate card pools. A Module
-named for its owning Bundle selects that Bundle's ordinary cards and colony tiles. A map Module
-selects its own map definition, areas, and the concrete milestone and award Classes named by its map
-configuration. Source-local custom implementations used by goals share the goals' availability
-rather than the owning maps' availability. Exceptional cross-Bundle or narrowed selections remain
-expressible, but Canon's normal expansions do not require a central registry to restate their
-ownership.
+A Bundle may contain several Modules while retaining their separate card pools. A Module named for
+its owning Bundle selects that Bundle's ordinary cards and colony tiles. In multiplayer, its
+applicable concrete milestones and awards also become category defaults during premise resolution.
+Each map has its own same-named Bundle containing its map definition, areas, goals, and source-local
+goal support. Exceptional cross-Bundle or narrowed selections remain expressible, but Canon's
+normal expansions do not require a central registry to restate their ownership.
 
-Three registry-shaped exceptions remain. `Prelude1CardPack` routes the Prelude 1 cards from the
-larger Prelude Expansion Bundle, `Prelude2CardPack` routes cards from the differently named Prelude
-2 Expansion Bundle, and Venus Next explicitly asks its same-named Bundle for cards, milestones, and
-awards. These should be removed only after declaration authority is complete.
+Two registry-shaped exceptions remain. `Prelude1CardPack` routes the Prelude 1 cards from the
+larger Prelude Expansion Bundle, and `Prelude2CardPack` routes cards from the differently named
+Prelude 2 Expansion Bundle. These should be removed only after declaration authority is complete.
 
 ### Content grouping
 
@@ -203,8 +202,8 @@ selects its concrete `CardFront` declarations and unreferenced non-card roots fo
 Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
 which active Classes instantiate. None has a per-card metadata relationship.
 
-A same-named Module should eventually select the Bundle's other ordinary content through the same
-general rule. `Prelude1CardPack` should own a separate selectable resource group, represented by
+A same-named Module selects the Bundle's ordinary cards and supplies its default goal pools through
+general rules. `Prelude1CardPack` should own a separate selectable resource group, represented by
 its own internal Bundle even though it shares a published product with the Prelude 1 rules and
 project cards. Once the common cases use those mechanisms, delete `BundleContentSelection` instead
 of replacing it with directory-basename or map-suffix policy.
@@ -284,8 +283,7 @@ optimization leak.
 A Bundle with a same-named Module makes its ambient declarations available through that Module. A
 map Bundle without a same-named Module uses the disjunction of its map Modules. A data-only Bundle
 with neither has no implicit availability rule. This convention covers expansions,
-single-map Bundles, and the two-map Hellas/Elysium and Utopia/Cimmeria Bundles without per-Class
-properties.
+single-map Bundles without per-Class properties.
 
 Availability is not activation. Selecting `TerraformingMars` makes its ambient vocabulary,
 including `MultiplayerMode`, available, while the selected player-count Module still decides which

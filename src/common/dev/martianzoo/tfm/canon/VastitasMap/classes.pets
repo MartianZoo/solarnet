@@ -1,0 +1,106 @@
+"Counts the tiles in a player's largest contiguous group of owned tiles"
+CLASS TileInLargestGroup : Owned<Player>, Custom
+
+// Vastitas Borealis milestones, then awards, in board order.
+CLASS Agronomist : Milestone { requirement = HAS "4 PlantTag" }
+CLASS Engineer : Milestone { requirement = HAS "10 PROD[Energy OR Heat]" }
+CLASS Spacefarer : Milestone { requirement = HAS "4 SpaceTag" }
+CLASS Geologist : Milestone { requirement = HAS "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))" }
+CLASS Farmer : Milestone { requirement = HAS "5 (Animal OR Microbe)" }
+
+CLASS Traveller : Award { metric = COUNT "JovianTag OR EarthTag" }
+CLASS Landscaper : Award { metric = COUNT "TileInLargestGroup" }
+CLASS Highlander : Award { metric = COUNT "OwnedTile<MarsArea(HAS MAX 0 Neighbor<OceanTile>)>" }
+CLASS Promoter : Award { metric = COUNT "CARDS[CardBack<EventPile>]" }
+CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
+
+CLASS VastitasMap : MarsMap
+
+// The map areas below are code-generated based on the following comment
+//               LP    L     VS    L     L
+//
+//           LPP   LPP    L     L     LP    VC
+//
+//         LC   WPP   WPP   LPP    LP    L     L
+//
+//     VSS    LT   WPP    LP    L     LC    LP    LD
+//
+//   L     L     WP   LPP   LF4   WPP   WPP   WPP   LCC
+//
+//     LCC    L     LP   WHH   WHHP   WC    LP   LTT
+//
+//         VT    LS    W    WHH   LPP    LP    L
+//
+//            LP    L     LP   LPS    LS    LP
+//
+//               LD    L     LC    LS    LT
+
+CLASS Vastitas_1_1 :     LandArea { row = 1; column = 1; Tile<This>: Plant }
+CLASS Vastitas_1_2 :     LandArea { row = 1; column = 2 }
+CLASS Vastitas_1_3 : VolcanicArea { row = 1; column = 3; Tile<This>: Steel }
+CLASS Vastitas_1_4 :     LandArea { row = 1; column = 4 }
+CLASS Vastitas_1_5 :     LandArea { row = 1; column = 5 }
+
+CLASS Vastitas_2_1 :     LandArea { row = 2; column = 1; Tile<This>: 2 Plant }
+CLASS Vastitas_2_2 :     LandArea { row = 2; column = 2; Tile<This>: 2 Plant }
+CLASS Vastitas_2_3 :     LandArea { row = 2; column = 3 }
+CLASS Vastitas_2_4 :     LandArea { row = 2; column = 4 }
+CLASS Vastitas_2_5 :     LandArea { row = 2; column = 5; Tile<This>: Plant }
+CLASS Vastitas_2_6 : VolcanicArea { row = 2; column = 6; Tile<This>: ProjectCard }
+
+CLASS Vastitas_3_1 :     LandArea { row = 3; column = 1; Tile<This>: ProjectCard }
+CLASS Vastitas_3_2 :    WaterArea { row = 3; column = 2; Tile<This>: 2 Plant }
+CLASS Vastitas_3_3 :    WaterArea { row = 3; column = 3; Tile<This>: 2 Plant }
+CLASS Vastitas_3_4 :     LandArea { row = 3; column = 4; Tile<This>: 2 Plant }
+CLASS Vastitas_3_5 :     LandArea { row = 3; column = 5; Tile<This>: Plant }
+CLASS Vastitas_3_6 :     LandArea { row = 3; column = 6 }
+CLASS Vastitas_3_7 :     LandArea { row = 3; column = 7 }
+
+CLASS Vastitas_4_1 : VolcanicArea { row = 4; column = 1; Tile<This>: 2 Steel }
+CLASS Vastitas_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Titanium }
+CLASS Vastitas_4_3 :    WaterArea { row = 4; column = 3; Tile<This>: 2 Plant }
+CLASS Vastitas_4_4 :     LandArea { row = 4; column = 4; Tile<This>: Plant }
+CLASS Vastitas_4_5 :     LandArea { row = 4; column = 5 }
+CLASS Vastitas_4_6 :     LandArea { row = 4; column = 6; Tile<This>: ProjectCard }
+CLASS Vastitas_4_7 :     LandArea { row = 4; column = 7; Tile<This>: Plant }
+CLASS Vastitas_4_8 :     LandArea { row = 4; column = 8 }
+
+CLASS Vastitas_5_1 :     LandArea { row = 5; column = 1 }
+CLASS Vastitas_5_2 :     LandArea { row = 5; column = 2 }
+CLASS Vastitas_5_3 :    WaterArea { row = 5; column = 3; Tile<This>: Plant }
+CLASS Vastitas_5_4 :     LandArea { row = 5; column = 4; Tile<This>: 2 Plant }
+CLASS Vastitas_5_5 :     LandArea { row = 5; column = 5; Tile<This>: TemperatureStep, -4 MC }
+CLASS Vastitas_5_6 :    WaterArea { row = 5; column = 6; Tile<This>: 2 Plant }
+CLASS Vastitas_5_7 :    WaterArea { row = 5; column = 7; Tile<This>: 2 Plant }
+CLASS Vastitas_5_8 :    WaterArea { row = 5; column = 8; Tile<This>: 2 Plant }
+CLASS Vastitas_5_9 :     LandArea { row = 5; column = 9; Tile<This>: 2 ProjectCard }
+
+CLASS Vastitas_6_2 :     LandArea { row = 6; column = 2; Tile<This>: 2 ProjectCard }
+CLASS Vastitas_6_3 :     LandArea { row = 6; column = 3 }
+CLASS Vastitas_6_4 :     LandArea { row = 6; column = 4; Tile<This>: Plant }
+CLASS Vastitas_6_5 :    WaterArea { row = 6; column = 5; Tile<This>: 2 Heat }
+CLASS Vastitas_6_6 :    WaterArea { row = 6; column = 6; Tile<This>: 2 Heat, Plant }
+CLASS Vastitas_6_7 :    WaterArea { row = 6; column = 7; Tile<This>: ProjectCard }
+CLASS Vastitas_6_8 :     LandArea { row = 6; column = 8; Tile<This>: Plant }
+CLASS Vastitas_6_9 :     LandArea { row = 6; column = 9; Tile<This>: 2 Titanium }
+
+CLASS Vastitas_7_3 : VolcanicArea { row = 7; column = 3; Tile<This>: Titanium }
+CLASS Vastitas_7_4 :     LandArea { row = 7; column = 4; Tile<This>: Steel }
+CLASS Vastitas_7_5 :    WaterArea { row = 7; column = 5 }
+CLASS Vastitas_7_6 :    WaterArea { row = 7; column = 6; Tile<This>: 2 Heat }
+CLASS Vastitas_7_7 :     LandArea { row = 7; column = 7; Tile<This>: 2 Plant }
+CLASS Vastitas_7_8 :     LandArea { row = 7; column = 8; Tile<This>: Plant }
+CLASS Vastitas_7_9 :     LandArea { row = 7; column = 9 }
+
+CLASS Vastitas_8_4 :     LandArea { row = 8; column = 4; Tile<This>: Plant }
+CLASS Vastitas_8_5 :     LandArea { row = 8; column = 5 }
+CLASS Vastitas_8_6 :     LandArea { row = 8; column = 6; Tile<This>: Plant }
+CLASS Vastitas_8_7 :     LandArea { row = 8; column = 7; Tile<This>: Plant, Steel }
+CLASS Vastitas_8_8 :     LandArea { row = 8; column = 8; Tile<This>: Steel }
+CLASS Vastitas_8_9 :     LandArea { row = 8; column = 9; Tile<This>: Plant }
+
+CLASS Vastitas_9_5 :     LandArea { row = 9; column = 5 }
+CLASS Vastitas_9_6 :     LandArea { row = 9; column = 6 }
+CLASS Vastitas_9_7 :     LandArea { row = 9; column = 7; Tile<This>: ProjectCard }
+CLASS Vastitas_9_8 :     LandArea { row = 9; column = 8; Tile<This>: Steel }
+CLASS Vastitas_9_9 :     LandArea { row = 9; column = 9; Tile<This>: Titanium }

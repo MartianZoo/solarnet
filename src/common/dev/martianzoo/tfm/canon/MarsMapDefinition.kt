@@ -19,8 +19,6 @@ import dev.martianzoo.tfm.canon.TfmClasses.TILE
 public data class MarsMapDefinition(
     val className: ClassName,
     val areas: Grid<AreaDefinition>,
-    val defaultMilestones: Set<ClassName> = emptySet(),
-    val defaultAwards: Set<ClassName> = emptySet(),
 ) {
   public data class AreaDefinition(
       /** Generated identity of this area, such as `Tharsis_1_1` or `Demo_01_01`. */

@@ -36,12 +36,23 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun rawConfigResolvesToAffirmativeClassNames() {
+  internal fun rawConfigResolvesModulesAndFreezesDefaultGoals() {
     val config = GameConfig("-CorporateEraExpansion", "Player1", "Player2")
 
     val premise = Canon.gamePremise(config)
 
-    premise.classSelections shouldBe emptySet()
+    val defaultGoals =
+        premise.classSelections.filter(ClassSelection::included).mapTo(linkedSetOf()) {
+          it.className
+        }
+    val milestone = Canon.classTable.getClass(cn("Milestone"))
+    val award = Canon.classTable.getClass(cn("Award"))
+    defaultGoals.size shouldBe 10
+    defaultGoals.containsAll(setOf(cn("Terraformer35"), cn("Landlord"))) shouldBe true
+    defaultGoals.all { className ->
+      val selectedClass = Canon.classTable.getClass(className)
+      selectedClass.isSubtypeOf(milestone) || selectedClass.isSubtypeOf(award)
+    } shouldBe true
     premise.modules.containsAll(setOf(cn("MultiplayerMode"), cn("TerraformingMars"))) shouldBe true
     premise.modules.shouldNotContain(cn("CorporateEraExpansion"))
     Engine.newGame(premise).classTable.isActive(cn("CorporateEraExpansion")) shouldBe false
@@ -82,7 +93,9 @@ internal class GamePremiseTest {
 
     premise.playerNames.shouldContainExactly(blue, yellow)
     premise.playerClassNames.shouldContainExactly(cn("Player1"), cn("Player2"))
-    premise.classSelections shouldBe emptySet()
+    premise.classSelections.none {
+      it.className in setOf(blue, yellow, cn("Player1"), cn("Player2"))
+    } shouldBe true
 
     val game = Engine.newGame(premise)
     Canon.classTable.findClass(blue) shouldBe null
@@ -187,6 +200,29 @@ internal class GamePremiseTest {
     table.isActive(cn("Landshaper")) shouldBe true
     table.isActive(cn("Diversifier")) shouldBe false
     table.isActive(cn("Cultivator")) shouldBe true
+  }
+
+  @Test
+  internal fun supportedBundleGoalsBecomeAnExactPremisePool() {
+    val premise = Canon.gamePremise(GameConfig("AmazonisMap", "Player1", "Player2"))
+    val milestone = Canon.classTable.getClass(cn("Milestone"))
+    val award = Canon.classTable.getClass(cn("Award"))
+    val goalSelections =
+        premise.classSelections.filter { selection ->
+          val selectedClass = Canon.classTable.getClass(selection.className)
+          selectedClass.isSubtypeOf(milestone) || selectedClass.isSubtypeOf(award)
+        }
+
+    goalSelections
+        .filter { it.included && Canon.classTable.getClass(it.className).isSubtypeOf(milestone) }
+        .size shouldBe 4
+    goalSelections
+        .filter { it.included && Canon.classTable.getClass(it.className).isSubtypeOf(award) }
+        .size shouldBe 4
+    goalSelections.mapTo(linkedSetOf(), ClassSelection::className) shouldBe
+        (milestone.allSubclasses() + award.allSubclasses())
+            .filterNot { it.abstract }
+            .mapTo(linkedSetOf()) { it.className }
   }
 
   @Test

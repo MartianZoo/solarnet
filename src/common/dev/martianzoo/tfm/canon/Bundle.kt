@@ -10,8 +10,8 @@ public abstract class Bundle(
 ) : TfmCatalog() {
   /**
    * Exceptional cross-bundle or narrowed content selections. A Module named for its owning bundle
-   * selects that bundle's ordinary cards and colony tiles without an entry here; a map Module
-   * selects its own map and its explicitly configured milestone and award pools.
+   * selects that bundle's ordinary cards and colony tiles without an entry here. Its applicable
+   * goals become defaults during premise resolution without an entry here.
    */
   public open val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap()
 

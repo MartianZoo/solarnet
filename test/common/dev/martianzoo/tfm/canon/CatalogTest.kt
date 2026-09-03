@@ -197,6 +197,60 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun concreteSubclassesCanBeFoundByBundle() {
+    val source =
+        TfmCatalog.compose(
+            bundle("Types", "ABSTRACT CLASS Goal"),
+            bundle(
+                "Goals",
+                """
+                ABSTRACT CLASS AbstractGoal : Goal
+                CLASS DirectGoal : Goal
+                CLASS SpecializedGoal : DirectGoal
+                """
+                    .trimIndent(),
+            ),
+            bundle("OtherGoals", "CLASS OtherGoal : Goal"),
+        )
+
+    source.classNamesInBundle(cn("Goals"), cn("Goal")) shouldBe
+        setOf(cn("DirectGoal"), cn("SpecializedGoal"))
+  }
+
+  @Test
+  internal fun defaultBundleGoalPoolsRequireThreeOfEachKind() {
+    val source =
+        TfmCatalog.compose(
+            bundle(
+                "Rules",
+                """
+                ABSTRACT CLASS Module
+                CLASS MultiplayerMode : Module
+                ABSTRACT CLASS Milestone
+                ABSTRACT CLASS Award
+                """
+                    .trimIndent(),
+            ),
+            bundle(
+                "SparseMap",
+                """
+                CLASS SparseMap : Module
+                CLASS FirstMilestone : Milestone
+                CLASS SecondMilestone : Milestone
+                CLASS FirstAward : Award
+                CLASS SecondAward : Award
+                CLASS ThirdAward : Award
+                """
+                    .trimIndent(),
+            ),
+        )
+
+    shouldThrow<IllegalArgumentException> {
+      source.gamePremise(GameConfig("MultiplayerMode, SparseMap"))
+    }
+  }
+
+  @Test
   internal fun aCardResourceActivatesItsUnreferencedNonCardDeclarations() {
     val source =
         StandardFormBundle(

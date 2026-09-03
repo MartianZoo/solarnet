@@ -11,8 +11,6 @@ public data class BundleContentSelection(
   public enum class Kind {
     CARDS,
     MAPS,
-    MILESTONES,
-    AWARDS,
     COLONY_TILES,
   }
 }

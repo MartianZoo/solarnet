@@ -30,8 +30,9 @@ the reader does not infer an overall map shape.
 Maps whose largest row or column is at least 10 use two digits for both coordinates in every area
 class name; smaller maps retain their unpadded names.
 
-`MarsMapReader` reads those diagrams directly when Canon loads a bundle. `MapGoalSets` supplies the
-explicit milestone and award Class names selected by each canonical map.
+`MarsMapReader` reads those diagrams directly when Canon loads a bundle. Each map's milestones and
+awards live beside the map in that map's bundle; premise resolution derives its default pools from
+that ownership.
 
 `./gradlew :tools:regenerateMapAreas` rewrites every generated area block in place. The tool keeps
 map-cell centers six characters apart, centers odd-width codes on their cells, and lets even-width

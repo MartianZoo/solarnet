@@ -68,7 +68,6 @@ internal val terraformingMarsBundle: StandardFormBundle =
         additionalResourceDirectories =
             setOf(
                 "bundles/CorporateEraExpansion",
-                "bundles/TharsisMap",
             ),
     )
 

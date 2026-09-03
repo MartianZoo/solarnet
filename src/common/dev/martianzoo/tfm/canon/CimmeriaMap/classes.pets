@@ -3,18 +3,6 @@ CLASS CimmeriaColonyBonus : Signal {
   This IF ColoniesExpansion: Colony<>, -5 MC
 }
 
-CLASS Manager : Milestone { requirement = HAS "3 SpecialTile" }
-CLASS Pioneer3 : Milestone { requirement = HAS "3 Colony" }
-CLASS Trader : Milestone { requirement = HAS "3 Class<CardResource>(HAS CardResource<Owner>)" }
-CLASS Metallurgist : Milestone { requirement = HAS "6 PROD[Metal]" }
-CLASS Researcher : Milestone { requirement = HAS "4 ScienceTag" }
-
-CLASS Suburbian : Award { metric = COUNT "OwnedTile(HAS MAX 5 Neighbor)" }
-CLASS Investor : Award { metric = COUNT "EarthTag" }
-CLASS Botanist : Award { metric = COUNT "PROD[Plant]" }
-CLASS Incorporator : Award { metric = COUNT "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" }
-CLASS Metropolist : Award { metric = COUNT "CityTile" }
-
 CLASS Planetologist : Milestone { requirement = HAS "2 EarthTag, 2 VenusTag, 2 JovianTag" }
 CLASS Architect : Milestone { requirement = HAS "3 CityTag" }
 CLASS Coastguard : Milestone { requirement = HAS "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
@@ -28,98 +16,7 @@ CLASS Mogul : Award { metric = COUNT "PROD[Steel OR Titanium OR Plant OR Energy 
 CLASS Zoologist : Award { metric = COUNT "Animal OR Microbe" }
 CLASS Forecaster : Award { metric = COUNT "CardFront(HAS requirement)" }
 
-CLASS UtopiaMap : MarsMap
-
 CLASS CimmeriaMap : MarsMap
-
-// The map areas below are code-generated based on the following comment
-//               L     L    LEE    L     L
-//
-//            L    LSS   LEE   LEEC   L     L
-//
-//        W3P    L     LS    L     L    LCCT  LTT
-//
-//     WPC    LP    LP   LPP   WPP    WP    WP    LP
-//
-//   L     L     L     LP    LP   LPP    L     W    LPT
-//
-//      LS   LSS   WPP   LPP    L     L    LSS    L
-//
-//         LS    L     W    WPP    L     L     L
-//
-//            L    LCC    W    WPP   LST   LPP
-//
-//               L     L    LSS    WP    LP
-
-CLASS Utopia_1_1 :     LandArea { row = 1; column = 1 }
-CLASS Utopia_1_2 :     LandArea { row = 1; column = 2 }
-CLASS Utopia_1_3 :     LandArea { row = 1; column = 3; Tile<This>: 2 Energy }
-CLASS Utopia_1_4 :     LandArea { row = 1; column = 4 }
-CLASS Utopia_1_5 :     LandArea { row = 1; column = 5 }
-
-CLASS Utopia_2_1 :     LandArea { row = 2; column = 1 }
-CLASS Utopia_2_2 :     LandArea { row = 2; column = 2; Tile<This>: 2 Steel }
-CLASS Utopia_2_3 :     LandArea { row = 2; column = 3; Tile<This>: 2 Energy }
-CLASS Utopia_2_4 :     LandArea { row = 2; column = 4; Tile<This>: 2 Energy, ProjectCard }
-CLASS Utopia_2_5 :     LandArea { row = 2; column = 5 }
-CLASS Utopia_2_6 :     LandArea { row = 2; column = 6 }
-
-CLASS Utopia_3_1 :    WaterArea { row = 3; column = 1; Tile<This>: 3 Plant }
-CLASS Utopia_3_2 :     LandArea { row = 3; column = 2 }
-CLASS Utopia_3_3 :     LandArea { row = 3; column = 3; Tile<This>: Steel }
-CLASS Utopia_3_4 :     LandArea { row = 3; column = 4 }
-CLASS Utopia_3_5 :     LandArea { row = 3; column = 5 }
-CLASS Utopia_3_6 :     LandArea { row = 3; column = 6; Tile<This>: 2 ProjectCard, Titanium }
-CLASS Utopia_3_7 :     LandArea { row = 3; column = 7; Tile<This>: 2 Titanium }
-
-CLASS Utopia_4_1 :    WaterArea { row = 4; column = 1; Tile<This>: Plant, ProjectCard }
-CLASS Utopia_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Plant }
-CLASS Utopia_4_3 :     LandArea { row = 4; column = 3; Tile<This>: Plant }
-CLASS Utopia_4_4 :     LandArea { row = 4; column = 4; Tile<This>: 2 Plant }
-CLASS Utopia_4_5 :    WaterArea { row = 4; column = 5; Tile<This>: 2 Plant }
-CLASS Utopia_4_6 :    WaterArea { row = 4; column = 6; Tile<This>: Plant }
-CLASS Utopia_4_7 :    WaterArea { row = 4; column = 7; Tile<This>: Plant }
-CLASS Utopia_4_8 :     LandArea { row = 4; column = 8; Tile<This>: Plant }
-
-CLASS Utopia_5_1 :     LandArea { row = 5; column = 1 }
-CLASS Utopia_5_2 :     LandArea { row = 5; column = 2 }
-CLASS Utopia_5_3 :     LandArea { row = 5; column = 3 }
-CLASS Utopia_5_4 :     LandArea { row = 5; column = 4; Tile<This>: Plant }
-CLASS Utopia_5_5 :     LandArea { row = 5; column = 5; Tile<This>: Plant }
-CLASS Utopia_5_6 :     LandArea { row = 5; column = 6; Tile<This>: 2 Plant }
-CLASS Utopia_5_7 :     LandArea { row = 5; column = 7 }
-CLASS Utopia_5_8 :    WaterArea { row = 5; column = 8 }
-CLASS Utopia_5_9 :     LandArea { row = 5; column = 9; Tile<This>: Plant, Titanium }
-
-CLASS Utopia_6_2 :     LandArea { row = 6; column = 2; Tile<This>: Steel }
-CLASS Utopia_6_3 :     LandArea { row = 6; column = 3; Tile<This>: 2 Steel }
-CLASS Utopia_6_4 :    WaterArea { row = 6; column = 4; Tile<This>: 2 Plant }
-CLASS Utopia_6_5 :     LandArea { row = 6; column = 5; Tile<This>: 2 Plant }
-CLASS Utopia_6_6 :     LandArea { row = 6; column = 6 }
-CLASS Utopia_6_7 :     LandArea { row = 6; column = 7 }
-CLASS Utopia_6_8 :     LandArea { row = 6; column = 8; Tile<This>: 2 Steel }
-CLASS Utopia_6_9 :     LandArea { row = 6; column = 9 }
-
-CLASS Utopia_7_3 :     LandArea { row = 7; column = 3; Tile<This>: Steel }
-CLASS Utopia_7_4 :     LandArea { row = 7; column = 4 }
-CLASS Utopia_7_5 :    WaterArea { row = 7; column = 5 }
-CLASS Utopia_7_6 :    WaterArea { row = 7; column = 6; Tile<This>: 2 Plant }
-CLASS Utopia_7_7 :     LandArea { row = 7; column = 7 }
-CLASS Utopia_7_8 :     LandArea { row = 7; column = 8 }
-CLASS Utopia_7_9 :     LandArea { row = 7; column = 9 }
-
-CLASS Utopia_8_4 :     LandArea { row = 8; column = 4 }
-CLASS Utopia_8_5 :     LandArea { row = 8; column = 5; Tile<This>: 2 ProjectCard }
-CLASS Utopia_8_6 :    WaterArea { row = 8; column = 6 }
-CLASS Utopia_8_7 :    WaterArea { row = 8; column = 7; Tile<This>: 2 Plant }
-CLASS Utopia_8_8 :     LandArea { row = 8; column = 8; Tile<This>: Steel, Titanium }
-CLASS Utopia_8_9 :     LandArea { row = 8; column = 9; Tile<This>: 2 Plant }
-
-CLASS Utopia_9_5 :     LandArea { row = 9; column = 5 }
-CLASS Utopia_9_6 :     LandArea { row = 9; column = 6 }
-CLASS Utopia_9_7 :     LandArea { row = 9; column = 7; Tile<This>: 2 Steel }
-CLASS Utopia_9_8 :    WaterArea { row = 9; column = 8; Tile<This>: Plant }
-CLASS Utopia_9_9 :     LandArea { row = 9; column = 9; Tile<This>: Plant }
 
 // The map areas below are code-generated based on the following comment
 //               W     LP    VS    LP   WPP

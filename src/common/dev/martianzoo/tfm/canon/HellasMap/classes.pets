@@ -1,0 +1,105 @@
+CLASS Diversifier : Milestone { requirement = HAS "8 Class<Tag>(HAS Tag<Owner>)" }
+CLASS Tactician5 : Milestone { requirement = HAS "5 CardFront(HAS requirement)" }
+CLASS PolarExplorer : Milestone {
+  HAS HellasMap
+  requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>"
+}
+CLASS Energizer : Milestone { requirement = HAS "PROD[6 Energy]" }
+CLASS RimSettler : Milestone { requirement = HAS "3 JovianTag" }
+
+CLASS Cultivator : Award { metric = COUNT "GreeneryTile" }
+CLASS Magnate : Award { metric = COUNT "AutomatedCard" }
+CLASS SpaceBaron : Award { metric = COUNT "SpaceTag" }
+CLASS Excentric : Award { metric = COUNT "CardResource" }
+CLASS Contractor : Award { metric = COUNT "BuildingTag" }
+
+CLASS HellasMap : MarsMap
+
+// The map areas below are code-generated based on the following comment
+//              WPP   LPP   LPP   LPS    LP
+//
+//           WPP   LPP    LP   LPS    LP    LP
+//
+//         WP    LP    LS    LS    L    LPP   LPC
+//
+//      WP    LP    LS   LSS    LS    WP    WP    LP
+//
+//   LC    L     L    LSS    L     WC   W3H    W     LP
+//
+//      LT    L     LS    L     L     W     WS    L
+//
+//        WTT    L     L     LC    L     L     LT
+//
+//            LS    LC   LHH   LHH    LT    LT
+//
+//               L    LHH   LO6   LHH    L
+
+CLASS Hellas_1_1 :    WaterArea { row = 1; column = 1; Tile<This>: 2 Plant }
+CLASS Hellas_1_2 :     LandArea { row = 1; column = 2; Tile<This>: 2 Plant }
+CLASS Hellas_1_3 :     LandArea { row = 1; column = 3; Tile<This>: 2 Plant }
+CLASS Hellas_1_4 :     LandArea { row = 1; column = 4; Tile<This>: Plant, Steel }
+CLASS Hellas_1_5 :     LandArea { row = 1; column = 5; Tile<This>: Plant }
+
+CLASS Hellas_2_1 :    WaterArea { row = 2; column = 1; Tile<This>: 2 Plant }
+CLASS Hellas_2_2 :     LandArea { row = 2; column = 2; Tile<This>: 2 Plant }
+CLASS Hellas_2_3 :     LandArea { row = 2; column = 3; Tile<This>: Plant }
+CLASS Hellas_2_4 :     LandArea { row = 2; column = 4; Tile<This>: Plant, Steel }
+CLASS Hellas_2_5 :     LandArea { row = 2; column = 5; Tile<This>: Plant }
+CLASS Hellas_2_6 :     LandArea { row = 2; column = 6; Tile<This>: Plant }
+
+CLASS Hellas_3_1 :    WaterArea { row = 3; column = 1; Tile<This>: Plant }
+CLASS Hellas_3_2 :     LandArea { row = 3; column = 2; Tile<This>: Plant }
+CLASS Hellas_3_3 :     LandArea { row = 3; column = 3; Tile<This>: Steel }
+CLASS Hellas_3_4 :     LandArea { row = 3; column = 4; Tile<This>: Steel }
+CLASS Hellas_3_5 :     LandArea { row = 3; column = 5 }
+CLASS Hellas_3_6 :     LandArea { row = 3; column = 6; Tile<This>: 2 Plant }
+CLASS Hellas_3_7 :     LandArea { row = 3; column = 7; Tile<This>: Plant, ProjectCard }
+
+CLASS Hellas_4_1 :    WaterArea { row = 4; column = 1; Tile<This>: Plant }
+CLASS Hellas_4_2 :     LandArea { row = 4; column = 2; Tile<This>: Plant }
+CLASS Hellas_4_3 :     LandArea { row = 4; column = 3; Tile<This>: Steel }
+CLASS Hellas_4_4 :     LandArea { row = 4; column = 4; Tile<This>: 2 Steel }
+CLASS Hellas_4_5 :     LandArea { row = 4; column = 5; Tile<This>: Steel }
+CLASS Hellas_4_6 :    WaterArea { row = 4; column = 6; Tile<This>: Plant }
+CLASS Hellas_4_7 :    WaterArea { row = 4; column = 7; Tile<This>: Plant }
+CLASS Hellas_4_8 :     LandArea { row = 4; column = 8; Tile<This>: Plant }
+
+CLASS Hellas_5_1 :     LandArea { row = 5; column = 1; Tile<This>: ProjectCard }
+CLASS Hellas_5_2 :     LandArea { row = 5; column = 2 }
+CLASS Hellas_5_3 :     LandArea { row = 5; column = 3 }
+CLASS Hellas_5_4 :     LandArea { row = 5; column = 4; Tile<This>: 2 Steel }
+CLASS Hellas_5_5 :     LandArea { row = 5; column = 5 }
+CLASS Hellas_5_6 :    WaterArea { row = 5; column = 6; Tile<This>: ProjectCard }
+CLASS Hellas_5_7 :    WaterArea { row = 5; column = 7; Tile<This>: 3 Heat }
+CLASS Hellas_5_8 :    WaterArea { row = 5; column = 8 }
+CLASS Hellas_5_9 :     LandArea { row = 5; column = 9; Tile<This>: Plant }
+
+CLASS Hellas_6_2 :     LandArea { row = 6; column = 2; Tile<This>: Titanium }
+CLASS Hellas_6_3 :     LandArea { row = 6; column = 3 }
+CLASS Hellas_6_4 :     LandArea { row = 6; column = 4; Tile<This>: Steel }
+CLASS Hellas_6_5 :     LandArea { row = 6; column = 5 }
+CLASS Hellas_6_6 :     LandArea { row = 6; column = 6 }
+CLASS Hellas_6_7 :    WaterArea { row = 6; column = 7 }
+CLASS Hellas_6_8 :    WaterArea { row = 6; column = 8; Tile<This>: Steel }
+CLASS Hellas_6_9 :     LandArea { row = 6; column = 9 }
+
+CLASS Hellas_7_3 :    WaterArea { row = 7; column = 3; Tile<This>: 2 Titanium }
+CLASS Hellas_7_4 :     LandArea { row = 7; column = 4 }
+CLASS Hellas_7_5 :     LandArea { row = 7; column = 5 }
+CLASS Hellas_7_6 :     LandArea { row = 7; column = 6; Tile<This>: ProjectCard }
+CLASS Hellas_7_7 :     LandArea { row = 7; column = 7 }
+CLASS Hellas_7_8 :     LandArea { row = 7; column = 8 }
+CLASS Hellas_7_9 :     LandArea { row = 7; column = 9; Tile<This>: Titanium }
+
+CLASS Hellas_8_4 :     LandArea { row = 8; column = 4; Tile<This>: Steel }
+CLASS Hellas_8_5 :     LandArea { row = 8; column = 5; Tile<This>: ProjectCard }
+CLASS Hellas_8_6 :     LandArea { row = 8; column = 6; Tile<This>: 2 Heat }
+CLASS Hellas_8_7 :     LandArea { row = 8; column = 7; Tile<This>: 2 Heat }
+CLASS Hellas_8_8 :     LandArea { row = 8; column = 8; Tile<This>: Titanium }
+CLASS Hellas_8_9 :     LandArea { row = 8; column = 9; Tile<This>: Titanium }
+
+CLASS Hellas_9_5 :     LandArea { row = 9; column = 5 }
+CLASS Hellas_9_6 :     LandArea { row = 9; column = 6; Tile<This>: 2 Heat }
+CLASS Hellas_9_7 :     LandArea { row = 9; column = 7; Tile<This>: OceanTile<>, -6 MC }
+CLASS Hellas_9_8 :     LandArea { row = 9; column = 8; Tile<This>: 2 Heat }
+CLASS Hellas_9_9 :     LandArea { row = 9; column = 9 }

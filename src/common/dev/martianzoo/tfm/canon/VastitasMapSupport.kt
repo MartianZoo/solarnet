@@ -7,7 +7,7 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 
-private object AmazonisVastitasExpansion {
+private object VastitasMapSupport {
   object TileInLargestGroup : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val player = getPlayerOwner(game, type)
@@ -31,8 +31,5 @@ private object AmazonisVastitasExpansion {
   }
 }
 
-internal val amazonisVastitasExpansionBundle: StandardFormBundle =
-    StandardFormBundle(
-        "AmazonisVastitasExpansion",
-        setOf(AmazonisVastitasExpansion.TileInLargestGroup),
-    )
+internal val vastitasMapBundle: StandardFormBundle =
+    StandardFormBundle("VastitasMap", setOf(VastitasMapSupport.TileInLargestGroup))

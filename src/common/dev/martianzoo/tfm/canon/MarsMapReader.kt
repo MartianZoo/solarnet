@@ -47,12 +47,9 @@ public object MarsMapReader {
       val coordinateWidth = if (areaCodes.any { it.row >= 10 || it.column >= 10 }) 2 else 1
       val areas = areaCodes.map { area(prefix, it, coordinateWidth) }
       val mapName = cn("${prefix}Map")
-      val goals = MapGoalSets.forMap(mapName)
       MarsMapDefinition(
           className = mapName,
           areas = Grid.grid(areas, AreaDefinition::row, AreaDefinition::column),
-          defaultMilestones = goals.milestones,
-          defaultAwards = goals.awards,
       )
     }
   }
