@@ -89,6 +89,7 @@ private fun renderInstruction(
           Rendering.resolved(
               renderPlacementBonusProductionSequence(instruction, describers)
                   ?: renderCardPlaySequence(instruction, describers)
+                  ?: renderStandardResourceCostSequence(instruction, describers)
                   ?: renderDiscardCostSequence(instruction, describers)
                   ?: renderCardResourceCostSequence(instruction, describers)
                   ?: renderSequentialThen(instruction, describers)
@@ -100,6 +101,31 @@ private fun renderInstruction(
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By -> Rendering.resolved(null)
     }
+
+private fun renderStandardResourceCostSequence(
+    instruction: Instruction.Then,
+    describers: Describers,
+): Clause.Simple? {
+  val removal = instruction.stages.singleOrNull() as? Remove ?: return null
+  if (
+      removal.intensity.modality() != Modality.REQUIRED ||
+          !removal.removing.simple ||
+          !describers.isStandardResource(removal.removing.className)
+  ) {
+    return null
+  }
+  val count = removal.count.fixedQuantity() ?: return null
+  val result =
+      renderLoweredInstructions(instruction.continuation, describers).clauses.singleOrNull()
+          ?: return null
+  return Clause.Simple(
+      Predicate(
+          "pay",
+          Coordination.one(describers.componentNounPhrase(removal.removing.className, count)),
+          listOf(Modifier.Phrase("to ${result.linearize()}")),
+      )
+  )
+}
 
 private fun renderDiscardCostSequence(
     instruction: Instruction.Then,

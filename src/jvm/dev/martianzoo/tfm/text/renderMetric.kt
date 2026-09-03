@@ -89,7 +89,7 @@ private fun Describers.renderUnrestrictedOwnedComponent(
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   if (!resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)) return null
-  return "${prefix}ANY ${componentNounPhrase(expression.className, count).noun()}"
+  return "${prefix}any ${componentNounPhrase(expression.className, count).noun()}"
 }
 
 internal fun distinctOwnedKinds(
@@ -213,7 +213,10 @@ private fun Describers.placementCountPhrase(expression: Expression, count: Int):
       placement.referenceNoun
           ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
   val noun = if (count == 1) referenceNoun.singular else referenceNoun.plural
-  return "$noun$ownerPhrase${location?.let { " $it" }.orEmpty()}"
+  val unrestrictedPrefix =
+      if (explicitlyUnrestricted && owner == ComponentDescriber.OwnershipPhrase.IMPLICIT) "any "
+      else ""
+  return "$unrestrictedPrefix$noun$ownerPhrase${location?.let { " $it" }.orEmpty()}"
 }
 
 private val TILE = cn("Tile")

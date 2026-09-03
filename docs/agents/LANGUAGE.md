@@ -202,6 +202,10 @@ Then re-ask whether clauses are a sufficient intermediate representation.
   result's multiplicity when one event produces several changes.
 - Render every ratio with `per`, whether its denominator is one or greater and whether or not its
   result is victory points.
+- Render an explicit unrestricted player in a counted metric as `any`; preserve shared implicit
+  player identity across a trigger and its result as `that player`.
+- Omit unconditional fixed victory-point adjustments from card regions. Continue to render
+  conditional and metric-based victory-point behavior.
 - Make optional maxima explicit as `you may ... up to`, including when the maximum is greater than
   one.
 - Use `pay` when standard resources are a cost for obtaining or doing something. Use `remove` for
@@ -210,6 +214,8 @@ Then re-ask whether clauses are a sufficient intermediate representation.
   payment verb.
 - Join a rendered action cost to its result with `to`. Refuse a costed action whose result cannot be
   expressed as an infinitive; do not split it into separately modalized sentences.
+- Treat a mandatory standard-resource removal followed by `THEN` as a payment for its result and
+  join it with `to`.
 - Render `PlanetaryTag` as `planetary tag`.
 - Bracket unsupported Pets rather than buying coverage with a one-card mechanism.
 - Do not build a general natural-language framework or support hypothetical games. This renderer is

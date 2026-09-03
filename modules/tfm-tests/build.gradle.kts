@@ -22,9 +22,33 @@ kotlin {
     }
     jvmTest {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests"))
+          listOf(
+              rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests"),
+              rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/randomcards"),
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/testlib"),
+          )
       )
+      kotlin.exclude("PetGenerator.kt", "testHelpers.kt")
     }
+  }
+}
+
+val randomCardCount = providers.gradleProperty("randomCardCount").orElse("12")
+val randomCardSeed = providers.gradleProperty("randomCardSeed")
+val randomCardOutput = providers.gradleProperty("randomCardOutput")
+val jvmTestCompilation = kotlin.targets.getByName("jvm").compilations.getByName("test")
+
+tasks.register<JavaExec>("sampleRandomCards") {
+  group = "verification"
+  description = "Prints or writes randomly generated project cards as raw Pets."
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+  mainClass = "dev.martianzoo.tfm.randomcards.RandomCardGenerator"
+  args(randomCardCount.get())
+  randomCardSeed.orNull?.let { args(it) }
+  randomCardOutput.orNull?.let {
+    require(randomCardSeed.isPresent) { "randomCardOutput requires randomCardSeed" }
+    args(it)
   }
 }
 
