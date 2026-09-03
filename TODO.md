@@ -65,12 +65,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Fix the REPL's interactive startup: under a real terminal it prints a bare prompt and progress
-  dots but never reaches the `Welcome to REgo PLastics` banner, even after two minutes, while a
-  piped session reaches it immediately. This blocks `:repl:realTerminalSmokeTest`, whose Expect
-  script times out on its first expectation, and it is what a user meets when running `./rego`.
-  Once startup is fixed, re-check the rest of `repl-smoke.exp` against current command output and
-  add the test to the CI workflow, which already installs Expect for it.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
   iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
   `SavedGameReplayBenchmark`.
