@@ -108,8 +108,8 @@ Worked cases:
 
 ### Reprints and variants
 
-When one printed goal exists at several thresholds, **one version gets the unqualified name and the
-others carry their own threshold as the qualifier.**
+When one printed goal exists with several rules, **one version gets the unqualified name and the
+others carry a numeric qualifier.**
 
 The bare name goes to the version we consider primary:
 
@@ -120,8 +120,9 @@ The bare name goes to the version we consider primary:
   already on the board. Likewise `Generalist` over `Generalist2`, which asks for 2 of each
   production rather than 1.
 
-The qualifier is always the goal a player reads off the board, never an engine-side count. Note that
-some requirement expressions carry a GrossHack offset that the name must not inherit.
+For thresholds, the qualifier is always the number a player reads off the board, never an
+engine-side count. Note that some requirement expressions carry a GrossHack offset that the name
+must not inherit.
 
 ### Abbreviations
 

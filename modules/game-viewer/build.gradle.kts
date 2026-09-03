@@ -41,7 +41,10 @@ tasks.named<ProcessResources>("jsProcessResources") {
           .gradleProperty("localImagesDir")
           .map(rootProject::file)
           .orElse(rootProject.layout.projectDirectory.dir("_local/images").asFile)
-  from(localImages) { into("images") }
+  from(localImages) {
+    include("*.png")
+    into("images")
+  }
 }
 
 // The game viewer's development server is the shared browser-app host. Its webpack configuration

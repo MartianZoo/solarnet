@@ -130,10 +130,31 @@ public fun main() {
     }
   }
 
+  fun mapViewBox(centers: List<Pair<Double, Double>>, radius: Double): String {
+    val minX = minOf(0.0, centers.minOf { it.first } - radius)
+    val maxX = maxOf(1000.0, centers.maxOf { it.first } + radius)
+    val minY = minOf(0.0, centers.minOf { it.second } - radius)
+    val maxY = maxOf(1000.0, centers.maxOf { it.second } + radius)
+    val side = maxOf(maxX - minX, maxY - minY)
+    return "${minX - (side - (maxX - minX)) / 2} " +
+        "${minY - (side - (maxY - minY)) / 2} $side $side"
+  }
+
+  fun mapBonusLabel(bonus: String): String? =
+      when (bonus) {
+        "R" -> "any"
+        "6" -> "−6"
+        else -> null
+      }
+
   fun renderMap() {
     val snapshot = session.mapSnapshot()
+    val centers =
+        snapshot.areas.map { area ->
+          500.0 + 107.0 * (area.column - area.row / 2.0 - 2.5) to 125.0 + 93.5 * (area.row - 1)
+        }
     val svg = buildString {
-      append("<svg viewBox='0 0 1000 1000' role='img' aria-labelledby='map-title'>")
+      append("<svg viewBox='${mapViewBox(centers, 62.0)}' role='img' aria-labelledby='map-title'>")
       append("<title id='map-title'>${snapshot.name} map</title>")
 
       snapshot.areas.forEach { area ->
@@ -173,33 +194,31 @@ public fun main() {
           val iconSize = 25.0
           val bonusX = centerX - 45.7
           val bonusY = centerY - 23.0
-          val bonusAssets =
-              area.bonuses.mapNotNull { bonus ->
+          area.bonuses.forEachIndexed { index, bonus ->
+            val x = bonusX + index * iconSize
+            val asset =
                 when (bonus) {
-                  "P" -> "plant"
-                  "S" -> "steel"
-                  "T" -> "titanium"
-                  "C" -> "card"
-                  "H" -> "heat"
+                  "P" -> "resources/plant.png"
+                  "S" -> "resources/steel.png"
+                  "T" -> "resources/titanium.png"
+                  "C" -> "resources/card.png"
+                  "E" -> "resources/power.png"
+                  "H" -> "resources/heat.png"
+                  "O" -> "tiles/ocean.png"
                   else -> null
                 }
-              }
-          bonusAssets.forEachIndexed { index, asset ->
-            val x = bonusX + index * iconSize
-            append(
-                "<image class='bonus-icon' href='assets/resources/$asset.png' " +
-                    "x='$x' y='$bonusY' width='$iconSize' height='$iconSize'/>",
-            )
-          }
-          if ("O" in area.bonuses && "-" in area.bonuses) {
-            append(
-                "<image class='bonus-icon' href='assets/tiles/ocean.png' " +
-                    "x='$bonusX' y='$bonusY' width='21' height='24'/>",
-            )
-            append(
-                "<image class='bonus-icon' href='assets/map/hellas-ocean-cost.png' " +
-                    "x='${bonusX + 23}' y='$bonusY' width='12' height='12'/>",
-            )
+            if (asset != null) {
+              append(
+                  "<image class='bonus-icon' href='assets/$asset' " +
+                      "x='$x' y='$bonusY' width='$iconSize' height='$iconSize'/>",
+              )
+            } else {
+              val label = mapBonusLabel(bonus) ?: return@forEachIndexed
+              append(
+                  "<text class='bonus-text' x='${x + iconSize / 2}' " +
+                      "y='${bonusY + iconSize / 2}'>$label</text>",
+              )
+            }
           }
         } else {
           append(

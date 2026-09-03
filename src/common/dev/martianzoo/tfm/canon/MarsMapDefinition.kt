@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
@@ -24,8 +23,8 @@ public data class MarsMapDefinition(
     val defaultAwards: Set<ClassName> = emptySet(),
 ) {
   public data class AreaDefinition(
-      /** Prefix used by area class names, such as the `Tharsis_1_1` prefix. */
-      private val mapName: ClassName,
+      /** Generated identity of this area, such as `Tharsis_1_1` or `Demo_01_01`. */
+      val className: ClassName,
 
       /** The row number of this area; the top row is row `1`. */
       val row: Int,
@@ -58,6 +57,9 @@ public data class MarsMapDefinition(
       InstructionGroup.of(parse<InstructionTree>(it))
     }
 
+    /** Placement-bonus sigils with multiplier prefixes expanded. */
+    public val expandedBonusCodes: List<Char> = MarsMapReader.expandBonusCodes(code.drop(1))
+
     public val asClassDeclaration: ClassDeclaration
       get() =
           ClassDeclaration(
@@ -71,8 +73,6 @@ public data class MarsMapDefinition(
                   ),
               authoredEffects = toEffects(bonus),
           )
-
-    public val className: ClassName = cn("${mapName}_${row}_$column")
   }
 
   private companion object {

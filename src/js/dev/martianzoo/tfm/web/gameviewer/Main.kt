@@ -3,10 +3,13 @@ package dev.martianzoo.tfm.web.gameviewer
 import dev.martianzoo.engine.ComponentGraph.CountSubscription
 import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.visibleLogEvents
@@ -315,7 +318,7 @@ private fun renderCards(recording: GameRecording, player: Player) {
     val image = document.createElement("img")
     val displayName = game.vocabulary.displayName(cardName)
     image.className = "played-card"
-    image.setAttribute("src", "images/$directory/$cardName.png")
+    image.setAttribute("src", "images/$cardName.png")
     image.setAttribute("alt", displayName)
     image.setAttribute("title", displayName)
     slot.appendChild(image)
@@ -331,7 +334,7 @@ private fun renderCards(recording: GameRecording, player: Player) {
       number.textContent = count.toString()
       val resource = document.createElement("img")
       resource.className = "card-resource-icon"
-      resource.setAttribute("src", "images/resources/$resourceType.png")
+      resource.setAttribute("src", "images/$resourceType.png")
       resource.setAttribute("alt", "")
       counter.appendChild(number)
       counter.appendChild(resource)
@@ -432,7 +435,7 @@ private fun renderMap(recording: GameRecording): List<CountSubscription> {
   val game = recording.world
   val map = mapDefinition(game.reader)
   document.getElementById("mars-map")?.innerHTML = buildString {
-    append("<svg viewBox='0 0 1000 1000' role='img' aria-labelledby='map-title'>")
+    append("<svg viewBox='${mapViewBox(map.areas)}' role='img' aria-labelledby='map-title'>")
     append("<title id='map-title'>${map.className} map</title>")
     map.areas.forEach { area -> append(areaBaseSvg(area)) }
     append("</svg>")
@@ -493,7 +496,7 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
                 "x='${centerX - 59}' y='${centerY - 59}' width='118' height='118'"
               }
           append(
-              "<image class='map-tile' href='images/maps-tiles/${tile.className}.png' " +
+              "<image class='map-tile' href='images/${tile.className}.png' " +
                   "$imageBox preserveAspectRatio='xMidYMid meet'/>"
           )
           owner?.let {
@@ -522,25 +525,42 @@ private fun emptyAreaSvg(area: AreaDefinition, centerX: Double, centerY: Double)
       }
       val bonusX = centerX - 45.7
       val bonusY = centerY - 23.0
-      area.code.drop(1).forEachIndexed { index, bonus ->
-        val asset =
-            when (bonus) {
-              'P' -> "images/resources/Plant.png"
-              'S' -> "images/resources/Steel.png"
-              'T' -> "images/resources/Titanium.png"
-              'C' -> "images/other/ProjectCard.png"
-              'H' -> "images/resources/Heat.png"
-              else -> null
+      area.bonus
+          ?.instructions
+          .orEmpty()
+          .flatMap { instruction ->
+            val change = instruction as? Change ?: return@flatMap emptyList()
+            val count = (change.count as? ActualScalar)?.value ?: return@flatMap emptyList()
+            when {
+              change.gaining != null -> List(count) { change.gaining!!.className to null }
+              change.removing?.className == MC -> listOf(null to "−$count")
+              else -> emptyList()
             }
-        asset?.let {
-          val x = bonusX + index * 25.0
-          append(
-              "<image class='bonus-icon' href='$it' " +
-                  "x='$x' y='$bonusY' width='25' height='25'/>"
-          )
-        }
-      }
+          }
+          .forEachIndexed { index, (imageName, label) ->
+            val x = bonusX + index * 25.0
+            if (imageName != null) {
+              append(
+                  "<image class='bonus-icon' href='images/$imageName.png' " +
+                      "x='$x' y='$bonusY' width='25' height='25'/>"
+              )
+            } else if (label != null) {
+              append("<text class='bonus-text' x='${x + 12.5}' y='${bonusY + 12.5}'>$label</text>")
+            }
+          }
     }
+
+private fun mapViewBox(areas: Iterable<AreaDefinition>): String {
+  val centers = areas.map(::areaCenter)
+  val radius = 62.0
+  val minX = minOf(0.0, centers.minOf { it.first } - radius)
+  val maxX = maxOf(1000.0, centers.maxOf { it.first } + radius)
+  val minY = minOf(0.0, centers.minOf { it.second } - radius)
+  val maxY = maxOf(1000.0, centers.maxOf { it.second } + radius)
+  val side = maxOf(maxX - minX, maxY - minY)
+  return "${minX - (side - (maxX - minX)) / 2} " +
+      "${minY - (side - (maxY - minY)) / 2} $side $side"
+}
 
 private fun areaCenter(area: AreaDefinition): Pair<Double, Double> =
     500.0 + 107.0 * (area.column - area.row / 2.0 - 2.5) to 125.0 + 93.5 * (area.row - 1)

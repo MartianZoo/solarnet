@@ -1,20 +1,19 @@
+CLASS GainsOf<CardFront, Class<Component>> : Custom
 "Counts the tiles in a player's largest contiguous group of owned tiles"
 CLASS TileInLargestGroup : Owned<Player>, Custom
 
-CLASS GainsOf<CardFront, Class<Component>> : Custom
+// A goal reprinted from a loaded map keeps the declaration from that map bundle. This bundle
+// supplies the remaining supported goals and revised goals with distinct implementations.
 
-// Hydrologist and Thawer need global parameters to become Owned components.
-// Lobbyist and Politician need Turmoil.
-// Briber is coming soon.
-//
-// Reprinted goals retain the canonical declarations owned by their original map bundles. Only new
-// goals and revised goals with distinct implementations are declared here.
-
+// All Briber needs is a `Briber: -12 MC` effect attached to milestone claiming.
+// CLASS Briber : Milestone { requirement = HAS "Component" }
 CLASS Builder : Milestone { requirement = HAS "7 BuildingTag" }
 CLASS Engineer : Milestone { requirement = HAS "10 PROD[Energy OR Heat]" }
 CLASS Farmer : Milestone { requirement = HAS "5 (Animal OR Microbe)" }
 CLASS Geologist : Milestone { requirement = HAS "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))" }
 CLASS Landshaper : Milestone { requirement = HAS "CityTile, GreeneryTile, SpecialTile" }
+// Requires making global-parameter components Owned.
+// CLASS Hydrologist : Milestone { requirement = HAS "4 OceanTile" }
 CLASS Legend : Milestone { requirement = HAS "CARDS[4 CardBack<EventPile>]" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
 CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
@@ -34,6 +33,8 @@ CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
 CLASS Tactician : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
 CLASS Terraformer : Milestone { requirement = HAS "29 TerraformRating" }
 CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }
+// Requires making global-parameter components Owned.
+// CLASS Thawer : Milestone { requirement = HAS "5 TemperatureStep" }
 CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" }
 
 CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
@@ -45,4 +46,5 @@ CLASS Landscaper : Award { metric = COUNT "TileInLargestGroup" }
 CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }
 CLASS Promoter : Award { metric = COUNT "CARDS[CardBack<EventPile>]" }
 CLASS Traveller : Award { metric = COUNT "JovianTag OR EarthTag" }
+// CLASS Politician : Award { metric = COUNT "PartyLeader OR Influence" }
 CLASS Visionary : Award { metric = COUNT "CARDS[ProjectCard<Hand>]" }

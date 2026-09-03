@@ -19,7 +19,12 @@
 Canon map topology and bonus metadata are authored as compact diagrams in comments within each
 bundle's `classes.pets`. Each diagram is immediately followed by its generated area declarations.
 The first character of a cell selects the area kind; the remaining characters encode its bonuses.
-Rows use the standard nine-row Mars-map shape, so their horizontal position determines columns.
+Digits before another bonus sigil multiply it; a final digit is itself a sigil, such as the `6` in
+`O6` for the Hellas north-pole cost.
+Diagram indentation locates areas on slant-columns. The leftmost occupied slant-column is column 1;
+the reader does not infer an overall map shape.
+Maps whose largest row or column is at least 10 use two digits for both coordinates in every area
+class name; smaller maps retain their unpadded names.
 
 `MarsMapReader` reads those diagrams directly when Canon loads a bundle. `MapGoalSets` supplies the
 explicit milestone and award Class names selected by each canonical map.

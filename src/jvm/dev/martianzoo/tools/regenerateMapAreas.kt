@@ -55,13 +55,20 @@ internal fun regenerateMapAreas(source: String): String {
 internal fun renderDiagram(map: MarsMapDefinition): String {
   val rows =
       map.areas.groupBy { it.row }.toSortedMap().values.map { row -> row.sortedBy { it.column } }
-  val widestRow = rows.maxOf { it.size }
+  val leftmostCenter =
+      map.areas.minOf { area ->
+        (area.column - 1) * CELL_WIDTH - (area.row - 1) * ROW_SLANT
+      }
+  val centerOffset = DIAGRAM_PADDING - leftmostCenter
   return rows.joinToString("\n//\n") { row ->
-    val leftmostCenter = DIAGRAM_PADDING + ((widestRow - row.size) * CELL_WIDTH + 1) / 2
     buildString {
       append("// ")
-      row.forEachIndexed { index, area ->
-        val start = leftmostCenter + index * CELL_WIDTH - (area.code.length - 1) / 2
+      row.forEach { area ->
+        val center =
+            centerOffset +
+                (area.column - 1) * CELL_WIDTH -
+                (area.row - 1) * ROW_SLANT
+        val start = center - (area.code.length - 1) / 2
         while (length < COMMENT_PREFIX_WIDTH + start) append(' ')
         append(area.code)
       }
@@ -87,6 +94,7 @@ private fun renderAreas(map: MarsMapDefinition): String = buildString {
 }
 
 private const val CELL_WIDTH = 6
+private const val ROW_SLANT = CELL_WIDTH / 2
 private const val DIAGRAM_PADDING = 2
 private const val COMMENT_PREFIX_WIDTH = 3
 
