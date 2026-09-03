@@ -66,7 +66,7 @@ I haven't written too much yet.
 * The growing project [glossary](docs/glossary.md)
 * API docs -- see below
 
-There is also a `docs/agents` directory but that is just crap that agents write for agents to read; I don't personally vouch for any of it.
+There is also a `docs/agents` directory, but that's where agents capture information for themselves to read later. A human didn't write it and we don't expect humans to read it; I can't personally vouch for the information there.
 
 ### Browse?
 

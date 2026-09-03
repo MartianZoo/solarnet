@@ -1,5 +1,9 @@
 # Agent documentation router
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 Read this page after `AGENTS.md`, but do not read every linked document. Pick the route matching the
 current task, read its “Read when” note and named sections, then inspect the linked source and tests.
 
@@ -51,7 +55,6 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
 | Change English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) | Durable goal, current understanding, and ordered direction |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
-| Change Prelude 2 scope or its unusual rules | [`PRELUDE2.md`](PRELUDE2.md) | Source and support record |
 | Model Turmoil | Select only the relevant rule family in [`TURMOIL.md`](TURMOIL.md) | Research-backed proposal |
 | Design shuffle/deal, hidden cards, or chance | Select the relevant gate in [`REAL_CARDS_MODE.md`](REAL_CARDS_MODE.md) | Proposal |
 
@@ -75,11 +78,8 @@ measuring or changing JVM test throughput; its measurements are a dated baseline
 - For either, also read only “Game replay tests” and “Direct state reconciliation” in
   [`TESTING.md`](TESTING.md).
 
-### Research AI play or optimal solo play
+### Research optimal solo play
 
-- Read [`AI_BACKGROUND_FOR_BOARD_GAMERS.md`](AI_BACKGROUND_FOR_BOARD_GAMERS.md) for the concise
-  conceptual account; read [`AI_BACKGROUND.md`](AI_BACKGROUND.md) only when source-level AI research
-  or architecture decisions are actually needed.
 - Read [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md) only for the TR63 monotonicity analysis or the associated
   report tool.
 

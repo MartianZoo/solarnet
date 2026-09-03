@@ -1,5 +1,9 @@
 # Catalog classes and game class views
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** changing `ClassTable`, Catalog-wide Class identity, a game projection, inhabitation,
 > or any API that lets a `Class`/`Type` enumerate game-specific candidates.
 >

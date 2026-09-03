@@ -1,5 +1,9 @@
 # Pets type system
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** changing a specific Pets type-system concept. Start with Quick model, then read only
 > its numbered section; read Known divergences only when diagnosing or deliberately fixing one.
 >

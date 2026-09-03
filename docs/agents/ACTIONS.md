@@ -1,5 +1,9 @@
 # Pets Actions
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** changing Pets `Action` parsing/lowering, action selection, billing, or cards with
 > fixed, property-scaled, or X-scaled standard-resource costs.
 >

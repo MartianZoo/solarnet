@@ -1,5 +1,9 @@
 # Game hacks
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** touching one of the specifically named representations below, or when Pets meaning
 > appears deliberately unlike the published game even though supported outcomes match.
 >

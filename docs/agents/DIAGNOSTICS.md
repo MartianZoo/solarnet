@@ -1,5 +1,9 @@
 # Runtime diagnostics
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** investigating engine sequencing, task assignment, permissions, autoexecution,
 > replay divergence, or another failure whose runtime cause is not apparent from the final World.
 >

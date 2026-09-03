@@ -1,5 +1,9 @@
 # Runtime and Terraforming Mars responsibility audit
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** moving code across state, engine, permissions, autoexecution, generic, or
 > Terraforming Mars packages; changing bare-number rejection or Action lowering; splitting Catalog
 > responsibilities; or separating script/workflow mechanics.

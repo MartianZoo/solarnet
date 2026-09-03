@@ -1,5 +1,9 @@
 # Class names and vocabulary
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** naming or renaming a Class, resolving a printed-name collision, adding a Module,
 > changing player aliases, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.
@@ -58,8 +62,8 @@ printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes
 which is currently the only such case.
 
 A placeholder implementation still uses the real name. Never ship a class whose name announces its
-own incompleteness — a partially implemented card belongs in `cards-dont-work.json5` plus, if it is
-worth exercising, a test-only fixture.
+own incompleteness — an unimplemented card belongs in the `docs/what-is-supported.md` table plus, if
+it is worth exercising, a test-only fixture.
 
 ### Supertype suffixes
 

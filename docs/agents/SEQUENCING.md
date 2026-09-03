@@ -1,5 +1,9 @@
 # Sequencing and completion
 
+> **NOTE:** This document is used by agents to capture information for themselves to read later; a
+> human didn't write it and we don't expect humans to read it. The project owner can't personally
+> vouch for the information here.
+
 > **Read when:** changing task eligibility/order, `THEN`, automatic effects, barriers, precursors,
 > completion, recoverable dead ends, or phase precedence.
 >
