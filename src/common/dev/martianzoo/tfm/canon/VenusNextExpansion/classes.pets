@@ -1,6 +1,7 @@
 CLASS VenusNextExpansion : Module {
   This:: AirScrappingSP
   This:: GpIncomplete<Class<VenusStep>>
+  This:: StandardVenusTrackRules
 }
 
 CLASS AirScrappingSP : StandardProject {
@@ -22,12 +23,16 @@ CLASS MandatoryVenusVariant : Module {
 }
 
 "Represents a 2% increase in Venus... terraformedness"
-CLASS VenusStep : GlobalParameter {
-  HAS MAX 15 This
+CLASS VenusStep : GlobalParameter
 
-  This IF =15 This:: GpComplete<Class<This>>
-  This IF =4 This: ProjectCard
-  This IF =8 This: TerraformRating
+"Enforces the limit, rewards, and completion step printed on the standard Venus track"
+CLASS StandardVenusTrackRules : System {
+  HAS =1 This
+  HAS MAX 15 VenusStep
+
+  VenusStep IF =4 VenusStep: ProjectCard
+  VenusStep IF =8 VenusStep: TerraformRating
+  VenusStep IF =15 VenusStep:: GpComplete<Class<VenusStep>>
 }
 
 CLASS VenusTag : PlanetaryTag {

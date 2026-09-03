@@ -12,11 +12,15 @@ First, `Component` is the root of the Class hierarchy; *every* instance of anyth
 
 The abstract class `GlobalParameter` has three concrete subclasses in the base game: `TemperatureStep`, `OxygenStep`, and `OceanTile` (which is *also* a subclass of `Tile`). Venus Next adds `VenusStep`. These count "steps", so for example when there are six occurrences of `TemperatureStep` in the game that means the temperature is -18 C.
 
-You can pretty easily guess why the `TemperatureStep` class declaration includes the line `HAS MAX 19 This`. Nineteen temperature steps up from the starting point gets you to 8 degrees Celsius and there can never be any more than that.
+The `StandardGpTrackRules` component contains the limits, terminal steps, and track bonuses. For
+example, it says `OxygenStep IF =8 OxygenStep: TemperatureStep`. Keeping those rules on one
+component allows another published set of tracks to replace them without changing the
+global-parameter classes.
 
-These classes contain effects for track bonuses; for example `OxygenStep` says `This IF =8 This: TemperatureStep`. The effect is considered every single time oxygen is raised, and triggers only when oxygen reaches 8%.
+Completion removes the matching `GpIncomplete` marker, and the resulting `GpComplete` component
+rejects any attempted removal after completion.
 
-The definition of the `GlobalParameter` Class includes the line `+This.`. Any gain/remove Instruction in PETS can be followed by a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `.` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". If one can't be added due to hitting the maximum Limit, the Instruction will still be executable and simply do nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
+The definition of the `GlobalParameter` Class includes the line `+This.`. Any gain/remove Instruction in PETS can be followed by a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `.` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". At the selected track's limit, the Instruction remains executable and simply does nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
 
 ### Maps
 

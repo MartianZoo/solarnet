@@ -156,6 +156,10 @@ selected. Creating the selected map creates all of its Areas through the map ins
 retained map record supplies the grid and compact display data, and the creation history keeps the
 selected map as the cause of its Areas.
 
+Concrete track-rule components own global-parameter limits, terminal steps, and printed bonuses.
+The base and Venus modules create their respective standard track-rule components alongside the
+incomplete markers for the parameters they introduce.
+
 `PreludeExpansion` supplies the Prelude 1 rules and phase. It selects `Prelude1CardPack` by default
 and requires at least one `PreludeCardPack`. Either card pack, or both together, may instead be
 selected without enabling the Prelude 1 rules; they only determine which cards can enter a merged

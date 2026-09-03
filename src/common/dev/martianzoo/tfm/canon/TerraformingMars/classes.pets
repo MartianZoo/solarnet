@@ -9,6 +9,7 @@ CLASS TerraformingMars : Module {
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
   This:: GpIncomplete<Class<TemperatureStep>>, GpIncomplete<Class<OxygenStep>>, GpIncomplete<Class<OceanTile>>
+  This:: StandardGpTrackRules
   This IF MAX 0 MarsMap:: TharsisMap
 
   CorporationPhase: Photosynthesis
@@ -113,13 +114,7 @@ ABSTRACT CLASS Tile<Area> {
     }
   }
 
-  CLASS OceanTile : Tile<MarsArea>, GlobalParameter {
-    HAS MAX 9 OceanTile
-    DEFAULT +OceanTile<WaterArea>
-
-    This IF =9 OceanTile:: GpComplete<Class<This>>
-    ForwardAdjacency<This, Tile>: 2 MC
-  }
+  // OceanTile is declared below with the other global parameters.
 }
 
 // GLOBAL PARAMETERS
@@ -131,23 +126,38 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 
   This: TerraformRating
 
-  "Represents 2 degrees C of temperature increase"
-  CLASS TemperatureStep {
-    HAS MAX 19 This
+  CLASS OceanTile : Tile<MarsArea> {
+    DEFAULT +OceanTile<WaterArea>
 
-    This IF =3 This: PROD[Heat]
-    This IF =5 This: PROD[Heat]
-    This IF =15 This: OceanTile<>
-    This IF =19 This:: GpComplete<Class<This>>
+    // We could instead trigger on BackwardAdjacency<Tile, This> -- same thing.
+    // But if we triggered on just Adjacency, it would also pay out for putting ocean tiles next to any tile.
+    ForwardAdjacency<This, Tile>: 2 MC
   }
 
   "Represents a 1% increase in oxygen level"
-  CLASS OxygenStep {
-    HAS MAX 14 This
+  CLASS OxygenStep
 
-    This IF =8 This: TemperatureStep
-    This IF =14 This:: GpComplete<Class<This>>
-  }
+  "Represents 2 degrees C of temperature increase"
+  CLASS TemperatureStep
+}
+
+"Enforces the limits, rewards, and completion steps printed on the standard global-parameter tracks"
+CLASS StandardGpTrackRules : System {
+  HAS =1 This
+  HAS MAX 19 TemperatureStep
+  HAS MAX 14 OxygenStep
+  HAS MAX 9 OceanTile
+
+  TemperatureStep IF =3 TemperatureStep: PROD[Heat]
+  TemperatureStep IF =5 TemperatureStep: PROD[Heat]
+  TemperatureStep IF =15 TemperatureStep: OceanTile<>
+  TemperatureStep IF =19 TemperatureStep:: GpComplete<Class<TemperatureStep>>
+
+  OxygenStep IF =8 OxygenStep: TemperatureStep
+  OxygenStep IF =14 OxygenStep:: GpComplete<Class<OxygenStep>>
+
+  // Keep the trigger's area independent from the aggregate OceanTile count.
+  OceanTile<MarsArea> IF =9 OceanTile:: GpComplete<Class<OceanTile>>
 }
 
 // CARDS, TAGS, AND CARD-BOUND STATE
@@ -548,6 +558,7 @@ CLASS GpIncomplete<Class<GlobalParameter>> : Hidden { HAS MAX 1 This }
 CLASS GpComplete<Class<GlobalParameter>> : Hidden {
   HAS MAX 1 This
   This:: -GpIncomplete<Class<GlobalParameter>>!
+  -GlobalParameter:: Die
 }
 
 "Something that prevents the game from ending at the post-production check"
