@@ -156,18 +156,25 @@ public open class TfmCatalog : Catalog {
               }
             }
             if (availabilityModules.isNotEmpty()) {
+              val goalDeclarations =
+                  listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).flatMap { goalClass ->
+                    bundleClassesBelow(bundle, goalClass, includeAbstract = true)
+                  }
+              val customClassNames = bundle.customClasses.mapTo(hashSetOf(), CustomClass::className)
+              val goalSupportClassNames =
+                  goalDeclarations
+                      .flatMap(ClassDeclaration::allNodes)
+                      .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
+                      .filterTo(linkedSetOf()) { it in customClassNames }
               val contentClassNames = buildSet {
                 addAll(bundle.cardResourceClassNames)
                 bundle.marsMapDefinitions.forEach { map ->
                   add(map.className)
                   map.areas.mapTo(this) { area -> area.className }
                 }
+                goalDeclarations.mapTo(this, ClassDeclaration::className)
+                addAll(goalSupportClassNames)
               }
-                  .toMutableSet()
-              bundleClassesBelow(bundle, TfmClasses.MILESTONE, includeAbstract = true)
-                  .mapTo(contentClassNames, ClassDeclaration::className)
-              bundleClassesBelow(bundle, TfmClasses.AWARD, includeAbstract = true)
-                  .mapTo(contentClassNames, ClassDeclaration::className)
               val ambientClassNames =
                   bundle.explicitClassDeclarations
                       .map(ClassDeclaration::className)

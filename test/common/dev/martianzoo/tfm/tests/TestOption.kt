@@ -14,6 +14,8 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   Tharsis("TharsisMap"),
   Hellas("HellasMap"),
   Elysium("ElysiumMap"),
+  Amazonis("AmazonisMap"),
+  Vastitas("VastitasMap"),
   Utopia("UtopiaMap"),
   Cimmeria("CimmeriaMap"),
   VenusNextExpansion,

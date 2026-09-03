@@ -9,6 +9,7 @@ import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.Amazonis
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
@@ -20,6 +21,7 @@ import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.Tharsis
 import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
 import dev.martianzoo.tfm.tests.TestOption.Utopia
+import dev.martianzoo.tfm.tests.TestOption.Vastitas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.TestOption.WorldGovernmentRule
 import io.kotest.matchers.collections.shouldContainExactly
@@ -34,6 +36,8 @@ internal class CanonAdmissibilityTest {
             Tharsis to "TharsisMap",
             Hellas to "HellasMap",
             Elysium to "ElysiumMap",
+            Amazonis to "AmazonisMap",
+            Vastitas to "VastitasMap",
             Utopia to "UtopiaMap",
             Cimmeria to "CimmeriaMap",
         )

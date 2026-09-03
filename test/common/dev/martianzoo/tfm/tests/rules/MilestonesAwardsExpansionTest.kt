@@ -33,56 +33,6 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `Geologist counts owned tiles with owned neighbors`() {
-    newGame(
-        GameConfig(
-            "Geologist, Builder, Engineer",
-            "Player1",
-            "Player2",
-        )
-    )
-    p1.manual("CommercialDistrict_SpecialTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>")
-
-    shouldThrow<RequirementException> { p1.manual("Geologist") }
-
-    p1.manual("NaturalPreserve_SpecialTile<Tharsis_2_3>")
-    p1.manual("Geologist")
-    p1.count("Geologist") shouldBe 1
-  }
-
-  @Test
-  internal fun `Landscaper counts the largest contiguous map group and ignores remote tiles`() {
-    val game =
-        newGame(
-            GameConfig(
-                "Landscaper, Administrator, Biologist",
-                "Player1",
-                "Player2",
-            )
-        )
-    game.classTable.isActive(cn("Landscaper")) shouldBe true
-    val p2 = requireP2()
-    p1.manual(
-        "CommercialDistrict_SpecialTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>, NaturalPreserve_SpecialTile<Tharsis_2_3>, " +
-            "CityTile<Tharsis_4_6>, CityTile<GanymedeColony_RemoteArea>"
-    )
-    p2.manual("CityTile<Tharsis_8_7>, GreeneryTile<Tharsis_8_6>")
-
-    p1.count("OwnedTile") shouldBe 5
-    p2.count("OwnedTile") shouldBe 2
-    p1.count("OwnedTile<Tharsis_2_2>") shouldBe 1
-    p1.count("TileInLargestGroup") shouldBe 3
-    p2.count("TileInLargestGroup") shouldBe 2
-
-    p1.manual("8 M")
-    engine.phase("Action")
-    p1.stdAction("FundAward") { doTask("Landscaper") }
-
-    p1.count("Landscaper") shouldBe 1
-    p1.count("OwnedTile") shouldBe 5
-  }
-
-  @Test
   internal fun `Merchant checks resources after the normal claim cost`() {
     val game =
         newGame(

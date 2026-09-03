@@ -100,9 +100,14 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun goalCatalogDoesNotRequireASelectableBundleModule() {
+  internal fun goalCatalogAndItsSupportDoNotRequireASelectableBundleModule() {
     Canon.allClassNames.contains(cn("MilestonesAwardsExpansion")) shouldBe false
     Canon.allClassNames.contains(cn("Landscaper")) shouldBe true
+
+    val landscaperWithTharsis =
+        table(cn("TharsisMap"), cn("Landscaper"), cn("Administrator"), cn("Biologist"))
+    landscaperWithTharsis.isActive(cn("Landscaper")) shouldBe true
+    landscaperWithTharsis.isActive(cn("TileInLargestGroup")) shouldBe true
   }
 
   @Test

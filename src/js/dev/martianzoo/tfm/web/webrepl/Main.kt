@@ -143,6 +143,8 @@ public fun main() {
   fun mapBonusLabel(bonus: String): String? =
       when (bonus) {
         "R" -> "any"
+        "F" -> "+2°"
+        "4" -> "−4"
         "6" -> "−6"
         else -> null
       }
@@ -194,32 +196,34 @@ public fun main() {
           val iconSize = 25.0
           val bonusX = centerX - 45.7
           val bonusY = centerY - 23.0
-          area.bonuses.forEachIndexed { index, bonus ->
-            val x = bonusX + index * iconSize
-            val asset =
-                when (bonus) {
-                  "P" -> "resources/plant.png"
-                  "S" -> "resources/steel.png"
-                  "T" -> "resources/titanium.png"
-                  "C" -> "resources/card.png"
-                  "E" -> "resources/power.png"
-                  "H" -> "resources/heat.png"
-                  "O" -> "tiles/ocean.png"
-                  else -> null
+          area.bonuses
+              .filterNot { it == "D" }
+              .forEachIndexed { index, bonus ->
+                val x = bonusX + index * iconSize
+                val asset =
+                    when (bonus) {
+                      "P" -> "resources/plant.png"
+                      "S" -> "resources/steel.png"
+                      "T" -> "resources/titanium.png"
+                      "C" -> "resources/card.png"
+                      "E" -> "resources/power.png"
+                      "H" -> "resources/heat.png"
+                      "O" -> "tiles/ocean.png"
+                      else -> null
+                    }
+                if (asset != null) {
+                  append(
+                      "<image class='bonus-icon' href='assets/$asset' " +
+                          "x='$x' y='$bonusY' width='$iconSize' height='$iconSize'/>",
+                  )
+                } else {
+                  val label = mapBonusLabel(bonus) ?: return@forEachIndexed
+                  append(
+                      "<text class='bonus-text' x='${x + iconSize / 2}' " +
+                          "y='${bonusY + iconSize / 2}'>$label</text>",
+                  )
                 }
-            if (asset != null) {
-              append(
-                  "<image class='bonus-icon' href='assets/$asset' " +
-                      "x='$x' y='$bonusY' width='$iconSize' height='$iconSize'/>",
-              )
-            } else {
-              val label = mapBonusLabel(bonus) ?: return@forEachIndexed
-              append(
-                  "<text class='bonus-text' x='${x + iconSize / 2}' " +
-                      "y='${bonusY + iconSize / 2}'>$label</text>",
-              )
-            }
-          }
+              }
         } else {
           append(
               "<image class='map-tile' href='assets/tiles/${area.tile}.png' " +

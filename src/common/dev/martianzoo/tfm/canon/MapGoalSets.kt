@@ -44,6 +44,40 @@ internal object MapGoalSets {
                       "Benefactor",
                   ),
               ),
+          cn("AmazonisMap") to
+              Goals(
+                  names(
+                      "Terran",
+                      "Landshaper",
+                      "Merchant3",
+                      "Sponsor",
+                      // "Lobbyist",
+                  ),
+                  names(
+                      "Collector",
+                      "Innovator",
+                      "Constructor",
+                      "Manufacturer",
+                      "Physicist",
+                  ),
+              ),
+          cn("VastitasMap") to
+              Goals(
+                  names(
+                      "Agronomist",
+                      "Engineer",
+                      "Spacefarer",
+                      "Geologist",
+                      "Farmer",
+                  ),
+                  names(
+                      "Traveller",
+                      "Landscaper",
+                      "Highlander",
+                      "Promoter",
+                      "Blacksmith",
+                  ),
+              ),
           cn("UtopiaMap") to
               Goals(
                   names("Manager", "Pioneer3", "Trader", "Metallurgist", "Researcher"),

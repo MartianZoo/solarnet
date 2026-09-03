@@ -9,7 +9,7 @@ CLASS TerraformingMars : Module {
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
   This:: GpIncomplete<Class<TemperatureStep>>, GpIncomplete<Class<OxygenStep>>, GpIncomplete<Class<OceanTile>>
-  This:: StandardGpTrackRules
+  This IF MAX 0 ExtendedGlobalParametersRule:: StandardGpTrackRules
   This IF MAX 0 MarsMap:: TharsisMap
 
   CorporationPhase: Photosynthesis

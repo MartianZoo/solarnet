@@ -1,7 +1,8 @@
 CLASS VenusNextExpansion : Module {
   This:: AirScrappingSP
   This:: GpIncomplete<Class<VenusStep>>
-  This:: StandardVenusTrackRules
+  This IF MAX 0 ExtendedGlobalParametersRule:: StandardVenusTrackRules
+  This IF ExtendedGlobalParametersRule:: ExtendedVenusTrackRules
 }
 
 CLASS AirScrappingSP : StandardProject {
@@ -33,6 +34,17 @@ CLASS StandardVenusTrackRules : System {
   VenusStep IF =4 VenusStep: ProjectCard
   VenusStep IF =8 VenusStep: TerraformRating
   VenusStep IF =15 VenusStep:: GpComplete<Class<VenusStep>>
+}
+
+"Enforces the extended Venus track when the extended global parameters are active"
+CLASS ExtendedVenusTrackRules : System {
+  HAS =1 This
+  HAS MAX 18 VenusStep
+
+  VenusStep IF =4 VenusStep: ProjectCard
+  VenusStep IF =8 VenusStep, ColoniesExpansion: Colony<>
+  VenusStep IF =11 VenusStep: TerraformRating
+  VenusStep IF =18 VenusStep:: GpComplete<Class<VenusStep>>
 }
 
 CLASS VenusTag : PlanetaryTag {

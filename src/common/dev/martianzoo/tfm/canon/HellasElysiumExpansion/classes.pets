@@ -1,6 +1,9 @@
 CLASS Diversifier : Milestone { requirement = HAS "8 Class<Tag>(HAS Tag<Owner>)" }
 CLASS Tactician5 : Milestone { requirement = HAS "5 CardFront(HAS requirement)" }
-CLASS PolarExplorer : Milestone { requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>" }
+CLASS PolarExplorer : Milestone {
+  HAS HellasMap
+  requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>"
+}
 CLASS Energizer : Milestone { requirement = HAS "PROD[6 Energy]" }
 CLASS RimSettler : Milestone { requirement = HAS "3 JovianTag" }
 
@@ -26,7 +29,10 @@ CLASS Legend5 : Milestone { requirement = HAS "CARDS[5 CardBack<EventPile>]" }
 
 CLASS Celebrity : Award { metric = COUNT "CardFront(HAS 20 cost)" }
 CLASS Industrialist : Award { metric = COUNT "Steel OR Energy" }
-CLASS DesertSettler : Award { metric = COUNT "OwnedTile<MarsArea(HAS 6 row)>" }
+CLASS DesertSettler : Award {
+  HAS ElysiumMap
+  metric = COUNT "OwnedTile<MarsArea(HAS 6 row)>"
+}
 CLASS EstateDealer : Award { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
 CLASS Benefactor : Award { metric = COUNT "TerraformRating" }
 

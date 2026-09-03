@@ -72,6 +72,13 @@ internal class ScriptSessionTest {
         hellas.areas.single { it.row == 5 && it.column == 7 }.bonuses,
     )
     assertEquals(listOf("O", "6"), hellas.areas.single { it.row == 9 && it.column == 7 }.bonuses)
+
+    repl.command("newgame \"AmazonisMap\" Player1 Player2")
+    val amazonis = repl.mapSnapshot()
+    assertEquals(
+        listOf("P", "P", "P"),
+        amazonis.areas.single { it.row == 10 && it.column == 9 }.bonuses,
+    )
   }
 
   @Test

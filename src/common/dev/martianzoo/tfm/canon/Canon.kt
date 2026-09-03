@@ -13,6 +13,7 @@ public object Canon :
         turmoilCardPackBundle, // 2019
         prelude2ExpansionBundle, // 2024
         milestonesAwardsExpansionBundle, // 2024
+        amazonisVastitasExpansionBundle, // 2024
         utopiaCimmeriaExpansionBundle, // 2024
         promoCardPackBundle,
     ) {

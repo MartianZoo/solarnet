@@ -45,6 +45,15 @@ internal class ModuleSelectionTest {
                     TharsisMap
                     """,
             ),
+            Configuration(
+                description = "extended global parameters can be selected with a standard map",
+                config = "ExtendedGlobalParametersRule",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap, ExtendedGlobalParametersRule
+                    """,
+            ),
 
             // MAPS AND GOAL POOLS
             Configuration(
@@ -81,6 +90,33 @@ internal class ModuleSelectionTest {
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     CimmeriaMap
+                    """,
+            ),
+            Configuration(
+                description = "Amazonis enables extended global parameters by default",
+                config = "AmazonisMap",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    AmazonisMap, ExtendedGlobalParametersRule
+                    """,
+            ),
+            Configuration(
+                description = "Amazonis allows its extended global parameters to be disabled",
+                config = "AmazonisMap, -ExtendedGlobalParametersRule",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    AmazonisMap
+                    """,
+            ),
+            Configuration(
+                description = "Vastitas retains the standard global parameters",
+                config = "VastitasMap",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    VastitasMap
                     """,
             ),
             Configuration(
