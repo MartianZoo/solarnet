@@ -21,7 +21,6 @@ internal class TaskDelegationTest {
       val reaction = game.tasks.extract { it }.single()
       reaction.assignee shouldBe PLAYER1
       reaction.controller shouldBe PLAYER1
-      reaction.narrower shouldBe PLAYER2
       reaction.actor shouldBe PLAYER2
 
       p1.selectTask(reaction.id)
@@ -29,7 +28,6 @@ internal class TaskDelegationTest {
       val followUp = game.tasks.extract { it }.single()
       followUp.assignee shouldBe PLAYER1
       followUp.controller shouldBe PLAYER1
-      followUp.narrower shouldBe PLAYER2
       followUp.actor shouldBe PLAYER2
       p1.selectTask(followUp.id)
     }
@@ -50,7 +48,6 @@ internal class TaskDelegationTest {
           game.tasks.extract { it }.single { it.instruction.toString().startsWith("Reward") }
       reward.assignee shouldBe PLAYER1
       reward.controller shouldBe PLAYER1
-      reward.narrower shouldBe PLAYER2
       reward.actor shouldBe PLAYER2
 
       p1.doTask("Spare<Player1>")
@@ -59,7 +56,6 @@ internal class TaskDelegationTest {
       val delegated = game.tasks.getTaskData(reward.id)
       delegated.assignee shouldBe PLAYER2
       delegated.controller shouldBe PLAYER1
-      delegated.narrower shouldBe PLAYER2
       delegated.selected shouldBe true
       shouldThrow<TaskException> { p1.doTask("Later<Player1>") }
 
@@ -68,7 +64,6 @@ internal class TaskDelegationTest {
       val followUp = game.tasks.extract { it }.single { it.instruction.toString() == "FollowUp!" }
       followUp.assignee shouldBe PLAYER1
       followUp.controller shouldBe PLAYER1
-      followUp.narrower shouldBe PLAYER2
       followUp.actor shouldBe PLAYER2
       p1.selectTask(followUp.id)
       p1.doTask("Later<Player1>")

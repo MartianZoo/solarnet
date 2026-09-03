@@ -6,10 +6,8 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 
 /** Triggered work that has not yet been admitted to a task queue. */
 internal data class PendingTask(
-    val assignee: Actor,
-    val controller: Actor = assignee,
-    val narrower: Actor = controller,
-    val actor: Actor = narrower,
+    val controller: Actor,
+    val actor: Actor = controller,
     val instruction: InstructionGroup,
     val cause: Cause,
 ) {
