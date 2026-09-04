@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.data.Player.Companion.PLAYER3
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -9,7 +11,25 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
-internal class BugsTest : CardTest() {
+internal class BugsTest : CardTest(additionalClassDeclarations = attributionProbeDeclarations) {
+  // The rule belongs to Vermin, but it is hosted on one `VerminWatcher<Player>` per player, so
+  // each victim ends up acting on itself. See docs/agents/EACHPLAYER.md, "Attribution is
+  // inherited, and it matters", for the fanout that would put the rule back on the card.
+  @Test
+  internal fun `Vermin incorrectly credits each victim for removing its own point`() {
+    newGame(PromoCardPack, players = 3)
+    val p3 = game.tfm(PLAYER3)
+    p1.manual("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
+    p3.manual("CityTile<Tharsis_3_3>")
+
+    engine.manual("End FROM Phase")
+
+    // The probe records whoever is credited for a point removal. These self-attributions are wrong:
+    // Vermin's owner should be credited for both removals, whoever lost the point.
+    engine.count("$attribution<Player1>") shouldBe 1
+    engine.count("$attribution<Player3>") shouldBe 1
+  }
+
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Viral Enhancers with its own tags`() {
     newGame(PreludeExpansion, CorporateEraExpansion)

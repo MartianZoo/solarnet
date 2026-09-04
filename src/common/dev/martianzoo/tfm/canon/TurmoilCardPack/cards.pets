@@ -39,7 +39,7 @@ CLASS HasRaisedTr : Generational, Owned {
   HAS MAX 1 This
 }
 
-CLASS TrWatcher : Owned<Player>, System {
-  HAS =1 This
-  TerraformRating IF MAX 0 SetupPhase:: HasRaisedTr.
+CLASS TrWatcher : System {
+  HAS MAX 1 This
+  TerraformRating:: HasRaisedTr.
 }

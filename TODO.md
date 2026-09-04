@@ -28,6 +28,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do
   not award it TR, and whether adding and then removing those steps has any other observable
   consequences.
+- Keep looking for a better representation of Splice Tactical Genomics.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are
