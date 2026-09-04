@@ -6,15 +6,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Decide whether the README should carry a fan-project/non-affiliation note for FryxGames,
-  and whether `english-published-wording-evidence.tsv` needs any accompanying statement. The
-  understanding so far is that only printed *flavor* text is claimed, and that file holds rules
-  wording rather than flavor text.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
   considered an unsuccessful direction.
-- IndustrialComplex should top up to 2 production if in QuickStartVariant (add to BugsTest anytime).
 - Complete `Game20260820Test` beyond its current partial generation-6 checkpoint using the preserved
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`,
@@ -39,8 +34,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
-- Explain or remove `Initializer`'s synthetic mandatory Quantifier.
-- Split `Instructor.resolveChange` into narrowing, custom translation, and limit-checking stages.
 - Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
@@ -49,14 +42,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   stored, and `"abstract"` is recomputed from `instruction.isAbstract(reader)` in `explainNotNow`
   anyway, yet `Implementations.requireComplete` and `TfmGameplay` branch on the string literal. Ask
   the instruction, and leave `whyPending` a pure diagnostic message.
-- Delete `pets/util/PairingChecker.kt`, along with its own tokenizer and grammar. It has no
-  production caller; `PairingCheckerTest` is its only reference in the repository.
 - Investigate why all wild-tag assignments must currently run before selecting a card or action.
   Only assignments needed to satisfy a requirement should be early; assignments used by queued
   effects such as per-tag gains should resolve normally from the task queue.
-- Replace the regular `MarsMapDefinitionTest` fixture with an extremely irregular synthetic board
-  that proves diagram whitespace determines row/slant-column geometry, including jagged row starts,
-  varying row lengths, and absent cells.
 ### Hypothetical Card Behavior
 
 - Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a
@@ -71,12 +59,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Fix the REPL's interactive startup: under a real terminal it prints a bare prompt and progress
-  dots but never reaches the `Welcome to REgo PLastics` banner, even after two minutes, while a
-  piped session reaches it immediately. This blocks `:repl:realTerminalSmokeTest`, whose Expect
-  script times out on its first expectation, and it is what a user meets when running `./rego`.
-  Once startup is fixed, re-check the rest of `repl-smoke.exp` against current command output and
-  add the test to the CI workflow, which already installs Expect for it.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace the replay-local
   `FakeL1TradeTerminal` declaration with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
@@ -90,24 +72,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
-- Break `PetTransformer.transformChildren` into focused rebuild helpers; its instruction-tree
-  support has made the existing cyclomatic-complexity suppression increasingly costly to maintain.
 - Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
   Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
   Politician rules.
-- Define the `script` command's relative-path policy and correct its help text, which currently
-  promises paths relative to the repository while `File(args)` actually uses the process working
-  directory.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
 - Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.
-- Share the one three-valued abstract interpreter over Pets that currently exists twice. `Truth`,
-  `truthOfAll`, `truthOfAny`, `isUninhabited`, `truthOf`, and `triggerReachable` appear as private
-  members of both `ClassLoader` and `PremiseViability`, near-verbatim; `ClassLoader`'s copy alone
-  additionally consults `configuredCount`. The two run adjacently in one pipeline —
-  `ClassTable.forPremise` calls `PremiseViability.validate` right after loading — so extracting one
-  implementation parameterized by the inhabitance question each caller answers is safe, and leaves
-  uninhabited-Type reasoning with a single definition.

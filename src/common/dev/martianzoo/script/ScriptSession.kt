@@ -255,7 +255,7 @@ public class ScriptSession(
 
   public class UsageException(message: String? = null) : Exception(message.orEmpty())
 
-  // Splits on semicolons and executes each chunk; used by both interactive and server modes.
+  // Splits on semicolons and executes each chunk for interactive and scripted callers.
   @Suppress("TooGenericExceptionCaught") // TODO investigate
   public fun executeAll(input: String): List<String> {
     val allOutput = mutableListOf<String>()

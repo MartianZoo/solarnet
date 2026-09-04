@@ -324,7 +324,6 @@ internal constructor(
         ?: throw ExpressionException("unsupported Actor: ${type.expression}")
   }
 
-  // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.
   private fun resolveChange(change: Change): InstructionTree {
     val intensity = change.intensity ?: error("missing intensity: $change")
     return try {
@@ -348,19 +347,7 @@ internal constructor(
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
 
-    val (g: Type?, r: Type?) =
-        autoNarrowTypes(
-            change.gaining,
-            change.removing,
-            preserveAbstractActor = intens == AMAP,
-        )
-    if (
-        change is Transmute &&
-            !Change.change(g?.expression, r?.expression, count, intens).narrows(change, reader)
-    ) {
-      // Independent auto-narrowing must not choose conflicting values for one atomic variable.
-      return change
-    }
+    val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
     if (listOfNotNull(g, r).any { !classTable.isActive(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
@@ -422,41 +409,81 @@ internal constructor(
     if (g == r && intens != MANDATORY) return NoOp
     if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
 
-    val gaining = g?.toComponent()
-    val removing = r?.toComponent()
-
-    if (g?.rootClass?.declaration?.custom == true) {
-      if (r != null) {
-        throw ExpressionException("custom class instructions can only be pure gains: $change")
-      }
-      val translated =
-          transformDispatcher()
-              .transformInstructionTree(customClasses.translateInstruction(gaining!!, reader))
-      return resolveTree(translated)
+    translateCustomChange(change, g, r)?.let {
+      return it
     }
+    return limitChange(g, r, count, intens)
+  }
 
+  private fun narrowChangeTypes(
+      change: Change,
+      count: Int,
+      intensity: Instruction.Intensity,
+  ): Pair<Type?, Type?>? {
+    val narrowed =
+        autoNarrowTypes(
+            change.gaining,
+            change.removing,
+            preserveAbstractActor = intensity == AMAP,
+        )
+    val (gaining, removing) = narrowed
+    if (
+        change is Transmute &&
+            !Change.change(gaining?.expression, removing?.expression, count, intensity)
+                .narrows(change, reader)
+    ) {
+      // Independent auto-narrowing must not choose conflicting values for one atomic variable.
+      return null
+    }
+    return narrowed
+  }
+
+  private fun translateCustomChange(
+      original: Change,
+      gainingType: Type?,
+      removingType: Type?,
+  ): InstructionTree? {
+    if (gainingType?.rootClass?.declaration?.custom != true) return null
+    if (removingType != null) {
+      throw ExpressionException("custom class instructions can only be pure gains: $original")
+    }
+    val gaining = gainingType.toComponent()
+    val translated =
+        transformDispatcher()
+            .transformInstructionTree(customClasses.translateInstruction(gaining, reader))
+    return resolveTree(translated)
+  }
+
+  private fun limitChange(
+      gainingType: Type?,
+      removingType: Type?,
+      count: Int,
+      intensity: Instruction.Intensity,
+  ): Instruction {
+    val gaining = gainingType?.toComponent()
+    val removing = removingType?.toComponent()
     val limit = limiter.findLimit(gaining, removing)
     val adjusted: Int = min(count, limit)
 
-    if (intens == MANDATORY && adjusted != count) {
+    if (intensity == MANDATORY && adjusted != count) {
       val mesg =
-          if (g != null) {
-            if (r == null) {
-              "gain $count ${g.expression}"
+          if (gainingType != null) {
+            if (removingType == null) {
+              "gain $count ${gainingType.expression}"
             } else {
-              "transmute $count ${r.expression} into ${g.expression}"
+              "transmute $count ${removingType.expression} into ${gainingType.expression}"
             }
           } else {
-            "remove $count ${r!!.expression}"
+            "remove $count ${removingType!!.expression}"
           }
       throw LimitsException("Can't $mesg: max possible is $adjusted")
     }
 
     return Change.change(
-        g?.expression,
-        r?.expression,
+        gainingType?.expression,
+        removingType?.expression,
         adjusted,
-        if (intens == AMAP) MANDATORY else intens,
+        if (intensity == AMAP) MANDATORY else intensity,
     )
   }
 

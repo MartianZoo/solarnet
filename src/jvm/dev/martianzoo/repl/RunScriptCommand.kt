@@ -10,9 +10,9 @@ internal class RunScriptCommand(private val session: ScriptSession) : ScriptComm
   override val usage = "script <filename>"
   override val help =
       """
-        Reads from the given filename (expressed relative to the solarnet/ directory) and executes
-        every command in it, as if you had typed it directly at the prompt, until reaching the
-        line "stop" or the end of file. Script files may not contain an `exit` command.
+        Reads from the given filename (relative to the current working directory) and executes every
+        command in it, as if you had typed it directly at the prompt, until reaching the line "stop"
+        or the end of file. Script files may not contain an `exit` command.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =

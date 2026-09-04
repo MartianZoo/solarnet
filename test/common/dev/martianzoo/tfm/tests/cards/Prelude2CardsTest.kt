@@ -331,6 +331,24 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Industrial Complex raises production tracks below two in Quick Start`() {
+    newGame(GameConfig("Prelude2Expansion, QuickStartVariant", "Player1", "Player2"))
+    p1.manual("18 MC, PROD[-6 MC], PROD[2 Titanium], PROD[-Plant]")
+
+    p1.manual("$IndustrialComplex")
+
+    p1.count("MC") shouldBe 0
+    p1.assertProds(
+        2 to "MC",
+        2 to "Steel",
+        3 to "Titanium",
+        2 to "Plant",
+        2 to "Energy",
+        2 to "Heat",
+    )
+  }
+
+  @Test
   internal fun `Recession applies each opponent loss as much as possible`() {
     newGame(Prelude2Expansion, players = 3)
     val p2 = requireP2()
