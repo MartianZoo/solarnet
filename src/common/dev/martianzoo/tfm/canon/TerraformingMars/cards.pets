@@ -27,7 +27,7 @@ CLASS Inventrix : CardFront<Class<CorporationCard>> {
 
   This:: ScienceTag<This>
   This: 45 MC, RequiredAction { -> 3 ProjectCard }
-  RequirementCheck:: -2 Required<Class<GlobalParameter>>.
+  CheckRequirement:: -2 Required<Class<GlobalParameter>>.
 }
 
 CLASS MiningGuild : CardFront<Class<CorporationCard>> {
@@ -35,7 +35,7 @@ CLASS MiningGuild : CardFront<Class<CorporationCard>> {
 
   This:: 2 BuildingTag<This>
   This: 30 MC, 5 Steel, PROD[Steel]
-  Tile<MarsArea(HAS MapBonus<Class<Metal>>)>: PROD[Steel]
+  Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]
 }
 
 CLASS Phobolog : CardFront<Class<CorporationCard>> {
@@ -148,7 +148,7 @@ CLASS WaterImportFromEuropa : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 25
 
   This:: JovianTag<This>, SpaceTag<This>
-  UseAction<This, Action1>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accepting<Class<Titanium>>
   End: VictoryPoint / JovianTag
 
   12 MC -> OceanTile<>
@@ -470,7 +470,7 @@ CLASS MiningRights : AutomatedCard<Class<ProjectCard>> {
   cost = 9
 
   This:: BuildingTag<This>
-  This: SpecialTile<> {} THEN PROD[(LandArea(HAS MiningRights_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]
+  This: SpecialTile<> {} THEN PROD[(LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Titanium>>): Titanium)]
 }
 
 CLASS Birds : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
@@ -881,7 +881,7 @@ CLASS AdaptationTechnology : ActiveCard<Class<ProjectCard>> {
   cost = 12
 
   This:: ScienceTag<This>
-  RequirementCheck:: -2 Required<Class<GlobalParameter>>.
+  CheckRequirement:: -2 Required<Class<GlobalParameter>>.
   End: VictoryPoint
 }
 
@@ -1084,7 +1084,7 @@ CLASS AquiferPumping : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 18
 
   This:: BuildingTag<This>
-  UseAction<This, Action1>:: Accept<Class<Steel>>
+  UseAction<This, Action1>:: Accepting<Class<Steel>>
 
   8 MC -> OceanTile<>
 }
@@ -1169,7 +1169,7 @@ CLASS SpecialDesign : EventCard<Class<ProjectCard>> {
   cost = 4
 
   This:: ScienceTag<This>, EventTag<This>
-  This: NextCardEffect { RequirementCheck:: -2 Required<Class<GlobalParameter>>. }
+  This: NextCardEffect { CheckRequirement:: -2 Required<Class<GlobalParameter>>. }
 }
 
 // Supporting declarations contributed by cards in this bundle.

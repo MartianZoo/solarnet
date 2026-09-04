@@ -37,7 +37,7 @@ CLASS Vitor : CardFront<Class<CorporationCard>> {
   This:: EarthTag<This>
   This: 45 MC
   This IF Class<Award>: RequiredAction { -> Award }
-  CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC
+  CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC
 }
 
 CLASS AlliedBank : CardFront<Class<PreludeCard>> {
@@ -302,7 +302,7 @@ CLASS Psychrophiles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<C
   requirement = HAS "MAX 5 TemperatureStep"
 
   This:: MicrobeTag<This>
-  PlayTag<Class<PlantTag>>:: AcceptFromCard<This>
+  PlayTag<Class<PlantTag>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -2 Owed<>
 
   -> Microbe<This>
@@ -333,4 +333,4 @@ CLASS SpaceHotels : AutomatedCard<Class<ProjectCard>> {
 // Supporting declarations contributed by cards in this bundle.
 CLASS LowestProduction<Class<StandardResource>> : Custom, Owned
 
-CLASS CitationsIgnoringRemoves<CardFront, Class<Component>> : Custom
+CLASS NonNegativeIconsOf<CardFront, Class<Component>> : Custom

@@ -14,8 +14,8 @@ CLASS TerraformingMars : Module {
 
   CorporationPhase: Photosynthesis
 
-  PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
-  PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
+  PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
+  PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
 }
 
 "Starts each player with one production of every standard resource"
@@ -206,7 +206,7 @@ ABSTRACT CLASS Card : Owned<Player> {
 
   "A card in your played-events pile"
   CLASS PlayedEvent<Class<CardFront>> {
-    End: GetEventVps<Class<CardFront>>
+    End: ScoreEventVps<Class<CardFront>>
   }
 }
 
@@ -454,23 +454,23 @@ CLASS BuySelectedCards : Owned<Player>, Signal {
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
-  This:: (EVAL CardFront.requirement: Ok) OR HandlePossibleGpRequirement<Class<CardFront>>
+  This:: (EVAL CardFront.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
   This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<Hand>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
-CLASS RequirementCheck<Class<CardFront>> : Owned<Player>, Signal
+CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
 CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
 CLASS Owed<Class<StandardResource>> : Owned<Player>, Barrier {
   DEFAULT +Owed<Class<MC>>
   DEFAULT -Owed<Class<MC>>.
-  X This:: Accept<Class<StandardResource>>
+  X This:: Accepting<Class<StandardResource>>
 }
 
-CLASS Accept<Class<StandardResource>> : Owned<Player>, MustCleanUp {
+CLASS Accepting<Class<StandardResource>> : Owned<Player>, MustCleanUp {
   HAS MAX 1 This
-  DEFAULT +Accept.
+  DEFAULT +Accepting.
   Billing: X Pay<Class<StandardResource>> FROM StandardResource?
   -X Billing:: -This!
 }
@@ -481,7 +481,7 @@ CLASS Pay<Class<StandardResource>> : Owned<Player>, Signal {
 }
 
 "Offers payment using the resource held by a specific card"
-CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, MustCleanUp {
+CLASS AcceptingFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, MustCleanUp {
   HAS MAX 1 This
   Billing: X PayFromCard<ResourceCard> FROM CardResource<ResourceCard>?
   -X Billing:: -This!
@@ -579,13 +579,13 @@ CLASS End : Phase, Temporary
 CLASS WorldGovernmentTerraforming : Signal, System
 
 "Asks the first player where an ocean is placed while preserving the performing Player"
-CLASS FirstPlayerOcean<Player> : Signal
+CLASS ChooseOceanArea<Player> : Signal
 
 "Marks the player who takes the first turn; passes one seat left with each new generation"
 CLASS StartToken : Owned<Player> {
   HAS MAX 1 StartToken
   Generation: PassLeft<This>
-  FirstPlayerOcean<Actor> BY Actor: OceanTile<> BY Actor
+  ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor
   WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
 }
 
@@ -661,11 +661,11 @@ CLASS SoloGenerationsLeft : GameEndBarrier
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {
   HAS MAX 1 This
-  SetupPhase: SoloStartingPlacement
+  SetupPhase: PlaceNeutralTiles
 }
 
 "Creates the two independent city-and-greenery placement tasks in solo setup"
-CLASS SoloStartingPlacement : Signal, System, Owned<SoloOpponent> {
+CLASS PlaceNeutralTiles : Signal, System, Owned<SoloOpponent> {
   HAS MAX 1 This
   This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
   This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
@@ -699,13 +699,13 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
 CLASS CreateAdjacencies<MarsArea> : Custom
 
 "A virtual metric whose count is the number of a particular resource printed as an area's bonus"
-CLASS MapBonus<Class<Resource>, MarsArea> : Custom
+CLASS PlacementBonus<Class<Resource>, MarsArea> : Custom
 
 "Moves an owned component to the next player in seat order"
 CLASS PassLeft<StartToken> : Custom
 
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
-CLASS GetEventVps<Class<CardFront>> : Owned<Player>, Custom
+CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, Custom
 
 "Copies the single immediate production box on a chosen card"
 CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
@@ -717,7 +717,7 @@ CLASS GrossHack : Owned<Player>, System {
 }
 
 CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
-CLASS HandlePossibleGpRequirement<Class<CardFront>> : Owned<Player>, Custom
+CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
 CLASS HandleCardTags<Class<CardFront>> : Owned<Player>, Custom
 
 "A temporary shortfall between a printed global requirement and the current parameter"

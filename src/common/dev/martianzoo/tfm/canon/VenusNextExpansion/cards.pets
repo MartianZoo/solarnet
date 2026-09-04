@@ -30,7 +30,7 @@ CLASS MorningStarInc : CardFront<Class<CorporationCard>> {
 
   This:: VenusTag<This>
   This: 50 MC, RequiredAction { -> CARDS[3 ProjectCard(HAS VenusTag)] }
-  RequirementCheck:: -2 Required<Class<VenusStep>>.
+  CheckRequirement:: -2 Required<Class<VenusStep>>.
 }
 
 CLASS Viron : ActionCard<Class<CorporationCard>> {
@@ -122,7 +122,7 @@ CLASS Dirigibles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Clas
   cost = 11
 
   This:: VenusTag<This>
-  PlayTag<Class<VenusTag>>:: AcceptFromCard<This>
+  PlayTag<Class<VenusTag>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -3 Owed<>
 
   -> Floater
@@ -300,7 +300,7 @@ CLASS RotatorImpacts : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<
   requirement = HAS "MAX 7 VenusStep"
 
   This:: SpaceTag<This>
-  UseAction<This, Action1>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accepting<Class<Titanium>>
 
   6 MC -> Asteroid<This>
   Asteroid<This> -> VenusStep

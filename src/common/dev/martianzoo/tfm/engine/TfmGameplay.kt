@@ -181,7 +181,8 @@ public class TfmGameplay(
           tasks
               .extract { it }
               .withIndex()
-              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("Accept") } ?: return
+              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("Accepting") }
+              ?: return
       doTask("Ok", offer.index + 1)
     }
   }
@@ -393,7 +394,9 @@ public class TfmGameplay(
     body()
     if (this@TfmGameplay.count("Owed") == 0) {
       tasks
-          .matching { it.cause?.context?.className in setOf(cn("Accept"), cn("AcceptFromCard")) }
+          .matching {
+            it.cause?.context?.className in setOf(cn("Accepting"), cn("AcceptingFromCard"))
+          }
           .forEach {
             selectTask(it)
             if (it in tasks) narrowTask("Ok")
@@ -475,7 +478,8 @@ public class TfmGameplay(
                   .extract { it }
                   .any {
                     val context = it.cause?.context
-                    context?.className == cn("Accept") && "Class<$currency>" in context.toString()
+                    context?.className == cn("Accepting") &&
+                        "Class<$currency>" in context.toString()
                   }
           if (!accepted) {
             if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
@@ -563,7 +567,7 @@ public class TfmGameplay(
 
   private fun OperationBody.finishBilling(billingCause: Cause?) {
     tasks
-        .matching { it.cause?.context?.className == cn("Accept") }
+        .matching { it.cause?.context?.className == cn("Accepting") }
         .forEach {
           selectTask(it)
           if (it in tasks) narrowTask("Ok")

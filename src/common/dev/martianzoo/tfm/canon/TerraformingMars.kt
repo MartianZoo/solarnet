@@ -50,14 +50,14 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.CreateAdjacencies,
         TerraformingMars.CreateMapAreas,
         TerraformingMars.CheckCardDeck,
-        TerraformingMars.HandlePossibleGpRequirement,
+        TerraformingMars.AdjustGpRequirement,
         TerraformingMars.HandleCardTags,
-        TerraformingMars.GetEventVps,
+        TerraformingMars.ScoreEventVps,
         TerraformingMars.PassLeft,
         TerraformingMars.AssignAwardPlaces,
         TerraformingMars.AssignMultiplayerVictory,
-        TerraformingMars.CitationsIgnoringRemoves,
-        TerraformingMars.MapBonus,
+        TerraformingMars.NonNegativeIconsOf,
+        TerraformingMars.PlacementBonus,
         TerraformingMars.CopyProductionBox,
     )
 
@@ -104,7 +104,7 @@ private object TerraformingMars {
     }
   }
 
-  internal object CitationsIgnoringRemoves : CustomMetric() {
+  internal object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (cardExpression, targetExpression) = type.expressionFull.arguments
       if (game.countComponent(game.resolve(cardExpression)) == 0) return 0
@@ -133,7 +133,7 @@ private object TerraformingMars {
     }
   }
 
-  internal object MapBonus : CustomMetric() {
+  internal object PlacementBonus : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val arguments = type.expressionFull.arguments
       val resourceName = arguments.single { it.className == CLASS }.arguments.single().className
@@ -193,9 +193,9 @@ private object TerraformingMars {
     }
   }
 
-  internal object HandlePossibleGpRequirement : CustomClass() {
+  internal object AdjustGpRequirement : CustomClass() {
     override val requiredClassNames: Set<ClassName> =
-        setOf(REQUIRED, REQUIREMENT_CHECK, GLOBAL_PARAMETER)
+        setOf(REQUIRED, CHECK_REQUIREMENT, GLOBAL_PARAMETER)
 
     override fun translate(
         reader: GameReader,
@@ -208,7 +208,7 @@ private object TerraformingMars {
         Then.create(
             listOf(
                 gain(REQUIRED.of(CLASS.of(parameter)), count),
-                gain(REQUIREMENT_CHECK.of(cardClassType.expression)),
+                gain(CHECK_REQUIREMENT.of(cardClassType.expression)),
             )
         )
       } ?: FALLBACK_UNAVAILABLE
@@ -242,7 +242,7 @@ private object TerraformingMars {
 
   private val PLAY_TAG = cn("PlayTag")
   private val REQUIRED = cn("Required")
-  private val REQUIREMENT_CHECK = cn("RequirementCheck")
+  private val CHECK_REQUIREMENT = cn("CheckRequirement")
   private val GLOBAL_PARAMETER = cn("GlobalParameter")
 
   internal object HandleCardTags : CustomClass() {
@@ -262,7 +262,7 @@ private object TerraformingMars {
     }
   }
 
-  internal object GetEventVps : CustomClass() {
+  internal object ScoreEventVps : CustomClass() {
     override fun translate(
         reader: GameReader,
         ignoredOwner: Type,

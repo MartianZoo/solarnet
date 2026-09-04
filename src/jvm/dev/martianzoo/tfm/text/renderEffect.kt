@@ -460,11 +460,11 @@ private fun renderAcceptedCardResourcePayment(
   ) {
     return null
   }
-  val acceptedKey = Key(ClassName.cn("AcceptFromCard"), 0)
-  val resolvedAccepted = describers.resolveExpression(accepted.gaining, acceptedKey) ?: return null
+  val acceptingKey = Key(ClassName.cn("AcceptingFromCard"), 0)
+  val resolvedAccepted = describers.resolveExpression(accepted.gaining, acceptingKey) ?: return null
   if (
       accepted.intensity.modality() != Modality.REQUIRED ||
-          !resolvedAccepted.hasOnlySourceDependency(acceptedKey, describers.thisExpression) ||
+          !resolvedAccepted.hasOnlySourceDependency(acceptingKey, describers.thisExpression) ||
           accepted.gaining.refinement != null ||
           accepted.gaining.complement ||
           accepted.count.fixedQuantity() != 1

@@ -27,7 +27,7 @@ CLASS StormcraftIncorporated : ActionCard, ResourceCard<Class<Floater>, Class<Co
 
   This:: JovianTag<This>
   This: 48 MC
-  Billing<HasActions, ActionSlot, Class<Heat>>:: AcceptFromCard<This>
+  Billing<HasActions, ActionSlot, Class<Heat>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -2 Owed<Class<Heat>>
   LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok
 
@@ -270,7 +270,7 @@ CLASS PioneerSettlement : AutomatedCard<Class<ProjectCard>> {
 CLASS ProductiveOutpost : AutomatedCard<Class<ProjectCard>> {
   cost = 0
 
-  This: GiveColonyBonuses
+  This: GainColonyBonuses
 }
 
 CLASS QuantumCommunications : AutomatedCard<Class<ProjectCard>> {

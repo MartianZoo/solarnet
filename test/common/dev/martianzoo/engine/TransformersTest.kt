@@ -150,7 +150,9 @@ internal class TransformersTest {
   internal fun `a card-payment offer keeps its resource-card linkage`() {
     val component =
         Component(
-            Canon.classTable.resolve(parse("AcceptFromCard<Player1, KuiperCooperative<Player1>>"))
+            Canon.classTable.resolve(
+                parse("AcceptingFromCard<Player1, KuiperCooperative<Player1>>")
+            )
         )
 
     LiveEffect.compile(component, transformers)

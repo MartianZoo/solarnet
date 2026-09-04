@@ -72,7 +72,7 @@ not `BankerMilestone` or `ClaimMilestoneSA`. The declaration already records the
 initialism bolted on to every member of a category is usually noise.
 
 Standard projects deliberately use the `SP` suffix consistently, including `PowerPlantSP`,
-`AsteroidSP`, and `SellPatentsSP`. The game uses “standard project” as the name of this action
+`AsteroidSP`, and `SellPatentsSP`. The game uses "standard project" as the name of this action
 family, and the uniform suffix distinguishes its members from cards, resources, and ordinary game
 concepts without deciding each collision differently.
 
@@ -124,19 +124,32 @@ The bare name goes to the version we consider primary:
   already on the board. Likewise `Generalist` over `Generalist2`, which asks for 2 of each
   production rather than 1.
 
-For thresholds, the qualifier is always the number a player reads off the board, never an
-engine-side count. Note that some requirement expressions carry a GrossHack offset that the name
-must not inherit.
+For thresholds, the qualifier is **the number the variant's own printing would show**: the printed
+base, adjusted the way the variant adjusts it. `Producer22` is 16 plus the 6 production
+`QuickStartVariant` hands you at setup, exactly as `Generalist2` is 1 of each plus the 1 of each you
+start with. Neither variant is actually printed; both numbers are what a printing would logically
+say, and that is the number to use.
+
+Do not derive a qualifier by reading the Pets requirement expression. Those carry engine offsets —
+GrossHack most often — and a name that inherits one is wrong even when it happens to match.
 
 ### Abbreviations
 
 Spell a concept out when it stands alone; abbreviate it only where it is a *component* of a longer
 name. `GlobalParameter`, `TerraformRating`, and `VictoryPoint` are classes; `GpComplete`,
-`GpGameEndBarrier`, `Tr63SoloObjective`, `HasRaisedTr`, and `GetEventVps` are compounds. Do not mix
+`GpGameEndBarrier`, `Tr63SoloObjective`, `HasRaisedTr`, and `ScoreEventVps` are compounds. Do not mix
 the two forms in one name.
 
-Bundle-specific abbreviations are not allowed as prefixes: write `CimmeriaColonyBonus`, not
-`TcColonyBonus`.
+Bundle-specific abbreviations are not allowed as prefixes: write `CimmeriaPlacementBonus`, not
+`TcPlacementBonus`.
+
+### Two published bonuses, two words
+
+**Placement bonus** is what an area prints and you collect for covering it — Mining Guild, Mining
+Rights, and Mining Area all say it, so `PlacementBonus` is the metric and Terra Cimmeria's special
+one is `CimmeriaPlacementBonus`. **Colony bonus** is the separate published term for what a colony
+pays its owner when someone trades — Productive Outpost says "gain all your colony bonuses", so
+`GainColonyBonus` and `GainColonyBonuses`. Neither is a "map bonus"; the game never uses that phrase.
 
 ### Derived and card-local classes
 
@@ -155,9 +168,20 @@ looking it up.
 
 - **Persistent components** are noun phrases: `GreeneryTile`, `TradeFleet`, `ColonyProduction`,
   `TerraformRating`. Name the *unit* you actually instantiate, not the track it sits on.
-- **Signals and Customs** — things that happen — are imperative verb phrases: `CreateMapAreas`,
-  `AssignAwardPlaces`, `AdvanceColonyTracks`, `ResetColonyProduction`, `PassLeft`. Prefer the
-  domain's verb over a programming one.
+- **Signals** are the verb phrase that completes the trigger clause a card would print. Cards cite
+  them as "when you ___": `PlayCard`, `PlayTag`, `Pay`, `BuyCard`, `AdvanceColonyTracks`. Write the
+  name so that phrase reads back.
+- **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
+  event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `WildTagUse`. Do not give it
+  the bare-verb shape that belongs to Signals.
+- **Custom instructions** are imperative verb phrases: `CreateMapAreas`, `AssignAwardPlaces`,
+  `PassLeft`, `CopyProductionBox`. Use the published verb when the game prints one — Robotic Workforce
+  and Cyberia Systems both say "copy ... production box", which is why `CopyProductionBox` is right.
+  Never a programming verb: `Handle`, `Get`, `Process`, `Update`.
+- **Custom metrics** are noun phrases naming the printed thing being counted, not things that happen:
+  `LowestProduction` (Robinson Industries prints "lowest production"), `TileInLargestGroup`. A name
+  may end in a preposition when the argument the reader sees next is its object, as in
+  `GainsOf<Class<VictoryPoint>>`.
 - **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
   `HasActions`, `ResourceHolder`, `TagHolder`. Reserve the `Has` prefix for this use.
 - **Records** that something already happened use the passive voice when the actor does not matter
@@ -168,14 +192,17 @@ looking it up.
   `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
   `StartMarker` reads wrong.
 - **Card locations** use noun phrases for places (`Hand`, `EventPile`) and participles for
-  explicitly transient states (`Selecting`, `Revealed`, and eventually `Drafting`).
+  explicitly transient states. The two participle forms are both correct and mean different things:
+  the present participle names a stage the player is in the middle of (`Selecting`, and eventually
+  `Drafting`), the past participle names what was done to the card (`Revealed`).
 - **Singular vs. plural** may distinguish one-of from all-of over the same subject —
-  `GiveColonyBonus` (one colony) against `GiveColonyBonuses` (every colony the player owns) — and
+  `GainColonyBonus` (one colony) against `GainColonyBonuses` (every colony the player owns) — and
   may distinguish a whole operation from its per-item step, as `BuySelectedCards` does over
   `BuyCard`. It may **not** distinguish two different *kinds* of thing; give those unrelated names.
 - **Do not use implementation or game-design vocabulary** as a component name. "Mechanic", "hack",
   "fake", and Pets grammar terms such as "effect" describe how we built something, not what it is in
-  the game.
+  the game. Two names are settled exceptions and are not to be re-flagged; see
+  [Known and accepted](#known-and-accepted).
 
 ## Modules
 
@@ -234,6 +261,13 @@ Other locales derive a Pets name from the effective localized display name with 
 ASCII display text only. A localized name that collides with another canonical Class Name falls back
 to the canonical name.
 
+**Two classes may share display text, and often must.** Whenever a Class Name was qualified to break
+a collision, the display name drops the qualifier and goes back to the printed title, so the clash
+reappears on purpose: `Trade` and `TradeAction` both display "Trade", `PowerPlant` and `PowerPlantSP`
+both display "Power Plant", `AsteroidCard` and `AsteroidSP` both display "Asteroid", and
+`DeimosDown` and `DeimosDownPromo` both display "Deimos Down". Never invent a parenthetical or other
+disambiguator that no printed component carries.
+
 There are no per-entry Pets-name overrides. Input-only synonyms never become rendering candidates.
 Vocabulary construction rejects collisions among Class Names, localized Pets names, and synonyms.
 Display text is presentation, not identity. UI code must therefore render through the session
@@ -253,7 +287,50 @@ reader's head with `Action2`, but is expected to go away entirely; do not rename
 The convention that chooses `Option` or `Variant` for an independent-toggle Module remains
 undecided.
 
+### Global-parameter track rules
+
+`ExtendedGlobalParametersRule` is both the selectable Module and the body of the extended-track
+rules, while its Venus counterparts `StandardVenusTrackRules` and `ExtendedVenusTrackRules` are
+plain `System` components that the same Module switches between, as `StandardGpTrackRules` is. The
+switch and the rule body want separating, and the Module's spelled-out `GlobalParameters` violates
+the abbreviation rule that produced `StandardGpTrackRules`. Settle both together; it is the only one
+of the four that appears in a `GameConfig`.
+
+### `RequiredActionsSignal`
+
+The only `<Noun>Signal` in the vocabulary, and the suffix is its own supertype. It wants a verb
+phrase, but the obvious one is taken by the `DoRequiredActions` standard action.
+
+### `HasRaisedTr` and the reserved `Has` prefix
+
+`Has` is reserved for capabilities (`HasActions`), and `HasRaisedTr` is a record that something
+happened, which the [grammar](#grammar-by-kind-of-thing) says should read as a passive or `My` form.
+The conflict is acknowledged; the name is not yet settled. It is declared identically in
+`TerraformingMars` and `TurmoilCardPack`, so any rename must change both.
+
+### Scope of `en.json5`
+
+Only published content — cards, corporations, preludes, milestones, awards, and the like — belongs
+in a language file. Today these files also carry entries for standard resources (`Energy`, `Plant`,
+`Steel`, `Titanium`, `Heat`), `TerraformRating`, `VictoryPoint`, standard projects (`AquiferSP` and
+the rest), `TradeAction`, and generated `_SpecialTile` classes. Decide where display text for
+non-content classes should come from, then remove those entries. The resource entries also lowercase
+the standard resources while leaving every card resource (`Microbe`, `Animal`, `Floater`, ...) in Title
+Case, which is a second reason not to keep them here.
+
 ### Known and accepted
+
+`GrossHack` keeps its name. The ban on implementation vocabulary does not reach it; this is the
+decision, not an oversight. The representation itself is documented in
+[GAME_HACKS.md](GAME_HACKS.md).
+
+`NextCardEffect` keeps its name. It was chosen for how you would explain the thing to an ordinary
+player, and "effect" there is the ordinary English word, not the Pets grammar term the prohibition
+is aimed at.
+
+Hand-written card helpers use whatever category word fits the card — `NeptunianOption`,
+`CathedralOption`, `CyberiaSystemsFirstChoice`, `FocusedOrganizationGain`, and the `...Watcher`
+singletons. There is no plan to regularize these suffixes; do not propose one.
 
 `SoloGenerationsLeft` deliberately names the counted collection: a solo game begins with fourteen
 and removes one whenever a Generation begins. The plural reads naturally at its principal uses and

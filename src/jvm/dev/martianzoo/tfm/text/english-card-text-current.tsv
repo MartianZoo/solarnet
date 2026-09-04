@@ -276,7 +276,7 @@ CheungShingMars	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 
 PointLuna	Point Luna	Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag, draw 1 card.
 RobinsonIndustries	Robinson Industries	Gain 47 M€.	Action: Pay 4 M€ to increase one of your lowest productions 1 step.
 ValleyTrust	Valley Trust	Gain 37 M€. As your first action, draw 3 prelude cards, then discard 2 prelude cards, then play a prelude card.	Effect: When you play a science tag, pay 2 M€ less.
-Vitor	Vitor	Gain 45 M€.	Effect: [This IF Class<Award>: Vitor_RequiredAction]. [CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 MC].
+Vitor	Vitor	Gain 45 M€.	Effect: [This IF Class<Award>: Vitor_RequiredAction]. [CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC].
 AlliedBank	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
 AquiferTurbines	Aquifer Turbines	Place 1 ocean tile. Increase your energy production 2 steps. Remove 3 M€.
 Biofuels	Biofuels	Increase your plant production 1 step and your energy production 1 step. Gain 2 plants.
@@ -476,7 +476,7 @@ OutdoorSports	Outdoor Sports	Requires any city tile adjacent to an ocean tile. I
 SixteenPsyche	16 Psyche	Increase your titanium production 2 steps. Gain 3 titanium.
 RobotPollinators	Robot Pollinators	Requires that oxygen is 4% or higher. Increase your plant production 1 step. Gain 1 plant per plant tag you have.
 Supercapacitors	Supercapacitors	Increase your M€ production 1 step.	Effect: [-Energy IF ProductionPhase: Energy FROM Heat?].
-IcyImpactors	Icy Impactors		Action: Pay 10 M€ (titanium may be used) to add 2 asteroids to this card, or remove 1 asteroid from this card to [FirstPlayerOcean<Owner>].
+IcyImpactors	Icy Impactors		Action: Pay 10 M€ (titanium may be used) to add 2 asteroids to this card, or remove 1 asteroid from this card to [ChooseOceanArea<Owner>].
 DirectedHeatUsage	Directed Heat Usage		Action: Pay 3 heat to gain 4 M€ or 2 plants.
 AqueductSystems	Aqueduct Systems	Requires a city tile adjacent to an ocean tile. Draw 3 building cards.
 AstraMechanica	Astra Mechanica	You may return up to one of your played event cards to your hand. You may return up to one of your played event cards to your hand.

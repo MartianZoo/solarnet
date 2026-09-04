@@ -51,25 +51,29 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.count("Merchant") shouldBe 1
   }
 
-  @Test
-  internal fun `Producer22 requires combined production of twenty two`() {
-    newGame(
-        GameConfig(
-            "Producer22, Builder, Engineer, -CorporateEraExpansion",
-            "Player1",
-            "Player2",
-        )
-    )
+  // Producer wants 16 printed production, and Producer22 wants 22 because QuickStartVariant hands
+  // you 6 at setup. Both start one short of their threshold after these grants.
+  private fun claimProducerOneProductionShortOfThreshold(milestone: String, modules: String) {
+    newGame(GameConfig("$milestone, Builder, Engineer$modules", "Player1", "Player2"))
     p1.manual("8 M")
+    p1.manual("PROD[5 Steel, 5 Titanium, 5 Plant]")
     engine.phase("Action")
 
-    shouldThrow<RequirementException> { p1.manual("Producer22") }
+    shouldThrow<RequirementException> { p1.manual(milestone) }
 
-    p1.manual("PROD[6 MC, Steel, Titanium, Plant, Energy, Heat]")
-    p1.count("PROD[StandardResource]") shouldBe 22
-    p1.stdAction("ClaimMilestone") { doTask("Producer22") }
-    p1.count("Milestone") shouldBe 1
+    p1.manual("PROD[Energy]")
+    p1.stdAction("ClaimMilestone") { doTask(milestone) }
+
+    p1.count(milestone) shouldBe 1
   }
+
+  @Test
+  internal fun `Producer requires sixteen printed production`() =
+      claimProducerOneProductionShortOfThreshold("Producer", "")
+
+  @Test
+  internal fun `Producer22 requires twenty two printed production`() =
+      claimProducerOneProductionShortOfThreshold("Producer22", ", -CorporateEraExpansion")
 
   @Test
   internal fun `Producer versions belong to opposite Quick Start modes`() {

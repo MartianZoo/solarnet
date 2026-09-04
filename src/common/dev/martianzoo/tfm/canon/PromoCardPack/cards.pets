@@ -74,7 +74,7 @@ CLASS KuiperCooperative : ActionCard, ResourceCard<Class<Asteroid>, Class<Corpor
 
   This:: 2 SpaceTag<This>
   This: 33 MC, PROD[Titanium]
-  UseAction<AsteroidSP> OR UseAction<AquiferSP>:: AcceptFromCard<This>
+  UseAction<AsteroidSP> OR UseAction<AquiferSP>:: AcceptingFromCard<This>
   PayFromCard<This>:: -Owed<>
 
   -> Asteroid<This> / SpaceTag
@@ -324,7 +324,7 @@ CLASS DirectedImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCa
   cost = 8
 
   This:: SpaceTag<This>
-  UseAction<This, Action1>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accepting<Class<Titanium>>
 
   6 MC -> Asteroid
   Asteroid<This> -> TemperatureStep
@@ -507,10 +507,10 @@ CLASS IcyImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   cost = 15
 
   This:: SpaceTag<This>
-  UseAction<This, Action1>:: Accept<Class<Titanium>>
+  UseAction<This, Action1>:: Accepting<Class<Titanium>>
 
   10 MC -> 2 Asteroid<This>
-  Asteroid<This> -> FirstPlayerOcean<Owner>
+  Asteroid<This> -> ChooseOceanArea<Owner>
 }
 
 CLASS DirectedHeatUsage : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -540,7 +540,7 @@ CLASS CarbonNanosystems : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Gra
 
   This:: ScienceTag<This>, BuildingTag<This>
   ScienceTag<>: Graphene<This>
-  PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>:: AcceptFromCard<This>
+  PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -4 Owed<>
   End: VictoryPoint
 }
@@ -580,7 +580,7 @@ CLASS MartianLumberCorp : ActiveCard<Class<ProjectCard>> {
   This:: BuildingTag<This>, PlantTag<This>
   This:: 3 GrantedResourceValue<Class<Plant>, This>
   This: PROD[Plant]
-  PlayTag<Class<BuildingTag>>:: Accept<Class<Plant>>
+  PlayTag<Class<BuildingTag>>:: Accepting<Class<Plant>>
 }
 
 CLASS NeptunianPowerConsultants : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Hydroelectric>> {
@@ -613,7 +613,7 @@ CLASS StJosephOfCupertinoMission : ActionCard, ActiveCard<Class<ProjectCard>> {
   cost = 7
 
   This: CathedralOption
-  UseAction<This, Action1>:: Accept<Class<Steel>>
+  UseAction<This, Action1>:: Accepting<Class<Steel>>
   End: VictoryPoint / Cathedral<Anyone>
 
   5 MC -> Cathedral<Anyone, CityTile<Anyone>>
@@ -761,7 +761,7 @@ CLASS CyberiaSystemsFirstChoice : Cardbound, MustCleanUp
 CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>
 
 CLASS NeptunianOption : HasActions, Owned {
-  UseAction<This>:: Accept<Class<Steel>>
+  UseAction<This>:: Accepting<Class<Steel>>
   5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>
 }
 

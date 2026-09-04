@@ -94,7 +94,7 @@ These classes bring a multitude of types into being. A specific greenery tile mi
 
 All Pets types are implicitly **covariant**. One subtype of `Tile<Area>` is `CityTile<Area>`; another is `Tile<LandArea>`, and subtyping both of *those* we have `CityTile<LandArea>`.
 
-(The always-covariant rule creates a problem for the payment-mechanic classes `Accept` and `Owed`. If an instance of `Owed<CardResource>` exists, we might think we can pay that off using any kind of `CardResource`. But it does not work that way. Unsure yet how to deal with this.)
+(The always-covariant rule creates a problem for the payment-mechanic classes `Accepting` and `Owed`. If an instance of `Owed<CardResource>` exists, we might think we can pay that off using any kind of `CardResource`. But it does not work that way. Unsure yet how to deal with this.)
 
 ### Abstract vs. concrete
 
