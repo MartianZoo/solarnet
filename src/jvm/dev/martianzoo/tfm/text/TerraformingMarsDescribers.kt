@@ -142,7 +142,7 @@ internal object TerraformingMarsDescribers {
                         eventNoun = "adjacency",
                     )
             ),
-        klass("MapBonus") to
+        klass("PlacementBonus") to
             ComponentDescriber(
                 placementBonus =
                     ComponentDescriber.PlacementBonus(
@@ -351,7 +351,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame = Frame.Procedure("copy", "your other Prelude's direct effect")
             ),
-        klass("GiveColonyBonuses") to
+        klass("GainColonyBonuses") to
             ComponentDescriber(changeFrame = Frame.Procedure("gain", "all your colony bonuses")),
         klass("ColonyTileSelection") to
             ComponentDescriber(changeFrame = Frame.Procedure("add", "a colony tile")),
@@ -376,7 +376,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame = Frame.Play,
                 triggerFrame = Trigger.PlayCard(),
             ),
-        klass("RequirementCheck") to ComponentDescriber(triggerFrame = Trigger.PlayCard()),
+        klass("CheckRequirement") to ComponentDescriber(triggerFrame = Trigger.PlayCard()),
         klass("PlayTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag()),
         klass("UseAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("StandardProject") to
@@ -469,9 +469,9 @@ internal object TerraformingMarsDescribers {
                 paymentRole = ComponentDescriber.PaymentRole.OWED,
                 implicitPaymentResource = ComponentDescriber.Noun.Fixed("M€"),
             ),
-        klass("Accept") to
+        klass("Accepting") to
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.ACCEPTANCE),
-        klass("AcceptFromCard") to
+        klass("AcceptingFromCard") to
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.ACCEPTANCE),
         klass("Barrier") to
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.BARRIER),

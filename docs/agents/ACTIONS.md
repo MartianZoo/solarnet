@@ -58,7 +58,7 @@ that survives into the engine instead of desugaring.
 A standard-resource Action has this lifecycle:
 
 1. `UseAction` creates its exact `Owed<Resource>` amount.
-2. Creating debt installs inert `Accept<Resource>` markers. More debt may safely accumulate before
+2. Creating debt installs inert `Accepting<Resource>` markers. More debt may safely accumulate before
    payment becomes available.
 3. The Action creates one provider- and action-qualified `Invoice<Provider, Selector, Resource>`.
    That concrete event implements the common `Billing` protocol, which exposes ordinary and
@@ -93,8 +93,8 @@ Today each accepted tender kind creates its own optional payment task. Paying wi
 leave the unused tasks behind, so callers must decline or clean them up.
 
 Replace those parallel offers with exactly one required task meaning “pay one accepted unit.” Its
-concrete refinements are the currently legal `Accept<Resource>` and
-`AcceptFromCard<Holder>` choices. Spending one unit creates a common payment Signal. After its
+concrete refinements are the currently legal `Accepting<Resource>` and
+`AcceptingFromCard<Holder>` choices. Spending one unit creates a common payment Signal. After its
 automatic value effects finish, Billing creates one replacement payment-choice task if matching
 `Owed` remains.
 
@@ -104,7 +104,7 @@ a separate `MAX 0 Owed: Ok` completion task: after successful payment it would c
 unused-tender tasks and recreate the need to decline or clean them.
 
 When no debt remains, no replacement task is created and Billing removes itself directly in
-response to the final matching `Owed` removal. Existing `-Billing` effects remove the Accept
+response to the final matching `Owed` removal. Existing `-Billing` effects remove the Accepting
 capabilities; `-Invoice` remains the single completion event for the Action result. There is still
 no separate `Paid` component and payment completion does not wait for unrelated Player work.
 

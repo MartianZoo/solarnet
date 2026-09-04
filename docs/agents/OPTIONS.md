@@ -304,7 +304,7 @@ override the default pool-selection policy. Thus a Colonies card that only count
 as Colonies-dependent as one that places a colony.
 
 `VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make
-referencing content Venus-dependent. `WorldGovernmentTerraforming` and `FirstPlayerOcean` are shared
+referencing content Venus-dependent. `WorldGovernmentTerraforming` and `ChooseOceanArea` are shared
 protocols in the base Bundle, so `WorldGovernmentRule` and non-Venus cards may use them without
 enabling Venus Next. `PreludeCard` belongs to the Prelude Expansion Bundle; Valley Trust's
 RequiredAction reference therefore derives its Prelude 1 dependency without a card property. Automatic

@@ -170,7 +170,7 @@ of that particular colony must choose which compatible card receives the microbe
 colonies on Enceladus, each selected bonus may therefore move to a different Player.
 
 That privilege follows from general ownership semantics. The signal
-`GiveColonyBonus<ColonyTile>` is owned by the colony owner even though Enceladus itself is neutral,
+`GainColonyBonus<ColonyTile>` is owned by the colony owner even though Enceladus itself is neutral,
 so its owner becomes the narrower. Crediting the colony owner is also correct, but does not by
 itself prove that the owner received narrowing authority.
 

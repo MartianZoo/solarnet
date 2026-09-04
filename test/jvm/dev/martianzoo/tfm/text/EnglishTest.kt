@@ -88,8 +88,9 @@ internal class EnglishTest {
     ) shouldBe "When you play a card with a requirement, pay 2 M€ less."
     english.describe(parse<Effect>("BuyCard:: 2 Owed<>")) shouldBe
         "When you buy a card, pay 2 M€ extra."
-    english.describe(parse<Effect>("UseAction<This, Action1>:: Accept<Class<Titanium>>")) shouldBe
-        "When you pay for this action, titanium may be used."
+    english.describe(
+        parse<Effect>("UseAction<This, Action1>:: Accepting<Class<Titanium>>")
+    ) shouldBe "When you pay for this action, titanium may be used."
     english.describe(parse<Effect>("PlayTag<Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
         "When you play a planetary tag, pay 2 M€ less."
     english.describe(parse<Effect>("PlayTag<Class<EarthTag>>:: -2 Owed<>")) shouldBe
@@ -120,7 +121,7 @@ internal class EnglishTest {
             """
             CLASS TitaniumAction : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
               cost = 0
-              UseAction<This, Action1>:: Accept<Class<Titanium>>
+              UseAction<This, Action1>:: Accepting<Class<Titanium>>
               12 MC -> OceanTile
               Asteroid<This> -> VenusStep
             }

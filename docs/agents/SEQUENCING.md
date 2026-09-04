@@ -123,7 +123,7 @@ If presentation eventually follows authored Class, hierarchy, Effect, and right-
 encode that provenance as immutable metadata assigned when work is created. Do not derive gameplay
 precedence from it or give effects a capability to reach into the task pool.
 
-Signals such as `PlayCard`, `Accept`, and `Pay` are coherent component events: they state
+Signals such as `PlayCard` and `Pay` are coherent component events: they state
 what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
 `Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
 
@@ -288,7 +288,7 @@ Two related families should not be described more strongly than the implementati
   cards or make a choice, specialize the pricing fact or purchase operation rather than extending
   this inline continuation with identity reconstruction or player work.
 - A failed printed global-parameter requirement creates a typed `Required<GlobalParameter>`
-  shortfall, then emits `RequirementCheck<CardFront>`. Inventrix, Morning Star, Adaptation
+  shortfall, then emits `CheckRequirement<CardFront>`. Inventrix, Morning Star, Adaptation
   Technology, and Special Design react to that completed check stage rather than competing
   with shortfall creation as `PlayCard` siblings. The final card entry remains gated on the absence
   of `Required`.
@@ -299,9 +299,9 @@ Two related families should not be described more strongly than the implementati
   rather than restoring sibling-order dependence.
 
 `Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
-not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
+not an earlier promise of a later removal. `ChooseOceanArea`, `WorldGovernmentTerraforming`,
 `ResetColonyProduction`, and the colony-bonus Signals have the request/continuation shape but no
-current subscribers that need a before-A modification. `Accept` is not a committed precursor at
+current subscribers that need a before-A modification. `Accepting` is not a committed precursor at
 all: it exposes an optional payment choice.
 
 Random automatic-effect order exposes a separate limitation in payment history. The applicable
@@ -611,7 +611,7 @@ These current encodings are considered principled:
   payment sequence.
 - Card-resource payment modifiers whose `THEN` carries X into an `Owed` reduction.
 - Capital, Flooding, Mining Rights, and Mining Area carrying one selected identity into a follow-up.
-- Spend-enabled effects establishing `Owed`, `Accept`, and a barrier before their payoff.
+- Spend-enabled effects establishing `Owed`, `Accepting`, and a barrier before their payoff.
 - Trade income and individual colony bonuses as reorderable siblings. Do not chain all colony
   bonuses after income.
 - `UseCardAction` creating the selected card's `ActionUsedMarker` before `UseAction`. The marker

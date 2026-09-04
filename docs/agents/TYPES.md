@@ -275,7 +275,7 @@ Examples:
 ```text
 CardFront(HAS requirement)
 LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)
-MarsArea(HAS MapBonus<Class<Metal>>)
+MarsArea(HAS PlacementBonus<Class<Metal>>)
 ```
 
 If no dependency position accepts the candidate, the refinement fails. Satisfying a refinement is a
@@ -548,7 +548,7 @@ identified by stable dependency paths, so inherited projections can be uses even
 containing expressions differ.
 
 A rule needing a distinct local capture must use a distinct authored expression. For example,
-`StartToken<Player>` uses `FirstPlayerOcean<Actor> BY Actor: OceanTile<> BY Actor` so the concrete
+`StartToken<Player>` uses `ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor` so the concrete
 performing Actor is captured independently of the StartToken's Class variable. If a future rule
 needs a fresh variable with the same structural bound, explicit empty arguments can distinguish it:
 Mons Insurance and Law Suit write `Player<>` rather than their visible Class variable `Player`.

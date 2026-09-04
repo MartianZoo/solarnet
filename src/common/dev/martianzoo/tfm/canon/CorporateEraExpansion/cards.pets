@@ -141,7 +141,7 @@ CLASS MiningArea : AutomatedCard<Class<ProjectCard>> {
   cost = 4
 
   This:: BuildingTag<This>
-  This: SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} THEN PROD[(LandArea(HAS MiningArea_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]
+  This: SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} THEN PROD[(LandArea(HAS MiningArea_SpecialTile, PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, PlacementBonus<Class<Titanium>>): Titanium)]
 }
 
 CLASS BuildingIndustries : AutomatedCard<Class<ProjectCard>> {

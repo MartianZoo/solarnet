@@ -120,8 +120,8 @@ Cards can have three types of things "on" them, which all share the superclass `
 
 ### Payments
 
-The top-level `Owed`, `Accept`, and `Pay` classes model ordinary resource payments;
-`AcceptFromCard` and `PayFromCard` are their card-resource counterparts. The best way to understand
+The top-level `Owed`, `Accepting`, and `Pay` classes model ordinary resource payments;
+`AcceptingFromCard` and `PayFromCard` are their card-resource counterparts. The best way to understand
 the protocol is to see how these classes are used in the bundle `cards.pets` files.
 
 ## TODO

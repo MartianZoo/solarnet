@@ -427,9 +427,9 @@ Known mechanisms that return authored data to normal elaboration include:
   class effect;
 - `CopyProductionBox` locates and returns the one authored `PROD[...]` subtree;
 - `CopyPrelude` returns the copied card's authored immediate instruction; and
-- `GetEventVps` returns authored end-game effect instructions.
+- `ScoreEventVps` returns authored end-game effect instructions.
 
-Card tags, card requirements, authored actions, `GainsOf`, and `CitationsIgnoringRemoves` also inspect
+Card tags, card requirements, authored actions, `GainsOf`, and `NonNegativeIconsOf` also inspect
 authored syntax, but currently use it as metadata rather than re-executing it. These accesses are
 reflection-like: ordinary execution moves forward through the lifecycle, while source inspection
 explicitly reaches into preserved directives as data. Re-submitted data must re-enter through the

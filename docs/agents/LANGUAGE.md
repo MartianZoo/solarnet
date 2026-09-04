@@ -95,7 +95,7 @@ and the later, incorrect proposal to collapse `ComponentDescriber` to five field
 | --- | --- | --- | --- |
 | Frame | Alternatives are mutually exclusive constructions | One channel and one exhaustive dispatch | `ChangeFrame`; the exclusive event categories in `TriggerFrame` |
 | Orthogonal fact | Meanings can coexist on one Class | Separate inherited channels | A card can have played-card wording and independently inherit action-use wording |
-| Protocol | Meaning spans several elements or a sequence | One named cross-element interpretation | Payment across Billing, Owed, Accept, Barrier, actions, and effects |
+| Protocol | Meaning spans several elements or a sequence | One named cross-element interpretation | Payment across Billing, Owed, Accepting, Barrier, actions, and effects |
 
 Use this test before adding or combining lexical data:
 

@@ -23,7 +23,7 @@ internal class PaymentSpecializationTest {
   }
 
   @Test
-  internal fun `an Accept can pay only with its specialized resource`() {
+  internal fun `Accepting pays only with its specialized resource`() {
     val p1 = setUpGame().tfm(PLAYER1)
     p1.manual("Steel, Titanium")
 

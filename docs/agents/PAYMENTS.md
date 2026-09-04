@@ -174,7 +174,7 @@ composes.
 
 Stormcraft currently responds to a Heat `Billing` by offering `PayFromCard<Stormcraft>`, then that
 signal directly removes two `Owed<Heat>`. If Helion makes Heat acceptable for an M€ invoice, simply
-having Stormcraft react to `Accept<Heat>` would expose the floater choice but would not complete the
+having Stormcraft react to `Accepting<Heat>` would expose the floater choice but would not complete the
 conversion: `PayFromCard<Stormcraft>` would still seek Heat debt while the invoice contains M€ debt.
 The signal also does not retain that the floater represents two Heat.
 

@@ -328,7 +328,7 @@ internal class ScriptSessionTest {
     command(
         "tfm_pay 8 Heat",
         """
-        0000: +8 Pay<Player2, Class<Heat>> FROM Heat<Player2> BY Player2 VIA Accept<Player2, Class<Heat>> BECAUSE 0000
+        0000: +8 Pay<Player2, Class<Heat>> FROM Heat<Player2> BY Player2 VIA Accepting<Player2, Class<Heat>> BECAUSE 0000
         0000: +TemperatureStep BY Player2 VIA ConvertHeat BECAUSE 0000
         0000: +TerraformRating<Player2> BY Player2 VIA TemperatureStep BECAUSE 0000
         """

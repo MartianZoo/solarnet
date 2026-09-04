@@ -50,9 +50,9 @@ These honestly bridge Pets to canonical metadata absent from the component graph
 
 - `CopyProductionBox`
 - `CopyPrelude`
-- `GetEventVps`
+- `ScoreEventVps`
 - `CheckCardDeck`
-- `HandlePossibleGpRequirement`
+- `AdjustGpRequirement`
 - `HandleCardTags`
 - `CreateAdjacencies`
 

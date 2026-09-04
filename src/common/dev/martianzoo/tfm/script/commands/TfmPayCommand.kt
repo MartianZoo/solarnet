@@ -55,7 +55,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
 
   private fun dismissUnusedAcceptsWhilePaused() {
     repl.game.tasks
-        .matching { it.cause?.context?.className == cn("Accept") }
+        .matching { it.cause?.context?.className == cn("Accepting") }
         .forEach {
           repl.agent.selectTask(it)
           if (it in repl.game.tasks) repl.agent.narrowTask("Ok")
@@ -65,7 +65,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
   private fun paymentTask(currency: String) =
       repl.game.tasks
           .matching {
-            it.cause?.context?.className == cn("Accept") &&
+            it.cause?.context?.className == cn("Accepting") &&
                 it.instruction.toString().contains("Class<$currency>")
           }
           .single()

@@ -1,5 +1,5 @@
 "Terra Cimmeria's MSL Curiosity placement bonus; its colony branch exists only with Colonies"
-CLASS CimmeriaColonyBonus : Signal {
+CLASS CimmeriaPlacementBonus : Signal {
   This IF ColoniesExpansion: Colony<>, -5 MC
 }
 
@@ -52,7 +52,7 @@ CLASS Cimmeria_2_6 :    WaterArea { row = 2; column = 6; Tile<This>: Plant }
 
 CLASS Cimmeria_3_1 :     LandArea { row = 3; column = 1 }
 CLASS Cimmeria_3_2 :     LandArea { row = 3; column = 2 }
-CLASS Cimmeria_3_3 :     LandArea { row = 3; column = 3; Tile<This>: CimmeriaColonyBonus }
+CLASS Cimmeria_3_3 :     LandArea { row = 3; column = 3; Tile<This>: CimmeriaPlacementBonus }
 CLASS Cimmeria_3_4 :     LandArea { row = 3; column = 4 }
 CLASS Cimmeria_3_5 :     LandArea { row = 3; column = 5 }
 CLASS Cimmeria_3_6 :     LandArea { row = 3; column = 6; Tile<This>: Plant }

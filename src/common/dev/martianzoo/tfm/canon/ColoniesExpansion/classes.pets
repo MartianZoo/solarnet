@@ -45,7 +45,7 @@ ABSTRACT CLASS ColonyTile {
 
 CLASS Callisto : ColonyTile, ColonyTileSelection<Class<Callisto>> {
   Colony<This>: PROD[Energy]
-  GiveColonyBonus<This>: 3 Energy
+  GainColonyBonus<This>: 3 Energy
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: 2 Energy
@@ -58,7 +58,7 @@ CLASS Callisto : ColonyTile, ColonyTileSelection<Class<Callisto>> {
 
 CLASS Ceres : ColonyTile, ColonyTileSelection<Class<Ceres>> {
   Colony<This>: PROD[Steel]
-  GiveColonyBonus<This>: 2 Steel
+  GainColonyBonus<This>: 2 Steel
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Steel
   FinishTrade<This> IF =1 ColonyProduction<This>: 2 Steel
@@ -71,7 +71,7 @@ CLASS Ceres : ColonyTile, ColonyTileSelection<Class<Ceres>> {
 
 CLASS Enceladus : ColonyTile {
   Colony<This>: 3 Microbe
-  GiveColonyBonus<This>: Microbe
+  GainColonyBonus<This>: Microbe
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: Microbe
@@ -84,7 +84,7 @@ CLASS Enceladus : ColonyTile {
 
 CLASS Europa : ColonyTile, ColonyTileSelection<Class<Europa>> {
   Colony<This>: OceanTile<>
-  GiveColonyBonus<This>: 1 MC
+  GainColonyBonus<This>: 1 MC
 
   FinishTrade<This> IF =0 ColonyProduction<This>: PROD[1 MC]
   FinishTrade<This> IF =1 ColonyProduction<This>: PROD[1 MC]
@@ -97,7 +97,7 @@ CLASS Europa : ColonyTile, ColonyTileSelection<Class<Europa>> {
 
 CLASS Ganymede : ColonyTile, ColonyTileSelection<Class<Ganymede>> {
   Colony<This>: PROD[Plant]
-  GiveColonyBonus<This>: Plant
+  GainColonyBonus<This>: Plant
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: Plant
@@ -110,7 +110,7 @@ CLASS Ganymede : ColonyTile, ColonyTileSelection<Class<Ganymede>> {
 
 CLASS Io : ColonyTile, ColonyTileSelection<Class<Io>> {
   Colony<This>: PROD[Heat]
-  GiveColonyBonus<This>: 2 Heat
+  GainColonyBonus<This>: 2 Heat
 
   FinishTrade<This> IF =0 ColonyProduction<This>: 2 Heat
   FinishTrade<This> IF =1 ColonyProduction<This>: 3 Heat
@@ -123,7 +123,7 @@ CLASS Io : ColonyTile, ColonyTileSelection<Class<Io>> {
 
 CLASS Luna : ColonyTile, ColonyTileSelection<Class<Luna>> {
   Colony<This>: PROD[2 MC]
-  GiveColonyBonus<This>: 2 MC
+  GainColonyBonus<This>: 2 MC
 
   FinishTrade<This> IF =0 ColonyProduction<This>: 1 MC
   FinishTrade<This> IF =1 ColonyProduction<This>: 2 MC
@@ -136,7 +136,7 @@ CLASS Luna : ColonyTile, ColonyTileSelection<Class<Luna>> {
 
 CLASS Miranda : ColonyTile {
   Colony<This>: Animal
-  GiveColonyBonus<This>: ProjectCard
+  GainColonyBonus<This>: ProjectCard
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: Animal
@@ -149,7 +149,7 @@ CLASS Miranda : ColonyTile {
 
 CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
   Colony<This>: 2 ProjectCard
-  GiveColonyBonus<This>: ProjectCard THEN -ProjectCard
+  GainColonyBonus<This>: ProjectCard THEN -ProjectCard
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: ProjectCard
@@ -162,7 +162,7 @@ CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
 
 CLASS Titan : ColonyTile {
   Colony<This>: 3 Floater
-  GiveColonyBonus<This>: Floater
+  GainColonyBonus<This>: Floater
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: Floater
@@ -175,7 +175,7 @@ CLASS Titan : ColonyTile {
 
 CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
   Colony<This>: 3 Titanium
-  GiveColonyBonus<This>: Titanium
+  GainColonyBonus<This>: Titanium
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: Titanium
@@ -189,7 +189,7 @@ CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  FinishTrade<Anyone, ColonyTile> OR GiveColonyBonuses:: GiveColonyBonus<ColonyTile>
+  FinishTrade<Anyone, ColonyTile> OR GainColonyBonuses:: GainColonyBonus<ColonyTile>
 }
 
 "A player's persistent capacity to conduct one Trade per generation"
@@ -213,13 +213,13 @@ CLASS FinishTrade<ColonyTile> : Owned<Player>, Signal
 CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
 
 "An implementation detail used to trigger colony bonuses to be paid out"
-CLASS GiveColonyBonus<ColonyTile> : Owned<Player>, Signal
+CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal
 
 "Advances every colony tile track one step, as in production and Early Colonization"
 CLASS AdvanceColonyTracks : Signal, System
 
 "Requests one colony bonus payment for each colony the player owns"
-CLASS GiveColonyBonuses : Owned<Player>, Signal
+CLASS GainColonyBonuses : Owned<Player>, Signal
 
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
 CLASS ResetColonyProduction<ColonyTile> : Signal
