@@ -714,3 +714,23 @@ Player 1. Concrete candidates behave as intended.
 
 Written and full forms show the exclusion but omit a separately narrowed domain. Printing and
 resolving can therefore widen a Complement produced by `glb` or Type-variable narrowing.
+
+## Appendix: Why covariance is sufficient in practice
+
+Pets dependencies identify exact component targets. A broader dependency in an abstract Type
+describes a set of concrete Types for queries and narrowing; it does not describe one component
+that accepts every member of that set. Thus `ResourceValue<Class<Metal>>` counts the separate Steel
+and Titanium value components, while `ResourceHolder<Class<CardResource>>` ranges over holders that
+each support one concrete resource Class.
+
+A Class literal representing an abstract Class is itself abstract. Consequently components such as
+`Owed<Class<Metal>>` and `Accepting<Class<Metal>>` cannot exist without first narrowing to one
+concrete denomination. Contravariant dependency matching would reverse some subtype relationships,
+but would not make these broad components inhabitable or express a debt payable by a mixture of
+Steel and Titanium.
+
+Covariance also lets a broad trigger observe narrower events: `Pay<Class<Metal>>` can react to both
+Steel and Titanium payments. Where persistent behavior is needed, the model creates concrete
+components instead, such as one production-decrease watcher per standard resource. The practical
+cost is some component fanout and no direct expression for heterogeneous family-wide payment; that
+missing payment operation would need choice or conversion semantics, not dependency variance.
