@@ -281,6 +281,16 @@ MarsArea(HAS PlacementBonus<Class<Metal>>)
 If no dependency position accepts the candidate, the refinement fails. Satisfying a refinement is a
 state-aware relation, not static nominal subtyping.
 
+**Current defect: refinement substitution forgets authored dependency positions.** Resolving an
+expression records the resulting dependency Types but not which dependency keys its written
+arguments filled. Candidate substitution therefore starts greedy matching from the first dependency
+again and can overwrite an explicitly authored argument when several dependencies accept the same
+Type. The intended behavior is for written arguments to reserve their matched dependency keys and
+for the refinement candidate to specialize only a remaining compatible dependency. For example,
+after that correction an area candidate in
+`AreaAdjacency<MarsArea(HAS OceanTile)>` can fill the second `MarsArea` dependency without replacing
+the explicitly authored first one.
+
 ### Static operations
 
 A refinement is statically below its unrefined base. Narrowing the base while preserving the exact
@@ -389,6 +399,11 @@ enumeration receive the game view explicitly. See [CLASS_TABLES.md](CLASS_TABLES
 Enumeration combines each active concrete root Class below an abstract Type with every admissible
 concrete dependency binding. Refinements are then tested against World state; Complements filter
 excluded candidates.
+
+Consumers that already know a smaller set of possible dependency targets may provide that set to
+the Class Table's enumeration operation. Custom metrics use live component Types: because a
+dependency requires its target component to exist, no omitted specialization could contribute a
+nonzero count.
 
 Automatic narrowing is stricter than “one refinement match”: the root and every dependency must
 each have one structural concrete choice, and every refinement must accept it. The result is concrete

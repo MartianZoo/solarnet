@@ -64,4 +64,19 @@ internal class MetricTest {
     p1.count("OwnedTile<Player1> OR CityTile<Player1>") shouldBe 2
     p1.count("OwnedTile<Player1> OR Victory<Player1>") shouldBe 3
   }
+
+  @Test
+  internal fun neighborsAreDerivedFromLiveTilesAndMapGeometry() {
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+
+    p1.count("Neighbor") shouldBe 0
+    p1.manual("CityTile<Player1, Tharsis_4_4>")
+
+    p1.count("Neighbor") shouldBe 6
+    p1.count("Neighbor<CityTile<Player1>, Tharsis_4_5>") shouldBe 1
+    p1.count("Neighbor<CityTile<Player1>, Tharsis_1_1>") shouldBe 0
+
+    p1.manual("-CityTile<Player1, Tharsis_4_4>")
+    p1.count("Neighbor") shouldBe 0
+  }
 }

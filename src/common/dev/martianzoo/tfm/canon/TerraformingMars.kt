@@ -44,10 +44,12 @@ import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
+import kotlin.math.abs
 
 private val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
         TerraformingMars.CreateAdjacencies,
+        TerraformingMars.Neighbor,
         TerraformingMars.CreateMapAreas,
         TerraformingMars.CheckCardDeck,
         TerraformingMars.AdjustGpRequirement,
@@ -149,8 +151,7 @@ private object TerraformingMars {
   private val BACKWARD_ADJACENCY = cn("BackwardAdjacency")
 
   internal object CreateAdjacencies : CustomClass() {
-    override val requiredClassNames: Set<ClassName> =
-        setOf(NEIGHBOR, FORWARD_ADJACENCY, BACKWARD_ADJACENCY)
+    override val requiredClassNames: Set<ClassName> = setOf(FORWARD_ADJACENCY, BACKWARD_ADJACENCY)
 
     override fun translate(reader: GameReader, areaType: Type): Instruction {
       val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
@@ -165,7 +166,6 @@ private object TerraformingMars {
       }
 
       val newTile: Expression = tileOn(area)!!
-      val neighbors = neighborAreas.map { NEIGHBOR.of(newTile, it.className.expression) }
       val adjacencies =
           neighborAreas.mapNotNull(::tileOn).flatMap {
             listOf(
@@ -173,7 +173,19 @@ private object TerraformingMars {
                 BACKWARD_ADJACENCY.of(newTile, it),
             )
           }
-      return Then.create((neighbors + adjacencies).map(::gain))
+      return Then.create(adjacencies.map(::gain))
+    }
+  }
+
+  internal object Neighbor : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int {
+      val (tile, target) = type.typeDependencies.map { it.boundType }
+      val source = tile.typeDependencies.single { it.key.declaringClass == TILE }.boundType
+      val rowDelta = target.getNumberPropertyValue("row") - source.getNumberPropertyValue("row")
+      val columnDelta =
+          target.getNumberPropertyValue("column") - source.getNumberPropertyValue("column")
+      if (abs(rowDelta) > 1 || abs(columnDelta) > 1) return 0
+      return if (rowDelta + columnDelta == 0) 0 else 1
     }
   }
 
