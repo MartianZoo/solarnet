@@ -33,9 +33,9 @@ body { display: flex; flex-direction: column; overflow: auto; background: #08080
 .map-panel { position: relative; min-height: 0; overflow: hidden; border-right: 1px solid #333; background: #000; }
 #mars-map { position: absolute; top: 50%; left: 50%; width: 560px; max-width: 100%; height: 560px; max-height: 100%; aspect-ratio: 1; transform: translate(-50%, -50%); background: #000 url("assets/map/mars.png") center / contain no-repeat; }
 #mars-map svg { display: block; width: 100%; height: 100%; }
-.map-space { fill: rgba(255, 255, 255, 0.025); stroke: rgba(225, 231, 239, 0.88); stroke-width: 4; vector-effect: non-scaling-stroke; }
-.map-space.water { fill: rgba(73, 185, 240, 0.13); stroke: #5bc8f5; }
-.map-space.noctis { fill: rgba(255, 201, 59, 0.13); stroke: #ffd557; }
+.map-space { fill: rgba(255, 255, 255, 0.025); stroke: rgba(225, 231, 239, 0.88); stroke-width: 1.32; vector-effect: non-scaling-stroke; }
+.map-space.water { fill: rgba(73, 185, 240, 0.13); stroke: #5bc8f5; stroke-width: 1.92; }
+.map-space.noctis { fill: rgba(255, 201, 59, 0.13); stroke: #ffd557; stroke-width: 1.92; }
 .volcano-marker { fill: rgba(25, 19, 17, 0.82); }
 .noctis-label { fill: rgba(34, 29, 18, 0.86); font-size: 16px; font-weight: 700; text-anchor: middle; }
 .bonus-icon { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.8)); }
@@ -112,8 +112,8 @@ body { display: flex; flex-direction: column; overflow: auto; background: #08080
 #played-cards { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 14px 12px; padding: 16px 18px; }
 .played-card-slot { position: relative; display: flex; width: 206px; height: 250px; flex: 0 0 206px; align-items: flex-start; justify-content: center; }
 .played-card { width: auto; height: 250px; max-width: 100%; object-fit: contain; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.8)); }
-.card-resources-counter { box-sizing: border-box; position: absolute; bottom: 7px; left: 7px; z-index: 3; display: flex; min-width: 55px; height: 29px; align-items: center; justify-content: center; gap: 4px; padding: 2px 7px; border: 2px solid; border-color: #eee #777 #777 #eee; border-radius: 6px; color: #020202; background: linear-gradient(135deg, rgba(245, 245, 245, 0.96), rgba(150, 150, 150, 0.96)); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.72); font-weight: 700; }
-.corporations-card-slot .card-resources-counter { left: 19px; }
+.card-resources-counter { box-sizing: border-box; position: absolute; bottom: 11px; left: 11px; z-index: 3; display: flex; min-width: 55px; height: 29px; align-items: center; justify-content: center; gap: 4px; padding: 2px 7px; border: 2px solid; border-color: #eee #777 #777 #eee; border-radius: 6px; color: #020202; background: linear-gradient(135deg, rgba(245, 245, 245, 0.96), rgba(150, 150, 150, 0.96)); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.72); font-weight: 700; }
+.corporations-card-slot .card-resources-counter { left: 21px; }
 .card-resources-counter-number { font-size: 19px; line-height: 1; }
 .card-resource-icon { width: 20px; height: 20px; object-fit: contain; }
 .action-used-marker { box-sizing: border-box; position: absolute; top: 9px; right: 9px; z-index: 4; width: 21px; height: 21px; border: 1px solid rgba(0, 0, 0, 0.8); border-radius: 2px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0 16%, rgba(255, 255, 255, 0.08) 18% 48%, rgba(0, 0, 0, 0.28) 52% 100%), rgb(var(--player-color)); box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.55), inset -2px -2px 2px rgba(0, 0, 0, 0.42); filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.9)); }
