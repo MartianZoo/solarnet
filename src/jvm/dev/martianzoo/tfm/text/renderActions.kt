@@ -56,16 +56,9 @@ internal fun renderActions(
 
 private fun actionRefusalReason(action: Action, describers: Describers): RefusalReason {
   val lowered = lowerProductionSyntax(action)
-  val gatedCost = lowered.cost as? Cost.Gated
   val gatedInstruction = lowered.instruction as? Gated
-  if (
-      (gatedCost?.cost ?: lowered.cost)?.let { describers.renderCost(it) } == null &&
-          lowered.cost != null
-  ) {
+  if (lowered.cost?.let { describers.renderCost(it) } == null && lowered.cost != null) {
     return RefusalReason.UNSUPPORTED_ACTION_COST
-  }
-  if (gatedCost?.let { describers.renderGateCondition(it.gate) } == null && gatedCost != null) {
-    return RefusalReason.UNSUPPORTED_ACTION_CONDITION
   }
   if (
       gatedInstruction?.let { describers.renderGateCondition(it.gate) } == null &&
@@ -258,12 +251,10 @@ private fun renderAction(
   describers.renderDeferredPaymentAction(lowered)?.let {
     return it.takeIf(RenderedAction::costCanJoinResult)
   }
-  val gatedCost = lowered.cost as? Cost.Gated
   val gatedInstruction = lowered.instruction as? Gated
-  if (gatedCost != null && gatedInstruction != null) return null
-  val cost = (gatedCost?.cost ?: lowered.cost)?.let { describers.renderCost(it) ?: return null }
+  val cost = lowered.cost?.let { describers.renderCost(it) ?: return null }
   val condition =
-      (gatedCost?.gate ?: gatedInstruction?.gate)?.let {
+      gatedInstruction?.gate?.let {
         describers.renderGateCondition(it) ?: return null
       }
   val result = renderInstructions(gatedInstruction?.inner ?: lowered.instruction, describers)

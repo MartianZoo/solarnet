@@ -197,16 +197,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       val costTypes =
           multiset(
               9 to Cost.Spend::class,
-              2 to Cost.Gated::class,
               3 to Cost.Per::class,
-              2 to Cost.Multi::class,
               2 to Cost.Transform::class,
           )
       register(Cost::class) { recurse(choose(costTypes)) }
       register { Cost.Spend(scaledEx = recurse()) }
-      register { Cost.Gated(recurse(), recurse()) }
       register { Cost.Per(recurse(), recurse()) }
-      register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
       register { Cost.Transform(recurse(), productionTransform) }
 
       register { Action(choose(1 to null, 3 to recurse()), recurse()) }

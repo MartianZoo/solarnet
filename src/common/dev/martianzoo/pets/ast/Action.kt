@@ -9,7 +9,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Then
@@ -64,28 +63,10 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
       override fun toInstruction() = remove(scaledEx)
     }
 
-    public data class Gated(val gate: Requirement, val cost: Cost) : Cost() {
-      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(gate, cost)
-
-      override fun toString(): String = "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(cost)}"
-
-      override fun precedence(): Int = 4
-
-      override fun safeToNestIn(container: PetNode): Boolean =
-          super.safeToNestIn(container) && container !is Or
-
-      override fun toInstruction(): InstructionTree =
-          Instruction.Gated.createTree(gate, cost.toInstruction())
-    }
-
     // can't do non-prod per prod yet
     public data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
-        when (cost) {
-          is Cost.Multi -> throw PetSyntaxException("Break into separate Per instructions")
-          is Per -> throw PetSyntaxException("Might support in future?")
-          else -> {}
-        }
+        if (cost is Per) throw PetSyntaxException("Might support in future?")
       }
 
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost, metric)
@@ -96,23 +77,6 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
 
       override fun toInstruction(): Instruction =
           Instruction.Per(cost.toInstruction() as Instruction, metric)
-    }
-
-    public data class Multi(var costs: List<Cost>) : Cost() {
-      private constructor(vararg costs: Cost) : this(costs.toList())
-
-      init {
-        require(costs.size >= 2)
-      }
-
-      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(costs)
-
-      override fun toString(): String = costs.joinToString { groupPartIfNeeded(it) }
-
-      override fun precedence(): Int = 1
-
-      override fun toInstruction(): InstructionTree =
-          InstructionGroup.createTree(costs.map { it.toInstruction() })
     }
 
     public data class Transform(val cost: Cost, override val transformKind: String) :
@@ -140,14 +104,7 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
                     if (met == null) cost else Per(cost, met)
                   }
 
-          val gatedCost =
-              optional(Requirement.atomParser() and skipChar(':')) and
-                  (perCost or group(parser())) map
-                  { (gate, cost) ->
-                    if (gate == null) cost else Gated(gate, cost)
-                  }
-
-          commaSeparated(gatedCost) map { if (it.size == 1) it.first() else Multi(it) }
+          perCost
         }
       }
     }

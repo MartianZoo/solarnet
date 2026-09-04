@@ -39,10 +39,11 @@ Class tokens. `HasActions` is singleton-shaped because a dependency must identif
 
 **Disposition: at peace with it.** Do not report `Action` or `Cost` as removable sugar.
 
-`Cost` is a second AST that parallels `Instruction` — `Spend`, `Gated`, `Per`, `Multi`, `Transform`,
-each with its own precedence and parser combinators — and it is fully desugared before the engine
-ever sees it, so nothing under `engine/` references it. On a cost/benefit ledger that reads as pure
-duplication, bought only so an author may write `8 Plant ->` instead of `-8 Plant THEN`.
+`Cost` is a second AST that parallels `Instruction` — `Spend`, `Per`, and `Transform`, each with its
+own precedence and parser combinators — and it is fully desugared before the engine ever sees it, so
+nothing under `engine/` references it. An action has at most one cost; conditions and independent
+groups remain instruction concepts. On a cost/benefit ledger that reads as pure duplication, the
+cost AST is bought only so an author may write `8 Plant ->` instead of `-8 Plant THEN`.
 
 That reading is wrong. The `cost -> result` form is how the physical game prints an action, many
 cards use it, and Pets reading like the printed card is a product requirement rather than a
