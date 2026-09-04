@@ -289,6 +289,7 @@ public class Transformers(public val classTable: ClassTable) {
 
       private fun applyTriggerDefault(node: Effect.Trigger, original: Expression): Effect.Trigger {
         val default = classTable.getClass(original.className).defaults.triggerOnly
+        rejectEmptyArgumentsWithoutDefaults(original, default, "trigger")
         requireExplicitDependencyDefaults(original, default, "trigger")
         val fixed = insertDefaultsIntoExpr(original, default.dependencies, context, classTable)
         val replacer =
@@ -334,6 +335,7 @@ public class Transformers(public val classTable: ClassTable) {
         } else {
           val kind = if (node is Gain) "gain" else "removal"
           val spec = extractor(classTable.getClass(original.className).defaults)
+          rejectEmptyArgumentsWithoutDefaults(original, spec, kind)
           if (kind == "gain") requireExplicitDependencyDefaults(original, spec, kind)
           val fixed =
               if (kind == "removal" && hasUnacceptedDependencyDefaults(original, spec)) original
@@ -366,6 +368,11 @@ public class Transformers(public val classTable: ClassTable) {
       ): DefaultSpec? {
         if (leaveItAlone(expression)) return null
         val default = extractor(classTable.getClass(expression.className).defaults)
+        rejectEmptyArgumentsWithoutDefaults(
+            expression,
+            default,
+            if (gain) "gain" else "removal",
+        )
         if (gain) requireExplicitDependencyDefaults(expression, default, "gain")
         return default
       }
@@ -414,6 +421,22 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
+  private fun rejectEmptyArgumentsWithoutDefaults(
+      expression: Expression,
+      default: DefaultSpec,
+      kind: String,
+  ) {
+    if (
+        expression.argumentsSpecified &&
+            expression.arguments.isEmpty() &&
+            default.dependencies.keys.isEmpty()
+    ) {
+      throw PetSyntaxException(
+          "`${expression.className}<>` has no $kind dependency defaults to accept"
+      )
+    }
+  }
+
   private fun hasUnacceptedDependencyDefaults(
       expression: Expression,
       default: DefaultSpec,
@@ -440,6 +463,7 @@ public class Transformers(public val classTable: ClassTable) {
 
         val klass = classTable.getClass(node.className)
         val defaultDeps = klass.defaults.allUsages.dependencies
+        rejectEmptyArgumentsWithoutDefaults(node, klass.defaults.allUsages, "all-use")
         val result =
             insertDefaultsIntoExpr(
                 transformChildren(node) as Expression,

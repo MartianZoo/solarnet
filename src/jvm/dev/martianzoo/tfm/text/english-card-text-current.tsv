@@ -417,7 +417,7 @@ VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gai
 Recyclon	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card or remove 2 microbes from this card to increase your plant production 1 step.
 SpliceTacticalGenomics	Splice Tactical Genomics	Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When any microbe tag is played, gain 2 M€.
 Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: If you have no energy, increase your energy production 1 step, or pay 3 M€ to draw 1 building card.
-MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps.	Effect: [MyResourceWasRemoved<Anyone, Player<>> OR MyProductionWasDecreased<Anyone, Player<>>: 3 MC<Anyone> FROM MC.].
+MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps.	Effect: [MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.].
 Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain a standard resource.
 AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain a standard resource, or remove 1 asteroid from this card to gain 3 titanium.
 PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: When any microbe tag is played, add 1 disease resource to this card or [MAX 0 This: Ok] and [-4 MC.]. When you play a science tag, [TerraformRating FROM Disease<This>!] or [MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok].
@@ -441,7 +441,7 @@ ProjectInspection	Project Inspection	[UseAction<ActionCard(HAS ActionUsedMarker)
 EnergyMarket	Energy Market		Action: Pay 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
 HiTechLab	Hi-Tech Lab		Action: Pay one or more energy to look at X project cards. Draw one of them.
 InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step per different tag you have.
-LawSuit	Law Suit	[(MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): 3 MC FROM MC<Player<>>], then [PlayedEvent<Player<>, Class<This>> FROM This].
+LawSuit	Law Suit	[(MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>], then [PlayedEvent<Player, Class<This>> FROM This].
 MercurianAlloys	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you pay is worth 1 M€ extra.
 OrbitalCleanup	Orbital Cleanup	Decrease your M€ production 2 steps.	Action: Gain 1 M€ per science tag you have.
 RegoPlastics	Rego Plastics		Effect: Each steel you pay is worth 1 M€ extra.

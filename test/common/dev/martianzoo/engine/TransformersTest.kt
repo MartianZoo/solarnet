@@ -35,7 +35,7 @@ internal class TransformersTest {
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
     checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea>.")
-    checkApplyDefaults("MoholeArea_SpecialTile<>", "MoholeArea_SpecialTile<Owner>!")
+    checkApplyDefaults("MoholeArea_SpecialTile", "MoholeArea_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
         "CityTile<>",
@@ -110,6 +110,22 @@ internal class TransformersTest {
 
     shouldThrow<PetSyntaxException> { applyEffectDefaults("ScienceTag: Heat") }.message shouldBe
         "`ScienceTag` has trigger dependency defaults; write `ScienceTag<>` to accept them or provide dependency arguments"
+  }
+
+  @Test
+  internal fun emptyArgumentsRequireDefaultsForTheirSpecificUse() {
+    shouldThrow<PetSyntaxException> { applyDefaults("Plant<>") }.message shouldBe
+        "`Plant<>` has no gain dependency defaults to accept"
+    shouldThrow<PetSyntaxException> { applyDefaults("-Plant<>") }.message shouldBe
+        "`Plant<>` has no removal dependency defaults to accept"
+    shouldThrow<PetSyntaxException> { applyEffectDefaults("Plant<>: Heat") }.message shouldBe
+        "`Plant<>` has no trigger dependency defaults to accept"
+    shouldThrow<PetSyntaxException> {
+          transformers
+              .insertExpressionDefaults(cn("This").expression)
+              .transformExpression(parse("Player<>"))
+        }
+        .message shouldBe "`Player<>` has no all-use dependency defaults to accept"
   }
 
   private companion object {
@@ -321,27 +337,6 @@ internal class TransformersTest {
             "Production<SoloOpponent, Class<MC>> BY Player:: " +
                 "-Production<SoloOpponent, Class<MC>>! BY Engine",
         )
-  }
-
-  @Test
-  internal fun `explicit empty arguments distinguish a fresh Class-body choice`() {
-    val klass = Canon.classTable.getClass(parse<Expression>("MonsInsurance").className)
-    val effect = transformers.classEffects(klass).single { "MyResourceWasRemoved" in it.toString() }
-
-    effect.toString() shouldBe
-        "MyResourceWasRemoved<Anyone, Player<>> OR " +
-            "MyProductionWasDecreased<Anyone, Player<>>: 3 MC<Anyone> FROM MC<Owner>."
-    effect.typeVariables.variables.map { it.declaration.expression.toString() } shouldBe
-        listOf("Anyone")
-    LiveEffect.compile(
-            Component(Canon.classTable.resolve(parse("MonsInsurance<Player1>"))),
-            transformers,
-        )
-        .single { "MyResourceWasRemoved" in it.effect.toString() }
-        .effect
-        .toString() shouldBe
-        "MyResourceWasRemoved<Anyone, Player<>> OR " +
-            "MyProductionWasDecreased<Anyone, Player<>>: 3 MC<Anyone> FROM MC<Player1>."
   }
 
   @Test
