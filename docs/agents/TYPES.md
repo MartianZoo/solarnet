@@ -243,7 +243,7 @@ default arguments. Separate inserted expressions do not become one choice merely
 text, resolved Type, declaring default, or in-memory object is shared. Contextual `Owner` is closed
 by the ownership and triggering-Actor rules, not by inventing a Type variable during expansion.
 Authored-variable recognition must not be rerun on the expanded syntax: that would turn elaboration
-results into declarations and erase source distinctions such as `Player` versus `Player<>`.
+results into declarations.
 
 Inside a refinement, an implicit default is deferred when its dependency is a direct use of a
 Class-header Type variable; candidate substitution can then bind it through that occurrence.
@@ -253,8 +253,8 @@ A gain, removal, or trigger that would receive dependency bounds from its use-sp
 cannot leave its argument list implicit. It must supply at least one argument or write an empty list
 such as `GreeneryTile<>` or `ScienceTag<>` to explicitly accept those bounds. The gain and removal
 halves of `A FROM B` are checked independently. This rule does not apply to all-use dependency
-defaults or to Quantifier defaults; `<>` has the same Type meaning as a bare expression after
-defaults are inserted.
+defaults or to Quantifier defaults. An explicit empty list is invalid when the dependency-default
+set for that use is empty; it cannot serve only to give an expression a different authored spelling.
 
 ## 5a. Class properties
 
@@ -532,7 +532,6 @@ Tile != Tile<Area>
 OceanTile != OceanTile<MarsArea>
 Owner != Anyone
 Player != !Player
-Player != Player<>
 ```
 
 The whole authored expression is the surface name of an inferred local variable. Resolving two different
@@ -547,12 +546,12 @@ Class variable `CardFront` while constraining its owner dependency. Class-header
 identified by stable dependency paths, so inherited projections can be uses even when their whole
 containing expressions differ.
 
-A rule needing a distinct local capture must use a distinct authored expression. For example,
-`StartToken<Player>` uses `ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor` so the concrete
-performing Actor is captured independently of the StartToken's Class variable. If a future rule
-needs a fresh variable with the same structural bound, explicit empty arguments can distinguish it:
-Mons Insurance and Law Suit write `Player<>` rather than their visible Class variable `Player`.
-Pets will need explicit declaration syntax if that distinction stops being sufficient.
+A proper type dependency explicitly chosen in the first stage of `THEN` and repeated later belongs
+to that queued choice rather than a matching Class variable. Law Suit's `MC<Player>` therefore
+selects its opponent and carries that `Player` through the gate and card movement. Outside such a
+choice, a rule needing a distinct local capture must use a distinct authored expression. For
+example, `StartToken<Player>` uses `ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor` so the
+concrete performing Actor is captured independently of the StartToken's Class variable.
 
 Second, if `Player` is visible, `!Player` contains a derived use of that variable. Binding first
 specializes `Player`, then applies Complement, so narrowing the positive variable widens the

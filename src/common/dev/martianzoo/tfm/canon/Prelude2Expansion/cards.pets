@@ -322,7 +322,7 @@ CLASS FocusedOrganizationGain : Owned<Player>, Signal {
 
 CLASS RecessionWatcher : Owned<Player>, System {
   HAS =1 This
-  Recession<Anyone> BY Player<> IF MAX 0 Recession<Owner>: -5 MC<Owner>. BY Player<>, PROD[-1 MC<Owner>] BY Player<>
+  Recession<Anyone> BY Actor IF MAX 0 Recession<Owner>: -5 MC<Owner>. BY Actor, PROD[-1 MC<Owner>] BY Actor
 }
 
 CLASS SuitableInfrastructurePaid : Atomized, Hidden, Owned<Player> {

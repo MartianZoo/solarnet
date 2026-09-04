@@ -29,7 +29,7 @@ CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This: 48 MC, PROD[4 MC]
-  MyResourceWasRemoved<Anyone, Player<>> OR MyProductionWasDecreased<Anyone, Player<>>: 3 MC<Anyone> FROM MC.
+  MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.
 }
 
 CLASS Philares : CardFront<Class<CorporationCard>> {
@@ -219,7 +219,7 @@ CLASS LawSuit : EventCard<Class<ProjectCard>> {
   cost = 2
 
   This:: EventTag<This>
-  This: 3 MC FROM MC<Player<>>. THEN ((MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): PlayedEvent<Player<>, Class<This>> FROM This.)
+  This: 3 MC FROM MC<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): PlayedEvent<Player, Class<This>> FROM This.)
   End: -VictoryPoint
 }
 
