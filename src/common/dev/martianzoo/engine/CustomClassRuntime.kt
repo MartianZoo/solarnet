@@ -60,17 +60,24 @@ internal class CustomClassRuntime(
     return outputTransformer.transformInstructionTree(translated)
   }
 
-  internal fun count(type: Type, reader: GameReader): Int {
+  internal fun count(type: Type, reader: GameReaderImpl): Int {
     require(type.rootClass.declaration.custom)
     require(transformers.classTable.isActive(type))
 
     if (type.abstract) {
-      return transformers.classTable
-          .allConcreteSubtypes(type)
-          .filter { it.narrows(type, reader) }
-          .sumOf { count(it, reader) }
+      val candidates =
+          transformers.classTable.allConcreteSubtypes(type, reader::matchingComponentTypes)
+      return (if (type.refinement == null) candidates
+          else candidates.filter { it.narrows(type, reader) })
+          .sumOf { countConcrete(it, reader) }
     }
 
+    if (type.typeDependencies.any { reader.countComponent(it.boundType) == 0 }) return 0
+
+    return countConcrete(type, reader)
+  }
+
+  private fun countConcrete(type: Type, reader: GameReader): Int {
     val implementation =
         catalog.customMetric(type.className)
             ?: throw CustomCodeException(

@@ -187,6 +187,30 @@ public abstract class ClassTable {
     }
   }
 
+  /**
+   * Active concrete structural narrowings of [type], using [dependencyTargets] instead of the full
+   * structural domain when specializing dependencies. Each returned target must be a concrete
+   * narrowing of the requested dependency Type.
+   */
+  public fun allConcreteSubtypes(
+      type: Type,
+      dependencyTargets: (Type) -> Sequence<Type>,
+  ): Sequence<GroundType> {
+    val type = type.groundType
+    require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
+    return allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
+      val dependencies = type.dependencies glb klass.baseType.dependencies
+      if (dependencies == null) {
+        emptySequence()
+      } else {
+        dependencies.concreteSubtypesSameClass(
+            klass.withAllDependencies(dependencies),
+            dependencyTargets,
+        )
+      }
+    }
+  }
+
   /** Active concrete structural narrowings with the same root Class as [type]. */
   public fun concreteSubtypesSameClass(type: Type): Sequence<GroundType> {
     val type = type.groundType

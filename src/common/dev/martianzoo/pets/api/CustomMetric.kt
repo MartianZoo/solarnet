@@ -9,7 +9,8 @@ public abstract class CustomMetric(name: String? = null) : CustomClass(name) {
 
   /**
    * Returns the virtual component count represented by the concrete [type]. For an abstract custom
-   * metric type, the engine calls this once for every concrete subtype and sums the results.
+   * metric type, the engine calls this for every concrete specialization whose dependency targets
+   * exist in the game and sums the results.
    */
   public abstract fun count(game: GameReader, type: Type): Int
 }

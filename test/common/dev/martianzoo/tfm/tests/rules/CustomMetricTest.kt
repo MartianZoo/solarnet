@@ -59,6 +59,20 @@ internal class CustomMetricTest {
   }
 
   @Test
+  internal fun customMetricsOnlyEvaluateSpecializationsWhoseDependencyTargetsExist() {
+    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+
+    val invocationsBefore = TileMetric.invocations
+    p1.count("TileMetric<CityTile<Player1, Tharsis_4_4>>") shouldBe 0
+    p1.count("TileMetric<Tile>") shouldBe 0
+    TileMetric.invocations shouldBe invocationsBefore
+
+    p1.sneak("CityTile<Player1, Tharsis_4_4>")
+    p1.count("TileMetric<Tile>") shouldBe 17
+    TileMetric.invocations shouldBe invocationsBefore + 1
+  }
+
+  @Test
   internal fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
@@ -123,6 +137,16 @@ private object PlantCount : CustomMetric() {
   }
 }
 
+private object TileMetric : CustomMetric() {
+  var invocations = 0
+    private set
+
+  override fun count(game: GameReader, type: Type): Int {
+    invocations++
+    return 17
+  }
+}
+
 private object BrokenMetric : CustomMetric() {
   override fun count(game: GameReader, type: Type): Int = error("broken metric")
 }
@@ -139,6 +163,7 @@ private object CustomClassDeclarations : TfmCatalog() {
               CLASS SplitBehavior : Custom
               CLASS ConcreteOnlyMetric<Player> : Custom
               CLASS PlantCount<Player> : Custom
+              CLASS TileMetric<Tile<MarsArea>> : Custom
               CLASS BrokenMetric : Custom
               CLASS BrokenInstruction : Custom
               CLASS MetricTriggerObserver {
@@ -157,6 +182,7 @@ private object CustomClassDeclarations : TfmCatalog() {
           SplitMetricImplementation.SplitBehavior,
           ConcreteOnlyMetric,
           PlantCount,
+          TileMetric,
           BrokenMetric,
           BrokenInstruction,
       )

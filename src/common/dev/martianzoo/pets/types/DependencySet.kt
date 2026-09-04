@@ -298,6 +298,39 @@ public class DependencySet private constructor(private val deps: List<Dependency
     }
   }
 
+  internal fun concreteSubtypesSameClass(
+      type: GroundType,
+      dependencyTargets: (Type) -> Sequence<Type>,
+  ): Sequence<GroundType> {
+    return if (isForClassType(deps)) {
+      dependencyTargets(type).map { it.groundType }
+    } else {
+      keys.fold(sequenceOf(type)) { types, key ->
+        types.flatMap { candidate ->
+          val dependency = candidate.dependencies.get(key)
+          val concreteDependencies =
+              when (dependency) {
+                is TypeDependency ->
+                    dependencyTargets(dependency.boundType).map { target ->
+                      dependency.copy(boundType = target.groundType)
+                    }
+                is ComplementDependency ->
+                    dependencyTargets(dependency.domainType)
+                        .map { it.groundType }
+                        .filterNot { it.isSubtypeOf(dependency.excludedType) }
+                        .map { TypeDependency(dependency.key, it) }
+                else -> error("unexpected dependency: $dependency")
+              }
+          concreteDependencies.map { concrete ->
+            candidate.rootClass.withAllDependencies(
+                candidate.dependencies.replaceAt(DependencyPath(key), concrete)
+            )
+          }
+        }
+      }
+    }
+  }
+
   internal fun singleConcreteSubtype(info: TypeInfo): DependencySet? {
     if (isForClassType(deps)) {
       val abstractClass = getClassForClassType(deps)

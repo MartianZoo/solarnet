@@ -531,8 +531,10 @@ Numeric Metrics may also subtract Metrics or positive scalar operands, saturatin
 by itself is not a Metric. Complete-group scaling and `MAX` bind before subtraction, which binds
 before union.
 
-An abstract custom metric enumerates satisfying concrete subtypes and sums their implementations.
-Every Kotlin invocation receives concrete dependency arguments.
+An abstract custom metric specializes only over dependency targets represented by live components,
+then sums the satisfying concrete implementations. This follows the ordinary dependency rule that
+a dependent value cannot exist without its targets and avoids enumerating the full structural
+cross-product. Kotlin metric invocations always receive concrete dependency arguments.
 
 Refinements substitute a candidate into their requirement and query the current World. Immutable
 class properties supply printed cost and requirement plus map row and column without creating live

@@ -695,7 +695,7 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
-"Triggers creating Neighbors and Adjacencies"
+"Creates directional Adjacencies when a tile is placed"
 CLASS CreateAdjacencies<MarsArea> : Custom
 
 "A virtual metric whose count is the number of a particular resource printed as an area's bonus"
@@ -725,8 +725,8 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
 }
 
-"Adding a Tile automatically creates one of these per adjacent area"
-CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden
+"The number of geometric neighbor relations between live tiles and map areas"
+CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Signal, System {
   This: AssignAwardPlaces<Award>

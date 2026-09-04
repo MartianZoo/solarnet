@@ -114,6 +114,20 @@ private constructor(
     }
   }
 
+  /** Distinct concrete component Types currently matching [parentType]. */
+  internal fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
+    requireOwnClassTable(parentType)
+    return if (!classTable.isActive(parentType)) {
+      emptySequence()
+    } else if (parentType.abstract) {
+      components.queryElements(parentType).filter { it.hasType(parentType, info) }.map { it.type }
+    } else if (parentType.toComponent() in components) {
+      sequenceOf(parentType)
+    } else {
+      emptySequence()
+    }
+  }
+
   /**
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
    * multiset. The size of the returned collection will be `[count]([parentType])` . An inactive
