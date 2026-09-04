@@ -46,7 +46,7 @@ CLASS AirRaid : EventCard<Class<ProjectCard>> {
   cost = 0
 
   This:: EventTag<This>
-  This: -Floater, 5 MC<Owner FROM Anyone>?
+  This: -Floater, 5 MC<Owner FROM Anyone>
 }
 
 CLASS AtmoCollectors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {

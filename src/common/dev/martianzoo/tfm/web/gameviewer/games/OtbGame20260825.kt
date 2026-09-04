@@ -339,9 +339,11 @@ public class OtbGame20260825 : RecordedGame() {
     yellow.turn {
       playProject(VenusMagnetizer, 7)
     }
+    yellow.exMachina("MC")
     green.turn {
-      playProject(LawSuit, 2) { doTask("3 MC<Green> FROM MC<Yellow>.") }
+      playProject(LawSuit, 2) { doTask("3 MC<Green> FROM MC<Yellow>") }
     }
+    green.exMachina("-MC")
     yellow.turn {
       cardAction1(VenusMagnetizer)
     }

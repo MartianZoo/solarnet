@@ -324,7 +324,7 @@ Polyphemos	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production
 Poseidon	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: When any colony is placed, increase your M€ production 1 step.
 StormcraftIncorporated	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to any card. / Effect: You may use floaters on this card as 2 heat each. When you play a local heat trapping, remove 1 floater from this card to gain 2 heat, or remove 2 floaters from this card to gain 4 heat, or remove 3 floaters from this card to gain 5 heat, or do nothing.
 Airliners	Airliners	Requires 3 floaters. Increase your M€ production 2 steps. Add 2 floaters to any card.
-AirRaid	Air Raid	Remove 1 floater from any card. You may steal up to 5 M€ from any player.
+AirRaid	Air Raid	Remove 1 floater from any card. Steal 5 M€ from any player.
 AtmoCollectors	Atmo Collectors	Add 2 floaters to any card.	Action: Add 1 floater to this card, or remove 1 floater from this card to gain 2 titanium, 3 energy, or 4 heat.
 CommunityServices	Community Services	Increase your M€ production 1 step per card with no tags.
 Conscription	Conscription	Requires 2 Earth tags. [Conscription_NextCardEffect].
@@ -441,7 +441,7 @@ ProjectInspection	Project Inspection	[UseAction<ActionCard(HAS ActionUsedMarker)
 EnergyMarket	Energy Market		Action: Pay 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
 HiTechLab	Hi-Tech Lab		Action: Pay one or more energy to look at X project cards. Draw one of them.
 InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step per different tag you have.
-LawSuit	Law Suit	Steal 3 M€ from that player, or as much as possible, then [(MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): PlayedEvent<Player<>, Class<This>> FROM This.].
+LawSuit	Law Suit	[(MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): 3 MC FROM MC<Player<>>], then [PlayedEvent<Player<>, Class<This>> FROM This].
 MercurianAlloys	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you pay is worth 1 M€ extra.
 OrbitalCleanup	Orbital Cleanup	Decrease your M€ production 2 steps.	Action: Gain 1 M€ per science tag you have.
 RegoPlastics	Rego Plastics		Effect: Each steel you pay is worth 1 M€ extra.

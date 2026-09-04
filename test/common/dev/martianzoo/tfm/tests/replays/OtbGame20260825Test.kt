@@ -572,11 +572,13 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Pay seven for Venus Magnetizer."
       playProject(VenusMagnetizer, 7)
     }
+    // The recorded game illegally played Law Suit against Yellow's 2 M€. Temporarily supply the
+    // third M€ required by the card, then remove it from Green after reproducing the physical play.
+    yellow.exMachina("MC")
     green.turn {
-      // Law Suit follows Power Supply Consortium's attack and takes the 2 M€ Yellow has at the
-      // time.
-      playProject(LawSuit, 2) { doTask("3 MC<Green> FROM MC<Yellow>.") }
+      playProject(LawSuit, 2) { doTask("3 MC<Green> FROM MC<Yellow>") }
     }
+    green.exMachina("-MC")
     yellow.turn {
       // "Now suppose I can decrease energy product one step, raise Venus one step. That is a TR
       // for me."

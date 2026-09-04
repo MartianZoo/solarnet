@@ -219,7 +219,7 @@ CLASS LawSuit : EventCard<Class<ProjectCard>> {
   cost = 2
 
   This:: EventTag<This>
-  This: 3 MC FROM MC<Player<>>. THEN ((MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): PlayedEvent<Player<>, Class<This>> FROM This.)
+  This: ((MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): 3 MC FROM MC<Player<>>) THEN PlayedEvent<Player<>, Class<This>> FROM This
   End: -VictoryPoint
 }
 

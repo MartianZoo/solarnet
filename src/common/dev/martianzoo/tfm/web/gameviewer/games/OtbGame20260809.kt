@@ -627,7 +627,7 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(InventionContest, 0)
 
       playProject(LawSuit, 0) {
-        doTask("3 MC<Green> FROM MC<Yellow>.")
+        doTask("3 MC<Green> FROM MC<Yellow>")
       }
     }
 

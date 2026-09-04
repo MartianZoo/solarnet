@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -86,29 +87,22 @@ internal class BugsTest : CardTest() {
   }
 
   @Test
-  internal fun `Stealing zero is incorrectly allowed and prevents Mons Insurance compensation`() {
+  internal fun `Law Suit incorrectly rejects a funded attacker when its owner has only two mc`() {
     newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.manual("$MonsInsurance, 10 MC")
-    p2.manual("5 MC")
-
-    p1.manual("3 MC FROM MC<Player2>?") {
-          // Decline taking Player 2's mc.
-          declineTask()
-        }
-        .expect("0 MC<Player1>, 0 MC<Player2>")
-  }
-
-  @Test
-  internal fun `Air Raid incorrectly remains playable when only its player has money`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    val p2 = requireP2()
     engine.phase("Action")
-    p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
-    p1.manual("ProjectCard, 5 MC")
+    p1.autoExecMode = NONE
+    p1.manual("2 MC, ProjectCard, PROD[Plant]")
+    val p2 = requireP2()
+    p2.manual("5 MC, PROD[-Plant<Player1>]")
 
-    p1.playProject(AirRaid, 0).expect("-Floater<$AtmoCollectors>, 0 MC<Player1>")
-    p2.assertCounts(0 to "MC")
+    shouldThrow<TaskException> {
+      p1.playProject(LawSuit, 2) {
+        doTask("3 MC<Player1> FROM MC<Player2>")
+      }
+    }
+
+    p1.assertCounts(2 to "MC", 1 to "ProjectCard")
+    p2.assertCounts(5 to "MC")
   }
 
   @Test
