@@ -123,7 +123,7 @@ internal class Implementations(
     try {
       doTask(taskId)
     } catch (_: AbstractException) {
-      explainTask(taskId, "abstract")
+      // Initial abstract work remains pending for the operation body to narrow.
     }
   }
 
@@ -145,7 +145,7 @@ internal class Implementations(
   internal fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
     if (pending.isNotEmpty()) {
-      if (pending.any { it.whyPending == "abstract" }) {
+      if (pending.any { it.instruction.isAbstract(reader) }) {
         throw AbstractException("pending abstract tasks:\n${pending.joinToString("\n")}")
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
@@ -211,32 +211,16 @@ internal class Implementations(
       } catch (_: AbstractException) {
         // we're in trouble if ALL of these are NotNowExceptions
         recoverable = true
-        explainAnyTask(taskId, "abstract")
       } catch (_: NotNowException) {
         val task = queueForAnyTask(taskId).getTaskData(taskId)
         if (task.instruction.isAbstract(reader)) {
           recoverable = true
-          explainAnyTask(taskId, "abstract")
-        } else {
-          // we're in trouble if ALL of these are NotNowExceptions
-          explainAnyTask(taskId, "currently impossible")
         }
       }
     }
     if (!recoverable) throw DeadEndException("")
 
     return false // presumably everything is abstract
-  }
-
-  private fun explainTask(taskId: TaskId, reason: String) {
-    explainTask(tasks, taskId, reason)
-  }
-
-  private fun explainAnyTask(taskId: TaskId, reason: String) =
-      explainTask(queueForAnyTask(taskId), taskId, reason)
-
-  private fun explainTask(queue: TaskQueue, taskId: TaskId, reason: String) {
-    queue.editTask(queue.getTaskData(taskId).copy(whyPending = reason))
   }
 
   /**
@@ -300,7 +284,7 @@ internal class Implementations(
     val instruction =
         effectiveNarrowing as? Instruction
             ?: throw TaskException("one task can't be narrowed to independent tasks")
-    tasks.editTask(task.copy(instructionIn = instruction, whyPending = null))
+    tasks.editTask(task.copy(instructionIn = instruction))
   }
 
   private fun narrowSelectedTask(
@@ -434,7 +418,6 @@ internal class Implementations(
                     isAbstract = reader::isAbstract,
                 )
                 .single()
-                .copy(whyPending = original.whyPending)
           } else {
             original.copy(instructionIn = instruction, thenIn = then)
           }
@@ -642,9 +625,9 @@ internal class Implementations(
     try {
       timeline.atomic { doTask(id) }
     } catch (_: AbstractException) {
-      explainTask(id, "abstract")
+      // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
-      explainNotNow(id)
+      // A probe that is unavailable in the current World likewise changes nothing.
     }
   }
 
@@ -655,21 +638,13 @@ internal class Implementations(
       executeSubmittedGroup: Boolean = false,
   ) {
     val evaluated = evaluatePer(narrowing)
-    val id = matchingTask(evaluated, taskNumber, intensityOmitted)
     try {
       doTask(evaluated, taskNumber, intensityOmitted, executeSubmittedGroup)
     } catch (_: AbstractException) {
-      explainTask(id, "abstract")
+      // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
-      explainNotNow(id)
+      // A probe that is unavailable in the current World likewise changes nothing.
     }
-  }
-
-  private fun explainNotNow(taskId: TaskId) {
-    val reason =
-        if (tasks.getTaskData(taskId).instruction.isAbstract(reader)) "abstract"
-        else "currently impossible"
-    explainTask(taskId, reason)
   }
 
   // Similar to tryTask, but a NotNowException is unrecoverable once selection holds the lock.
@@ -681,7 +656,6 @@ internal class Implementations(
     } catch (e: NotNowException) {
       throw DeadEndException(e)
     } catch (_: AbstractException) {
-      explainAnyTask(taskId, "abstract")
       false
     }
   }

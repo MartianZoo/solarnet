@@ -25,16 +25,15 @@ internal class AgentTest {
   }
 
   @Test
-  internal fun executionProbeAndTryLeaveAnAbstractTaskPending() {
+  internal fun executionProbeAndTryLeaveAnAbstractTaskUnchanged() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     val taskId = agent.addTasks("Token?").single()
+    val taskBefore = agent.tasks.getTaskData(taskId)
 
     agent.canExecuteTask(taskId) shouldBe false
     agent.tryTask(taskId)
 
-    val task = agent.tasks.getTaskData(taskId)
-    task.selected shouldBe false
-    task.whyPending shouldBe "abstract"
+    agent.tasks.getTaskData(taskId) shouldBe taskBefore
   }
 }

@@ -415,13 +415,12 @@ public class TfmGameplay(
               .extract { it }
               .filter { task ->
                 val previous = preexistingTasks[task.id]
-                previous == null ||
-                    previous.copy(selection = task.selection, whyPending = task.whyPending) != task
+                previous == null || previous.copy(selection = task.selection) != task
               }
               // Unchosen wild-tag offers are handled by cleanup below, not unexpected work.
               .filterNot { it.isWildTagOffer() }
       if (newPendingTasks.isNotEmpty()) {
-        if (newPendingTasks.any { it.whyPending == "abstract" }) {
+        if (newPendingTasks.any { it.instruction.isAbstract(game.reader) }) {
           throw AbstractException("pending abstract tasks:\n${newPendingTasks.joinToString("\n")}")
         }
         throw TaskException("pending tasks:\n${newPendingTasks.joinToString("\n")}")

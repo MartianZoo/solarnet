@@ -307,7 +307,7 @@ internal class ScriptSessionTest {
         "turn",
         """
         New tasks pending:
-        * [Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
+        * [Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>!
         """
             .trimIndent(),
     )
@@ -315,7 +315,7 @@ internal class ScriptSessionTest {
         "task UseAction<ConvertHeat, Action1>",
         """
         New tasks pending:
-        * [Player2] X Pay<Player2, Class<Heat>> FROM Heat<Player2>? (abstract)
+        * [Player2] X Pay<Player2, Class<Heat>> FROM Heat<Player2>?
         """
             .trimIndent(),
     )

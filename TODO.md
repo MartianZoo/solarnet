@@ -38,10 +38,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
   lowering knows any game's vocabulary.
-- Delete `Task.whyPending`'s use as state. Only `"abstract"` and `"currently impossible"` are ever
-  stored, and `"abstract"` is recomputed from `instruction.isAbstract(reader)` in `explainNotNow`
-  anyway, yet `Implementations.requireComplete` and `TfmGameplay` branch on the string literal. Ask
-  the instruction, and leave `whyPending` a pure diagnostic message.
 - Investigate why all wild-tag assignments must currently run before selecting a card or action.
   Only assignments needed to satisfy a requirement should be early; assignments used by queued
   effects such as per-tag gains should resolve normally from the task queue.

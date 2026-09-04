@@ -133,8 +133,8 @@ alpha-renamed only through the semantic-symmetry rule below. At minimum the cand
 - cause context plus the equivalence relation describing which tasks share one cause, while the
   numeric event ordinals and task ids may be alpha-renamed.
 
-`whyPending`, event text, policy credit, and raw ordinals may remain diagnostic only. Cause context
-cannot be dropped today: `TfmGameplay` searches it and sometimes groups tasks by exact cause.
+Event text, policy credit, and raw ordinals may remain diagnostic only. Cause context cannot be
+dropped today: `TfmGameplay` searches it and sometimes groups tasks by exact cause.
 
 Automatic-effect registration order is no longer gameplay state. Ordinary execution derives a
 reproducible order from immutable pending-work data, while diagnostic execution shuffles eligible

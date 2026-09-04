@@ -86,7 +86,6 @@ private constructor(
     append("[${petsName(task.assignee)}] ")
     append(renderPets(task.instruction))
     task.then?.let { append(" (THEN ${renderPets(it)})") }
-    task.whyPending?.let { append(" ($it)") }
   }
 
   private fun renderTaskEvent(event: GameEvent.TaskEvent, sign: String): String = buildString {
@@ -94,7 +93,6 @@ private constructor(
     append(renderPets(event.task.instruction))
     event.task.then?.let { append(" THEN ${renderPets(it)}") }
     append(" }")
-    event.task.whyPending?.let { append(" ($it)") }
   }
 
   private val canonicalizer: PetTransformer = classNameTransformer(::canonicalName)

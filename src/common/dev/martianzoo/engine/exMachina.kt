@@ -31,7 +31,7 @@ public fun World.exMachina(adjustingAgent: Agent, adjustment: String) {
 }
 
 private fun World.taskBeforeSelection(selectedId: TaskId): Task {
-  var expectedTask = tasks.getTaskData(selectedId)
+  val expectedTask = tasks.getTaskData(selectedId)
   return events
       .entriesSince(Checkpoint(0))
       .asReversed()
@@ -43,11 +43,7 @@ private fun World.taskBeforeSelection(selectedId: TaskId): Task {
           "unexpected event after selection of task $selectedId: $event"
         }
         if (!event.oldTask.selected && event.task.selected) return@map event.oldTask
-        check(event.task == event.oldTask.copy(whyPending = event.task.whyPending)) {
-          "unexpected edit after selection of task $selectedId: $event"
-        }
-        expectedTask = event.oldTask
-        null
+        error("unexpected edit after selection of task $selectedId: $event")
       }
-      .firstNotNullOf { it }
+      .first()
 }

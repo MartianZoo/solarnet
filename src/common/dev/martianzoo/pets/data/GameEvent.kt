@@ -17,7 +17,6 @@ public sealed class GameEvent {
       append("$ordinal: +Task${task.id} { ${task.instruction}")
       task.then?.let { append(" THEN $it") }
       append(" }")
-      task.whyPending?.let { append(" ($it)") }
     }
   }
 

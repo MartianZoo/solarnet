@@ -226,8 +226,7 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 - `actor`, recorded on resulting changes unless instruction-side `BY` overrides it;
 - `cause`;
 - selected flag;
-- optional `THEN` continuation group; and
-- diagnostic `whyPending`.
+- optional `THEN` continuation group.
 
 A temporary 1-based display position may disambiguate equal-looking tasks. It is not an id.
 

@@ -46,9 +46,6 @@ public data class Task(
 
     /** Why was this task born? */
     val cause: Cause?,
-
-    /** Why is the task still here? */
-    val whyPending: String? = null,
 ) {
 
   /** Whose pending-work queue contains this task and whose scoped Agent may act on it. */
@@ -91,7 +88,6 @@ public data class Task(
     append(instruction)
     then?.let { append(" (THEN $it)") }
     cause?.let { append(" $cause") }
-    whyPending?.let { append(" ($it)") }
   }
 
   private fun toStringWithoutCause(displayId: String = id.toString()): String = buildString {
@@ -100,7 +96,6 @@ public data class Task(
     appendAssigneeLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
-    whyPending?.let { append(" ($it)") }
   }
 
   private fun StringBuilder.appendAssigneeLabel() {
