@@ -141,7 +141,7 @@ Keep the substantive reasoning in the owning document and keep this table to one
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
 - **The `Die` produce/consume pipeline** —
-  [SEQUENCING.md](SEQUENCING.md#recoverable-dead-ends-are-part-of-the-model). `Transformers.invalidChangesToDie` emits the
+  [SEQUENCING.md](SEQUENCING.md#settled). `Transformers.invalidChangesToDie` emits the
   marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
   duplicated fact. `PremiseViability`'s separate static check buys fail-fast at premise time instead
   of a confusing mid-game `DeadEndException`. Only the interpreter it duplicates from `ClassLoader`
@@ -156,9 +156,8 @@ Keep the substantive reasoning in the owning document and keep this table to one
 ### Already being fixed
 
 - **`Temporary` and `MustCleanUp` idle cleanup** —
-  [SEQUENCING.md](SEQUENCING.md#whole-world-idle-cleanup). Two engine sweeps at the same moment with
-  opposite policies, one of which has a single client. `AtomicOperationScope` and `Engine` are
-  actively moving.
+  [SEQUENCING.md](SEQUENCING.md#cleanup-vocabulary). One invariant with three satisfaction policies
+  that the declarations do not yet say is one; that document owns the collapse.
 - **`CARDS[...]` and the `CardOperation` recognizer** —
   [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md#canonical-card-operation-source). Authored intent is
   discarded and then reconstructed by pattern matching. Known, and owned by that document.

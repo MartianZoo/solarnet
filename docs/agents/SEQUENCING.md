@@ -4,511 +4,392 @@
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
 
-> **Read when:** changing task eligibility/order, `THEN`, automatic effects, barriers, precursors,
-> completion, recoverable dead ends, or phase precedence.
+> **Read when:** deciding how one thing comes before another — task eligibility, `THEN`, automatic
+> effects, barriers, precursors, cleanup, or "when is this operation over".
 >
-> **Skip when:** changing only Actor/assignee identity ([IDENTITY.md](IDENTITY.md)) or the count
-> executed by one change ([QUANTIFIERS.md](QUANTIFIERS.md)).
+> **Skip when:** changing only Actor/assignee identity ([IDENTITY.md](IDENTITY.md)), the count
+> executed by one change ([QUANTIFIERS.md](QUANTIFIERS.md)), or phase topology
+> ([WORKFLOW.md](WORKFLOW.md)).
 >
-> **Status:** working rules, explicit hypotheses, and audit. A passing characterization does not
-> turn a known defect into intended behavior.
+> **Status:** working rules, one selected design problem, and dispositions. [ENGINE.md](ENGINE.md)
+> owns the current task lifecycle; this document does not restate it. A passing characterization
+> does not turn a known defect into intended behavior.
 
-## Read only the relevant rule family
+## Read only what you need
 
 | Question | Read |
 | --- | --- |
-| Is pending work ordered at all? | Mental model; Ask which kind of ordering; Rules that deliberately impose no order |
-| Which mechanism should express A-before-B? | Put facts in components; Recoverable dead ends; Choose the weakest mechanism that fits |
-| Must a modifier precede the event it changes? | Model before-trigger effects with a committed precursor |
-| Must reactions complete before the user sees the next choice? | Use automatic effects to preserve player-visible invariants |
-| Does this concern `EACH`, controlled completion, or atomicity? | Read only the matching proposed section |
-| Is this a known family, defect, or phase rule? | Settled families through Workflow precedence |
-| How should a new ordering claim be researched? | Audit method |
+| What is the engine actually promising about order? | The promises |
+| Which mechanism should express A-before-B? | Choosing a mechanism; Audit procedure |
+| Must a modifier act before the thing it modifies exists? | Committed precursors |
+| Must a consequence land before the player sees anything? | Automatic effects |
+| Is this really about order, or about atomicity? | Do not conflate the timing properties |
+| Where does a chore with no choice in it belong? | Put choice-free work at its semantic owner |
+| When is an operation over? Where does this cleanup belong? | The missing rule; Cleanup vocabulary |
+| Has this idea already been rejected? | Settled |
+| Is this a rules question or an engine question? | Research on file |
 
 ## Source map
 
-- [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) and
-  [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — inspect
-  task pooling, narrowing, and the select-lock.
-- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — inspect
-  splitting, `THEN`, barriers, and resolved forms.
-- [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
-  `automatic` when changing immediate reaction ordering.
-- [`AtomicOperationScope.kt`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt)
-  and [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — read only
-  for commit/rollback atomicity.
-- [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt)
-  — read when changing player-visible action ordering.
-- [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt)
-  and `SOLARNET_RANDOM_AUTOMATIC_EFFECTS` in [`TESTING.md`](TESTING.md) — inspect when changing
-  automatic-sibling scheduling or its diagnostic modes.
+- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — `executeChange` is the
+  whole ordering core: automatic effects run inline and recursively, queued effects are deferred.
+  `MAX_AUTOMATIC_EFFECT_DEPTH` caps runaway chains.
+- [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — `fire` selects the complete
+  sibling batch; `stableAutomaticOrder` is diagnostic order only.
+- [`AtomicOperationScope.kt`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt) —
+  `performIdleCleanup`, and `Engine.removeTemporaryComponents` next to it.
+- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) —
+  `enforceSelectLock` and `requireComplete`.
+- [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — the class KDoc lists
+  every normalization applied to a task on the way in.
+- [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt) — search for
+  `MustCleanUp`, `Temporary`, `Barrier`, `Signal`.
+- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+  — `CLASS PlayCard` and `ABSTRACT CLASS Billing` for the card-play and payment latches.
+- [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
+  — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
+- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) — search for
+  `isWildTagOffer` and `removeWildTagUses`; read as evidence, not as a pattern to copy.
+- Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
+  [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
+  [`AtomicOperationScopeTest.kt`](../../test/common/dev/martianzoo/engine/AtomicOperationScopeTest.kt).
 
-## Mental model: preserve the whole valid decision tree
+## The promises
 
-Pending tasks are a semantically unordered pool. A deterministic presentation order is useful for
-reproducible history and a comprehensible client, but it never creates game precedence. Task numbers
-are ephemeral labels in that presentation; durable input should identify a task by id or by an
-unambiguous instruction match. A player may normally interleave a card's direct effects, persistent
-reactions, and already-triggered consequences.
+Sequencing exists to keep these true. Everything else in this document is a means to one of them.
+The third column is what actually holds the promise today, which is not always a test.
 
-This freedom is a major part of engine correctness, not a rare exception. Many groups of changes
-may be resolved in any order. Preserve all of those orders even when no current card, component, or
-test demonstrates that the choice matters. The absence of a known observable difference is not a
-game rule and does not justify turning the pool into a sequence.
+| Promise | Meaning | Held by |
+| --- | --- | --- |
+| **Causality** | A consequence never precedes the change that caused it. | Structural: effects fire only from a recorded `ChangeEvent`. |
+| **Freedom** | Every rules-legal ordering of the pending pool stays executable. | Nothing systematic. Scenario tests only. |
+| **Coherence** | No World is exposed to any Actor with an automatic consequence outstanding. | Structural: `Instructor.executeChange` runs `::` inline before returning. |
+| **Snapshot** | Every trigger-side condition in one automatic batch is tested against the World as it was before any sibling in that batch ran. | Structural: `Effector.fire` evaluates all `checkForHit` calls first. No test pins it. |
+| **Sibling indifference** | No automatic sibling order carries game meaning. | `SOLARNET_RANDOM_AUTOMATIC_EFFECTS`, run manually, with one known payment-attribution exception. |
+| **All-or-nothing** | A speculative operation that reaches a dead end leaves no trace. | `Timeline.atomic` and `EventLog.rollBackTo`. Tested. |
+| **Sealed tasks** | No authored game behavior edits, reprioritizes, cancels, or removes another task. | Structural: Pets has no instruction that can name a task. |
+| **No hidden ordering state** | No ordering guarantee depends on runtime state that rollback does not restore. | `AutomaticEffectOrderTest`. |
+| **Scope hygiene** | No `MustCleanUp` component outlives the operation that created it. | `requireComplete`, at the `manual` and `finish` boundaries only. |
 
-Causality is the baseline exception: a consequence cannot precede the event that triggered it.
-Placing an ocean precedes Arctic Algae; raising production precedes Manutech. Once triggered, the
-consequence joins the pool without priority.
+Freedom and Snapshot are the two weakest rows, and they are the two that matter most: Freedom is
+most of what "correct sequencing" means here, and Snapshot is the rule every future change to
+automatic effects will be tempted to break. See Verification we owe.
 
-The engine's contract is to support every rules-valid committed state and no rules-invalid one; it
-does not choose a play policy. The `first` Agent policy is legitimate and deliberately
-unsophisticated: it chooses the first executable task in the current presentation. A safe policy
-may instead stop and ask, a seeded random policy may choose among executable tasks without
-randomizing their stored presentation, and an Admin policy may intelligently order Admin's ordinary
-tasks. The current auto-execution implementation is engine-side, but those policies belong in the
-Agent and are intended to move there. No policy order may become an engine guarantee or an authored
-precedence rule; the shared autoexecution loop only gives Agents chances to act.
+Freedom is not a rare exception to be traded away for convenience. Many groups of pending changes
+may be resolved in any order, and the absence of a card that demonstrates a difference is not a game
+rule. Causality is the baseline exception and, once triggered, a consequence joins the pool with no
+priority. The engine's contract is to support every rules-valid committed state and no invalid one;
+it does not choose a play policy. Policies live in the Agent ([AUTOEXEC.md](AUTOEXEC.md)) and no
+policy order may harden into an engine guarantee.
 
-Tests should prove only real precedence. When freedom matters, also prove that representative legal
-sibling orders remain executable. Such a freedom test does not require the orders to produce the
-same state; the choice of order may itself be legitimate gameplay.
+Concretely:
 
-## Ask which kind of ordering the rule needs
+- A card's direct Effects are freely reorderable, and persistent reactions — rebates, tag reactions,
+  Mars University, Olympus Conference — may be resolved before, after, or between them once
+  triggered, subject only to ordering inside one Effect.
+- Separate activations of one Effect remain separate tasks. Whether work inside one activation may
+  be split around another activation is still open; see Live agenda.
+- Trade income and each colony bonus are separate siblings controlled by the active trader, so Pluto
+  may use trade-income cards before taking its own draw/discard bonus.
 
-Several different concerns are easy to collapse into a vague request for work to happen “first”:
+One live fragility to watch: gaining a `Colony` fires an automatic colony-track adjustment and a
+queued placement bonus from the same change, so the bonus always lands after the track has moved.
+That order is a consequence of `::` versus `:`, not an authored rule, and it is safe only while no
+placement bonus reads the track. If one ever does, make the dependency explicit instead of relying
+on the automatic pass running first.
 
-- **Sequencing:** B cannot precede A. `THEN`, a barrier, or natural unavailability can establish it.
-- **Immediacy:** after A, work cannot be postponed behind a player choice. Automatic `::` expresses
-  this.
-- **Controlled completion:** B becomes available only after the currently controlled turn or
-  delegated choice has completed, including its required settlement. The runtime mechanism remains
-  open; a whole Player queue drain is not automatically the correct unit.
-- **Global completion:** the whole World task pool has drained and remains empty after completion
-  work.
-- **Delegated completion:** a selected task may move to another Actor for narrowing while retaining
-  its controller. The global select-lock prevents unrelated work until it completes; follow-up work
-  returns to the controller. See [IDENTITY.md](IDENTITY.md).
-- **Game-rule atomicity:** no player interleaving or rule observation may split the conceptual
+### Do not conflate the timing properties
+
+Five properties collapse easily into a vague "first", and none of them implies another:
+
+- **Sequencing** — B cannot precede A. `THEN`, a latch, or natural unavailability establishes it.
+- **Immediacy** — after A, work cannot be postponed behind a player choice. `::` expresses this.
+- **Operation completion** — B becomes available only once some operation and its required
+  settlement have finished.
+- **Game-rule indivisibility** — no player interleaving or rule observation may split the conceptual
   operation.
-- **Failure atomicity:** `Timeline.atomic` rolls implementation state back after failure.
+- **Failure atomicity** — `Timeline.atomic` rolls implementation state back after a failure.
 
-None implies the next. An automatic effect may execute several observable component changes.
-`THEN` may allow unrelated work between its stages. Timeline rollback does not decide how triggers
-count or observe a physical-game operation.
+An automatic effect may perform several observable changes. `THEN` may allow unrelated work between
+its stages. Rollback decides nothing about how triggers count or observe a physical-game operation.
+When a rule is called "atomic", make it say which of these it means; see Research on file for the
+three questions to answer separately.
 
-When evaluating an “atomic” rule, specify separately:
+Any engine-owned completion or cleanup must run inside the enclosing atomic transaction before it
+commits, so a failure cannot expose partially settled state. Client autoexecution policy is a
+separate concern and must never define when engine settlement occurs.
 
-1. whether player work may interleave;
-2. whether intermediate component changes fire or observe effects; and
-3. what multiplicity a trigger sees as one effect.
+## The missing rule: when an operation is over
 
-Do not initiate rule research during routine implementation work. When the user explicitly asks
-for it, do not infer these answers from an unanswered community post: find the linked Jacob
-Fryxelius ruling or preserve the uncertainty.
+This is the one design problem this document owns. Everything unresolved below is a face of it.
 
-## Put facts in components and future work in tasks
+Solarnet can say what **is** (components), what **may or must still happen** (tasks), and what
+**just happened** (`Signal`). It can even say that something **is under way**: `Trade<ColonyTile>`,
+`End`, and a live `EventCard` are all intervals. What it cannot say is when an interval **ends**,
+except by the single coarsest rule available — the whole World went idle.
 
-The component graph says what **is** or what **is happening**. This includes transient facts inside
-an operation when their identity, cardinality, or individual changes matter. `Owed` records the
-current debt and lets the event history attribute each reduction to Earth Catapult, Advanced
-Alloys, a payment, or another cause. `Required` similarly records a quantitative global-parameter
-shortfall. `CyberiaSystemsFirstChoice` carries one selected card identity into a later choice, and
-`AwardTally` carries measured values into award comparison. Their temporary or process-local nature
-does not make them task metadata.
+The substitutes in use, and where each fails:
 
-Tasks say what activities remain available or mandatory. Keep them sealed after creation: authored
-game behavior must not edit, reprioritize, cancel, or remove another task. Player narrowing remains
-the deliberate exception; engine resolution and execution retain their existing mechanical roles.
-If presentation eventually follows authored Class, hierarchy, Effect, and right-hand-side order,
-encode that provenance as immutable metadata assigned when work is created. Do not derive gameplay
-precedence from it or give effects a capability to reach into the task pool.
+| Substitute | Unit it actually measures | Why it is wrong here |
+| --- | --- | --- |
+| Whole-World idle (`Temporary`) | Every queue in the game is empty | Waits for unrelated players' work. This is exactly why Trade cannot use it. |
+| `THEN` | One task finished | Too fine. Ignores the consequences that task caused. |
+| Counted latch (`TradeBarrier`, `Owed`, `Billing`) | Prerequisites this lifecycle enumerated for itself | Correct but hand-rolled. Each new lifecycle re-invents it. |
+| Player queue drain | One Actor has nothing left | Combines unrelated work; queue cardinality has no gameplay meaning. |
+| Client bridge (`TfmGameplay`) | A string match on instruction text or `cause.context` | Not a rule at all. |
 
-Signals such as `PlayCard`, `Accept`, and `Pay` are coherent component events: they state
-what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
-`Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
+The strongest evidence that the concept is missing is the last row. `TfmGameplay` identifies tasks
+by `it.instruction.toString().startsWith(...)` or by `cause?.context?.className == cn("Accept")` in
+roughly a dozen places, and `removeWildTagUses` then reaches in and deletes components. A public
+convenience API is reconstructing operation scope by pattern matching because the engine will not
+tell it. `UseAction` is the clearest case: it is a `Signal`, an instant, so nothing at all
+represents the action that is under way.
 
-`MustCleanUp` components represent mandatory unfinished state. Each needs an honest completion event:
-debt reaching zero, the end of an action turn, or another rule-specific fact. A generic Player queue
-drain must not consume unrelated temporary state merely because it happens to be pending for the
-same Player. The workflow may proceed only after controlled work and its required settlement leave
-neither tasks nor unfinished temporary state.
+### Selected direction: scoped completion
 
-The suspicious case is therefore narrower: a component whose entire payload is “some task must
-wait." Trade's `TradeBarrier` is instead an exact count of unresolved prerequisites whose last
-removal emits completion. By contrast, `Owed` records gameplay information—an
-amount and denomination—that other rules can inspect and change. Do not keep a component merely as
-a stop sign when an existing completion event can express the same rule, but do not replace a narrow
-barrier until the simpler mechanism is demonstrated.
+Make the end of an interval a derived fact instead of a hand-built one. A component may declare that
+it is **scoped**: it is removed when no live task descends from it.
 
-## Recoverable dead ends are part of the model
+Descent is already recorded and needs no new state. Every triggered task carries
+`Cause(context, triggerEvent)`; every `ChangeEvent` carries its own `Cause`; so a live task's
+ancestry is a backward walk through event ordinals, ending either at the scoped component's own gain
+event or at a null cause. Because it is derived from the event log, rollback restores it for free —
+which the No-hidden-ordering-state promise requires and a cached field would not.
 
-Supporting only valid game states does not require the engine to prove in advance that every locally
-valid choice has a legal completion. An encompassing operation is speculative until it commits. A
-client may choose a branch whose later mandatory work cannot finish; the engine should report the
-dead end and roll the whole operation back rather than commit an invalid result. See the current
-transaction mechanics in [ENGINE.md](ENGINE.md#recoverable-dead-ends).
+**One precondition, unsettled.** "The scoped component's own gain event" is not yet well defined.
+The component graph is a multiset with no instance identity, and equal Types are indistinguishable
+([ENGINE.md](ENGINE.md#component-graph)). Either every scoped concrete Type must carry a
+maximum-one invariant, or scoping needs an explicit operation identity. Requiring maximum-one costs
+nothing today — `End` is bounded by `MAX 1 Phase`, `CardFront` by `MAX 1 This<Player>`, and
+`Trade<This>` by its `ColonyTile` invariant — but it has to become a stated requirement rather than
+a coincidence, and even then it does not cover a Type gained, removed, and gained again inside one
+operation. `TradeBarrier` deliberately carries no such bound because it is a count, not an identity;
+that distinction is worth preserving. Settle this before calling the mechanism generic or migrating
+`Temporary` and `TradeBarrier`.
 
-Pruning that decision tree is a client concern. A client may simulate branches, recognize common
-traps, choose a likely-good route, or ask the user. Pets and engine code should not duplicate target
-exclusions, add premature requirements, or impose sequencing simply to spare the client from a
-recoverable mistake. The engine may reject a branch as soon as the rules make its failure
-unavoidable; it need not predict that failure through additional game concepts.
+What this is expected to absorb rather than add to:
 
-Protected Habitats is the model example. An attack may narrow its broad resource choice to a
-protected Plant, Animal, or Microbe. Protected Habitats reacts to that hostile removal with `Die`,
-so the enclosing atomic attack reaches a dead end and rolls back. The card can state one direct rule
-about hostile removals; every attack and target selector need not know how to pre-exclude protected
-resources.
+- whole-World idle becomes the special case where the scope is the game, so `End` is unaffected;
+- `EventCard` gets *more* precise, not less: today it survives until unrelated players' work drains;
+- `TradeBarrier` is a hand-maintained count of the same fact;
+- the `TfmGameplay` wild-tag and `Accept`/`AcceptFromCard` bridges become deletable;
+- Head Start stops needing nested completion frames — the first action's scope completes, then a
+  second ordinary action turn is granted.
 
-During the Pets audit, actively look for restrictions and ordering machinery whose only purpose is
-to pre-prune such branches. Prefer the simpler rule-and-rollback model when it still makes every
-legal completion reachable, prevents every illegal result from committing, and rolls back the
-entire speculative operation.
+**Answer this before writing code:** does a scope wait for work it caused in another Actor's queue?
+An attack creates the victim's choice. If yes, one player's action can block on another's decision.
+If no, "the operation is over" is false while its consequences are outstanding. This is a game
+question with an engine consequence; settle it first, from the game.
 
-**Disposition: at peace with the two-stage shape.** `Transformers.invalidChangesToDie` rewrites a
-change whose Type is inactive into a `Die` gain, and `Task.normalizeForTask` then walks for `Die`
-and prunes, throwing `DeadEndException` when no arm survives. Two passes look like one fact written
-twice; they are a bottom value and its normalization, which is the right shape.
-`PremiseViability.validate` runs the same reasoning statically for a third time, and that one earns
-its place by failing a bad premise at setup instead of mid-game. The genuine duplication is only the
-three-valued interpreter it copies from `ClassLoader`, tracked in [TODO.md](../../TODO.md).
+**Stopping points.** Implement the descent query and exactly one scoped class — the interval that
+`UseAction` currently lacks — and delete exactly one `TfmGameplay` bridge. Only then consider
+migrating `Temporary`. If the first slice needs Pets vocabulary beyond one class marker and its
+removal effect, or if the descent walk turns out to need a cache on `Task`, stop and report the
+design pressure here instead of proceeding.
 
-## Choose the weakest mechanism that fits
+Until that exists, keep building narrow latches — a narrow latch is the cheapest honest mechanism
+while no completion event exists — but record each new one here. A fourth latch with this shape is
+the signal to stop hand-building them.
 
-Only impose sequencing when the game rules demand it or an otherwise valid operation cannot be
-modeled correctly without it.
+## Choosing a mechanism
 
-### 1. Prefer natural unavailability when exact
+Only impose sequencing when the game demands it or an otherwise valid operation cannot be modeled
+without it. Take the lowest rung that fits; every rung above 0 is permanent conceptual cost.
 
-Do not author sequencing when the component model already makes B impossible before A. A production
-increase tied to a newly placed unique tile cannot occur before the tile exists. This keeps order
-conditional on the actual World rather than encoding a universal priority.
+| Rung | Mechanism | Use when |
+| --- | --- | --- |
+| 0 | Nothing — natural unavailability | The component model already makes B impossible before A. Production tied to a tile cannot precede the tile. |
+| 0 | Nothing — recoverable dead end | The only consequence of a bad order is a rollback. Let the client prune; see below. |
+| 1 | Trigger `A: B` | Every A should cause B, including future sources of A. Add `IF` when state distinguishes which A qualifies. |
+| 2 | Automatic `A:: B` | A-without-B is not a coherent World to expose, and B is choice-free. |
+| 3 | `A THEN B` | Only particular authored A operations need B, and that instruction owns both stages — usually because A holds the choice B is derived from. |
+| 4 | Committed precursor | An effect must modify the operation before the component that announces it exists. |
+| 5 | Completion latch | Distributed prerequisites must all finish. Prefer a specific gate to a broad `MAX 0 Barrier`. |
 
-### 2. Prefer a trigger for a systemic consequence
+Rung 0's second form is a real design position, not laziness. Supporting only valid game states does
+not require proving in advance that every locally valid choice has a legal completion. Protected
+Habitats is the model: an attack may narrow to a protected resource, the card reacts with `Die`, the
+enclosing operation rolls back. The card states one rule and no attack needs to pre-exclude
+protected targets. During audit, actively look for restrictions and ordering machinery whose only
+purpose is to pre-prune such branches, and prefer rule-and-rollback whenever it still makes every
+legal completion reachable and lets no illegal result commit.
 
-If every A should cause B, including future sources of A, encode the rule once as `A: B` on A or on
-the component that owns the ambient rule. Use `IF` when state distinguishes which A events qualify.
+Two notes on rung 3. `THEN` waits for the A *task*, not A's transitive consequences, and B receives
+no priority over unrelated work — `A1, A2, B1, B2` is a legal order for two chains. `THEN` also
+opens one implicit Type-variable scope, which is often the real reason to use it: Mining Rights and
+Capital carry a chosen area or tile forward. That is a shared-variable constraint, not evidence that
+the later work deserves precedence. When auditing one, check both that A genuinely owns the choice
+and that the artificial order buys a readable variable relationship rather than hiding an unordered
+model.
 
-Examples:
+On rung 5, a latch controls legality, not priority; other legal work stays reorderable. Keep a
+component gate when it records gameplay information — `Owed` carries an amount and denomination that
+other rules inspect and change, and `Required` carries a parameter shortfall. The suspicious case is
+narrower than it looks: a component whose entire payload is "some task must wait."
 
-- `GlobalParameter` owns its TR reaction because every qualifying parameter step uses it.
-- `GreeneryTile` owns its oxygen reaction, conditioned on `Photosynthesis`; the corporation phase
-  creates that ambient state and the final-greenery phase removes it.
+### Audit procedure
 
-Use queued `:` by default. [Automatic `::`](#use-automatic-effects-to-preserve-player-visible-invariants)
-is the stronger form for restoring an invariant before player work appears.
+For a new A-before-B claim:
 
-### 3. Use source-local `A THEN B` when that source owns both stages
+1. Name the illegal committed result that would occur without it. If the only consequence is a
+   recoverable dead end, keep the freedom.
+2. Record authoritative wording and the smallest observable counterexample.
+3. Walk the ladder from rung 0 and take the first rung that fits.
+4. If you reach rung 5, first ask whether the real requirement is "the operation is over" — if so it
+   belongs to the section above, not to a new latch.
+5. Add a precedence test, and where freedom matters a freedom test showing representative legal
+   sibling orders remain executable. A freedom test need not make the orders converge; the choice
+   may itself be gameplay.
+6. If no committed mechanism fits, leave the case open and say so. Do not invent a completion rule
+   to close one card.
 
-`THEN` is appropriate when only particular authored A operations require B, no suitable trigger or
-state gate distinguishes them, and that instruction conceptually owns the pair. A direct Pets
-Action cost followed by its payoff, or a placement followed by a marker identifying that selected
-place, are normal examples. Standard-resource Actions instead use the removal of their finalized
-invoice as the completion event; see [ACTIONS.md](ACTIONS.md).
+## Committed precursors
 
-Completing A enqueues B in A's place. B is not immediate and receives no priority over unrelated
-tasks. `A1, A2, B1, B2` may be a legal order for two `A THEN B` chains. `THEN` waits for the A
-task, not every transitive consequence it causes.
+Some rules must modify an operation before the component that announces its result exists. A
+discount cannot wait for the card's real Tag. The canon answer is a **committed precursor**: an
+earlier component P that the operation is already committed to converting into A.
 
-`THEN` also creates one implicit Type-variable scope. Mining Rights and Capital use that variable
-to carry an area or tile choice into later work; temporal order is not its only purpose.
+`PlayTag<Class<Tag>>` is the worked example. Card play creates one `PlayTag` per printed tag before
+payment settles; discounts and alternative payment effects subscribe there; successful card entry
+then creates the real Tags with their printed multiplicity. If the play reaches a dead end, rollback
+removes the precursor and everything it caused.
 
-This can force sequencing that the game rules do not independently require. It is often still the
-most natural expression: one stage owns the Player's choice and the other is derived from that same
-choice, so put the choice-bearing stage first and its derived continuation second. Treat this as a
-shared-variable constraint, not evidence that unrelated work needs priority. During audit, verify both that
-the choice really belongs to the first stage and that the artificial order is buying a useful,
-readable Type-variable relationship rather than concealing a more natural unordered model.
-
-If every producer of A is expected to remember B, the relationship belongs in a trigger instead.
-
-### 4. Use a narrow barrier for distributed completion
-
-A barrier makes later work illegal until separately produced work finishes: card payment before
-entry or one delegated operation before the next. Prefer a specific gate to a broad `MAX 0 Barrier`.
-
-A barrier controls legality, not priority. Other currently legal work remains reorderable. Retain a
-component gate when it records gameplay information, as `Owed` and `Required` do. When its only
-meaning is that later work must wait, compare it with a direct completion event; a narrow barrier
-may still be the cheapest honest mechanism while no such event exists.
-
-Phase topology and Player control-until-drain belong to [WORKFLOW.md](WORKFLOW.md), not generic
-barriers. Whole-World drain is a workflow completion case, not a generic replacement for local
-completion events.
-
-## Model before-trigger effects with a committed precursor
-
-Some rules must modify an operation before the component that normally announces its result exists.
-A discount cannot wait for the card's real Tag, and Trade Envoys cannot wait for the fleet to have
-already flown. Canon currently handles these cases by exposing an earlier Signal that effects can
-subscribe to. Creating that precursor is not a prediction that the later component might appear: a
-successful encompassing operation is committed to creating it. If the later mandatory work reaches
-a dead end, rollback removes the precursor and all of its consequences too.
-
-Call this a **committed precursor**, or informally a pre-trigger. For precursor P and result A:
+For precursor P and result A:
 
 - create P only after the Player has selected the operation that entails A;
-- make every producer of P force the corresponding A before the operation can commit;
-- preserve the owner, selected Type, and multiplicity needed to relate P to A;
-- put on P only effects that must distinguish or modify the operation before A exists; ordinary
-  reactions should still subscribe to A; and
-- establish P-before-A with the mechanisms in this document. Being a Signal does not
-  itself provide sequencing or completion semantics.
+- make every producer of P force A before the operation can commit;
+- preserve the owner, Type, and multiplicity needed to relate P to A;
+- put on P only the effects that must act before A exists — ordinary reactions still subscribe to A;
+- establish P-before-A with the ladder above. Being a `Signal` provides no sequencing by itself.
 
-The distinction between P and A is permanent conceptual cost. It is justified when A is genuinely
-too late, or when A alone cannot distinguish how it was obtained. It is not justified merely to give
-some reactions priority. Never let P degrade into a notification that callers may emit without
-performing A, or duplicate all A reactions onto both types.
+The P/A distinction is permanent conceptual cost, justified only when A is genuinely too late or
+cannot say how it was obtained. Never let P degrade into a notification a caller may emit without
+performing A, and never duplicate A's reactions onto both.
 
-The current strong example is:
+Two live families are weaker than this and should not be described as more: `UseActionN<HasActions>`
+is generic action dispatch, not a promise of a later component Type; and `BuyCard` carries
+multiplicity but not selected card identity, which is exact for the two existing price modifiers and
+should be specialized rather than extended if a third needs more. `Pay` is not a precursor at all —
+it is created in the same `FROM` instruction that removes the resource. `Accept` is not one either;
+it exposes an optional choice. Card-play and payment lifecycles belong to
+[ACTIONS.md](ACTIONS.md) and [PAYMENTS.md](PAYMENTS.md); do not re-inventory them here.
 
-- `PlayTag<Class<Tag>>` precedes the corresponding real Tag. Card play creates one `PlayTag` per
-  printed tag before payment settles; discounts and alternative payment effects subscribe there.
-  Successful card entry then creates the card's real Tags automatically with their printed
-  multiplicity.
+## Automatic effects
 
-Card play, standard projects, conversion actions, and card-resource tender use the same precursor
-and invoice principles. Their detailed lifecycle belongs to [ACTIONS.md](ACTIONS.md); do not repeat
-that inventory here.
-Two related families should not be described more strongly than the implementation supports:
+For one concrete change the engine recursively executes all matching `::` effects before admitting
+any queued `:` effect. An automatic reaction never enters a queue and is never selectable.
 
-- `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
-  Docks use the action-qualified Trade signals to supply the selected payment resource. This is
-  generic action dispatch, however, not a promise of one uniform later component Type.
-- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain. `BuySelectedCards` first
-  creates the complete base `Owed` amount, then broadcasts one `BuyCard` per remaining selected card
-  so Polyphemos and Terralabs Research can adjust that established debt, and only then creates the
-  single invoice hosted by the live `CardPurchase` component. The invoice exposes payment and gates the
-  follow-mode `ProjectCard` gain until settlement. In real-card mode, the operation moves those
-  exact selected cards to `Hand` only after the invoice is paid. These three choice-free stages are
-  one inline automatic continuation, so automatic-sibling enumeration cannot reorder them.
-
-  The current `BuyCard` signal carries multiplicity but not selected card identity. That is exact
-  for the two existing price modifiers. If a future modifier needs to inspect individual selected
-  cards or make a choice, specialize the pricing fact or purchase operation rather than extending
-  this inline continuation with identity reconstruction or player work.
-- A failed printed global-parameter requirement creates a typed `Required<GlobalParameter>`
-  shortfall, then emits `RequirementCheck<CardFront>`. Inventrix, Morning Star, Adaptation
-  Technology, and Special Design react to that completed check stage rather than competing
-  with shortfall creation as `PlayCard` siblings. The final card entry remains gated on the absence
-  of `Required`.
-
-  `Required` itself remains owner- and parameter-scoped rather than card-scoped. That is sufficient
-  while one card-play attempt establishes and settles its shortfall before another can overlap. If
-  future rules permit overlapping attempts, specialize the shortfall with card or operation identity
-  rather than restoring sibling-order dependence.
-
-`Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
-not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
-`ResetColonyProduction`, and the colony-bonus Signals have the request/continuation shape but no
-current subscribers that need a before-A modification. `Accept` is not a committed precursor at
-all: it exposes an optional payment choice.
-
-Random automatic-effect order exposes a separate limitation in payment history. The applicable
-`ResourceValue` components all remove the same saturating `Owed`; when their total value exceeds the
-remaining debt, execution order decides which source receives credit for the last units.
-Reconstructed games still reach the same paid state, but replay summaries of individual value
-contributions vary. Do not stabilize those summaries by assigning an order to the sibling effects.
-The better repair is the payment direction in [PAYMENTS.md](PAYMENTS.md): produce complete, source-
-and invoice-qualified tender value first, then consume debt once, retaining enough evidence to
-validate excess payment and attribute every contribution. Until then, this attribution variance is
-diagnostic noise rather than a gameplay regression. That larger, nice-to-have repair is
-intentionally not folded into the card-play sequencing fixes here.
-
-### Do not make proposed changes triggerable
-
-A generic `PRE A:: B` would fire after an `A` change had been concretely resolved but before it was
-applied. Do not add this. Resolution is allowed to read the current World only because its result
-must be the next mutation. Letting B mutate first makes the resolved A stale: B could consume A's
-removal target, fill its gain limit, remove one of its dependencies, or otherwise make the exact
-change impossible. Executing A anyway can violate the component model; resolving it again permits B
-to happen in response to an A that then changes or disappears. Making either outcome roll back
-requires a new speculative-change contract rather than ordinary Effect semantics.
-
-PRE would also subscribe to an intention rather than a component fact. There is no earlier
-`ChangeEvent` for B's Cause to name, and accurate history would need a second event kind plus rules for
-listener snapshots, atomization, multiplicity, and nested PRE cycles. A committed precursor keeps
-all of that in the existing model: record a real P only after the operation commits to producing A,
-make A mandatory for successful completion, and roll both back if the operation reaches a dead end.
-The extra P Type is visible conceptual cost, but it is narrower and more truthful than making every
-resolved change observable before it exists.
-
-## Use automatic effects to preserve player-visible invariants
-
-For one concrete change, the engine recursively executes all matching automatic effects before
-admitting its queued effects:
-
-```pets
-A:: B
-A: C
-```
-
-The `A:: B` reaction itself never enters a `TaskQueue` and is never selectable. The implementation
-uses a `PendingTask` value only as an internal carrier while `Instructor` executes B inline. B may
-cause ordinary queued work, but that later work is not the automatic reaction itself.
-
-The primary reason to write `A:: B` is that the World after A but before B is not a coherent state to
-hand back to a client or Player. A may have exposed half of one conceptual fact, temporarily broken
-an invariant, or created hidden structure that the rest of the game must be able to assume exists.
-Running B inline restores that invariant before queued work is exposed, so the Player cannot inspect,
-choose against, or act on the half-established state.
-
-Use `A:: B` only when all of these are true:
+Write `A:: B` only when all three hold:
 
 - B is a fully determined, choice-free consequence of A;
-- exposing A-without-B would misrepresent the game state or expose incomplete structural
-  bookkeeping; and
+- exposing A-without-B would misrepresent the state or leave structural bookkeeping half-built; and
 - the invariant must be restored before any queued player work becomes available.
 
-The practical diagnostic is: could the engine stop after A, show that World to the Player, and let
-them choose what to do next? If yes, use queued `A: B`. If no, and B is the fixed consequence that
-makes the World coherent again, use `A:: B`. The purpose of `::` is not speed or preferred task
-order. It establishes what must already be true by the time control returns to the Player.
+The diagnostic: could the engine stop after A, show that World to the Player, and let them choose?
+If yes, use `:`. `::` is not for speed, for preferred task order, for a Player choice, or as a
+substitute for completion. It does not make execution unobservable — automatic effects produce real
+changes and trigger further effects; it prevents queued player work from interleaving.
 
-In the example, B is established before C becomes player work. This is not `B THEN C`; B and C are
-independent reactions to A. Nor does `::` make the entire execution internally unobservable:
-automatic effects can still produce observable component changes and trigger further effects. It
-specifically prevents queued player work from interleaving with the invariant restoration.
+Settled uses: generated card tags before printed effects; hidden adjacency before area bonuses;
+energy-to-heat before production payouts; fixed cost and payment bookkeeping before gated choices;
+invisible markers users must never execute by hand; completion flags derived from committed changes;
+and helper Signals whose only job is to fan out later work. Effects triggered by Admin workflow
+events use `:` by default — the workflow already controls when they become available.
 
-For automatic siblings caused by the same change, no execution order has gameplay meaning. The
-trigger precedes every one of its effects, and nested causes precede their own effects, but Class
-loading, hierarchy traversal, registration, and collection order establish no further promise. The
-engine selects the complete matching sibling batch and evaluates every trigger-side condition
-against the World at trigger time before executing any sibling.
+Two canon effects stay queued for implementation reasons, not because they are decisions:
+action-cost adjustments wait for the base action's `Owed`, and the solo production correction waits
+for production payouts. Do not make them automatic until the dependency is expressed directly.
 
-The current executor attempts the selected siblings once in its chosen order; an otherwise concrete
-sibling that is not runnable aborts the operation. The selected direction is a retrying batch:
-
-1. attempt each remaining sibling in unspecified order inside its own nested atomic scope;
-2. roll back and retain a sibling that is temporarily unrunnable;
-3. after any success, make another pass over the retained siblings; and
-4. fail the encompassing operation if one complete pass makes no progress.
-
-Retry never re-tests whether the Effect triggered, and it never turns an abstract instruction or
-Player choice into automatic work. This permits automatic siblings to declare only real causal
-dependencies instead of caring about incidental enumeration order.
-
-Settled uses include:
-
-- generated card tags before printed queued effects and tag reactions;
-- hidden adjacency creation before area bonuses and tile reactions;
-- old energy-to-heat conversion before production payouts;
-- fixed card requirement/cost/payment bookkeeping before gated choices; and
-- invisible marker creation that users should never execute manually, including the research
-  `Selecting` scope before queued card offers;
-- completion and last-call flags derived from already-committed state changes that players can
-  cause; and
-- helper Signals caused by player activity whose only purpose is to fan out later gameplay work.
-
-Effects triggered only by Admin workflow events, such as `SetupPhase`, use queued `:` by default.
-The workflow already determines when those effects become available, and there is no end-user
-decision whose queue entry must be suppressed. Use `::` there only when exposing the World between
-the trigger and its consequence would violate a concrete invariant.
-
-The canon single-colon audit leaves queued effects only when their right side is a recognizable
-gameplay event or choice, or when current sequencing semantics require a task transition. Two
-implementation-shaped cases are intentionally still queued: action-cost adjustments must wait for
-the base action's `Owed` components, and the solo production correction must wait for production
-payouts before removing M€.
-
-These are limitations of the current completion model, not evidence that those operations are
-meaningful user decisions. Do not turn them automatic until their required lifetime or dependency
-is expressed directly.
-
-No gameplay ordering guarantee may depend on mutable runtime state that rollback does not restore.
-In particular, do not rely on registration order between two automatic effects. If one must always
-follow the other, make the first event trigger the second. Use retry only when the earlier effect can
-be identified systemically by the later effect's natural temporary unavailability.
-
-Ordinary execution retains a deterministic diagnostic order. The diagnostic mode shuffles each
-automatic sibling batch, and Canon must continue to pass under that mode. Strengthen this into a
-seeded tester that executes the same operation under several permutations and compares normalized
-component state and queued-task multisets. Exact event order need not match. The known attribution
-variance from saturating `Owed` removals remains a payment-evidence defect, not a reason to order
-payment effects. Do not use `::` for a Player choice, just to manipulate queue admission, or as a
-substitute for controlled completion.
-
-Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
-reach may be wider than its payment transaction.
-
-### Put choice-free work at its semantic owner
-
-A queued Player task should exist because the Player can make a real choice: whether to act, which
-alternative to select, how to narrow it, or when to perform one of several reorderable effects. Do
-not expose a Player task merely because the implementation needs a pulse or cleanup step.
-
-Place choice-free work according to what it means:
-
-1. use `::` for a fixed consequence needed to restore a coherent World before Player work;
-2. use an Admin-assigned queued task for neutral game or workflow activity that remains meaningfully
-   observable; or
-3. use the exact lifecycle's completion event for cleanup that must wait. If no such event exists,
-   leave the mechanism open rather than attaching cleanup to the Player's whole queue.
-
-Admin assignment says that the neutral table Actor, rather than a Player, selects or narrows the
-work. It does not assert that every outcome is equivalent. A default Admin policy may act
-aggressively, while another permitted policy may make different legal choices. That strategy is not
-an engine concern. Likewise, a helper Signal may remain useful causal vocabulary without becoming a
-Player command.
-
-The separation between inline `::` effects and Admin tasks requires a dedicated audit. A fixed rule
-consequence belongs to engine execution even when it completes before the next Actor mutation. Work
-belongs to Admin when the game meaningfully presents it as activity or choice by the neutral table
-Actor. Timing alone does not decide the representation.
-
-The current documented exception is `WildTagUse?`: `TfmGameplay` completion must settle those tasks
-when they are the acting Player's only remaining work, then remove the corresponding uses. Do not
-add other client cleanup bridges merely to make a test pass; that can hide the misplaced effect,
-owner, or completion rule that made a chore player-visible.
-
-Action-local temporary state follows the same rule. Its uniquely implied settlement must complete
-with the action before workflow offers a second action. Declining that later offer is a separate
-turn decision; it must not double as current-action cleanup.
+If one automatic effect must always follow another, make the first event trigger the second. Do not
+rely on registration order, and do not add a retry loop (see Settled).
 
 ### Choose condition time explicitly
-
-These Effects test their Requirements at different times:
 
 ```pets
 A IF R: B
 A: (R: B) OR Ok
 ```
 
-The first tests R when A's exact Change Event fires. If R is false, no task is created; if it is
-true, later changes to R do not cancel B. The second always creates a task and tests R when that task
-is resolved against the later World. It also makes B optional when R is true because `Ok` remains a
-valid arm. The forms are therefore not interchangeable.
+The first tests R when A's Change Event fires: if R is false no task is created, and if true, later
+changes to R do not cancel B. The second always creates a task, tests R against the later World, and
+makes B optional because `Ok` remains a legal arm. Prefer trigger-side `IF` when R cannot change in
+the interval or when R qualifies the original event — global-parameter threshold bonuses and trade
+income measured before the track resets both deliberately freeze trigger-time state. Use the gated
+form only when later sibling work is meant to decide availability and declining is legal; Pharmacy
+Union is the model.
 
-Prefer trigger-side `IF` when R cannot change in the interval or when R qualifies the original
-event. Global-parameter threshold bonuses, trade income measured before the colony track resets,
-and Recession's test for another Player all deliberately freeze trigger-time state. Use the gated
-form only when later sibling work is meant to decide availability and declining B is legal.
-Pharmacy Union is the current model: each queued Science-tag consequence checks the then-current
-Disease count, allowing one consequence to remove the last Disease before another offers the
-corporation flip.
+## Put choice-free work at its semantic owner
 
-For one automatic batch, the current engine selects every matching effect and evaluates its
-trigger-side condition against the World before any instruction in that batch executes. Preserve
-that snapshot rule when implementing retries; an automatic sibling must not acquire or lose its
-trigger merely because another sibling has already mutated the World.
+A queued Player task should exist because the Player can make a real choice: whether to act, which
+alternative to take, how to narrow it, or when to perform one of several reorderable effects. Do not
+expose a Player task merely because the implementation wants a pulse or a cleanup step. This is the
+rule that stops new client bridges from appearing.
 
-## Whole-World idle cleanup
+Place choice-free work according to what it means:
 
-The `Temporary` class is a narrow component lifetime contract: whenever every task queue is empty,
-the engine removes every live instance of that class before notifying workflow that the operation
-has completed. Removal effects may create more components or tasks. The engine runs ordinary
-automatic work again and repeats cleanup until an idle pass finds nothing to remove. Only that
-empty pass allows the workflow callback. Work started synchronously by that callback is coalesced
-into one automatic follow-up step, and the same cleanup loop runs before its resulting position is
-recorded. Each cleanup pass remains inside an atomic transaction.
+1. `::` for a fixed consequence needed to restore a coherent World before Player work;
+2. an Admin-assigned queued task for neutral game or workflow activity that stays meaningfully
+   observable; or
+3. the exact lifecycle's completion event for cleanup that must wait. If no such event exists, leave
+   the mechanism open rather than attaching cleanup to the Player's whole queue.
 
-`EventCard` uses this contract. Its immediate work and tag reactions therefore finish while the
-live card still exists, and removing it creates the corresponding `PlayedEvent`. Law Suit is the
-deliberate exception in behavior, not machinery: its authored consequence moves the card directly
-to `PlayedEvent`, so there is no EventCard left for idle cleanup.
+Admin assignment says the neutral table Actor selects or narrows the work; it does not assert that
+every outcome is equivalent. A default Admin policy may act aggressively while another legal policy
+chooses differently, and that strategy is not an engine concern. A helper `Signal` may likewise stay
+useful causal vocabulary without becoming a Player command. Timing alone does not decide the
+representation: a fixed rule consequence belongs to engine execution even when it happens to
+complete before the next Actor mutation.
 
-The reusable shape is a concrete operation component whose gain creates all work that must precede
-completion and whose automatic removal effect emits its fixed completion consequence:
+Action-local temporary state follows the same rule. Its settlement must complete with the action,
+before workflow offers a second action. Declining that later offer is a separate turn decision and
+must not double as current-action cleanup. `WildTagUse?` is the one documented exception, and it is
+a bridge to delete rather than a pattern to copy.
+
+## Cleanup vocabulary
+
+There is one invariant here and three policies for satisfying it, and the declarations should say so
+directly. Today `Temporary` is not a `MustCleanUp`, so the sweep that satisfies the invariant is not
+covered by the check that enforces it.
+
+| Concept | Meaning |
+| --- | --- |
+| `MustCleanUp` | The invariant: this must not outlive its operation. |
+| `Signal` | Policy 1 — removes itself immediately (`This:: -This!`). |
+| `Barrier` | Policy 2 — removed by the game rule that owns it. |
+| `Temporary` | Policy 3 — the engine removes it when the World is idle. |
+
+Prefer making `Temporary` a `MustCleanUp` so one check covers all three, and read the `Temporary`
+sweep as one policy for satisfying the invariant rather than as a second, opposite mechanism.
+
+`MustCleanUp` components represent mandatory unfinished state, and each needs an honest completion
+event: debt reaching zero, the end of an action, or another rule-specific fact. A generic Player
+queue drain must not consume unrelated temporary state merely because it is pending for the same
+Player.
+
+### Current behavior: whole-World idle cleanup
+
+`Temporary` is a narrow component-lifetime contract. Whenever every task queue is empty, the
+outermost atomic scope removes every live instance of that class before notifying workflow that the
+operation completed. Removal effects may create more components or tasks, so the engine runs
+ordinary automatic work again and repeats cleanup until an idle pass finds nothing left to remove.
+Only that empty pass allows the workflow callback. Work the callback starts synchronously is
+coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
+resulting position is recorded. Every pass happens inside an atomic transaction. See
+`AtomicOperationScope.performIdleCleanup` and `Engine.removeTemporaryComponents`.
+
+Two classes use it:
+
+- **`EventCard`** — its immediate work and tag reactions finish while the live card still exists,
+  and removing it creates the corresponding `PlayedEvent`. Law Suit is a deliberate exception in
+  behavior, not in machinery: its authored consequence moves the card straight to `PlayedEvent`, so
+  no EventCard is left for idle cleanup.
+- **`End`** — the live scoring operation, and also the terminal `Phase`. Gaining it queues every
+  `End` scoring reaction; Awards queue `MeasureAward<Award>`, which establishes each Player's
+  `AwardTally` automatically and queues `AssignAwardPlaces<Award>`. Once those tasks and all their
+  consequences drain, removing `End` leaves no live phase and queues multiplayer victory assignment.
+
+The reusable shape is a concrete operation component whose gain creates all the work that must
+precede completion, and whose automatic removal effect emits the fixed completion consequence:
 
 ```pets
 CLASS Operation : Temporary {
@@ -516,206 +397,115 @@ CLASS Operation : Temporary {
 }
 ```
 
-Use this only when whole-World idleness is the real completion fact. It deliberately waits for all
-queued work, not merely the tasks caused directly by `Operation`. That is exact for endgame scoring
-and for a Trade performed inside one otherwise isolated controlled action; it is too broad for an
-arbitrary nested action or one cleanup item among unrelated Player work.
+Use it only when whole-World idleness really is the completion fact. It deliberately waits for all
+queued work, not merely the work `Operation` caused: exact for endgame scoring, too broad for a
+nested action or one cleanup item sitting among unrelated Player work. That breadth is the
+limitation scoped completion is meant to remove.
 
-Endgame scoring is the second current application:
+## Verification we owe
 
-- **Endgame scoring:** `End` is the live `Temporary` scoring operation. Its gain queues every
-  `End` scoring reaction. It is also the terminal `Phase`. Once those tasks and all of their
-  consequences drain, removing `End` leaves no live phase and queues multiplayer victory
-  assignment directly. Awards queue `MeasureAward<Award>` from `End`; that event establishes every
-  Player's `AwardTally` automatically and queues `AssignAwardPlaces<Award>`. This replaces the
-  former `EndPhase`, `FinalScore`, and two `THEN` orderings while preserving the real completion
-  facts.
+Both proposals target the weak rows in The promises. Neither needs new engine concepts.
 
-Trade cannot use this rule because unrelated action-scoped work, such as a wild-tag choice, may
-legitimately keep the global task pool nonempty. `Trade<ColonyTile>` is instead the generational
-record. Its automatic `MAX 0 (Trade - TradeFleet)` check rejects an over-capacity gain atomically
-and creates one `TradeBarrier` as a completion latch. Each pre-flight card creates another for its
-own choice. Removing the last prerequisite emits the owner-attributed `FinishTrade` signal, which
-queues income, individual colony bonuses, and track reset. The persistent `TradeFleet` count
-expresses capacity; no fleet state transmutation remains.
+- **Automatic sibling permutation, in the suite.** `SOLARNET_RANDOM_AUTOMATIC_EFFECTS` shuffles each
+  batch but only when someone remembers to set it. Turn it into a seeded test that runs one
+  operation under several permutations and compares normalized component state and queued-task
+  multisets. Exact event order need not match. The known saturating-`Owed` attribution variance is a
+  payment-evidence defect ([PAYMENTS.md](PAYMENTS.md)), not a reason to order payment effects.
+- **Player task-order permutation.** Nothing systematically tests Freedom, which is the larger
+  claim. Recorded games identify tasks by instruction match rather than position, so a replay can
+  choose legally among pending tasks in a different order and compare committed state at the next
+  stable point. Start with one recorded game and one seed.
 
-This rule neither removes pending tasks nor identifies the end of a nested action. `WildTagUse` and
-other task-lifetime problems therefore still need their own exact completion rule.
+One honest divergence to fix while nearby: presentation order is documented as non-semantic but is
+load-bearing in the API. `doTask(narrowing, taskNumber)` takes a 1-based position, `autoExecNext`
+falls back to `eligible.first()`, and `TfmGameplay` computes a positional `selectionTaskNumber`.
+Match on instruction or cause instead of position wherever a caller has that option.
 
-## Controlled completion (unresolved)
+## Live agenda
 
-No general completion mechanism is selected. A Player queue drain can combine unrelated work and
-can delay a local completion event until too much other work has finished, so do not use it as the
-generic mechanism. Queue cardinality has no gameplay meaning.
+Ordered. Stop and report rather than growing any of these into cross-module vocabulary.
 
-Keep the problems separate:
+1. Settle both blocking questions under Selected direction — cross-Actor scope and scoped-component
+   identity — then land the first scoped-completion slice and delete one `TfmGameplay` bridge.
+2. Add the two permutation tests above.
+3. Make `Temporary` a `MustCleanUp` and collapse the two idle sweeps into one invariant with one
+   check.
+4. **Head Start** — its sibling tasks currently let its two actions interleave. Prefer using the
+   current Prelude turn for the first action and granting a second ordinary action turn after normal
+   settlement. If authoritative evidence demands one indivisible operation, record the simpler timing
+   as a deliberate house rule rather than disguising it as exact fidelity.
+5. **Mars University** — incremental `THEN` permits two discards before either draw when two
+   activations trigger. Needs authoritative evidence on whether each discard/draw exchange is
+   indivisible, and therefore whether work inside one activation may be split around another.
+6. **Candidate draw/select/play** — Valley Trust, Merger, and New Partner use hand cards in
+   incremental chains, so candidates are neither isolated nor forced to continue. If a fix is
+   selected, prefer one operation-scoped candidate representation.
 
-- **Payment:** replace parallel optional tender tasks with one required payment-choice task at a
-  time. The task means “pay one currently accepted unit”; its concrete refinements name the legal
-  resource or card-resource tenders. After a payment, create another such task only if matching
-  `Owed` remains. Reaching zero debt removes Billing directly and immediately enables its payoff or
-  card entry. Payment completion does not wait for the rest of the Player's queue.
-- **Head Start:** avoid nested completion frames. Treat its first immediate action as work in the
-  current Prelude turn. After normal end-of-action settlement completes, grant a second ordinary
-  action turn. If authoritative evidence requires the two printed actions to form one indivisible
-  operation, document this simpler timing as a deliberate house rule rather than disguising it as
-  exact fidelity. The engine still needs one precise end-of-action completion hook.
-- **Workflow return:** use the existing Player-turn control frame as the candidate unit. Required
-  action settlement must finish before the workflow offers a second action or passes control.
+Required actions are deliberately outside this audit: the selected model removes the component
+offering ordinary standard actions while a `RequiredAction` exists, making them naturally
+unavailable.
 
-`WildTagUse` is a proving case for that hook: sequencing must replace its documented `TfmGameplay`
-cleanup bridge without removing the bridge before the replacement exists.
+These encodings are considered principled and need no re-litigation: global-parameter change before
+TR and threshold reactions; tile placement before adjacency and bonuses, with the reactions as
+siblings; `UseCardAction` placing the `ActionUsedMarker` before `UseAction`; trade income and
+individual colony bonuses as reorderable siblings; and card-resource `THEN` chains carrying X into an
+`Owed` reduction.
 
-Any future engine-owned completion hook must run inside the enclosing atomic transaction before it
-commits, so failure cannot expose partially settled state. Client autoexecution policy is separate
-and must not define when engine settlement occurs.
+## Settled
 
-## Atomicity audit hypotheses
+Decisions already made. Overturn one by showing its reasoning wrong — new evidence, a changed
+constraint, a real case — not by rediscovering the cost.
 
-**Unconfirmed working hypotheses, not game rules.** The unanswered
-[atomicity thread](https://boardgamegeek.com/thread/2626062/which-instructions-are-atomic)
-suggested these as useful cases to test for indivisibility:
+- **Generic `PRE A:: B` — rejected.** Firing after A is resolved but before it is applied makes the
+  resolved A stale: B could consume A's removal target, fill its gain limit, or remove a dependency.
+  Executing A anyway violates the component model; resolving again lets B react to an A that then
+  changes. It would also subscribe to an intention, with no `ChangeEvent` for a Cause to name.
+  A committed precursor keeps all of this inside the existing model.
+- **Retrying automatic sibling batches — dropped.** The proposal was to retry temporarily unrunnable
+  siblings in nested scopes until a pass makes no progress. It contradicts the Snapshot promise it
+  was meant to serve: a sibling retried later executes against a World that other siblings have
+  already mutated, though its trigger condition was evaluated before any of them ran. It also lets
+  authors leave real causal dependencies undeclared. Keep the single pass; when one automatic effect
+  must follow another, make the first trigger the second.
+- **Player queue drain as the generic completion mechanism — rejected.** It combines unrelated work
+  and delays local completion arbitrarily. Queue cardinality has no gameplay meaning.
+- **Ordering by presentation — rejected.** Task numbers are ephemeral labels. If presentation ever
+  follows authored Class, hierarchy, and Effect order, encode that as immutable provenance assigned
+  at creation; never derive gameplay precedence from it, and never give effects a way to reach into
+  the pool.
+- **Stabilizing payment attribution by ordering effects — rejected.** Applicable `ResourceValue`
+  components remove the same saturating `Owed`, so order decides who is credited with the last
+  units. Reconstructed games still reach the same paid state. The repair is the payment direction in
+  [PAYMENTS.md](PAYMENTS.md), not sibling precedence.
+- **The `Die` produce/consume pipeline — at peace.** `Transformers.invalidChangesToDie` emits the
+  marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
+  duplicated fact. `PremiseViability` runs the same reasoning statically and earns its place by
+  failing a bad premise at setup. Only the three-valued interpreter it copies from `ClassLoader` is
+  genuine duplication, and that is in [TODO.md](../../TODO.md).
 
-- paying for and putting a card into play, including tags and immediate effects;
-- direct transfers and exchanges;
-- one stated amount of resource or production change;
-- one multi-card draw or discard;
-- fleet movement, trade income, and track reset, while leaving colony bonuses as triggered
-  siblings; and
-- possibly each individual right-hand side of a triggered Effect.
+## Research on file
 
-The same investigation suggested these should remain observably decomposed:
+**Unconfirmed hypotheses, not game rules.** The unanswered
+[atomicity thread](https://boardgamegeek.com/thread/2626062/which-instructions-are-atomic) proposed
+that these may be indivisible: paying for and putting a card into play; direct transfers and
+exchanges; one stated amount of resource or production change; one multi-card draw or discard; and
+fleet movement with trade income and track reset. It proposed that these stay observably decomposed:
+multi-step global-parameter changes, so threshold bonuses cannot be skipped; the ocean and M€ loss
+printed on one Hellas space; and separate Philares reactions to separate adjacencies.
 
-- multi-step global-parameter changes, so threshold bonuses cannot be skipped;
-- the ocean placement and M€ loss printed on one Hellas space; and
-- separate Philares reactions to separate new adjacencies.
+When evaluating any "atomic" claim, answer three questions separately — they do not imply each
+other: whether player work may interleave; whether intermediate changes fire or observe effects; and
+what multiplicity a trigger counts as one effect. Designer discussion distinguishes component-level
+steps from Effect identity: gaining 5 M€ may be several changes while an "if one or more" trigger
+still sees one Effect, and a player cannot repartition a 7 M€ loss to multiply Mons Insurance.
 
-Designer discussion linked from that investigation also distinguished component-level steps from
-Effect identity: gaining 5 M€ may create separate changes while an “if one or more” trigger still
-observes one original Effect. A Player cannot repartition a 7 M€ loss into seven Effects to multiply
-Mons Insurance. Any implementation must therefore test the three dimensions above separately.
+Do not initiate rule research during routine implementation work. When the user asks for it, find
+the linked Jacob Fryxelius ruling or preserve the uncertainty; do not infer an answer from an
+unanswered community post.
 
-## Settled families
+## Elsewhere
 
-Fixed and X-scaled standard-resource Action costs use provider- and action-qualified invoices whose
-removal unlocks the payoff. Costless and direct costs retain normal Pets sequencing. See
-[ACTIONS.md](ACTIONS.md).
-
-These current encodings are considered principled:
-
-- Global-parameter change before TR and threshold reactions.
-- Tile placement before adjacency, bonuses, and placement reactions; the reactions remain siblings.
-- Direct spend-to-benefit offers on Olympus Conference, Recyclon, and St. Joseph of Cupertino
-  Mission.
-- Neptunian Power Consultants using a named optional signal before creating its spend-to-benefit
-  payment sequence.
-- Card-resource payment modifiers whose `THEN` carries X into an `Owed` reduction.
-- Capital, Flooding, Mining Rights, and Mining Area carrying one selected identity into a follow-up.
-- Spend-enabled effects establishing `Owed`, `Accept`, and a barrier before their payoff.
-- Trade income and individual colony bonuses as reorderable siblings. Do not chain all colony
-  bonuses after income.
-- `UseCardAction` creating the selected card's `ActionUsedMarker` before `UseAction`. The marker
-  prevents a second use as soon as the card is definitively chosen. Viron consequently and
-  explicitly excludes itself from the already-used cards it may repeat.
-
-Current behavior also correctly relies on natural unavailability for Immigrant City and some Energy
-Tapping states. Colony placement currently queues track adjustment and placement bonus as siblings;
-this is acceptable only while nothing can observe their relative order.
-
-## Rules that deliberately impose no order
-
-- A card's direct Effects are normally freely reorderable.
-- Rebates, tag reactions, Mars University, Olympus Conference, and other persistent reactions may
-  be resolved before, after, or between direct Effects once triggered, subject to ordering inside
-  one Effect.
-- Trade income and each colony bonus are separate siblings controlled by the active trader. Pluto
-  may use trade-income cards before its own draw/discard bonus.
-- Separate activations of one Effect remain separate tasks. Whether work inside one Mars University
-  activation may be split around another activation remains under audit.
-
-## Known defects or missing rules
-
-- **Head Start:** current sibling tasks let its actions interleave. Prefer using the current Prelude
-  turn for the first action and granting a second ordinary action turn only after normal
-  end-of-action settlement, without nested completion frames. Record that timing as a house rule if
-  authoritative evidence requires a stricter indivisible operation.
-
-Required actions are intentionally outside this sequencing audit. The selected future model removes
-the component that offers ordinary standard actions while a RequiredAction exists, making those
-actions naturally unavailable. That postponed action-availability work does not require priority
-among the RequiredAction's tasks.
-
-## Open design or rules audits
-
-- **Mars University:** current incremental `THEN` permits two discards before either draw when two
-  activations trigger. Determine from authoritative evidence whether each discard/draw exchange is
-  indivisible.
-- **Candidate draw/select/play:** Valley Trust, Merger, and New Partner use hand cards in
-  incremental chains, so candidates are neither isolated nor forced to continue. Prefer one
-  operation-scoped candidate representation if a fix is selected.
-- **Controlled completion:** identify the exact end-of-action hook needed by workflow, Head Start,
-  second-action offers, and `WildTagUse`. Keep auditable `Owed` and `Required` facts; do not infer
-  successful payment from queue drain.
-
-## Workflow precedence
-
-Phase and turn precedence belongs to [WORKFLOW.md](WORKFLOW.md#domain-requirements). This document
-owns only the generic sequencing mechanisms used to express those rules.
-
-## Audit method
-
-For a new A-before-B claim:
-
-1. Identify the illegal committed result or rules violation that would occur without the ordering.
-   If the only consequence is a recoverable dead end, preserve the freedom and rely on rollback.
-2. Record authoritative wording and the smallest observable counterexample.
-3. If an effect must modify A before A exists, ask whether a committed precursor P can truthfully
-   promise A; audit every producer of P and keep after-A reactions on A.
-4. Ask whether A or the ambient rule owner should trigger B, possibly with `IF`.
-5. If A-without-B is not a coherent state to expose and B is choice-free, use automatic `A:: B`;
-   otherwise prefer queued `A: B`.
-6. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
-7. If `THEN` exists for a shared Type variable, verify that A naturally owns the choice and B is
-   derived from it; do not mistake that local artificial order for broader game precedence.
-8. Otherwise identify the smallest completion fact: a local condition may call for a barrier, an
-   entire workflow step may call for whole-World completion, and delegated narrowing may call for
-   retaining a controller across task reassignment. Do not introduce nested completion frames by
-   default.
-9. Use only a committed mechanism; leave the case open when it requires an exploratory completion
-   rule.
-10. Add a precedence test and, when relevant, a freedom test that demonstrates alternative legal
-    orders. Do not require those orders to converge unless the game rule itself makes order
-    irrelevant.
-11. Classify the result above. Update the owning section here when focused work remains; use
-    `TODO.md` only for a miscellaneous follow-up outside this plan.
-
-## Open questions for the next revision
-
-1. Should the new document primarily be a design plan, or also remain the authoritative explanation
-   of current sequencing?
-2. Do we still strongly endorse the unordered-task-pool model?
-3. Should deterministic presentation order remain explicitly non-semantic?
-4. Is preserving every rules-valid ordering still a major goal, even without a demonstrated card
-   interaction?
-5. Should recoverable dead ends remain preferred over proactively pruning risky choices?
-6. Do components still represent facts while tasks represent unfinished activity, with tasks
-   immutable after creation?
-7. Is `THEN` fundamentally a local continuation, or do we want to reduce or remove it over time?
-8. Is automatic `::` still best understood as restoring a coherent player-visible World?
-9. Do we still want retrying automatic sibling batches, or has that become speculative complexity?
-10. Should trigger conditions continue to use a snapshot taken before any automatic sibling runs?
-11. Is whole-World idle cleanup a lasting primitive, or an experiment we should contain?
-12. Do we want a general controlled-completion concept, or lifecycle-specific completion events
-    only?
-13. Is “end of the current action, including required settlement” the next central problem?
-14. Should payment be treated here as a proving case, or delegated entirely to `PAYMENTS.md`?
-15. Which concrete case should drive the next design: `WildTagUse`, Head Start, card purchase, or
-    something else?
-16. Should uncertain Terraforming Mars rulings remain here, or move into focused research notes?
-17. Should settled card-by-card examples mostly disappear in favor of a few representative cases
-    and source links?
-18. Should rejected ideas such as generic `PRE` stay as concise guardrails, or be removed?
-19. Do we want an ordered roadmap with explicit stopping points, or principles plus an unordered
-    audit list?
-20. What would make the rewrite successful six months from now: quick reorientation,
-    implementation guidance, preserved reasoning, or all three in a much shorter form?
+Phase and turn precedence: [WORKFLOW.md](WORKFLOW.md). Current task lifecycle, selection, and
+execution: [ENGINE.md](ENGINE.md). Agent policies and the autoexecution loop:
+[AUTOEXEC.md](AUTOEXEC.md). Delegated narrowing and controllers: [IDENTITY.md](IDENTITY.md). Action
+costs and invoices: [ACTIONS.md](ACTIONS.md). Payment evidence: [PAYMENTS.md](PAYMENTS.md).

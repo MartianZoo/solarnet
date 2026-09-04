@@ -26,7 +26,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
 | Event history, recordings, checkpoints, or rollback | [`ENGINE.md`](ENGINE.md#events-and-timeline) | Current model |
-| Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and audit |
+| Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
 | Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
 | Action costs, invoices, or action identity | [`ACTIONS.md`](ACTIONS.md) | Current model |

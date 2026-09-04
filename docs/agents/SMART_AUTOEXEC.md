@@ -221,7 +221,7 @@ original paths.
 
 Changing the default to `SAFE` left 21 of 54 script tests unfinished because independent
 consequences commonly coexist
-([SEQUENCING.md](SEQUENCING.md#mental-model-preserve-the-whole-valid-decision-tree)). That establishes
+([SEQUENCING.md](SEQUENCING.md#the-promises)). That establishes
 need, but not which ambitious proof rule will pay for itself.
 
 Before implementing a deferred rule, run a diagnostic-only policy over the replay suites and record
