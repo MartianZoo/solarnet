@@ -104,7 +104,8 @@ CLASS IndustrialComplex : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: -18 MC, PROD[1 MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]
+  This IF MAX 0 QuickStartVariant: -18 MC, PROD[1 MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]
+  This IF QuickStartVariant: -18 MC, PROD[MC / 7 - MC, Steel / 2 - Steel, Titanium / 2 - Titanium, Plant / 2 - Plant, Energy / 2 - Energy, Heat / 2 - Heat]
 }
 
 CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<PreludeCard>> {

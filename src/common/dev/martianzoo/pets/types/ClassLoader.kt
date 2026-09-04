@@ -8,15 +8,6 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect.Trigger
-import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
-import dev.martianzoo.pets.ast.Effect.Trigger.Or
-import dev.martianzoo.pets.ast.Effect.Trigger.SelfTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.Transform
-import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -126,26 +117,6 @@ private constructor(
   private val queue = ArrayDeque<ClassName>()
   private val requestedBy = mutableMapOf<ClassName, ClassName?>()
 
-  private enum class Truth {
-    TRUE,
-    FALSE,
-    UNKNOWN,
-  }
-
-  private fun truthOfAll(values: Collection<Truth>): Truth =
-      when {
-        Truth.FALSE in values -> Truth.FALSE
-        values.all { it == Truth.TRUE } -> Truth.TRUE
-        else -> Truth.UNKNOWN
-      }
-
-  private fun truthOfAny(values: Collection<Truth>): Truth =
-      when {
-        Truth.TRUE in values -> Truth.TRUE
-        values.all { it == Truth.FALSE } -> Truth.FALSE
-        else -> Truth.UNKNOWN
-      }
-
   /** Loads [names] together, advancing their activation closure one complete frontier at a time. */
   internal fun loadAll(names: Collection<ClassName>) {
     enqueue(names, requestedByClass = null)
@@ -234,49 +205,16 @@ private constructor(
       declaration: ClassDeclaration,
       activeNames: Set<ClassName>,
   ): Set<ClassName> = buildSet {
+    val interpreter =
+        InhabitanceInterpreter(
+            classIsUninhabited = { it !in activeNames },
+            exactCount = ::configuredCount,
+        )
+
     fun collectStructural(expression: Expression) {
       if (!expression.complement) add(expression.className)
       expression.arguments.forEach(::collectStructural)
     }
-
-    fun isUninhabited(expression: Expression): Boolean {
-      if (expression.className == THIS) return false
-      if (!expression.complement && expression.className !in activeNames) return true
-      return expression.arguments.any(::isUninhabited)
-    }
-
-    fun truthOf(requirement: Requirement): Truth =
-        when (requirement) {
-          is Requirement.Counting if requirement.metric is Metric.Count -> {
-            val metric = requirement.metric
-            val configuredCount = configuredCount(metric.expression)
-            when {
-              configuredCount != null ->
-                  if (configuredCount in requirement.range) Truth.TRUE else Truth.FALSE
-              isUninhabited(metric.expression) ->
-                  if (0 in requirement.range) Truth.TRUE else Truth.FALSE
-              else -> Truth.UNKNOWN
-            }
-          }
-          is Requirement.Counting -> Truth.UNKNOWN
-          is Requirement.And -> truthOfAll(requirement.requirements.map(::truthOf))
-          is Requirement.Or -> truthOfAny(requirement.requirements.map(::truthOf))
-          is Requirement.Eval,
-          is Requirement.Transform -> Truth.UNKNOWN
-        }
-
-    fun triggerReachable(trigger: Trigger): Boolean =
-        when (trigger) {
-          is SelfTrigger -> true
-          is OnGainOf -> !isUninhabited(trigger.expression)
-          is OnRemoveOf -> !isUninhabited(trigger.expression)
-          is Or -> trigger.triggers.any(::triggerReachable)
-          is ByTrigger -> triggerReachable(trigger.inner) && !isUninhabited(trigger.by)
-          is IfTrigger ->
-              triggerReachable(trigger.inner) && truthOf(trigger.condition) != Truth.FALSE
-          is XTrigger -> triggerReachable(trigger.inner)
-          is Transform -> triggerReachable(trigger.inner)
-        }
 
     fun collectRequiredInhabitants(requirement: Requirement) {
       when (requirement) {
@@ -296,7 +234,7 @@ private constructor(
         is Gain -> collectStructural(tree.gaining)
         is Transmute -> collectStructural(tree.gaining)
         is Gated -> {
-          if (truthOf(tree.gate) != Truth.FALSE) collectInstruction(tree.inner)
+          if (!interpreter.requirementIsFalse(tree.gate)) collectInstruction(tree.inner)
         }
         else ->
             tree
@@ -314,7 +252,7 @@ private constructor(
     declaration.defaultsDeclaration.forClass?.let(::add)
     declaration.invariants.forEach(::collectRequiredInhabitants)
     declaration.effects
-        .filter { triggerReachable(it.trigger) }
+        .filter { interpreter.triggerIsReachable(it.trigger) }
         .forEach { collectInstruction(it.instruction) }
     declaration.allNodes
         .flatMap { it.descendantsOfType<ClassName>() }

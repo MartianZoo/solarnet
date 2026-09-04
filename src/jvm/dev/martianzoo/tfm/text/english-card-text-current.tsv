@@ -388,7 +388,7 @@ ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 t
 EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. [2 AdvanceColonyTracks BY Engine].
 FloatingTradeHub	Floating Trade Hub		Action: Add 2 floaters to any card, or remove one or more floaters from this card to [X StandardResource].
 FocusedOrganization	Focused Organization	Draw 1 card. Gain a standard resource.	Action: Discard 1 card, then [-StandardResource], then [FocusedOrganizationGain].
-IndustrialComplex	Industrial Complex	Remove 18 M€. [Production<Class<MC>> / 6 - Production<Class<MC>>]. [Production<Class<Steel>> / 1 - Production<Class<Steel>>]. [Production<Class<Titanium>> / 1 - Production<Class<Titanium>>]. [Production<Class<Plant>> / 1 - Production<Class<Plant>>]. [Production<Class<Energy>> / 1 - Production<Class<Energy>>]. [Production<Class<Heat>> / 1 - Production<Class<Heat>>].
+IndustrialComplex	Industrial Complex		Effect: [This IF MAX 0 QuickStartVariant: -18 MC, PROD[MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]]. [This IF QuickStartVariant: -18 MC, PROD[MC / 7 - MC, Steel / 2 - Steel, Titanium / 2 - Titanium, Plant / 2 - Plant, Energy / 2 - Energy, Heat / 2 - Heat]].
 MainBeltAsteroids	Main Belt Asteroids	Remove 5 M€. 1 VP per 2 asteroids on this card.	Action: Add 1 asteroid to any card. / Effect: When you add an asteroid to this card, gain 1 titanium.
 NobelPrize	Nobel Prize	[WildTag<This>]. Gain 5 M€. Draw 2 cards with requirements.
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.

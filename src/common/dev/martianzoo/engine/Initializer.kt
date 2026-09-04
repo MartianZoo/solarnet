@@ -33,7 +33,11 @@ internal class Initializer(
     timeline.commit()
   }
 
-  /** Executes a bootstrap instruction without creating a task for the instruction itself. */
+  /**
+   * Executes a bootstrap instruction without creating a task for the instruction itself. Bootstrap
+   * creation is explicitly mandatory because failure to create the first Actor or an initial
+   * Component must stop initialization rather than become an omitted change.
+   */
   private fun execute(instruction: String, cause: Cause?): TaskResult = timeline.atomic {
     instructor.execute(agent.parse<Instruction>("$instruction!"), cause).forEach(tasks::addTasks)
   }

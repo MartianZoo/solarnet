@@ -101,9 +101,9 @@ The reusable command shell and completion framework live beside concrete Canon c
 syntax. A focused application profile or `TfmScriptSession` should own those contributions if this
 area is refactored.
 
-The REPL similarly combines reusable JLine/socket adapters with REgo construction, branding,
-history, and launcher commands. Keep executable wiring application-specific; extract adapters only
-when another caller needs them.
+The REPL similarly combines its JLine adapter with REgo construction, branding, history, and
+launcher behavior. Keep executable wiring application-specific; extract the adapter only when
+another caller needs it.
 
 ## Reusable behavior inside `tfm`
 
@@ -161,7 +161,7 @@ cleanup, the dependencies suggest this order:
    move the narrow standard-resource lowering with it.
 3. Split generic Catalog assembly/validation from Terraforming Mars registries.
 4. Separate the reusable script command shell from Terraforming Mars application wiring.
-5. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
+5. Separate the reusable JLine adapter from REgo branding and launcher behavior.
 6. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
 7. Clean up dependency directions made visible by those moves.
 

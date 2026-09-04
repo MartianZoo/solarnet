@@ -15,9 +15,10 @@ internal class MarsMapDefinitionTest {
 
       // The map areas below are code-generated based on the following comment
       //
-      //      VS    L
-      //  V2P   WPP   WPC
-      //     LSS    LC
+      //                  V    LPP
+      //   W    LSS    LC    L
+      //                  N
+      //   L    W3H
       //
 
       CLASS Demo_1_1 : VolcanicArea { row = 1; column = 1; Tile<This>: Steel }
@@ -30,11 +31,23 @@ internal class MarsMapDefinitionTest {
     map.className shouldBe cn("DemoMap")
     map.defaultMilestones shouldBe emptySet()
     map.defaultAwards shouldBe emptySet()
-    map.areas.shouldHaveSize(7)
-    map.areas[1, 1]!!.code shouldBe "VS"
-    map.areas[1, 1]!!.bonusText shouldBe "Steel"
-    map.areas[1, 1]!!.className shouldBe cn("Demo_1_1")
-    map.areas[1, 1]!!.asClassDeclaration.properties shouldBe
-        mapOf(PropertyName("row") to NumberValue(1), PropertyName("column") to NumberValue(1))
+    map.areas.shouldHaveSize(9)
+    map.areas.map { it.row to it.column } shouldBe
+        listOf(
+            1 to 3,
+            1 to 4,
+            2 to 1,
+            2 to 2,
+            2 to 3,
+            2 to 4,
+            3 to 4,
+            4 to 2,
+            4 to 3,
+        )
+    map.areas[2, 2]!!.code shouldBe "LSS"
+    map.areas[2, 2]!!.bonusText shouldBe "2 Steel"
+    map.areas[2, 2]!!.className shouldBe cn("Demo_2_2")
+    map.areas[2, 2]!!.asClassDeclaration.properties shouldBe
+        mapOf(PropertyName("row") to NumberValue(2), PropertyName("column") to NumberValue(2))
   }
 }
