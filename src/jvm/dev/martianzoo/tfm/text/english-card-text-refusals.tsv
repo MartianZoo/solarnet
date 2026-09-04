@@ -1,7 +1,7 @@
 count	reason	examples
 24	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | SpecialDesign: SpecialDesign_NextCardEffect
-13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<MC>> / 6 - Production<Class<MC>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
-8	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2 MC] | Vitor: This IF Class<Award>: Vitor_RequiredAction
+10	UNSUPPORTED_EFFECT_TRIGGER	TharsisRepublic: This IF SoloMode: PROD[2 MC] | Vitor: This IF Class<Award>: Vitor_RequiredAction
+7	UNSUPPORTED_SCALING	CloudTourism: Production<Class<MC>> / EarthTag MAX VenusTag | SoilStudies: Plant / (VenusTag OR PlantTag OR Colony)
 3	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
 2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X MC | VenusShuttles: MC / 12 - VenusTag -> VenusStep
 2	UNSUPPORTED_INSTRUCTION_KIND	EarlyColonization: 2 AdvanceColonyTracks BY Engine | WorldGovernmentAdvisor: WorldGovernmentTerraforming BY Engine
@@ -10,6 +10,6 @@ count	reason	examples
 1	UNSUPPORTED_CARD_RESOURCE_CHANGE	BoardOfDirectors: -Director<This>
 1	UNSUPPORTED_CHANGE_QUANTITY	FloatingTradeHub: X StandardResource
 1	UNSUPPORTED_DECLARED_CHANGE	Spire: Spire_RequiredAction
-1	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Player<>> OR MyProductionWasDecreased<Owner, Player<>>): 3 MC FROM MC<Player<>>
+1	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>
 1	UNSUPPORTED_SEQUENCE	SponsoredAcademies: -ProjectCard THEN (2 ProjectCard, SponsoredAcademies_Signal)
 1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	FocusedOrganization: -StandardResource

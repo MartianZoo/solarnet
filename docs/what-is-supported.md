@@ -6,7 +6,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 43 / 48 | 395 / 426 | 65 / 70 | 7 / 7 | 17 / 18 | 9 / 10 | 45 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
+| TOTALS | 43 / 48 | 395 / 426 | 66 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 45 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
 | Terraforming Mars | 9 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
@@ -19,7 +19,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
 | Milestones & Awards | - | - | - | - | - | - | 31 / 35 | 34 / 35 | - | - | - | - |
-| Promos through 2026-08 | 9 / 10 | 70 / 73 | 9 / 10 | - | 3 / 3 | - | - | - | - | 0 / 5 | - | - |
+| Promos through 2026-08 | 9 / 10 | 70 / 73 | 10 / 11 | - | 3 / 3 | - | - | - | - | 0 / 5 | - | - |
 
 Totals count each distinct published goal definition once. Product rows count the contents of that
 product, including goals reprinted from another product.

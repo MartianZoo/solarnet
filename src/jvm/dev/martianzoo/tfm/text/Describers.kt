@@ -20,6 +20,11 @@ internal class Describers(
 
   internal fun declaration(className: ClassName) = classesByName.getValue(className).declaration
 
+  internal fun gainDefaultExpressions(className: ClassName): List<Expression> =
+      classesByName.getValue(className).defaults.gainOnly.dependencies.typeDependencies().map {
+        it.boundType.expressionFull
+      }
+
   internal fun <T> fact(
       className: ClassName,
       fact: (ComponentDescriber) -> T?,

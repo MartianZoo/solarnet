@@ -149,6 +149,15 @@ CLASS AlbedoPlants : CardFront<Class<PreludeCard>> {
   PlantTag<>: 3 Heat
 }
 
+CLASS BoomTown : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>, CityTag<This>
+  This:: -BaseResourceValue<Class<Titanium>>
+  -This:: BaseResourceValue<Class<Titanium>>
+  This: CityTile<LandArea(HAS PlacementBonus<Class<Metal>>, MAX 0 Neighbor<CityTile<Anyone>>)>, PROD[2 Titanium]
+}
+
 CLASS SmallAsteroid : EventCard<Class<ProjectCard>> {
   cost = 10
 

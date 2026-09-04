@@ -20,7 +20,12 @@ internal fun renderPlacement(
 
   val placement = resolvePlacementExpression(gain.gaining, describers) ?: return null
   if (placement.owner != null || placement.unknownDependencies.isNotEmpty()) return null
-  val siteModifiers = renderPlacementSites(placement, describers) ?: return null
+  val siteModifiers =
+      renderPlacementSites(
+          placement,
+          describers,
+          implicitSites = describers.gainDefaultExpressions(gain.gaining.className),
+      ) ?: return null
   val count = gain.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
   val noun =
@@ -57,6 +62,7 @@ internal fun resolvePlacementExpression(
 internal fun renderPlacementSites(
     placement: PlacementExpression,
     describers: Describers,
+    implicitSites: List<Expression> = emptyList(),
 ): List<Modifier>? {
   // No dependencies, including an explicitly authored <>, accept the placement defaults.
   if (placement.sites.isEmpty()) return emptyList()
@@ -71,13 +77,27 @@ internal fun renderPlacementSites(
   val modifiers = mutableListOf(Modifier.Phrase("on $article $siteNoun"))
   expression.refinement?.let { refinement ->
     if (refinement.forgiving) return null
-    modifiers +=
-        Modifier.Phrase(
-            renderPlacementSiteRequirement(refinement.requirement, describers) ?: return null
-        )
+    val authoredRequirements = refinement.requirement.conjuncts()
+    val implicitRequirements =
+        implicitSites
+            .singleOrNull { it.className == expression.className }
+            ?.refinement
+            ?.takeUnless { it.forgiving }
+            ?.requirement
+            ?.conjuncts()
+            .orEmpty()
+    val novelRequirements = authoredRequirements.filterNot { it in implicitRequirements }
+    val renderedRequirements =
+        (novelRequirements.ifEmpty { authoredRequirements }).map { requirement ->
+          renderPlacementSiteRequirement(requirement, describers) ?: return null
+        }
+    modifiers += renderedRequirements.map(Modifier::Phrase)
   }
   return modifiers
 }
+
+private fun Requirement.conjuncts(): List<Requirement> =
+    if (this is Requirement.And) requirements else listOf(this)
 
 private fun renderPlacementSiteRequirement(
     requirement: Requirement,

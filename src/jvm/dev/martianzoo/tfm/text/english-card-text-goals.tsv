@@ -485,6 +485,7 @@ AntiDesertificationTechniques	Anti Desertification Techniques	Gain 3 M€. Incre
 GiantSolarCollector	Giant Solar Collector	Increase your energy production 2 steps. Raise Venus 1 step.
 StrategicBasePlanning	Strategic Base Planning	Remove 3 M€. Place a city tile. Place a colony.
 AlbedoPlants	Albedo Plants	Increase your plant production 1 step. Gain 1 plant.	Effect: When you play a plant tag, gain 3 heat.
+BoomTown	Boom Town	Place a city tile on a land area with a steel or titanium placement bonus. Increase your titanium production 2 steps.	Effect: Your titanium is worth 1 M€ less.
 Supercapacitors	Supercapacitors	Increase your M€ production 1 step.	Effect: [-Energy IF ProductionPhase: Energy FROM Heat?].
 IcyImpactors	Icy Impactors		Action: Pay 10 M€ (titanium may be used) to add 2 asteroids to this card, or remove 1 asteroid from this card to [ChooseOceanArea<Owner>].
 DirectedHeatUsage	Directed Heat Usage		Action: Pay 3 heat to gain 4 M€ or 2 plants.
