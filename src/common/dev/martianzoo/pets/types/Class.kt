@@ -420,6 +420,7 @@ internal constructor(
       val aliases: Set<TypeVariable>,
       val paths: Set<DependencyPath>,
       val headerExpressions: Set<Expression>,
+      val lexicallyDeclared: Boolean,
   )
 
   private val headerOccurrences: Lazy<List<HeaderOccurrence>> = lazy {
@@ -461,9 +462,10 @@ internal constructor(
         val aliases: MutableSet<TypeVariable>,
         val paths: MutableSet<DependencyPath>,
         val headerExpressions: MutableSet<Expression>,
+        var lexicallyDeclared: Boolean,
     )
 
-    fun seed(binding: HeaderVariableBinding) =
+    fun inheritedSeed(binding: HeaderVariableBinding) =
         Seed(
             binding.variable.bound,
             TypeVariable.Site(
@@ -472,25 +474,22 @@ internal constructor(
                 binding.variable.declaration.ordinal,
                 interpretedGroundType = binding.variable.declaration.groundType,
             ),
-            binding.variable.usages.mapTo(mutableListOf()) {
-              TypeVariable.Site(
-                  it.expression,
-                  it.region,
-                  it.ordinal,
-                  interpretedGroundType = it.groundType,
-              )
-            },
+            mutableListOf(),
             (binding.aliases + binding.variable).toMutableSet(),
             binding.paths.toMutableSet(),
             binding.headerExpressions.toMutableSet(),
+            lexicallyDeclared = false,
         )
 
     fun Seed.absorb(other: Seed) {
-      usages += other.declaration
-      usages += other.usages
+      if (other.lexicallyDeclared) {
+        usages += other.declaration
+        usages += other.usages
+      }
       aliases += other.aliases
       paths += other.paths
       headerExpressions += other.headerExpressions
+      lexicallyDeclared = lexicallyDeclared || other.lexicallyDeclared
     }
 
     fun Seed.copySeed() =
@@ -501,13 +500,14 @@ internal constructor(
             aliases.toMutableSet(),
             paths.toMutableSet(),
             headerExpressions.toMutableSet(),
+            lexicallyDeclared = lexicallyDeclared,
         )
 
     val seeds = mutableListOf<Seed>()
     directSuperclasses
         .flatMap { it.headerVariableBindings() }
         .forEach { inherited ->
-          val incoming = seed(inherited)
+          val incoming = inheritedSeed(inherited)
           val overlapping = seeds.filter { it.paths.any(incoming.paths::contains) }
           overlapping.forEach(incoming::absorb)
           seeds.removeAll(overlapping)
@@ -537,28 +537,41 @@ internal constructor(
     occurrenceGroups
         .sortedBy { occurrences -> occurrences.minOf(HeaderOccurrence::ordinal) }
         .forEach { occurrences ->
+          val first = occurrences.minBy(HeaderOccurrence::ordinal)
+          fun localSite() =
+              TypeVariable.Site(
+                  first.expression,
+                  first.region,
+                  first.ordinal,
+                  interpretedGroundType = loader.resolve(first.expression.uncomplemented()),
+              )
+
           val paths = occurrences.mapTo(mutableSetOf(), HeaderOccurrence::path)
           val overlapping = seeds.filter { it.paths.any(paths::contains) }
+          val alreadyDeclared = overlapping.firstOrNull(Seed::lexicallyDeclared)
           val target =
-              if (overlapping.isEmpty()) {
-                val first = occurrences.minBy(HeaderOccurrence::ordinal)
-                Seed(
-                    loader.resolve(first.expression.uncomplemented()),
-                    TypeVariable.Site(
-                        first.expression,
-                        first.region,
-                        first.ordinal,
-                        interpretedGroundType = loader.resolve(first.expression.uncomplemented()),
-                    ),
-                    mutableListOf(),
-                    mutableSetOf(),
-                    mutableSetOf(),
-                    mutableSetOf(),
-                )
-              } else {
-                overlapping.first().copySeed().also { merged ->
-                  overlapping.drop(1).forEach(merged::absorb)
-                }
+              when {
+                overlapping.isEmpty() ->
+                    Seed(
+                        loader.resolve(first.expression.uncomplemented()),
+                        localSite(),
+                        mutableListOf(),
+                        mutableSetOf(),
+                        mutableSetOf(),
+                        mutableSetOf(),
+                        lexicallyDeclared = true,
+                    )
+                alreadyDeclared != null ->
+                    alreadyDeclared.copySeed().also { merged ->
+                      overlapping.filterNot { it === alreadyDeclared }.forEach(merged::absorb)
+                    }
+                else ->
+                    overlapping.first().copySeed().also { merged ->
+                      overlapping.drop(1).forEach(merged::absorb)
+                      merged.declaration = localSite()
+                      merged.usages.clear()
+                      merged.lexicallyDeclared = true
+                    }
               }
           seeds.removeAll(overlapping)
           occurrences.sortedBy(HeaderOccurrence::ordinal).forEach { occurrence ->
@@ -579,6 +592,7 @@ internal constructor(
           seeds += target
         }
 
+    val effectVariables = seeds.filter(Seed::lexicallyDeclared)
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
       val queuedChoiceExpressions =
@@ -602,11 +616,11 @@ internal constructor(
       effect.descendantsOfType<Expression>().forEach { expression ->
         if (expression.className == ANYONE) return@forEach
         if (queuedChoiceExpressions.any { it === expression }) return@forEach
-        val exact = seeds.filter { seed ->
+        val exact = effectVariables.filter { seed ->
           seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)
         }
         val matching = exact.ifEmpty {
-          seeds.filter { seed ->
+          effectVariables.filter { seed ->
             seed.headerExpressions.any { header ->
               header.className == expression.className &&
                   ((header.simple && expression.arguments.isNotEmpty()) ||
@@ -638,6 +652,7 @@ internal constructor(
           seed.aliases + variable,
           seed.paths,
           seed.headerExpressions,
+          seed.lexicallyDeclared,
       )
     }
   }
@@ -668,9 +683,11 @@ internal constructor(
     return firstInSupertype != secondInSupertype && firstPath.last() == secondPath.last()
   }
 
-  /** Type variables visible in this Class, including inherited declarations. */
+  /** Type variables declared by this Class header. */
   private val typeVariablesLazy = lazy {
-    headerVariableBindings().map(HeaderVariableBinding::variable)
+    headerVariableBindings().filter(HeaderVariableBinding::lexicallyDeclared).map {
+      it.variable
+    }
   }
   public val typeVariables: List<TypeVariable>
     get() = typeVariablesLazy.value

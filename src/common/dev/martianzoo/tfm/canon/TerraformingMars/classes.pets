@@ -222,7 +222,7 @@ ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
 CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 
 "A printed wild tag creates one temporary holder for each action slot"
-CLASS WildTag : Cardbound {
+CLASS WildTag : Cardbound<CardFront> {
   HAS MAX 1 This
   NewTurn<Owner> IF PreludePhase:: WildTagUse<CardFront>
   UseAction<StandardAction> IF ActionPhase:: WildTagUse<CardFront>

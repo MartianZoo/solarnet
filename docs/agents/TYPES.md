@@ -493,7 +493,7 @@ syntax.
 
 | Construct | What declares the variable | Scope and uses | What supplies its value | Representative form |
 | --- | --- | --- | --- | --- |
-| Class dependency | Each separately declared abstract dependency root declares one Class-scoped variable. Eligible abstract subexpressions along its nested dependency paths declare projected variables supplied by those paths. | The Class header, its Effects, inherited copies of those Effects, and subtype enumeration. | Specializing or enumerating the component Type. | `CLASS Trade<ColonyTile> ... { This: TradeBarrier<ColonyTile> ... }` |
+| Class dependency | Each separately declared abstract dependency root declares one Class-scoped variable. Eligible abstract subexpressions along its nested dependency paths declare projected variables supplied by those paths. | The Class header and Effects authored in that declaration, plus inherited copies of those Effects; the structural dependency path survives subtype enumeration. | Specializing or enumerating the component Type. | `CLASS Trade<ColonyTile> ... { This: TradeBarrier<ColonyTile> ... }` |
 | Repeated Class-header projection | An abstract header occurrence at one stable dependency key; a matching occurrence at the same key is a use, even through different supertypes. | The complete header and the Class-scoped effect scope above. | Intersection of the dependency bounds, then component-Type specialization. | `CLASS Cardbound<CardFront<Player>> : Owned<Player>` |
 | Triggered Effect | Each maximal abstract expression in a choice-producing trigger position is a potential declaration. | That one trigger, including its `BY` and `IF` clauses, and its one instruction tree. | The concrete changed Type that matched the subscription. | `BioTag<CardFront>: Plant OR CardResource<CardFront>` |
 | Positive abstract Actor selector | A simple positive abstract Actor expression after `BY`, such as `Player`. This is a binder even without repetition. | The qualified trigger and the fired instruction. Uses under operators, such as `!Player`, receive the Actor value before the operator is applied. | The concrete Actor recorded on the triggering event. | `-OwnedActorTrigger<!Player> BY Player: Steel<Player>` |
@@ -539,12 +539,14 @@ expressions to the same Ground Type does not make them uses of one variable. Rec
 maximal expressions, so repeating `Card<Owner>` declares one card variable rather than also
 inferring an independent variable from its nested `Owner` text.
 
-There are two lexical extensions. First, text matching a visible Class variable is a use of that
-variable rather than a fresh declaration. This applies throughout the Class body. A simple Class
+There are two lexical extensions. First, each Class header establishes the Class-variable scope for
+Effects authored in that declaration; inherited Effects carry their original scope. Text matching
+one of those variables in the Class body is a use rather than a fresh declaration. A simple Class
 variable may also occupy the root of an occurrence with arguments: `CardFront<Owner>` uses the
 Class variable `CardFront` while constraining its owner dependency. Class-header occurrences are
-identified by stable dependency paths, so inherited projections can be uses even when their whole
-containing expressions differ.
+identified by stable dependency paths, so projections named by a Class can be uses even when their
+whole containing expressions differ. `WildTag : Cardbound<CardFront>` names the inherited card
+dependency so its Effects can reuse `CardFront`.
 
 A proper type dependency explicitly chosen in the first stage of `THEN` and repeated later belongs
 to that queued choice rather than a matching Class variable. Law Suit's `MC<Player>` therefore

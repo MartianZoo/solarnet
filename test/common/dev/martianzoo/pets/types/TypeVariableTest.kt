@@ -28,7 +28,7 @@ internal class TypeVariableTest {
   }
 
   @Test
-  internal fun `a bare effect use captures an inherited compound header variable`() {
+  internal fun `a class body sees the variables declared by its own header`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person",
@@ -37,14 +37,21 @@ internal class TypeVariableTest {
             "ABSTRACT CLASS Token<Box<Person>>",
             "ABSTRACT CLASS Parent<Box<Person>>",
             "CLASS Child : Parent { This: Token<Box> }",
+            "CLASS NamedChild : Parent<Box> { This: Token<Box> }",
         )
-    val klass = table.getClass(parse<Expression>("Child").className)
-    val effect = klass.interpretTypeVariablesIn(klass.declaration.effects.single())
-    val variable = effect.typeVariables.variables.single()
-    val specific = table.resolve(parse("Child<Box<Alice>>"))
-    val bindings = specific.variableBindingsFrom(klass.defaultType, listOf(variable))
+    val child = table.getClass(parse<Expression>("Child").className)
+    val childEffect = child.interpretTypeVariablesIn(child.declaration.effects.single())
+    child.typeVariables.isEmpty() shouldBe true
+    childEffect.typeVariables.isEmpty shouldBe true
 
-    effect.typeVariables.bind(bindings).transformEffect(effect).toString() shouldBe
+    val namedChild = table.getClass(parse<Expression>("NamedChild").className)
+    val namedEffect = namedChild.interpretTypeVariablesIn(namedChild.declaration.effects.single())
+    val variable = namedChild.typeVariables.single()
+    namedEffect.typeVariables.variables.single() shouldBe variable
+    val specific = table.resolve(parse("NamedChild<Box<Alice>>"))
+    val bindings = specific.variableBindingsFrom(namedChild.defaultType, listOf(variable))
+
+    namedEffect.typeVariables.bind(bindings).transformEffect(namedEffect).toString() shouldBe
         "This: Token<Box<Alice>>"
   }
 
