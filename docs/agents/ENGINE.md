@@ -48,6 +48,8 @@
    for authored elaboration, class/component specialization, and Player-scoped input.
  - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search for `resolve` and
    `doExecuteResolved` for the selected-task resolution and executable-first-stage contract.
+- [GAMEWORLD.md](GAMEWORLD.md) owns the selected extraction of passive World data, recording
+  navigation, and exports from this current implementation.
 
 ## Game construction
 
@@ -62,12 +64,13 @@ A live Game World is a `World` containing:
 | `ClassTable` | The closed vocabulary and type relationships |
 | Mutation executor | Validation and atomic calculation for direct Actor-attributed calls |
 
-The planned `:state` library owns a narrower `GameWorld`: concrete component data, readable
-projections, and fully concrete gain, removal, and transmutation only. It has no Instructions,
-tasks, effects, Agent, or autoexecution. The engine consumes that state API and owns task and
-instruction semantics. The planned `:agent` library consumes the engine and supplies the normal
-Actor-scoped client API and optional policies. See
-[RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) and
+The planned `:gameworld` library owns the complete replayable data of one game: component state,
+exact pending tasks, event history, readable projections, and approved recording positions. It
+stores task Instructions as inert data but has no task execution, effects, Agent, or autoexecution.
+The engine consumes that Game World and owns task and instruction behavior. The planned `:agent`
+library consumes the engine and supplies the normal Actor-scoped client API and optional policies.
+See [GAMEWORLD.md](GAMEWORLD.md),
+[RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction), and
 [API.md](API.md). Current code still combines these responsibilities in `World` and `:engine`.
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
@@ -171,10 +174,10 @@ The caller supplies the World's `GameReader` for abstract or refined Type evalua
 the returned subscription. Listener failures do not interrupt state mutation.
 
 **Forward-looking:** `GameWorld` applies only a fully concrete gain, removal, or transmutation. It
-does not index or fire effects. The engine invokes that operation and reacts to a neutral description
-of what changed. Prefer a return value if it preserves the required ordering; if synchronous
-notification is necessary, state accepts a generic callback expressed only in state vocabulary.
-The callback must not name the engine, effects, tasks, or Instructions.
+does not index or fire effects. The engine invokes that operation and explicitly reacts to a neutral
+description of what changed. Recording playback invokes the same passive application without an
+engine, so recorded consequences are never calculated twice. [GAMEWORLD.md](GAMEWORLD.md) owns the
+contract.
 
 `sneak` therefore remains an engine cheat, not a state operation. Normal execution and `sneak`
 apply the same concrete `GameWorld` mutation; the engine decides whether to process the reported
@@ -206,10 +209,11 @@ failure reverses component state, tasks, event-backed indexes, and events.
 prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
-Agent completion. `GameRecording.seek` reverses or reapplies those events on the same live `World`,
-and capturing seals its public rollback surface to those positions. This coupling is transitional:
-recording navigation should own independent read state so seeking neither mutates nor seals its
-source World. Persistence and speculative execution require separate design review.
+Agent completion. `GameRecording.seek` currently reverses or reapplies those events on the same live
+`World`, and capturing seals its public rollback surface to those positions. This coupling is
+transitional. The selected model exports immutable history and opens an independent scrollable Game
+World view whose public seek targets are only completed positions, never arbitrary event ordinals.
+See [GAMEWORLD.md](GAMEWORLD.md).
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.
@@ -230,9 +234,9 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 
 A temporary 1-based display position may disambiguate equal-looking tasks. It is not an id.
 
-Semantically there is one World task pool. Actor-specific queues are current filtered API views,
-not independent state containers. `Agent.tasks` may present the fiction of one Actor's queue
-without promoting that view into the engine model.
+Semantically there is one Game World task pool. Actor-specific queues are current filtered API
+views, not independent state containers. `Agent.tasks` may present the fiction of one Actor's queue
+without promoting that view into the Game World storage model.
 
 `InstructionTree` is the broad AST kind. `Instruction` is one task-shaped root.
 `InstructionGroup` is a normalized comma-separated batch. Queue admission splits a group into one
@@ -636,12 +640,12 @@ auto-exec, preserves previously pending unselected tasks, and fails if newly cre
 timeline and graph mutation interfaces.
 
 **Forward-looking:** `:agent` owns the normal Actor-scoped client API. Agent calls the core engine's
-audited mutation families directly against one task pool; a separate passive access object is not
-needed. Actor assignment remains engine semantics. Agent is the sole issuer of ordinary explicit
-and policy-chosen mutations for one Actor. Direct engine primitives remain available for workflows,
-replay correction, cheats, and tests; preventing trusted callers from using them is not a current
-goal. Public task mutation is already limited to checked narrowing and explicit single-task
-removal.
+audited mutation families against the Game World's task pool; a separate passive access object is
+not needed. Actor assignment remains engine semantics even though the resulting assignment is Game
+World data. Agent is the sole issuer of ordinary explicit and policy-chosen mutations for one Actor.
+Direct engine primitives remain available for workflows, replay correction, cheats, and tests;
+preventing trusted callers from using them is not a current goal. Public task mutation is already
+limited to checked narrowing and explicit single-task removal.
 
 ## Current auto-execution and Terraforming Mars workflow
 
@@ -674,9 +678,10 @@ in [WORKFLOW.md](WORKFLOW.md).
 Effector, Timeline, and other World-level services are shared. Each Actor currently receives its
 own `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` scope.
 
-The target engine composition retains only the Actor context required to calculate one direct
-mutation. The separate state composition retains no Actor decision context. Actor-filtered reads,
-unique long-lived Agents, their policies, and the shared autoexecution loop belong in `:agent`.
+The target engine composition retains only the behavior and Actor context required to calculate one
+direct mutation. Game World retains Actor identities, assignment, and pending choices as data but
+contains no decision-making behavior. Actor-filtered reads, unique long-lived Agents, their
+policies, and the shared autoexecution loop belong in `:agent`.
 
 Kotlin keeps `Actor` and `Owner` distinct. Current Players are both. A passive Pets Owner such as
 `SoloOpponent` has no gameplay scope or task queue.

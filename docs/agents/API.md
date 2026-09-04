@@ -21,7 +21,8 @@
   task set; [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) is a filtered view.
 - [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
   access modes.
-- [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target
+- [GAMEWORLD.md](GAMEWORLD.md) owns task data and recording navigation;
+  [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target
   dependency direction; [AUTOEXEC.md](AUTOEXEC.md) owns Agent policies and stable points.
 
 ## Core mutation surface
@@ -114,7 +115,8 @@ Ex-machina task addition/removal and concrete state changes belong to that engin
 `manual`, resumable-operation, turn, and completion conveniences may remain as engine test helpers
 while tests are migrated; they do not define the player-facing Agent contract.
 
-Recording navigation is read-only and does not belong on the Agent command surface.
+Recording navigation belongs to an independent Game World view and does not belong on the Agent
+command surface. See [GAMEWORLD.md](GAMEWORLD.md).
 
 ## Admin
 
@@ -141,7 +143,7 @@ single-task removal. The extraction should preserve behavior while successively:
 
 1. reduce core entry to the audited direct mutation families;
 2. create `:agent` above `:engine`, with one stable Agent per Actor and an Actor-scoped reader;
-3. replace public many-queue language with one engine task pool plus Agent-filtered views;
+3. replace public many-queue language with one Game World task pool plus Agent-filtered views;
 4. move parsing, policy ownership, and the shared autoexecution loop into `:agent`; and
 5. migrate normal clients to Agent while keeping direct engine cheats and test helpers explicit.
 

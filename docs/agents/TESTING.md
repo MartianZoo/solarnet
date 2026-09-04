@@ -137,15 +137,18 @@ clear coverage of these contracts matters more than preserving every current tes
    exercised without Terraforming Mars content.
 2. **Pure Pets type-system tests.** Class loading, type relationships, metrics, requirements, and
    related semantics, using small declarations owned by the test rather than Canon.
-3. **GameWorld coordination tests.** Terraforming-independent scenarios proving that components,
-   effects, tasks, event history, revision, checkpoints, and gameplay operations form one coherent
-   world. Failure atomicity belongs here: a failed operation must restore present state, pending
-   work, and recorded history together while retaining a fresh revision identity.
+3. **Game World and engine-coordination tests.** Pure `:gameworld` scenarios prove that exact
+   component/task events, materialized projections, history, completed recording positions, and
+   independent playback views remain coherent without firing effects. Cross-module engine
+   scenarios prove consequence calculation and failure atomicity: a failed operation must restore
+   present components, pending work, and recorded history together while retaining a fresh revision
+   identity. [GAMEWORLD.md](GAMEWORLD.md) owns the detailed split.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that prove the workflow and many rules operate together,
-   especially when reconstructed from independent game records.
+   especially when reconstructed from independent game records. Designated JVM replays are also
+   the sole authored source of deterministic checked-in game-viewer exports.
 6. **Canon admissibility tests.** A compact gate proving that the complete authority loads and that
    representative supported configurations compose into usable projected class tables and worlds.
    This is not a demand to restate the contents of every card or bundle in assertions.

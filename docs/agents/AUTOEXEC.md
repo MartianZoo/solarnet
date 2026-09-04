@@ -72,8 +72,8 @@ enumerations.
 
 A game is at a **policy-relative stable point** when every Agent has consulted its policies against
 the same completed game revision and declined to issue another mutation. “Stable” is relative to
-the exact installed policies: changing them may make another action available without changing
-engine state. It does not mean that the global task pool is empty.
+the exact installed policies: changing them may make another action available without changing the
+Game World. It does not mean that the global task pool is empty.
 
 A fully autonomous Agent promises to decline only when it has no legal action covered by its
 contract. A task may still be assigned to it when game state temporarily makes that task illegal,
@@ -131,7 +131,7 @@ powers come from game state; its autonomous behavior comes from its policy confi
 
 ## Required properties
 
-- Engine and state modules contain no Agent or policy behavior.
+- `:engine` and `:gameworld` contain no Agent or policy behavior.
 - A configured Game World has exactly one Agent per Actor.
 - Every ordinary explicit and autonomous Actor mutation enters through that Agent.
 - The engine reports only that a complete mutation changed the game; it does not schedule Agents.

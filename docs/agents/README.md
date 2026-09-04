@@ -24,8 +24,9 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
-| Event history, recordings, checkpoints, or rollback | [`ENGINE.md`](ENGINE.md#events-and-timeline) | Current model |
+| Game World ownership, passive component/task data, recordings, exports, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
+| Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
+| Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#events-and-timeline) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and audit |
 | Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
@@ -62,6 +63,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Task | Read | Authority |
 | --- | --- | --- |
+| Extract the Game World or remove engine code from recording playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Move runtime layers or generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Selected direction and audit |
 | Extract the client Agent API, Agent-owned autoexecution policies, or the shared autoexecution loop | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Current divergence and selected direction |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |

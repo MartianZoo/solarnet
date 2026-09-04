@@ -20,9 +20,9 @@ read captured runtime evidence before reconstructing execution from source searc
 
 Diagnostics have layer-specific homes:
 
-- Existing `GameEvent`s remain the durable account of changes and task lifecycle. We may add a few
-  optional diagnostic properties to those events, but no new event kinds merely to describe
-  debugging activity.
+- Game World `GameEvent`s remain the durable account of changes and task lifecycle. We may add a
+  few optional diagnostic properties to those events, but no new event kinds merely to describe
+  debugging activity. [GAMEWORLD.md](GAMEWORLD.md) owns their data and export role.
 - An opt-in engine debug log records resolution, execution, effects, and rollback attempts that
   produced no event.
 - Agent scoping, policies, and the shared autoexecution loop keep their own opt-in logs for caller

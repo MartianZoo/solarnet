@@ -4,7 +4,7 @@
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
 
-> **Read when:** moving code across state, engine, permissions, autoexecution, generic, or
+> **Read when:** moving code across gameworld, engine, permissions, autoexecution, generic, or
 > Terraforming Mars packages; changing bare-number rejection or Action lowering; splitting Catalog
 > responsibilities; or separating script/workflow mechanics.
 >
@@ -27,6 +27,7 @@
 - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) and
   [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) — current engine-owned
   APIs that the selected layering direction will extract.
+- [GAMEWORLD.md](GAMEWORLD.md) owns the selected Game World data, playback, and export model.
 
 The generic runtime is mostly reusable, but a few interfaces still mix Pets/engine mechanics with
 Terraforming Mars or REgo application policy. Any selected change must follow the focused directions
@@ -36,15 +37,16 @@ below; their presence does not schedule it.
 
 The target runtime has three library responsibilities with one-way dependencies:
 
-1. **State:** owns `GameWorld`, the data of one game. It stores concrete components and supports
-   readable projections plus only fully concrete gain, removal, and transmutation. It has no
-   `Instruction`, task, selection, resolution, effect, Agent, or autoexecution concept.
-2. **Engine:** depends on state. It owns instructions, the unordered task pool, assignment,
-   selection, narrowing, resolution, execution, effects, and atomic game operations. Once an
-   instruction has become a fully concrete state change, the engine asks `GameWorld` to apply it and
-   reacts to the resulting change. The engine exposes its basic mutation primitives directly for
-   workflows, replay correction, cheats, and tests; it does not try to prevent clients from using
-   them.
+1. **Game World:** `:gameworld` owns the complete replayable data of one game: immutable context,
+   concrete components, exact pending tasks, event history, readable projections, and approved
+   recording positions. Instructions are inert task data here. Game World can apply and replay only
+   already-decided component and task events; it has no instruction interpretation, task behavior,
+   effects, Agent, or autoexecution concept. [GAMEWORLD.md](GAMEWORLD.md) owns the full model.
+2. **Engine:** depends on Game World. It owns task construction, assignment rules, selection,
+   narrowing, resolution, execution, effects, live transaction coordination, and atomic game
+   operations. Once a consequence is exact, the engine asks `GameWorld` to apply it and then reacts
+   explicitly. The engine exposes its basic mutation primitives directly for workflows, replay
+   correction, cheats, and tests; it does not try to prevent clients from using them.
 3. **Agent:** depends on engine and is the normal client API. It creates exactly one Agent per Actor,
    gives each Agent an Actor-scoped reader with deliberate access to the unscoped reader, and keeps
    task selection and narrowing small. Each Agent owns its optional autoexecution policies. Shared
@@ -55,25 +57,26 @@ construction returns an immutable Actor-to-Agent map; its shared loop remains pr
 than another public game wrapper. A separate passive Actor-access abstraction is not currently
 justified.
 
-The exact state-to-engine notification mechanism remains open until extraction. Prefer returning a
-neutral concrete-change result when that preserves required ordering. If state must invoke a
-synchronous callback, the callback is supplied by its caller and speaks only in state vocabulary;
-`GameWorld` still has no knowledge of effects or the engine.
+Game World returns a neutral applied-change result after its own data is coherent. It does not call
+back into the engine while applying an event. The engine explicitly reacts to the returned result,
+so `GameWorld` has no knowledge of effects or the engine and recording playback cannot fire rules.
 
-The concrete-change value is owned by state and contains resolved component Types and counts. It is
-not an `Instruction` subtype and does not carry task continuation, Actor attribution, cause, or
-effect behavior. Because one engine operation can change both `GameWorld` and the task pool, the
-engine retains coordination of atomic rollback and combined history across both.
+The concrete-change value is owned by Game World and contains resolved component Types and counts.
+It is not an `Instruction` subtype and carries no effect behavior. Exact task events may carry task
+instructions, assignment, Actor attribution, continuations, and cause as passive data. The engine
+retains coordination of live atomic rollback across every Game World event produced by one
+operation.
 
 Task assignment remains an engine-enforced game rule. Preventing a caller from choosing the direct
 engine API is out of scope. The engine is intentionally indifferent to why an Actor or trusted
 caller chose one legal mutation instead of another.
 
-**Current divergence:** there is no `:state` or `:agent` module. Current `World` combines component
-state, tasks, events, timeline, and Agent lookup, while `Agent`, `AutoExecMode`, queue draining, and
-client-facing string translation all live in `:engine`. `TaskQueues` already stores one task set and
-creates assignee-filtered `TaskQueue` views, so task extraction changes ownership rather than task
-semantics.
+**Current divergence:** there is no `:gameworld` or `:agent` module. Current `World` combines Game
+World data with live transaction control and Agent lookup, while `Agent`, `AutoExecMode`, queue
+draining, and client-facing string translation all live in `:engine`. `Task` and `GameEvent` live in
+`:pets`; their runtime-data ownership and the event/task rendering attached to `Vocabulary` must be
+untangled during extraction. `TaskQueues` already stores one task set and creates
+assignee-filtered `TaskQueue` views, so task extraction changes ownership rather than semantics.
 
 Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
 surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared
