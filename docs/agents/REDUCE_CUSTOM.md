@@ -33,7 +33,15 @@ Custom metrics are a separate concern.
 ### `ColoniesSetup`
 
 Premise assembly now creates each selected colony tile directly. The remaining custom behavior
-creates one reserve fleet per player. It could become setup signaling:
+creates one reserve fleet per player.
+
+The `EACH` fanout proposed in [EACHPLAYER.md](EACHPLAYER.md) removes it outright: a prototype
+replaced the whole class with `SetupPhase: EACH Player { TradeFleet }` on `ColoniesExpansion`, which
+also let `SoloColoniesSetup` shrink to its discard and dropped the `IF MAX 0 SoloColoniesSetup`
+gate. That prototype was measured and set aside, so this candidate is still open — but the fanout,
+not setup signaling, is the shape to try first.
+
+The signaling alternative, if the fanout is abandoned:
 
 - base player setup emits `PlayerSetup<This>`; and
 - the live Colonies Module responds by creating that player's `TradeFleet`.

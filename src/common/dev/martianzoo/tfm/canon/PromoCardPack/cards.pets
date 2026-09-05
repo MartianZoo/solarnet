@@ -749,7 +749,7 @@ CLASS FloydContinuum : ActionCard, ActiveCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS SpliceTacticalGenomicsWatcher : Owned<Player>, System {
+CLASS SpliceTacticalGenomicsWatcher : System {
   HAS =1 This
   MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 MC
 }

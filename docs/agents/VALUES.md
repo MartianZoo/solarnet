@@ -152,6 +152,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **`BigInt`** — a bespoke immutable bit mask serving one field, `Class.abstractSupertypeBits`.
   Common code has no `java.util.BitSet`, so the alternative is a slower supertype test on a hot
   path. Revisit if a multiplatform bitset becomes available or if the test stops being hot.
+- **Address-only `Owned<Player>, System` classes** —
+  [EACHPLAYER.md](EACHPLAYER.md#what-is-and-is-not-in-the-tree). Six classes exist only to give an
+  ambient rule a per-player component to live in. The `EACH` fanout removes most of them; it was
+  prototyped end to end, measured, and set aside rather than integrated, and that document records
+  what it settled. Revisit when Turmoil forces the per-branch delegation question.
 
 ### Already being fixed
 

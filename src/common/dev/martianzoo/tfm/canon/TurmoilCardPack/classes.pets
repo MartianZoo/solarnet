@@ -1,2 +1,4 @@
 "Adds the Turmoil project cards without the expansion's political rules"
-CLASS TurmoilCardPack : Module
+CLASS TurmoilCardPack : Module {
+  CorporationPhase:: TrWatcher.
+}
