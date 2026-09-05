@@ -299,18 +299,21 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Logs may not indicate how much steel/titanium/etc. was used toward a purchase. A reasonable
   default assumption to start with is that they probably spent as much of it as they could get full
   value for. Later events may reveal that your assumption needs to be revised.
-- Source-backed full-game replays enforce that assumption. A payment that leaves an accepted
-  non-money resource unused despite its still receiving full value fails unless the player calls
-  `intentionalUnderpay()` immediately before that payment. A payment that spends a non-money
-  resource beyond the remaining owed amount likewise requires `intentionalOverpay(amountSquandered)`,
-  with the exact lost monetary value. Each call is
-  permission for one payment only; explain the sourced later payment or checkpoint that requires an
-  underpayment, and prefer correcting an unsupported allocation over declaring intent. For a
-  recorded physical game, first search the transcript and player-board logs for an explicit payment
-  composition; prefer that direct evidence to inference from a later balance.
+- Source-backed full-game replays enforce that assumption for resources worth more than one M€.
+  Leaving an accepted full-value unit unused fails unless the player calls `intentionalUnderpay()`
+  immediately before that payment. For an M€ bill, preserving an accepted 1:1 resource is ordinary;
+  spending it while enough M€ could settle the complete invoice requires
+  `intentionalOneToOneResourcePayment()`, while spending it because M€ is insufficient requires no
+  marker. A resource explicitly required by a non-M€ instruction is not such a choice. A payment
+  that spends a non-money resource beyond the remaining owed amount likewise
+  requires `intentionalOverpay(amountSquandered)`, with the exact lost monetary value. Each call is
+  permission for one payment only; explain the sourced later payment or checkpoint that requires
+  the unusual allocation, and prefer correcting an unsupported allocation over declaring intent.
+  For a recorded physical game, first search the transcript and player-board logs for an explicit
+  payment composition; prefer that direct evidence to inference from a later balance.
 - Call `requireExplicitUnusedActionCards()` on replay players when every pass should audit unused
-  action cards. Those players must use `pass(unused = CardA, CardB)` or
-  `pass(unused = emptySet())`; the pass fails if the complete set does not match.
+  action cards. For those players, `pass()` asserts that no action cards are unused; otherwise use
+  `pass(unused = CardA, CardB)`. The pass fails if the complete set does not match.
 - The herokuapp and Solarnet map coordinates differ: herokuapp counts from the first tile whereas
   Solarnet uses slant-columns.
 - Prefer supplied logs, images, and local map data over investigating another application's

@@ -63,6 +63,22 @@ Exact payment cannot replace the real rule. Reconstructed games contain legitima
 resource values do not sum exactly to the price, so forbidding every excess would reject sourced
 play.
 
+## Current replay-client audit
+
+`TfmGameplay.requireExplicitPaymentChoices()` audits sourced allocation choices without changing
+the engine's payment model. For resources worth more than one M€, leaving a usable full-value unit
+unspent requires `intentionalUnderpay()`. A 1:1 resource accepted toward an M€ bill is different:
+preserving it and paying M€ is ordinary, while spending it despite already holding enough M€ for
+the complete invoice requires `intentionalOneToOneResourcePayment()`. When M€ alone is insufficient,
+spending the 1:1 resource needs no marker. This audit does not apply when the instruction requires a
+particular resource rather than billing in M€.
+
+The helper follows the payer's Actor through a cross-Player workflow. The active Player may control
+when a triggered option is selected, while the component owner chooses the option and settles the
+owner's invoice. The helper may therefore advance concrete billing work through its current
+assignee before the payer chooses tender; this coordinates existing task delegation and does not
+change task ownership.
+
 ## Working statement of the rule
 
 For debt `D`, let the selected indivisible payment units have effective values `v1 ... vn`, let
