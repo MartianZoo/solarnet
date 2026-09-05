@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260809
 import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260818
 import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260825
 import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260828
+import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260904
 
 public object SavedGames {
   public val all: List<SavedGame> =
@@ -12,5 +13,6 @@ public object SavedGames {
           SavedGame("August 18, 2026", ::OtbGame20260818),
           SavedGame("August 25, 2026", ::OtbGame20260825),
           SavedGame("August 28, 2026", ::OtbGame20260828),
+          SavedGame("September 4, 2026 (partial)", ::OtbGame20260904),
       )
 }

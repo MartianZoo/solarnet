@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -142,6 +143,30 @@ internal class NewPromoCardsTest : CardTest() {
     }
 
     p1.assertCounts(17 to "MC", 0 to "Steel", 1 to "Hydroelectric")
+    p1.assertProds(1 to "Energy")
+  }
+
+  @Test
+  internal fun `Neptunian owner chooses and pays when an opponent places the ocean`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.autoExecMode = NONE
+    engine.phase("Action")
+    p1.manual("50 MC, 2 ProjectCard")
+    p2.manual("20 MC")
+    p1.playProject(NeptunianPowerConsultants, 14)
+    p1.autoExecMode = NONE
+    val ownerMcBeforeOcean = p1.count("MC")
+
+    p2.stdProject("AquiferSP") {
+      doTask("OceanTile<Tharsis_1_2>")
+      p2.selectTask("UseAction<Player1, NeptunianOption<Player1>>?")
+      p1.doTask("UseAction<NeptunianOption, Action1>")
+      p1.pay(5)
+      p2.autoExecMode = FIRST
+    }
+
+    p1.assertCounts(ownerMcBeforeOcean - 5 to "MC", 1 to "Hydroelectric")
     p1.assertProds(1 to "Energy")
   }
 

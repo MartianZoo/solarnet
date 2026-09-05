@@ -44,7 +44,7 @@ public class TfmGameplay(
 
   private var explicitPaymentChoicesRequired = false
   private var explicitUnusedActionCardsRequired = false
-  private var allowUnderpayment = false
+  private var allowNondefaultPayment = false
   private var expectedOverpaymentWaste: Int? = null
 
   private fun asActor(actor: Actor) =
@@ -221,10 +221,8 @@ public class TfmGameplay(
   }
 
   public fun pass(): TaskResult {
-    require(!explicitUnusedActionCardsRequired) {
-      "$actor must list unused action cards with pass(unused = ...)"
-    }
-    return passWithoutUnusedActionCardCheck()
+    return if (explicitUnusedActionCardsRequired) pass(unused = emptySet())
+    else passWithoutUnusedActionCardCheck()
   }
 
   public fun pass(unused: ClassName, vararg additionallyUnused: ClassName): TaskResult =
@@ -359,8 +357,11 @@ public class TfmGameplay(
       mc: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      plants: Int = 0,
+      energy: Int = 0,
+      heat: Int = 0,
       butFirst: BodyLambda = {},
-      payment: BodyLambda = { pay(mc, steel, titanium) },
+      payment: BodyLambda = { pay(mc, steel, titanium, plants, energy, heat) },
       body: BodyLambda = {},
   ): TaskResult {
     return inTfmTurn { playProjectWithinOperation(cardName, butFirst, payment, body) }
@@ -371,8 +372,11 @@ public class TfmGameplay(
       mc: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      plants: Int = 0,
+      energy: Int = 0,
+      heat: Int = 0,
       butFirst: BodyLambda = {},
-      payment: BodyLambda = { pay(mc, steel, titanium) },
+      payment: BodyLambda = { pay(mc, steel, titanium, plants, energy, heat) },
       body: BodyLambda = {},
   ) {
     playProjectWithinOperation(cardName, butFirst, payment, body)
@@ -454,13 +458,13 @@ public class TfmGameplay(
       mc: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
-      plant: Int = 0,
+      plants: Int = 0,
       energy: Int = 0,
       heat: Int = 0,
   ): TaskResult {
-    val underpaymentAllowed = allowUnderpayment
+    val nondefaultPaymentAllowed = allowNondefaultPayment
     val expectedWaste = expectedOverpaymentWaste
-    allowUnderpayment = false
+    allowNondefaultPayment = false
     expectedOverpaymentWaste = null
     // Billing effects are queued; safely advance them until the payment choices are available.
     val previousAutoExecMode = autoExecMode
@@ -472,16 +476,12 @@ public class TfmGameplay(
         var observedWaste = 0
 
         fun payNonMoneyResource(cost: Int, currency: String) {
-          val accepted =
-              tasks
-                  .extract { it }
-                  .any {
-                    val context = it.cause?.context
-                    context?.className == cn("Accepting") &&
-                        "Class<$currency>" in context.toString()
-                  }
+          val accepted = pendingPaymentOffers(currency).isNotEmpty()
           if (!accepted) {
-            if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
+            if (cost > 0) {
+              preparePayment(currency)
+              doTask("$cost Pay<Class<$currency>> FROM $currency")
+            }
             return@payNonMoneyResource
           }
 
@@ -491,12 +491,26 @@ public class TfmGameplay(
           val maximumFullValuePayment = minOf(available, owed / value)
           if (
               explicitPaymentChoicesRequired &&
+                  value > 1 &&
                   cost < maximumFullValuePayment &&
-                  !underpaymentAllowed
+                  !nondefaultPaymentAllowed
           ) {
             throw IllegalArgumentException(
                 "$actor paid $cost $currency but could pay $maximumFullValuePayment at full value; " +
                     "call intentionalUnderpay() immediately before paying if this is sourced"
+            )
+          }
+          if (
+              explicitPaymentChoicesRequired &&
+                  value == 1 &&
+                  cost > 0 &&
+                  pendingPaymentOffers("MC").isNotEmpty() &&
+                  count("MC") >= owed &&
+                  !nondefaultPaymentAllowed
+          ) {
+            throw IllegalArgumentException(
+                "$actor paid $cost $currency while $owed MC could settle the bill; " +
+                    "call intentionalOneToOneResourcePayment() immediately before paying if this is sourced"
             )
           }
           val squanderedValue = (cost * value - owed).coerceAtLeast(0)
@@ -509,10 +523,13 @@ public class TfmGameplay(
             }
             observedWaste += squanderedValue
           }
-          if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
+          if (cost > 0) {
+            preparePayment(currency)
+            doTask("$cost Pay<Class<$currency>> FROM $currency")
+          }
         }
 
-        payNonMoneyResource(plant, "Plant")
+        payNonMoneyResource(plants, "Plant")
         payNonMoneyResource(energy, "Energy")
         payNonMoneyResource(heat, "Heat")
         payNonMoneyResource(titanium, "Titanium")
@@ -529,6 +546,7 @@ public class TfmGameplay(
           throw LimitsException("Overpaying $mc MC when only $owed is owed")
         }
         if (mc > 0) {
+          preparePayment("MC")
           doTask("$mc Pay<Class<MC>> FROM MC")
         }
 
@@ -544,15 +562,16 @@ public class TfmGameplay(
   private fun OperationBody.openPendingBilling(): Cause? {
     if (this@TfmGameplay.count("Owed") != 0) return null
     val billing =
-        tasks
+        game.tasks
             .extract { it }
             .filter { task ->
-              task.instruction.descendantsOfType<Change>().any { change ->
-                change.gaining?.className == cn("Owed")
-              }
+              task.actor == actor &&
+                  task.instruction.descendantsOfType<Change>().any { change ->
+                    change.gaining?.className == cn("Owed")
+                  }
             }
             .singleOrNull() ?: return null
-    selectTask(billing.id)
+    selectTaskForActor(billing)
     advanceSingleConcreteTask(billing.cause)
     return billing.cause
   }
@@ -565,12 +584,11 @@ public class TfmGameplay(
   }
 
   private fun OperationBody.finishBilling(billingCause: Cause?) {
-    tasks
-        .matching { it.cause?.context?.className == cn("Accepting") }
-        .forEach {
-          selectTask(it)
-          if (it in tasks) narrowTask("Ok")
-        }
+    while (true) {
+      val offer = pendingPaymentOffers().firstOrNull() ?: break
+      selectTaskForActor(offer)
+      if (offer.id in game.tasks) narrowTask("Ok")
+    }
     autoExecNow()
     advanceSingleConcreteTask(billingCause)
   }
@@ -579,21 +597,46 @@ public class TfmGameplay(
     if (cause == null) return
     while (true) {
       val next =
-          tasks
+          game.tasks
               .extract { it }
               .filter { task ->
-                task.cause == cause &&
+                task.actor == actor &&
+                    task.cause == cause &&
                     !task.instruction.isAbstract(reader) &&
-                    this@TfmGameplay.canSelectTask(task.id)
+                    asActor(task.assignee).canSelectTask(task.id)
               }
               .singleOrNull() ?: return
-      selectTask(next.id)
+      selectTaskForActor(next)
     }
+  }
+
+  private fun preparePayment(currency: String) {
+    val offer = pendingPaymentOffers(currency).singleOrNull() ?: return
+    if (offer.assignee != actor) asActor(offer.assignee).selectTask(offer.id)
+  }
+
+  private fun pendingPaymentOffers(currency: String? = null): List<Task> =
+      game.tasks
+          .extract { it }
+          .filter { task ->
+            val context = task.cause?.context
+            task.actor == actor &&
+                context?.className == cn("Accepting") &&
+                (currency == null || "Class<$currency>" in context.toString())
+          }
+
+  private fun OperationBody.selectTaskForActor(task: Task) {
+    if (task.assignee == actor) selectTask(task.id) else asActor(task.assignee).selectTask(task.id)
   }
 
   /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */
   public fun intentionalUnderpay() {
-    allowUnderpayment = true
+    allowNondefaultPayment = true
+  }
+
+  /** Allows the next [pay] call to spend a 1:1 resource when M€ could settle the full bill. */
+  public fun intentionalOneToOneResourcePayment() {
+    allowNondefaultPayment = true
   }
 
   /**
@@ -619,6 +662,7 @@ public class TfmGameplay(
     return try {
       sneak("100 Owed<>, $currency")
       val owed = count("Owed")
+      preparePayment(currency)
       doTask("Pay<Class<$currency>> FROM $currency")
       owed - count("Owed")
     } finally {
@@ -742,7 +786,10 @@ public class TfmGameplay(
 
   public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
 
-  public fun venusPercent(): Int = count("VenusStep") * 2
+  public fun venusPercent(): Int {
+    val count = count("VenusStep")
+    return if (count <= 15) count * 2 else count + 15 // thanks Amazonis
+  }
 
   public companion object {
     public fun World.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
