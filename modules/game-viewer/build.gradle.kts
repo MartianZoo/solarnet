@@ -42,7 +42,7 @@ tasks.named<ProcessResources>("jsProcessResources") {
           .map(rootProject::file)
           .orElse(rootProject.layout.projectDirectory.dir("_local/images").asFile)
   from(localImages) {
-    include("*.png")
+    include("*.png", "MC/*.png")
     into("images")
   }
 }
