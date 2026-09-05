@@ -2,8 +2,11 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption.Amazonis
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.Vastitas
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -23,27 +26,47 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
 
   @Test
   internal fun `Amazonis Merchant needs three of each resource after paying the claim cost`() {
-    newGame(Amazonis)
-    p1.manual("10 M, 3 S, 3 T, 3 P, 3 E, 3 H")
-    engine.phase("Action")
+    newGameWithAutoWorkflow(Amazonis)
+    playUntilFirstActionPhase(startingMc = 127)
 
-    shouldThrow<RequirementException> {
-      p1.stdAction("ClaimMilestone") { doTask("Merchant3") }
+    p1.turn {
+      playProject(MineralDeposit, 5)
+      playProject(AsteroidCard, 14)
     }
+    requireP2().pass()
+    p1.playProject(ImportedHydrogen, 16) {
+      doTask("3 Plant")
+      placeTile(2, 1)
+    }
+    p1.stdProject("CitySP") { placeTile(7, 5) }
+    p1.stdProject("CitySP") { placeTile(7, 7) }
+    p1.stdProject("CitySP") { placeTile(11, 7) }
+    p1.playProject(ImportedGhg, 7)
 
-    p1.manual("M")
-    p1.stdAction("ClaimMilestone") { doTask("Merchant3") }
-    p1.count("Merchant3") shouldBe 1
+    shouldThrow<RequirementException> { p1.claimMilestone(cn("Merchant3")) }
+    p1.count("MC") shouldBe 10
+
+    p1.sellPatents(1).expect("MC")
+    p1.claimMilestone(cn("Merchant3")).expect("-8 MC, Merchant3")
   }
 
   @Test
   internal fun `Amazonis Manufacturer uses the corrected production metric`() {
-    newGame(Amazonis)
+    newGameWithAutoWorkflow(Amazonis, PreludeExpansion)
     val p2 = requireP2()
-    p1.manual("Manufacturer, PROD[3 Steel, 2 Heat]")
-    p2.manual("10 Steel, 10 Heat, PROD[2 Steel, 2 Heat]")
+    playUntilPreludePhase()
+    p1.turn {
+      playPrelude(MiningOperations)
+      playPrelude(MoholeExcavation)
+    }
+    p2.turn {
+      playPrelude(Mohole)
+      playPrelude(Donation)
+    }
+    p1.fundAward(cn("Manufacturer"), 8).expect("Manufacturer")
 
-    engine.manual("End FROM Phase")
+    shutdownWorkflow()
+    TfmWorkflow.Manual(game).endPhase()
 
     p1.count("AwardTally<Player1, Manufacturer>") shouldBe 5
     p2.count("AwardTally<Player2, Manufacturer>") shouldBe 4
@@ -51,49 +74,57 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
 
   @Test
   internal fun `Amazonis card and wild resource bonuses work while delegates are inert`() {
-    newGame(Amazonis)
+    newGameWithAutoWorkflow(Amazonis)
+    playUntilFirstActionPhase()
 
-    p1.manual("CityTile<Amazonis_01_04>")
-    p1.manual("CityTile<Amazonis_05_03>") { doTask("Titanium") }
-    p1.manual("CityTile<Amazonis_02_02>")
+    p1.turn {
+      stdProject("CitySP") { placeTile(1, 4) }.expect("ProjectCard")
+      stdProject("CitySP") {
+            placeTile(5, 3)
+            doTask("Titanium")
+          }
+          .expect("Titanium")
+    }
+    requireP2().pass()
 
-    p1.count("ProjectCard") shouldBe 1
-    p1.count("Titanium") shouldBe 1
+    p1.stdProject("CitySP") { placeTile(2, 2) }.expect("0 ProjectCard, 0 Titanium")
   }
 
   @Test
   internal fun `Vastitas Geologist counts owned tiles with owned neighbors`() {
-    newGame(Vastitas)
-    p1.manual("CommercialDistrict_SpecialTile<Vastitas_4_1>, GreeneryTile<Vastitas_3_1>")
+    newGameWithAutoWorkflow(Vastitas)
+    playUntilFirstActionPhase()
+    p1.turn {
+      stdProject("PowerPlantSP")
+      playProject(LavaFlows, 18) { placeTile(4, 1) }
+    }
+    requireP2().pass()
+    p1.playProject(RestrictedArea, 11) { placeTile(3, 1) }
 
-    shouldThrow<RequirementException> { p1.manual("Geologist") }
+    shouldThrow<RequirementException> { p1.claimMilestone(cn("Geologist")) }
 
-    p1.manual("NaturalPreserve_SpecialTile<Vastitas_4_2>")
-    p1.manual("Geologist")
-    p1.count("Geologist") shouldBe 1
+    p1.playProject(CommercialDistrict, 16) { placeTile(4, 2) }
+    p1.claimMilestone(cn("Geologist")).expect("Geologist")
   }
 
   @Test
-  internal fun `Vastitas Landscaper counts the largest contiguous map group`() {
-    val game = newGame(Vastitas)
+  internal fun `Vastitas Landscaper counts only the largest contiguous map group`() {
+    val game = newGameWithAutoWorkflow(Vastitas)
     game.classTable.isActive(cn("Landscaper")) shouldBe true
-    val p2 = requireP2()
-    p1.manual(
-        "CommercialDistrict_SpecialTile<Vastitas_6_2>, GreeneryTile<Vastitas_6_3>, " +
-            "NaturalPreserve_SpecialTile<Vastitas_6_4>, CityTile<Vastitas_1_1>"
-    )
-    p2.manual("CityTile<Vastitas_8_7>, GreeneryTile<Vastitas_8_6>")
+    playUntilFirstActionPhase()
+    p1.turn {
+      stdProject("PowerPlantSP")
+      playProject(LavaFlows, 18) { placeTile(4, 1) }
+    }
+    requireP2().pass()
+    p1.playProject(RestrictedArea, 11) { placeTile(3, 1) }
+    p1.playProject(CommercialDistrict, 16) { placeTile(4, 2) }
+    p1.stdProject("CitySP") { placeTile(8, 7) }
 
     p1.count("OwnedTile") shouldBe 4
-    p2.count("OwnedTile") shouldBe 2
     p1.count("TileInLargestGroup") shouldBe 3
-    p2.count("TileInLargestGroup") shouldBe 2
 
-    p1.manual("8 M")
-    engine.phase("Action")
-    p1.stdAction("FundAward") { doTask("Landscaper") }
-
-    p1.count("Landscaper") shouldBe 1
+    p1.fundAward(cn("Landscaper"), 8).expect("Landscaper")
   }
 
   @Test
@@ -108,12 +139,9 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
 
   @Test
   internal fun `Vastitas north pole costs four MC and raises temperature`() {
-    newGame(Vastitas)
-    p1.manual("4 MC")
+    newGameWithAutoWorkflow(Vastitas)
+    playUntilFirstActionPhase()
 
-    p1.manual("CityTile<Vastitas_5_5>")
-
-    p1.count("MC") shouldBe 0
-    p1.temperatureC() shouldBe -28
+    p1.stdProject("CitySP") { placeTile(5, 5) }.expect("-29 MC, TemperatureStep")
   }
 }

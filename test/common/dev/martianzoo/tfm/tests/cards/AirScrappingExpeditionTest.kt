@@ -11,26 +11,33 @@ import kotlin.test.Test
 internal class AirScrappingExpeditionTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(
+    newGameWithAutoWorkflow(
         VenusNextExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
+    playUntilFirstActionPhase()
   }
 
   @Test
   internal fun `Can add floaters to another floater card`() {
-    p1.manual("$ForcedPrecipitation")
-    p1.manual("$AirScrappingExpedition") { addCardResources(ForcedPrecipitation) }
-        .expect("3 Floater")
+    p1.turn {
+      playProject(ForcedPrecipitation, 8)
+      playProject(AirScrappingExpedition, 13) { addCardResources(ForcedPrecipitation) }
+          .expect("3 Floater")
+    }
   }
 
   @Test
   internal fun `Cannot add more floaters than the target card can hold`() {
-    p1.manual("$ForcedPrecipitation")
-    p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
+    p1.turn {
+      playProject(ForcedPrecipitation, 8)
+      playProject(AtmoCollectors, 15) { addCardResources(AtmoCollectors) }
+    }
+    requireP2().pass()
+
     shouldThrow<NarrowingException> {
-      p1.manual("$AirScrappingExpedition") { addCardResources(AtmoCollectors) }
+      p1.playProject(AirScrappingExpedition, 13) { addCardResources(AtmoCollectors) }
     }
   }
 }

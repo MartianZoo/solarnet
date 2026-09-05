@@ -9,13 +9,19 @@ import kotlin.test.Test
 internal class AdvertisingTest : CardTest() {
   @Test
   internal fun `Triggers on a 20-cost card but not a 19-cost card`() {
-    newGame(
+    newGameWithAutoWorkflow(
         ColoniesExpansion,
         PromoCardPack,
         colonyTiles = testColonyTiles(2),
     )
-    p1.manual("$Advertising")
-    p1.manual("$LunarExports") { doTask("PROD[5 MC]") }.expect("PROD[5 MC]")
-    p1.manual("$GanymedeColony").expect("PROD[1 MC]")
+    playUntilFirstActionPhase()
+
+    p1.turn {
+      playProject(Advertising, 4)
+      playProject(LunarExports, 19) { doTask("PROD[5 MC]") }.expect("PROD[5 MC]")
+    }
+    requireP2().pass()
+
+    p1.playProject(GanymedeColony, 20).expect("PROD[1 MC]")
   }
 }

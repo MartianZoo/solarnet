@@ -7,9 +7,9 @@ import kotlin.test.Test
 internal class AphroditeTest : CardTest() {
   @Test
   internal fun `Triggers when an opponent raises Venus`() {
-    newGame(VenusNextExpansion)
-    val p2 = requireP2()
-    p2.manual("$Aphrodite")
-    p1.manual("VenusStep").expect("2 M<Player2>")
+    newGameWithAutoWorkflow(VenusNextExpansion)
+    playUntilFirstActionPhase(UnitedNationsMarsInitiative, Aphrodite)
+
+    p1.stdProject("AirScrappingSP").expect("2 M<Player2>")
   }
 }
