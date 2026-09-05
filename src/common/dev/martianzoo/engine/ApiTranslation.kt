@@ -5,7 +5,6 @@ import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
@@ -82,7 +81,7 @@ internal class ApiTranslation(
           classTable.inferTypeVariables(),
           xers.atomizer(),
           xers.insertDefaults(),
-          (actor as? Player)?.let(::replaceOwnerWith),
+          (actor as? Player)?.let(xers::bindContextualOwner),
           xers.transformMarkedSyntax(),
       )
 

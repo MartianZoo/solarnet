@@ -10,6 +10,7 @@ import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -27,6 +28,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
@@ -35,8 +37,10 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
@@ -113,7 +117,7 @@ public class Transformers(public val classTable: ClassTable) {
     val contextualizer =
         chain(
             replaceThisExpressionsWith(context),
-            owner?.let(::replaceOwnerWith),
+            owner?.let(::bindContextualOwner),
         )
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
@@ -183,7 +187,7 @@ public class Transformers(public val classTable: ClassTable) {
               val transformer =
                   chain(
                       replaceThisExpressionsWith(propertyType.expressionFull),
-                      owner?.let(::replaceOwnerWith),
+                      owner?.let(::bindContextualOwner),
                   )
               when (syntax) {
                 is Metric -> transformMetric(transformer.transformMetric(syntax))
@@ -197,7 +201,7 @@ public class Transformers(public val classTable: ClassTable) {
             chain(
                 atomizer(),
                 insertDefaults(context),
-                owner?.let(::replaceOwnerWith),
+                owner?.let(::bindContextualOwner),
                 transformDispatcher(),
             )
         return when (expanded) {
@@ -207,6 +211,29 @@ public class Transformers(public val classTable: ClassTable) {
         }
       }
     }
+  }
+
+  /**
+   * Binds the contextual `Owner` placeholder to [owner] everywhere except inside a fanout body,
+   * where the selection supplies it instead.
+   */
+  internal fun bindContextualOwner(owner: HasClassName): PetTransformer =
+      replaceOwnerWith(owner, ::shieldsContextualOwner)
+
+  /** Whether [node] is a fanout whose selection, not the enclosing context, owns its body. */
+  internal fun shieldsContextualOwner(node: PetNode): Boolean =
+      node is Each && selectionOwnsBody(node.selector)
+
+  /**
+   * Whether an `EACH` selector's matches can own their branch's work: either they are Owners
+   * themselves, or they are owned and can supply their owner.
+   */
+  internal fun selectionOwnsBody(selector: Expression): Boolean {
+    val klass = classTable.findClass(selector.className) ?: return false
+    // `Anyone` roots the ownership hierarchy, so this covers Owners and Players as well; `Owned`
+    // covers everything that can instead name the Owner it belongs to.
+    return listOfNotNull(classTable.findClass(ANYONE), classTable.findClass(OWNED))
+        .any(klass::isSubtypeOf)
   }
 
   private fun attachToClassTransformer(klass: Class): PetTransformer {
@@ -220,12 +247,29 @@ public class Transformers(public val classTable: ClassTable) {
     )
   }
 
+  /** Whether an `Owner` occurrence outside any fanout body still needs a value from the event. */
+  private fun ownerNeedsContext(instruction: InstructionTree): Boolean {
+    if (OWNER !in instruction) return false
+    val shieldedOwners =
+        instruction
+            .descendantsOfType<Each>()
+            .filter { selectionOwnsBody(it.selector) }
+            .sumOf {
+              it.body.descendantsOfType<Expression>().count { e -> e.className == OWNER }
+            }
+    val allOwners = instruction.descendantsOfType<Expression>().count { it.className == OWNER }
+    return allOwners > shieldedOwners
+  }
+
   /** Adds icon-grammar `BY Owner` when an ownerless Effect's result needs its event's Player. */
   private fun fixEffectForUnownedContext(klass: Class): PetTransformer? {
     if (klass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
-        return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {
+        if (shieldsContextualOwner(node)) return node
+        return if (
+            node is Effect && ownerNeedsContext(node.instruction) && OWNER !in node.trigger
+        ) {
           node.copy(trigger = ByTrigger(node.trigger, OWNER))
         } else {
           transformChildren(node)

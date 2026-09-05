@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -18,10 +19,12 @@ import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.DIE
+import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
@@ -34,6 +37,7 @@ import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
@@ -55,6 +59,7 @@ internal constructor(
     private val defaultActor: Actor? = null,
     private val customClasses: CustomClassRuntime =
         CustomClassRuntime(reader.catalog, Transformers(classTable)),
+    private val transformers: Transformers = Transformers(classTable),
 ) {
   internal constructor(
       reader: GameReader,
@@ -95,7 +100,18 @@ internal constructor(
   ) {
     when (val resolved = resolve(instruction)) {
       is Instruction -> doExecuteResolved(resolved, cause, deferred, actor, controller)
-      is InstructionGroup -> throw abstractInstruction(resolved)
+      // Independent siblings, such as the branches of a fanout, execute in place here; only an
+      // enqueued task turns them into separately selectable work.
+      is InstructionGroup ->
+          resolved.instructions.forEach {
+            doExecute(
+                it as? Instruction ?: throw abstractInstruction(it),
+                cause,
+                deferred,
+                actor,
+                controller,
+            )
+          }
     }
   }
 
@@ -294,6 +310,7 @@ internal constructor(
         if (!reader.has(unresolved.gate)) throw requirementNotMet(unresolved.gate)
         resolveTree(unresolved.inner)
       }
+      is Each -> resolveEach(unresolved)
       is Or -> resolveOr(unresolved)
       is Then ->
           unresolved.withInstructions(
@@ -485,6 +502,61 @@ internal constructor(
         adjusted,
         if (intensity == AMAP) MANDATORY else intensity,
     )
+  }
+
+  /**
+   * Fans one instruction out over the World as it stands right now. Every component matching the
+   * selector contributes one independent branch, so a selector refinement — evaluated against each
+   * candidate like any other refinement — is how "each player who..." is expressed. The resulting
+   * siblings carry no order, so they are deliberately produced in a stable but arbitrary sort.
+   */
+  private fun resolveEach(each: Each): InstructionTree {
+    val selectorType = reader.resolve(each.selector)
+    if (!selectorType.abstract) {
+      throw ExpressionException(
+          "`EACH ${each.selector}` selects one concrete Type, so it would have a single " +
+              "branch. Select an abstract type whose matching components can differ."
+      )
+    }
+    val ownsBody = transformers.selectionOwnsBody(each.selector)
+    val named =
+        each.body.descendantsOfType<Expression>().any {
+          it == each.selectorName || (ownsBody && it.className == OWNER)
+        }
+    if (!named) {
+      throw ExpressionException(
+          "`EACH ${each.selector}` never names its selection in `${each.body}`, " +
+              "so every branch would be the same instruction"
+      )
+    }
+    val selected =
+        reader.getComponents(selectorType).elements.map { it.expression }.sortedBy { "$it" }
+    val branches = selected.map { branchFor(each, it) }
+    return InstructionGroup.createTree(branches)
+  }
+
+  private fun branchFor(each: Each, selected: Expression): InstructionTree {
+    val bind =
+        PetTransformer.chain(
+            replacer(each.selectorName, selected),
+            ownerOf(selected)?.let(Transforming::replaceOwnerWith),
+        )
+    return resolveTree(bind.transformInstructionTree(each.body))
+  }
+
+  /**
+   * The Owner that a selected component contributes to its branch: itself when it is one, otherwise
+   * whichever Owner it belongs to. This is what lets `EACH CityTile { ... }` act on each city's
+   * owner without naming any player.
+   */
+  private fun ownerOf(selected: Expression): Expression? {
+    val type = reader.resolve(selected)
+    if (type.rootClass.isSubtypeOf(classTable.getClass(OWNER))) return type.expression
+    return type.dependencies
+        .typeDependencies()
+        .map { it.boundType }
+        .firstOrNull { !it.abstract && it.rootClass.isSubtypeOf(classTable.getClass(OWNER)) }
+        ?.expression
   }
 
   private fun resolveOr(unresolved: Or): InstructionTree {

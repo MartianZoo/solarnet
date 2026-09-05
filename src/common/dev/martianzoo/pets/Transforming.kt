@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -51,11 +52,24 @@ public object Transforming {
           },
       )
 
-  /** Replaces each occurrence of the contextual `Owner` placeholder with [owner]. */
+  /**
+   * Replaces each occurrence of the contextual `Owner` placeholder with [owner], except inside any
+   * subtree [shielded] accepts. A fanout shields its own body: `Owner` there denotes the selected
+   * component's owner and only the fanout may bind it.
+   */
   @Suppress("ComplexCondition") // TODO fix
-  public fun replaceOwnerWith(owner: HasClassName): PetTransformer =
+  public fun replaceOwnerWith(
+      owner: HasClassName,
+      shielded: (PetNode) -> Boolean = { false },
+  ): PetTransformer =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
+          if (shielded(node)) {
+            // Only the body is shielded. A selector still names components in the enclosing
+            // context, so `EACH ProjectCard<Owner>` means the cards this component's owner holds.
+            return if (node is Each) node.copy(selector = transformExpression(node.selector))
+            else node
+          }
           if (
               node is Expression &&
                   node.className == OWNER &&

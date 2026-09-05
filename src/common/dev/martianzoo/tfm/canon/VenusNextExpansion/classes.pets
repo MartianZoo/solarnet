@@ -1,6 +1,5 @@
 CLASS VenusNextExpansion : Module {
   This:: AirScrappingSP
-  This:: GpIncomplete<Class<VenusStep>>
   This IF MAX 0 ExtendedGlobalParametersRule:: StandardVenusTrackRules
   This IF ExtendedGlobalParametersRule:: ExtendedVenusTrackRules
 }

@@ -8,7 +8,8 @@ CLASS TerraformingMars : Module {
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
-  This:: GpIncomplete<Class<TemperatureStep>>, GpIncomplete<Class<OxygenStep>>, GpIncomplete<Class<OceanTile>>
+  SetupPhase:: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
+  SetupPhase:: EACH Player { 20 TerraformRating }
   CorporationPhase:: TrWatcher.
   This IF MAX 0 ExtendedGlobalParametersRule:: StandardGpTrackRules
   This IF MAX 0 MarsMap:: TharsisMap
@@ -22,6 +23,8 @@ CLASS TerraformingMars : Module {
 "Starts each player with one production of every standard resource"
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
+
+  SetupPhase: EACH Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
 }
 
 // PLAYERS AND OWNERSHIP
@@ -30,10 +33,11 @@ CLASS QuickStartVariant : Module {
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
 
+  // Bootstrap gains Modules before Players, so a Module cannot grant these: `This` on Player is the
+  // only hook that fires at player creation, which is earlier than any phase.
   This:: GrossHack<This> BY Engine
-  SetupPhase:: 20 TerraformRating<This>
-  SetupPhase:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
-  SetupPhase IF QuickStartVariant: PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]
+  This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
+
   CorporationPhase:: CorporationCard
   ResearchPhase:: Selecting
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards

@@ -15,4 +15,11 @@ internal class ProductiveOutpostTest : ColoniesCardTest() {
 
     p1.manual("$ProductiveOutpost").expect("2 MC, 2 Heat, Titanium")
   }
+
+  @Test
+  internal fun `Pays once per colony, not once per colony tile`() {
+    p1.manual("2 Colony<Luna>")
+
+    p1.manual("$ProductiveOutpost").expect("4 MC")
+  }
 }

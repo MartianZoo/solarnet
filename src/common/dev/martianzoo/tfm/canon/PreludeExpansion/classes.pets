@@ -1,7 +1,9 @@
 "The published Prelude 1 rules"
 CLASS PreludeExpansion : Module {
-  HAS PreludeCardPack, =1 Class<PreludeSetup>, =1 Class<PreludePhase>
+  HAS PreludeCardPack, =1 Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
+
+  PreludePhase:: EACH Player { 2 PreludeCard }
 }
 
 "A selectable pool of Prelude cards"
@@ -10,12 +12,6 @@ ABSTRACT CLASS PreludeCardPack : Module
 "The Prelude 1 card pool, selected by default with the Prelude 1 rules"
 CLASS Prelude1CardPack : PreludeCardPack {
   autoSelectWhen = HAS "PreludeExpansion"
-}
-
-"Deals each player the two generic card backs consumed during PreludePhase"
-CLASS PreludeSetup : Owned<Player>, System {
-  HAS =1 This
-  PreludePhase:: 2 PreludeCard
 }
 
 CLASS PreludePhase : Phase {

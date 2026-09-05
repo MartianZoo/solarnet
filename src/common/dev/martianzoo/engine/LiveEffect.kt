@@ -173,7 +173,7 @@ private constructor(
     }
 
     private fun specialize(component: Component, transformers: Transformers): List<Effect> {
-      val ownerBinding = component.owner?.let(::replaceOwnerWith)
+      val ownerBinding = component.owner?.let(transformers::bindContextualOwner)
       val thisBinding = replaceThisExpressionsWith(component.expression)
 
       return if (component.owner == null || component.playerOwner != null) {
@@ -376,7 +376,9 @@ private constructor(
           // other
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerSubstitution =
-              if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null
+              if (OWNER in match) {
+                contextualOwner?.let(reader.transformers::bindContextualOwner)
+              } else null
           val binder =
               reader.transformers.bindVariablesFrom(
                   matchType,

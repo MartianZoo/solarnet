@@ -65,6 +65,7 @@ private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
       is Gain,
       is Remove,
       is Instruction.Transmute -> RefusalReason.UNKNOWN_CHANGE_FRAME
+      is Instruction.Each -> RefusalReason.UNSUPPORTED_FANOUT
       is Instruction.Or -> RefusalReason.UNSUPPORTED_ALTERNATIVES
       is Instruction.Per -> RefusalReason.UNSUPPORTED_SCALING
       is Instruction.Gated -> RefusalReason.UNSUPPORTED_GATE
@@ -82,6 +83,8 @@ private fun renderInstruction(
       is Gain,
       is Remove,
       is Instruction.Transmute -> renderChange(instruction, describers)
+      is Instruction.Each ->
+          Rendering(null, listOf(Unresolved(instruction, RefusalReason.UNSUPPORTED_FANOUT)))
       is Instruction.Or -> Rendering.resolved(renderAlternatives(instruction, describers))
       is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers))
       is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers))

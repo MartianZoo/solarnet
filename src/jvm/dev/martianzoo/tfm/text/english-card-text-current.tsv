@@ -257,7 +257,7 @@ RotatorImpacts	Rotator Impacts	Requires that Venus is 14% or lower.	Action: Pay 
 SisterPlanetSupport	Sister Planet Support	Requires a Venus tag and an Earth tag. Increase your M€ production 3 steps.
 Solarnet	Solarnet	Requires a Venus tag, an Earth tag, and a Jovian tag. Draw 2 cards.
 SpinInducingAsteroid	Spin-Inducing Asteroid	Requires that Venus is 10% or lower. Raise Venus 2 steps.
-SponsoredAcademies	Sponsored Academies	[-ProjectCard THEN (2 ProjectCard, SponsoredAcademies_Signal)].
+SponsoredAcademies	Sponsored Academies	[-ProjectCard THEN (2 ProjectCard, EACH Player { ProjectCard })].
 Stratopolis	Stratopolis	Requires 2 science tags. Increase your M€ production 2 steps. Place a city tile on the reserved area outside Mars. 1 VP per 3 floaters on this card.	Action: Add 2 floaters to a Venus card.
 StratosphericBirds	Stratospheric Birds	Requires that Venus is 12% or higher. Remove 1 floater from any card. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 SulphurExports	Sulphur Exports	Raise Venus 1 step. Increase your M€ production 1 step per Venus tag you have.
@@ -394,7 +394,7 @@ NobelPrize	Nobel Prize	[WildTag<This>]. Gain 5 M€. Draw 2 cards with requireme
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.
 PlanetaryAlliance	Planetary Alliance	Raise your terraform rating 2 steps. Draw 1 Jovian card. Draw 1 Venus card.
 ProjectEden	Project Eden	Place 1 ocean tile. Place a city tile. Place a greenery tile. Discard 3 cards.
-Recession	Recession	Gain 10 M€.
+Recession	Recession	Gain 10 M€. [EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., -Production<Class<MC>> }].
 SoilBacteria	Soil Bacteria	Draw 2 microbe cards. Gain 3 plants.	Effect: When you play a plant tag or a microbe tag, gain 1 plant.
 SpaceLanes	Space Lanes	Gain 3 titanium.	Effect: When you play a planetary tag, pay 2 M€ less.
 SuitableInfrastructure	Suitable Infrastructure	Gain 5 steel.	Effect: When you use an action, [-SuitableInfrastructurePaid.]. [NewTurn IF PreludePhase:: -SuitableInfrastructurePaid.]. [X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.].
@@ -417,7 +417,7 @@ VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gai
 Recyclon	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card or remove 2 microbes from this card to increase your plant production 1 step.
 SpliceTacticalGenomics	Splice Tactical Genomics	Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When any microbe tag is played, gain 2 M€.
 Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: If you have no energy, increase your energy production 1 step, or pay 3 M€ to draw 1 building card.
-MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps.	Effect: [MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.].
+MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. [EACH Player(HAS MAX 0 This<Anyone>) { -2 Production<Class<MC>> BY Owner }].	Effect: [MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.].
 Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain a standard resource.
 AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain a standard resource, or remove 1 asteroid from this card to gain 3 titanium.
 PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: When any microbe tag is played, add 1 disease resource to this card or [MAX 0 This: Ok] and [-4 MC.]. When you play a science tag, [TerraformRating FROM Disease<This>!] or [MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok].
@@ -500,7 +500,7 @@ CityParks	City Parks	Requires that you have 3 city tiles. Gain 2 plants.
 Casinos	Casinos	Requires that you have a city tile. Decrease your energy production 1 step and increase your M€ production 4 steps.
 ProtectedGrowth	Protected Growth	Requires that oxygen is 7% or lower. Gain 1 plant per power tag you have.
 StaticHarvesting	Static Harvesting	Requires that there are 3 or fewer ocean tiles. Increase your energy production 1 step. Gain 1 M€ per building tag you have.
-Vermin	Vermin		Action: Add 1 animal to this card or add 1 microbe to any card. / Effect: When any city tile is placed, add 1 animal to this card.
+Vermin	Vermin	[End IF 10 Animal<This>: EACH CityTile<Player> { -VictoryPoint }].	Action: Add 1 animal to this card or add 1 microbe to any card. / Effect: When any city tile is placed, add 1 animal to this card.
 WeatherBalloons	Weather Balloons	Draw 1 card.	Action: Add 1 floater to this card, or remove 1 floater from this card to gain 1 M€ per any city tile on Mars.
 PublicPlans	Public Plans	[MC? / ProjectCard].
 SterlingVents	Sterling Vents	Decrease your heat production 2 steps and increase your energy production 2 steps.

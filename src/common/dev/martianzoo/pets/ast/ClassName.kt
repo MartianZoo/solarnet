@@ -22,6 +22,7 @@ public class ClassName private constructor(public val asString: String) :
             "CLASS",
             "COUNT",
             "DEFAULT",
+            "EACH",
             "EVAL",
             "FROM",
             "HAS",

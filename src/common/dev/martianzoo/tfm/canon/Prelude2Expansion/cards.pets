@@ -150,7 +150,7 @@ CLASS ProjectEden : CardFront<Class<PreludeCard>> {
 CLASS Recession : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: 10 MC
+  This: 10 MC, EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., PROD[-1 MC] }
 }
 
 CLASS SoilBacteria : CardFront<Class<PreludeCard>> {
@@ -318,11 +318,6 @@ CLASS Director : CardResource<ResourceHolder<Class<Director>>>
 
 CLASS FocusedOrganizationGain : Owned<Player>, Signal {
   This: ProjectCard, StandardResource
-}
-
-CLASS RecessionWatcher : Owned<Player>, System {
-  HAS =1 This
-  Recession<Anyone> BY Actor IF MAX 0 Recession<Owner>: -5 MC<Owner>. BY Actor, PROD[-1 MC<Owner>] BY Actor
 }
 
 CLASS SuitableInfrastructurePaid : Atomized, Hidden, Owned<Player> {

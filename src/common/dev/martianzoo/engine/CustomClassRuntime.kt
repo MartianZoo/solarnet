@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -54,7 +53,7 @@ internal class CustomClassRuntime(
           chain(
               atomizer(),
               insertDefaults(),
-              component.owner?.let(::replaceOwnerWith),
+              component.owner?.let(::bindContextualOwner),
           )
         }
     return outputTransformer.transformInstructionTree(translated)

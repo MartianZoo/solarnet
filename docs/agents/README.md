@@ -46,7 +46,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
 | Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
-| Generic component fanout (`EACH`) | [`EACHPLAYER.md`](EACHPLAYER.md) | Proposal, with a measured prototype |
+| Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |
 | Eliminating a custom instruction | [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) | Audit |
 
 ### Change content, names, or human rendering

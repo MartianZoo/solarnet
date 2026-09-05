@@ -628,10 +628,10 @@ atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
 `Foo<Same, Here, To> FROM Foo<Same, Here, From>`; each unchanged argument occupies both roles and
 therefore uses one atomic variable.
 
-The proposed [`EACH`](EACHPLAYER.md) fanout would make its selector a declaration whose scope is its
-body. Each enumerated concrete selector Type would substitute through the recorded use paths. It
-would not bind contextual `Owner` or `This` and would reject a body with no use of the selector. This
-construct is not implemented.
+The [`EACH`](EACH.md) fanout makes its selector a declaration whose scope is its body. Each
+enumerated concrete selector Type substitutes through the recorded use paths. Inside the body,
+`Owner` denotes the selected component's owner while `This` remains the effect-bearing component.
+The construct rejects a body with no use of the selector.
 
 ### Implementation direction
 

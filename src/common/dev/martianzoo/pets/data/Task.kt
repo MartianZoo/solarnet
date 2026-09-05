@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
@@ -141,6 +142,7 @@ public data class Task(
             By.createTree(inner, tree.actor)
           }
         }
+        is Each -> tree.copy(body = normalizeForTask(tree.body))
         is Gated -> tree.copy(inner = normalizeForTask(tree.inner))
         is Per -> {
           val inner = normalizeForTask(tree.inner)
