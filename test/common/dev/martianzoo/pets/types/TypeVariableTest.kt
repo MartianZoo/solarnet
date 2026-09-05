@@ -80,6 +80,32 @@ internal class TypeVariableTest {
   }
 
   @Test
+  internal fun `an earlier gate occurrence belongs to the first-stage dependency choice`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person",
+            "CLASS Alice : Person",
+            "ABSTRACT CLASS Eligible<Person>",
+            "ABSTRACT CLASS Coin<Person>",
+            "ABSTRACT CLASS Receipt<Person>",
+            "CLASS Offer<Person> { This: (Eligible<Person>: Coin<Person>) THEN Receipt<Person> }",
+        )
+    val klass = table.getClass(parse<Expression>("Offer").className)
+    val classInterpreted = klass.interpretTypeVariablesIn(klass.declaration.effects.single())
+    val effect = table.inferTypeVariables().transformEffect(classInterpreted)
+    val then = effect.instruction as Then
+    val choice = then.typeVariables.variables.single()
+
+    classInterpreted.typeVariables.isEmpty shouldBe true
+    choice.occurrences.map { it.expression.toString() } shouldContainExactly
+        listOf("Person", "Person", "Person")
+    then.typeVariables
+        .bind(mapOf(choice to table.resolve(parse("Alice"))))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Eligible<Alice>: Coin<Alice> THEN Receipt<Alice>"
+  }
+
+  @Test
   internal fun `binding ignores a candidate missing a nested dependency path`() {
     val table =
         loadTypes(

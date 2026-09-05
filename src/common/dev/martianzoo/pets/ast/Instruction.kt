@@ -471,7 +471,14 @@ public sealed class Instruction : InstructionTree() {
         loweredBinding: PetTransformer?,
         requireBinding: Boolean,
     ): Then {
-      proposed.ensureNarrows(first, info)
+      val firstStage = first
+      val selectableFirst =
+          if (firstStage is Gated) {
+            firstStage.inner as Instruction
+          } else {
+            firstStage
+          }
+      proposed.ensureNarrows(selectableFirst, info)
       val partial = withParts(listOf(proposed) + stages.drop(1), continuation)
       val variables = typeVariablesFor(info)
       val authoredBinding =
@@ -486,7 +493,7 @@ public sealed class Instruction : InstructionTree() {
                 }
                 val positionalBindings =
                     variables
-                        .bindings(first, proposed, variable)
+                        .bindings(selectableFirst, proposed, variable)
                         .filter { it != declaration && narrowsExpression(it, declaration, info) }
                         .map { variable.bound.classTable.resolve(it.uncomplemented()) }
                         .distinct()
@@ -501,11 +508,16 @@ public sealed class Instruction : InstructionTree() {
                 bindings.singleOrNull()?.let { variables.bind(mapOf(variable to it)) }
               }
           )
+      val selectionBinding = PetTransformer.chain(loweredBinding, authoredBinding)
+      val selectedFirstStage = selectionBinding.transformInstruction(firstStage)
+      if (selectedFirstStage is Gated && !info.has(selectedFirstStage.gate)) {
+        throw NarrowingException("Condition is not met: ${selectedFirstStage.gate}")
+      }
       val specialized =
           bindTypeVariablesFrom(
               partial,
               info,
-              PetTransformer.chain(loweredBinding, authoredBinding),
+              selectionBinding,
           )
       val selectedX = if (hasSharedX()) sharedXValue(first, proposed) else null
       val fullySpecialized =

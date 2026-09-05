@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
@@ -299,7 +300,7 @@ internal class Implementations(
 
     val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, intensityOmitted)
     if (effectiveNarrowing == task.instruction) {
-      executeSelectedIfConcrete(tasks, taskId)
+      selectAndExecuteIfConcrete(tasks, taskId)
       return
     }
     val directlyNarrows = effectiveNarrowing.narrows(task.instruction, reader)
@@ -484,8 +485,14 @@ internal class Implementations(
     val evaluated = evaluatePer(narrowing)
     val id = matchingTask(evaluated, taskNumber, intensityOmitted)
     val tasksBefore = tasks.ids()
-    selectTask(tasks, tasks.getTaskData(id)) ?: return
-    narrowTask(evaluated, intensityOmitted)
+    val task = tasks.getTaskData(id)
+    if (narrowsTask(evaluated, task.instruction, intensityOmitted)) {
+      enforceSelectLock(id)
+      narrowSelectedTask(id, evaluated, intensityOmitted)
+    } else {
+      selectTask(tasks, task) ?: return
+      narrowTask(evaluated, intensityOmitted)
+    }
     if (id !in tasks) {
       if (executeSubmittedGroup) {
         tasks.ids().filter { it !in tasksBefore }.forEach(::doTask)
@@ -517,6 +524,7 @@ internal class Implementations(
       if (taskData.assignee != actor) return false
       val instruction = taskData.instruction
       if (narrowsTask(narrowing, instruction, intensityOmitted)) return true
+      if (targetsThenFirstStage(narrowing, instruction, intensityOmitted)) return false
       return try {
         narrowsTask(narrowing, instructor.resolve(instruction), intensityOmitted)
       } catch (_: NotNowException) {
@@ -525,6 +533,26 @@ internal class Implementations(
     }
 
     return uniqueMatchingTask(tasks.extract { it }.filter(::weCanNarrowIt))
+  }
+
+  private fun targetsThenFirstStage(
+      narrowing: InstructionTree,
+      existing: InstructionTree,
+      intensityOmitted: Boolean,
+  ): Boolean {
+    val effective = effectiveNarrowing(narrowing, existing, intensityOmitted)
+    if (effective !is Instruction || effective is Then) return false
+    val candidates =
+        when (existing) {
+          is Then -> listOf(existing)
+          is Or -> existing.instructions.filterIsInstance<Then>()
+          else -> emptyList()
+        }
+    return candidates.any { then ->
+      val first = then.first
+      val selectable = if (first is Gated) first.inner as Instruction else first
+      effective.narrows(selectable, reader)
+    }
   }
 
   private fun narrowsTask(

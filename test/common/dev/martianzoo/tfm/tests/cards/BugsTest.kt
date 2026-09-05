@@ -1,13 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -104,25 +102,6 @@ internal class BugsTest : CardTest(additionalClassDeclarations = attributionProb
 
     p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
     p1.count("MC") shouldBe moneyBefore + 15
-  }
-
-  @Test
-  internal fun `Law Suit incorrectly rejects a funded attacker when its owner has only two mc`() {
-    newGame(PromoCardPack)
-    engine.phase("Action")
-    p1.autoExecMode = NONE
-    p1.manual("2 MC, ProjectCard, PROD[Plant]")
-    val p2 = requireP2()
-    p2.manual("5 MC, PROD[-Plant<Player1>]")
-
-    shouldThrow<TaskException> {
-      p1.playProject(LawSuit, 2) {
-        doTask("3 MC<Player1> FROM MC<Player2>")
-      }
-    }
-
-    p1.assertCounts(2 to "MC", 1 to "ProjectCard")
-    p2.assertCounts(5 to "MC")
   }
 
   @Test

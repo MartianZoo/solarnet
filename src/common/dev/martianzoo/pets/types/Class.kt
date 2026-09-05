@@ -607,7 +607,9 @@ internal constructor(
             TypeVariableScope.infer(then.instructions, classTable)
                 .variables
                 .filter { variable ->
-                  firstRoleDependencies.any { it === variable.declaration.expression }
+                  variable.occurrences.any { occurrence ->
+                    firstRoleDependencies.any { it === occurrence.expression }
+                  }
                 }
                 .flatMap { variable ->
                   variable.occurrences.map { occurrence -> occurrence.expression }
