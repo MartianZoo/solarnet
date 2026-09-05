@@ -53,6 +53,27 @@ internal class LawSuitTest : CardTest() {
   }
 
   @Test
+  internal fun `Law Suit triggers its player's Media Group`() {
+    val p2 = requireP2()
+    p1.manual("$MediaGroup")
+    p2.manual("3 MC, PROD[-Plant<Player1>]")
+
+    p1.playProject(LawSuit, 2) {
+          choosePlayer2()
+          doTask("3 MC<Player1>")
+        }
+        .expect("4 MC<Player1>, -3 MC<Player2>")
+  }
+
+  @Test
+  internal fun `Law Suit does not trigger the attacked player's Media Group`() {
+    val p2 = requireP2()
+    p2.manual("$MediaGroup, 3 MC, PROD[-Plant<Player1>]")
+
+    p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
+  }
+
+  @Test
   internal fun `Cannot be played without an opponent's attack`() {
     requireP2().manual("3 MC")
     shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }

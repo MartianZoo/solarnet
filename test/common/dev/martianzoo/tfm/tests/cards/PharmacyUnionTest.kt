@@ -90,6 +90,23 @@ internal class PharmacyUnionTest : CardTest() {
     p1.assertCounts(0 to "$PharmacyUnion", 1 to "PlayedEvent<Class<$PharmacyUnion>>")
   }
 
+  @Test
+  internal fun `Flipping Pharmacy Union does not trigger its owner's Media Group`() {
+    newGame(PromoCardPack)
+    p1.manual("$PharmacyUnion, $MediaGroup")
+    p1.manual("-2 Disease<$PharmacyUnion>")
+    val moneyBefore = p1.count("MC")
+    val manual = p1.also { it.autoExecMode = NONE }
+
+    manual.manual("$PhysicsComplex") {
+      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("3 TerraformRating")
+    }
+
+    p1.count("MC") shouldBe moneyBefore
+    p1.assertCounts(0 to "$PharmacyUnion", 1 to "PlayedEvent<Class<$PharmacyUnion>>")
+  }
+
   // FAQ: a microbe trigger that was already pending when Pharmacy Union flips still loses 4 M€,
   // but places no disease because the corporation is no longer in play.
   @Test
