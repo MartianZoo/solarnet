@@ -14,11 +14,20 @@ src/
       pets/
       script/
       tfm/
+        carddata/
+          PreludeExpansion/
+            cards.json5
+        mapdata/
+          TharsisMap/
+            maps.json5
         canon/
           PreludeExpansion/
             cards.pets
             classes.pets
             en.json5
+          TharsisMap/
+            classes.pets
+            maps.pets
           TerraformingMars/
             ...
         engine/
@@ -42,6 +51,8 @@ modules/
   pets/build.gradle.kts
   engine/build.gradle.kts
   tfm-canon/build.gradle.kts
+  tfm-card-data/build.gradle.kts
+  tfm-map-data/build.gradle.kts
   ...
 ```
 
