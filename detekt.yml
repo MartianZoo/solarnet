@@ -8,7 +8,8 @@ complexity:
   NestedScopeFunctions:
     active: true
   CyclomaticComplexMethod:
-    # Branching complexity is expected in parsers and renderers and is not actionable by itself.
+    # Complexity is useful as a manual report, but threshold enforcement is disruptive during
+    # active development.
     active: false
   LargeClass:
     excludes: ['**/tfm/engine/games/**']

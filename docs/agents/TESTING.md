@@ -67,6 +67,11 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   sources. A benchmark error fails the task instead of producing an empty successful report.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.
+- `./gradlew :tools:kotlinFileComplexity` writes a TSV of Detekt cyclomatic complexity for each
+  production Kotlin file and each test-support file without test-case methods to
+  `reports/kotlin-file-complexity.tsv` under the root build directory. The report is manual rather
+  than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
+  current scope excludes benchmarks, standalone tools, and `dev.martianzoo.tfm.text`.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of automatic-effect siblings. This is a
   diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain a stable

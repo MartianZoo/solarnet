@@ -16,6 +16,7 @@ truth = "1.4.5"
 
 [libraries]
 better-parse = { module = "com.github.kevinb9n.better-parse:better-parse", version.ref = "better-parse" }
+detekt-metrics = { module = "dev.detekt:detekt-metrics", version.ref = "detekt" }
 jline = { module = "org.jline:jline", version.ref = "jline" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
