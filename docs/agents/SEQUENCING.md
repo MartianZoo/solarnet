@@ -377,16 +377,18 @@ coalesced into one automatic follow-up step, and the same cleanup loop runs agai
 resulting position is recorded. Every pass happens inside an atomic transaction. See
 `AtomicOperationScope.performIdleCleanup` and `Engine.removeTemporaryComponents`.
 
-Two classes use it:
+Three classes use it:
 
 - **`EventCard`** — its immediate work and tag reactions finish while the live card still exists,
   and removing it creates the corresponding `PlayedEvent`. Law Suit is a deliberate exception in
   behavior, not in machinery: its authored consequence moves the card straight to `PlayedEvent`, so
   no EventCard is left for idle cleanup.
 - **`End`** — the live scoring operation, and also the terminal `Phase`. Gaining it queues every
-  `End` scoring reaction; Awards queue `MeasureAward<Award>`, which establishes each Player's
-  `AwardTally` automatically and queues `AssignAwardPlaces<Award>`. Once those tasks and all their
-  consequences drain, removing `End` leaves no live phase and queues multiplayer victory assignment.
+  `End` scoring reaction. Once those tasks and all their consequences drain, removing `End` leaves
+  no live phase and queues multiplayer victory assignment.
+- **`MeasureAward<Award>`** — snapshots every Player's `AwardTally` when gained. Idle cleanup removes
+  it in the same pass as `End`, and its automatic removal effect assigns places and their victory
+  points before the queued multiplayer victory assignment can run.
 
 The reusable shape is a concrete operation component whose gain creates all the work that must
 precede completion, and whose automatic removal effect emits the fixed completion consequence:

@@ -536,12 +536,18 @@ internal constructor(
   }
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
+    val owner = ownerOf(selected)
     val bind =
         PetTransformer.chain(
             replacer(each.selectorName, selected),
-            ownerOf(selected)?.let(Transforming::replaceOwnerWith),
+            owner?.let(Transforming::replaceOwnerWith),
         )
-    return resolveTree(bind.transformInstructionTree(each.body))
+    val bound = bind.transformInstructionTree(each.body)
+    val evaluated =
+        transformers
+            .evaluateProperties(context = selected, owner = owner)
+            .transformInstructionTree(bound)
+    return resolveTree(evaluated)
   }
 
   /**

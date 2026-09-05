@@ -29,7 +29,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   not award it TR, and whether adding and then removing those steps has any other observable
   consequences.
 - Keep looking for a better representation of Splice Tactical Genomics.
-- Evaluate class properties per fanout branch, so `MeasureAward`'s tally can move off `Player`.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are

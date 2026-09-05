@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -191,27 +190,19 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  internal fun awardPlacementMayPrecedeOtherScoringButVictoryWaitsForAllScoring() {
+  internal fun adminDrivenEndReturnsOnlyAfterAllVictoryPointsSettle() {
     game = Engine.newGame(canonicalPremise())
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     p1.manual("3 VictoryPoint, TerraformRating")
     p2.manual("Banker, PROD[1 MC]")
-    val manual = engine.also { it.autoExecMode = NONE }
-    p1.autoExecMode = NONE
 
-    manual.beginManual("End")
-    manual.selectTask("MeasureAward<Banker>")
-    manual.selectTask("AssignAwardPlaces<Banker>")
-
-    p1.assertCounts(3 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
-    p2.assertCounts(5 to "VictoryPoint<Player2>", 0 to "Victory<Player2>")
-    engine.count("End") shouldBe 1
-
-    p1.doTask("VictoryPoint")
+    engine.manual("End")
 
     p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")
     engine.count("End") shouldBe 0
+    engine.count("MeasureAward<Banker>") shouldBe 0
+    game.tasks.isEmpty() shouldBe true
   }
 }

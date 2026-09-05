@@ -53,9 +53,16 @@ EACH Player(HAS MAX 0 This<Anyone>) { PROD[-2 MC] BY Owner }
 ```
 
 An unmet gate inside the body fails normally; it does not omit that branch. `EACH` rejects a
-concrete selector, a selector unused by its body, complements, nested fanouts, an empty body, and a
-body containing `EVAL`. Class properties are currently evaluated once before fanout, so permitting
-`EVAL` would give every branch the enclosing context's value.
+concrete selector, a selector unused by its body, complements, nested fanouts, and an empty body.
+
+Class-property syntax in the body remains inert while the enclosing Class effect is prepared. Once
+the fanout snapshot is selected, each branch binds its selected component and contextual `Owner`,
+then evaluates its class properties independently. The resulting metrics are resolved while the
+same fanout snapshot is still current, before any branch executes:
+
+```pets
+EACH Player { AwardTally<Award> / EVAL Award.metric }
+```
 
 ## Ownership and attribution
 
@@ -137,9 +144,8 @@ each player must make a choice. Prefer a persistent listener when the reaction m
 throughout the game. A fanout triggered before its intended recipients exist silently does nothing,
 so `SetupPhase` is the earliest reliable host for fanout over all players created during bootstrap.
 
-English rendering currently declines fanouts as `UNSUPPORTED_FANOUT`. Per-branch class-property
-evaluation and per-player task routing are also unsupported; they are separate features, not implied
-by `EACH`.
+English rendering currently declines fanouts as `UNSUPPORTED_FANOUT`. Per-player task routing is
+unsupported; it is separate from per-branch class-property evaluation and is not implied by `EACH`.
 
 ## Implementation and proofs
 

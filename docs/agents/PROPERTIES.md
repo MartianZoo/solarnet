@@ -110,7 +110,8 @@ This:: (EVAL This.requirement: Ok)
 
 Expansion substitutes the concrete receiver for `This`, supplies the effect's contextual Owner,
 and then applies the normal defaults and lowering. Expansion may wait until trigger matching has
-specialized an abstract receiver. `EVAL` is invalid in an arbitrary count query.
+specialized an abstract receiver. Inside `EACH`, it waits further until each fanout branch has bound
+its selected component and contextual Owner. `EVAL` is invalid in an arbitrary count query.
 
 ## Why class properties earn their cost
 
