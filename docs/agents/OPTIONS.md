@@ -56,11 +56,11 @@ Name or ambiguous ownership of a Module are invalid.
 
 ## One master Class Table, projected per game
 
-Class declarations are the Catalog's only common content representation. Map records remain a
-category-specific transitional input; there is no shared `Definition` interface or Catalog-wide
-registry of structured content objects. Catalog assembly requires explicit Pets declarations for
-every card, map, area, and auxiliary Class and never synthesizes or behaviorally supplements one
-from a structured record. Concrete `CardFront` subclasses form the card registry.
+Class declarations are the Catalog's only content representation. There is no shared `Definition`
+interface or Catalog-wide registry of structured content objects. Catalog assembly requires
+explicit Pets declarations for every card, map, area, and auxiliary Class and never synthesizes or
+behaviorally supplements one from a structured record. Concrete `CardFront` subclasses form the
+card registry.
 
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
@@ -77,13 +77,10 @@ contains mutually exclusive maps, modes, and replacement classes.
 **Status: current.**
 
 Runtime Catalog assembly receives only explicit Class declarations. Canon supplies those
-declarations through bundled `classes.pets` and authored `cards.pets`. Missing declarations fail
-Catalog loading. Runtime assembly neither synthesizes a missing card declaration nor supplements
-its behavior from another representation. Synthetic tests likewise supply ordinary Pets
-declarations.
-
-The remaining structured-content cleanup concerns maps. It must preserve explicit declaration
-authority and loaded Classes as the runtime representation.
+declarations through bundled `classes.pets`, generated `cards.pets`, and generated `maps.pets`.
+Missing declarations fail Catalog loading. Runtime assembly neither synthesizes a missing
+declaration nor supplements its behavior from another representation. Synthetic tests likewise
+supply ordinary Pets declarations.
 
 ## Module
 
@@ -215,25 +212,27 @@ availability annotations solely to preserve a product-shaped source directory.
 
 ## Card declarations and views
 
-Canonical `cards.pets` carries each card's deck role, tags, cost, play Requirement, actions,
-Effects, and resource role. Card consumers use the loaded Class directly, with narrow derived
+`tfm-card-data` owns the pets-free `CardDefinition` records and their JSON5 datasets. The JVM generator
+turns them into canonical `cards.pets`; a drift test requires byte-for-byte agreement. The
+generated declarations carry each card's deck role, tags, cost, play Requirement, actions,
+Effects, and resource role. Runtime card consumers use only the loaded Class, with narrow derived
 queries for those semantics. A concrete subclass of `CardFront` is a card; its represented
 `Class<CardBack>` distinguishes project, corporation, and Prelude decks. Auxiliary declarations
-require no per-card metadata relationship.
+require no runtime per-card metadata relationship.
 
 ## Map data and runtime views
 
-The compact map diagram may remain bundle-owned presentation and generation metadata. Semantic map
-facts—area identity, kind, row, column, and bonus Effect—come from loaded Classes. Runtime map
-consumers should share one class-backed view rather than independently interpreting the diagram or
-reconstructing maps by name.
+`tfm-map-data` owns each map's rows and per-map legend. The generator emits the diagram comment and area
+declarations into `maps.pets`; `classes.pets` keeps the map Module, milestones, awards, and other
+hand-authored declarations. Semantic runtime facts—area identity, kind, row, column, and bonus
+Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
+concrete `MarsArea` Classes without a name-prefix convention.
 
-`CreateMapAreas` remains the correct causal point: creation of the selected map gains its bundled
-area Classes, so event history records the map as their cause. A future class-backed view must
-preserve that behavior. It must also retain the compact display code as presentation metadata rather
-than reverse-encoding Effects through a closed Kotlin symbol table. Solo placement, adjacency,
-metrics, and script presentation should consume that same view; none should discover membership by
-Class-name prefix.
+The `Area` singleton invariant creates every active area during initialization, so the former
+`CreateMapAreas` custom instruction was redundant and is gone. Adjacency, placement-bonus metrics,
+largest-group scoring, the text renderer, and the game viewer consume the class-backed grid.
+`ScriptSession` and the standalone solo-placement tool are generation/presentation exceptions that
+consume `tfm-map-data` directly; the former retains authored bonus sigils in its public snapshot.
 
 ## Revised promo printings
 

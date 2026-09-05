@@ -22,6 +22,8 @@
   search for `transformAction` only for the Action/turn division.
 - [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
+- [`MapDefinition.kt`](../../src/common/dev/martianzoo/tfm/mapdata/MapDefinition.kt) —
+  the pets-free authored data library used by generators and presentation tools.
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   inspect only for the script application layer.
 - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) and
@@ -119,9 +121,9 @@ responsibilities.
 
 The module-organization audit found no useful implementation split today. The generic contract
 already lives in `pets`, while Terraforming Mars content selection is absent from it. There is only
-one production assembler, and its declaration assembly still incorporates transitional card and map
-lowering. Do not introduce a generic base implementation until a real second implementation or a
-completed declaration-authority cutover reveals a coherent reusable unit. Do not redesign premise
+one production assembler. Card and map lowering now happens outside runtime in the JVM generator;
+`TfmCatalog` receives only explicit declarations. Do not introduce a generic base implementation
+until a real second implementation reveals a coherent reusable unit. Do not redesign premise
 resolution as part of that extraction.
 
 ### Workflow runner mechanics are general

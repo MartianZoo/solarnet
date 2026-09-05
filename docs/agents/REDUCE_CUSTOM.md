@@ -21,10 +21,10 @@
 - [`ColoniesExpansion.kt`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion.kt)
   — search for `ColoniesSetup` for that specific candidate.
 
-A custom instruction has been eliminated only when its behavior follows from hand-authored Pets and
-general runtime semantics. Moving the same bespoke behavior into declaration-conversion code,
-`extraClasses`, or Kotlin-generated Pets is worse: it keeps the custom code and adds another
-representation.
+A custom instruction has been eliminated only when its behavior follows from ordinary declarations
+and general runtime semantics. Moving the same bespoke behavior into the card generator is worse:
+it keeps the custom behavior while hiding it in data conversion. The generator may construct and
+render declarations, but it must not invent card-specific responders.
 
 Custom metrics are a separate concern.
 
@@ -62,7 +62,7 @@ These honestly bridge Pets to canonical metadata absent from the component graph
 - `CheckCardDeck`
 - `AdjustGpRequirement`
 - `HandleCardTags`
-- `CreateAdjacencies`
+- `CreateAdjacencies` (its geometry now derives from active area Classes)
 
 Generating card-specific Pets responders would only move these to the worse generation tier.
 Colony class declarations and the three resource-delay selections are hand-authored in Pets.
