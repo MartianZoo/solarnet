@@ -347,7 +347,8 @@ public sealed class Instruction : InstructionTree() {
    * contextual `Owner`, so an ordinary owned body reads exactly as it does on a card.
    *
    * A selector refinement chooses which components take part. A gate in [body] behaves like any
-   * other gate and fails when its requirement is unmet.
+   * other gate and fails when its requirement is unmet. Class properties in [body] are evaluated
+   * separately after each branch has bound its selection.
    */
   public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
     init {
@@ -359,14 +360,6 @@ public sealed class Instruction : InstructionTree() {
       // rule needs it. Banning it keeps one selection in scope at a time.
       if (body.descendantsOfType<Each>().any()) {
         throw PetSyntaxException("EACH can't contain another EACH")
-      }
-      // A class property is evaluated once for the whole effect, before any fanout, so an `EVAL`
-      // here would silently give every branch the enclosing owner's value. See EACH.md.
-      if (body.descendantsOfType<Property>().any()) {
-        throw PetSyntaxException(
-            "EACH can't contain EVAL: a class property is evaluated once, before the fanout, " +
-                "so every branch would get the same value"
-        )
       }
     }
 

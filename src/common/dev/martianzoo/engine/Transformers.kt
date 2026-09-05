@@ -107,7 +107,10 @@ public class Transformers(public val classTable: ClassTable) {
             }
       }
 
-  /** Expands explicit property evaluations after their receivers have become concrete. */
+  /**
+   * Expands explicit property evaluations after their receivers have become concrete, deferring
+   * fanout bodies until their selected component has been bound.
+   */
   internal fun evaluateProperties(
       context: Expression,
       owner: HasClassName? = null,
@@ -121,6 +124,12 @@ public class Transformers(public val classTable: ClassTable) {
         )
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
+        // The selected component supplies a fanout branch's context, so its property evaluations
+        // must remain inert until Instructor has bound that selection. The selector itself still
+        // belongs to the enclosing context and is transformed normally.
+        if (node is Each) {
+          return Each(transformExpression(node.selector), node.body)
+        }
         val property =
             when (node) {
               is Metric.Eval -> node.property

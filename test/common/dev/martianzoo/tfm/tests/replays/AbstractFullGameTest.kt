@@ -146,10 +146,8 @@ internal abstract class AbstractFullGameTest : TfmTest() {
       game.actors.forEach { game.agent(it).autoExecMode = FIRST }
       dropPendingTasksForSnapshot()
       engine.phase("Production") { dropPendingTasksForSnapshot() }
-      engine.manual("End FROM Phase") {
-        dropPendingTasksForSnapshot()
-        assertCounts(expected to "VictoryPoint")
-      }
+      engine.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
+      assertCounts(expected to "VictoryPoint")
     } finally {
       game.timeline.rollBack(checkpoint)
       autoExecModes.forEach { (actor, mode) -> game.agent(actor).autoExecMode = mode }

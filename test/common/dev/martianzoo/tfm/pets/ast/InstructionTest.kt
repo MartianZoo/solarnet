@@ -49,10 +49,11 @@ internal class InstructionTest {
   internal fun fanoutRejectsMeaninglessForms() {
     shouldThrow<PetSyntaxException> { parse<Instruction>("EACH !Player { Plant }") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("EACH Player { Ok }") }
-    // A class property is evaluated once, before the fanout, so it can't mean anything per branch.
-    shouldThrow<PetSyntaxException> {
-      parse<Instruction>("EACH Player { AwardTally<Award> / EVAL Award.metric }")
-    }
+  }
+
+  @Test
+  internal fun fanoutAllowsPerBranchClassPropertyEvaluation() {
+    testRoundTrip<Instruction>("EACH Player { AwardTally<Award> / EVAL Award.metric }")
   }
 
   @Test

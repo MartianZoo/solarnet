@@ -41,7 +41,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   CorporationPhase:: CorporationCard
   ResearchPhase:: Selecting
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
-  MeasureAward<Award>:: AwardTally<Award> / EVAL Award.metric
 
   CLASS Player1, Player2, Player3, Player4, Player5
 }
@@ -733,8 +732,9 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
 "The number of geometric neighbor relations between live tiles and map areas"
 CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden, Custom
 
-CLASS MeasureAward<Award> : Signal, System {
-  This: AssignAwardPlaces<Award>
+CLASS MeasureAward<Award> : Temporary, System {
+  This:: EACH Player { AwardTally<Award> / EVAL Award.metric }
+  -This:: AssignAwardPlaces<Award>
 }
 CLASS AwardTally<Award> : Owned<Player>, Hidden
 CLASS AssignAwardPlaces<Award> : Custom
