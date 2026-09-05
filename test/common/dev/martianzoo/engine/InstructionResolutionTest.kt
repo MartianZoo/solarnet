@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -37,7 +36,7 @@ internal class InstructionResolutionTest {
         chain(
             Transformers(game.classTable).transformMarkedSyntax(),
             Transformers(game.classTable).insertDefaults(),
-            replaceOwnerWith(PLAYER1),
+            Transformers(game.classTable).bindContextualOwner(PLAYER1),
         )
     return xer.transformInstructionTree(instr)
   }
@@ -111,6 +110,63 @@ internal class InstructionResolutionTest {
         "Titanium<Player1>! OR TerraformRating<Player1>!",
     )
     shouldThrow<RequirementException> { preprocessAndResolve("30 TR: Plant") }
+  }
+
+  @Test
+  internal fun testFanoutGivesEachSelectionItsOwnBranch() {
+    // The selected player, not the surrounding one, owns everything inside the braces.
+    checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
+    checkResolution(
+        "EACH Player { 2 Plant, Heat }",
+        "2 Plant<Player1>!, Heat<Player1>!, 2 Plant<Player2>!, Heat<Player2>!",
+    )
+  }
+
+  @Test
+  internal fun testFanoutRefinementChoosesWhichSelectionsTakePart() {
+    // A selector refinement is evaluated against each candidate, so only Player1, who was given a
+    // Plant, takes part. A gate inside the body behaves like any other gate and is not a filter.
+    checkResolution("EACH Player(HAS 1 Plant<Anyone>) { Heat }", "Heat<Player1>!")
+    checkResolution("EACH Player(HAS 99 Plant<Anyone>) { Heat }", "Ok")
+    shouldThrow<RequirementException> { preprocessAndResolve("EACH Player { 99 Plant: Heat }") }
+  }
+
+  @Test
+  internal fun testSelectionSuppliesTheOwnerOfItsBranch() {
+    // An Owner selection is the owner; an owned selection supplies whichever Owner it belongs to,
+    // which is what lets a fanout act on each component's owner without naming any player.
+    checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
+    checkResolution("EACH Anyone { Plant }", "Plant<Player1>!, Plant<Player2>!")
+    checkResolution("EACH ProjectCard<Anyone> { Plant }", "Plant<Player1>!")
+    // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
+    shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
+    // ...but it does mean a selector names components in the enclosing owner's context: these are
+    // Player1's own cards, and they are interchangeable, so there is nothing to fan out over.
+    shouldThrow<ExpressionException> { preprocessAndResolve("EACH ProjectCard<Owner> { Plant }") }
+  }
+
+  @Test
+  internal fun testFanoutRangesOverTypesRatherThanOccurrences() {
+    // Player1 holds ten indistinguishable ProjectCards, which are one concrete Type, not ten.
+    checkResolution(
+        "EACH ProjectCard<Anyone> { -ProjectCard<Anyone> }",
+        "-ProjectCard<Hand<Player1>>!",
+    )
+  }
+
+  @Test
+  internal fun testFanoutOverNothingIsNoOp() {
+    checkResolution("EACH CardFront<Anyone> { -CardFront<Anyone> }", "Ok")
+  }
+
+  @Test
+  internal fun testFanoutMustNameItsSelection() {
+    // `OxygenStep` is unowned, so nothing in the body could denote the selected player.
+    shouldThrow<ExpressionException> { preprocessAndResolve("EACH Player { OxygenStep }") }
+    // Reported even when the selector happens to match nothing right now.
+    shouldThrow<ExpressionException> {
+      preprocessAndResolve("EACH CardFront<Anyone> { OxygenStep }")
+    }
   }
 
   @Test

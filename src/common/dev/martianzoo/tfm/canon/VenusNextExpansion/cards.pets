@@ -334,7 +334,7 @@ CLASS SponsoredAcademies : AutomatedCard<Class<ProjectCard>> {
   cost = 9
 
   This:: ScienceTag<This>, EarthTag<This>
-  This: -ProjectCard THEN (2 ProjectCard, Signal {})
+  This: -ProjectCard THEN (2 ProjectCard, EACH Player { ProjectCard })
   End: VictoryPoint
 }
 
@@ -463,7 +463,3 @@ CLASS VenusianPlants : AutomatedCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS SponsoredAcademiesWatcher : Owned<Player>, System {
-  HAS =1 This
-  SponsoredAcademies_Signal BY Anyone: ProjectCard
-}

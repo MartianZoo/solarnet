@@ -178,8 +178,8 @@ Catalog data; it does not create precedence components in the World.
 The runner's turn-completion transition remains to be designed. It must finish end-of-action
 settlement before following a local continuation or the unique successor in the compiled span. No
 successor means termination; multiple immediate successors are invalid. Do not add a persistent
-readiness mirror merely to make the runner pollable. Unordered component fanout is the separate
-[`EACH`](EACHPLAYER.md) proposal, and Player-controlled work still requires the delegation model in
+readiness mirror merely to make the runner pollable. Unordered component fanout is handled by
+[`EACH`](EACH.md), and Player-controlled work still requires the delegation model in
 [IDENTITY.md](IDENTITY.md).
 
 ## Implementation gates

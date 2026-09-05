@@ -33,6 +33,29 @@ internal class InstructionTest {
   }
 
   @Test
+  internal fun fanoutParsesItsSelectorAndBodySeparately() {
+    val each = parse<Instruction>("EACH Player { 2 Plant, Heat }") as Instruction.Each
+
+    each.selector shouldBe parse("Player")
+    each.body shouldBe parse<InstructionTree>("2 Plant, Heat")
+    "$each" shouldBe "EACH Player { 2 Plant, Heat }"
+
+    // A selector refinement filters the snapshot without becoming part of the name a body uses.
+    val refined = parse<Instruction>("EACH ResourceCard(HAS CardResource) { CardResource }")
+    (refined as Instruction.Each).selectorName shouldBe parse("ResourceCard")
+  }
+
+  @Test
+  internal fun fanoutRejectsMeaninglessForms() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("EACH !Player { Plant }") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("EACH Player { Ok }") }
+    // A class property is evaluated once, before the fanout, so it can't mean anything per branch.
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("EACH Player { AwardTally<Award> / EVAL Award.metric }")
+    }
+  }
+
+  @Test
   internal fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> { parse<Instruction>("999999999999999999999999999999 Plant") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant OR Plant") }

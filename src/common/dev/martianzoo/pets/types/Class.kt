@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
@@ -613,9 +614,18 @@ internal constructor(
                   variable.occurrences.map { occurrence -> occurrence.expression }
                 }
           }
+      // A fanout selector declares its own variable for its body; it is never a use of one of
+      // this Class's header variables, even when it is spelled the same way.
+      val fanoutSelectors: List<Expression> =
+          effect.descendantsOfType<Each>().flatMap { each ->
+            listOf(each.selector) +
+                each.selector.descendantsOfType<Expression>() +
+                each.body.descendantsOfType<Expression>().filter { it == each.selectorName }
+          }
       effect.descendantsOfType<Expression>().forEach { expression ->
         if (expression.className == ANYONE) return@forEach
         if (queuedChoiceExpressions.any { it === expression }) return@forEach
+        if (fanoutSelectors.any { it === expression }) return@forEach
         val exact = effectVariables.filter { seed ->
           seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)
         }

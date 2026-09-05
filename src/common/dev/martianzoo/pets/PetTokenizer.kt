@@ -35,6 +35,7 @@ internal abstract class PetTokenizer {
 
   internal val _by = word("BY")
   internal val _count = word("COUNT")
+  internal val _each = word("EACH")
   internal val _eval = word("EVAL")
   internal val _from = word("FROM")
   internal val _has = word("HAS")

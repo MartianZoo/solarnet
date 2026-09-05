@@ -3,15 +3,15 @@ CLASS ColoniesExpansion : Module {
   premiseRequirement = HAS "(=1 Player, =4 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))"
 
   This:: TradeAction, BuildColonySP
-  SetupPhase IF MAX 0 SoloColoniesSetup: ColoniesSetup
+  SetupPhase: EACH Player { TradeFleet }
   SetupPhase IF SoloMode: PROD[-2 MC<Player1>]
   SolarPhase: AdvanceColonyTracks
 }
 
-"Lets the solo player discard one selected colony tile before colony setup continues"
+"Lets the solo player discard one selected colony tile; owned so that player makes the choice"
 CLASS SoloColoniesSetup : Owned<Player>, System {
   HAS MAX 1 This
-  SetupPhase: -ColonyTileSelection THEN ColoniesSetup THEN -This!
+  SetupPhase: -ColonyTileSelection THEN -This!
 }
 
 "Trade with a colony tile"
@@ -25,9 +25,6 @@ CLASS BuildColonySP : StandardProject {
   cost = 17
   1 MC / cost -> Colony<>
 }
-
-"Creates the colony tiles and one trade fleet for each player"
-CLASS ColoniesSetup : Custom
 
 "A selected colony tile, whether it is already in play or waiting for a compatible card"
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }

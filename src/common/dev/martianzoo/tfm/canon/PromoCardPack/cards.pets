@@ -28,7 +28,7 @@ CLASS Factorum : ActionCard<Class<CorporationCard>> {
 CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 48 MC, PROD[4 MC]
+  This: 48 MC, PROD[4 MC], EACH Player(HAS MAX 0 This<Anyone>) { PROD[-2 MC] BY Owner }
   MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.
 }
 
@@ -710,6 +710,7 @@ CLASS Vermin : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<An
 
   This:: MicrobeTag<This>, AnimalTag<This>
   CityTile<Anyone>: Animal<This>
+  End IF 10 Animal<This>: EACH CityTile<Player> { -VictoryPoint }
 
   -> Animal<This> OR Microbe
 }
@@ -754,11 +755,6 @@ CLASS SpliceTacticalGenomicsWatcher : System {
   MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 MC
 }
 
-CLASS MonsInsuranceWatcher : Owned<Player>, System {
-  HAS =1 This
-  MonsInsurance<Anyone> IF MAX 0 MonsInsurance<Owner>: PROD[-2 MC] BY Owner
-}
-
 CLASS Disease : CardResource<ResourceHolder<Class<Disease>>>
 
 CLASS CopyPrelude<CardFront<Player>> : Custom, Owned<Player>
@@ -781,9 +777,4 @@ CLASS CathedralOption : HasActions {
 CLASS Cathedral<CityTile<Owner>> : Owned<Owner> {
   HAS MAX 1 This
   This: UseAction<CathedralOption>?
-}
-
-CLASS VerminWatcher : Owned<Player>, System {
-  HAS =1 This
-  End IF 10 Animal<Anyone, Vermin<Anyone>>: -VictoryPoint / CityTile<Owner>
 }

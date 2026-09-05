@@ -419,15 +419,19 @@ internal class Prelude2CardsTest : CardTest() {
         victim: Player,
         secondPayout: Int = 3,
     ) {
-      doTask("-5 MC<$victim> BY Player1")
+      doTask("-5 MC<$victim>")
       doTask("3 MC<$victim> FROM MC<Player2>")
-      doTask("PROD[-1 MC<$victim>] BY Player1")
+      doTask("PROD[-1 MC<$victim>]")
       doTask("$secondPayout MC<$victim> FROM MC<Player2>")
     }
 
     p1.playPrelude(Recession) {
-      doTask("-5 MC<Player2> BY Player1")
-      doTask("PROD[-1 MC<Player2>] BY Player1")
+      doTask(
+          "EACH Player(HAS MAX 0 $Recession<Anyone>) { " +
+              "-5 MC<Owner>., -Production<Owner, Class<MC>>! }"
+      )
+      doTask("-5 MC<Player2>")
+      doTask("PROD[-1 MC<Player2>]")
       doTask("3 MC<Player2> FROM MC<Player2>")
       doTask("3 MC<Player2> FROM MC<Player2>")
       settle(victimActors[0])

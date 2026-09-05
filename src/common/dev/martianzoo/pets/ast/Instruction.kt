@@ -340,6 +340,59 @@ public sealed class Instruction : InstructionTree() {
     override fun precedence(): Int = 4
   }
 
+  /**
+   * Fans [body] out over the components matching [selector] in one World snapshot, producing one
+   * independent branch per distinct concrete Type present. In a branch, the authored [selector]
+   * expression denotes that concrete Type, and when the selector is an `Owner`, so does the
+   * contextual `Owner`, so an ordinary owned body reads exactly as it does on a card.
+   *
+   * A selector refinement chooses which components take part. A gate in [body] behaves like any
+   * other gate and fails when its requirement is unmet.
+   */
+  public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
+    init {
+      if (selector.complement) {
+        throw PetSyntaxException("EACH selector can't be a complement: $selector")
+      }
+      if (body == NoOp) throw PetSyntaxException("EACH needs a body")
+      // Nesting would make `Owner` and each selector name ambiguous between two fanouts, and no
+      // rule needs it. Banning it keeps one selection in scope at a time.
+      if (body.descendantsOfType<Each>().any()) {
+        throw PetSyntaxException("EACH can't contain another EACH")
+      }
+      // A class property is evaluated once for the whole effect, before any fanout, so an `EVAL`
+      // here would silently give every branch the enclosing owner's value. See EACH.md.
+      if (body.descendantsOfType<Property>().any()) {
+        throw PetSyntaxException(
+            "EACH can't contain EVAL: a class property is evaluated once, before the fanout, " +
+                "so every branch would get the same value"
+        )
+      }
+    }
+
+    /**
+     * The authored expression a body occurrence must equal in order to denote the selected
+     * component. A selector refinement filters the snapshot but is not part of that name.
+     */
+    public val selectorName: Expression = selector.copy(refinement = null)
+
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(selector, body)
+
+    override fun scale(factor: Int): Instruction = copy(body = body * factor)
+
+    override fun isAbstract(info: TypeInfo): Boolean = body.isAbstract(info)
+
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
+      proposed as? Each ?: throw NarrowingException("$proposed does not preserve `EACH $selector`")
+      if (proposed.selector != selector) {
+        throw NarrowingException("can't change the EACH selector")
+      }
+      proposed.body.ensureNarrows(body, info)
+    }
+
+    override fun toString(): String = "EACH $selector { $body }"
+  }
+
   @ConsistentCopyVisibility
   public data class Then
   internal constructor(
@@ -737,7 +790,17 @@ public sealed class Instruction : InstructionTree() {
 
         val maybeTransform: Parser<InstructionTree> = transform or maybePer
 
-        val atomBase: Parser<InstructionTree> = maybeTransform or group(parser())
+        val each: Parser<Instruction> =
+            skip(_each) and
+                Expression.parser(allowDerivedClass = false) and
+                skipChar('{') and
+                parser() and
+                skipChar('}') map
+                { (selector, body) ->
+                  Each(selector, body)
+                }
+
+        val atomBase: Parser<InstructionTree> = each or maybeTransform or group(parser())
 
         val atom: Parser<InstructionTree> =
             atomBase and
