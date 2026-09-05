@@ -42,6 +42,17 @@ internal class LawSuitTest : CardTest() {
   }
 
   @Test
+  internal fun `Can be played when its owner has only the card cost`() {
+    newGame(PromoCardPack)
+    engine.phase("Action")
+    p1.autoExecMode = NONE
+    p1.manual("2 MC, ProjectCard, PROD[Plant]")
+    requireP2().manual("5 MC, PROD[-Plant<Player1>]")
+
+    p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
+  }
+
+  @Test
   internal fun `Cannot be played without an opponent's attack`() {
     requireP2().manual("3 MC")
     shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
@@ -96,6 +107,29 @@ internal class LawSuitTest : CardTest() {
 
     p1.assertCounts(4 to "MC")
     p2.assertCounts(2 to "MC")
+    p3.assertCounts(5 to "MC")
+  }
+
+  @Test
+  internal fun `Cannot charge a funded player who did not attack`() {
+    newGame(PromoCardPack, players = 3)
+    val p2 = requireP2()
+    val p3 = game.tfm(PLAYER3)
+    engine.phase("Action")
+    p1.autoExecMode = NONE
+    p1.manual("2 MC, ProjectCard, PROD[Plant]")
+    p2.manual("5 MC, PROD[-Plant<Player1>]")
+    p3.manual("5 MC")
+
+    shouldThrow<TaskException> {
+      p1.playProject(LawSuit, 2) {
+        doTask("3 MC<Player1> FROM MC<Player3>")
+        doTask("PlayedEvent<Player3, Class<$LawSuit>> FROM $LawSuit<Player1>")
+      }
+    }
+
+    p1.assertCounts(2 to "MC", 1 to "ProjectCard")
+    p2.assertCounts(5 to "MC")
     p3.assertCounts(5 to "MC")
   }
 

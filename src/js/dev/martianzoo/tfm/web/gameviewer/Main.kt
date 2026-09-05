@@ -540,7 +540,11 @@ private fun emptyAreaSvg(area: AreaDefinition, centerX: Double, centerY: Double)
             val change = instruction as? Change ?: return@flatMap emptyList()
             val count = (change.count as? ActualScalar)?.value ?: return@flatMap emptyList()
             when {
-              change.gaining != null -> List(count) { change.gaining!!.className to null }
+              change.gaining?.className == MC && count in 1..49 ->
+                  listOf("MC/MC${count.toString().padStart(2, '0')}" to null)
+              change.gaining != null ->
+                  List(count) { change.gaining!!.className.toString() to null }
+              change.removing?.className == MC && count in 1..9 -> listOf("MC/MC-$count" to null)
               change.removing?.className == MC -> listOf(null to "−$count")
               else -> emptyList()
             }

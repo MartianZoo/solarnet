@@ -479,6 +479,30 @@ internal class TaskNarrowingTest {
     game.agent(PLAYER2).count("MC") shouldBe 0
   }
 
+  @Test
+  internal fun `selecting a gated mandatory source binds the later stage before resolution`() {
+    game.agent(PLAYER2).manual("Plant, 3 MC")
+    initiate("(Plant<Player>: 3 MC FROM MC<Player>) THEN Heat<Player>")
+
+    writer.doTask("3 MC FROM MC<Player2>")
+
+    tasksAsText().shouldContainExactly("Heat<Player2>!")
+    writer.count("MC") shouldBe 3
+    game.agent(PLAYER2).count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `a gated source must satisfy the gate for the selected player`() {
+    writer.manual("3 MC")
+    game.agent(PLAYER2).manual("Plant")
+    initiate("(Plant<Player>: 3 MC<Player2> FROM MC<Player>) THEN Heat<Player>")
+
+    shouldThrow<TaskException> { writer.doTask("3 MC<Player2> FROM MC<Player1>") }
+
+    writer.count("MC") shouldBe 3
+    tasks.extract { it }.shouldHaveSize(1)
+  }
+
   private fun initiate(ins: String) = writer.addTasks(ins)
 
   private fun selectAndNarrow(current: String, narrowing: String) {

@@ -42,9 +42,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Investigate why all wild-tag assignments must currently run before selecting a card or action.
   Only assignments needed to satisfy a requirement should be early; assignments used by queued
   effects such as per-tag gains should resolve normally from the task queue.
-- Resolve a selected variable-sharing `THEN` task as one coherent instruction, so narrowing its
-  first stage also binds every continuation without requiring preselection inference.
-
 ### Hypothetical Card Behavior
 
 - Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a
