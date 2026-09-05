@@ -164,6 +164,9 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **`CARDS[...]` and the `CardOperation` recognizer** —
   [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md#canonical-card-operation-source). Authored intent is
   discarded and then reconstructed by pattern matching. Known, and owned by that document.
+- **`ActionUsedMarker`, `TradeBarrier`, and the `ActionSlot` pair** —
+  [ACTIONS.md](ACTIONS.md#permission). One missing concept, permission, improvised five ways; that
+  document owns the collapse and the step order.
 
 ### Will be obsolete
 
