@@ -21,8 +21,8 @@ private object EnglishRandomCardTextGenerator {
     val input = File(args[0])
     val declarations = readDeclarations(input)
     val catalog = catalogWith(declarations)
-    val english = English(TerraformingMarsDescribers.descriptions)
-    val describers = Describers(TerraformingMarsDescribers.descriptions)
+    val english = English(catalog.classTable, TerraformingMarsDescribers.descriptions)
+    val describers = Describers(catalog.classTable, TerraformingMarsDescribers.descriptions)
     val results = declarations.map { declaration ->
       render(declaration, catalog.card(declaration.className), english, describers)
     }

@@ -51,7 +51,7 @@ the lexicon supplies words; the syntax model retains decisions until final reali
 
 ### Structural meaning
 
-Derive structural facts from the AST and canonical Class Table:
+Derive structural facts from the AST and supplied Class Table:
 
 - resolve expressions and subtype relationships rather than recognizing Class names;
 - identify dependency roles by `Dependency.Key`, not argument position;
@@ -60,8 +60,9 @@ Derive structural facts from the AST and canonical Class Table:
 - keep instruction, requirement, metric, trigger, and action structure visible to their family
   interpreters.
 
-`ExpressionResolver` intentionally uses the canonical Terraforming Mars Class Table. The map passed
-to `English` is a real lexical-data seam, not an alternate structural universe.
+`English` receives the Class Table for the vocabulary being rendered. `ExpressionResolver` uses
+that supplied table so composed catalogs and fan expansions participate in the same structural
+interpretation as canonical components.
 
 ### Lexical meaning
 
@@ -148,6 +149,11 @@ The useful architecture already present should be extended rather than replaced:
 - `TerraformingMarsDescribers` keys only authored lexical facts by `ClassName`; `Describers` owns
   Class resolution, while absent Classes use structural interpretation and default naming.
 
+The realization layer is game-neutral. The interpretation layer may name common game concepts such
+as cards, actions, resources, production, placement, payment, and scoring. Concrete component
+identities and expansion-specific recognizers stay in supplied vocabulary data. Expansion
+components using existing mechanics should render through inheritance without interpreter changes.
+
 Do not introduce a separate semantic `Description` layer merely because an earlier review proposed
 one. Frames, orthogonal roles, protocols, and clauses may already carry everything aggregation
 needs. Add another layer only when a current decision cannot be represented honestly without it.
@@ -183,6 +189,8 @@ Then re-ask whether clauses are a sufficient intermediate representation.
   will replace before implementation.
 - Frames are closed; lexicon entries are open. A new expansion should normally add entries, not
   frame variants or renderer branches.
+- Do not abstract common game concepts out of the interpreter merely to support unrelated games.
+  Do keep concrete component identities and expansion-specific cases out of it.
 - Treat symmetry as a question, not a mandate. Similar families deserve comparison, but different
   composition rules are evidence for different shapes.
 - A nullable matcher ladder is a prompt to investigate, not proof of a missing frame.

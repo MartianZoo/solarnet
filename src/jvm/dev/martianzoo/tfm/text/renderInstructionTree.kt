@@ -23,7 +23,7 @@ internal fun renderInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
 ): RenderedInstructions =
-    renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers)
+    renderLoweredInstructions(describers.lowerProductionSyntax(instructionTree), describers)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,

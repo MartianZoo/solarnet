@@ -15,7 +15,7 @@ internal fun renderRequirement(
     describers: Describers,
 ): Rendering<String> {
   val rendered =
-      renderLoweredRequirement(lowerProductionSyntax(requirement), describers)
+      renderLoweredRequirement(describers.lowerProductionSyntax(requirement), describers)
           ?.let(::Sentence)
           ?.linearize()
   return rendered?.let { Rendering.resolved(it) }

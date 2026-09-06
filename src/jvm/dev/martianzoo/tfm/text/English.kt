@@ -7,15 +7,19 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.cardActions
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardRequirement
 import dev.martianzoo.tfm.canon.cardResourceType
 
-/** English Pets text using the client's sparse map of component descriptions. */
-internal class English public constructor(descriptions: Map<ClassName, ComponentDescriber>) {
-  private val describers = Describers(descriptions)
+/** English Pets text using one structural vocabulary and its sparse component descriptions. */
+internal class English(
+    classTable: ClassTable,
+    descriptions: Map<ClassName, ComponentDescriber>,
+) {
+  private val describers = Describers(classTable, descriptions)
 
   /** Returns complete English sentences describing [effect]. */
   internal fun describe(effect: Effect): String = renderEffect(effect, describers).value

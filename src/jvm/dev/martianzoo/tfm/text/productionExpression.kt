@@ -1,31 +1,11 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.TfmClasses.PROD
-
-internal fun lowerProductionSyntax(instructionTree: InstructionTree): InstructionTree =
-    productionSyntaxLowerer.transformInstructionTree(instructionTree)
-
-internal fun lowerProductionSyntax(action: Action): Action =
-    productionSyntaxLowerer.transformAction(action)
-
-internal fun lowerProductionSyntax(effect: Effect): Effect =
-    productionSyntaxLowerer.transformEffect(effect)
-
-internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
-    productionSyntaxLowerer.transformRequirement(requirement)
-
-// TODO: The dispatcher has mutable traversal state, so sharing it may be unsafe across threads.
-private val productionSyntaxLowerer by lazy { canonClassUniverse.transformDispatcher(setOf(PROD)) }
 
 internal fun productionExpression(
     expression: Expression,

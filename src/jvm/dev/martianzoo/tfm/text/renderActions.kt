@@ -54,7 +54,7 @@ internal fun renderActions(
 }
 
 private fun actionRefusalReason(action: Action, describers: Describers): RefusalReason {
-  val lowered = lowerProductionSyntax(action)
+  val lowered = describers.lowerProductionSyntax(action)
   val gatedInstruction = lowered.instruction as? Gated
   if (lowered.cost?.let { describers.renderCost(it) } == null && lowered.cost != null) {
     return RefusalReason.UNSUPPORTED_ACTION_COST
@@ -240,7 +240,7 @@ private fun renderAction(
     action: Action,
     describers: Describers,
 ): RenderedAction? {
-  val lowered = lowerProductionSyntax(action)
+  val lowered = describers.lowerProductionSyntax(action)
   describers.renderLinkedXAction(lowered)?.let {
     return it.takeIf(RenderedAction::costCanJoinResult)
   }

@@ -34,6 +34,11 @@ recording used by the viewer.
 Solarnet seeks the smallest coherent set of rules from which the real game follows. Correct behavior
 is necessary, but an implementation that merely works can still be a design failure.
 
+English realization must remain game-neutral. English interpretation may directly model common
+game concepts such as cards, actions, resources, production, placement, payment, and scoring.
+Concrete component identities and expansion-specific recognizers belong in supplied vocabulary
+data. A new component using existing mechanics should normally render without renderer changes.
+
 - Judge cost primarily by permanent conceptual complexity: new abstractions, APIs, layers,
   exceptions, representations, and interactions.
 - Look first for something that can be removed, then for composition of existing Pets and domain

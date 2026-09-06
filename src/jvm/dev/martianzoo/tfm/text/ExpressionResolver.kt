@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
@@ -15,8 +16,7 @@ import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 /**
  * Resolves authored expressions and answers structural Class questions for the English renderer.
  */
-internal class ExpressionResolver {
-  private val classTable = canonClassUniverse
+internal class ExpressionResolver(private val classTable: ClassTable) {
   internal val classesByName = classTable.allClasses().associateBy(Class::className)
 
   internal fun isActive(className: ClassName): Boolean =

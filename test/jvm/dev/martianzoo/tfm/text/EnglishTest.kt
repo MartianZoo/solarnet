@@ -17,7 +17,7 @@ import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
 internal class EnglishTest {
-  private val english = English(TerraformingMarsDescribers.descriptions)
+  private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
   private val cardsByClassName = Canon.cards.associateBy { it.className }
   private val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
   private val current =
@@ -235,7 +235,7 @@ internal class EnglishTest {
     val rendering =
         renderInstructionTree(
             parse("2 Steel, 3 VictoryPoint"),
-            Describers(TerraformingMarsDescribers.descriptions),
+            Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
         listOf("3 VictoryPoint" to RefusalReason.UNKNOWN_CHANGE_FRAME)
@@ -245,7 +245,10 @@ internal class EnglishTest {
   internal fun retainsUnsupportedPetsWithinPaymentResults() {
     val instruction = parse<InstructionTree>("-2 Steel THEN 3 VictoryPoint")
     val rendering =
-        renderInstructionTree(instruction, Describers(TerraformingMarsDescribers.descriptions))
+        renderInstructionTree(
+            instruction,
+            Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
+        )
 
     rendering.value shouldBe "Pay 2 steel to [3 VictoryPoint]."
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
@@ -256,7 +259,11 @@ internal class EnglishTest {
   internal fun tracksUnsupportedMetricsWithinRenderedScores() {
     val effect =
         parse<Effect>("End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>")
-    val rendering = renderEffect(effect, Describers(TerraformingMarsDescribers.descriptions))
+    val rendering =
+        renderEffect(
+            effect,
+            Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
+        )
 
     rendering.value shouldBe "1 VP per [Adjacency<CityTile(HAS CapitalMarker), OceanTile>]."
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
@@ -268,9 +275,23 @@ internal class EnglishTest {
   @Test
   internal fun usesDefaultNounForAClassWithoutRegisteredEnglishFacts() {
     TerraformingMarsDescribers.descriptions.keys.none { it.toString() == "Heat" } shouldBe true
-    val sparseEnglish = English(TerraformingMarsDescribers.descriptions)
+    val sparseEnglish = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
 
     sparseEnglish.describe(parse<InstructionTree>("2 Heat")) shouldBe "Gain 2 heat."
+  }
+
+  @Test
+  internal fun usesTheSuppliedClassTableForExpansionComponents() {
+    val declarations = parseClasses("CLASS Fanium : StandardResource").toSet()
+    val additions =
+        object : TfmCatalog() {
+          override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
+        }
+    val expandedCatalog = TfmCatalog.compose(Canon, additions)
+    val expandedEnglish =
+        English(expandedCatalog.classTable, TerraformingMarsDescribers.descriptions)
+
+    expandedEnglish.describe(parse<InstructionTree>("2 Fanium")) shouldBe "Gain 2 fanium."
   }
 
   private fun syntheticCard(source: String): Class {

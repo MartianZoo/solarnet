@@ -22,7 +22,7 @@ internal fun renderEffect(
     effect: Effect,
     describers: Describers,
 ): Rendering<String> {
-  val lowered = lowerProductionSyntax(effect)
+  val lowered = describers.lowerProductionSyntax(effect)
   if (isEndEffect(lowered, describers)) {
     return renderEndEffect(lowered, describers)
         ?: Rendering.unresolved(

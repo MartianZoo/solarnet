@@ -11,7 +11,7 @@ private object EnglishCardTextCurrentGenerator {
     val output = File(args[0])
     val refusalOutput = File(args[1])
     val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
-    val english = English(TerraformingMarsDescribers.descriptions)
+    val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
     val renderedCards = Canon.cards.map { card -> card to english.renderCard(card) }
     val rows = renderedCards.map { (card, rendering) ->
       listOf(

@@ -1,16 +1,23 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.tfm.canon.TfmClasses.PROD
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers(
+    private val classTable: ClassTable,
     private val descriptions: Map<ClassName, ComponentDescriber>,
 ) {
-  internal val expressions = ExpressionResolver()
+  internal val expressions = ExpressionResolver(classTable)
   private val classesByName = expressions.classesByName
 
   init {
@@ -19,6 +26,21 @@ internal class Describers(
   }
 
   internal fun declaration(className: ClassName) = classesByName.getValue(className).declaration
+
+  internal fun lowerProductionSyntax(instructionTree: InstructionTree): InstructionTree =
+      productionSyntaxLowerer().transformInstructionTree(instructionTree)
+
+  internal fun lowerProductionSyntax(action: Action): Action =
+      productionSyntaxLowerer().transformAction(action)
+
+  internal fun lowerProductionSyntax(effect: Effect): Effect =
+      productionSyntaxLowerer().transformEffect(effect)
+
+  internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
+      productionSyntaxLowerer().transformRequirement(requirement)
+
+  private fun productionSyntaxLowerer(): PetTransformer =
+      classTable.transformDispatcher(setOf(PROD))
 
   internal fun gainDefaultExpressions(className: ClassName): List<Expression> =
       classesByName.getValue(className).defaults.gainOnly.dependencies.typeDependencies().map {
