@@ -550,6 +550,7 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
                     .copy(
                         count = null,
                         determiner = "no",
+                        grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
                     )
             ),
         ),

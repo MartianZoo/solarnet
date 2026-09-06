@@ -7,8 +7,18 @@ internal data class NounPhrase(
     private val count: Int? = null,
     private val determiner: String? = null,
     private val modifiers: List<Modifier> = emptyList(),
+    private val grammaticalNumber: GrammaticalNumber? = null,
 ) {
-  fun noun(): String = if (count == null || count == 1) singular else plural
+  init {
+    require(count == null || grammaticalNumber == null)
+  }
+
+  fun noun(): String =
+      when (grammaticalNumber) {
+        GrammaticalNumber.SINGULAR -> singular
+        GrammaticalNumber.PLURAL -> plural
+        null -> if (count == null || count == 1) singular else plural
+      }
 
   fun withModifier(modifier: Modifier): NounPhrase = copy(modifiers = modifiers + modifier)
 
@@ -23,5 +33,10 @@ internal data class NounPhrase(
 
   companion object {
     fun text(text: String): NounPhrase = NounPhrase(text)
+  }
+
+  internal enum class GrammaticalNumber {
+    SINGULAR,
+    PLURAL,
   }
 }

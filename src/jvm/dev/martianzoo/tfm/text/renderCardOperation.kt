@@ -212,7 +212,17 @@ private fun matchPredicate(criterion: CardCriterion, describers: Describers): Pr
         )
       }
       CardCriterion.NoTags ->
-          Predicate("has", Coordination.one(NounPhrase("tag", "tags", determiner = "no")))
+          Predicate(
+              "has",
+              Coordination.one(
+                  NounPhrase(
+                      "tag",
+                      "tags",
+                      determiner = "no",
+                      grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
+                  )
+              ),
+          )
       CardCriterion.HasRequirement ->
           Predicate(
               "has",

@@ -106,6 +106,14 @@ internal class EnglishTest {
         "1 VP per any cathedral."
 
     english.describe(parse<InstructionTree>("Animal")) shouldBe "Add 1 animal to any card."
+    english.describe(parse<InstructionTree>("MAX 0 Plant: Steel")) shouldBe
+        "If you have no plants, gain 1 steel."
+    english.describe(
+        parse<InstructionTree>(
+            "CARDS[ProjectCard<Revealed> THEN " +
+                "((ProjectCard<Revealed>(HAS MAX 0 Tag): Steel) OR Ok)]"
+        )
+    ) shouldBe "Reveal 1 project card. If it has no tags, gain 1 steel."
   }
 
   @Test

@@ -155,7 +155,12 @@ private fun Describers.renderZeroMaximumFilter(
       .withModifier(
           Modifier.Relation(
               "with",
-              NounPhrase(inner.plural, determiner = "no"),
+              NounPhrase(
+                  inner.singular,
+                  inner.plural,
+                  determiner = "no",
+                  grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
+              ),
           )
       )
 }
