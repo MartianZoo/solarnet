@@ -104,7 +104,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     syncCardPlays()
     cardClasses.forEach { cardClass ->
       val location = cards[cardClass]
-      check((location is Played || location is EventPile) && location.player == player) {
+      check((location is Played || location is CompletedEvent) && location.player == player) {
         "$cardClass is not played by $player: $location"
       }
       cards[cardClass] = Hand(player)
@@ -168,8 +168,8 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
       gaining?.className == PLAYED_EVENT -> {
         val cardClass = checkNotNull(gaining.trackedCardClass())
         val player = cards.getValue(cardClass).player
-        checkNotNull(player) { "$cardClass has no Player before entering the event pile" }
-        cards[cardClass] = EventPile(player)
+        checkNotNull(player) { "$cardClass has no Player before becoming a played event" }
+        cards[cardClass] = CompletedEvent(player)
       }
       removing.isProjectCardAt(HAND) && gaining?.className != null -> {
         val cardClass = gaining.className
@@ -214,7 +214,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   private data class Played(override val player: Player) : CardLocation
 
-  private data class EventPile(override val player: Player) : CardLocation
+  private data class CompletedEvent(override val player: Player) : CardLocation
 
   private data object Terminal : CardLocation {
     override val player: Player? = null

@@ -65,12 +65,6 @@ public sealed interface CardOperation {
       public val outcome: Gain,
   ) : CardOperation
 
-  /** Return played Events to the player's hand. */
-  public data class RecoverEvents(public val recovered: Transmute) : CardOperation
-
-  /** Move represented played Events without changing which card fronts they represent. */
-  public data class MoveEvents(public val moved: Transmute) : CardOperation
-
   public companion object {
     public const val TRANSFORM_KIND: String = "CARDS"
 
@@ -100,7 +94,6 @@ public sealed interface CardOperation {
                 source.first.movingCard(HAND, REVEALED) -> decodeRevealAndRestore(source)
                 else -> malformed(source)
               }
-          is Transmute -> decodeEventMovement(source)
           else -> malformed(source)
         }
 
@@ -244,25 +237,6 @@ public sealed interface CardOperation {
       return RevealAndRestore(revealed, restored, outcome)
     }
 
-    private fun decodeEventMovement(source: Transmute): CardOperation {
-      if (
-          source.gaining.cardFamilyAt(HAND) == PROJECT_CARD &&
-              source.removing.isProjectCardAt(EVENT_PILE) &&
-              source.intensity == OPTIONAL
-      ) {
-        return RecoverEvents(source)
-      }
-      if (
-          source.descendantsOfType<Expression>().none {
-            it.className == CARD_BACK &&
-                it.arguments.any { argument -> argument.className == EVENT_PILE }
-          }
-      ) {
-        malformed(source)
-      }
-      return MoveEvents(source)
-    }
-
     private val Instruction.Change.mandatory: Boolean
       get() = intensity == null || intensity == MANDATORY
 
@@ -296,10 +270,8 @@ public sealed interface CardOperation {
         throw PetSyntaxException("Unsupported $TRANSFORM_KIND card operation: $source")
 
     private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
-    private val CARD_BACK = cn("CardBack")
     private val CLASS = cn("Class")
     private val CORPORATION_CARD = cn("CorporationCard")
-    private val EVENT_PILE = cn("EventPile")
     private val HAND = cn("Hand")
     private val PLAY_CARD = cn("PlayCard")
     private val PRELUDE_CARD = cn("PreludeCard")

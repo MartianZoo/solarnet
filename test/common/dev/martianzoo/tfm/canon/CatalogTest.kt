@@ -81,30 +81,6 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun explicitDeclarationsRetainGenericCardLocationsInFollowMode() {
-    val source =
-        parseClasses(
-                """
-                ABSTRACT CLASS Buyer {
-                  ResearchPhase: CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
-                }
-                """
-                    .trimIndent()
-            )
-            .single()
-    val expected =
-        parseClasses(
-                "ABSTRACT CLASS Buyer { ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards }"
-            )
-            .single()
-
-    val loaded = catalog(source).allClassDeclarations.getValue(cn("Buyer"))
-
-    loaded.effects shouldBe expected.effects
-    loaded.authoredEffects shouldBe source.effects
-  }
-
-  @Test
   internal fun revealAndTestDelegatesThePrintedPredicateInFollowMode() {
     val source =
         parseClasses(

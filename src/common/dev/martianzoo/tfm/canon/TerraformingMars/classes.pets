@@ -174,7 +174,6 @@ ABSTRACT CLASS TagHolder : Owned<Player>
 "One state an unplayed card can occupy"
 ABSTRACT CLASS CardLocation : System {
   CLASS Hand { HAS =1 This }
-  CLASS EventPile { HAS =1 This }
   CLASS Selecting {
     HAS MAX 1 This
     CardBack<This>:: CardLocationCleanup<This>.
@@ -538,7 +537,7 @@ ABSTRACT CLASS Phase : System {
 
   CLASS SetupPhase
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>, Hand>, CARDS[10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards]
+    NewTurn: PlayCard<Class<CorporationCard>, Hand>, 10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards
   }
   CLASS ResearchPhase
   CLASS ActionPhase {

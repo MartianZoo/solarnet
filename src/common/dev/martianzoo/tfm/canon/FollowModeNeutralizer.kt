@@ -3,11 +3,9 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Compact
-import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -25,9 +23,6 @@ import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
  */
 internal object FollowModeNeutralizer : TransformHandler {
   private val CARD_BACK = cn("CardBack")
-  private val EVENT_PILE = cn("EventPile")
-  private val HAND = cn("Hand")
-  private val PLAYED_EVENT = cn("PlayedEvent")
   private val SEARCH_FOR_CARD = cn("SearchForCard")
 
   internal fun neutralize(source: ClassDeclaration): ClassDeclaration {
@@ -77,9 +72,6 @@ internal object FollowModeNeutralizer : TransformHandler {
     return cardReferenceNeutralizer.transformInstructionTree(source)
   }
 
-  private fun Expression.isProjectCardAt(location: ClassName): Boolean =
-      className == PROJECT_CARD && arguments.any { it.className == location }
-
   private fun Expression.isGenericCardBack(): Boolean =
       className in setOf(CARD_BACK, PROJECT_CARD, cn("CorporationCard"), cn("PreludeCard"))
 
@@ -92,10 +84,6 @@ internal object FollowModeNeutralizer : TransformHandler {
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode =
             when {
-              node is Transmute &&
-                  node.gaining.isProjectCardAt(HAND) &&
-                  node.removing.isProjectCardAt(EVENT_PILE) ->
-                  node.copy(fromEx = Full(PROJECT_CARD.expression, PLAYED_EVENT.expression))
               node is Transmute -> {
                 val transformed = transformChildren(node) as Transmute
                 if (node.gaining.isGenericCardBack() && node.gaining.refinement != null) {
@@ -109,22 +97,10 @@ internal object FollowModeNeutralizer : TransformHandler {
                   transformed
                 }
               }
-              node is Expression && node.className == CARD_BACK && node.hasArea(EVENT_PILE) ->
-                  node.withoutArea(PLAYED_EVENT, EVENT_PILE)
               node is Expression && node.className == SEARCH_FOR_CARD -> PROJECT_CARD.expression
               node is Expression && node.isGenericCardBack() -> node.copy(refinement = null)
               else -> transformChildren(node)
             }
-
-        private fun Expression.hasArea(area: ClassName): Boolean =
-            arguments.count { it.className == area } == 1
-
-        private fun Expression.withoutArea(result: ClassName, area: ClassName): Expression =
-            copy(
-                className = result,
-                arguments = arguments.filterNot { it.className == area },
-                argumentsSpecified = arguments.size > 1,
-            )
       }
 
   private val transformer = TransformHandler.dispatcher(mapOf(CardOperation.TRANSFORM_KIND to this))
