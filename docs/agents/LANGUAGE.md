@@ -139,6 +139,8 @@ The useful architecture already present should be extended rather than replaced:
   that interpretation rather than recognizing the raw Pets form again.
 - Action-use triggers are likewise decoded once into their provider and optional slot before event,
   payment, or card-action integration decisions are made.
+- Resource-payment triggers retain whether payment uses a standard resource or resources from one
+  card, and payment protocols consume that closed interpretation.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.

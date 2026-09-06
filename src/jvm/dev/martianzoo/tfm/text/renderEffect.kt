@@ -392,13 +392,10 @@ private fun renderAcceptedResourcePayment(
       ) ?: return null
   if (accepted.count != 1 || accepted.resource == null) return null
   if (accepted.resource == STEEL || accepted.resource == TITANIUM) return null
-  val paymentTrigger = (payment.trigger as? OnGainOf)?.expression ?: return null
-  if (paymentTrigger.refinement != null || paymentTrigger.complement) return null
-  if (describers.triggerFrame(paymentTrigger.className) != TriggerFrame.SpendResource) {
-    return null
-  }
-  val spent = describers.representedClass(paymentTrigger) ?: return null
-  if (spent.className != accepted.resource) return null
+  val spent =
+      describers.resourcePaymentEvent(payment.trigger) as? ResourcePaymentEvent.Standard
+          ?: return null
+  if (spent.resource.className != accepted.resource) return null
   val reduction = owedReduction(payment.instruction, describers) ?: return null
   val rendered =
       renderAcceptedResourceValue(
@@ -463,19 +460,10 @@ private fun renderAcceptedCardResourcePayment(
   ) {
     return null
   }
-  val paymentTrigger = (payment.trigger as? OnGainOf)?.expression ?: return null
-  if (describers.triggerFrame(paymentTrigger.className) != TriggerFrame.SpendResource) {
-    return null
-  }
-  val paymentKey = Key(ClassName.cn("PayFromCard"), 0)
-  val resolvedPayment = describers.resolveExpression(paymentTrigger, paymentKey) ?: return null
-  if (
-      !resolvedPayment.hasOnlySourceDependency(paymentKey, describers.thisExpression) ||
-          paymentTrigger.refinement != null ||
-          paymentTrigger.complement
-  ) {
-    return null
-  }
+  val spent =
+      describers.resourcePaymentEvent(payment.trigger) as? ResourcePaymentEvent.FromCard
+          ?: return null
+  if (spent.card != describers.thisExpression) return null
   val reduction = owedReduction(payment.instruction, describers) ?: return null
   val resource = describers.cardResourceNoun(cardResourceType, 2) ?: return null
   val billing = describers.billingEvent(acceptance.trigger)
@@ -747,11 +735,8 @@ private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? 
 }
 
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
-  val expression = (trigger as? OnGainOf)?.expression ?: return null
-  if (expression.refinement != null || expression.complement) return null
-  if (triggerFrame(expression.className) != TriggerFrame.SpendResource) return null
-  val resource = representedClass(expression) ?: return null
-  return plainGainCategoryNoun(resource.className, 1)
+  val payment = resourcePaymentEvent(trigger) as? ResourcePaymentEvent.Standard ?: return null
+  return plainGainCategoryNoun(payment.resource.className, 1)
 }
 
 private data class PaymentDiscountTrigger(
