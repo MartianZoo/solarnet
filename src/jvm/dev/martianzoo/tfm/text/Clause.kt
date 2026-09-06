@@ -56,10 +56,10 @@ internal sealed interface Clause {
 internal fun Clause.unresolved(): List<Unresolved> =
     when (this) {
       is Clause.RawPets -> listOf(unresolved)
-      is Clause.Simple -> predicate.complement?.clause?.unresolved().orEmpty()
+      is Clause.Simple -> subject?.unresolved().orEmpty() + predicate.unresolved()
       is Clause.Coordinated -> clauses.members.flatMap(Clause::unresolved)
       is Clause.SharedSubject ->
-          predicates.members.flatMap { it.complement?.clause?.unresolved().orEmpty() }
+          subject.unresolved() + predicates.members.flatMap(Predicate::unresolved)
       is Clause.Prefaced ->
           when (val preface = preface) {
             is Clause.Preface.Conditional -> preface.condition.unresolved()

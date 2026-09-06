@@ -19,6 +19,8 @@ internal data class NounPhrase(
     }
   }
 
+  internal fun unresolved(): List<Unresolved> = modifiers.flatMap(Modifier::unresolved)
+
   companion object {
     fun text(text: String): NounPhrase = NounPhrase(text)
   }

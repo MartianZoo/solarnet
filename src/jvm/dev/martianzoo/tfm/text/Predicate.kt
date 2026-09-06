@@ -27,6 +27,11 @@ internal data class Predicate(
     }
   }
 
+  internal fun unresolved(): List<Unresolved> =
+      objects?.members.orEmpty().flatMap(NounPhrase::unresolved) +
+          modifiers.flatMap(Modifier::unresolved) +
+          complement?.clause?.unresolved().orEmpty()
+
   data class Complement(val clause: Clause) {
     fun linearize(): String = "that ${clause.linearize()}"
   }

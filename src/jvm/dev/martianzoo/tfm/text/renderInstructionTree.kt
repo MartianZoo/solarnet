@@ -125,7 +125,7 @@ private fun renderStandardResourceCostSequence(
       Predicate(
           "pay",
           Coordination.one(describers.componentNounPhrase(removal.removing.className, count)),
-          listOf(Modifier.Phrase("to ${result.linearize()}")),
+          listOf(Modifier.Purpose(result)),
       )
   )
 }
@@ -142,7 +142,7 @@ private fun renderDiscardCostSequence(
   val result =
       renderLoweredInstructions(instruction.continuation, describers).clauses.singleOrNull()
           ?: return null
-  return discarded.withModifier(Modifier.Phrase("to ${result.linearize()}"))
+  return discarded.withModifier(Modifier.Purpose(result))
 }
 
 private fun renderSequentialThen(
@@ -285,7 +285,7 @@ private fun renderCardResourceCostSequence(
           Coordination.one(resource),
           listOf(
               Modifier.Phrase("from this card"),
-              Modifier.Phrase("to ${result.linearize()}"),
+              Modifier.Purpose(result),
           ),
       )
   )

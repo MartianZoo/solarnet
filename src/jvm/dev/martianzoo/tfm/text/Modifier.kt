@@ -34,4 +34,19 @@ internal sealed interface Modifier {
   data class Per(val metric: NounPhrase) : Modifier {
     override fun linearize(): String = "per ${metric.linearize()}"
   }
+
+  data class Purpose(val action: Clause) : Modifier {
+    override fun linearize(): String = "to ${action.linearize()}"
+  }
 }
+
+internal fun Modifier.unresolved(): List<Unresolved> =
+    when (this) {
+      is Modifier.Between -> first.unresolved() + second.unresolved()
+      is Modifier.Per -> metric.unresolved()
+      is Modifier.Purpose -> action.unresolved()
+      is Modifier.Relation -> target.unresolved()
+      is Modifier.Parenthetical,
+      is Modifier.Phrase,
+      is Modifier.Supplement -> emptyList()
+    }

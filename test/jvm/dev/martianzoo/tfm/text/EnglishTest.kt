@@ -234,6 +234,17 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun retainsUnsupportedPetsWithinPaymentResults() {
+    val instruction = parse<InstructionTree>("-2 Steel THEN 3 VictoryPoint")
+    val rendering =
+        renderInstructionTree(instruction, Describers(TerraformingMarsDescribers.descriptions))
+
+    rendering.value shouldBe "Pay 2 steel to [3 VictoryPoint]."
+    rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
+        listOf("3 VictoryPoint" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+  }
+
+  @Test
   internal fun tracksUnsupportedMetricsWithinRenderedScores() {
     val effect =
         parse<Effect>("End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>")
