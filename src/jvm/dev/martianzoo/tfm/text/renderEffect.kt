@@ -577,25 +577,44 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
 
 private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
   val clauses = discounts.map { it.trigger }.distinct()
-  fun joinAlternatives(parts: List<String>): String =
-      if (parts.size == 1) parts.single() else englishAlternatives(parts)
   val actingPlayer = NounPhrase.text("you")
   val trigger =
-      if (clauses.all { it.subject == actingPlayer }) {
-        actingPlayer.linearize() + " " + joinAlternatives(clauses.map { it.predicate.linearize() })
+      if (clauses.size == 1) {
+        clauses.single()
+      } else if (clauses.all { it.subject == actingPlayer }) {
+        Clause.SharedSubject(
+            actingPlayer,
+            Coordination(clauses.map(Clause.Simple::predicate), Conjunction.OR),
+        )
       } else {
-        joinAlternatives(clauses.map(Clause.Simple::linearize))
+        Clause.Coordinated(Coordination(clauses, Conjunction.OR))
       }
   val reduction = discounts.first().reduction
-  val reductionPhrase =
+  val result =
       if (reduction.count == 0) {
-        return completeSentence("when $trigger, the cost is 0 ${reduction.noun}")
+        Clause.Simple(
+            subject = NounPhrase.text("the cost"),
+            predicate = Predicate("is", Coordination.one(NounPhrase.text("0 ${reduction.noun}"))),
+        )
       } else if (discounts.first().categoryReduction) {
-        "${reduction.count} less ${reduction.noun}"
+        Clause.Simple(
+            Predicate(
+                "pay",
+                Coordination.one(NounPhrase.text("${reduction.count} less ${reduction.noun}")),
+            )
+        )
       } else {
-        "${reduction.count} ${reduction.noun} less"
+        Clause.Simple(
+            Predicate(
+                "pay",
+                Coordination.one(
+                    NounPhrase.text("${reduction.count} ${reduction.noun}")
+                        .withModifier(Modifier.Phrase("less"))
+                ),
+            )
+        )
       }
-  return completeSentence("when $trigger, pay $reductionPhrase")
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize()
 }
 
 private data class PaymentDiscount(
