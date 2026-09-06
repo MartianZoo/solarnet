@@ -6,7 +6,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
 
-/** The printed card fact used by one canonical card operation. */
+/** A printed card fact used to filter search, reveal, and test operations. */
 internal sealed interface CardCriterion {
   data class Tag(val className: ClassName) : CardCriterion
 

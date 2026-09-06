@@ -141,6 +141,8 @@ The useful architecture already present should be extended rather than replaced:
   payment, or card-action integration decisions are made.
 - Resource-payment triggers retain whether payment uses a standard resource or resources from one
   card, and payment protocols consume that closed interpretation.
+- `CardCriterion` is the closed set of recurring printed-card facts shared by search, reveal, and
+  test operations; it is not tied to one canonical operation.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
@@ -166,14 +168,7 @@ does not prove that one frame is missing. For each recurring matcher group, deci
 Payment should be improved on its own terms. Do not judge the result by how many helpers disappear;
 judge whether ownership becomes clearer and recurring recognizers are deleted.
 
-### 2. Audit card-operation recognizers
-
-`renderCardOperation` and `CardCriterion` need an explicit scope. A surviving construction must be a
-structural interpretation of a recurring Pets form, a narrow lexical fact, corrected Pets, or
-visible unresolved source. A type described as serving one canonical operation is presumptively a
-recognizer.
-
-### 3. Finish ownership and layout
+### 2. Finish ownership and layout
 
 Move expansion-owned lexical declarations toward their bundles when that work can replace the
 central registry cleanly; do not make registry movement a prerequisite for unrelated rendering.
