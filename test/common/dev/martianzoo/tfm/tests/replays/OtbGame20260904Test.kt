@@ -563,7 +563,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
         placeTile(6, 6)
         blue.doTask("UseAction<NeptunianOption, Action1>")
         // "I will spend two money and three heat."
-        blue.intentionalOneToOneResourcePayment()
+        blue.intentionalUnderpay()
         blue.pay(2, heat = 3)
       }
     }

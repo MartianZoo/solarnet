@@ -1534,7 +1534,6 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     green.turn {
       // "Methane from Titan." "I'm gonna spend six titanium." "I mostly played it for the two
       // points."
-      intentionalOverpay(2)
       playProject(MethaneFromTitan, titanium = 6).expect("PROD[2 P, 2 H], -ProjectCard")
     }
 

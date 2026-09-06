@@ -233,7 +233,7 @@ CLASS WildTag : Cardbound<CardFront> {
 }
 
 "The action-scoped meaning chosen for one printed wild tag"
-CLASS WildTagUse<CardFront<Player>> : TagHolder<Player>, MustCleanUp {
+CLASS WildTagUse<CardFront<Player>> : TagHolder<Player>, Temporary {
   HAS MAX 1 This
   HAS MAX 1 Tag<This>
   This: Tag<This>?

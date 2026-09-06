@@ -15,8 +15,10 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
@@ -27,8 +29,6 @@ import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.TaskResult
 
 private val MC: ClassName = cn("MC")
-private val standardResourceClasses: Set<ClassName> =
-    setOf(MC, cn("Steel"), cn("Titanium"), cn("Plant"), cn("Energy"), cn("Heat"))
 
 /**
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
@@ -45,7 +45,6 @@ public class TfmGameplay(
   private var explicitPaymentChoicesRequired = false
   private var explicitUnusedActionCardsRequired = false
   private var allowNondefaultPayment = false
-  private var expectedOverpaymentWaste: Int? = null
 
   private fun asActor(actor: Actor) =
       TfmGameplay(game, actor).also {
@@ -77,146 +76,74 @@ public class TfmGameplay(
   /** Buys the selected number of offered project cards and settles their M€ invoice. */
   public fun buyCards(count: Int): TaskResult = agent.continueManual { buySelectedCards(count) }
 
-  /**
-   * Commits every project card currently selected, opening a pending offer first when necessary.
-   */
-  public fun buyCards(): TaskResult = agent.continueManual {
-    closeUnusedPaymentOffers()
-    openPendingProjectCardOffer()
-    val selected = this@TfmGameplay.count("ProjectCard<Selecting>")
-    buySelectedCards(selected)
-    declineWildTagOffers()
-    removeWildTagUses()
-  }
-
   private fun OperationBody.buySelectedCards(count: Int) {
-    closeUnusedPaymentOffers()
     openPendingProjectCardOffer()
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
     val discarded = offered - count
-    val selectionTaskNumber =
-        tasks
-            .extract { it }
-            .withIndex()
-            .singleOrNull { (_, task) ->
-              val instruction = task.instruction.toString()
-              "ProjectCard" in instruction &&
-                  "Selecting" in instruction &&
-                  !instruction.startsWith("BuyCard")
-            }
-            ?.index
-            ?.plus(1)
-    if (selectionTaskNumber != null) {
-      doTask(
-          if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>",
-          selectionTaskNumber,
-      )
-    } else {
-      require(discarded == 0 && hasPendingBuySelectedCards(tasks)) {
-        "no open project-card selection to commit"
-      }
-    }
+    selectTask(tasks.extract { it }.single { it.discardsSelectedProjectCards() }.id)
+    narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
-    if (hasPendingBuyCard(tasks)) {
-      while (hasPendingBuyCard(tasks)) {
-        if (this@TfmGameplay.count("ProjectCard<Selecting>") > 0) {
-          doTask("BuyCard / ProjectCard<Selecting>")
-        } else {
-          val buyTask = tasks.matching { it.instruction.toString().startsWith("BuyCard") }.single()
-          selectTask(buyTask)
-          if (buyTask in tasks) narrowTask("Ok")
-        }
-      }
-    }
-    if (count > 0) {
-      if (hasPendingCardPurchaseInvoice(tasks)) doTask("Invoice<CardPurchase, Action1>")
-      payAllMc()
-      completePurchasedCards()
-    } else {
-      val emptyTransfer =
-          tasks.matching { it.instruction.toString().startsWith("MAX 0 Invoice") }.singleOrNull()
-      if (emptyTransfer != null) {
-        selectTask(emptyTransfer)
-        if (emptyTransfer in tasks) narrowTask("Ok")
-      }
-    }
+    if (count > 0) payAllMc()
+    completePurchasedCards()
     if (this@TfmGameplay.count("Selecting") != 0) doTask("-Selecting")
-    closeUnusedPaymentOffers()
   }
 
+  /**
+   * Selects the pending task that puts project cards on offer. A task that deals them directly is
+   * preferred over one that only leads to a deal through its continuation.
+   */
   private fun OperationBody.openPendingProjectCardOffer() {
     if (this@TfmGameplay.count("ProjectCard<Selecting>") != 0) return
-    val offers =
-        tasks
-            .extract { it }
-            .filter { task ->
-              val instruction = task.instruction.toString() + task.then.toString()
-              task.assignee == actor &&
-                  "ProjectCard" in instruction &&
-                  "Selecting" in instruction &&
-                  !instruction.startsWith("BuyCard")
-            }
+    val offers = tasks.extract { it }.filter { it.assignee == actor && it.offersProjectCards() }
     if (offers.isEmpty()) return
-    val directOffers = offers.filter { task ->
-      task.instruction.descendantsOfType<Change>().any { change ->
-        change.gaining?.let { gaining ->
-          gaining.className == cn("ProjectCard") &&
-              cn("Selecting") in gaining.descendantsOfType<ClassName>()
-        } == true
+    val dealsNow = offers.filter { it.instruction.dealsSelectedProjectCards() }
+    selectTask((dealsNow.singleOrNull() ?: offers.single()).id)
+  }
+
+  /** Whether this task, now or through its continuation, puts project cards on offer. */
+  private fun Task.offersProjectCards(): Boolean =
+      instruction.dealsSelectedProjectCards() ||
+          then?.instructions.orEmpty().any { it.dealsSelectedProjectCards() }
+
+  /** Whether this task discards from the cards already on offer. */
+  private fun Task.discardsSelectedProjectCards(): Boolean =
+      instruction.descendantsOfType<Change>().any { it.removing.isSelectedProjectCard() }
+
+  private fun InstructionTree.dealsSelectedProjectCards(): Boolean =
+      descendantsOfType<Change>().any { it.gaining.isSelectedProjectCard() }
+
+  /** Whether this instruction gains a component of class [className]. */
+  private fun InstructionTree.gains(className: ClassName): Boolean =
+      descendantsOfType<Change>().any { it.gaining?.className == className }
+
+  /** Whether this instruction offers `UseAction` against a provider of class [provider]. */
+  private fun InstructionTree.offersAction(provider: ClassName): Boolean =
+      descendantsOfType<Change>().any { change ->
+        change.gaining?.className == cn("UseAction") &&
+            change.gaining!!.arguments.any { it.className == provider }
       }
-    }
-    val offer = directOffers.singleOrNull() ?: offers.single()
-    selectTask(offer.id)
-    if (this@TfmGameplay.count("ProjectCard<Selecting>") == 0) {
-      doTask("ProjectCard<Selecting>")
-    }
-  }
 
-  private fun OperationBody.closeUnusedPaymentOffers() {
-    if (this@TfmGameplay.count("Owed") != 0) return
-    while (true) {
-      autoExecNow()
-      val offer =
-          tasks
-              .extract { it }
-              .withIndex()
-              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("Accepting") }
-              ?: return
-      doTask("Ok", offer.index + 1)
-    }
-  }
-
-  private fun hasPendingCardPurchaseInvoice(tasks: TaskQueue): Boolean =
-      tasks
-          .extract { it }
-          .any { task ->
-            task.instruction.toString().let { it.startsWith("Invoice<") && "CardPurchase" in it }
-          }
+  private fun Expression?.isSelectedProjectCard(): Boolean =
+      this != null &&
+          className == cn("ProjectCard") &&
+          cn("Selecting") in descendantsOfType<ClassName>()
 
   private fun hasPendingBuySelectedCards(tasks: TaskQueue): Boolean =
-      tasks.extract { it }.any { it.instruction.toString().startsWith("BuySelectedCards") }
+      tasks.extract { it }.any { it.instruction.gains(cn("BuySelectedCards")) }
 
-  private fun hasPendingBuyCard(tasks: TaskQueue): Boolean =
-      tasks.extract { it }.any { it.instruction.toString().startsWith("BuyCard<") }
-
+  /** Moves the purchased cards from the offer into hand, once their invoice is settled. */
   private fun OperationBody.completePurchasedCards() {
     val transfer =
         tasks
             .extract { it }
-            .filter { task ->
+            .singleOrNull { task ->
               task.instruction.descendantsOfType<Change>().any { change ->
-                change.gaining?.let { gaining ->
-                  gaining.className == cn("ProjectCard") &&
-                      cn("Hand") in gaining.descendantsOfType<ClassName>()
-                } == true &&
-                    change.removing?.let { removing ->
-                      removing.className == cn("ProjectCard") &&
-                          cn("Selecting") in removing.descendantsOfType<ClassName>()
-                    } == true
+                change.removing.isSelectedProjectCard() &&
+                    change.gaining?.className == cn("ProjectCard") &&
+                    cn("Hand") in change.gaining!!.descendantsOfType<ClassName>()
               }
-            }
-            .singleOrNull() ?: return
+            } ?: return
     selectTask(transfer.id)
   }
 
@@ -305,22 +232,18 @@ public class TfmGameplay(
 
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
     val billingCause = openPendingBilling()
-    val offeredResource = standardResourceClasses.singleOrNull { resource ->
-      game.tasks
-          .extract { it }
-          .filter { it.assignee == actor }
-          .flatMap { it.instruction.descendantsOfType<Change>() }
-          .any { change ->
-            change.gaining?.let { gaining ->
-              gaining.className == cn("Pay") && resource in gaining.descendantsOfType<ClassName>()
-            } == true
-          }
-    }
-    if (offeredResource != null) {
-      doTask("Pay<Class<$offeredResource>> FROM $offeredResource / Owed<Class<$offeredResource>>")
+    val resource = acceptedResources().singleOrNull()
+    if (resource != null) {
+      doTask("Pay<Class<$resource>> FROM $resource / Owed<Class<$resource>>")
     }
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
+
+  /** The standard resources this Actor's live billing accepts. */
+  private fun acceptedResources(): List<ClassName> =
+      reader.getComponents(resolve("Accepting<$actor>")).elements.mapNotNull {
+        it.expression.arguments.lastOrNull()?.arguments?.singleOrNull()?.className
+      }
 
   public fun convertPlants(body: BodyLambda = {}): TaskResult {
     return stdAction("ConvertPlants", body = body)
@@ -388,7 +311,7 @@ public class TfmGameplay(
       payment: BodyLambda,
       body: BodyLambda,
   ) {
-    if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
+    if (tasks.matching { it.instruction.offersAction(cn("StandardAction")) }.any()) {
       doTask("UseAction<PlayCardFromHand, Action1>")
     }
     butFirst()
@@ -396,16 +319,7 @@ public class TfmGameplay(
 
     payment()
     body()
-    if (this@TfmGameplay.count("Owed") == 0) {
-      tasks
-          .matching {
-            it.cause?.context?.className in setOf(cn("Accepting"), cn("AcceptingFromCard"))
-          }
-          .forEach {
-            selectTask(it)
-            if (it in tasks) narrowTask("Ok")
-          }
-    }
+    if (this@TfmGameplay.count("Owed") == 0) declineUnusedPaymentOffers(fromCards = true)
     autoExecNow()
   }
 
@@ -430,7 +344,6 @@ public class TfmGameplay(
         throw TaskException("pending tasks:\n${newPendingTasks.joinToString("\n")}")
       }
       declineWildTagOffers()
-      removeWildTagUses()
     }
   }
 
@@ -447,13 +360,10 @@ public class TfmGameplay(
 
   private fun Task.isWildTagOffer(): Boolean = cause?.context?.className == cn("WildTagUse")
 
-  private fun removeWildTagUses() {
-    val uses = reader.getComponents("WildTagUse<$actor>")
-    if (uses.isEmpty()) return
-    val removals = uses.elements.joinToString(", ") { "-${it.expression}" }
-    manual(removals)
-  }
-
+  /**
+   * Pays the open invoice and rejects any allocation containing a unit that could be returned
+   * without leaving the invoice underpaid.
+   */
   public fun pay(
       mc: Int = 0,
       steel: Int = 0,
@@ -463,9 +373,7 @@ public class TfmGameplay(
       heat: Int = 0,
   ): TaskResult {
     val nondefaultPaymentAllowed = allowNondefaultPayment
-    val expectedWaste = expectedOverpaymentWaste
     allowNondefaultPayment = false
-    expectedOverpaymentWaste = null
     // Billing effects are queued; safely advance them until the payment choices are available.
     val previousAutoExecMode = autoExecMode
     if (autoExecMode != NONE) autoExecMode = SAFE
@@ -473,89 +381,79 @@ public class TfmGameplay(
     return try {
       continueManual {
         val billingCause = openPendingBilling()
-        var observedWaste = 0
-
-        fun payNonMoneyResource(cost: Int, currency: String) {
-          val accepted = pendingPaymentOffers(currency).isNotEmpty()
-          if (!accepted) {
-            if (cost > 0) {
-              preparePayment(currency)
-              doTask("$cost Pay<Class<$currency>> FROM $currency")
-            }
-            return@payNonMoneyResource
-          }
-
-          val value = paymentValue(currency)
-          val owed = count("Owed")
-          val available = count(currency)
-          val maximumFullValuePayment = minOf(available, owed / value)
-          if (
-              explicitPaymentChoicesRequired &&
-                  value > 1 &&
-                  cost < maximumFullValuePayment &&
-                  !nondefaultPaymentAllowed
-          ) {
-            throw IllegalArgumentException(
-                "$actor paid $cost $currency but could pay $maximumFullValuePayment at full value; " +
-                    "call intentionalUnderpay() immediately before paying if this is sourced"
+        val tender =
+            linkedMapOf(
+                "Plant" to plants,
+                "Energy" to energy,
+                "Heat" to heat,
+                "Titanium" to titanium,
+                "Steel" to steel,
+                MC.toString() to mc,
             )
-          }
-          if (
-              explicitPaymentChoicesRequired &&
-                  value == 1 &&
-                  cost > 0 &&
-                  pendingPaymentOffers("MC").isNotEmpty() &&
-                  count("MC") >= owed &&
-                  !nondefaultPaymentAllowed
-          ) {
-            throw IllegalArgumentException(
-                "$actor paid $cost $currency while $owed MC could settle the bill; " +
-                    "call intentionalOneToOneResourcePayment() immediately before paying if this is sourced"
-            )
-          }
-          val squanderedValue = (cost * value - owed).coerceAtLeast(0)
-          if (explicitPaymentChoicesRequired && squanderedValue > 0) {
-            if (expectedWaste == null) {
-              throw IllegalArgumentException(
-                  "$actor paid $cost $currency worth ${cost * value} against $owed owed; " +
-                      "call intentionalOverpay($squanderedValue) immediately before paying if this is sourced"
-              )
-            }
-            observedWaste += squanderedValue
-          }
-          if (cost > 0) {
+        rejectReturnableUnit(tender)
+        if (explicitPaymentChoicesRequired && !nondefaultPaymentAllowed) auditSourcedTender(tender)
+        for ((currency, units) in tender) {
+          if (units > 0) {
             preparePayment(currency)
-            doTask("$cost Pay<Class<$currency>> FROM $currency")
+            doTask("$units Pay<Class<$currency>> FROM $currency")
           }
         }
-
-        payNonMoneyResource(plants, "Plant")
-        payNonMoneyResource(energy, "Energy")
-        payNonMoneyResource(heat, "Heat")
-        payNonMoneyResource(titanium, "Titanium")
-        payNonMoneyResource(steel, "Steel")
-
-        if (explicitPaymentChoicesRequired && expectedWaste != null) {
-          require(expectedWaste == observedWaste) {
-            "$actor declared $expectedWaste M€ of intentional overpayment but squandered $observedWaste M€"
-          }
-        }
-
-        val owed = count("Owed")
-        if (mc > owed) {
-          throw LimitsException("Overpaying $mc MC when only $owed is owed")
-        }
-        if (mc > 0) {
-          preparePayment("MC")
-          doTask("$mc Pay<Class<MC>> FROM MC")
-        }
-
-        if (count("Owed") == 0) {
-          finishBilling(billingCause)
-        }
+        if (count("Owed") == 0) finishBilling(billingCause)
       }
     } finally {
       autoExecMode = previousAutoExecMode
+    }
+  }
+
+  /**
+   * Applies the payment rule once to the complete tender. Rounding excess is legal when every
+   * selected unit is necessary; a unit is illegal when removing it would still cover the debt.
+   */
+  private fun rejectReturnableUnit(tender: Map<String, Int>) {
+    val debt = count("Owed<Class<MC>>")
+    if (debt == 0) return
+    val values =
+        tender
+            .filterValues { it > 0 }
+            .mapValues { (currency, _) -> paymentValue(currency) }
+            .filterValues { it > 0 }
+    val total = values.entries.sumOf { (currency, value) -> tender.getValue(currency) * value }
+    values.forEach { (currency, value) ->
+      if (total - value >= debt) {
+        throw LimitsException(
+            "Illegal payment by $actor: removing one $currency still covers $debt owed"
+        )
+      }
+    }
+  }
+
+  /** Audits sourced legal payments against the default resource allocation. */
+  private fun auditSourcedTender(tender: Map<String, Int>) {
+    var remainingDebt = count("Owed<Class<MC>>")
+    if (remainingDebt == 0) return
+    for ((currency, units) in tender) {
+      if (currency == MC.toString() || pendingPaymentOffers(currency).isEmpty()) continue
+      val value = paymentValue(currency)
+      if (value > 1) {
+        val fullValueUnits = minOf(count(currency), remainingDebt / value)
+        if (units < fullValueUnits) {
+          throw IllegalArgumentException(
+              "$actor paid $units $currency but could pay $fullValueUnits at full value; " +
+                  "call intentionalUnderpay() immediately before paying if this is sourced"
+          )
+        }
+      } else if (
+          value == 1 &&
+              units > 0 &&
+              pendingPaymentOffers(MC.toString()).isNotEmpty() &&
+              count(MC.toString()) >= remainingDebt
+      ) {
+        throw IllegalArgumentException(
+            "$actor paid $units $currency while $remainingDebt M€ could settle the bill; " +
+                "call intentionalUnderpay() immediately before paying if this is sourced"
+        )
+      }
+      remainingDebt = (remainingDebt - units * value).coerceAtLeast(0)
     }
   }
 
@@ -584,13 +482,18 @@ public class TfmGameplay(
   }
 
   private fun OperationBody.finishBilling(billingCause: Cause?) {
+    declineUnusedPaymentOffers()
+    autoExecNow()
+    advanceSingleConcreteTask(billingCause)
+  }
+
+  /** Declines unused payment offers after their bill has been settled. */
+  private fun OperationBody.declineUnusedPaymentOffers(fromCards: Boolean = false) {
     while (true) {
-      val offer = pendingPaymentOffers().firstOrNull() ?: break
+      val offer = pendingPaymentOffers(fromCards = fromCards).firstOrNull() ?: return
       selectTaskForActor(offer)
       if (offer.id in game.tasks) narrowTask("Ok")
     }
-    autoExecNow()
-    advanceSingleConcreteTask(billingCause)
   }
 
   private fun OperationBody.advanceSingleConcreteTask(cause: Cause?) {
@@ -615,38 +518,33 @@ public class TfmGameplay(
     if (offer.assignee != actor) asActor(offer.assignee).selectTask(offer.id)
   }
 
-  private fun pendingPaymentOffers(currency: String? = null): List<Task> =
+  private fun pendingPaymentOffers(
+      currency: String? = null,
+      fromCards: Boolean = false,
+  ): List<Task> =
       game.tasks
           .extract { it }
           .filter { task ->
             val context = task.cause?.context
             task.actor == actor &&
-                context?.className == cn("Accepting") &&
-                (currency == null || "Class<$currency>" in context.toString())
+                when (context?.className) {
+                  cn("Accepting") ->
+                      currency == null ||
+                          context.arguments.any {
+                            it.arguments.singleOrNull()?.className == cn(currency)
+                          }
+                  cn("AcceptingFromCard") -> fromCards && currency == null
+                  else -> false
+                }
           }
 
   private fun OperationBody.selectTaskForActor(task: Task) {
     if (task.assignee == actor) selectTask(task.id) else asActor(task.assignee).selectTask(task.id)
   }
 
-  /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */
+  /** Exempts the next [pay] call from the default-allocation audit for a sourced legal payment. */
   public fun intentionalUnderpay() {
     allowNondefaultPayment = true
-  }
-
-  /** Allows the next [pay] call to spend a 1:1 resource when M€ could settle the full bill. */
-  public fun intentionalOneToOneResourcePayment() {
-    allowNondefaultPayment = true
-  }
-
-  /**
-   * Allows the next [pay] call to squander exactly [monetaryValueSquandered] through overpayment.
-   */
-  public fun intentionalOverpay(monetaryValueSquandered: Int) {
-    require(monetaryValueSquandered > 0) {
-      "Intentional overpayment must squander a positive value"
-    }
-    expectedOverpaymentWaste = monetaryValueSquandered
   }
 
   public fun requireExplicitPaymentChoices(): TfmGameplay = apply {
@@ -657,18 +555,12 @@ public class TfmGameplay(
     explicitUnusedActionCardsRequired = true
   }
 
-  private fun paymentValue(currency: String): Int {
-    val checkpoint = game.timeline.checkpoint()
-    return try {
-      sneak("100 Owed<>, $currency")
-      val owed = count("Owed")
-      preparePayment(currency)
-      doTask("Pay<Class<$currency>> FROM $currency")
-      owed - count("Owed")
-    } finally {
-      game.timeline.rollBack(checkpoint)
-    }
-  }
+  /**
+   * How much of the open invoice one unit of [currency] settles: one when the invoice uses that
+   * denomination, plus one per [ResourceValue] the payer owns for it.
+   */
+  private fun paymentValue(currency: String): Int =
+      count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0
 
   public fun cardAction1(
       cardName: ClassName,
@@ -746,12 +638,7 @@ public class TfmGameplay(
               task.assignee == actor &&
                   task.instruction.descendantsOfType<Scalar>().any(Scalar::abstract)
             }
-    val variableTask =
-        variableTasks.singleOrNull { task ->
-          task.instruction.descendantsOfType<Change>().any { change ->
-            change.gaining?.className == cn("Owed")
-          }
-        } ?: variableTasks.single()
+    val variableTask = variableTasks.single()
     val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
     val firstStage = if (bound is Then) bound.first else bound
     operation.doTask(firstStage.toString())
