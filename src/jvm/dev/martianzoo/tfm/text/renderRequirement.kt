@@ -50,12 +50,13 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
     if (target != 1) return null
     val objectPhrase =
         if (relation.source.ownedByYou) {
-          "${indefiniteArticle(relation.source.singular)} ${relation.source.singular} " +
-              "${relation.phrase} ${relation.target.reference().linearize()}"
+          relation.source
+              .referenceWithoutOwnership(indefiniteArticle(relation.source.singular))
+              .withModifier(Modifier.Relation(relation.phrase, relation.target.reference()))
         } else {
           relation.asRequirement()
         }
-    return requirementClause("requires", objectPhrase)
+    return requirementClause(objectPhrase)
   }
   fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
     return renderRequirementBound(expression, target, bound, BoundDirection.MINIMUM)
@@ -71,11 +72,7 @@ private fun Describers.renderDistinctKindsRequirement(
 ): Clause? {
   val expression = countedExpression(requirement) ?: return null
   val noun = distinctOwnedKinds(expression, this) ?: return null
-  val kinds = if (requirement.target == 1) noun.singular else noun.plural
-  val amount =
-      if (requirement.target == 1) "${indefiniteArticle(kinds)} $kinds"
-      else "${requirement.target} $kinds"
-  return requirementClause("requires", amount)
+  return requirementClause(quantifiedNoun(noun, requirement.target))
 }
 
 private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
@@ -98,31 +95,33 @@ private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Cl
   val production = productionExpression(expression, this) ?: return null
   if (production.owner != null) return null
   return requirementClause(
-      "requires",
-      "that you have ${componentNoun(production.resource, 1)} production",
+      "you",
+      "have",
+      NounPhrase.text("${componentNoun(production.resource, 1)} production"),
   )
 }
 
 private fun Describers.renderCardResourceRequirement(requirement: Requirement.Min): Clause? {
   val expression = countedExpression(requirement) ?: return null
   if (!expression.simple) return null
-  val noun = cardResourceNoun(expression.className, requirement.target) ?: return null
-  val amount =
+  val noun = cardResourceNounPhrase(expression.className, requirement.target) ?: return null
+  val quantified =
       if (requirement.target == 1) {
-        "${indefiniteArticle(noun)} $noun"
-      } else "${requirement.target} $noun"
-  return requirementClause("requires", amount)
+        noun.copy(count = null, determiner = indefiniteArticle(noun.noun()))
+      } else {
+        noun
+      }
+  return requirementClause(quantified)
 }
 
 private fun Describers.renderTagRequirement(requirement: Requirement.Min): Clause? {
   val (name) = tagName(requirement) ?: return null
-  val objectPhrase =
-      if (requirement.target == 1) {
-        "${indefiniteArticle(name)} $name tag"
-      } else {
-        "${requirement.target} $name ${if (requirement.target == 1) "tag" else "tags"}"
-      }
-  return requirementClause("requires", objectPhrase)
+  return requirementClause(
+      quantifiedNoun(
+          ComponentDescriber.Noun.Counted("$name tag", "$name tags"),
+          requirement.target,
+      )
+  )
 }
 
 private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): Clause? {
@@ -134,8 +133,10 @@ private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): 
       }
   val allPlanetaryTags = tags.all { (_, planetary) -> planetary }
   if (!allPlanetaryTags && tags.any { (_, planetary) -> planetary }) return null
-  val nouns = tags.map { (name) -> "${indefiniteArticle(name)} $name tag" }
-  return requirementClause("requires", englishList(nouns))
+  val nouns = tags.map { (name) ->
+    NounPhrase("$name tag", determiner = indefiniteArticle(name))
+  }
+  return requirementClause(Coordination(nouns, Conjunction.AND))
 }
 
 private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Requirement.And): Clause? {
@@ -147,13 +148,9 @@ private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Require
         val noun =
             fact(expression.className, ComponentDescriber::requirement)?.ownedCount
                 as? ComponentDescriber.Noun.Counted ?: return null
-        if (minimum.target == 1) {
-          "${indefiniteArticle(noun.singular)} ${noun.singular}"
-        } else {
-          "${minimum.target} ${noun.plural}"
-        }
+        quantifiedNoun(noun, minimum.target)
       }
-  return requirementClause("requires", englishList(nouns))
+  return requirementClause(Coordination(nouns, Conjunction.AND))
 }
 
 private fun Describers.renderRequirementBound(
@@ -179,7 +176,14 @@ private fun Describers.renderThresholdBound(
   if (!expression.simple) return null
   val value = renderRequirementValue(bound.value, target)
   val comparison = if (direction == BoundDirection.MINIMUM) "higher" else "lower"
-  return requirementClause("requires", "that ${bound.subject} is $value or $comparison")
+  return requirementClause(
+      bound.subject,
+      "is",
+      Coordination(
+          listOf(NounPhrase.text(value), NounPhrase.text(comparison)),
+          Conjunction.OR,
+      ),
+  )
 }
 
 private fun Describers.renderCountBound(
@@ -202,27 +206,37 @@ private fun Describers.renderCountBound(
   return when (direction) {
     BoundDirection.MINIMUM ->
         when {
-          owned -> {
+          owned ->
+              requirementClause(
+                  "you",
+                  "have",
+                  quantifiedNoun(bound.noun, target),
+              )
+          explicitlyAnyOwner -> {
             val amount =
                 if (target == 1) {
-                  "${indefiniteArticle(noun)} $noun"
+                  NounPhrase(noun, determiner = "any")
                 } else {
-                  "$target $noun"
+                  NounPhrase.text("any $target $noun")
                 }
-            requirementClause("requires", "that you have $amount")
+            requirementClause(amount)
           }
-          explicitlyAnyOwner -> {
-            val amount = if (target == 1) "any $noun" else "any $target $noun"
-            requirementClause("requires", amount)
-          }
-          else -> requirementClause("requires", "$target $noun")
+          else -> requirementClause(NounPhrase(noun, count = target))
         }
     BoundDirection.MAXIMUM ->
         when {
           owned ->
-              requirementClause("requires", "that you have $target or fewer ${bound.noun.plural}")
+              requirementClause(
+                  "you",
+                  "have",
+                  NounPhrase.text("$target or fewer ${bound.noun.plural}"),
+              )
           else ->
-              requirementClause("requires", "that there are $target or fewer ${bound.noun.plural}")
+              requirementClause(
+                  "there",
+                  "are",
+                  NounPhrase.text("$target or fewer ${bound.noun.plural}"),
+              )
         }
   }
 }
@@ -232,15 +246,50 @@ private enum class BoundDirection {
   MAXIMUM,
 }
 
-private fun requirementClause(
-    verb: String,
-    objectPhrase: String,
-    subject: String? = null,
-): Clause.Simple =
+private fun requirementClause(objectPhrase: NounPhrase): Clause.Simple =
+    requirementClause(Coordination.one(objectPhrase))
+
+private fun requirementClause(objects: Coordination<NounPhrase>): Clause.Simple =
     Clause.Simple(
-        predicate = Predicate(verb, Coordination.one(NounPhrase.text(objectPhrase))),
-        subject = subject?.let(NounPhrase::text),
+        predicate = Predicate("requires", objects),
     )
+
+private fun requirementClause(
+    subject: String,
+    verb: String,
+    objectPhrase: NounPhrase,
+): Clause.Simple = requirementClause(subject, verb, Coordination.one(objectPhrase))
+
+private fun requirementClause(
+    subject: String,
+    verb: String,
+    objects: Coordination<NounPhrase>,
+): Clause.Simple =
+    requirementClause(
+        Clause.Simple(
+            Predicate(verb, objects),
+            NounPhrase.text(subject),
+        )
+    )
+
+private fun requirementClause(complement: Clause): Clause.Simple =
+    Clause.Simple(
+        predicate =
+            Predicate(
+                "requires",
+                complement = Predicate.Complement(complement),
+            ),
+    )
+
+private fun Describers.quantifiedNoun(
+    noun: ComponentDescriber.Noun.Counted,
+    count: Int,
+): NounPhrase =
+    if (count == 1) {
+      NounPhrase(noun.singular, noun.plural, determiner = indefiniteArticle(noun.singular))
+    } else {
+      NounPhrase(noun.singular, noun.plural, count = count)
+    }
 
 private fun renderRequirementValue(
     value: ComponentDescriber.Requirement.Value,

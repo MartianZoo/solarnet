@@ -82,9 +82,9 @@ literal lexical leaf such as `NounPhrase.text("M€")` is fine. A string such as
 later composition.
 
 Track assembled strings, not raw string-leaf calls. Current audit searches include interpolated or
-concatenated `NounPhrase.text` and requirement helpers accepting an assembled object phrase. The
-goal is for semantic decisions to remain inspectable until final linearization, not for the
-renderer to contain no text literals.
+concatenated `NounPhrase.text`, including the few compound requirement quantifiers that remain
+explicit leaves. The goal is for semantic decisions to remain inspectable until final
+linearization, not for the renderer to contain no text literals.
 
 ## Choose the right modeling shape
 
@@ -128,6 +128,8 @@ The useful architecture already present should be extended rather than replaced:
 - Clause prefaces retain conditional and temporal clauses instead of flattening them into strings.
 - Metric renderers return noun phrases whose number, relations, maxima, and `per` attachment remain
   structured.
+- Requirement predicates distinguish noun objects from `that`-clause complements and retain
+  coordinated and relational noun phrases.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
@@ -140,25 +142,14 @@ needs. Add another layer only when a current decision cannot be represented hone
 
 When English architecture is selected, use this dependency order.
 
-### 1. Structure conditions and counts
-
-Requirements still pass assembled counted phrases across the renderer. Identify their semantic
-roles and remove those strings while doing so. Verify whether their constructions are mutually
-exclusive before calling the result a frame; use orthogonal facts where one Class can participate
-in several roles.
-
-This round should make factoring depend on roles rather than equality of rendered verbs or
-modifiers. Gate conditions, metric phrases, and clause prefaces are structured; continue with
-requirement objects.
-
-### 2. Decompose event realization
+### 1. Decompose event realization
 
 Keep event kind, actor constraint, voice, and complements independent. A destination such as “to
 this card” is a complement, not an event kind; the existing `ADD` event already follows this rule.
 Continue by separating active/passive realization from semantic event kind. Do not force
 action-use wording or the payment protocol into `TriggerFrame`.
 
-### 3. Re-examine effects as interpretations
+### 2. Re-examine effects as interpretations
 
 The matcher chain in `renderEffect.kt` is evidence that some concepts may still be unnamed, but it
 does not prove that one frame is missing. For each recurring matcher group, decide whether it is:
@@ -173,14 +164,14 @@ Payment should be improved on its own terms. In particular, determine whether `B
 how many helpers disappear; judge whether ownership becomes clearer and recurring recognizers are
 deleted.
 
-### 4. Audit card-operation recognizers
+### 3. Audit card-operation recognizers
 
 `renderCardOperation` and `CardCriterion` need an explicit scope. A surviving construction must be a
 structural interpretation of a recurring Pets form, a narrow lexical fact, corrected Pets, or
 visible unresolved source. A type described as serving one canonical operation is presumptively a
 recognizer.
 
-### 5. Finish ownership and layout
+### 4. Finish ownership and layout
 
 Move expansion-owned lexical declarations toward their bundles when that work can replace the
 central registry cleanly; do not make registry movement a prerequisite for unrelated rendering.

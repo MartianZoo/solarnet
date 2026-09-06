@@ -22,6 +22,9 @@ internal data class CountedRelation(
 
     fun reference(): NounPhrase = nounPhrase(determiner = determiner)
 
+    fun referenceWithoutOwnership(determiner: String): NounPhrase =
+        NounPhrase(singular, plural, determiner = determiner)
+
     fun counted(count: Int?): NounPhrase = nounPhrase(count = count)
 
     private fun nounPhrase(
@@ -40,8 +43,8 @@ internal data class CountedRelation(
   fun countedObject(count: Int?): NounPhrase =
       target.counted(count).withModifier(Modifier.Relation(phrase, source.reference()))
 
-  fun asRequirement(): String =
-      source.reference().withModifier(Modifier.Relation(phrase, target.reference())).linearize()
+  fun asRequirement(): NounPhrase =
+      source.reference().withModifier(Modifier.Relation(phrase, target.reference()))
 }
 
 internal fun renderCountedRelation(

@@ -56,9 +56,10 @@ internal sealed interface Clause {
 internal fun Clause.unresolved(): List<Unresolved> =
     when (this) {
       is Clause.RawPets -> listOf(unresolved)
-      is Clause.Simple -> emptyList()
+      is Clause.Simple -> predicate.complement?.clause?.unresolved().orEmpty()
       is Clause.Coordinated -> clauses.members.flatMap(Clause::unresolved)
-      is Clause.SharedSubject -> emptyList()
+      is Clause.SharedSubject ->
+          predicates.members.flatMap { it.complement?.clause?.unresolved().orEmpty() }
       is Clause.Prefaced ->
           when (val preface = preface) {
             is Clause.Preface.Conditional -> preface.condition.unresolved()
@@ -72,17 +73,30 @@ internal data class Predicate(
     val verb: String,
     val objects: Coordination<NounPhrase>? = null,
     val modifiers: List<Modifier> = emptyList(),
+    val complement: Complement? = null,
 ) {
+  init {
+    require(objects == null || complement == null)
+  }
+
   fun withModifier(modifier: Modifier): Predicate = copy(modifiers = modifiers + modifier)
 
   fun linearize(): String {
     val predicate =
-        listOfNotNull(verb, objects?.linearize(NounPhrase::linearize))
+        listOfNotNull(
+                verb,
+                objects?.linearize(NounPhrase::linearize),
+                complement?.linearize(),
+            )
             .filter(String::isNotEmpty)
             .joinToString(" ")
     return modifiers.fold(predicate) { rendered, modifier ->
       rendered + modifier.separator + modifier.linearize()
     }
+  }
+
+  data class Complement(val clause: Clause) {
+    fun linearize(): String = "that ${clause.linearize()}"
   }
 }
 
@@ -92,7 +106,15 @@ private fun coordinatePredicateObjects(
     conjunction: Conjunction,
 ): Predicate? {
   val first = predicates.firstOrNull() ?: return null
-  if (predicates.any { it.verb != first.verb || it.modifiers != first.modifiers }) return null
+  if (
+      predicates.any {
+        it.verb != first.verb ||
+            it.modifiers != first.modifiers ||
+            it.complement != first.complement
+      }
+  ) {
+    return null
+  }
   val objects = predicates.map { it.objects ?: return null }
   return first.copy(
       objects = Coordination(objects.flatMap { it.members }, conjunction),
