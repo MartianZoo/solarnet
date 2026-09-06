@@ -9,11 +9,8 @@ plugins {
   alias(libs.plugins.dokka)
 }
 
-val fullBrowserTestsRequested =
-    providers.gradleProperty("includeBrowserTests").orNull?.toBoolean() == true ||
-        gradle.startParameter.taskNames.any {
-          it.substringAfterLast(':') in setOf("jsBrowserTest", "allTestsIncludingBrowser")
-        }
+val browserTestsRequested =
+    gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "jsBrowserTest" }
 
 // JVM tests provide the exhaustive routine signal. Browser tests are opt-in except for the one
 // representative Terraforming Mars smoke scenario configured in tfm-tests/build.gradle.kts.
@@ -22,9 +19,9 @@ subprojects {
     tasks
         .matching { it.name == "jsBrowserTest" }
         .configureEach {
-          inputs.property("fullBrowserTestsRequested", fullBrowserTestsRequested)
-          onlyIf("full browser tests were explicitly requested") { task ->
-            task.inputs.properties["fullBrowserTestsRequested"] == true
+          inputs.property("browserTestsRequested", browserTestsRequested)
+          onlyIf("browser tests were explicitly requested") { task ->
+            task.inputs.properties["browserTestsRequested"] == true
           }
         }
   }

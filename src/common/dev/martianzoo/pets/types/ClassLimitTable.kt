@@ -126,7 +126,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
           (listOf(type) + type.typeDependencies.map { it.boundType }).singleOrNull {
             it.rootClass.isSubtypeOf(declaringClass)
           } ?: return null
-      val bound = replaceThisExpressionsWith(thisType.expressionFull).transformExpression(expression)
+      val bound =
+          replaceThisExpressionsWith(thisType.expressionFull).transformExpression(expression)
       return Limit(classTable.resolve(bound), range)
     }
   }

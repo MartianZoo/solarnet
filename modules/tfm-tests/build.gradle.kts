@@ -52,31 +52,22 @@ tasks.register<JavaExec>("sampleRandomCards") {
   }
 }
 
-val fullBrowserTestsRequested =
-    providers.gradleProperty("includeBrowserTests").orNull?.toBoolean() == true ||
-        gradle.startParameter.taskNames.any {
-          it.substringAfterLast(':') in setOf("jsBrowserTest", "allTestsIncludingBrowser")
-        }
+val browserTestsRequested =
+    gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "jsBrowserTest" }
 
-// A routine build exercises one representative multi-generation game in Chrome. Naming the full
-// browser task directly, using allTestsIncludingBrowser, or setting includeBrowserTests removes the
-// filter and runs every shared Terraforming Mars test in the browser.
+// A routine build exercises the most extensive shared replay in Chrome. Naming the browser task
+// directly removes this filter and runs every shared Terraforming Mars test. Other full-game
+// replays live in jvmTest so they cannot be selected by a browser task.
 tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
-  if (!fullBrowserTestsRequested) {
+  if (!browserTestsRequested) {
     filter.includeTestsMatching(
-        "dev.martianzoo.tfm.tests.replays.Game20260619Test.gameThroughGeneration5"
+        "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
     )
   }
 }
 
 tasks.register("jsBrowserSmokeTest") {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Runs one representative multi-generation Terraforming Mars game in a browser."
+  description = "Runs one extensive Terraforming Mars game in a browser."
   dependsOn("jsBrowserTest")
-}
-
-tasks.register("allTestsIncludingBrowser") {
-  group = LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Runs every Terraforming Mars test on both the JVM and browser."
-  dependsOn("allTests", "jsBrowserTest")
 }
