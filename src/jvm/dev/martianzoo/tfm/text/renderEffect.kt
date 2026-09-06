@@ -405,7 +405,7 @@ private fun renderAcceptedResourcePayment(
           describers,
       ) ?: return null
   if (accepted.count != 1 || accepted.resource == null) return null
-  if (accepted.resource == STEEL || accepted.resource == TITANIUM) return null
+  if (describers.hasBasePaymentValue(accepted.resource)) return null
   val spent =
       describers.resourcePaymentEvent(payment.trigger) as? ResourcePaymentEvent.Standard
           ?: return null
@@ -429,7 +429,7 @@ internal fun renderAcceptedResourceValue(
 ): String? {
   val resourceClassName = accepted.resource ?: return null
   if (accepted.count != 1) return null
-  if (resourceClassName == STEEL || resourceClassName == TITANIUM) return null
+  if (describers.hasBasePaymentValue(resourceClassName)) return null
   val resource = describers.componentNoun(resourceClassName, 2)
   val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   val result =
@@ -708,8 +708,6 @@ private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple
 }
 
 private val HAS_ACTIONS = ClassName.cn("HasActions")
-private val STEEL = ClassName.cn("Steel")
-private val TITANIUM = ClassName.cn("Titanium")
 
 private fun Describers.renderTriggerClause(trigger: Trigger): Clause.Simple? =
     billingEvent(trigger)?.let { renderBillingEvent(it) }

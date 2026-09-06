@@ -4,6 +4,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
@@ -292,6 +293,38 @@ internal class EnglishTest {
         English(expandedCatalog.classTable, TerraformingMarsDescribers.descriptions)
 
     expandedEnglish.describe(parse<InstructionTree>("2 Fanium")) shouldBe "Gain 2 fanium."
+  }
+
+  @Test
+  internal fun usesSuppliedPaymentKnowledgeForExpansionResources() {
+    val declarations =
+        parseClasses(
+                """
+                CLASS Fanium : StandardResource
+                CLASS FaniumConverter : ActiveCard<Class<ProjectCard>> {
+                  cost = 0
+                  This:: GrantedResourceValue<Class<Fanium>, This>
+                  PlayTag<Class<BuildingTag>>:: Accepting<Class<Fanium>>
+                }
+                """
+                    .trimIndent()
+            )
+            .toSet()
+    val additions =
+        object : TfmCatalog() {
+          override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
+        }
+    val expandedCatalog = TfmCatalog.compose(Canon, additions)
+    val expandedEnglish =
+        English(
+            expandedCatalog.classTable,
+            TerraformingMarsDescribers.descriptions +
+                (cn("Fanium") to ComponentDescriber(basePaymentValue = true)),
+        )
+
+    expandedEnglish.topText(expandedCatalog.card(cn("FaniumConverter"))) shouldBe
+        "Effect: When you play a building tag, fanium may be used. " +
+            "Each fanium you pay is worth 1 M€ extra."
   }
 
   private fun syntheticCard(source: String): Class {

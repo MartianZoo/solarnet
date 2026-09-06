@@ -66,9 +66,9 @@ interpretation as canonical components.
 
 ### Lexical meaning
 
-`ComponentDescriber` contains sparse, inheritable English facts: nouns, verbs, value formats, and
-constructions that the type system cannot answer. It must not restate structural membership such as
-“is a tag,” “is production,” or “is a card resource.”
+`ComponentDescriber` contains sparse, inheritable component-specific rendering facts: nouns, verbs,
+value roles, and constructions that the type system cannot answer. It must not restate structural
+membership such as “is a tag,” “is production,” or “is a card resource.”
 
 Facts inherit independently. A more specific Class overrides one fact from an ancestor; unrelated
 facts from incomparable ancestors compose; conflicting nearest providers for the same fact are
@@ -141,6 +141,8 @@ The useful architecture already present should be extended rather than replaced:
   payment, or card-action integration decisions are made.
 - Resource-payment triggers retain whether payment uses a standard resource or resources from one
   card, and payment protocols consume that closed interpretation.
+- Whether a resource already has a base payment value is supplied as component knowledge; payment
+  interpretation does not identify the canonical resources that have one.
 - `CardCriterion` is the closed set of recurring printed-card facts shared by search, reveal, and
   test operations; it is not tied to one canonical operation.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.

@@ -86,6 +86,7 @@ internal class Describers(
             ComponentDescriber::presenceCondition,
             ComponentDescriber::actionUse,
             ComponentDescriber::paymentRole,
+            ComponentDescriber::basePaymentValue,
             ComponentDescriber::implicitPaymentResource,
             ComponentDescriber::requirementShortfall,
             ComponentDescriber::requirementKind,
@@ -147,6 +148,9 @@ internal class Describers(
 
   internal fun isStandardResource(className: ClassName): Boolean =
       expressions.isStandardResource(className)
+
+  internal fun hasBasePaymentValue(className: ClassName): Boolean =
+      fact(className, ComponentDescriber::basePaymentValue) == true
 
   internal fun isCardResource(className: ClassName): Boolean = expressions.isCardResource(className)
 

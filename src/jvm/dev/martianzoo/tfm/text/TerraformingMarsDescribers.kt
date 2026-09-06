@@ -19,8 +19,16 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(numericSingularChange = true, changeFrame = Frame.Countable),
         klass("Metal") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("titanium or steel")),
-        klass("Steel") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
-        klass("Titanium") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
+        klass("Steel") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.ClassName,
+                basePaymentValue = true,
+            ),
+        klass("Titanium") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.ClassName,
+                basePaymentValue = true,
+            ),
         klass("MC") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
         klass("Plant") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),

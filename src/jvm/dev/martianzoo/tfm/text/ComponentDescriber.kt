@@ -18,6 +18,7 @@ internal data class ComponentDescriber(
     internal val presenceCondition: String? = null,
     internal val actionUse: ActionUse? = null,
     internal val paymentRole: PaymentRole? = null,
+    internal val basePaymentValue: Boolean? = null,
     internal val implicitPaymentResource: Noun? = null,
     internal val requirementShortfall: Boolean? = null,
     internal val requirementKind: String? = null,
