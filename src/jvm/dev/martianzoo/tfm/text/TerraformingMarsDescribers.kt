@@ -486,8 +486,7 @@ internal object TerraformingMarsDescribers {
     )
   }
 
-  internal val descriptions: Map<Class, ComponentDescriber> =
-      canonClassUniverse.allClasses().associateWith { declarations[it] ?: ComponentDescriber() }
+  internal val descriptions: Map<Class, ComponentDescriber> = declarations
 
   private fun uniqueDeclarations(
       vararg entries: Pair<Class, ComponentDescriber>,

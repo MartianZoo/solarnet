@@ -146,6 +146,8 @@ The useful architecture already present should be extended rather than replaced:
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
+- `TerraformingMarsDescribers` stores only authored lexical facts; absent Classes use structural
+  interpretation and default naming rather than empty declarations.
 
 Do not introduce a separate semantic `Description` layer merely because an earlier review proposed
 one. Frames, orthogonal roles, protocols, and clauses may already carry everything aggregation

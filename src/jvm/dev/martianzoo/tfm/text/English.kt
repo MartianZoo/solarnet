@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardRequirement
 import dev.martianzoo.tfm.canon.cardResourceType
 
-/** English Pets text using the client's complete map of sparse component descriptions. */
+/** English Pets text using the client's sparse map of component descriptions. */
 internal class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
   private val describers = Describers(descriptions)
 
