@@ -473,8 +473,7 @@ CLASS BuySelectedCards : Owned<Player>, Signal {
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
-  This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
-  This:: (EVAL CardFront.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
+  This:: (EVAL CardFront<Class<CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
   This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
 }
 
@@ -736,7 +735,6 @@ CLASS GrossHack : Owned<Player>, System {
   ProductionPhase: -5 MC
 }
 
-CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
 CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
 CLASS HandleCardTags<Class<CardFront>> : Owned<Player>, Custom
 

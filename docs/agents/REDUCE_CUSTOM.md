@@ -46,7 +46,6 @@ These honestly bridge Pets to canonical metadata absent from the component graph
 - `CopyProductionBox`
 - `CopyPrelude`
 - `ScoreEventVps`
-- `CheckCardDeck`
 - `AdjustGpRequirement`
 - `HandleCardTags`
 - `CreateAdjacencies` (its geometry now derives from active area Classes)

@@ -9,7 +9,6 @@ import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
-import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -51,7 +50,6 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.CreateAdjacencies,
         TerraformingMars.Neighbor,
         TerraformingMars.CreateMapAreas,
-        TerraformingMars.CheckCardDeck,
         TerraformingMars.AdjustGpRequirement,
         TerraformingMars.HandleCardTags,
         TerraformingMars.ScoreEventVps,
@@ -186,21 +184,6 @@ private object TerraformingMars {
           target.getNumberPropertyValue("column") - source.getNumberPropertyValue("column")
       if (abs(rowDelta) > 1 || abs(columnDelta) > 1) return 0
       return if (rowDelta + columnDelta == 0) 0 else 1
-    }
-  }
-
-  internal object CheckCardDeck : CustomClass() {
-    override fun translate(
-        reader: GameReader,
-        cardBackClassType: Type,
-        cardFrontClassType: Type,
-    ): Instruction {
-      val deck = cardBack(cardFromClassType(cardFrontClassType, reader))
-      return if (representedType(cardBackClassType, reader).className == deck?.className) {
-        NoOp
-      } else {
-        gain(DIE)
-      }
     }
   }
 

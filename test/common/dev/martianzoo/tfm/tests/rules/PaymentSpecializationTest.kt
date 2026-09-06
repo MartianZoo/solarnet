@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.*
@@ -13,12 +13,11 @@ import kotlin.test.Test
 
 internal class PaymentSpecializationTest {
   @Test
-  internal fun `card deck check accepts the matching deck and rejects another`() {
+  internal fun `card play rejects a front from a different deck`() {
     val player = setUpGame().tfm(PLAYER1)
 
-    player.manual("CheckCardDeck<Class<ProjectCard>, Class<$AcquiredCompany>>")
-    shouldThrow<DeadEndException> {
-      player.manual("CheckCardDeck<Class<CorporationCard>, Class<$AcquiredCompany>>")
+    shouldThrow<ExpressionException> {
+      player.beginManual("PlayCard<Class<CorporationCard>, Class<$AcquiredCompany>, Hand>")
     }
   }
 
