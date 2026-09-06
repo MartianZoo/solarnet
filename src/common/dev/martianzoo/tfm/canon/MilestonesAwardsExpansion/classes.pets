@@ -8,7 +8,7 @@ CLASS GainsOf<CardFront, Class<Component>> : Custom
 CLASS Builder : Milestone { requirement = HAS "7 BuildingTag" }
 // Requires making global-parameter components Owned.
 // CLASS Hydrologist : Milestone { requirement = HAS "4 OceanTile" }
-CLASS Legend : Milestone { requirement = HAS "CARDS[4 CardBack<EventPile>]" }
+CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
 CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
 CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
@@ -31,4 +31,4 @@ CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" 
 CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }
 // CLASS Politician : Award { metric = COUNT "PartyLeader OR Influence" }
-CLASS Visionary : Award { metric = COUNT "CARDS[ProjectCard<Hand>]" }
+CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }

@@ -29,7 +29,7 @@ CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
 // CLASS Lobbyist : Milestone { requirement = HAS "7 Delegate<Owner, Party>" }
 
 CLASS Collector : Award { metric = COUNT "Class<Resource>(HAS Resource<Owner>)" }
-CLASS Innovator : Award { metric = COUNT "CardFront OR CardBack<EventPile>" }
+CLASS Innovator : Award { metric = COUNT "CardFront OR PlayedEvent" }
 CLASS Constructor : Award { metric = COUNT "Colony OR CityTile" }
 CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }
 CLASS Physicist : Award { metric = COUNT "ScienceTag OR SpaceTag" }

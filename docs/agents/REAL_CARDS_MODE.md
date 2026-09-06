@@ -11,9 +11,11 @@
 > executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms or
 > `SearchForCard` lowering.
 >
-> **Status:** proposal with a settled card/state shape and layer ownership. Follow mode is committed
-> and remains the default; type syntax, the default dealer algorithm, and observation interface
-> remain unproved.
+> **Status:** long-range proposal with a settled card/state shape and layer ownership. No real-card
+> mode exists: follow mode is the only implemented behavior, and real-card implementation is not
+> expected for many months. Do not retain otherwise-unneeded runtime or source machinery merely for
+> this proposal. Type syntax, the default dealer algorithm, and observation interface remain
+> unproved.
 
 ## Read only the relevant gate
 
@@ -42,17 +44,16 @@
 
 ## Settled card and state direction
 
-Real-card mode lets Solarnet shuffle, deal, reveal, draft, play, and discard exact physical cards.
-The smallest coherent model discovered so far is:
+An eventual real-card mode would let Solarnet shuffle, deal, reveal, draft, play, and discard exact
+physical cards. The smallest coherent model discovered so far is:
 
 1. A card exists as a Component only while it is associated with a Player.
 2. Every such card is directly `Owned` by that Player. A card back also depends on one unowned
-   singleton card-location Component; a card front needs no location because its existence already
-   means it is in play.
+   singleton card-location Component; a card front and a `PlayedEvent` need no location.
 3. Deck and discard are not Components. The default Admin dealer policy derives them from the
    selected card set, an immutable seed, and exact card-transition history.
 4. A card back carries its represented `Class<CardFront>`; a card front carries its
-   `Class<CardBack>` family.
+   `Class<CardBack>` family; and a `PlayedEvent` retains its represented Event Class.
 5. Counted physical-card instructions atomize before defaults and ownership specialization.
 6. A Player controls when a card gain is selected, but Admin alone narrows the remaining exact-face
    choice. Selection-time resolution delegates that narrowing and blocks the controlling scope until
@@ -93,7 +94,6 @@ Exact syntax is provisional, but the dependency shape is settled:
 ABSTRACT CLASS CardLocation { HAS =1 This }
 
 CLASS Hand : CardLocation
-CLASS EventPile : CardLocation
 CLASS Selecting : CardLocation
 CLASS Revealed : CardLocation
 
@@ -109,6 +109,8 @@ CLASS PreludeCard : CardBack<Class<PreludeFront>>, Atomized
 
 ABSTRACT CLASS CorporationFront : CardFront<Class<CorporationCard>>
 CLASS CorporationCard : CardBack<Class<CorporationFront>>, Atomized
+
+CLASS PlayedEvent<Class<EventCard>> : Card
 ```
 
 The rendered argument order may differ after dependency inheritance is proved. Semantically, an
@@ -123,7 +125,7 @@ For example:
 ```text
 ProjectCard<Player1, Hand, Class<Decomposers>>
 Decomposers<Player1, Class<ProjectCard>>
-ProjectCard<Player1, EventPile, Class<Decomposers>>
+PlayedEvent<Player1, Class<SearchForLife>>
 ```
 
 The two Class literals carry different facts:
@@ -134,19 +136,19 @@ The two Class literals carry different facts:
 The family bounds prevent a corporation back from representing a project front. They also let play
 and event cleanup preserve physical identity without a separate deck-family check.
 
-Exactly one representation of a face exists in the World at a time. Playing transmutates its back
-into its exact front; it does not retain a parallel back Component underneath the live card.
+Exactly one in-World representation of a physical card exists at a time. Playing transmutates its
+back into its exact front. Finishing an Event transmutates the front into `PlayedEvent`; no card
+back remains alongside either representation.
 
 ## Card locations
 
 Locations are singletons and are never owned. The card's direct `Owner` dependency partitions each
-location by Player. Only card backs have a location; the presence of a card front in the World is
-the single representation of that card being in play.
+location by Player. Only card backs have a location; a card front represents a card in play, while
+`PlayedEvent` represents a completed Event and retains its identity for scoring and recovery.
 
 | Location | Representation | Meaning |
 | --- | --- | --- |
 | `Hand` | back | acquired card available to its Player |
-| `EventPile` | back | completed Event retained for scoring or recovery |
 | `Selecting` | back | Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
 
@@ -168,8 +170,8 @@ transmutations:
 | Move into a selection pool | exact `Selecting FROM Hand` |
 | Keep a revealed card | exact `Hand FROM Revealed` |
 | Play | exact front matching back at `Hand` |
-| Finish Event | matching back at `EventPile FROM` exact front |
-| Recover Event | exact `Hand FROM EventPile` |
+| Finish Event | exact `PlayedEvent FROM` exact front |
+| Recover Event | matching back at `Hand FROM` exact `PlayedEvent` |
 
 Playing Decomposers is conceptually:
 
@@ -178,10 +180,10 @@ Decomposers<Player1, Class<ProjectCard>>
   FROM ProjectCard<Player1, Hand, Class<Decomposers>>
 ```
 
-Finishing an Event reverses the representation and changes its location:
+Finishing an Event replaces the front with the identity-bearing played-event record:
 
 ```text
-ProjectCard<Player1, EventPile, Class<SearchForLife>>
+PlayedEvent<Player1, Class<SearchForLife>>
   FROM SearchForLife<Player1, Class<ProjectCard>>
 ```
 
@@ -205,7 +207,7 @@ Nothing ever moves directly from deck to discard. Even a rejected card from Sear
 exists at `Revealed`; its later pure removal records the separate discard transition.
 
 Playing is not a discard because it is an in-World back-to-front transmutation. Event cleanup is not
-a discard because it produces an `EventPile` back. These distinct event shapes let the derived fold
+a discard because it produces a `PlayedEvent`. These distinct event shapes let the derived fold
 identify reservoir transitions without guessing from a generic removal.
 
 If a future rule permanently removes a card from the game, add an explicit semantic transition for
@@ -394,31 +396,30 @@ Components for card backs.
 
 ## Canonical card-operation source
 
-Canonical sources preserve hidden card procedures in one `Instruction.Transform`, `CARDS[...]`.
-The inner instruction tree carries the operation family:
+`CARDS[...]` marks only source interiors that require rewriting for today's identity-free follow
+mode. Card procedures whose interiors already execute unchanged are ordinary Pets; the distant
+possibility of real-card mode is not a reason to wrap them. The remaining marked interiors preserve
+face-dependent source meaning that follow mode cannot execute directly:
 
 ```pets
 CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
-CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
-CARDS[3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
 CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
-CARDS[2 ProjectCard<Hand FROM EventPile>?]
-CARDS[2 / ProjectCard<Hand>]
-CARDS[CardBack<EventPile>]
-CARDS[CardBack<EventPile, Class<This>> FROM This]
-CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
 ```
+
+Completed-Event operations are ordinary Pets over the identity-bearing `PlayedEvent`, not hidden
+card procedures. Astra Mechanica uses `ProjectCard FROM PlayedEvent?`; event requirements and
+metrics likewise query `PlayedEvent` without `CARDS[...]`.
 
 `SearchForCard` inside `CARDS` means sequentially search for the requested matches. Its refinement
 is operation-specific source data over the represented front's immutable printed metadata. It
 does not change plain `HAS`, imply that a back owns a live tag, or prefilter the derived deck.
 Real-mode lowering must reveal every inspected card in order and discard nonmatches.
 
-A card procedure's follow-mode compilation leaves its location operations intact. `Selecting` and
-`Revealed` are permanent locations; cards left in either are discarded at World idle when its
-`CardLocationCleanup` resets the location through the engine's dependency cascade. A `Hand FROM
-Selecting` instruction retains exact cards.
+Ordinary Pets location operations execute directly. `Selecting` and `Revealed` are permanent
+locations; cards left in either are discarded at World idle when its `CardLocationCleanup` resets
+the location through the engine's dependency cascade. A `Hand FROM Selecting` instruction retains
+exact cards.
 `PlayCard` takes its source `CardLocation` from the initiating operation: ordinary plays supply
 `Hand`, while select-and-play operations supply `Selecting` and consume the selected back directly.
 A purchase procedure first removes unwanted cards and then invokes one unquantified
@@ -430,17 +431,16 @@ Its optional removal count is the offered count, so the player may discard any s
 the remainder; corporation setup uses ten, Research uses four, Venus Orbital Survey uses whatever
 non-Venus cards remain from two, and single-card purchase actions use one.
 
-Area-qualified card observations use the same transform. `ProjectCard<Hand>` counts only project
-cards in the Player's hand, while `CardBack<EventPile>` counts completed Events in that Player's
-event pile. Public Plans moves one linked quantity from `Hand` to `Revealed`, returns those exact
-cards to `Hand`, and awards that quantity.
+Area-qualified card observations are ordinary Pets: `ProjectCard<Hand>` counts only project cards
+in the Player's hand. Public Plans directly moves one linked quantity from `Hand` to `Revealed`,
+returns those exact cards to `Hand`, and awards that quantity. Completed Events are already visible
+as `PlayedEvent` and need no transform.
 
 Follow mode has an intermediate model named `CardLocation`. A generic `CardBack`
-depends on one of `Hand`, `EventPile`, `Selecting`, or `Revealed`, but does not
+depends on one of `Hand`, `Selecting`, or `Revealed`, but does not
 depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
 
-`CARDS` retains those locations and movements through the Catalog's shared marked-syntax handler.
-All four locations are permanent ownerless `System` components. A card entering `Selecting` or
+All three locations are permanent ownerless `System` components. A card entering `Selecting` or
 `Revealed` automatically creates at most one `CardLocationCleanup` for that location. The cleanup is
 `Temporary`: when the World becomes idle, removing it removes the location, dependency cleanup
 discards any cards left there, and the location immediately recreates itself. This lifecycle is
@@ -456,10 +456,11 @@ generic revealed card cannot preserve the printed predicate.
 
 `BuySelectedCards` prices the cards remaining in `Selecting`, waits for the adjusted invoice to be
 paid, and then moves that count to `Hand`. Public Plans performs an explicit `Hand` to `Revealed` to
-`Hand` round trip. Exact Event movements lower through `PlayedEvent` because `CardBack` does not
-carry its represented front.
+`Hand` round trip. Event cleanup and recovery use `PlayedEvent` directly today and would not need
+mode-specific lowering if real-card work eventually begins.
 
-The current source-level operation inventory is:
+The current card-procedure inventory is below. Only search by printed facts, reveal-and-test, and
+the filtered part of Venus Orbital Survey remain `CARDS`-marked; every other row uses ordinary Pets.
 
 | Family | Cards |
 | --- | --- |
@@ -470,14 +471,15 @@ The current source-level operation inventory is:
 | Choose cards to buy from an offer | Corporation setup, Research phase, Inventors' Guild, Business Network |
 | Reveal and test | Search for Life, Asteroid Deflection System |
 | Reveal two, retain matches, buy or discard the rest | Venus Orbital Survey |
-| Recover Events | Astra Mechanica |
 | Observe cards in hand | Head Start, Planner, Visionary |
-| Observe completed Events | Media Archives, Legend, Promoter |
-| Finish or transfer Events | Event cards, Pharmacy Union, Law Suit |
 | Reveal chosen hand cards temporarily | Public Plans |
 
 The remaining card gains and removals still use the follow-mode shorthand directly; they
 do not preserve deck or hand-location procedure yet.
+
+Astra Mechanica, Media Archives, Legend, Promoter, Event cleanup, Pharmacy Union, and Law Suit use
+ordinary `PlayedEvent` instructions, requirements, or metrics and therefore are not card-operation
+families in this inventory.
 
 ## Conservation
 
@@ -488,6 +490,7 @@ derived deck
 OR derived discard
 OR one exact in-World CardBack
 OR one exact in-World CardFront
+OR one exact in-World PlayedEvent
 ```
 
 Dealer replay plus the current World can validate this partition. The generic component Limiter
@@ -524,29 +527,30 @@ now:
 
 - the normal Admin dealer policy uses the exact master history;
 - a Player sees exact own-Hand and own-Selecting faces when the rules permit;
-- `Revealed`, card fronts, and `EventPile` are normally public; and
+- `Revealed`, card fronts, and `PlayedEvent` are normally public; and
 - no observation API exposes future derived deck order.
 
 Do not add `KnownTo` Components, fake playable unknown fronts, or ownership-based visibility rules.
 
 ## Follow mode and operation lowering
 
-Real-card mode is an affirmative Module fixed in the premise and mutually exclusive with follow
-mode. Both modes are permanent supported behavior; follow mode remains the default and delegates
-card outcomes to a client.
+No real-card mode exists, and none is expected for many months. If that work is eventually selected,
+it would likely introduce an affirmative Module fixed in the premise and mutually exclusive with
+follow mode. Until then, follow mode is the sole supported behavior and delegates card outcomes to a
+client.
 
-Develop real-card lowering by operation family while preserving the corresponding follow lowering:
+If implementation begins, develop real-card lowering by operation family while preserving the
+corresponding follow behavior:
 
 1. draws and deals;
 2. reveal one and optionally keep or buy;
 3. reveal several and choose;
 4. sequential search by printed facts;
-5. drafting and packet passing;
-6. play and Event cleanup; and
-7. recover a known Event.
+5. drafting and packet passing.
 
 Shared definitions with no transition difference need one form. Do not mechanically duplicate or
-rename every card definition.
+rename every card definition. Event cleanup and recovery are shared direct `PlayedEvent`
+transmutations rather than mode-specific lowering.
 
 ### Retire `ClassDeclaration.executableEffects`
 
@@ -559,9 +563,9 @@ hold two representations of the same behavior. Its only writer anywhere is
 `ClassDeclaration.effects` silently prefers it. A mode-specific shadow field on the language's core
 declaration type is the wrong home for what is really one Catalog's lowering choice.
 
-This is worth solving now rather than after real mode lands, because real mode adds a *second*
-lowering of the same authored `CARDS[...]` and `SearchForCard` sources. Two shadow fields, or one
-field whose meaning depends on the selected Module, would be worse than today.
+This is worth solving from the needs of today's follow-mode compilation alone. If real-card work is
+eventually selected, it must not add a second shadow field or make one field's meaning depend on a
+selected Module.
 
 Directions to try, cheapest first:
 
@@ -570,9 +574,9 @@ Directions to try, cheapest first:
    only stored effects list. Check what still needs the authored form: today it is `renderChange`
    (`authoredEffectsWithActions`) and `TfmCatalog`'s action check. If those callers can read the
    authored form from the parsed source or from a rendering-only side table, the field disappears.
-2. **Make the mode a projection, not a rewrite.** Follow mode is already a Module selection. If the
-   `CARDS[...]` handler is chosen per premise and applied during class loading, both modes read one
-   authored declaration and neither stores a rewritten copy.
+2. **Make any future mode a projection, not a rewrite.** If a future `CARDS[...]` handler is chosen
+   per premise and applied during class loading, both modes can read one authored declaration and
+   neither stores a rewritten copy.
 3. **Give the operation a component.** If the card-operation families become declared classes
    rather than a marker plus a recognizer, most of what `FollowModeNeutralizer` rewrites becomes
    ordinary mode-specific effects on mode-specific classes, and there is nothing left to shadow.

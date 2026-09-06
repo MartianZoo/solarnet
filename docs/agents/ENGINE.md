@@ -107,9 +107,9 @@ those declarations; there are no parallel goal metadata objects.
 
 Canonical card classes are loaded from each bundle's authored `cards.pets` alongside
 `classes.pets`. A loaded card declaration retains authored actions and authored effects while its
-`effects` contain the follow-mode compilation used for activation and execution. That
-compilation preserves generic `CardLocation` movements, delegates printed-face predicates to the
-client, and temporarily represents exact Event-pile links with `PlayedEvent`.
+`effects` contain any follow-mode compilation needed for activation and execution. Ordinary card
+location movements require no compilation; the remaining `CARDS[...]` zones delegate
+printed-face predicates to the client.
 `TfmCatalog.card(name)` returns that loaded Class directly. Narrow card-query functions derive its
 card back, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
 from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented

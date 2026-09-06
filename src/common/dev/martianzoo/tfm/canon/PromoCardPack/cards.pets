@@ -57,7 +57,7 @@ CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
   This: CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]
   This:: 54 MC
   MicrobeTag<Anyone, CardFront<Anyone>>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.
-  ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok)
+  ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
 }
 
 CLASS TychoMagnetics : ActionCard<Class<CorporationCard>> {
@@ -66,7 +66,7 @@ CLASS TychoMagnetics : ActionCard<Class<CorporationCard>> {
   This:: PowerTag<This>, ScienceTag<This>
   This: 42 MC, PROD[Energy]
 
-  X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]
+  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
 }
 
 CLASS KuiperCooperative : ActionCard, ResourceCard<Class<Asteroid>, Class<CorporationCard>> {
@@ -93,7 +93,7 @@ CLASS CorporateArchives : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: ScienceTag<This>
-  This: 13 MC, CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
+  This: 13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
 }
 
 CLASS DoubleDown : CardFront<Class<PreludeCard>> {
@@ -105,19 +105,19 @@ CLASS DoubleDown : CardFront<Class<PreludeCard>> {
 CLASS Merger : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: CARDS[4 CorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Selecting>], -42 MC
+  This: 4 CorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Selecting>, -42 MC
 }
 
 CLASS NewPartner : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PROD[1 MC], CARDS[2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>]
+  This: PROD[1 MC], 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
 }
 
 CLASS HeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: 2 Steel, CARDS[2 MC / ProjectCard<Hand>], UseAction<StandardAction>!, UseAction<StandardAction>!
+  This: 2 Steel, 2 MC / ProjectCard<Hand>, UseAction<StandardAction>!, UseAction<StandardAction>!
 }
 
 CLASS AntiDesertificationTechniques : CardFront<Class<PreludeCard>> {
@@ -213,7 +213,7 @@ CLASS HiTechLab : ActionCard, ActiveCard<Class<ProjectCard>> {
   This:: ScienceTag<This>, BuildingTag<This>
   End: VictoryPoint
 
-  X Energy -> CARDS[X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]
+  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
 }
 
 CLASS InterplanetaryTrade : AutomatedCard<Class<ProjectCard>> {
@@ -541,7 +541,7 @@ CLASS AstraMechanica : AutomatedCard<Class<ProjectCard>> {
   cost = 7
 
   This:: ScienceTag<This>
-  This: CARDS[ProjectCard<Hand FROM EventPile>?], CARDS[ProjectCard<Hand FROM EventPile>?]
+  This: ProjectCard FROM PlayedEvent?, ProjectCard FROM PlayedEvent?
 }
 
 CLASS CarbonNanosystems : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Graphene>> {
@@ -729,7 +729,7 @@ CLASS PublicPlans : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EventTag<This>
-  This: CARDS[X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC]
+  This: X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC
   End: VictoryPoint
 }
 

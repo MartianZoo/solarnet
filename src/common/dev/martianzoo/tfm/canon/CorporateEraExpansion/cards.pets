@@ -29,7 +29,7 @@ CLASS InventorsGuild : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This:: ScienceTag<This>
 
-  -> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]
+  -> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
 }
 
 CLASS SpaceElevator : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -322,7 +322,7 @@ CLASS MediaArchives : AutomatedCard<Class<ProjectCard>> {
   cost = 8
 
   This:: EarthTag<This>
-  This: CARDS[1 MC / CardBack<EventPile, Anyone>]
+  This: 1 MC / PlayedEvent<Anyone>
 }
 
 CLASS MediaGroup : ActiveCard<Class<ProjectCard>> {
@@ -338,14 +338,14 @@ CLASS BusinessNetwork : ActionCard, ActiveCard<Class<ProjectCard>> {
   This:: EarthTag<This>
   This: PROD[-1 MC]
 
-  -> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]
+  -> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
 }
 
 CLASS BusinessContacts : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EarthTag<This>, EventTag<This>
-  This: CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
+  This: 4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
 }
 
 CLASS BribedCommittee : EventCard<Class<ProjectCard>> {
@@ -493,7 +493,7 @@ CLASS InventionContest : EventCard<Class<ProjectCard>> {
   cost = 2
 
   This:: ScienceTag<This>, EventTag<This>
-  This: CARDS[3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]
+  This: 3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
 }
 
 CLASS PowerInfrastructure : ActionCard, ActiveCard<Class<ProjectCard>> {
