@@ -169,36 +169,6 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   return RenderedAction(cost, result)
 }
 
-private fun Describers.renderLinkedProductionResourceAction(action: Action): RenderedAction? {
-  val spend = action.cost as? Cost.Spend ?: return null
-  val costCount = spend.scaledEx.scalar.fixedQuantity() ?: return null
-  val production = productionCategoryExpression(spend.scaledEx.expression, this) ?: return null
-  if (production.owner != null || concrete(production.resource)) return null
-  val gain = action.instruction as? Gain ?: return null
-  if (gain.intensity.modality() != Modality.REQUIRED) return null
-  if (!gain.gaining.simple || gain.gaining.className != production.resource) return null
-  val gainCount = gain.count.fixedQuantity() ?: return null
-  val steps = if (costCount == 1) "step" else "steps"
-  val resources = if (gainCount == 1) "resource" else "resources"
-  val cost =
-      Predicate(
-          Verb("decrease"),
-          Coordination.one(NounPhrase.text("one of your productions $costCount $steps")),
-      )
-  val result =
-      RenderedInstructions(
-          listOf(
-              Clause.Simple(
-                  Predicate(
-                      Verb("gain"),
-                      Coordination.one(NounPhrase.text("$gainCount $resources of that kind")),
-                  )
-              )
-          )
-      )
-  return RenderedAction(cost, result)
-}
-
 private fun Describers.renderDeferredPaymentAction(
     action: Action,
 ): RenderedAction? {
@@ -244,9 +214,6 @@ private fun renderAction(
 ): RenderedAction? {
   val lowered = describers.lowerProductionSyntax(action)
   describers.renderLinkedXAction(lowered)?.let {
-    return it.takeIf(RenderedAction::costCanJoinResult)
-  }
-  describers.renderLinkedProductionResourceAction(lowered)?.let {
     return it.takeIf(RenderedAction::costCanJoinResult)
   }
   describers.renderDeferredPaymentAction(lowered)?.let {

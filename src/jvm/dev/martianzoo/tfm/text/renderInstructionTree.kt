@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
@@ -90,8 +89,7 @@ private fun renderInstruction(
       is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers))
       is Instruction.Then ->
           Rendering.resolved(
-              renderPlacementBonusProductionSequence(instruction, describers)
-                  ?: renderCardPlaySequence(instruction, describers)
+              renderCardPlaySequence(instruction, describers)
                   ?: renderStandardResourceCostSequence(instruction, describers)
                   ?: renderDiscardCostSequence(instruction, describers)
                   ?: renderCardResourceCostSequence(instruction, describers)
@@ -156,111 +154,6 @@ private fun renderSequentialThen(
       }
   return Clause.Coordinated(Coordination(clauses, Conjunction.THEN))
 }
-
-private fun renderPlacementBonusProductionSequence(
-    instruction: Instruction.Then,
-    describers: Describers,
-): Clause? {
-  val placement = instruction.stages.singleOrNull() as? Gain ?: return null
-  if (
-      placement.intensity.modality() != Modality.REQUIRED ||
-          placement.gaining.refinement != null ||
-          placement.gaining.complement ||
-          placement.count.fixedQuantity() != 1
-  ) {
-    return null
-  }
-  val placementDescription = describers.positionedFrame(placement.gaining.className) ?: return null
-  val alternatives = (instruction.continuation as? Instruction.Or)?.instructions ?: return null
-  val bonuses = alternatives.map { alternative ->
-    val gated = alternative as? Instruction.Gated ?: return null
-    val minimum = gated.gate as? Requirement.Min ?: return null
-    if (minimum.target != 1) return null
-    val site = (minimum.metric as? Metric.Count)?.expression ?: return null
-    val resolvedSite = describers.resolveExpression(site) ?: return null
-    if (resolvedSite.sourceDependencies.isNotEmpty() || site.complement) return null
-    val requirements =
-        (site.refinement?.takeIf { !it.forgiving }?.requirement as? Requirement.And)?.requirements
-            ?: return null
-    val expressions = requirements.map { child ->
-      val childMinimum = child as? Requirement.Min ?: return null
-      if (childMinimum.target != 1) return null
-      (childMinimum.metric as? Metric.Count)?.expression ?: return null
-    }
-    if (expressions.none { it.simple && it.className == placement.gaining.className }) return null
-    val bonus =
-        expressions.singleOrNull {
-          describers.fact(it.className, ComponentDescriber::placementBonus) != null
-        } ?: return null
-    val bonusDescription =
-        describers.fact(bonus.className, ComponentDescriber::placementBonus) ?: return null
-    val resource = describers.representedClass(bonus) ?: return null
-    val production =
-        InstructionGroup.of(gated.inner).instructions.singleOrNull() as? Gain ?: return null
-    if (
-        production.intensity.modality() != Modality.REQUIRED ||
-            production.count.fixedQuantity() != 1
-    ) {
-      return null
-    }
-    val produced = productionExpression(production.gaining, describers) ?: return null
-    if (produced.owner != null || produced.resource != resource.className) return null
-    PlacementBonusProduction(site.className, resource.className, bonusDescription.noun)
-  }
-  val siteClassName =
-      bonuses.map(PlacementBonusProduction::siteClassName).distinct().singleOrNull() ?: return null
-  val bonusNoun =
-      bonuses.map(PlacementBonusProduction::bonusNoun).distinct().singleOrNull() ?: return null
-  val resolvedPlacement = resolvePlacementExpression(placement.gaining, describers) ?: return null
-  if (resolvedPlacement.owner != null || resolvedPlacement.unknownDependencies.isNotEmpty()) {
-    return null
-  }
-  val siteModifiers =
-      renderPlacementSites(resolvedPlacement, describers)?.takeIf { it.isNotEmpty() }
-          ?: run {
-            val description = describers.placementSite(siteClassName) ?: return null
-            val noun = describers.describedNoun(siteClassName, description.noun, 1)
-            listOf(Modifier.Relation("on", NounPhrase(noun, determiner = description.determiner)))
-          }
-  val resourceNames = bonuses.map { describers.componentNoun(it.resource, 1) }
-  val resourceAlternatives = englishAlternatives(resourceNames)
-  val bonusModifier =
-      Modifier.Relation(
-          "with",
-          NounPhrase(
-              "$resourceAlternatives ${bonusNoun.singular}",
-              determiner = Determiner.INDEFINITE,
-          ),
-      )
-  val placed =
-      Clause.Simple(
-          Predicate(
-              Verb("place"),
-              Coordination.one(
-                  NounPhrase(
-                      placementDescription.singular,
-                      placementDescription.plural,
-                      determiner = placementDescription.determiner,
-                  )
-              ),
-              siteModifiers.take(1) + bonusModifier + siteModifiers.drop(1),
-          )
-      )
-  val production =
-      Clause.Simple(
-          Predicate(
-              Verb("increase"),
-              Coordination.one(NounPhrase.text("the matching production 1 step")),
-          )
-      )
-  return Clause.Coordinated(Coordination(listOf(placed, production), Conjunction.AND))
-}
-
-private data class PlacementBonusProduction(
-    val siteClassName: ClassName,
-    val resource: ClassName,
-    val bonusNoun: ComponentDescriber.Noun.Counted,
-)
 
 private fun renderCardResourceCostSequence(
     instruction: Instruction.Then,

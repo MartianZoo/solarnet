@@ -232,9 +232,12 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
   if (propertyMetric.receiver != null) return null
   val property = use.minimumProperties[propertyMetric.propertyName.value] ?: return null
   if (minimum.target == 1) {
-    property.positiveObjectPhrase?.let {
-      return NounPhrase.text(it)
-    }
+    return objectPhrase.withModifier(
+        Modifier.Relation(
+            "with",
+            NounPhrase("positive ${property.noun}", determiner = Determiner.INDEFINITE),
+        )
+    )
   }
   val unit = property.unit?.let { " $it" }.orEmpty()
   return objectPhrase.withModifier(

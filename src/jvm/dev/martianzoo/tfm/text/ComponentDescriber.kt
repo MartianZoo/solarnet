@@ -154,7 +154,6 @@ internal data class ComponentDescriber(
     public data class Threshold(
         internal val noun: String,
         internal val unit: String? = null,
-        internal val positiveObjectPhrase: String? = null,
     ) : MinimumProperty
 
     public data class Presence(public val noun: String) : MinimumProperty

@@ -40,7 +40,6 @@ internal fun renderEffect(
           ?: renderAcceptedPaymentResource(lowered, describers)
           ?: renderRequirementFlexibility(lowered, describers)
           ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
-          ?: renderLinkedProductionReward(lowered, describers)
           ?: renderTriggeredInstructions(lowered, describers)
   return rendered?.let(Rendering.Companion::resolved)
       ?: Rendering.unresolved(
@@ -370,12 +369,6 @@ internal fun renderEffects(
       index += consumed
       continue
     }
-    renderBarrierSequencedTrackChoice(effects.drop(index), describers)?.let { (sentence, consumed)
-      ->
-      sentences += sentence
-      index += consumed
-      continue
-    }
     val discount = paymentDiscount(effects[index], describers)
     if (discount == null) {
       val effect = effects[index]
@@ -519,75 +512,6 @@ private fun resourceValueModifier(value: NounPhrase): Modifier.Relation =
         "as",
         value.withModifier(Modifier.Phrase("each")),
     )
-
-private fun renderBarrierSequencedTrackChoice(
-    effects: List<Effect>,
-    describers: Describers,
-): Pair<String, Int>? {
-  val barrierEffect = effects.getOrNull(0) ?: return null
-  val trackEffect = effects.getOrNull(1) ?: return null
-  if (
-      !barrierEffect.automatic ||
-          trackEffect.automatic ||
-          barrierEffect.trigger != trackEffect.trigger
-  ) {
-    return null
-  }
-  val barrierGain =
-      InstructionGroup.of(barrierEffect.instruction).instructions.singleOrNull() as? Gain
-          ?: return null
-  if (
-      barrierGain.intensity.modality() != Modality.REQUIRED ||
-          barrierGain.gaining.refinement != null ||
-          barrierGain.gaining.complement ||
-          barrierGain.count.fixedQuantity() != 1 ||
-          describers.fact(barrierGain.gaining.className, ComponentDescriber::paymentRole) !=
-              ComponentDescriber.PaymentRole.BARRIER
-  ) {
-    return null
-  }
-  val sequence = trackEffect.instruction as? Then ?: return null
-  val trackGain = sequence.stages.singleOrNull() as? Gain ?: return null
-  if (
-      trackGain.intensity.modality() != Modality.OPTIONAL ||
-          trackGain.gaining.refinement != null ||
-          trackGain.gaining.complement ||
-          trackGain.count.fixedQuantity() != 1
-  ) {
-    return null
-  }
-  val track = describers.scaleFrame(trackGain.gaining.className) ?: return null
-  val barrierRemoval = sequence.continuation as? Remove ?: return null
-  if (
-      barrierRemoval.intensity.modality() != Modality.REQUIRED ||
-          barrierRemoval.removing != barrierGain.gaining ||
-          barrierRemoval.count.fixedQuantity() != 1
-  ) {
-    return null
-  }
-  val triggerExpression = (trackEffect.trigger as? OnGainOf)?.expression ?: return null
-  val resolvedGain = describers.resolveExpression(trackGain.gaining) ?: return null
-  val resolvedTrigger = describers.resolveExpression(triggerExpression) ?: return null
-  val selectedTrack = resolvedGain.sourceDependencies.values.singleOrNull() ?: return null
-  if (resolvedTrigger.sourceDependencies.values.singleOrNull() != selectedTrack) return null
-  val barrierDependencies =
-      describers.resolveExpression(barrierGain.gaining)?.sourceDependencies?.values ?: return null
-  if (barrierDependencies.isNotEmpty() && barrierDependencies.singleOrNull() != selectedTrack) {
-    return null
-  }
-  val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
-  val result =
-      Clause.Simple(
-          subject = NounPhrase.you(),
-          predicate =
-              Predicate(
-                  Verb("may first increase"),
-                  Coordination.one(NounPhrase.text("that ${track.subject}")),
-                  listOf(Modifier.Phrase("1 step")),
-              ),
-      )
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize() to 2
-}
 
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
   completeOwedReduction(effect.instruction, describers)?.let { reduction ->
@@ -819,32 +743,6 @@ private fun renderTriggeredInstructions(
               Clause.Preface.Temporal(trigger),
               result.asCoordinatedClause(),
           )
-      )
-      .linearize()
-}
-
-private fun renderLinkedProductionReward(effect: Effect, describers: Describers): String? {
-  val expression = (effect.trigger as? OnGainOf)?.expression ?: return null
-  val production = productionCategoryExpression(expression, describers) ?: return null
-  if (production.owner != null || describers.concrete(production.resource)) return null
-  val gain = effect.instruction as? Gain ?: return null
-  if (gain.intensity.modality() != Modality.REQUIRED) return null
-  if (!gain.gaining.simple || gain.gaining.className != production.resource) return null
-  val count = gain.count.fixedQuantity() ?: return null
-  val objectPhrase = "$count ${if (count == 1) "resource" else "resources"} of that type"
-  val result =
-      Clause.Simple(Predicate(Verb("gain"), Coordination.one(NounPhrase.text(objectPhrase))))
-  val trigger =
-      eventTrigger(
-          subject = NounPhrase.you(),
-          verb = Verb("increase"),
-          objectPhrase = NounPhrase.text("one of your productions one or more steps"),
-      )
-  return Sentence(
-          Clause.Prefaced(
-              Clause.Preface.Temporal(trigger),
-              result.withModifier(Modifier.Phrase("per step")),
-          ),
       )
       .linearize()
 }

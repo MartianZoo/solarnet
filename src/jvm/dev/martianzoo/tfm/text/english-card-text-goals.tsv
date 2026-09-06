@@ -40,7 +40,7 @@ NirgalEnterprises	Nirgal Enterprises	Gain 30 M€. Increase your energy producti
 PalladinShipping	Palladin Shipping	Gain 36 M€ and 5 titanium.	Action: Pay 2 titanium to raise temperature 1 step. / Effect: When you play a space event card, gain 1 titanium.
 SagittaFrontierServices	Sagitta Frontier Services	Gain 31 M€. Increase your energy production 1 step and your M€ production 2 steps. Draw 1 card with no tags.	Effect: When you play a card with no tags, including this, gain 4 M€. When you play a card with exactly 1 tag, gain 1 M€. Event cards count as having an event tag.
 EcoTec	EcoTec	Gain 42 M€. Increase your plant production 1 step.	Effect: When you play an animal tag, a plant tag, or a microbe tag, gain 1 plant or add 1 microbe to any card.
-Spire	Spire	Gain 50 M€. As your first action, draw 4 cards, then discard 3 cards.	Effect: When you play a card with at least 2 tags, including the event tag, add 1 science resource to this card. Science resources on this card may be used as 2 M€ each when you pay for a standard project.
+Spire	Spire	Gain 50 M€. As your first action, draw 4 cards, then discard 3 cards.	Effect: When you play a card with at least 2 tags, including the event tag, add 1 science resource to this card. Science resources on this card may be used as 2 M€ each when you pay for a standard project with a positive printed cost.
 AppliedScience	Applied Science	Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, raise oxygen 2 steps, or raise Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 Prelude card. Either discard it, or pay 12 M€ and remove 1 director resource from this card to play it.
@@ -299,7 +299,7 @@ CeosFavoriteProject	CEO's Favorite Project	Add 1 resource to a card with 1 or mo
 AntiGravityTechnology	Anti-Gravity Technology	Requires 7 science tags. 3 VPs.	Effect: When you play a card, pay 2 M€ less.
 InvestmentLoan	Investment Loan	Decrease your M€ production 1 step. Gain 10 M€.
 CaretakerContract	Caretaker Contract	Requires that temperature is 0°C or higher.	Action: Pay 8 heat to raise your terraform rating 1 step.
-StandardTechnology	Standard Technology		Effect: When you pay for a standard project, except selling patents, gain 3 M€.
+StandardTechnology	Standard Technology		Effect: When you pay for a standard project with a positive printed cost, gain 3 M€.
 PowerSupplyConsortium	Power Supply Consortium	Requires 2 power tags. Decrease any player's energy production 1 step and increase your energy production 1 step.
 ProtectedHabitats	Protected Habitats		Effect: Opponents may not remove your plants, animals, or microbes.
 Satellites	Satellites	Increase your M€ production 1 step per space tag you have.
