@@ -10,9 +10,9 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research from 2026-08-23 on the development host. Treat absolute times as
-> noisy: other JVM processes were consuming substantial CPU during the baseline. Relative structure
-> and the large parallel-speedup signal are still clear.
+> **Status:** dated research from 2026-08-23 and 2026-09-06 on the development host. Treat absolute
+> times as noisy: other JVM processes were consuming substantial CPU during the baseline. Relative
+> structure and the large parallel-speedup signal are still clear.
 
 ## Configuration entry points
 
@@ -135,6 +135,19 @@ speedup corresponds to 68.2% parallel efficiency. Aggregate engine suite time in
 which is the expected throughput tradeoff from running isolated test processes concurrently. The
 smaller suites also paid fork and host-contention overhead, but engine remained the critical path
 and the complete build still finished 1m47.67s sooner.
+
+## Anchored lexer result
+
+A 2026-09-06 flight recording of `Prelude2CardsTest` found that 330 of 350 regex execution-sample
+stacks came from `AnchoredRegexToken`. It used `Regex.find` and rejected a result that began after
+the current tokenizer position, needlessly searching the remaining input. Calling `Regex.matchAt`
+expresses the token contract directly and performs no forward search.
+
+Immediate AC-powered control and changed runs used the same 29 test methods. The single-fork JVM
+suite fell from 11.539s to 7.161s and 7.116s, a 37.9–38.3% reduction. Chrome task execution fell
+from 21.110s to 18.195s and 18.650s, an 11.7–13.8% reduction. The complete forced JVM and browser
+suites passed after the change in 1m29s and 6m28s respectively; earlier full-suite baselines that
+day were power-throttled and are not valid comparisons.
 
 ## Priorities suggested by the data
 
