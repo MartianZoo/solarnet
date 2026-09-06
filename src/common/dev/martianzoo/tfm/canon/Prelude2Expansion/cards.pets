@@ -21,7 +21,7 @@ CLASS PalladinShipping : ActionCard<Class<CorporationCard>> {
 CLASS SagittaFrontierServices : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 31 MC, PROD[Energy, 2 MC], CARDS[ProjectCard(HAS MAX 0 Tag)]
+  This: 31 MC, PROD[Energy, 2 MC], CARDS[SearchForCard(HAS MAX 0 PrintedTag)]
   CardFront(HAS MAX 0 Tag): 4 MC
   CardFront(HAS =1 Tag): 1 MC
 }
@@ -56,7 +56,7 @@ CLASS AtmosphericEnhancers : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: VenusTag<This>
-  This: (2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), CARDS[2 ProjectCard(HAS Citations<Class<Floater>>)]
+  This: (2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)]
 }
 
 CLASS BoardOfDirectors : ActionCard, ResourceCard<Class<Director>, Class<PreludeCard>> {
@@ -122,7 +122,7 @@ CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<Prelud
 CLASS NobelPrize : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: WildTag<This>, 5 MC, CARDS[2 ProjectCard(HAS requirement)]
+  This: WildTag<This>, 5 MC, CARDS[2 SearchForCard(HAS requirement)]
   End: 2 VictoryPoint
 }
 
@@ -137,7 +137,7 @@ CLASS PlanetaryAlliance : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: EarthTag<This>, JovianTag<This>, VenusTag<This>
-  This: 2 TerraformRating, CARDS[ProjectCard(HAS JovianTag)], CARDS[ProjectCard(HAS VenusTag)]
+  This: 2 TerraformRating, CARDS[SearchForCard(HAS PrintedTag<Class<JovianTag>>)], CARDS[SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
 }
 
 CLASS ProjectEden : CardFront<Class<PreludeCard>> {
@@ -157,7 +157,7 @@ CLASS SoilBacteria : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: MicrobeTag<This>
-  This: CARDS[2 ProjectCard(HAS MicrobeTag)], 3 Plant
+  This: CARDS[2 SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)], 3 Plant
   PlantTag<> OR MicrobeTag<>: Plant
 }
 
@@ -190,7 +190,7 @@ CLASS VenusContract : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: VenusTag<This>
-  This: CARDS[ProjectCard(HAS VenusTag)], TerraformRating
+  This: CARDS[SearchForCard(HAS PrintedTag<Class<VenusTag>>)], TerraformRating
   VenusStep: 3 MC
 }
 
@@ -245,7 +245,7 @@ CLASS IshtarExpedition : EventCard<Class<ProjectCard>> {
   requirement = HAS "5 VenusStep"
 
   This:: VenusTag<This>, EventTag<This>
-  This: 3 Titanium, CARDS[2 ProjectCard(HAS VenusTag)]
+  This: 3 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
 }
 
 CLASS MicrogravityNutrition : AutomatedCard<Class<ProjectCard>> {
@@ -268,7 +268,7 @@ CLASS StratosphericExpedition : EventCard<Class<ProjectCard>> {
   cost = 12
 
   This:: VenusTag<This>, SpaceTag<This>, EventTag<This>
-  This: 2 Floater, CARDS[2 ProjectCard(HAS VenusTag)]
+  This: 2 Floater, CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
   End: VictoryPoint
 }
 

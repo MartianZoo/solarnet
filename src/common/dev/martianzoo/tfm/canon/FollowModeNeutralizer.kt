@@ -27,6 +27,7 @@ internal object FollowModeNeutralizer : TransformHandler {
   private val EVENT_PILE = cn("EventPile")
   private val HAND = cn("Hand")
   private val PLAYED_EVENT = cn("PlayedEvent")
+  private val SEARCH_FOR_CARD = cn("SearchForCard")
 
   internal fun neutralize(source: ClassDeclaration): ClassDeclaration {
     val transformedEffects = source.effects.map(::transformEffect)
@@ -99,6 +100,7 @@ internal object FollowModeNeutralizer : TransformHandler {
               }
               node is Expression && node.className == CARD_BACK && node.hasArea(EVENT_PILE) ->
                   node.withoutArea(PLAYED_EVENT, EVENT_PILE)
+              node is Expression && node.className == SEARCH_FOR_CARD -> PROJECT_CARD.expression
               node is Expression && node.isGenericCardBack() -> node.copy(refinement = null)
               else -> transformChildren(node)
             }

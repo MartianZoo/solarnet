@@ -11,7 +11,7 @@ CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: MicrobeTag<This>
-  This: 44 MC, RequiredAction { -> CARDS[ProjectCard(HAS MicrobeTag)] }
+  This: 44 MC, RequiredAction { -> CARDS[SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)] }
   MicrobeTag<Anyone, CardFront<Anyone>>: 2 MC
 }
 
@@ -22,7 +22,7 @@ CLASS Factorum : ActionCard<Class<CorporationCard>> {
   This: 37 MC, PROD[Steel]
 
   -> MAX 0 Energy: PROD[Energy]
-  3 MC -> CARDS[ProjectCard(HAS BuildingTag)]
+  3 MC -> CARDS[SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]
 }
 
 CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
@@ -54,7 +54,7 @@ CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
   cost = 0
 
   This:: 2 MicrobeTag<This>
-  This: CARDS[ProjectCard(HAS ScienceTag)]
+  This: CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]
   This:: 54 MC
   MicrobeTag<Anyone, CardFront<Anyone>>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.
   ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok)
@@ -533,7 +533,7 @@ CLASS AqueductSystems : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "Adjacency<CityTile, OceanTile>"
 
   This:: BuildingTag<This>
-  This: CARDS[3 ProjectCard(HAS BuildingTag)]
+  This: CARDS[3 SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]
   End: VictoryPoint
 }
 

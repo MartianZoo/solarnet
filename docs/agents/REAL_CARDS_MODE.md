@@ -8,7 +8,8 @@
 > reveal/search, hidden information, dealer narrowing, or a real-card observation interface.
 >
 > **Skip when:** changing committed follow-mode behavior without making authored hidden procedures
-> executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms.
+> executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms or
+> `SearchForCard` lowering.
 >
 > **Status:** proposal with a settled card/state shape and layer ownership. Follow mode is committed
 > and remains the default; type syntax, the default dealer algorithm, and observation interface
@@ -22,7 +23,7 @@
 | Defaults, counted cards, or delegated face choice | Defaults and atomization; Selection-time delegation |
 | Shuffle, replay, rollback, or forks | Deterministic dealer projection |
 | Reveal, search, or card predicates | Reveals, searches, and printed predicates |
-| `CARDS[...]` or follow-mode lowering | Canonical card-operation source; Follow mode and operation lowering |
+| `CARDS[...]`, `SearchForCard`, or follow-mode lowering | Canonical card-operation source; Follow mode and operation lowering |
 | Conservation or hidden observations | Conservation; Information hiding is deferred |
 | Begin implementation | Implementation gates; Acceptance properties; Remaining decisions |
 
@@ -35,7 +36,7 @@
 - [`ClassDeclaration.kt`](../../src/common/dev/martianzoo/pets/data/ClassDeclaration.kt)
   — search for `executableEffects`, the shadow effects list this mode installs.
 - [Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
-  — search for `CARDS[` to sample canonical authored operations.
+  — search for `CARDS[` and `SearchForCard` to sample canonical authored operations.
 - [`CardClassTest.kt`](../../test/common/dev/martianzoo/tfm/canon/CardClassTest.kt)
   — read for the loaded card-Class queries and validation.
 
@@ -363,10 +364,21 @@ repeat until one hit:
 perform that one-hit operation three times
 ```
 
-The canonical authoring form for this family is a filtered card gain inside `CARDS`, parameterized
-by deck family and printed predicate, not a Kotlin implementation per printed card. Its real-mode
-lowering still has to make deck exhaustion explicit: fail, accept fewer, or reshuffle according to
-the actual rule.
+The canonical authoring form for this family is a `SearchForCard` operation with a printed
+predicate inside a `CARDS[...]` zone:
+
+```pets
+CARDS[SearchForCard(HAS requirement)]
+CARDS[SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
+CARDS[SearchForCard(HAS MAX 0 PrintedTag)]
+CARDS[SearchForCard(HAS ReferenceTo<Class<Floater>>)]
+```
+
+The follow-mode `CARDS` handler currently validates the operation shape, erases the predicate, and
+replaces the operation with the same quantified `ProjectCard` gain as an ordinary draw. Code
+outside a `CARDS` zone is untouched. The predicate is deliberately inert until real-mode lowering
+can inspect immutable front-Class metadata. That lowering still has to make deck exhaustion
+explicit: fail, accept fewer, or reshuffle according to the actual rule.
 
 A back has no live tag Components. Printed predicates inspect immutable front-Class metadata, for
 example through a property or represented-Class refinement:
@@ -382,11 +394,11 @@ Components for card backs.
 
 ## Canonical card-operation source
 
-Canonical sources now preserve hidden card procedures in one
-`Instruction.Transform`, `CARDS[...]`. The inner instruction tree carries the operation family:
+Canonical sources preserve hidden card procedures in one `Instruction.Transform`, `CARDS[...]`.
+The inner instruction tree carries the operation family:
 
 ```pets
-CARDS[2 ProjectCard(HAS VenusTag)]
+CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
 CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
 CARDS[3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
@@ -398,10 +410,10 @@ CARDS[CardBack<EventPile, Class<This>> FROM This]
 CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
 ```
 
-A filtered plain gain means sequentially search for the requested matches. Its predicate is source
-shorthand over the represented front's immutable printed metadata. It does not change plain
-`HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
-reveal every inspected card in order and discard nonmatches.
+`SearchForCard` inside `CARDS` means sequentially search for the requested matches. Its refinement
+is operation-specific source data over the represented front's immutable printed metadata. It
+does not change plain `HAS`, imply that a back owns a live tag, or prefilter the derived deck.
+Real-mode lowering must reveal every inspected card in order and discard nonmatches.
 
 A card procedure's follow-mode compilation leaves its location operations intact. `Selecting` and
 `Revealed` are permanent locations; cards left in either are discarded at World idle when its
@@ -434,9 +446,10 @@ All four locations are permanent ownerless `System` components. A card entering 
 discards any cards left there, and the location immediately recreates itself. This lifecycle is
 authored entirely in Pets; the marked-syntax handler does not create, remove, or clean locations.
 
-Printed-face predicates are still delegated to the follow-mode client: they are erased from generic
-backs, and a filtered retention becomes an explicit optional movement so the client can report how
-many matching cards moved. A client may ignore identities entirely or, as
+Printed-face predicates are still delegated to the follow-mode client: `SearchForCard` predicates
+and refinements on generic backs are erased, and a filtered retention becomes an explicit optional
+movement so the client can report how many matching cards moved. A client may ignore identities
+entirely or, as
 `CardTrackingFullGameTest` does, supply names precisely when cards enter and leave `Hand`.
 
 `BuySelectedCards` prices the cards remaining in `Selecting`, waits for the adjusted invoice to be
@@ -544,8 +557,8 @@ hold two representations of the same behavior. Its only writer anywhere is
 declaration type is the wrong home for what is really one Catalog's lowering choice.
 
 This is worth solving now rather than after real mode lands, because real mode adds a *second*
-lowering of the same authored `CARDS[...]` sources. Two shadow fields, or one field whose meaning
-depends on the selected Module, would be worse than today.
+lowering of the same authored `CARDS[...]` and `SearchForCard` sources. Two shadow fields, or one
+field whose meaning depends on the selected Module, would be worse than today.
 
 Directions to try, cheapest first:
 
@@ -557,10 +570,9 @@ Directions to try, cheapest first:
 2. **Make the mode a projection, not a rewrite.** Follow mode is already a Module selection. If the
    `CARDS[...]` handler is chosen per premise and applied during class loading, both modes read one
    authored declaration and neither stores a rewritten copy.
-3. **Give the operation a component.** If the card-operation families in “Canonical card-operation
-   source” become declared classes rather than a marker plus a recognizer, most of what
-   `FollowModeNeutralizer` rewrites becomes ordinary mode-specific effects on mode-specific classes,
-   and there is nothing left to shadow.
+3. **Give the operation a component.** If the card-operation families become declared classes
+   rather than a marker plus a recognizer, most of what `FollowModeNeutralizer` rewrites becomes
+   ordinary mode-specific effects on mode-specific classes, and there is nothing left to shadow.
 
 Any of these is acceptable. Storing both forms is not, once there is a third consumer.
 

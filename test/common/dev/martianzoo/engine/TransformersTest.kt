@@ -211,7 +211,7 @@ internal class TransformersTest {
 
   @Test
   internal fun configuredDispatcherAlsoLowersCardSyntax() {
-    val source: Instruction = parse("CARDS[2 ProjectCard(HAS VenusTag)]")
+    val source: Instruction = parse("CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]")
 
     transformers.transformMarkedSyntax().transformInstruction(source).toString() shouldBe
         "2 ProjectCard"
