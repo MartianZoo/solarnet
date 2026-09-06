@@ -29,8 +29,8 @@ complete set of its active subclasses.
 This explains, for example, how we can tell which five milestones are available to be claimed even
 though no `Milestone` Component exists in the Game World until one is claimed: we inspect the Active
 Classes. A milestone Class excluded from this game's pool is still known to the Catalog, but it is
-uninhabited and does not appear among those choices. (This scheme works out well in many ways,
-while creating just one headache, called Aridor.)
+uninhabited and does not appear among those choices. This also lets Aridor install a listener for
+each active tag Class without introducing tags from expansions that are not in the game.
 
 ### Uninhabited classes: the jackalope example
 

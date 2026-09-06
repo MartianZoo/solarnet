@@ -1,4 +1,24 @@
 // Published Colonies card declarations.
+CLASS Aridor : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> }
+  PlayCard<Class<ProjectCard>, Class<EventCard>>:: AridorPlayingEvent<This>
+  This: 40 MC, RequiredAction { -> ColonyTileSelection }
+}
+
+CLASS AridorPlayingEvent : Cardbound<Aridor<Player>>, Hidden {
+  HAS MAX 1 This
+
+  -EventCard<Player>:: -This!
+}
+
+CLASS AridorTagWatcher<Class<Tag>> : Cardbound<Aridor<Player>>, Hidden {
+  HAS MAX 1 This
+
+  CardFront<Player>(HAS Tag) IF MAX 0 AridorPlayingEvent<Aridor<Player>>, =1 CardFront<Player>(HAS Tag): PROD[1 MC]
+}
+
 CLASS Arklight : ResourceCard<Class<Animal>, Class<CorporationCard>> {
   cost = 0
 
