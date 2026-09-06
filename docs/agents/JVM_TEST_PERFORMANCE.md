@@ -149,6 +149,25 @@ from 21.110s to 18.195s and 18.650s, an 11.7–13.8% reduction. The complete for
 suites passed after the change in 1m29s and 6m28s respectively; earlier full-suite baselines that
 day were power-throttled and are not valid comparisons.
 
+## Class-limit expression result
+
+The same recording showed type-expression minimization beneath `ClassLimitTable` initialization.
+`UnboundRestriction.bindThisTo` requested the shortest display expression for a fully resolved
+type, then immediately transformed and resolved it again. Supplying the already-available full
+expression preserves the resolved type while avoiding a combinatorial search through dependency
+spellings.
+
+The single-fork JVM focus changed from 7.116–7.161s to 6.997s, which is within run-to-run noise.
+Chrome was consistently better: the focused task took 18.503s with the old expression and 15.748s
+and 15.054s with the full expression, a 14.9–18.6% reduction. Complete forced JVM and browser suites
+passed after the change in 1m38s and 5m46s.
+
+This cost is paid once per distinct active `GamePremise` in a test process, not once per World.
+The canonical master table is also initialized once per process. Build-time generation could remove
+some canonical-universe startup, but it would not remove configuration-specific projection work or
+support custom catalogs without another representation; measure the remaining startup cost before
+considering that tradeoff.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
