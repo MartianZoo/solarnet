@@ -12,9 +12,16 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 /** A concrete standard-resource amount retained across payment constructions. */
 internal data class ResourceAmount(
     val count: Int,
-    val noun: String,
+    private val singularNoun: String,
+    private val pluralNoun: String,
     val resource: ClassName?,
-)
+) {
+  val noun: String
+    get() = if (count == 1) singularNoun else pluralNoun
+
+  fun withNoun(noun: ComponentDescriber.Noun.Counted): ResourceAmount =
+      copy(singularNoun = noun.singular, pluralNoun = noun.plural)
+}
 
 internal fun owedReduction(
     instruction: InstructionTree,
@@ -82,9 +89,11 @@ private fun paymentResourceAmount(
   if (describers.fact(expression.className, ComponentDescriber::paymentRole) != role) return null
   val count = scalar.fixedQuantity() ?: return null
   val represented = describers.representedClass(expression)
-  val noun =
+  val nouns =
       if (represented != null) {
-        describers.plainGainNoun(represented.className, count) ?: return null
+        val singular = describers.plainGainNoun(represented.className, 1) ?: return null
+        val plural = describers.plainGainNoun(represented.className, 2) ?: return null
+        singular to plural
       } else {
         if (describers.resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false) {
           return null
@@ -92,7 +101,8 @@ private fun paymentResourceAmount(
         val implicit =
             describers.fact(expression.className, ComponentDescriber::implicitPaymentResource)
                 ?: return null
-        describers.describedNoun(expression.className, implicit, count)
+        describers.describedNoun(expression.className, implicit, 1) to
+            describers.describedNoun(expression.className, implicit, 2)
       }
-  return ResourceAmount(count, noun, represented?.className)
+  return ResourceAmount(count, nouns.first, nouns.second, represented?.className)
 }

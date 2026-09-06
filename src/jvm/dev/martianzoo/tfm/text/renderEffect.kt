@@ -583,9 +583,7 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
   val actualReduction = describers.renderPlainGainAmount(effect.instruction) ?: return null
   val reduction =
       trigger.categoryNoun?.let { noun ->
-        actualReduction.copy(
-            noun = if (actualReduction.count == 1) noun.singular else noun.plural,
-        )
+        actualReduction.withNoun(noun)
       } ?: actualReduction
   return PaymentDiscount(
       trigger.clause,
@@ -783,7 +781,12 @@ private fun Describers.renderActionPaymentDiscountTrigger(
 private fun Describers.renderPlainGainAmount(instruction: InstructionTree): ResourceAmount? {
   val change = instruction as? Instruction ?: return null
   val (className, count) = standardResourceGain(change, this) ?: return null
-  return ResourceAmount(count, componentNoun(className, count), className)
+  return ResourceAmount(
+      count,
+      componentNoun(className, 1),
+      componentNoun(className, 2),
+      className,
+  )
 }
 
 private data class Event(
