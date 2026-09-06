@@ -782,7 +782,13 @@ private fun renderTriggeredInstructions(
         effect.instruction
       }
   val result = renderInstructions(instruction, describers)
-  return completeSentence("when ${trigger.linearize()}, ${result.asCoordinatedClause()}")
+  return Sentence(
+          Clause.Prefaced(
+              Clause.Preface.Temporal(trigger),
+              result.asCoordinatedClause(),
+          )
+      )
+      .linearize()
 }
 
 private fun renderLinkedProductionReward(effect: Effect, describers: Describers): String? {

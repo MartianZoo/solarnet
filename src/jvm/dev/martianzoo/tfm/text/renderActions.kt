@@ -48,10 +48,9 @@ internal fun renderActions(
                 ),
         )
   }
-  val joined =
-      if (alternatives.size == 2) alternatives.joinToString(", or ")
-      else englishAlternatives(alternatives)
-  return Rendering(completeSentence(joined), unresolved)
+  val conjunction = if (alternatives.size == 2) Conjunction.COMMA_OR else Conjunction.OR
+  val joined = Clause.Coordinated(Coordination(alternatives, conjunction))
+  return Rendering(Sentence(joined).linearize(), unresolved)
 }
 
 private fun actionRefusalReason(action: Action, describers: Describers): RefusalReason {
@@ -282,33 +281,36 @@ private data class RenderedAction(
       if (cost == null) return result.asSentences()
       val infinitive = checkNotNull(result.asActionResultInfinitive())
       if (!separateResultSentences) {
-        return completeSentence("${cost.linearize()} to $infinitive")
+        return Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(infinitive)))).linearize()
       }
-      val first = completeSentence("${cost.linearize()} to ${result.clauses.first().linearize()}")
+      val first =
+          Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(result.clauses.first()))))
+              .linearize()
       val remaining = result.clauses.drop(1).joinToString(" ") { Sentence(it).linearize() }
       return listOf(first, remaining).filter(String::isNotEmpty).joinToString(" ")
     }
     val clause =
-        cost?.let { "${it.linearize()} to ${result.asCoordinatedClause()}" }
-            ?: result.asCoordinatedClause()
-    return completeSentence("${Clause.Preface.Conditional(condition).linearize()}, $clause")
+        cost?.let {
+          Clause.Simple(it.withModifier(Modifier.Purpose(result.asCoordinatedClause())))
+        } ?: result.asCoordinatedClause()
+    return Sentence(Clause.Prefaced(Clause.Preface.Conditional(condition), clause)).linearize()
   }
 
-  fun asAlternative(): String? {
+  fun asAlternative(): Clause? {
     val clause =
         cost?.let {
           val infinitive = result.asActionResultInfinitive() ?: return null
-          "${it.linearize()} to $infinitive"
-        } ?: result.clauses.singleOrNull()?.linearize() ?: return null
+          Clause.Simple(it.withModifier(Modifier.Purpose(infinitive)))
+        } ?: result.clauses.singleOrNull() ?: return null
     return condition?.let {
-      "${Clause.Preface.Conditional(it).linearize()}, $clause"
+      Clause.Prefaced(Clause.Preface.Conditional(it), clause)
     } ?: clause
   }
 
   fun costCanJoinResult(): Boolean = cost == null || result.asActionResultInfinitive() != null
 }
 
-private fun RenderedInstructions.asActionResultInfinitive(): String? = takeIf {
+private fun RenderedInstructions.asActionResultInfinitive(): Clause? = takeIf {
   clauses.all(Clause::canBeInfinitive)
 }
     ?.asCoordinatedClause()

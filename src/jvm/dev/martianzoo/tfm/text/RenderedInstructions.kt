@@ -8,7 +8,9 @@ internal data class RenderedInstructions(val clauses: List<Clause>) {
 
   internal fun asSentences(): String = clauses.joinToString(" ") { Sentence(it).linearize() }
 
-  internal fun asCoordinatedClause(): String = clauses.joinToString(" and ") { it.linearize() }
+  internal fun asCoordinatedClause(): Clause = clauses.reduce { preceding, next ->
+    Clause.Coordinated(Coordination(listOf(preceding, next), Conjunction.AND))
+  }
 
   internal val unresolved: List<Unresolved>
     get() = clauses.flatMap(Clause::unresolved)
