@@ -682,16 +682,15 @@ private val STEEL = ClassName.cn("Steel")
 private val TITANIUM = ClassName.cn("Titanium")
 
 private fun Describers.renderTriggerClause(trigger: Trigger): Clause.Simple? =
-    renderBillingTrigger(trigger)
+    billingEvent(trigger)?.let { renderBillingEvent(it) }
         ?: renderOperationTrigger(trigger)
         ?: renderEvent(trigger)?.renderTrigger()
 
-private fun Describers.renderBillingTrigger(trigger: Trigger): Clause.Simple? {
-  val billing = billingEvent(trigger) ?: return null
+private fun Describers.renderBillingEvent(billing: BillingEvent): Clause.Simple? {
   billing.card?.let { card ->
     return playedCardEvent(card)?.renderTrigger()
   }
-  if (billing.completed) {
+  if (billing.phase == BillingEvent.Phase.COMPLETED) {
     return eventTrigger(
         subject = NounPhrase.text("you"),
         verb = "pay for",
@@ -740,10 +739,10 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
     trigger: Trigger,
 ): PaymentDiscountTrigger? {
   val billing = billingEvent(trigger) ?: return null
-  if (billing.completed) return null
+  if (billing.phase != BillingEvent.Phase.STARTED) return null
   val use = fact(billing.provider.className, ComponentDescriber::actionUse) ?: return null
   return PaymentDiscountTrigger(
-      renderBillingTrigger(trigger) ?: return null,
+      renderBillingEvent(billing) ?: return null,
       use.refundDiscountNoun,
       billing.resource?.className,
   )

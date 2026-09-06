@@ -12,8 +12,13 @@ internal data class BillingEvent(
     val provider: Expression,
     val resource: Expression?,
     val card: Expression?,
-    val completed: Boolean,
-)
+    val phase: Phase,
+) {
+  enum class Phase {
+    STARTED,
+    COMPLETED,
+  }
+}
 
 internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
   val expression =
@@ -42,7 +47,9 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
                 ?.expression
                 ?.copy(refinement = cardClass.refinement) ?: return null
           }
-  return BillingEvent(provider, resource, card, trigger is OnRemoveOf)
+  val phase =
+      if (trigger is OnRemoveOf) BillingEvent.Phase.COMPLETED else BillingEvent.Phase.STARTED
+  return BillingEvent(provider, resource, card, phase)
 }
 
 private val BILLING = cn("Billing")

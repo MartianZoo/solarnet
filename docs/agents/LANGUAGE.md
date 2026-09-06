@@ -135,6 +135,8 @@ The useful architecture already present should be extended rather than replaced:
 - Voice is selected after event interpretation: current wording realizes the acting player in
   active voice and an unrestricted actor in passive voice, while `EventKind` supplies only the
   matching verb forms.
+- Billing triggers are decoded once into a `BillingEvent`; trigger and payment rendering consume
+  that interpretation rather than recognizing the raw Pets form again.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
@@ -157,10 +159,8 @@ does not prove that one frame is missing. For each recurring matcher group, deci
 - a cross-element protocol;
 - or an irreducible, honest branch in the interpreter.
 
-Payment should be improved on its own terms. In particular, determine whether `BillingEvent` and
-`renderBillingTrigger` are two representations of one protocol decision. Do not judge the result by
-how many helpers disappear; judge whether ownership becomes clearer and recurring recognizers are
-deleted.
+Payment should be improved on its own terms. Do not judge the result by how many helpers disappear;
+judge whether ownership becomes clearer and recurring recognizers are deleted.
 
 ### 2. Audit card-operation recognizers
 
