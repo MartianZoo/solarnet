@@ -785,69 +785,7 @@ private fun Describers.renderPlainGainAmount(instruction: InstructionTree): Reso
   )
 }
 
-private data class Event(
-    val kind: EventKind,
-    val actorConstraint: ActorConstraint,
-    val objectPhrase: NounPhrase,
-    val complements: List<Modifier> = emptyList(),
-) {
-  fun renderTrigger(): Clause.Simple? {
-    val voice =
-        when (actorConstraint) {
-          ActorConstraint.YOU -> Voice.ACTIVE
-          ActorConstraint.UNRESTRICTED -> Voice.PASSIVE
-        }
-    val verb = kind.verb(voice) ?: return null
-    return when (voice) {
-      Voice.ACTIVE ->
-          eventTrigger(
-              subject = NounPhrase.text("you"),
-              verb = verb,
-              objectPhrase = objectPhrase,
-              modifiers = complements,
-          )
-      Voice.PASSIVE ->
-          eventTrigger(
-              subject = objectPhrase,
-              verb = verb,
-              modifiers = complements,
-          )
-    }
-  }
-
-  enum class Voice {
-    ACTIVE,
-    PASSIVE,
-  }
-}
-
-private enum class ActorConstraint {
-  YOU,
-  UNRESTRICTED,
-}
-
-private enum class EventKind(
-    private val activeVerb: String? = null,
-    private val passiveVerb: String? = null,
-) {
-  PLAY(activeVerb = "play", passiveVerb = "is played"),
-  BUY(activeVerb = "buy"),
-  USE_ACTION(activeVerb = "use"),
-  PLACE(activeVerb = "place", passiveVerb = "is placed"),
-  CREATE(activeVerb = "create", passiveVerb = "is created"),
-  INCREASE_PRODUCTION(activeVerb = "increase"),
-  RAISE(activeVerb = "raise", passiveVerb = "is raised"),
-  ADD(activeVerb = "add"),
-  ;
-
-  fun verb(voice: Event.Voice): String? =
-      when (voice) {
-        Event.Voice.ACTIVE -> activeVerb
-        Event.Voice.PASSIVE -> passiveVerb
-      }
-}
-
-private fun eventTrigger(
+internal fun eventTrigger(
     subject: NounPhrase,
     verb: String,
     objectPhrase: NounPhrase? = null,
@@ -867,17 +805,17 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (trigger is ByTrigger) {
     if (trigger.by != anyoneExpression) return null
     val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
-    relationshipEvent(expression, ActorConstraint.UNRESTRICTED)?.let {
+    relationshipEvent(expression, Event.ActorConstraint.UNRESTRICTED)?.let {
       return it
     }
-    placementEvent(expression, ActorConstraint.UNRESTRICTED)?.let {
+    placementEvent(expression, Event.ActorConstraint.UNRESTRICTED)?.let {
       return it
     }
     if (!expression.simple) return null
     return scaleFrame(expression.className)?.let {
       Event(
-          EventKind.RAISE,
-          ActorConstraint.UNRESTRICTED,
+          Event.Kind.RAISE,
+          Event.ActorConstraint.UNRESTRICTED,
           NounPhrase.text(it.subject),
           listOf(Modifier.Phrase("1 step")),
       )
@@ -888,7 +826,7 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   unrestrictedPlayedTagEvent(expression)?.let {
     return it
   }
-  relationshipEvent(expression, ActorConstraint.YOU)?.let {
+  relationshipEvent(expression, Event.ActorConstraint.YOU)?.let {
     return it
   }
   productionEvent(expression)?.let {
@@ -897,8 +835,8 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (expression.refinement == null) {
     scaleFrame(expression.className)?.let {
       return Event(
-          EventKind.RAISE,
-          ActorConstraint.YOU,
+          Event.Kind.RAISE,
+          Event.ActorConstraint.YOU,
           NounPhrase.text(it.subject),
           listOf(Modifier.Phrase("1 step")),
       )
@@ -915,8 +853,8 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     is TriggerFrame.PlayCard -> {
       if (expression.simple) {
         return Event(
-            EventKind.PLAY,
-            ActorConstraint.YOU,
+            Event.Kind.PLAY,
+            Event.ActorConstraint.YOU,
             NounPhrase("card", determiner = "a"),
         )
       }
@@ -928,8 +866,8 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
         val tag = representedClass(expression) ?: return null
         val name = tagName(tag.className)?.first ?: return null
         return Event(
-            EventKind.PLAY,
-            ActorConstraint.YOU,
+            Event.Kind.PLAY,
+            Event.ActorConstraint.YOU,
             NounPhrase("$name tag", determiner = indefiniteArticle(name)),
         )
       }
@@ -939,13 +877,13 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   playedTagPhrase(expression.className)?.let {
     val resolved = resolveExpression(expression) ?: return null
     if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) return null
-    return Event(EventKind.PLAY, ActorConstraint.YOU, NounPhrase.text(it))
+    return Event(Event.Kind.PLAY, Event.ActorConstraint.YOU, NounPhrase.text(it))
   }
   actionUseEvent(trigger)?.let { actionUse ->
     val action = actionUse.provider
     return Event(
-        EventKind.USE_ACTION,
-        ActorConstraint.YOU,
+        Event.Kind.USE_ACTION,
+        Event.ActorConstraint.YOU,
         NounPhrase.text(
             if (action == thisExpression) "this action" else renderActionUse(action) ?: return null
         ),
@@ -955,34 +893,34 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (resolvedCardResource != null && cardResourceHasHolder(resolvedCardResource, thisExpression)) {
     cardResourceNoun(expression.className, 1)?.let {
       return Event(
-          EventKind.ADD,
-          ActorConstraint.YOU,
+          Event.Kind.ADD,
+          Event.ActorConstraint.YOU,
           NounPhrase(it, determiner = indefiniteArticle(it)),
           listOf(Modifier.Phrase("to this card")),
       )
     }
   }
   if (resolvePlacementExpression(expression, this)?.owner == anyoneExpression) {
-    placementEvent(expression, ActorConstraint.UNRESTRICTED)?.let {
+    placementEvent(expression, Event.ActorConstraint.UNRESTRICTED)?.let {
       return it
     }
   }
-  placementEvent(expression, ActorConstraint.YOU)?.let {
+  placementEvent(expression, Event.ActorConstraint.YOU)?.let {
     return it
   }
   val resolved = resolveExpression(expression)
   if (resolved?.sourceDependencies?.isEmpty() == true && expression.refinement == null) {
     tagName(expression.className)?.let { (name) ->
       return Event(
-          EventKind.PLAY,
-          ActorConstraint.YOU,
+          Event.Kind.PLAY,
+          Event.ActorConstraint.YOU,
           NounPhrase("$name tag", determiner = indefiniteArticle(name)),
       )
     }
     cardResourceNoun(expression.className, 1)?.let {
       return Event(
-          EventKind.ADD,
-          ActorConstraint.YOU,
+          Event.Kind.ADD,
+          Event.ActorConstraint.YOU,
           NounPhrase(it, determiner = indefiniteArticle(it)),
           listOf(Modifier.Phrase("to any card")),
       )
@@ -991,8 +929,8 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (resolved?.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) == true) {
     tagName(expression.className)?.let { (name) ->
       return Event(
-          EventKind.PLAY,
-          ActorConstraint.UNRESTRICTED,
+          Event.Kind.PLAY,
+          Event.ActorConstraint.UNRESTRICTED,
           NounPhrase("$name tag", determiner = "any"),
       )
     }
@@ -1023,15 +961,15 @@ private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event
   }
   val (name) = tagName(expression.className) ?: return null
   return Event(
-      EventKind.PLAY,
-      ActorConstraint.UNRESTRICTED,
+      Event.Kind.PLAY,
+      Event.ActorConstraint.UNRESTRICTED,
       NounPhrase("$name tag", determiner = "any"),
   )
 }
 
 private fun Describers.relationshipEvent(
     expression: Expression,
-    actorConstraint: ActorConstraint,
+    actorConstraint: Event.ActorConstraint,
 ): Event? {
   if (expression.refinement != null || expression.complement) return null
   val relation = fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
@@ -1045,7 +983,7 @@ private fun Describers.relationshipEvent(
   val target =
       resolved.sourceDependency(targetKey)?.let { relationshipParticipant(it) } ?: return null
   return Event(
-      EventKind.CREATE,
+      Event.Kind.CREATE,
       actorConstraint,
       NounPhrase(noun, determiner = indefiniteArticle(noun))
           .withModifier(Modifier.Between(source, target)),
@@ -1092,8 +1030,8 @@ private fun Describers.purchaseEvent(expression: Expression): Event? {
   val purchase = triggerFrame(expression.className) as? TriggerFrame.Purchase ?: return null
   val noun = purchase.noun.singular
   return Event(
-      EventKind.BUY,
-      ActorConstraint.YOU,
+      Event.Kind.BUY,
+      Event.ActorConstraint.YOU,
       NounPhrase(noun, determiner = indefiniteArticle(noun)),
   )
 }
@@ -1108,8 +1046,8 @@ private fun Describers.productionEvent(expression: Expression): Event? {
         oneOfYour("productions")
       }
   return Event(
-      EventKind.INCREASE_PRODUCTION,
-      ActorConstraint.YOU,
+      Event.Kind.INCREASE_PRODUCTION,
+      Event.ActorConstraint.YOU,
       objectPhrase,
       listOf(Modifier.Phrase("1 step")),
   )
@@ -1121,13 +1059,14 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
   val ownerKey = Key(OWNED, 0)
   val actorConstraint =
       when {
-        resolved.sourceDependencies.isEmpty() -> ActorConstraint.YOU
-        resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) -> ActorConstraint.UNRESTRICTED
+        resolved.sourceDependencies.isEmpty() -> Event.ActorConstraint.YOU
+        resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) ->
+            Event.ActorConstraint.UNRESTRICTED
         else -> return null
       }
   val card = componentNoun(expression.className, 1)
   val article =
-      if (actorConstraint == ActorConstraint.UNRESTRICTED) "any" else indefiniteArticle(card)
+      if (actorConstraint == Event.ActorConstraint.UNRESTRICTED) "any" else indefiniteArticle(card)
   val cardPhrase = NounPhrase(card, determiner = article)
   val objectPhrase =
       expression.refinement?.let { refinement ->
@@ -1151,7 +1090,7 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
               NounPhrase(
                   "$tag $card",
                   determiner =
-                      if (actorConstraint == ActorConstraint.UNRESTRICTED) "any"
+                      if (actorConstraint == Event.ActorConstraint.UNRESTRICTED) "any"
                       else indefiniteArticle(tag),
               )
             } else {
@@ -1208,19 +1147,19 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
           else -> return null
         }
       } ?: cardPhrase
-  return Event(EventKind.PLAY, actorConstraint, objectPhrase)
+  return Event(Event.Kind.PLAY, actorConstraint, objectPhrase)
 }
 
 private fun Describers.placementEvent(
     expression: Expression,
-    actorConstraint: ActorConstraint,
+    actorConstraint: Event.ActorConstraint,
 ): Event? {
   if (expression.refinement != null || expression.complement) return null
   val resolvedPlacement = resolvePlacementExpression(expression, this) ?: return null
   if (resolvedPlacement.unknownDependencies.isNotEmpty()) return null
-  if (actorConstraint == ActorConstraint.YOU && resolvedPlacement.owner != null) return null
+  if (actorConstraint == Event.ActorConstraint.YOU && resolvedPlacement.owner != null) return null
   if (
-      actorConstraint == ActorConstraint.UNRESTRICTED &&
+      actorConstraint == Event.ActorConstraint.UNRESTRICTED &&
           resolvedPlacement.owner != null &&
           resolvedPlacement.owner != anyoneExpression
   ) {
@@ -1238,12 +1177,12 @@ private fun Describers.placementEvent(
           ?: return null
   val objectPhrase =
       when (actorConstraint) {
-        ActorConstraint.YOU ->
+        Event.ActorConstraint.YOU ->
             NounPhrase(placement.singular, placement.plural, determiner = placement.article)
-        ActorConstraint.UNRESTRICTED ->
+        Event.ActorConstraint.UNRESTRICTED ->
             NounPhrase(placement.singular, placement.plural, determiner = "any")
       }
-  return Event(EventKind.PLACE, actorConstraint, objectPhrase, complements)
+  return Event(Event.Kind.PLACE, actorConstraint, objectPhrase, complements)
 }
 
 private fun oneOfYour(pluralNoun: String): NounPhrase =
