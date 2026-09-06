@@ -19,6 +19,9 @@ internal data class ResourceAmount(
   val noun: String
     get() = if (count == 1) singularNoun else pluralNoun
 
+  val phrase: NounPhrase
+    get() = NounPhrase(singularNoun, pluralNoun, count)
+
   fun withNoun(noun: ComponentDescriber.Noun.Counted): ResourceAmount =
       copy(singularNoun = noun.singular, pluralNoun = noun.plural)
 }

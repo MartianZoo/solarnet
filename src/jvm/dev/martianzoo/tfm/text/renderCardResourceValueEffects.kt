@@ -55,7 +55,12 @@ internal fun renderCardResourceValueEffects(
               }
               .singleOrNull()
       val integrated = acceptance?.let { (effect, accepted) ->
-        renderAcceptedResourceValue(effect.trigger, accepted, value, describers)
+        renderAcceptedResourceValue(
+            effect.trigger,
+            accepted,
+            NounPhrase("M€", count = value),
+            describers,
+        )
       }
       if (acceptance != null && integrated != null) {
         return (grants.mapTo(linkedSetOf(), ResourceValueGrant::effect) + acceptance.first) to

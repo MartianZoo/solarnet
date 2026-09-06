@@ -231,7 +231,7 @@ private fun Describers.renderDeferredPaymentAction(
   val cost =
       Predicate(
           "pay",
-          Coordination.one(NounPhrase.text("${owed.count} ${owed.noun}")),
+          Coordination.one(owed.phrase),
           listOf(Modifier.Parenthetical("${acceptance.noun} may be used")),
       )
   return RenderedAction(cost, result)

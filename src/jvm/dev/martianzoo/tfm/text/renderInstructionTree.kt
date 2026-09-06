@@ -325,7 +325,7 @@ private fun renderCardPlaySequence(
         }
         else -> {
           val reduction = maximumOwedReduction(continuation, describers) ?: return null
-          "reducing its cost by ${reduction.count} ${reduction.noun}"
+          "reducing its cost by ${reduction.phrase.linearize()}"
         }
       }
   return Clause.Simple(

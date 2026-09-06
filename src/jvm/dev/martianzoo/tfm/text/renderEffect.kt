@@ -91,7 +91,8 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
   }
   val currency = describers.representedClass(owed.removing) ?: return null
   val rate = owed.count.variableQuantity()?.multiple ?: return null
-  val currencyNoun = describers.plainGainNoun(currency.className, rate) ?: return null
+  describers.plainGainNoun(currency.className, rate) ?: return null
+  val currencyPhrase = describers.componentNounPhrase(currency.className, rate)
   val resources = describers.cardResourceNoun(resourceRemoval.removing.className, 2) ?: return null
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val result =
@@ -100,7 +101,7 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
           predicate =
               Predicate(
                   "may be used",
-                  modifiers = listOf(resourceValueModifier(rate, currencyNoun)),
+                  modifiers = listOf(resourceValueModifier(currencyPhrase)),
               ),
       )
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize()
@@ -214,7 +215,7 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
                       Predicate(
                           "pay",
                           Coordination.one(
-                              NounPhrase.text("${adjustment.count} ${adjustment.noun} $direction")
+                              adjustment.phrase.withModifier(Modifier.Phrase(direction))
                           ),
                       ),
               ),
@@ -401,9 +402,8 @@ private fun renderAcceptedResourcePayment(
       renderAcceptedResourceValue(
           acceptance.trigger,
           accepted,
-          reduction.count,
+          reduction.phrase,
           describers,
-          reduction.noun,
       ) ?: return null
   return rendered to 2
 }
@@ -411,9 +411,8 @@ private fun renderAcceptedResourcePayment(
 internal fun renderAcceptedResourceValue(
     trigger: Trigger,
     accepted: ResourceAmount,
-    value: Int,
+    valuePhrase: NounPhrase,
     describers: Describers,
-    valueNoun: String = "M€",
 ): String? {
   val resourceClassName = accepted.resource ?: return null
   if (accepted.count != 1) return null
@@ -426,7 +425,7 @@ internal fun renderAcceptedResourceValue(
           predicate =
               Predicate(
                   "may be used",
-                  modifiers = listOf(resourceValueModifier(value, valueNoun)),
+                  modifiers = listOf(resourceValueModifier(valuePhrase)),
               ),
       )
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(triggerClause), result)).linearize()
@@ -477,7 +476,7 @@ private fun renderAcceptedCardResourcePayment(
                     Coordination.one(
                         NounPhrase.text(resource).withModifier(Modifier.Phrase("on this card"))
                     ),
-                    listOf(resourceValueModifier(reduction.count, reduction.noun)),
+                    listOf(resourceValueModifier(reduction.phrase)),
                 ),
         )
     return Sentence(result).linearize() to 2
@@ -489,16 +488,16 @@ private fun renderAcceptedCardResourcePayment(
           predicate =
               Predicate(
                   "may be used",
-                  modifiers = listOf(resourceValueModifier(reduction.count, reduction.noun)),
+                  modifiers = listOf(resourceValueModifier(reduction.phrase)),
               ),
       )
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize() to 2
 }
 
-private fun resourceValueModifier(value: Int, noun: String): Modifier.Relation =
+private fun resourceValueModifier(value: NounPhrase): Modifier.Relation =
     Modifier.Relation(
         "as",
-        NounPhrase.text("$value $noun").withModifier(Modifier.Phrase("each")),
+        value.withModifier(Modifier.Phrase("each")),
     )
 
 private fun renderBarrierSequencedTrackChoice(
@@ -611,7 +610,7 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
       if (reduction.count == 0) {
         Clause.Simple(
             subject = NounPhrase.text("the cost"),
-            predicate = Predicate("is", Coordination.one(NounPhrase.text("0 ${reduction.noun}"))),
+            predicate = Predicate("is", Coordination.one(reduction.phrase)),
         )
       } else if (discounts.first().categoryReduction) {
         Clause.Simple(
@@ -624,10 +623,7 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
         Clause.Simple(
             Predicate(
                 "pay",
-                Coordination.one(
-                    NounPhrase.text("${reduction.count} ${reduction.noun}")
-                        .withModifier(Modifier.Phrase("less"))
-                ),
+                Coordination.one(reduction.phrase.withModifier(Modifier.Phrase("less"))),
             )
         )
       }
@@ -643,7 +639,7 @@ private data class PaymentDiscount(
 private fun renderResourcePaymentValue(effect: Effect, describers: Describers): String? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
   val reduction = owedReduction(effect.instruction, describers) ?: return null
-  return "Each $spent you pay is worth ${reduction.count} ${reduction.noun} extra."
+  return "Each $spent you pay is worth ${reduction.phrase.linearize()} extra."
 }
 
 private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
