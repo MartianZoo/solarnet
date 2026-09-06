@@ -46,12 +46,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   warranted by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
-- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
-- `./gradlew jsBrowserTest` runs every module's full browser suite.
-  `./gradlew build -PincludeBrowserTests=true` includes those suites in the normal repository-wide
-  check.
-- `./gradlew :tfm-tests:allTestsIncludingBrowser` runs every Terraforming Mars functional test on
-  both the JVM and browser.
+- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the extensive three-player
+  `OtbGame20260828Test` replay.
+- `./gradlew jsBrowserTest` runs every module's browser suite. Terraforming Mars full-game replays
+  other than `OtbGame20260828Test` are JVM-only and cannot be selected by a browser task.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,

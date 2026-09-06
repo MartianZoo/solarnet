@@ -168,6 +168,15 @@ some canonical-universe startup, but it would not remove configuration-specific 
 support custom catalogs without another representation; measure the remaining startup cost before
 considering that tradeoff.
 
+## Browser replay selection result
+
+Only the extensive three-player `OtbGame20260828Test` full-game replay remains in shared test
+sources; the other replay implementations are JVM-only. A direct browser-suite run continues to
+exercise all 158 shared Terraforming Mars test classes, including that replay and one partial-game
+test. Its Chrome task fell from 5m36.15s to 4m43.65s, a 15.6% reduction. The JVM suite still found
+all 21 moved test classes and passed. There is no property or alternate task that adds the JVM-only
+replays back to a browser run.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
