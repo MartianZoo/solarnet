@@ -28,7 +28,7 @@ private val fakeHelionDefinition =
 
 private val otbGame20260904Catalog = Canon.withNonstandardClasses(fakeHelionDefinition)
 
-/** Four-player physical game begun Friday, 2026-09-04; the recording ends before G6 Research. */
+/** Four-player physical game begun Friday, 2026-09-04; the recording ends before G8 Research. */
 internal class OtbGame20260904Test : AbstractFullGameTest() {
   override val catalog = otbGame20260904Catalog
 
@@ -430,6 +430,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     green.turn { playProject(RadChemFactory, 6, steel = 1) }
     rainbow.turn { cardAction1(FloatingRefinery) }
+    // board-16-07-06.jpg visibly has two cubes: Rainbow added two instead of the card's one.
+    rainbow.exMachina("Floater<$FloatingRefinery>")
     blue.pass()
     // "Three titanium and one real money."
     green.turn { cardAction1(IcyImpactors) { pay(1, titanium = 3) } }
@@ -449,18 +451,23 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
 
     yellow.wgt("TemperatureStep")
 
+    // The spoken hand census is authoritative where anonymous card flow left different totals.
+    yellow.exMachina("-2 ProjectCard")
+    rainbow.exMachina("-ProjectCard")
+    blue.exMachina("2 ProjectCard")
+
     // board-16-07-06.jpg and all four app histories: Generation 6 before Research.
     with(yellow) {
       assertProduction(m = 3, s = 4, t = 0, p = 4, e = 1, h = 1)
       assertResources(m = 29, s = 12, t = 0, p = 4, e = 1, h = 7)
-      assertCounts(26 to "TerraformRating")
+      assertCounts(26 to "TerraformRating", 6 to "CardBack<Hand>")
     }
     with(rainbow) {
       assertProduction(m = 6, s = 0, t = 1, p = 1, e = 1, h = 0)
       assertResources(m = 40, s = 1, t = 2, p = 2, e = 1, h = 1)
-      assertCounts(33 to "TerraformRating", 1 to "Tactician")
+      assertCounts(33 to "TerraformRating", 1 to "Tactician", 11 to "CardBack<Hand>")
       assertCardResources(
-          1 to FloatingRefinery,
+          2 to FloatingRefinery,
           1 to SulphurEatingBacteria,
           2 to AppliedScience,
       )
@@ -468,18 +475,315 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     with(blue) {
       assertProduction(m = 4, s = 0, t = 0, p = 1, e = 10, h = 7)
       assertResources(m = 45, s = 0, t = 0, p = 5, e = 10, h = 13)
-      assertCounts(29 to "TerraformRating", 1 to "Landshaper")
+      assertCounts(29 to "TerraformRating", 1 to "Landshaper", 8 to "CardBack<Hand>")
       assertCardResources(4 to NeptunianPowerConsultants)
     }
     with(green) {
       assertProduction(m = 4, s = 1, t = 2, p = 0, e = 0, h = 1)
       assertResources(m = 30, s = 1, t = 2, p = 3, e = 0, h = 9)
-      assertCounts(25 to "TerraformRating", 1 to "Diversifier")
+      assertCounts(25 to "TerraformRating", 1 to "Diversifier", 9 to "CardBack<Hand>")
       assertCardResources(2 to Pets, 5 to CloudTourism, 2 to IcyImpactors, 1 to OlympusConference)
     }
     assertSidebar(gen = 6, temp = 2, oxygen = 4, oceans = 6, venus = 8)
 
     rainbow.exMachina("5 MC") // full reconciliation
     green.exMachina("1 TerraformRating, 3 MC") // full reconciliation
+
+    rainbow.buyCards(1)
+    blue.buyCards(2)
+    green.buyCards(3)
+    yellow.buyCards(3)
+    rainbow.assertCounts(42 to "MC")
+
+    rainbow.turn {
+      // "I'm gonna play Mining Rights. I'm gonna spend my steel as two money. ... 1-2 for two
+      // steels."
+      playProject(MiningRights, 7, steel = 1) { placeTile(1, 2) }
+      assertCounts(35 to "MC")
+    }
+    blue.turn {
+      // "Convoy from Europa. ... 3-6 for two money."
+      playProject(ConvoyFromEuropa, 15) {
+        placeTile(3, 6)
+        doTask("UseAction<NeptunianOption, Action1>")
+        pay(5)
+      }
+    }
+    green.turn {
+      playProject(Decomposers, 5)
+      fundAward(cn("Excentric"), 8)
+    }
+    yellow.turn {
+      // "Spend seven [on] Astra Mechanica. Choose two project cards from my event pile. Take them
+      // into my hand."
+      playProject(AstraMechanica, 7) {
+        doWithoutAutoExec(yellow) {
+          doTask("ProjectCard FROM PlayedEvent<Class<$Flooding>>")
+          doTask("ProjectCard FROM PlayedEvent<Class<$Sabotage>>")
+        }
+      }
+    }
+    rainbow.turn {
+      playProject(Ants, 9)
+      cardAction1(Ants) {
+        doTask("-Microbe<Green, $Decomposers<Green>>")
+      }
+      assertCounts(26 to "MC")
+    }
+    blue.turn { convertHeat() }
+    green.turn { cardAction1(Factorum) }
+    yellow.turn { cardAction1(SpaceMirrors) }
+    rainbow.turn {
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+    }
+    blue.turn {
+      playProject(IndenturedWorkers, 0)
+      playProject(NitrogenRichAsteroid, 23)
+    }
+    green.turn { playProject(PowerPlant, 2, steel = 1) }
+    yellow.turn {
+      // "I pay all twelve of my steel, because I got my Cutting Edge."
+      playProject(Capital, steel = 12) { placeTile(7, 3) }
+    }
+    rainbow.turn {
+      playProject(Fish, 9) { doTask("PROD[-Plant<Yellow>]") }
+      cardAction1(Fish)
+      assertCounts(19 to "MC")
+    }
+    blue.turn {
+      playProject(WaterSplittingPlant, 12)
+      // This was physically remembered after Blue passed; keeping it here is the smallest legal
+      // chronology distortion and preserves every intervening result.
+      cardAction1(WaterSplittingPlant)
+    }
+    green.turn { playProject(BusinessNetwork, 1) }
+    yellow.turn {
+      // "I actually can't do that." No opposing tile bordered the selected ocean.
+      playProject(Flooding, 7) {
+        placeTile(6, 6)
+        blue.doTask("UseAction<NeptunianOption, Action1>")
+        // "I will spend two money and three heat."
+        blue.intentionalOneToOneResourcePayment()
+        blue.pay(2, heat = 3)
+      }
+    }
+    rainbow.turn {
+      cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
+      stdAction("UseCardAction", beforeAction = assignAllWildTags("VenusTag")) {
+        doTask("ActionUsedMarker<$FloatingRefinery>")
+        doTask("UseAction<$FloatingRefinery, Action2>")
+      }
+      assertCounts(21 to "MC")
+    }
+    blue.pass()
+    green.turn { sellPatents(1) }
+    yellow.turn { playProject(Sabotage, 1) { doTask("-7 MC<Green>") } }
+    rainbow.turn {
+      playProject(CloudSeeding, 11, butFirst = assignAllWildTags("PlantTag")) {
+        doTask("PROD[-Heat<Blue>]")
+      }
+      assertCounts(10 to "MC")
+    }
+    green.turn { sellPatents(1) }
+    yellow.pass()
+    rainbow.turn {
+      cardAction2(
+          SulphurEatingBacteria,
+          x = 3,
+          beforeAction = assignAllWildTags("MicrobeTag"),
+      )
+      assertCounts(19 to "MC")
+    }
+    green.turn { playProject(NitrophilicMoss, 8) }
+    // I accidentally gave myself 2 production instead of 2 money resources
+    // But I knew what the ending money balance was supposed to be, so I got confused and ended
+    // up giving the 2 money anyway, but never realized what I had done.
+    green.exMachina("PROD[2 MC]")
+
+    rainbow.turn {
+      playProject(LavaTubeSettlement, 11, steel = 2) { placeTile(7, 11) }
+    }
+    green.turn { cardAction1(BusinessNetwork) { buyCards(0) } }
+    rainbow.turn { sellPatents(2) }
+    green.turn { cardAction1(CloudTourism) }
+    rainbow.pass()
+    green.turn {
+      cardAction2(IcyImpactors) {
+        rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
+        green.doTask("TerraformRating")
+        selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+        blue.narrowTask("Ok")
+      }
+    }
+    green.pass(unused = VenusShuttles)
+
+    rainbow.wgt("VenusStep")
+
+    // board-15-31-15.jpg and all four app histories: Generation 7 before Research.
+    with(yellow) {
+      assertProduction(m = 8, s = 4, t = 0, p = 3, e = 0, h = 1)
+      assertResources(m = 37, s = 4, t = 0, p = 11, e = 0, h = 9)
+      assertCounts(27 to "TerraformRating")
+    }
+    with(rainbow) {
+      assertProduction(m = 7, s = 1, t = 1, p = 3, e = 0, h = 0)
+      assertResources(m = 54, s = 1, t = 4, p = 5, e = 0, h = 2)
+      assertCounts(33 to "TerraformRating", 1 to "Tactician")
+      assertCardResources(
+          1 to Ants,
+          1 to Fish,
+          1 to AppliedScience,
+      )
+    }
+    with(blue) {
+      assertProduction(m = 4, s = 0, t = 0, p = 2, e = 12, h = 6)
+      assertResources(m = 41, s = 0, t = 0, p = 7, e = 12, h = 15)
+      assertCounts(35 to "TerraformRating", 1 to "Landshaper")
+      assertCardResources(6 to NeptunianPowerConsultants)
+    }
+    with(green) {
+      assertProduction(m = 5, s = 1, t = 2, p = 2, e = 2, h = 1)
+      assertResources(m = 35, s = 1, t = 4, p = 3, e = 2, h = 10)
+      assertCounts(27 to "TerraformRating", 1 to "Diversifier")
+      assertCardResources(
+          4 to Pets,
+          6 to CloudTourism,
+          1 to IcyImpactors,
+          1 to OlympusConference,
+      )
+    }
+    assertSidebar(gen = 7, temp = 6, oxygen = 5, oceans = 9, venus = 10)
+
+    blue.buyCards(2)
+    green.buyCards(3)
+    yellow.buyCards(1)
+    rainbow.buyCards(2)
+
+    blue.turn { convertHeat() }
+    green.turn { cardAction2(Factorum) }
+    yellow.turn {
+      convertHeat()
+      playProject(Comet, 21) {
+        placeTile(6, 5)
+        doTask("-3 Plant<Blue>")
+        blue.doTask("UseAction<NeptunianOption, Action1>")
+        blue.pay(5)
+      }
+    }
+    rainbow.turn {
+      playProject(MoholeLake, 29, steel = 1) {
+        placeTile(5, 5)
+        autoExecNow()
+        rainbow.selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+        blue.doTask("UseAction<NeptunianOption, Action1>")
+        blue.pay(5)
+      }
+      convertPlants { placeTile(6, 10) }
+    }
+    blue.turn {
+      playProject(DomedCrater, 24) { placeTile(3, 7) }
+      convertPlants { placeTile(3, 8) }
+    }
+    green.turn {
+      cardAction1(BusinessNetwork) { buyCards(0) }
+    }
+    yellow.turn {
+      convertPlants { placeTile(8, 3) }
+      convertPlants { placeTile(11, 11) }
+    }
+    rainbow.turn {
+      cardAction1(FloatingRefinery)
+      playProject(StratosphericBirds, 10, butFirst = assignAllWildTags("VenusTag"))
+    }
+    blue.pass(unused = WaterSplittingPlant)
+    green.turn { cardAction1(CloudTourism) }
+    yellow.turn {
+      playProject(EcologicalZone, 10) { placeTile(4, 8) }
+    }
+    // Applied Science only accepts a card that already has a resource; the table put its science
+    // onto the now-empty Sulphur-Eating Bacteria anyway. Seed and remove a witness resource so the
+    // sourced illegal target can pass through the card's real action.
+    rainbow.exMachina("Microbe<$SulphurEatingBacteria>")
+    rainbow.turn {
+      cardAction1(AppliedScience) {
+        rainbow.selectTask("Tag<Player2, WildTagUse<AppliedScience<Player2>>>?")
+        rainbow.narrowTask("Ok")
+        addCardResources(SulphurEatingBacteria)
+      }
+      exMachina("-Microbe<$SulphurEatingBacteria>")
+      cardAction1(Thermophiles) {
+        rainbow.selectTask("Tag<Player2, WildTagUse<AppliedScience<Player2>>>?")
+        rainbow.narrowTask("Ok")
+        addCardResources(SulphurEatingBacteria)
+      }
+    }
+    green.turn { playProject(VenusMagnetizer, 7) }
+    yellow.turn { playProject(Insects, 7) }
+    rainbow.turn {
+      cardAction1(Ants) { doTask("-Microbe<Green, $Decomposers<Green>>") }
+    }
+    green.turn {
+      intentionalUnderpay()
+      playProject(CupolaCity, 16) { placeTile(6, 4) }
+      cardAction1(VenusMagnetizer)
+    }
+    // Yellow's app had 2 M€ when she announced a 4 M€ cash payment for Small Animals.
+    yellow.exMachina("2 MC")
+    yellow.turn {
+      playProject(SmallAnimals, 4) { doTask("PROD[-Plant<Rainbow>]") }
+    }
+    rainbow.turn {
+      intentionalUnderpay()
+      playProject(TollStation, 10)
+    }
+    green.pass(unused = setOf(VenusShuttles, IcyImpactors))
+    yellow.turn {
+      playProject(BiomassCombustors, steel = 1) { doTask("PROD[-Plant<Blue>]") }
+    }
+    rainbow.turn { cardAction1(StratosphericBirds) }
+    yellow.pass(unused = setOf(SmallAnimals, SpaceMirrors))
+    rainbow.turn {
+      cardAction1(Fish)
+      cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
+    }
+    rainbow.turn {
+      intentionalUnderpay()
+      playProject(MirandaResort, 8, butFirst = assignAllWildTags("EarthTag"))
+    }
+    rainbow.pass(unused = SulphurEatingBacteria)
+
+    blue.wgt("VenusStep")
+
+    // board-15-57-46.jpg and all four app histories: Generation 8 before Research.
+    with(yellow) {
+      assertProduction(m = 8, s = 4, t = 0, p = 7, e = 2, h = 1)
+      assertResources(m = 40, s = 7, t = 0, p = 8, e = 2, h = 2)
+      assertCounts(32 to "TerraformRating")
+      assertCardResources(3 to EcologicalZone)
+    }
+    with(rainbow) {
+      assertProduction(m = 15, s = 1, t = 1, p = 2, e = 0, h = 0)
+      assertResources(m = 54, s = 1, t = 5, p = 3, e = 0, h = 2)
+      assertCounts(36 to "TerraformRating", 1 to "Tactician")
+      assertCardResources(
+          2 to Ants,
+          2 to Fish,
+          2 to StratosphericBirds,
+          2 to SulphurEatingBacteria,
+      )
+    }
+    with(blue) {
+      assertProduction(m = 7, s = 0, t = 0, p = 1, e = 13, h = 6)
+      assertResources(m = 56, s = 0, t = 0, p = 3, e = 13, h = 25)
+      assertCounts(37 to "TerraformRating", 1 to "Landshaper")
+      assertCardResources(8 to NeptunianPowerConsultants)
+    }
+    with(green) {
+      assertProduction(m = 8, s = 1, t = 2, p = 2, e = 0, h = 1)
+      assertResources(m = 42, s = 2, t = 6, p = 7, e = 0, h = 13)
+      assertCounts(28 to "TerraformRating", 1 to "Diversifier")
+      assertCardResources(6 to Pets, 7 to CloudTourism, 1 to IcyImpactors)
+    }
+    assertSidebar(gen = 8, temp = 14, oxygen = 9, oceans = 11, venus = 14)
   }
 }
