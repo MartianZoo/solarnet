@@ -61,3 +61,19 @@ internal data class Event(
     PASSIVE,
   }
 }
+
+internal fun eventTrigger(
+    subject: NounPhrase,
+    verb: String,
+    objectPhrase: NounPhrase? = null,
+    modifiers: List<Modifier> = emptyList(),
+): Clause.Simple =
+    Clause.Simple(
+        predicate =
+            Predicate(
+                verb,
+                objectPhrase?.let { Coordination.one(it) },
+                modifiers,
+            ),
+        subject = subject,
+    )

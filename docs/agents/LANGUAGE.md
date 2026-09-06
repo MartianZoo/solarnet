@@ -133,7 +133,7 @@ The useful architecture already present should be extended rather than replaced:
 - Events carry one structured noun-phrase object plus independent complements; producers cannot
   bypass that representation with a string constructor.
 - Voice is selected after event interpretation: current wording realizes the acting player in
-  active voice and an unrestricted actor in passive voice, while `EventKind` supplies only the
+  active voice and an unrestricted actor in passive voice, while `Event.Kind` supplies only the
   matching verb forms.
 - Billing triggers are decoded once into a `BillingEvent`; trigger and payment rendering consume
   that interpretation rather than recognizing the raw Pets form again.
