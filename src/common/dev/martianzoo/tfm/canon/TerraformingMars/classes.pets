@@ -387,7 +387,7 @@ ABSTRACT CLASS StandardAction : HasActions {
   HAS =1 This
 
   "Play a project card from hand"
-  CLASS PlayCardFromHand { -> PlayCard<Class<ProjectCard>> }
+  CLASS PlayCardFromHand { -> PlayCard<Class<ProjectCard>, Hand> }
 
   "Claim an available milestone"
   CLASS ClaimMilestone { 8 MC -> Milestone }
@@ -470,10 +470,10 @@ CLASS BuySelectedCards : Owned<Player>, Signal {
   This: MAX 0 Invoice: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
 }
 
-CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
+CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
   This:: (EVAL CardFront.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
-  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<Hand>
+  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -536,7 +536,7 @@ ABSTRACT CLASS Phase : System {
 
   CLASS SetupPhase
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>>, CARDS[10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards]
+    NewTurn: PlayCard<Class<CorporationCard>, Hand>, CARDS[10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards]
   }
   CLASS ResearchPhase
   CLASS ActionPhase {

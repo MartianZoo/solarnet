@@ -49,8 +49,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
         // You drew Thorgate, Valley Trust, United Nations Mars Initiative and Robinson Industries
         // You drew Thorgate, Valley Trust, United Nations Mars Initiative and Robinson Industries
         // me played United Nations Mars Initiative
-        doTask("PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>")
-        // TODO playCorp
+        playCorp(UnitedNationsMarsInitiative)
       }
       // me played Great Aquifer
       playPrelude(GreatAquifer) {

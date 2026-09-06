@@ -80,7 +80,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       playPrelude(Merger) {
             // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
             // Pink played Sagitta Frontier Services
-            doTask("PlayCard<Class<CorporationCard>, Class<$SagittaFrontierServices>>")
+            playCorp(SagittaFrontierServices)
             // Pink gained 2 M€ production
             // Pink gained 1 energy production
             /* Discarded 49 cards Freyja Biodomes,Atalanta Planitia Lab,Adaptation Technology,Mining Rights,Urbanized Area,Lichen,Extractor Balloons,Forced Precipitation,Luna Metropolis,Sister Planet Support,Ants,Corroder Suits,Artificial Photosynthesis,Cloud Tourism,Sulphur-Eating Bacteria,Strip Mine,Imported Nitrogen,Standard Technology,Trans-Neptune Probe,Quantum Extractor,Mass Converter,Nitrophilic Moss,Carbonate Processing,Psychrophiles,Mining Area,Towing A Comet,Rover Construction,Extreme-Cold Fungus,Spin-Inducing Asteroid,Indentured Workers,Worms,Immigration Shuttles,Symbiotic Fungus,Livestock,Local Heat Trapping,Underground Detonations,Corporate Stronghold,SF Memorial,Nitrogen-Rich Asteroid,Io Sulphur Research,Imported GHG,Cupola City,Biomass Combustors,Special Design,Inventors' Guild,Comet,Greenhouses,Methane From Titan,Advanced Alloys */

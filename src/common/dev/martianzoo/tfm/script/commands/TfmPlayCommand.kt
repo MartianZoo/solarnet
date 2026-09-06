@@ -25,6 +25,8 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
     val cardText = args.substringBefore(',').trim()
     val cardName = repl.game.vocabulary.canonicalName(cn(cardText))
     val kind = cardBack(repl.game.reader.tfmCatalog.card(cardName))!!.className
+    val location =
+        if (repl.game.reader.getComponents("$kind<Selecting>").isNotEmpty()) "Selecting" else "Hand"
     val payment = args.substringAfter(',', missingDelimiterValue = "").trim()
     val result =
         repl.game.timeline.atomic {
@@ -35,7 +37,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
           if (choosingStandardAction) {
             TaskCommand(repl).withArgs("UseAction<PlayCardFromHand, Action1>")
           }
-          TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardName>>")
+          TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardName>, $location>")
           if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
         }
     return repl.describeExecutionResults(result)

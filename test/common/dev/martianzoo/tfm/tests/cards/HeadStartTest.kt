@@ -35,9 +35,10 @@ internal class HeadStartTest : CardTest() {
 
     p1.playPrelude(HeadStart) {
       doTask("UseAction<DoRequiredActions, Action1>")
-      doTask("PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>")
-      doTask("UseAction<PowerPlantSP, Action1>")
-      doTask("11 Pay<Class<MC>> FROM MC")
+      p1.playPrelude(MartianIndustries) {
+        doTask("UseAction<PowerPlantSP, Action1>")
+        doTask("11 Pay<Class<MC>> FROM MC")
+      }
     }
   }
 }

@@ -67,7 +67,7 @@ public class TfmGameplay(
 
   public fun playCorp(cardName: ClassName, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return inTurn {
-      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
+      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>, Hand>")
       buySelectedCards(buyCards)
       body()
     }
@@ -263,10 +263,29 @@ public class TfmGameplay(
   }
 
   public fun playPrelude(cardName: ClassName, body: BodyLambda = {}): TaskResult {
-    return inTfmTurn {
-      doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
-      body()
-    }
+    return inTfmTurn { playPreludeWithinOperation(cardName, body) }
+  }
+
+  public fun OperationBody.playPrelude(cardName: ClassName, body: BodyLambda = {}) {
+    playPreludeWithinOperation(cardName, body)
+  }
+
+  private fun OperationBody.playPreludeWithinOperation(cardName: ClassName, body: BodyLambda) {
+    playCardWithinOperation(cn("PreludeCard"), cardName, body)
+  }
+
+  public fun OperationBody.playCorp(cardName: ClassName, body: BodyLambda = {}) {
+    playCardWithinOperation(cn("CorporationCard"), cardName, body)
+  }
+
+  private fun OperationBody.playCardWithinOperation(
+      cardBack: ClassName,
+      cardName: ClassName,
+      body: BodyLambda,
+  ) {
+    val location = if (this@TfmGameplay.count("$cardBack<Selecting>") > 0) "Selecting" else "Hand"
+    doTask("PlayCard<Class<$cardBack>, Class<$cardName>, $location>")
+    body()
   }
 
   // In the method after this, all the cost parameters are optional,
@@ -314,7 +333,7 @@ public class TfmGameplay(
       doTask("UseAction<PlayCardFromHand, Action1>")
     }
     butFirst()
-    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
+    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
     payment()
     body()

@@ -27,7 +27,7 @@ CLASS ValleyTrust : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: 37 MC, RequiredAction { -> CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>] }
+  This: 37 MC, RequiredAction { -> CARDS[3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>] }
   PlayTag<Class<ScienceTag>>:: -2 Owed<>
 }
 
@@ -112,7 +112,7 @@ CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
 CLASS ExcentricSponsor : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PlayCard<Class<ProjectCard>> THEN -25 Owed<>.
+  This: PlayCard<Class<ProjectCard>, Hand> THEN -25 Owed<>.
 }
 
 CLASS ExperimentalForest : CardFront<Class<PreludeCard>> {

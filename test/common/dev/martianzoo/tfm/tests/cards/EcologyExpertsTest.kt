@@ -15,7 +15,7 @@ internal class EcologyExpertsTest : CardTest() {
     p1.manual("10 MC, ProjectCard, PreludeCard")
 
     p1.playPrelude(EcologyExperts) {
-      doTask("PlayCard<Class<ProjectCard>, Class<$Decomposers>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$Decomposers>, Hand>")
       p1.pay(mc = 5)
     }
 

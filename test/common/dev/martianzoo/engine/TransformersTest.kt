@@ -270,7 +270,7 @@ internal class TransformersTest {
   }
 
   @Test
-  internal fun `Class-token variables retain dependency constraints supplied by each use`() {
+  internal fun `Class-scoped variables retain dependency constraints supplied by each use`() {
     val playCard = Canon.classTable.getClass(parse<Expression>("PlayCard").className)
     val effect =
         transformers.classEffects(playCard).single { "CardInvoice" in it.instruction.toString() }
@@ -281,11 +281,17 @@ internal class TransformersTest {
 
     effect.typeVariables.expressionsOf(cardFront).map(Any::toString).toSet() shouldBe
         setOf("CardFront<Owner>")
+    val cardLocation =
+        effect.typeVariables.variables.single {
+          it.declaration.expression.toString() == "CardLocation"
+        }
+    effect.typeVariables.expressionsOf(cardLocation).map(Any::toString).toSet() shouldBe
+        setOf("CardLocation")
 
     val component =
         Component(
             Canon.classTable.resolve(
-                parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>>")
+                parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>, Hand>")
             )
         )
     LiveEffect.compile(component, transformers)

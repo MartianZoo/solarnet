@@ -28,7 +28,7 @@ internal class TharsisRepublicTest : CardTest() {
     p1.manual("PreludeCard")
 
     p1.playPrelude(Merger) {
-          doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>")
+          p1.playCorp(TharsisRepublic)
         }
         .expect("PROD[2 MC]")
   }

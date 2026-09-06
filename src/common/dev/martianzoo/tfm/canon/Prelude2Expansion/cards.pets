@@ -65,7 +65,7 @@ CLASS BoardOfDirectors : ActionCard, ResourceCard<Class<Director>, Class<Prelude
   This:: EarthTag<This>
   This: 4 Director<This>
 
-  -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)
+  -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>)
 }
 
 CLASS ColonyTradeHub : CardFront<Class<PreludeCard>> {

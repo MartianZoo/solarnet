@@ -46,7 +46,7 @@ public class OtbGame20260825 : RecordedGame() {
         }
 
         doTask("UseAction<PlayCardFromHand, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>, Hand>")
         pay(4)
       }
     }

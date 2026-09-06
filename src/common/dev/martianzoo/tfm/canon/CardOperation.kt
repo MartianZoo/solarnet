@@ -38,10 +38,9 @@ public sealed interface CardOperation {
   /** Inspect one card and either buy or discard it. */
   public data class SelectAndPurchase(public val offered: Gain) : CardOperation
 
-  /** Inspect cards, retain one, discard the remainder, and play the retained card. */
+  /** Inspect cards, play one from the selection, and discard the remainder. */
   public data class SelectAndPlay(
       public val offered: Gain,
-      public val retained: Transmute,
       public val play: Gain,
   ) : CardOperation
 
@@ -131,16 +130,14 @@ public sealed interface CardOperation {
     }
 
     private fun decodeSelection(source: InstructionGroup): CardOperation {
-      if (source.instructions.size !in 2..3) malformed(source)
+      if (source.instructions.size != 2) malformed(source)
       val offered =
           source.instructions.filterIsInstance<Gain>().singleOrNull {
             it.gaining.cardFamilyAt(SELECTING) != null && it.mandatory
           } ?: malformed(source)
-      if (source.instructions.size == 3) {
-        return decodeSelectedPlay(Then.createTree(source.instructions) as Then)
-      }
       return when (val result = source.instructions.single { it !== offered }) {
         is Transmute -> decodeRetainedCards(offered, result)
+        is Gain -> decodeSelectedPlay(offered, result)
         is Then ->
             if (result.instructions.size == 2) decodePurchase(offered, result)
             else
@@ -164,27 +161,22 @@ public sealed interface CardOperation {
       return SelectAndPurchase(offered)
     }
 
-    private fun decodeSelectedPlay(source: Then): SelectAndPlay {
-      if (source.instructions.size != 3) malformed(source)
-      val offered = source.first as? Gain ?: malformed(source)
-      val retained = source.instructions[1] as? Transmute ?: malformed(source)
-      val play = source.instructions.last() as? Gain ?: malformed(source)
-      val family = offered.gaining.cardFamilyAt(SELECTING) ?: malformed(source)
-      val offeredCount = (offered.count as? ActualScalar)?.value ?: malformed(source)
-      val retainedCount = (retained.count as? ActualScalar)?.value ?: malformed(source)
+    private fun decodeSelectedPlay(offered: Gain, play: Gain): SelectAndPlay {
+      val family = offered.gaining.cardFamilyAt(SELECTING) ?: malformed(offered)
+      val offeredCount = (offered.count as? ActualScalar)?.value ?: malformed(offered)
       if (
           family !in setOf(CORPORATION_CARD, PRELUDE_CARD) ||
-              retained.gaining.cardFamilyAt(HAND) != family ||
-              retained.removing.cardFamilyAt(SELECTING) != family ||
-              retainedCount >= offeredCount ||
+              offeredCount <= 1 ||
               play.gaining.className != PLAY_CARD ||
-              play.gaining.arguments.singleOrNull()?.let {
+              play.gaining.arguments.size != 2 ||
+              play.gaining.arguments.first().let {
                 it.className == CLASS && it.arguments.singleOrNull()?.className == family
-              } != true
+              } != true ||
+              play.gaining.arguments.last().className != SELECTING
       ) {
-        malformed(source)
+        malformed(play)
       }
-      return SelectAndPlay(offered, retained, play)
+      return SelectAndPlay(offered, play)
     }
 
     private fun decodeRevealAndPurchase(source: Then): RevealAndPurchase {

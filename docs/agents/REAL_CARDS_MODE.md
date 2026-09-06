@@ -388,7 +388,7 @@ Canonical sources now preserve hidden card procedures in one
 ```pets
 CARDS[2 ProjectCard(HAS VenusTag)]
 CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
-CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]
+CARDS[3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
 CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
 CARDS[2 ProjectCard<Hand FROM EventPile>?]
@@ -406,9 +406,12 @@ reveal every inspected card in order and discard nonmatches.
 A card procedure's follow-mode compilation leaves its location operations intact. `Selecting` and
 `Revealed` are permanent locations; cards left in either are discarded at World idle when its
 `CardLocationCleanup` resets the location through the engine's dependency cascade. A `Hand FROM
-Selecting` instruction retains exact cards. A purchase procedure first removes unwanted cards and
-then invokes one unquantified `BuySelectedCards`. That signal counts every card remaining in the
-Player's selection, creates the complete base debt, broadcasts the same multiplicity of `BuyCard` so
+Selecting` instruction retains exact cards.
+`PlayCard` takes its source `CardLocation` from the initiating operation: ordinary plays supply
+`Hand`, while select-and-play operations supply `Selecting` and consume the selected back directly.
+A purchase procedure first removes unwanted cards and then invokes one unquantified
+`BuySelectedCards`. That signal counts every card remaining in the Player's selection, creates the
+complete base debt, broadcasts the same multiplicity of `BuyCard` so
 Polyphemos and Terralabs Research can adjust that established `Owed`, and then creates one invoice.
 Once the invoice is fully paid, the purchase operation moves those exact selected cards to `Hand`.
 Its optional removal count is the offered count, so the player may discard any subset before buying

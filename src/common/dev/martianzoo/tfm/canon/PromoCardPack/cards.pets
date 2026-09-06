@@ -105,13 +105,13 @@ CLASS DoubleDown : CardFront<Class<PreludeCard>> {
 CLASS Merger : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: CARDS[4 CorporationCard<Selecting>, CorporationCard<Hand FROM Selecting>, PlayCard<Class<CorporationCard>>], -42 MC
+  This: CARDS[4 CorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Selecting>], -42 MC
 }
 
 CLASS NewPartner : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PROD[1 MC], CARDS[2 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]
+  This: PROD[1 MC], CARDS[2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>]
 }
 
 CLASS HeadStart : CardFront<Class<PreludeCard>> {
