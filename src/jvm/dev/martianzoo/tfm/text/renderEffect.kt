@@ -120,8 +120,14 @@ private fun renderLinkedPlayedTagResourceChoice(
         ?: return null
   }
   if (!linkedDestination) return null
+  val event =
+      eventTrigger(
+          subject = NounPhrase.text("you"),
+          verb = "play",
+          objectPhrase = NounPhrase.text(tagPhrase),
+      )
   val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
-  return completeSentence("when you play $tagPhrase, ${result.linearize()}")
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).linearize()
 }
 
 private fun renderLinkedCardResourceGain(
@@ -176,11 +182,24 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
       describers.scaleFrame(target.className)?.subject
           ?: describers.fact(target.className, ComponentDescriber::requirementKind)
           ?: return null
-  val steps = if (count == 1) "step" else "steps"
-  return completeSentence(
-      "when you play a card, you may treat a $requirementKind requirement as if it is " +
-          "$count $steps lower or higher"
-  )
+  val event =
+      eventTrigger(
+          subject = NounPhrase.text("you"),
+          verb = "play",
+          objectPhrase = NounPhrase("card", determiner = "a"),
+      )
+  val steps = NounPhrase("step", "steps", count).linearize()
+  val result =
+      Clause.Simple(
+          subject = NounPhrase.text("you"),
+          predicate =
+              Predicate(
+                  "may treat",
+                  Coordination.one(NounPhrase("$requirementKind requirement", determiner = "a")),
+                  listOf(Modifier.Phrase("as if it is $steps lower or higher")),
+              ),
+      )
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).linearize()
 }
 
 private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): String? {
@@ -550,9 +569,17 @@ private fun renderBarrierSequencedTrackChoice(
     return null
   }
   val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
-  return completeSentence(
-      "when ${trigger.linearize()}, you may first increase that ${track.subject} 1 step"
-  ) to 2
+  val result =
+      Clause.Simple(
+          subject = NounPhrase.text("you"),
+          predicate =
+              Predicate(
+                  "may first increase",
+                  Coordination.one(NounPhrase.text("that ${track.subject}")),
+                  listOf(Modifier.Phrase("1 step")),
+              ),
+      )
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize() to 2
 }
 
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
