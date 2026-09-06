@@ -4,17 +4,22 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Aridor
 import dev.martianzoo.tfm.tests.cards.cardnames.BribedCommittee
+import dev.martianzoo.tfm.tests.cards.cardnames.CryoSleep
+import dev.martianzoo.tfm.tests.cards.cardnames.Decomposers
 import dev.martianzoo.tfm.tests.cards.cardnames.DevelopmentCenter
 import dev.martianzoo.tfm.tests.cards.cardnames.EarthCatapult
 import dev.martianzoo.tfm.tests.cards.cardnames.LunaGovernor
 import dev.martianzoo.tfm.tests.cards.cardnames.Mine
+import dev.martianzoo.tfm.tests.cards.cardnames.PharmacyUnion
 import dev.martianzoo.tfm.tests.cards.cardnames.ResearchCoordination
 import dev.martianzoo.tfm.tests.cards.cardnames.TitanShuttles
 import dev.martianzoo.tfm.tests.cards.cardnames.TitaniumMine
+import dev.martianzoo.tfm.tests.cards.cardnames.UrbanDecomposers
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -62,6 +67,56 @@ internal class AridorTest : CardTest() {
   }
 
   @Test
+  internal fun `existing tag classes are not rewarded when Aridor enters`() {
+    newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
+    p1.manual("$PharmacyUnion, $EarthCatapult")
+    val initialProduction = p1.count("PROD[MC]")
+
+    p1.manual("$Aridor")
+
+    p1.count("PROD[MC]") shouldBe initialProduction
+
+    p1.manual("$DevelopmentCenter")
+
+    p1.count("PROD[MC]") shouldBe initialProduction + 2
+  }
+
+  @Test
+  internal fun `a tag lost with Pharmacy Union can be rewarded again`() {
+    newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
+    p1.manual("$Aridor")
+    val initialProduction = p1.count("PROD[MC]")
+    p1.manual("$PharmacyUnion")
+    p1.count("PROD[MC]") shouldBe initialProduction + 1
+
+    p1.manual("-2 Disease<$PharmacyUnion>")
+    p1.manual("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+    p1.count("PROD[MC]") shouldBe initialProduction + 1
+
+    p1.manual("$CryoSleep")
+    p1.count("PROD[MC]") shouldBe initialProduction + 2
+
+    p1.manual("$Decomposers")
+
+    p1.count("PROD[MC]") shouldBe initialProduction + 3
+  }
+
+  @Test
+  internal fun `a remaining microbe tag prevents another reward`() {
+    newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
+    p1.manual("$Aridor")
+    val initialProduction = p1.count("PROD[MC]")
+    p1.manual("$PharmacyUnion, $Decomposers")
+
+    p1.manual("-3 Disease<$PharmacyUnion>")
+    p1.manual("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+
+    p1.count("PROD[MC]") shouldBe initialProduction + 1
+    p1.manual("$UrbanDecomposers") { doTask("2 Microbe<$Decomposers>") }
+    p1.count("PROD[MC]") shouldBe initialProduction + 1
+  }
+
+  @Test
   internal fun `an event with an already unique tag does not reward production`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.playCorp(Aridor, 0)
@@ -88,7 +143,7 @@ internal class AridorTest : CardTest() {
   }
 
   @Test
-  internal fun `an action scoped wild tag is not a new printed tag`() {
+  internal fun `an action scoped wild tag is not counted when a tagged card enters`() {
     newGame(
         ColoniesExpansion,
         PreludeExpansion,
@@ -100,17 +155,16 @@ internal class AridorTest : CardTest() {
     engine.phase("Action")
     p1.stdAction("DoRequiredActions") { doTask("Europa") }
 
-    p1.stdAction(
-        "SellPatentsSP",
-        beforeAction = {
+    p1.playProject(
+        EarthCatapult,
+        23,
+        butFirst = {
           doTask("ScienceTag<WildTagUse<$ResearchCoordination>>")
           p1.count("PROD[MC]") shouldBe initialProduction
         },
-    ) {
-      doTask("1 MC FROM ProjectCard<Hand>!")
-    }
+    )
 
-    p1.count("PROD[MC]") shouldBe initialProduction
+    p1.count("PROD[MC]") shouldBe initialProduction + 1
   }
 
   @Test
