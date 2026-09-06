@@ -13,5 +13,6 @@ count	reason	examples
 1	UNSUPPORTED_DECLARED_CHANGE	Spire: Spire_RequiredAction
 1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH CityTile<Player> { -VictoryPoint }
 1	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>
+1	UNSUPPORTED_METRIC	Capital: Adjacency<CityTile(HAS CapitalMarker), OceanTile>
 1	UNSUPPORTED_SEQUENCE	SponsoredAcademies: -ProjectCard THEN (2 ProjectCard, EACH Player { ProjectCard })
 1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	FocusedOrganization: -StandardResource

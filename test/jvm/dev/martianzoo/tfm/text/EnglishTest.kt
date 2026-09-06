@@ -234,6 +234,19 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun tracksUnsupportedMetricsWithinRenderedScores() {
+    val effect =
+        parse<Effect>("End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>")
+    val rendering = renderEffect(effect, Describers(TerraformingMarsDescribers.descriptions))
+
+    rendering.value shouldBe "1 VP per [Adjacency<CityTile(HAS CapitalMarker), OceanTile>]."
+    rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
+        listOf(
+            "Adjacency<CityTile(HAS CapitalMarker), OceanTile>" to RefusalReason.UNSUPPORTED_METRIC
+        )
+  }
+
+  @Test
   internal fun usesDefaultNounForAClassWithoutRegisteredEnglishFacts() {
     TerraformingMarsDescribers.descriptions.keys.none { it.toString() == "Heat" } shouldBe true
     val sparseEnglish = English(TerraformingMarsDescribers.descriptions)

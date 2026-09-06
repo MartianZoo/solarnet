@@ -23,29 +23,29 @@ internal fun renderEffect(
     describers: Describers,
 ): Rendering<String> {
   val lowered = lowerProductionSyntax(effect)
+  if (isEndEffect(lowered, describers)) {
+    return renderEndEffect(lowered, describers)
+        ?: Rendering.unresolved(
+            effect,
+            RefusalReason.UNSUPPORTED_END_EFFECT,
+            completeSentence("[$effect]"),
+        )
+  }
   val rendered =
-      if (isEndEffect(lowered, describers)) {
-        renderEndEffect(lowered, describers)
-      } else {
-        renderRemovalPrevention(lowered, describers)
-            ?: renderPurchaseAdjustment(lowered, describers)
-            ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
-            ?: renderResourcePaymentValue(lowered, describers)
-            ?: renderCardResourcePaymentValue(lowered, describers)
-            ?: renderAcceptedPaymentResource(lowered, describers)
-            ?: renderRequirementFlexibility(lowered, describers)
-            ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
-            ?: renderLinkedProductionReward(lowered, describers)
-            ?: renderTriggeredInstructions(lowered, describers)
-      }
+      renderRemovalPrevention(lowered, describers)
+          ?: renderPurchaseAdjustment(lowered, describers)
+          ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
+          ?: renderResourcePaymentValue(lowered, describers)
+          ?: renderCardResourcePaymentValue(lowered, describers)
+          ?: renderAcceptedPaymentResource(lowered, describers)
+          ?: renderRequirementFlexibility(lowered, describers)
+          ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
+          ?: renderLinkedProductionReward(lowered, describers)
+          ?: renderTriggeredInstructions(lowered, describers)
   return rendered?.let(Rendering.Companion::resolved)
       ?: Rendering.unresolved(
           effect,
-          if (isEndEffect(lowered, describers)) {
-            RefusalReason.UNSUPPORTED_END_EFFECT
-          } else {
-            RefusalReason.UNSUPPORTED_EFFECT_TRIGGER
-          },
+          RefusalReason.UNSUPPORTED_EFFECT_TRIGGER,
           completeSentence("[$effect]"),
       )
 }

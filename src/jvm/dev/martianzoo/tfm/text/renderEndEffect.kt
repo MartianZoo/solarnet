@@ -12,7 +12,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
-internal fun renderEndEffect(effect: Effect, describers: Describers): String? {
+internal fun renderEndEffect(effect: Effect, describers: Describers): Rendering<String>? {
   val condition =
       when (val trigger = effect.trigger) {
         is IfTrigger -> {
@@ -29,7 +29,7 @@ internal fun renderEndEffect(effect: Effect, describers: Describers): String? {
     return it
   }
   val points = describers.renderFixedScore(effect.instruction) ?: return null
-  return "$points${condition?.let { " $it" } ?: ""}."
+  return Rendering.resolved("$points${condition?.let { " $it" } ?: ""}.")
 }
 
 internal fun isEndEffect(effect: Effect, describers: Describers): Boolean =
@@ -98,9 +98,14 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
 private fun renderPerVictoryPoints(
     instruction: InstructionTree,
     describers: Describers,
-): String? {
+): Rendering<String>? {
   val per = instruction as? Per ?: return null
   val points = describers.renderFixedScore(per.inner) ?: return null
-  val metric = renderMetricPhrase(per.metric, describers) ?: NounPhrase.text("[${per.metric}]")
-  return "$points ${Modifier.Per(metric).linearize()}."
+  val metric = renderMetricPhrase(per.metric, describers)
+  val text = "$points ${Modifier.Per(metric ?: NounPhrase.text("[${per.metric}]")).linearize()}."
+  return if (metric != null) {
+    Rendering.resolved(text)
+  } else {
+    Rendering.unresolved(per.metric, RefusalReason.UNSUPPORTED_METRIC, text)
+  }
 }
