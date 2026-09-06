@@ -17,7 +17,6 @@ internal data class Coordination<T>(
       Conjunction.AND -> englishList(parts)
       Conjunction.OR -> englishAlternatives(parts)
       Conjunction.COMMA_OR -> parts.joinToString(", or ")
-      Conjunction.EITHER_OR -> "either ${englishAlternatives(parts)}"
       Conjunction.THEN -> parts.joinToString(", then ")
     }
   }
