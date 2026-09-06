@@ -63,6 +63,26 @@ internal class MergerTest : CardTest() {
   }
 
   @Test
+  internal fun `New Partner can play Merger while both card families are being selected`() {
+    newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
+    p1.playCorp(CrediCor, 0)
+    engine.phase("Prelude")
+
+    p1.playPrelude(NewPartner) {
+      p1.playPrelude(Merger) {
+        doTask("PlayCard<Class<CorporationCard>, Class<$Celestic>>")
+      }
+    }
+
+    p1.assertCounts(
+        0 to "PreludeCard<Selecting>",
+        0 to "CorporationCard<Selecting>",
+        1 to "$Merger",
+        1 to "$Celestic",
+    )
+  }
+
+  @Test
   internal fun `Polyphemos then Merger into TerraLabs still buys cards for three`() {
     newGame(
         ColoniesExpansion,
@@ -77,7 +97,7 @@ internal class MergerTest : CardTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<$TerraLabsResearch>>")
     }
 
-    p1.manual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards") {
+    p1.manual("ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(mc = 3)
         }
         .expect("ProjectCard, -3 MC")

@@ -104,7 +104,7 @@ internal class ActionSequencingTest {
     p1.manual("$Polyphemos, 5 MC")
     val manual = p1
 
-    manual.beginManual("Selecting THEN ProjectCard<Selecting> THEN BuySelectedCards")
+    manual.beginManual("ProjectCard<Selecting> THEN BuySelectedCards")
 
     p1.count("Owed<>") shouldBe 5
     p1.count("ProjectCard<Hand>") shouldBe 0

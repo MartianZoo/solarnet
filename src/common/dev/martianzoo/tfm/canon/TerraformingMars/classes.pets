@@ -8,6 +8,7 @@ CLASS TerraformingMars : Module {
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
+  This:: Selecting, Revealed
   SetupPhase:: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   SetupPhase:: EACH Player { 20 TerraformRating }
   CorporationPhase:: TrWatcher.
@@ -39,7 +40,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
   CorporationPhase:: CorporationCard
-  ResearchPhase:: Selecting
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 
   CLASS Player1, Player2, Player3, Player4, Player5
@@ -171,19 +171,27 @@ CLASS StandardGpTrackRules : System {
 "Anything that can hold tags"
 ABSTRACT CLASS TagHolder : Owned<Player>
 
-"A place where an unplayed card can be associated with a player"
-ABSTRACT CLASS CardLocation : Owned<Player> {
-  CLASS Hand : System { HAS =1 This }
-  CLASS EventPile : System { HAS =1 This }
-  CLASS Selecting : MustCleanUp { HAS MAX 1 This }
-  CLASS Revealed : MustCleanUp { HAS MAX 1 This }
+"One state an unplayed card can occupy"
+ABSTRACT CLASS CardLocation : System {
+  CLASS Hand { HAS =1 This }
+  CLASS EventPile { HAS =1 This }
+  CLASS Selecting {
+    HAS MAX 1 This
+    CardBack<This>:: CardLocationCleanup<This>.
+    -This:: This!
+  }
+  CLASS Revealed {
+    HAS MAX 1 This
+    CardBack<This>:: CardLocationCleanup<This>.
+    -This:: This!
+  }
 }
 
 // Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard
 ABSTRACT CLASS Card : Owned<Player> {
   // A generic unplayed card whose face is still supplied by the follow-mode client
-  ABSTRACT CLASS CardBack<CardLocation<Player>> : Owned<Player> {
-    DEFAULT CardBack<Hand<Player>>
+  ABSTRACT CLASS CardBack<CardLocation> : Owned<Player> {
+    DEFAULT CardBack<Hand>
     DEFAULT +CardBack
     DEFAULT -CardBack
 
@@ -212,6 +220,12 @@ ABSTRACT CLASS Card : Owned<Player> {
   CLASS PlayedEvent<Class<CardFront>> {
     End: ScoreEventVps<Class<CardFront>>
   }
+}
+
+"Resets a transient card location after all current work finishes"
+CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
+  HAS MAX 1 This
+  -This:: -CardLocation!
 }
 
 // CARD BINDINGS, TAGS, AND EFFECTS
@@ -453,7 +467,7 @@ CLASS BuyCard : Owned<Player>, Signal
 "Confirms purchase of every project card remaining in the player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
   This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN Invoice<CardPurchase, Action1>
-  This: MAX 0 Invoice: (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>) THEN -Selecting
+  This: MAX 0 Invoice: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {

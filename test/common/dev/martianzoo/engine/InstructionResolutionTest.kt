@@ -150,7 +150,7 @@ internal class InstructionResolutionTest {
     // Player1 holds ten indistinguishable ProjectCards, which are one concrete Type, not ten.
     checkResolution(
         "EACH ProjectCard<Anyone> { -ProjectCard<Anyone> }",
-        "-ProjectCard<Hand<Player1>>!",
+        "-ProjectCard<Player1, Hand>!",
     )
   }
 

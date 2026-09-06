@@ -141,7 +141,6 @@ public class TfmGameplay(
         if (emptyTransfer in tasks) narrowTask("Ok")
       }
     }
-    if (this@TfmGameplay.count("Selecting") != 0) doTask("-Selecting")
     closeUnusedPaymentOffers()
   }
 

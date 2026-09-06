@@ -147,7 +147,7 @@ Separate two facts that `ActionUsedMarker` currently conflates.
 right as a sum type over a card-scoped status — an abstract class with exactly one live concrete
 face, where removing either face creates the other. Making the used face `Generational` then
 restores the available face at generation turn with no host writing a renewal effect. The precedents
-are `GpIncomplete`/`GpComplete` and the `CardLocation` subclasses.
+are `GpIncomplete`/`GpComplete`.
 
 The doorway then reads as the printed rule, and the permission genuinely is the cost:
 
