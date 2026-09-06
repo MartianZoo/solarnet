@@ -91,10 +91,10 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val result =
       Clause.Simple(
-          subject = NounPhrase.text(resources).withModifier(Modifier.Phrase("on this card")),
+          subject = NounPhrase.plural(resources).withModifier(Modifier.Phrase("on this card")),
           predicate =
               Predicate(
-                  "may be used",
+                  Verb("may be used"),
                   modifiers = listOf(resourceValueModifier(currencyPhrase)),
               ),
       )
@@ -122,9 +122,9 @@ private fun renderLinkedPlayedTagResourceChoice(
   if (!linkedDestination) return null
   val event =
       eventTrigger(
-          subject = NounPhrase.text("you"),
-          verb = "play",
-          objectPhrase = NounPhrase.text(tagPhrase),
+          subject = NounPhrase.you(),
+          verb = Verb("play"),
+          objectPhrase = tagPhrase,
       )
   val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).linearize()
@@ -149,7 +149,7 @@ private fun renderLinkedCardResourceGain(
   val resource = describers.cardResourceNounPhrase(gain.gaining.className, count) ?: return null
   return Clause.Simple(
       Predicate(
-          "add",
+          Verb("add"),
           Coordination.one(resource),
           listOf(Modifier.Phrase("to that card")),
       )
@@ -184,18 +184,23 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
           ?: return null
   val event =
       eventTrigger(
-          subject = NounPhrase.text("you"),
-          verb = "play",
-          objectPhrase = NounPhrase("card", determiner = "a"),
+          subject = NounPhrase.you(),
+          verb = Verb("play"),
+          objectPhrase = NounPhrase("card", determiner = Determiner.INDEFINITE),
       )
   val steps = NounPhrase("step", "steps", count).linearize()
   val result =
       Clause.Simple(
-          subject = NounPhrase.text("you"),
+          subject = NounPhrase.you(),
           predicate =
               Predicate(
-                  "may treat",
-                  Coordination.one(NounPhrase("$requirementKind requirement", determiner = "a")),
+                  Verb("may treat"),
+                  Coordination.one(
+                      NounPhrase(
+                          "$requirementKind requirement",
+                          determiner = Determiner.INDEFINITE,
+                      )
+                  ),
                   listOf(Modifier.Phrase("as if it is $steps lower or higher")),
               ),
       )
@@ -226,7 +231,7 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
               Clause.Simple(
                   predicate =
                       Predicate(
-                          "pay",
+                          Verb("pay"),
                           Coordination.one(
                               adjustment.phrase.withModifier(Modifier.Phrase(direction))
                           ),
@@ -252,7 +257,8 @@ private fun renderAcceptedPaymentResource(effect: Effect, describers: Describers
       describers.renderActionPaymentTrigger(effect.trigger)
           ?: describers.renderEventTrigger(effect.trigger)
           ?: return null
-  val result = Clause.Simple(subject = NounPhrase.text(noun), predicate = Predicate("may be used"))
+  val result =
+      Clause.Simple(subject = NounPhrase.plural(noun), predicate = Predicate(Verb("may be used")))
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize()
 }
 
@@ -278,11 +284,12 @@ internal fun acceptedFirstActionPaymentResource(
 private fun Describers.renderActionPaymentTrigger(trigger: Trigger): Clause.Simple? {
   val action = actionUseEvent(trigger)?.provider ?: return null
   val objectPhrase =
-      if (action == thisExpression) "this action" else renderActionUse(action) ?: return null
+      if (action == thisExpression) NounPhrase.text("this action")
+      else renderActionUse(action) ?: return null
   return eventTrigger(
-      subject = NounPhrase.text("you"),
-      verb = "pay for",
-      objectPhrase = NounPhrase.text(objectPhrase),
+      subject = NounPhrase.you(),
+      verb = Verb("pay for"),
+      objectPhrase = objectPhrase,
   )
 }
 
@@ -434,10 +441,10 @@ internal fun renderAcceptedResourceValue(
   val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   val result =
       Clause.Simple(
-          subject = NounPhrase.text(resource),
+          subject = NounPhrase.plural(resource),
           predicate =
               Predicate(
-                  "may be used",
+                  Verb("may be used"),
                   modifiers = listOf(resourceValueModifier(valuePhrase)),
               ),
       )
@@ -482,10 +489,10 @@ private fun renderAcceptedCardResourcePayment(
   if (billing?.provider?.className == HAS_ACTIONS) {
     val result =
         Clause.Simple(
-            subject = NounPhrase.text("you"),
+            subject = NounPhrase.you(),
             predicate =
                 Predicate(
-                    "may use",
+                    Verb("may use"),
                     Coordination.one(
                         NounPhrase.text(resource).withModifier(Modifier.Phrase("on this card"))
                     ),
@@ -497,10 +504,10 @@ private fun renderAcceptedCardResourcePayment(
   val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
   val result =
       Clause.Simple(
-          subject = NounPhrase.text(resource).withModifier(Modifier.Phrase("on this card")),
+          subject = NounPhrase.plural(resource).withModifier(Modifier.Phrase("on this card")),
           predicate =
               Predicate(
-                  "may be used",
+                  Verb("may be used"),
                   modifiers = listOf(resourceValueModifier(reduction.phrase)),
               ),
       )
@@ -571,10 +578,10 @@ private fun renderBarrierSequencedTrackChoice(
   val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
   val result =
       Clause.Simple(
-          subject = NounPhrase.text("you"),
+          subject = NounPhrase.you(),
           predicate =
               Predicate(
-                  "may first increase",
+                  Verb("may first increase"),
                   Coordination.one(NounPhrase.text("that ${track.subject}")),
                   listOf(Modifier.Phrase("1 step")),
               ),
@@ -614,7 +621,7 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
 
 private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
   val clauses = discounts.map { it.trigger }.distinct()
-  val actingPlayer = NounPhrase.text("you")
+  val actingPlayer = NounPhrase.you()
   val trigger =
       if (clauses.size == 1) {
         clauses.single()
@@ -631,19 +638,19 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
       if (reduction.count == 0) {
         Clause.Simple(
             subject = NounPhrase.text("the cost"),
-            predicate = Predicate("is", Coordination.one(reduction.phrase)),
+            predicate = Predicate(Verb.BE, Coordination.one(reduction.phrase)),
         )
       } else if (discounts.first().categoryReduction) {
         Clause.Simple(
             Predicate(
-                "pay",
+                Verb("pay"),
                 Coordination.one(NounPhrase.text("${reduction.count} less ${reduction.noun}")),
             )
         )
       } else {
         Clause.Simple(
             Predicate(
-                "pay",
+                Verb("pay"),
                 Coordination.one(reduction.phrase.withModifier(Modifier.Phrase("less"))),
             )
         )
@@ -690,20 +697,20 @@ private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple
   val represented = representedClass(expression) ?: return null
   playedTagPhrase(represented.className)?.let { phrase ->
     return eventTrigger(
-        subject = NounPhrase.text("you"),
-        verb = "play",
-        objectPhrase = NounPhrase.text(phrase),
+        subject = NounPhrase.you(),
+        verb = Verb("play"),
+        objectPhrase = phrase,
     )
   }
   val tags = expressions.concreteSubclassesOf(represented.className)
   if (tags.size < 2) return null
   val objects = tags.map { tag ->
     val name = tagName(tag) ?: return null
-    NounPhrase.text("${indefiniteArticle(name)} $name tag")
+    NounPhrase("$name tag", determiner = Determiner.INDEFINITE)
   }
   return Clause.Simple(
-      subject = NounPhrase.text("you"),
-      predicate = Predicate("play", Coordination(objects, Conjunction.OR)),
+      subject = NounPhrase.you(),
+      predicate = Predicate(Verb("play"), Coordination(objects, Conjunction.OR)),
   )
 }
 
@@ -720,15 +727,15 @@ private fun Describers.renderBillingEvent(billing: BillingEvent): Clause.Simple?
   }
   if (billing.phase == BillingEvent.Phase.COMPLETED) {
     return eventTrigger(
-        subject = NounPhrase.text("you"),
-        verb = "pay for",
-        objectPhrase = NounPhrase.text(renderActionUse(billing.provider) ?: return null),
+        subject = NounPhrase.you(),
+        verb = Verb("pay for"),
+        objectPhrase = renderActionUse(billing.provider) ?: return null,
     )
   }
   val predicate =
       fact(billing.provider.className, ComponentDescriber::actionUse)?.paymentDiscount?.predicate
           ?: return null
-  return eventTrigger(subject = NounPhrase.text("you"), verb = predicate)
+  return eventTrigger(subject = NounPhrase.you(), verb = Verb(predicate))
 }
 
 private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? {
@@ -738,7 +745,7 @@ private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? 
       (changeFrame(expression.className) as? ComponentDescriber.ChangeFrame.Procedure)?.takeIf {
         it.objectPhrase == null
       } ?: return null
-  return eventTrigger(subject = NounPhrase.text("you"), verb = operation.verb)
+  return eventTrigger(subject = NounPhrase.you(), verb = Verb(operation.verb))
 }
 
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
@@ -773,7 +780,7 @@ private fun Describers.renderActionPaymentDiscountTrigger(
   val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
   val discount = use.paymentDiscount ?: return null
   return PaymentDiscount.Trigger(
-      eventTrigger(subject = NounPhrase.text("you"), verb = discount.predicate),
+      eventTrigger(subject = NounPhrase.you(), verb = Verb(discount.predicate)),
       discount.categoryNoun,
   )
 }
@@ -825,11 +832,12 @@ private fun renderLinkedProductionReward(effect: Effect, describers: Describers)
   if (!gain.gaining.simple || gain.gaining.className != production.resource) return null
   val count = gain.count.fixedQuantity() ?: return null
   val objectPhrase = "$count ${if (count == 1) "resource" else "resources"} of that type"
-  val result = Clause.Simple(Predicate("gain", Coordination.one(NounPhrase.text(objectPhrase))))
+  val result =
+      Clause.Simple(Predicate(Verb("gain"), Coordination.one(NounPhrase.text(objectPhrase))))
   val trigger =
       eventTrigger(
-          subject = NounPhrase.text("you"),
-          verb = "increase",
+          subject = NounPhrase.you(),
+          verb = Verb("increase"),
           objectPhrase = NounPhrase.text("one of your productions one or more steps"),
       )
   return Sentence(

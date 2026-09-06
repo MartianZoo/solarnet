@@ -125,6 +125,10 @@ The useful architecture already present should be extended rather than replaced:
 - `TriggerFrame` consolidates mutually exclusive event categories while action-use language remains
   orthogonal.
 - `Clause` and related types preserve enough structure for coordination and final linearization.
+- `NounPhrase` retains grammatical number and typed determiners; indefinite articles are selected
+  from the realized noun rather than by family renderers.
+- `Verb` retains singular and plural forms, and clauses apply the realized subject's number during
+  final linearization.
 - Clause prefaces retain conditional and temporal clauses instead of flattening them into strings.
 - Metric renderers return noun phrases whose number, relations, maxima, and `per` attachment remain
   structured.
@@ -184,6 +188,13 @@ central registry cleanly; do not make registry movement a prerequisite for unrel
 Extract a card-layout model only after semantic rendering no longer depends on printed regions.
 
 Then re-ask whether clauses are a sufficient intermediate representation.
+
+### 3. Replace semantic phrase escapes when their shape is known
+
+`Modifier.Phrase` remains appropriate for fixed lexical leaves such as `for free` and `1 step`.
+When a modifier embeds a realizable noun phrase, relation, or clause, retain that structure with the
+existing typed modifier variants. Add a new variant only for a recurring shape that those variants
+cannot express.
 
 ## Working rules
 
@@ -266,8 +277,8 @@ exercised by canonical cards or when a meaningful semantic invariant needs direc
 ## Source map
 
 - [`English.kt`](../../src/jvm/dev/martianzoo/tfm/text/English.kt) — facade and card-region assembly.
-- [`EnglishSyntax.kt`](../../src/jvm/dev/martianzoo/tfm/text/EnglishSyntax.kt) — clauses and the
-  linearizer.
+- `Clause.kt`, `Predicate.kt`, `Verb.kt`, `NounPhrase.kt`, `Determiner.kt`, `Modifier.kt`, and
+  `Coordination.kt` in the text source directory — English syntax and final linearization.
 - [`ComponentDescriber.kt`](../../src/jvm/dev/martianzoo/tfm/text/ComponentDescriber.kt),
   [`Describers.kt`](../../src/jvm/dev/martianzoo/tfm/text/Describers.kt), and
   [`TerraformingMarsDescribers.kt`](../../src/jvm/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)

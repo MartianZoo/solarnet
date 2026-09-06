@@ -5,30 +5,40 @@ internal data class NounPhrase(
     private val singular: String,
     internal val plural: String = singular,
     private val count: Int? = null,
-    private val determiner: String? = null,
+    private val determiner: Determiner? = null,
     private val modifiers: List<Modifier> = emptyList(),
     private val grammaticalNumber: GrammaticalNumber? = null,
-    private val quantifier: Quantifier? = null,
+    private val upperBounded: Boolean = false,
 ) {
   init {
     require(count == null || grammaticalNumber == null)
-    require(quantifier == null || count != null)
+    require(!upperBounded || count != null)
   }
 
-  fun noun(): String =
+  internal fun number(): GrammaticalNumber =
       when (grammaticalNumber) {
-        GrammaticalNumber.SINGULAR -> singular
-        GrammaticalNumber.PLURAL -> plural
-        null -> if (count == null || count == 1) singular else plural
+        null ->
+            if (count == null || count == 1) GrammaticalNumber.SINGULAR
+            else GrammaticalNumber.PLURAL
+        else -> grammaticalNumber
       }
+
+  fun noun(): String = if (number() == GrammaticalNumber.SINGULAR) singular else plural
 
   fun withModifier(modifier: Modifier): NounPhrase = copy(modifiers = modifiers + modifier)
 
-  fun atMost(): NounPhrase = copy(quantifier = Quantifier.UP_TO)
+  fun atMost(): NounPhrase = copy(upperBounded = true)
 
   fun linearize(): String {
+    val noun = noun()
     val phrase =
-        listOfNotNull(quantifier?.text, count?.toString(), determiner, noun()).joinToString(" ")
+        listOfNotNull(
+                "up to".takeIf { upperBounded },
+                count?.toString(),
+                determiner?.linearize(noun),
+                noun,
+            )
+            .joinToString(" ")
     return modifiers.fold(phrase) { rendered, modifier ->
       rendered + modifier.separator + modifier.linearize()
     }
@@ -38,14 +48,15 @@ internal data class NounPhrase(
 
   companion object {
     fun text(text: String): NounPhrase = NounPhrase(text)
+
+    fun plural(text: String): NounPhrase =
+        NounPhrase(text, grammaticalNumber = GrammaticalNumber.PLURAL)
+
+    fun you(): NounPhrase = NounPhrase("you", grammaticalNumber = GrammaticalNumber.PLURAL)
   }
 
   internal enum class GrammaticalNumber {
     SINGULAR,
     PLURAL,
-  }
-
-  internal enum class Quantifier(val text: String) {
-    UP_TO("up to"),
   }
 }

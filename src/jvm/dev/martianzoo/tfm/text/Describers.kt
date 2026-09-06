@@ -230,12 +230,12 @@ internal class Describers(
       count: Int,
       singular: String = componentNoun(className, 1),
       plural: String = componentNoun(className, 2),
-      article: String = indefiniteArticle(singular),
+      determiner: Determiner = Determiner.INDEFINITE,
   ): NounPhrase =
       if (count != 1 || usesNumericSingularChange(className)) {
         NounPhrase(singular, plural, count = count)
       } else {
-        NounPhrase(singular, plural, determiner = article)
+        NounPhrase(singular, plural, determiner = determiner)
       }
 
   internal fun cardResourceNoun(className: ClassName, count: Int): String? {
@@ -258,11 +258,13 @@ internal class Describers(
     return tagName(expression.className)
   }
 
-  internal fun playedTagPhrase(className: ClassName): String? {
+  internal fun playedTagPhrase(className: ClassName): NounPhrase? {
     tagName(className)?.let { name ->
-      return "${indefiniteArticle(name)} $name tag"
+      return NounPhrase("$name tag", determiner = Determiner.INDEFINITE)
     }
-    return (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.phrase
+    return (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.noun?.let {
+      NounPhrase(it, determiner = Determiner.INDEFINITE)
+    }
   }
 
   internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {
@@ -271,9 +273,6 @@ internal class Describers(
         fact(className, ComponentDescriber::noun) as? ComponentDescriber.Noun.Counted ?: return null
     return NounPhrase(noun.singular, noun.plural, count)
   }
-
-  internal fun indefiniteArticle(noun: String): String =
-      if (noun.first().lowercaseChar() in "aeiou") "an" else "a"
 
   private fun unCamelCase(name: String): String = buildString {
     name.forEachIndexed { index, character ->

@@ -71,8 +71,8 @@ private fun renderPurchaseSelection(operation: SelectAndPurchase): List<Clause> 
   return listOf(
       clause("look at", cards),
       Clause.Simple(
-          Predicate("may buy", Coordination.one(NounPhrase.text(objectPhrase))),
-          NounPhrase.text("you"),
+          Predicate(Verb("may buy"), Coordination.one(NounPhrase.text(objectPhrase))),
+          NounPhrase.you(),
       ),
   )
 }
@@ -100,8 +100,8 @@ private fun renderRevealAndPurchase(
       clause("reveal", revealed),
       clause("draw", matching, Modifier.Phrase("for free")),
       Clause.Simple(
-          Predicate("may buy", Coordination.one(NounPhrase.text("each other card"))),
-          NounPhrase.text("you"),
+          Predicate(Verb("may buy"), Coordination.one(NounPhrase.text("each other card"))),
+          NounPhrase.you(),
       ),
   )
 }
@@ -141,11 +141,11 @@ private fun renderEventRecovery(operation: RecoverEvents): Clause? {
       if (count == 1) "one of your played event cards" else "$count of your played event cards"
   return Clause.Simple(
       Predicate(
-          "may return",
+          Verb("may return"),
           Coordination.one(NounPhrase.text("up to $cards")),
           listOf(Modifier.Phrase("to your hand")),
       ),
-      NounPhrase.text("you"),
+      NounPhrase.you(),
   )
 }
 
@@ -200,37 +200,35 @@ private fun matchPredicate(criterion: CardCriterion, describers: Describers): Pr
       is CardCriterion.Tag -> {
         val tag = checkNotNull(describers.tagName(criterion.className))
         Predicate(
-            "has",
-            Coordination.one(
-                NounPhrase("$tag tag", determiner = describers.indefiniteArticle(tag))
-            ),
+            Verb.HAVE,
+            Coordination.one(NounPhrase("$tag tag", determiner = Determiner.INDEFINITE)),
         )
       }
       CardCriterion.NoTags ->
           Predicate(
-              "has",
+              Verb.HAVE,
               Coordination.one(
                   NounPhrase(
                       "tag",
                       "tags",
-                      determiner = "no",
+                      determiner = Determiner.NO,
                       grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
                   )
               ),
           )
       CardCriterion.HasRequirement ->
           Predicate(
-              "has",
-              Coordination.one(NounPhrase("requirement", determiner = "a")),
+              Verb.HAVE,
+              Coordination.one(NounPhrase("requirement", determiner = Determiner.INDEFINITE)),
           )
       is CardCriterion.ResourceIcon -> {
         val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
         Predicate(
-            "has",
+            Verb.HAVE,
             Coordination.one(
                 NounPhrase(
                     "$resource icon",
-                    determiner = describers.indefiniteArticle(resource),
+                    determiner = Determiner.INDEFINITE,
                 )
             ),
         )
@@ -269,7 +267,7 @@ private fun retainedCards(quantity: Quantity): String =
 private fun clause(verb: String, objectPhrase: String, vararg modifiers: Modifier): Clause.Simple =
     Clause.Simple(
         Predicate(
-            verb,
+            Verb(verb),
             Coordination.one(NounPhrase.text(objectPhrase)),
             modifiers.toList(),
         )

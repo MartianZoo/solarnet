@@ -17,7 +17,8 @@ internal sealed interface Clause {
         copy(predicate = predicate.withModifier(modifier))
 
     override fun linearize(): String =
-        listOfNotNull(subject?.linearize(), predicate.linearize()).joinToString(" ")
+        listOfNotNull(subject?.linearize(), predicate.linearize(subject?.number()))
+            .joinToString(" ")
   }
 
   data class Coordinated(public val clauses: Coordination<Clause>) : Clause {
@@ -29,7 +30,7 @@ internal sealed interface Clause {
       val predicates: Coordination<Predicate>,
   ) : Clause {
     override fun linearize(): String =
-        "${subject.linearize()} ${predicates.linearize(Predicate::linearize)}"
+        "${subject.linearize()} ${predicates.linearize { it.linearize(subject.number()) }}"
   }
 
   data class Prefaced(val preface: Preface, val clause: Clause) : Clause {

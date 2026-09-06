@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.text
 
 /** The part of a clause that can be factored across coordinated alternatives. */
 internal data class Predicate(
-    val verb: String,
+    val verb: Verb,
     val objects: Coordination<NounPhrase>? = null,
     val modifiers: List<Modifier> = emptyList(),
     val complement: Complement? = null,
@@ -13,10 +13,10 @@ internal data class Predicate(
 
   fun withModifier(modifier: Modifier): Predicate = copy(modifiers = modifiers + modifier)
 
-  fun linearize(): String {
+  fun linearize(subjectNumber: NounPhrase.GrammaticalNumber? = null): String {
     val predicate =
         listOfNotNull(
-                verb,
+                verb.linearize(subjectNumber),
                 objects?.linearize(NounPhrase::linearize),
                 complement?.linearize(),
             )

@@ -44,7 +44,7 @@ internal data class ComponentDescriber(
     public data class Scale(public val subject: String) : ChangeFrame
 
     public data class Positioned(
-        internal val article: String,
+        internal val determiner: Determiner,
         internal val singular: String,
         internal val plural: String,
         internal val referenceNoun: Noun.Counted? = null,
@@ -66,7 +66,7 @@ internal data class ComponentDescriber(
 
   internal data class PlacementSite(
       internal val noun: Noun,
-      internal val article: String? = null,
+      internal val determiner: Determiner = Determiner.INDEFINITE,
       internal val forSubclasses: Boolean = true,
   )
 
@@ -130,7 +130,7 @@ internal data class ComponentDescriber(
         internal val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
     ) : TriggerFrame
 
-    public data class PlayTag(internal val phrase: String? = null) : TriggerFrame
+    public data class PlayTag(internal val noun: String? = null) : TriggerFrame
 
     public data object UseAction : TriggerFrame
 

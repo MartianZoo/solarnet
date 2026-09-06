@@ -159,7 +159,7 @@ private fun renderProcedure(
     return null
   }
   return frame.objectPhrase?.let { clause(frame.verb, NounPhrase.text(it)) }
-      ?: Clause.Simple(Predicate(frame.verb))
+      ?: Clause.Simple(Predicate(Verb(frame.verb)))
 }
 
 private fun renderCardPlay(instruction: Instruction, describers: Describers): Clause.Simple? {
@@ -174,7 +174,7 @@ private fun renderCardPlay(instruction: Instruction, describers: Describers): Cl
   }
   val card = describers.representedClass(gain.gaining) ?: return null
   val noun = describers.componentNoun(card.className, 1)
-  return clause("play", NounPhrase.text("${describers.indefiniteArticle(noun)} $noun"))
+  return clause("play", NounPhrase(noun, determiner = Determiner.INDEFINITE))
 }
 
 private fun renderRequiredAction(
@@ -260,7 +260,7 @@ private fun renderCountableChange(
     return clause(
         "gain",
         if (describers.concrete(className)) noun
-        else noun.copy(count = null, determiner = describers.indefiniteArticle(noun.noun())),
+        else noun.copy(count = null, determiner = Determiner.INDEFINITE),
     )
   }
   (instruction as? Transmute)?.let {
@@ -285,19 +285,19 @@ private fun renderCountableChange(
     val amount = describers.componentNounPhrase(expression.className, count).atMost()
     return Clause.Simple(
         Predicate(
-            "may remove",
+            Verb("may remove"),
             Coordination.one(amount),
-            listOf(Modifier.Phrase("from $player")),
+            listOf(Modifier.Relation("from", player)),
         ),
-        NounPhrase.text("you"),
+        NounPhrase.you(),
     )
   }
   return null
 }
 
-private fun Describers.renderEligiblePlayer(expression: Expression): String? {
-  if (expression == anyoneExpression) return "any player"
-  if (expression == playerExpression) return "that player"
+private fun Describers.renderEligiblePlayer(expression: Expression): NounPhrase? {
+  if (expression == anyoneExpression) return NounPhrase("player", determiner = Determiner.ANY)
+  if (expression == playerExpression) return NounPhrase("player", determiner = Determiner.THAT)
   if (
       expression.className != anyoneExpression.className ||
           resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false ||
@@ -321,7 +321,13 @@ private fun Describers.renderEligiblePlayer(expression: Expression): String? {
     return null
   }
   val tag = tagName(tagExpression.className) ?: return null
-  return "a player with ${indefiniteArticle(tag)} $tag tag"
+  return NounPhrase("player", determiner = Determiner.INDEFINITE)
+      .withModifier(
+          Modifier.Relation(
+              "with",
+              NounPhrase("$tag tag", determiner = Determiner.INDEFINITE),
+          )
+      )
 }
 
 private fun renderStandardResourceTransfer(
@@ -360,7 +366,7 @@ private fun renderStandardResourceTransfer(
       else null
   val predicate =
       Predicate(
-          if (transmute.intensity.modality() == Modality.OPTIONAL) "may $verb" else verb,
+          Verb(if (transmute.intensity.modality() == Modality.OPTIONAL) "may $verb" else verb),
           Coordination.one(amount),
           listOfNotNull(
               Modifier.Phrase("$preposition ${otherParty.objectPhrase}"),
@@ -369,7 +375,7 @@ private fun renderStandardResourceTransfer(
       )
   return Clause.Simple(
       predicate,
-      if (transmute.intensity.modality() == Modality.OPTIONAL) NounPhrase.text("you") else null,
+      if (transmute.intensity.modality() == Modality.OPTIONAL) NounPhrase.you() else null,
   )
 }
 
@@ -415,11 +421,16 @@ private fun renderCardResourceChange(
           change.intensity.modality() == Modality.OPTIONAL ->
           Clause.Simple(
               Predicate(
-                  "may remove",
+                  Verb("may remove"),
                   Coordination.one(noun.atMost()),
-                  listOf(Modifier.Phrase("from any player")),
+                  listOf(
+                      Modifier.Relation(
+                          "from",
+                          NounPhrase("player", determiner = Determiner.ANY),
+                      )
+                  ),
               ),
-              NounPhrase.text("you"),
+              NounPhrase.you(),
           )
       else -> null
     }
@@ -430,23 +441,24 @@ private fun renderCardResourceChange(
   ) {
     return Clause.Simple(
         Predicate(
-            "may add",
+            Verb("may add"),
             Coordination.one(noun.atMost()),
-            listOf(Modifier.Phrase("to this card")),
+            listOf(Modifier.Relation("to", NounPhrase("card", determiner = Determiner.THIS))),
         ),
-        NounPhrase.text("you"),
+        NounPhrase.you(),
     )
   }
   if (change.intensity.modality() != Modality.REQUIRED) return null
   val target =
       when {
-        describers.cardResourceHasHolder(resolved, describers.thisExpression) -> "this card"
+        describers.cardResourceHasHolder(resolved, describers.thisExpression) ->
+            NounPhrase("card", determiner = Determiner.THIS)
         holder != null && describers.cardResourceHasHolder(resolved, holder) ->
             describers.renderCardResourceHolder(holder) ?: return null
         resolved.sourceDependencies.isNotEmpty() -> return null
-        else -> "any card"
+        else -> NounPhrase("card", determiner = Determiner.ANY)
       }
-  return clause("add", noun, Modifier.Phrase("to $target"))
+  return clause("add", noun, Modifier.Relation("to", target))
 }
 
 private fun renderProductionChange(
@@ -583,18 +595,18 @@ private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, 
   return removal.removing.className to count
 }
 
-private fun Describers.renderCardResourceHolder(expression: Expression): String? {
+private fun Describers.renderCardResourceHolder(expression: Expression): NounPhrase? {
   return renderCardResourceHolder(expression, owned = false)
 }
 
-private fun Describers.renderOwnedCardResourceHolder(expression: Expression): String? {
+private fun Describers.renderOwnedCardResourceHolder(expression: Expression): NounPhrase? {
   return renderCardResourceHolder(expression, owned = true)
 }
 
 private fun Describers.renderCardResourceHolder(
     expression: Expression,
     owned: Boolean,
-): String? {
+): NounPhrase? {
   val resolved = resolveExpression(expression) ?: return null
   if (resolved.sourceDependencies.isNotEmpty() || expression.complement) return null
   val holder = fact(expression.className, ComponentDescriber::cardResourceHolder) ?: return null
@@ -605,14 +617,27 @@ private fun Describers.renderCardResourceHolder(
   if (!metric.expression.simple) return null
   tagName(metric.expression.className)?.let { tag ->
     if (minimum.target != 1) return null
-    return if (owned) "one of your $tag ${holder.plural}"
-    else "${indefiniteArticle(tag)} $tag ${holder.singular}"
+    return if (owned) {
+      NounPhrase.text("one of your $tag ${holder.plural}")
+    } else {
+      NounPhrase("$tag ${holder.singular}", determiner = Determiner.INDEFINITE)
+    }
   }
   val resource =
       cardResourceNoun(metric.expression.className, maxOf(2, minimum.target)) ?: return null
-  val subject = if (owned) "one of your ${holder.plural}" else "a ${holder.singular}"
-  return "$subject with ${minimum.target} or more $resource on it"
+  val subject =
+      if (owned) {
+        NounPhrase.text("one of your ${holder.plural}")
+      } else {
+        NounPhrase(holder.singular, determiner = Determiner.INDEFINITE)
+      }
+  return subject.withModifier(
+      Modifier.Relation(
+          "with",
+          NounPhrase.text("${minimum.target} or more $resource on it"),
+      )
+  )
 }
 
 private fun clause(verb: String, noun: NounPhrase, vararg modifiers: Modifier): Clause.Simple =
-    Clause.Simple(Predicate(verb, Coordination.one(noun), modifiers.toList()))
+    Clause.Simple(Predicate(Verb(verb), Coordination.one(noun), modifiers.toList()))

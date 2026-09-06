@@ -93,7 +93,7 @@ private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
     if (production.owner != null) return null
     val steps = if (count == 1) "step" else "steps"
     return Predicate(
-        "decrease",
+        Verb("decrease"),
         Coordination.one(
             NounPhrase.text(
                 "your ${componentNoun(production.resource, 1)} production $count $steps"
@@ -119,7 +119,7 @@ private fun Describers.renderResourceSpend(
             else -> return null
           }
       return Predicate(
-          "remove",
+          Verb("remove"),
           Coordination.one(quantity(noun.copy(count = null))),
           listOf(Modifier.Phrase("from $holder")),
       )
@@ -127,7 +127,7 @@ private fun Describers.renderResourceSpend(
   }
   if (!expression.simple || plainGainNoun(expression.className, 1) == null) return null
   val noun = componentNounPhrase(expression.className, 1).copy(count = null)
-  return Predicate("pay", Coordination.one(quantity(noun)))
+  return Predicate(Verb("pay"), Coordination.one(quantity(noun)))
 }
 
 private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
@@ -161,7 +161,9 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   val result =
       RenderedInstructions(
           listOf(
-              Clause.Simple(Predicate("gain", Coordination.one(NounPhrase.text(resultQuantity))))
+              Clause.Simple(
+                  Predicate(Verb("gain"), Coordination.one(NounPhrase.text(resultQuantity)))
+              )
           )
       )
   return RenderedAction(cost, result)
@@ -180,7 +182,7 @@ private fun Describers.renderLinkedProductionResourceAction(action: Action): Ren
   val resources = if (gainCount == 1) "resource" else "resources"
   val cost =
       Predicate(
-          "decrease",
+          Verb("decrease"),
           Coordination.one(NounPhrase.text("one of your productions $costCount $steps")),
       )
   val result =
@@ -188,7 +190,7 @@ private fun Describers.renderLinkedProductionResourceAction(action: Action): Ren
           listOf(
               Clause.Simple(
                   Predicate(
-                      "gain",
+                      Verb("gain"),
                       Coordination.one(NounPhrase.text("$gainCount $resources of that kind")),
                   )
               )
@@ -229,7 +231,7 @@ private fun Describers.renderDeferredPaymentAction(
   val result = renderInstructions(gated.inner, this)
   val cost =
       Predicate(
-          "pay",
+          Verb("pay"),
           Coordination.one(owed.phrase),
           listOf(Modifier.Parenthetical("${acceptance.noun} may be used")),
       )

@@ -32,7 +32,7 @@ private fun renderLoweredInstructions(
   val instructions = InstructionGroup.of(instructionTree).instructions
   if (instructions.isEmpty()) {
     return RenderedInstructions(
-        listOf(Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing")))))
+        listOf(Clause.Simple(Predicate(Verb("do"), Coordination.one(NounPhrase.text("nothing")))))
     )
   }
   val rendered = instructions.flatMap { instruction ->
@@ -99,7 +99,7 @@ private fun renderInstruction(
           )
       is NoOp ->
           Rendering.resolved(
-              Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing"))))
+              Clause.Simple(Predicate(Verb("do"), Coordination.one(NounPhrase.text("nothing"))))
           )
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By -> Rendering.resolved(null)
@@ -123,7 +123,7 @@ private fun renderStandardResourceCostSequence(
           ?: return null
   return Clause.Simple(
       Predicate(
-          "pay",
+          Verb("pay"),
           Coordination.one(describers.componentNounPhrase(removal.removing.className, count)),
           listOf(Modifier.Purpose(result)),
       )
@@ -220,25 +220,27 @@ private fun renderPlacementBonusProductionSequence(
           ?: run {
             val description = describers.placementSite(siteClassName) ?: return null
             val noun = describers.describedNoun(siteClassName, description.noun, 1)
-            val article = description.article ?: describers.indefiniteArticle(noun)
-            listOf(Modifier.Phrase("on $article $noun"))
+            listOf(Modifier.Relation("on", NounPhrase(noun, determiner = description.determiner)))
           }
   val resourceNames = bonuses.map { describers.componentNoun(it.resource, 1) }
   val resourceAlternatives = englishAlternatives(resourceNames)
   val bonusModifier =
-      Modifier.Phrase(
-          "with ${describers.indefiniteArticle(resourceAlternatives)} $resourceAlternatives " +
-              bonusNoun.singular
+      Modifier.Relation(
+          "with",
+          NounPhrase(
+              "$resourceAlternatives ${bonusNoun.singular}",
+              determiner = Determiner.INDEFINITE,
+          ),
       )
   val placed =
       Clause.Simple(
           Predicate(
-              "place",
+              Verb("place"),
               Coordination.one(
                   NounPhrase(
                       placementDescription.singular,
                       placementDescription.plural,
-                      determiner = placementDescription.article,
+                      determiner = placementDescription.determiner,
                   )
               ),
               siteModifiers.take(1) + bonusModifier + siteModifiers.drop(1),
@@ -247,7 +249,7 @@ private fun renderPlacementBonusProductionSequence(
   val production =
       Clause.Simple(
           Predicate(
-              "increase",
+              Verb("increase"),
               Coordination.one(NounPhrase.text("the matching production 1 step")),
           )
       )
@@ -281,7 +283,7 @@ private fun renderCardResourceCostSequence(
           ?: return null
   return Clause.Simple(
       Predicate(
-          "remove",
+          Verb("remove"),
           Coordination.one(resource),
           listOf(
               Modifier.Phrase("from this card"),
@@ -330,8 +332,8 @@ private fun renderCardPlaySequence(
       }
   return Clause.Simple(
       Predicate(
-          "play",
-          Coordination.one(NounPhrase.text("a card from hand")),
+          Verb("play"),
+          Coordination.one(NounPhrase("card from hand", determiner = Determiner.INDEFINITE)),
           listOf(Modifier.Supplement(modifier)),
       )
   )
@@ -409,7 +411,7 @@ private fun renderAlternatives(
 
 private fun Clause?.isDoNothing(): Boolean =
     this is Clause.Simple &&
-        predicate.verb == "do" &&
+        predicate.verb == Verb("do") &&
         predicate.objects?.members?.singleOrNull()?.linearize() == "nothing"
 
 private fun renderPlacementSiteFallback(
@@ -533,7 +535,10 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
           isGameParticipant(expression.className)
   ) {
     return Clause.Simple(
-        Predicate("is", Coordination.one(NounPhrase.text("a solo game"))),
+        Predicate(
+            Verb.BE,
+            Coordination.one(NounPhrase("solo game", determiner = Determiner.INDEFINITE)),
+        ),
         NounPhrase.text("this"),
     )
   }
@@ -544,23 +549,23 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   ) {
     return Clause.Simple(
         Predicate(
-            "have",
+            Verb.HAVE,
             Coordination.one(
                 componentNounPhrase(expression.className, 2)
                     .copy(
                         count = null,
-                        determiner = "no",
+                        determiner = Determiner.NO,
                         grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
                     )
             ),
         ),
-        NounPhrase.text("you"),
+        NounPhrase.you(),
     )
   }
   if (requirement !is Requirement.Min) return null
   fact(expression.className, ComponentDescriber::presenceCondition)?.let { condition ->
     if (requirement.minimum != 1) return null
-    val predicate = Predicate(condition)
+    val predicate = Predicate(Verb(condition))
     return Clause.Simple(
         if (isGenerationScoped(expression.className)) {
           predicate.withModifier(Modifier.Phrase("this generation"))
@@ -571,22 +576,22 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   }
   fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
     if (bound is ComponentDescriber.Requirement.Bound.Count) {
-      val noun = if (requirement.minimum == 1) bound.noun.singular else bound.noun.plural
+      val amount = NounPhrase(bound.noun.singular, bound.noun.plural, count = requirement.minimum)
       return if (isPlayerOwned(expression.className)) {
         Clause.Simple(
             Predicate(
-                "have",
-                Coordination.one(NounPhrase(noun, count = requirement.minimum)),
+                Verb.HAVE,
+                Coordination.one(amount),
             ),
-            NounPhrase.text("you"),
+            NounPhrase.you(),
         )
       } else {
         Clause.Simple(
             Predicate(
-                "are",
-                Coordination.one(NounPhrase(noun, count = requirement.minimum)),
+                Verb.BE,
+                Coordination.one(amount),
             ),
-            NounPhrase.text("there"),
+            NounPhrase("there", grammaticalNumber = amount.number()),
         )
       }
     }
@@ -594,9 +599,9 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   val name = tagName(expression.className) ?: return null
   return Clause.Simple(
       Predicate(
-          "have",
+          Verb.HAVE,
           Coordination.one(NounPhrase("$name tag", "$name tags", count = requirement.minimum)),
       ),
-      NounPhrase.text("you"),
+      NounPhrase.you(),
   )
 }

@@ -14,7 +14,7 @@ internal data class CountedRelation(
   internal data class Participant(
       val singular: String,
       val plural: String,
-      val determiner: String,
+      val determiner: Determiner,
       val ownership: ComponentDescriber.OwnershipPhrase,
   ) {
     val ownedByYou: Boolean
@@ -22,14 +22,14 @@ internal data class CountedRelation(
 
     fun reference(): NounPhrase = nounPhrase(determiner = determiner)
 
-    fun referenceWithoutOwnership(determiner: String): NounPhrase =
+    fun referenceWithoutOwnership(determiner: Determiner): NounPhrase =
         NounPhrase(singular, plural, determiner = determiner)
 
     fun counted(count: Int?): NounPhrase = nounPhrase(count = count)
 
     private fun nounPhrase(
         count: Int? = null,
-        determiner: String? = null,
+        determiner: Determiner? = null,
     ): NounPhrase {
       val noun = NounPhrase(singular, plural, count = count, determiner = determiner)
       return if (ownership == ComponentDescriber.OwnershipPhrase.ANYONES) {
@@ -76,25 +76,27 @@ private fun renderParticipant(
         resolved.sourceDependency(ownerKey) == describers.anyoneExpression ->
             when (placement.anyoneOwnership ?: return null) {
               ComponentDescriber.OwnershipPhrase.IMPLICIT ->
-                  "any" to ComponentDescriber.OwnershipPhrase.IMPLICIT
+                  Determiner.ANY to ComponentDescriber.OwnershipPhrase.IMPLICIT
               ComponentDescriber.OwnershipPhrase.ANYONES ->
-                  "a" to ComponentDescriber.OwnershipPhrase.ANYONES
+                  Determiner.INDEFINITE to ComponentDescriber.OwnershipPhrase.ANYONES
               ComponentDescriber.OwnershipPhrase.YOURS -> return null
             }
         resolved.sourceDependencies.isNotEmpty() -> return null
-        placement.article == "this" -> "this" to ComponentDescriber.OwnershipPhrase.IMPLICIT
+        placement.determiner == Determiner.THIS ->
+            Determiner.THIS to ComponentDescriber.OwnershipPhrase.IMPLICIT
         else ->
             when (placement.unqualifiedOwnership) {
               ComponentDescriber.OwnershipPhrase.YOURS ->
-                  "your" to ComponentDescriber.OwnershipPhrase.YOURS
+                  Determiner.YOUR to ComponentDescriber.OwnershipPhrase.YOURS
               ComponentDescriber.OwnershipPhrase.ANYONES ->
-                  "a" to ComponentDescriber.OwnershipPhrase.ANYONES
+                  Determiner.INDEFINITE to ComponentDescriber.OwnershipPhrase.ANYONES
               ComponentDescriber.OwnershipPhrase.IMPLICIT,
-              null -> placement.article to ComponentDescriber.OwnershipPhrase.IMPLICIT
+              null -> placement.determiner to ComponentDescriber.OwnershipPhrase.IMPLICIT
             }
       }
   val placementNoun = ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
-  val noun = if (determiner == "this") placementNoun else placement.referenceNoun ?: placementNoun
+  val noun =
+      if (determiner == Determiner.THIS) placementNoun else placement.referenceNoun ?: placementNoun
   return CountedRelation.Participant(
       noun.singular,
       noun.plural,

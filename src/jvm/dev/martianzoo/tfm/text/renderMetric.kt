@@ -90,7 +90,7 @@ private fun Describers.renderUnrestrictedOwnedComponent(
   val ownerKey = Key(OWNED, 0)
   if (!resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)) return null
   return componentNounPhrase(expression.className, count ?: 1)
-      .copy(count = count, determiner = "any")
+      .copy(count = count, determiner = Determiner.ANY)
 }
 
 internal fun distinctOwnedKinds(
@@ -158,7 +158,7 @@ private fun Describers.renderZeroMaximumFilter(
               NounPhrase(
                   inner.singular,
                   inner.plural,
-                  determiner = "no",
+                  determiner = Determiner.NO,
                   grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
               ),
           )
@@ -225,8 +225,11 @@ private fun Describers.placementCountPhrase(
       placement.referenceNoun
           ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
   val determiner =
-      if (explicitlyUnrestricted && owner == ComponentDescriber.OwnershipPhrase.IMPLICIT) "any"
-      else null
+      if (explicitlyUnrestricted && owner == ComponentDescriber.OwnershipPhrase.IMPLICIT) {
+        Determiner.ANY
+      } else {
+        null
+      }
   return listOfNotNull(ownerPhrase, location).fold(
       NounPhrase(referenceNoun.singular, referenceNoun.plural, count, determiner)
   ) { noun, phrase ->

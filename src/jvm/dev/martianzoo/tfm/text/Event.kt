@@ -16,7 +16,7 @@ internal data class Event(
     return when (voice) {
       Voice.ACTIVE ->
           eventTrigger(
-              subject = NounPhrase.text("you"),
+              subject = NounPhrase.you(),
               verb = verb,
               objectPhrase = objectPhrase,
               modifiers = complements,
@@ -36,20 +36,23 @@ internal data class Event(
   }
 
   enum class Kind(
-      private val activeVerb: String? = null,
-      private val passiveVerb: String? = null,
+      private val activeVerb: Verb? = null,
+      private val passiveVerb: Verb? = null,
   ) {
-    PLAY(activeVerb = "play", passiveVerb = "is played"),
-    BUY(activeVerb = "buy"),
-    USE_ACTION(activeVerb = "use"),
-    PLACE(activeVerb = "place", passiveVerb = "is placed"),
-    CREATE(activeVerb = "create", passiveVerb = "is created"),
-    INCREASE_PRODUCTION(activeVerb = "increase"),
-    RAISE(activeVerb = "raise", passiveVerb = "is raised"),
-    ADD(activeVerb = "add"),
+    PLAY(activeVerb = Verb("plays", "play"), passiveVerb = Verb("is played", "are played")),
+    BUY(activeVerb = Verb("buys", "buy")),
+    USE_ACTION(activeVerb = Verb("uses", "use")),
+    PLACE(activeVerb = Verb("places", "place"), passiveVerb = Verb("is placed", "are placed")),
+    CREATE(
+        activeVerb = Verb("creates", "create"),
+        passiveVerb = Verb("is created", "are created"),
+    ),
+    INCREASE_PRODUCTION(activeVerb = Verb("increases", "increase")),
+    RAISE(activeVerb = Verb("raises", "raise"), passiveVerb = Verb("is raised", "are raised")),
+    ADD(activeVerb = Verb("adds", "add")),
     ;
 
-    fun verb(voice: Voice): String? =
+    fun verb(voice: Voice): Verb? =
         when (voice) {
           Voice.ACTIVE -> activeVerb
           Voice.PASSIVE -> passiveVerb
@@ -64,7 +67,7 @@ internal data class Event(
 
 internal fun eventTrigger(
     subject: NounPhrase,
-    verb: String,
+    verb: Verb,
     objectPhrase: NounPhrase? = null,
     modifiers: List<Modifier> = emptyList(),
 ): Clause.Simple =

@@ -34,7 +34,7 @@ internal fun renderPlacement(
           count,
           description.singular,
           description.plural,
-          description.article,
+          description.determiner,
       )
   return placementClause(noun, siteModifiers)
 }
@@ -73,8 +73,10 @@ internal fun renderPlacementSites(
   if (resolvedSite.sourceDependencies.isNotEmpty() || expression.complement) return null
 
   val siteNoun = describers.describedNoun(expression.className, site.noun, 1)
-  val article = site.article ?: describers.indefiniteArticle(siteNoun)
-  val modifiers = mutableListOf(Modifier.Phrase("on $article $siteNoun"))
+  val modifiers =
+      mutableListOf<Modifier>(
+          Modifier.Relation("on", NounPhrase(siteNoun, determiner = site.determiner))
+      )
   expression.refinement?.let { refinement ->
     if (refinement.forgiving) return null
     val authoredRequirements = refinement.requirement.conjuncts()
@@ -91,7 +93,7 @@ internal fun renderPlacementSites(
         (novelRequirements.ifEmpty { authoredRequirements }).map { requirement ->
           renderPlacementSiteRequirement(requirement, describers) ?: return null
         }
-    modifiers += renderedRequirements.map(Modifier::Phrase)
+    modifiers += renderedRequirements
   }
   return modifiers
 }
@@ -102,31 +104,36 @@ private fun Requirement.conjuncts(): List<Requirement> =
 private fun renderPlacementSiteRequirement(
     requirement: Requirement,
     describers: Describers,
-): String? =
+): Modifier? =
     renderSpatialRequirement(requirement, describers)
         ?: renderPlacementBonusRequirement(requirement, describers)
 
 private fun renderPlacementBonusRequirement(
     requirement: Requirement,
     describers: Describers,
-): String? {
+): Modifier? {
   val minimum = requirement as? Requirement.Min ?: return null
   val expression = countedExpression(minimum) ?: return null
   if (expression.refinement != null || expression.complement) return null
   val bonus =
       describers.fact(expression.className, ComponentDescriber::placementBonus) ?: return null
   val resource = describers.representedClass(expression) ?: return null
-  val resourceNoun = describers.componentNoun(resource.className, 1)
   val count = minimum.target
-  val amount = if (count == 1) describers.indefiniteArticle(resourceNoun) else count.toString()
-  val bonusNoun = if (count == 1) bonus.noun.singular else bonus.noun.plural
-  return "with $amount $resourceNoun $bonusNoun"
+  val resourceNoun = describers.componentNoun(resource.className, count)
+  val noun =
+      NounPhrase(
+          "$resourceNoun ${bonus.noun.singular}",
+          "$resourceNoun ${bonus.noun.plural}",
+          count = count.takeUnless { it == 1 },
+          determiner = Determiner.INDEFINITE.takeIf { count == 1 },
+      )
+  return Modifier.Relation("with", noun)
 }
 
 private fun renderSpatialRequirement(
     requirement: Requirement,
     describers: Describers,
-): String? {
+): Modifier? {
   val counting = requirement as? Requirement.Counting ?: return null
   val relationExpression = countedExpression(counting) ?: return null
   if (relationExpression.refinement != null || relationExpression.complement) return null
@@ -136,10 +143,10 @@ private fun renderSpatialRequirement(
   val target = renderSpatialTarget(relationExpression, relation, describers) ?: return null
 
   return when (counting) {
-    is Requirement.Min -> "${relation.phrase} ${target.minimumPhrase(counting.target, describers)}"
+    is Requirement.Min -> Modifier.Relation(relation.phrase, target.minimumPhrase(counting.target))
     is Requirement.Max -> {
       if (counting.target != 0) return null
-      "${relation.phrase} ${target.absencePhrase()}"
+      Modifier.Relation(relation.phrase, target.absencePhrase())
     }
     is Requirement.Exact -> null
   }
@@ -157,31 +164,35 @@ private data class SpatialTarget(
     ANYONES,
   }
 
-  fun minimumPhrase(count: Int, describers: Describers): String {
+  fun minimumPhrase(count: Int): NounPhrase {
     val noun = if (count == 1) noun.singular else noun.plural
     val suffix = ownership.suffix()
-    if (count != 1) return "any ${spelledOutCount(count)} $noun$suffix"
+    if (count != 1) {
+      return NounPhrase.text("any ${spelledOutCount(count)} $noun").withSuffix(suffix)
+    }
     val determiner =
         when {
-          implicit -> "another"
-          explicitlyAny && ownership == Ownership.UNRESTRICTED -> "any"
-          ownership == Ownership.UNRESTRICTED && suffix.isEmpty() ->
-              describers.indefiniteArticle(noun)
-          else -> "a"
+          implicit -> Determiner.ANOTHER
+          explicitlyAny && ownership == Ownership.UNRESTRICTED -> Determiner.ANY
+          else -> Determiner.INDEFINITE
         }
-    return "$determiner $noun$suffix"
+    return NounPhrase(noun, determiner = determiner).withSuffix(suffix)
   }
 
-  fun absencePhrase(): String {
+  fun absencePhrase(): NounPhrase {
     val other = if (implicit) "other " else ""
-    return "no $other${noun.singular}${ownership.suffix()}"
+    return NounPhrase("$other${noun.singular}", determiner = Determiner.NO)
+        .withSuffix(ownership.suffix())
   }
+
+  private fun NounPhrase.withSuffix(suffix: String): NounPhrase =
+      if (suffix.isEmpty()) this else withModifier(Modifier.Phrase(suffix))
 
   private fun Ownership.suffix(): String =
       when (this) {
         Ownership.UNRESTRICTED -> ""
-        Ownership.YOURS -> " you own"
-        Ownership.ANYONES -> " anyone owns"
+        Ownership.YOURS -> "you own"
+        Ownership.ANYONES -> "anyone owns"
       }
 }
 
@@ -249,4 +260,4 @@ private fun spelledOutCount(count: Int): String =
     }
 
 private fun placementClause(noun: NounPhrase, modifiers: List<Modifier>): Clause.Simple =
-    Clause.Simple(Predicate("place", Coordination.one(noun), modifiers))
+    Clause.Simple(Predicate(Verb("place"), Coordination.one(noun), modifiers))

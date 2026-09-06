@@ -111,6 +111,10 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("Animal")) shouldBe "Add 1 animal to any card."
     english.describe(parse<InstructionTree>("MAX 0 Plant: Steel")) shouldBe
         "If you have no plants, gain 1 steel."
+    english.describe(parse<InstructionTree>("OceanTile: Steel")) shouldBe
+        "If there is 1 ocean tile, gain 1 steel."
+    english.describe(parse<InstructionTree>("2 OceanTile: Steel")) shouldBe
+        "If there are 2 ocean tiles, gain 1 steel."
     english.describe(
         parse<InstructionTree>(
             "CARDS[ProjectCard<Revealed> THEN " +

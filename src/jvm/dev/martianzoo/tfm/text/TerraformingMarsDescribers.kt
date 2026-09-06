@@ -98,7 +98,7 @@ internal object TerraformingMarsDescribers {
                 placementSite =
                     ComponentDescriber.PlacementSite(
                         noun = ComponentDescriber.Noun.Fixed("reserved area outside Mars"),
-                        article = "the",
+                        determiner = Determiner.THE,
                     ),
             ),
         klass("WaterArea") to
@@ -106,7 +106,7 @@ internal object TerraformingMarsDescribers {
                 placementSite =
                     ComponentDescriber.PlacementSite(
                         noun = ComponentDescriber.Noun.Fixed("area reserved for ocean"),
-                        article = "an",
+                        determiner = Determiner.INDEFINITE,
                     ),
             ),
         klass("NoctisArea") to
@@ -114,7 +114,7 @@ internal object TerraformingMarsDescribers {
                 placementSite =
                     ComponentDescriber.PlacementSite(
                         noun = ComponentDescriber.Noun.Fixed("reserved area"),
-                        article = "the",
+                        determiner = Determiner.THE,
                     ),
             ),
         klass("VolcanicArea") to
@@ -126,7 +126,7 @@ internal object TerraformingMarsDescribers {
                                 "volcanic area",
                                 "volcanic areas",
                             ),
-                        article = "a",
+                        determiner = Determiner.INDEFINITE,
                     ),
             ),
         klass("LandArea") to
@@ -159,13 +159,13 @@ internal object TerraformingMarsDescribers {
             ),
         klass("Tile") to
             ComponentDescriber(
-                changeFrame = Frame.Positioned("a", "tile", "tiles"),
+                changeFrame = Frame.Positioned(Determiner.INDEFINITE, "tile", "tiles"),
             ),
         klass("OwnedTile") to
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
-                        "a",
+                        Determiner.INDEFINITE,
                         "tile",
                         "tiles",
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
@@ -176,7 +176,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
-                        article = "this",
+                        determiner = Determiner.THIS,
                         singular = "tile",
                         plural = "tiles",
                         referenceNoun = counted("special tile", "special tiles"),
@@ -216,15 +216,15 @@ internal object TerraformingMarsDescribers {
                         "different types of resources",
                     )
             ),
-        klass("BioTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a bio tag")),
+        klass("BioTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("bio tag")),
         klass("PlanetaryTag") to
             ComponentDescriber(
-                triggerFrame = Trigger.PlayTag("a planetary tag"),
+                triggerFrame = Trigger.PlayTag("planetary tag"),
                 capitalizeTagName = true,
             ),
-        klass("AnimalTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("an animal tag")),
-        klass("PlantTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a plant tag")),
-        klass("MicrobeTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("a microbe tag")),
+        klass("AnimalTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("animal tag")),
+        klass("PlantTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("plant tag")),
+        klass("MicrobeTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("microbe tag")),
         klass("OxygenStep") to
             ComponentDescriber(
                 changeFrame = Frame.Scale("oxygen"),
@@ -290,7 +290,7 @@ internal object TerraformingMarsDescribers {
         klass("OceanTile") to
             ComponentDescriber(
                 numericSingularChange = true,
-                changeFrame = Frame.Positioned("an", "ocean tile", "ocean tiles"),
+                changeFrame = Frame.Positioned(Determiner.INDEFINITE, "ocean tile", "ocean tiles"),
                 requirement =
                     ComponentDescriber.Requirement(
                         minimum = count("ocean tile", "ocean tiles"),
@@ -301,7 +301,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
-                        "a",
+                        Determiner.INDEFINITE,
                         "greenery tile",
                         "greenery tiles",
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
@@ -320,7 +320,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
-                        "a",
+                        Determiner.INDEFINITE,
                         "city tile",
                         "city tiles",
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
@@ -340,7 +340,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
-                        "a",
+                        Determiner.INDEFINITE,
                         "colony",
                         "colonies",
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,

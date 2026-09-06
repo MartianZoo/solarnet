@@ -51,7 +51,7 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
     val objectPhrase =
         if (relation.source.ownedByYou) {
           relation.source
-              .referenceWithoutOwnership(indefiniteArticle(relation.source.singular))
+              .referenceWithoutOwnership(Determiner.INDEFINITE)
               .withModifier(Modifier.Relation(relation.phrase, relation.target.reference()))
         } else {
           relation.asRequirement()
@@ -95,8 +95,8 @@ private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Cl
   val production = productionExpression(expression, this) ?: return null
   if (production.owner != null) return null
   return requirementClause(
-      "you",
-      "have",
+      NounPhrase.you(),
+      Verb.HAVE,
       NounPhrase.text("${componentNoun(production.resource, 1)} production"),
   )
 }
@@ -107,7 +107,7 @@ private fun Describers.renderCardResourceRequirement(requirement: Requirement.Mi
   val noun = cardResourceNounPhrase(expression.className, requirement.target) ?: return null
   val quantified =
       if (requirement.target == 1) {
-        noun.copy(count = null, determiner = indefiniteArticle(noun.noun()))
+        noun.copy(count = null, determiner = Determiner.INDEFINITE)
       } else {
         noun
       }
@@ -132,7 +132,7 @@ private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): 
         tagName(minimum) ?: return null
       }
   val nouns = tags.map { name ->
-    NounPhrase("$name tag", determiner = indefiniteArticle(name))
+    NounPhrase("$name tag", determiner = Determiner.INDEFINITE)
   }
   return requirementClause(Coordination(nouns, Conjunction.AND))
 }
@@ -175,8 +175,8 @@ private fun Describers.renderThresholdBound(
   val value = renderRequirementValue(bound.value, target)
   val comparison = if (direction == BoundDirection.MINIMUM) "higher" else "lower"
   return requirementClause(
-      bound.subject,
-      "is",
+      NounPhrase.text(bound.subject),
+      Verb.BE,
       Coordination(
           listOf(NounPhrase.text(value), NounPhrase.text(comparison)),
           Conjunction.OR,
@@ -206,14 +206,14 @@ private fun Describers.renderCountBound(
         when {
           owned ->
               requirementClause(
-                  "you",
-                  "have",
+                  NounPhrase.you(),
+                  Verb.HAVE,
                   quantifiedNoun(bound.noun, target),
               )
           explicitlyAnyOwner -> {
             val amount =
                 if (target == 1) {
-                  NounPhrase(noun, determiner = "any")
+                  NounPhrase(noun, determiner = Determiner.ANY)
                 } else {
                   NounPhrase.text("any $target $noun")
                 }
@@ -225,14 +225,14 @@ private fun Describers.renderCountBound(
         when {
           owned ->
               requirementClause(
-                  "you",
-                  "have",
+                  NounPhrase.you(),
+                  Verb.HAVE,
                   NounPhrase.text("$target or fewer ${bound.noun.plural}"),
               )
           else ->
               requirementClause(
-                  "there",
-                  "are",
+                  NounPhrase.plural("there"),
+                  Verb.BE,
                   NounPhrase.text("$target or fewer ${bound.noun.plural}"),
               )
         }
@@ -249,24 +249,24 @@ private fun requirementClause(objectPhrase: NounPhrase): Clause.Simple =
 
 private fun requirementClause(objects: Coordination<NounPhrase>): Clause.Simple =
     Clause.Simple(
-        predicate = Predicate("requires", objects),
+        predicate = Predicate(Verb("requires"), objects),
     )
 
 private fun requirementClause(
-    subject: String,
-    verb: String,
+    subject: NounPhrase,
+    verb: Verb,
     objectPhrase: NounPhrase,
 ): Clause.Simple = requirementClause(subject, verb, Coordination.one(objectPhrase))
 
 private fun requirementClause(
-    subject: String,
-    verb: String,
+    subject: NounPhrase,
+    verb: Verb,
     objects: Coordination<NounPhrase>,
 ): Clause.Simple =
     requirementClause(
         Clause.Simple(
             Predicate(verb, objects),
-            NounPhrase.text(subject),
+            subject,
         )
     )
 
@@ -274,7 +274,7 @@ private fun requirementClause(complement: Clause): Clause.Simple =
     Clause.Simple(
         predicate =
             Predicate(
-                "requires",
+                Verb("requires"),
                 complement = Predicate.Complement(complement),
             ),
     )
@@ -284,7 +284,7 @@ private fun Describers.quantifiedNoun(
     count: Int,
 ): NounPhrase =
     if (count == 1) {
-      NounPhrase(noun.singular, noun.plural, determiner = indefiniteArticle(noun.singular))
+      NounPhrase(noun.singular, noun.plural, determiner = Determiner.INDEFINITE)
     } else {
       NounPhrase(noun.singular, noun.plural, count = count)
     }
