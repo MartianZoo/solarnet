@@ -563,7 +563,7 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
   val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
   val actualReduction = describers.renderPlainGainAmount(effect.instruction) ?: return null
   val reduction =
-      trigger.refundDiscountNoun?.let { noun ->
+      trigger.categoryNoun?.let { noun ->
         actualReduction.copy(
             noun = if (actualReduction.count == 1) noun.singular else noun.plural,
         )
@@ -571,7 +571,7 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
   return PaymentDiscount(
       trigger.clause,
       reduction,
-      categoryReduction = trigger.refundDiscountNoun != null,
+      categoryReduction = trigger.categoryNoun != null,
   )
 }
 
@@ -681,7 +681,7 @@ private fun Describers.renderBillingEvent(billing: BillingEvent): Clause.Simple?
     )
   }
   val predicate =
-      fact(billing.provider.className, ComponentDescriber::actionUse)?.refundDiscountPredicate
+      fact(billing.provider.className, ComponentDescriber::actionUse)?.paymentDiscount?.predicate
           ?: return null
   return eventTrigger(subject = NounPhrase.text("you"), verb = predicate)
 }
@@ -706,7 +706,7 @@ private fun Describers.renderSpentResource(trigger: Trigger): String? {
 
 private data class PaymentDiscountTrigger(
     val clause: Clause.Simple,
-    val refundDiscountNoun: ComponentDescriber.Noun.Counted?,
+    val categoryNoun: ComponentDescriber.Noun.Counted?,
     val billingResource: ClassName? = null,
 ) {
   fun accepts(reduction: ResourceAmount): Boolean =
@@ -724,9 +724,10 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
   val billing = billingEvent(trigger) ?: return null
   if (billing.phase != BillingEvent.Phase.STARTED) return null
   val use = fact(billing.provider.className, ComponentDescriber::actionUse) ?: return null
+  val discount = use.paymentDiscount ?: return null
   return PaymentDiscountTrigger(
       renderBillingEvent(billing) ?: return null,
-      use.refundDiscountNoun,
+      discount.categoryNoun,
       billing.resource?.className,
   )
 }
@@ -737,10 +738,10 @@ private fun Describers.renderActionPaymentDiscountTrigger(
   val action = actionUseEvent(trigger)?.provider?.takeIf { it.simple } ?: return null
   if (action == thisExpression) return null
   val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
-  val predicate = use.refundDiscountPredicate ?: return null
+  val discount = use.paymentDiscount ?: return null
   return PaymentDiscountTrigger(
-      eventTrigger(subject = NounPhrase.text("you"), verb = predicate),
-      use.refundDiscountNoun,
+      eventTrigger(subject = NounPhrase.text("you"), verb = discount.predicate),
+      discount.categoryNoun,
   )
 }
 

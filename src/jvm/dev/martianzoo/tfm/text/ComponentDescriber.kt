@@ -139,9 +139,13 @@ internal data class ComponentDescriber(
 
   internal data class ActionUse(
       internal val objectPhrase: String,
-      internal val refundDiscountPredicate: String? = null,
-      internal val refundDiscountNoun: Noun.Counted? = null,
+      internal val paymentDiscount: PaymentDiscount? = null,
       internal val minimumProperties: Map<String, MinimumProperty.Threshold> = emptyMap(),
+  )
+
+  internal data class PaymentDiscount(
+      internal val predicate: String,
+      internal val categoryNoun: Noun.Counted? = null,
   )
 
   internal sealed interface MinimumProperty {

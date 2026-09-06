@@ -401,7 +401,8 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Convert Plants standard action",
-                        refundDiscountPredicate = "convert plants to greenery",
+                        paymentDiscount =
+                            ComponentDescriber.PaymentDiscount("convert plants to greenery"),
                     )
             ),
         klass("PowerPlantSP") to
@@ -409,7 +410,10 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Power Plant standard project",
-                        refundDiscountPredicate = "use the Power Plant standard project",
+                        paymentDiscount =
+                            ComponentDescriber.PaymentDiscount(
+                                "use the Power Plant standard project"
+                            ),
                     )
             ),
         klass("ClaimMilestone") to
@@ -417,7 +421,7 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Claim Milestone standard action",
-                        refundDiscountPredicate = "claim a milestone",
+                        paymentDiscount = ComponentDescriber.PaymentDiscount("claim a milestone"),
                     )
             ),
         klass("FundAward") to
@@ -425,7 +429,7 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Fund Award standard action",
-                        refundDiscountPredicate = "fund an award",
+                        paymentDiscount = ComponentDescriber.PaymentDiscount("fund an award"),
                     )
             ),
         klass("TradeAction") to
@@ -433,9 +437,12 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Trade standard action",
-                        refundDiscountPredicate = "use the Trade standard action",
-                        refundDiscountNoun =
-                            ComponentDescriber.Noun.Counted("resource", "resources"),
+                        paymentDiscount =
+                            ComponentDescriber.PaymentDiscount(
+                                "use the Trade standard action",
+                                categoryNoun =
+                                    ComponentDescriber.Noun.Counted("resource", "resources"),
+                            ),
                     )
             ),
         klass("HasActions") to
@@ -443,7 +450,7 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "an action",
-                        refundDiscountPredicate = "use an action",
+                        paymentDiscount = ComponentDescriber.PaymentDiscount("use an action"),
                     )
             ),
         klass("CardPurchase") to
@@ -451,7 +458,7 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "a card",
-                        refundDiscountPredicate = "buy a card",
+                        paymentDiscount = ComponentDescriber.PaymentDiscount("buy a card"),
                     )
             ),
         klass("CardPlay") to
@@ -459,7 +466,7 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "a card",
-                        refundDiscountPredicate = "play a card",
+                        paymentDiscount = ComponentDescriber.PaymentDiscount("play a card"),
                     )
             ),
         klass("Pay") to ComponentDescriber(triggerFrame = Trigger.SpendResource),
