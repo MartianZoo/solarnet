@@ -630,12 +630,6 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize()
 }
 
-private data class PaymentDiscount(
-    val trigger: Clause.Simple,
-    val reduction: ResourceAmount,
-    val categoryReduction: Boolean = false,
-)
-
 private fun renderResourcePaymentValue(effect: Effect, describers: Describers): String? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
   val reduction = owedReduction(effect.instruction, describers) ?: return null
@@ -733,28 +727,19 @@ private fun Describers.renderSpentResource(trigger: Trigger): String? {
   return plainGainCategoryNoun(payment.resource.className, 1)
 }
 
-private data class PaymentDiscountTrigger(
-    val clause: Clause.Simple,
-    val categoryNoun: ComponentDescriber.Noun.Counted?,
-    val billingResource: ClassName? = null,
-) {
-  fun accepts(reduction: ResourceAmount): Boolean =
-      billingResource == null || reduction.resource == null || billingResource == reduction.resource
-}
-
 private fun Describers.renderPaymentDiscountTrigger(
     trigger: Trigger,
-): PaymentDiscountTrigger? =
+): PaymentDiscount.Trigger? =
     renderActionPaymentDiscountTrigger(trigger) ?: renderBillingPaymentDiscountTrigger(trigger)
 
 private fun Describers.renderBillingPaymentDiscountTrigger(
     trigger: Trigger,
-): PaymentDiscountTrigger? {
+): PaymentDiscount.Trigger? {
   val billing = billingEvent(trigger) ?: return null
   if (billing.phase != BillingEvent.Phase.STARTED) return null
   val use = fact(billing.provider.className, ComponentDescriber::actionUse) ?: return null
   val discount = use.paymentDiscount ?: return null
-  return PaymentDiscountTrigger(
+  return PaymentDiscount.Trigger(
       renderBillingEvent(billing) ?: return null,
       discount.categoryNoun,
       billing.resource?.className,
@@ -763,12 +748,12 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
 
 private fun Describers.renderActionPaymentDiscountTrigger(
     trigger: Trigger,
-): PaymentDiscountTrigger? {
+): PaymentDiscount.Trigger? {
   val action = actionUseEvent(trigger)?.provider?.takeIf { it.simple } ?: return null
   if (action == thisExpression) return null
   val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
   val discount = use.paymentDiscount ?: return null
-  return PaymentDiscountTrigger(
+  return PaymentDiscount.Trigger(
       eventTrigger(subject = NounPhrase.text("you"), verb = discount.predicate),
       discount.categoryNoun,
   )
