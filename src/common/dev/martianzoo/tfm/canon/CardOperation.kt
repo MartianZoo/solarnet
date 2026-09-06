@@ -106,8 +106,8 @@ public sealed interface CardOperation {
 
     private fun decodeSearch(source: Gain): Search {
       if (
-          source.gaining.className != PROJECT_CARD ||
-              source.gaining.arguments.any() ||
+          source.gaining.className != SEARCH_FOR_CARD ||
+              source.gaining.argumentsSpecified ||
               !source.mandatory
       ) {
         malformed(source)
@@ -305,5 +305,6 @@ public sealed interface CardOperation {
     private val PRELUDE_CARD = cn("PreludeCard")
     private val SELECTING = cn("Selecting")
     private val REVEALED = cn("Revealed")
+    private val SEARCH_FOR_CARD = cn("SearchForCard")
   }
 }

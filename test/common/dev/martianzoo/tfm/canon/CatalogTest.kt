@@ -134,6 +134,44 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun filteredCardSearchesLowerToOrdinaryFollowModeDraws() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Searcher {
+                  This: CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected = parseClasses("ABSTRACT CLASS Searcher { This: 2 ProjectCard }").single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Searcher"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredEffects shouldBe source.effects
+  }
+
+  @Test
+  internal fun cardSyntaxOutsideCardsZonesIsUntouched() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Searcher {
+                  This: SearchForCard(HAS PrintedTag<Class<PlantTag>>)
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Searcher"))
+
+    loaded.effects shouldBe source.effects
+  }
+
+  @Test
   internal fun compositionRejectsAmbiguousModuleOwnership() {
     val declarations =
         "ABSTRACT CLASS Module\nCLASS SharedModule : Module"
