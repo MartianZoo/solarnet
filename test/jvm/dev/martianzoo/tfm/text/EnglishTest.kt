@@ -235,8 +235,7 @@ internal class EnglishTest {
 
   @Test
   internal fun usesDefaultNounForAClassWithoutRegisteredEnglishFacts() {
-    TerraformingMarsDescribers.descriptions.keys.none { it.className.toString() == "Heat" } shouldBe
-        true
+    TerraformingMarsDescribers.descriptions.keys.none { it.toString() == "Heat" } shouldBe true
     val sparseEnglish = English(TerraformingMarsDescribers.descriptions)
 
     sparseEnglish.describe(parse<InstructionTree>("2 Heat")) shouldBe "Gain 2 heat."

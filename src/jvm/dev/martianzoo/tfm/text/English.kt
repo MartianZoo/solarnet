@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.InstructionTree
@@ -13,7 +14,7 @@ import dev.martianzoo.tfm.canon.cardRequirement
 import dev.martianzoo.tfm.canon.cardResourceType
 
 /** English Pets text using the client's sparse map of component descriptions. */
-internal class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
+internal class English public constructor(descriptions: Map<ClassName, ComponentDescriber>) {
   private val describers = Describers(descriptions)
 
   /** Returns complete English sentences describing [effect]. */

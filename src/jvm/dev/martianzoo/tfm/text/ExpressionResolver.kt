@@ -19,7 +19,8 @@ internal class ExpressionResolver {
   private val classTable = canonClassUniverse
   internal val classesByName = classTable.allClasses().associateBy(Class::className)
 
-  internal fun isActive(componentClass: Class): Boolean = classTable.isActive(componentClass)
+  internal fun isActive(className: ClassName): Boolean =
+      classesByName[className]?.let(classTable::isActive) == true
 
   internal fun resolve(expression: Expression): ResolvedExpression? =
       resolve(expression, contextualThisKey = null)

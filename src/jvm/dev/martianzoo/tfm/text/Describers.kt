@@ -8,7 +8,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers(
-    private val descriptions: Map<Class, ComponentDescriber>,
+    private val descriptions: Map<ClassName, ComponentDescriber>,
 ) {
   internal val expressions = ExpressionResolver()
   private val classesByName = expressions.classesByName
@@ -42,7 +42,7 @@ internal class Describers(
       fact: (ComponentDescriber) -> T?,
   ): List<Pair<Class, T>> =
       componentClass.allSuperclasses().mapNotNull { superclass ->
-        descriptions[superclass]?.let(fact)?.let { superclass to it }
+        descriptions[superclass.className]?.let(fact)?.let { superclass to it }
       }
 
   private fun validateInheritedFacts() {
@@ -88,7 +88,7 @@ internal class Describers(
   internal fun placementSite(className: ClassName): ComponentDescriber.PlacementSite? {
     val site = fact(className, ComponentDescriber::placementSite) ?: return null
     if (site.forSubclasses) return site
-    val direct = descriptions[classesByName.getValue(className)]?.placementSite
+    val direct = descriptions[className]?.placementSite
     return site.takeIf { direct != null }
   }
 

@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
-  private val declarations: Map<Class, ComponentDescriber> = run {
+  private val declarations: Map<ClassName, ComponentDescriber> = run {
     uniqueDeclarations(
         klass("Component") to
             ComponentDescriber(
@@ -486,19 +486,19 @@ internal object TerraformingMarsDescribers {
     )
   }
 
-  internal val descriptions: Map<Class, ComponentDescriber> = declarations
+  internal val descriptions: Map<ClassName, ComponentDescriber> = declarations
 
   private fun uniqueDeclarations(
-      vararg entries: Pair<Class, ComponentDescriber>,
-  ): Map<Class, ComponentDescriber> = buildMap {
-    entries.forEach { (componentClass, describer) ->
-      check(put(componentClass, describer) == null) {
-        "Duplicate English component declaration for ${componentClass.className}"
+      vararg entries: Pair<ClassName, ComponentDescriber>,
+  ): Map<ClassName, ComponentDescriber> = buildMap {
+    entries.forEach { (className, describer) ->
+      check(put(className, describer) == null) {
+        "Duplicate English component declaration for $className"
       }
     }
   }
 
-  private fun klass(name: String): Class = canonClassUniverse.getClass(cn(name))
+  private fun klass(name: String): ClassName = cn(name)
 
   private fun threshold(
       subject: String,
