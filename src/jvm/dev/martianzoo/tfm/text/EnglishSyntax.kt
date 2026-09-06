@@ -184,6 +184,10 @@ internal sealed interface Modifier {
     override fun linearize(): String = "$phrase ${target.linearize()}"
   }
 
+  data class Between(val first: NounPhrase, val second: NounPhrase) : Modifier {
+    override fun linearize(): String = "between ${first.linearize()} and ${second.linearize()}"
+  }
+
   data class Per(val metric: NounPhrase) : Modifier {
     override fun linearize(): String = "per ${metric.linearize()}"
   }

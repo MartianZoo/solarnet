@@ -130,6 +130,8 @@ The useful architecture already present should be extended rather than replaced:
   structured.
 - Requirement predicates distinguish noun objects from `that`-clause complements and retain
   coordinated and relational noun phrases.
+- Events carry one structured noun-phrase object plus independent complements; producers cannot
+  bypass that representation with a string constructor.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
@@ -145,9 +147,9 @@ When English architecture is selected, use this dependency order.
 ### 1. Decompose event realization
 
 Keep event kind, actor constraint, voice, and complements independent. A destination such as “to
-this card” is a complement, not an event kind; the existing `ADD` event already follows this rule.
-Continue by separating active/passive realization from semantic event kind. Do not force
-action-use wording or the payment protocol into `TriggerFrame`.
+this card” is a complement, not an event kind. Event objects and complements are structured;
+continue by separating the active/passive choice from semantic event kind and actor constraint. Do
+not force action-use wording or the payment protocol into `TriggerFrame`.
 
 ### 2. Re-examine effects as interpretations
 
