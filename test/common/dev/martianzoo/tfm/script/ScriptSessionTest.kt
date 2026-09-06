@@ -386,19 +386,19 @@ internal class ScriptSessionTest {
     assertEquals(expectedPreamble, output.take(4))
     assertContains(
         output,
-        "0000: +5 ProjectCard<Hand<Player1>> FROM ProjectCard<Selecting<Player1>> BY Player1 VIA BuySelectedCards<Player1> BECAUSE 0000",
+        "0000: +5 ProjectCard<Player1, Hand> FROM ProjectCard<Player1, Selecting> BY Player1 VIA BuySelectedCards<Player1> BECAUSE 0000",
     )
     assertContains(
         output,
-        "0000: +4 ProjectCard<Hand<Player2>> FROM ProjectCard<Selecting<Player2>> BY Player2 VIA BuySelectedCards<Player2> BECAUSE 0000",
+        "0000: +4 ProjectCard<Player2, Hand> FROM ProjectCard<Player2, Selecting> BY Player2 VIA BuySelectedCards<Player2> BECAUSE 0000",
     )
     assertTrue(
         output.none {
           "can't narrow" in it || "select-lock" in it || it.startsWith("pending tasks:")
         }
     )
-    assertEquals(0, repl.agent.count("ProjectCard<Player1, Selecting<Player1>>"))
-    assertEquals(0, repl.agent.count("ProjectCard<Player2, Selecting<Player2>>"))
+    assertEquals(0, repl.agent.count("ProjectCard<Player1, Selecting>"))
+    assertEquals(0, repl.agent.count("ProjectCard<Player2, Selecting>"))
     assertEquals(1, repl.agent.count("InventorsGuild<Player1>"))
   }
 

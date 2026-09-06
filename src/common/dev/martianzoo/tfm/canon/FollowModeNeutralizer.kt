@@ -8,12 +8,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.pets.ast.Instruction.Remove
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
-import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
@@ -31,8 +27,6 @@ internal object FollowModeNeutralizer : TransformHandler {
   private val EVENT_PILE = cn("EventPile")
   private val HAND = cn("Hand")
   private val PLAYED_EVENT = cn("PlayedEvent")
-  private val REVEALED = cn("Revealed")
-  private val SELECTING = cn("Selecting")
 
   internal fun neutralize(source: ClassDeclaration): ClassDeclaration {
     val transformedEffects = source.effects.map(::transformEffect)
@@ -67,51 +61,9 @@ internal object FollowModeNeutralizer : TransformHandler {
       transformer.transformRequirement(source)
 
   private fun transformCards(source: InstructionTree): InstructionTree {
-    val operation = CardOperation.decode(source)
-    val transformed = cardReferenceNeutralizer.transformInstructionTree(source)
-    return when (operation) {
-      is CardOperation.SelectAndKeep,
-      is CardOperation.SelectAndPlay -> withTemporaryLocation(SELECTING, transformed, close = true)
-      is CardOperation.SelectAndPurchase,
-      is CardOperation.RevealAndPurchase ->
-          withTemporaryLocation(SELECTING, transformed, close = false)
-      is CardOperation.RevealAndTest -> withTemporaryLocation(REVEALED, transformed, close = true)
-      is CardOperation.RevealAndRestore -> withRequiredTemporaryLocation(REVEALED, transformed)
-      else -> transformed
-    }
+    CardOperation.decode(source)
+    return cardReferenceNeutralizer.transformInstructionTree(source)
   }
-
-  private fun withTemporaryLocation(
-      location: ClassName,
-      body: InstructionTree,
-      close: Boolean,
-  ): InstructionTree {
-    val scopedBody =
-        if (close) closeAfter(body, Remove.remove(location.expression, intensity = null)) else body
-    return Then.createTree(listOf(Gain.gain(location.expression, intensity = null), scopedBody))
-  }
-
-  private fun withRequiredTemporaryLocation(
-      location: ClassName,
-      body: InstructionTree,
-  ): InstructionTree =
-      InstructionGroup.createTree(
-          listOf(
-              Gain.gain(location.expression, intensity = null),
-              closeAfter(body, Remove.remove(location.expression, intensity = null)),
-          )
-      )
-
-  private fun closeAfter(body: InstructionTree, close: InstructionTree): InstructionTree =
-      when (body) {
-        is InstructionGroup ->
-            InstructionGroup.createTree(
-                body.instructions.dropLast(1) +
-                    Then.createTree(listOf(body.instructions.last(), close))
-            )
-        is Then -> Then.createTree(body.instructions + close)
-        else -> Then.createTree(listOf(body, close))
-      }
 
   private fun Expression.isProjectCardAt(location: ClassName): Boolean =
       className == PROJECT_CARD && arguments.any { it.className == location }

@@ -86,7 +86,6 @@ public class TfmGameplay(
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
     if (count > 0) payAllMc()
     completePurchasedCards()
-    if (this@TfmGameplay.count("Selecting") != 0) doTask("-Selecting")
   }
 
   /**

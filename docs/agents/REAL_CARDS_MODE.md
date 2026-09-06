@@ -146,12 +146,11 @@ the single representation of that card being in play.
 | --- | --- | --- |
 | `Hand` | back | acquired card available to its Player |
 | `EventPile` | back | completed Event retained for scoring or recovery |
-| `Selecting` | back | temporary Player-associated selection pool |
+| `Selecting` | back | Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
 
-Direct ownership is intentionally present even in temporary locations. It identifies whose choice
-or reveal operation the card belongs to and supplies the usual contextual `Owner`, task routing,
-defaults, and queries.
+Cards retain direct ownership in every location. It identifies whose choice or reveal operation the
+card belongs to and supplies the usual contextual `Owner`, task routing, defaults, and queries.
 
 Ownership does not determine visibility. `Revealed` may be public, while another Player's `Hand`
 cards are private.
@@ -404,12 +403,12 @@ shorthand over the represented front's immutable printed metadata. It does not c
 `HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
 reveal every inspected card in order and discard nonmatches.
 
-A card procedure's follow-mode compilation creates the Player's temporary `Selecting` location
-before the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing
-that location discards every card still dependent on it through the engine's dependency cascade.
-`Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then
-invokes one unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's
-selection, creates the complete base debt, broadcasts the same multiplicity of `BuyCard` so
+A card procedure's follow-mode compilation leaves its location operations intact. `Selecting` and
+`Revealed` are permanent locations; cards left in either are discarded at World idle when its
+`CardLocationCleanup` resets the location through the engine's dependency cascade. A `Hand FROM
+Selecting` instruction retains exact cards. A purchase procedure first removes unwanted cards and
+then invokes one unquantified `BuySelectedCards`. That signal counts every card remaining in the
+Player's selection, creates the complete base debt, broadcasts the same multiplicity of `BuyCard` so
 Polyphemos and Terralabs Research can adjust that established `Owed`, and then creates one invoice.
 Once the invoice is fully paid, the purchase operation moves those exact selected cards to `Hand`.
 Its optional removal count is the offered count, so the player may discard any subset before buying
@@ -426,14 +425,16 @@ depends on one of `Hand`, `EventPile`, `Selecting`, or `Revealed`, but does not
 depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
 
 `CARDS` retains those locations and movements through the Catalog's shared marked-syntax handler.
-`Selecting` and `Revealed` are Player-owned temporary components. The handler sequences creation
-before the procedure body and cleanup after it; purchase closure instead belongs to
-`BuySelectedCards`. Removing a temporary location intrinsically removes cards still dependent on
-it. Printed-face predicates are still delegated to
-the follow-mode client: they are erased from generic backs, and a filtered retention becomes an
-explicit optional movement so the client can report how many matching cards moved. A client may
-ignore identities entirely or, as `CardTrackingFullGameTest` does, supply names precisely when cards
-enter and leave `Hand`.
+All four locations are permanent ownerless `System` components. A card entering `Selecting` or
+`Revealed` automatically creates at most one `CardLocationCleanup` for that location. The cleanup is
+`Temporary`: when the World becomes idle, removing it removes the location, dependency cleanup
+discards any cards left there, and the location immediately recreates itself. This lifecycle is
+authored entirely in Pets; the marked-syntax handler does not create, remove, or clean locations.
+
+Printed-face predicates are still delegated to the follow-mode client: they are erased from generic
+backs, and a filtered retention becomes an explicit optional movement so the client can report how
+many matching cards moved. A client may ignore identities entirely or, as
+`CardTrackingFullGameTest` does, supply names precisely when cards enter and leave `Hand`.
 
 `BuySelectedCards` prices the cards remaining in `Selecting`, waits for the adjusted invoice to be
 paid, and then moves that count to `Hand`. Public Plans performs an explicit `Hand` to `Revealed` to

@@ -298,7 +298,7 @@ internal class TransformersTest {
         "Owed<Player1, Class<MC>>! / AiCentral<Player1>.cost THEN " +
             "HandleCardTags<Player1, Class<AiCentral>>! " +
             "THEN CardInvoice<Player1, Class<AiCentral>>! THEN MAX 0 Barrier: " +
-            "AiCentral<Player1> FROM ProjectCard<Hand<Player1>, Player1>!"
+            "AiCentral<Player1> FROM ProjectCard<Player1, Hand>!"
   }
 
   @Test

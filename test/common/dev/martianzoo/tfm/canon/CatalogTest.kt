@@ -94,7 +94,7 @@ internal class CatalogTest {
             .single()
     val expected =
         parseClasses(
-                "ABSTRACT CLASS Buyer { ResearchPhase: Selecting THEN (4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards) }"
+                "ABSTRACT CLASS Buyer { ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards }"
             )
             .single()
 
