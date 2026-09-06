@@ -22,6 +22,7 @@ internal data class ComponentDescriber(
     internal val implicitPaymentResource: Noun? = null,
     internal val requirementShortfall: Boolean? = null,
     internal val requirementKind: String? = null,
+    internal val capitalizeTagName: Boolean? = null,
     internal val distinctKinds: Noun.Counted? = null,
     internal val countNoun: Noun.Counted? = null,
     internal val metricCount: MetricCount? = null,

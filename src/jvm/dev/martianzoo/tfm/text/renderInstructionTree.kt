@@ -591,7 +591,7 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
       }
     }
   }
-  val (name) = tagName(expression.className) ?: return null
+  val name = tagName(expression.className) ?: return null
   return Clause.Simple(
       Predicate(
           "have",

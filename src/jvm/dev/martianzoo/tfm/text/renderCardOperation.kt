@@ -183,7 +183,7 @@ private fun matchingCardNoun(
 ): String =
     when (criterion) {
       is CardCriterion.Tag -> {
-        val tag = checkNotNull(describers.tagName(criterion.className)).first
+        val tag = checkNotNull(describers.tagName(criterion.className))
         "$tag ${if (singular) "card" else "cards"}"
       }
       CardCriterion.NoTags -> "${if (singular) "card" else "cards"} with no tags"
@@ -198,7 +198,7 @@ private fun matchingCardNoun(
 private fun matchPredicate(criterion: CardCriterion, describers: Describers): Predicate =
     when (criterion) {
       is CardCriterion.Tag -> {
-        val tag = checkNotNull(describers.tagName(criterion.className)).first
+        val tag = checkNotNull(describers.tagName(criterion.className))
         Predicate(
             "has",
             Coordination.one(

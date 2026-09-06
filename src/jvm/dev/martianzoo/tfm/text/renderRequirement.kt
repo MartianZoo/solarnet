@@ -115,7 +115,7 @@ private fun Describers.renderCardResourceRequirement(requirement: Requirement.Mi
 }
 
 private fun Describers.renderTagRequirement(requirement: Requirement.Min): Clause? {
-  val (name) = tagName(requirement) ?: return null
+  val name = tagName(requirement) ?: return null
   return requirementClause(
       quantifiedNoun(
           ComponentDescriber.Noun.Counted("$name tag", "$name tags"),
@@ -131,9 +131,7 @@ private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): 
         if (minimum.target != 1) return null
         tagName(minimum) ?: return null
       }
-  val allPlanetaryTags = tags.all { (_, planetary) -> planetary }
-  if (!allPlanetaryTags && tags.any { (_, planetary) -> planetary }) return null
-  val nouns = tags.map { (name) ->
+  val nouns = tags.map { name ->
     NounPhrase("$name tag", determiner = indefiniteArticle(name))
   }
   return requirementClause(Coordination(nouns, Conjunction.AND))

@@ -171,7 +171,7 @@ private fun renderTagMetric(
     describers: Describers,
 ): NounPhrase? {
   if (expression.refinement != null || expression.complement) return null
-  val (name) = describers.tagName(expression.className) ?: return null
+  val name = describers.tagName(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   val ownership =

@@ -75,7 +75,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
     is TriggerFrame.PlayTag -> {
       if (frame.phrase == null) {
         val tag = representedClass(expression) ?: return null
-        val name = tagName(tag.className)?.first ?: return null
+        val name = tagName(tag.className) ?: return null
         return Event(
             Event.Kind.PLAY,
             Event.ActorConstraint.YOU,
@@ -121,7 +121,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   val resolved = resolveExpression(expression)
   if (resolved?.sourceDependencies?.isEmpty() == true && expression.refinement == null) {
-    tagName(expression.className)?.let { (name) ->
+    tagName(expression.className)?.let { name ->
       return Event(
           Event.Kind.PLAY,
           Event.ActorConstraint.YOU,
@@ -138,7 +138,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
     }
   }
   if (resolved?.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) == true) {
-    tagName(expression.className)?.let { (name) ->
+    tagName(expression.className)?.let { name ->
       return Event(
           Event.Kind.PLAY,
           Event.ActorConstraint.UNRESTRICTED,
@@ -170,7 +170,7 @@ private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event
   ) {
     return null
   }
-  val (name) = tagName(expression.className) ?: return null
+  val name = tagName(expression.className) ?: return null
   return Event(
       Event.Kind.PLAY,
       Event.ActorConstraint.UNRESTRICTED,
@@ -296,7 +296,7 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
             ) {
               return null
             }
-            val tag = tagName(tagExpression.className)?.first
+            val tag = tagName(tagExpression.className)
             if (counting is Requirement.Min && counting.target == 1 && tag != null) {
               NounPhrase(
                   "$tag $card",

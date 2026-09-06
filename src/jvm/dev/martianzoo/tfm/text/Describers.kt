@@ -90,6 +90,7 @@ internal class Describers(
             ComponentDescriber::implicitPaymentResource,
             ComponentDescriber::requirementShortfall,
             ComponentDescriber::requirementKind,
+            ComponentDescriber::capitalizeTagName,
             ComponentDescriber::distinctKinds,
             ComponentDescriber::countNoun,
             ComponentDescriber::metricCount,
@@ -241,23 +242,24 @@ internal class Describers(
     return cardResourceNounPhrase(className, count)?.noun()
   }
 
-  internal fun tagName(className: ClassName): Pair<String, Boolean>? {
+  internal fun tagName(className: ClassName): String? {
     if (!expressions.concrete(className) || !expressions.isTag(className)) return null
     val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-    val isPlanetaryTag = expressions.isPlanetaryTag(className)
-    val name =
-        if (isPlanetaryTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
-    return name to isPlanetaryTag
+    return if (fact(className, ComponentDescriber::capitalizeTagName) == true) {
+      ordinaryName.replaceFirstChar(Char::uppercaseChar)
+    } else {
+      ordinaryName
+    }
   }
 
-  internal fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {
+  internal fun tagName(requirement: Requirement.Min): String? {
     val expression = countedExpression(requirement) ?: return null
     if (!expression.simple) return null
     return tagName(expression.className)
   }
 
   internal fun playedTagPhrase(className: ClassName): String? {
-    tagName(className)?.let { (name) ->
+    tagName(className)?.let { name ->
       return "${indefiniteArticle(name)} $name tag"
     }
     return (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.phrase

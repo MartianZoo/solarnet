@@ -320,7 +320,7 @@ private fun Describers.renderEligiblePlayer(expression: Expression): String? {
   ) {
     return null
   }
-  val tag = tagName(tagExpression.className)?.first ?: return null
+  val tag = tagName(tagExpression.className) ?: return null
   return "a player with ${indefiniteArticle(tag)} $tag tag"
 }
 
@@ -603,7 +603,7 @@ private fun Describers.renderCardResourceHolder(
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   val metric = minimum.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
-  tagName(metric.expression.className)?.let { (tag) ->
+  tagName(metric.expression.className)?.let { tag ->
     if (minimum.target != 1) return null
     return if (owned) "one of your $tag ${holder.plural}"
     else "${indefiniteArticle(tag)} $tag ${holder.singular}"

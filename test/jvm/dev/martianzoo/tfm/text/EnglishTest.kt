@@ -103,6 +103,8 @@ internal class EnglishTest {
     english.describe(parse<Requirement>("Colony")) shouldBe "Requires that you have a colony."
     english.describe(parse<Requirement>("VenusTag, EarthTag, JovianTag")) shouldBe
         "Requires a Venus tag, an Earth tag, and a Jovian tag."
+    english.describe(parse<Requirement>("VenusTag, PlantTag")) shouldBe
+        "Requires a Venus tag and a plant tag."
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
         "1 VP per any cathedral."
 

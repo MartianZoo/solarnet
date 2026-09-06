@@ -698,7 +698,7 @@ private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple
   val tags = expressions.concreteSubclassesOf(represented.className)
   if (tags.size < 2) return null
   val objects = tags.map { tag ->
-    val name = tagName(tag)?.first ?: return null
+    val name = tagName(tag) ?: return null
     NounPhrase.text("${indefiniteArticle(name)} $name tag")
   }
   return Clause.Simple(
