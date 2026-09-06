@@ -77,9 +77,8 @@ implementation inconvenience.
 ### English structure
 
 Clauses, predicates, noun phrases, modifiers, and coordinations carry realizable structure. A
-literal lexical leaf such as `NounPhrase.text("M€")` is fine. A string such as
-`NounPhrase.text("up to $count $noun")` is not: it has hidden quantity and modality decisions from
-later composition.
+literal lexical leaf such as `NounPhrase.text("M€")` is fine. Assembled phrases that hide quantity
+or modality decisions from later composition are not.
 
 Track assembled strings, not raw string-leaf calls. Current audit searches include interpolated or
 concatenated `NounPhrase.text`, including the few compound requirement quantifiers that remain

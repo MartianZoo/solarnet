@@ -282,11 +282,11 @@ private fun renderCountableChange(
           ?.takeIf { resolved.sourceDependencies.size == 1 }
           ?.let { describers.renderEligiblePlayer(it) }
   if (player != null && removal.intensity.modality() == Modality.OPTIONAL) {
-    val noun = describers.componentNoun(expression.className, count)
+    val amount = describers.componentNounPhrase(expression.className, count).atMost()
     return Clause.Simple(
         Predicate(
             "may remove",
-            Coordination.one(NounPhrase.text("up to $count $noun")),
+            Coordination.one(amount),
             listOf(Modifier.Phrase("from $player")),
         ),
         NounPhrase.text("you"),
@@ -352,10 +352,8 @@ private fun renderStandardResourceTransfer(
         else -> return null
       }
   val count = transmute.count.fixedQuantity() ?: return null
-  val noun = describers.componentNoun(gaining.className, count)
-  val amount =
-      if (transmute.intensity.modality() == Modality.OPTIONAL) "up to $count $noun"
-      else "$count $noun"
+  val noun = describers.componentNounPhrase(gaining.className, count)
+  val amount = if (transmute.intensity.modality() == Modality.OPTIONAL) noun.atMost() else noun
   val completion =
       if (transmute.intensity.modality() == Modality.BEST_EFFORT)
           Modifier.Supplement("or as much as possible")
@@ -363,7 +361,7 @@ private fun renderStandardResourceTransfer(
   val predicate =
       Predicate(
           if (transmute.intensity.modality() == Modality.OPTIONAL) "may $verb" else verb,
-          Coordination.one(NounPhrase.text(amount)),
+          Coordination.one(amount),
           listOfNotNull(
               Modifier.Phrase("$preposition ${otherParty.objectPhrase}"),
               completion,
@@ -418,7 +416,7 @@ private fun renderCardResourceChange(
           Clause.Simple(
               Predicate(
                   "may remove",
-                  Coordination.one(NounPhrase.text("up to $count ${noun.noun()}")),
+                  Coordination.one(noun.atMost()),
                   listOf(Modifier.Phrase("from any player")),
               ),
               NounPhrase.text("you"),
@@ -433,7 +431,7 @@ private fun renderCardResourceChange(
     return Clause.Simple(
         Predicate(
             "may add",
-            Coordination.one(NounPhrase.text("up to $count ${noun.noun()}")),
+            Coordination.one(noun.atMost()),
             listOf(Modifier.Phrase("to this card")),
         ),
         NounPhrase.text("you"),

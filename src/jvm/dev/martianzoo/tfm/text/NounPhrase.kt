@@ -8,9 +8,11 @@ internal data class NounPhrase(
     private val determiner: String? = null,
     private val modifiers: List<Modifier> = emptyList(),
     private val grammaticalNumber: GrammaticalNumber? = null,
+    private val quantifier: Quantifier? = null,
 ) {
   init {
     require(count == null || grammaticalNumber == null)
+    require(quantifier == null || count != null)
   }
 
   fun noun(): String =
@@ -22,8 +24,11 @@ internal data class NounPhrase(
 
   fun withModifier(modifier: Modifier): NounPhrase = copy(modifiers = modifiers + modifier)
 
+  fun atMost(): NounPhrase = copy(quantifier = Quantifier.UP_TO)
+
   fun linearize(): String {
-    val phrase = listOfNotNull(count?.toString(), determiner, noun()).joinToString(" ")
+    val phrase =
+        listOfNotNull(quantifier?.text, count?.toString(), determiner, noun()).joinToString(" ")
     return modifiers.fold(phrase) { rendered, modifier ->
       rendered + modifier.separator + modifier.linearize()
     }
@@ -38,5 +43,9 @@ internal data class NounPhrase(
   internal enum class GrammaticalNumber {
     SINGULAR,
     PLURAL,
+  }
+
+  internal enum class Quantifier(val text: String) {
+    UP_TO("up to"),
   }
 }
