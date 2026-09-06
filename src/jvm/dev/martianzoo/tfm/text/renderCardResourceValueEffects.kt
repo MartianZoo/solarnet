@@ -44,19 +44,22 @@ internal fun renderCardResourceValueEffects(
       val acceptance =
           effects
               .filterNot { it in resourceValueEffects }
-              .singleOrNull { effect ->
+              .mapNotNull { effect ->
                 paymentResourceGain(
                         effect.instruction,
                         ComponentDescriber.PaymentRole.ACCEPTANCE,
                         describers,
                     )
-                    ?.resource == singleResource.className
+                    ?.takeIf { it.resource == singleResource.className }
+                    ?.let { effect to it }
               }
-      val integrated = acceptance?.let {
-        renderAcceptedResourceValue(it, singleResource.className, value, describers)
+              .singleOrNull()
+      val integrated = acceptance?.let { (effect, accepted) ->
+        renderAcceptedResourceValue(effect.trigger, accepted, value, describers)
       }
       if (acceptance != null && integrated != null) {
-        return (grants.mapTo(linkedSetOf(), ResourceValueGrant::effect) + acceptance) to integrated
+        return (grants.mapTo(linkedSetOf(), ResourceValueGrant::effect) + acceptance.first) to
+            integrated
       }
     }
     val nouns = valuesByResource.keys.map { describers.componentNoun(it.className, 1) }

@@ -395,8 +395,8 @@ private fun renderAcceptedResourcePayment(
   val reduction = owedReduction(payment.instruction, describers) ?: return null
   val rendered =
       renderAcceptedResourceValue(
-          acceptance,
-          accepted.resource,
+          acceptance.trigger,
+          accepted,
           reduction.count,
           describers,
           reduction.noun,
@@ -405,24 +405,19 @@ private fun renderAcceptedResourcePayment(
 }
 
 internal fun renderAcceptedResourceValue(
-    acceptance: Effect,
-    resourceClassName: ClassName,
+    trigger: Trigger,
+    accepted: ResourceAmount,
     value: Int,
     describers: Describers,
     valueNoun: String = "M€",
 ): String? {
-  val accepted =
-      paymentResourceGain(
-          acceptance.instruction,
-          ComponentDescriber.PaymentRole.ACCEPTANCE,
-          describers,
-      ) ?: return null
-  if (accepted.count != 1 || accepted.resource != resourceClassName) return null
+  val resourceClassName = accepted.resource ?: return null
+  if (accepted.count != 1) return null
   if (resourceClassName == STEEL || resourceClassName == TITANIUM) return null
   val resource = describers.componentNoun(resourceClassName, 2)
-  val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
+  val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   return completeSentence(
-      "when ${trigger.linearize()}, $resource may be used as " + "$value $valueNoun each"
+      "when ${triggerClause.linearize()}, $resource may be used as " + "$value $valueNoun each"
   )
 }
 
