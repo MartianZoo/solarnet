@@ -706,14 +706,12 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.exMachina("Microbe<$SulphurEatingBacteria>")
     rainbow.turn {
       cardAction1(AppliedScience) {
-        rainbow.selectTask("Tag<Player2, WildTagUse<AppliedScience<Player2>>>?")
-        rainbow.narrowTask("Ok")
+        rainbow.doTask("Ok")
         addCardResources(SulphurEatingBacteria)
       }
       exMachina("-Microbe<$SulphurEatingBacteria>")
       cardAction1(Thermophiles) {
-        rainbow.selectTask("Tag<Player2, WildTagUse<AppliedScience<Player2>>>?")
-        rainbow.narrowTask("Ok")
+        rainbow.doTask("Ok")
         addCardResources(SulphurEatingBacteria)
       }
     }

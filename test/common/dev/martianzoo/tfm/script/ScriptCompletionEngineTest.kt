@@ -108,14 +108,14 @@ internal class ScriptCompletionEngineTest {
     assertEquals(
         listOf(
             "this requires exactly one pending task",
-            "Usage: task [<number>] <Instruction> | task <select | drop>",
+            "Usage: task <Instruction> | task <select | drop>",
         ),
         repl.command("task select"),
     )
     assertEquals(
         listOf(
             "this requires exactly one pending task",
-            "Usage: task [<number>] <Instruction> | task <select | drop>",
+            "Usage: task <Instruction> | task <select | drop>",
         ),
         repl.command("task drop"),
     )
@@ -134,31 +134,27 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  internal fun disambiguatesAnInstructionWithItsCurrentTaskPosition() {
+  internal fun rejectsAnInstructionMatchingDistinctTasks() {
     val taskLayer = repl.agent as Agent
     taskLayer.addTasks("Plant? OR Ok")
     taskLayer.addTasks("Heat? OR Ok")
 
-    repl.command("task 2 Ok")
+    val output = repl.command("task Ok")
 
-    assertEquals(
-        listOf("Plant<Owner>? OR Ok"),
-        repl.game.tasks.extract { it.instruction.toString() },
-    )
+    assertTrue(output.single().contains("there wasn't exactly one matching task"))
+    assertEquals(2, repl.game.tasks.ids().size)
   }
 
   @Test
-  internal fun taskPositionsAreDerivedAgainAfterRollback() {
+  internal fun aLeadingNumberRemainsPartOfTheInstruction() {
+    repl.command("newgame BRP 2")
+    repl.command("become Player1")
     val taskLayer = repl.agent as Agent
-    taskLayer.addTasks("Plant? OR Ok")
-    taskLayer.addTasks("Heat? OR Ok")
-    val checkpoint = repl.game.timeline.checkpoint()
-    repl.command("task 2 Ok")
-    assertTrue("Plant<Owner>?" in repl.command("tasks").single())
-    repl.command("rollback $checkpoint")
+    taskLayer.addTasks("3 Plant?")
 
-    repl.command("task 2 Ok")
-    assertTrue("Plant<Owner>?" in repl.command("tasks").single())
+    repl.command("task 2 Plant!")
+
+    assertEquals(2, repl.agent.count("Plant"))
   }
 
   @Test

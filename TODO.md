@@ -42,6 +42,25 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Investigate why all wild-tag assignments must currently run before selecting a card or action.
   Only assignments needed to satisfy a requirement should be early; assignments used by queued
   effects such as per-tag gains should resolve normally from the task queue.
+- **Better Task Disambiguation:** let callers state the intended task without searching the task
+  pool; use extra identity only when distinct tasks accept the same narrowing. Current use cases:
+  - `TfmTest` and `RecordedGame` search tasks for tile placement, card-resource placement, qualified
+    declines, and wild-tag assignment.
+  - `TfmGameplay` searches for project-card offers/discards, the second-action offer, wild-tag
+    offers, billing and payment tasks, and the variable-X task.
+  - `TfmPlayCommand`, `TfmActionCommand`, and `TfmPayCommand` search for standard actions, action
+    costs, invoices, and payment offers.
+  - `TaskDelegationTest`, `PhilaresTest`, `NewPromoCardsTest`, and `PropertyTest` recover a task by
+    scanning ids or instruction text before selecting or dropping it. Keep mechanism assertions
+    separate from gameplay calls when designing the replacement.
+  - Functional cross-player handoffs already proceed without explicit selection under `SAFE` when
+    the handoff is the only selectable task. The remaining tests mix it with forced sibling work;
+    `SAFE` stops because it cannot prove an order harmless. Prefer explicit sequencing or a narrow
+    proof of harmless reordering over making `SAFE` execute an arbitrary concrete sibling.
+  - Compare a context-component `ClassName` selector (for example, Search for Life or Big Asteroid)
+    with matching the original pending instruction and with an already-held stable `TaskId`. Keep
+    ordinary `doTask(concreteNarrowing)` as the default path.
+
 ### Hypothetical Card Behavior
 
 - Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a

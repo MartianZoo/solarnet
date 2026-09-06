@@ -48,6 +48,10 @@ narrowing, and error handling. `manual`, turn, and phase conveniences compose ex
 addition with ordinary task action. None justifies a universal request type or
 `engine.submit(actor, request)`.
 
+`doTask` and `tryTask` normally match the submitted narrowing semantically. Their `TaskId`
+overloads are the explicit escape hatch when distinct tasks accept the same narrowing; no engine
+API accepts a presentation index.
+
 The current flat Agent now exposes one checked id-based narrowing and one explicit ex-machina task
 removal. It has no arbitrary task replacement or bulk task-removal command. Internal task-data edits
 remain engine bookkeeping, including restoration around an evidenced replay correction.

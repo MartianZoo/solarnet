@@ -417,10 +417,9 @@ Both proposals target the weak rows in The promises. Neither needs new engine co
   choose legally among pending tasks in a different order and compare committed state at the next
   stable point. Start with one recorded game and one seed.
 
-One honest divergence to fix while nearby: presentation order is documented as non-semantic but is
-load-bearing in the API. `doTask(narrowing, taskNumber)` takes a 1-based position, `autoExecNext`
-falls back to `eligible.first()`, and `TfmGameplay` computes a positional `selectionTaskNumber`.
-Match on instruction or cause instead of position wherever a caller has that option.
+Presentation order remains load-bearing only in unsafe automatic execution, where `autoExecNext`
+falls back to `eligible.first()`. Explicit clients match on instruction or stable task id, and
+Terraforming Mars helpers match semantic task data before using that id.
 
 ## Live agenda
 
@@ -470,10 +469,10 @@ constraint, a real case — not by rediscovering the cost.
   must follow another, make the first trigger the second.
 - **Player queue drain as the generic completion mechanism — rejected.** It combines unrelated work
   and delays local completion arbitrarily. Queue cardinality has no gameplay meaning.
-- **Ordering by presentation — rejected.** Task numbers are ephemeral labels. If presentation ever
-  follows authored Class, hierarchy, and Effect order, encode that as immutable provenance assigned
-  at creation; never derive gameplay precedence from it, and never give effects a way to reach into
-  the pool.
+- **Ordering by presentation — rejected.** Presentation labels do not identify tasks. If
+  presentation ever follows authored Class, hierarchy, and Effect order, encode that as immutable
+  provenance assigned at creation; never derive gameplay precedence from it, and never give effects
+  a way to reach into the pool.
 - **Stabilizing payment attribution by ordering effects — rejected.** Applicable `ResourceValue`
   components remove the same saturating `Owed`, so order decides who is credited with the last
   units. Reconstructed games still reach the same paid state. The repair is the payment direction in

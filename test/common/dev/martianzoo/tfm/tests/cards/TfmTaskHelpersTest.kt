@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.ForcedPrecipitation
 import io.kotest.assertions.throwables.shouldThrow
@@ -33,7 +34,7 @@ internal class TfmTaskHelpersTest : CardTest() {
 
     p1.addTasks("Plant?, Steel?")
 
-    shouldThrow<IllegalArgumentException> { p1.declineTask() }
+    shouldThrow<TaskException> { p1.declineTask() }
   }
 
   @Test
