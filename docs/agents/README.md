@@ -54,7 +54,6 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Task | Read | Authority |
 | --- | --- | --- |
 | Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
-| Change English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) | Durable goal, current understanding, and ordered direction |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
 | Model Turmoil | Select only the relevant rule family in [`TURMOIL.md`](TURMOIL.md) | Research-backed proposal |
 | Design shuffle/deal, hidden cards, or chance | Select the relevant gate in [`REAL_CARDS_MODE.md`](REAL_CARDS_MODE.md) | Proposal |

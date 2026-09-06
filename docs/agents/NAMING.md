@@ -8,8 +8,6 @@
 > changing player aliases, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.
 >
-> **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
->
 > **Status:** current model. [Pending naming work](#pending-naming-work) records unresolved names or
 > mechanisms; settle each one before implementation.
 

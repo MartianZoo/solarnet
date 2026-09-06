@@ -24,12 +24,6 @@ The Pets type system.
 
 Various non-Terraforming-specific helpers.
 
-## module TFM-TEXT
-
-### <a href="tfm-text/dev.martianzoo.tfm.text/index.html">dev.martianzoo.tfm.text</a>
-
-English text for Terraforming Mars cards.
-
 ## module TFM-CANON
 
 ### <a href="tfm-canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>

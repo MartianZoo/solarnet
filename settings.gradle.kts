@@ -17,7 +17,6 @@ rootProject.name = "solarnet"
 val modules =
     listOf(
         "pets",
-        "tfm-text",
         "engine",
         "tfm-engine",
         "tfm-tests",

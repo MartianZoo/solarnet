@@ -54,14 +54,9 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   both the JVM and browser.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
-  `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
-  module. Its weights favor nested selectors, refinements, sequences, gates, and per-unit metrics so
-  the raw Pets can exercise downstream consumers structurally.
-- `./gradlew :tfm-text:writeRandomCardEnglishText -PrandomCardInput=PATH
-  -PrandomCardEnglishOutput=PATH` renders top and bottom English for one saved random-card report.
-  Add `-PrandomCardEnglishComparisonOutput=PATH` for a compact report pairing one bracket-free card
-  region with only its contributing Pets. This separate consumer keeps the random-card generator
-  independent of the language module.
+  `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
+  refinements, sequences, gates, and per-unit metrics so the raw Pets can exercise downstream
+  consumers structurally.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources. A benchmark error fails the task instead of producing an empty successful report.
@@ -71,7 +66,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   production Kotlin file and each test-support file without test-case methods to
   `reports/kotlin-file-complexity.tsv` under the root build directory. The report is manual rather
   than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
-  current scope excludes benchmarks, standalone tools, and `dev.martianzoo.tfm.text`.
+  current scope excludes benchmarks and standalone tools.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of automatic-effect siblings. This is a
   diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain a stable

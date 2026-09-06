@@ -39,7 +39,6 @@ Command: `./gradlew test --rerun-tasks --profile --console=plain`
 | `:repl:test` | 10.03s | 12 |
 | `:tools:test` | 4.44s | 5 |
 | `:tfm-canon:jvmTest` | 2.05s | 16 |
-| `:tfm-text:test` | 1.98s | 4 |
 
 Engine is the critical path and accounts for 97% of wall time.
 

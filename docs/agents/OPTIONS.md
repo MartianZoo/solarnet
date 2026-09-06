@@ -412,8 +412,7 @@ named domain concept should become generic.
    `script/.../commands/NewGameCommand.kt` carry a separate selected-colonies input path. Explicit
    product names are reasonable in this adapter, while that separate colony path reflects the
    deeper premise asymmetry above.
-5. **Minimal — descriptions, samples, reports, and comments.**
-   `tfm-text/.../TerraformingMarsDescribers.kt` describes Venus and colony concepts;
+5. **Minimal — samples, reports, and comments.**
    `script/.../tfm/script/SampleGames.kt` and `script/.../tfm/script/commands/TfmSampleCommand.kt`
    demonstrate Prelude and Venus play; `tools/.../TypeStructureReport.kt` and
    `tools/.../StandardResourceMonotonicityReport.kt` deliberately select expansions for reports;

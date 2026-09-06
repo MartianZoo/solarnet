@@ -115,8 +115,7 @@ CLASS Colony<ColonyTile> : Owned<Player> {
 GainColonyBonus<ColonyTile> }` type-checks, binds correctly, and passes the suite, because the
 selection is exactly what the body needs and `selectionOwnsBody` leaves the enclosing owner
 available for an unowned selector. It is still wrong: it pays once per tile, so a player with two
-colonies on one tile is underpaid. It also drops the card's English rendering to
-`UNSUPPORTED_FANOUT`. Do not propose it again.
+colonies on one tile is underpaid. Do not propose it again.
 
 **Declined: selector destructuring.** Binding a selector's nested variables — `EACH Colony<Owner,
 ColonyTile>` binding `ColonyTile` to `Luna` — would not have helped, because the branch count is
@@ -144,8 +143,8 @@ each player must make a choice. Prefer a persistent listener when the reaction m
 throughout the game. A fanout triggered before its intended recipients exist silently does nothing,
 so `SetupPhase` is the earliest reliable host for fanout over all players created during bootstrap.
 
-English rendering currently declines fanouts as `UNSUPPORTED_FANOUT`. Per-player task routing is
-unsupported; it is separate from per-branch class-property evaluation and is not implied by `EACH`.
+Per-player task routing is unsupported; it is separate from per-branch class-property evaluation
+and is not implied by `EACH`.
 
 ## Implementation and proofs
 
