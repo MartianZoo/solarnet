@@ -386,11 +386,11 @@ internal class ScriptSessionTest {
     assertEquals(expectedPreamble, output.take(4))
     assertContains(
         output,
-        "0000: +5 ProjectCard<Player1, Hand> FROM ProjectCard<Player1, Selecting> BY Player1 VIA BuySelectedCards<Player1> BECAUSE 0000",
+        "0000: +5 ProjectCard<Player1, Hand> FROM ProjectCard<Player1, Selecting> BY Player1 VIA CardPurchase BECAUSE 0000",
     )
     assertContains(
         output,
-        "0000: +4 ProjectCard<Player2, Hand> FROM ProjectCard<Player2, Selecting> BY Player2 VIA BuySelectedCards<Player2> BECAUSE 0000",
+        "0000: +4 ProjectCard<Player2, Hand> FROM ProjectCard<Player2, Selecting> BY Player2 VIA CardPurchase BECAUSE 0000",
     )
     assertTrue(
         output.none {

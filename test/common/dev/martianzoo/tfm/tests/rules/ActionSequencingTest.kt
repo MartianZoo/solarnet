@@ -109,6 +109,7 @@ internal class ActionSequencingTest {
     p1.count("Owed<>") shouldBe 5
     p1.count("ProjectCard<Hand>") shouldBe 0
 
+    manual.autoExecMode = NONE
     manual.doTask("5 Pay<Class<MC>> FROM MC")
 
     p1.count("ProjectCard<Hand>") shouldBe 1

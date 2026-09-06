@@ -85,7 +85,6 @@ public class TfmGameplay(
     narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
     if (count > 0) payAllMc()
-    completePurchasedCards()
   }
 
   /**
@@ -130,21 +129,6 @@ public class TfmGameplay(
 
   private fun hasPendingBuySelectedCards(tasks: TaskQueue): Boolean =
       tasks.extract { it }.any { it.instruction.gains(cn("BuySelectedCards")) }
-
-  /** Moves the purchased cards from the offer into hand, once their invoice is settled. */
-  private fun OperationBody.completePurchasedCards() {
-    val transfer =
-        tasks
-            .extract { it }
-            .singleOrNull { task ->
-              task.instruction.descendantsOfType<Change>().any { change ->
-                change.removing.isSelectedProjectCard() &&
-                    change.gaining?.className == cn("ProjectCard") &&
-                    cn("Hand") in change.gaining!!.descendantsOfType<ClassName>()
-              }
-            } ?: return
-    selectTask(transfer.id)
-  }
 
   public fun pass(): TaskResult {
     return if (explicitUnusedActionCardsRequired) pass(unused = emptySet())

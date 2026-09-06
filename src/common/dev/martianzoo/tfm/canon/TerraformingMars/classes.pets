@@ -413,7 +413,10 @@ ABSTRACT CLASS StandardAction : HasActions {
 }
 
 "The persistent operation that owns research-phase and corporation-setup card purchases"
-CLASS CardPurchase : HasActions { HAS =1 This }
+CLASS CardPurchase : HasActions {
+  HAS =1 This
+  -Invoice<This, Action1>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+}
 
 // TODO: Replace this stable invoice host with a live late-stage card-play operation.
 "The persistent operation that owns card play regardless of how the play was initiated"
@@ -467,7 +470,6 @@ CLASS BuyCard : Owned<Player>, Signal
 "Confirms purchase of every project card remaining in the player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
   This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN Invoice<CardPurchase, Action1>
-  This: MAX 0 Invoice: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
