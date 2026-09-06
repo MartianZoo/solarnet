@@ -82,9 +82,9 @@ literal lexical leaf such as `NounPhrase.text("M€")` is fine. A string such as
 later composition.
 
 Track assembled strings, not raw string-leaf calls. Current audit searches include interpolated or
-concatenated `NounPhrase.text` and `renderMetricPhrase(): String?`. The goal is for semantic
-decisions to remain inspectable until final linearization, not for the renderer to contain no text
-literals.
+concatenated `NounPhrase.text` and requirement helpers accepting an assembled object phrase. The
+goal is for semantic decisions to remain inspectable until final linearization, not for the
+renderer to contain no text literals.
 
 ## Choose the right modeling shape
 
@@ -126,6 +126,8 @@ The useful architecture already present should be extended rather than replaced:
   orthogonal.
 - `Clause` and related types preserve enough structure for coordination and final linearization.
 - Clause prefaces retain conditional and temporal clauses instead of flattening them into strings.
+- Metric renderers return noun phrases whose number, relations, maxima, and `per` attachment remain
+  structured.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
@@ -140,14 +142,14 @@ When English architecture is selected, use this dependency order.
 
 ### 1. Structure conditions and counts
 
-Requirements and metrics still pass assembled counted phrases across the renderer. Identify their
-semantic roles and remove those strings while doing so. Verify whether their constructions are
-mutually exclusive before calling the result a frame; use orthogonal facts where one Class can
-participate in several roles.
+Requirements still pass assembled counted phrases across the renderer. Identify their semantic
+roles and remove those strings while doing so. Verify whether their constructions are mutually
+exclusive before calling the result a frame; use orthogonal facts where one Class can participate
+in several roles.
 
 This round should make factoring depend on roles rather than equality of rendered verbs or
-modifiers. Gate conditions and clause prefaces are structured; continue with requirement objects
-and metric phrases.
+modifiers. Gate conditions, metric phrases, and clause prefaces are structured; continue with
+requirement objects.
 
 ### 2. Decompose event realization
 

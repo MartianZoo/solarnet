@@ -117,11 +117,17 @@ internal data class NounPhrase(
     internal val plural: String = singular,
     private val count: Int? = null,
     private val determiner: String? = null,
+    private val modifiers: List<Modifier> = emptyList(),
 ) {
   fun noun(): String = if (count == null || count == 1) singular else plural
 
+  fun withModifier(modifier: Modifier): NounPhrase = copy(modifiers = modifiers + modifier)
+
   fun linearize(): String {
-    return listOfNotNull(count?.toString(), determiner, noun()).joinToString(" ")
+    val phrase = listOfNotNull(count?.toString(), determiner, noun()).joinToString(" ")
+    return modifiers.fold(phrase) { rendered, modifier ->
+      rendered + modifier.separator + modifier.linearize()
+    }
   }
 
   companion object {
@@ -150,6 +156,14 @@ internal sealed interface Modifier {
     override val separator: String = ", "
 
     override fun linearize(): String = text
+  }
+
+  data class Relation(val phrase: String, val target: NounPhrase) : Modifier {
+    override fun linearize(): String = "$phrase ${target.linearize()}"
+  }
+
+  data class Per(val metric: NounPhrase) : Modifier {
+    override fun linearize(): String = "per ${metric.linearize()}"
   }
 }
 

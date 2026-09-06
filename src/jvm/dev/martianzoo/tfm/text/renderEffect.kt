@@ -1325,6 +1325,6 @@ private fun renderPerVictoryPoints(
 ): String? {
   val per = instruction as? Per ?: return null
   val points = describers.renderFixedScore(per.inner) ?: return null
-  val metric = renderMetricPhrase(per.metric, describers) ?: "[${per.metric}]"
-  return "$points per $metric."
+  val metric = renderMetricPhrase(per.metric, describers) ?: NounPhrase.text("[${per.metric}]")
+  return "$points ${Modifier.Per(metric).linearize()}."
 }

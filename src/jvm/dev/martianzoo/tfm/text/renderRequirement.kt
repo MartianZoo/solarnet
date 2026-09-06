@@ -51,7 +51,7 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
     val objectPhrase =
         if (relation.source.ownedByYou) {
           "${indefiniteArticle(relation.source.singular)} ${relation.source.singular} " +
-              "${relation.phrase} ${relation.target.linearize()}"
+              "${relation.phrase} ${relation.target.reference().linearize()}"
         } else {
           relation.asRequirement()
         }

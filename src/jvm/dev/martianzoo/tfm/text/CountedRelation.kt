@@ -15,17 +15,33 @@ internal data class CountedRelation(
       val singular: String,
       val plural: String,
       val determiner: String,
-      val ownershipSuffix: String,
-      val ownedByYou: Boolean,
+      val ownership: ComponentDescriber.OwnershipPhrase,
   ) {
-    fun linearize(): String = "$determiner $singular$ownershipSuffix"
+    val ownedByYou: Boolean
+      get() = ownership == ComponentDescriber.OwnershipPhrase.YOURS
 
-    fun noun(count: Int): String = "${if (count == 1) singular else plural}$ownershipSuffix"
+    fun reference(): NounPhrase = nounPhrase(determiner = determiner)
+
+    fun counted(count: Int?): NounPhrase = nounPhrase(count = count)
+
+    private fun nounPhrase(
+        count: Int? = null,
+        determiner: String? = null,
+    ): NounPhrase {
+      val noun = NounPhrase(singular, plural, count = count, determiner = determiner)
+      return if (ownership == ComponentDescriber.OwnershipPhrase.ANYONES) {
+        noun.withModifier(Modifier.Phrase("anyone owns"))
+      } else {
+        noun
+      }
+    }
   }
 
-  fun countedObject(count: Int): String = "${target.noun(count)} $phrase ${source.linearize()}"
+  fun countedObject(count: Int?): NounPhrase =
+      target.counted(count).withModifier(Modifier.Relation(phrase, source.reference()))
 
-  fun asRequirement(): String = "${source.linearize()} $phrase ${target.linearize()}"
+  fun asRequirement(): String =
+      source.reference().withModifier(Modifier.Relation(phrase, target.reference())).linearize()
 }
 
 internal fun renderCountedRelation(
@@ -80,9 +96,7 @@ private fun renderParticipant(
       noun.singular,
       noun.plural,
       determiner,
-      ownershipSuffix =
-          if (ownership == ComponentDescriber.OwnershipPhrase.ANYONES) " anyone owns" else "",
-      ownedByYou = ownership == ComponentDescriber.OwnershipPhrase.YOURS,
+      ownership,
   )
 }
 
