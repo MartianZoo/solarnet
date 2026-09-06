@@ -103,7 +103,7 @@ CLASS SearchForLife : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<C
   This:: ScienceTag<This>
   End IF Science<This>: 3 VictoryPoint
 
-  1 MC -> Science<This>?
+  1 MC -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS MicrobeTag): Science<This>) OR Ok)]
 }
 
 CLASS MartianRails : ActionCard, ActiveCard<Class<ProjectCard>> {
