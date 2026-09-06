@@ -126,9 +126,3 @@ internal class English public constructor(descriptions: Map<ClassName, Component
     return effect.automatic && effect.trigger == WhenGain
   }
 }
-
-internal data class EnglishCardRendering(
-    val top: String,
-    val bottom: String,
-    val unresolved: List<Unresolved>,
-)
