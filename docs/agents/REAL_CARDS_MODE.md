@@ -438,6 +438,8 @@ Printed-face predicates are still delegated to the follow-mode client: they are 
 backs, and a filtered retention becomes an explicit optional movement so the client can report how
 many matching cards moved. A client may ignore identities entirely or, as
 `CardTrackingFullGameTest` does, supply names precisely when cards enter and leave `Hand`.
+For reveal-and-test operations, follow mode keeps the reveal and makes the outcome optional; the
+generic revealed card cannot preserve the printed predicate.
 
 `BuySelectedCards` prices the cards remaining in `Selecting`, waits for the adjusted invoice to be
 paid, and then moves that count to `Hand`. Public Plans performs an explicit `Hand` to `Revealed` to
@@ -449,7 +451,8 @@ The current source-level operation inventory is:
 | Family | Cards |
 | --- | --- |
 | Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Nobel Prize, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
-| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics, Spire |
+| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics |
+| Draw, then discard from hand | Spire |
 | Inspect N, select and play one | Valley Trust, Merger, New Partner |
 | Choose cards to buy from an offer | Corporation setup, Research phase, Inventors' Guild, Business Network |
 | Reveal and test | Search for Life, Asteroid Deflection System |

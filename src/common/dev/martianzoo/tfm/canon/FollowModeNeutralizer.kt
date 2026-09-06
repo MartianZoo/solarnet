@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -61,7 +62,17 @@ internal object FollowModeNeutralizer : TransformHandler {
       transformer.transformRequirement(source)
 
   private fun transformCards(source: InstructionTree): InstructionTree {
-    CardOperation.decode(source)
+    val operation = CardOperation.decode(source)
+    if (operation is CardOperation.RevealAndTest) {
+      return Then.createTree(
+          listOf(
+              cardReferenceNeutralizer.transformInstructionTree(operation.revealed),
+              cardReferenceNeutralizer.transformInstructionTree(
+                  operation.outcome.copy(intensity = OPTIONAL)
+              ),
+          )
+      )
+    }
     return cardReferenceNeutralizer.transformInstructionTree(source)
   }
 

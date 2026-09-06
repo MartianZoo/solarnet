@@ -105,6 +105,35 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun revealAndTestDelegatesThePrintedPredicateInFollowMode() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Examiner {
+                  -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS MicrobeTag): Science) OR Ok)]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected =
+        parseClasses(
+                """
+                ABSTRACT CLASS Examiner {
+                  -> ProjectCard<Revealed> THEN Science?
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Examiner"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredActions shouldBe source.authoredActions
+  }
+
+  @Test
   internal fun compositionRejectsAmbiguousModuleOwnership() {
     val declarations =
         "ABSTRACT CLASS Module\nCLASS SharedModule : Module"
