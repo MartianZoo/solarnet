@@ -94,10 +94,16 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
   val currencyNoun = describers.plainGainNoun(currency.className, rate) ?: return null
   val resources = describers.cardResourceNoun(resourceRemoval.removing.className, 2) ?: return null
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
-  return completeSentence(
-      "when ${trigger.linearize()}, $resources on this card may be used as " +
-          "$rate $currencyNoun each"
-  )
+  val result =
+      Clause.Simple(
+          subject = NounPhrase.text(resources).withModifier(Modifier.Phrase("on this card")),
+          predicate =
+              Predicate(
+                  "may be used",
+                  modifiers = listOf(resourceValueModifier(rate, currencyNoun)),
+              ),
+      )
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize()
 }
 
 private fun renderLinkedPlayedTagResourceChoice(
@@ -232,7 +238,8 @@ private fun renderAcceptedPaymentResource(effect: Effect, describers: Describers
       describers.renderActionPaymentTrigger(effect.trigger)
           ?: describers.renderEventTrigger(effect.trigger)
           ?: return null
-  return completeSentence("when ${trigger.linearize()}, $noun may be used")
+  val result = Clause.Simple(subject = NounPhrase.text(noun), predicate = Predicate("may be used"))
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize()
 }
 
 internal fun acceptedFirstActionPaymentResource(
@@ -416,9 +423,16 @@ internal fun renderAcceptedResourceValue(
   if (resourceClassName == STEEL || resourceClassName == TITANIUM) return null
   val resource = describers.componentNoun(resourceClassName, 2)
   val triggerClause = describers.renderEventTrigger(trigger) ?: return null
-  return completeSentence(
-      "when ${triggerClause.linearize()}, $resource may be used as " + "$value $valueNoun each"
-  )
+  val result =
+      Clause.Simple(
+          subject = NounPhrase.text(resource),
+          predicate =
+              Predicate(
+                  "may be used",
+                  modifiers = listOf(resourceValueModifier(value, valueNoun)),
+              ),
+      )
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(triggerClause), result)).linearize()
 }
 
 private fun renderAcceptedCardResourcePayment(
@@ -466,16 +480,38 @@ private fun renderAcceptedCardResourcePayment(
   val resource = describers.cardResourceNoun(cardResourceType, 2) ?: return null
   val billing = describers.billingEvent(acceptance.trigger)
   if (billing?.provider?.className == HAS_ACTIONS) {
-    return completeSentence(
-        "you may use $resource on this card as ${reduction.count} ${reduction.noun} each"
-    ) to 2
+    val result =
+        Clause.Simple(
+            subject = NounPhrase.text("you"),
+            predicate =
+                Predicate(
+                    "may use",
+                    Coordination.one(
+                        NounPhrase.text(resource).withModifier(Modifier.Phrase("on this card"))
+                    ),
+                    listOf(resourceValueModifier(reduction.count, reduction.noun)),
+                ),
+        )
+    return Sentence(result).linearize() to 2
   }
   val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
-  return completeSentence(
-      "when ${trigger.linearize()}, $resource on this card may be used as " +
-          "${reduction.count} ${reduction.noun} each"
-  ) to 2
+  val result =
+      Clause.Simple(
+          subject = NounPhrase.text(resource).withModifier(Modifier.Phrase("on this card")),
+          predicate =
+              Predicate(
+                  "may be used",
+                  modifiers = listOf(resourceValueModifier(reduction.count, reduction.noun)),
+              ),
+      )
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).linearize() to 2
 }
+
+private fun resourceValueModifier(value: Int, noun: String): Modifier.Relation =
+    Modifier.Relation(
+        "as",
+        NounPhrase.text("$value $noun").withModifier(Modifier.Phrase("each")),
+    )
 
 private fun renderBarrierSequencedTrackChoice(
     effects: List<Effect>,
