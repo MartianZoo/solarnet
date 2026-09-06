@@ -384,7 +384,7 @@ private fun renderAlternatives(
       }
   if (alternatives.size == 2) {
     val firstAction = alternatives.singleOrNull {
-      it is Clause.Prefaced && it.preface == Clause.Preface.Context("as your first action")
+      it is Clause.Prefaced && it.preface == Clause.Preface.FirstAction
     }
     val decline = alternatives.singleOrNull { it !== firstAction }
     if (firstAction != null && decline.isDoNothing()) return firstAction

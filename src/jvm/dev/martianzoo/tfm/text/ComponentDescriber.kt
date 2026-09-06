@@ -57,7 +57,7 @@ internal data class ComponentDescriber(
         internal val objectPhrase: String? = null,
     ) : ChangeFrame
 
-    public data class Wrapper(public val preface: String) : ChangeFrame
+    public data object RequiredAction : ChangeFrame
 
     public data object Play : ChangeFrame
   }

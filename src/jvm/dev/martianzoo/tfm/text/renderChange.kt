@@ -56,7 +56,7 @@ private fun renderChangeOrNull(
       ComponentDescriber.ChangeFrame.Deck ->
           renderDiscard(instruction, describers) ?: renderDraw(instruction, describers)
       is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame)
-      is ComponentDescriber.ChangeFrame.Wrapper -> renderWrapper(instruction, frame, describers)
+      ComponentDescriber.ChangeFrame.RequiredAction -> renderRequiredAction(instruction, describers)
       ComponentDescriber.ChangeFrame.Play -> renderCardPlay(instruction, describers)
     }
   }
@@ -86,7 +86,7 @@ private fun changeRefusalReason(
     is ComponentDescriber.ChangeFrame.Positioned -> RefusalReason.UNSUPPORTED_PLACEMENT_CHANGE
     ComponentDescriber.ChangeFrame.Countable -> RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
     is ComponentDescriber.ChangeFrame.Procedure,
-    is ComponentDescriber.ChangeFrame.Wrapper,
+    ComponentDescriber.ChangeFrame.RequiredAction,
     ComponentDescriber.ChangeFrame.Play -> RefusalReason.UNSUPPORTED_DECLARED_CHANGE
     null -> RefusalReason.UNKNOWN_CHANGE_FRAME
   }
@@ -177,14 +177,13 @@ private fun renderCardPlay(instruction: Instruction, describers: Describers): Cl
   return clause("play", NounPhrase.text("${describers.indefiniteArticle(noun)} $noun"))
 }
 
-private fun renderWrapper(
+private fun renderRequiredAction(
     instruction: Instruction,
-    frame: ComponentDescriber.ChangeFrame.Wrapper,
     describers: Describers,
 ): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
-  val declaration = wrapperSubclassDeclaration(className, describers) ?: return null
+  val declaration = requiredActionSubclassDeclaration(className, describers) ?: return null
   val effect = declaration.authoredEffectsWithActions.singleOrNull() ?: return null
   if (effect.automatic) return null
   val actionUse = describers.actionUseEvent(effect.trigger) ?: return null
@@ -192,17 +191,19 @@ private fun renderWrapper(
   if (actionUse.slot != ClassName.cn("Action1").expression) return null
   val result =
       renderInstructions(effect.instruction, describers).clauses.singleOrNull() ?: return null
-  return Clause.Prefaced(Clause.Preface.Context(frame.preface), result)
+  return Clause.Prefaced(Clause.Preface.FirstAction, result)
 }
 
-private fun wrapperSubclassDeclaration(
+private fun requiredActionSubclassDeclaration(
     className: ClassName,
     describers: Describers,
 ): ClassDeclaration? {
   val componentClass = describers.expressions.classesByName.getValue(className)
   if (componentClass.abstract) return null
   val superclass = componentClass.directSuperclasses.singleOrNull() ?: return null
-  if (describers.changeFrame(superclass.className) !is ComponentDescriber.ChangeFrame.Wrapper) {
+  if (
+      describers.changeFrame(superclass.className) != ComponentDescriber.ChangeFrame.RequiredAction
+  ) {
     return null
   }
   val declaration = describers.declaration(className)

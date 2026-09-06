@@ -47,8 +47,8 @@ internal sealed interface Clause {
       override fun linearize(): String = "when ${event.linearize()}"
     }
 
-    data class Context(val phrase: String) : Preface {
-      override fun linearize(): String = phrase
+    data object FirstAction : Preface {
+      override fun linearize(): String = "as your first action"
     }
   }
 }
@@ -64,7 +64,7 @@ internal fun Clause.unresolved(): List<Unresolved> =
           when (val preface = preface) {
             is Clause.Preface.Conditional -> preface.condition.unresolved()
             is Clause.Preface.Temporal -> preface.event.unresolved()
-            is Clause.Preface.Context -> emptyList()
+            Clause.Preface.FirstAction -> emptyList()
           } + clause.unresolved()
     }
 
