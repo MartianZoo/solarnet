@@ -267,7 +267,7 @@ private fun renderAction(
 private data class RenderedAction(
     val cost: Predicate?,
     val result: RenderedInstructions,
-    val condition: String? = null,
+    val condition: Clause? = null,
     val separateResultSentences: Boolean = false,
 ) {
   val unresolved: List<Unresolved>
@@ -291,7 +291,7 @@ private data class RenderedAction(
     val clause =
         cost?.let { "${it.linearize()} to ${result.asCoordinatedClause()}" }
             ?: result.asCoordinatedClause()
-    return completeSentence("$condition, $clause")
+    return completeSentence("${Clause.Preface.Conditional(condition).linearize()}, $clause")
   }
 
   fun asAlternative(): String? {
@@ -300,7 +300,9 @@ private data class RenderedAction(
           val infinitive = result.asActionResultInfinitive() ?: return null
           "${it.linearize()} to $infinitive"
         } ?: result.clauses.singleOrNull()?.linearize() ?: return null
-    return condition?.let { "$it, $clause" } ?: clause
+    return condition?.let {
+      "${Clause.Preface.Conditional(it).linearize()}, $clause"
+    } ?: clause
   }
 
   fun costCanJoinResult(): Boolean = cost == null || result.asActionResultInfinitive() != null

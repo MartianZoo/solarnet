@@ -358,7 +358,7 @@ private fun renderGated(
     return clause
   }
   val condition = describers.renderGateCondition(instruction.gate) ?: return null
-  return Clause.Prefaced(condition, clause)
+  return Clause.Prefaced(Clause.Preface.Conditional(condition), clause)
 }
 
 private fun renderPer(
@@ -384,7 +384,7 @@ private fun renderAlternatives(
       }
   if (alternatives.size == 2) {
     val firstAction = alternatives.singleOrNull {
-      it is Clause.Prefaced && it.preface == "as your first action"
+      it is Clause.Prefaced && it.preface == Clause.Preface.Context("as your first action")
     }
     val decline = alternatives.singleOrNull { it !== firstAction }
     if (firstAction != null && decline.isDoNothing()) return firstAction
@@ -515,7 +515,7 @@ private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
   return result
 }
 
-internal fun Describers.renderGateCondition(requirement: Requirement): String? {
+internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   val counting = requirement as? Requirement.Counting ?: return null
   val metric = counting.metric as? Metric.Count ?: return null
   val expression = metric.expression
@@ -532,37 +532,70 @@ internal fun Describers.renderGateCondition(requirement: Requirement): String? {
           requirement.expected == 1 &&
           isGameParticipant(expression.className)
   ) {
-    return "if this is a solo game"
+    return Clause.Simple(
+        Predicate("is", Coordination.one(NounPhrase.text("a solo game"))),
+        NounPhrase.text("this"),
+    )
   }
   if (
       requirement is Requirement.Max &&
           requirement.maximum == 0 &&
           isStandardResource(expression.className)
   ) {
-    return "if you have no ${componentNoun(expression.className, 2)}"
+    return Clause.Simple(
+        Predicate(
+            "have",
+            Coordination.one(
+                componentNounPhrase(expression.className, 2)
+                    .copy(
+                        count = null,
+                        determiner = "no",
+                    )
+            ),
+        ),
+        NounPhrase.text("you"),
+    )
   }
   if (requirement !is Requirement.Min) return null
   fact(expression.className, ComponentDescriber::presenceCondition)?.let { condition ->
     if (requirement.minimum != 1) return null
-    val scope =
+    val predicate = Predicate(condition)
+    return Clause.Simple(
         if (isGenerationScoped(expression.className)) {
-          " this generation"
+          predicate.withModifier(Modifier.Phrase("this generation"))
         } else {
-          ""
+          predicate
         }
-    return "if $condition$scope"
+    )
   }
   fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
     if (bound is ComponentDescriber.Requirement.Bound.Count) {
       val noun = if (requirement.minimum == 1) bound.noun.singular else bound.noun.plural
       return if (isPlayerOwned(expression.className)) {
-        "if you have ${requirement.minimum} $noun"
+        Clause.Simple(
+            Predicate(
+                "have",
+                Coordination.one(NounPhrase(noun, count = requirement.minimum)),
+            ),
+            NounPhrase.text("you"),
+        )
       } else {
-        "if there are ${requirement.minimum} $noun"
+        Clause.Simple(
+            Predicate(
+                "are",
+                Coordination.one(NounPhrase(noun, count = requirement.minimum)),
+            ),
+            NounPhrase.text("there"),
+        )
       }
     }
   }
   val (name) = tagName(expression.className) ?: return null
-  val tags = if (requirement.minimum == 1) "tag" else "tags"
-  return "if you have ${requirement.minimum} $name $tags"
+  return Clause.Simple(
+      Predicate(
+          "have",
+          Coordination.one(NounPhrase("$name tag", "$name tags", count = requirement.minimum)),
+      ),
+      NounPhrase.text("you"),
+  )
 }

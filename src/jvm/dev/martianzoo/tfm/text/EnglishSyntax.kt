@@ -32,8 +32,24 @@ internal sealed interface Clause {
         "${subject.linearize()} ${predicates.linearize(Predicate::linearize)}"
   }
 
-  data class Prefaced(val preface: String, val clause: Clause) : Clause {
-    override fun linearize(): String = "$preface, ${clause.linearize()}"
+  data class Prefaced(val preface: Preface, val clause: Clause) : Clause {
+    override fun linearize(): String = "${preface.linearize()}, ${clause.linearize()}"
+  }
+
+  sealed interface Preface {
+    fun linearize(): String
+
+    data class Conditional(val condition: Clause) : Preface {
+      override fun linearize(): String = "if ${condition.linearize()}"
+    }
+
+    data class Temporal(val event: Clause) : Preface {
+      override fun linearize(): String = "when ${event.linearize()}"
+    }
+
+    data class Context(val phrase: String) : Preface {
+      override fun linearize(): String = phrase
+    }
   }
 }
 
@@ -43,7 +59,12 @@ internal fun Clause.unresolved(): List<Unresolved> =
       is Clause.Simple -> emptyList()
       is Clause.Coordinated -> clauses.members.flatMap(Clause::unresolved)
       is Clause.SharedSubject -> emptyList()
-      is Clause.Prefaced -> clause.unresolved()
+      is Clause.Prefaced ->
+          when (val preface = preface) {
+            is Clause.Preface.Conditional -> preface.condition.unresolved()
+            is Clause.Preface.Temporal -> preface.event.unresolved()
+            is Clause.Preface.Context -> emptyList()
+          } + clause.unresolved()
     }
 
 /** The part of a clause that can be factored across coordinated alternatives. */

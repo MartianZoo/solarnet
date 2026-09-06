@@ -204,7 +204,7 @@ private fun renderWrapper(
   }
   val result =
       renderInstructions(effect.instruction, describers).clauses.singleOrNull() ?: return null
-  return Clause.Prefaced(frame.preface, result)
+  return Clause.Prefaced(Clause.Preface.Context(frame.preface), result)
 }
 
 private fun wrapperSubclassDeclaration(

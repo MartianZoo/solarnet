@@ -202,7 +202,7 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
   val direction = if (change is Gain) "extra" else "less"
   return Sentence(
           Clause.Prefaced(
-              "when ${triggerClause.linearize()}",
+              Clause.Preface.Temporal(triggerClause),
               Clause.Simple(
                   predicate =
                       Predicate(
@@ -1273,7 +1273,7 @@ private fun renderLinkedProductionReward(effect: Effect, describers: Describers)
       )
   return Sentence(
           Clause.Prefaced(
-              "when ${trigger.linearize()}",
+              Clause.Preface.Temporal(trigger),
               result.withModifier(Modifier.Phrase("per step")),
           ),
       )

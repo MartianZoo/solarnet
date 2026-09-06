@@ -119,7 +119,12 @@ private fun renderRevealAndTest(
   val outcome = renderChange(operation.outcome, describers).value ?: return null
   return listOf(
       clause("reveal", "1 project card"),
-      Clause.Prefaced("if it ${matchPredicate(criterion, describers)}", outcome),
+      Clause.Prefaced(
+          Clause.Preface.Conditional(
+              Clause.Simple(matchPredicate(criterion, describers), NounPhrase.text("it"))
+          ),
+          outcome,
+      ),
   )
 }
 
@@ -195,17 +200,35 @@ private fun matchingCardNoun(
       }
     }
 
-private fun matchPredicate(criterion: CardCriterion, describers: Describers): String =
+private fun matchPredicate(criterion: CardCriterion, describers: Describers): Predicate =
     when (criterion) {
       is CardCriterion.Tag -> {
         val tag = checkNotNull(describers.tagName(criterion.className)).first
-        "has ${describers.indefiniteArticle(tag)} $tag tag"
+        Predicate(
+            "has",
+            Coordination.one(
+                NounPhrase("$tag tag", determiner = describers.indefiniteArticle(tag))
+            ),
+        )
       }
-      CardCriterion.NoTags -> "has no tags"
-      CardCriterion.HasRequirement -> "has a requirement"
+      CardCriterion.NoTags ->
+          Predicate("has", Coordination.one(NounPhrase("tag", "tags", determiner = "no")))
+      CardCriterion.HasRequirement ->
+          Predicate(
+              "has",
+              Coordination.one(NounPhrase("requirement", determiner = "a")),
+          )
       is CardCriterion.ResourceIcon -> {
         val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
-        "has ${describers.indefiniteArticle(resource)} $resource icon"
+        Predicate(
+            "has",
+            Coordination.one(
+                NounPhrase(
+                    "$resource icon",
+                    determiner = describers.indefiniteArticle(resource),
+                )
+            ),
+        )
       }
     }
 
