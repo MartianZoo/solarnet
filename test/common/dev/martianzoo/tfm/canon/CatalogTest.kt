@@ -130,6 +130,35 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun filteredRetentionDelegatesThePrintedPredicateInFollowMode() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Surveyor {
+                  -> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected =
+        parseClasses(
+                """
+                ABSTRACT CLASS Surveyor {
+                  -> 2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Surveyor"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredActions shouldBe source.authoredActions
+  }
+
+  @Test
   internal fun cardSyntaxOutsideCardsZonesIsUntouched() {
     val source =
         parseClasses(

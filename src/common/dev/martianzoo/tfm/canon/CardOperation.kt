@@ -14,35 +14,17 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
-import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
 
 /** A validated semantic view of one canonical `CARDS[...]` instruction. */
 public sealed interface CardOperation {
-  /** Observe cards in a represented card area. */
-  public data class Observe(public val observation: Instruction.Per) : CardOperation
-
   /** Reveal cards until the requested matching cards have been found. */
   public data class Search(public val cards: Gain, public val filter: Requirement) : CardOperation
-
-  /** Inspect [offered] cards, retain [retained], and discard the remainder. */
-  public data class SelectAndKeep(public val offered: Gain, public val retained: Transmute) :
-      CardOperation
-
-  /** Inspect one card and either buy or discard it. */
-  public data class SelectAndPurchase(public val offered: Gain) : CardOperation
-
-  /** Inspect cards, play one from the selection, and discard the remainder. */
-  public data class SelectAndPlay(
-      public val offered: Gain,
-      public val play: Gain,
-  ) : CardOperation
 
   /** Reveal cards, retain matching cards for free, and buy or discard the remainder. */
   public data class RevealAndPurchase(
@@ -58,42 +40,15 @@ public sealed interface CardOperation {
       public val outcome: Gain,
   ) : CardOperation
 
-  /** Reveal cards from hand, restore those exact cards, and scale [outcome] by their count. */
-  public data class RevealAndRestore(
-      public val revealed: Transmute,
-      public val restored: Transmute,
-      public val outcome: Gain,
-  ) : CardOperation
-
   public companion object {
     public const val TRANSFORM_KIND: String = "CARDS"
-
-    /** Validates and interprets [transform] as one canonical card operation. */
-    public fun decode(transform: Transform): CardOperation {
-      if (transform.transformKind != TRANSFORM_KIND) malformed(transform.instruction)
-      return decode(transform.instruction)
-    }
-
-    /** Interprets [transform] when it is one of the currently modeled card operations. */
-    public fun decodeOrNull(transform: Transform): CardOperation? =
-        try {
-          decode(transform)
-        } catch (_: PetSyntaxException) {
-          null
-        }
 
     /** Interprets a validated canonical card operation after its marker has been removed. */
     public fun decode(source: InstructionTree): CardOperation =
         when (source) {
           is Gain -> decodeSearch(source)
-          is Instruction.Per -> Observe(source)
-          is InstructionGroup -> decodeSelection(source)
-          is Then ->
-              when {
-                source.first.gainingAt(REVEALED) -> decodeRevealAndTest(source)
-                source.first.movingCard(HAND, REVEALED) -> decodeRevealAndRestore(source)
-                else -> malformed(source)
-              }
+          is InstructionGroup -> decodeRevealAndPurchase(source)
+          is Then -> decodeRevealAndTest(source)
           else -> malformed(source)
         }
 
@@ -109,85 +64,26 @@ public sealed interface CardOperation {
       return Search(source, filter)
     }
 
-    private fun decodeRetainedCards(offered: Gain, retained: Transmute): SelectAndKeep {
-      val family = offered.gaining.cardFamilyAt(SELECTING) ?: malformed(offered)
-      if (
-          retained.gaining.cardFamilyAt(HAND) != family ||
-              retained.removing.cardFamilyAt(SELECTING) != family ||
-              retained.removing.refinement != null ||
-              !retained.mandatory
-      ) {
-        malformed(retained)
-      }
-      return SelectAndKeep(offered, retained)
-    }
-
-    private fun decodeSelection(source: InstructionGroup): CardOperation {
+    private fun decodeRevealAndPurchase(source: InstructionGroup): RevealAndPurchase {
       if (source.instructions.size != 2) malformed(source)
       val offered =
           source.instructions.filterIsInstance<Gain>().singleOrNull {
-            it.gaining.cardFamilyAt(SELECTING) != null && it.mandatory
+            it.gaining.isUnfilteredProjectCardAt(SELECTING) && it.mandatory
           } ?: malformed(source)
-      return when (val result = source.instructions.single { it !== offered }) {
-        is Transmute -> decodeRetainedCards(offered, result)
-        is Gain -> decodeSelectedPlay(offered, result)
-        is Then ->
-            if (result.instructions.size == 2) decodePurchase(offered, result)
-            else
-                decodeRevealAndPurchase(
-                    Then.createTree(listOf(offered) + result.instructions) as Then
-                )
-        else -> malformed(source)
-      }
-    }
-
-    private fun decodePurchase(offered: Gain, purchase: Then): SelectAndPurchase {
+      val purchase = source.instructions.single { it !== offered } as? Then ?: malformed(source)
+      if (purchase.instructions.size != 3) malformed(source)
+      val retained = purchase.first as? Transmute ?: malformed(source)
+      val discarded = purchase.instructions[1] as? Remove ?: malformed(source)
       if (
-          offered.count !is ActualScalar ||
-              purchase.instructions.size != 2 ||
-              !purchase.first.removingOptionallyAt(SELECTING) ||
-              (purchase.first as Remove).count != offered.count ||
-              !purchase.instructions.last().isMandatoryGainOf(BUY_SELECTED_CARDS)
-      ) {
-        malformed(purchase)
-      }
-      return SelectAndPurchase(offered)
-    }
-
-    private fun decodeSelectedPlay(offered: Gain, play: Gain): SelectAndPlay {
-      val family = offered.gaining.cardFamilyAt(SELECTING) ?: malformed(offered)
-      val offeredCount = (offered.count as? ActualScalar)?.value ?: malformed(offered)
-      if (
-          family !in setOf(CORPORATION_CARD, PRELUDE_CARD) ||
-              offeredCount <= 1 ||
-              play.gaining.className != PLAY_CARD ||
-              play.gaining.arguments.size != 2 ||
-              play.gaining.arguments.first().let {
-                it.className == CLASS && it.arguments.singleOrNull()?.className == family
-              } != true ||
-              play.gaining.arguments.last().className != SELECTING
-      ) {
-        malformed(play)
-      }
-      return SelectAndPlay(offered, play)
-    }
-
-    private fun decodeRevealAndPurchase(source: Then): RevealAndPurchase {
-      if (source.instructions.size != 4) malformed(source)
-      val offered = source.first as? Gain ?: malformed(source)
-      val retained = source.instructions[1] as? Transmute ?: malformed(source)
-      val discarded = source.instructions[2] as? Remove ?: malformed(source)
-      if (
-          !offered.gaining.isUnfilteredProjectCardAt(SELECTING) ||
-              !offered.mandatory ||
-              retained.gaining.className != PROJECT_CARD ||
+          retained.gaining.className != PROJECT_CARD ||
               retained.gaining.arguments.singleOrNull()?.className != HAND ||
               !retained.removing.isProjectCardAt(SELECTING) ||
               retained.removing.refinement != null ||
               retained.count != offered.count ||
               retained.intensity != AMAP ||
               !discarded.removingOptionallyAt(SELECTING) ||
-              discarded.count != offered.count
+              discarded.count != offered.count ||
+              !purchase.instructions.last().isMandatoryGainOf(BUY_SELECTED_CARDS)
       ) {
         malformed(source)
       }
@@ -218,38 +114,11 @@ public sealed interface CardOperation {
       return RevealAndTest(revealed, matchingCard.refinement!!.requirement, outcome)
     }
 
-    private fun decodeRevealAndRestore(source: Then): RevealAndRestore {
-      if (source.instructions.size != 3) malformed(source)
-      val revealed = source.first as? Transmute ?: malformed(source)
-      val restored = source.instructions[1] as? Transmute ?: malformed(source)
-      val outcome = source.instructions.last() as? Gain ?: malformed(source)
-      if (
-          revealed.count !is XScalar ||
-              restored.count !is XScalar ||
-              outcome.count !is XScalar ||
-              restored.count != revealed.count ||
-              outcome.count != revealed.count ||
-              !revealed.movingCard(HAND, REVEALED) ||
-              !restored.movingCard(REVEALED, HAND)
-      ) {
-        malformed(source)
-      }
-      return RevealAndRestore(revealed, restored, outcome)
-    }
-
     private val Instruction.Change.mandatory: Boolean
       get() = intensity == null || intensity == MANDATORY
 
     private fun InstructionTree.isMandatoryGainOf(className: ClassName): Boolean =
         this is Gain && gaining == className.expression && mandatory
-
-    private fun Instruction.gainingAt(area: ClassName): Boolean =
-        this is Gain && gaining.isUnfilteredProjectCardAt(area)
-
-    private fun Instruction.movingCard(from: ClassName, to: ClassName): Boolean =
-        this is Transmute &&
-            gaining.cardFamilyAt(to) == PROJECT_CARD &&
-            removing.cardFamilyAt(from) == PROJECT_CARD
 
     private fun InstructionTree.removingOptionallyAt(area: ClassName): Boolean =
         this is Remove && removing.isProjectCardAt(area) && intensity == OPTIONAL
@@ -260,21 +129,11 @@ public sealed interface CardOperation {
     private fun Expression.isUnfilteredProjectCardAt(area: ClassName): Boolean =
         isProjectCardAt(area) && refinement == null
 
-    private fun Expression.cardFamilyAt(area: ClassName): ClassName? = className.takeIf {
-      it in setOf(PROJECT_CARD, CORPORATION_CARD, PRELUDE_CARD) &&
-          arguments.singleOrNull()?.className == area &&
-          refinement == null
-    }
-
     private fun malformed(source: InstructionTree): Nothing =
         throw PetSyntaxException("Unsupported $TRANSFORM_KIND card operation: $source")
 
     private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
-    private val CLASS = cn("Class")
-    private val CORPORATION_CARD = cn("CorporationCard")
     private val HAND = cn("Hand")
-    private val PLAY_CARD = cn("PlayCard")
-    private val PRELUDE_CARD = cn("PreludeCard")
     private val SELECTING = cn("Selecting")
     private val REVEALED = cn("Revealed")
     private val SEARCH_FOR_CARD = cn("SearchForCard")
