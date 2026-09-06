@@ -52,7 +52,6 @@ is necessary, but an implementation that merely works can still be a design fail
 Optimize for the smallest coherent design, not the first implementation that passes tests.
 Simplicity is an acceptance criterion, not a later cleanup step.
 
-- State the intended invariant in one sentence before editing.
 - Begin by looking for code or concepts that can be removed, then try to compose existing
   mechanisms before adding another one.
 - Set a complexity budget appropriate to the request. Treat a disproportionate diff as evidence
