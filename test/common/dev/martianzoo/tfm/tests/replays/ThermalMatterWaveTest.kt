@@ -106,7 +106,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       convertHeat()
       cardAction1(ElectroCatapult)
-      intentionalOverpay(1)
       playProject(TowingAComet, titanium = 6) {
         placeTile(6, 8)
       }
@@ -325,7 +324,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       // overpaying for Ganymede Colony.
       intentionalUnderpay()
       playProject(GanymedeColony, 2, titanium = 4) { draw(Ants) }
-      intentionalOverpay(3)
       playProject(ConvoyFromEuropa, titanium = 4) {
         draw(DustSeals)
         placeTile(9, 9)

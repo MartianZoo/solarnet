@@ -29,17 +29,16 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playCorp(PharmacyUnion, 10).expect("16 MC, 11 ProjectCard")
 
       playPrelude(Merger) {
-        // playCorp("Manutech", 0) - TODO this really should work
-        doTask("PlayCard<Class<CorporationCard>, Class<$Manutech>>")
+        playCorp(Manutech)
       }
 
       playPrelude(HeadStart) {
         doTask("UseAction<PlayCardFromHand, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>, Hand>")
         pay(4, steel = 3)
 
         doTask("UseAction<PlayCardFromHand, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>, Hand>")
         pay(6)
         doTask("ProjectCard FROM Science<$OlympusConference>")
       }

@@ -211,7 +211,7 @@ internal class TransformersTest {
 
   @Test
   internal fun configuredDispatcherAlsoLowersCardSyntax() {
-    val source: Instruction = parse("CARDS[2 ProjectCard(HAS VenusTag)]")
+    val source: Instruction = parse("CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]")
 
     transformers.transformMarkedSyntax().transformInstruction(source).toString() shouldBe
         "2 ProjectCard"
@@ -270,7 +270,7 @@ internal class TransformersTest {
   }
 
   @Test
-  internal fun `Class-token variables retain dependency constraints supplied by each use`() {
+  internal fun `Class-scoped variables retain dependency constraints supplied by each use`() {
     val playCard = Canon.classTable.getClass(parse<Expression>("PlayCard").className)
     val effect =
         transformers.classEffects(playCard).single { "CardInvoice" in it.instruction.toString() }
@@ -281,11 +281,17 @@ internal class TransformersTest {
 
     effect.typeVariables.expressionsOf(cardFront).map(Any::toString).toSet() shouldBe
         setOf("CardFront<Owner>")
+    val cardLocation =
+        effect.typeVariables.variables.single {
+          it.declaration.expression.toString() == "CardLocation"
+        }
+    effect.typeVariables.expressionsOf(cardLocation).map(Any::toString).toSet() shouldBe
+        setOf("CardLocation")
 
     val component =
         Component(
             Canon.classTable.resolve(
-                parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>>")
+                parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>, Hand>")
             )
         )
     LiveEffect.compile(component, transformers)
@@ -298,7 +304,7 @@ internal class TransformersTest {
         "Owed<Player1, Class<MC>>! / AiCentral<Player1>.cost THEN " +
             "HandleCardTags<Player1, Class<AiCentral>>! " +
             "THEN CardInvoice<Player1, Class<AiCentral>>! THEN MAX 0 Barrier: " +
-            "AiCentral<Player1> FROM ProjectCard<Hand<Player1>, Player1>!"
+            "AiCentral<Player1> FROM ProjectCard<Player1, Hand>!"
   }
 
   @Test

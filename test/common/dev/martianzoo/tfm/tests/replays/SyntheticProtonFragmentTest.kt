@@ -88,7 +88,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     green.turn {
       playPrelude(Merger) {
-        doTask("PlayCard<Class<CorporationCard>, Class<$Inventrix>>")
+        playCorp(Inventrix)
       }
       playPrelude(MoholeExcavation).expect("PROD[Steel, 2 Heat], 2 Heat")
     }

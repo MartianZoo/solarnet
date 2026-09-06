@@ -452,7 +452,6 @@ public class OtbGame20260828 : RecordedGame() {
     green.turn { cardAction1(PalladinShipping) }
     blue.turn { cardAction2(LocalShading) }
     yellow.turn {
-      intentionalOverpay(4)
       playProject(fakeL1TradeTerminal, 13, titanium = 4)
     }
     green.turn { cardAction1(SpaceElevator) }
@@ -538,7 +537,6 @@ public class OtbGame20260828 : RecordedGame() {
     blue.turn { playProject(GeneRepair, 12) { declineTask() } }
     yellow.turn {
       playProject(CryoSleep, 10)
-      intentionalOverpay(4)
       playProject(SolarProbe, 3, titanium = 2)
     }
     green.turn {

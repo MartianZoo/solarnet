@@ -156,7 +156,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   // Pending choices describe future play, so a snapshot must neither execute nor count them.
-  // Unbought research cards need to leave their temporary locations before task removal; the
+  // Unbought research cards need to leave Selecting before task removal; the
   // enclosing checkpoint restores both the components and tasks afterward.
   private fun dropPendingTasksForSnapshot() {
     game.actors

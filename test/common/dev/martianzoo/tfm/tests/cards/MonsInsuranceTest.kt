@@ -40,7 +40,7 @@ internal class MonsInsuranceTest : CardTest() {
     val moneyBefore = p1.count("MC")
 
     p1.playPrelude(Merger) {
-      doTask("PlayCard<Class<CorporationCard>, Class<$MonsInsurance>>")
+      p1.playCorp(MonsInsurance)
     }
 
     p1.count("MC") shouldBe moneyBefore + 10 // -42 + 48 starting money + 4 from Manutech

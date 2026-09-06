@@ -8,12 +8,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
-import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
@@ -31,8 +28,7 @@ internal object FollowModeNeutralizer : TransformHandler {
   private val EVENT_PILE = cn("EventPile")
   private val HAND = cn("Hand")
   private val PLAYED_EVENT = cn("PlayedEvent")
-  private val REVEALED = cn("Revealed")
-  private val SELECTING = cn("Selecting")
+  private val SEARCH_FOR_CARD = cn("SearchForCard")
 
   internal fun neutralize(source: ClassDeclaration): ClassDeclaration {
     val transformedEffects = source.effects.map(::transformEffect)
@@ -68,50 +64,18 @@ internal object FollowModeNeutralizer : TransformHandler {
 
   private fun transformCards(source: InstructionTree): InstructionTree {
     val operation = CardOperation.decode(source)
-    val transformed = cardReferenceNeutralizer.transformInstructionTree(source)
-    return when (operation) {
-      is CardOperation.SelectAndKeep,
-      is CardOperation.SelectAndPlay -> withTemporaryLocation(SELECTING, transformed, close = true)
-      is CardOperation.SelectAndPurchase,
-      is CardOperation.RevealAndPurchase ->
-          withTemporaryLocation(SELECTING, transformed, close = false)
-      is CardOperation.RevealAndTest -> withTemporaryLocation(REVEALED, transformed, close = true)
-      is CardOperation.RevealAndRestore -> withRequiredTemporaryLocation(REVEALED, transformed)
-      else -> transformed
-    }
-  }
-
-  private fun withTemporaryLocation(
-      location: ClassName,
-      body: InstructionTree,
-      close: Boolean,
-  ): InstructionTree {
-    val scopedBody =
-        if (close) closeAfter(body, Remove.remove(location.expression, intensity = null)) else body
-    return Then.createTree(listOf(Gain.gain(location.expression, intensity = null), scopedBody))
-  }
-
-  private fun withRequiredTemporaryLocation(
-      location: ClassName,
-      body: InstructionTree,
-  ): InstructionTree =
-      InstructionGroup.createTree(
+    if (operation is CardOperation.RevealAndTest) {
+      return Then.createTree(
           listOf(
-              Gain.gain(location.expression, intensity = null),
-              closeAfter(body, Remove.remove(location.expression, intensity = null)),
+              cardReferenceNeutralizer.transformInstructionTree(operation.revealed),
+              cardReferenceNeutralizer.transformInstructionTree(
+                  operation.outcome.copy(intensity = OPTIONAL)
+              ),
           )
       )
-
-  private fun closeAfter(body: InstructionTree, close: InstructionTree): InstructionTree =
-      when (body) {
-        is InstructionGroup ->
-            InstructionGroup.createTree(
-                body.instructions.dropLast(1) +
-                    Then.createTree(listOf(body.instructions.last(), close))
-            )
-        is Then -> Then.createTree(body.instructions + close)
-        else -> Then.createTree(listOf(body, close))
-      }
+    }
+    return cardReferenceNeutralizer.transformInstructionTree(source)
+  }
 
   private fun Expression.isProjectCardAt(location: ClassName): Boolean =
       className == PROJECT_CARD && arguments.any { it.className == location }
@@ -147,6 +111,7 @@ internal object FollowModeNeutralizer : TransformHandler {
               }
               node is Expression && node.className == CARD_BACK && node.hasArea(EVENT_PILE) ->
                   node.withoutArea(PLAYED_EVENT, EVENT_PILE)
+              node is Expression && node.className == SEARCH_FOR_CARD -> PROJECT_CARD.expression
               node is Expression && node.isGenericCardBack() -> node.copy(refinement = null)
               else -> transformChildren(node)
             }

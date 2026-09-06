@@ -49,7 +49,7 @@
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
 - [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) — search for
-  `isWildTagOffer` and `removeWildTagUses`; read as evidence, not as a pattern to copy.
+  `isWildTagOffer` and `declineWildTagOffers`; read as evidence, not as a pattern to copy.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
   [`AtomicOperationScopeTest.kt`](../../test/common/dev/martianzoo/engine/AtomicOperationScopeTest.kt).
@@ -138,12 +138,11 @@ The substitutes in use, and where each fails:
 | Player queue drain | One Actor has nothing left | Combines unrelated work; queue cardinality has no gameplay meaning. |
 | Client bridge (`TfmGameplay`) | A string match on instruction text or `cause.context` | Not a rule at all. |
 
-The strongest evidence that the concept is missing is the last row. `TfmGameplay` identifies tasks
-by `it.instruction.toString().startsWith(...)` or by `cause?.context?.className == cn("Accepting")` in
-roughly a dozen places, and `removeWildTagUses` then reaches in and deletes components. A public
-convenience API is reconstructing operation scope by pattern matching because the engine will not
-tell it. `UseAction` is the clearest case: it is a `Signal`, an instant, so nothing at all
-represents the action that is under way.
+The strongest evidence that the concept is missing is the last row. `TfmGameplay` still identifies
+some tasks by their changed component or `cause.context`, and declines leftover wild-tag choices
+when they are the acting Player's only work. A public convenience API is reconstructing operation
+scope because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an
+instant, so nothing at all represents the action that is under way.
 
 ### Selected direction: scoped completion
 

@@ -94,7 +94,7 @@ internal class CatalogTest {
             .single()
     val expected =
         parseClasses(
-                "ABSTRACT CLASS Buyer { ResearchPhase: Selecting THEN (4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards) }"
+                "ABSTRACT CLASS Buyer { ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards }"
             )
             .single()
 
@@ -102,6 +102,73 @@ internal class CatalogTest {
 
     loaded.effects shouldBe expected.effects
     loaded.authoredEffects shouldBe source.effects
+  }
+
+  @Test
+  internal fun revealAndTestDelegatesThePrintedPredicateInFollowMode() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Examiner {
+                  -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS MicrobeTag): Science) OR Ok)]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected =
+        parseClasses(
+                """
+                ABSTRACT CLASS Examiner {
+                  -> ProjectCard<Revealed> THEN Science?
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Examiner"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredActions shouldBe source.authoredActions
+  }
+
+  @Test
+  internal fun filteredCardSearchesLowerToOrdinaryFollowModeDraws() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Searcher {
+                  This: CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected = parseClasses("ABSTRACT CLASS Searcher { This: 2 ProjectCard }").single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Searcher"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredEffects shouldBe source.effects
+  }
+
+  @Test
+  internal fun cardSyntaxOutsideCardsZonesIsUntouched() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Searcher {
+                  This: SearchForCard(HAS PrintedTag<Class<PlantTag>>)
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Searcher"))
+
+    loaded.effects shouldBe source.effects
   }
 
   @Test

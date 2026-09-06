@@ -79,7 +79,7 @@ internal class BugsTest : CardTest() {
     p1.startTurn()
     p1.doTask("-PreludeCard")
     p1.startTurn()
-    p1.doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
+    p1.playPrelude(DomeFarming)
 
     p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
     p1.count("MC") shouldBe moneyBefore + 15
@@ -93,7 +93,7 @@ internal class BugsTest : CardTest() {
 
     p1.inTurn {
       doTask("UseAction<PlayCardFromHand, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
       doTask("7 Pay<Class<Steel>> FROM Steel")
       doTask("5 Pay<Class<Titanium>> FROM Titanium")
       doTask("Ok")

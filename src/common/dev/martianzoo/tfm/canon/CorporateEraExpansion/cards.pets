@@ -345,7 +345,7 @@ CLASS BusinessContacts : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EarthTag<This>, EventTag<This>
-  This: 2 ProjectCard
+  This: CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
 }
 
 CLASS BribedCommittee : EventCard<Class<ProjectCard>> {
@@ -493,7 +493,7 @@ CLASS InventionContest : EventCard<Class<ProjectCard>> {
   cost = 2
 
   This:: ScienceTag<This>, EventTag<This>
-  This: ProjectCard
+  This: CARDS[3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]
 }
 
 CLASS PowerInfrastructure : ActionCard, ActiveCard<Class<ProjectCard>> {

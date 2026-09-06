@@ -90,10 +90,8 @@ internal class Prelude2CardsTest : CardTest() {
     engine.phase("Action")
 
     p1.cardAction1(BoardOfDirectors) {
-      doTask(
-          "-12 MC THEN -Director<$BoardOfDirectors> THEN " +
-              "PlayCard<Class<PreludeCard>, Class<$Recession>>"
-      )
+      doTask("-12 MC")
+      p1.playPrelude(Recession)
     }
 
     p1.count("Director<$BoardOfDirectors>") shouldBe 3
@@ -112,12 +110,8 @@ internal class Prelude2CardsTest : CardTest() {
     p1.manual("13 MC, PreludeCard, ProjectCard, $BoardOfDirectors, $SkyDocks")
 
     p1.cardAction1(BoardOfDirectors) {
-          doTask(
-              "-12 MC THEN -Director<$BoardOfDirectors> THEN " +
-                  "PlayCard<Class<PreludeCard>, Class<$EcologyExperts>>"
-          )
-          doTask("PlayCard<Class<ProjectCard>, Class<$DustSeals>>")
-          p1.pay(1)
+          doTask("-12 MC")
+          p1.playPrelude(EcologyExperts) { p1.playProject(DustSeals, 1) }
         }
         .expect("-13 MC")
 
@@ -387,10 +381,8 @@ internal class Prelude2CardsTest : CardTest() {
 
     shouldThrow<LimitsException> {
       p1.cardAction1(BoardOfDirectors) {
-        doTask(
-            "-12 MC THEN -Director<$BoardOfDirectors> THEN " +
-                "PlayCard<Class<PreludeCard>, Class<$Recession>>"
-        )
+        doTask("-12 MC")
+        p1.playPrelude(Recession)
       }
     }
 

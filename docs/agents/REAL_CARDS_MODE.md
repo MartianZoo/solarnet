@@ -8,7 +8,8 @@
 > reveal/search, hidden information, dealer narrowing, or a real-card observation interface.
 >
 > **Skip when:** changing committed follow-mode behavior without making authored hidden procedures
-> executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms.
+> executable. Read only “Canonical card-operation source” when changing `CARDS[...]` transforms or
+> `SearchForCard` lowering.
 >
 > **Status:** proposal with a settled card/state shape and layer ownership. Follow mode is committed
 > and remains the default; type syntax, the default dealer algorithm, and observation interface
@@ -22,7 +23,7 @@
 | Defaults, counted cards, or delegated face choice | Defaults and atomization; Selection-time delegation |
 | Shuffle, replay, rollback, or forks | Deterministic dealer projection |
 | Reveal, search, or card predicates | Reveals, searches, and printed predicates |
-| `CARDS[...]` or follow-mode lowering | Canonical card-operation source; Follow mode and operation lowering |
+| `CARDS[...]`, `SearchForCard`, or follow-mode lowering | Canonical card-operation source; Follow mode and operation lowering |
 | Conservation or hidden observations | Conservation; Information hiding is deferred |
 | Begin implementation | Implementation gates; Acceptance properties; Remaining decisions |
 
@@ -35,7 +36,7 @@
 - [`ClassDeclaration.kt`](../../src/common/dev/martianzoo/pets/data/ClassDeclaration.kt)
   — search for `executableEffects`, the shadow effects list this mode installs.
 - [Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
-  — search for `CARDS[` to sample canonical authored operations.
+  — search for `CARDS[` and `SearchForCard` to sample canonical authored operations.
 - [`CardClassTest.kt`](../../test/common/dev/martianzoo/tfm/canon/CardClassTest.kt)
   — read for the loaded card-Class queries and validation.
 
@@ -146,12 +147,11 @@ the single representation of that card being in play.
 | --- | --- | --- |
 | `Hand` | back | acquired card available to its Player |
 | `EventPile` | back | completed Event retained for scoring or recovery |
-| `Selecting` | back | temporary Player-associated selection pool |
+| `Selecting` | back | Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
 
-Direct ownership is intentionally present even in temporary locations. It identifies whose choice
-or reveal operation the card belongs to and supplies the usual contextual `Owner`, task routing,
-defaults, and queries.
+Cards retain direct ownership in every location. It identifies whose choice or reveal operation the
+card belongs to and supplies the usual contextual `Owner`, task routing, defaults, and queries.
 
 Ownership does not determine visibility. `Revealed` may be public, while another Player's `Hand`
 cards are private.
@@ -364,10 +364,21 @@ repeat until one hit:
 perform that one-hit operation three times
 ```
 
-The canonical authoring form for this family is a filtered card gain inside `CARDS`, parameterized
-by deck family and printed predicate, not a Kotlin implementation per printed card. Its real-mode
-lowering still has to make deck exhaustion explicit: fail, accept fewer, or reshuffle according to
-the actual rule.
+The canonical authoring form for this family is a `SearchForCard` operation with a printed
+predicate inside a `CARDS[...]` zone:
+
+```pets
+CARDS[SearchForCard(HAS requirement)]
+CARDS[SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
+CARDS[SearchForCard(HAS MAX 0 PrintedTag)]
+CARDS[SearchForCard(HAS ReferenceTo<Class<Floater>>)]
+```
+
+The follow-mode `CARDS` handler currently validates the operation shape, erases the predicate, and
+replaces the operation with the same quantified `ProjectCard` gain as an ordinary draw. Code
+outside a `CARDS` zone is untouched. The predicate is deliberately inert until real-mode lowering
+can inspect immutable front-Class metadata. That lowering still has to make deck exhaustion
+explicit: fail, accept fewer, or reshuffle according to the actual rule.
 
 A back has no live tag Components. Printed predicates inspect immutable front-Class metadata, for
 example through a property or represented-Class refinement:
@@ -383,13 +394,13 @@ Components for card backs.
 
 ## Canonical card-operation source
 
-Canonical sources now preserve hidden card procedures in one
-`Instruction.Transform`, `CARDS[...]`. The inner instruction tree carries the operation family:
+Canonical sources preserve hidden card procedures in one `Instruction.Transform`, `CARDS[...]`.
+The inner instruction tree carries the operation family:
 
 ```pets
-CARDS[2 ProjectCard(HAS VenusTag)]
+CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
 CARDS[7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
-CARDS[3 PreludeCard<Selecting>, PreludeCard<Hand FROM Selecting>, PlayCard<Class<PreludeCard>>]
+CARDS[3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
 CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
 CARDS[2 ProjectCard<Hand FROM EventPile>?]
@@ -399,17 +410,20 @@ CARDS[CardBack<EventPile, Class<This>> FROM This]
 CARDS[4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards]
 ```
 
-A filtered plain gain means sequentially search for the requested matches. Its predicate is source
-shorthand over the represented front's immutable printed metadata. It does not change plain
-`HAS`, imply that a back owns a live tag, or prefilter the derived deck. Real-mode lowering must
-reveal every inspected card in order and discard nonmatches.
+`SearchForCard` inside `CARDS` means sequentially search for the requested matches. Its refinement
+is operation-specific source data over the represented front's immutable printed metadata. It
+does not change plain `HAS`, imply that a back owns a live tag, or prefilter the derived deck.
+Real-mode lowering must reveal every inspected card in order and discard nonmatches.
 
-A card procedure's follow-mode compilation creates the Player's temporary `Selecting` location
-before the procedure body, and a `Hand FROM Selecting` instruction retains exact cards. Removing
-that location discards every card still dependent on it through the engine's dependency cascade.
-`Revealed` follows the same lifecycle. A purchase procedure first removes unwanted cards and then
-invokes one unquantified `BuySelectedCards`. That signal counts every card remaining in the Player's
-selection, creates the complete base debt, broadcasts the same multiplicity of `BuyCard` so
+A card procedure's follow-mode compilation leaves its location operations intact. `Selecting` and
+`Revealed` are permanent locations; cards left in either are discarded at World idle when its
+`CardLocationCleanup` resets the location through the engine's dependency cascade. A `Hand FROM
+Selecting` instruction retains exact cards.
+`PlayCard` takes its source `CardLocation` from the initiating operation: ordinary plays supply
+`Hand`, while select-and-play operations supply `Selecting` and consume the selected back directly.
+A purchase procedure first removes unwanted cards and then invokes one unquantified
+`BuySelectedCards`. That signal counts every card remaining in the Player's selection, creates the
+complete base debt, broadcasts the same multiplicity of `BuyCard` so
 Polyphemos and Terralabs Research can adjust that established `Owed`, and then creates one invoice.
 Once the invoice is fully paid, the purchase operation moves those exact selected cards to `Hand`.
 Its optional removal count is the offered count, so the player may discard any subset before buying
@@ -426,14 +440,19 @@ depends on one of `Hand`, `EventPile`, `Selecting`, or `Revealed`, but does not
 depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
 
 `CARDS` retains those locations and movements through the Catalog's shared marked-syntax handler.
-`Selecting` and `Revealed` are Player-owned temporary components. The handler sequences creation
-before the procedure body and cleanup after it; purchase closure instead belongs to
-`BuySelectedCards`. Removing a temporary location intrinsically removes cards still dependent on
-it. Printed-face predicates are still delegated to
-the follow-mode client: they are erased from generic backs, and a filtered retention becomes an
-explicit optional movement so the client can report how many matching cards moved. A client may
-ignore identities entirely or, as `CardTrackingFullGameTest` does, supply names precisely when cards
-enter and leave `Hand`.
+All four locations are permanent ownerless `System` components. A card entering `Selecting` or
+`Revealed` automatically creates at most one `CardLocationCleanup` for that location. The cleanup is
+`Temporary`: when the World becomes idle, removing it removes the location, dependency cleanup
+discards any cards left there, and the location immediately recreates itself. This lifecycle is
+authored entirely in Pets; the marked-syntax handler does not create, remove, or clean locations.
+
+Printed-face predicates are still delegated to the follow-mode client: `SearchForCard` predicates
+and refinements on generic backs are erased, and a filtered retention becomes an explicit optional
+movement so the client can report how many matching cards moved. A client may ignore identities
+entirely or, as
+`CardTrackingFullGameTest` does, supply names precisely when cards enter and leave `Hand`.
+For reveal-and-test operations, follow mode keeps the reveal and makes the outcome optional; the
+generic revealed card cannot preserve the printed predicate.
 
 `BuySelectedCards` prices the cards remaining in `Selecting`, waits for the adjusted invoice to be
 paid, and then moves that count to `Hand`. Public Plans performs an explicit `Hand` to `Revealed` to
@@ -445,7 +464,8 @@ The current source-level operation inventory is:
 | Family | Cards |
 | --- | --- |
 | Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Nobel Prize, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
-| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics, Spire |
+| Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics |
+| Draw, then discard from hand | Spire |
 | Inspect N, select and play one | Valley Trust, Merger, New Partner |
 | Choose cards to buy from an offer | Corporation setup, Research phase, Inventors' Guild, Business Network |
 | Reveal and test | Search for Life, Asteroid Deflection System |
@@ -540,8 +560,8 @@ hold two representations of the same behavior. Its only writer anywhere is
 declaration type is the wrong home for what is really one Catalog's lowering choice.
 
 This is worth solving now rather than after real mode lands, because real mode adds a *second*
-lowering of the same authored `CARDS[...]` sources. Two shadow fields, or one field whose meaning
-depends on the selected Module, would be worse than today.
+lowering of the same authored `CARDS[...]` and `SearchForCard` sources. Two shadow fields, or one
+field whose meaning depends on the selected Module, would be worse than today.
 
 Directions to try, cheapest first:
 
@@ -553,10 +573,9 @@ Directions to try, cheapest first:
 2. **Make the mode a projection, not a rewrite.** Follow mode is already a Module selection. If the
    `CARDS[...]` handler is chosen per premise and applied during class loading, both modes read one
    authored declaration and neither stores a rewritten copy.
-3. **Give the operation a component.** If the card-operation families in “Canonical card-operation
-   source” become declared classes rather than a marker plus a recognizer, most of what
-   `FollowModeNeutralizer` rewrites becomes ordinary mode-specific effects on mode-specific classes,
-   and there is nothing left to shadow.
+3. **Give the operation a component.** If the card-operation families become declared classes
+   rather than a marker plus a recognizer, most of what `FollowModeNeutralizer` rewrites becomes
+   ordinary mode-specific effects on mode-specific classes, and there is nothing left to shadow.
 
 Any of these is acceptable. Storing both forms is not, once there is a third consumer.
 

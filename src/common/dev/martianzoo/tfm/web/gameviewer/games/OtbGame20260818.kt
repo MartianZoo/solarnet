@@ -880,7 +880,6 @@ public class OtbGame20260818 : RecordedGame() {
     yellow.turn { cardAction1(StratosphericBirds) }
 
     green.turn {
-      intentionalOverpay(2)
       playProject(MethaneFromTitan, titanium = 6)
     }
 

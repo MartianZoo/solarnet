@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.AquiferPumping
 import dev.martianzoo.tfm.tests.cards.cardnames.DevelopmentCenter
 import dev.martianzoo.tfm.tests.cards.cardnames.Mine
 import dev.martianzoo.tfm.tests.cards.cardnames.PowerPlant
+import dev.martianzoo.tfm.tests.cards.cardnames.TitaniumMine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -100,7 +101,7 @@ internal class TfmGameplayTest :
     shouldThrow<IllegalArgumentException> {
       p1.turn { playProject(Mine, 2, heat = 2) }
     }
-    p1.intentionalOneToOneResourcePayment()
+    p1.intentionalUnderpay()
     p1.turn { playProject(Mine, 2, heat = 2) }
 
     p1.count("MC") shouldBe 8
@@ -135,27 +136,29 @@ internal class TfmGameplayTest :
   }
 
   @Test
-  internal fun `Payment rejects steel that cannot receive full value`() {
+  internal fun `Payment rejects a tender containing a unit that could be kept`() {
     newGame()
-    p1.requireExplicitPaymentChoices()
     engine.phase("Action")
     p1.manual("3 Steel, ProjectCard")
 
-    shouldThrow<IllegalArgumentException> { p1.playProject(Mine, steel = 3) }
+    // Mine costs 4; two steel already settle it, so the third is returnable.
+    shouldThrow<LimitsException> { p1.playProject(Mine, steel = 3) }
 
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
-    p1.manual("3 Steel, ProjectCard")
-    p1.intentionalOverpay(1)
-    shouldThrow<IllegalArgumentException> { p1.playProject(Mine, steel = 3) }
+    p1.count("Steel") shouldBe 3
+    p1.count("$Mine") shouldBe 0
+  }
 
+  @Test
+  internal fun `Payment allows excess no single unit could have avoided`() {
     newGame()
-    p1.requireExplicitPaymentChoices()
     engine.phase("Action")
-    p1.manual("3 Steel, ProjectCard")
-    p1.intentionalOverpay(2)
-    p1.playProject(Mine, steel = 3)
+    p1.manual("4 Steel, ProjectCard")
+
+    // Titanium Mine costs 7; three steel are not enough, so the fourth may waste one M€.
+    p1.playProject(TitaniumMine, steel = 4)
+
+    p1.count("Steel") shouldBe 0
+    p1.count("$TitaniumMine") shouldBe 1
   }
 
   @Test
@@ -172,17 +175,5 @@ internal class TfmGameplayTest :
     p1.count("Steel") shouldBe 5
     p1.count("ProjectCard") shouldBe 1
     p1.count("$AquiferPumping") shouldBe 0
-  }
-
-  @Test
-  internal fun `Overpayment permission applies to only one payment`() {
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
-    p1.manual("6 Steel, 2 ProjectCard")
-
-    p1.intentionalOverpay(2)
-    p1.playProject(Mine, steel = 3)
-    shouldThrow<IllegalArgumentException> { p1.playProject(PowerPlant, steel = 3) }
   }
 }

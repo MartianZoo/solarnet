@@ -147,7 +147,7 @@ Separate two facts that `ActionUsedMarker` currently conflates.
 right as a sum type over a card-scoped status — an abstract class with exactly one live concrete
 face, where removing either face creates the other. Making the used face `Generational` then
 restores the available face at generation turn with no host writing a renewal effect. The precedents
-are `GpIncomplete`/`GpComplete` and the `CardLocation` subclasses.
+are `GpIncomplete`/`GpComplete`.
 
 The doorway then reads as the printed rule, and the permission genuinely is the cost:
 
@@ -280,10 +280,10 @@ resulting consequence choices. Billing may require zero or more tender selection
 closes can the player select direct effects or other queued consequences.
 
 Client helpers must recognize payment from the live Billing stage, not by inspecting every
-resource-removal instruction. This distinction is what keeps a direct floater cost, a production
-transformation, or another holder-sensitive removal in the ordinary Pets consequence stage. It
-also makes written payment/consequence interleaving invalid without inventing a special payment
-syntax.
+resource-removal instruction. `TfmGameplay.acceptedResources` does this by reading the payer's live
+`Accepting` components. This distinction keeps a direct floater cost, a production transformation,
+or another holder-sensitive removal in the ordinary Pets consequence stage. It also makes written
+payment/consequence interleaving invalid without inventing a special payment syntax.
 
 ## Composition
 
@@ -295,8 +295,10 @@ existing Award count; selecting the wrong one cannot complete and rolls back.
 Card acquisition first fixes the complete selected set, then establishes all adjusted debt under
 one Billing stage, and transfers the exact cards only after settlement. Starting-card acquisition
 uses the same lifecycle after corporation resources exist; Business Network and later Research use
-it whenever the player commits the contents of `Selecting`. The commitment time may be a player
-choice, but individual debt creation and transfer bookkeeping are not.
+it whenever the player commits the contents of `Selecting`. `CardPurchase` reacts directly to its
+invoice's removal and transfers the cards; clients do not locate or select a pending transfer task.
+The commitment time may be a player choice, but individual debt creation and transfer bookkeeping
+are not.
 
 Card play creates printed M€ debt, handles tags, then creates
 `CardInvoice<Class<CardFront>>`. Generic card-play modifiers respond to its `Billing<CardPlay>`

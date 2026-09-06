@@ -82,15 +82,15 @@ public open class BusyPreludePhaseBenchmark {
     workflow.preludePhase()
     me.playPrelude(cn("FakeEstablishedMethods")) {
       doTask("UseAction<PlayCardFromHand, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>")
       me.pay(0)
       doTask("UseAction<PlayCardFromHand, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>, Hand>")
       me.pay(0)
     }
     me.playPrelude(cn("NewPartner")) {
       me.playPrelude(cn("Merger")) {
-        doTask("PlayCard<Class<CorporationCard>, Class<ValleyTrust>>")
+        doTask("PlayCard<Class<CorporationCard>, Class<ValleyTrust>, Selecting>")
       }
     }
 
@@ -101,10 +101,10 @@ public open class BusyPreludePhaseBenchmark {
       me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<FakeEstablishedMethods>")
         doTask("UseAction<PlayCardFromHand, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>")
         me.pay(0)
         doTask("UseAction<PlayCardFromHand, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>, Hand>")
         me.pay(0)
       }
     }

@@ -10,8 +10,8 @@
 > **Skip when:** changing Action-to-invoice lowering without changing allocation; use
 > [ACTIONS.md](ACTIONS.md).
 >
-> **Status:** verified defect plus uncommitted design candidates. The rule interpretation still
-> requires confirmation from an original Jacob Fryxelius post.
+> **Status:** current `TfmGameplay` legality and replay-audit behavior. The engine-level allocation
+> defect described below remains open.
 
 ## Source map
 
@@ -21,7 +21,8 @@
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — search for `Stormcraft` only when evaluating source attribution.
 - [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
-  — search for `fun pay` for the current client-side rejection stage.
+  — search for `rejectReturnableUnit` for legality, `auditSourcedTender` for replay auditing, and
+  `paymentValue` for the per-unit value query.
 - [`PaymentSpecializationTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
   and [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt)
   — read before choosing a repair.
@@ -55,23 +56,28 @@ Consequently the engine cannot tell the difference between value that was never 
 that was offered but unnecessary. Direct task execution can therefore settle an invoice after an
 illegal selection. `BugsTest.Space Elevator incorrectly accepts payment that wastes one steel`
 captures the known failure. `TfmGameplay.pay` prevents some such selections in advance, but its
-per-resource check normally forbids even legal rounding excess. Its explicit escape hatch disables
-that excess check for the payment call rather than proving the complete mixed allocation legal,
-and direct task callers can bypass the helper altogether.
+check applies to the complete tender: it rejects the payment exactly when removing a selected unit
+would still cover the debt. This permits unavoidable rounding excess while rejecting a genuinely
+returnable unit. Direct task callers can still bypass the helper altogether.
 
 Exact payment cannot replace the real rule. Reconstructed games contain legitimate payments whose
 resource values do not sum exactly to the price, so forbidding every excess would reject sourced
 play.
 
-## Current replay-client audit
+## Client legality and replay audit
 
-`TfmGameplay.requireExplicitPaymentChoices()` audits sourced allocation choices without changing
-the engine's payment model. For resources worth more than one M€, leaving a usable full-value unit
-unspent requires `intentionalUnderpay()`. A 1:1 resource accepted toward an M€ bill is different:
-preserving it and paying M€ is ordinary, while spending it despite already holding enough M€ for
-the complete invoice requires `intentionalOneToOneResourcePayment()`. When M€ alone is insufficient,
-spending the 1:1 resource needs no marker. This audit does not apply when the instruction requires a
-particular resource rather than billing in M€.
+`TfmGameplay.pay` always applies the legality rule above. There is no caller opt-out: a replay marker
+cannot turn an illegal tender into a legal one.
+
+`TfmGameplay.requireExplicitPaymentChoices()` separately audits sourced allocation choices without
+changing legality or the engine's payment model. By default it spends each accepted above-par
+resource at full value before M€ and preserves a 1:1 resource when M€ can settle the bill. A sourced
+departure calls `intentionalUnderpay()` immediately before that payment. The audit does not apply
+when the instruction requires a particular resource rather than billing in M€.
+
+`paymentValue` reads the value already represented in the component graph: one when the live debt
+uses the paid resource's denomination, plus the payer's `ResourceValue` components for that
+resource. It does not mutate and roll back the World to answer the query.
 
 The helper follows the payer's Actor through a cross-Player workflow. The active Player may control
 when a triggered option is selected, while the component owner chooses the option and settles the
@@ -113,9 +119,9 @@ credit from those facts without making that choice part of payment execution.
 
 ### Validate in a client
 
-A client library can assemble a complete payment, calculate its effective unit values, and submit
-only legal selections. It can use the equivalent test: remove each selected unit in turn and reject
-the allocation if any reduced selection still covers the invoice.
+**Adopted for `TfmGameplay.pay`.** The client assembles the complete payment, calculates its
+effective unit values, and submits only legal selections. It removes each selected unit in turn and
+rejects the allocation if any reduced selection still covers the invoice.
 
 This is a legitimate division of responsibility in a follow-mode engine, especially when the
 engine exposes low-level choices rather than owning the player's whole move. It also has the lowest
@@ -214,7 +220,7 @@ Billing directly from debt reaching zero. Do not add a separate `Paid` component
 remains the completion event.
 
 Do not repair Space Elevator by prohibiting all excess or by relying on automatic-effect order.
-First seek the smallest way to expose complete per-source payment value. Once that evidence exists,
-client-side return testing is an acceptable initial enforcement point. A larger in-engine ledger is
-justified only if it makes the existing payment rules materially clearer rather than adding a
-second machinery alongside them.
+Client-side return testing is the initial enforcement point and reads ordinary per-unit value from
+owned `ResourceValue` components. It does not reach raw task callers or expose complete transitive
+payment value. A larger in-engine ledger is justified only if it makes those existing rules
+materially clearer rather than adding a second machinery alongside them.
