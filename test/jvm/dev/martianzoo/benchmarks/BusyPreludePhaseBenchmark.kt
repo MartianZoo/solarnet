@@ -65,7 +65,7 @@ public open class BusyPreludePhaseBenchmark {
 
     workflow.setupPhase()
     me.doTask("-ColonyTileSelection<Class<Ceres>>")
-    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>", taskNumber = 1)
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     engine.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_7, SoloOpponent>")

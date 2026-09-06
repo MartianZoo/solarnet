@@ -478,12 +478,12 @@ internal class Implementations(
 
   internal fun doTask(
       narrowing: InstructionTree,
-      taskNumber: Int? = null,
       intensityOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
+      taskId: TaskId? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
-    val id = matchingTask(evaluated, taskNumber, intensityOmitted)
+    val id = matchingTask(evaluated, taskId, intensityOmitted)
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
     if (narrowsTask(evaluated, task.instruction, intensityOmitted)) {
@@ -507,18 +507,17 @@ internal class Implementations(
 
   private fun matchingTask(
       narrowing: InstructionTree,
-      taskNumber: Int? = null,
+      taskId: TaskId? = null,
       intensityOmitted: Boolean = false,
   ): TaskId {
-    tasks.selectedTask()?.let {
-      return it
+    tasks.selectedTask()?.let { selected ->
+      if (taskId != null && taskId != selected) {
+        throw TaskException("task $selected is already selected")
+      }
+      return selected
     }
 
-    if (taskNumber != null) {
-      if (taskNumber < 1) throw TaskException("task number must be at least 1")
-      return tasks.ids().elementAtOrNull(taskNumber - 1)
-          ?: throw TaskException("there is no task $taskNumber; tasks are:\n$tasks")
-    }
+    if (taskId != null) return tasks.getTaskData(taskId).id
 
     fun weCanNarrowIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
@@ -661,13 +660,13 @@ internal class Implementations(
 
   internal fun tryTask(
       narrowing: InstructionTree,
-      taskNumber: Int? = null,
       intensityOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
+      taskId: TaskId? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
     try {
-      doTask(evaluated, taskNumber, intensityOmitted, executeSubmittedGroup)
+      doTask(evaluated, intensityOmitted, executeSubmittedGroup, taskId)
     } catch (_: AbstractException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {

@@ -38,11 +38,11 @@ public class OtbGame20260825 : RecordedGame() {
       playPrelude(FocusedOrganization) { doTask("Titanium") }
 
       playPrelude(HeadStart) {
-        doTask("UseAction<UseCardAction, Action1>", 1)
+        doTask("UseAction<UseCardAction, Action1>")
         doTask("ActionUsedMarker<$FocusedOrganization>")
         cardAction1(FocusedOrganization) {
-          doTask("-MC", 2)
-          doTask("Titanium", 2)
+          doTask("-MC")
+          doTask("Titanium")
         }
 
         doTask("UseAction<PlayCardFromHand, Action1>")

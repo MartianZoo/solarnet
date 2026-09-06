@@ -168,16 +168,15 @@ public class TfmGameplay(
       val secondAction =
           secondActionOffer()
               ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
-      doTask("Ok", secondAction.index + 1)
+      doTask("Ok", secondAction.id)
     }
   }
 
-  private fun secondActionOffer(): IndexedValue<Task>? =
+  private fun secondActionOffer(): Task? =
       game.tasks
           .extract { it }
           .filter { it.assignee == actor }
-          .withIndex()
-          .filter { (_, task) -> task.isActionPhaseSecondAction() }
+          .filter { task -> task.isActionPhaseSecondAction() }
           .singleOrNull()
 
   private fun Task.isActionPhaseSecondAction(): Boolean {

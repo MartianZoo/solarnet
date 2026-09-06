@@ -7,9 +7,7 @@ internal class TasksCommand(private val repl: ScriptSession) : ScriptCommand("ta
   override val usage = "tasks"
   override val help =
       """
-        List the current Actor's pending tasks in their current order. You can execute them by
-        instruction using `task`. The list has no ids; its 1-based positions are available only
-        for temporary disambiguation, such as `task 2 Ok`.
+        List the current Actor's pending tasks. You can execute them by instruction using `task`.
       """
   override val isReadOnly = true
 

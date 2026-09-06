@@ -232,7 +232,8 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 - selected flag;
 - optional `THEN` continuation group.
 
-A temporary 1-based display position may disambiguate equal-looking tasks. It is not an id.
+Clients normally identify work by an instruction that uniquely narrows one task. Code that already
+holds an exact task may use its stable `TaskId`; presentation order never identifies a task.
 
 Semantically there is one Game World task pool. Actor-specific queues are current filtered API
 views, not independent state containers. `Agent.tasks` may present the fiction of one Actor's queue
