@@ -248,31 +248,14 @@ internal fun acceptedFirstActionPaymentResource(
       ) ?: return null
   if (acceptance.count != 1) return null
 
-  val expression = (effect.trigger as? OnGainOf)?.expression ?: return null
-  if (expression.refinement != null || expression.complement) return null
-  if (describers.triggerFrame(expression.className) != TriggerFrame.UseAction) {
-    return null
-  }
-  val actionKey = Key(ClassName.cn("UseAction"), 0)
-  val resolved = describers.resolveExpression(expression, actionKey) ?: return null
-  if (
-      resolved.sourceDependency(actionKey) != describers.thisExpression ||
-          resolved.sourceDependencies.keys.any { it != actionKey && it != ACTION_SELECTOR }
-  ) {
-    return null
-  }
-  if (resolved.sourceDependency(ACTION_SELECTOR) != ClassName.cn("Action1").expression) return null
+  val actionUse = describers.actionUseEvent(effect.trigger) ?: return null
+  if (actionUse.provider != describers.thisExpression) return null
+  if (actionUse.slot != ClassName.cn("Action1").expression) return null
   return acceptance.noun
 }
 
 private fun Describers.renderActionPaymentTrigger(trigger: Trigger): Clause.Simple? {
-  val expression = (trigger as? OnGainOf)?.expression ?: return null
-  if (expression.refinement != null || expression.complement) return null
-  if (triggerFrame(expression.className) != TriggerFrame.UseAction) return null
-  val actionKey = Key(ClassName.cn("UseAction"), 0)
-  val resolved = resolveExpression(expression, actionKey) ?: return null
-  val action = resolved.sourceDependency(actionKey) ?: return null
-  if (!hasOnlyActionSelection(resolved, actionKey, action)) return null
+  val action = actionUseEvent(trigger)?.provider ?: return null
   val objectPhrase =
       if (action == thisExpression) "this action" else renderActionUse(action) ?: return null
   return eventTrigger(
@@ -751,13 +734,7 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
 private fun Describers.renderActionPaymentDiscountTrigger(
     trigger: Trigger,
 ): PaymentDiscountTrigger? {
-  val expression = (trigger as? OnGainOf)?.expression ?: return null
-  if (expression.refinement != null || expression.complement) return null
-  if (triggerFrame(expression.className) != TriggerFrame.UseAction) return null
-  val actionKey = Key(ClassName.cn("UseAction"), 0)
-  val resolved = resolveExpression(expression, actionKey) ?: return null
-  val action = resolved.sourceDependency(actionKey)?.takeIf { it.simple } ?: return null
-  if (!hasOnlyActionSelection(resolved, actionKey, action)) return null
+  val action = actionUseEvent(trigger)?.provider?.takeIf { it.simple } ?: return null
   if (action == thisExpression) return null
   val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
   val predicate = use.refundDiscountPredicate ?: return null
@@ -929,11 +906,8 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) return null
     return Event(EventKind.PLAY, ActorConstraint.YOU, NounPhrase.text(it))
   }
-  if (triggerFrame(expression.className) == TriggerFrame.UseAction) {
-    val actionKey = Key(ClassName.cn("UseAction"), 0)
-    val resolved = resolveExpression(expression, actionKey) ?: return null
-    val action = resolved.sourceDependency(actionKey) ?: return null
-    if (!hasOnlyActionSelection(resolved, actionKey, action)) return null
+  actionUseEvent(trigger)?.let { actionUse ->
+    val action = actionUse.provider
     return Event(
         EventKind.USE_ACTION,
         ActorConstraint.YOU,
@@ -990,16 +964,6 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   return null
 }
-
-private fun hasOnlyActionSelection(
-    resolved: ResolvedExpression,
-    actionKey: Key,
-    action: Expression,
-): Boolean =
-    resolved.sourceDependency(actionKey) == action &&
-        resolved.sourceDependencies.keys.all { it == actionKey || it == ACTION_SELECTOR }
-
-private val ACTION_SELECTOR = Key(ClassName.cn("UseAction"), 1)
 
 private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event? {
   if (expression.refinement != null || expression.complement) return null

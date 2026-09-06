@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -188,20 +187,9 @@ private fun renderWrapper(
   val declaration = wrapperSubclassDeclaration(className, describers) ?: return null
   val effect = declaration.authoredEffectsWithActions.singleOrNull() ?: return null
   if (effect.automatic) return null
-  val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
-  val actionKey = Key(ClassName.cn("UseAction"), 0)
-  val whichActionKey = Key(ClassName.cn("UseAction"), 1)
-  val resolvedTrigger = describers.resolveExpression(trigger, actionKey) ?: return null
-  if (
-      !resolvedTrigger.hasOnlySourceDependencies(
-          mapOf(
-              actionKey to describers.thisExpression,
-              whichActionKey to ClassName.cn("Action1").expression,
-          )
-      ) || trigger.refinement != null || trigger.complement
-  ) {
-    return null
-  }
+  val actionUse = describers.actionUseEvent(effect.trigger) ?: return null
+  if (actionUse.provider != describers.thisExpression) return null
+  if (actionUse.slot != ClassName.cn("Action1").expression) return null
   val result =
       renderInstructions(effect.instruction, describers).clauses.singleOrNull() ?: return null
   return Clause.Prefaced(Clause.Preface.Context(frame.preface), result)

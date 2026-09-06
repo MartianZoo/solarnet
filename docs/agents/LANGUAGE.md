@@ -137,6 +137,8 @@ The useful architecture already present should be extended rather than replaced:
   matching verb forms.
 - Billing triggers are decoded once into a `BillingEvent`; trigger and payment rendering consume
   that interpretation rather than recognizing the raw Pets form again.
+- Action-use triggers are likewise decoded once into their provider and optional slot before event,
+  payment, or card-action integration decisions are made.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
