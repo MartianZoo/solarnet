@@ -79,17 +79,12 @@ private fun renderPurchaseSelection(operation: SelectAndPurchase): List<Clause> 
 
 private fun renderSelectionAndPlay(operation: SelectAndPlay): List<Clause> {
   val offered = checkNotNull(operation.offered.count.fixedQuantity())
-  val retained = checkNotNull(operation.retained.count.fixedQuantity())
   val family = operation.offered.gaining.className
   val clauses =
       listOf(
           clause("draw", countedCards(family, Quantity.Fixed(offered))),
-          clause("discard", countedCards(family, Quantity.Fixed(offered - retained))),
-          clause(
-              "play",
-              if (retained == 1) "a ${cardFamilyName(family)}"
-              else countedCards(family, Quantity.Fixed(retained)),
-          ),
+          clause("discard", countedCards(family, Quantity.Fixed(offered - 1))),
+          clause("play", "a ${cardFamilyName(family)}"),
       )
   return listOf(Clause.Coordinated(Coordination(clauses, Conjunction.THEN)))
 }

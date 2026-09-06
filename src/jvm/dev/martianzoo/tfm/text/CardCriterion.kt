@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
@@ -26,6 +27,19 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
         return CardCriterion.Tag(metric.expression.className)
       }
     }
+    if (metric is Metric.Count) {
+      val represented = representedClassName(metric.expression)
+      when (metric.expression.className) {
+        PRINTED_TAG -> {
+          val tag = represented?.takeIf { tagName(it) != null } ?: return null
+          return CardCriterion.Tag(tag)
+        }
+        REFERENCE_TO -> {
+          val resource = represented?.takeIf { cardResourceNoun(it, 1) != null } ?: return null
+          return CardCriterion.ResourceIcon(resource)
+        }
+      }
+    }
     if (
         metric is Property && metric.receiver == null && metric.propertyName.value == "requirement"
     ) {
@@ -33,17 +47,10 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
     }
     if (metric is Metric.Count) {
       val citations = metric.expression
-      if (
-          citations.className == CITATIONS &&
-              citations.arguments.size == 1 &&
-              citations.refinement == null &&
-              !citations.complement
-      ) {
-        val representedClass = citations.arguments.single()
-        if (representedClass.className != CLASS || representedClass.arguments.size != 1) return null
-        val resource = representedClass.arguments.single()
-        if (!resource.simple || cardResourceNoun(resource.className, 1) == null) return null
-        return CardCriterion.ResourceIcon(resource.className)
+      if (citations.className == CITATIONS) {
+        val resource = representedClassName(citations) ?: return null
+        if (cardResourceNoun(resource, 1) == null) return null
+        return CardCriterion.ResourceIcon(resource)
       }
     }
   }
@@ -51,7 +58,7 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
       counting is Requirement.Max &&
           counting.target == 0 &&
           (counting.metric as? Metric.Count)?.expression?.let {
-            it.simple && it.className == TAG
+            it.simple && it.className in setOf(TAG, PRINTED_TAG)
           } == true
   ) {
     return CardCriterion.NoTags
@@ -59,6 +66,15 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
   return null
 }
 
+private fun representedClassName(expression: Expression): ClassName? {
+  if (expression.refinement != null || expression.complement) return null
+  val wrapper = expression.arguments.singleOrNull() ?: return null
+  if (wrapper.className != CLASS || wrapper.refinement != null || wrapper.complement) return null
+  return wrapper.arguments.singleOrNull()?.takeIf { it.simple }?.className
+}
+
 private val CITATIONS = cn("Citations")
 private val CLASS = cn("Class")
+private val PRINTED_TAG = cn("PrintedTag")
+private val REFERENCE_TO = cn("ReferenceTo")
 private val TAG = cn("Tag")

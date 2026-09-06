@@ -11,7 +11,7 @@ UnitedNationsMarsInitiative	United Nations Mars Initiative	Gain 40 M€.	Action:
 ColonizerTrainingCamp	Colonizer Training Camp	Requires that oxygen is 5% or lower.
 DeepWellHeating	Deep Well Heating	Increase your energy production 1 step. Raise temperature 1 step.
 CloudSeeding	Cloud Seeding	Requires 3 ocean tiles. Decrease your M€ production 1 step and any player's heat production 1 step and increase your plant production 2 steps.
-SearchForLife	Search For Life	Requires that oxygen is 6% or lower. 3 VPs if you have 1 or more science resources on this card.	Action: [MC -> Science<This>?].
+SearchForLife	Search For Life	Requires that oxygen is 6% or lower. 3 VPs if you have 1 or more science resources on this card.	Action: [MC -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS MicrobeTag): Science<This>) OR Ok)]].
 MartianRails	Martian Rails		Action: Pay 1 energy to gain 1 M€ per any city tile on Mars.
 Capital	Capital	Requires 4 ocean tiles. Place a city tile, then [CapitalMarker<CityTile<>>]. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP per [Adjacency<CityTile(HAS CapitalMarker), OceanTile>].
 AsteroidCard	Asteroid	Raise temperature 1 step. Gain 2 titanium. You may remove up to 3 plants from any player.
@@ -188,7 +188,7 @@ AcquiredCompany	Acquired Company	Increase your M€ production 3 steps.
 MediaArchives	Media Archives	Gain 1 M€ per card in all players' event piles.
 MediaGroup	Media Group		Effect: When you play an event card, gain 3 M€.
 BusinessNetwork	Business Network	Decrease your M€ production 1 step.	Action: Look at 1 project card. You may buy it.
-BusinessContacts	Business Contacts	Draw 2 cards.
+BusinessContacts	Business Contacts	Look at 4 project cards. Draw 2 of them.
 BribedCommittee	Bribed Committee	Raise your terraform rating 2 steps.
 Sabotage	Sabotage	You may remove up to 3 titanium, up to 4 steel, or up to 7 M€ from any player.
 IndustrialCenter	Industrial Center	Place this tile on a land area next to any city tile.	Action: Pay 7 M€ to increase your steel production 1 step.
@@ -208,7 +208,7 @@ FuelFactory	Fuel Factory	Decrease your energy production 1 step and increase you
 CorporateStronghold	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile.
 OlympusConference	Olympus Conference		Effect: When you play a science tag, add 1 science resource to this card or remove 1 science resource from this card to draw 1 card.
 RadSuits	Rad-Suits	Requires any 2 city tiles. Increase your M€ production 1 step.
-InventionContest	Invention Contest	Draw 1 card.
+InventionContest	Invention Contest	Look at 3 project cards. Draw one of them.
 PowerInfrastructure	Power Infrastructure		Action: Pay one or more energy to gain that amount of M€.
 IndenturedWorkers	Indentured Workers	[IndenturedWorkers_NextCardEffect].
 LagrangeObservatory	Lagrange Observatory	Draw 1 card.
@@ -381,7 +381,7 @@ NirgalEnterprises	Nirgal Enterprises	Gain 30 M€. Increase your energy producti
 PalladinShipping	Palladin Shipping	Gain 36 M€ and 5 titanium.	Action: Pay 2 titanium to raise temperature 1 step. / Effect: When you play a space event card, gain 1 titanium.
 SagittaFrontierServices	Sagitta Frontier Services	Gain 31 M€. Increase your energy production 1 step and your M€ production 2 steps. Draw 1 card with no tags.	Effect: When you play a card with no tags, gain 4 M€. When you play a card with exactly 1 tag, gain 1 M€.
 EcoTec	EcoTec	Gain 42 M€. Increase your plant production 1 step.	Effect: When you play a bio tag, gain 1 plant or add 1 microbe to any card.
-Spire	Spire	Gain 50 M€. [Spire_RequiredAction].	Effect: When you play a card with 2 or more tags, add 1 science resource to this card. When you use a standard project, except selling patents, science resources on this card may be used as 2 M€ each.
+Spire	Spire	Gain 50 M€. As your first action, draw 4 cards, then discard 3 cards.	Effect: When you play a card with 2 or more tags, add 1 science resource to this card. When you use a standard project, except selling patents, science resources on this card may be used as 2 M€ each.
 AppliedScience	Applied Science	[WildTag<This>]. Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 prelude card. Discard 1 prelude card or remove 12 M€, then [-Director<This>], then play a prelude card.
