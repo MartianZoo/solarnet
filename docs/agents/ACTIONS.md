@@ -280,10 +280,10 @@ resulting consequence choices. Billing may require zero or more tender selection
 closes can the player select direct effects or other queued consequences.
 
 Client helpers must recognize payment from the live Billing stage, not by inspecting every
-resource-removal instruction. This distinction is what keeps a direct floater cost, a production
-transformation, or another holder-sensitive removal in the ordinary Pets consequence stage. It
-also makes written payment/consequence interleaving invalid without inventing a special payment
-syntax.
+resource-removal instruction. `TfmGameplay.acceptedResources` does this by reading the payer's live
+`Accepting` components. This distinction keeps a direct floater cost, a production transformation,
+or another holder-sensitive removal in the ordinary Pets consequence stage. It also makes written
+payment/consequence interleaving invalid without inventing a special payment syntax.
 
 ## Composition
 

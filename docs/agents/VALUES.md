@@ -170,9 +170,9 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### Will be obsolete
 
-- **The `TfmGameplay` `WildTagUse` completion bridges** —
-  [ENGINE.md](ENGINE.md#terraforming-mars-wild-tags). They disappear when sequencing owns
-  end-of-action settlement.
+- **The remaining `TfmGameplay` `WildTagUse` decline bridge** —
+  [ENGINE.md](ENGINE.md#terraforming-mars-wild-tags). It disappears when sequencing owns
+  action-scoped completion.
 
 ## Keep Pets central
 

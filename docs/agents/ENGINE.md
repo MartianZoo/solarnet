@@ -489,13 +489,10 @@ follow the dependency graph when card identity matters. Robotic Workforce uses
 `CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
 action-scoped wild holder received the Building interpretation.
 
-`WildTagUse` is `MustCleanUp`, so the action cannot finish while it remains. An unchosen offer is
-uniquely implied end-of-action settlement: after the action's work finishes, the selected completion
-hook removes the acting player's remaining uses and their dependent tags disappear through
-dependency cascade. It must finish before workflow offers `SecondAction`. Until that hook exists,
-the shared `TfmGameplay` completion bridge cleans up `WildTagUse?` tasks when they are the acting Player's
-only remaining work, then removes the uses directly; `TfmGameplay` has an equivalent turn-helper
-bridge. Both should disappear when sequencing owns end-of-action settlement.
+`WildTagUse` is `Temporary`. `TfmGameplay` declines an unchosen `WildTagUse?` task when it is the
+acting Player's only remaining work; ordinary temporary cleanup then removes the holder, and its
+dependent tag disappears through dependency cascade. The convenience layer does not remove the
+holder directly.
 
 #### Looking for a better wild-tag mechanism
 

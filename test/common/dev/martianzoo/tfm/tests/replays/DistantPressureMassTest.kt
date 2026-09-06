@@ -830,7 +830,6 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     // The archive records Been passing as a second action; defer it to Been's next legal turn.
     been.pass()
     keen.turn {
-      intentionalOverpay(1)
       playProject(NitrogenFromTitan, titanium = 6).expect("2 TerraformRating")
     }
     keen.sellPatents(StaticHarvesting)
