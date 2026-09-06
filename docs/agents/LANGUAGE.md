@@ -132,6 +132,9 @@ The useful architecture already present should be extended rather than replaced:
   coordinated and relational noun phrases.
 - Events carry one structured noun-phrase object plus independent complements; producers cannot
   bypass that representation with a string constructor.
+- Voice is selected after event interpretation: current wording realizes the acting player in
+  active voice and an unrestricted actor in passive voice, while `EventKind` supplies only the
+  matching verb forms.
 - `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
@@ -144,14 +147,7 @@ needs. Add another layer only when a current decision cannot be represented hone
 
 When English architecture is selected, use this dependency order.
 
-### 1. Decompose event realization
-
-Keep event kind, actor constraint, voice, and complements independent. A destination such as “to
-this card” is a complement, not an event kind. Event objects and complements are structured;
-continue by separating the active/passive choice from semantic event kind and actor constraint. Do
-not force action-use wording or the payment protocol into `TriggerFrame`.
-
-### 2. Re-examine effects as interpretations
+### 1. Re-examine effects as interpretations
 
 The matcher chain in `renderEffect.kt` is evidence that some concepts may still be unnamed, but it
 does not prove that one frame is missing. For each recurring matcher group, decide whether it is:
@@ -166,14 +162,14 @@ Payment should be improved on its own terms. In particular, determine whether `B
 how many helpers disappear; judge whether ownership becomes clearer and recurring recognizers are
 deleted.
 
-### 3. Audit card-operation recognizers
+### 2. Audit card-operation recognizers
 
 `renderCardOperation` and `CardCriterion` need an explicit scope. A surviving construction must be a
 structural interpretation of a recurring Pets form, a narrow lexical fact, corrected Pets, or
 visible unresolved source. A type described as serving one canonical operation is presumptively a
 recognizer.
 
-### 4. Finish ownership and layout
+### 3. Finish ownership and layout
 
 Move expansion-owned lexical declarations toward their bundles when that work can replace the
 central registry cleanly; do not make registry movement a prerequisite for unrelated rendering.

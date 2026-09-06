@@ -780,8 +780,34 @@ private data class Event(
     val objectPhrase: NounPhrase,
     val complements: List<Modifier> = emptyList(),
 ) {
-  fun renderTrigger(): Clause.Simple? =
-      kind.renderTrigger(actorConstraint, objectPhrase, complements)
+  fun renderTrigger(): Clause.Simple? {
+    val voice =
+        when (actorConstraint) {
+          ActorConstraint.YOU -> Voice.ACTIVE
+          ActorConstraint.UNRESTRICTED -> Voice.PASSIVE
+        }
+    val verb = kind.verb(voice) ?: return null
+    return when (voice) {
+      Voice.ACTIVE ->
+          eventTrigger(
+              subject = NounPhrase.text("you"),
+              verb = verb,
+              objectPhrase = objectPhrase,
+              modifiers = complements,
+          )
+      Voice.PASSIVE ->
+          eventTrigger(
+              subject = objectPhrase,
+              verb = verb,
+              modifiers = complements,
+          )
+    }
+  }
+
+  enum class Voice {
+    ACTIVE,
+    PASSIVE,
+  }
 }
 
 private enum class ActorConstraint {
@@ -791,48 +817,22 @@ private enum class ActorConstraint {
 
 private enum class EventKind(
     private val activeVerb: String? = null,
-    private val activeModifier: String? = null,
     private val passiveVerb: String? = null,
-    private val passiveModifier: String? = null,
 ) {
   PLAY(activeVerb = "play", passiveVerb = "is played"),
   BUY(activeVerb = "buy"),
   USE_ACTION(activeVerb = "use"),
   PLACE(activeVerb = "place", passiveVerb = "is placed"),
   CREATE(activeVerb = "create", passiveVerb = "is created"),
-  INCREASE_PRODUCTION(activeVerb = "increase", activeModifier = "1 step"),
-  RAISE(
-      activeVerb = "raise",
-      activeModifier = "1 step",
-      passiveVerb = "is raised",
-      passiveModifier = "1 step",
-  ),
+  INCREASE_PRODUCTION(activeVerb = "increase"),
+  RAISE(activeVerb = "raise", passiveVerb = "is raised"),
   ADD(activeVerb = "add"),
   ;
 
-  fun renderTrigger(
-      actorConstraint: ActorConstraint,
-      objectPhrase: NounPhrase,
-      complements: List<Modifier>,
-  ): Clause.Simple? =
-      when (actorConstraint) {
-        ActorConstraint.YOU ->
-            activeVerb?.let { verb ->
-              eventTrigger(
-                  subject = NounPhrase.text("you"),
-                  verb = verb,
-                  objectPhrase = objectPhrase,
-                  modifiers = complements + listOfNotNull(activeModifier?.let(Modifier::Phrase)),
-              )
-            }
-        ActorConstraint.UNRESTRICTED ->
-            passiveVerb?.let { verb ->
-              eventTrigger(
-                  subject = objectPhrase,
-                  verb = verb,
-                  modifiers = complements + listOfNotNull(passiveModifier?.let(Modifier::Phrase)),
-              )
-            }
+  fun verb(voice: Event.Voice): String? =
+      when (voice) {
+        Event.Voice.ACTIVE -> activeVerb
+        Event.Voice.PASSIVE -> passiveVerb
       }
 }
 
@@ -864,7 +864,12 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     }
     if (!expression.simple) return null
     return scaleFrame(expression.className)?.let {
-      Event(EventKind.RAISE, ActorConstraint.UNRESTRICTED, NounPhrase.text(it.subject))
+      Event(
+          EventKind.RAISE,
+          ActorConstraint.UNRESTRICTED,
+          NounPhrase.text(it.subject),
+          listOf(Modifier.Phrase("1 step")),
+      )
     }
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
@@ -880,7 +885,12 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   if (expression.refinement == null) {
     scaleFrame(expression.className)?.let {
-      return Event(EventKind.RAISE, ActorConstraint.YOU, NounPhrase.text(it.subject))
+      return Event(
+          EventKind.RAISE,
+          ActorConstraint.YOU,
+          NounPhrase.text(it.subject),
+          listOf(Modifier.Phrase("1 step")),
+      )
     }
   }
   purchaseEvent(expression)?.let {
@@ -1099,7 +1109,12 @@ private fun Describers.productionEvent(expression: Expression): Event? {
       } else {
         oneOfYour("productions")
       }
-  return Event(EventKind.INCREASE_PRODUCTION, ActorConstraint.YOU, objectPhrase)
+  return Event(
+      EventKind.INCREASE_PRODUCTION,
+      ActorConstraint.YOU,
+      objectPhrase,
+      listOf(Modifier.Phrase("1 step")),
+  )
 }
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
