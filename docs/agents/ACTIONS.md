@@ -295,8 +295,10 @@ existing Award count; selecting the wrong one cannot complete and rolls back.
 Card acquisition first fixes the complete selected set, then establishes all adjusted debt under
 one Billing stage, and transfers the exact cards only after settlement. Starting-card acquisition
 uses the same lifecycle after corporation resources exist; Business Network and later Research use
-it whenever the player commits the contents of `Selecting`. The commitment time may be a player
-choice, but individual debt creation and transfer bookkeeping are not.
+it whenever the player commits the contents of `Selecting`. `CardPurchase` reacts directly to its
+invoice's removal and transfers the cards; clients do not locate or select a pending transfer task.
+The commitment time may be a player choice, but individual debt creation and transfer bookkeeping
+are not.
 
 Card play creates printed M€ debt, handles tags, then creates
 `CardInvoice<Class<CardFront>>`. Generic card-play modifiers respond to its `Billing<CardPlay>`
