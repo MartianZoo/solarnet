@@ -16,6 +16,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
+- Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
+  tile adjacency can avoid evaluating the metric against every live component.
 - **Medium-high priority:** Consolidate exception cleanup
   ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain
   failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain layers,

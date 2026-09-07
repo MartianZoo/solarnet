@@ -63,8 +63,6 @@ ABSTRACT CLASS Area {
     row = Number
     column = Number
 
-    Tile<This>:: CreateAdjacencies<This>
-
     // An unreserved area
     ABSTRACT CLASS LandArea {
       ABSTRACT CLASS VolcanicArea
@@ -93,6 +91,11 @@ CLASS LandClaimMarker<LandArea> : Owned<Player> {
 
 // A tile; if it's not on an Area / not in play, it doesn't exist yet
 ABSTRACT CLASS Tile<Area> {
+  This:: EACH Tile<MarsArea(HAS Neighbor<This>)> { \
+    ForwardAdjacency<Tile<MarsArea(HAS Neighbor<This>)>, This>, \
+    BackwardAdjacency<This, Tile<MarsArea(HAS Neighbor<This>)>> \
+  }
+
   // IMPL: This should narrow ownership to Owner, but bare owned-tile expressions rely on the Owned
   // default inserting an explicit contextual Owner variable, which a declared Owner bound erases.
   "Any tile that someone owns"
@@ -714,9 +717,6 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
-"Creates directional Adjacencies when a tile is placed"
-CLASS CreateAdjacencies<MarsArea> : Custom
-
 "A virtual metric whose count is the number of a particular resource printed as an area's bonus"
 CLASS PlacementBonus<Class<Resource>, MarsArea> : Custom
 
@@ -743,8 +743,8 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
 }
 
-"The number of geometric neighbor relations between live tiles and map areas"
-CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden, Custom
+"The number of geometric neighbor relations between live tiles and areas on the selected Mars map"
+CLASS Neighbor<Tile<Area>, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
   This:: EACH Player { AwardTally<Award> / EVAL Award.metric }

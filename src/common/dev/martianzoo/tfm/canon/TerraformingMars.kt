@@ -28,6 +28,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.pets.ast.Requirement.Exact
@@ -37,17 +38,14 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import kotlin.math.abs
 
 private val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
-        TerraformingMars.CreateAdjacencies,
         TerraformingMars.Neighbor,
         TerraformingMars.CreateMapAreas,
         TerraformingMars.AdjustGpRequirement,
@@ -145,40 +143,12 @@ private object TerraformingMars {
   }
 
   private val NEIGHBOR = cn("Neighbor")
-  private val FORWARD_ADJACENCY = cn("ForwardAdjacency")
-  private val BACKWARD_ADJACENCY = cn("BackwardAdjacency")
-
-  internal object CreateAdjacencies : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(FORWARD_ADJACENCY, BACKWARD_ADJACENCY)
-
-    override fun translate(reader: GameReader, areaType: Type): Instruction {
-      val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
-      val row = areaType.getNumberPropertyValue("row")
-      val column = areaType.getNumberPropertyValue("column")
-      val area = grid[row, column]!!
-      val neighborAreas: List<AreaDefinition> = grid.hexNeighbors(row, column)
-
-      fun tileOn(area: AreaDefinition): Expression? {
-        val tileType: Type = reader.resolve(TILE.of(area.className))
-        return reader.getComponents(tileType).singleOrNull()?.expression
-      }
-
-      val newTile: Expression = tileOn(area)!!
-      val adjacencies =
-          neighborAreas.mapNotNull(::tileOn).flatMap {
-            listOf(
-                FORWARD_ADJACENCY.of(it, newTile),
-                BACKWARD_ADJACENCY.of(newTile, it),
-            )
-          }
-      return Then.create(adjacencies.map(::gain))
-    }
-  }
 
   internal object Neighbor : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (tile, target) = type.typeDependencies.map { it.boundType }
       val source = tile.typeDependencies.single { it.key.declaringClass == TILE }.boundType
+      if (listOf("row", "column").any { PropertyName(it) !in source.rootClass.properties }) return 0
       val rowDelta = target.getNumberPropertyValue("row") - source.getNumberPropertyValue("row")
       val columnDelta =
           target.getNumberPropertyValue("column") - source.getNumberPropertyValue("column")

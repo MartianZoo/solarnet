@@ -33,6 +33,11 @@ Custom metrics are a separate concern.
 `ColoniesSetup` was removed this way: its per-player fleet loop is now
 `EACH Player { TradeFleet }` in plain Pets. See [EACH.md](EACH.md).
 
+`CreateAdjacencies` was removed after live-component fanout became available. A newly placed tile
+fans out over the live neighboring tiles selected by the geometric `Neighbor` metric and creates
+the two directed `Adjacency` components in plain Pets. `Neighbor` accepts any tile as its source so
+the tile-owned effect remains valid for remote cities, which have no neighbors on the Mars map.
+
 ### `PassLeft`
 
 A shared seat-topology model such as `LeftOf<From, To>` could let plain Pets move a
@@ -48,7 +53,6 @@ These honestly bridge Pets to canonical metadata absent from the component graph
 - `ScoreEventVps`
 - `AdjustGpRequirement`
 - `HandleCardTags`
-- `CreateAdjacencies` (its geometry now derives from active area Classes)
 
 Generating card-specific Pets responders would only move these to the worse generation tier.
 Colony class declarations and the three resource-delay selections are hand-authored in Pets.
