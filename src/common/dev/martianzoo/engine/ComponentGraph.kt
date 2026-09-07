@@ -15,7 +15,7 @@ import dev.martianzoo.pets.util.Multiset
  * multiset, but called a "graph" because these component instances have references to their
  * dependencies which are also stored in the multiset.
  */
-public class ComponentGraph
+public open class ComponentGraph
 private constructor(
     private val classTable: ClassTable,
     private val addEffects: (Component, Int) -> Unit,
@@ -72,13 +72,13 @@ private constructor(
    * Does at least one instance of [component] exist currently? (That is, is [countComponent]
    * nonzero?)
    */
-  internal operator fun contains(component: Component): Boolean {
+  internal open operator fun contains(component: Component): Boolean {
     requireOwnClassTable(component.type)
     return component in components
   }
 
   /** How many instances of the exact component [component] currently exist? */
-  internal fun countComponent(component: Component): Int {
+  internal open fun countComponent(component: Component): Int {
     requireOwnClassTable(component.type)
     return components.count(component)
   }
@@ -87,7 +87,7 @@ private constructor(
    * How many total component instances have the type [parentType] (or any of its subtypes)? Returns
    * zero for an inactive type, which cannot have stored components.
    */
-  internal fun count(parentType: Type, info: TypeInfo): Int {
+  internal open fun count(parentType: Type, info: TypeInfo): Int {
     requireOwnClassTable(parentType)
     return if (!classTable.isActive(parentType)) {
       0
@@ -103,7 +103,7 @@ private constructor(
     }
   }
 
-  internal fun containsAny(parentType: Type, info: TypeInfo): Boolean {
+  internal open fun containsAny(parentType: Type, info: TypeInfo): Boolean {
     requireOwnClassTable(parentType)
     return if (!classTable.isActive(parentType)) {
       false
@@ -115,7 +115,7 @@ private constructor(
   }
 
   /** Distinct concrete component Types currently matching [parentType]. */
-  internal fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
+  internal open fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
     requireOwnClassTable(parentType)
     return if (!classTable.isActive(parentType)) {
       emptySequence()
@@ -134,7 +134,7 @@ private constructor(
    * type returns an empty multiset. If [parentType] is `Component` this returns the entire
    * component multiset.
    */
-  internal fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
+  internal open fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
     requireOwnClassTable(parentType)
     return if (!classTable.isActive(parentType)) {
       HashMultiset()
@@ -163,12 +163,12 @@ private constructor(
     }
     removing?.let {
       checkDependents(count, it)
-      val remaining = components.mustRemove(it, count)
+      val remaining = removeFromComponentStore(it, count)
       if (remaining == 0) unregisterDependencies(it)
       removeEffects(it, count)
     }
     gaining?.let {
-      val newCount = components.add(it, count)
+      val newCount = addToComponentStore(it, count)
       if (newCount == count && count > 0) registerDependencies(it)
       addEffects(it, count)
     }
@@ -185,6 +185,12 @@ private constructor(
     }
   }
 
+  protected open fun addToComponentStore(component: Component, count: Int): Int =
+      components.add(component, count)
+
+  protected open fun removeFromComponentStore(component: Component, count: Int): Int =
+      components.mustRemove(component, count)
+
   private fun notify(listener: (Int) -> Unit, count: Int) {
     try {
       listener(count)
@@ -193,9 +199,11 @@ private constructor(
     }
   }
 
-  private fun requireOwnClassTable(type: Type) {
+  protected fun requireOwnClassTable(type: Type) {
     require(classTable.knows(type)) { "$type belongs to a different Catalog" }
   }
+
+  internal fun classTableForOverlay(): ClassTable = classTable
 
   private fun queryShardClasses(klass: Class): Set<Class> =
       queryShardClassesByClass.getOrPut(klass) {
@@ -218,13 +226,15 @@ private constructor(
 
   private fun checkDependents(count: Int, removing: Component) {
     if (countComponent(removing) == count) {
-      dependentsByDependency[removing]?.let { dependents ->
-        if (dependents.isNotEmpty()) {
-          throw ExistingDependentsException(dependents.map { it.type })
-        }
+      val dependents = dependentsOf(removing)
+      if (dependents.isNotEmpty()) {
+        throw ExistingDependentsException(dependents.map { it.type })
       }
     }
   }
+
+  internal open fun dependentsOf(component: Component): Set<Component> =
+      dependentsByDependency[component].orEmpty()
 
   private fun registerDependencies(dependent: Component) {
     dependent.type.typeDependencies.forEach { dependency ->

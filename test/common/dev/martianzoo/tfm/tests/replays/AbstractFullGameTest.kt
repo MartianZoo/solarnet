@@ -5,6 +5,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.exMachina
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
@@ -138,36 +139,28 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   private fun TfmGameplay.assertVps(expected: Int) {
-    val onAtomicComplete = game.onAtomicComplete
-    val checkpoint = game.timeline.checkpoint()
-    val autoExecModes = game.actors.associateWith { game.agent(it).autoExecMode }
-    game.onAtomicComplete = {}
-    try {
-      game.actors.forEach { game.agent(it).autoExecMode = FIRST }
-      dropPendingTasksForSnapshot()
-      engine.phase("Production") { dropPendingTasksForSnapshot() }
-      engine.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
-      assertCounts(expected to "VictoryPoint")
-    } finally {
-      game.timeline.rollBack(checkpoint)
-      autoExecModes.forEach { (actor, mode) -> game.agent(actor).autoExecMode = mode }
-      game.onAtomicComplete = onAtomicComplete
+    val snapshot = Engine.overlay(game)
+    snapshot.actors.forEach { snapshot.agent(it).autoExecMode = FIRST }
+    snapshot.dropPendingTasksForSnapshot()
+    snapshot.tfm(ENGINE).phase("Production") { snapshot.dropPendingTasksForSnapshot() }
+    snapshot.tfm(ENGINE).manual("End FROM Phase") {
+      snapshot.dropPendingTasksForSnapshot()
     }
+    snapshot.tfm(actor).assertCounts(expected to "VictoryPoint")
   }
 
   // Pending choices describe future play, so a snapshot must neither execute nor count them.
-  // Unbought research cards need to leave Selecting before task removal; the
-  // enclosing checkpoint restores both the components and tasks afterward.
-  private fun dropPendingTasksForSnapshot() {
-    game.actors
+  // Unbought research cards need to leave Selecting before task removal.
+  private fun dev.martianzoo.engine.World.dropPendingTasksForSnapshot() {
+    actors
         .filterIsInstance<Player>()
-        .map { game.tfm(it) }
+        .map { tfm(it) }
         .filter { it.count("ProjectCard<Selecting>") > 0 }
         .forEach { it.buyCards(0) }
-    game.tasks
+    tasks
         .extract { it.id to it.assignee }
         .forEach { (id, assignee) ->
-          game.agent(assignee).dropTask(id)
+          agent(assignee).dropTask(id)
         }
   }
 }

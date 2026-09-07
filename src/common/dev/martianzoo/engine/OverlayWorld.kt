@@ -5,8 +5,10 @@ import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
 
-/** The live, complete implementation of a [World]. */
-internal class WholeWorld
+/**
+ * A disposable engine world whose event suffix and mutable projections leave its base unchanged.
+ */
+internal class OverlayWorld
 internal constructor(
     override val components: ComponentGraph,
     override val events: EventLog,
@@ -16,29 +18,12 @@ internal constructor(
     override val classTable: ClassTable,
     override val vocabulary: Vocabulary,
     private val agentByActor: Map<Actor, Agent>,
-    private val timelineImpl: TimelineImpl,
-    private val recordingPositions: RecordingPositions,
-    internal val effector: Effector,
 ) : World {
   override val tasks: TaskQueue = taskQueues.all()
 
   override val reader: GameReader = readerImpl
 
-  /** The exact event-backed state revision, including changes later rolled back. */
-  internal val revision: WorldRevision
-    get() = events.revision
-
   override fun agent(actor: Actor): Agent = agentByActor[actor]!!
 
   override var onAtomicComplete: () -> Unit = {}
-
-  internal fun recording(): GameRecording {
-    val entries = events.entriesSince(Timeline.Checkpoint(0))
-    val positions =
-        (recordingPositions.snapshot().filter { it.ordinal <= entries.size } +
-                Timeline.Checkpoint(entries.size))
-            .distinct()
-    timelineImpl.sealRecording(positions)
-    return GameRecording(this, timelineImpl, entries, positions)
-  }
 }

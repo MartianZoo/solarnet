@@ -177,6 +177,19 @@ test. Its Chrome task fell from 5m36.15s to 4m43.65s, a 15.6% reduction. The JVM
 all 21 moved test classes and passed. There is no property or alternate task that adds the JVM-only
 replays back to a browser run.
 
+## Overlay replay snapshot result
+
+A 2026-09-06 immediate A/B used `Game20230521Test`, whose 18 victory-point assertions each
+calculate production and final scoring hypothetically. The rollback implementation took 2.342s;
+the overlay implementation took 2.408s after replacing repeated task-map reconstruction with one
+materialized task projection. The 2.8% difference is within the noise of these short single samples,
+so the result shows throughput parity rather than a speedup.
+
+`OtbGame20260828Test` does not use the victory-point snapshot path and checks the ordinary
+`WholeWorld` path. Its immediate sample changed from 3.042s before the implementation to 2.964s
+after live and overlay component/task storage were separated. This supports that overlay machinery
+does not tax ordinary live execution.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without

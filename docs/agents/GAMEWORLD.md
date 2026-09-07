@@ -16,8 +16,10 @@
 ## Current source map
 
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) and
-  [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — search for
-  `public interface World` and `internal class WholeWorld` for the currently combined object.
+  [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt), and
+  [`OverlayWorld.kt`](../../src/common/dev/martianzoo/engine/OverlayWorld.kt) — search for
+  `public interface World`, `internal class WholeWorld`, and `internal class OverlayWorld` for the
+  live and hypothetical engine worlds.
 - [`ComponentGraph.kt`](../../src/common/dev/martianzoo/engine/ComponentGraph.kt) and
   [`GameReaderImpl.kt`](../../src/common/dev/martianzoo/engine/GameReaderImpl.kt) — search for
   `applyChange` and `internal class GameReaderImpl` for present-state storage and queries.
@@ -121,6 +123,25 @@ projection, not transient projections encountered while moving the cursor.
 Current `Timeline` combines live transaction control with recording playback. Extraction should
 leave transaction atomicity and the commit floor in `:engine`, while moving independent recording
 navigation into `:gameworld`.
+
+## Hypothetical overlays
+
+`Engine.overlay` creates a disposable hypothetical world at a `WholeWorld`'s current revision. Its
+`EventLog` captures the backing log as an immutable prefix and records only a local suffix.
+Component reads consult the backing graph and amend its answers with count deltas derived from that
+suffix. The task projection materializes the backing tasks on first use, then applies only local
+task events. The live-effect index is copied so the same effects fire without rescanning all backing
+components.
+
+An overlay has its own Agents, task projection, timeline, completion callback, and event suffix.
+Agent autoexecution modes begin with the backing Agents' current modes. Mutating or discarding the
+overlay cannot change the backing world. The backing world must remain at the captured revision
+while the overlay is used; overlay component, task, and event access rejects a changed backing
+world.
+
+Full-game victory-point snapshots use an overlay for hypothetical production and final scoring, so
+their `WholeWorld` records only actual replay progress. Overlays do not yet support nesting, reuse a
+successful suffix as a live commit, or eliminate engine-internal selection-probe reversals.
 
 ## Exported recordings
 

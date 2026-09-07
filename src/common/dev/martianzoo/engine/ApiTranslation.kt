@@ -40,9 +40,10 @@ internal class ApiTranslation(
     xers: Transformers,
     vocabulary: Vocabulary,
     private val atomicOperationScope: AtomicOperationScope,
+    initialAutoExecMode: AutoExecMode = FIRST,
 ) : Agent {
 
-  override var autoExecMode: AutoExecMode = FIRST
+  override var autoExecMode: AutoExecMode = initialAutoExecMode
     set(newMode) {
       if (newMode != field) {
         field = newMode

@@ -18,6 +18,15 @@ internal class Effector(
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
 
+  /** Copies the materialized live-effect view for an overlay with its own reader. */
+  internal fun overlay(readerProvider: () -> GameReader): Effector =
+      Effector(transformers, readerProvider).also { overlay ->
+        registry.forEach { (key, effects) ->
+          overlay.registry[key] = HashMultiset<LiveEffect>().also { it.addAll(effects) }
+        }
+        overlay.effects.putAll(effects)
+      }
+
   internal fun add(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach

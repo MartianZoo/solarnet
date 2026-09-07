@@ -32,28 +32,20 @@ import dev.martianzoo.pets.types.ClassTable
  * * New tasks created have the same controller, Actor, and cause as the original. Selected tasks
  *   cannot be split
  */
-internal class TaskQueues
-private constructor(
+internal open class TaskQueues(
     private val events: EventLog,
-    private val classTable: ClassTable?,
-    initialTasks: Collection<Task>,
+    private val classTable: ClassTable? = null,
 ) {
-  init {
-    require(initialTasks.all { it.id.ordinal < events.size })
-  }
-
-  internal constructor(
-      events: EventLog,
-      classTable: ClassTable? = null,
-  ) : this(events, classTable, emptyList())
-
-  private val taskSet: MutableSet<Task> = initialTasks.toMutableSet()
+  private val taskSet: MutableSet<Task> = mutableSetOf()
   private val isAbstract: ((Expression) -> Boolean)? = classTable?.let { table ->
     { expression -> table.resolve(expression).abstract }
   }
 
-  /** Copies current tasks without recording their existing additions in [events]. */
-  internal fun copy(events: EventLog): TaskQueues = TaskQueues(events, classTable, taskSet)
+  /** Overlays current tasks without recording their existing additions in [events]. */
+  internal fun overlay(
+      events: EventLog,
+      requireUnchangedBacking: () -> Unit,
+  ): TaskQueues = OverlayTaskQueues(events, classTable, this, requireUnchangedBacking)
 
   internal fun all(): TaskQueue = TaskQueue(this, assignee = null) { true }
 
@@ -62,10 +54,10 @@ private constructor(
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 
-  internal fun getTaskData(id: TaskId) =
+  internal open fun getTaskData(id: TaskId): Task =
       taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
 
-  internal fun getAllTaskData(): List<Task> = taskSet.toList()
+  internal open fun getAllTaskData(): List<Task> = taskSet.toList()
 
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
@@ -144,7 +136,7 @@ private constructor(
 
   // DIRECT MUTATORS
 
-  private fun addToTaskSet(task: Task) {
+  protected open fun addToTaskSet(task: Task) {
     require(taskSet.none { it.id == task.id })
 
     // Task ids define a stable diagnostic order, though queue order has no gameplay meaning.
@@ -153,7 +145,7 @@ private constructor(
     taskSet += all.sortedBy { it.id }
   }
 
-  private fun removeFromTaskSet(task: Task) {
+  protected open fun removeFromTaskSet(task: Task) {
     require(taskSet.remove(task))
   }
 

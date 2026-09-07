@@ -26,7 +26,7 @@ internal class GameReaderImpl(
     private val components: ComponentGraph,
     internal val transformers: Transformers,
     private val customClasses: CustomClassRuntime,
-    private val premise: GamePremise,
+    internal val premise: GamePremise,
 ) : GameReader {
   override val actors = premise.actors
 

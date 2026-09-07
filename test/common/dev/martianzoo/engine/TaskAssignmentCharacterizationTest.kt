@@ -135,7 +135,7 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun copiedQueuesRetainTasksAndThenDiverge() {
+  internal fun overlaidQueuesRetainTasksAndThenDiverge() {
     val events = EventLog()
     val queues = TaskQueues(events)
     val pending =
@@ -147,9 +147,9 @@ internal class TaskAssignmentCharacterizationTest {
     queues[PLAYER2].addTasks(pending)
 
     events.markSetupStart()
-    val copied = queues.copy(EventLog(events))
-    copied[PLAYER2].addTasks(pending).single().task.id shouldBe TaskId(1)
+    val overlaid = queues.overlay(EventLog(events)) {}
+    overlaid[PLAYER2].addTasks(pending).single().task.id shouldBe TaskId(1)
     queues[PLAYER2].ids().shouldContainExactly(TaskId(0))
-    copied[PLAYER2].ids().shouldContainExactly(TaskId(0), TaskId(1))
+    overlaid[PLAYER2].ids().shouldContainExactly(TaskId(0), TaskId(1))
   }
 }

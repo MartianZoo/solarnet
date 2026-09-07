@@ -20,7 +20,11 @@ import dev.martianzoo.pets.data.TaskResult
  * supply the corresponding state mutation, which succeeds before the history and [revision] advance
  * together.
  */
-public class EventLog internal constructor(private val prefixSource: EventLog? = null) {
+public class EventLog
+internal constructor(
+    private val prefixSource: EventLog? = null,
+    private val requireStablePrefix: () -> Unit = {},
+) {
   private val prefixSize: Int = prefixSource?.size ?: 0
   private val events: MutableList<GameEvent> = mutableListOf()
 
@@ -79,6 +83,7 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
   public fun entriesSince(checkpoint: Checkpoint): List<GameEvent> {
+    requireStablePrefix()
     require(checkpoint.ordinal <= size)
     if (checkpoint.ordinal >= prefixSize) {
       return events.subList(checkpoint.ordinal - prefixSize, events.size).toList()

@@ -26,29 +26,57 @@ public object Engine {
       inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
   ): World = Wiring(premise, locale, inputOnlySynonyms).createWorld()
 
+  /**
+   * Creates a disposable hypothetical world at [backing]'s current revision. The returned world
+   * records only its own event suffix and never mutates [backing].
+   *
+   * The backing world must remain unchanged while the overlay is in use.
+   */
+  public fun overlay(backing: World): World {
+    require(backing is WholeWorld) { "an overlay currently requires a WholeWorld backing" }
+    return Wiring(backing).createWorld()
+  }
+
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
-  private class Wiring(
+  private class Wiring
+  private constructor(
       private val premise: GamePremise,
-      locale: String,
-      inputOnlySynonyms: Iterable<Pair<String, String>>,
+      private val vocabulary: Vocabulary,
+      private val backing: WholeWorld?,
   ) {
-    private val classTable = premise.classTable.also(::validatePremise)
-    private val vocabulary: Vocabulary =
-        premise.createVocabulary(
-            classTable.allClassNames,
-            locale,
-            inputOnlySynonyms,
-        )
-    private val transformers: Transformers = Transformers(classTable)
+    internal constructor(
+        premise: GamePremise,
+        locale: String,
+        inputOnlySynonyms: Iterable<Pair<String, String>>,
+    ) : this(
+        premise,
+        premise.createVocabulary(premise.classTable.allClassNames, locale, inputOnlySynonyms),
+        null,
+    )
+
+    internal constructor(
+        backing: WholeWorld
+    ) : this(backing.readerImpl.premise, backing.vocabulary, backing)
+
+    private val backingRevision = backing?.revision
+    private val classTable = premise.classTable.also { if (backing == null) validatePremise(it) }
+    private val transformers: Transformers =
+        backing?.readerImpl?.transformers ?: Transformers(classTable)
     private val customClasses = CustomClassRuntime(premise.catalog, transformers)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
     // complete.
-    private val effector: Effector = Effector(transformers) { reader }
-    private val components = ComponentGraph(effector, classTable)
-    private val events = EventLog()
-    private val taskQueues = TaskQueues(events, classTable)
+    private val effector: Effector =
+        backing?.effector?.overlay { reader } ?: Effector(transformers) { reader }
+    private val components =
+        backing?.let { OverlayComponentGraph(it.components, effector, ::requireUnchangedBacking) }
+            ?: ComponentGraph(effector, classTable)
+    private val events =
+        backing?.let { EventLog(it.events, ::requireUnchangedBacking) } ?: EventLog()
+    private val taskQueues =
+        backing?.taskQueues?.overlay(events, ::requireUnchangedBacking)
+            ?: TaskQueues(events, classTable)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReaderImpl =
         GameReaderImpl(classTable, components, transformers, customClasses, premise)
@@ -77,31 +105,55 @@ public object Engine {
         }
     private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
     private val initializer =
-        Initializer(
-            agentByActor.getValue(ENGINE),
-            instructorByActor.getValue(ENGINE),
-            taskQueues,
-            classTable,
-            timeline,
-            premise,
-        )
-    private val world: WholeWorld =
-        WholeWorld(
-            components,
-            events,
-            taskQueues.all(),
-            timeline,
-            reader,
-            classTable,
-            vocabulary,
-            agentByActor,
-            timeline,
-            recordingPositions,
-        )
+        if (backing == null) {
+          Initializer(
+              agentByActor.getValue(ENGINE),
+              instructorByActor.getValue(ENGINE),
+              taskQueues,
+              classTable,
+              timeline,
+              premise,
+          )
+        } else {
+          null
+        }
+    private val world: World =
+        if (backing == null) {
+          WholeWorld(
+              components,
+              events,
+              taskQueues,
+              timeline,
+              reader,
+              classTable,
+              vocabulary,
+              agentByActor,
+              timeline,
+              recordingPositions,
+              effector,
+          )
+        } else {
+          OverlayWorld(
+              components,
+              events,
+              taskQueues,
+              timeline,
+              reader,
+              classTable,
+              vocabulary,
+              agentByActor,
+          )
+        }
 
-    internal fun createWorld(): WholeWorld {
-      initializer.initialize()
+    internal fun createWorld(): World {
+      initializer?.initialize()
       return world
+    }
+
+    private fun requireUnchangedBacking() {
+      check(backing == null || backing.revision == backingRevision) {
+        "backing World changed after overlay creation"
+      }
     }
 
     private fun removeTemporaryComponents(): Boolean {
@@ -200,6 +252,7 @@ public object Engine {
           transformers,
           vocabulary,
           atomicOperationScope,
+          backing?.agent(actor)?.autoExecMode ?: AutoExecMode.FIRST,
       )
     }
   }
