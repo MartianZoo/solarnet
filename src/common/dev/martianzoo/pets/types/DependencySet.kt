@@ -181,8 +181,10 @@ public class DependencySet private constructor(private val deps: List<Dependency
   // OTHER
 
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
-  internal fun subMapInOrder(keysInOrder: Iterable<Key>) =
-      DependencySet(keysInOrder.mapNotNull(::getIfPresent))
+  internal fun subMapInOrder(keysInOrder: Iterable<Key>): DependencySet {
+    if (keysInOrder == keys) return this
+    return DependencySet(keysInOrder.mapNotNull(::getIfPresent))
+  }
 
   private inline fun map(function: (GroundType) -> GroundType) =
       DependencySet(deps.map { if (it is TypeDependency) it.map(function) else it })
