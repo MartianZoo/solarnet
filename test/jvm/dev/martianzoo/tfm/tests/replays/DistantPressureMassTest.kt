@@ -184,7 +184,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 1, tagless = 1, cities = 2, colonies = 1)
     }
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 3, venus = 4)
-    engine.assertCounts(5 to "Tile")
+    admin.assertCounts(5 to "Tile")
 
     been.buyCards(AstraMechanica, ForcedPrecipitation)
     been.discardUnselectedProjectCards(MartianSurvey, HiredRaiders)
@@ -252,7 +252,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 1, tagless = 1, cities = 2, colonies = 2)
     }
     assertSidebar(gen = 4, temp = -30, oxygen = 1, oceans = 3, venus = 4)
-    engine.assertCounts(5 to "Tile")
+    admin.assertCounts(5 to "Tile")
 
     been.buyCards(InventionContest)
     been.discardUnselectedProjectCards(JupiterFloatingStation, ElectroCatapult, RedShips)
@@ -492,7 +492,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 4, tagless = 1, cities = 3, colonies = 2)
     }
     assertSidebar(gen = 8, temp = -18, oxygen = 6, oceans = 5, venus = 22)
-    engine.assertCounts(14 to "Tile")
+    admin.assertCounts(14 to "Tile")
 
     been.buyCards(AerialMappers)
     been.discardUnselectedProjectCards(
@@ -620,7 +620,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 5, tagless = 1, cities = 3, colonies = 2)
     }
     assertSidebar(gen = 9, temp = -14, oxygen = 12, oceans = 8, venus = 30)
-    engine.assertCounts(21 to "Tile")
+    admin.assertCounts(21 to "Tile")
 
     been.turn {
       playProject(RimFreighters, 1, titanium = 1)
@@ -854,7 +854,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.cardsHand shouldBe setOf(SolarWindPower)
     been.cardsHand shouldBe emptySet()
     checkHandSizes()
-    engine.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase")
 
     keen.assertCounts(47 to "TerraformRating", 117 to "VictoryPoint", 1 to "Victory")
     been.assertCounts(45 to "TerraformRating", 99 to "VictoryPoint", 0 to "Victory")

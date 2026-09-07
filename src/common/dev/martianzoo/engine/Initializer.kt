@@ -6,7 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProvenance
@@ -25,10 +25,10 @@ internal class Initializer(
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
-    val engineEvent = execute("$ENGINE", cause = null).changes.first()
-    val engineCause = Cause(ENGINE.expression, engineEvent.ordinal)
-    createPremiseComponents(engineCause)
-    createInitialComponents(engineCause)
+    val adminEvent = execute("$ADMIN", cause = null).changes.first()
+    val adminCause = Cause(ADMIN.expression, adminEvent.ordinal)
+    createPremiseComponents(adminCause)
+    createInitialComponents(adminCause)
     timeline.initializationFinished()
     timeline.commit()
   }

@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -17,20 +17,20 @@ internal class GameWorldAtomicityTest {
   @Test
   internal fun failedOperationRestoresTheWholeWorldTogether() {
     val world = Engine.newGame(premise) as WholeWorld
-    val engine = world.agent(ENGINE)
+    val admin = world.agent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
     val revision = world.revision
     var successfulCompletions = 0
     world.onAtomicComplete = { successfulCompletions++ }
 
     shouldThrow<IllegalStateException> {
-      engine.manual("Marker") {
-        engine.addTasks("Decision")
+      admin.manual("Marker") {
+        admin.addTasks("Decision")
         error("fail after changing both present and future")
       }
     }
 
-    engine.count("Marker") shouldBe 0
+    admin.count("Marker") shouldBe 0
     world.tasks.isEmpty() shouldBe true
     world.events.entriesSince(checkpoint).shouldBeEmpty()
     world.timeline.checkpoint() shouldBe checkpoint

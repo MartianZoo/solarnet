@@ -37,13 +37,15 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   // Bootstrap gains Modules before Players, so a Module cannot grant these: `This` on Player is the
   // only hook that fires at player creation, which is earlier than any phase.
-  This:: GrossHack<This> BY Engine
+  This:: GrossHack<This> BY Admin
   This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
   CorporationPhase:: CorporationCard
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 
-  CLASS Player1, Player2, Player3, Player4, Player5
+  CLASS Player1, Player2
+  CLASS Player3 { HAS Class<SecondPlace> }
+  CLASS Player4, Player5
 }
 
 // MAPS AND AREAS
@@ -586,8 +588,8 @@ CLASS End : Phase {
 "A marker removed after every final-scoring task has completed"
 CLASS FinalScoringPending : Temporary, System
 
-"Asks the first player to choose one mandatory global-parameter increase performed by Engine"
-CLASS WorldGovernmentTerraforming : Signal, System
+"Asks the first player to choose one mandatory global-parameter increase performed by Admin"
+CLASS WorldGovernmentTerraforming : Signal
 
 "Asks the first player where an ocean is placed while preserving the performing Player"
 CLASS ChooseOceanArea<Player> : Signal
@@ -597,7 +599,7 @@ CLASS StartToken : Owned<Player> {
   HAS =1 StartToken
   Generation IF 2 Generation: PassLeft<This>
   ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor
-  WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
+  WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Admin
 }
 
 // GAME CONFIGURATION
@@ -623,11 +625,9 @@ ABSTRACT CLASS GameMode : Module {
     This:: ClaimMilestone, FundAward
     This:: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: Generation
-    -FinalScoringPending: AssignMultiplayerVictory
+    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
   }
 }
-
-CLASS AssignMultiplayerVictory : Custom
 
 // SOLO MODE
 
@@ -689,18 +689,18 @@ CLASS SoloStandardResourceReserve<Class<StandardResource>> : Owned<SoloOpponent>
   HAS =1 This
   SetupPhase: 42 StandardResource
   SetupPhase: PROD[42 StandardResource]
-  -StandardResource BY Player:: StandardResource BY Engine
-  StandardResource BY Player:: -StandardResource BY Engine
-  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Engine
-  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Engine
+  -StandardResource BY Player:: StandardResource BY Admin
+  StandardResource BY Player:: -StandardResource BY Admin
+  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Admin
+  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Admin
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
 CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
   HAS =1 This
   SetupPhase: 42 CardResource<This>
-  -CardResource<This> BY Player:: CardResource<This> BY Engine
-  CardResource<This> BY Player:: -CardResource<This> BY Engine
+  -CardResource<This> BY Player:: CardResource<This> BY Admin
+  CardResource<This> BY Player:: -CardResource<This> BY Admin
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created
@@ -738,8 +738,6 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
 CLASS Neighbor<Tile<Area>, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
-  This:: EACH Player { AwardTally<Award> / EVAL Award.metric }
-  -This:: AssignAwardPlaces<Award>
+  -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
+  -This IF Class<SecondPlace>:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
 }
-CLASS AwardTally<Award> : Owned<Player>, Hidden
-CLASS AssignAwardPlaces<Award> : Custom

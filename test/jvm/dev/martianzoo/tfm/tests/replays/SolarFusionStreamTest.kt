@@ -38,7 +38,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     val KB = p2
     val ER = p3
 
-    engine.assertCounts(1 to "Generation")
+    admin.assertCounts(1 to "Generation")
 
     // Player-record evidence: JR rejected Teractor and PolderTECH Dutch; UNMI Contractor and
     // Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar Colony Ship,
@@ -345,7 +345,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.playProject(AsteroidCard, 2, titanium = 3) { doTask("-3 Plant<JR>") }
         .expect("-3 MC<KB>, 3 MC<JR>")
     JR.pass()
-    engine.assertCounts(8 to "TemperatureStep")
+    admin.assertCounts(8 to "TemperatureStep")
     KB.playProject(DesignedMicroorganisms, 15)
     KB.convertHeat()
     ER.playProject(SolarWindPower, 3, titanium = 2).expect("0 Titanium")
@@ -537,20 +537,12 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.assertResources(m = 54, s = 9, t = 5, p = 3, e = 0, h = 8)
     ER.assertProduction(m = 15, s = 5, t = 5, p = 1, e = 0, h = 8)
 
-    JR.assertCounts(
-        5 to "AwardTally<JR, Founder>",
-        33 to "AwardTally<JR, Benefactor>",
-    )
-    KB.assertCounts(
-        4 to "AwardTally<KB, Founder>",
-        43 to "AwardTally<KB, Benefactor>",
-    )
-    ER.assertCounts(
-        3 to "AwardTally<ER, Founder>",
-        38 to "AwardTally<ER, Benefactor>",
-    )
-    // Player-record evidence: Banker tallies are 42/11/15 for JR/KB/ER. Do not assert the raw
-    // internal tallies, which include the engine's five-unit production offset.
+    JR.count("EVAL Founder.metric") shouldBe 5
+    KB.count("EVAL Founder.metric") shouldBe 4
+    ER.count("EVAL Founder.metric") shouldBe 3
+    JR.count("EVAL Benefactor.metric") shouldBe 33
+    KB.count("EVAL Benefactor.metric") shouldBe 43
+    ER.count("EVAL Benefactor.metric") shouldBe 38
 
     val score = Summarizer(game)
     score.net("Milestone", "VictoryPoint<JR>") shouldBe 10

@@ -11,7 +11,7 @@ internal class FakeWildTagTest : CardTest() {
   internal fun `Fake wild tag stays inert on its card`() {
     newGame(PreludeExpansion, FakeCardsCardPack)
     p1.manual("PreludeCard")
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.startTurn()
 
     p1.playPrelude(FakeResearchNetwork).expect("PROD[1 MC], 3 ProjectCard, FakeWildTag")

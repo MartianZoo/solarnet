@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,8 +14,8 @@ internal class TaskDelegationTest {
   internal fun `a concrete reaction stays with its controller and credits its owner`() {
     val game = game()
     val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val engine = game.agent(ENGINE)
-    engine.manual("Observer")
+    val admin = game.agent(ADMIN)
+    admin.manual("Observer")
 
     p1.beginManual("ConcreteReactor<Player2>") {
       val reaction = game.tasks.extract { it }.single()

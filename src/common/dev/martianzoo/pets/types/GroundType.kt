@@ -291,6 +291,8 @@ public data class GroundType(
         override fun transformNode(node: PetNode): PetNode {
           return if (node is Property && node.receiver == null) {
             node.copy(receiver = proposed)
+          } else if (node is Metric.Rank && node.candidate == null) {
+            node.copy(candidate = proposed)
           } else if (node is Expression) {
             val resolved = classTable.resolve(node)
             val modded =

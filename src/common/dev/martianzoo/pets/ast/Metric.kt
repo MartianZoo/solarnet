@@ -46,27 +46,59 @@ public sealed class Metric : PetElement() {
       count: (Count) -> Int,
       readProperty: (Property) -> Int,
       countUnion: (Or) -> Int,
+      rank: (Rank) -> Int,
   ): Int =
       when (this) {
         is Count -> count(this)
         is Constant -> value
         is Property -> readProperty(this)
-        is Scaled -> inner.evaluate(count, readProperty, countUnion) / unit
+        is Rank -> rank(this)
+        is Scaled -> inner.evaluate(count, readProperty, countUnion, rank) / unit
         is Max ->
             min(
-                inner.evaluate(count, readProperty, countUnion),
-                maximum.evaluate(count, readProperty, countUnion),
+                inner.evaluate(count, readProperty, countUnion, rank),
+                maximum.evaluate(count, readProperty, countUnion, rank),
             )
         is Subtract ->
             maxOf(
-                minuend.evaluate(count, readProperty, countUnion) -
-                    subtrahend.evaluate(count, readProperty, countUnion),
+                minuend.evaluate(count, readProperty, countUnion, rank) -
+                    subtrahend.evaluate(count, readProperty, countUnion, rank),
                 0,
             )
         is Or -> countUnion(this)
         is Eval -> error("metric property evaluation was not expanded: $this")
         is Transform -> throw ExpressionException("unhandled metric transform: $this")
       }
+
+  /**
+   * The highest-first competition rank of [candidate] among the live [selector] matches, comparing
+   * [metrics] lexicographically. Authored syntax leaves [candidate] null; specializing a selector
+   * refinement supplies the concrete candidate whose rank is being tested.
+   */
+  public data class Rank(
+      public val selector: Expression,
+      public val metrics: List<Metric>,
+      public val candidate: Expression? = null,
+  ) : Metric() {
+    init {
+      if (selector.complement) {
+        throw PetSyntaxException("RANK selector can't be a complement: $selector")
+      }
+      if (metrics.isEmpty()) throw PetSyntaxException("RANK needs a metric")
+    }
+
+    /** The expression used inside [metrics] to denote each candidate. */
+    public val selectorName: Expression = selector.copy(refinement = null)
+
+    override fun visitChildren(visitor: Visitor) {
+      visitor.visit(selector)
+      visitor.visit(metrics)
+    }
+
+    override fun toString(): String = "RANK $selector { ${metrics.joinToString(", ")} }"
+
+    override fun precedence(): Int = 12
+  }
 
   /** Includes a concrete Metric property's syntax in the surrounding class effect. */
   public data class Eval(val property: Property) : Metric() {
@@ -218,13 +250,23 @@ public sealed class Metric : PetElement() {
       return parser {
         val count: Parser<Count> = Expression.parser() map Metric::Count
 
+        val rank: Parser<Metric> =
+            skip(_rank) and
+                Expression.parser(allowDerivedClass = false) and
+                skipChar('{') and
+                commaSeparated(parser()) and
+                skipChar('}') map
+                { (selector, metrics) ->
+                  Rank(selector, metrics)
+                }
+
         val transform: Parser<Metric> =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
 
         val eval: Parser<Metric> = skip(_eval) and Property.parser() map ::Eval
 
         val nonconstant: Parser<Metric> =
-            eval or transform or Property.parser() or count or group(parser())
+            rank or eval or transform or Property.parser() or count or group(parser())
 
         val scaled: Parser<Metric> =
             rawScalar and nonconstant map { (unit, met) -> scaled(met, unit) }

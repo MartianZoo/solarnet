@@ -10,7 +10,7 @@ internal class LakefrontResortsTest : CardTest() {
     newGame(TurmoilCardPack)
     val p2 = requireP2()
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$LakefrontResorts, 54 MC")
     p2.manual("OceanTile<Tharsis_1_2>").expect("PROD[M<Player1>]")
 
@@ -22,7 +22,7 @@ internal class LakefrontResortsTest : CardTest() {
   internal fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
     newGame(TurmoilCardPack)
     val p2 = requireP2()
-    engine.phase("Action")
+    admin.phase("Action")
     p2.manual("$LakefrontResorts, 54 MC")
     p1.manual("OceanTile<Tharsis_1_2>").expect("PROD[M<Player2>]")
     p1.manual("CityTile<Tharsis_2_2>").expect("2 MC")
@@ -31,7 +31,7 @@ internal class LakefrontResortsTest : CardTest() {
   @Test
   internal fun `Pays once for each ocean adjacency`() {
     newGame(TurmoilCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$LakefrontResorts, 54 MC")
     p1.manual("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")
 

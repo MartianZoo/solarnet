@@ -32,7 +32,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
@@ -167,13 +167,13 @@ internal class Implementations(
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
     if (allTasks.isEmpty()) return false
 
-    // Until Engine has its own scheduled policy, a disabled Player policy still advances
-    // deterministic Engine-owned work without touching any Player task.
+    // Until Admin has its own scheduled policy, a disabled Player policy still advances
+    // deterministic Admin-assigned work without touching any Player task.
     val eligible =
         if (mode == NONE) {
           if (actor !is Player) return false
           allTasks.ids().filter { taskId ->
-            queueForAnyTask(taskId).getTaskData(taskId).assignee == ENGINE
+            queueForAnyTask(taskId).getTaskData(taskId).assignee == ADMIN
           }
         } else {
           allTasks.ids()

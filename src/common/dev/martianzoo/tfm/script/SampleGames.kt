@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.script.OptionCodeTranslation
@@ -16,22 +16,22 @@ internal object SampleGames {
 
     val setup = OptionCodeTranslation.setup("BRVPXT", 2)
     val game = createGame(setup)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
     TfmWorkflow.Manual(game).setupPhase()
-    engine.phase("Corporation")
+    admin.phase("Corporation")
     p1.playCorp(cn("Manutech"), 5)
     p2.playCorp(cn("Factorum"), 4)
 
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.playPrelude(cn("NewPartner")) { p1.playPrelude(cn("UnmiContractor")) }
     p1.playPrelude(cn("AlliedBank"))
     p2.playPrelude(cn("AcquiredSpaceAgency"))
     p2.playPrelude(cn("IoResearchOutpost"))
 
-    engine.phase("Action")
+    admin.phase("Action")
     if (gens-- == 0) return game
 
     p1.playProject(cn("InventorsGuild"), 9)
@@ -46,7 +46,7 @@ internal object SampleGames {
     p2.playProject(cn("Archaebacteria"), 6)
 
     if (gens-- == 0) return game
-    engine.nextGeneration(2, 2)
+    admin.nextGeneration(2, 2)
 
     p2.cardAction2(cn("Factorum"))
     p2.playProject(cn("MarsUniversity"), 6, steel = 1) { doTask("-ProjectCard") }
@@ -61,7 +61,7 @@ internal object SampleGames {
     p1.cardAction1(cn("DeuteriumExport"))
 
     if (gens-- == 0) return game
-    engine.nextGeneration(2, 2)
+    admin.nextGeneration(2, 2)
 
     p1.cardAction1(cn("DevelopmentCenter"))
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(0) }
@@ -75,7 +75,7 @@ internal object SampleGames {
     p1.playProject(cn("ImportedGhg"), 4)
 
     if (gens-- == 0) return game
-    engine.nextGeneration(1, 2)
+    admin.nextGeneration(1, 2)
 
     p2.cardAction2(cn("Factorum"))
     p2.playProject(cn("AquiferPumping"), 14, steel = 2)
@@ -96,7 +96,7 @@ internal object SampleGames {
     p1.playProject(cn("SpinInducingAsteroid"), 16)
 
     if (gens-- == 0) return game
-    engine.nextGeneration(3, 3)
+    admin.nextGeneration(3, 3)
 
     p1.convertHeat()
     p1.playProject(cn("SmallAsteroid"), 10) { doTask("-2 Plant<Player2>") }
@@ -120,7 +120,7 @@ internal object SampleGames {
     }
 
     if (gens-- == 0) return game
-    engine.nextGeneration(4, 2)
+    admin.nextGeneration(4, 2)
 
     p2.convertPlants { doTask("GreeneryTile<Tharsis_8_7>") }
     p2.cardAction2(cn("Factorum"))
@@ -155,7 +155,7 @@ internal object SampleGames {
     p1.playProject(cn("Moss"), 4)
 
     if (gens-- == 0) return game
-    engine.nextGeneration(3, 1)
+    admin.nextGeneration(3, 1)
 
     p1.stdAction("ClaimMilestone") { doTask("Builder8") }
     p1.cardAction1(cn("DevelopmentCenter"))
@@ -177,7 +177,7 @@ internal object SampleGames {
     p1.cardAction1(cn("StratosphericBirds"))
 
     if (gens-- == 0) return game
-    engine.nextGeneration(2, 2)
+    admin.nextGeneration(2, 2)
 
     p2.playProject(cn("AdvancedAlloys"), 7) { doTask("-ProjectCard") }
     p2.playProject(cn("AiCentral"), 13, steel = 2) { doTask("-ProjectCard") }
@@ -205,7 +205,7 @@ internal object SampleGames {
     p1.cardAction1(cn("MoholeLake")) { doTask("Animal<StratosphericBirds>") }
 
     if (gens == 0) return game
-    engine.nextGeneration(3, 2)
+    admin.nextGeneration(3, 2)
 
     p1.cardAction1(cn("DevelopmentCenter"))
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }

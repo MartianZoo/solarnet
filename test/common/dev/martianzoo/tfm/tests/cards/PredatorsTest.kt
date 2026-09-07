@@ -14,7 +14,7 @@ internal class PredatorsTest : CardTest() {
   fun initializeGame() {
     newGame()
     p1.manual("$Predators")
-    engine.phase("Action")
+    admin.phase("Action")
   }
 
   @Test
@@ -70,7 +70,7 @@ internal class PredatorsTest : CardTest() {
   internal fun `Predators can remove its own animal and trigger Meat Industry when replacing it`() {
     newGame(PromoCardPack, players = 1)
     p1.manual("$Predators, $MeatIndustry, Animal<$Predators>")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.cardAction1(Predators) { doTask("-Animal<$Predators>") }.expect("0 Animal<$Predators>, 2 MC")
   }
@@ -79,7 +79,7 @@ internal class PredatorsTest : CardTest() {
   internal fun `Takes an animal from the neutral holder in solo play`() {
     newGame(players = 1)
     p1.manual("$Predators")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.cardAction1(Predators)
 

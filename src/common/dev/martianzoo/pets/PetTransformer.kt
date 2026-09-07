@@ -217,6 +217,12 @@ public abstract class PetTransformer protected constructor() {
           when (node) {
             is Metric.Count -> Metric.Count(transformExpression(node.expression))
             is Metric.Constant -> node
+            is Metric.Rank ->
+                Metric.Rank(
+                    transformExpression(node.selector),
+                    metrics(node.metrics),
+                    node.candidate?.let(::transformExpression),
+                )
             is Property ->
                 Property(
                     transformPropertyName(node.propertyName),

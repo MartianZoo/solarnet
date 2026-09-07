@@ -43,7 +43,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // Player-record evidence: Purple has a five-TR handicap, which GameConfig cannot express.
     purple.exMachina("5 TerraformRating")
 
-    engine.assertCounts(1 to "Generation")
+    admin.assertCounts(1 to "Generation")
 
     // Test inference: Purple's dealt projects plus her later plays identify these four.
     purple.playCorp(Recyclon) {

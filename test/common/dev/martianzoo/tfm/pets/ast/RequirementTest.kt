@@ -25,6 +25,8 @@ internal class RequirementTest {
       =1 Foo
       =11 Xyz
       EVAL Foo.requirement
+      =1 (RANK Player { Score })
+      =2 (RANK Player { Score, Cash })
       PROD[11 MC]
       MAX 1 Abc
       MAX 11 Bar

@@ -9,7 +9,7 @@ internal class SymbioticFungusTest : CardTest() {
   internal fun `Can use its action without an eligible target`() {
     newGame()
     p1.manual("$SymbioticFungus")
-    engine.phase("Action")
+    admin.phase("Action")
     p1.cardAction1(SymbioticFungus).expect("0 Microbe")
   }
 }

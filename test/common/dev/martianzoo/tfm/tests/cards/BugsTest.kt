@@ -13,7 +13,7 @@ internal class BugsTest : CardTest() {
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Viral Enhancers with its own tags`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.manual("9 MC, ProjectCard, PreludeCard")
 
     p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
@@ -24,7 +24,7 @@ internal class BugsTest : CardTest() {
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Ecological Zone with its plant tag`() {
     newGame(PreludeExpansion)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.manual("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
     p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
@@ -73,7 +73,7 @@ internal class BugsTest : CardTest() {
   @Test
   internal fun `Prelude incorrectly allows discarding a playable card`() {
     newGame(PreludeExpansion)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     val moneyBefore = p1.count("MC")
 
     p1.startTurn()
@@ -88,7 +88,7 @@ internal class BugsTest : CardTest() {
   @Test
   internal fun `Space Elevator incorrectly accepts payment that wastes one steel`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("10 Steel, 10 Titanium, ProjectCard")
 
     p1.inTurn {
@@ -110,7 +110,7 @@ internal class BugsTest : CardTest() {
   @Test
   internal fun `Two colonies on one tile incorrectly merge their bonuses into one instruction`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2, "Titan"))
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.manual("Colony<Titan>") { addCardResources(AtmoCollectors) }
     p1.manual("Colony<Titan>") { addCardResources(AtmoCollectors) }

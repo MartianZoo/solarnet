@@ -128,12 +128,12 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {
-    engine.assertCounts(gen to "Generation")
-    engine.temperatureC() shouldBe temp
-    engine.oxygenPercent() shouldBe oxygen
-    engine.assertCounts(oceans to "OceanTile")
+    admin.assertCounts(gen to "Generation")
+    admin.temperatureC() shouldBe temp
+    admin.oxygenPercent() shouldBe oxygen
+    admin.assertCounts(oceans to "OceanTile")
     if (venus != -1) {
-      engine.venusPercent() shouldBe venus
+      admin.venusPercent() shouldBe venus
     }
   }
 
@@ -145,8 +145,8 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     try {
       game.actors.forEach { game.agent(it).autoExecMode = FIRST }
       dropPendingTasksForSnapshot()
-      engine.phase("Production") { dropPendingTasksForSnapshot() }
-      engine.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
+      admin.phase("Production") { dropPendingTasksForSnapshot() }
+      admin.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
       assertCounts(expected to "VictoryPoint")
     } finally {
       game.timeline.rollBack(checkpoint)

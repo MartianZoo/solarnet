@@ -8,7 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
@@ -93,7 +93,7 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgent = candidateGame.agent(ENGINE) // default autoexec mode
+    val candidateAgent = candidateGame.agent(ADMIN) // default autoexec mode
     if (purple) {
       TfmWorkflow.Auto(candidateGame).launch()
     } else {
@@ -383,7 +383,7 @@ public class ScriptSession(
   }
 
   internal fun actor(name: String): Actor {
-    if (name == ENGINE.toString()) return ENGINE
+    if (name == ADMIN.toString()) return ADMIN
     return player(name)
   }
 

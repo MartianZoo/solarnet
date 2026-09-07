@@ -121,7 +121,7 @@ three direct class exclusions for the cards its revised printings supersede; the
 replacement registry.
 
 `Engine.newGame(premise)` currently wires the World with one structural representative for every
-active concrete Class, creates the `Engine` Actor Component, selected Modules, seated Players, and
+active concrete Class, creates the `Admin` Actor Component, selected Modules, seated Players, and
 the premise's explicit initial components, then commits the pre-setup baseline. Structural Class
 representatives are installed before event logging and therefore produce no Change Events. The
 initializer does not create a Phase; Terraforming Mars workflow later creates `SetupPhase` as an
@@ -464,7 +464,7 @@ to changed copies of the effect-bearing exact Type; existing equal copies do not
 Other subscriptions multiply by the number of live effect-bearing components.
 
 An effect on an owned component listening to an unowned event defaults to matching only its Owner
-unless it says `BY Anyone`. Unowned `System` components are engine-only; `Hidden` controls
+unless it says `BY Anyone`. Unowned `System` components are Admin-only; `Hidden` controls
 presentation instead. `Signal` is hidden but not necessarily engine-only.
 
 A positive abstract Actor selector can bind the matching Actor for reuse elsewhere in the trigger or
@@ -486,6 +486,12 @@ property, and virtual custom counts cannot participate because they have no comp
 Numeric Metrics may also subtract Metrics or positive scalar operands, saturating at zero; a scalar
 by itself is not a Metric. Complete-group scaling and `MAX` bind before subtraction, which binds
 before union.
+
+`RANK Selector { Metric, ... }` is a highest-first competition rank over the distinct live Types
+matching `Selector`: equal score vectors receive the same rank and later ranks skip the tied places.
+Multiple Metrics are compared lexicographically. Each score binds the candidate name and contextual
+`Owner` as an `EACH` body does. There is no direction keyword; a known upper cap minus a Metric can
+express lowest-first scoring.
 
 An abstract custom metric specializes only over dependency targets represented by live components,
 then sums the satisfying concrete implementations. This follows the ordinary dependency rule that
@@ -517,7 +523,7 @@ multiplicity.
 
 Use exact one for state that must be present at every applicable resting point and has an explicit
 creator. Current examples are selected Modules and Players, Areas, track-rule providers, permanent
-action providers and slots, the engine Actor, and the solo opponent and reserve providers. Use
+action providers and slots, Admin, and the solo opponent and reserve providers. Use
 maximum one when zero is a legitimate state: card locations and fronts, cleanup and once-per-round
 markers, claimed goals and funded awards, required actions and passing, payment state, phase-local
 rules, global-parameter completion state, end barriers, and setup operations. `Milestone` was the
@@ -568,10 +574,9 @@ Influence after a capped or grouped Metric. Union and sum are also genuinely dif
 Awards need `Or`'s non-double-counting union, Turmoil needs arithmetic addition — so neither can
 stand in for the other. Propose completing this algebra, not trimming it.
 
-Separately, `AssignAwardPlaces` is a `Custom` because "rank owners by a Metric under a declared tie
-rule" is inexpressible, and Turmoil's `PartyLeader` and `Dominant` maintenance want the same
-primitive with different tie rules. That convergence, not the operator count, is the live design
-question here.
+`Metric.Rank` removed the former custom award-placement and multiplayer-victory instructions.
+Turmoil can reuse its comparison semantics, though its distinct tie-sensitive state changes remain
+a separate modeling question.
 
 ## Recoverable dead ends
 

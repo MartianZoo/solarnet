@@ -21,10 +21,10 @@ internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
     me = p1
     workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
-    engine.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
-    engine.doTask("CityTile<${cityAreas().second}, SoloOpponent>")
-    engine.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
+    admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
+    admin.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
+    admin.doTask("CityTile<${cityAreas().second}, SoloOpponent>")
+    admin.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
   }
 
   protected fun nextRound(worldGovernmentChoice: String, cardsBought: Int) {

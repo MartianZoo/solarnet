@@ -365,7 +365,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // You bought Investment Loan,Tectonic Stress Power
     // ER bought 2 card(s)
     // You bought Micro-Mills,Lava Tube Settlement
-    engine.nextGeneration(2, 2)
+    admin.nextGeneration(2, 2)
 
     with(ER) {
       assertProduction(m = 5, s = 0, t = 1, p = 2, e = 0, h = 9)

@@ -13,7 +13,7 @@ internal class CelesticTest : CardTest() {
     newGame(VenusNextExpansion)
     p1.playCorp(Celestic, 5)
     p1.manual("10 Heat")
-    engine.phase("Action")
+    admin.phase("Action")
   }
 
   @Test
@@ -46,6 +46,6 @@ internal class CelesticTest : CardTest() {
 
   private fun advanceToStartingCardDraw() {
     p1.pass()
-    engine.nextGeneration(2, 2)
+    admin.nextGeneration(2, 2)
   }
 }

@@ -10,7 +10,7 @@ internal class AsCommand(private val repl: ScriptSession) : ScriptCommand("as") 
   override val usage = "as <PlayerN> <full command>"
   override val help =
       """
-        For any command you could type normally, put `as Player2` etc. or `as Engine` before it.
+        For any command you could type normally, put `as Player2` etc. or `as Admin` before it.
         It's handled as if you had first `become` that player, then restored.
       """
 

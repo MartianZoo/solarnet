@@ -7,7 +7,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -38,7 +38,7 @@ internal class CanonClassesTest {
     premise.actors
         .filterIsInstance<dev.martianzoo.pets.data.Player>()
         .shouldContainExactly(PLAYER1, PLAYER2)
-    premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
+    premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ADMIN)
     val game = Engine.newGame(premise)
     game.classTable.allClassNames.shouldNotContain(cn("SoloMode"))
     game.classTable.allClassNames.shouldNotContain(cn("SoloOpponent"))
@@ -85,7 +85,7 @@ internal class CanonClassesTest {
   @Test
   internal fun soloSetupUsesPetsOnlyOpponent() {
     val premise = canonicalPremise(players = 1)
-    premise.actors.shouldContainExactly(PLAYER1, ENGINE)
+    premise.actors.shouldContainExactly(PLAYER1, ADMIN)
     val game = setUpGame(premise)
     game.classTable.allClassNames.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
@@ -110,13 +110,13 @@ internal class CanonClassesTest {
     soloReserve.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
     soloReserve.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
 
-    val engine = game.agent(ENGINE) as Agent
-    game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
-    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    engine.manual("OceanTile<Tharsis_1_2>")
+    val admin = game.agent(ADMIN) as Agent
+    game.tasks.extract { it.assignee } shouldBe listOf(ADMIN, ADMIN)
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.manual("OceanTile<Tharsis_1_2>")
     game.agent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
     game.agent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
@@ -138,7 +138,7 @@ internal class CanonClassesTest {
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
 
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
     game.agent(PLAYER1).count("VictoryPoint<Me>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }

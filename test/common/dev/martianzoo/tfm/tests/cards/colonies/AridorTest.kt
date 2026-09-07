@@ -28,7 +28,7 @@ internal class AridorTest : CardTest() {
     p1.playCorp(Aridor, 0).expect("40 MC")
     p1.assertCounts(1 to "RequiredAction")
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.stdAction("DoRequiredActions") { doTask("Europa") }.expect("Europa, ColonyProduction")
     p1.assertCounts(0 to "RequiredAction")
   }
@@ -40,9 +40,9 @@ internal class AridorTest : CardTest() {
     p1.manual("$TitanShuttles")
     p1.manual("Floater<$TitanShuttles>")
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.stdAction("DoRequiredActions") { doTask("DelayedTitan") }.expect("Titan, ColonyProduction")
-    engine.assertCounts(1 to "Titan", 0 to "DelayedTitan")
+    admin.assertCounts(1 to "Titan", 0 to "DelayedTitan")
   }
 
   @Test
@@ -120,7 +120,7 @@ internal class AridorTest : CardTest() {
     p1.playCorp(Aridor, 0)
     p1.manual("$EarthCatapult, ProjectCard")
     val initialProduction = p1.count("PROD[MC]")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("DoRequiredActions") { doTask("Europa") }
     p1.playProject(BribedCommittee, 5)

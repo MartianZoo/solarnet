@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.data.Player.Companion.PLAYER3
@@ -20,7 +20,7 @@ internal class FinalGreeneryPhaseTest {
   @Test
   internal fun normalGreeneryRaisesOxygen() {
     val game = Engine.newGame(canonicalPremise())
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
@@ -30,14 +30,14 @@ internal class FinalGreeneryPhaseTest {
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
 
-    engine.oxygenPercent() shouldBe 1
+    admin.oxygenPercent() shouldBe 1
     workflow.shutdown()
   }
 
   @Test
   internal fun finalGreeneryDoesNotRaiseOxygen() {
     val game = Engine.newGame(canonicalPremise())
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Manual(game)
 
@@ -48,32 +48,32 @@ internal class FinalGreeneryPhaseTest {
     p1.startTurn()
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
 
-    engine.oxygenPercent() shouldBe 0
+    admin.oxygenPercent() shouldBe 0
   }
 
   @Test
   internal fun automaticSoloLossSkipsFinalGreeneryAndScoring() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp(Ecoline, 0)
-    engine.sneak("-13 SoloGenerationsLeft")
+    admin.sneak("-13 SoloGenerationsLeft")
 
     p1.pass()
 
-    engine.count("FinalGreeneryPhase") shouldBe 0
-    engine.count("End") shouldBe 0
-    engine.count("Victory<Me>") shouldBe 0
-    engine.count("TemperatureStep") shouldBe 0
-    engine.count("OxygenStep") shouldBe 0
-    engine.count("OceanTile") shouldBe 0
+    admin.count("FinalGreeneryPhase") shouldBe 0
+    admin.count("End") shouldBe 0
+    admin.count("Victory<Me>") shouldBe 0
+    admin.count("TemperatureStep") shouldBe 0
+    admin.count("OxygenStep") shouldBe 0
+    admin.count("OceanTile") shouldBe 0
     workflow.isRunning shouldBe false
     workflow.shutdown()
   }
@@ -82,16 +82,16 @@ internal class FinalGreeneryPhaseTest {
   internal fun automaticSoloWinRequiresCompletedBaseParameters() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp(Ecoline, 0)
-    engine.sneak(
+    admin.sneak(
         "-13 SoloGenerationsLeft, " +
             "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
@@ -100,8 +100,8 @@ internal class FinalGreeneryPhaseTest {
 
     p1.pass()
 
-    engine.count("Victory<Me>") shouldBe 1
-    engine.count("FinalGreeneryPhase") shouldBe 1
+    admin.count("Victory<Me>") shouldBe 1
+    admin.count("FinalGreeneryPhase") shouldBe 1
     workflow.shutdown()
   }
 
@@ -109,16 +109,16 @@ internal class FinalGreeneryPhaseTest {
   internal fun venusSoloAlsoRequiresCompletedVenusParameter() {
     val setup = canonicalPremise(VenusNextExpansion, players = 1)
     val game = Engine.newGame(setup)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp(Ecoline, 0)
-    engine.sneak(
+    admin.sneak(
         "-13 SoloGenerationsLeft, " +
             "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
@@ -127,9 +127,9 @@ internal class FinalGreeneryPhaseTest {
 
     p1.pass()
 
-    engine.count("FinalGreeneryPhase") shouldBe 0
-    engine.count("End") shouldBe 0
-    engine.count("Victory<Me>") shouldBe 0
+    admin.count("FinalGreeneryPhase") shouldBe 0
+    admin.count("End") shouldBe 0
+    admin.count("Victory<Me>") shouldBe 0
     workflow.isRunning shouldBe false
     workflow.shutdown()
   }
@@ -138,7 +138,7 @@ internal class FinalGreeneryPhaseTest {
   internal fun automaticMultiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
     val setup = canonicalPremise()
     val game = Engine.newGame(setup)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -149,15 +149,15 @@ internal class FinalGreeneryPhaseTest {
     p2.pass()
 
     game.classTable.allClassNames.shouldNotContain(cn("SoloGenerationsLeft"))
-    engine.count("ResearchPhase") shouldBe 1
-    engine.count("FinalGreeneryPhase") shouldBe 0
+    admin.count("ResearchPhase") shouldBe 1
+    admin.count("FinalGreeneryPhase") shouldBe 0
     workflow.shutdown()
   }
 
   @Test
   internal fun multiplayerFinalGreeneryAdvancesAfterAPlayerCanNoLongerConvert() {
     val game = Engine.newGame(canonicalPremise(players = 3))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
@@ -169,7 +169,7 @@ internal class FinalGreeneryPhaseTest {
     p1.sneak("8 Plant")
     p2.sneak("8 Plant")
     p3.sneak("8 Plant")
-    engine.sneak(
+    admin.sneak(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
             "-GpGameEndBarrier<Class<OceanTile>>, " +
@@ -197,7 +197,7 @@ internal class FinalGreeneryPhaseTest {
   @Test
   internal fun tenPlantsCanBecomeTwoGreeneriesWithEcolinePolderTechAndTheElysiumBonus() {
     val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -205,7 +205,7 @@ internal class FinalGreeneryPhaseTest {
     p1.playCorp(CrediCor, 0)
     p2.playCorp(MiningGuild, 0)
     p1.sneak("$Ecoline, $PolderTechDutch, 10 Plant")
-    engine.sneak(
+    admin.sneak(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
             "-GpGameEndBarrier<Class<OceanTile>>, " +
@@ -232,7 +232,7 @@ internal class FinalGreeneryPhaseTest {
   @Test
   internal fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
     val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -242,7 +242,7 @@ internal class FinalGreeneryPhaseTest {
     p1.sneak("GreeneryTile<Elysium_4_5>")
     p2.sneak("GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " + "GreeneryTile<Elysium_6_6>")
     p1.sneak("$Philares, 10 Plant")
-    engine.sneak(
+    admin.sneak(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
             "-GpGameEndBarrier<Class<OceanTile>>, " +
@@ -274,7 +274,7 @@ internal class FinalGreeneryPhaseTest {
   @Test
   internal fun sevenPlantsCanBecomeTwoGreeneriesInTheMostContrivedCanonicalCase() {
     val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -287,7 +287,7 @@ internal class FinalGreeneryPhaseTest {
             "GreeneryTile<Elysium_6_6>, GreeneryTile<Elysium_6_7>"
     )
     p1.sneak("$Ecoline, $Philares, 7 Plant")
-    engine.sneak(
+    admin.sneak(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
             "-GpGameEndBarrier<Class<OceanTile>>, " +
@@ -316,31 +316,31 @@ internal class FinalGreeneryPhaseTest {
   @Test
   internal fun multiplayerEndConditionIgnoresVenusCompletion() {
     val game = setUpGame(VenusNextExpansion)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
 
-    engine.manual(
+    admin.manual(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
 
-    engine.count("GpComplete<Class<VenusStep>>") shouldBe 0
-    engine.count("GameEndBarrier") shouldBe 0
+    admin.count("GpComplete<Class<VenusStep>>") shouldBe 0
+    admin.count("GameEndBarrier") shouldBe 0
   }
 
   @Test
   internal fun mandatoryVenusVariantKeepsItsOwnBarrierUntilVenusIsComplete() {
     val game = setUpGame(VenusNextExpansion, MandatoryVenusVariant)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
 
-    engine.manual(
+    admin.manual(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
 
-    engine.count("GameEndBarrier") shouldBe 1
+    admin.count("GameEndBarrier") shouldBe 1
 
-    engine.manual("GpComplete<Class<VenusStep>>")
+    admin.manual("GpComplete<Class<VenusStep>>")
 
-    engine.count("GameEndBarrier") shouldBe 0
+    admin.count("GameEndBarrier") shouldBe 0
   }
 }

@@ -72,7 +72,7 @@ CLASS EarlyColonization : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: SpaceTag<This>
-  This: Colony<>, 3 Energy, 2 AdvanceColonyTracks BY Engine
+  This: Colony<>, 3 Energy, 2 AdvanceColonyTracks
 }
 
 CLASS FloatingTradeHub : ActionCard, ResourceCard<Class<Floater>, Class<PreludeCard>> {
@@ -192,7 +192,7 @@ CLASS WorldGovernmentAdvisor : ActionCard<Class<PreludeCard>> {
   This:: EarthTag<This>
   This: 2 TerraformRating, ProjectCard
 
-  -> WorldGovernmentTerraforming BY Engine
+  -> WorldGovernmentTerraforming
 }
 
 CLASS CeresTechMarket : ActionCard, ActiveCard<Class<ProjectCard>> {

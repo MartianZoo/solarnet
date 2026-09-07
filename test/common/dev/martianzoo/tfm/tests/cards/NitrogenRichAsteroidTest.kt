@@ -8,7 +8,7 @@ internal class NitrogenRichAsteroidTest : CardTest() {
   @Test
   internal fun `May choose the lesser production branch with three plant tags`() {
     newGame(CorporateEraExpansion)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$Ecoline, $AdaptedLichen, $Lichen")
     p1.manual("31 MC, ProjectCard")
 

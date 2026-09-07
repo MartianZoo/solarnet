@@ -8,7 +8,7 @@ internal class OptimalAerobrakingTest : CardTest() {
   @Test
   internal fun `Pays when its owner plays an asteroid event`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("ProjectCard, $OptimalAerobraking, 14 MC")
     p1.playProject(AsteroidCard, 14).expect("-11 MC, 3 Heat")
   }

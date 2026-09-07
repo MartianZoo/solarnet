@@ -115,12 +115,12 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  internal fun `as Engine temporarily selects the Engine actor`() {
+  internal fun `as Admin temporarily selects the Admin actor`() {
     val repl = ScriptSession()
     repl.command("newgame B 2")
     repl.command("become Player1")
 
-    assertEquals(listOf("1 Phase"), repl.command("as Engine count Phase"))
+    assertEquals(listOf("1 Phase"), repl.command("as Admin count Phase"))
     assertEquals("Player1", repl.agent.actor.toString())
   }
 
@@ -379,7 +379,7 @@ internal class ScriptSessionTest {
             "New 2-player game created with options: BRVPX",
             "Mode BLUE: Turn integrity: must perform a valid game turn for this phase",
             "Autoexec mode is: SAFE",
-            "0000: +CorporationPhase FROM SetupPhase BY Engine (manual)",
+            "0000: +CorporationPhase FROM SetupPhase BY Admin (manual)",
         )
 
     val output = commands.flatMap(repl::command).map(::normalizeEventOrdinals)

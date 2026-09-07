@@ -253,18 +253,21 @@ public class Transformers(public val classTable: ClassTable) {
     )
   }
 
-  /** Whether an `Owner` occurrence outside any fanout body still needs a value from the event. */
+  /** Whether an `Owner` occurrence outside a candidate-owned scope needs a value from the event. */
   private fun ownerNeedsContext(instruction: InstructionTree): Boolean {
-    if (OWNER !in instruction) return false
-    val shieldedOwners =
-        instruction
-            .descendantsOfType<Each>()
-            .filter { selectionOwnsBody(it.selector) }
-            .sumOf {
-              it.body.descendantsOfType<Expression>().count { e -> e.className == OWNER }
-            }
-    val allOwners = instruction.descendantsOfType<Expression>().count { it.className == OWNER }
-    return allOwners > shieldedOwners
+    fun needsContext(node: PetNode): Boolean {
+      if (node is Expression && node.className == OWNER) return true
+      return when (node) {
+        is Each ->
+            needsContext(node.selector) ||
+                (!selectionOwnsBody(node.selector) && needsContext(node.body))
+        is Metric.Rank ->
+            needsContext(node.selector) ||
+                (!selectionOwnsBody(node.selector) && node.metrics.any(::needsContext))
+        else -> node.immediateChildren().any(::needsContext)
+      }
+    }
+    return needsContext(instruction)
   }
 
   /** Adds icon-grammar `BY Owner` when an ownerless Effect's result needs its event's Player. */

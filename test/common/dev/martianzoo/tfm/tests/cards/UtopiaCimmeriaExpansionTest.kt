@@ -42,10 +42,10 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     val p2 = requireP2()
     p1.manual("8 MC, $Ecoline, $EarthCatapult, Asteroid")
     p2.manual("$Mine")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("FundAward") { doTask("Incorporator") }
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
 
     p1.assertCounts(22 to "VictoryPoint")
     p2.assertCounts(25 to "VictoryPoint")
@@ -57,10 +57,10 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     val p2 = requireP2()
     p1.manual("8 MC, CityTile<Utopia_1_1>")
     p2.manual("CityTile<Utopia_5_5>")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("FundAward") { doTask("Suburbian") }
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
 
     p1.assertCounts(25 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")
@@ -72,16 +72,13 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     val p2 = requireP2()
     p1.manual("8 MC, CityTile<Cimmeria_3_3>")
     p2.manual("MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("FundAward") { doTask("Founder") }
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
 
-    p1.assertCounts(
-        1 to "AwardTally<Player1, Founder>",
-        1 to "FirstPlace<Player1, Founder>",
-    )
-    p2.assertCounts(0 to "AwardTally<Player2, Founder>")
+    p1.assertCounts(1 to "FirstPlace<Player1, Founder>")
+    p2.assertCounts(0 to "FirstPlace<Player2, Founder>")
   }
 
   @Test
@@ -91,7 +88,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
         "16 MC, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
             "$Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
     )
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("ClaimMilestone") { doTask("Metallurgist") }.expect("-8 MC, Milestone")
     p1.stdAction("ClaimMilestone") { doTask("Trader") }.expect("-8 MC, Milestone")

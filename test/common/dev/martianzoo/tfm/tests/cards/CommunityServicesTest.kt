@@ -23,7 +23,7 @@ internal class CommunityServicesTest : CardTest() {
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.manual("5 MC, ProjectCard, PreludeCard")
     p1.playPrelude(EcologyExperts) { p1.playProject(Decomposers, 5) }
 

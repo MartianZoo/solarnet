@@ -4,7 +4,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.engine.*
@@ -21,23 +21,23 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun newGameReturnsCommittedCausallyCleanPreSetupBaseline() {
     val game = Engine.newGame(canonicalPremise())
-    val engine = game.agent(ENGINE)
+    val admin = game.agent(ADMIN)
 
-    engine.count("Phase") shouldBe 0
-    engine.count("Generation") shouldBe 0
-    engine.count("TerraformRating") shouldBe 0
-    engine.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
+    admin.count("Phase") shouldBe 0
+    admin.count("Generation") shouldBe 0
+    admin.count("TerraformRating") shouldBe 0
+    admin.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
     val bootstrapEntries = game.events.entriesSince(Checkpoint(0))
     bootstrapEntries.all { it is ChangeEvent } shouldBe true
     val changes = bootstrapEntries.filterIsInstance<ChangeEvent>()
-    val engineCreation = changes.first()
-    engineCreation.actor shouldBe ENGINE
-    engineCreation.change.gaining shouldBe ENGINE.expression
-    engineCreation.cause shouldBe null
-    engineCreation.toString().shouldEndWith("(manual)")
+    val adminCreation = changes.first()
+    adminCreation.actor shouldBe ADMIN
+    adminCreation.change.gaining shouldBe ADMIN.expression
+    adminCreation.cause shouldBe null
+    adminCreation.toString().shouldEndWith("(manual)")
     changes.none { it.change.gaining?.className == cn("Class") } shouldBe true
     changes.drop(1).all { it.cause != null } shouldBe true
 
@@ -93,12 +93,12 @@ internal class BootstrapLifecycleTest {
 
     TfmWorkflow.Manual(game).setupPhase()
 
-    val engine = game.agent(ENGINE)
-    engine.count("SetupPhase") shouldBe 1
-    engine.count("Generation") shouldBe 1
-    engine.count("StartToken<Player1>") shouldBe 1
-    engine.count("TerraformRating<Player1>") shouldBe 20
-    engine.count("TerraformRating<Player2>") shouldBe 20
+    val admin = game.agent(ADMIN)
+    admin.count("SetupPhase") shouldBe 1
+    admin.count("Generation") shouldBe 1
+    admin.count("StartToken<Player1>") shouldBe 1
+    admin.count("TerraformRating<Player1>") shouldBe 20
+    admin.count("TerraformRating<Player2>") shouldBe 20
 
     val setupChanges = game.events.changesSince(checkpoint)
     val setupEvent = setupChanges.single { it.change.gaining.toString() == "SetupPhase" }
@@ -116,10 +116,10 @@ internal class BootstrapLifecycleTest {
     val game = Engine.newGame(setup)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    val engine = game.agent(ENGINE)
-    engine.count("SetupPhase") shouldBe 1
-    engine.count("CorporationPhase") shouldBe 0
-    engine.count("Generation") shouldBe 1
+    val admin = game.agent(ADMIN)
+    admin.count("SetupPhase") shouldBe 1
+    admin.count("CorporationPhase") shouldBe 0
+    admin.count("Generation") shouldBe 1
     game.tasks.isEmpty() shouldBe false
     workflow.isRunning shouldBe true
 

@@ -17,7 +17,7 @@ internal class LawSuitTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.autoExecMode = NONE
     p1.manual("3 MC, ProjectCard, PROD[Plant]")
   }
@@ -44,7 +44,7 @@ internal class LawSuitTest : CardTest() {
   @Test
   internal fun `Can be played when its owner has only the card cost`() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.autoExecMode = NONE
     p1.manual("2 MC, ProjectCard, PROD[Plant]")
     requireP2().manual("5 MC, PROD[-Plant<Player1>]")
@@ -90,7 +90,7 @@ internal class LawSuitTest : CardTest() {
   @Test
   internal fun `Qualification expires at the next generation`() {
     requireP2().manual("3 MC, PROD[-Plant<Player1>]")
-    engine.manual("Generation")
+    admin.manual("Generation")
 
     shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
   }
@@ -100,7 +100,7 @@ internal class LawSuitTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.autoExecMode = NONE
     p1.manual("3 MC, ProjectCard, PROD[2 Plant]")
     p2.manual("2 MC, PROD[-Plant<Player1>]")
@@ -118,7 +118,7 @@ internal class LawSuitTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.autoExecMode = NONE
     p1.manual("3 MC, ProjectCard, PROD[2 Plant]")
     p2.manual("5 MC, PROD[-Plant<Player1>]")
@@ -136,7 +136,7 @@ internal class LawSuitTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.autoExecMode = NONE
     p1.manual("2 MC, ProjectCard, PROD[Plant]")
     p2.manual("5 MC, PROD[-Plant<Player1>]")
@@ -162,7 +162,7 @@ internal class LawSuitTest : CardTest() {
     p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
     p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
 
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")
     p2.assertCounts(19 to "VictoryPoint")

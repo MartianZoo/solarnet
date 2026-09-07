@@ -10,7 +10,7 @@ internal class PetsTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
   }
 
   @Test

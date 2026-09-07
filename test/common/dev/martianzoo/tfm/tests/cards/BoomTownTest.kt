@@ -16,7 +16,7 @@ internal class BoomTownTest : CardTest() {
   @Test
   internal fun `Accepts either metal bonus while retaining the normal city restriction`() {
     newGame(PreludeExpansion, PromoCardPack)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
 
     shouldThrow<NarrowingException> { p1.playPrelude(BoomTown) { placeTile(4, 2) } }
     p1.manual("CityTile<Tharsis_2_1>")
@@ -28,13 +28,13 @@ internal class BoomTownTest : CardTest() {
   internal fun `Reduces every titanium for its owner and restores the value when removed`() {
     newGame(CorporateEraExpansion, PreludeExpansion, PromoCardPack)
     val p2 = requireP2()
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.playPrelude(BoomTown) { placeTile(1, 1) }
 
     p1.count("BaseResourceValue<Class<Titanium>>") shouldBe 2
     p2.count("BaseResourceValue<Class<Titanium>>") shouldBe 3
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("4 MC, 3 Titanium, ProjectCard")
     p2.manual("7 MC, Titanium, ProjectCard")
     p1.playProject(SmallAsteroid, mc = 4, titanium = 3)
@@ -51,7 +51,7 @@ internal class BoomTownTest : CardTest() {
   @Test
   internal fun `Double Down copies the placement and production but not the persistent penalty`() {
     newGame(PreludeExpansion, PromoCardPack)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.playPrelude(BoomTown) { placeTile(1, 1) }
 
     p1.playPrelude(DoubleDown) {

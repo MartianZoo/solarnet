@@ -18,7 +18,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Briber costs twelve MC in addition to the normal claim cost`() {
     newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
     p1.manual("20 MC")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.claimMilestone(cn("Briber")).expect("-20 MC, Briber")
   }
@@ -27,7 +27,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Briber claim is atomic when the player cannot pay the extra cost`() {
     newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
     p1.manual("19 MC")
-    engine.phase("Action")
+    admin.phase("Action")
 
     shouldThrow<LimitsException> { p1.claimMilestone(cn("Briber")) }
 
@@ -65,7 +65,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         )
     game.classTable.isActive(cn("Merchant")) shouldBe true
     p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("ClaimMilestone") { doTask("Merchant") }
 
@@ -78,7 +78,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     newGame(GameConfig("$milestone, Builder, Engineer$modules", "Player1", "Player2"))
     p1.manual("8 M")
     p1.manual("PROD[5 Steel, 5 Titanium, 5 Plant]")
-    engine.phase("Action")
+    admin.phase("Action")
 
     shouldThrow<RequirementException> { p1.manual(milestone) }
 

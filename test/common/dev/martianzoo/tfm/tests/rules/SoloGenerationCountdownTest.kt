@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -16,33 +16,33 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun laterGenerationsRemoveOneGenerationLeft() {
     val game = setUpGame(players = 1)
-    val engine = game.tfm(ENGINE)
-    finishNeutralSetup(engine)
+    val admin = game.tfm(ADMIN)
+    finishNeutralSetup(admin)
 
-    engine.manual("Generation")
+    admin.manual("Generation")
 
-    engine.count("SoloGenerationsLeft") shouldBe 12
+    admin.count("SoloGenerationsLeft") shouldBe 12
   }
 
   @Test
   internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
-    val engine = game.tfm(ENGINE)
-    finishNeutralSetup(engine)
-    engine.sneak("-12 SoloGenerationsLeft")
+    val admin = game.tfm(ADMIN)
+    finishNeutralSetup(admin)
+    admin.sneak("-12 SoloGenerationsLeft")
 
-    engine.manual("-SoloGenerationsLeft")
+    admin.manual("-SoloGenerationsLeft")
 
-    engine.count("SoloGenerationsLeft") shouldBe 0
-    engine.count("GameEndBarrier") shouldBe 0
+    admin.count("SoloGenerationsLeft") shouldBe 0
+    admin.count("GameEndBarrier") shouldBe 0
   }
 
   @Test
   internal fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
     val game = setUpGame(Tr63SoloObjective, players = 1)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val player = game.tfm(PLAYER1)
-    finishNeutralSetup(engine)
+    finishNeutralSetup(admin)
 
     player.count("Tr63SoloObjective") shouldBe 1
     player.count("StandardSoloObjective") shouldBe 0
@@ -56,15 +56,15 @@ internal class SoloGenerationCountdownTest {
     player.count("TerraformRating<Me>") shouldBe 15
 
     player.manual("48 TerraformRating")
-    engine.manual("CheckGameEnd")
+    admin.manual("CheckGameEnd")
 
     player.count("Victory<Me>") shouldBe 1
   }
 
-  private fun finishNeutralSetup(engine: TfmGameplay) {
-    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+  private fun finishNeutralSetup(admin: TfmGameplay) {
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
   }
 }

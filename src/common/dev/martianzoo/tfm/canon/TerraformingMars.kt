@@ -51,8 +51,6 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.HandleCardTags,
         TerraformingMars.ScoreEventVps,
         TerraformingMars.PassLeft,
-        TerraformingMars.AssignAwardPlaces,
-        TerraformingMars.AssignMultiplayerVictory,
         TerraformingMars.NonNegativeIconsOf,
         TerraformingMars.PlacementBonus,
         TerraformingMars.CopyProductionBox,
@@ -243,60 +241,6 @@ private object TerraformingMars {
       )
     }
   }
-
-  private val AWARD_TALLY = cn("AwardTally")
-  private val FIRST_PLACE = cn("FirstPlace")
-  private val SECOND_PLACE = cn("SecondPlace")
-
-  internal object AssignAwardPlaces : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY, FIRST_PLACE, SECOND_PLACE)
-
-    override fun translate(reader: GameReader, awardType: Type): Instruction {
-      val players = reader.getComponents("Player").elements
-      val scores = players.associateWith { reader.count(reader.resolve(tally(it, awardType))) }
-      val firstScore = scores.values.maxOrNull() ?: return NoOp
-
-      val first = scores.filterValues { it == firstScore }.keys
-      val winners = first.map { FIRST_PLACE.of(it.expression, awardType.expression) }
-      val placements =
-          if (players.size < 3 || first.size > 1) {
-            winners
-          } else {
-            val secondScore = scores.filterKeys { it !in first }.values.maxOrNull() ?: 0
-            val runnersUp =
-                scores
-                    .filter { (player, score) -> player !in first && score == secondScore }
-                    .keys
-                    .map { SECOND_PLACE.of(it.expression, awardType.expression) }
-            winners + runnersUp
-          }
-      return Then.create(placements.map(::gain))
-    }
-  }
-
-  private val VICTORY = cn("Victory")
-
-  internal object AssignMultiplayerVictory : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(VICTORY)
-
-    override fun translate(reader: GameReader): Instruction {
-      val players = reader.getComponents("Player").elements
-      val victoryPoints = players.associateWith {
-        reader.count(reader.resolve(cn("VictoryPoint").of(it.expression)))
-      }
-      val mostVictoryPoints = victoryPoints.values.maxOrNull() ?: return NoOp
-      val leaders = victoryPoints.filterValues { it == mostVictoryPoints }.keys
-      val mc = leaders.associateWith {
-        reader.count(reader.resolve(cn("MC").of(it.expression)))
-      }
-      val mostMC = mc.values.maxOrNull() ?: return NoOp
-      val winners = mc.filterValues { it == mostMC }.keys
-      return Then.create(winners.map { gain(VICTORY.of(it.expression)) })
-    }
-  }
-
-  private fun tally(player: HasClassName, awardType: Type): Expression =
-      AWARD_TALLY.of(player.className.expression, awardType.expression)
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): Class {
     return reader.tfmCatalog.card(representedType(cardClassType, reader).className)

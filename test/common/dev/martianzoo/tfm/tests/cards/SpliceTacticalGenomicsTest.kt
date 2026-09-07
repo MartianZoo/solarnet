@@ -16,7 +16,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
 
     p1.playCorp(SpliceTacticalGenomics, 0).expect("48 MC")
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.stdAction("DoRequiredActions").expect("ProjectCard")
   }
 

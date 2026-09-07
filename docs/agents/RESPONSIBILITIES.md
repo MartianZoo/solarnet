@@ -144,7 +144,7 @@ Do not reopen these without new evidence:
 
 - `SystemDeclarations.kt` owns the generic runtime vocabulary. In the target model that includes a
   concrete `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
-  mutation-processing mechanism. Current source still calls that Actor and Component `Engine`.
+  mutation-processing mechanism.
 - Terraforming Mars workflow creates `SetupPhase`. The target bootstrap should reach ordinary
   Admin task execution as early as the state model honestly permits; the exact pre-task seed state
   remains to be selected.

@@ -9,7 +9,7 @@ import dev.martianzoo.pets.ast.Expression
 /** An identity that can initiate or continue game operations. */
 public sealed interface Actor : HasClassName, HasExpression {
   public companion object {
-    public val ENGINE: Actor = EngineActor
+    public val ADMIN: Actor = AdminActor
   }
 }
 
@@ -60,8 +60,8 @@ public class Player private constructor(override val className: ClassName) : Act
   }
 }
 
-private data object EngineActor : Actor {
-  override val className = cn("Engine")
+private data object AdminActor : Actor {
+  override val className = cn("Admin")
   override val expression: Expression = className.expression
 
   override val expressionFull: Expression

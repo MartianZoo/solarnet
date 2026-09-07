@@ -31,7 +31,7 @@ internal class AwardsTest : TfmTest() {
         .shouldBeEmpty()
     game.classTable.isActive(cn("ClaimMilestone")) shouldBe false
     game.classTable.isActive(cn("FundAward")) shouldBe false
-    engine.assertCounts(
+    admin.assertCounts(
         1 to "PlayCardFromHand",
         1 to "AquiferSP",
     )
@@ -52,13 +52,10 @@ internal class AwardsTest : TfmTest() {
     p1.sneak("Incorporator, $Ecoline, $InterplanetaryCinematics")
     p2.sneak("$MiningGuild, $Mine")
 
-    engine.manual("End")
+    admin.manual("End")
 
-    p1.assertCounts(0 to "AwardTally<Player1, Incorporator>")
-    p2.assertCounts(
-        1 to "AwardTally<Player2, Incorporator>",
-        1 to "FirstPlace<Player2, Incorporator>",
-    )
+    p1.assertCounts(0 to "FirstPlace<Player1, Incorporator>")
+    p2.assertCounts(1 to "FirstPlace<Player2, Incorporator>")
   }
 
   @Test
@@ -73,18 +70,15 @@ internal class AwardsTest : TfmTest() {
     p1.count("CardFront(HAS requirement)") shouldBe 1
     p2.count("CardFront(HAS requirement)") shouldBe 2
 
-    engine.manual("End")
+    admin.manual("End")
 
     p1.assertCounts(
-        1 to "AwardTally<Player1, Forecaster>",
         1 to "SecondPlace<Player1, Forecaster>",
     )
     p2.assertCounts(
-        2 to "AwardTally<Player2, Forecaster>",
         1 to "FirstPlace<Player2, Forecaster>",
     )
     p3.assertCounts(
-        0 to "AwardTally<Player3, Forecaster>",
         0 to "FirstPlace<Player3, Forecaster>",
         0 to "SecondPlace<Player3, Forecaster>",
     )
@@ -138,7 +132,7 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  internal fun zeroTalliesCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
+  internal fun zeroScoresCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
     game = Engine.newGame(canonicalPremise(players = 3))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -146,7 +140,7 @@ internal class AwardsTest : TfmTest() {
 
     p1.sneak("Thermalist, Miner, Heat")
 
-    engine.manual("End")
+    admin.manual("End")
 
     p1.assertCounts(
         1 to "FirstPlace<Player1, Thermalist>",
@@ -182,7 +176,7 @@ internal class AwardsTest : TfmTest() {
     p2.assertProds(-5 to "MC")
     p3.assertProds(-5 to "MC")
 
-    engine.manual("End")
+    admin.manual("End")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
     p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
@@ -197,13 +191,13 @@ internal class AwardsTest : TfmTest() {
     p1.manual("3 VictoryPoint, TerraformRating")
     p2.manual("Banker, PROD[1 MC]")
 
-    engine.manual("End")
+    admin.manual("End")
 
     p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")
-    engine.count("End") shouldBe 1
-    engine.count("FinalScoringPending") shouldBe 0
-    engine.count("MeasureAward<Banker>") shouldBe 0
+    admin.count("End") shouldBe 1
+    admin.count("FinalScoringPending") shouldBe 0
+    admin.count("MeasureAward<Banker>") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 }

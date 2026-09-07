@@ -13,7 +13,7 @@ internal class PolyphemosTest : CardTest() {
         colonyTiles = testColonyTiles(2),
     )
     p1.playCorp(Polyphemos, 7)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.playProject(InventorsGuild, 9)
     p1.cardAction1(InventorsGuild) { p1.buyCards(1) }.expect("ProjectCard, -5 MC")
   }

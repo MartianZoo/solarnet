@@ -39,13 +39,13 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     val yellow = game.tfm(Player.PLAYER1)
     val green = game.tfm(Player.PLAYER2)
     // "Miranda and Enceladus are currently out of play."
-    engine.assertCounts(3 to "ColonyTile", 5 to "ColonyTileSelection")
+    admin.assertCounts(3 to "ColonyTile", 5 to "ColonyTileSelection")
 
     // (11:28 am) "The game is beginning. It is Generation 1."
-    engine.assertCounts(1 to "Generation")
+    admin.assertCounts(1 to "Generation")
 
     // "It's the corporation phase."
-    engine.assertCounts(1 to "CorporationPhase")
+    admin.assertCounts(1 to "CorporationPhase")
 
     // "I call Mons Insurance again."
     // "Your money production goes up four." "And [Green]'s money production goes down two."
@@ -58,7 +58,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     green.playCorp(MorningStarInc, 4).expect("38 MC")
 
     // "It is now the Prelude phase."
-    engine.assertCounts(1 to "PreludePhase")
+    admin.assertCounts(1 to "PreludePhase")
 
     yellow.turn {
       // "I got Dome Farming."
@@ -88,7 +88,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     }
 
     // "That concludes the Prelude phase. It is now time for the action phase."
-    engine.assertCounts(1 to "ActionPhase")
+    admin.assertCounts(1 to "ActionPhase")
 
     yellow.turn {
       // "I play Aquifer Pumping for 18."
@@ -167,7 +167,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     green.assertTags(plt = 1, vet = 1)
     yellow.assertCounts(5 to "CardFront")
     yellow.assertTags(but = 2, sct = 1, plt = 1)
-    engine.assertCounts(3 to "Tile")
+    admin.assertCounts(3 to "Tile")
 
     // (11:39 am) "Wow, these all suck." "I'll buy two."
     green.buyCards(2)
@@ -251,7 +251,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           // "That's two money, a plant, and a card."
           // "The oxygen goes up to 2%, and [Yellow] gets a TR."
           .expect("-7 P, 2 MC, ProjectCard, TR")
-      engine.assertCounts(2 to "OxygenStep")
+      admin.assertCounts(2 to "OxygenStep")
     }
 
     // 11:49 am
@@ -351,7 +351,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     green.assertTags(spt = 1, sct = 1, eat = 2, vet = 5, plt = 1, mit = 2)
     yellow.assertCounts(7 to "CardFront")
     yellow.assertTags(but = 2, spt = 1, sct = 1, plt = 2)
-    engine.assertCounts(7 to "Tile")
+    admin.assertCounts(7 to "Tile")
 
     // 12:34 pm
     // "I'm discarding one card and buying three cards."
@@ -477,7 +477,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "Then we move all the colony tracks up one."
     // "Most of them are on the penultimate space on the track, but Enceladus still generates only"
     // "three microbes. Miranda is still out of play."
-    engine.assertCounts(
+    admin.assertCounts(
         5 to "ColonyProduction<Callisto>",
         5 to "ColonyProduction<Luna>",
         5 to "ColonyProduction<Triton>",
@@ -580,7 +580,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I will spend four energy on Ironworks to gain a steel."
     // "Oxygen goes to 5%. I get a TR."
     yellow.turn { cardAction1(Ironworks).expect("S, TR") }
-    engine.assertCounts(5 to "OxygenStep")
+    admin.assertCounts(5 to "OxygenStep")
 
     // "I am passing."
     green.pass()
@@ -638,7 +638,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     green.assertTags(but = 2, spt = 1, sct = 1, pot = 1, eat = 4, vet = 5, plt = 1, mit = 2)
     yellow.assertCounts(13 to "CardFront")
     yellow.assertTags(but = 5, spt = 1, sct = 2, pot = 2, eat = 1, vet = 1, plt = 2, cit = 1)
-    engine.assertCounts(14 to "Tile")
+    admin.assertCounts(14 to "Tile")
 
     // "I'm going to fly my ship to Triton by paying three energy."
     // "That lets me take five titanium, bringing me up to seven titanium."
@@ -689,7 +689,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(2, 2)
           }
           .expect("-6 P, 4 MC, TR")
-      engine.assertCounts(7 to "OxygenStep")
+      admin.assertCounts(7 to "OxygenStep")
     }
 
     // "I will do my plant forest."
@@ -736,7 +736,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "I use Ironworks to pay four energy, gain a steel, and raise oxygen."
       // "Oxygen is at 9%. I get a TR."
       cardAction1(Ironworks).expect("S, TR")
-      engine.assertCounts(9 to "OxygenStep")
+      admin.assertCounts(9 to "OxygenStep")
     }
 
     // "I... I... I... I am going to spend eight to get Venophile funded."
@@ -809,7 +809,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     )
     yellow.assertCounts(15 to "CardFront")
     yellow.assertTags(5, spt = 1, sct = 2, pot = 2, eat = 1, vet = 1, plt = 4, ant = 1, cit = 1)
-    engine.assertCounts(18 to "Tile")
+    admin.assertCounts(18 to "Tile")
 
     // (6:21 pm) "We're now playing Generation 7."
     // "I'm buying three cards and discarding one."
@@ -832,7 +832,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
             placeTile(1, 3)
           }
           .expect("-6 P, TR")
-      engine.assertCounts(10 to "OxygenStep")
+      admin.assertCounts(10 to "OxygenStep")
     }
 
     // "Big ass... toroid. Big Asteroid!"
@@ -873,7 +873,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I will spend four energy to gain a steel and raise the oxygen."
     // "Oxygen is at 11%."
     yellow.turn { cardAction1(Ironworks).expect("S, TR") }
-    engine.assertCounts(11 to "OxygenStep")
+    admin.assertCounts(11 to "OxygenStep")
 
     // "I'm playing a trans card for four money, which I'm going to do as one titanium, one money."
     // "It's Trans-Neptune Probe and that's it. It just—that's it."
@@ -893,7 +893,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "to remove an asteroid and do a Venus raise to 16%, which gets me"
     // "two TR."
     green.turn { cardAction2(RotatorImpacts).expect("-Asteroid, 2 TR") }
-    engine.assertCounts(8 to "VenusStep")
+    admin.assertCounts(8 to "VenusStep")
 
     // "I pass."
     yellow.pass()
@@ -967,7 +967,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "I use Ironworks to spend four energy on steel and oxygen."
       // "Oxygen goes up to 12%. I get a TR."
       cardAction1(Ironworks).expect("S, TR")
-      engine.assertCounts(12 to "OxygenStep")
+      admin.assertCounts(12 to "OxygenStep")
     }
 
     // (7:54 pm) "Let us finally play Strato Birds. That cost me ten."
@@ -993,7 +993,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           }
           // "Oxygen is now at 13%. I get another TR."
           .expect("-7 P, S, TR")
-      engine.assertCounts(13 to "OxygenStep")
+      admin.assertCounts(13 to "OxygenStep")
     }
 
     // (7:56 pm) "Boids. I played boids for eight, bringing me down to 13."
@@ -1013,7 +1013,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           }
           // "Oh man, you got the last oxygen. I never win this game."
           .expect("S, 4 MC, TR")
-      engine.assertCounts(14 to "OxygenStep")
+      admin.assertCounts(14 to "OxygenStep")
 
       // "Before I forget, I'm going to claim Mayor for eight."
       stdAction("ClaimMilestone") { doTask("Mayor") }
@@ -1152,7 +1152,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // (8:12 pm) "I raise the temperature to −8°C with eight heat. I get a TR."
     yellow.turn { convertHeat().expect("TR") }
-    engine.assertCounts(11 to "TemperatureStep")
+    admin.assertCounts(11 to "TemperatureStep")
 
     // "I use Maxwell Base to add a Stratospheric Bird."
     green.turn { cardAction1(MaxwellBase) { addCardResources(StratosphericBirds) } }
@@ -1166,7 +1166,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I use Rotator Impacts to remove an asteroid and raise Venus to 18%."
     // "That gives me a TR, taking me to 35 TR."
     green.turn { cardAction2(RotatorImpacts).expect("-Asteroid, TR") }
-    engine.assertCounts(9 to "VenusStep")
+    admin.assertCounts(9 to "VenusStep")
 
     // "I use Nitrite Reducing Bacteria to remove three microbes and get a TR."
     yellow.turn { cardAction2(NitriteReducingBacteria).expect("-3 Microbe, TR") }
@@ -1205,7 +1205,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
       // "I do a heat raise to −6°C. That gives me a TR, so I'm at 36 TR."
       convertHeat().expect("TR")
-      engine.assertCounts(12 to "TemperatureStep")
+      admin.assertCounts(12 to "TemperatureStep")
 
       // "We do production. You get to do World Government Terraforming."
       pass()
@@ -1431,7 +1431,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     green.assertTags(5, 4, 4, 2, eat = 4, jot = 1, vet = 11, plt = 3, mit = 3, ant = 3, cit = 2)
     yellow.assertCounts(25 to "CardFront")
     yellow.assertTags(8, 4, 4, 3, eat = 1, jot = 1, vet = 2, plt = 6, mit = 2, ant = 2, cit = 1)
-    engine.assertCounts(30 to "Tile")
+    admin.assertCounts(30 to "Tile")
 
     // HACK: I must have fat-fingered this!?
     green.exMachina("Plant")
@@ -1448,7 +1448,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     yellow.turn {
       convertHeat().expect("TR")
       convertHeat().expect("TR")
-      engine.assertCounts(16 to "TemperatureStep")
+      admin.assertCounts(16 to "TemperatureStep")
     }
 
     // (8:38 pm) "I'm going to use Restricted Area to draw a card."
@@ -1492,7 +1492,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm going to use Rotator Impacts to remove an asteroid and raise Venus."
     // "Venus is now at 22%, and my TR is at 37."
     green.turn { cardAction2(RotatorImpacts).expect("-Asteroid") }
-    engine.assertCounts(11 to "VenusStep")
+    admin.assertCounts(11 to "VenusStep")
     green.assertCounts(37 to "TR")
 
     // "I'm going to pay three energy to trade with Enceladus and get one microbe."
@@ -1548,7 +1548,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     yellow.turn {
       stdProject("AsteroidSP").expect("TR")
       stdProject("AsteroidSP").expect("TR")
-      engine.assertCounts(19 to "TemperatureStep")
+      admin.assertCounts(19 to "TemperatureStep")
     }
 
     // "I am going to spend one on Floater Leasing, which gives me two money production."

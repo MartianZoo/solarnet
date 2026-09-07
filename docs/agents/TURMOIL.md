@@ -260,8 +260,9 @@ CLASS SendDelegateSA : StandardAction {
   5 -> NormalDelegate
 }
 
-// LANGUAGE?: maintaining PartyLeader and Dominant requires strict argmax comparisons with their
-// distinct tie rules. Returning the appropriate delegates also requires owner-aware fanout.
+// LANGUAGE?: RANK supplies the comparisons for PartyLeader and Dominant, but their distinct tie
+// rules still need to drive different state changes. Returning delegates also needs owner-aware
+// fanout.
 ```
 
 Influence is measured for the Current event rather than continuously maintained through every
@@ -570,7 +571,7 @@ A Player-authored parameter gain supplies a contextual Player, so the effect cre
 mandatory TerraformRating. In the target vocabulary World Government Terraforming is authored
 `BY Admin`; Admin is not a Player, and the current effect machinery silently produces no
 TerraformRating task when it cannot obtain a contextual Player. Current source still spells the
-Actor `Engine`.
+Actor `Admin`.
 
 That outcome is correct for the game, but its present explanation may not be. Investigate whether
 the rule should instead state its applicability explicitly:
@@ -598,8 +599,9 @@ The draft currently exposes these questions without selecting implementations:
 3. **Invariant-restoration scope.** Changing Times wants the final state to contain exactly one
    Coming and Distant event while a recursive automatic chain temporarily empties each slot.
    Current minimum invariants constrain every individual transmutation.
-4. **Party maintenance.** Party Leader and Dominant selection both require maxima, but use distinct
-   tie rules and must return or promote concrete delegates without inventing reserve components.
+4. **Party maintenance.** `RANK` supplies highest-first comparisons for Party Leader and Dominant,
+   but their distinct tie rules must still return or promote concrete delegates without inventing
+   reserve components.
 5. **Solar sequencing.** The rulebook orders TR revision, Current event resolution, new government,
    lobby refill, and Changing Times. The components should retain their own behavior even if a
    workflow eventually supplies ordered step signals.
