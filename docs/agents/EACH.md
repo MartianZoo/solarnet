@@ -100,8 +100,8 @@ waits for one task, and `EACH` provides no fanout-wide join or additional atomic
 
 ## Occurrence versus Type
 
-**Audit.** A fanout branch corresponds to a distinct Type, never to a copy. This is the boundary
-that decides whether a rule can use `EACH` at all, and it is easy to miss because a fanout over
+**Audit.** A fanout branch corresponds to a distinct Type, never to a copy. This distinction
+decides whether a rule can use `EACH` at all, and it is easy to miss because a fanout over
 components that happen to be unique looks like a fanout over occurrences.
 
 Terraforming Mars' Productive Outpost pays one colony bonus per colony owned. A player may hold two
@@ -148,8 +148,11 @@ behavior.
 Use `EACH` when one component owns a one-time rule that acts independently on the components present
 at that moment. Prefer an ordinary Class effect when each recipient owns the rule, especially when
 each player must make a choice. Prefer a persistent listener when the reaction must remain installed
-throughout the game. A fanout triggered before its intended recipients exist silently does nothing,
-so `SetupPhase` is the earliest reliable host for fanout over all players created during bootstrap.
+throughout the game. A fanout triggered before its intended recipients exist silently does nothing.
+During staged bootstrap, however, root Modules and all seated Players exist before queued self-effect
+tasks are selected, so a queued root initializer can reliably fan out over that seed layer. An
+immediate initializer cannot; outside that special staging, `SetupPhase` remains the earliest
+general host for fanout over all seated Players.
 
 Per-player task routing is unsupported; it is separate from per-branch class-property evaluation
 and is not implied by `EACH`.

@@ -1,6 +1,6 @@
 "The published Prelude 2 expansion rules"
 CLASS Prelude2Expansion : Module {
-  This:: PreludeExpansion, Prelude2CardPack.
+  This: PreludeExpansion, Prelude2CardPack.
 }
 
 "Prelude 2 card pool, including active preludes and cards that combine expansions"

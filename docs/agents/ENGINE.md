@@ -120,14 +120,42 @@ Promo Card Pack contributes
 three direct class exclusions for the cards its revised printings supersede; there is no general
 replacement registry.
 
-`Engine.newGame(premise)` currently wires the World with one structural representative for every
-active concrete Class, creates the `Admin` Actor Component, selected Modules, seated Players, and
-the premise's explicit initial components, then commits the initialized state. Structural Class
-representatives are installed before event logging and therefore produce no Change Events. When
-Terraforming Mars is active, creating its Module automatically creates `BootstrapPhase` before the
-Players. By the time `newGame` returns, the World has one Phase, every seated Player, and each
-Player's five `ProdOffset<Class<MC>>` components; workflow later replaces Bootstrap with
-`SetupPhase` as an ordinary effectful operation.
+`Engine.newGame(premise)` wires the World with one structural representative for every active
+concrete Class, then creates `Admin`. It directly creates root selected Modules and seated Players
+as one seed layer. Creating the Terraforming Mars Module immediately creates `BootstrapPhase`
+before the Players; after the whole seed layer exists, initialization drains its queued work. It
+next directly creates any selected Module left absent after its potential source ran and drains
+again, creates the premise's exact initial components, and performs a final drain. Completion
+requires an empty task queue and every premise-required component to exist before the initialized
+state is committed. Structural Class representatives are installed before event logging and
+therefore produce no Change Events. By the time `newGame` returns, the World has one Phase, every
+seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow later replaces
+Bootstrap with `SetupPhase` as an ordinary effectful operation.
+
+This staging is deliberate. A queued `:` self-effect is selected only after the whole seed layer
+exists, so peer initializers appear in stable level-by-level causal history and a queued `EACH`
+sees the Players and Modules in that layer. The component carrying the effect remains the cause of
+the resulting changes; the Kotlin initializer is not a second registry of everything a Module or
+Player owns. Stable drain order is diagnostic, not game meaning.
+
+Required state should arise at its earliest honest owner. The base Module creates initial
+global-parameter status, Player1 creates the first-player token, the selected map creates its Mars
+areas, and Game Modes create their distinct starting ratings during Setup. This gets resting
+invariants true promptly while preserving what each event means.
+
+Bootstrap tasks must have exactly one possible concrete outcome. Their syntax may begin abstract
+only when ordinary resolution proves a single concrete alternative from the initialized state; no
+bootstrap task may choose among two or more legal outcomes. Choice-bearing starting state must
+remain an exact premise component and open its choice during `SetupPhase` or later, as selected
+Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; the bootstrap drain
+is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
+`!` intensity.
+
+`drainBootstrapTasks` currently calls the Admin Agent's normal `FIRST` autoexecution policy.
+`FIRST` may select the stable execution order of several concrete tasks, but it does not invent a
+narrowing for an abstract task: unresolved choice remains queued and bootstrap completion fails.
+Preserve that rejection, cover it with a focused multi-alternative bootstrap test, and review task
+ordering separately whenever bootstrap effects can observe one another.
 
 **Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
 Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
@@ -153,10 +181,12 @@ The goal is not to call every constructor step an Admin action. It is to make th
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, the initializer directly materializes only the premise-selected Modules, seated Players,
-and exact initial component Types. Module and card effects create the other concrete components
-they own; `EACH` over Class representatives supplies generic specialization fanout. An exact
-`HAS =1 This` remains a live multiplicity invariant, not an initialization instruction.
+In Canon, the initializer directly materializes only root premise Modules, seated Players, and
+exact initial component Types. Queued Module and Player effects create their owned bootstrap state,
+including constructively selected Modules; `EACH` over Class representatives supplies generic
+specialization fanout. The initializer's direct fallback is only for a selected Module still absent
+after a potential source's gated effect had an opportunity to run. An exact `HAS =1 This` remains a
+live multiplicity invariant, not an initialization instruction.
 
 ## Component graph
 
@@ -532,13 +562,20 @@ rules, global-parameter completion state, end barriers, and setup operations. `M
 missing maximum-one declaration found by the current Canon audit. `TradeFleet` deliberately has no
 one-count limit: additional fleet components are real capacity granted by cards.
 
-`StartToken` is exact one: the first `Generation` creates it automatically and later generations
-move it only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the
-creation of its Module: Bootstrap is created first, and each transition replaces the current Phase;
-`End` remains as the terminal Phase. A separate temporary
+`StartToken` is exact one: Player1's queued bootstrap effect creates it, and generations move it
+only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the creation
+of its Module: Bootstrap is created first, and each transition replaces the current Phase; `End`
+remains as the terminal Phase. A separate temporary
 `FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
 scoring task settles. A future comprehensive lower-bound validator must account for the short
-construction interval before the Terraforming Mars Module creates Bootstrap.
+construction interval before the Terraforming Mars Module creates Bootstrap. Bootstrap completion
+verifies its required components and empty task queue; ordinary mutations continue to enforce
+applicable multiplicity limits.
+
+**Audit:** bootstrap verification checks premise Modules, Players, and exact initial component
+Types, not every positive lower bound or every source-owned support component. Canon's lifecycle
+tests currently prove `StartToken` and track-status initialization; the generic initializer would
+not itself detect their accidental omission.
 
 `GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
 exact-one sum; expressing that honestly requires one shared status family and an atomic

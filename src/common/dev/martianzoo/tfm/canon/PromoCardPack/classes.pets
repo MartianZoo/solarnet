@@ -1,8 +1,8 @@
 "Adds official promotional project, corporation, and prelude cards"
 CLASS PromoCardPack : Module {
-  This:: EACH Class<Resource> { ResourceRemovalWatcher<Class<Resource>> }
-  This:: EACH Class<StandardResource> { ProductionDecreaseWatcher<Class<StandardResource>> }
-  This:: SpliceTacticalGenomicsWatcher
+  This: EACH Class<Resource> { ResourceRemovalWatcher<Class<Resource>> }
+  This: EACH Class<StandardResource> { ProductionDecreaseWatcher<Class<StandardResource>> }
+  This: SpliceTacticalGenomicsWatcher
 }
 
 "Asks its owner to choose an ocean area while preserving the Player who places it"

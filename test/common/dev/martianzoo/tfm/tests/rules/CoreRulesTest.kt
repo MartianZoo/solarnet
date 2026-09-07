@@ -21,6 +21,7 @@ internal class CoreRulesTest : CardTest() {
     p1.manual("12 MC")
     p1.autoExecMode = AutoExecMode.SAFE
     requireP2().autoExecMode = AutoExecMode.SAFE
+    admin.count("Generation") shouldBe 1
 
     admin.phase("Research") {
       p1.buyCards(3)
@@ -29,6 +30,7 @@ internal class CoreRulesTest : CardTest() {
 
     p1.count("MC") shouldBe 3
     p1.count("ProjectCard") shouldBe 3
+    admin.count("Generation") shouldBe 2
   }
 
   @Test

@@ -56,7 +56,6 @@ public class TfmGameplay(
 
   public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
-    asActor(ADMIN).manual("Generation")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
         asPlayer(player).buyCards(cards)

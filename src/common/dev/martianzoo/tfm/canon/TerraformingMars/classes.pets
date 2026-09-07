@@ -6,18 +6,18 @@ CLASS TerraformingMars : Module {
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
-  This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
-  This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
   This:: BootstrapPhase
-  This:: Hand, Action1, Action2, Action3, CardPurchase, CardPlay
-  This:: Selecting, Revealed
-  SetupPhase:: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
-  SetupPhase:: EACH Player { 20 TerraformRating }
-  CorporationPhase:: TrWatcher.
-  This IF MAX 0 ExtendedGlobalParametersRule:: StandardGpTrackRules
-  This IF MAX 0 MarsMap:: TharsisMap
+  This: SellPatentsSP, PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
+  This: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, DoRequiredActions
+  This: Action1, Action2, Action3, CardPurchase, CardPlay
+  This: Hand, Selecting, Revealed
+  This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
+  This: EACH Class<RemoteArea> { RemoteArea }
+  This IF MAX 0 MarsMap: TharsisMap
+  This IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
   CorporationPhase: Photosynthesis
+  CorporationPhase:: TrWatcher.
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
@@ -27,6 +27,7 @@ CLASS TerraformingMars : Module {
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
 
+  // TODO: EACH Player { EACH Class<StandardResource> { PROD[StandardResource] } }
   SetupPhase: EACH Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
 }
 
@@ -36,18 +37,20 @@ CLASS QuickStartVariant : Module {
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
 
-  // Bootstrap gains Modules before Players, so a Module cannot grant these: `This` on Player is the
-  // only hook that fires at player creation, which is earlier than any phase.
-  This:: 5 ProdOffset<This, Class<MC>> BY Admin
-  This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
+  // Bootstrap gains Modules before Players, so a Module's creation-time fanout cannot see them.
+  // Queued `This` work gives every Player its support after the complete seat layer exists.
+  This: 5 ProdOffset<This, Class<MC>> BY Admin
+  This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>> // TODO: doesn't belong here
 
   SetupPhase: 2 CorporationCard THEN -CorporationCard \
     THEN 10 ProjectCard THEN -10 ProjectCard?
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 
-  CLASS Player1, Player2
-  CLASS Player3 { HAS Class<SecondPlace> }
-  CLASS Player4, Player5
+  CLASS Player1 { This: StartToken }
+  CLASS Player2
+  CLASS Player3 { HAS Class<SecondPlace> } // only at 3+ do we give out 2nd place awards
+  CLASS Player4
+  CLASS Player5
 }
 
 // MAPS AND AREAS
@@ -55,7 +58,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 "Every game must have exactly one of these (Tharsis Map, etc.)"
 ABSTRACT CLASS MarsMap : Module {
   HAS =1 MarsMap
-  This:: EACH Class<Area> { Area }
+  This: EACH Class<MarsArea> { MarsArea } // TODO <This>
 }
 
 "A hexagonal area where a tile can go"
@@ -64,7 +67,7 @@ ABSTRACT CLASS Area {
   HAS MAX 1 Tile<This>
 
   "One of the usually-61 areas on the planet itself"
-  ABSTRACT CLASS MarsArea {
+  ABSTRACT CLASS MarsArea { // TODO <MarsMap>
     row = Number
     column = Number
 
@@ -533,13 +536,13 @@ ABSTRACT CLASS Phase : System {
   HAS =1 Phase
 
   CLASS BootstrapPhase
-  CLASS SetupPhase
+  CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
     NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
       (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
       -10 ProjectCard<Selecting>? THEN BuySelectedCards
   }
-  CLASS ResearchPhase
+  CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
@@ -554,9 +557,7 @@ ABSTRACT CLASS Phase : System {
 // TIME FLOW
 
 "Tells what generation we're in"
-CLASS Generation : System {
-  This IF =1 This:: StartToken<Player1>
-}
+CLASS Generation : System
 
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational {
@@ -630,9 +631,9 @@ ABSTRACT CLASS GameMode : Module {
     HAS 2 Player
     autoSelectWhen = HAS "2 Player"
 
-    This:: ClaimMilestone, FundAward
-    This:: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
-    SetupPhase: Generation
+    This: ClaimMilestone, FundAward
+    This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
+    SetupPhase: EACH Player { 20 TerraformRating }
     -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
   }
 }
@@ -646,12 +647,11 @@ CLASS SoloMode : GameMode {
 
   HAS =1 SoloObjective
 
-  This:: SoloOpponent
-  This IF MAX 0 SoloObjective:: StandardSoloObjective.
-  SetupPhase:: SoloGenerationSetup THEN Generation
-  SoloGenerationSetup: 14 SoloGenerationsLeft
+  This: SoloOpponent
+  This IF MAX 0 SoloObjective: StandardSoloObjective.
+  This: 14 SoloGenerationsLeft
+  SetupPhase: 14 TerraformRating<Player1>
   Generation: -SoloGenerationsLeft.
-  SetupPhase: -6 TerraformRating<Player1>
 }
 
 "Exactly one solo objective Module active in a solo game"
@@ -665,14 +665,11 @@ ABSTRACT CLASS SoloObjective : Module {
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloObjective {
-    This:: BufferGasSP
+    This: BufferGasSP
 
     CheckGameEnd IF 63 TerraformRating<Player1>: Victory<Player1>.
   }
 }
-
-"Lets selected variants initialize solo state immediately before generation 1 begins"
-CLASS SoloGenerationSetup : Signal, System
 
 "One generation that must begin before a solo game may end"
 CLASS SoloGenerationsLeft : GameEndBarrier

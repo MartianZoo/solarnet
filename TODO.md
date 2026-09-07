@@ -72,8 +72,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   future score depends on another score rather than directly on game state.
 - Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
   `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
-- Give players 20 TR in multiplayer setup and 14 TR in solo setup directly if a future card can
-  observe the current 20-then-minus-6 solo sequence.
 
 ## Autonomous Follow-ups
 

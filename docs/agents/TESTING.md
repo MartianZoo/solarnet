@@ -65,6 +65,15 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `reports/kotlin-file-complexity.tsv` under the root build directory. The report is manual rather
   than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
   current scope excludes benchmarks and standalone tools.
+- `./gradlew :tools:dumpAllExpansionsEventLogs` creates three-player and solo games with every
+  supported expansion plus `FakeCardsCardPack`, completes Player 1's corporation-phase turn with
+  Interplanetary Cinematics and four bought cards in each, and writes every change event (including
+  `System` and `Hidden` changes, but no task events) to
+  `_local/eventlogs/three-player-all-expansions-eventlog.tsv` and
+  `_local/eventlogs/solo-all-expansions-eventlog.tsv`. The `actor` column is engine attribution,
+  not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
+  attribute its derived changes to that Player. Use the cause columns to trace derivation; because
+  task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of automatic-effect siblings. This is a
   diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain a stable
