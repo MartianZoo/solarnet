@@ -160,8 +160,12 @@ private object TerraformingMars {
       val neighborAreas: List<AreaDefinition> = grid.hexNeighbors(row, column)
 
       fun tileOn(area: AreaDefinition): Expression? {
-        val tileType: Type = reader.resolve(TILE.of(area.className))
-        return reader.getComponents(tileType).singleOrNull()?.expression
+        val areaType = reader.resolve(area.className.expression)
+        val tileType = reader.resolve(TILE.of(area.className))
+        return reader
+            .getDependents(areaType)
+            .singleOrNull { it.narrows(tileType, reader) }
+            ?.expression
       }
 
       val newTile: Expression = tileOn(area)!!
