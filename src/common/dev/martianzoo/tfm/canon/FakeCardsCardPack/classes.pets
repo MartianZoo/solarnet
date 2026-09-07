@@ -1,6 +1,6 @@
 "Explicitly selected support for incomplete cards"
 CLASS FakeCardsCardPack : Module {
-  This:: SelfReplicatingRobotsBerth1, SelfReplicatingRobotsBerth2
-  This:: SelfReplicatingRobotsBerth3, SelfReplicatingRobotsBerth4
-  This:: SelfReplicatingRobotsBerth5
+  This: SelfReplicatingRobotsBerth1, SelfReplicatingRobotsBerth2
+  This: SelfReplicatingRobotsBerth3, SelfReplicatingRobotsBerth4
+  This: SelfReplicatingRobotsBerth5
 }

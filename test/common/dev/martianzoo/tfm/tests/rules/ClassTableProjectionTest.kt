@@ -81,10 +81,6 @@ internal class ClassTableProjectionTest {
   // Game-mode and player-count divisions
 
   @Test
-  internal fun `SoloGenerationSetup stays unloaded in multiplayer`() =
-      assertNotLoaded("SoloGenerationSetup", baseMultiplayer)
-
-  @Test
   internal fun `solo classes stay unloaded in multiplayer`() {
     matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
   }

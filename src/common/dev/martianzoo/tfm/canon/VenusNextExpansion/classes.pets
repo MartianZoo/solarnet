@@ -1,7 +1,7 @@
 CLASS VenusNextExpansion : Module {
-  This:: AirScrappingSP
-  This IF MAX 0 ExtendedGlobalParametersRule:: StandardVenusTrackRules
-  This IF ExtendedGlobalParametersRule:: ExtendedVenusTrackRules
+  This: AirScrappingSP
+  This IF MAX 0 ExtendedGlobalParametersRule: StandardVenusTrackRules
+  This IF ExtendedGlobalParametersRule: ExtendedVenusTrackRules
 }
 
 CLASS AirScrappingSP : StandardProject {
@@ -19,7 +19,7 @@ CLASS WorldGovernmentRule : Module {
 "Makes Venus a required global parameter for ending a multiplayer game"
 CLASS MandatoryVenusVariant : Module {
   premiseRequirement = HAS "MultiplayerMode, VenusNextExpansion"
-  This:: GpGameEndBarrier<Class<VenusStep>>
+  This: GpGameEndBarrier<Class<VenusStep>>
 }
 
 "Represents a 2% increase in Venus... terraformedness"

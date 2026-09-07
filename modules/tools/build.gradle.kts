@@ -12,12 +12,13 @@ val kotlinFileComplexityAnalyzer by configurations.creating {
 }
 
 val toolsSourceDirectory = rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tools")
+val localToolsSourceDirectory = rootProject.layout.projectDirectory.dir(".tools")
 val canonSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
 
 kotlin {
   sourceSets {
-    main { kotlin.setSrcDirs(listOf(toolsSourceDirectory)) }
+    main { kotlin.setSrcDirs(listOf(toolsSourceDirectory, localToolsSourceDirectory)) }
     test {
       kotlin.setSrcDirs(
           listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tools"))
@@ -30,6 +31,7 @@ dependencies {
   implementation(project(":tfm-canon"))
   implementation(project(":engine"))
   implementation(project(":pets"))
+  implementation(project(":tfm-engine"))
   kotlinFileComplexityAnalyzer(libs.detekt.metrics)
   testRuntimeOnly(libs.detekt.metrics)
 }
@@ -51,6 +53,21 @@ tasks.register<JavaExec>("standardResourceMonotonicityReport") {
   description = "Reports declarative threats to solo resource and production monotonicity."
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tools.StandardResourceMonotonicityReportKt")
+}
+
+val eventLogDumpOutput =
+    rootProject.layout.projectDirectory.file(
+        "_local/eventlogs/three-player-all-expansions-eventlog.tsv"
+    )
+val soloEventLogDumpOutput =
+    rootProject.layout.projectDirectory.file("_local/eventlogs/solo-all-expansions-eventlog.tsv")
+
+tasks.register<JavaExec>("dumpAllExpansionsEventLogs") {
+  group = "reporting"
+  description = "Dumps three-player and solo all-expansions change-event logs as TSV."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tools.DumpEventlogKt")
+  args(eventLogDumpOutput.asFile.absolutePath, soloEventLogDumpOutput.asFile.absolutePath)
 }
 
 tasks.register<JavaExec>("regenerateMapAreas") {

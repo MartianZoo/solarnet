@@ -2,7 +2,7 @@
 CLASS ColoniesExpansion : Module {
   premiseRequirement = HAS "(=1 Player, =4 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))"
 
-  This:: TradeAction, BuildColonySP
+  This: TradeAction, BuildColonySP
   SetupPhase: EACH Player { TradeFleet }
   SetupPhase IF SoloMode: PROD[-2 MC<Player1>]
   SolarPhase: AdvanceColonyTracks
@@ -28,6 +28,12 @@ CLASS BuildColonySP : StandardProject {
 
 "A selected colony tile, whether it is already in play or waiting for a compatible card"
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
+
+"A normal colony selected for this game but not put into play until setup"
+CLASS SelectedColonyTile<Class<ColonyTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
+  SetupPhase IF MultiplayerMode: ColonyTile FROM This
+  -SoloColoniesSetup IF SoloMode: ColonyTile FROM This
+}
 
 "A colony tile, such as Pluto"
 ABSTRACT CLASS ColonyTile {

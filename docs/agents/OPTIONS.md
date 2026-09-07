@@ -89,19 +89,21 @@ realized choice. Base rules, expansions, maps, modes, content groups, and varian
 exact live Module set is the complete statement of a game's general rules.
 
 `Module` is an ordinary Pets superclass except where premise construction and initialization ask
-whether a Class is its subtype. The premise explicitly creates every selected concrete Module; its
-inherited rules keep that component unique and permanent. Its `autoSelectWhen` and
+whether a Class is its subtype. The resolved premise names every selected concrete Module, while
+initialization directly creates only roots and lets their ordinary self-effects create selected
+descendants. A selected target still absent after its potential source ran is created directly as a
+fallback. Inherited rules keep each Module component unique and permanent. Its `autoSelectWhen` and
 `premiseRequirement` properties have meaning because the Catalog reads them. There is no separate
 Kotlin Module object or special component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. A constructive self-gain in an active Module is also **active provenance** for a
-target Module: `A { This:: B }` lets A select B. A gated gain does so only when its Requirement is
-true in the settled selection after disregarding its own target. This selection is resolved before
-class projection. Initialization
-creates sources before their constructively selected targets, while still creating Modules needed
-to evaluate a source's gates first. Thus the declaration of A, rather than B or a central registry,
-owns “A causes B.” Other structural reachability may
+target Module: `A { This: B }` lets A select B, whether the effect is queued or immediate. A gated
+gain does so only when its Requirement is true in the settled selection after disregarding its own
+target. This selection is resolved before class projection. Initialization creates sources before
+their constructively selected targets, while still creating Modules needed to evaluate a source's
+gates first. Thus the declaration of A, rather than B or a central registry, owns “A causes B.”
+Other structural reachability may
 activate dependencies, but it may not activate an unselected Module or defeat an explicit
 exclusion.
 
@@ -138,8 +140,9 @@ Vocabulary aliases, not Class identities. Initial state is not an unrestricted P
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection
-representations. In solo play four are selected; setup asks the player to remove one
-`ColonyTileSelection` before continuing.
+representations. Normal selected colonies become tiles during setup; card-resource colonies remain
+delayed until a compatible card exists. In solo play four are selected; setup asks the player to
+remove one `ColonyTileSelection` before creating the remaining normal tiles.
 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
@@ -150,8 +153,12 @@ authored Bundle membership and freezes the resulting pools as exact signed selec
 and three award Classes. Explicitly naming any milestones or awards makes that category an exact
 pool, so named goals replace only their own category. Selecting colony tiles also requests their
 initial components.
-Solo Colonies uses three tiles, two-player Colonies uses five, and games with at least three players
-use two more tiles than players.
+Solo Colonies selects four and keeps three after the setup choice, two-player Colonies uses five,
+and games with at least three players use two more tiles than players.
+
+Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
+terraform rating during setup; `SoloMode` gives Player 1 14 directly. The solo game never passes
+through a synthetic 20-rating state followed by a compensating reduction.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
@@ -235,7 +242,9 @@ hand-authored declarations. Semantic runtime facts—area identity, kind, row, c
 Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
 concrete `MarsArea` Classes without a name-prefix convention.
 
-The selected `MarsMap` creates every active Area with `EACH Class<Area> { Area }`; the former
+The selected `MarsMap` creates every active Mars area with `EACH Class<MarsArea> { MarsArea }`; the
+base `TerraformingMars` Module separately creates active remote areas. This keeps planetary area
+ownership with the selected map without making card-owned remote locations map content. The former
 `CreateMapAreas` custom instruction is gone. Adjacency, placement-bonus metrics, largest-group
 scoring, the text renderer, and the game viewer consume the class-backed grid.
 `ScriptSession` and the standalone solo-placement tool are generation/presentation exceptions that

@@ -36,7 +36,7 @@ The current coarse phase vocabulary is:
 ```text
 Bootstrap -> Setup -> Corporation -> [Prelude] -> Action -> Production -> Solar
           -> [Venus Solar] -> [Colonies Solar] -> [Turmoil Solar]
-          -> Generation -> Research -> Action ...
+          -> Research -> Action ...
 Solar     -> Final Greenery -> End
 ```
 
@@ -45,14 +45,18 @@ This is topology, not one unconditional line.
 - The Terraforming Mars Module creates `BootstrapPhase` during initialization. The committed World
   returned by `Engine.newGame` already has that Phase, all Players, and each Player's five
   `ProdOffset<Class<MC>>` components.
-- Creating Setup replaces Bootstrap and creates generation 1 in the same engine operation. The
-  first generation has no separate Generation or Research phase.
+- Creating Setup replaces Bootstrap and immediately creates generation 1 before its queued work.
+  The first generation has no Research phase.
 - Setup grants starting game state and deals corporations, projects, and enabled Preludes into each
   Player's `Hand`. Corporation and Prelude rejections resolve there, and each Player chooses how
   many of the ten projects to discard before Setup finishes.
 - During each Corporation turn, the retained projects move temporarily from `Hand` to `Selecting`
   alongside the corporation-play task. The existing purchase operation then charges for every
   retained project and returns it to `Hand`.
+- Every later Research phase immediately creates its generation before offering cards.
+- `Generation` is a counter/event, not another Phase driven by Kotlin. Making it an immediate
+  consequence of entering Setup or Research lets generation cleanup and first-player movement
+  precede the choices of that phase without inventing a phase-like workflow step.
 - Prelude inserts its phase after Corporation.
 - Applicable Solar subphases preserve Venus, Colonies, then Turmoil order.
 - Merely naming a precedence constraint must not activate an absent expansion class.
@@ -99,7 +103,8 @@ player's then-current rating. Final greeneries cannot rescue a failed objective.
 
 - Starting choices precede corporation and Prelude play. Corporations and Preludes resolve in
   player order, and starting cards are paid before Prelude play.
-- Later Generation phases pass the first-player marker immediately before Research.
+- Later Research phases create a Generation, which passes the first-player marker before card
+  selection.
 - Production begins only after every Player passes. Existing energy converts to heat before new
   production, and production payouts are simultaneous for game rules unless evidence says
   otherwise.

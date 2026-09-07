@@ -39,10 +39,11 @@ Structured content uses globally unique semantic English names such as `Birds`, 
 award, colony, or standard-action identifier. Replacement relationships name the replaced Class
 directly.
 
-Two bundles may declare the same Class Name when the declarations are byte-identical, as
-`HasRaisedTr` and `TrWatcher` do in `TerraformingMars` and `TurmoilCardPack`. This is deliberate:
-each bundle stands alone, and identical declarations merge. Differing declarations under one name
-are an error.
+Two bundles may declare the same Class Name when the declarations are byte-identical; identical
+declarations merge, while differing declarations under one name are an error. Canon does not
+duplicate shared support declarations into an optional bundle when that bundle already requires
+the always-selected `TerraformingMars`: Turmoil's Pristar reuses the base game's `HasRaisedTr` and
+`TrWatcher` support.
 
 ## Choosing a name
 
