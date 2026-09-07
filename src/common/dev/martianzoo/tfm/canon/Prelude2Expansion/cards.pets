@@ -89,7 +89,7 @@ CLASS FocusedOrganization : ActionCard<Class<PreludeCard>> {
 
   This: ProjectCard, StandardResource
 
-  -> -ProjectCard THEN -StandardResource THEN FocusedOrganizationGain
+  -> -ProjectCard THEN -StandardResource THEN Signal { This: ProjectCard, StandardResource }
 }
 
 CLASS IndustrialComplex : CardFront<Class<PreludeCard>> {
@@ -300,10 +300,6 @@ CLASS VenusTradeHub : ActiveCard<Class<ProjectCard>> {
 
 // Supporting declarations contributed by cards in this bundle.
 CLASS Director : CardResource<ResourceHolder<Class<Director>>>
-
-CLASS FocusedOrganizationGain : Owned<Player>, Signal {
-  This: ProjectCard, StandardResource
-}
 
 CLASS SuitableInfrastructurePaid : Atomized, Hidden, Owned<Player> {
   HAS MAX 1 This

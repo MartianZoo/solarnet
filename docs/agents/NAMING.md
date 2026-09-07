@@ -152,10 +152,10 @@ pays its owner when someone trades — Productive Outpost says "gain all your co
 
 ### Derived and card-local classes
 
-The `{}` sugar generates a derived class named `<CardName>_<SupertypeName>`, as in
-`NaturalPreserve_SpecialTile` and `SponsoredAcademies_Signal`. The underscore is the marker of a
-structurally derived class and is intentional. A hand-written declaration that fills the same slot
-uses the same spelling, as `LavaFlows_SpecialTile` does.
+The `{}` sugar generates a derived class named `<OwnerName>_<SupertypeName>`, as in
+`NaturalPreserve_SpecialTile`. The underscore is the marker of a structurally derived class and is
+intentional. A hand-written declaration that fills the same slot uses the same spelling, as
+`LavaFlows_SpecialTile` does.
 
 A hand-written helper that is *not* a structural derivative — a singleton observer, an extra action
 host — does not take the underscore.
@@ -332,8 +332,8 @@ player, and "effect" there is the ordinary English word, not the Pets grammar te
 is aimed at.
 
 Hand-written card helpers use whatever category word fits the card — `NeptunianOption`,
-`CathedralOption`, `CyberiaSystemsFirstChoice`, `FocusedOrganizationGain`, and the `...Watcher`
-singletons. There is no plan to regularize these suffixes; do not propose one.
+`CathedralOption`, `CyberiaSystemsFirstChoice`, and the `...Watcher` singletons. There is no plan to
+regularize these suffixes; do not propose one.
 
 `SoloGenerationsLeft` deliberately names the counted collection: a solo game begins with fourteen
 and removes one whenever a Generation begins. The plural reads naturally at its principal uses and
