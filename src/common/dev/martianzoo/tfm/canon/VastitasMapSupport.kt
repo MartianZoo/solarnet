@@ -13,19 +13,13 @@ private object VastitasMapSupport {
       val player = getPlayerOwner(game, type)
       val areas = mapDefinition(game).areas
       val areasByName = areas.associateBy { it.className }
-      val ownedTileClass = game.resolve(cn("OwnedTile").expression).rootClass
-      val components = game.getComponents(game.resolve(cn("Component").expression))
+      val ownedTiles = game.getComponents(game.resolve(cn("OwnedTile").of(player.expression)))
       val ownedAreas =
-          components
-              .filter { component ->
-                component.rootClass.isSubtypeOf(ownedTileClass) &&
-                    getPlayerOwner(game, component) == player
-              }
-              .mapNotNullTo(linkedSetOf()) { tile ->
-                tile.expressionFull.arguments.firstNotNullOfOrNull { argument ->
-                  areasByName[argument.className]
-                }
-              }
+          ownedTiles.mapNotNullTo(linkedSetOf()) { tile ->
+            tile.expressionFull.arguments.firstNotNullOfOrNull { argument ->
+              areasByName[argument.className]
+            }
+          }
       return areas.largestContiguousGroupSize(ownedAreas, { it.row }, { it.column })
     }
   }

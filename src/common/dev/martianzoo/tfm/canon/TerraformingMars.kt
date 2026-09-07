@@ -90,7 +90,6 @@ private object TerraformingMars {
   internal object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (cardExpression, targetExpression) = type.expressionFull.arguments
-      if (game.countComponent(game.resolve(cardExpression)) == 0) return 0
       val effects = cardEffects(card(cardExpression, game))
       val target = targetExpression.arguments.single().className
       return effects.sumOf { it.citationsOutsideRemoval(target) }

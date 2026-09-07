@@ -16,7 +16,6 @@ private object MilestonesAwardsExpansion {
   object GainsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (cardExpression, targetExpression) = type.expressionFull.arguments
-      if (game.countComponent(game.resolve(cardExpression)) == 0) return 0
       val effects = cardEffects(game.tfmCatalog.card(cardExpression.className))
       val target = targetExpression.arguments.single().className
       return effects.sumOf { effect ->
