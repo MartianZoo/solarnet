@@ -599,18 +599,15 @@ CLASS End : Phase {
 "A marker removed after every final-scoring task has completed"
 CLASS FinalScoringPending : Temporary, System
 
-"Asks the first player to choose one mandatory global-parameter increase performed by Admin"
-CLASS WorldGovernmentTerraforming : Signal
-
-"Asks the first player where an ocean is placed while preserving the performing Player"
-CLASS ChooseOceanArea<Player> : Signal
+"Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
+CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
+  This IF GpIncomplete: GlobalParameter! BY Admin
+}
 
 "Marks the player who takes the first turn; passes one seat left with each new generation"
 CLASS StartToken : Owned<Player> {
   HAS =1 StartToken
   Generation IF 2 Generation: PassLeft<This>
-  ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor
-  WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Admin
 }
 
 // GAME CONFIGURATION

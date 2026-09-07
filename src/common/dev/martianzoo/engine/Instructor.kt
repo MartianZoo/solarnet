@@ -519,7 +519,7 @@ internal constructor(
               "branch. Select an abstract type whose matching components can differ."
       )
     }
-    val ownsBody = transformers.selectionOwnsBody(each.selector)
+    val ownsBody = transformers.selectionIsOwner(each.selector)
     val named =
         each.body.descendantsOfType<Expression>().any {
           it == each.selectorName ||
@@ -539,7 +539,7 @@ internal constructor(
   }
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
-    val owner = ownerOf(selected)
+    val owner = selected.takeIf { transformers.selectionIsOwner(each.selector) }
     val representedSelection =
         each.representedSelectorName?.let {
           check(selected.className == CLASS)
@@ -557,21 +557,6 @@ internal constructor(
             .evaluateProperties(context = selected, owner = owner)
             .transformInstructionTree(bound)
     return resolveTree(evaluated)
-  }
-
-  /**
-   * The Owner that a selected component contributes to its branch: itself when it is one, otherwise
-   * whichever Owner it belongs to. This is what lets `EACH CityTile { ... }` act on each city's
-   * owner without naming any player.
-   */
-  private fun ownerOf(selected: Expression): Expression? {
-    val type = reader.resolve(selected)
-    if (type.rootClass.isSubtypeOf(classTable.getClass(OWNER))) return type.expression
-    return type.dependencies
-        .typeDependencies()
-        .map { it.boundType }
-        .firstOrNull { !it.abstract && it.rootClass.isSubtypeOf(classTable.getClass(OWNER)) }
-        ?.expression
   }
 
   private fun resolveOr(unresolved: Or): InstructionTree {

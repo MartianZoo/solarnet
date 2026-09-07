@@ -565,8 +565,8 @@ A proper type dependency explicitly chosen in the first stage of `THEN` and repe
 to that queued choice rather than a matching Class variable. Law Suit's `MC<Player>` therefore
 selects its opponent and carries that `Player` through the gate and card movement. Outside such a
 choice, a rule needing a distinct local capture must use a distinct authored expression. For
-example, `StartToken<Player>` uses `ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor` so the
-concrete performing Actor is captured independently of the StartToken's Class variable.
+example, `ChooseOceanArea` uses `This BY Actor: OceanTile<> BY Actor` so the concrete performing
+Actor is captured independently of the owned signal's owner.
 
 Second, if `Player` is visible, `!Player` contains a derived use of that variable. Binding first
 specializes `Player`, then applies Complement, so narrowing the positive variable widens the
@@ -630,9 +630,10 @@ atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
 therefore uses one atomic variable.
 
 The [`EACH`](EACH.md) fanout makes its selector a declaration whose scope is its body. Each
-enumerated concrete selector Type substitutes through the recorded use paths. Inside the body,
-`Owner` denotes the selected component's owner while `This` remains the effect-bearing component.
-The construct rejects a body with no use of the selector.
+enumerated concrete selector Type substitutes through the recorded use paths. Inside the body, an
+Owner selection supplies contextual `Owner`; a non-Owner selection retains the enclosing contextual
+owner. `This` remains the effect-bearing component. The construct rejects a body with no use of the
+selector.
 
 ### Implementation direction
 

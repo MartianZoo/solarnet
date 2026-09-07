@@ -5,6 +5,11 @@ CLASS PromoCardPack : Module {
   This:: SpliceTacticalGenomicsWatcher
 }
 
+"Asks its owner to choose an ocean area while preserving the Player who places it"
+CLASS ChooseOceanArea : Owned, Signal {
+  This BY Actor: OceanTile<> BY Actor
+}
+
 "A durable generational resource-removal record owned by the victim and naming the attacker"
 // IMPL: This should narrow ownership to Owner, but doing so loses the concrete victim while
 // specializing the complemented !Player binding used by the watcher below.

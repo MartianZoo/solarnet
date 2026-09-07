@@ -102,16 +102,17 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  internal fun `World Government Advisor raises a parameter as Admin`() {
+  internal fun `World Government Advisor lets its owner choose rather than the start player`() {
     newGame(Prelude2Expansion)
-    p1.manual("$WorldGovernmentAdvisor")
+    val p2 = requireP2()
+    p2.manual("$WorldGovernmentAdvisor")
     admin.phase("Action")
-    val startingTr = p1.count("TerraformRating")
+    val startingTr = p2.count("TerraformRating")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    p2.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
 
     admin.count("TemperatureStep") shouldBe 1
-    p1.count("TerraformRating") shouldBe startingTr
+    p2.count("TerraformRating") shouldBe startingTr
   }
 
   @Test

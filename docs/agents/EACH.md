@@ -36,8 +36,8 @@ with the same spelling. Each matching concrete Type replaces occurrences of that
 body:
 
 ```pets
-EACH Player { Plant }                  // each selected Player gains a Plant
-EACH CityTile<Player> { -VictoryPoint } // each selected city's owner loses a point
+EACH Player { Plant }                         // each selected Player gains a Plant
+EACH Player(HAS StartToken) { ChooseOceanArea } // only the start Player gets the request
 ```
 
 A Class selector also declares its represented Class name. This permits a structurally present
@@ -47,11 +47,12 @@ Class representative to create one component of the Class it represents:
 EACH Class<Area> { Area }
 ```
 
-The selector itself still reads the enclosing context. For example,
+The selector's main expression still reads the enclosing context. For example,
 `EACH ProjectCard<Owner> { ... }` selects cards belonging to the enclosing owner, while
-`EACH ProjectCard<Anyone> { ... }` can select cards belonging to any owner. Within a refinement,
-write ownership intended for candidate specialization explicitly as `<Anyone>`; a bare owned
-expression may first acquire the enclosing contextual owner.
+`EACH ProjectCard<Anyone> { ... }` can select cards belonging to any owner. Its refinement instead
+describes each candidate: dependencies omitted there remain available for candidate specialization.
+Thus `Player(HAS StartToken)` tests each concrete Player for their own StartToken without requiring
+`StartToken<Anyone>`. A nested `RANK` establishes its own candidate context instead.
 
 Selector refinements decide participation using ordinary requirement semantics:
 
@@ -63,10 +64,10 @@ An unmet gate inside the body fails normally; it does not omit that branch. `EAC
 concrete selector, a selector unused by its body, complements, nested fanouts, and an empty body.
 
 Class-property syntax in the body remains inert while the enclosing Class effect is prepared. Once
-the fanout snapshot is selected, each branch binds its selected component and contextual `Owner`,
-then evaluates its class properties independently. Property syntax in the selector instead belongs
-to the enclosing context; award ranking expands the funded Award's metric there, while `RANK` binds
-each candidate Player:
+the fanout snapshot is selected, each branch binds its selected component and, for an Owner
+selection, contextual `Owner`, then evaluates its class properties independently. Property syntax
+in the selector instead belongs to the enclosing context; award ranking expands the funded Award's
+metric there, while `RANK` binds each candidate Player:
 
 ```pets
 EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
@@ -74,10 +75,9 @@ EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
 
 ## Ownership and attribution
 
-Inside the body, `Owner` means the selected component when it is an `Owner`, otherwise the owner of
-the selected component. `This` continues to mean the surrounding effect-bearing component. The
-enclosing owner is intentionally unavailable inside the body; put work concerning that owner
-outside the fanout.
+Inside the body, `Owner` means the selected component only when it is an `Owner`. A non-Owner
+selection leaves the enclosing contextual owner unchanged; it does not implicitly expose the owner
+of an `Owned` component. `This` continues to mean the surrounding effect-bearing component.
 
 The selected owner does not automatically become the actor, controller, or assignee. Every branch
 inherits attribution and task control from the surrounding effect. Use `BY Owner` when the selected
@@ -121,9 +121,9 @@ CLASS Colony<ColonyTile> : Owned<Player> {
 
 **Declined: fanning out over the tile instead.** `EACH ColonyTile(HAS Colony<Owner>) {
 GainColonyBonus<ColonyTile> }` type-checks, binds correctly, and passes the suite, because the
-selection is exactly what the body needs and `selectionOwnsBody` leaves the enclosing owner
-available for an unowned selector. It is still wrong: it pays once per tile, so a player with two
-colonies on one tile is underpaid. Do not propose it again.
+selection is exactly what the body needs and a non-Owner selector leaves the enclosing owner
+available. It is still wrong: it pays once per tile, so a player with two colonies on one tile is
+underpaid. Do not propose it again.
 
 **Declined: selector destructuring.** Binding a selector's nested variables — `EACH Colony<Owner,
 ColonyTile>` binding `ColonyTile` to `Luna` — would not have helped, because the branch count is
@@ -160,8 +160,8 @@ and is not implied by `EACH`.
   restrictions (`class Each` and `_each`).
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — snapshot enumeration,
   refinement filtering, specialization, and branch creation (`resolveEach`).
-- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — selected-owner body
-  binding and contextual-owner shielding (`bindEachSelectorAsOwner`).
+- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — Owner-selection body
+  binding and contextual-owner shielding (`selectionIsOwner`).
 - [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt)
   — runtime semantics (`testFanout`).
 - [`InstructionTest.kt`](../../test/common/dev/martianzoo/tfm/pets/ast/InstructionTest.kt) — parsing

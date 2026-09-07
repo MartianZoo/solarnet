@@ -311,13 +311,13 @@ derived Bundle condition and any separate non-Bundle compatibility condition, bu
 override the default pool-selection policy. Thus a Colonies card that only counts colonies is just
 as Colonies-dependent as one that places a colony.
 
-`VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make
-referencing content Venus-dependent. `WorldGovernmentTerraforming` and `ChooseOceanArea` are shared
-protocols in the base Bundle, so `WorldGovernmentRule` and non-Venus cards may use them without
-enabling Venus Next. `PreludeCard` belongs to the Prelude Expansion Bundle; Valley Trust's
-RequiredAction reference therefore derives its Prelude 1 dependency without a card property. Automatic
-Prelude-card selection also requires a `PreludeCardPack`, so its draw uses exactly the selected
-pack or packs.
+`VenusTag` and `VenusStep` are ambient declarations of the Venus Next Bundle and therefore make
+referencing content Venus-dependent. `WorldGovernmentTerraforming` is a shared protocol in the base
+Bundle, so `WorldGovernmentRule` and World Government Advisor may use it without enabling Venus
+Next. `ChooseOceanArea` belongs to the Promo Card Pack that alone uses it. `PreludeCard` belongs to
+the Prelude Expansion Bundle; Valley Trust's RequiredAction reference therefore derives its Prelude
+1 dependency without a card property. Automatic Prelude-card selection also requires a
+`PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 
 Concrete awards retain their authored multiplayer-only condition. Explicit selection checks that
 condition too, so solo cannot bypass the rule.

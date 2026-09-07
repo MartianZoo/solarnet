@@ -513,7 +513,7 @@ CLASS IcyImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   UseAction<This, Action1>:: Accepting<Class<Titanium>>
 
   10 MC -> 2 Asteroid<This>
-  Asteroid<This> -> ChooseOceanArea<Owner>
+  Asteroid<This> -> EACH Player(HAS StartToken) { ChooseOceanArea }
 }
 
 CLASS DirectedHeatUsage : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -573,7 +573,7 @@ CLASS KaguyaTech : AutomatedCard<Class<ProjectCard>> {
   cost = 10
 
   This:: CityTag<This>, PlantTag<This>
-  This: PROD[2 MC], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>
+  This: PROD[2 MC], ProjectCard, CityTile<MarsArea> FROM GreeneryTile<MarsArea>
 }
 
 CLASS MartianLumberCorp : ActiveCard<Class<ProjectCard>> {
@@ -704,7 +704,7 @@ CLASS Vermin : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<An
 
   This:: MicrobeTag<This>, AnimalTag<This>
   CityTile<Anyone>: Animal<This>
-  End IF 10 Animal<This>: EACH CityTile<Player> { -VictoryPoint }
+  End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }
 
   -> Animal<This> OR Microbe
 }
