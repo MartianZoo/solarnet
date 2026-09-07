@@ -127,7 +127,7 @@ internal class GamePremiseTest {
             .classTable
 
     table.isActive(cn("PreludePhase")) shouldBe true
-    table.isActive(cn("AppliedScience")) shouldBe true
+    table.isActive(cn("SpaceLanes")) shouldBe true
     table.isActive(cn("MartianIndustries")) shouldBe false
   }
 
@@ -266,7 +266,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun initialComponentTypesMustBeConcreteAndNonSingleton() {
+  internal fun initialComponentTypesMustBeConcreteAndInstantiable() {
     val premise =
         Canon.gamePremise(GameConfig("", "Player1", "Player2"))
             .copy(initialComponentTypes = setOf(cn("Card").expression))

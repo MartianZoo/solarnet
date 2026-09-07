@@ -1,6 +1,6 @@
 "The published Prelude 1 rules"
 CLASS PreludeExpansion : Module {
-  HAS PreludeCardPack, =1 Class<PreludePhase>
+  HAS PreludeCardPack, Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
   PreludePhase:: EACH Player { 2 PreludeCard }

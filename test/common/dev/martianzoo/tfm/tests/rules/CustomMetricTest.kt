@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -190,5 +191,6 @@ private object CustomClassDeclarations : TfmCatalog() {
 
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
-        catalog = TfmCatalog.compose(Canon, CustomClassDeclarations),
-    )
+            catalog = TfmCatalog.compose(Canon, CustomClassDeclarations),
+        )
+        .copy(initialComponentTypes = setOf(cn("MetricTriggerObserver").expression))

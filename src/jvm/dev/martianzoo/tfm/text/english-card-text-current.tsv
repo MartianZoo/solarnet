@@ -175,7 +175,7 @@ QuantumExtractor	Quantum Extractor	Requires 4 science tags. Increase your energy
 CallistoPenalMines	Callisto Penal Mines	Increase your M€ production 3 steps.
 TransNeptuneProbe	Trans-Neptune Probe	
 CommercialDistrict	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP per city tile adjacent to this tile.
-RoboticWorkforce	Robotic Workforce	[CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>].
+RoboticWorkforce	Robotic Workforce	[CopyProductionBox<CardFront(HAS BuildingTag)>].
 Research	Research	Draw 2 cards.
 GeneRepair	Gene Repair	Requires 3 science tags. Increase your M€ production 2 steps.
 IoMiningIndustries	Io Mining Industries	Increase your titanium production 2 steps and your M€ production 2 steps. 1 VP per Jovian tag you have.
@@ -304,7 +304,6 @@ NitrogenShipment	Nitrogen Shipment	Raise your terraform rating 1 step. Increase 
 OrbitalConstructionYard	Orbital Construction Yard	Increase your titanium production 1 step. Gain 4 titanium.
 PolarIndustries	Polar Industries	Place 1 ocean tile. Increase your heat production 2 steps.
 PowerGeneration	Power Generation	Increase your energy production 3 steps.
-ResearchNetwork	Research Network	Increase your M€ production 1 step. Draw 3 cards. [WildTag<This>].
 SelfSufficientSettlement	Self-Sufficient Settlement	Place a city tile. Increase your M€ production 2 steps.
 SmeltingPlant	Smelting Plant	Raise oxygen 2 steps. Gain 5 steel.
 SocietySupport	Society Support	Decrease your M€ production 1 step and increase your plant production 1 step, your energy production 1 step, and your heat production 1 step.
@@ -316,7 +315,6 @@ HousePrinting	House Printing	Increase your steel production 1 step.
 LavaTubeSettlement	Lava Tube Settlement	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile on a volcanic area if using a board that has one, otherwise place it normally.
 MartianSurvey	Martian Survey	Requires that oxygen is 4% or lower. Draw 2 cards.
 Psychrophiles	Psychrophiles	Requires that temperature is -20°C or lower.	Action: Add 1 microbe to this card. / Effect: When you play a plant tag, microbes on this card may be used as 2 M€ each.
-ResearchCoordination	Research Coordination	[WildTag<This>].
 SfMemorial	SF Memorial	Draw 1 card.
 SpaceHotels	Space Hotels	Requires 2 Earth tags. Increase your M€ production 4 steps.
 Aridor	Aridor	[EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> }]. Gain 40 M€. As your first action, add a colony tile.	Effect: [PlayCard<Class<ProjectCard>, Class<EventCard>>:: AridorPlayingEvent<This>].
@@ -382,7 +380,6 @@ PalladinShipping	Palladin Shipping	Gain 36 M€ and 5 titanium.	Action: Pay 2 ti
 SagittaFrontierServices	Sagitta Frontier Services	Gain 31 M€. Increase your energy production 1 step and your M€ production 2 steps. Draw 1 card with no tags.	Effect: When you play a card with no tags, gain 4 M€. When you play a card with exactly 1 tag, gain 1 M€.
 EcoTec	EcoTec	Gain 42 M€. Increase your plant production 1 step.	Effect: When you play a bio tag, gain 1 plant or add 1 microbe to any card.
 Spire	Spire	Gain 50 M€. As your first action, draw 4 cards, then discard 3 cards.	Effect: When you play a card with 2 or more tags, add 1 science resource to this card. When you use a standard project with a positive printed cost, science resources on this card may be used as 2 M€ each.
-AppliedScience	Applied Science	[WildTag<This>]. Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 prelude card. Discard 1 prelude card or remove 12 M€, then [-Director<This>], then play a prelude card.
 ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 titanium.	Effect: When any colony is placed, gain 2 M€.
@@ -391,7 +388,6 @@ FloatingTradeHub	Floating Trade Hub		Action: Add 2 floaters to any card, or remo
 FocusedOrganization	Focused Organization	Draw 1 card. Gain a standard resource.	Action: Discard 1 card, then [-StandardResource], then [FocusedOrganizationGain].
 IndustrialComplex	Industrial Complex		Effect: [This IF MAX 0 QuickStartVariant: -18 MC, PROD[MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]]. [This IF QuickStartVariant: -18 MC, PROD[MC / 7 - MC, Steel / 2 - Steel, Titanium / 2 - Titanium, Plant / 2 - Plant, Energy / 2 - Energy, Heat / 2 - Heat]].
 MainBeltAsteroids	Main Belt Asteroids	Remove 5 M€. 1 VP per 2 asteroids on this card.	Action: Add 1 asteroid to any card. / Effect: When you add an asteroid to this card, gain 1 titanium.
-NobelPrize	Nobel Prize	[WildTag<This>]. Gain 5 M€. Draw 2 cards with requirements.
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.
 PlanetaryAlliance	Planetary Alliance	Raise your terraform rating 2 steps. Draw 1 Jovian card. Draw 1 Venus card.
 ProjectEden	Project Eden	Place 1 ocean tile. Place a city tile. Place a greenery tile. Discard 3 cards.
@@ -421,15 +417,14 @@ Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: I
 MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. [EACH Player(HAS MAX 0 This<Anyone>) { -2 Production<Class<MC>> BY Owner }].	Effect: [MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.].
 Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain a standard resource.
 AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain a standard resource, or remove 1 asteroid from this card to gain 3 titanium.
-PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: When any microbe tag is played, add 1 disease resource to this card or [MAX 0 This: Ok] and [-4 MC.]. When you play a science tag, [TerraformRating FROM Disease<This>!] or [MAX 0 Disease: (CARDS[CardBack<EventPile, Class<This>> FROM This] THEN 3 TerraformRating) OR Ok].
-TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Pay one or more energy to look at X project cards. Draw one of them.
+PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: When any microbe tag is played, add 1 disease resource to this card or [MAX 0 This: Ok] and [-4 MC.]. When you play a science tag, [TerraformRating FROM Disease<This>!] or [MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok].
+TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Pay one or more energy to look at X project cards and draw one of them.
 KuiperCooperative	Kuiper Cooperative	Gain 33 M€. Increase your titanium production 1 step.	Action: Add 1 asteroid to this card per space tag you have. / Effect: When you use a standard project or a standard project, asteroids on this card may be used as 1 M€ each.
 PolderTechDutch	Polder Tech Dutch	Gain 35 M€. As your first action, place 1 ocean tile, then place a greenery tile on a land area next to an ocean tile.	Effect: When you place an ocean tile, gain 1 energy. When you place a greenery tile, gain 1 plant.
 CorporateArchives	Corporate Archives	Gain 13 M€. Look at 7 project cards. Draw 2 of them.
 DoubleDown	Double Down	Copy your other Prelude's direct effect.
 Merger	Merger	Draw 4 corporation cards, then discard 3 corporation cards, then play a corporation card. Remove 42 M€.
 NewPartner	New Partner	Increase your M€ production 1 step. Draw 2 prelude cards, then discard 1 prelude card, then play a prelude card.
-HeadStart	Head Start	Gain 2 steel. [2 MC / ProjectCard]. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
 AntiDesertificationTechniques	Anti Desertification Techniques	Gain 3 M€. Increase your plant production 1 step and your steel production 1 step.
 GiantSolarCollector	Giant Solar Collector	Increase your energy production 2 steps. Raise Venus 1 step.
 StrategicBasePlanning	Strategic Base Planning	Remove 3 M€. Place a city tile. Place a colony.
@@ -441,7 +436,7 @@ Penguins	Penguins	Requires 8 ocean tiles. 1 VP per animal on this card.	Action: 
 DuskLaserMining	Dusk Laser Mining	Requires 2 science tags. Decrease your energy production 1 step and increase your titanium production 1 step. Gain 4 titanium.
 ProjectInspection	Project Inspection	[UseAction<ActionCard(HAS ActionUsedMarker)>].
 EnergyMarket	Energy Market		Action: Pay 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
-HiTechLab	Hi-Tech Lab		Action: Pay one or more energy to look at X project cards. Draw one of them.
+HiTechLab	Hi-Tech Lab		Action: Pay one or more energy to look at X project cards and draw one of them.
 InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step per different tag you have.
 LawSuit	Law Suit	[(MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>], then [PlayedEvent<Player, Class<This>> FROM This].
 MercurianAlloys	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you pay is worth 1 M€ extra.
@@ -506,3 +501,12 @@ WeatherBalloons	Weather Balloons	Draw 1 card.	Action: Add 1 floater to this card
 PublicPlans	Public Plans	[MC? / ProjectCard].
 SterlingVents	Sterling Vents	Decrease your heat production 2 steps and increase your energy production 2 steps.
 FloydContinuum	Floyd Continuum		Action: [3 MC / GpComplete].
+FakeResearchNetwork	Fake Research Network	Increase your M€ production 1 step. Draw 3 cards. [FakeWildTag<This>].
+FakeResearchCoordination	Fake Research Coordination	[FakeWildTag<This>].
+FakeAppliedScience	Fake Applied Science	[FakeWildTag<This>]. Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
+FakeNobelPrize	Fake Nobel Prize	[FakeWildTag<This>]. Gain 5 M€. Draw 2 cards with requirements.
+FakeHelion	Fake Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: [Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>].
+FakeEstablishedMethods	Fake Established Methods	Gain 30 M€. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
+FakeHeadStart	Fake Head Start	Gain 2 steel. [2 MC / ProjectCard<Hand>]. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
+FakeL1TradeTerminal	Fake L 1 Trade Terminal	[Floater<FloatingHabs>]. [Floater<AerialMappers>]. [Floater<FloatingRefinery>].	Effect: When you trade, [TradeBarrier<ColonyTile>]. When you trade, raise that colony tile track 2 steps, or do nothing, then [-TradeBarrier<ColonyTile>].
+FakeMarsNomads	Fake Mars Nomads		Action: Do nothing.

@@ -2,12 +2,8 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
-import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Requirement.Counting
-import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassLimitTable
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
@@ -84,9 +80,4 @@ internal class Limiter(
     val type = component?.type ?: return emptySet()
     return limits.limitsFor(type)
   }
-}
-
-internal fun Class.isSingletonType(): Boolean = invariants.any {
-  val counting = it as? Counting ?: return@any false
-  counting.range.first == 1 && (counting.metric as? Metric.Count)?.expression == THIS.expression
 }

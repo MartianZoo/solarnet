@@ -1,42 +1,22 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-// Mars Nomads' moving, non-tile map marker is not yet modeled. The replay supplies each sourced
-// placement bonus explicitly while this stand-in preserves the card play and once-per-round action.
-private val marsNomadsDefinition =
-    parseOneLinerClass(
-        "CLASS MarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> { cost = 13; -> Ok }"
-    )
-
-private val erraticCarbonCurrentCatalog =
-    TfmCatalog.compose(
-        Canon,
-        object : TfmCatalog() {
-          override val explicitClassDeclarations = setOf(marsNomadsDefinition)
-        },
-    )
-
 // Complete database replay: Erratic Carbon Current (gbf986ef543f0)
 // https://terraforming-mars.herokuapp.com/the-end?id=p6674c4a1893d
 internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
-  override val catalog = erraticCarbonCurrentCatalog
-
   override val config =
       GameConfig(
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, PromoCardPack
-          MarsNomads
+          FakeCardsCardPack
 
           RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer
           Traveller, Collector, Excentric, Investor, Suburbian, Magnate
@@ -86,7 +66,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     blue.turn {
       playPrelude(AlbedoPlants)
-      playPrelude(ResearchNetwork) {
+      playPrelude(FakeResearchNetwork) {
         draw(Windmills, UndergroundCity, AerobrakedAmmoniaAsteroid)
       }
     }
@@ -129,14 +109,15 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn {
       playProject(Lichen, 7)
       // Test inference: Research Network's wild tag supplies the fourth bio tag.
-      claimMilestone(cn("Ecologist"), beforeAction = assignAllWildTags("PlantTag"))
+      blue.exMachina(fakeWildTags("PlantTag"))
+      claimMilestone(cn("Ecologist"))
     }
     blue.pass()
     pink.wgt("OxygenStep")
   }
 
   private fun generation3() {
-    blue.buyCards(ResearchCoordination, GreatEscarpmentConsortium, Worms)
+    blue.buyCards(FakeResearchCoordination, GreatEscarpmentConsortium, Worms)
     blue.discardUnselectedProjectCards(CaretakerContract)
     pink.buyCards(NitrophilicMoss)
     pink.discardUnselectedProjectCards(Casinos, QuantumExtractor, ArtificialLake)
@@ -148,17 +129,14 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = -1, s = 1, t = 1, p = 5, e = 0, h = 0)
     assertSidebar(gen = 3, temp = -24, oxygen = 2, oceans = 0, venus = 0)
 
-    blue.turn { playProject(ResearchCoordination, 4) }
+    blue.turn { playProject(FakeResearchCoordination, 4) }
     pink.turn {
       playProject(BigAsteroid, 21, titanium = 2) { doTask("-4 Plant<Blue>") }
     }
     blue.turn {
       // Blue has no printed Earth tags yet, so Space Hotels needs both wild tags.
-      playProject(
-          SpaceHotels,
-          12,
-          butFirst = assignAllWildTags("EarthTag"),
-      )
+      blue.exMachina(fakeWildTags("EarthTag", 2))
+      playProject(SpaceHotels, 12)
     }
     pink.pass()
     blue.turn {
@@ -213,7 +191,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         ElectroCatapult,
         BeamFromAThoriumAsteroid,
     )
-    pink.buyCards(ReleaseOfInertGases, BusinessNetwork, MarsNomads)
+    pink.buyCards(ReleaseOfInertGases, BusinessNetwork, FakeMarsNomads)
     pink.discardUnselectedProjectCards(BioPrintingFacility)
 
     // Database save 98 evidence: after both research purchases.
@@ -234,12 +212,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { convertPlants { placeTile(3, 5) } }
     pink.turn {
       playProject(Harvest, 4)
-      playProject(MarsNomads, 13)
+      playProject(FakeMarsNomads, 13)
     }
     blue.turn { convertHeat() }
     pink.turn {
       convertPlants { placeTile(6, 6) }
-      cardAction1(MarsNomads)
+      cardAction1(FakeMarsNomads)
     }
     // Unsupported component: moving Mars Nomads granted the destination's complete bonus.
     pink.exMachina("-6 MC, OceanTile<Hellas_5_7>, TerraformRating, 3 Heat, 6 MC")
@@ -272,22 +250,14 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     pink.turn { playProject(ImportedGhg, 1, titanium = 1) }
     blue.turn { playProject(ExtractorBalloons, 20) }
-    pink.turn { cardAction1(MarsNomads) }
+    pink.turn { cardAction1(FakeMarsNomads) }
     // Unsupported component: the Nomads' new area supplied two heat.
     pink.exMachina("2 Heat")
     blue.turn {
-      playProject(
-              Insects,
-              8,
-              butFirst = assignAllWildTags("PlantTag"),
-          )
-          .expect("PROD[6 Plant]")
-      playProject(
-              Worms,
-              7,
-              butFirst = assignAllWildTags("MicrobeTag"),
-          )
-          .expect("PROD[2 Plant]")
+      blue.exMachina(fakeWildTags("PlantTag", 2))
+      playProject(Insects, 8).expect("PROD[6 Plant]")
+      blue.exMachina(fakeWildTags("MicrobeTag", 2))
+      playProject(Worms, 7).expect("PROD[2 Plant]")
     }
     pink.turn { sellPatents(BuildingIndustries, MartianSurvey) }
     blue.turn { cardAction2(ExtractorBalloons) }
@@ -322,16 +292,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
     }
     blue.turn {
-      playProject(
-              PowerGrid,
-              17,
-              butFirst = assignAllWildTags("PowerTag"),
-          )
-          .expect("PROD[4 Energy]")
+      blue.exMachina(fakeWildTags("PowerTag", 2))
+      playProject(PowerGrid, 17).expect("PROD[4 Energy]")
       playProject(UndergroundCity, 13, steel = 2) { placeTile(7, 7) }
     }
     pink.turn {
-      cardAction1(MarsNomads)
+      cardAction1(FakeMarsNomads)
       convertHeat()
     }
     // Unsupported component: the Nomads' destination bonus placed an ocean and granted steel.
@@ -372,7 +338,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn {
       playProject(OlympusConference, 5, steel = 2).expect("Science<$OlympusConference>")
       // Research Outpost and Olympus Conference supply the other two science tags.
-      playProject(AiCentral, 20, butFirst = assignAllWildTags("ScienceTag")) {
+      blue.exMachina(fakeWildTags("ScienceTag", 2))
+      playProject(AiCentral, 20) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
         draw(InterstellarColonyShip)
       }
@@ -413,7 +380,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
       cardAction1(AiCentral) { draw(FloatingHabs, ArcticAlgae) }
     }
-    pink.turn { cardAction1(MarsNomads) }
+    pink.turn { cardAction1(FakeMarsNomads) }
     // Unsupported component: the Nomads' new area supplied two heat.
     pink.exMachina("2 Heat")
     blue.turn {
@@ -474,16 +441,13 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     blue.turn {
       // Three printed science tags remain in play; Invention Contest is already an event.
-      playProject(
-          InterstellarColonyShip,
-          23,
-          butFirst = assignAllWildTags("ScienceTag"),
-      )
+      blue.exMachina(fakeWildTags("ScienceTag", 2))
+      playProject(InterstellarColonyShip, 23)
     }
     // Unsupported component: this Nomads destination supplies the heat spent by the next action.
     pink.exMachina("2 Heat")
     pink.turn {
-      cardAction1(MarsNomads)
+      cardAction1(FakeMarsNomads)
       convertHeat()
     }
     blue.turn {
@@ -557,7 +521,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { fundAward(cn("Suburbian"), 14) }
     pink.turn {
       playProject(Harvest, 4)
-      cardAction1(MarsNomads)
+      cardAction1(FakeMarsNomads)
     }
     // Unsupported component: this Nomads destination supplied a project card.
     pink.exMachina("ProjectCard")
@@ -627,7 +591,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
     checkHandSizes()
-    engine.assertCounts(0 to "Phase")
+    engine.assertCounts(1 to "End", 1 to "Phase")
 
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")

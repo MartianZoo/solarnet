@@ -124,15 +124,16 @@ public object Engine {
     private fun validatePremise(classTable: ClassTable) {
       premise.initialComponentTypes.forEach { expression ->
         val type = classTable.resolve(expression)
-        require(
-            !type.abstract &&
-                classTable.isActive(type) &&
-                !type.rootClass.declaration.custom &&
-                !type.rootClass.isSingletonType()
-        ) {
-          "initial component type must be concrete, active, instantiable, and non-singleton: $expression"
+        require(!type.abstract && classTable.isActive(type) && !type.rootClass.declaration.custom) {
+          "initial component type must be concrete, active, and instantiable: $expression"
         }
       }
+
+      val initiallyPresentClassNames =
+          premise.modules +
+              premise.playerClassNames +
+              premise.classSelections.filter { it.included }.map { it.className } +
+              premise.initialComponentTypes.map { classTable.resolve(it).className }
 
       fun countActiveClasses(count: Count): Int {
         if (count.expression.className == CLASS) {
@@ -147,10 +148,7 @@ public object Engine {
         return classTable.allClasses().count { klass ->
           !klass.abstract &&
               klass.baseType.isSubtypeOf(type) &&
-              (klass.isSingletonType() ||
-                  premise.classSelections.any { selection ->
-                    selection.included && selection.className == klass.className
-                  })
+              klass.className in initiallyPresentClassNames
         }
       }
 

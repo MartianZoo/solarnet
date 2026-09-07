@@ -46,12 +46,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   warranted by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
-- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
-- `./gradlew jsBrowserTest` runs every module's full browser suite.
-  `./gradlew build -PincludeBrowserTests=true` includes those suites in the normal repository-wide
-  check.
-- `./gradlew :tfm-tests:allTestsIncludingBrowser` runs every Terraforming Mars functional test on
-  both the JVM and browser.
+- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the extensive three-player
+  `OtbGame20260828Test` replay.
+- `./gradlew jsBrowserTest` runs every module's browser suite. Terraforming Mars full-game replays
+  other than `OtbGame20260828Test` are JVM-only and cannot be selected by a browser task.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
@@ -201,12 +199,9 @@ name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting 
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
-Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and
-`assignAllWildTags(tag)` instead of spelling their routine task expressions. The tile and
-card-resource helpers require a single matching pending choice; keep raw `doTask()` calls where
-multiple placements are pending. An action-phase wild-tag choice exists only after the standard
-action is selected: assign it from `playProject(butFirst = ...)` or another action helper's
-`beforeAction` block.
+Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
+routine task expressions. The tile and card-resource helpers require a single matching pending
+choice; keep raw `doTask()` calls where multiple placements are pending.
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action

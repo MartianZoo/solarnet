@@ -1,92 +1,217 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.canon.CardOperation
-import dev.martianzoo.tfm.canon.CardOperation.MoveEvents
-import dev.martianzoo.tfm.canon.CardOperation.Observe
-import dev.martianzoo.tfm.canon.CardOperation.RecoverEvents
 import dev.martianzoo.tfm.canon.CardOperation.RevealAndPurchase
-import dev.martianzoo.tfm.canon.CardOperation.RevealAndRestore
 import dev.martianzoo.tfm.canon.CardOperation.RevealAndTest
 import dev.martianzoo.tfm.canon.CardOperation.Search
-import dev.martianzoo.tfm.canon.CardOperation.SelectAndKeep
-import dev.martianzoo.tfm.canon.CardOperation.SelectAndPlay
-import dev.martianzoo.tfm.canon.CardOperation.SelectAndPurchase
 
 internal fun renderCardOperation(transform: Transform, describers: Describers): List<Clause>? {
   if (transform.transformKind != CardOperation.TRANSFORM_KIND) return null
-  return when (val operation = CardOperation.decodeOrNull(transform) ?: return null) {
-    is Observe -> renderObservation(operation, describers)
+  val operation =
+      try {
+        CardOperation.decode(transform.instruction)
+      } catch (_: PetSyntaxException) {
+        return null
+      }
+  return when (operation) {
     is Search -> renderSearch(operation, describers)?.let(::listOf)
-    is SelectAndKeep -> renderSelection(operation)
-    is SelectAndPurchase -> renderPurchaseSelection(operation)
-    is SelectAndPlay -> renderSelectionAndPlay(operation)
     is RevealAndPurchase -> renderRevealAndPurchase(operation, describers)
     is RevealAndTest -> renderRevealAndTest(operation, describers)
-    is RevealAndRestore -> renderRevealAndRestore(operation, describers)
-    is RecoverEvents -> renderEventRecovery(operation)?.let(::listOf)
-    is MoveEvents -> renderEventMovement(operation, describers)
   }
 }
 
-private fun renderObservation(
-    operation: Observe,
+internal fun renderAdjacentCardInstructions(
+    first: Instruction,
+    second: Instruction,
     describers: Describers,
-): List<Clause> =
-    renderInstructions(
-            cardReferenceNormalizer.transformInstruction(operation.observation),
-            describers,
+): List<Pair<Instruction, Clause>>? {
+  val offered = first as? Gain ?: return null
+  val family = offered.selectedCardFamily(describers) ?: return null
+  val offeredQuantity = offered.count.quantity()
+  val offeredCards = countedCards(family, offeredQuantity, describers)
+
+  (second as? Transmute)?.let { retained ->
+    if (!retained.movesCards(family, SELECTING, HAND)) return@let
+    val retainedQuantity = retained.count.quantity()
+    return listOf(
+        offered to clause("look at", offeredCards),
+        retained to clause("draw", retainedCards(retainedQuantity)),
+    )
+  }
+
+  (second as? Then)?.let { purchase ->
+    val discarded = purchase.stages.singleOrNull() as? Remove ?: return@let
+    val buy = purchase.continuation as? Gain ?: return@let
+    if (
+        discarded.intensity.modality() != Modality.OPTIONAL ||
+            discarded.count != offered.count ||
+            !discarded.removing.isCardAt(family, SELECTING) ||
+            buy.intensity.modality() != Modality.REQUIRED ||
+            buy.count.fixedQuantity() != 1 ||
+            !buy.gaining.simple ||
+            buy.gaining.className != BUY_SELECTED_CARDS
+    ) {
+      return@let
+    }
+    val objectPhrase = if (offeredQuantity == Quantity.Fixed(1)) "it" else "any of them"
+    return listOf(
+        offered to clause("look at", offeredCards),
+        purchase to
+            Clause.Simple(
+                Predicate(Verb("may buy"), Coordination.one(NounPhrase.text(objectPhrase))),
+                NounPhrase.you(),
+            ),
+    )
+  }
+
+  (second as? Gain)?.let { play ->
+    val offeredCount = offered.count.fixedQuantity() ?: return@let
+    if (
+        offeredCount <= 1 ||
+            play.intensity.modality() != Modality.REQUIRED ||
+            play.count.fixedQuantity() != 1 ||
+            play.gaining.className != PLAY_CARD ||
+            play.gaining.arguments.none { it.className == SELECTING } ||
+            describers.representedClass(play.gaining)?.className != family
+    ) {
+      return@let
+    }
+    val clauses =
+        listOf(
+            clause("draw", offeredCards),
+            clause(
+                "discard",
+                countedCards(family, Quantity.Fixed(offeredCount - 1), describers),
+            ),
+            clause(
+                "play",
+                "a ${describers.componentNoun(family, 1)}",
+            ),
         )
-        .clauses
+    return listOf(offered to Clause.Coordinated(Coordination(clauses, Conjunction.THEN)))
+  }
+
+  return null
+}
+
+internal fun renderCardRevealAndRestore(
+    sequence: Then,
+    describers: Describers,
+): Clause? {
+  if (sequence.instructions.size != 3) return null
+  val revealed = sequence.stages.getOrNull(0) as? Transmute ?: return null
+  val restored = sequence.stages.getOrNull(1) as? Transmute ?: return null
+  val outcome = sequence.continuation as? Gain ?: return null
+  if (
+      revealed.count.variableQuantity()?.multiple != 1 ||
+          restored.count != revealed.count ||
+          outcome.count != revealed.count ||
+          !revealed.movesCards(PROJECT_CARD, HAND, REVEALED) ||
+          !restored.movesCards(PROJECT_CARD, REVEALED, HAND)
+  ) {
+    return null
+  }
+  val normalized =
+      Instruction.Per(
+          Gain.gain(scaledEx(outcome.gaining, 1), OPTIONAL),
+          Metric.Count(PROJECT_CARD.expression),
+      )
+  return renderInstructions(normalized, describers).clauses.singleOrNull()
+}
+
+internal fun renderPlayedEventRecovery(
+    transmute: Transmute,
+    describers: Describers,
+): Clause? {
+  if (
+      transmute.intensity.modality() != Modality.OPTIONAL ||
+          !transmute.gaining.simple ||
+          transmute.gaining.className != PROJECT_CARD ||
+          !transmute.removing.simple ||
+          transmute.removing.className != PLAYED_EVENT ||
+          describers.changeFrame(transmute.gaining.className) != ComponentDescriber.ChangeFrame.Deck
+  ) {
+    return null
+  }
+  val count = transmute.count.fixedQuantity() ?: return null
+  val cards =
+      if (count == 1) "one of your played event cards" else "$count of your played event cards"
+  return Clause.Simple(
+      Predicate(
+          Verb("may return"),
+          Coordination.one(NounPhrase.text("up to $cards")),
+          listOf(Modifier.Phrase("to your hand")),
+      ),
+      NounPhrase.you(),
+  )
+}
+
+private fun Gain.selectedCardFamily(describers: Describers): ClassName? {
+  if (
+      intensity.modality() != Modality.REQUIRED ||
+          gaining.refinement != null ||
+          gaining.complement ||
+          gaining.arguments.singleOrNull()?.className != SELECTING ||
+          describers.changeFrame(gaining.className) != ComponentDescriber.ChangeFrame.Deck
+  ) {
+    return null
+  }
+  return gaining.className
+}
+
+private fun Transmute.movesCards(
+    family: ClassName,
+    from: ClassName,
+    to: ClassName,
+): Boolean =
+    intensity.modality() == Modality.REQUIRED &&
+        gaining.isCardAt(family, to) &&
+        removing.isCardAt(family, from)
+
+private fun Expression.isCardAt(family: ClassName, area: ClassName): Boolean =
+    className == family &&
+        refinement == null &&
+        !complement &&
+        arguments.singleOrNull()?.className == area
+
+private fun countedCards(
+    family: ClassName,
+    quantity: Quantity,
+    describers: Describers,
+): String {
+  val singular = if (family == PROJECT_CARD) "project card" else describers.componentNoun(family, 1)
+  val plural = if (family == PROJECT_CARD) "project cards" else describers.componentNoun(family, 2)
+  return when (quantity) {
+    Quantity.Fixed(1) -> "1 $singular"
+    is Quantity.Fixed -> "${quantity.count} $plural"
+    is Quantity.Variable -> "$quantity $plural"
+  }
+}
+
+private fun retainedCards(quantity: Quantity): String =
+    when (quantity) {
+      Quantity.Fixed(1) -> "one of them"
+      is Quantity.Fixed -> "${quantity.count} of them"
+      is Quantity.Variable -> "$quantity of them"
+    }
 
 private fun renderSearch(operation: Search, describers: Describers): Clause? {
   val criterion = describers.cardCriterion(operation.filter) ?: return null
   val count = operation.cards.count.quantity()
   return clause("draw", matchingCards(criterion, count, describers))
-}
-
-private fun renderSelection(operation: SelectAndKeep): List<Clause> {
-  val offered =
-      countedCards(operation.offered.gaining.className, operation.offered.count.quantity())
-  val retained = retainedCards(operation.retained.count.quantity())
-  return listOf(
-      clause("look at", offered),
-      clause("draw", retained),
-  )
-}
-
-private fun renderPurchaseSelection(operation: SelectAndPurchase): List<Clause> {
-  val count = operation.offered.count.quantity()
-  val cards = countedCards(operation.offered.gaining.className, count)
-  val objectPhrase = if (count == Quantity.Fixed(1)) "it" else "any of them"
-  return listOf(
-      clause("look at", cards),
-      Clause.Simple(
-          Predicate(Verb("may buy"), Coordination.one(NounPhrase.text(objectPhrase))),
-          NounPhrase.you(),
-      ),
-  )
-}
-
-private fun renderSelectionAndPlay(operation: SelectAndPlay): List<Clause> {
-  val offered = checkNotNull(operation.offered.count.fixedQuantity())
-  val family = operation.offered.gaining.className
-  val clauses =
-      listOf(
-          clause("draw", countedCards(family, Quantity.Fixed(offered))),
-          clause("discard", countedCards(family, Quantity.Fixed(offered - 1))),
-          clause("play", "a ${cardFamilyName(family)}"),
-      )
-  return listOf(Clause.Coordinated(Coordination(clauses, Conjunction.THEN)))
 }
 
 private fun renderRevealAndPurchase(
@@ -122,40 +247,6 @@ private fun renderRevealAndTest(
       ),
   )
 }
-
-private fun renderRevealAndRestore(
-    operation: RevealAndRestore,
-    describers: Describers,
-): List<Clause> {
-  val normalized =
-      Instruction.Per(
-          Instruction.Gain.gain(scaledEx(operation.outcome.gaining, 1), OPTIONAL),
-          Metric.Count(PROJECT_CARD.expression),
-      )
-  return renderInstructions(normalized, describers).clauses
-}
-
-private fun renderEventRecovery(operation: RecoverEvents): Clause? {
-  val count = operation.recovered.count.fixedQuantity() ?: return null
-  val cards =
-      if (count == 1) "one of your played event cards" else "$count of your played event cards"
-  return Clause.Simple(
-      Predicate(
-          Verb("may return"),
-          Coordination.one(NounPhrase.text("up to $cards")),
-          listOf(Modifier.Phrase("to your hand")),
-      ),
-      NounPhrase.you(),
-  )
-}
-
-private fun renderEventMovement(
-    operation: MoveEvents,
-    describers: Describers,
-): List<Clause>? =
-    renderChange(cardReferenceNormalizer.transformInstruction(operation.moved), describers)
-        .value
-        ?.let(::listOf)
 
 private fun matchingCards(
     criterion: CardCriterion,
@@ -236,33 +327,12 @@ private fun matchPredicate(criterion: CardCriterion, describers: Describers): Pr
     }
 
 private fun countedProjectCards(quantity: Quantity): String {
-  return countedCards(PROJECT_CARD, quantity)
-}
-
-private fun countedCards(family: ClassName, quantity: Quantity): String {
-  val singular = cardFamilyName(family)
-  val plural = "${singular}s"
   return when (quantity) {
-    Quantity.Fixed(1) -> "1 $singular"
-    is Quantity.Fixed -> "${quantity.count} $plural"
-    is Quantity.Variable -> "$quantity $plural"
+    Quantity.Fixed(1) -> "1 project card"
+    is Quantity.Fixed -> "${quantity.count} project cards"
+    is Quantity.Variable -> "$quantity project cards"
   }
 }
-
-private fun cardFamilyName(family: ClassName): String =
-    when (family) {
-      PROJECT_CARD -> "project card"
-      CORPORATION_CARD -> "corporation card"
-      PRELUDE_CARD -> "prelude card"
-      else -> "card"
-    }
-
-private fun retainedCards(quantity: Quantity): String =
-    when (quantity) {
-      Quantity.Fixed(1) -> "one of them"
-      is Quantity.Fixed -> "${quantity.count} of them"
-      is Quantity.Variable -> "$quantity of them"
-    }
 
 private fun clause(verb: String, objectPhrase: String, vararg modifiers: Modifier): Clause.Simple =
     Clause.Simple(
@@ -273,32 +343,10 @@ private fun clause(verb: String, objectPhrase: String, vararg modifiers: Modifie
         )
     )
 
-private val cardReferenceNormalizer =
-    object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode =
-          when {
-            node is Expression && node.className == PROJECT_CARD && node.hasArea(HAND) ->
-                node.withoutArea(PROJECT_CARD, HAND)
-            node is Expression && node.className == CARD_BACK && node.hasArea(EVENT_PILE) ->
-                node.withoutArea(PLAYED_EVENT, EVENT_PILE)
-            else -> transformChildren(node)
-          }
-
-      private fun Expression.hasArea(area: ClassName): Boolean =
-          arguments.count { it.className == area } == 1
-
-      private fun Expression.withoutArea(result: ClassName, area: ClassName): Expression =
-          copy(
-              className = result,
-              arguments = arguments.filterNot { it.className == area },
-              argumentsSpecified = arguments.size > 1,
-          )
-    }
-
-private val CARD_BACK = cn("CardBack")
-private val CORPORATION_CARD = cn("CorporationCard")
-private val EVENT_PILE = cn("EventPile")
+private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
 private val HAND = cn("Hand")
 private val PLAYED_EVENT = cn("PlayedEvent")
-private val PRELUDE_CARD = cn("PreludeCard")
+private val PLAY_CARD = cn("PlayCard")
 private val PROJECT_CARD = cn("ProjectCard")
+private val REVEALED = cn("Revealed")
+private val SELECTING = cn("Selecting")

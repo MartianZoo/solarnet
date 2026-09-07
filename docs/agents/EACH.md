@@ -40,6 +40,13 @@ EACH Player { Plant }                  // each selected Player gains a Plant
 EACH CityTile<Player> { -VictoryPoint } // each selected city's owner loses a point
 ```
 
+A Class selector also declares its represented Class name. This permits a structurally present
+Class representative to create one component of the Class it represents:
+
+```pets
+EACH Class<Area> { Area }
+```
+
 The selector itself still reads the enclosing context. For example,
 `EACH ProjectCard<Owner> { ... }` selects cards belonging to the enclosing owner, while
 `EACH ProjectCard<Anyone> { ... }` can select cards belonging to any owner. Within a refinement,

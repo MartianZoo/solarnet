@@ -38,6 +38,12 @@ internal object TerraformingMarsDescribers {
                 numericSingularChange = true,
                 changeFrame = Frame.Deck,
             ),
+        klass("CorporationCard") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("corporation card", "corporation cards"),
+                numericSingularChange = true,
+                changeFrame = Frame.Deck,
+            ),
         klass("PreludeCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("prelude card", "prelude cards"),

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.cards.colonies
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
@@ -16,7 +15,6 @@ import dev.martianzoo.tfm.tests.cards.cardnames.EarthCatapult
 import dev.martianzoo.tfm.tests.cards.cardnames.LunaGovernor
 import dev.martianzoo.tfm.tests.cards.cardnames.Mine
 import dev.martianzoo.tfm.tests.cards.cardnames.PharmacyUnion
-import dev.martianzoo.tfm.tests.cards.cardnames.ResearchCoordination
 import dev.martianzoo.tfm.tests.cards.cardnames.TitanShuttles
 import dev.martianzoo.tfm.tests.cards.cardnames.TitaniumMine
 import dev.martianzoo.tfm.tests.cards.cardnames.UrbanDecomposers
@@ -140,31 +138,6 @@ internal class AridorTest : CardTest() {
 
     // Luna Governor produces two steps itself; its two Earth icons are one new tag class.
     p1.count("PROD[MC]") shouldBe initialProduction + 3
-  }
-
-  @Test
-  internal fun `an action scoped wild tag is not counted when a tagged card enters`() {
-    newGame(
-        ColoniesExpansion,
-        PreludeExpansion,
-        colonyTiles = testColonyTiles(2),
-    )
-    p1.playCorp(Aridor, 0)
-    p1.manual("$ResearchCoordination, ProjectCard")
-    val initialProduction = p1.count("PROD[MC]")
-    engine.phase("Action")
-    p1.stdAction("DoRequiredActions") { doTask("Europa") }
-
-    p1.playProject(
-        EarthCatapult,
-        23,
-        butFirst = {
-          doTask("ScienceTag<WildTagUse<$ResearchCoordination>>")
-          p1.count("PROD[MC]") shouldBe initialProduction
-        },
-    )
-
-    p1.count("PROD[MC]") shouldBe initialProduction + 1
   }
 
   @Test

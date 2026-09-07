@@ -3,8 +3,10 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
@@ -30,14 +32,14 @@ public object ApiUtils {
 
   /** Returns the name of every concrete class of type `StandardResource`. */
   public fun standardResourceNames(game: GameReader): Set<ClassName> {
-    val standardResource =
-        game.resolve(ClassName.Companion.cn("StandardResource").classExpression())
-    val names =
-        game
-            .getComponents(standardResource)
-            .map { it.expression.arguments.single().className }
-            .toSet()
-    return game.catalog.allClassNames.filter { it in names }.toSetStrict()
+    val standardResource = game.resolve(cn("StandardResource").expression)
+    return standardResource.classTable
+        .allSubclasses(standardResource.rootClass)
+        .asSequence()
+        .filterNot(Class::abstract)
+        .map(Class::className)
+        .toList()
+        .toSetStrict()
   }
 
   /**

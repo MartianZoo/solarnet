@@ -51,37 +51,6 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Applied Science supplies a wild tag and converts its science`() {
-    newGame(Prelude2Expansion)
-    p1.manual("$AppliedScience")
-
-    p1.count("WildTag") shouldBe 1
-    p1.count("Science<$AppliedScience>") shouldBe 6
-
-    engine.phase("Action")
-    p1.startTurn()
-    p1.cardAction1(
-            AppliedScience,
-            beforeAction = assignAllWildTags("PlantTag"),
-        ) {
-          doTask("Plant")
-        }
-        .expect("Plant")
-
-    p1.count("Science<$AppliedScience>") shouldBe 5
-  }
-
-  @Test
-  internal fun `Nobel Prize supplies its wild tag and immediate gains`() {
-    newGame(Prelude2Expansion)
-    p1.manual("$NobelPrize")
-
-    p1.count("WildTag") shouldBe 1
-    p1.count("MC") shouldBe 5
-    p1.count("ProjectCard") shouldBe 2
-  }
-
-  @Test
   internal fun `Board of Directors remains in play and can play another prelude`() {
     newGame(Prelude2Expansion)
     engine.phase("Prelude")
@@ -502,7 +471,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingMoney = p1.count("MC")
     engine.phase("Prelude")
 
-    p2.playPrelude(NobelPrize)
+    p2.playPrelude(SpaceLanes)
 
     p1.count("MC") shouldBe startingMoney
   }

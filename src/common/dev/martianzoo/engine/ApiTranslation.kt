@@ -159,13 +159,23 @@ internal class ApiTranslation(
 
     override val reader = this@ApiTranslation.reader
 
-    override fun doTask(narrowing: String, taskNumber: Int?) {
-      this@ApiTranslation.doTask(narrowing, taskNumber)
+    override fun doTask(narrowing: String) {
+      this@ApiTranslation.doTask(narrowing)
       impl.autoExecNow(autoExecMode)
     }
 
-    override fun tryTask(narrowing: String, taskNumber: Int?) {
-      this@ApiTranslation.tryTask(narrowing, taskNumber)
+    override fun doTask(narrowing: String, taskId: TaskId) {
+      this@ApiTranslation.doTask(narrowing, taskId)
+      impl.autoExecNow(autoExecMode)
+    }
+
+    override fun tryTask(narrowing: String) {
+      this@ApiTranslation.tryTask(narrowing)
+      impl.autoExecNow(autoExecMode)
+    }
+
+    override fun tryTask(narrowing: String, taskId: TaskId) {
+      this@ApiTranslation.tryTask(narrowing, taskId)
       impl.autoExecNow(autoExecMode)
     }
 
@@ -215,23 +225,41 @@ internal class ApiTranslation(
     impl.selectTask(parse<Instruction>(instruction))
   }
 
-  override fun doTask(narrowing: String, taskNumber: Int?) = atomic {
+  override fun doTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
     impl.doTask(
         parsed.instruction,
-        taskNumber,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
     )
   }
 
-  override fun tryTask(narrowing: String, taskNumber: Int?) = atomic {
+  override fun doTask(narrowing: String, taskId: TaskId) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.doTask(
+        parsed.instruction,
+        parsed.intensityOmitted,
+        parsed.submittedAsGroup,
+        taskId,
+    )
+  }
+
+  override fun tryTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
     impl.tryTask(
         parsed.instruction,
-        taskNumber,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
+    )
+  }
+
+  override fun tryTask(narrowing: String, taskId: TaskId) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.tryTask(
+        parsed.instruction,
+        parsed.intensityOmitted,
+        parsed.submittedAsGroup,
+        taskId,
     )
   }
 

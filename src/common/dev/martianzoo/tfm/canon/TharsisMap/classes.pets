@@ -2,7 +2,7 @@ CLASS Terraformer35 : Milestone { requirement = HAS "35 TerraformRating" }
 CLASS Mayor : Milestone { requirement = HAS "3 CityTile" }
 CLASS Gardener : Milestone { requirement = HAS "3 GreeneryTile" }
 CLASS Builder8 : Milestone { requirement = HAS "8 BuildingTag" }
-CLASS Planner : Milestone { requirement = HAS "CARDS[16 ProjectCard<Hand>]" }
+CLASS Planner : Milestone { requirement = HAS "16 ProjectCard<Hand>" }
 
 CLASS Landlord : Award { metric = COUNT "OwnedTile" }
 CLASS Banker : Award { metric = COUNT "PROD[MC]" }

@@ -159,12 +159,12 @@ Current replacement also accepts `This` with explicit arguments: it substitutes 
 Class but keeps the authored arguments. Thus `This<Player>` in a `Birds<Owner>` context becomes
 `Birds<Player>`, not `Birds<Owner, Player>`.
 
-The only production use with `This` as the root and explicit arguments is the inherited invariant
-`HAS MAX 1 This<Player>` on `CardFront`; it limits the card Class across owners rather than limiting
-each owner-specialized Type separately. No production Effect or dependency needs general
-`This<...>` substitution. The smallest durable model is therefore an invariant-only self-Type
-pattern, not a general expression feature. Do not extend specialized `This` to other syntax unless a
-second semantic use establishes one coherent rule.
+The production invariants `HAS MAX 1 This<Player>` on `CardFront` and `Milestone` limit one concrete
+card or milestone Class across owners rather than limiting each owner-specialized Type separately.
+No production Effect or dependency needs general `This<...>` substitution. The smallest durable
+model is therefore an invariant-only self-Class pattern, not a general expression feature. Do not
+extend specialized `This` to other syntax unless another semantic use establishes one coherent
+rule.
 
 ### Dependency targets must be unique
 
@@ -218,15 +218,14 @@ Defaults preserve omitted physical-game context:
 DEFAULT Owned<Owner>
 DEFAULT +OceanTile<WaterArea>
 DEFAULT -Required.
-DEFAULT Tag<CardFront>:
 ```
 
 They supply omitted dependency bounds and, for gains/removals, a Quantifier. They change how an
 authored Expression resolves, not which Types exist.
 
-All-use, gain, removal, and trigger defaults are gathered separately. For one dependency and use
-kind, only nearest declaring supertypes survive. Incomparable surviving bounds need one
-most-general common narrowing; Quantifiers must agree.
+All-use, gain, and removal defaults are gathered separately. For one dependency and use kind, only
+nearest declaring supertypes survive. Incomparable surviving bounds need one most-general common
+narrowing; Quantifiers must agree.
 
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
@@ -249,12 +248,12 @@ Inside a refinement, an implicit default is deferred when its dependency is a di
 Class-header Type variable; candidate substitution can then bind it through that occurrence.
 Writing `<>` still explicitly accepts the default.
 
-A gain, removal, or trigger that would receive dependency bounds from its use-specific default
-cannot leave its argument list implicit. It must supply at least one argument or write an empty list
-such as `GreeneryTile<>` or `ScienceTag<>` to explicitly accept those bounds. The gain and removal
-halves of `A FROM B` are checked independently. This rule does not apply to all-use dependency
-defaults or to Quantifier defaults. An explicit empty list is invalid when the dependency-default
-set for that use is empty; it cannot serve only to give an expression a different authored spelling.
+A gain or removal that would receive dependency bounds from its use-specific default cannot leave
+its argument list implicit. It must supply at least one argument or write an empty list such as
+`GreeneryTile<>` to explicitly accept those bounds. The gain and removal halves of `A FROM B` are
+checked independently. This rule does not apply to all-use dependency defaults or to Quantifier
+defaults. An explicit empty list is invalid when the dependency-default set for that use is empty;
+it cannot serve only to give an expression a different authored spelling.
 
 ## 5a. Class properties
 
@@ -560,8 +559,7 @@ one of those variables in the Class body is a use rather than a fresh declaratio
 variable may also occupy the root of an occurrence with arguments: `CardFront<Owner>` uses the
 Class variable `CardFront` while constraining its owner dependency. Class-header occurrences are
 identified by stable dependency paths, so projections named by a Class can be uses even when their
-whole containing expressions differ. `WildTag : Cardbound<CardFront>` names the inherited card
-dependency so its Effects can reuse `CardFront`.
+whole containing expressions differ.
 
 A proper type dependency explicitly chosen in the first stage of `THEN` and repeated later belongs
 to that queued choice rather than a matching Class variable. Law Suit's `MC<Player>` therefore

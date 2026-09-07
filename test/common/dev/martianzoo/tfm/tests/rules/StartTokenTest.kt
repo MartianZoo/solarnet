@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
@@ -32,6 +33,7 @@ internal class StartTokenTest {
     engine.manual("Generation")
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player3>")
     engine.assertCounts(1 to "StartToken")
+    shouldThrow<LimitsException> { engine.manual("-StartToken<Player1>") }
   }
 
   @Test

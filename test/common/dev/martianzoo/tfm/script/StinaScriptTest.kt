@@ -68,20 +68,20 @@ internal class StinaScriptTest {
         tfm_play SpaceStation, 1 Titanium, 1 MC
 
         tfm_play OptimalAerobraking
-        task 1 Ok
+        task Ok
         task Ok
 
         tfm_play TechnologyDemonstration
-        task 1 Ok
-        task 1 Ok
+        task Ok
+        task Ok
         task ProjectCard FROM Science<OlympusConference>
 
         tfm_play ImportOfAdvancedGhg
-        task 1 Ok
+        task Ok
         task Ok
 
         tfm_play ImportedGhg
-        task 1 Ok
+        task Ok
         task Ok
 
         tfm_play MassConverter, 5 MC

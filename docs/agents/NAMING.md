@@ -61,9 +61,10 @@ Do not expand what the card does not expand. Digits stay digits. Spell a number 
 printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes `SixteenPsyche`,
 which is currently the only such case.
 
-A placeholder implementation still uses the real name. Never ship a class whose name announces its
-own incompleteness — an unimplemented card belongs in the `docs/what-is-supported.md` table plus, if
-it is worth exercising, a test-only fixture.
+A placeholder implementation still uses the real name unless it is one of the deliberate fake
+wild-tag cards recorded under [Known and accepted](#known-and-accepted). Otherwise, never ship a
+class whose name announces its own incompleteness — an unimplemented card belongs in the
+`docs/what-is-supported.md` table plus, if it is worth exercising, a test-only fixture.
 
 ### Supertype suffixes
 
@@ -172,10 +173,10 @@ looking it up.
   them as "when you ___": `PlayCard`, `PlayTag`, `Pay`, `BuyCard`, `AdvanceColonyTracks`. Write the
   name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
-  event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `WildTagUse`. Do not give it
+  event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
-- **Custom instructions** are imperative verb phrases: `CreateAdjacencies`, `AssignAwardPlaces`,
-  `PassLeft`, `CopyProductionBox`. Use the published verb when the game prints one — Robotic Workforce
+- **Custom instructions** are imperative verb phrases: `AssignAwardPlaces`, `PassLeft`,
+  `CopyProductionBox`. Use the published verb when the game prints one — Robotic Workforce
   and Cyberia Systems both say "copy ... production box", which is why `CopyProductionBox` is right.
   Never a programming verb: `Handle`, `Get`, `Process`, `Update`.
 - **Custom metrics** are noun phrases naming the printed thing being counted, not things that happen:
@@ -183,7 +184,7 @@ looking it up.
   may end in a preposition when the argument the reader sees next is its object, as in
   `GainsOf<Class<VictoryPoint>>`.
 - **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
-  `HasActions`, `ResourceHolder`, `TagHolder`. Reserve the `Has` prefix for this use.
+  `HasActions`, `ResourceHolder`. Reserve the `Has` prefix for this use.
 - **Records** that something already happened use the passive voice when the actor does not matter
   (`SuitableInfrastructurePaid`, `ActionUsedMarker`) and the `My` prefix when it does: `My` marks
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
@@ -191,7 +192,7 @@ looking it up.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `LandClaimMarker`,
   `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
   `StartMarker` reads wrong.
-- **Card locations** use noun phrases for places (`Hand`, `EventPile`) and participles for
+- **Card locations** use noun phrases for places (`Hand`) and participles for
   explicitly transient states. The two participle forms are both correct and mean different things:
   the present participle names a stage the player is in the middle of (`Selecting`, and eventually
   `Drafting`), the past participle names what was done to the card (`Revealed`).
@@ -201,7 +202,7 @@ looking it up.
   `BuyCard`. It may **not** distinguish two different *kinds* of thing; give those unrelated names.
 - **Do not use implementation or game-design vocabulary** as a component name. "Mechanic", "hack",
   "fake", and Pets grammar terms such as "effect" describe how we built something, not what it is in
-  the game. Two names are settled exceptions and are not to be re-flagged; see
+  the game. Settled exceptions are not to be re-flagged; see
   [Known and accepted](#known-and-accepted).
 
 ## Modules
@@ -319,6 +320,12 @@ the standard resources while leaving every card resource (`Microbe`, `Animal`, `
 Case, which is a second reason not to keep them here.
 
 ### Known and accepted
+
+The `Fake`-prefixed cards in Canon's explicitly selected `FakeCardsCardPack` are deliberate incomplete
+stand-ins. The wild-tag cards preserve every other modeled behavior while creating only an inert
+`FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires it.
+The other stand-ins preserve only their documented subset of the printed card. Their names must
+remain visibly fake so Canon does not claim to model the published cards faithfully.
 
 `GrossHack` keeps its name. The ban on implementation vocabulary does not reach it; this is the
 decision, not an oversight. The representation itself is documented in

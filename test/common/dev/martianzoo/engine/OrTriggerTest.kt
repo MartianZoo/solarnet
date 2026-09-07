@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -53,7 +54,19 @@ internal class OrTriggerTest {
   }
 
   private fun newGame(): World {
-    return Engine.newGame(canonicalPremise(catalog = OrProbeCatalog))
+    val initialComponents =
+        setOf(
+            "LeftOnlySignal",
+            "RightOnlySignal",
+            "IndexedProbe",
+            "OrderedIndexedProbe",
+            "LeftFirstOrProbe",
+            "RightFirstOrProbe",
+        )
+    return Engine.newGame(
+        canonicalPremise(catalog = OrProbeCatalog)
+            .copy(initialComponentTypes = initialComponents.map { cn(it).expression }.toSet())
+    )
   }
 }
 

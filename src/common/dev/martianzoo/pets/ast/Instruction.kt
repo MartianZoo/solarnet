@@ -15,6 +15,7 @@ import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.FromExpression.Full
@@ -368,6 +369,10 @@ public sealed class Instruction : InstructionTree() {
      * component. A selector refinement filters the snapshot but is not part of that name.
      */
     public val selectorName: Expression = selector.copy(refinement = null)
+
+    /** The Class name represented by a `Class<T>` selector, when this is a Class fanout. */
+    public val representedSelectorName: Expression? =
+        selectorName.arguments.singleOrNull()?.takeIf { selectorName.className == CLASS }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(selector, body)
 

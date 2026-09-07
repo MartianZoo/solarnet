@@ -4,7 +4,7 @@ CLASS SaturnSystems : CardFront<Class<CorporationCard>> {
 
   This:: JovianTag<This>
   This: 42 MC, PROD[Titanium]
-  JovianTag<Anyone, CardFront<Anyone>>: PROD[1 MC]
+  JovianTag<Anyone>: PROD[1 MC]
 }
 
 CLASS Teractor : CardFront<Class<CorporationCard>> {
@@ -29,7 +29,7 @@ CLASS InventorsGuild : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This:: ScienceTag<This>
 
-  -> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]
+  -> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
 }
 
 CLASS SpaceElevator : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -196,7 +196,7 @@ CLASS MarsUniversity : ActiveCard<Class<ProjectCard>> {
   cost = 8
 
   This:: ScienceTag<This>, BuildingTag<This>
-  ScienceTag<>: (-ProjectCard THEN ProjectCard) OR Ok
+  ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok
   End: VictoryPoint
 }
 
@@ -243,7 +243,7 @@ CLASS RoboticWorkforce : AutomatedCard<Class<ProjectCard>> {
   cost = 9
 
   This:: ScienceTag<This>
-  This: CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>
+  This: CopyProductionBox<CardFront(HAS BuildingTag)>
 }
 
 CLASS Research : AutomatedCard<Class<ProjectCard>> {
@@ -322,7 +322,7 @@ CLASS MediaArchives : AutomatedCard<Class<ProjectCard>> {
   cost = 8
 
   This:: EarthTag<This>
-  This: CARDS[1 MC / CardBack<EventPile, Anyone>]
+  This: 1 MC / PlayedEvent<Anyone>
 }
 
 CLASS MediaGroup : ActiveCard<Class<ProjectCard>> {
@@ -338,14 +338,14 @@ CLASS BusinessNetwork : ActionCard, ActiveCard<Class<ProjectCard>> {
   This:: EarthTag<This>
   This: PROD[-1 MC]
 
-  -> CARDS[ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards]
+  -> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
 }
 
 CLASS BusinessContacts : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EarthTag<This>, EventTag<This>
-  This: CARDS[4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>]
+  This: 4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
 }
 
 CLASS BribedCommittee : EventCard<Class<ProjectCard>> {
@@ -477,7 +477,7 @@ CLASS OlympusConference : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Sci
   cost = 10
 
   This:: ScienceTag<This>, EarthTag<This>, BuildingTag<This>
-  ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)
+  ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)
   End: VictoryPoint
 }
 
@@ -493,7 +493,7 @@ CLASS InventionContest : EventCard<Class<ProjectCard>> {
   cost = 2
 
   This:: ScienceTag<This>, EventTag<This>
-  This: CARDS[3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>]
+  This: 3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
 }
 
 CLASS PowerInfrastructure : ActionCard, ActiveCard<Class<ProjectCard>> {

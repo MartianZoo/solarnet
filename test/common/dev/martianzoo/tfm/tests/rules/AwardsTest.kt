@@ -201,7 +201,8 @@ internal class AwardsTest : TfmTest() {
 
     p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")
-    engine.count("End") shouldBe 0
+    engine.count("End") shouldBe 1
+    engine.count("FinalScoringPending") shouldBe 0
     engine.count("MeasureAward<Banker>") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }

@@ -110,17 +110,22 @@ public interface Agent {
    * removes the original task from the game's task queue. Throws an exception if any of this fails.
    *
    * A selected task always wins. Otherwise, the narrowing must match exactly one task, except that
-   * fully identical tasks are interchangeable. [taskNumber], when supplied, selects the 1-based
-   * position in this Actor's current task list. When the narrowing omits an intensity and its Class
+   * fully identical tasks are interchangeable. When the narrowing omits an intensity and its Class
    * default would weaken the pending task's intensity, the pending intensity is retained; an
    * explicitly written intensity must narrow normally.
    *
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
    */
-  public fun doTask(narrowing: String, taskNumber: Int? = null): TaskResult
+  public fun doTask(narrowing: String): TaskResult
 
-  public fun tryTask(narrowing: String, taskNumber: Int? = null): TaskResult
+  /** Carries out [narrowing] against the task identified by [taskId]. */
+  public fun doTask(narrowing: String, taskId: TaskId): TaskResult
+
+  public fun tryTask(narrowing: String): TaskResult
+
+  /** Tries [narrowing] against the task identified by [taskId]. */
+  public fun tryTask(narrowing: String, taskId: TaskId): TaskResult
 
   /** Tries to select and execute [taskId], leaving it pending when it needs a choice. */
   public fun tryTask(taskId: TaskId): TaskResult
@@ -155,9 +160,13 @@ public interface Agent {
     public val tasks: TaskQueue
     public val reader: GameReader
 
-    public fun doTask(narrowing: String, taskNumber: Int? = null)
+    public fun doTask(narrowing: String)
 
-    public fun tryTask(narrowing: String, taskNumber: Int? = null)
+    public fun doTask(narrowing: String, taskId: TaskId)
+
+    public fun tryTask(narrowing: String)
+
+    public fun tryTask(narrowing: String, taskId: TaskId)
 
     public fun autoExecNow()
 

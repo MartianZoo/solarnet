@@ -158,6 +158,14 @@ private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   val holderKey = Key(ClassName.cn("Tag"), 0)
+  if (resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)) {
+    val name = tagName(expression.className) ?: return null
+    return Event(
+        Event.Kind.PLAY,
+        Event.ActorConstraint.UNRESTRICTED,
+        NounPhrase("$name tag", determiner = Determiner.ANY),
+    )
+  }
   val holder = resolved.sourceDependency(holderKey) ?: return null
   if (
       resolved.sourceDependency(ownerKey) != anyoneExpression ||

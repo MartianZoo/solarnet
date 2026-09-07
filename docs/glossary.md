@@ -5,7 +5,7 @@
 - **Abstract Type:** A Type that is not fully specified. It can be counted or queried but cannot be the exact Type of a Component gained or removed. Antonym: Concrete Type.
 - **Action:** (1) A Pets element, written with `->`, that combines an optional cost with an Instruction and usually belongs to a card or Standard Action. (2) One of the actions granted to a Player on a turn: starting it seeds that Player's Task Queue, and it lasts until that queue drains.
 - **Activation Edge:** A reference from an Active Class to another Class that must also be active. Structural Dependencies and a Custom implementation's required Class Names create Activation Edges; merely mentioning a represented Class in a `Class<...>` Metric does not.
-- **Active Class:** A Class whose declaration and behavior participate in a particular game-specific Class-table Projection. Only Active Classes can contribute automatically created singleton Components, enumeration candidates, generated choices, and live Effects. A Catalog-known Class that is not active is represented there as an Uninhabited Class. Antonym: Uninhabited Class.
+- **Active Class:** A Class whose declaration and behavior participate in a particular game-specific Class-table Projection. Only Active Classes contribute structural Class representatives, enumeration candidates, generated choices, and live Effects. A Catalog-known Class that is not active is represented there as an Uninhabited Class. Antonym: Uninhabited Class.
 - **Actor:** The entity credited with performing a pending or completed change. An N-Player game has those Players plus the administrative Admin Actor.
 - **ActorAccess:** The passive, permissions-aware conduit through which an Agent invokes engine mutations for its Actor. The first access model is maximally permissive; callers do not bypass the Actor's unique Agent to use it.
 - **Admin:** The non-Player Actor and Component that performs neutral table activity. Admin may receive, select, and narrow ordinary Tasks, including real choices made by an installed policy.
@@ -69,15 +69,15 @@
 - **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A card implementation that specifically depends on that trust model has an identifier ending in `F`.
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
 - **Game Config:** An unresolved, signed expression of user intent from which defaults, selection policies, and validation produce one exact Game Premise.
-- **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Catalog, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
+- **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Catalog, the Module Classes, signed inclusion or exclusion of other Classes, and the exact concrete Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
 - **Game World:** The complete live engine state of a game: its Component Graph, global Task Pool, Event Log, Timeline, Class Table, and Vocabulary, together with the Catalog and immutable premise behind them. ActorAccess, Agents, Agent Drivers, and generic pulse dispatch are configured above that state.
 - **Game World Revision:**
 - **Gated Instruction:** An Instruction guarded by a Requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that Task uncompletable unless its Quantifier or enclosing choice permits another result.
 - **Hidden:** A presentation classification for Component Types normally omitted from user-visible output. It is not an Actor or ownership rule.
 - **Immediate Instruction:** An on-create Instruction expressed with `This:`, or supplied by transitional card data's `immediate` field.
 - **Instruction:** A Pets specification of work that may change a Game World.
-- **Invariant:** A Class-declared Requirement that every committed Game World state must satisfy. The current engine supports only Limits and checks them while resolving selected Component changes.
-- **Limit:** A counting Invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. The Limiter uses applicable Limits to calculate how much of a Change Instruction is currently legal.
+- **Invariant:** A Class-declared Requirement with no constructive meaning: it does not create a Component. The current engine supports only counting Limits; selected Module requirements also participate in premise validation.
+- **Limit:** A counting Invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. The Limiter uses applicable Limits to calculate how much of a Change Instruction is currently legal; it does not yet validate every resting World state against every lower bound.
 - **Live Effect:** A Component Effect paired with its existing context Component, compiled into a subscription, and registered with the Effector. The registry counts it according to the multiplicity of that Component Type.
 - **Manual:** Initiated by a Solarnet client rather than caused by an Effect or Workflow. Selecting or narrowing an already pending Task is not a new manual action. With fully automatic Workflow, a game can contain no manual operations.
 - **Metric:** A Pets expression that computes a nonnegative integer from a Game World.
@@ -122,7 +122,7 @@
 - **Session Vocabulary Canonicalization:**
 - **SetupPhase:** An ordinary domain phase in which Admin performs significant setup work, such as granting each Player 20 `TerraformRating`; structural bootstrap should already have ended.
 - **Signal:** A Hidden MustCleanUp Component that triggers its Effects and immediately removes itself.
-- **Singleton Type:** A Concrete Type for which initialization automatically creates one Component.
+- **Singleton Type:** A Concrete Type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no Tasks or turns.
 - **Source Effect:** An Effect as authored in `.pets` or generated from structured content data, before Class-level inheritance and transformation.
 - **State Change:** An exact Component gain, removal, or Transmutation that occurred in a Game World. Contrast: Change Instruction.

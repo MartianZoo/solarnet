@@ -152,7 +152,7 @@ Terraforming Mars would select `SetupPhase` as its entry point and describe core
 
 ```pets
 CLASS TerraformingMars : Module {
-  HAS =1 Class<TerraformingMarsWorkflow>
+  HAS Class<TerraformingMarsWorkflow>
 }
 
 CLASS TerraformingMarsWorkflow : Workflow<Class<SetupPhase>>

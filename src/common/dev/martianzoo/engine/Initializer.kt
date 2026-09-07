@@ -27,7 +27,7 @@ internal class Initializer(
   internal fun initialize() {
     val engineEvent = execute("$ENGINE", cause = null).changes.first()
     val engineCause = Cause(ENGINE.expression, engineEvent.ordinal)
-    createSingletons(engineCause)
+    createPremiseComponents(engineCause)
     createInitialComponents(engineCause)
     timeline.initializationFinished()
     timeline.commit()
@@ -42,36 +42,23 @@ internal class Initializer(
     instructor.execute(agent.parse<Instruction>("$instruction!"), cause).forEach(tasks::addTasks)
   }
 
-  /**
-   * Singleton types are discovered by class, not dependency order. Retry only dependency-blocked
-   * types until each dependency has had a chance to be created by an earlier round.
-   */
-  private fun createSingletons(cause: Cause) {
+  /** Creates the selected Modules and seated Players, retrying around dependency order. */
+  private fun createPremiseComponents(cause: Cause) {
     val orderedModules = orderModulesByActiveProvenance()
-    val moduleNames = premise.modules.toSet()
-    val playerNames = premise.playerClassNames.toSet()
     createComponents(
-        premise.playerClassNames.map(classTable::getClass).flatMap {
-          classTable.concreteSubtypesSameClass(it.baseType)
-        } +
-            orderedModules.flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
-            classTable
-                .allClasses()
-                .filter {
-                  it.className !in moduleNames &&
-                      it.className !in playerNames &&
-                      it.isSingletonType()
-                }
-                .flatMap { classTable.concreteSubtypesSameClass(it.baseType) },
+        orderedModules.flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
+            premise.playerClassNames.map(classTable::getClass).flatMap {
+              classTable.concreteSubtypesSameClass(it.baseType)
+            },
         cause,
-        "singleton",
+        "premise",
     )
   }
 
   /**
    * Orders Modules needed to evaluate provenance conditions before the source whose condition
-   * observes them. A source gets the first opportunity to create its target; the ordinary singleton
-   * pass later supplies any target that remains absent.
+   * observes them. A constructive source gets the first opportunity to create its target before the
+   * initializer considers creating that target directly from the premise.
    */
   private fun orderModulesByActiveProvenance(): List<Class> {
     val modules = premise.modules.associateWith(classTable::getClass)

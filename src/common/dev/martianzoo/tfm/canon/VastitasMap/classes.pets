@@ -11,7 +11,7 @@ CLASS Farmer : Milestone { requirement = HAS "5 (Animal OR Microbe)" }
 CLASS Traveller : Award { metric = COUNT "JovianTag OR EarthTag" }
 CLASS Landscaper : Award { metric = COUNT "TileInLargestGroup" }
 CLASS Highlander : Award { metric = COUNT "OwnedTile<MarsArea(HAS MAX 0 Neighbor<OceanTile>)>" }
-CLASS Promoter : Award { metric = COUNT "CARDS[CardBack<EventPile>]" }
+CLASS Promoter : Award { metric = COUNT "PlayedEvent" }
 CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
 
 CLASS VastitasMap : MarsMap

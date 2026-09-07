@@ -44,7 +44,19 @@ private fun renderLoweredInstructions(
   if (instructions.isEmpty()) {
     return RenderedInstructions(listOf(doNothingClause))
   }
-  val rendered = instructions.flatMap { instruction ->
+  val rendered = mutableListOf<Pair<Instruction, Clause>>()
+  var index = 0
+  while (index < instructions.size) {
+    val instruction = instructions[index]
+    val paired =
+        instructions.getOrNull(index + 1)?.let { next ->
+          renderAdjacentCardInstructions(instruction, next, describers)
+        }
+    if (paired != null) {
+      rendered += paired
+      index += 2
+      continue
+    }
     val rendering = renderInstructionClauses(instruction, describers, localReferences)
     val clauses =
         rendering.value
@@ -54,7 +66,8 @@ private fun renderLoweredInstructions(
                         ?: Unresolved(instruction, instructionRefusalReason(instruction))
                 )
             )
-    clauses.map { instruction to it }
+    rendered += clauses.map { instruction to it }
+    index++
   }
   return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
@@ -102,7 +115,8 @@ private fun renderInstruction(
       is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers, references))
       is Instruction.Then ->
           Rendering.resolved(
-              renderCardPlaySequence(instruction, describers)
+              renderCardRevealAndRestore(instruction, describers)
+                  ?: renderCardPlaySequence(instruction, describers)
                   ?: renderStandardResourceCostSequence(instruction, describers, references)
                   ?: renderDiscardCostSequence(instruction, describers, references)
                   ?: renderCardResourceCostSequence(instruction, describers, references)

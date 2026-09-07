@@ -1,42 +1,22 @@
 package dev.martianzoo.tfm.web.gameviewer.games
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
-
-private val fakeL1TradeTerminal = cn("FakeL1TradeTerminal")
-private val fakeL1TradeTerminalDefinition =
-    parseClasses(
-        """
-        CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
-          cost = 25
-          This:: SpaceTag<This>
-          This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
-          Trade<ColonyTile>:: TradeBarrier<ColonyTile>
-          Trade<ColonyTile>: (2 ColonyProduction<ColonyTile> OR Ok) THEN -TradeBarrier<ColonyTile>
-          End: 2 VictoryPoint
-        }
-        """,
-    )
-private val otbGame20260828Catalog = Canon.withNonstandardClasses(fakeL1TradeTerminalDefinition)
+import dev.martianzoo.tfm.web.gameviewer.fakeWildTags
 
 public class OtbGame20260828 : RecordedGame() {
   private val colonyTiles = listOf("Ganymede", "Io", "Luna", "Miranda", "Titan")
-  protected override val catalog: TfmCatalog = otbGame20260828Catalog
-
   protected override val config: GameConfig =
       GameConfig(
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
-          FakeL1TradeTerminal
+          FakeCardsCardPack
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
@@ -329,7 +309,7 @@ public class OtbGame20260828 : RecordedGame() {
       playProject(ImportedGhg, 2, titanium = 1)
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
-    green.turn { playProject(ResearchCoordination, 3) }
+    green.turn { playProject(FakeResearchCoordination, 3) }
     blue.turn { playProject(SnowAlgae, 12) }
     yellow.turn {
       cardAction1(ElectroCatapult)
@@ -367,7 +347,8 @@ public class OtbGame20260828 : RecordedGame() {
     yellow.turn { playProject(CuttingEdgeTechnology, 12) }
     green.turn {
       convertPlants { placeTile(2, 2) }
-      playProject(SkyDocks, 5, titanium = 4, butFirst = assignAllWildTags("EarthTag"))
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(SkyDocks, 5, titanium = 4)
     }
     blue.turn { cardAction1(FloaterTechnology) { addCardResources(RedSpotObservatory) } }
     yellow.turn { playProject(IshtarExpedition, 4) }
@@ -436,9 +417,7 @@ public class OtbGame20260828 : RecordedGame() {
       playProject(TechnologyDemonstration, 2, titanium = 1)
     }
     green.turn {
-      playProject(InventionContest, 0) {
-        declineTask()
-      }
+      playProject(InventionContest, 0)
     }
     blue.turn { cardAction2(NitriteReducingBacteria) }
     yellow.turn { playProject(AsteroidCard, 2, titanium = 4) { doTask("-3 Plant<Blue>") } }
@@ -452,7 +431,7 @@ public class OtbGame20260828 : RecordedGame() {
     green.turn { cardAction1(PalladinShipping) }
     blue.turn { cardAction2(LocalShading) }
     yellow.turn {
-      playProject(fakeL1TradeTerminal, 13, titanium = 4)
+      playProject(FakeL1TradeTerminal, 13, titanium = 4)
     }
     green.turn { cardAction1(SpaceElevator) }
     blue.turn { cardAction1(Stratopolis) { addCardResources(JetStreamMicroscrappers, 2) } }
@@ -466,14 +445,13 @@ public class OtbGame20260828 : RecordedGame() {
     blue.turn { cardAction2(JetStreamMicroscrappers) }
     yellow.turn { cardAction2(ElectroCatapult) }
     green.turn {
-      playProject(MolecularPrinting, 9) {
-        declineTask()
-      }
+      playProject(MolecularPrinting, 9)
     }
     blue.turn { cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) } }
     yellow.turn { cardAction2(AerialMappers) }
     green.turn {
-      playProject(AntiGravityTechnology, 12, butFirst = assignAllWildTags("ScienceTag")) {
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(AntiGravityTechnology, 12) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
       }
     }
@@ -484,7 +462,10 @@ public class OtbGame20260828 : RecordedGame() {
     yellow.turn {
       playProject(SisterPlanetSupport, 3)
     }
-    green.turn { playProject(LunarMining, 7, butFirst = assignAllWildTags("EarthTag")) }
+    green.turn {
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(LunarMining, 7)
+    }
     blue.turn { cardAction1(Dirigibles) { addCardResources(Celestic) } }
     yellow.turn { playProject(LunaGovernor, 0) }
     green.turn {
@@ -575,9 +556,7 @@ public class OtbGame20260828 : RecordedGame() {
       playProject(Livestock, 11)
     }
     green.turn {
-      playProject(BreathingFilters, 7) {
-        declineTask()
-      }
+      playProject(BreathingFilters, 7)
     }
     blue.turn { cardAction1(Extremophiles) { addCardResources(NitriteReducingBacteria) } }
     yellow.turn {
@@ -692,9 +671,7 @@ public class OtbGame20260828 : RecordedGame() {
     blue.turn { fundAward(cn("Benefactor"), 20) }
     yellow.turn { cardAction1(FloatingRefinery) }
     green.turn {
-      playProject(AiCentral, 13, steel = 2) {
-        declineTask()
-      }
+      playProject(AiCentral, 13, steel = 2)
       cardAction1(AiCentral)
     }
     blue.turn { cardAction1(Dirigibles) { addCardResources(Celestic) } }

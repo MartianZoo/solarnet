@@ -43,6 +43,9 @@ internal class InstructionTest {
     // A selector refinement filters the snapshot without becoming part of the name a body uses.
     val refined = parse<Instruction>("EACH ResourceCard(HAS CardResource) { CardResource }")
     (refined as Instruction.Each).selectorName shouldBe parse("ResourceCard")
+
+    val classes = parse<Instruction>("EACH Class<Area> { Area }") as Instruction.Each
+    classes.representedSelectorName shouldBe parse("Area")
   }
 
   @Test

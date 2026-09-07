@@ -26,18 +26,18 @@ internal class ValleyTrustTest : CardTest() {
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude1CardPack",
         selectedPrelude = MartianIndustries,
-        otherPrelude = AppliedScience,
+        otherPrelude = SpaceLanes,
         otherPreludeIsAvailable = false,
     )
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = false,
     )
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude1CardPack, Prelude2CardPack",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = true,
     )
@@ -47,13 +47,13 @@ internal class ValleyTrustTest : CardTest() {
   internal fun `Prelude 2 expansion and card pack add the same cards to Prelude 1 rules`() {
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude2Expansion",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = true,
     )
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude2CardPack",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = true,
     )

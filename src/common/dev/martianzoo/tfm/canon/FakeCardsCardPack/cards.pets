@@ -1,0 +1,76 @@
+"An inert stand-in for a printed wild tag"
+CLASS FakeWildTag : Cardbound
+
+"A temporary holder for tags supplied directly by a replay"
+CLASS FakeWildTagUse : TagHolder, Temporary { HAS MAX 1 This }
+
+CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PROD[1 MC], 3 ProjectCard, FakeWildTag<This>
+}
+
+CLASS FakeResearchCoordination : AutomatedCard<Class<ProjectCard>> {
+  cost = 4
+
+  This: FakeWildTag<This>
+}
+
+CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
+  cost = 0
+
+  This: FakeWildTag<This>, 6 Science<This>
+
+  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
+}
+
+CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: FakeWildTag<This>, 5 MC, CARDS[2 SearchForCard(HAS requirement)]
+  End: 2 VictoryPoint
+}
+
+"Helion without correct Heat payment allocation"
+CLASS FakeHelion : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: SpaceTag<This>, BaseResourceValue<Class<Heat>>
+  This: 42 MC, PROD[3 Heat]
+
+  Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+}
+
+"Established Methods without its unaffordable-second-project rule"
+CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!
+}
+
+"Head Start with independently interleavable immediate actions"
+CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 2 Steel, 2 MC / ProjectCard<Hand>, UseAction<StandardAction>!, UseAction<StandardAction>!
+}
+
+"L1 Trade Terminal with the replay's three resource destinations fixed"
+CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
+  cost = 25
+
+  This:: SpaceTag<This>
+  This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
+
+  Trade<ColonyTile>:: TradeBarrier<ColonyTile>
+  Trade<ColonyTile>: (2 ColonyProduction<ColonyTile> OR Ok) THEN -TradeBarrier<ColonyTile>
+
+  End: 2 VictoryPoint
+}
+
+"Mars Nomads without its moving map marker and placement bonus"
+CLASS FakeMarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 13
+
+  -> Ok
+}

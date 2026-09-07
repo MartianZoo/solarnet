@@ -9,7 +9,6 @@ internal class AnchoredRegexToken(
     ignored: Boolean = false,
 ) : Token(name, ignored) {
   override fun match(input: CharSequence, fromIndex: Int): Int {
-    val match = regex.find(input, fromIndex) ?: return 0
-    return if (match.range.first == fromIndex) match.value.length else 0
+    return regex.matchAt(input, fromIndex)?.value?.length ?: 0
   }
 }

@@ -42,6 +42,9 @@ private fun renderChangeOrNull(
     references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Transmute) {
+    renderPlayedEventRecovery(instruction, describers)?.let {
+      return it
+    }
     renderCardResourceDrawExchange(instruction, describers)?.let {
       return it
     }

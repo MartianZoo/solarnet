@@ -22,8 +22,6 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
@@ -40,7 +38,6 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
@@ -325,35 +322,7 @@ public class Transformers(public val classTable: ClassTable) {
   internal fun insertDefaults(): PetTransformer = insertDefaults(THIS.expression)
 
   internal fun insertDefaults(context: Expression): PetTransformer =
-      chain(
-          insertTriggerDefaults(context),
-          insertGainRemoveDefaults(context),
-          insertExpressionDefaults(context),
-      )
-
-  private fun insertTriggerDefaults(context: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode =
-          when (node) {
-            is OnGainOf -> applyTriggerDefault(node, node.expression)
-            is OnRemoveOf -> applyTriggerDefault(node, node.expression)
-            else -> transformChildren(node)
-          }
-
-      private fun applyTriggerDefault(node: Effect.Trigger, original: Expression): Effect.Trigger {
-        val default = classTable.getClass(original.className).defaults.triggerOnly
-        rejectEmptyArgumentsWithoutDefaults(original, default, "trigger")
-        requireExplicitDependencyDefaults(original, default, "trigger")
-        val fixed = insertDefaultsIntoExpr(original, default.dependencies, context, classTable)
-        val replacer =
-            object : PetTransformer() {
-              override fun transformNode(node: PetNode): PetNode =
-                  if (node === original) fixed else transformChildren(node)
-            }
-        return replacer.transformTrigger(node)
-      }
-    }
-  }
+      chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {

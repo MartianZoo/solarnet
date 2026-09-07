@@ -10,9 +10,9 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research from 2026-08-23 on the development host. Treat absolute times as
-> noisy: other JVM processes were consuming substantial CPU during the baseline. Relative structure
-> and the large parallel-speedup signal are still clear.
+> **Status:** dated research from 2026-08-23 and 2026-09-06 on the development host. Treat absolute
+> times as noisy: other JVM processes were consuming substantial CPU during the baseline. Relative
+> structure and the large parallel-speedup signal are still clear.
 
 ## Configuration entry points
 
@@ -136,6 +136,47 @@ speedup corresponds to 68.2% parallel efficiency. Aggregate engine suite time in
 which is the expected throughput tradeoff from running isolated test processes concurrently. The
 smaller suites also paid fork and host-contention overhead, but engine remained the critical path
 and the complete build still finished 1m47.67s sooner.
+
+## Anchored lexer result
+
+A 2026-09-06 flight recording of `Prelude2CardsTest` found that 330 of 350 regex execution-sample
+stacks came from `AnchoredRegexToken`. It used `Regex.find` and rejected a result that began after
+the current tokenizer position, needlessly searching the remaining input. Calling `Regex.matchAt`
+expresses the token contract directly and performs no forward search.
+
+Immediate AC-powered control and changed runs used the same 29 test methods. The single-fork JVM
+suite fell from 11.539s to 7.161s and 7.116s, a 37.9–38.3% reduction. Chrome task execution fell
+from 21.110s to 18.195s and 18.650s, an 11.7–13.8% reduction. The complete forced JVM and browser
+suites passed after the change in 1m29s and 6m28s respectively; earlier full-suite baselines that
+day were power-throttled and are not valid comparisons.
+
+## Class-limit expression result
+
+The same recording showed type-expression minimization beneath `ClassLimitTable` initialization.
+`UnboundRestriction.bindThisTo` requested the shortest display expression for a fully resolved
+type, then immediately transformed and resolved it again. Supplying the already-available full
+expression preserves the resolved type while avoiding a combinatorial search through dependency
+spellings.
+
+The single-fork JVM focus changed from 7.116–7.161s to 6.997s, which is within run-to-run noise.
+Chrome was consistently better: the focused task took 18.503s with the old expression and 15.748s
+and 15.054s with the full expression, a 14.9–18.6% reduction. Complete forced JVM and browser suites
+passed after the change in 1m38s and 5m46s.
+
+This cost is paid once per distinct active `GamePremise` in a test process, not once per World.
+The canonical master table is also initialized once per process. Build-time generation could remove
+some canonical-universe startup, but it would not remove configuration-specific projection work or
+support custom catalogs without another representation; measure the remaining startup cost before
+considering that tradeoff.
+
+## Browser replay selection result
+
+Only the extensive three-player `OtbGame20260828Test` full-game replay remains in shared test
+sources; the other replay implementations are JVM-only. A direct browser-suite run continues to
+exercise all 158 shared Terraforming Mars test classes, including that replay and one partial-game
+test. Its Chrome task fell from 5m36.15s to 4m43.65s, a 15.6% reduction. The JVM suite still found
+all 21 moved test classes and passed. There is no property or alternate task that adds the JVM-only
+replays back to a browser run.
 
 ## Priorities suggested by the data
 

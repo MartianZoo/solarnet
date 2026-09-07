@@ -140,6 +140,8 @@ The useful architecture already present should be extended rather than replaced:
   coordinated and relational noun phrases.
 - Events carry one structured noun-phrase object plus independent complements; producers cannot
   bypass that representation with a string constructor.
+- Ordinary card selection, purchase, play, reveal, and recovery are interpreted from adjacent Pets
+  location changes; only the remaining face-dependent hidden procedures use `CARDS[...]`.
 - Voice is selected after event interpretation: current wording realizes the acting player in
   active voice and an unrestricted actor in passive voice, while `Event.Kind` supplies only the
   matching verb forms.

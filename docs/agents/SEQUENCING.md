@@ -48,8 +48,6 @@
   — `CLASS PlayCard` and `ABSTRACT CLASS Billing` for the card-play and payment latches.
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
-- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) — search for
-  `isWildTagOffer` and `declineWildTagOffers`; read as evidence, not as a pattern to copy.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
   [`AtomicOperationScopeTest.kt`](../../test/common/dev/martianzoo/engine/AtomicOperationScopeTest.kt).
@@ -139,10 +137,9 @@ The substitutes in use, and where each fails:
 | Client bridge (`TfmGameplay`) | A string match on instruction text or `cause.context` | Not a rule at all. |
 
 The strongest evidence that the concept is missing is the last row. `TfmGameplay` still identifies
-some tasks by their changed component or `cause.context`, and declines leftover wild-tag choices
-when they are the acting Player's only work. A public convenience API is reconstructing operation
-scope because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an
-instant, so nothing at all represents the action that is under way.
+some payment tasks by instruction shape. A public convenience API is reconstructing operation scope
+because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an instant,
+so nothing at all represents the action that is under way.
 
 ### Selected direction: scoped completion
 
@@ -171,7 +168,7 @@ What this is expected to absorb rather than add to:
 - whole-World idle becomes the special case where the scope is the game, so `End` is unaffected;
 - `EventCard` gets *more* precise, not less: today it survives until unrelated players' work drains;
 - `TradeBarrier` is a hand-maintained count of the same fact;
-- the `TfmGameplay` wild-tag and `Accepting`/`AcceptingFromCard` bridges become deletable;
+- the `TfmGameplay` `Accepting`/`AcceptingFromCard` bridges become deletable;
 - Head Start stops needing nested completion frames — the first action's scope completes, then a
   second ordinary action turn is granted.
 
@@ -341,8 +338,7 @@ complete before the next Actor mutation.
 
 Action-local temporary state follows the same rule. Its settlement must complete with the action,
 before workflow offers a second action. Declining that later offer is a separate turn decision and
-must not double as current-action cleanup. `WildTagUse?` is the one documented exception, and it is
-a bridge to delete rather than a pattern to copy.
+must not double as current-action cleanup.
 
 ## Cleanup vocabulary
 
@@ -382,12 +378,13 @@ Three classes use it:
   and removing it creates the corresponding `PlayedEvent`. Law Suit is a deliberate exception in
   behavior, not in machinery: its authored consequence moves the card straight to `PlayedEvent`, so
   no EventCard is left for idle cleanup.
-- **`End`** — the live scoring operation, and also the terminal `Phase`. Gaining it queues every
-  `End` scoring reaction. Once those tasks and all their consequences drain, removing `End` leaves
-  no live phase and queues multiplayer victory assignment.
+- **`FinalScoringPending`** — a temporary marker created automatically by the terminal `End` Phase.
+  Gaining `End` queues every final-scoring reaction. Once those tasks and all their consequences
+  drain, removing `FinalScoringPending` queues multiplayer victory assignment while `End` remains as the
+  exact current Phase.
 - **`MeasureAward<Award>`** — snapshots every Player's `AwardTally` when gained. Idle cleanup removes
-  it in the same pass as `End`, and its automatic removal effect assigns places and their victory
-  points before the queued multiplayer victory assignment can run.
+  it in the same pass as `FinalScoringPending`, and its automatic removal effect assigns places and their
+  victory points before the queued multiplayer victory assignment can run.
 
 The reusable shape is a concrete operation component whose gain creates all the work that must
 precede completion, and whose automatic removal effect emits the fixed completion consequence:
@@ -417,10 +414,9 @@ Both proposals target the weak rows in The promises. Neither needs new engine co
   choose legally among pending tasks in a different order and compare committed state at the next
   stable point. Start with one recorded game and one seed.
 
-One honest divergence to fix while nearby: presentation order is documented as non-semantic but is
-load-bearing in the API. `doTask(narrowing, taskNumber)` takes a 1-based position, `autoExecNext`
-falls back to `eligible.first()`, and `TfmGameplay` computes a positional `selectionTaskNumber`.
-Match on instruction or cause instead of position wherever a caller has that option.
+Presentation order remains load-bearing only in unsafe automatic execution, where `autoExecNext`
+falls back to `eligible.first()`. Explicit clients match on instruction or stable task id, and
+Terraforming Mars helpers match semantic task data before using that id.
 
 ## Live agenda
 
@@ -470,10 +466,10 @@ constraint, a real case — not by rediscovering the cost.
   must follow another, make the first trigger the second.
 - **Player queue drain as the generic completion mechanism — rejected.** It combines unrelated work
   and delays local completion arbitrarily. Queue cardinality has no gameplay meaning.
-- **Ordering by presentation — rejected.** Task numbers are ephemeral labels. If presentation ever
-  follows authored Class, hierarchy, and Effect order, encode that as immutable provenance assigned
-  at creation; never derive gameplay precedence from it, and never give effects a way to reach into
-  the pool.
+- **Ordering by presentation — rejected.** Presentation labels do not identify tasks. If
+  presentation ever follows authored Class, hierarchy, and Effect order, encode that as immutable
+  provenance assigned at creation; never derive gameplay precedence from it, and never give effects
+  a way to reach into the pool.
 - **Stabilizing payment attribution by ordering effects — rejected.** Applicable `ResourceValue`
   components remove the same saturating `Owed`, so order decides who is credited with the last
   units. Reconstructed games still reach the same paid state. The repair is the payment direction in
