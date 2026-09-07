@@ -62,10 +62,12 @@ internal class Limiter(
   ): Boolean {
     require(type.abstract)
     require(minimum > 0)
-    return classTable.allConcreteSubtypes(type).any { candidate ->
-      candidate.narrows(type, info) &&
-          findLimitOrNull(candidate.toComponent(), null)?.let { it >= minimum } == true
-    }
+    return classTable
+        .allConcreteSubtypes(type) { dependency -> components.matchingTypes(dependency, info) }
+        .any { candidate ->
+          candidate.narrows(type, info) &&
+              findLimitWithDependenciesPresent(candidate.toComponent(), null) >= minimum
+        }
   }
 
   internal fun hasExecutableConcreteRemoval(
