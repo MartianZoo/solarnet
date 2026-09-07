@@ -32,6 +32,8 @@ internal class GameReaderImpl(
 
   override val catalog = premise.catalog
 
+  override val modules = premise.modules
+
   override fun resolve(expression: Expression) = classTable.resolve(expression)
 
   internal fun matchesConstraint(candidate: Type, constraint: Expression, domain: Type) =
@@ -124,4 +126,10 @@ internal class GameReaderImpl(
       else components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
+
+  override fun getDependents(component: Type): Set<Type> {
+    require(!component.abstract)
+    if (!classTable.isActive(component)) return emptySet()
+    return components.dependentsOf(component.toComponent(this)).mapTo(linkedSetOf()) { it.type }
+  }
 }

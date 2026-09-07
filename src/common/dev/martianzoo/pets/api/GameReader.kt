@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.api
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -16,6 +17,9 @@ public interface GameReader : TypeInfo {
 
   /** The Catalog used by the world. */
   public val catalog: Catalog
+
+  /** The Modules selected for this game. */
+  public val modules: Set<ClassName>
 
   /** Returns the type represented by the fully contextualized [expression]. */
   public fun resolve(expression: Expression): Type
@@ -37,6 +41,9 @@ public interface GameReader : TypeInfo {
 
   /** Returns the types of all concrete components in the current world. */
   public fun getComponents(type: Type): Multiset<Type>
+
+  /** Returns the distinct component types that directly depend on [component]. */
+  public fun getDependents(component: Type): Set<Type>
 
   /** Returns the types of all concrete components matching the Pets type expression [type]. */
   public fun getComponents(type: String): Multiset<Type> = getComponents(resolve(parse(type)))
