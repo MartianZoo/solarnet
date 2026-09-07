@@ -383,6 +383,10 @@ internal constructor(
     }
 
     if (listOfNotNull(g, r).any { it.abstract }) {
+      // Ordinary nonoptional gains check present dependency domains while finding candidates below.
+      if (g?.abstract == true && (intens == OPTIONAL || g.rootClass.declaration.custom)) {
+        requireDependenciesPresent(g)
+      }
       if (
           g?.abstract == true &&
               r == null &&
@@ -395,6 +399,8 @@ internal constructor(
               )
       ) {
         if (intens == MANDATORY) {
+          // Keep absent targets distinct from present candidates blocked by limits.
+          requireDependenciesPresent(g)
           throw LimitsException(
               "Can't gain $count ${g.expression}: no concrete narrowing can execute"
           )
@@ -453,6 +459,11 @@ internal constructor(
       return null
     }
     return narrowed
+  }
+
+  private fun requireDependenciesPresent(type: Type) {
+    val missing = type.typeDependencies.map { it.boundType }.filterNot(reader::hasAnyComponents)
+    if (missing.any()) throw DependencyException(missing)
   }
 
   private fun translateCustomChange(
@@ -599,11 +610,7 @@ internal constructor(
 
     if (listOfNotNull(g, r).any { !classTable.isActive(it) }) return g to r
 
-    if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
-      val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
-      val missing = dependencyComponents.filterNot(reader::hasAnyComponents)
-      if (missing.any()) throw DependencyException(missing)
-
+    if (g?.abstract == true) {
       g = classTable.singleConcreteSubtype(g, reader) ?: g
     }
 
