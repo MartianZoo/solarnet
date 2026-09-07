@@ -4,7 +4,7 @@ CLASS SaturnSystems : CardFront<Class<CorporationCard>> {
 
   This:: JovianTag<This>
   This: 42 MC, PROD[Titanium]
-  JovianTag<Anyone, CardFront<Anyone>>: PROD[1 MC]
+  JovianTag<Anyone>: PROD[1 MC]
 }
 
 CLASS Teractor : CardFront<Class<CorporationCard>> {
@@ -196,7 +196,7 @@ CLASS MarsUniversity : ActiveCard<Class<ProjectCard>> {
   cost = 8
 
   This:: ScienceTag<This>, BuildingTag<This>
-  ScienceTag<>: (-ProjectCard THEN ProjectCard) OR Ok
+  ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok
   End: VictoryPoint
 }
 
@@ -243,7 +243,7 @@ CLASS RoboticWorkforce : AutomatedCard<Class<ProjectCard>> {
   cost = 9
 
   This:: ScienceTag<This>
-  This: CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>
+  This: CopyProductionBox<CardFront(HAS BuildingTag)>
 }
 
 CLASS Research : AutomatedCard<Class<ProjectCard>> {
@@ -477,7 +477,7 @@ CLASS OlympusConference : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Sci
   cost = 10
 
   This:: ScienceTag<This>, EarthTag<This>, BuildingTag<This>
-  ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)
+  ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)
   End: VictoryPoint
 }
 

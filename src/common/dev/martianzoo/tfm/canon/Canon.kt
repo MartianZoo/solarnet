@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.data.ClassDeclaration
 
-/** Published Terraforming Mars Catalog with typed Terraforming Mars definition registries. */
+/** Terraforming Mars Catalog with typed Terraforming Mars definition registries. */
 public object Canon :
     TfmCatalog.Composite(
         terraformingMarsBundle, // 2016
@@ -20,6 +20,7 @@ public object Canon :
         utopiaMapBundle, // 2024
         cimmeriaMapBundle, // 2024
         promoCardPackBundle,
+        fakeBundle, // explicitly selected replay support
     ) {
   /** Returns Canon extended with replay- or scenario-specific class declarations. */
   public fun withNonstandardClasses(declarations: Collection<ClassDeclaration>): TfmCatalog =

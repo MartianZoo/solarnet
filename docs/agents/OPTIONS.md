@@ -210,6 +210,10 @@ selection groups in one Bundle is not a simplification when it requires a routin
 declarations may live in a nonselected provider or coalesce identically; do not add per-Class
 availability annotations solely to preserve a product-shaped source directory.
 
+`FakeBundle` is an explicitly selected, nonpublished support bundle. It keeps incomplete replay
+stand-ins and their temporary tag holder in Canon's namespace without adding those cards to any
+published card pool.
+
 ## Card declarations and views
 
 `tfm-card-data` owns the pets-free `CardDefinition` records and their JSON5 datasets. The JVM generator

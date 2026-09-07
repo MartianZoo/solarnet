@@ -473,52 +473,6 @@ fails the operation atomically with `RunawayEffectChainException`, which carries
 chain. `:` effects become tasks. Use
 [SEQUENCING.md](SEQUENCING.md) before depending on that difference.
 
-### Terraforming Mars wild tags
-
-`Tag` depends on `TagHolder`; `CardFront` is one such holder. Printed tags therefore remain ordinary
-components such as `PlantTag<CardFront>`. In the action phase, a `WildTag` creates a distinct
-`WildTagUse` holder when its owner chooses a `UseAction<StandardAction>`; choosing `Pass` creates
-none. Prelude turns create the holder from `NewTurn` because they do not use the standard-action
-signal. The temporary holder offers the owner `Tag<This>?`, so a chosen wild meaning is a real tag
-and participates in bare tag metrics and requirements.
-
-The holder distinction is also the trigger distinction. `Tag` has the trigger default
-`Tag<CardFront>:`, so an effect that reacts only to printed tags can explicitly accept it with
-`PlantTag<>:` or spell out `PlantTag<CardFront>:`. It will not see
-`PlantTag<WildTagUse<...>>`; there is no dispatch filter or special change kind. Refinements can
-follow the dependency graph when card identity matters. Robotic Workforce uses
-`CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
-action-scoped wild holder received the Building interpretation.
-
-`WildTagUse` is `Temporary`. `TfmGameplay` declines an unchosen `WildTagUse?` task when it is the
-acting Player's only remaining work; ordinary temporary cleanup then removes the holder, and its
-dependent tag disappears through dependency cascade. The convenience layer does not remove the
-holder directly.
-
-#### Looking for a better wild-tag mechanism
-
-**Working direction:** this representation is not settled; keep looking for a smaller one.
-
-`WildTagUse` is the only reason the trigger-only `DEFAULT` channel exists. `DEFAULT Tag<CardFront>:`
-is the single trigger default authored anywhere, in this Catalog or in `SystemDeclarations`, and it
-buys a fourth `DefaultKind`, a fourth `DefaultsDeclaration` field with its merge and rendering arms,
-a fourth `Defaults.DefaultSpec`, and `Transformers.insertTriggerDefaults`. A mechanism that supports
-one class through a whole default channel is a candidate for replacement, not for extension.
-
-The two facts the design must keep separate are (a) a chosen wild meaning is a real tag, countable
-by bare tag metrics and refinements, and (b) an effect that reacts to printed tags must not see it.
-Look for a shape that gets (b) from something already in the model rather than from a new default
-kind. Candidates worth trying before anything else:
-
-- make the printed/chosen distinction a Class distinction rather than a holder distinction, so
-  ordinary nominal subtyping supplies the trigger filter;
-- give `WildTag` an occurrence-per-action-slot directly, so no second holder Class is needed; or
-- decide that `Tag<CardFront>` should be the ordinary `DEFAULT` for every usage, and let the two
-  refinement sites that genuinely want either holder say so explicitly.
-
-Do not settle any of these before checking it against Robotic Workforce and the
-multiple-wild-tags-on-one-card entry in [`TODO.md`](../../TODO.md).
-
 ## Metrics, refinements, and limits
 
 `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a

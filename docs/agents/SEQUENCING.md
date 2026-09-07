@@ -48,8 +48,6 @@
   — `CLASS PlayCard` and `ABSTRACT CLASS Billing` for the card-play and payment latches.
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
-- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) — search for
-  `isWildTagOffer` and `declineWildTagOffers`; read as evidence, not as a pattern to copy.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
   [`AtomicOperationScopeTest.kt`](../../test/common/dev/martianzoo/engine/AtomicOperationScopeTest.kt).
@@ -139,10 +137,9 @@ The substitutes in use, and where each fails:
 | Client bridge (`TfmGameplay`) | A string match on instruction text or `cause.context` | Not a rule at all. |
 
 The strongest evidence that the concept is missing is the last row. `TfmGameplay` still identifies
-some tasks by their changed component or `cause.context`, and declines leftover wild-tag choices
-when they are the acting Player's only work. A public convenience API is reconstructing operation
-scope because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an
-instant, so nothing at all represents the action that is under way.
+some payment tasks by instruction shape. A public convenience API is reconstructing operation scope
+because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an instant,
+so nothing at all represents the action that is under way.
 
 ### Selected direction: scoped completion
 
@@ -171,7 +168,7 @@ What this is expected to absorb rather than add to:
 - whole-World idle becomes the special case where the scope is the game, so `End` is unaffected;
 - `EventCard` gets *more* precise, not less: today it survives until unrelated players' work drains;
 - `TradeBarrier` is a hand-maintained count of the same fact;
-- the `TfmGameplay` wild-tag and `Accepting`/`AcceptingFromCard` bridges become deletable;
+- the `TfmGameplay` `Accepting`/`AcceptingFromCard` bridges become deletable;
 - Head Start stops needing nested completion frames — the first action's scope completes, then a
   second ordinary action turn is granted.
 
@@ -341,8 +338,7 @@ complete before the next Actor mutation.
 
 Action-local temporary state follows the same rule. Its settlement must complete with the action,
 before workflow offers a second action. Declining that later offer is a separate turn decision and
-must not double as current-action cleanup. `WildTagUse?` is the one documented exception, and it is
-a bridge to delete rather than a pattern to copy.
+must not double as current-action cleanup.
 
 ## Cleanup vocabulary
 

@@ -6,15 +6,15 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 44 / 48 | 395 / 426 | 66 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 45 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
+| TOTALS | 44 / 48 | 394 / 426 | 63 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 45 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
 | Terraforming Mars | 9 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Venus Next | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | 1 / 1 | 1 / 1 | 1 / 1 | - | 1 / 1 | - |
-| Prelude | 5 / 5 | 7 / 7 | 35 / 35 | - | - | - | - | - | - | - | 1 / 1 | - |
+| Prelude | 5 / 5 | 6 / 7 | 34 / 35 | - | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | - | 1 / 1 | 11 / 11 colony tiles |
 | Turmoil | 4 / 5 | 0 / 16 | - | - | - | 0 / 1 | - | 0 / 1 | - | 0 / 31 | 0 / 1 | 0 / 6 parties |
-| Prelude 2 | 5 / 5 | 12 / 24 | 21 / 25 | - | - | - | - | - | - | - | - | - |
+| Prelude 2 | 5 / 5 | 12 / 24 | 19 / 25 | - | - | - | - | - | - | - | - | - |
 | Amazonis & Vastitas | - | - | - | 2 / 2 | - | - | 9 / 10 | 10 / 10 | 4 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
@@ -30,9 +30,12 @@ product, including goals reprinted from another product.
 |---|---|---|---|
 | Terraforming Mars | Corporation | Beginner Corporation (`B00`) | Ready |
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
+| Prelude | Project | Research Coordination | Wild tag |
+| Prelude | Prelude | Research Network | Wild tag |
 | Turmoil | everything | everything | Turmoil |
 | Prelude 2 | Project | L1 Trade Terminal (`P78`) | Distinct |
 | Prelude 2 | Turmoil-linked cards | 11 projects and 3 preludes | Turmoil |
+| Prelude 2 | Prelude | Applied Science, Nobel Prize | Wild tags |
 | Prelude 2 | Prelude | Preservation Program (`P57`) | Fork |
 | Amazonis & Vastitas | Milestone | Lobbyist | Turmoil support |
 | Automa | Other | entire Automa rules | Wow that's a lot |

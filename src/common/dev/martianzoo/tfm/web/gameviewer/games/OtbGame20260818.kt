@@ -6,16 +6,18 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
+import dev.martianzoo.tfm.web.gameviewer.fakeResearchCoordination
+import dev.martianzoo.tfm.web.gameviewer.fakeWildTags
 
 public class OtbGame20260818 : RecordedGame() {
   private val colonyTiles = listOf("Enceladus", "Miranda", "Europa", "Io", "Pluto")
-
   protected override val config: GameConfig =
       GameConfig(
           """
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
+          FakeBundle
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
@@ -161,7 +163,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(ResearchCoordination, 4)
+      playProject(fakeResearchCoordination, 4)
     }
 
     yellow.turn {
@@ -169,7 +171,8 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(VenusGovernor, 4, butFirst = assignAllWildTags("VenusTag"))
+      green.exMachina(fakeWildTags("VenusTag"))
+      playProject(VenusGovernor, 4)
     }
 
     yellow.pass()
@@ -200,7 +203,8 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(MercurianAlloys, 3, butFirst = assignAllWildTags("ScienceTag"))
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(MercurianAlloys, 3)
     }
 
     yellow.turn {
@@ -225,7 +229,8 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(FloatingHabs, 5, butFirst = assignAllWildTags("ScienceTag"))
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(FloatingHabs, 5)
     }
 
     yellow.turn {
@@ -286,7 +291,8 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(LunarMining, 11, butFirst = assignAllWildTags("EarthTag"))
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(LunarMining, 11)
     }
 
     yellow.turn { cardAction1(StratosphericBirds) }
@@ -299,7 +305,8 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(LunaMetropolis, 1, titanium = 5, butFirst = assignAllWildTags("EarthTag"))
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(LunaMetropolis, 1, titanium = 5)
     }
 
     yellow.turn {
@@ -332,7 +339,8 @@ public class OtbGame20260818 : RecordedGame() {
 
     green.turn {
       playProject(IndustrialMicrobes, 12)
-      stdAction("ClaimMilestone", beforeAction = assignAllWildTags("MicrobeTag")) {
+      green.exMachina(fakeWildTags("MicrobeTag"))
+      stdAction("ClaimMilestone") {
         doTask("Ecologist")
       }
     }
@@ -424,7 +432,8 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(MirandaResort, titanium = 3, butFirst = assignAllWildTags("EarthTag"))
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(MirandaResort, titanium = 3)
     }
 
     yellow.turn {
@@ -516,7 +525,8 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(Plantation, 15, butFirst = assignAllWildTags("ScienceTag")) {
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(Plantation, 15) {
         placeTile(5, 3)
       }
 
@@ -699,7 +709,8 @@ public class OtbGame20260818 : RecordedGame() {
       cardAction1(MartianZoo)
 
       cardAction1(VenusianInsects)
-      playProject(Insects, 9, butFirst = assignAllWildTags("PlantTag"))
+      green.exMachina(fakeWildTags("PlantTag"))
+      playProject(Insects, 9)
       pass()
     }
 
@@ -807,7 +818,8 @@ public class OtbGame20260818 : RecordedGame() {
         doTask("CopyProductionBox<$IndustrialMicrobes>")
       }
 
-      playProject(DawnCity, titanium = 3, butFirst = assignAllWildTags("ScienceTag"))
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(DawnCity, titanium = 3)
 
       cardAction1(VenusianInsects)
 

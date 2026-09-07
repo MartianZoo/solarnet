@@ -80,7 +80,7 @@ all pending tasks are in P  and  MAX 0 MustCleanUp
 
 Whole-World idleness is the special case `P = ∅`. Let `N(S)` be the set of EGS classes reachable at
 that boundary while resolving the current operation. Queue clear alone is insufficient:
-`Implementations.complete` also rejects surviving `MustCleanUp` components such as `WildTagUse`.
+`Implementations.complete` also rejects surviving `MustCleanUp` components such as `Accepting`.
 If later end-of-turn play depends only on boundary EGS, equality there preserves end-of-turn
 outcomes too.
 

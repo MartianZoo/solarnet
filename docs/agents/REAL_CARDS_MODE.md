@@ -99,7 +99,7 @@ CLASS Revealed : CardLocation
 
 ABSTRACT CLASS Card : Owned<Owner>
 ABSTRACT CLASS CardBack<CardLocation, Class<CardFront>> : Card
-ABSTRACT CLASS CardFront<Class<CardBack>> : Card, TagHolder
+ABSTRACT CLASS CardFront<Class<CardBack>> : Card
 
 ABSTRACT CLASS ProjectFront : CardFront<Class<ProjectCard>>
 CLASS ProjectCard : CardBack<Class<ProjectFront>>, Atomized
@@ -464,7 +464,7 @@ the filtered part of Venus Orbital Survey remain `CARDS`-marked; every other row
 
 | Family | Cards |
 | --- | --- |
-| Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Nobel Prize, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
+| Search by printed facts | Sagitta Frontier Services, Atmospheric Enhancers, Planetary Alliance, Soil Bacteria, Venus Contract, Ishtar Expedition, Stratospheric Expedition, Experimental Forest, Acquired Space Agency, Splice, Factorum, Pharmacy Union, Aqueduct Systems, Celestic, Morning Star Inc. |
 | Inspect N, keep K | Business Contacts, Invention Contest, Corporate Archives, Hi-Tech Lab, Tycho Magnetics |
 | Draw, then discard from hand | Spire |
 | Inspect N, select and play one | Valley Trust, Merger, New Partner |

@@ -4,7 +4,7 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
 
   This:: MicrobeTag<This>, BuildingTag<This>
   This: 38 MC, PROD[Steel]
-  BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
+  BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
 }
 
 CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
@@ -12,7 +12,7 @@ CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
 
   This:: MicrobeTag<This>
   This: 44 MC, RequiredAction { -> CARDS[SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)] }
-  MicrobeTag<Anyone, CardFront<Anyone>>: 2 MC
+  MicrobeTag<Anyone>: 2 MC
 }
 
 CLASS Factorum : ActionCard<Class<CorporationCard>> {
@@ -56,8 +56,8 @@ CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
   This:: 2 MicrobeTag<This>
   This: CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]
   This:: 54 MC
-  MicrobeTag<Anyone, CardFront<Anyone>>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.
-  ScienceTag<>: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
+  MicrobeTag<Anyone>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.
+  ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
 }
 
 CLASS TychoMagnetics : ActionCard<Class<CorporationCard>> {
@@ -146,7 +146,7 @@ CLASS AlbedoPlants : CardFront<Class<PreludeCard>> {
 
   This:: PlantTag<This>
   This: PROD[Plant], Plant
-  PlantTag<>: 3 Heat
+  PlantTag: 3 Heat
 }
 
 CLASS BoomTown : CardFront<Class<PreludeCard>> {
@@ -548,7 +548,7 @@ CLASS CarbonNanosystems : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Gra
   cost = 14
 
   This:: ScienceTag<This>, BuildingTag<This>
-  ScienceTag<>: Graphene<This>
+  ScienceTag: Graphene<This>
   PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -4 Owed<>
   End: VictoryPoint

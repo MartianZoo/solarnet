@@ -25,6 +25,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           """
           ElysiumMap
           PreludeExpansion
+          FakeBundle
           """,
           "Stanley",
           "Jacopo",
@@ -53,7 +54,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       playPrelude(Biofuels)
-      playPrelude(ResearchNetwork)
+      playPrelude(fakeResearchNetwork)
     }
     jon.turn {
       playPrelude(EarlySettlement) { placeTile(8, 8) }
@@ -85,7 +86,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       declineSecondAction()
     }
     jacopo.turn {
-      playProject(ResearchCoordination, 4)
+      playProject(fakeResearchCoordination, 4)
       declineSecondAction()
     }
     jon.pass()
@@ -116,10 +117,8 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
 
     jacopo.turn {
       playProject(Archaebacteria, 6)
-      claimMilestone(
-          cn("Ecologist"),
-          beforeAction = assignAllWildTags("PlantTag"),
-      )
+      jacopo.exMachina(fakeWildTags("PlantTag", 2))
+      claimMilestone(cn("Ecologist"))
     }
     jon.turn {
       playProject(IndustrialCenter, 4) { placeTile(4, 8) }

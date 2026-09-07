@@ -168,12 +168,6 @@ Keep the substantive reasoning in the owning document and keep this table to one
   [ACTIONS.md](ACTIONS.md#permission). One missing concept, permission, improvised five ways; that
   document owns the collapse and the step order.
 
-### Will be obsolete
-
-- **The remaining `TfmGameplay` `WildTagUse` decline bridge** —
-  [ENGINE.md](ENGINE.md#terraforming-mars-wild-tags). It disappears when sequencing owns
-  action-scoped completion.
-
 ## Keep Pets central
 
 Pets should read like the physical game: compact, composable, and precise about ownership, identity,

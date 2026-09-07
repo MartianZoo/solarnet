@@ -439,7 +439,7 @@ CLASS VenusianAnimals : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Anima
   requirement = HAS "9 VenusStep"
 
   This:: VenusTag<This>, ScienceTag<This>, AnimalTag<This>
-  ScienceTag<>: Animal<This>
+  ScienceTag: Animal<This>
   End: VictoryPoint / Animal<This>
 }
 
