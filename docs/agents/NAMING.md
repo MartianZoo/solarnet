@@ -129,8 +129,8 @@ base, adjusted the way the variant adjusts it. `Producer22` is 16 plus the 6 pro
 start with. Neither variant is actually printed; both numbers are what a printing would logically
 say, and that is the number to use.
 
-Do not derive a qualifier by reading the Pets requirement expression. Those carry engine offsets —
-GrossHack most often — and a name that inherits one is wrong even when it happens to match.
+Do not derive a qualifier by reading the Pets requirement expression. Those can carry engine
+offsets, and a name that inherits one is wrong even when it happens to match.
 
 ### Abbreviations
 
@@ -178,9 +178,8 @@ looking it up.
   and Cyberia Systems both say "copy ... production box", which is why `CopyProductionBox` is right.
   Never a programming verb: `Handle`, `Get`, `Process`, `Update`.
 - **Custom metrics** are noun phrases naming the printed thing being counted, not things that happen:
-  `LowestProduction` (Robinson Industries prints "lowest production"), `TileInLargestGroup`. A name
-  may end in a preposition when the argument the reader sees next is its object, as in
-  `GainsOf<Class<VictoryPoint>>`.
+  `TileInLargestGroup`. A name may end in a preposition when the argument the reader sees next is
+  its object, as in `GainsOf<Class<VictoryPoint>>`.
 - **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
   `HasActions`, `ResourceHolder`. Reserve the `Has` prefix for this use.
 - **Records** that something already happened use the passive voice when the actor does not matter
@@ -325,9 +324,8 @@ stand-ins. The wild-tag cards preserve every other modeled behavior while creati
 The other stand-ins preserve only their documented subset of the printed card. Their names must
 remain visibly fake so Canon does not claim to model the published cards faithfully.
 
-`GrossHack` keeps its name. The ban on implementation vocabulary does not reach it; this is the
-decision, not an oversight. The representation itself is documented in
-[GAME_HACKS.md](GAME_HACKS.md).
+`ProdOffset` names the component representing the five synthetic M€-production steps. The
+representation itself is documented in [GAME_HACKS.md](GAME_HACKS.md).
 
 `NextCardEffect` keeps its name. It was chosen for how you would explain the thing to an ordinary
 player, and "effect" there is the ordinary English word, not the Pets grammar term the prohibition

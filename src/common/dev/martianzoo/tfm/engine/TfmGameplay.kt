@@ -635,7 +635,7 @@ public class TfmGameplay(
   }
 
   public fun production(kind: ClassName): Int =
-      count("PROD[$kind]") - if (kind == MC || kind == cn("M")) 5 else 0
+      count("PROD[$kind]") - count("ProdOffset<Class<$kind>>")
 
   public fun oxygenPercent(): Int = count("OxygenStep")
 

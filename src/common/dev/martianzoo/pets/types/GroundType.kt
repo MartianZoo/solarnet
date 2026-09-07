@@ -316,15 +316,13 @@ public data class GroundType(
       val general = wide.arguments.single().className
       val specific = narrow.arguments.single().className
       return object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              val specialized =
-                  if (node is Expression && node.className == general) {
-                    node.copy(className = specific)
-                  } else {
-                    node
-                  }
-              return transformChildren(specialized)
-            }
+            override fun transformNode(node: PetNode): PetNode =
+                when {
+                  node is Metric.Rank -> node
+                  node is Expression && node.className == general ->
+                      transformChildren(node.copy(className = specific))
+                  else -> transformChildren(node)
+                }
           }
           .transformRequirement(requirement)
     }

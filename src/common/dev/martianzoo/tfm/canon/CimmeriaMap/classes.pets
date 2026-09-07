@@ -7,8 +7,7 @@ CLASS Planetologist : Milestone { requirement = HAS "2 EarthTag, 2 VenusTag, 2 J
 CLASS Architect : Milestone { requirement = HAS "3 CityTag" }
 CLASS Coastguard : Milestone { requirement = HAS "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
 CLASS Forester : Milestone { requirement = HAS "PROD[3 Plant]" }
-// Search for GrossHack to understand this nonsense.
-CLASS Fundraiser : Milestone { requirement = HAS "PROD[12 (MC - 5)]" }
+CLASS Fundraiser : Milestone { requirement = HAS "PROD[12 (MC - ProdOffset<Class<MC>>)]" }
 
 CLASS Electrician : Award { metric = COUNT "PowerTag" }
 CLASS Founder : Award { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<SpecialTile<Anyone>>)>" }

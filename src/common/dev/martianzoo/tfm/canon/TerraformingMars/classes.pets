@@ -37,7 +37,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   // Bootstrap gains Modules before Players, so a Module cannot grant these: `This` on Player is the
   // only hook that fires at player creation, which is earlier than any phase.
-  This:: GrossHack<This> BY Admin
+  This:: 5 ProdOffset<This, Class<MC>> BY Admin
   This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
   CorporationPhase:: CorporationCard
@@ -726,10 +726,10 @@ CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, Custom
 "Copies the single immediate production box on a chosen card"
 CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
 
-"You didn't see this"
-CLASS GrossHack : Owned<Player>, System {
-  This:: PROD[5 MC]
-  ProductionPhase: -5 MC
+"The five synthetic M€-production steps that represent the printed production floor"
+CLASS ProdOffset<Class<StandardResource>> : Owned<Player>, System {
+  This:: PROD[StandardResource]
+  ProductionPhase: -StandardResource
 }
 
 CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom

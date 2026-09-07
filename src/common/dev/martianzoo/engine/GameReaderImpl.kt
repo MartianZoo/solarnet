@@ -78,6 +78,10 @@ internal class GameReaderImpl(
     val binding =
         chain(
             replacer(metric.selectorName, candidate.expressionFull),
+            replacer(
+                metric.selectorName.copy(complement = true),
+                candidate.expressionFull.copy(complement = true),
+            ),
             owner?.let(transformers::bindContextualOwner),
         )
     return metric.metrics.map { score ->
