@@ -68,7 +68,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
           }
           .map { it.boundType }
 
-  public val keys: List<Key> = deps.map(Dependency::key)
+  public val keys: List<Key> = List(deps.size) { deps[it].key }
 
   internal val representedClass: Class? =
       if (isForClassType(deps)) getClassForClassType(deps) else null
@@ -96,7 +96,14 @@ public class DependencySet private constructor(private val deps: List<Dependency
 
   // HIERARCHY
 
-  public val abstract: Boolean = deps.any { it.abstract }
+  public val abstract: Boolean = run {
+    var index = 0
+    while (index < deps.size) {
+      if (deps[index].abstract) return@run true
+      index++
+    }
+    false
+  }
 
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
