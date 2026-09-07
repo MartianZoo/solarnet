@@ -39,6 +39,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   @Test
   internal fun distantSignalBeam() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(7, 10)
     generation1()
     generation2()
     generation3BeforeResignation()
@@ -286,7 +287,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         setOf(NeutralizerFactory, FusionPower, Omnicourt, SolarReflectors, MiningColony)
 
     assertSidebar(gen = 3, temp = -30, oxygen = 2, oceans = 3, venus = 4)
-    engine.assertCounts(5 to "Tile")
+    admin.assertCounts(5 to "Tile")
     checkHandSizes()
     assertCardTrackingComplete()
   }

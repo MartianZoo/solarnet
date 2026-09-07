@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.script.OptionCodeTranslation
@@ -16,7 +17,10 @@ internal fun setUpGame(
     players: Int = 2,
 ): World {
   val setup = OptionCodeTranslation.setup(optionCodes, players)
-  return createGame(setup).apply { TfmWorkflow.Manual(this).setupPhase() }
+  return createGame(setup).apply {
+    TfmWorkflow.Manual(this).setupPhase()
+    actors.filterIsInstance<Player>().forEach { tfm(it).doTask("-10 ProjectCard<Hand>") }
+  }
 }
 
 internal class BasicTest {

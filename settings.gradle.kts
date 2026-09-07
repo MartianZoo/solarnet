@@ -24,6 +24,7 @@ val modules =
         "script",
         "repl",
         "tfm-canon",
+        "tfm-fake",
         "web",
         "game-viewer",
         "tools",

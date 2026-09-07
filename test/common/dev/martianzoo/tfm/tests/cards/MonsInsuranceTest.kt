@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -18,7 +18,7 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
 
-    p1.playCorp(MonsInsurance, 0)
+    playCorporationWithoutStartingProjects(p1, MonsInsurance)
         .expect("48 MC, PROD[4 MC<Player1>], PROD[-2 MC<Player2>], PROD[-2 MC<Player3>]")
 
     p3.assertProds(-2 to "MC")
@@ -28,15 +28,16 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Starting production loss does not target the solo opponent`() {
     newGame(PromoCardPack, players = 1)
 
-    p1.playCorp(MonsInsurance, 0).expect("48 MC, PROD[4 MC<Me>], PROD[0 MC<SoloOpponent>]")
+    playCorporationWithoutStartingProjects(p1, MonsInsurance)
+        .expect("48 MC, PROD[4 MC<Me>], PROD[0 MC<SoloOpponent>]")
   }
 
   @Test
   internal fun `Gains only four mc when Merger plays it after Manutech`() {
     newGame(PromoCardPack, PreludeExpansion, VenusNextExpansion)
     val p2 = requireP2()
-    p1.playCorp(Manutech, 0)
-    engine.phase("Prelude")
+    playCorporationWithoutStartingProjects(p1, Manutech)
+    admin.phase("Prelude")
     val moneyBefore = p1.count("MC")
 
     p1.playPrelude(Merger) {
@@ -53,7 +54,7 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$MonsInsurance, 10 MC")
     p2.manual("10 MC, ProjectCard")
     p3.manual("4 Steel")
@@ -74,7 +75,7 @@ internal class MonsInsuranceTest : CardTest() {
     val p2 = requireP2()
     p1.manual("$MonsInsurance, 10 MC")
     p2.manual("Plant")
-    engine.phase("Prelude")
+    admin.phase("Prelude")
 
     p1.manual("-Plant<Player2>").expect("-Plant<Player2>, -3 MC<Player1>, 3 MC<Player2>")
   }
@@ -91,7 +92,7 @@ internal class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  internal fun `Self-inflicted losses and Engine-run Global Events cause no payout`() {
+  internal fun `Self-inflicted losses and Admin-run Global Events cause no payout`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$MonsInsurance")
@@ -99,7 +100,7 @@ internal class MonsInsuranceTest : CardTest() {
 
     p2.manual("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
     game
-        .agent(ENGINE)
+        .agent(ADMIN)
         .manual("Plant<Player2>, -Plant<Player2>")
         .expect("0 MC<Player1>, 0 MC<Player2>")
   }
@@ -174,7 +175,7 @@ internal class MonsInsuranceTest : CardTest() {
   @Test
   internal fun `Solo steals and production attacks make Mons pay the general supply`() {
     newGame(PromoCardPack, players = 1)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$MonsInsurance, ProjectCard")
 
     p1.playProject(HiredRaiders, 1) {

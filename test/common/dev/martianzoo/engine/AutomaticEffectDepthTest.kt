@@ -4,7 +4,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -18,10 +18,10 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
     val world = Engine.newGame(premise) as WholeWorld
-    val engine = world.agent(ENGINE)
+    val admin = world.agent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
 
-    val failure = shouldThrow<RunawayEffectChainException> { engine.manual("ChainA") }
+    val failure = shouldThrow<RunawayEffectChainException> { admin.manual("ChainA") }
 
     failure.maximumDepth shouldBe 8
     failure.effectChain.map { it.instructions.single() } shouldBe
@@ -37,8 +37,8 @@ internal class AutomaticEffectDepthTest {
                 "ChainB!",
             )
             .map { parse<Instruction>(it) }
-    engine.count("ChainA") shouldBe 0
-    engine.count("ChainB") shouldBe 0
+    admin.count("ChainA") shouldBe 0
+    admin.count("ChainB") shouldBe 0
     world.events.entriesSince(checkpoint).shouldBeEmpty()
   }
 

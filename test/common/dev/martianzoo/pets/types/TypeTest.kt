@@ -358,7 +358,7 @@ internal class TypeTest {
         actor,
         NoGameState,
     ) shouldBe false
-    table.matchesConstraint(table.resolve(te("Engine")), notPlayer1, actor, NoGameState) shouldBe
+    table.matchesConstraint(table.resolve(te("Admin")), notPlayer1, actor, NoGameState) shouldBe
         true
   }
 

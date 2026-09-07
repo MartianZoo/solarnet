@@ -21,6 +21,7 @@ internal fun renderMetricPhrase(metric: Metric, describers: Describers): NounPhr
     is Metric.Constant,
     is Metric.Eval,
     is Metric.Or,
+    is Metric.Rank,
     is Metric.Subtract,
     is Metric.Transform,
     is Property -> null

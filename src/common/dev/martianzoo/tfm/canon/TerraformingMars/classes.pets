@@ -2,12 +2,13 @@
 CLASS TerraformingMars : Module {
   HAS =1 GameMode
   HAS Class<Production>
-  HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
+  This:: BootstrapPhase
   This:: Hand, Action1, Action2, Action3, CardPurchase, CardPlay
   This:: Selecting, Revealed
   SetupPhase:: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
@@ -37,13 +38,16 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   // Bootstrap gains Modules before Players, so a Module cannot grant these: `This` on Player is the
   // only hook that fires at player creation, which is earlier than any phase.
-  This:: GrossHack<This> BY Engine
+  This:: 5 ProdOffset<This, Class<MC>> BY Admin
   This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  CorporationPhase:: CorporationCard
+  SetupPhase: 2 CorporationCard THEN -CorporationCard \
+    THEN 10 ProjectCard THEN -10 ProjectCard?
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 
-  CLASS Player1, Player2, Player3, Player4, Player5
+  CLASS Player1, Player2
+  CLASS Player3 { HAS Class<SecondPlace> }
+  CLASS Player4, Player5
 }
 
 // MAPS AND AREAS
@@ -230,8 +234,14 @@ CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
 
 // CARD BINDINGS, TAGS, AND EFFECTS
 
+"Anything that can hold a cube-like component"
+ABSTRACT CLASS QuasiResourceHolder
+
+"A cube-like component stored on a holder"
+ABSTRACT CLASS QuasiResource<QuasiResourceHolder> : Owned
+
 "Anything that can hold a particular kind of card resource"
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : QuasiResourceHolder, Owned<Owner>
 
 // Anything that 'lives on' a card / couldn't exist without the card
 ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
@@ -266,7 +276,7 @@ ABSTRACT CLASS Resource : Owned {
 
   "A resource cube living on a compatible card or neutral holder, such as `Animal<Pets>`"
   // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
-  ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>> : Owned<Owner> {
+  ABSTRACT CLASS CardResource : QuasiResource<ResourceHolder<Class<CardResource>, Owner>>, Owned<Owner> {
     DEFAULT +CardResource.
 
     "A particular kind of resource held by a card"
@@ -518,13 +528,16 @@ ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
 
 // PHASES
 
-"The current game phase; exactly one exists from Setup through the terminal End phase"
+"The current game phase; exactly one exists from bootstrap through the terminal End phase"
 ABSTRACT CLASS Phase : System {
   HAS =1 Phase
 
+  CLASS BootstrapPhase
   CLASS SetupPhase
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>, Hand>, 10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards
+    NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
+      -10 ProjectCard<Selecting>? THEN BuySelectedCards
   }
   CLASS ResearchPhase
   CLASS ActionPhase {
@@ -586,8 +599,8 @@ CLASS End : Phase {
 "A marker removed after every final-scoring task has completed"
 CLASS FinalScoringPending : Temporary, System
 
-"Asks the first player to choose one mandatory global-parameter increase performed by Engine"
-CLASS WorldGovernmentTerraforming : Signal, System
+"Asks the first player to choose one mandatory global-parameter increase performed by Admin"
+CLASS WorldGovernmentTerraforming : Signal
 
 "Asks the first player where an ocean is placed while preserving the performing Player"
 CLASS ChooseOceanArea<Player> : Signal
@@ -597,7 +610,7 @@ CLASS StartToken : Owned<Player> {
   HAS =1 StartToken
   Generation IF 2 Generation: PassLeft<This>
   ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor
-  WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
+  WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Admin
 }
 
 // GAME CONFIGURATION
@@ -623,11 +636,9 @@ ABSTRACT CLASS GameMode : Module {
     This:: ClaimMilestone, FundAward
     This:: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: Generation
-    -FinalScoringPending: AssignMultiplayerVictory
+    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
   }
 }
-
-CLASS AssignMultiplayerVictory : Custom
 
 // SOLO MODE
 
@@ -689,18 +700,18 @@ CLASS SoloStandardResourceReserve<Class<StandardResource>> : Owned<SoloOpponent>
   HAS =1 This
   SetupPhase: 42 StandardResource
   SetupPhase: PROD[42 StandardResource]
-  -StandardResource BY Player:: StandardResource BY Engine
-  StandardResource BY Player:: -StandardResource BY Engine
-  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Engine
-  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Engine
+  -StandardResource BY Player:: StandardResource BY Admin
+  StandardResource BY Player:: -StandardResource BY Admin
+  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Admin
+  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Admin
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
 CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
   HAS =1 This
   SetupPhase: 42 CardResource<This>
-  -CardResource<This> BY Player:: CardResource<This> BY Engine
-  CardResource<This> BY Player:: -CardResource<This> BY Engine
+  -CardResource<This> BY Player:: CardResource<This> BY Admin
+  CardResource<This> BY Player:: -CardResource<This> BY Admin
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created
@@ -720,10 +731,10 @@ CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, Custom
 "Copies the single immediate production box on a chosen card"
 CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
 
-"You didn't see this"
-CLASS GrossHack : Owned<Player>, System {
-  This:: PROD[5 MC]
-  ProductionPhase: -5 MC
+"The five synthetic M€-production steps that represent the printed production floor"
+CLASS ProdOffset<Class<StandardResource>> : Owned<Player>, System {
+  This:: PROD[StandardResource]
+  ProductionPhase: -StandardResource
 }
 
 CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
@@ -738,8 +749,6 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
 CLASS Neighbor<Tile<Area>, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
-  This:: EACH Player { AwardTally<Award> / EVAL Award.metric }
-  -This:: AssignAwardPlaces<Award>
+  -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
+  -This IF Class<SecondPlace>:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
 }
-CLASS AwardTally<Award> : Owned<Player>, Hidden
-CLASS AssignAwardPlaces<Award> : Custom

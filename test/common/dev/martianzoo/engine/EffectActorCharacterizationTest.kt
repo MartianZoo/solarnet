@@ -4,7 +4,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.collections.shouldContainExactly
@@ -19,7 +19,7 @@ internal class EffectActorCharacterizationTest {
     val player = game.agent(PLAYER1)
 
     assertFailsWith<DeadEndException> { player.manual("Generation") }
-    game.agent(ENGINE).manual("Generation")
+    game.agent(ADMIN).manual("Generation")
 
     player.count("Generation") shouldBe 1
   }
@@ -32,27 +32,27 @@ internal class EffectActorCharacterizationTest {
     assertFailsWith<LimitsException> { player.manual("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
 
-    assertFailsWith<LimitsException> { game.agent(ENGINE).manual("-TharsisMap") }
+    assertFailsWith<LimitsException> { game.agent(ADMIN).manual("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
   }
 
   @Test
-  internal fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
+  internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
-    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
-    engine.manual("Photosynthesis")
+    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
+    admin.manual("Photosynthesis")
     val checkpoint = game.timeline.checkpoint()
 
-    engine.beginManual("GreeneryTile<Player1, Elysium_9_8>") {
+    admin.beginManual("GreeneryTile<Player1, Elysium_9_8>") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER1 to "OxygenStep.")
 
-      engine.has("Neighbor") shouldBe true
-      engine.count("ProjectCard<Player1>") shouldBe 0
+      admin.has("Neighbor") shouldBe true
+      admin.count("ProjectCard<Player1>") shouldBe 0
     }
 
-    game.events.changesSince(checkpoint).all { it.actor == ENGINE } shouldBe true
+    game.events.changesSince(checkpoint).all { it.actor == ADMIN } shouldBe true
   }
 
   @Test
@@ -73,15 +73,15 @@ internal class EffectActorCharacterizationTest {
   }
 
   @Test
-  internal fun byOwnerEffectDoesNotTreatEngineAsAnOwner() {
+  internal fun byOwnerEffectDoesNotTreatAdminAsAnOwner() {
     val game = Engine.newGame(canonicalPremise())
-    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
-    val terraformRatingBefore = engine.count("TerraformRating")
+    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
+    val terraformRatingBefore = admin.count("TerraformRating")
 
-    engine.manual("OxygenStep!")
+    admin.manual("OxygenStep!")
 
-    engine.count("OxygenStep") shouldBe 1
-    engine.count("TerraformRating") shouldBe terraformRatingBefore
+    admin.count("OxygenStep") shouldBe 1
+    admin.count("TerraformRating") shouldBe terraformRatingBefore
     game.tasks.isEmpty() shouldBe true
   }
 }

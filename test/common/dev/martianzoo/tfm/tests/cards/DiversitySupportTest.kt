@@ -26,7 +26,7 @@ internal class DiversitySupportTest : CardTest() {
 
   private fun seedResources() {
     newGame(VenusNextExpansion, PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     requireP2()
         .manual(
             "10 MC, 9 ProjectCard, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat, " +

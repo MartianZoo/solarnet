@@ -7,7 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.util.toSetStrict
@@ -51,20 +51,20 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   @BeforeTest
   fun setUp() {
     p1.sneak("100 MC, 5 ProjectCard")
-    engine.phase("Action")
+    admin.phase("Action")
   }
 
   // Shuffle the Colony Tiles and draw the number of players plus 2, and place them next to the
   // main game board. Exception: use 5 tiles if playing a 2 player game.
   @Test
   internal fun `number of colony tiles`() {
-    engine.count("ColonyTile") shouldBe 6
+    admin.count("ColonyTile") shouldBe 6
   }
 
   // Place a white cube on the highlighted second step of each Colony Tile track.
   @Test
   internal fun `starting colony production`() {
-    engine.assertCounts(
+    admin.assertCounts(
         1 to "ColonyProduction<Luna>",
         1 to "ColonyProduction<Io>",
         6 to "ColonyProduction",
@@ -81,10 +81,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val engine = setUpGame(premise).tfm(ENGINE)
-    val p1 = engine.asPlayer(PLAYER1)
+    val admin = setUpGame(premise).tfm(ADMIN)
+    val p1 = admin.asPlayer(PLAYER1)
 
-    engine.assertCounts(
+    admin.assertCounts(
         3 to "ColonyTile",
         3 to "ColonyProduction",
         0 to "Miranda",
@@ -94,10 +94,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // and the marker is placed on the highlighted second step of the track immediately when there
     // is any card in play that may collect their respective resources.
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.sneak("100 MC, 5 ProjectCard")
     p1.playProject(Pets, 10).expect("Miranda, ColonyProduction")
-    engine.assertCounts(
+    admin.assertCounts(
         4 to "ColonyTile",
         4 to "ColonyProduction",
         1 to "Miranda", // now it exists / is in play
@@ -115,13 +115,13 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             colonyTiles = setOf("Callisto", "Luna", "Miranda", "Titan").mapTo(linkedSetOf(), ::cn),
         )
     val game = Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
 
-    engine.assertCounts(2 to "ColonyTile", 4 to "ColonyTileSelection")
+    admin.assertCounts(2 to "ColonyTile", 4 to "ColonyTileSelection")
     TfmWorkflow.Manual(game).setupPhase()
     p1.doTask("-ColonyTileSelection<Class<Luna>>")
-    engine.assertCounts(
+    admin.assertCounts(
         1 to "ColonyTile",
         3 to "ColonyTileSelection",
         1 to "Callisto",
@@ -142,10 +142,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val engine = setUpGame(premise).tfm(ENGINE)
-    val p1 = engine.asPlayer(PLAYER1)
+    val admin = setUpGame(premise).tfm(ADMIN)
+    val p1 = admin.asPlayer(PLAYER1)
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.sneak("100 MC, 5 ProjectCard")
 
     shouldThrow<DependencyException> {
@@ -167,8 +167,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // the Colony Tile track
   @Test
   internal fun `build a colony`() {
-    engine.sneak("-ColonyProduction<Luna>")
-    engine.assertCounts(0 to "ColonyProduction<Luna>")
+    admin.sneak("-ColonyProduction<Luna>")
+    admin.assertCounts(0 to "ColonyProduction<Luna>")
 
     p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
         // Take the placement bonus printed inside the track.
@@ -183,10 +183,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Only 3 colonies total per Colony Tile are allowed - no exceptions!
   @Test
   internal fun `three colonies max`() {
-    engine.manual("Colony<Player1, Luna>")
-    engine.manual("Colony<Player2, Luna>")
-    engine.manual("Colony<Player3, Luna>")
-    shouldThrow<LimitsException> { engine.manual("Colony<Player4, Luna>") }
+    admin.manual("Colony<Player1, Luna>")
+    admin.manual("Colony<Player2, Luna>")
+    admin.manual("Colony<Player3, Luna>")
+    shouldThrow<LimitsException> { admin.manual("Colony<Player4, Luna>") }
   }
 
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
@@ -203,7 +203,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // your Trade Fleet from the Trade Fleets Tile to an available Colony Tile.
   @Test
   internal fun `basic trading`() {
-    engine.sneak(
+    admin.sneak(
         "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 E<Player1>"
     )
     p1.assertCounts(6 to "ColonyProduction<Luna>")
@@ -224,10 +224,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
-    engine.phase("Production")
+    admin.phase("Production")
     TfmWorkflow.Manual(game).solarPhase()
-    engine.manual("Generation")
-    engine.assertCounts(
+    admin.manual("Generation")
+    admin.assertCounts(
         0 to "Trade",
         4 to "TradeFleet",
         2 to "ColonyProduction<Ceres>",

@@ -122,7 +122,7 @@ proof policy is implemented; do not add speculative public APIs ahead of it.
 Committed code still stores `AutoExecMode` on each `Agent`, defaults it to `FIRST`, and runs the
 queue drain from engine-side command and operation completion points. It does not yet provide
 policy attachment or the planned Admin-first policy schedule. As a transitional
-progress rule, a Player using `NONE` still drains only Engine-assigned work from the shared queue.
+progress rule, a Player using `NONE` still drains only Admin-assigned work from the shared queue.
 Treat the sections above and below as the extraction contract, not current behavior.
 
 Admin's default may execute concrete work, select abstract work, narrow choices, and intelligently

@@ -41,7 +41,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
@@ -337,7 +337,7 @@ internal constructor(
     if (reader.countComponent(type) != 1) {
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }
-    if (type.className == ENGINE.className) return ENGINE
+    if (type.className == ADMIN.className) return ADMIN
     return Player.fromClassNameOrNull(type.className)
         ?: throw ExpressionException("unsupported Actor: ${type.expression}")
   }

@@ -11,7 +11,7 @@ internal class OutdoorSportsTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("8 MC, ProjectCard")
   }
 

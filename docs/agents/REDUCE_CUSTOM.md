@@ -57,16 +57,14 @@ These honestly bridge Pets to canonical metadata absent from the component graph
 Generating card-specific Pets responders would only move these to the worse generation tier.
 Colony class declarations and the three resource-delay selections are hand-authored in Pets.
 
-These perform general selections Pets cannot currently express:
+Highest-first `Metric.Rank` now serves both award placement and multiplayer victory, including
+competition ties and lexicographic victory-point/MC comparison. Their custom declarations,
+registrations, and Kotlin implementations have been removed.
 
-- `AssignAwardPlaces`
-- `AssignMultiplayerVictory`
+Robinson Industries uses refined production instructions plus `RANK` over the other five production
+counts. The five `ProdOffset<Class<MC>>` components compensate for M€ production's stored offset;
+the generic resource dependency lets the rank query follow each candidate resource, so tied lowest
+production follows from ordinary counts without a custom metric.
 
-Revisit the last pair only if one general relational-selection facility serves both. Do not add
-isolated ranking syntax to erase their Kotlin implementations.
-
-Robinson Industries already uses refined production instructions. Its
-`LowestProduction` custom metric remains the honest bridge for identifying tied lowest production.
-
-After a removal, delete its custom declaration, registration, implementation, and custom-interface
-tests while retaining end-to-end gameplay coverage.
+After any further removal, delete its custom declaration, registration, implementation, and
+custom-interface tests while retaining end-to-end gameplay coverage.

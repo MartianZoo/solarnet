@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -451,8 +452,8 @@ private fun renderCardResourceChange(
   if (expression.refinement != null || expression.complement) return null
   val count = change.count.fixedQuantity() ?: return null
   val noun = describers.cardResourceNounPhrase(expression.className, count) ?: return null
-  val resolved = describers.resolveCardResource(expression) ?: return null
-  val holder = describers.cardResourceHolder(resolved)
+  val resolved = describers.resolveHeldResource(expression) ?: return null
+  val holder = describers.heldResourceHolder(resolved)
   if (instruction is Remove) {
     return when {
       resolved.sourceDependencies.isEmpty() && change.intensity.modality() == Modality.REQUIRED ->
@@ -477,7 +478,7 @@ private fun renderCardResourceChange(
   }
   if (
       change.intensity.modality() == Modality.OPTIONAL &&
-          describers.cardResourceHasHolder(resolved, describers.thisExpression)
+          describers.heldResourceHasHolder(resolved, describers.thisExpression)
   ) {
     return Clause.Simple(
         Predicate(
@@ -488,12 +489,12 @@ private fun renderCardResourceChange(
         NounPhrase.you(),
     )
   }
-  if (change.intensity.modality() != Modality.REQUIRED) return null
+  if (change.intensity.modality() == Modality.OPTIONAL) return null
   val target =
       when {
-        describers.cardResourceHasHolder(resolved, describers.thisExpression) ->
+        describers.heldResourceHasHolder(resolved, describers.thisExpression) ->
             NounPhrase("card", determiner = Determiner.THIS)
-        holder != null && describers.cardResourceHasHolder(resolved, holder) ->
+        holder != null && describers.heldResourceHasHolder(resolved, holder) ->
             describers.renderCardResourceHolder(holder) ?: return null
         resolved.sourceDependencies.isNotEmpty() -> return null
         else -> NounPhrase("card", determiner = Determiner.ANY)
@@ -549,18 +550,41 @@ private fun renderSelectedProductionChange(
     return null
   }
   val refinement = resource.refinement?.takeIf { !it.forgiving } ?: return null
-  val minimum = refinement.requirement as? Requirement.Min ?: return null
-  if (minimum.target != 1) return null
-  val selector = (minimum.metric as? Metric.Count)?.expression ?: return null
-  if (!selector.simple) return null
-  val phrase =
-      describers.fact(selector.className, ComponentDescriber::productionSelection) ?: return null
+  val first = refinement.requirement as? Requirement.Exact ?: return null
+  if (first.target != 1 || !first.metric.isLowestStandardProductionRank(describers)) return null
   val count = change.count.fixedQuantity() ?: return null
   val steps = if (count == 1) "step" else "steps"
   return clause(
       if (gaining) "increase" else "decrease",
-      NounPhrase.text("$phrase $count $steps"),
+      NounPhrase.text("one of your lowest productions $count $steps"),
   )
+}
+
+private fun Metric.isLowestStandardProductionRank(describers: Describers): Boolean {
+  val rank = this as? Metric.Rank ?: return false
+  val selector = rank.selectorName
+  if (
+      selector.className != CLASS ||
+          selector.arguments.singleOrNull()?.takeIf { it.simple }?.className != STANDARD_RESOURCE ||
+          selector.complement
+  ) {
+    return false
+  }
+  val alternatives = (rank.metrics.singleOrNull() as? Metric.Or)?.metrics ?: return false
+  if (alternatives.size != 2) return false
+  val production =
+      alternatives.singleOrNull { alternative ->
+        val expression = alternative.expression
+        describers.isProduction(expression.className) &&
+            expression.arguments == listOf(selector.copy(complement = true)) &&
+            expression.refinement == null &&
+            !expression.complement
+      } ?: return false
+  val offset = alternatives.single { it != production }.expression
+  return offset.arguments == listOf(selector) &&
+      offset.refinement == null &&
+      !offset.complement &&
+      describers.fact(offset.className, ComponentDescriber::productionOffset) == true
 }
 
 private fun renderProductionConversion(
@@ -703,3 +727,6 @@ private fun Describers.renderCardResourceHolder(
 
 private fun clause(verb: String, noun: NounPhrase, vararg modifiers: Modifier): Clause.Simple =
     Clause.Simple(Predicate(Verb(verb), Coordination.one(noun), modifiers.toList()))
+
+private val CLASS = cn("Class")
+private val STANDARD_RESOURCE = cn("StandardResource")

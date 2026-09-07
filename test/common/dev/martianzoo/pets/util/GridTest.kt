@@ -30,5 +30,13 @@ internal class GridTest {
     ) shouldBe 6
   }
 
+  @Test
+  internal fun lookupReturnsNullOutsideTheGrid() {
+    grid[-1, 2] shouldBe null
+    grid[5, 2] shouldBe null
+    grid[2, -1] shouldBe null
+    grid[2, 5] shouldBe null
+  }
+
   private data class Cell(val row: Int, val column: Int)
 }

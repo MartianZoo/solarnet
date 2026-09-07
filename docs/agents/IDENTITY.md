@@ -11,7 +11,7 @@
 > **Skip when:** changing ownership as a Type dependency without task routing, attribution, or the
 > contextual `Owner` spelling; read the dependency sections of [TYPES.md](TYPES.md).
 >
-> **Status:** current identity semantics plus the selected Engine/Admin naming direction. The
+> **Status:** current identity semantics. The
 > interaction between SAFE auto-selection and cross-Player handoff remains open, as does the entry
 > under Open audit.
 
@@ -67,8 +67,7 @@ requires Admin's decisions to be deterministic or outcome-preserving.
 
 Kotlin `Engine` is different: it is the passive mechanism that validates an Actor mutation and
 calculates the resulting state transition. It is not an Actor, Component, task assignee, narrower,
-or event performer. Current code and Pets still call the administrative Actor `Engine`; that is
-migration state, not the target vocabulary.
+or event performer.
 
 Core engine state derives a Task's current assignee from its selection state and enforces that
 ordinary task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
@@ -114,7 +113,7 @@ This: TerraformRating
 
 Defaults elaborate the result to `TerraformRating<Owner>`, but the Trigger contains no `Owner` to
 bind. Class-Effect transformation therefore supplies `BY Owner`. Trigger matching accepts a Player
-Actor, rejects Engine as an Owner, and uses that Player to close the result's contextual `Owner`.
+Actor, rejects Admin as an Owner, and uses that Player to close the result's contextual `Owner`.
 No default-occurrence propagation can replace this rule because the value comes from the event's
 Actor rather than another Type expression.
 

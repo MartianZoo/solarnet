@@ -25,7 +25,7 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
   override val isReadOnly = true
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
-      context.playerNames(includeEngine = false)
+      context.playerNames(includeAdmin = false)
 
   override fun noArgs(): List<String> = PlayerBoardToText(tfm(), repl.useAnsiColors).board()
 

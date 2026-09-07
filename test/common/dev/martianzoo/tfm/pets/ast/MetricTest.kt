@@ -24,6 +24,9 @@ internal class MetricTest {
       Qux<Foo, Qux>
       EVAL Abc.score
       EVAL !Ahh.score
+      RANK Player { Score<Player> }
+      RANK Player { VictoryPoint<Player>, MC<Player> }
+      RANK Player { 999 - TerraformRating<Player> }
       Bar<Ooh> OR !Foo
       Eep(HAS Foo) - 11
       PROD[2 Abc MAX 11]
@@ -92,6 +95,7 @@ internal class MetricTest {
                 { counts[it.expression.toString()] ?: 0 },
                 { error("no properties") },
                 { error("no unions") },
+                { error("no ranks") },
             )
 
     evaluate("Ore MAX 5 - Fleet") shouldBe 2
@@ -136,7 +140,15 @@ internal class MetricTest {
   @Test
   internal fun unexpandedEvalIsAProgrammerError() {
     shouldThrow<IllegalStateException> {
-      parse<Metric>("EVAL Foo.score").evaluate({ 0 }, { 0 }, { 0 })
+      parse<Metric>("EVAL Foo.score").evaluate({ 0 }, { 0 }, { 0 }, { 0 })
     }
+  }
+
+  @Test
+  internal fun rankRequiresAHighestFirstScore() {
+    shouldThrow<PetSyntaxException> { parse<Metric>("RANK !Player { Score }") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("RANK Player { }") }
+
+    parse<Metric>("RANK Player { Score, Cash }").toString() shouldBe "RANK Player { Score, Cash }"
   }
 }

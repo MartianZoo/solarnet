@@ -383,9 +383,9 @@ Spire	Spire	Gain 50 M€. As your first action, draw 4 cards, then discard 3 car
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 prelude card. Discard 1 prelude card or remove 12 M€, then [-Director<This>], then play a prelude card.
 ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 titanium.	Effect: When any colony is placed, gain 2 M€.
-EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. [2 AdvanceColonyTracks BY Engine].
+EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. [2 AdvanceColonyTracks].
 FloatingTradeHub	Floating Trade Hub		Action: Add 2 floaters to any card, or remove one or more floaters from this card to [X StandardResource].
-FocusedOrganization	Focused Organization	Draw 1 card. Gain a standard resource.	Action: Discard 1 card, then [-StandardResource], then [FocusedOrganizationGain].
+FocusedOrganization	Focused Organization	Draw 1 card. Gain a standard resource.	Action: Discard 1 card, then [-StandardResource], then [FocusedOrganization_Signal].
 IndustrialComplex	Industrial Complex		Effect: [This IF MAX 0 QuickStartVariant: -18 MC, PROD[MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]]. [This IF QuickStartVariant: -18 MC, PROD[MC / 7 - MC, Steel / 2 - Steel, Titanium / 2 - Titanium, Plant / 2 - Plant, Energy / 2 - Energy, Heat / 2 - Heat]].
 MainBeltAsteroids	Main Belt Asteroids	Remove 5 M€. 1 VP per 2 asteroids on this card.	Action: Add 1 asteroid to any card. / Effect: When you add an asteroid to this card, gain 1 titanium.
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.
@@ -398,7 +398,7 @@ SuitableInfrastructure	Suitable Infrastructure	Gain 5 steel.	Effect: When you us
 TerraformingDeal	Terraforming Deal		Effect: When you raise your terraform rating 1 step, gain 2 M€.
 VenusContract	Venus Contract	Draw 1 Venus card. Raise your terraform rating 1 step.	Effect: When you raise Venus 1 step, gain 3 M€.
 VenusL1Shade	Venus L1 Shade	Raise Venus 3 steps.
-WorldGovernmentAdvisor	World Government Advisor	Raise your terraform rating 2 steps. Draw 1 card.	Action: [WorldGovernmentTerraforming BY Engine].
+WorldGovernmentAdvisor	World Government Advisor	Raise your terraform rating 2 steps. Draw 1 card.	Action: [WorldGovernmentTerraforming].
 CeresTechMarket	Ceres Tech Market	Gain 2 M€ per colony you own.	Action: [X ProjectCard -> 2X MC].
 CloudTourism	Cloud Tourism	[Production<Class<MC>> / EarthTag MAX VenusTag]. 1 VP per 3 floaters on this card.	Action: Add 1 floater to this card.
 FloatingRefinery	Floating Refinery	Add 1 floater to this card per Venus tag you have.	Action: Add 1 floater to this card, or remove 2 floaters from any of your cards to gain 1 titanium and 2 M€.
@@ -501,12 +501,3 @@ WeatherBalloons	Weather Balloons	Draw 1 card.	Action: Add 1 floater to this card
 PublicPlans	Public Plans	[MC? / ProjectCard].
 SterlingVents	Sterling Vents	Decrease your heat production 2 steps and increase your energy production 2 steps.
 FloydContinuum	Floyd Continuum		Action: [3 MC / GpComplete].
-FakeResearchNetwork	Fake Research Network	Increase your M€ production 1 step. Draw 3 cards. [FakeWildTag<This>].
-FakeResearchCoordination	Fake Research Coordination	[FakeWildTag<This>].
-FakeAppliedScience	Fake Applied Science	[FakeWildTag<This>]. Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
-FakeNobelPrize	Fake Nobel Prize	[FakeWildTag<This>]. Gain 5 M€. Draw 2 cards with requirements.
-FakeHelion	Fake Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: [Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>].
-FakeEstablishedMethods	Fake Established Methods	Gain 30 M€. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
-FakeHeadStart	Fake Head Start	Gain 2 steel. [2 MC / ProjectCard<Hand>]. [UseAction<StandardAction>!]. [UseAction<StandardAction>!].
-FakeL1TradeTerminal	Fake L 1 Trade Terminal	[Floater<FloatingHabs>]. [Floater<AerialMappers>]. [Floater<FloatingRefinery>].	Effect: When you trade, [TradeBarrier<ColonyTile>]. When you trade, raise that colony tile track 2 steps, or do nothing, then [-TradeBarrier<ColonyTile>].
-FakeMarsNomads	Fake Mars Nomads		Action: Do nothing.

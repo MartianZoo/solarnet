@@ -8,7 +8,7 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
- * An internal Catalog-provider bundle built from conventionally named Pets and JSON sources.
+ * A Catalog-provider bundle built from conventionally named Pets and JSON sources.
  *
  * `classes.pets` and `cards.pets` supply declarations, while bundle language files and compact map
  * diagrams supply category-specific metadata. Each is read by name or by language pattern, so a
@@ -17,7 +17,8 @@ import dev.martianzoo.pets.util.toSetStrict
  * resources are not in Canon's generated registry can provide [resourceFilenames] and
  * [resourceReader] directly.
  */
-internal class StandardFormBundle(
+public class StandardFormBundle
+public constructor(
     name: String,
     override val customClasses: Set<CustomClass> = emptySet(),
     override val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap(),

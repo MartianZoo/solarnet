@@ -64,11 +64,12 @@ concrete selector, a selector unused by its body, complements, nested fanouts, a
 
 Class-property syntax in the body remains inert while the enclosing Class effect is prepared. Once
 the fanout snapshot is selected, each branch binds its selected component and contextual `Owner`,
-then evaluates its class properties independently. The resulting metrics are resolved while the
-same fanout snapshot is still current, before any branch executes:
+then evaluates its class properties independently. Property syntax in the selector instead belongs
+to the enclosing context; award ranking expands the funded Award's metric there, while `RANK` binds
+each candidate Player:
 
 ```pets
-EACH Player { AwardTally<Award> / EVAL Award.metric }
+EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
 ```
 
 ## Ownership and attribution

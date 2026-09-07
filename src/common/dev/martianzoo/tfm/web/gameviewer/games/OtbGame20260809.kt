@@ -28,6 +28,8 @@ public class OtbGame20260809 : RecordedGame() {
     TfmWorkflow.Auto(game).launch()
     val yellow = game.tfm(Player.PLAYER1)
     val green = game.tfm(Player.PLAYER2)
+    yellow.doTask("-4 ProjectCard<Hand>")
+    green.doTask("-6 ProjectCard<Hand>")
 
     yellow.playCorp(MonsInsurance, 6)
 

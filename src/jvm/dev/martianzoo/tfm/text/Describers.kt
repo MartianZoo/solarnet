@@ -90,7 +90,7 @@ internal class Describers(
             ComponentDescriber::placementSite,
             ComponentDescriber::placementBonus,
             ComponentDescriber::spatialRelation,
-            ComponentDescriber::productionSelection,
+            ComponentDescriber::productionOffset,
             ComponentDescriber::requirement,
             ComponentDescriber::score,
             ComponentDescriber::deadEndSignal,
@@ -226,6 +226,17 @@ internal class Describers(
   ): Boolean {
     return expressions.cardResourceHasHolder(resolved, holder)
   }
+
+  internal fun resolveHeldResource(expression: Expression): ResolvedExpression? =
+      expressions.resolveHeldResource(expression)
+
+  internal fun heldResourceHolder(resolved: ResolvedExpression): Expression? =
+      expressions.heldResourceHolder(resolved)
+
+  internal fun heldResourceHasHolder(
+      resolved: ResolvedExpression,
+      holder: Expression,
+  ): Boolean = expressions.heldResourceHasHolder(resolved, holder)
 
   internal fun componentNounPhrase(className: ClassName, count: Int): NounPhrase {
     val noun = fact(className, ComponentDescriber::noun)

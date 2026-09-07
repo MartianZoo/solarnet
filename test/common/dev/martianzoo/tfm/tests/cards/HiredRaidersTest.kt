@@ -12,7 +12,7 @@ internal class HiredRaidersTest : CardTest() {
   @Test
   internal fun `May steal less than the offered maximum`() {
     newGame(CorporateEraExpansion, players = 3)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.autoExecMode = NONE
     p1.manual("2 MC, ProjectCard")
     val p2 = requireP2()

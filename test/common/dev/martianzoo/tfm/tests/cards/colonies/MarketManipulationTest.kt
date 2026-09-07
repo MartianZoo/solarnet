@@ -20,7 +20,7 @@ internal class MarketManipulationTest : ColoniesCardTest() {
   @Test
   internal fun `Cannot lower a colony track already at its minimum`() {
     p1.manual("ProjectCard, MC")
-    engine.manual("-ColonyProduction<Triton>")
+    admin.manual("-ColonyProduction<Triton>")
     p1.playProject(MarketManipulation, 1) {
       shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
@@ -32,7 +32,7 @@ internal class MarketManipulationTest : ColoniesCardTest() {
   @Test
   internal fun `Cannot raise a maxed colony track`() {
     p1.manual("ProjectCard, MC")
-    engine.manual("5 ColonyProduction<Luna>")
+    admin.manual("5 ColonyProduction<Luna>")
     p1.playProject(MarketManipulation, 1) {
       shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")

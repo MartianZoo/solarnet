@@ -413,6 +413,7 @@ internal object StandardResourceMonotonicityReport {
       is Metric.Constant -> false
       is Metric.Count -> expressionCouldCount(metric.expression, quantity, subjectClass, table)
       is Property -> false
+      is Metric.Rank -> metric.metrics.any { metricCouldCount(it, quantity, subjectClass, table) }
       is Metric.Scaled ->
           metricCouldCount(
               metric.inner,
@@ -453,6 +454,8 @@ internal object StandardResourceMonotonicityReport {
               table,
           )
       is Property -> false
+      is Metric.Rank ->
+          metric.metrics.any { metricCouldCountAsResource(it, quantity, subjectClass, table) }
       is Metric.Scaled ->
           metricCouldCountAsResource(
               metric.inner,

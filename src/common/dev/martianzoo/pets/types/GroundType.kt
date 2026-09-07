@@ -291,6 +291,8 @@ public data class GroundType(
         override fun transformNode(node: PetNode): PetNode {
           return if (node is Property && node.receiver == null) {
             node.copy(receiver = proposed)
+          } else if (node is Metric.Rank && node.candidate == null) {
+            node.copy(candidate = proposed)
           } else if (node is Expression) {
             val resolved = classTable.resolve(node)
             val modded =
@@ -314,15 +316,13 @@ public data class GroundType(
       val general = wide.arguments.single().className
       val specific = narrow.arguments.single().className
       return object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              val specialized =
-                  if (node is Expression && node.className == general) {
-                    node.copy(className = specific)
-                  } else {
-                    node
-                  }
-              return transformChildren(specialized)
-            }
+            override fun transformNode(node: PetNode): PetNode =
+                when {
+                  node is Metric.Rank -> node
+                  node is Expression && node.className == general ->
+                      transformChildren(node.copy(className = specific))
+                  else -> transformChildren(node)
+                }
           }
           .transformRequirement(requirement)
     }

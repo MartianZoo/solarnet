@@ -13,7 +13,7 @@ internal class VariableAmountActionsTest : CardTest() {
   @Test
   internal fun `Power Infrastructure cannot choose zero energy`() {
     newGame(CorporateEraExpansion)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$PowerInfrastructure")
 
     shouldThrow<AbstractException> { p1.cardAction1(PowerInfrastructure) }
@@ -22,7 +22,7 @@ internal class VariableAmountActionsTest : CardTest() {
   @Test
   internal fun `Hi-Tech Lab cannot choose zero energy`() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$HiTechLab")
 
     shouldThrow<AbstractException> { p1.cardAction1(HiTechLab) }
@@ -31,7 +31,7 @@ internal class VariableAmountActionsTest : CardTest() {
   @Test
   internal fun `Sell Patents cannot choose zero cards`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
 
     shouldThrow<PetSyntaxException> { p1.sellPatents(0) }
   }

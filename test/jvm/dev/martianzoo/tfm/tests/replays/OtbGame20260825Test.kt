@@ -20,7 +20,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
           Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
@@ -32,6 +32,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260825() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(10, 5)
     val green = game.tfm(Player.PLAYER1)
     val yellow = game.tfm(Player.PLAYER2)
 

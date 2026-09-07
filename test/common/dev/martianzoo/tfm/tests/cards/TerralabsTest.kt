@@ -9,7 +9,7 @@ internal class TerralabsTest : CardTest() {
 
   @Test
   internal fun `Buys project cards for one mc each`() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilCardPack, retainedStartingProjects = 10)
     p1.playCorp(TerraLabsResearch, 10)
     p1.manual("4 ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(mc = 4)

@@ -26,12 +26,39 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
-internal fun setUpGame(premise: GamePremise): World =
+internal fun setUpGame(
+    premise: GamePremise,
+    retainedStartingProjects: Int = 0,
+): World =
     Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
       TfmWorkflow.Manual(this).setupPhase()
+      retainStartingProjects(
+          this,
+          *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },
+      )
     }
+
+internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
+  val players = game.actors.filterIsInstance<Player>()
+  require(retainedCounts.size == players.size) {
+    "expected one starting-project count for each of ${players.size} players"
+  }
+  players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
+    require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
+    val discarded = 10 - retained
+    game.agent(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
+  }
+}
+
+internal fun playCorporationWithoutStartingProjects(
+    player: TfmGameplay,
+    corporation: ClassName,
+): TaskResult = player.inTurn {
+  doTask("PlayCard<Class<CorporationCard>, Class<$corporation>, Hand>")
+}
 
 internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
     listOf(
@@ -85,16 +112,25 @@ internal fun canonicalPremise(
           playerNames =
               if (players == 1) listOf(cn("Me")) else (1..players).map { cn("Player$it") },
       )
-  val base = Canon.gamePremise(config)
+  val defaultCatalog = canonicalCatalog(config)
+  val resolvedCatalog = catalog ?: defaultCatalog
+  val base = resolvedCatalog.gamePremise(config)
   if (catalog == null) return base
   val extensionClassNames =
       catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
-          Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
+          defaultCatalog.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
   return base.copy(
-      catalog = catalog,
       classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) },
   )
 }
+
+internal fun canonicalCatalog(config: GameConfig): TfmCatalog =
+    canonicalCatalog(cn("FakeStuffBundle") in config.includedClassNames)
+
+internal fun canonicalCatalog(includeFakeCards: Boolean): TfmCatalog =
+    if (includeFakeCards) CANON_WITH_FAKE_CARDS else Canon
+
+private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog.compose(Canon, FakeCanon) }
 
 private fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
   val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }
@@ -192,7 +228,7 @@ object TestHelpers {
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
   private fun TaskResult.inferredExpectationOwner(game: World): Player? {
-    // The first change normally retains the agent caller. An explicit `BY Engine` loses that
+    // The first change normally retains the agent caller. An explicit `BY Admin` loses that
     // signal, so fall back only when every owned change points to the same Player.
     (changes.firstOrNull()?.actor as? Player)?.let {
       return it

@@ -5,14 +5,13 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -20,8 +19,10 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
 import kotlin.test.AfterTest
 
@@ -36,13 +37,17 @@ internal abstract class CardTest(
 
   private var workflow: TfmWorkflow.Auto? = null
 
-  protected fun newGame(config: GameConfig): World = startGame(premise(config))
+  protected fun newGame(
+      config: GameConfig,
+      retainedStartingProjects: Int = 0,
+  ): World = startGame(premise(config), retainedStartingProjects)
 
   protected fun newGame(
       vararg selectedOptions: Option,
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
-  ): World = startGame(premise(selectedOptions, players, colonyTiles))
+      retainedStartingProjects: Int = 0,
+  ): World = startGame(premise(selectedOptions, players, colonyTiles), retainedStartingProjects)
 
   protected fun newGameWithAutoWorkflow(
       vararg selectedOptions: Option,
@@ -64,30 +69,31 @@ internal abstract class CardTest(
                   *selectedOptions,
                   players = players,
                   colonyTiles = colonyTiles,
-                  catalog = catalog,
+                  catalog = catalog(Option.FakeStuffBundle in selectedOptions),
               )
           )
         }
     return premise
   }
 
-  private val catalog: TfmCatalog by lazy {
-    if (!hasAdditionalContent) {
-      Canon
-    } else {
-      val additions =
-          object : TfmCatalog() {
-            override val explicitClassDeclarations = additionalClassDeclarations
-          }
-      TfmCatalog.compose(Canon, additions)
+  private val additions: TfmCatalog by lazy {
+    object : TfmCatalog() {
+      override val explicitClassDeclarations = additionalClassDeclarations
     }
+  }
+
+  private fun catalog(includeFakes: Boolean): TfmCatalog {
+    val base = canonicalCatalog(includeFakes)
+    return if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
   }
 
   private val hasAdditionalContent: Boolean
     get() = additionalClassDeclarations.isNotEmpty()
 
   private fun premise(config: GameConfig): GamePremise {
-    val premise = catalog.gamePremise(config)
+    val base = canonicalCatalog(config)
+    val premiseCatalog = if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
+    val premise = premiseCatalog.gamePremise(config)
     if (!hasAdditionalContent) return premise
     return withAdditionalSelections(premise)
   }
@@ -101,9 +107,15 @@ internal abstract class CardTest(
 
   protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }
 
-  private fun startGame(premise: GamePremise): World {
+  protected fun playCorporationWithoutStartingProjects(
+      player: TfmGameplay,
+      corporation: ClassName,
+  ): TaskResult =
+      dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
+
+  private fun startGame(premise: GamePremise, retainedStartingProjects: Int): World {
     workflow?.shutdown()
-    return setUpTfmGame(premise).initializeCardTestGame()
+    return setUpTfmGame(premise, retainedStartingProjects).initializeCardTestGame()
   }
 
   private fun startAutoGame(premise: GamePremise): World {
@@ -111,6 +123,7 @@ internal abstract class CardTest(
     return Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
       bindPlayers()
       workflow = TfmWorkflow.Auto(this).launch()
+      retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }
   }
@@ -118,7 +131,7 @@ internal abstract class CardTest(
   private fun World.initializeCardTestGame(): World = apply {
     bindPlayers()
     finishSoloSetup()
-    tfm(ENGINE).phase("Corporation")
+    tfm(ADMIN).phase("Corporation")
   }
 
   private fun finishSoloSetup() {
@@ -135,8 +148,8 @@ internal abstract class CardTest(
         }
 
     cities.zip(greeneries).forEach { (city, greenery) ->
-      engine.doTask("CityTile<$city, SoloOpponent>")
-      engine.doTask("GreeneryTile<$greenery, SoloOpponent>")
+      admin.doTask("CityTile<$city, SoloOpponent>")
+      admin.doTask("GreeneryTile<$greenery, SoloOpponent>")
     }
   }
 
@@ -152,7 +165,7 @@ internal abstract class CardTest(
       startingMc: Int = 500,
   ) {
     playCorporations(corporations.toList())
-    check(engine.count("PreludePhase") == 1) { "This game has no Prelude phase" }
+    check(admin.count("PreludePhase") == 1) { "This game has no Prelude phase" }
     p1.topOffMoney(startingMc)
   }
 
@@ -161,23 +174,24 @@ internal abstract class CardTest(
       startingMc: Int = 500,
   ) {
     playCorporations(corporations.toList())
-    if (engine.count("PreludePhase") == 1) {
+    if (admin.count("PreludePhase") == 1) {
       val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
       players.zip(BORING_PRELUDES).forEach { (player, preludes) ->
         player.turn { preludes.forEach { playPrelude(it) } }
       }
     }
-    check(engine.count("ActionPhase") == 1) { "The game did not reach its first Action phase" }
+    check(admin.count("ActionPhase") == 1) { "The game did not reach its first Action phase" }
     p1.topOffMoney(startingMc)
   }
 
   private fun playCorporations(requested: List<ClassName>) {
-    check(engine.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
+    check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
     players.zip(corporations).forEach { (player, corporation) ->
-      player.playCorp(corporation, 5)
+      playCorporationWithoutStartingProjects(player, corporation)
+      player.sneak("5 ProjectCard, -15 MC")
     }
   }
 

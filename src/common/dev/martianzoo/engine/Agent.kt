@@ -40,6 +40,7 @@ public interface Agent {
 
   public fun has(requirement: String): Boolean
 
+  /** Counts [metric], allowing explicit `EVAL` of metric properties in this Actor's context. */
   public fun count(metric: String): Int
 
   public fun list(type: String): Multiset<Expression>

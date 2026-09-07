@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
@@ -31,8 +31,8 @@ internal class GamePremiseTest {
 
     first.classTable shouldBe second.classTable
     TfmWorkflow.Manual(first).setupPhase()
-    first.agent(ENGINE).count("SetupPhase") shouldBe 1
-    second.agent(ENGINE).count("SetupPhase") shouldBe 0
+    first.agent(ADMIN).count("SetupPhase") shouldBe 1
+    second.agent(ADMIN).count("SetupPhase") shouldBe 0
   }
 
   @Test
@@ -100,7 +100,7 @@ internal class GamePremiseTest {
     val game = Engine.newGame(premise)
     Canon.classTable.findClass(blue) shouldBe null
     game.classTable.findClass(blue) shouldBe null
-    game.actors.shouldContainExactly(Player.PLAYER1, Player.PLAYER2, ENGINE)
+    game.actors.shouldContainExactly(Player.PLAYER1, Player.PLAYER2, ADMIN)
     game.vocabulary.canonicalName(blue) shouldBe cn("Player1")
     game.vocabulary.petsName(cn("Player1")) shouldBe blue
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe

@@ -16,7 +16,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, PromoCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer
           Traveller, Collector, Excentric, Investor, Suburbian, Magnate
@@ -36,6 +36,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   @Test
   internal fun erraticCarbonCurrent() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(6, 4)
     generation1()
     generation2()
     generation3()
@@ -591,7 +592,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
     checkHandSizes()
-    engine.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase")
 
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")

@@ -12,7 +12,7 @@ internal class PsychrophilesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PreludeExpansion)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("10 MC, ProjectCard")
   }
 

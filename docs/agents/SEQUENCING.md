@@ -382,9 +382,10 @@ Three classes use it:
   Gaining `End` queues every final-scoring reaction. Once those tasks and all their consequences
   drain, removing `FinalScoringPending` queues multiplayer victory assignment while `End` remains as the
   exact current Phase.
-- **`MeasureAward<Award>`** — snapshots every Player's `AwardTally` when gained. Idle cleanup removes
-  it in the same pass as `FinalScoringPending`, and its automatic removal effect assigns places and their
-  victory points before the queued multiplayer victory assignment can run.
+- **`MeasureAward<Award>`** — idle cleanup removes it in the same pass as
+  `FinalScoringPending`. Its automatic removal effects rank Players directly by the funded Award's
+  metric and assign places and their victory points before the queued multiplayer victory
+  assignment can run.
 
 The reusable shape is a concrete operation component whose gain creates all the work that must
 precede completion, and whose automatic removal effect emits the fixed completion consequence:

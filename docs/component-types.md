@@ -50,7 +50,11 @@ The Module that contributes a standard action creates it directly. Therefore the
 
 ### Phases
 
-Once setup begins, exactly one Phase instance exists at all times: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. A signal called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!).
+Once the Terraforming Mars Module is created, exactly one Phase instance exists at all times. It
+begins as `BootstrapPhase`, becomes `SetupPhase` when effectful setup starts, and continues through
+`CorporationPhase`, `ResearchPhase`, `ProductionPhase`, and the other ordinary phases. A signal
+called `End` triggers victory point payouts (it has such a short name because it has to be written
+on MANY cards!).
 
 ## Player stuff
 

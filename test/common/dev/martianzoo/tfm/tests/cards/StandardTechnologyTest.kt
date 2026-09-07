@@ -12,7 +12,7 @@ internal class StandardTechnologyTest : CardTest() {
   @BeforeTest
   private fun initializeGame() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$StandardTechnology")
   }
 

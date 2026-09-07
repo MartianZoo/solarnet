@@ -56,7 +56,7 @@ internal class InstructionTest {
 
   @Test
   internal fun fanoutAllowsPerBranchClassPropertyEvaluation() {
-    testRoundTrip<Instruction>("EACH Player { AwardTally<Award> / EVAL Award.metric }")
+    testRoundTrip<Instruction>("EACH Player { Score<Player> / EVAL Goal.metric }")
   }
 
   @Test

@@ -16,7 +16,7 @@ internal class EndgameRulesTest : CardTest() {
   internal fun `Final production occurs before players place their final greeneries`() {
     newGame()
     p1.manual("PROD[Steel], 8 Plant")
-    engine.manual(
+    admin.manual(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
@@ -36,16 +36,16 @@ internal class EndgameRulesTest : CardTest() {
   internal fun `Standard solo victory requires completing all base global parameters`() {
     newGame(players = 1)
     exhaustSoloCountdown()
-    engine.manual("CheckGameEnd")
+    admin.manual("CheckGameEnd")
     p1.count("Victory") shouldBe 0
 
     newGame(players = 1)
-    engine.manual(
+    admin.manual(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
     exhaustSoloCountdown()
-    engine.manual("CheckGameEnd")
+    admin.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -53,19 +53,19 @@ internal class EndgameRulesTest : CardTest() {
   @Test
   internal fun `Standard Venus solo also requires completing Venus`() {
     newGame(VenusNextExpansion, players = 1)
-    engine.manual(
+    admin.manual(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
-    engine.manual("CheckGameEnd")
+    admin.manual("CheckGameEnd")
     p1.count("Victory") shouldBe 0
 
     newGame(VenusNextExpansion, players = 1)
-    engine.manual(
+    admin.manual(
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
             "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>"
     )
-    engine.manual("CheckGameEnd")
+    admin.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -73,24 +73,24 @@ internal class EndgameRulesTest : CardTest() {
   @Test
   internal fun `Prelude shortens the solo countdown by two generations`() {
     newGame(players = 1)
-    engine.count("SoloGenerationsLeft") shouldBe 13
+    admin.count("SoloGenerationsLeft") shouldBe 13
 
     newGame(PreludeExpansion, players = 1)
-    engine.count("SoloGenerationsLeft") shouldBe 11
+    admin.count("SoloGenerationsLeft") shouldBe 11
   }
 
   @Test
   internal fun `TR 63 solo ignores completed parameters below 63 and wins at 63`() {
     newGame(VenusNextExpansion, Tr63SoloObjective, players = 1)
     p1.manual("48 TerraformRating")
-    engine.manual(
+    admin.manual(
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
             "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>, CheckGameEnd"
     )
     p1.count("Victory") shouldBe 0
 
     p1.manual("TerraformRating")
-    engine.manual("CheckGameEnd")
+    admin.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -101,14 +101,14 @@ internal class EndgameRulesTest : CardTest() {
     p1.manual("49 TerraformRating")
     p1.manual("-TerraformRating")
 
-    engine.manual("CheckGameEnd")
+    admin.manual("CheckGameEnd")
 
     p1.count("Victory") shouldBe 0
   }
 
   private fun exhaustSoloCountdown() {
-    repeat(engine.count("SoloGenerationsLeft")) {
-      engine.manual("-SoloGenerationsLeft")
+    repeat(admin.count("SoloGenerationsLeft")) {
+      admin.manual("-SoloGenerationsLeft")
     }
   }
 }

@@ -27,15 +27,22 @@ import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.fake.FakeCanon
 
 public abstract class RecordedGame {
   protected lateinit var game: World
 
-  protected val engine: TfmGameplay
-    get() = game.tfm(dev.martianzoo.pets.data.Actor.ENGINE)
+  protected val admin: TfmGameplay
+    get() = game.tfm(dev.martianzoo.pets.data.Actor.ADMIN)
 
   protected abstract val config: GameConfig
-  protected open val catalog: TfmCatalog = Canon
+  protected open val catalog: TfmCatalog by lazy {
+    if (cn("FakeStuffBundle") in config.includedClassNames) {
+      TfmCatalog.compose(Canon, FakeCanon)
+    } else {
+      Canon
+    }
+  }
   protected open val inputOnlySynonyms: List<Pair<String, String>> = CLASS_SYNONYMS
 
   public fun record(): GameRecording = record({}, {})
@@ -80,10 +87,10 @@ public abstract class RecordedGame {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
-  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Engine")
+  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
   protected fun OperationBody.wgt(choice: String) {
-    doTask("$choice! BY Engine")
+    doTask("$choice! BY Admin")
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {
@@ -142,8 +149,9 @@ public abstract class RecordedGame {
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
               (count == null || it.count == ActualScalar(count)) &&
-                  (it.gaining.className == resourceType ||
-                      it.gaining.className == cn("CardResource"))
+                  reader.catalog.classTable
+                      .getClass(resourceType)
+                      .isSubtypeOf(reader.resolve(it.gaining).rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()
     if (arguments.isEmpty()) arguments += card.expression

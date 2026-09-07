@@ -35,6 +35,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   @Test
   internal fun game20260811() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(4, 5, 7)
 
     val purple = p1
     val pink = p2
@@ -43,7 +44,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // Player-record evidence: Purple has a five-TR handicap, which GameConfig cannot express.
     purple.exMachina("5 TerraformRating")
 
-    engine.assertCounts(1 to "Generation")
+    admin.assertCounts(1 to "Generation")
 
     // Test inference: Purple's dealt projects plus her later plays identify these four.
     purple.playCorp(Recyclon) {

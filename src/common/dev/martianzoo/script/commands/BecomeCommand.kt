@@ -1,6 +1,6 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -11,16 +11,16 @@ internal class BecomeCommand(private val repl: ScriptSession) : ScriptCommand("b
   override val help =
       """
         Type `become Player2` or whatever and your prompt will change accordingly; everything you
-        do now will be done as if it's player 2 doing it. You can also `become Engine` to do
-        engine things.
+        do now will be done as if it's player 2 doing it. You can also `become Admin` to do
+        administrative things.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.playerNames()
 
   override fun noArgs(): List<String> {
-    repl.agent = repl.game.agent(ENGINE)
-    return listOf("Okay, you are the game engine now")
+    repl.agent = repl.game.agent(ADMIN)
+    return listOf("Okay, you are Admin now")
   }
 
   override fun withArgs(args: String): List<String> {

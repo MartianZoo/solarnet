@@ -6,6 +6,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
+  phase-caused tasks as soon as the required runtime state can express them.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
@@ -37,6 +39,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
+- Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
+  `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
+  requiring authored references to generated names. Preserve Cimmeria map generation,
+  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit berth selection.
 - Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
@@ -84,9 +90,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
-- Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
-  Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
-  Politician rules.
+- Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
+  global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and

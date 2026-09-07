@@ -13,7 +13,7 @@ internal class CrashSiteCleanupTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("4 MC, ProjectCard")
     requireP2().manual("Plant")
   }
@@ -44,7 +44,7 @@ internal class CrashSiteCleanupTest : CardTest() {
   @Test
   internal fun `Cannot be played if the plant removal was in a previous generation`() {
     p1.manual("-Plant<Player2>")
-    engine.manual("Generation")
+    admin.manual("Generation")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
@@ -52,7 +52,7 @@ internal class CrashSiteCleanupTest : CardTest() {
   internal fun `Only the player who removed the plant qualifies`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("4 MC, ProjectCard")
     requireP2().manual("Plant")
     p3.manual("4 MC, ProjectCard")

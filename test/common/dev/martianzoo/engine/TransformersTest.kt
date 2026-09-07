@@ -203,10 +203,10 @@ internal class TransformersTest {
 
   @Test
   internal fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
-    val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
+    val prodden: Instruction = parse("PROD[StandardResource(HAS EligibleResource)]")
 
     transformers.transformMarkedSyntax().transformInstruction(prodden).toString() shouldBe
-        "Production<Class<StandardResource>(HAS LowestProduction)>"
+        "Production<Class<StandardResource>(HAS EligibleResource)>"
   }
 
   @Test
@@ -317,15 +317,15 @@ internal class TransformersTest {
 
     LiveEffect.compile(component, transformers).map { it.effect.toString() }.toSet() shouldBe
         setOf(
-            "This BY !Engine: Die!",
+            "This BY !Admin: Die!",
             "SetupPhase: 42 MC<SoloOpponent>!",
             "SetupPhase: 42 Production<SoloOpponent, Class<MC>>!",
-            "-MC<SoloOpponent> BY Player:: MC<SoloOpponent>! BY Engine",
-            "MC<SoloOpponent> BY Player:: -MC<SoloOpponent>! BY Engine",
+            "-MC<SoloOpponent> BY Player:: MC<SoloOpponent>! BY Admin",
+            "MC<SoloOpponent> BY Player:: -MC<SoloOpponent>! BY Admin",
             "-Production<SoloOpponent, Class<MC>> BY Player:: " +
-                "Production<SoloOpponent, Class<MC>>! BY Engine",
+                "Production<SoloOpponent, Class<MC>>! BY Admin",
             "Production<SoloOpponent, Class<MC>> BY Player:: " +
-                "-Production<SoloOpponent, Class<MC>>! BY Engine",
+                "-Production<SoloOpponent, Class<MC>>! BY Admin",
         )
   }
 

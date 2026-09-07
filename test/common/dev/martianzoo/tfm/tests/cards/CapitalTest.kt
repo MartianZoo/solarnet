@@ -14,8 +14,8 @@ internal class CapitalTest : CardTest() {
     p1.manual(
         "26 MC, ProjectCard, PROD[2 Energy], " + "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
     )
-    engine.manual("OceanTile<Tharsis_6_8>")
-    engine.phase("Action")
+    admin.manual("OceanTile<Tharsis_6_8>")
+    admin.phase("Action")
 
     shouldThrow<RequirementException> { p1.playProject(Capital, 26) { placeTile(3, 3) } }
   }
@@ -26,14 +26,14 @@ internal class CapitalTest : CardTest() {
     p1.manual(
         "26 MC, ProjectCard, PROD[2 Energy], " + "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
     )
-    engine.manual("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
-    engine.phase("Action")
+    admin.manual("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
+    admin.phase("Action")
 
     p1.playProject(Capital, 26) { placeTile(3, 3) }
 
     p1.assertCounts(1 to "CityTile<Tharsis_3_3>")
     p1.manual("GreeneryTile<Tharsis_2_3>")
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
     p1.assertCounts(27 to "VictoryPoint")
   }
 
@@ -43,7 +43,7 @@ internal class CapitalTest : CardTest() {
     p1.manual("8 MC, PROD[2 Energy]")
     p1.manual("EcologicalZone_SpecialTile<Utopia_2_2>, NaturalPreserve_SpecialTile<Utopia_3_3>")
     p1.manual("$Capital") { placeTile(1, 1) }
-    engine.phase("Action")
+    admin.phase("Action")
 
     shouldThrow<RequirementException> { p1.stdAction("ClaimMilestone") { doTask("Manager") } }
   }

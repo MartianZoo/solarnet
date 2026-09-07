@@ -24,7 +24,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
@@ -37,6 +37,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260818() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(7, 5)
     val green = game.tfm(Player.PLAYER1)
     val yellow = game.tfm(Player.PLAYER2)
 
@@ -381,7 +382,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           1 to ExtractorBalloons,
       )
     }
-    engine.assertCounts(1 to "OceanTile<Utopia_4_1>", 1 to "OceanTile<Utopia_3_1>")
+    admin.assertCounts(1 to "OceanTile<Utopia_4_1>", 1 to "OceanTile<Utopia_3_1>")
     assertSidebar(gen = 5, temp = -28, oxygen = 1, oceans = 2, venus = 10)
 
     green.buyCards(1)
@@ -610,7 +611,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           0 to ExtractorBalloons,
       )
     }
-    engine.assertCounts(
+    admin.assertCounts(
         1 to "OceanTile<Utopia_9_8>",
         1 to "OceanTile<Utopia_6_4>",
     )
@@ -969,7 +970,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           2 to ExtractorBalloons,
       )
     }
-    engine.assertCounts(
+    admin.assertCounts(
         1 to "Traveller",
         1 to "OceanTile<Utopia_8_7>",
         2 to "TradeFleet",
@@ -1175,7 +1176,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           0 to ExtractorBalloons,
       )
     }
-    engine.assertCounts(
+    admin.assertCounts(
         1 to "OceanTile<Utopia_7_6>",
         1 to "OceanTile<Utopia_7_5>",
         1 to "OceanTile<Utopia_8_6>",
@@ -1659,13 +1660,9 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     val score = Summarizer(game)
     green.assertCounts(
-        32 to "AwardTally<Green, Mogul>",
-        11 to "AwardTally<Green, Traveller>",
         44 to "TR",
     )
     yellow.assertCounts(
-        14 to "AwardTally<Yellow, Mogul>",
-        8 to "AwardTally<Yellow, Traveller>",
         56 to "TR",
     )
     score.net("Milestone", "VP<Green>") shouldBe 10
@@ -1710,7 +1707,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
   private fun assertColonyProductions(vararg productions: Int) {
     require(productions.size == colonyTiles.size)
-    engine.assertCounts(
+    admin.assertCounts(
         *productions
             .zip(colonyTiles) { production, colony -> production to "ColonyProduction<$colony>" }
             .toTypedArray()

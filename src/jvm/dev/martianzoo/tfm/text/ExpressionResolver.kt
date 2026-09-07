@@ -112,23 +112,46 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
 
   internal fun resolveCardResource(expression: Expression): ResolvedExpression? {
     if (!isCardResource(expression.className)) return null
-    return resolve(expression, Key(CARD_RESOURCE, 0))
+    return resolveHeldResource(expression)
   }
 
   internal fun cardResourceHolder(resolved: ResolvedExpression): Expression? =
-      resolved.sourceDependency(Key(CARD_RESOURCE, 0))
+      heldResourceHolder(resolved)
 
   internal fun cardResourceHasHolder(
       resolved: ResolvedExpression,
       holder: Expression,
+  ): Boolean = heldResourceHasHolder(resolved, holder)
+
+  internal fun resolveHeldResource(expression: Expression): ResolvedExpression? {
+    if (!isSubtypeOf(expression.className, QUASI_RESOURCE)) return null
+    val holderKey =
+        heldResourceHolderKey(classesByName.getValue(expression.className)) ?: return null
+    return resolve(expression, holderKey)
+  }
+
+  internal fun heldResourceHolder(resolved: ResolvedExpression): Expression? =
+      heldResourceHolderKey(resolved.type.rootClass)?.let(resolved::sourceDependency)
+
+  internal fun heldResourceHasHolder(
+      resolved: ResolvedExpression,
+      holder: Expression,
   ): Boolean {
-    val holderKey = Key(CARD_RESOURCE, 0)
+    val holderKey = heldResourceHolderKey(resolved.type.rootClass) ?: return false
     val ownerKey = Key(OWNED, 0)
     if (resolved.sourceDependency(holderKey) != holder) return false
     return resolved.sourceDependencies.all { (key, source) ->
       key == holderKey || (key == ownerKey && source == ownerExpression)
     }
   }
+
+  private fun heldResourceHolderKey(componentClass: Class): Key? =
+      componentClass.baseType.dependencies.keys.singleOrNull { key ->
+        val dependency =
+            componentClass.baseType.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency
+                ?: return@singleOrNull false
+        dependency.boundType.rootClass.isSubtypeOf(classesByName.getValue(QUASI_RESOURCE_HOLDER))
+      }
 
   private fun representedClassType(expression: Expression) =
       resolve(expression)?.let { resolved ->
@@ -182,6 +205,8 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
     val END = cn("End")
     val GENERATIONAL = cn("Generational")
     val PLAYER = cn("Player")
+    val QUASI_RESOURCE = cn("QuasiResource")
+    val QUASI_RESOURCE_HOLDER = cn("QuasiResourceHolder")
     val TAG = cn("Tag")
   }
 }

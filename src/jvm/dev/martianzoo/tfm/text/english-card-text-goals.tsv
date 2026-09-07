@@ -501,12 +501,3 @@ StaticHarvesting	Static Harvesting	Requires that there are 3 or fewer ocean tile
 Vermin	Vermin		Action: Add 1 animal to this card or add 1 microbe to any card. / Effect: When any city tile is placed, add 1 animal to this card.
 WeatherBalloons	Weather Balloons	Draw 1 card.	Action: Add 1 floater to this card, or remove 1 floater from this card to gain 1 M€ per city tile on Mars.
 FloydContinuum	Floyd Continuum		Action: [3 / GpComplete].
-FakeResearchNetwork	Fake Research Network	Draw 3 cards, and increase your M€ production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice.
-FakeResearchCoordination	Fake Research Coordination	After being played, when you perform an action, the wild tag counts as any tag of your choice.
-FakeAppliedScience	Fake Applied Science	Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
-FakeNobelPrize	Fake Nobel Prize	Gain 5 M€. Draw 2 cards with requirements. 2 VPs.
-FakeHelion	Fake Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: You may use heat as M€.
-FakeEstablishedMethods	Fake Established Methods	Gain 30 M€. Then pay for and perform 2 standard projects. NOTE: If you cannot afford a second standard project, spend 10 M€ instead, or as much as possible.
-FakeHeadStart	Fake Head Start	Gain 2 steel. Gain 2 M€ per project card you have in hand. Immediately take 2 actions.
-FakeL1TradeTerminal	Fake L 1 Trade Terminal	Add 1 floater to Floating Habs, Aerial Mappers, and Floating Refinery. 2 VPs.	Effect: When you trade, raise that colony tile track 2 steps.
-FakeMarsNomads	Fake Mars Nomads		Action: Do nothing.

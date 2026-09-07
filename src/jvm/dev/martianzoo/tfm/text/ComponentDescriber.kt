@@ -10,7 +10,7 @@ internal data class ComponentDescriber(
     internal val placementSite: PlacementSite? = null,
     internal val placementBonus: PlacementBonus? = null,
     internal val spatialRelation: SpatialRelation? = null,
-    internal val productionSelection: String? = null,
+    internal val productionOffset: Boolean? = null,
     internal val requirement: Requirement? = null,
     internal val score: Score? = null,
     internal val deadEndSignal: Boolean? = null,

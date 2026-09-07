@@ -5,13 +5,12 @@ import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
@@ -25,8 +24,8 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 internal abstract class TfmTest {
   protected lateinit var game: World
 
-  protected val engine: TfmGameplay
-    get() = game.tfm(ENGINE)
+  protected val admin: TfmGameplay
+    get() = game.tfm(ADMIN)
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
@@ -57,10 +56,10 @@ internal abstract class TfmTest {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
-  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Engine")
+  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
   protected fun OperationBody.wgt(choice: String) {
-    doTask("$choice! BY Engine")
+    doTask("$choice! BY Admin")
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {
@@ -129,8 +128,9 @@ internal abstract class TfmTest {
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
               (count == null || it.count == ActualScalar(count)) &&
-                  (it.gaining.className == resourceType ||
-                      it.gaining.className == cn("CardResource"))
+                  reader.catalog.classTable
+                      .getClass(resourceType)
+                      .isSubtypeOf(reader.resolve(it.gaining).rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()
     if (arguments.isEmpty()) arguments += card.expression

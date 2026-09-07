@@ -16,7 +16,7 @@ public class OtbGame20260818 : RecordedGame() {
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
@@ -30,6 +30,8 @@ public class OtbGame20260818 : RecordedGame() {
     TfmWorkflow.Auto(game).launch()
     val green = game.tfm(Player.PLAYER1)
     val yellow = game.tfm(Player.PLAYER2)
+    green.doTask("-3 ProjectCard<Hand>")
+    yellow.doTask("-5 ProjectCard<Hand>")
 
     green.playCorp(PointLuna, 7)
 

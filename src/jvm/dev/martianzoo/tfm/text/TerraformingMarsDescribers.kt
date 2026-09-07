@@ -59,11 +59,18 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("GlobalParameter") to ComponentDescriber(requirementKind = "global parameter"),
-        klass("CardResource") to
+        klass("QuasiResource") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
                 numericSingularChange = true,
                 changeFrame = Frame.Held,
+            ),
+        klass("QuasiResourceHolder") to
+            ComponentDescriber(
+                cardResourceHolder = ComponentDescriber.Noun.Counted("card", "cards")
+            ),
+        klass("CardResource") to
+            ComponentDescriber(
                 distinctKinds =
                     ComponentDescriber.Noun.Counted(
                         "different type of card resource",
@@ -380,8 +387,7 @@ internal object TerraformingMarsDescribers {
                 noun = ComponentDescriber.Noun.Counted("Trade Fleet", "Trade Fleets"),
                 changeFrame = Frame.Countable,
             ),
-        klass("LowestProduction") to
-            ComponentDescriber(productionSelection = "one of your lowest productions"),
+        klass("ProdOffset") to ComponentDescriber(productionOffset = true),
         klass("ColonyProduction") to
             ComponentDescriber(changeFrame = Frame.Scale("colony tile track")),
         klass("Trade") to ComponentDescriber(changeFrame = Frame.Procedure("trade")),

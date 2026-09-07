@@ -57,7 +57,6 @@ public object Transforming {
    * subtree [shielded] accepts. A fanout shields its own body: `Owner` there denotes the selected
    * component's owner and only the fanout may bind it.
    */
-  @Suppress("ComplexCondition") // TODO fix
   public fun replaceOwnerWith(
       owner: HasClassName,
       shielded: (PetNode) -> Boolean = { false },

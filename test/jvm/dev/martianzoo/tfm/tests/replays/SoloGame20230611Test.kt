@@ -31,6 +31,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
   @Test
   internal fun letsPlay() {
+    retainStartingProjects(5)
     with(me) {
       playCorp(ValleyTrust, 5).expect("5 ProjectCard")
 

@@ -5,7 +5,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -23,8 +23,8 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
-  internal fun byAnyoneAcceptsEngine() {
-    assertByAnyone(ENGINE)
+  internal fun byAnyoneAcceptsAdmin() {
+    assertByAnyone(ADMIN)
   }
 
   private fun assertByAnyone(actor: Actor) {
@@ -69,12 +69,12 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
-  internal fun byPlayerRejectsEngine() {
+  internal fun byPlayerRejectsAdmin() {
     val game = newGame()
-    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
-    engine.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
+    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
+    admin.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
-    engine.beginManual("-ActorTriggerSignal!")
+    admin.beginManual("-ActorTriggerSignal!")
 
     game.tasks.isEmpty() shouldBe true
   }
@@ -154,15 +154,15 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
-  internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
+  internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndAdmin() {
     val game = newGame()
     val owner = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     val other = game.agent(PLAYER2).also { it.autoExecMode = NONE }
-    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
+    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
     owner.sneak("OpponentByProbe<Player1>!")
 
     owner.manual("ActorTriggerSignal!")
-    engine.manual("ActorTriggerSignal!")
+    admin.manual("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true
 
     other.beginManual("ActorTriggerSignal!") {

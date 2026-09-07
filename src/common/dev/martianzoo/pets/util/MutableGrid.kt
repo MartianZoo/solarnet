@@ -8,14 +8,8 @@ internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstr
 
   override val columnCount: Int by rows[0]::size
 
-  @Suppress("TooGenericExceptionCaught") // TODO fix
-  override operator fun get(rowIndex: Int, columnIndex: Int): E? {
-    return try {
-      row(rowIndex)[columnIndex]
-    } catch (_: Exception) {
-      null
-    }
-  }
+  override operator fun get(rowIndex: Int, columnIndex: Int): E? =
+      rows.getOrNull(rowIndex)?.getOrNull(columnIndex)
 
   internal fun set(rowIndex: Int, columnIndex: Int, value: E): E? {
     @Suppress("UNCHECKED_CAST") val row = row(rowIndex) as MutableList<E>

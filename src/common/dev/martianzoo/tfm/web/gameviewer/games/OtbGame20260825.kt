@@ -17,7 +17,7 @@ public class OtbGame20260825 : RecordedGame() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
           Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
@@ -30,6 +30,8 @@ public class OtbGame20260825 : RecordedGame() {
     TfmWorkflow.Auto(game).launch()
     val green = game.tfm(Player.PLAYER1)
     val yellow = game.tfm(Player.PLAYER2)
+    green.doTask("Ok")
+    yellow.doTask("-5 ProjectCard<Hand>")
 
     green.playCorp(TerraLabsResearch, 10)
 

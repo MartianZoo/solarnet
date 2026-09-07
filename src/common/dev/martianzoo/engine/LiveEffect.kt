@@ -89,7 +89,7 @@ private constructor(
     val changedComponentPlayer = resolvedChange.changedComponentPlayer
 
     // If neither the effect nor the changed component supplies ownership, a Player Actor is the
-    // last legitimate source for contextual `Owner`. Engine is deliberately excluded: it is an
+    // last legitimate source for contextual `Owner`. Admin is deliberately excluded: it is an
     // Actor but not an Owner, so treating it as one would manufacture invalid owned components.
     val contextualOwner = effectOwner ?: changedComponentPlayer ?: (triggerEvent.actor as? Player)
     val defaultActor =
@@ -487,7 +487,7 @@ private constructor(
         // Apply that established contextual rule before evaluating the selector as an Actor type.
         if (specializedSelector == OWNER.expression) {
           val owner = actor as? Player ?: return null
-          hit = hit.then(replaceOwnerWith(owner))
+          hit = hit.then(reader.transformers.bindContextualOwner(owner))
           specializedSelector = specializeSelector()
         }
         val by = specializedSelector.className
@@ -509,7 +509,7 @@ private constructor(
               }
                   ?: run {
                     // A passive Owner such as SoloOpponent is not an Actor. Its opposing Actors
-                    // are Players, not the administrative Engine.
+                    // are Players, not Admin.
                     val ownerClass = reader.resolve(OWNER.expression).rootClass
                     if (!excludedType.rootClass.isSubtypeOf(ownerClass)) return null
                     reader.resolve(PLAYER.expression).rootClass

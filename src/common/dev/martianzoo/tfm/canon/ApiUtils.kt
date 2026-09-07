@@ -10,8 +10,8 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
-import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
+import dev.martianzoo.tfm.canon.TfmClasses.PROD_OFFSET
 
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
 public object ApiUtils {
@@ -42,20 +42,16 @@ public object ApiUtils {
         .toSetStrict()
   }
 
-  /**
-   * Returns a map with six entries, giving [player]'s current production levels, adjusting mc
-   * production to account for our GrossHack.
-   */
+  /** Returns a map with six entries, giving [player]'s current printed production levels. */
   public fun lookUpProductionLevels(game: GameReader, player: Expression): Map<ClassName, Int> =
-      standardResourceNames(game).associateWith {
-        val type = game.resolve(PRODUCTION.of(player, it.classExpression()))
-        game.count(type) - if (it == MC) 5 else 0
+      standardResourceNames(game).associateWith { resourceName ->
+        val resource = resourceName.classExpression()
+        val production = game.resolve(PRODUCTION.of(player, resource))
+        val offset = game.resolve(PROD_OFFSET.of(player, resource))
+        game.count(production) - game.count(offset)
       }
 
-  /**
-   * Returns a map with six entries, giving [player]'s current production levels, adjusting mc
-   * production to account for our GrossHack.
-   */
+  /** Returns a map with six entries, giving [player]'s current printed production levels. */
   public fun lookUpProductionLevels(game: GameReader, player: Player): Map<ClassName, Int> =
       lookUpProductionLevels(game, player.expression)
 

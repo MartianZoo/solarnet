@@ -31,23 +31,46 @@ narrower described in [IDENTITY.md](IDENTITY.md).
 
 ## Domain requirements
 
-The coarse phase vocabulary is:
+The current coarse phase vocabulary is:
 
 ```text
-Setup -> Corporation -> [Prelude] -> Action -> Production -> Solar
-      -> [Venus Solar] -> [Colonies Solar] -> [Turmoil Solar]
-      -> Generation -> Research -> Action ...
-Solar -> Final Greenery -> End
+Bootstrap -> Setup -> Corporation -> [Prelude] -> Action -> Production -> Solar
+          -> [Venus Solar] -> [Colonies Solar] -> [Turmoil Solar]
+          -> Generation -> Research -> Action ...
+Solar     -> Final Greenery -> End
 ```
 
 This is topology, not one unconditional line.
 
-- Setup creates generation 1. The first generation has no Generation or Research phase.
+- The Terraforming Mars Module creates `BootstrapPhase` during initialization. The committed World
+  returned by `Engine.newGame` already has that Phase, all Players, and each Player's five
+  `ProdOffset<Class<MC>>` components.
+- Creating Setup replaces Bootstrap and creates generation 1 in the same engine operation. The
+  first generation has no separate Generation or Research phase.
+- Setup grants starting game state and deals corporations, projects, and enabled Preludes into each
+  Player's `Hand`. Corporation and Prelude rejections resolve there, and each Player chooses how
+  many of the ten projects to discard before Setup finishes.
+- During each Corporation turn, the retained projects move temporarily from `Hand` to `Selecting`
+  alongside the corporation-play task. The existing purchase operation then charges for every
+  retained project and returns it to `Hand`.
 - Prelude inserts its phase after Corporation.
 - Applicable Solar subphases preserve Venus, Colonies, then Turmoil order.
 - Merely naming a precedence constraint must not activate an absent expansion class.
 - Expansion Modules own their insertions; base Kotlin must not enumerate expansion phases.
 - An explicit terminal transition from Solar suppresses all later Solar subphases.
+
+### Why starting choices belong in setup
+
+Starting cards are game state, and deciding which to keep is Player work. Do not hide those choices
+in premise construction, Kotlin workflow setup, or test fixtures. Represent the cards as ordinary
+owned Components and resolve the choices through normal Tasks so history records the choosing
+Player and corporation and Prelude play remain in their actual phases.
+
+`Hand` is the durable source of truth for retained starting cards. `Selecting` is only a temporary
+view used during the corporation turn to reuse the ordinary project-purchase operation; it is not a
+second starting-hand model. `BootstrapPhase` should establish only the initialized state required
+before effectful setup can begin. It must not absorb Player choices merely to make `newGame` return
+a position with setup already decided.
 
 ### Multiplayer ending
 
@@ -74,7 +97,7 @@ player's then-current rating. Final greeneries cannot rescue a failed objective.
 
 ### Other required precedence
 
-- Starting choices precede corporation and Prelude reveal. Corporations and Preludes resolve in
+- Starting choices precede corporation and Prelude play. Corporations and Preludes resolve in
   player order, and starting cards are paid before Prelude play.
 - Later Generation phases pass the first-player marker immediately before Research.
 - Production begins only after every Player passes. Existing energy converts to heat before new
@@ -148,14 +171,15 @@ ABSTRACT CLASS WorkflowPrecedence<
     Class<WorkflowSpan>, Class<WorkflowStep>, Class<WorkflowStep>> : System
 ```
 
-Terraforming Mars would select `SetupPhase` as its entry point and describe core spans separately:
+Terraforming Mars would select `BootstrapPhase` as its entry point and describe core spans
+separately. The current Module already creates that entry state during initialization:
 
 ```pets
 CLASS TerraformingMars : Module {
   HAS Class<TerraformingMarsWorkflow>
 }
 
-CLASS TerraformingMarsWorkflow : Workflow<Class<SetupPhase>>
+CLASS TerraformingMarsWorkflow : Workflow<Class<BootstrapPhase>>
 
 CLASS AfterCorporation :
     WorkflowSpan<Class<CorporationPhase>, Class<ActionPhase>>
