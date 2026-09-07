@@ -599,7 +599,6 @@ internal constructor(
     }
   }
 
-  // Still spending 25% of solo game time in this method
   private fun autoNarrowTypes(
       gaining: Expression?,
       removing: Expression?,

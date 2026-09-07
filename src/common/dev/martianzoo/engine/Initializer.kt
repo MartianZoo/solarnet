@@ -23,7 +23,7 @@ internal class Initializer(
     private val timeline: TimelineImpl,
     private val premise: GamePremise,
 ) {
-  // Taking 14% of total solo game time
+  // Taking about 10% of total solo game time on the JVM (2026-09-06)
   internal fun initialize() {
     val engineEvent = execute("$ENGINE", cause = null).changes.first()
     val engineCause = Cause(ENGINE.expression, engineEvent.ordinal)

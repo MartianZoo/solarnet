@@ -97,7 +97,7 @@ public data class GroundType(
   ): Map<TypeVariable, GroundType> = rootClass.variableBindings(general.groundType, this, variables)
 
   // Nearest common subtype
-  // TODO allocating 28 MB per solo game
+  // TODO allocating about 49 MB per solo game on the JVM (2026-09-06)
   override infix fun glb(that: Type): GroundType? {
     val that = that.groundType
     requireSameClassTable(that)
@@ -248,7 +248,8 @@ public data class GroundType(
     }
   }
 
-  // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
+  // TODO solo game spending about 14% of its time here and allocating about 6 MB on the JVM
+  // (2026-09-06)
   /** Performs a state-aware narrowing check using [info]. */
   override fun narrows(that: Type, info: TypeInfo): Boolean {
     val that = that.groundType
