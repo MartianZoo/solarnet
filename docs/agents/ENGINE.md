@@ -58,7 +58,7 @@ A live Game World is a `World` containing:
 | Part | Meaning |
 | --- | --- |
 | `ComponentGraph` | Present state: a multiset of concrete components |
-| Global task pool | Deferred work and Actor choices, with one assignee on each Task |
+| Global task queue | Deferred work and Actor choices, with one assignee on each Task |
 | `EventLog` | Applied component and task history |
 | `Timeline` | Atomicity, rollback, revision, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
@@ -241,7 +241,7 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 Clients normally identify work by an instruction that uniquely narrows one task. Code that already
 holds an exact task may use its stable `TaskId`; presentation order never identifies a task.
 
-Semantically there is one Game World task pool. Actor-specific queues are current filtered API
+Semantically there is one Game World task queue. Actor-specific queues are current filtered API
 views, not independent state containers. `Agent.tasks` may present the fiction of one Actor's queue
 without promoting that view into the Game World storage model.
 
@@ -658,7 +658,7 @@ auto-exec, preserves previously pending unselected tasks, and fails if newly cre
 timeline and graph mutation interfaces.
 
 **Forward-looking:** `:agent` owns the normal Actor-scoped client API. Agent calls the core engine's
-audited mutation families against the Game World's task pool; a separate passive access object is
+audited mutation families against the Game World's task queue; a separate passive access object is
 not needed. Actor assignment remains engine semantics even though the resulting assignment is Game
 World data. Agent is the sole issuer of ordinary explicit and policy-chosen mutations for one Actor.
 Direct engine primitives remain available for workflows, replay correction, cheats, and tests;

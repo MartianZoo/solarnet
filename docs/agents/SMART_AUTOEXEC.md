@@ -55,7 +55,7 @@ one replay, or the absence of a known counterexample yields `UNKNOWN`, not permi
 policy may be incomplete. It must be sound.
 
 Solarnet still needs its own theorem. Its transition vocabulary is reconstructed dynamically from
-task schemas and legal narrowings, and enabledness depends on the component graph and task pool.
+task schemas and legal narrowings, and enabledness depends on the component graph and task queue.
 After that reconstruction, Antti Valmari's
 [“Stubborn Sets for Reduced State Space Generation”](https://ai.dmi.unibas.ch/research/reading_group/valmari-apn1989.pdf)
 supplies the directly useful lemma: a terminating execution can be permuted to begin with a
