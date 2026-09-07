@@ -6,6 +6,16 @@ import kotlin.test.Test
 
 internal class AutomaticEffectOrderTest {
   @Test
+  internal fun selfEffectsRetainDeclarationOrder() {
+    val world = Engine.newGame(selfEffectPremise) as WholeWorld
+    val admin = world.agent(ADMIN)
+
+    admin.manual("Source")
+
+    admin.count("Observed") shouldBe 1
+  }
+
+  @Test
   internal fun rollbackDoesNotChangeWhichAutomaticSiblingRunsFirst() {
     if (randomAutomaticEffectOrderEnabled) return
 
@@ -34,6 +44,21 @@ internal class AutomaticEffectOrderTest {
   }
 
   private companion object {
+    val selfEffectPremise =
+        testGamePremise(
+            """
+            CLASS Source {
+              HAS MAX 1 This
+              This:: Watcher<This>
+              This:: Pulse
+            }
+            CLASS Watcher<Source> { Pulse:: Observed. }
+            CLASS Pulse
+            CLASS Observed
+            """,
+            players = 0,
+        )
+
     val premise =
         testGamePremise(
             """

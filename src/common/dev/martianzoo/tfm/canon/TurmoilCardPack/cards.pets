@@ -10,6 +10,7 @@ CLASS LakefrontResorts : CardFront<Class<CorporationCard>> {
 
 CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
   cost = 0
+  HAS Class<TrWatcher>
 
   This: 53 MC, -2 TerraformRating
   ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC

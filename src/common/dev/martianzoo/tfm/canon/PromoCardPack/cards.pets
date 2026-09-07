@@ -10,6 +10,7 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
 CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
   cost = 0
 
+  This:: Splicer<This>
   This:: MicrobeTag<This>
   This: 44 MC, RequiredAction { -> CARDS[SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)] }
   MicrobeTag<Anyone>: 2 MC
@@ -744,8 +745,7 @@ CLASS FloydContinuum : ActionCard, ActiveCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS SpliceTacticalGenomicsWatcher : System {
-  HAS =1 This
+CLASS Splicer<SpliceTacticalGenomics> {
   MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 MC
 }
 

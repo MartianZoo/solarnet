@@ -75,9 +75,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
-  while choosing a random execution order for each batch of automatic-effect siblings. This is a
-  diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain a stable
-  diagnostic order. Game-state assertions pass, but the exact Advanced Alloys attribution totals in
+  while choosing a random execution order for each batch of independent automatic-effect listeners.
+  A component's own automatic Effects retain declaration order. This is a diagnostic mode for
+  finding undeclared ordering dependencies; ordinary runs retain a stable diagnostic order.
+  Game-state assertions pass, but the exact Advanced Alloys attribution totals in
   `Game20230521Test` and `ThermalMatterWaveTest` may fail because saturating payment reductions do
   not yet record every effect's gross contribution.
 

@@ -67,6 +67,7 @@ CLASS ThorGate : CardFront<Class<CorporationCard>> {
 
 CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
   cost = 0
+  HAS Class<TrWatcher>
 
   This:: EarthTag<This>
   This: 40 MC
@@ -1177,8 +1178,7 @@ CLASS HasRaisedTr : Generational, Owned {
   HAS MAX 1 This
 }
 
-CLASS TrWatcher : System {
-  HAS MAX 1 This
+CLASS TrWatcher : CardWatcher {
   TerraformRating:: HasRaisedTr.
 }
 

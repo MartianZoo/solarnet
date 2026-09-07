@@ -6,7 +6,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 44 / 48 | 394 / 426 | 62 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 46 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
+| TOTALS | 44 / 48 | 394 / 426 | 62 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 47 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
 | Terraforming Mars | 9 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
@@ -18,7 +18,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 | Amazonis & Vastitas | - | - | - | 2 / 2 | - | - | 9 / 10 | 10 / 10 | 4 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
-| Milestones & Awards | - | - | - | - | - | - | 32 / 35 | 34 / 35 | - | - | - | - |
+| Milestones & Awards | - | - | - | - | - | - | 33 / 35 | 34 / 35 | - | - | - | - |
 | Promos through 2026-08 | 9 / 10 | 70 / 73 | 9 / 11 | - | 3 / 3 | - | - | - | - | 0 / 5 | - | - |
 
 Totals count each distinct published goal definition once. Product rows count the contents of that
@@ -39,7 +39,7 @@ product, including goals reprinted from another product.
 | Prelude 2 | Prelude | Preservation Program (`P57`) | Fork |
 | Amazonis & Vastitas | Milestone | Lobbyist | Turmoil support |
 | Automa | Other | entire Automa rules | Wow that's a lot |
-| Milestones & Awards | Milestone | Hydrologist, Thawer | Owned global parameters |
+| Milestones & Awards | Milestone | Thawer | Owned global parameters |
 | Milestones & Awards | Milestone | Lobbyist | Turmoil support |
 | Milestones & Awards | Award | Politician | Turmoil support |
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |

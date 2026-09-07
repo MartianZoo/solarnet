@@ -3,12 +3,14 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PristarTest : CardTest() {
   @Test
   internal fun `Pays its production bonus when TR did not increase`() {
     newGame(TurmoilCardPack)
+    admin.count("TrWatcher") shouldBe 1
     p1.manual("$Pristar")
     admin.phase("Production")
     p1.assertCounts(1 to "Preservation")

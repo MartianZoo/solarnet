@@ -17,7 +17,7 @@ CLASS TerraformingMars : Module {
   This IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
   CorporationPhase: Photosynthesis
-  CorporationPhase:: TrWatcher.
+  CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
@@ -332,6 +332,9 @@ ABSTRACT CLASS Milestone : Owned<Player> {
   This:: (EVAL This.requirement: Ok)
   End: 5 VictoryPoint
 }
+
+"A singleton listener needed by selected content"
+ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
 
 "A funded award; unfunded awards exist only as a Class<ThatAwardType>"
 ABSTRACT CLASS Award {

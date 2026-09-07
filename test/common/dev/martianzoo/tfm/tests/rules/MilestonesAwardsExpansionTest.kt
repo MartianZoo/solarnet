@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -70,6 +71,43 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.stdAction("ClaimMilestone") { doTask("Merchant") }
 
     p1.count("Merchant") shouldBe 1
+  }
+
+  @Test
+  internal fun `Hydrologist can be claimed after placing four oceans`() {
+    newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
+    val p2 = requireP2()
+    val oceans = p1.list("WaterArea").take(4)
+    admin.count("HydrologistWatcher") shouldBe 1
+
+    oceans.forEach { p1.manual("OceanTile<$it>") }
+
+    shouldThrow<RequirementException> { p2.manual("Hydrologist") }
+    p1.manual("Hydrologist")
+    p1.count("Hydrologist") shouldBe 1
+  }
+
+  @Test
+  internal fun `Removing an ocean removes its placement credit`() {
+    newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
+    val oceans = p1.list("WaterArea").take(4)
+    oceans.forEach { p1.manual("OceanTile<$it>") }
+    p1.count("OceanCredit") shouldBe 4
+    oceans.forEach { p1.count("OceanCredit<OceanTile<$it>>") shouldBe 1 }
+
+    requireP2().manual("-OceanTile<${oceans.first()}>")
+
+    p1.count("OceanCredit") shouldBe 3
+    p1.count("OceanCredit<OceanTile<${oceans.first()}>>") shouldBe 0
+    shouldThrow<RequirementException> { p1.manual("Hydrologist") }
+  }
+
+  @Test
+  internal fun `OceanCredit and its watcher stay undefined without Hydrologist`() {
+    val game = newGame(GameConfig("Builder, Legend, Merchant", "Player1", "Player2"))
+
+    game.classTable.allClassNames.shouldNotContain(cn("OceanCredit"))
+    game.classTable.allClassNames.shouldNotContain(cn("HydrologistWatcher"))
   }
 
   // Producer wants 16 printed production, and Producer22 wants 22 because QuickStartVariant hands

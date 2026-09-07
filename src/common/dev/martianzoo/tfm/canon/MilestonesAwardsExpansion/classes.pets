@@ -8,8 +8,10 @@ CLASS Briber : Milestone {
   This:: -12 MC
 }
 CLASS Builder : Milestone { requirement = HAS "7 BuildingTag" }
-// Requires making global-parameter components Owned.
-// CLASS Hydrologist : Milestone { requirement = HAS "4 OceanTile" }
+CLASS Hydrologist : Milestone {
+  HAS Class<HydrologistWatcher>
+  requirement = HAS "4 OceanCredit"
+}
 CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
 CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
@@ -24,7 +26,7 @@ CLASS Producer22 : Milestone {
 }
 CLASS Tactician : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
 CLASS Terraformer : Milestone { requirement = HAS "29 TerraformRating" }
-// Requires making global-parameter components Owned.
+// Requires recording owned temperature increases.
 // CLASS Thawer : Milestone { requirement = HAS "5 TemperatureStep" }
 CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" }
 
@@ -32,3 +34,11 @@ CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }
 // CLASS Politician : Award { metric = COUNT "PartyLeader OR Influence" }
 CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }
+
+"Tracks ocean placements only while Hydrologist is in the milestone pool"
+CLASS HydrologistWatcher : CardWatcher {
+  OceanTile BY Player: OceanCredit<Player, OceanTile>
+}
+
+"A player's credit for an ocean that remains on Mars"
+CLASS OceanCredit<OceanTile> : Owned<Player>
