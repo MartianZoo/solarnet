@@ -84,7 +84,15 @@ public class DependencySet private constructor(private val deps: List<Dependency
 
   public fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
 
-  public fun getIfPresent(key: Key): Dependency? = deps.firstOrNull { it.key == key }
+  public fun getIfPresent(key: Key): Dependency? {
+    var index = 0
+    while (index < deps.size) {
+      val dependency = deps[index]
+      if (dependency.key == key) return dependency
+      index++
+    }
+    return null
+  }
 
   // HIERARCHY
 
