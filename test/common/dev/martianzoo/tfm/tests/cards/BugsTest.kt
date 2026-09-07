@@ -121,4 +121,41 @@ internal class BugsTest : CardTest() {
       addCardResources(AtmoCollectors)
     }
   }
+
+  @Test
+  internal fun `Fake SRR incorrectly accepts a card without a Building or Space tag`() {
+    newGame(PromoCardPack, FakeCardsCardPack)
+    admin.phase("Action")
+    p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
+
+    p1.cardAction1(FakeSelfReplicatingRobots) {
+      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth1>")
+      doTask("ProjectCard<SelfReplicatingRobotsBerth1 FROM Hand>")
+    }
+    p1.manual(
+        "PlayCard<Class<ProjectCard>, Class<$CeosFavoriteProject>, " +
+            "SelfReplicatingRobotsBerth1>"
+    )
+
+    p1.assertCounts(1 to "PlayedEvent<Class<$CeosFavoriteProject>>")
+  }
+
+  @Test
+  internal fun `Corroder Suits incorrectly ignores a Venus card staged on Fake SRR`() {
+    newGame(VenusNextExpansion, PromoCardPack, FakeCardsCardPack)
+    admin.phase("Action")
+    p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
+    p1.cardAction1(FakeSelfReplicatingRobots) {
+      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth1>")
+      doTask("ProjectCard<SelfReplicatingRobotsBerth1 FROM Hand>")
+    }
+
+    // The follow-mode client supplies this staged generic back as a Venus card.
+    p1.manual("$CorroderSuits")
+
+    p1.assertCounts(
+        1 to "$CorroderSuits",
+        2 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
+    )
+  }
 }

@@ -9,7 +9,6 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.engine.exMachina
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -142,8 +141,9 @@ public abstract class RecordedGame {
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
               (count == null || it.count == ActualScalar(count)) &&
-                  (it.gaining.className == resourceType ||
-                      it.gaining.className == cn("CardResource"))
+                  reader.catalog.classTable
+                      .getClass(resourceType)
+                      .isSubtypeOf(reader.resolve(it.gaining).rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()
     if (arguments.isEmpty()) arguments += card.expression
