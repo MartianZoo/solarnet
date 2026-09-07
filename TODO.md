@@ -39,6 +39,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
+- Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
+  `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
+  requiring authored references to generated names. Preserve Cimmeria map generation,
+  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit berth selection.
 - Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
