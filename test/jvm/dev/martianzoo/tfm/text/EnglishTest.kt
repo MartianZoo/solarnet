@@ -287,6 +287,20 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun tracksUnsupportedInstructionsWithinTriggeredEffects() {
+    val effect = parse<Effect>("Trade<ColonyTile>:: TradeBarrier<ColonyTile>")
+    val rendering =
+        renderEffect(
+            effect,
+            Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
+        )
+
+    rendering.value shouldBe "When you trade, [TradeBarrier<ColonyTile>]."
+    rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
+        listOf("TradeBarrier<ColonyTile>" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+  }
+
+  @Test
   internal fun usesDefaultNounForAClassWithoutRegisteredEnglishFacts() {
     TerraformingMarsDescribers.descriptions.keys.none { it.toString() == "Heat" } shouldBe true
     val sparseEnglish = English(Canon.classTable, TerraformingMarsDescribers.descriptions)

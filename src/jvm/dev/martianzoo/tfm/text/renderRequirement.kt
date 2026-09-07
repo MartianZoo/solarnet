@@ -17,8 +17,8 @@ internal fun renderRequirement(
   val rendered =
       renderLoweredRequirement(describers.lowerProductionSyntax(requirement), describers)
           ?.let(::Sentence)
-          ?.linearize()
-  return rendered?.let { Rendering.resolved(it) }
+          ?.render()
+  return rendered
       ?: Rendering.unresolved(
           requirement,
           RefusalReason.UNKNOWN_REQUIREMENT_FRAME,

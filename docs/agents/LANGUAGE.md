@@ -153,7 +153,8 @@ The useful architecture already present should be extended rather than replaced:
   interpretation does not identify the canonical resources that have one.
 - `CardCriterion` is the closed set of recurring printed-card facts shared by search, reveal, and
   test operations; it is not tied to one canonical operation.
-- `Rendering<T>` carries visible fallback text together with typed `Unresolved` evidence.
+- Sentence finalization returns `Rendering<String>`, carrying visible text together with every
+  typed `Unresolved` embedded in its clause structure.
 - `English` remains the facade for standalone descriptions and card-region assembly.
 - `Describers` validates inherited lexical facts once at construction.
 - `TerraformingMarsDescribers` keys only authored lexical facts by `ClassName`; `Describers` owns

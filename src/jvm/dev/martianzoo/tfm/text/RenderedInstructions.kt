@@ -6,7 +6,8 @@ internal data class RenderedInstructions(val clauses: List<Clause>) {
     require(clauses.isNotEmpty())
   }
 
-  internal fun asSentences(): String = clauses.joinToString(" ") { Sentence(it).linearize() }
+  internal fun asSentences(): Rendering<String> =
+      joinRenderings(clauses.map { Sentence(it).render() })
 
   internal fun asCoordinatedClause(): Clause = clauses.reduce { preceding, next ->
     Clause.Coordinated(Coordination(listOf(preceding, next), Conjunction.AND))

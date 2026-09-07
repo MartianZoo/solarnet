@@ -13,3 +13,14 @@ internal data class Rendering<out T>(val value: T, val unresolved: List<Unresolv
         Rendering(fallback, listOf(Unresolved(node, reason)))
   }
 }
+
+internal fun joinRenderings(
+    renderings: Iterable<Rendering<String>>,
+    separator: String = " ",
+): Rendering<String> {
+  val parts = renderings.toList()
+  return Rendering(
+      parts.joinToString(separator) { it.value },
+      parts.flatMap { it.unresolved },
+  )
+}

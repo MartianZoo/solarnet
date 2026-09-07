@@ -17,7 +17,7 @@ internal fun renderInstructionTree(
   val prepared = describers.prepareForRendering(instructionTree)
   val rendered =
       renderPreparedInstructions(prepared, describers, TypeVariableReferences.from(prepared))
-  return Rendering(rendered.asSentences(), rendered.unresolved)
+  return rendered.asSentences()
 }
 
 internal fun renderInstructions(

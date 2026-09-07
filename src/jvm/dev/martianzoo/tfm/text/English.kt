@@ -111,7 +111,7 @@ internal class English(
         joinRenderings(
                 listOfNotNull(
                     renderedPersistentEffects,
-                    resourceValueEffects.second?.let(Rendering.Companion::resolved),
+                    resourceValueEffects.second,
                 )
             )
             .takeIf { it.value.isNotEmpty() }
@@ -121,15 +121,6 @@ internal class English(
 
   private fun interpretedCardEffects(card: Class): List<Effect> =
       cardEffects(card).map(card::interpretTypeVariablesIn)
-
-  private fun joinRenderings(
-      renderings: List<Rendering<String>>,
-      separator: String = " ",
-  ): Rendering<String> =
-      Rendering(
-          renderings.joinToString(separator) { it.value },
-          renderings.flatMap { it.unresolved },
-      )
 
   private fun isImmediateSelfEffect(effect: Effect): Boolean {
     return effect.automatic && effect.trigger == WhenGain

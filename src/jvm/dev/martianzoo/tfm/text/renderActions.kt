@@ -36,7 +36,7 @@ internal fun renderActions(
         )
   }
   val unresolved = rendered.flatMap(RenderedAction::unresolved)
-  if (rendered.size == 1) return Rendering(rendered.single().asSentences(), unresolved)
+  if (rendered.size == 1) return rendered.single().asSentences()
   val alternatives = rendered.mapIndexed { index, action ->
     action.asAlternative()
         ?: return Rendering(
@@ -50,7 +50,7 @@ internal fun renderActions(
   }
   val conjunction = if (alternatives.size == 2) Conjunction.COMMA_OR else Conjunction.OR
   val joined = Clause.Coordinated(Coordination(alternatives, conjunction))
-  return Rendering(Sentence(joined).linearize(), unresolved)
+  return Sentence(joined).render()
 }
 
 private fun actionRefusalReason(action: Action, describers: Describers): RefusalReason {
@@ -255,24 +255,24 @@ private data class RenderedAction(
     copy(cost = it.withModifier(modifier))
   }
 
-  fun asSentences(): String {
+  fun asSentences(): Rendering<String> {
     if (condition == null) {
       if (cost == null) return result.asSentences()
       val infinitive = checkNotNull(result.asActionResultInfinitive())
       if (!separateResultSentences) {
-        return Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(infinitive)))).linearize()
+        return Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(infinitive)))).render()
       }
       val first =
           Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(result.clauses.first()))))
-              .linearize()
-      val remaining = result.clauses.drop(1).joinToString(" ") { Sentence(it).linearize() }
-      return listOf(first, remaining).filter(String::isNotEmpty).joinToString(" ")
+              .render()
+      val remaining = result.clauses.drop(1).map { Sentence(it).render() }
+      return joinRenderings(listOf(first) + remaining)
     }
     val clause =
         cost?.let {
           Clause.Simple(it.withModifier(Modifier.Purpose(result.asCoordinatedClause())))
         } ?: result.asCoordinatedClause()
-    return Sentence(Clause.Prefaced(Clause.Preface.Conditional(condition), clause)).linearize()
+    return Sentence(Clause.Prefaced(Clause.Preface.Conditional(condition), clause)).render()
   }
 
   fun asAlternative(): Clause? {

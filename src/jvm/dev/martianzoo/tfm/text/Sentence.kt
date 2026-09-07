@@ -5,5 +5,6 @@ internal data class Sentence(
     private val clause: Clause,
     private val punctuation: String = ".",
 ) {
-  fun linearize(): String = completeSentence(clause.linearize(), punctuation)
+  fun render(): Rendering<String> =
+      Rendering(completeSentence(clause.linearize(), punctuation), clause.unresolved())
 }
