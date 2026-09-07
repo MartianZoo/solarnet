@@ -42,9 +42,7 @@ private fun renderLoweredInstructions(
   val localReferences = references.including(instructionTree)
   val instructions = InstructionGroup.of(instructionTree).instructions
   if (instructions.isEmpty()) {
-    return RenderedInstructions(
-        listOf(Clause.Simple(Predicate(Verb("do"), Coordination.one(NounPhrase.text("nothing")))))
-    )
+    return RenderedInstructions(listOf(doNothingClause))
   }
   val rendered = instructions.flatMap { instruction ->
     val rendering = renderInstructionClauses(instruction, describers, localReferences)
@@ -110,10 +108,7 @@ private fun renderInstruction(
                   ?: renderCardResourceCostSequence(instruction, describers, references)
                   ?: renderSequentialThen(instruction, describers, references)
           )
-      is NoOp ->
-          Rendering.resolved(
-              Clause.Simple(Predicate(Verb("do"), Coordination.one(NounPhrase.text("nothing"))))
-          )
+      is NoOp -> Rendering.resolved(doNothingClause)
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By -> Rendering.resolved(null)
     }
@@ -331,10 +326,10 @@ private fun renderAlternatives(
   return Clause.Coordinated(Coordination(alternatives, conjunction))
 }
 
-private fun Clause?.isDoNothing(): Boolean =
-    this is Clause.Simple &&
-        predicate.verb == Verb("do") &&
-        predicate.objects?.members?.singleOrNull()?.linearize() == "nothing"
+private fun Clause?.isDoNothing(): Boolean = this === doNothingClause
+
+private val doNothingClause: Clause.Simple =
+    Clause.Simple(Predicate(Verb("do"), Coordination.one(NounPhrase.text("nothing"))))
 
 private fun renderPlacementSiteFallback(
     instruction: Instruction.Or,

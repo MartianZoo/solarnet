@@ -32,10 +32,13 @@ internal class EnglishTest {
     current.forEach { (cardFront, expected) ->
       withClue(cardFront.toString()) {
         val card = requireNotNull(cardsByClassName[cardFront])
+        val rendering = english.renderCard(card)
         expected.englishName shouldBe
             (goals[cardFront]?.englishName ?: defaultEnglishDisplayName(cardFront))
-        english.topText(card) shouldBe expected.top
-        english.bottomText(card) shouldBe expected.bottom
+        rendering.top shouldBe expected.top
+        rendering.bottom shouldBe expected.bottom
+        countRenderedPetsFallbacks(rendering.top) +
+            countRenderedPetsFallbacks(rendering.bottom) shouldBe rendering.unresolved.size
       }
     }
   }
@@ -362,5 +365,24 @@ internal class EnglishTest {
         }
     val catalog = TfmCatalog.compose(Canon, additions)
     return catalog.card(declarations.single().className)
+  }
+
+  private fun countRenderedPetsFallbacks(text: String): Int {
+    var depth = 0
+    var count = 0
+    text.forEach { character ->
+      when (character) {
+        '[' -> {
+          if (depth == 0) count++
+          depth++
+        }
+        ']' -> {
+          require(depth > 0) { "Unmatched closing bracket in rendered text: $text" }
+          depth--
+        }
+      }
+    }
+    require(depth == 0) { "Unclosed bracket in rendered text: $text" }
+    return count
   }
 }
