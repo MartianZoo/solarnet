@@ -286,7 +286,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         setOf(NeutralizerFactory, FusionPower, Omnicourt, SolarReflectors, MiningColony)
 
     assertSidebar(gen = 3, temp = -30, oxygen = 2, oceans = 3, venus = 4)
-    engine.assertCounts(5 to "Tile")
+    admin.assertCounts(5 to "Tile")
     checkHandSizes()
     assertCardTrackingComplete()
   }

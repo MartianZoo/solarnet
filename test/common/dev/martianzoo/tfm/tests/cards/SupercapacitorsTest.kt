@@ -12,7 +12,7 @@ internal class SupercapacitorsTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
-    engine.phase("Production") { p1.doTask("Energy FROM Heat!") }
+    admin.phase("Production") { p1.doTask("Energy FROM Heat!") }
 
     p1.assertCounts(4 to "Energy", 16 to "Heat")
   }
@@ -22,7 +22,7 @@ internal class SupercapacitorsTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
-    engine.phase("Production") {
+    admin.phase("Production") {
       // Decline converting energy into heat.
       p1.declineTask()
     }
@@ -35,7 +35,7 @@ internal class SupercapacitorsTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
-    engine.phase("Production") {
+    admin.phase("Production") {
       shouldThrow<NarrowingException> { p1.doTask("4 Energy FROM Heat!") }
       p1.doTask("3 Energy FROM Heat!")
     }

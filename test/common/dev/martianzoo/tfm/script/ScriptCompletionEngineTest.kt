@@ -86,15 +86,15 @@ internal class ScriptCompletionEngineTest {
   internal fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
     val taskLayer = repl.agent as Agent
     taskLayer.addTasks("2 Plant?")
-    assertTrue(repl.command("tasks").single().startsWith("[Engine] "))
-    assertTrue(repl.command("task select").single().startsWith("* [Engine] "))
+    assertTrue(repl.command("tasks").single().startsWith("[Admin] "))
+    assertTrue(repl.command("task select").single().startsWith("* [Admin] "))
 
     repl.command("mode yellow")
     repl.command("task drop")
     taskLayer.addTasks("3 Heat?")
 
     val remaining = repl.command("tasks").single()
-    assertTrue(remaining.startsWith("[Engine] "), remaining)
+    assertTrue(remaining.startsWith("[Admin] "), remaining)
     assertTrue("3 Heat<Owner>?" in remaining, remaining)
   }
 

@@ -21,6 +21,6 @@ internal abstract class ColoniesCardTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(ColoniesExpansion, colonyTiles = colonyTiles)
-    engine.phase("Action")
+    admin.phase("Action")
   }
 }

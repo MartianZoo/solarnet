@@ -12,7 +12,7 @@ internal class RobinsonIndustriesTest : CardTest() {
   fun initializeGame() {
     newGame(PreludeExpansion)
     p1.playCorp(RobinsonIndustries, 0)
-    engine.phase("Action")
+    admin.phase("Action")
   }
 
   @Test

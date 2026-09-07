@@ -6,7 +6,7 @@ import dev.martianzoo.engine.Timeline
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
 import kotlinx.coroutines.CoroutineScope
@@ -25,42 +25,41 @@ public object TfmWorkflow {
 
   /**
    * Exposes each game-phase transition as a simple method call. No coroutine machinery: each method
-   * fires the engine op and returns immediately. The caller is then responsible for performing all
-   * resulting player actions before calling the next phase method.
+   * fires the Admin operation and returns immediately. The caller is then responsible for
+   * performing all resulting player actions before calling the next phase method.
    *
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via [Agent.inTurn] when
    * no task is already pending, so no explicit turn-granting is needed.
    */
   public class Manual(private val game: World) {
 
-    internal val engineOps: Agent = game.agent(ENGINE)
+    internal val adminOps: Agent = game.agent(ADMIN)
 
     /**
      * Starts fully effectful game setup; unlike later phases, setup has no prior Phase to remove.
      */
-    public fun setupPhase(): TaskResult = engineOps.beginManual("SetupPhase")
+    public fun setupPhase(): TaskResult = adminOps.beginManual("SetupPhase")
 
-    public fun corporationPhase(): TaskResult = engineOps.manual("CorporationPhase FROM Phase")
+    public fun corporationPhase(): TaskResult = adminOps.manual("CorporationPhase FROM Phase")
 
-    public fun preludePhase(): TaskResult = engineOps.manual("PreludePhase FROM Phase")
+    public fun preludePhase(): TaskResult = adminOps.manual("PreludePhase FROM Phase")
 
-    public fun actionPhase(): TaskResult = engineOps.manual("ActionPhase FROM Phase")
+    public fun actionPhase(): TaskResult = adminOps.manual("ActionPhase FROM Phase")
 
-    public fun productionPhase(): TaskResult = engineOps.manual("ProductionPhase FROM Phase")
+    public fun productionPhase(): TaskResult = adminOps.manual("ProductionPhase FROM Phase")
 
     /** Enters the universal Solar phase unless the game ended after production. */
     public fun solarPhase(): TaskResult? =
-        if (engineOps.has("GameEndBarrier")) engineOps.beginManual("SolarPhase FROM Phase")
-        else null
+        if (adminOps.has("GameEndBarrier")) adminOps.beginManual("SolarPhase FROM Phase") else null
 
-    public fun generation(): TaskResult = engineOps.beginManual("Generation")
+    public fun generation(): TaskResult = adminOps.beginManual("Generation")
 
-    public fun finalGreeneryPhase(): TaskResult = engineOps.manual("FinalGreeneryPhase FROM Phase")
+    public fun finalGreeneryPhase(): TaskResult = adminOps.manual("FinalGreeneryPhase FROM Phase")
 
     public fun researchPhase(body: BodyLambda = {}): TaskResult =
-        engineOps.manual("ResearchPhase FROM Phase", body)
+        adminOps.manual("ResearchPhase FROM Phase", body)
 
-    public fun endPhase(): TaskResult = engineOps.manual("End FROM Phase")
+    public fun endPhase(): TaskResult = adminOps.manual("End FROM Phase")
   }
 
   /**
@@ -70,16 +69,16 @@ public object TfmWorkflow {
    * The coroutine suspends whenever the game has outstanding tasks (choosing cards, placing tiles,
    * etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
    * [Channel.RENDEZVOUS] channel: [Channel.trySend] only succeeds when a [Channel.receive] is
-   * already waiting, so signals fired during automatic engine-owned phases are dropped rather than
-   * queued, preventing spurious wakeups.
+   * already waiting, so signals fired during automatic Admin-controlled phases are dropped rather
+   * than queued, preventing spurious wakeups.
    */
   public class Auto(private val game: World) {
 
     private val m = Manual(game)
-    private val engineOps: Agent
-      get() = m.engineOps
+    private val adminOps: Agent
+      get() = m.adminOps
 
-    /** Human players in seat order, excluding ENGINE. */
+    /** Human players in seat order, excluding ADMIN. */
     private val players: List<Player> = game.actors.filterIsInstance<Player>()
 
     /**
@@ -150,14 +149,14 @@ public object TfmWorkflow {
       corporationPhase()
       if (hasComponent("PreludeExpansion")) preludePhase()
       while (true) {
-        if (engineOps.count("Generation") > 1) researchPhase()
+        if (adminOps.count("Generation") > 1) researchPhase()
         actionPhase()
         productionPhase()
         if (!solarPhase()) break
         generation()
       }
       if (hasComponent("SoloMode")) {
-        if (!engineOps.has("Victory<${players.single()}>")) return
+        if (!adminOps.has("Victory<${players.single()}>")) return
       }
       finalGreeneryPhase()
       m.endPhase()
@@ -178,13 +177,13 @@ public object TfmWorkflow {
     }
 
     private suspend fun productionPhase() {
-      engineOps.beginManual("ProductionPhase FROM Phase")
+      adminOps.beginManual("ProductionPhase FROM Phase")
       letPlayerFinish()
     }
 
     private suspend fun solarPhase(): Boolean {
       if (m.solarPhase() == null) {
-        engineOps.manual("CheckGameEnd")
+        adminOps.manual("CheckGameEnd")
         awaitTasksDrained()
         return false
       }
@@ -210,7 +209,7 @@ public object TfmWorkflow {
     }
 
     private suspend fun researchPhase() {
-      engineOps.beginManual("ResearchPhase FROM Phase")
+      adminOps.beginManual("ResearchPhase FROM Phase")
       letPlayerFinish()
     }
 

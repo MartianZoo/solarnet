@@ -24,7 +24,7 @@ internal class TharsisRepublicTest : CardTest() {
   internal fun `Gains the solo mc production bonus when Merger plays it later`() {
     newGame(PreludeExpansion, PromoCardPack, players = 1)
     p1.playCorp(CrediCor, 0)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.manual("PreludeCard")
 
     p1.playPrelude(Merger) {

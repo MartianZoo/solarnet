@@ -13,11 +13,11 @@ internal class VerminTest : CardTest(additionalClassDeclarations = attributionPr
   internal fun `City placement and both card actions add the appropriate resources`() {
     newGame(PromoCardPack)
     p1.manual("$Vermin, $Decomposers")
-    engine.phase("Action")
+    admin.phase("Action")
 
     requireP2().manual("CityTile<Tharsis_2_1>").expect("Animal<Player1, $Vermin<Player1>>")
     p1.cardAction1(Vermin) { addCardResources(Vermin) }
-    engine.manual("Generation")
+    admin.manual("Generation")
     p1.cardAction1(Vermin) { addCardResources(Decomposers) }
 
     p1.assertCounts(2 to "Animal<$Vermin>", 2 to "Microbe<$Decomposers>")
@@ -32,7 +32,7 @@ internal class VerminTest : CardTest(additionalClassDeclarations = attributionPr
     p2.manual("CityTile<Tharsis_3_2>")
     p3.manual("CityTile<Tharsis_3_3>")
 
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
 
     p1.assertCounts(18 to "VictoryPoint")
     p2.assertCounts(19 to "VictoryPoint")
@@ -46,11 +46,11 @@ internal class VerminTest : CardTest(additionalClassDeclarations = attributionPr
     p1.manual("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
     p3.manual("CityTile<Tharsis_3_3>")
 
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
 
     // The probe reacts to each point loss and records the credited player.
-    engine.count("$attribution<Player1>") shouldBe 2
-    engine.count("$attribution<Player3>") shouldBe 0
+    admin.count("$attribution<Player1>") shouldBe 2
+    admin.count("$attribution<Player3>") shouldBe 0
   }
 
   @Test
@@ -60,7 +60,7 @@ internal class VerminTest : CardTest(additionalClassDeclarations = attributionPr
     p1.manual("$Vermin, 7 Animal<$Vermin>, CityTile<Tharsis_2_1>")
     p2.manual("CityTile<Tharsis_3_2>")
 
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")

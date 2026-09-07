@@ -9,7 +9,7 @@ internal class CuttingEdgeTechnologyTest : CardTest() {
   @Test
   internal fun `Discounts cards with and without requirements`() {
     newGame(VenusNextExpansion, PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual(
         "4 MC, 2 ProjectCard, $CuttingEdgeTechnology, Steel, Titanium, Plant, Energy, Heat, " +
             "$Pets, $Decomposers, $ForcedPrecipitation, Animal<$Pets>, Microbe<$Decomposers>, " +

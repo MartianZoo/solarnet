@@ -31,7 +31,7 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
   internal fun `Nested standard projects preserve pending payment offer positions`() {
     newGame(PreludeExpansion, FakeCardsCardPack)
     p1.manual("PreludeCard")
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.startTurn()
 
     p1.playPrelude(FakeEstablishedMethods) {

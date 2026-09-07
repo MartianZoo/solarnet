@@ -630,7 +630,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     green.assertCounts(24 to "TerraformRating", 1 to "Milestone")
     blue.assertCounts(29 to "TerraformRating")
     yellow.assertCounts(24 to "TerraformRating", 1 to "CityTile<Cimmeria_6_2>")
-    engine.assertCounts(
+    admin.assertCounts(
         1 to "OceanTile<Cimmeria_2_1>",
         1 to "OceanTile<Cimmeria_9_5>",
         1 to "OceanTile<Cimmeria_8_9>",

@@ -11,7 +11,7 @@ internal class HeadStartTest : CardTest() {
   @Test
   internal fun `Head Start grants two mandatory actions`() {
     newGame(PreludeExpansion, FakeCardsCardPack)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.manual("4 MC, 10 ProjectCard, PreludeCard")
     p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
@@ -30,7 +30,7 @@ internal class HeadStartTest : CardTest() {
   internal fun `Head Start must use its first granted action to perform a required action`() {
     newGame(PreludeExpansion, FakeCardsCardPack)
     p1.playCorp(ValleyTrust, 5)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.manual("10 ProjectCard, PreludeCard")
 
     p1.playPrelude(FakeHeadStart) {

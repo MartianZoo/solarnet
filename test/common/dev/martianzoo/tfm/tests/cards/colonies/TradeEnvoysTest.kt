@@ -10,7 +10,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
   internal fun `Raises the track before trade income`() {
     p1.manual("ProjectCard, 15 MC")
     p1.playProject(TradeEnvoys, 6)
-    engine.manual("3 ColonyProduction<Luna>")
+    admin.manual("3 ColonyProduction<Luna>")
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")
@@ -26,7 +26,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
   @Test
   internal fun `Raises the track when Titan Floating Launch-Pad trades`() {
     p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") { addCardResources(TitanFloatingLaunchPad) }
-    engine.manual("3 ColonyProduction<Luna>")
+    admin.manual("3 ColonyProduction<Luna>")
 
     p1.cardAction2(TitanFloatingLaunchPad) {
       doTask("Trade<Luna>")
@@ -42,7 +42,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
   @Test
   internal fun `Does not increase a maxed track`() {
     p1.manual("$TradeEnvoys, 9 MC")
-    engine.manual("5 ColonyProduction<Luna>")
+    admin.manual("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
 
     p1.stdAction("TradeAction") { doTask("Trade<Luna>") }
@@ -60,7 +60,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
       doTask("Colony<Europa>")
       placeTile(1, 2)
     }
-    engine.manual("ColonyProduction<Europa>")
+    admin.manual("ColonyProduction<Europa>")
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Europa>")
@@ -82,7 +82,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
       doTask("Colony<Europa>")
       placeTile(1, 2)
     }
-    engine.manual("3 ColonyProduction<Luna>")
+    admin.manual("3 ColonyProduction<Luna>")
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")

@@ -61,7 +61,7 @@ internal class LocalHeatTrappingTest : CardTest() {
     p1.manual("4 Heat, ProjectCard, $Pets, 1 MC")
     p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.playProject(LocalHeatTrapping, 1) {
       p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")

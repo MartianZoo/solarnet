@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import io.kotest.matchers.shouldBe
@@ -25,10 +25,10 @@ internal class EachSelectorOwnerTest {
                 players = 2,
             )
         )
-    val engine = game.agent(ENGINE)
+    val admin = game.agent(ADMIN)
     val p1 = game.agent(PLAYER1)
     val p2 = game.agent(PLAYER2)
-    engine.manual("Provider")
+    admin.manual("Provider")
     p1.manual("RedToken, BlueToken")
     p2.manual("RedToken, BlueToken")
 

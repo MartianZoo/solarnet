@@ -14,7 +14,7 @@ internal class IceAsteroidTest : CardTest() {
     val existingOceans = waterAreas.take(8).joinToString { "OceanTile<$it>" }
     val ninthArea = waterAreas.elementAt(8)
     p1.manual("23 MC, ProjectCard, $existingOceans")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.playProject(IceAsteroid, 23) {
       shouldThrow<NarrowingException> { doTask("OceanTile<${waterAreas.first()}>") }

@@ -22,7 +22,7 @@ internal class CoreRulesTest : CardTest() {
     p1.autoExecMode = AutoExecMode.SAFE
     requireP2().autoExecMode = AutoExecMode.SAFE
 
-    engine.phase("Research") {
+    admin.phase("Research") {
       p1.buyCards(3)
       requireP2().buyCards(0)
     }
@@ -35,7 +35,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Selling patents returns one mc per card`() {
     newGame()
     p1.manual("3 ProjectCard")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.sellPatents(2).expect("-2 ProjectCard, 2 MC")
   }
@@ -44,7 +44,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Eight heat raises temperature and terraform rating`() {
     newGame()
     p1.manual("8 Heat")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.convertHeat().expect("-8 Heat, TemperatureStep, TerraformRating")
   }
@@ -53,7 +53,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Temperature track bonuses are resolved during heat conversion`() {
     newGame()
     p1.manual("8 Heat, 2 TemperatureStep")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.convertHeat().expect("-8 Heat, TemperatureStep, TerraformRating, PROD[Heat]")
   }
@@ -62,7 +62,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Reaching zero degrees also places an ocean`() {
     newGame()
     p1.manual("8 Heat, 14 TemperatureStep")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.convertHeat { doTask("OceanTile<Tharsis_1_2>") }
         .expect("-8 Heat, TemperatureStep, OceanTile, 2 TerraformRating")
@@ -72,7 +72,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Eight plants place greenery and raise oxygen and terraform rating`() {
     newGame()
     p1.manual("8 Plant")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
         .expect("-8 Plant, GreeneryTile, OxygenStep, TerraformRating")
@@ -82,7 +82,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Greenery can still be placed after oxygen is maximized`() {
     newGame()
     p1.manual("8 Plant, 14 OxygenStep")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
         .expect("-8 Plant, GreeneryTile, 0 OxygenStep, 0 TerraformRating")
@@ -92,7 +92,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Reaching eight percent oxygen also raises temperature`() {
     newGame()
     p1.manual("8 Plant, 7 OxygenStep")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
         .expect("-8 Plant, GreeneryTile, OxygenStep, TemperatureStep, 2 TerraformRating")
@@ -102,7 +102,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Tile placement grants both area and ocean adjacency bonuses`() {
     newGame()
     p1.manual("8 Plant, OceanTile<Tharsis_4_8>")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_4_7>") }
         .expect("-7 Plant, 2 MC, GreeneryTile, OxygenStep, TerraformRating")
@@ -112,7 +112,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Standard projects perform their advertised effects`() {
     newGame()
     p1.manual("100 MC")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdProject("PowerPlantSP").expect("PROD[Energy]")
     p1.stdProject("AsteroidSP").expect("TemperatureStep, TerraformRating")
@@ -127,7 +127,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `A qualified player can claim a milestone`() {
     newGame()
     p1.manual("8 MC, 15 TerraformRating")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.claimMilestone(cn("Terraformer35")).expect("-8 MC, Milestone")
   }
@@ -146,7 +146,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `Funding successive awards costs eight fourteen and twenty`() {
     newGame()
     p1.manual("42 MC")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.fundAward(cn("Landlord"), 8).expect("-8 MC, Award")
     p1.fundAward(cn("Scientist"), 14).expect("-14 MC, Award")
@@ -158,7 +158,7 @@ internal class CoreRulesTest : CardTest() {
     newGame()
     p1.manual("2 Energy, PROD[Energy], PROD[2 Steel]")
 
-    engine.phase("Production")
+    admin.phase("Production")
 
     p1.count("Energy") shouldBe 1
     p1.count("Heat") shouldBe 2
@@ -172,7 +172,7 @@ internal class CoreRulesTest : CardTest() {
         colonyTiles = testColonyTiles(players = 2, "Ceres"),
     )
     p1.manual("3 Energy")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 2 Steel")
   }
@@ -183,6 +183,6 @@ internal class CoreRulesTest : CardTest() {
 
     TfmWorkflow.Manual(game).solarPhase()
 
-    p1.doTask("TemperatureStep! BY Engine").expect("TemperatureStep, 0 TerraformRating")
+    p1.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
   }
 }

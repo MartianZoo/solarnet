@@ -59,7 +59,7 @@ internal class VironTest : CardTest() {
         colonyTiles = testColonyTiles(2),
     )
     val p2 = requireP2()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$Viron, $ExtractorBalloons")
     p2.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.cardAction1(ExtractorBalloons)
@@ -74,7 +74,7 @@ internal class VironTest : CardTest() {
   @Test
   internal fun `Repeats an action on another corporation`() {
     newGame(VenusNextExpansion)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$Viron, $Celestic")
     p1.stdAction("DoRequiredActions").expect("2 ProjectCard")
     p1.cardAction1(Celestic) { addCardResources(Celestic) }
@@ -92,7 +92,7 @@ internal class VironTest : CardTest() {
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$Viron, $AtmoCollectors") { addCardResources(AtmoCollectors) }
   }
 }

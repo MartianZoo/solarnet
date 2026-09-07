@@ -30,9 +30,9 @@ private val systemDeclarationsSource =
     "Implementation detail normally omitted from user-facing output"
     ABSTRACT CLASS Hidden
 
-    "No one but Engine can create these"
+    "No one but Admin can create these"
     ABSTRACT CLASS System : Hidden {
-      This BY !Engine: Die
+      This BY !Admin: Die
     }
 
     // Anything that cannot exist after the task queue clears (i.e., the action ends)
@@ -63,8 +63,8 @@ private val systemDeclarationsSource =
       DEFAULT Owned<Owner>
     }
 
-    "The very first component created, which kicks the rest off and performs system operations"
-    CLASS Engine : System, Actor { HAS =1 This }
+    "The neutral table administrator created first to perform system operations"
+    CLASS Admin : System, Actor { HAS =1 This }
 
     "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
     CLASS Ok : Signal

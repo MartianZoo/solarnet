@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.testlib.assertFails
@@ -20,8 +20,8 @@ internal class ActorTest {
     Player.isValid(cn("Player5")) shouldBe true
     Player.isValid("Player6") shouldBe false
     assertFails { Player(cn("Yellow")) }
-    (ENGINE is Player) shouldBe false
-    (ENGINE is Owner) shouldBe false
-    assertFails { Player(cn("Engine")) }
+    (ADMIN is Player) shouldBe false
+    (ADMIN is Owner) shouldBe false
+    assertFails { Player(cn("Admin")) }
   }
 }

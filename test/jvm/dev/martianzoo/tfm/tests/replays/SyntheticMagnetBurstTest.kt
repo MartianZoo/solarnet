@@ -42,7 +42,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // Good luck Pink!
     // Good luck Green!
     // Generation 1
-    engine.assertCounts(1 to "Generation")
+    admin.assertCounts(1 to "Generation")
 
     // Pink rejected CrediCor and EcoTec; Venus Contract and Focused Organization; and Windmills,
     // Open City, and Energy Saving.
@@ -1277,7 +1277,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     pink.cardsHand shouldBe emptySet()
     green.cardsHand shouldBe emptySet()
-    engine.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase")
 
     pink.assertCounts(
         41 to "TerraformRating",

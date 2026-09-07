@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
@@ -21,7 +21,7 @@ import kotlin.test.Test
 internal class TaskAssignmentCharacterizationTest {
   private fun game() =
       Engine.newGame(
-          testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>\nCLASS EngineToken", players = 2)
+          testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>\nCLASS AdminToken", players = 2)
       )
 
   @Test
@@ -56,34 +56,34 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun playerNoneDrainsOnlyEngineWork() {
+  internal fun playerNoneDrainsOnlyAdminWork() {
     val game = game()
     val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
-    val engine = game.agent(ENGINE).also { it.autoExecMode = NONE }
+    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
 
     p2.addTasks("Token<Player2>")
-    engine.addTasks("EngineToken")
+    admin.addTasks("AdminToken")
     p1.autoExecNow()
 
-    engine.count("EngineToken") shouldBe 1
+    admin.count("AdminToken") shouldBe 1
     p2.count("Token<Player2>") shouldBe 0
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
   }
 
   @Test
-  internal fun assignedPlayerCanCompleteATaskPerformedByEngine() {
+  internal fun assignedPlayerCanCompleteATaskPerformedByAdmin() {
     val game = game()
     val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p1.addTasks("Token<Player1> BY Engine")
+    p1.addTasks("Token<Player1> BY Admin")
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER1)
 
-    p1.doTask("Token<Player1> BY Engine")
+    p1.doTask("Token<Player1> BY Admin")
 
     p1.count("Token") shouldBe 1
-    game.events.changesSince(checkpoint).single().actor shouldBe Actor.ENGINE
+    game.events.changesSince(checkpoint).single().actor shouldBe Actor.ADMIN
   }
 
   @Test
@@ -92,23 +92,23 @@ internal class TaskAssignmentCharacterizationTest {
     val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
-    p1.addTasks("(Token<Player1> THEN Marker<Player1>) BY Engine")
+    p1.addTasks("(Token<Player1> THEN Marker<Player1>) BY Admin")
     game.tasks.extract { it.then != null }.shouldContainExactly(true)
 
-    p1.doTask("Token<Player1> BY Engine")
+    p1.doTask("Token<Player1> BY Admin")
 
     p1.count("Token") shouldBe 1
     p1.count("Marker") shouldBe 0
     game.tasks
         .extract { it.instruction.toString() }
-        .shouldContainExactly("Marker<Player1>! BY Engine")
+        .shouldContainExactly("Marker<Player1>! BY Admin")
 
-    p1.doTask("Marker<Player1> BY Engine")
+    p1.doTask("Marker<Player1> BY Admin")
 
     game.events
         .changesSince(checkpoint)
         .map { it.actor }
-        .shouldContainExactly(Actor.ENGINE, Actor.ENGINE)
+        .shouldContainExactly(Actor.ADMIN, Actor.ADMIN)
   }
 
   @Test

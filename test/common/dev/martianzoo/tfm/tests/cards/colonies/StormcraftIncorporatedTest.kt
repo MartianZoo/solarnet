@@ -13,7 +13,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.playCorp(StormcraftIncorporated, 0).expect("48 MC")
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$TitanShuttles")
     p1.cardAction1(StormcraftIncorporated) { doTask("Floater<$TitanShuttles>") }
         .expect("Floater<$TitanShuttles>")
@@ -22,7 +22,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
   @Test
   internal fun `Can spend a floater as two heat for an action cost`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$StormcraftIncorporated, Floater<$StormcraftIncorporated>, 6 Heat")
 
     p1.stdAction(
@@ -71,7 +71,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
 
   private fun initializeStormcraftGame(floaters: Int, heat: Int) {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    engine.phase("Action")
+    admin.phase("Action")
     val heatSetup = if (heat == 0) "" else ", $heat Heat"
     p1.manual(
         "$StormcraftIncorporated, $floaters Floater<$StormcraftIncorporated>$heatSetup, ProjectCard, 1 MC"

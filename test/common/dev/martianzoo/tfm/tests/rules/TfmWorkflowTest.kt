@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -19,7 +19,7 @@ internal class TfmWorkflowTest {
   @Test
   internal fun turnDeclinesAnUnusedSecondAction() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -31,14 +31,14 @@ internal class TfmWorkflowTest {
     p2.pass()
     p1.pass()
 
-    engine.assertCounts(2 to "Generation", 1 to "ResearchPhase")
+    admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
     workflow.shutdown()
   }
 
   @Test
   internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -53,7 +53,7 @@ internal class TfmWorkflowTest {
       pass()
     }
 
-    engine.assertCounts(2 to "Generation", 1 to "ResearchPhase")
+    admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
     workflow.shutdown()
   }
 

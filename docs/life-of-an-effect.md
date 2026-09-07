@@ -159,7 +159,7 @@ Recyclon as Context.
 Step 7 does nothing to Recyclon or Manutech because both belong to an `Owned` hierarchy. Its
 canonical case is the ownerless `GlobalParameter` rule `This: TerraformRating`. Defaults elaborate
 the result to `TerraformRating<Owner>!`, but its Trigger has no owner expression. The step produces
-`This BY Owner: TerraformRating<Owner>!`, allowing a triggering Player—but not Engine—to supply the
+`This BY Owner: TerraformRating<Owner>!`, allowing a triggering Player—but not Admin—to supply the
 contextual owner. This is an implicit Actor rule from the icon grammar, not Type-variable linkage.
 
 Recyclon's Class Effects consist of the Source Effects contributed by Recyclon and all its

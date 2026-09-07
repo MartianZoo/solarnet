@@ -1,6 +1,6 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.cardActions
 import dev.martianzoo.tfm.canon.cardBack
@@ -10,9 +10,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   fun commandNames(): List<ScriptCompletion> =
       repl.commands.values.map { ScriptCompletion(it.name, "commands", it.usage) }
 
-  fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
+  fun playerNames(includeAdmin: Boolean = true): List<ScriptCompletion> {
     val players = repl.game.actors.filterIsInstance<Player>()
-    val eligiblePlayers = if (includeEngine) players + ENGINE else players
+    val eligiblePlayers = if (includeAdmin) players + ADMIN else players
     return eligiblePlayers.map {
       ScriptCompletion(repl.game.vocabulary.petsName(it.className).toString(), "players")
     }

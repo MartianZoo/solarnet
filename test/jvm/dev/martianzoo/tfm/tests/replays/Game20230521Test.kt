@@ -986,7 +986,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       }
     }
 
-    engine.assertCounts(6 to "VenusStep")
+    admin.assertCounts(6 to "VenusStep")
 
     // Player1 played Sulphur Exports
     // Player1's mc production increased by 8
@@ -1784,7 +1784,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player2 sold 3 patents
       sellPatents(3)
     }
-    engine.assertCounts(9 to "OceanTile")
+    admin.assertCounts(9 to "OceanTile")
     // Player1 played Large Convoy
     // Player1 drew 2 card(s)
     // You drew Water Splitting Plant and Martian Survey

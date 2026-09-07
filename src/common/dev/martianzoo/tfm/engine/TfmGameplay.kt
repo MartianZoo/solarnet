@@ -21,7 +21,7 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
@@ -56,7 +56,7 @@ public class TfmGameplay(
 
   public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
-    asActor(ENGINE).manual("Generation")
+    asActor(ADMIN).manual("Generation")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
         asPlayer(player).buyCards(cards)
@@ -631,7 +631,7 @@ public class TfmGameplay(
           "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
       )
     }
-    asActor(ENGINE).manual("${phase}Phase FROM Phase", body)
+    asActor(ADMIN).manual("${phase}Phase FROM Phase", body)
   }
 
   public fun production(kind: ClassName): Int =

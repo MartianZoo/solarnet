@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
@@ -78,8 +78,8 @@ public object Engine {
     private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
     private val initializer =
         Initializer(
-            agentByActor.getValue(ENGINE),
-            instructorByActor.getValue(ENGINE),
+            agentByActor.getValue(ADMIN),
+            instructorByActor.getValue(ADMIN),
             taskQueues,
             classTable,
             timeline,
@@ -113,7 +113,7 @@ public object Engine {
         val count = reader.countComponent(type)
         if (count > 0) {
           instructorByActor
-              .getValue(ENGINE)
+              .getValue(ADMIN)
               .execute(remove(type, count), cause = null)
               .forEach(taskQueues::addTasks)
         }

@@ -15,7 +15,7 @@ internal class PhilaresTest : CardTest() {
     val p2 = requireP2()
     p2.manual("$Philares, GreeneryTile<Tharsis_3_2>")
     p1.manual("23 MC")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdProject("GreenerySP") {
       placeTile(4, 3)
@@ -57,7 +57,7 @@ internal class PhilaresTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("$Philares")
     p1.manual("23 MC")
-    engine.phase("Action")
+    admin.phase("Action")
     p1.stdAction("DoRequiredActions") { placeTile(4, 2) }
     p1.stdProject("GreenerySP") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")
   }

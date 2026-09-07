@@ -3,7 +3,7 @@ package dev.martianzoo.pets.data
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.types.ClassTable
 
 /** The complete immutable input from which equivalent playable worlds are constructed. */
@@ -70,7 +70,7 @@ public data class GamePremise(
 
   /** The administrative Actor plus the seated Players. */
   public val actors: List<Actor>
-    get() = playerClassNames.map { Player(it) } + ENGINE
+    get() = playerClassNames.map { Player(it) } + ADMIN
 
   /** Builds presentation and input translation for this premise's projected class names. */
   public fun createVocabulary(

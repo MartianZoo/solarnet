@@ -38,7 +38,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     val KB = p2
     val ER = p3
 
-    engine.assertCounts(1 to "Generation")
+    admin.assertCounts(1 to "Generation")
 
     // Player-record evidence: JR rejected Teractor and PolderTECH Dutch; UNMI Contractor and
     // Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar Colony Ship,
@@ -345,7 +345,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.playProject(AsteroidCard, 2, titanium = 3) { doTask("-3 Plant<JR>") }
         .expect("-3 MC<KB>, 3 MC<JR>")
     JR.pass()
-    engine.assertCounts(8 to "TemperatureStep")
+    admin.assertCounts(8 to "TemperatureStep")
     KB.playProject(DesignedMicroorganisms, 15)
     KB.convertHeat()
     ER.playProject(SolarWindPower, 3, titanium = 2).expect("0 Titanium")

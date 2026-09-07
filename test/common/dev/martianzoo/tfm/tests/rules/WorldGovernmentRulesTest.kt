@@ -22,31 +22,31 @@ internal class WorldGovernmentRulesTest : CardTest() {
     p1.manual("15 VenusStep")
     TfmWorkflow.Manual(game).solarPhase()
 
-    shouldThrow<LimitsException> { p1.doTask("VenusStep! BY Engine") }
-    p1.doTask("TemperatureStep! BY Engine")
+    shouldThrow<LimitsException> { p1.doTask("VenusStep! BY Admin") }
+    p1.doTask("TemperatureStep! BY Admin")
   }
 
   @Test
-  internal fun `Engine terraforming triggers Aphrodite without granting terraform rating`() {
+  internal fun `Admin terraforming triggers Aphrodite without granting terraform rating`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.manual("$Aphrodite")
     val moneyBefore = p1.count("MC")
     val ratingBefore = p1.count("TerraformRating")
     TfmWorkflow.Manual(game).solarPhase()
 
-    p1.doTask("VenusStep! BY Engine")
+    p1.doTask("VenusStep! BY Admin")
 
     p1.count("MC") shouldBe moneyBefore + 2
     p1.count("TerraformRating") shouldBe ratingBefore
   }
 
   @Test
-  internal fun `Engine terraforming does not trigger an owner-only effect`() {
+  internal fun `Admin terraforming does not trigger an owner-only effect`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.manual("$HomeostasisBureau")
     TfmWorkflow.Manual(game).solarPhase()
 
-    p1.doTask("TemperatureStep! BY Engine")
+    p1.doTask("TemperatureStep! BY Admin")
 
     p1.count("MC") shouldBe 0
   }
@@ -74,7 +74,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
 
     TfmWorkflow.Manual(game).solarPhase()
-    p1.doTask("TemperatureStep! BY Engine")
+    p1.doTask("TemperatureStep! BY Admin")
 
     p1.count("TemperatureStep") shouldBe 1
   }

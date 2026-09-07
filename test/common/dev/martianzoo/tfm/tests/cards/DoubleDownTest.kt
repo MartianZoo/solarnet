@@ -13,7 +13,7 @@ internal class DoubleDownTest : CardTest() {
   fun initializeGame() {
     newGame(PreludeExpansion, PromoCardPack)
     p1.playCorp(PharmacyUnion, 5)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.playPrelude(BiosphereSupport)
   }
 

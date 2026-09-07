@@ -44,7 +44,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         )
     game.classTable.isActive(cn("Merchant")) shouldBe true
     p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("ClaimMilestone") { doTask("Merchant") }
 
@@ -57,7 +57,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     newGame(GameConfig("$milestone, Builder, Engineer$modules", "Player1", "Player2"))
     p1.manual("8 M")
     p1.manual("PROD[5 Steel, 5 Titanium, 5 Plant]")
-    engine.phase("Action")
+    admin.phase("Action")
 
     shouldThrow<RequirementException> { p1.manual(milestone) }
 

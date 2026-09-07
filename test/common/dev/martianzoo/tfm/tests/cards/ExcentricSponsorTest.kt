@@ -9,7 +9,7 @@ internal class ExcentricSponsorTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion, PreludeExpansion)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.manual("44 MC, ProjectCard, PreludeCard")
   }
 

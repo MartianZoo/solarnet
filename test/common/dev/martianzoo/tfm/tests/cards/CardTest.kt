@@ -5,7 +5,7 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
@@ -118,7 +118,7 @@ internal abstract class CardTest(
   private fun World.initializeCardTestGame(): World = apply {
     bindPlayers()
     finishSoloSetup()
-    tfm(ENGINE).phase("Corporation")
+    tfm(ADMIN).phase("Corporation")
   }
 
   private fun finishSoloSetup() {
@@ -135,8 +135,8 @@ internal abstract class CardTest(
         }
 
     cities.zip(greeneries).forEach { (city, greenery) ->
-      engine.doTask("CityTile<$city, SoloOpponent>")
-      engine.doTask("GreeneryTile<$greenery, SoloOpponent>")
+      admin.doTask("CityTile<$city, SoloOpponent>")
+      admin.doTask("GreeneryTile<$greenery, SoloOpponent>")
     }
   }
 
@@ -152,7 +152,7 @@ internal abstract class CardTest(
       startingMc: Int = 500,
   ) {
     playCorporations(corporations.toList())
-    check(engine.count("PreludePhase") == 1) { "This game has no Prelude phase" }
+    check(admin.count("PreludePhase") == 1) { "This game has no Prelude phase" }
     p1.topOffMoney(startingMc)
   }
 
@@ -161,18 +161,18 @@ internal abstract class CardTest(
       startingMc: Int = 500,
   ) {
     playCorporations(corporations.toList())
-    if (engine.count("PreludePhase") == 1) {
+    if (admin.count("PreludePhase") == 1) {
       val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
       players.zip(BORING_PRELUDES).forEach { (player, preludes) ->
         player.turn { preludes.forEach { playPrelude(it) } }
       }
     }
-    check(engine.count("ActionPhase") == 1) { "The game did not reach its first Action phase" }
+    check(admin.count("ActionPhase") == 1) { "The game did not reach its first Action phase" }
     p1.topOffMoney(startingMc)
   }
 
   private fun playCorporations(requested: List<ClassName>) {
-    check(engine.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
+    check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }

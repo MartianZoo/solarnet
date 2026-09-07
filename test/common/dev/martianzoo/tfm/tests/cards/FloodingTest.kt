@@ -44,7 +44,7 @@ internal class FloodingTest : CardTest() {
     val players = Player.players(4)
     val p3 = game.tfm(players[2])
     val p4 = game.tfm(players[3])
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("7 MC, ProjectCard")
     p2.manual("10 MC, CityTile<Tharsis_4_3>")
     p3.manual("10 MC, CityTile<Tharsis_5_3>")

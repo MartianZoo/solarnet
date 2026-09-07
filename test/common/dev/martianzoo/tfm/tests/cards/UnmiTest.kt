@@ -18,7 +18,7 @@ internal class UnmiTest : CardTest() {
     newGame()
     p1.manual("TemperatureStep")
     p1.playCorp(UnitedNationsMarsInitiative, 0)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
   }
 
@@ -31,6 +31,6 @@ internal class UnmiTest : CardTest() {
   private fun initializeUnmi() {
     newGame()
     p1.playCorp(UnitedNationsMarsInitiative, 0)
-    engine.phase("Action")
+    admin.phase("Action")
   }
 }

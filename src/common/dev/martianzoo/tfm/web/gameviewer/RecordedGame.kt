@@ -31,8 +31,8 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 public abstract class RecordedGame {
   protected lateinit var game: World
 
-  protected val engine: TfmGameplay
-    get() = game.tfm(dev.martianzoo.pets.data.Actor.ENGINE)
+  protected val admin: TfmGameplay
+    get() = game.tfm(dev.martianzoo.pets.data.Actor.ADMIN)
 
   protected abstract val config: GameConfig
   protected open val catalog: TfmCatalog = Canon
@@ -80,10 +80,10 @@ public abstract class RecordedGame {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
-  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Engine")
+  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
   protected fun OperationBody.wgt(choice: String) {
-    doTask("$choice! BY Engine")
+    doTask("$choice! BY Admin")
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {

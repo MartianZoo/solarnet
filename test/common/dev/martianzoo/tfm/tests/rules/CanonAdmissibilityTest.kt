@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -46,7 +46,7 @@ internal class CanonAdmissibilityTest {
       val world = Engine.newGame(canonicalPremise(option))
 
       world.classTable.isActive(cn(mapClass)) shouldBe true
-      world.actors.shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
+      world.actors.shouldContainExactly(PLAYER1, PLAYER2, ADMIN)
       world.isIdle() shouldBe true
     }
   }

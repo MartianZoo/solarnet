@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -50,7 +50,7 @@ internal class ActionSequencingTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     p1.manual("$Steelworks, 4 Energy")
-    game.tfm(ENGINE).phase("Action")
+    game.tfm(ADMIN).phase("Action")
 
     p1.manual("UseAction<$Steelworks, Action1>") { p1.pay(energy = 4) }
 

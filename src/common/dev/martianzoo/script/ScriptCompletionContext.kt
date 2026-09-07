@@ -32,8 +32,8 @@ private constructor(
 
   internal fun commandNames(): List<ScriptCompletion> = sources.commandNames()
 
-  internal fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> =
-      sources.playerNames(includeEngine)
+  internal fun playerNames(includeAdmin: Boolean = true): List<ScriptCompletion> =
+      sources.playerNames(includeAdmin)
 
   internal fun classNames(): List<ScriptCompletion> = sources.classNames()
 

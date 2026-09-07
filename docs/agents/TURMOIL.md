@@ -571,7 +571,7 @@ A Player-authored parameter gain supplies a contextual Player, so the effect cre
 mandatory TerraformRating. In the target vocabulary World Government Terraforming is authored
 `BY Admin`; Admin is not a Player, and the current effect machinery silently produces no
 TerraformRating task when it cannot obtain a contextual Player. Current source still spells the
-Actor `Engine`.
+Actor `Admin`.
 
 That outcome is correct for the game, but its present explanation may not be. Investigate whether
 the rule should instead state its applicability explicitly:

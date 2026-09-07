@@ -13,7 +13,7 @@ internal class ThorgateTest : CardTest() {
     newGame()
     p1.playCorp(ThorGate, 10)
     p1.manual("-10 MC")
-    engine.phase("Action")
+    admin.phase("Action")
   }
 
   @Test

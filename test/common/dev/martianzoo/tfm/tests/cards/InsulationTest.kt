@@ -11,7 +11,7 @@ internal class InsulationTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("2 MC, ProjectCard, PROD[-1 MC, 3 Heat]")
   }
 

@@ -10,7 +10,7 @@ internal class MassiveDiscountsTest : CardTest() {
   internal fun `Stacks with other card discounts`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual(
         "5 MC, 2 ProjectCard, Steel, Titanium, $AntiGravityTechnology, $EarthCatapult, " +
             "$ResearchOutpost, $MassConverter, $QuantumExtractor, $Shuttles, $SpaceStation, " +

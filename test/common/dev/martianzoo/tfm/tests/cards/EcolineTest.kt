@@ -12,7 +12,7 @@ internal class EcolineTest : CardTest() {
   fun initializeGame() {
     newGame()
     p1.manual("$Ecoline")
-    engine.phase("Action")
+    admin.phase("Action")
   }
 
   @Test

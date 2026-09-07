@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.data.Player.Companion.PLAYER3
@@ -27,21 +27,21 @@ internal class RankMetricTest {
     game.agent(PLAYER2).manual("2 Score<Player2>")
     game.agent(PLAYER3).manual("2 Score<Player3>, Cash<Player3>")
 
-    game.agent(ENGINE).manual("EACH Player(HAS =2 (RANK Player { Score })) { Prize<Player> }")
+    game.agent(ADMIN).manual("EACH Player(HAS =2 (RANK Player { Score })) { Prize<Player> }")
 
     game.agent(PLAYER1).count("Prize<Player1>") shouldBe 0
     game.agent(PLAYER2).count("Prize<Player2>") shouldBe 1
     game.agent(PLAYER3).count("Prize<Player3>") shouldBe 1
 
     game
-        .agent(ENGINE)
+        .agent(ADMIN)
         .manual("EACH Player(HAS =2 (RANK Player { Score, Cash })) { TieBreakPrize<Player> }")
     game.agent(PLAYER1).count("TieBreakPrize<Player1>") shouldBe 0
     game.agent(PLAYER2).count("TieBreakPrize<Player2>") shouldBe 0
     game.agent(PLAYER3).count("TieBreakPrize<Player3>") shouldBe 1
 
     game
-        .agent(ENGINE)
+        .agent(ADMIN)
         .manual("EACH Player(HAS =3 (RANK Player { 99 - Score })) { InversePrize<Player> }")
     game.agent(PLAYER1).count("InversePrize<Player1>") shouldBe 1
     game.agent(PLAYER2).count("InversePrize<Player2>") shouldBe 0
@@ -61,13 +61,13 @@ internal class RankMetricTest {
                 players = 2,
             )
         )
-    val engine = game.agent(ENGINE)
+    val admin = game.agent(ADMIN)
     val p1 = game.agent(PLAYER1)
     val p2 = game.agent(PLAYER2)
     p1.manual("Score, Candidate")
     p2.manual("2 Score, Candidate")
 
-    engine.manual("EACH Candidate(HAS =1 (RANK Candidate { Score<Owner> })) { Prize<Owner> }")
+    admin.manual("EACH Candidate(HAS =1 (RANK Candidate { Score<Owner> })) { Prize<Owner> }")
 
     p1.count("Prize") shouldBe 0
     p2.count("Prize") shouldBe 1

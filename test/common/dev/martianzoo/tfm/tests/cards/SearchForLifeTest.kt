@@ -8,7 +8,7 @@ internal class SearchForLifeTest : CardTest() {
   @Test
   internal fun `Reveals a project card before checking its microbe tag`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$SearchForLife, 1 MC")
 
     p1.cardAction1(SearchForLife) {
@@ -26,10 +26,10 @@ internal class SearchForLifeTest : CardTest() {
   @Test
   internal fun `Scores three points when it has a science resource`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$SearchForLife, 1 MC")
     p1.cardAction1(SearchForLife) { doTask("Science<$SearchForLife>") }
-    engine.manual("End FROM Phase")
+    admin.manual("End FROM Phase")
     p1.assertCounts(23 to "VictoryPoint")
   }
 }

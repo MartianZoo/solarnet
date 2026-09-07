@@ -8,7 +8,7 @@ internal class HermeticOrderOfMarsTest : CardTest() {
   @Test
   internal fun `Gains money for each empty area adjacent to its own tiles`() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual(
         "10 MC, ProjectCard, CityTile<Tharsis_1_1>, CityTile<Tharsis_2_1>, " +
             "CityTile<Tharsis_2_2>"
