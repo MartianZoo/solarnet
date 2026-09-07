@@ -91,6 +91,19 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  internal fun invalidModeReportsTheValidModes() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf(
+            "Valid modes are: red, yellow, green, blue, purple",
+            "Usage: mode <mode name>",
+        ),
+        repl.command("mode orange"),
+    )
+  }
+
+  @Test
   internal fun descIncludesCanonicalAndAlternateClassNames() {
     val description = ScriptSession().command("desc Birds").single()
 

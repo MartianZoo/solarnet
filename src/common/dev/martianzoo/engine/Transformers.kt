@@ -298,7 +298,6 @@ public class Transformers(public val classTable: ClassTable) {
         }
       }
 
-  @Suppress("ComplexCondition") // TODO: fix that
   internal fun atomizer(): PetTransformer {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 

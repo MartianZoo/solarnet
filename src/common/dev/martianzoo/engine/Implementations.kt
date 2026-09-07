@@ -163,7 +163,6 @@ internal class Implementations(
     while (autoExecNext(mode)) {}
   }
 
-  @Suppress("CyclomaticComplexMethod") // TODO: improve this
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
     if (allTasks.isEmpty()) return false
 

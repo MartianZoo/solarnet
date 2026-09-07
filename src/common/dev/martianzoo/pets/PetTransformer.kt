@@ -172,7 +172,6 @@ public abstract class PetTransformer protected constructor() {
   }
 
   /** Returns [node] rebuilt after recursively transforming each immediate child. */
-  @Suppress("CyclomaticComplexMethod") // TODO: break up
   protected fun transformChildren(node: PetNode): PetNode {
     fun expressions(nodes: Iterable<Expression>): List<Expression> =
         nodes.map(::transformExpression)
