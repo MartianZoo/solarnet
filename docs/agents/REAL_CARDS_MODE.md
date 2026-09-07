@@ -151,6 +151,7 @@ location by Player. Only card backs have a location; a card front represents a c
 | `Hand` | back | acquired card available to its Player |
 | `Selecting` | back | Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
+| five `SelfReplicatingRobotsBerth` subtypes of `StagedProject` | back | independently discounted cards staged by `FakeSelfReplicatingRobots` |
 
 Cards retain direct ownership in every location. It identifies whose choice or reveal operation the
 card belongs to and supplies the usual contextual `Owner`, task routing, defaults, and queries.
@@ -437,14 +438,28 @@ returns those exact cards to `Hand`, and awards that quantity. Completed Events 
 as `PlayedEvent` and need no transform.
 
 Follow mode has an intermediate model named `CardLocation`. A generic `CardBack`
-depends on one of `Hand`, `Selecting`, or `Revealed`, but does not
-depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
+depends on `Hand`, `Selecting`, `Revealed`, or one of Self-Replicating Robots' five named berths,
+but does not depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
 
-All three locations are permanent ownerless `System` components. A card entering `Selecting` or
-`Revealed` automatically creates at most one `CardLocationCleanup` for that location. The cleanup is
-`Temporary`: when the World becomes idle, removing it removes the location, dependency cleanup
-discards any cards left there, and the location immediately recreates itself. This lifecycle is
-authored entirely in Pets; the marked-syntax handler does not create, remove, or clean locations.
+Every location is a permanent ownerless `System` component. A card entering `Selecting` or
+`Revealed` automatically creates at most one `CardLocationCleanup` for that transient-use location.
+The cleanup is `Temporary`: when the World becomes idle, removing it removes the location,
+dependency cleanup discards any cards left there, and the location immediately recreates itself.
+`FakeSelfReplicatingRobots`' berths instead persist with their staged cards between actions. These
+lifecycles are authored entirely in Pets; the marked-syntax handler does not create, remove, or
+clean locations.
+
+`QuasiResource<QuasiResourceHolder>` is the narrow overlap between ordinary `CardResource`s and
+`FakeSelfReplicatingRobots`' `StoredCardDiscount`s. `ResourceHolder` and the five berths are its holder
+types. CEO's Favorite Project targets that overlap, while `Resource` and `CardResource` queries
+continue to exclude the typeless discounts. Each stored discount listens for
+`ReplicateForStagedProject<CardBack<StagedProject>>` and creates one copy of itself, so the ordinary
+live-effect multiplicity doubles exactly the berth of the selected card.
+
+Follow mode does not retain the staged back's represented `Class<CardFront>`. It therefore cannot
+currently enforce the printed Building/Space staging restriction or expose a staged card's printed
+Venus tag to Corroder Suits and Maxwell Base. The FAQ scenarios remain explicit tests rather than
+being approximated with in-play tags.
 
 Printed-face predicates are still delegated to the follow-mode client: `SearchForCard` predicates
 and refinements on generic backs are erased, and a filtered retention becomes an explicit optional
