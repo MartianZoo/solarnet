@@ -611,6 +611,9 @@ Class-header declaration may have uses in several comma-separated Effects.
 - Trigger `X` and repeated `X` in `THEN` bind a scalar event count, not a Type variable.
 - A refined `Class<Tag>` binds the represented candidate Class while testing its Requirement, as
   described in section 6. That represented-Class substitution is not an authored Type variable.
+- `RANK Selector { ... }` owns the candidate-name scope in its Metrics. A surrounding refined
+  `Class<T>` therefore does not rewrite that subtree while specializing its represented Class;
+  ranking binds the selected peer later, including through a Complement.
 
 ### Lifetime and specialization
 

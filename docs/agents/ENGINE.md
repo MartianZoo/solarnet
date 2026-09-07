@@ -490,8 +490,8 @@ before union.
 `RANK Selector { Metric, ... }` is a highest-first competition rank over the distinct live Types
 matching `Selector`: equal score vectors receive the same rank and later ranks skip the tied places.
 Multiple Metrics are compared lexicographically. Each score binds the candidate name and contextual
-`Owner` as an `EACH` body does. There is no direction keyword; a known upper cap minus a Metric can
-express lowest-first scoring.
+`Owner` as an `EACH` body does, including complemented occurrences of the candidate. There is no
+direction keyword; a known upper cap minus a Metric can express lowest-first scoring.
 
 An abstract custom metric specializes only over dependency targets represented by live components,
 then sums the satisfying concrete implementations. This follows the ordinary dependency rule that

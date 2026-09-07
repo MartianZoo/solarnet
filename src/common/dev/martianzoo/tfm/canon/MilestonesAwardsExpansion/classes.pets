@@ -14,15 +14,13 @@ CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
 CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
 CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
-// GrossHack contributes five synthetic M€ production components, so 21 models the printed
-// combined production threshold of 16, and 27 models Producer22's 22.
 CLASS Producer : Milestone {
   HAS MAX 0 QuickStartVariant
-  requirement = HAS "21 PROD[StandardResource]"
+  requirement = HAS "16 (PROD[StandardResource] - ProdOffset)"
 }
 CLASS Producer22 : Milestone {
   HAS QuickStartVariant
-  requirement = HAS "27 PROD[StandardResource]"
+  requirement = HAS "22 (PROD[StandardResource] - ProdOffset)"
 }
 CLASS Tactician : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
 CLASS Terraformer : Milestone { requirement = HAS "29 TerraformRating" }

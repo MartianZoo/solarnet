@@ -20,7 +20,7 @@ CLASS RobinsonIndustries : ActionCard<Class<CorporationCard>> {
 
   This: 47 MC
 
-  4 MC -> PROD[StandardResource(HAS LowestProduction)]
+  4 MC -> PROD[StandardResource(HAS =1 (RANK Class<StandardResource> { Production<!Class<StandardResource>> OR ProdOffset<Class<StandardResource>> }))]
 }
 
 CLASS ValleyTrust : CardFront<Class<CorporationCard>> {
@@ -319,6 +319,4 @@ CLASS SpaceHotels : AutomatedCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS LowestProduction<Class<StandardResource>> : Custom, Owned
-
 CLASS NonNegativeIconsOf<CardFront, Class<Component>> : Custom

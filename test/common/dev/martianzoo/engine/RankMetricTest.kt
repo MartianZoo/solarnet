@@ -19,6 +19,7 @@ internal class RankMetricTest {
                 CLASS Prize : Owned<Player>
                 CLASS TieBreakPrize : Owned<Player>
                 CLASS InversePrize : Owned<Player>
+                CLASS ComplementPrize : Owned<Player>
                 """,
                 players = 3,
             )
@@ -46,6 +47,13 @@ internal class RankMetricTest {
     game.agent(PLAYER1).count("InversePrize<Player1>") shouldBe 1
     game.agent(PLAYER2).count("InversePrize<Player2>") shouldBe 0
     game.agent(PLAYER3).count("InversePrize<Player3>") shouldBe 0
+
+    game
+        .agent(ADMIN)
+        .manual("EACH Player(HAS =1 (RANK Player { Score<!Player> })) { ComplementPrize<Player> }")
+    game.agent(PLAYER1).count("ComplementPrize<Player1>") shouldBe 0
+    game.agent(PLAYER2).count("ComplementPrize<Player2>") shouldBe 1
+    game.agent(PLAYER3).count("ComplementPrize<Player3>") shouldBe 1
   }
 
   @Test
@@ -71,5 +79,26 @@ internal class RankMetricTest {
 
     p1.count("Prize") shouldBe 0
     p2.count("Prize") shouldBe 1
+  }
+
+  @Test
+  internal fun rankKeepsItsCandidateScopeInsideARepresentedClassRefinement() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Kind { CLASS FirstKind, SecondKind }
+                CLASS Score<Class<Kind>>
+                CLASS Prize<Class<Kind>>
+                """
+            )
+        )
+    val admin = game.agent(ADMIN)
+    admin.manual("3 Score<Class<FirstKind>>, Score<Class<SecondKind>>")
+
+    admin.manual("Prize<Class<Kind>(HAS =1 (RANK Class<Kind> { Score<!Class<Kind>> }))>")
+
+    admin.count("Prize<Class<FirstKind>>") shouldBe 0
+    admin.count("Prize<Class<SecondKind>>") shouldBe 1
   }
 }

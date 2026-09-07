@@ -61,8 +61,10 @@ Highest-first `Metric.Rank` now serves both award placement and multiplayer vict
 competition ties and lexicographic victory-point/MC comparison. Their custom declarations,
 registrations, and Kotlin implementations have been removed.
 
-Robinson Industries already uses refined production instructions. Its
-`LowestProduction` custom metric remains the honest bridge for identifying tied lowest production.
+Robinson Industries uses refined production instructions plus `RANK` over the other five production
+counts. The five `ProdOffset<Class<MC>>` components compensate for M€ production's stored offset;
+the generic resource dependency lets the rank query follow each candidate resource, so tied lowest
+production follows from ordinary counts without a custom metric.
 
 After any further removal, delete its custom declaration, registration, implementation, and
 custom-interface tests while retaining end-to-end gameplay coverage.

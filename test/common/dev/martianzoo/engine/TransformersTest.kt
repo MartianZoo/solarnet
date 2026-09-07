@@ -203,10 +203,10 @@ internal class TransformersTest {
 
   @Test
   internal fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
-    val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
+    val prodden: Instruction = parse("PROD[StandardResource(HAS EligibleResource)]")
 
     transformers.transformMarkedSyntax().transformInstruction(prodden).toString() shouldBe
-        "Production<Class<StandardResource>(HAS LowestProduction)>"
+        "Production<Class<StandardResource>(HAS EligibleResource)>"
   }
 
   @Test
