@@ -1,30 +1,15 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
-
-private val fakeEstablishedMethodsDefinition =
-    parseOneLinerClass(
-        "CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> { cost = 0; This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>! }"
-    )
-
-private val solarFusionStreamCatalog =
-    Canon.withNonstandardClasses(setOf(fakeEstablishedMethodsDefinition))
-
 // Complete archive replay: Solar Fusion Stream (g4ce040d78bb6)
 // https://terraforming-mars.herokuapp.com/the-end?id=pc2de3208e4ca
 internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
-  override val catalog = solarFusionStreamCatalog
-
   // Player-record evidence: Elysium, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, and these limited-synergy milestone and award pools.
   // Unsupported component: unclaimed Terraformer substitutes for unclaimed Hydrologist.
@@ -34,7 +19,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
           """
           ElysiumMap
           PreludeExpansion, PromoCardPack
-          FakeBundle, FakeEstablishedMethods
+          FakeCardsCardPack
 
           Builder, Philantropist, Spacefarer, Terraformer, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
@@ -99,13 +84,13 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
 
     KB.turn {
-      playPrelude(fakeResearchNetwork) {
+      playPrelude(FakeResearchNetwork) {
             draw(ResearchOutpost, RestrictedArea, AcquiredCompany)
           }
           .expect("PROD[1 MC], FakeWildTag")
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
-      playPrelude(fakeEstablishedMethods) {
+      playPrelude(FakeEstablishedMethods) {
             doTask("UseAction<PowerPlantSP, Action1>")
             pay(11)
             doTask("UseAction<PowerPlantSP, Action1>")

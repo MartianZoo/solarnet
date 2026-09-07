@@ -3,16 +3,15 @@ package dev.martianzoo.benchmarks
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.web.gameviewer.cardnames.FakeEstablishedMethods
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
@@ -23,19 +22,6 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
-
-private val fakeEstablishedMethodsDefinition =
-    parseOneLinerClass(
-        "CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> { cost = 0; This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>! }"
-    )
-
-private val busyPreludeCatalog =
-    TfmCatalog.compose(
-        Canon,
-        object : TfmCatalog() {
-          override val explicitClassDeclarations = setOf(fakeEstablishedMethodsDefinition)
-        },
-    )
 
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
@@ -50,10 +36,10 @@ public open class BusyPreludePhaseBenchmark {
   public fun setUp() {
     game =
         Engine.newGame(
-            busyPreludeCatalog.gamePremise(
+            Canon.gamePremise(
                 GameConfig(
                     "TerraformingMars, TharsisMap, PreludeExpansion, " +
-                        "ColoniesExpansion, PromoCardPack, FakeEstablishedMethods, Callisto, Ceres, Ganymede, " +
+                        "ColoniesExpansion, PromoCardPack, FakeCardsCardPack, Callisto, Ceres, Ganymede, " +
                         "Luna",
                     "Me",
                 )
@@ -80,7 +66,7 @@ public open class BusyPreludePhaseBenchmark {
     me.playCorp(cn("Teractor"), 10)
 
     workflow.preludePhase()
-    me.playPrelude(cn("FakeEstablishedMethods")) {
+    me.playPrelude(FakeEstablishedMethods) {
       doTask("UseAction<PlayCardFromHand, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>")
       me.pay(0)
@@ -99,7 +85,7 @@ public open class BusyPreludePhaseBenchmark {
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("DoRequiredActions") {
       me.playPrelude(cn("DoubleDown")) {
-        doTask("CopyPrelude<FakeEstablishedMethods>")
+        doTask("CopyPrelude<$FakeEstablishedMethods>")
         doTask("UseAction<PlayCardFromHand, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>")
         me.pay(0)

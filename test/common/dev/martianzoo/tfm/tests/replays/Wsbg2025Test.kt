@@ -25,7 +25,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           """
           ElysiumMap
           PreludeExpansion
-          FakeBundle
+          FakeCardsCardPack
           """,
           "Stanley",
           "Jacopo",
@@ -54,7 +54,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       playPrelude(Biofuels)
-      playPrelude(fakeResearchNetwork)
+      playPrelude(FakeResearchNetwork)
     }
     jon.turn {
       playPrelude(EarlySettlement) { placeTile(8, 8) }
@@ -86,7 +86,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       declineSecondAction()
     }
     jacopo.turn {
-      playProject(fakeResearchCoordination, 4)
+      playProject(FakeResearchCoordination, 4)
       declineSecondAction()
     }
     jon.pass()

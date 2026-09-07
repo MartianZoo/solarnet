@@ -24,7 +24,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
-          FakeBundle
+          FakeCardsCardPack
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
@@ -244,7 +244,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I pay four for Research Coordination."
-      playProject(fakeResearchCoordination, 4)
+      playProject(FakeResearchCoordination, 4)
     }
 
     yellow.turn {

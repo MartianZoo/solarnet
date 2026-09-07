@@ -56,11 +56,11 @@ internal class BugsTest : CardTest() {
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
-    newGame(PreludeExpansion, TurmoilCardPack, PromoCardPack)
+    newGame(PreludeExpansion, TurmoilCardPack, FakeCardsCardPack)
     p1.phase("Prelude")
     p1.manual("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
 
-    p1.playPrelude(HeadStart) {
+    p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
       doTask("UseAction<ConvertHeat, Action1>")
       doTask("8 Pay<Class<Heat>> FROM Heat")

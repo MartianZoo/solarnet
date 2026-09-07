@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
-import dev.martianzoo.tfm.web.gameviewer.fakeResearchCoordination
 import dev.martianzoo.tfm.web.gameviewer.fakeWildTags
 
 public class OtbGame20260818 : RecordedGame() {
@@ -17,7 +16,7 @@ public class OtbGame20260818 : RecordedGame() {
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
-          FakeBundle
+          FakeCardsCardPack
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
@@ -163,7 +162,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(fakeResearchCoordination, 4)
+      playProject(FakeResearchCoordination, 4)
     }
 
     yellow.turn {
