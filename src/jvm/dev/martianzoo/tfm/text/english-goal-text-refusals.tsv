@@ -1,0 +1,3 @@
+count	reason	examples
+2	UNKNOWN_REQUIREMENT_FRAME	Briber: Briber | Philantropist: 5 CardFront(HAS GainsOf<Class<VictoryPoint>>)
+1	UNSUPPORTED_METRIC	Suburbian: OwnedTile(HAS MAX 5 Neighbor)

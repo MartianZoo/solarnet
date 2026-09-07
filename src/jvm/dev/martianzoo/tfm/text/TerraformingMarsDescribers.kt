@@ -35,6 +35,7 @@ internal object TerraformingMarsDescribers {
         klass("ProjectCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                countNoun = ComponentDescriber.Noun.Counted("card", "cards"),
                 numericSingularChange = true,
                 changeFrame = Frame.Deck,
             ),
@@ -55,6 +56,7 @@ internal object TerraformingMarsDescribers {
                 metricCount =
                     ComponentDescriber.MetricCount(
                         noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                        unqualifiedSuffix = "in your event pile",
                         anyoneSuffix = "in all players' event piles",
                     )
             ),
@@ -76,11 +78,27 @@ internal object TerraformingMarsDescribers {
                         "different type of card resource",
                         "different types of card resources",
                     ),
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun =
+                            ComponentDescriber.Noun.Counted(
+                                "card resource",
+                                "card resources",
+                            ),
+                        unqualifiedSuffix = "",
+                        forSubclasses = false,
+                    ),
             ),
         klass("CardFront") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Fixed("card"),
                 countNoun = ComponentDescriber.Noun.Counted("card", "cards"),
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                        unqualifiedSuffix = "in play",
+                        forSubclasses = false,
+                    ),
                 cardResourceHolder = ComponentDescriber.Noun.Counted("card", "cards"),
                 triggerFrame =
                     Trigger.PlayCard(
@@ -96,6 +114,28 @@ internal object TerraformingMarsDescribers {
                             )
                     ),
             ),
+        klass("ActiveCard") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("active card", "active cards"),
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun = ComponentDescriber.Noun.Counted("active card", "active cards"),
+                        unqualifiedSuffix = "in play",
+                    ),
+            ),
+        klass("AutomatedCard") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("automated card", "automated cards"),
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun =
+                            ComponentDescriber.Noun.Counted(
+                                "automated card",
+                                "automated cards",
+                            ),
+                        unqualifiedSuffix = "in play",
+                    ),
+            ),
         klass("EventCard") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
         klass("MarsArea") to
             ComponentDescriber(
@@ -106,6 +146,7 @@ internal object TerraformingMarsDescribers {
                         forSubclasses = false,
                     ),
             ),
+        klass("Hand") to ComponentDescriber(metricLocation = "in hand"),
         klass("RemoteArea") to
             ComponentDescriber(
                 placementSite =
@@ -132,6 +173,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("VolcanicArea") to
             ComponentDescriber(
+                metricLocation = "on volcanic areas",
                 placementSite =
                     ComponentDescriber.PlacementSite(
                         noun =
@@ -388,6 +430,18 @@ internal object TerraformingMarsDescribers {
                 changeFrame = Frame.Countable,
             ),
         klass("ProdOffset") to ComponentDescriber(productionOffset = true),
+        klass("TileInLargestGroup") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun =
+                            ComponentDescriber.Noun.Counted(
+                                "tile in your largest connected group of tiles",
+                                "tiles in your largest connected group of tiles",
+                            ),
+                        unqualifiedSuffix = "",
+                    )
+            ),
         klass("ColonyProduction") to
             ComponentDescriber(changeFrame = Frame.Scale("colony tile track")),
         klass("Trade") to ComponentDescriber(changeFrame = Frame.Procedure("trade")),

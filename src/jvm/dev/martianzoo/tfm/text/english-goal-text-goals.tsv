@@ -1,0 +1,70 @@
+class_name	english_name	text
+Briber	Briber	Pay 12 M€ in addition to the normal milestone claim cost.
+Builder	Builder	Requires 7 building tags.
+Builder8	Builder	Requires 8 building tags.
+Coastguard	Coastguard	Requires 3 of your tiles adjacent to at least 1 ocean tile.
+Diversifier	Diversifier	Requires 8 different tags.
+Ecologist	Ecologist	Requires 4 bio tags.
+Energizer	Energizer	Requires 6 energy production.
+Engineer	Engineer	Requires 10 energy and heat production combined.
+Farmer	Farmer	Requires 5 animal and microbe resources combined.
+Forester	Forester	Requires 3 plant production.
+Fundraiser	Fundraiser	Requires 12 M€ production.
+Gardener	Gardener	Requires 3 greenery tiles.
+Generalist	Generalist	Requires 1 production of each standard resource.
+Generalist2	Generalist	Requires 2 production of each standard resource.
+Geologist	Geologist	Requires 3 of your tiles on or adjacent to volcanic areas.
+Landshaper	Landshaper	Requires a city tile, a greenery tile, and a special tile.
+Legend	Legend	Requires 4 played event cards.
+Mayor	Mayor	Requires 3 city tiles.
+Merchant	Merchant	Requires 2 of each standard resource.
+Metallurgist	Metallurgist	Requires 6 steel and titanium production combined.
+Philantropist	Philantropist	Requires 5 cards in play that can gain non-negative victory points.
+Pioneer	Pioneer	Requires 4 colonies.
+Planetologist	Planetologist	Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags.
+Planner	Planner	Requires 16 cards in hand.
+Producer	Producer	Requires 16 total production.
+Producer22	Producer	Requires 22 total production.
+Researcher	Researcher	Requires 4 science tags.
+RimSettler	Rim Settler	Requires 3 Jovian tags.
+Spacefarer	Spacefarer	Requires 4 space tags.
+Sponsor	Sponsor	Requires 3 cards in play with a printed cost of 20 M€ or more.
+Tactician	Tactician	Requires 4 cards in play with requirements.
+Terraformer	Terraformer	Requires 29 terraform rating.
+Terran	Terran	Requires 5 Earth tags.
+Trader	Trader	Requires 3 different types of card resources.
+Tycoon	Tycoon	Requires 10 project cards in play.
+Administrator	Administrator	Most cards in play with no tags.
+Banker	Banker	Highest M€ production.
+Benefactor	Benefactor	Highest terraform rating.
+Biologist	Biologist	Most bio tags.
+Botanist	Botanist	Highest plant production.
+Celebrity	Celebrity	Most cards in play with a printed cost of 20 M€ or more.
+Collector	Collector	Most different types of resources.
+Constructor	Constructor	Most colonies and city tiles combined.
+Contractor	Contractor	Most building tags.
+Cultivator	Cultivator	Most greenery tiles.
+Electrician	Electrician	Most power tags.
+EstateDealer	Estate Dealer	Most tiles adjacent to at least 1 ocean tile.
+Excentric	Excentric	Most card resources.
+Forecaster	Forecaster	Most cards in play with requirements.
+Founder	Founder	Most tiles adjacent to at least 1 special tile.
+Highlander	Highlander	Most tiles adjacent to no ocean tiles.
+Incorporator	Incorporator	Most cards in play with a printed cost of 10 M€ or less.
+Industrialist	Industrialist	Most steel and energy resources combined.
+Investor	Investor	Most Earth tags.
+Landlord	Landlord	Most tiles.
+Landscaper	Landscaper	Most tiles in your largest connected group of tiles.
+Magnate	Magnate	Most automated cards in play.
+Manufacturer	Manufacturer	Highest steel and heat production combined.
+Metropolist	Metropolist	Most city tiles.
+Miner	Miner	Most steel and titanium resources combined.
+Mogul	Mogul	Highest total non-M€ production.
+Promoter	Promoter	Most played event cards.
+Scientist	Scientist	Most science tags.
+SpaceBaron	Space Baron	Most space tags.
+Suburbian	Suburbian	Most tiles on areas along the edges of the map.
+Thermalist	Thermalist	Most heat resources.
+Traveller	Traveller	Most Jovian and Earth tags combined.
+Visionary	Visionary	Most cards in hand.
+Zoologist	Zoologist	Most animal and microbe resources combined.

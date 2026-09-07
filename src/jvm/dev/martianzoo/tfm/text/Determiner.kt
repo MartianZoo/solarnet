@@ -11,6 +11,8 @@ internal enum class Determiner(private val fixedText: String? = null) {
   THAT("that"),
   ANOTHER("another"),
   OPPONENT_POSSESSIVE("an opponent's"),
+  MOST("most"),
+  HIGHEST("highest"),
   ;
 
   fun linearize(noun: String): String =

@@ -35,6 +35,9 @@ internal class English(
   internal fun describe(requirement: Requirement): String =
       renderRequirement(requirement, describers).value
 
+  /** Returns the best available English text describing [goal]. */
+  internal fun renderGoal(goal: Class): EnglishGoalRendering = renderGoal(goal, describers)
+
   /** Returns the best available text above [card]'s artwork. */
   internal fun topText(card: Class): String = renderTopText(card, describers).value
 

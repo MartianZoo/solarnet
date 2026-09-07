@@ -1,0 +1,70 @@
+class_name	english_name	text
+Briber	Briber	[Briber].
+Builder	Builder	Requires 7 building tags.
+Builder8	Builder	Requires 8 building tags.
+Coastguard	Coastguard	Requires 3 tiles on areas next to at least 1 ocean tile.
+Diversifier	Diversifier	Requires 8 different tags.
+Ecologist	Ecologist	Requires 4 bio tags.
+Energizer	Energizer	Requires 6 energy production.
+Engineer	Engineer	Requires 10 energy production and heat production combined.
+Farmer	Farmer	Requires 5 animals and microbes combined.
+Forester	Forester	Requires 3 plant production.
+Fundraiser	Fundraiser	Requires 12 M€ production.
+Gardener	Gardener	Requires that you have 3 greenery tiles.
+Generalist	Generalist	Requires 1 M€ production, 1 steel production, 1 titanium production, 1 plant production, 1 energy production, and 1 heat production.
+Generalist2	Generalist	Requires 2 M€ production, 2 steel production, 2 titanium production, 2 plant production, 2 energy production, and 2 heat production.
+Geologist	Geologist	Requires 3 tiles on volcanic areas and tiles next to at least 1 volcanic area combined.
+Landshaper	Landshaper	Requires 1 city tile, 1 greenery tile, and 1 special tile.
+Legend	Legend	Requires 4 cards in your event pile.
+Mayor	Mayor	Requires that you have 3 city tiles.
+Merchant	Merchant	Requires 2 M€, 2 steel, 2 titanium, 2 plants, 2 energy, and 2 heat.
+Metallurgist	Metallurgist	Requires 6 titanium or steel production.
+Philantropist	Philantropist	[5 CardFront(HAS GainsOf<Class<VictoryPoint>>)].
+Pioneer	Pioneer	Requires that you have 4 colonies.
+Planetologist	Planetologist	Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags.
+Planner	Planner	Requires 16 cards in hand.
+Producer	Producer	Requires 16 standard resource production.
+Producer22	Producer	Requires 22 standard resource production.
+Researcher	Researcher	Requires 4 science tags.
+RimSettler	Rim Settler	Requires 3 Jovian tags.
+Spacefarer	Spacefarer	Requires 4 space tags.
+Sponsor	Sponsor	Requires 3 cards in play with a printed cost of 20 M€ or more.
+Tactician	Tactician	Requires 4 cards in play with requirements.
+Terraformer	Terraformer	Requires that your terraform rating is 29 or higher.
+Terran	Terran	Requires 5 Earth tags.
+Trader	Trader	Requires 3 different types of card resources.
+Tycoon	Tycoon	Requires 10 active cards in play and automated cards in play combined.
+Administrator	Administrator	Most cards in play with no tags.
+Banker	Banker	Highest M€ production.
+Benefactor	Benefactor	Highest terraform rating.
+Biologist	Biologist	Most bio tags.
+Botanist	Botanist	Highest plant production.
+Celebrity	Celebrity	Most cards in play with a printed cost of 20 M€ or more.
+Collector	Collector	Most different types of resources.
+Constructor	Constructor	Most colonies and city tiles combined.
+Contractor	Contractor	Most building tags.
+Cultivator	Cultivator	Most greenery tiles.
+Electrician	Electrician	Most power tags.
+EstateDealer	Estate Dealer	Most tiles on areas next to at least 1 ocean tile.
+Excentric	Excentric	Most card resources.
+Forecaster	Forecaster	Most cards in play with requirements.
+Founder	Founder	Most tiles on areas next to at least 1 special tile.
+Highlander	Highlander	Most tiles on areas next to no ocean tiles.
+Incorporator	Incorporator	Most active cards in play with a printed cost of 10 M€ or less and automated cards in play with a printed cost of 10 M€ or less combined.
+Industrialist	Industrialist	Most steel and energy combined.
+Investor	Investor	Most Earth tags.
+Landlord	Landlord	Most tiles.
+Landscaper	Landscaper	Most tiles in your largest connected group of tiles.
+Magnate	Magnate	Most automated cards in play.
+Manufacturer	Manufacturer	Highest steel production and heat production combined.
+Metropolist	Metropolist	Most city tiles.
+Miner	Miner	Most titanium or steel.
+Mogul	Mogul	Highest steel production, titanium production, plant production, energy production, and heat production combined.
+Promoter	Promoter	Most cards in your event pile.
+Scientist	Scientist	Most science tags.
+SpaceBaron	Space Baron	Most space tags.
+Suburbian	Suburbian	[OwnedTile(HAS MAX 5 Neighbor)].
+Thermalist	Thermalist	Most heat.
+Traveller	Traveller	Most Jovian tags and Earth tags combined.
+Visionary	Visionary	Most cards in hand.
+Zoologist	Zoologist	Most animals and microbes combined.

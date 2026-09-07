@@ -44,27 +44,31 @@ private fun renderMaximum(requirement: Requirement.Max, describers: Describers):
     describers.renderMaximum(requirement)
 
 private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
-  val expression = countedExpression(requirement) ?: return null
+  val expression = countedExpression(requirement)
   val target = requirement.target
-  renderCountedRelation(expression, this)?.let { relation ->
-    if (target != 1) return null
-    val objectPhrase =
-        if (relation.source.ownedByYou) {
-          relation.source
-              .referenceWithoutOwnership(Determiner.INDEFINITE)
-              .withModifier(Modifier.Relation(relation.phrase, relation.target.reference()))
-        } else {
-          relation.asRequirement()
+  if (expression != null) {
+    renderCountedRelation(expression, this)
+        ?.takeIf { target == 1 }
+        ?.let { relation ->
+          val objectPhrase =
+              if (relation.source.ownedByYou) {
+                relation.source
+                    .referenceWithoutOwnership(Determiner.INDEFINITE)
+                    .withModifier(Modifier.Relation(relation.phrase, relation.target.reference()))
+              } else {
+                relation.asRequirement()
+              }
+          return requirementClause(objectPhrase)
         }
-    return requirementClause(objectPhrase)
-  }
-  fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
-    return renderRequirementBound(expression, target, bound, BoundDirection.MINIMUM)
+    fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
+      return renderRequirementBound(expression, target, bound, BoundDirection.MINIMUM)
+    }
   }
   return renderProductionRequirement(requirement)
       ?: renderCardResourceRequirement(requirement)
       ?: renderTagRequirement(requirement)
       ?: renderDistinctKindsRequirement(requirement)
+      ?: renderMetricRequirement(requirement)
 }
 
 private fun Describers.renderDistinctKindsRequirement(
@@ -87,7 +91,24 @@ private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
 }
 
 private fun Describers.renderRequirementGroup(requirement: Requirement.And): Clause? =
-    renderTagRequirementGroup(requirement) ?: renderOwnedPlacementRequirementGroup(requirement)
+    renderTagRequirementGroup(requirement)
+        ?: renderOwnedPlacementRequirementGroup(requirement)
+        ?: renderMetricRequirementGroup(requirement)
+
+private fun Describers.renderMetricRequirement(requirement: Requirement.Min): Clause? {
+  val phrase =
+      renderRequirementMetricPhrase(requirement.metric, requirement.target, this) ?: return null
+  return requirementClause(phrase)
+}
+
+private fun Describers.renderMetricRequirementGroup(requirement: Requirement.And): Clause? {
+  val phrases =
+      requirement.requirements.map { child ->
+        val minimum = child as? Requirement.Min ?: return null
+        renderRequirementMetricPhrase(minimum.metric, minimum.target, this) ?: return null
+      }
+  return requirementClause(Coordination(phrases, Conjunction.AND))
+}
 
 private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Clause? {
   if (minimum.target != 1) return null

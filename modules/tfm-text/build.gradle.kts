@@ -43,6 +43,19 @@ tasks.register<JavaExec>("writeEnglishCardTextCurrent") {
   outputs.upToDateWhen { false }
 }
 
+tasks.register<JavaExec>("writeEnglishGoalTextCurrent") {
+  group = "verification"
+  description = "Writes the English renderer's current milestone and award output snapshot."
+  dependsOn("testClasses")
+  classpath = sourceSets.test.get().runtimeClasspath
+  mainClass = "dev.martianzoo.tfm.text.EnglishGoalTextCurrentGenerator"
+  args(
+      textSourceDirectory.file("english-goal-text-current.tsv").asFile.absolutePath,
+      textSourceDirectory.file("english-goal-text-refusals.tsv").asFile.absolutePath,
+  )
+  outputs.upToDateWhen { false }
+}
+
 tasks.register<JavaExec>("writeRandomCardEnglishText") {
   group = "verification"
   description = "Writes top and bottom English text for a saved random-card PETS report."

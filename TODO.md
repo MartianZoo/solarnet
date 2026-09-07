@@ -77,6 +77,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
+  claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`

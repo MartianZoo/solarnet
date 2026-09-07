@@ -76,6 +76,7 @@ internal data class ComponentDescriber(
       internal val noun: Noun.Counted,
       internal val unqualifiedSuffix: String? = null,
       internal val anyoneSuffix: String? = null,
+      internal val forSubclasses: Boolean = true,
   )
 
   internal data class SpatialRelation(

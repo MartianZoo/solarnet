@@ -162,6 +162,8 @@ The useful architecture already present should be extended rather than replaced:
 - Sentence finalization returns `Rendering<String>`, carrying visible text together with every
   typed `Unresolved` embedded in its clause structure.
 - `English` remains the facade for standalone descriptions and card-region assembly.
+- Milestone and award text is derived from their existing Pets `requirement` and `metric`
+  properties. Goal rendering only selects the shared requirement or ranked-metric realization.
 - `Describers` validates inherited lexical facts once at construction.
 - `TerraformingMarsDescribers` keys only authored lexical facts by `ClassName`; `Describers` owns
   Class resolution, while absent Classes use structural interpretation and default naming.
@@ -206,6 +208,37 @@ Then re-ask whether clauses are a sufficient intermediate representation.
 When a modifier embeds a realizable noun phrase, relation, or clause, retain that structure with the
 existing typed modifier variants. Add a new variant only for a recurring shape that those variants
 cannot express.
+
+### 4. Remove selected card-text fallbacks through existing concepts
+
+Take these only where the named existing machinery extends cleanly. Leave the Pets visible when a
+case would require a whole-card recognizer, a second semantic representation, or a substantial new
+protocol.
+
+- Reuse the existing `CardCriterion` wording for card-valued procedure arguments. In particular,
+  `CopyProductionBox` should contribute only its lexical operation, while the established tag
+  criterion realizes `CardFront(HAS BuildingTag)` as a building card. Do not build another general
+  component-selector renderer for this phrase.
+- Treat a concrete behavior-bearing subclass as its declared contents under the semantics of its
+  base Class, never as its generated name. Start with `NextCardEffect`: its base supplies “the next
+  card you play this generation,” while the owner-local declaration supplies the adjustment.
+- Classify `This IF condition: instruction` as conditional immediate card behavior. The condition
+  wraps the self trigger, so a false condition simply means that the effect does not fire; it does
+  not introduce an `OR` branch or the words “or do nothing.” Keep RHS instruction gates on their
+  existing choice-sensitive path.
+- Render a transmutation between positioned components when both sides resolve to the same site,
+  retaining that site so the destination can refer to “that” location.
+- Support structurally simple `EACH Player` fanout and preserve a grouped continuation under
+  `THEN`, so later coordinated clauses remain more tightly associated than the preceding stage.
+- Render a gained `UseAction` signal through the existing action-use event interpretation, including
+  provider refinements such as an action-used marker.
+- Supply `GpComplete` with the metric noun needed to count completed global parameters; this is a
+  vocabulary fact, not a special case for the card using it.
+
+Do not add a sequence protocol for Cyberia Systems' first-choice marker merely to say “a different
+building card” and hide its bookkeeping. That pattern is too isolated to earn permanent machinery.
+Industrial Complex likewise remains unresolved until a smaller general interpretation explains its
+production-floor behavior.
 
 ## Working rules
 
@@ -258,10 +291,22 @@ Use evidence in this order:
 3. `english-card-text-goals.tsv` as fallible reviewed targets.
 4. `english-card-text-current.tsv` as generated characterization, never a production answer source.
 
+Milestone and award rendering follows the same evidence order with
+`english-goal-published-wording-evidence.tsv`, `english-goal-text-goals.tsv`, and
+`english-goal-text-current.tsv`. The goals file may cover a selected proving corpus rather than
+every loaded goal.
+
+Current goal-text gaps are explicit. Briber's modeled placeholder requirement does not express its
+printed immediate payment, Philantropist's custom `GainsOf` metric has no demonstrated general
+English role, and Suburbian's modeled neighbor count does not itself express the published map-edge
+concept. Hydrologist has no active declaration because ocean-placement provenance is not modeled.
+Their Pets remains visible instead of introducing goal-specific answers.
+
 After an intentional output change, run:
 
 ```text
 ./gradlew :tfm-text:writeEnglishCardTextCurrent
+./gradlew :tfm-text:writeEnglishGoalTextCurrent
 ./gradlew :tfm-text:test
 ```
 
@@ -299,6 +344,7 @@ exercised by canonical cards or when a meaningful semantic invariant needs direc
 - [`Rendering.kt`](../../src/jvm/dev/martianzoo/tfm/text/Rendering.kt) — visible fallback and refusal
   evidence.
 - `renderActions.kt`, `renderChange.kt`, `renderEffect.kt`, `renderInstructionTree.kt`,
-  `renderMetric.kt`, and `renderRequirement.kt` in the same source directory — family interpreters.
+  `renderMetric.kt`, `renderRequirement.kt`, and `renderGoal.kt` in the same source directory —
+  family interpreters.
 - [`EnglishCardTextCurrentGenerator.kt`](../../test/jvm/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)
   — generated corpus snapshot and refusal report.

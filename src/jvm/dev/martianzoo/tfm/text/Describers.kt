@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
@@ -50,6 +51,9 @@ internal class Describers(
 
   internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
       productionSyntaxLowerer().transformRequirement(requirement)
+
+  internal fun lowerProductionSyntax(metric: Metric): Metric =
+      productionSyntaxLowerer().transformMetric(metric)
 
   private fun productionSyntaxLowerer(): PetTransformer =
       classTable.transformDispatcher(setOf(PROD))
@@ -126,6 +130,12 @@ internal class Describers(
     if (site.forSubclasses) return site
     val direct = descriptions[className]?.placementSite
     return site.takeIf { direct != null }
+  }
+
+  internal fun metricCount(className: ClassName): ComponentDescriber.MetricCount? {
+    val count = fact(className, ComponentDescriber::metricCount) ?: return null
+    if (count.forSubclasses) return count
+    return count.takeIf { descriptions[className]?.metricCount != null }
   }
 
   internal fun changeFrame(className: ClassName): ComponentDescriber.ChangeFrame? =
