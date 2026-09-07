@@ -573,7 +573,7 @@ CLASS KaguyaTech : AutomatedCard<Class<ProjectCard>> {
   cost = 10
 
   This:: CityTag<This>, PlantTag<This>
-  This: PROD[2 MC], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>
+  This: PROD[2 MC], ProjectCard, CityTile<MarsArea> FROM GreeneryTile<MarsArea>
 }
 
 CLASS MartianLumberCorp : ActiveCard<Class<ProjectCard>> {
