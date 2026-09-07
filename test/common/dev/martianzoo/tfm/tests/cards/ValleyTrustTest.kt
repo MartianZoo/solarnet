@@ -13,8 +13,8 @@ import kotlin.test.Test
 internal class ValleyTrustTest : CardTest() {
   @Test
   internal fun `Resolves Valley Trust's starting Prelude 1 card`() {
-    newGame(PreludeExpansion)
-    p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22 MC")
+    newGame(PreludeExpansion, retainedStartingProjects = 5)
+    p1.playCorp(ValleyTrust, 5).expect("22 MC")
 
     admin.phase("Action")
     p1.stdAction("DoRequiredActions") { p1.playPrelude(MartianIndustries) }
@@ -61,7 +61,7 @@ internal class ValleyTrustTest : CardTest() {
 
   @Test
   internal fun `Must perform required action before another standard action`() {
-    newGame(PreludeExpansion)
+    newGame(PreludeExpansion, retainedStartingProjects = 5)
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
 
@@ -80,7 +80,8 @@ internal class ValleyTrustTest : CardTest() {
                 "ValleyTrust, $preludeConfiguration",
                 "Player1",
                 "Player2",
-            )
+            ),
+            retainedStartingProjects = 5,
         )
     game.classTable.isActive(cn("PreludePhase")) shouldBe true
     game.classTable.isActive(selectedPrelude) shouldBe true

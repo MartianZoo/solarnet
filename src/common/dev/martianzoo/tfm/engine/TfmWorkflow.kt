@@ -35,10 +35,8 @@ public object TfmWorkflow {
 
     internal val adminOps: Agent = game.agent(ADMIN)
 
-    /**
-     * Starts fully effectful game setup; unlike later phases, setup has no prior Phase to remove.
-     */
-    public fun setupPhase(): TaskResult = adminOps.beginManual("SetupPhase")
+    /** Starts fully effectful game setup by replacing the initial bootstrap phase. */
+    public fun setupPhase(): TaskResult = adminOps.beginManual("SetupPhase FROM Phase")
 
     public fun corporationPhase(): TaskResult = adminOps.manual("CorporationPhase FROM Phase")
 
@@ -142,7 +140,7 @@ public object TfmWorkflow {
       shutdownCheckpoint = null
     }
 
-    /** Orchestrates the complete game from its committed pre-setup baseline to finish. */
+    /** Orchestrates the complete game from its committed bootstrap state to finish. */
     private suspend fun runGame() {
       m.setupPhase()
       awaitTasksDrained()

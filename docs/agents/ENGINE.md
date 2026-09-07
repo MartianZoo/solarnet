@@ -122,10 +122,12 @@ replacement registry.
 
 `Engine.newGame(premise)` currently wires the World with one structural representative for every
 active concrete Class, creates the `Admin` Actor Component, selected Modules, seated Players, and
-the premise's explicit initial components, then commits the pre-setup baseline. Structural Class
-representatives are installed before event logging and therefore produce no Change Events. The
-initializer does not create a Phase; Terraforming Mars workflow later creates `SetupPhase` as an
-ordinary effectful operation.
+the premise's explicit initial components, then commits the initialized state. Structural Class
+representatives are installed before event logging and therefore produce no Change Events. When
+Terraforming Mars is active, creating its Module automatically creates `BootstrapPhase` before the
+Players. By the time `newGame` returns, the World has one Phase, every seated Player, and each
+Player's five `ProdOffset<Class<MC>>` components; workflow later replaces Bootstrap with
+`SetupPhase` as an ordinary effectful operation.
 
 **Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
 Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
@@ -143,9 +145,9 @@ Keep three bootstrap layers distinct:
    Component and receive ordinary work. Add other directly created premise state only when the
    ordinary task route proves circular.
 3. **Game initialization** begins at the earliest point where history can honestly say that Admin
-   is selecting, narrowing, and executing assigned tasks. Module activation, Player creation, and
-   later `SetupPhase` should move into this ordinary phase wherever the model can express them
-   without circular prerequisites.
+   is selecting, narrowing, and executing assigned tasks. Terraforming Mars now names this interval
+   with `BootstrapPhase`; Module activation and Player creation should move under ordinary phase
+   work wherever the model can express them without circular prerequisites.
 
 The goal is not to call every constructor step an Admin action. It is to make the special prefix as
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
@@ -531,12 +533,12 @@ missing maximum-one declaration found by the current Canon audit. `TradeFleet` d
 one-count limit: additional fleet components are real capacity granted by cards.
 
 `StartToken` is exact one: the first `Generation` creates it automatically and later generations
-move it only by atomic transmutation. Phase is likewise exact one after setup begins. Transitions
-use `NewPhase FROM Phase`, and `End` remains as the terminal Phase. A separate temporary
+move it only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the
+creation of its Module: Bootstrap is created first, and each transition replaces the current Phase;
+`End` remains as the terminal Phase. A separate temporary
 `FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
-scoring task settles. The pre-setup World remains an explicit construction state before the first
-Phase is gained; a future comprehensive lower-bound validator must recognize that lifecycle or move
-setup into initialization.
+scoring task settles. A future comprehensive lower-bound validator must account for the short
+construction interval before the Terraforming Mars Module creates Bootstrap.
 
 `GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
 exact-one sum; expressing that honestly requires one shared status family and an atomic

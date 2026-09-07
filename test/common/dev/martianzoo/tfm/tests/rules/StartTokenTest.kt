@@ -71,6 +71,7 @@ internal class StartTokenTest {
     val p2 = game.tfm(PLAYER2)
 
     val workflow = TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
     admin.sneak("StartToken<Player2> FROM StartToken<Player1>")

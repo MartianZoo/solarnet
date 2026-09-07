@@ -37,6 +37,10 @@ public class OtbGame20260904 : RecordedGame() {
             .tfm(game.actors.filterIsInstance<Player>()[3])
             .requireExplicitPaymentChoices()
             .requireExplicitUnusedActionCards()
+    yellow.doTask("-6 ProjectCard<Hand>")
+    rainbow.doTask("-4 ProjectCard<Hand>")
+    blue.doTask("-5 ProjectCard<Hand>")
+    green.doTask("-6 ProjectCard<Hand>")
 
     yellow.playCorp(Ecoline, 4)
     rainbow.playCorp(MorningStarInc, 6)

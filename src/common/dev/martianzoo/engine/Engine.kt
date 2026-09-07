@@ -19,7 +19,7 @@ import dev.martianzoo.pets.types.ClassTable
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
-  /** Creates a game at its committed pre-setup baseline, ready to be given to a workflow. */
+  /** Creates a game at its committed initialization state, ready to be given to a workflow. */
   public fun newGame(
       premise: GamePremise,
       locale: String = Vocabulary.ENGLISH,

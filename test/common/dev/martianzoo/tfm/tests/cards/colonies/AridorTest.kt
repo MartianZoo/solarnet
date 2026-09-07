@@ -25,7 +25,7 @@ internal class AridorTest : CardTest() {
   @Test
   internal fun `required action adds one selected colony tile`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.playCorp(Aridor, 0).expect("40 MC")
+    playCorporationWithoutStartingProjects(p1, Aridor).expect("40 MC")
     p1.assertCounts(1 to "RequiredAction")
 
     admin.phase("Action")
@@ -36,7 +36,7 @@ internal class AridorTest : CardTest() {
   @Test
   internal fun `delayed selection enters play immediately when its resource card already exists`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.playCorp(Aridor, 0)
+    playCorporationWithoutStartingProjects(p1, Aridor)
     p1.manual("$TitanShuttles")
     p1.manual("Floater<$TitanShuttles>")
 
@@ -48,7 +48,7 @@ internal class AridorTest : CardTest() {
   @Test
   internal fun `production rises once for each new printed non-event tag class`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.playCorp(Aridor, 0)
+    playCorporationWithoutStartingProjects(p1, Aridor)
     val initialProduction = p1.count("PROD[MC]")
 
     requireP2().manual("$Mine")
@@ -117,7 +117,7 @@ internal class AridorTest : CardTest() {
   @Test
   internal fun `an event with an already unique tag does not reward production`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.playCorp(Aridor, 0)
+    playCorporationWithoutStartingProjects(p1, Aridor)
     p1.manual("$EarthCatapult, ProjectCard")
     val initialProduction = p1.count("PROD[MC]")
     admin.phase("Action")
@@ -131,7 +131,7 @@ internal class AridorTest : CardTest() {
   @Test
   internal fun `two copies of one new tag on a card reward only once`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.playCorp(Aridor, 0)
+    playCorporationWithoutStartingProjects(p1, Aridor)
     val initialProduction = p1.count("PROD[MC]")
 
     p1.manual("$LunaGovernor")
@@ -147,7 +147,7 @@ internal class AridorTest : CardTest() {
         VenusNextExpansion,
         colonyTiles = testColonyTiles(2),
     )
-    p1.playCorp(Aridor, 0)
+    playCorporationWithoutStartingProjects(p1, Aridor)
     val initialProduction = p1.count("PROD[MC]")
 
     p1.manual("AerialMappers")

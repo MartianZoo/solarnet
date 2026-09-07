@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
 
 internal class FirstPartialGameTest : TfmTest() {
@@ -32,6 +33,7 @@ internal class FirstPartialGameTest : TfmTest() {
       val p2 = game.tfm(PLAYER2)
 
       val workflow = TfmWorkflow.Auto(game).launch()
+      retainStartingProjects(game, 3, 8)
 
       p1.playCorp(LakefrontResorts, 3)
       p2.playCorp(InterplanetaryCinematics, 8)

@@ -36,6 +36,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260809() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(6, 4)
     val yellow = game.tfm(Player.PLAYER1)
     val green = game.tfm(Player.PLAYER2)
     // "Miranda and Enceladus are currently out of play."

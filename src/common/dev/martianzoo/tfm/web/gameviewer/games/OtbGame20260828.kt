@@ -32,6 +32,9 @@ public class OtbGame20260828 : RecordedGame() {
     val green = game.tfm(Player.PLAYER1)
     val blue = game.tfm(Player.PLAYER2)
     val yellow = game.tfm(Player.PLAYER3)
+    green.doTask("-6 ProjectCard<Hand>")
+    blue.doTask("-5 ProjectCard<Hand>")
+    yellow.doTask("-5 ProjectCard<Hand>")
 
     green.playCorp(PalladinShipping, 4)
     blue.playCorp(Celestic, 5)

@@ -9,7 +9,7 @@ internal class UtopiaInvestTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(TurmoilCardPack)
-    p1.playCorp(UtopiaInvest, 0)
+    playCorporationWithoutStartingProjects(p1, UtopiaInvest)
     admin.phase("Action")
   }
 

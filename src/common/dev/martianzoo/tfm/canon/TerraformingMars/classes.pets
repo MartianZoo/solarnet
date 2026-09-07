@@ -2,12 +2,13 @@
 CLASS TerraformingMars : Module {
   HAS =1 GameMode
   HAS Class<Production>
-  HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
+  This:: BootstrapPhase
   This:: Hand, Action1, Action2, Action3, CardPurchase, CardPlay
   This:: Selecting, Revealed
   SetupPhase:: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
@@ -40,7 +41,8 @@ ABSTRACT CLASS Player : Owner, Actor {
   This:: 5 ProdOffset<This, Class<MC>> BY Admin
   This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  CorporationPhase:: CorporationCard
+  SetupPhase: 2 CorporationCard THEN -CorporationCard \
+    THEN 10 ProjectCard THEN -10 ProjectCard?
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 
   CLASS Player1, Player2
@@ -526,13 +528,16 @@ ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
 
 // PHASES
 
-"The current game phase; exactly one exists from Setup through the terminal End phase"
+"The current game phase; exactly one exists from bootstrap through the terminal End phase"
 ABSTRACT CLASS Phase : System {
   HAS =1 Phase
 
+  CLASS BootstrapPhase
   CLASS SetupPhase
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>, Hand>, 10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards
+    NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
+      -10 ProjectCard<Selecting>? THEN BuySelectedCards
   }
   CLASS ResearchPhase
   CLASS ActionPhase {

@@ -6,6 +6,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
+  phase-caused tasks as soon as the required runtime state can express them.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and

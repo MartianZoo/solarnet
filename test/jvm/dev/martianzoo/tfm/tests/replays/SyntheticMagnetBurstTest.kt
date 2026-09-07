@@ -34,6 +34,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   @Test
   internal fun gameThroughGeneration10() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(7, 4)
 
     val pink = p1
     val green = p2

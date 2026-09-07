@@ -40,6 +40,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   @Test
   internal fun distantPressureMass() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(4, 4)
     generation1()
     generation2()
     generation3()
@@ -54,8 +55,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    // Technically I think these discards happen during InitialResearchPhase which we don't model,
-    // but we should soon...
+    // The archive identifies the projects rejected during setup.
     keen.discardUnselectedProjectCards(
         AirScrappingExpedition,
         Virus,

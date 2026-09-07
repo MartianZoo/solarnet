@@ -33,6 +33,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
   @Test
   internal fun game20260819() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(4, 5, 5)
 
     val JR = p1
     val KB = p2

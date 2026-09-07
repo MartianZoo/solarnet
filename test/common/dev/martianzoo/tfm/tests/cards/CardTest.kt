@@ -22,6 +22,7 @@ import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
 import kotlin.test.AfterTest
 
@@ -36,13 +37,17 @@ internal abstract class CardTest(
 
   private var workflow: TfmWorkflow.Auto? = null
 
-  protected fun newGame(config: GameConfig): World = startGame(premise(config))
+  protected fun newGame(
+      config: GameConfig,
+      retainedStartingProjects: Int = 0,
+  ): World = startGame(premise(config), retainedStartingProjects)
 
   protected fun newGame(
       vararg selectedOptions: Option,
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
-  ): World = startGame(premise(selectedOptions, players, colonyTiles))
+      retainedStartingProjects: Int = 0,
+  ): World = startGame(premise(selectedOptions, players, colonyTiles), retainedStartingProjects)
 
   protected fun newGameWithAutoWorkflow(
       vararg selectedOptions: Option,
@@ -101,9 +106,15 @@ internal abstract class CardTest(
 
   protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }
 
-  private fun startGame(premise: GamePremise): World {
+  protected fun playCorporationWithoutStartingProjects(
+      player: TfmGameplay,
+      corporation: ClassName,
+  ): TaskResult =
+      dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
+
+  private fun startGame(premise: GamePremise, retainedStartingProjects: Int): World {
     workflow?.shutdown()
-    return setUpTfmGame(premise).initializeCardTestGame()
+    return setUpTfmGame(premise, retainedStartingProjects).initializeCardTestGame()
   }
 
   private fun startAutoGame(premise: GamePremise): World {
@@ -111,6 +122,7 @@ internal abstract class CardTest(
     return Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
       bindPlayers()
       workflow = TfmWorkflow.Auto(this).launch()
+      retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }
   }
@@ -177,7 +189,8 @@ internal abstract class CardTest(
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
     players.zip(corporations).forEach { (player, corporation) ->
-      player.playCorp(corporation, 5)
+      playCorporationWithoutStartingProjects(player, corporation)
+      player.sneak("5 ProjectCard, -15 MC")
     }
   }
 

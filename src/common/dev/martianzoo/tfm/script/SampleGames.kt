@@ -21,6 +21,8 @@ internal object SampleGames {
     val p2 = game.tfm(PLAYER2)
 
     TfmWorkflow.Manual(game).setupPhase()
+    p1.doTask("-5 ProjectCard<Hand>")
+    p2.doTask("-6 ProjectCard<Hand>")
     admin.phase("Corporation")
     p1.playCorp(cn("Manutech"), 5)
     p2.playCorp(cn("Factorum"), 4)

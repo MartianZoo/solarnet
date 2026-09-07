@@ -35,6 +35,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   @Test
   internal fun game20260811() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(4, 5, 7)
 
     val purple = p1
     val pink = p2

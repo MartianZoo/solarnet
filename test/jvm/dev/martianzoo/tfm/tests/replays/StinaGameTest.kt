@@ -14,6 +14,7 @@ internal class StinaGameTest : AbstractSoloTest() {
 
   @Test
   internal fun stinaSaturnSystemsGame() {
+    retainStartingProjects(10)
     with(me) {
       // Test inference: unnamed draws are assigned in the order the cards are later played.
       playCorp(SaturnSystems) {

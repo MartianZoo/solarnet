@@ -25,6 +25,7 @@ internal class StinaScriptTest {
         task GreeneryTile<Elysium_7_6, SoloOpponent>
 
         become Me
+        task Ok
 
         tfm_play SaturnSystems
         task Ok

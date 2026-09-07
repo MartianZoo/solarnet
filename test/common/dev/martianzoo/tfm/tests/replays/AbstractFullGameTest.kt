@@ -90,6 +90,10 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     game.exMachina(this, adjustment)
   }
 
+  protected fun retainStartingProjects(vararg retainedCounts: Int) {
+    dev.martianzoo.tfm.tests.retainStartingProjects(game, *retainedCounts)
+  }
+
   protected fun TfmGameplay.assertDashMiddle(
       played: Int,
       actions: Int? = null,

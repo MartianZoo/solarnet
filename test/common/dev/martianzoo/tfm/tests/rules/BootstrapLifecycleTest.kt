@@ -7,7 +7,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -19,13 +21,17 @@ import kotlin.test.Test
 
 internal class BootstrapLifecycleTest {
   @Test
-  internal fun newGameReturnsCommittedCausallyCleanPreSetupBaseline() {
+  internal fun newGameReturnsCommittedCausallyCleanBootstrapState() {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.agent(ADMIN)
 
-    admin.count("Phase") shouldBe 0
+    admin.count("Phase") shouldBe 1
+    admin.count("BootstrapPhase") shouldBe 1
     admin.count("Generation") shouldBe 0
     admin.count("TerraformRating") shouldBe 0
+    admin.count("Player") shouldBe 2
+    admin.count("ProdOffset<Player1, Class<MC>>") shouldBe 5
+    admin.count("ProdOffset<Player2, Class<MC>>") shouldBe 5
     admin.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
@@ -40,6 +46,9 @@ internal class BootstrapLifecycleTest {
     adminCreation.toString().shouldEndWith("(manual)")
     changes.none { it.change.gaining?.className == cn("Class") } shouldBe true
     changes.drop(1).all { it.cause != null } shouldBe true
+    val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
+    val bootstrap = changes.single { it.change.gaining?.className == cn("BootstrapPhase") }
+    bootstrap.cause shouldBe Cause(cn("TerraformingMars").expression, terraform.ordinal)
 
     shouldThrow<IllegalArgumentException> { game.timeline.rollBack(Checkpoint(0)) }
         .message
@@ -94,6 +103,7 @@ internal class BootstrapLifecycleTest {
     TfmWorkflow.Manual(game).setupPhase()
 
     val admin = game.agent(ADMIN)
+    admin.count("BootstrapPhase") shouldBe 0
     admin.count("SetupPhase") shouldBe 1
     admin.count("Generation") shouldBe 1
     admin.count("StartToken<Player1>") shouldBe 1
@@ -108,6 +118,27 @@ internal class BootstrapLifecycleTest {
         .filter { it.change.gaining.toString().startsWith("TerraformRating") }
         .also { it.size shouldBe 2 }
         .all { it.cause?.triggerEvent == setupEvent.ordinal } shouldBe true
+  }
+
+  @Test
+  internal fun setupKeepsStartingCardsInHandUntilCorporationTurns() {
+    val game = Engine.newGame(canonicalPremise(PreludeExpansion))
+    val workflow = TfmWorkflow.Auto(game).launch()
+    val admin = game.agent(ADMIN)
+    val p1 = game.tfm(Player.PLAYER1)
+
+    admin.count("SetupPhase") shouldBe 1
+    p1.count("CorporationCard<Hand>") shouldBe 1
+    p1.count("ProjectCard<Hand>") shouldBe 10
+    p1.count("PreludeCard<Hand>") shouldBe 2
+
+    retainStartingProjects(game, 7, 5)
+    admin.count("CorporationPhase") shouldBe 1
+    p1.playCorp(cn("InterplanetaryCinematics"), 7)
+
+    p1.count("ProjectCard<Hand>") shouldBe 7
+    p1.count("ProjectCard<Selecting>") shouldBe 0
+    workflow.shutdown()
   }
 
   @Test

@@ -28,10 +28,36 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.shouldBe
 
-internal fun setUpGame(premise: GamePremise): World =
+internal fun setUpGame(
+    premise: GamePremise,
+    retainedStartingProjects: Int = 0,
+): World =
     Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
       TfmWorkflow.Manual(this).setupPhase()
+      retainStartingProjects(
+          this,
+          *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },
+      )
     }
+
+internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
+  val players = game.actors.filterIsInstance<Player>()
+  require(retainedCounts.size == players.size) {
+    "expected one starting-project count for each of ${players.size} players"
+  }
+  players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
+    require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
+    val discarded = 10 - retained
+    game.agent(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
+  }
+}
+
+internal fun playCorporationWithoutStartingProjects(
+    player: TfmGameplay,
+    corporation: ClassName,
+): TaskResult = player.inTurn {
+  doTask("PlayCard<Class<CorporationCard>, Class<$corporation>, Hand>")
+}
 
 internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
     listOf(

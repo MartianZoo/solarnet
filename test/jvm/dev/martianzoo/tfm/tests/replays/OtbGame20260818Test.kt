@@ -37,6 +37,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260818() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(7, 5)
     val green = game.tfm(Player.PLAYER1)
     val yellow = game.tfm(Player.PLAYER2)
 

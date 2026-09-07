@@ -22,6 +22,7 @@
 - **Automatic Narrowing:** Narrowing performed without an explicit client choice because only one valid option is proved to remain. An unselected Task may be narrowed only from immutable facts; mutable-World resolution waits for Selection.
 - **Barrier:** A MustCleanUp Component that must be removed before gated work can continue. A Barrier is a common modeling pattern in Pets declarations, not a distinct engine mechanism.
 - **Bootstrap:** The shortest special prefix needed to construct a World and establish Admin as an ordinary Actor. Once Admin can carry out assigned Tasks through the normal lifecycle, bootstrap is over; later game setup remains ordinary Admin work.
+- **BootstrapPhase:** The first Terraforming Mars Phase. Its presence names the initialization interval in which Modules, Players, and their minimum runtime machinery are established; workflow replaces it with `SetupPhase` to begin effectful game setup.
 - **Bundle:** An internal grouping of Catalog data for file ownership, provenance, distribution, and loading. A Bundle is not itself a premise input, although a Module can select an entire content category from a named Bundle.
 - **Canon:** The Catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data Bundles.
 - **Card Back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card Backs and Card Fronts are distinct Types that transmute into each other; an Owner may know a Back's represented Front without making that Card Front exist in the Game World.
@@ -120,7 +121,7 @@
 - **Selection:** The Player activity that chooses one Pending Task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a Timeline commit; commit retains its transactional meaning after execution.
 - **Sequential Instruction:**
 - **Session Vocabulary Canonicalization:**
-- **SetupPhase:** An ordinary domain phase in which Admin performs significant setup work, such as granting each Player 20 `TerraformRating`; structural bootstrap should already have ended.
+- **SetupPhase:** The Terraforming Mars phase that replaces Bootstrap, creates generation 1, grants starting state such as 20 `TerraformRating`, deals starting cards into each Player's `Hand`, and waits for their discards.
 - **Signal:** A Hidden MustCleanUp Component that triggers its Effects and immediately removes itself.
 - **Singleton Type:** A Concrete Type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no Tasks or turns.

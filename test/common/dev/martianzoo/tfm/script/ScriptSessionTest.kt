@@ -171,6 +171,8 @@ internal class ScriptSessionTest {
                 "-CorporateEraExpansion, -WorldGovernmentRule\" Player1 Player2 purple"
         ),
     )
+    repl.command("as Player1 task -10 ProjectCard<Hand>")
+    repl.command("as Player2 task -10 ProjectCard<Hand>")
     assertEquals(listOf("0 WorldGovernmentRule"), repl.command("count WorldGovernmentRule"))
     assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
   }
@@ -252,6 +254,8 @@ internal class ScriptSessionTest {
         listOf("1 DelayedTitan"),
         repl.command("count DelayedTitan"),
     )
+    repl.command("as Player1 task -10 ProjectCard<Hand>")
+    repl.command("as Player2 task -10 ProjectCard<Hand>")
     repl.command("phase Corporation")
   }
 
@@ -276,6 +280,7 @@ internal class ScriptSessionTest {
     repl.command("task GreeneryTile<Tharsis_2_3, SoloOpponent>")
     repl.command("task CityTile<Tharsis_8_7, SoloOpponent>")
     repl.command("task GreeneryTile<Tharsis_8_6, SoloOpponent>")
+    repl.command("as Me task -10 ProjectCard<Hand>")
 
     assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
     assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
@@ -363,10 +368,12 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
     val commands =
         """
-        newgame BRVPX 2; mode blue; auto safe; phase Corporation
+        newgame BRVPX 2; mode blue; auto safe
+        as Player1 task -5 ProjectCard<Hand>; as Player2 task -6 ProjectCard<Hand>
+        phase Corporation
 
-        become Player1; turn; tfm_play Manutech; task -5 ProjectCard<Selecting>; task 15 Pay<Class<MC>> FROM MC
-        become Player2; turn; tfm_play Factorum; task -6 ProjectCard<Selecting>; task 12 Pay<Class<MC>> FROM MC
+        become Player1; turn; tfm_play Manutech; task Ok; task 15 Pay<Class<MC>> FROM MC
+        become Player2; turn; tfm_play Factorum; task Ok; task 12 Pay<Class<MC>> FROM MC
 
         phase Prelude
 
@@ -392,11 +399,13 @@ internal class ScriptSessionTest {
             "New 2-player game created with options: BRVPX",
             "Mode BLUE: Turn integrity: must perform a valid game turn for this phase",
             "Autoexec mode is: SAFE",
+            "0000: -5 ProjectCard<Player1, Hand> BY Player1 VIA Player1 BECAUSE 0000",
+            "0000: -6 ProjectCard<Player2, Hand> BY Player2 VIA Player2 BECAUSE 0000",
             "0000: +CorporationPhase FROM SetupPhase BY Admin (manual)",
         )
 
     val output = commands.flatMap(repl::command).map(::normalizeEventOrdinals)
-    assertEquals(expectedPreamble, output.take(4))
+    assertEquals(expectedPreamble, output.take(6))
     assertContains(
         output,
         "0000: +5 ProjectCard<Player1, Hand> FROM ProjectCard<Player1, Selecting> BY Player1 VIA CardPurchase BECAUSE 0000",
@@ -419,6 +428,8 @@ internal class ScriptSessionTest {
   internal fun test() {
     val repl = ScriptSession()
     repl.command("become Player2")
+    repl.command("task -10 ProjectCard<Hand>")
+    repl.command("as Player1 task -10 ProjectCard<Hand>")
     repl.command("exec ProjectCard")
 
     assertEquals(
@@ -458,6 +469,8 @@ internal class ScriptSessionTest {
   internal fun testBoard() {
     val repl = ScriptSession()
     repl.command("become Player1")
+    repl.command("task -10 ProjectCard<Hand>")
+    repl.command("as Player2 task -10 ProjectCard<Hand>")
     repl.command("exec PROD[9 MC, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8 MC, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
@@ -486,6 +499,8 @@ internal class ScriptSessionTest {
   internal fun testMap() {
     val repl = ScriptSession()
     repl.command("become Player1")
+    repl.command("task -10 ProjectCard<Hand>")
+    repl.command("as Player2 task -10 ProjectCard<Hand>")
     repl.command(
         "exec OceanTile<Tharsis_2_6>, OceanTile<Tharsis_5_5>, OceanTile<Tharsis_5_6>, " +
             "CityTile<Tharsis_4_6>, GreeneryTile<Tharsis_5_7>"

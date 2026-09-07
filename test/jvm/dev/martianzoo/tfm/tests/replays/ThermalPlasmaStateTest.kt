@@ -31,6 +31,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
 
   @Test
   internal fun thermalPlasmaState() {
+    retainStartingProjects(8)
     with(me) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 

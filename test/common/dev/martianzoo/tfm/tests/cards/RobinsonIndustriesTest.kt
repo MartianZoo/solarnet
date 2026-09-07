@@ -11,7 +11,7 @@ internal class RobinsonIndustriesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PreludeExpansion)
-    p1.playCorp(RobinsonIndustries, 0)
+    playCorporationWithoutStartingProjects(p1, RobinsonIndustries)
     admin.phase("Action")
   }
 

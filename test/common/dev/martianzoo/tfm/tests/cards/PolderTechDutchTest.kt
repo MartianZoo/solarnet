@@ -11,7 +11,7 @@ internal class PolderTechDutchTest : CardTest() {
   @Test
   internal fun `Initial action places adjacent ocean and greenery without an existing owned tile`() {
     newGame(PromoCardPack)
-    p1.playCorp(PolderTechDutch, 0)
+    playCorporationWithoutStartingProjects(p1, PolderTechDutch)
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActions") {
@@ -28,7 +28,7 @@ internal class PolderTechDutchTest : CardTest() {
   @Test
   internal fun `Later ocean and greenery placements grant their resources`() {
     newGame(PromoCardPack)
-    p1.playCorp(PolderTechDutch, 0)
+    playCorporationWithoutStartingProjects(p1, PolderTechDutch)
     admin.phase("Action")
     p1.stdAction("DoRequiredActions") {
       placeTile(1, 4)
