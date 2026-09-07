@@ -40,9 +40,9 @@ award, colony, or standard-action identifier. Replacement relationships name the
 directly.
 
 Two bundles may declare the same Class Name when the declarations are byte-identical, as
-`HasRaisedTr` and `TrWatcher` do in `TerraformingMars` and `TurmoilCardPack`. This is deliberate:
-each bundle stands alone, and identical declarations merge. Differing declarations under one name
-are an error.
+`HasRaisedTr` does in `TerraformingMars` and `TurmoilCardPack`. This is deliberate: each bundle can
+contribute cards that use the shared record, and identical declarations merge. Differing
+declarations under one name are an error.
 
 ## Choosing a name
 

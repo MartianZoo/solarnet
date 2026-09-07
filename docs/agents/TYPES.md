@@ -661,9 +661,9 @@ construct-specific lowering without establishing an observable failure. The stas
 cost and explored failure modes, not a design to restore wholesale; because Git stashes are local,
 the evidence gate above remains authoritative when the object is unavailable.
 
-The generated `SpliceTacticalGenomicsWatcher<Player>` components are a working content mechanism,
-not unfinished Type-variable infrastructure. Replacing them would be optional content and
-task-assignment cleanup.
+The card-owned `Splicer<SpliceTacticalGenomics>` component is a working content mechanism, not
+unfinished Type-variable infrastructure. Further changes to its ownership or task assignment would
+be optional content cleanup.
 
 ## 11. Uninhabited Classes and Types
 

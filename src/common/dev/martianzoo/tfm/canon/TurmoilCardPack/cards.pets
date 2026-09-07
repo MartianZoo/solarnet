@@ -10,6 +10,7 @@ CLASS LakefrontResorts : CardFront<Class<CorporationCard>> {
 
 CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
   cost = 0
+  HAS Class<TrWatcher>
 
   This: 53 MC, -2 TerraformRating
   ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC
@@ -37,9 +38,4 @@ CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>
 
 CLASS HasRaisedTr : Generational, Owned {
   HAS MAX 1 This
-}
-
-CLASS TrWatcher : System {
-  HAS MAX 1 This
-  TerraformRating:: HasRaisedTr.
 }
