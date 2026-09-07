@@ -123,14 +123,13 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun treatsAnUnassignedUppercaseTokenAsAnInstruction() {
-    (repl.agent as Agent).addTasks("StandardAction?")
-    val taskBefore = repl.game.tasks.extract { it }.single()
+    (repl.agent as Agent).addTasks("MarsMap?")
+    assertEquals(1, repl.game.tasks.ids().size)
 
-    val output = repl.command("task PlayCardFromHand")
+    val output = repl.command("task TharsisMap")
 
     assertEquals(listOf("um, nothing happened"), output)
-    val taskAfter = repl.game.tasks.extract { it }.single()
-    assertEquals(taskBefore.copy(selection = taskAfter.selection), taskAfter)
+    assertTrue(repl.game.tasks.isEmpty())
   }
 
   @Test

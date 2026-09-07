@@ -266,7 +266,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun initialComponentTypesMustBeConcreteAndNonSingleton() {
+  internal fun initialComponentTypesMustBeConcreteAndInstantiable() {
     val premise =
         Canon.gamePremise(GameConfig("", "Player1", "Player2"))
             .copy(initialComponentTypes = setOf(cn("Card").expression))

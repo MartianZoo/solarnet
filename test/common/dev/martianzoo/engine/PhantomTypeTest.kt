@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -77,7 +78,9 @@ internal class PhantomTypeTest {
                   )
                   .toSet()
         }
-    val premise = canonicalPremise(catalog = TfmCatalog.Composite(Canon, probeCatalog))
+    val premise =
+        canonicalPremise(catalog = TfmCatalog.Composite(Canon, probeCatalog))
+            .copy(initialComponentTypes = setOf(cn("PhantomEffectProbe").expression))
 
     shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }

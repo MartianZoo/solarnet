@@ -47,7 +47,6 @@ import kotlin.math.abs
 private val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
         TerraformingMars.Neighbor,
-        TerraformingMars.CreateMapAreas,
         TerraformingMars.AdjustGpRequirement,
         TerraformingMars.HandleCardTags,
         TerraformingMars.ScoreEventVps,
@@ -71,19 +70,6 @@ internal val terraformingMarsBundle: StandardFormBundle =
 
 /** Namespace for the core game's custom Pets implementations. */
 private object TerraformingMars {
-  internal object CreateMapAreas : CustomClass() {
-    override fun translate(reader: GameReader, mapType: Type): InstructionTree {
-      val map = reader.tfmCatalog.marsMap(mapType.className)
-      return Then.create(
-          map.areas.mapNotNull { area ->
-            gain(area.className.expression).takeIf {
-              reader.countComponent(reader.resolve(area.className.expression)) == 0
-            }
-          }
-      )
-    }
-  }
-
   internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
       val card = reader.tfmCatalog.card(cardType.className)

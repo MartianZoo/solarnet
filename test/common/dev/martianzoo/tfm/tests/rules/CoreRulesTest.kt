@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -9,6 +10,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -128,6 +130,16 @@ internal class CoreRulesTest : CardTest() {
     engine.phase("Action")
 
     p1.claimMilestone(cn("Terraformer35")).expect("-8 MC, Milestone")
+  }
+
+  @Test
+  internal fun `A milestone cannot be claimed twice`() {
+    newGame()
+    p1.manual("35 TerraformRating")
+    requireP2().manual("35 TerraformRating")
+    p1.manual("Terraformer35")
+
+    shouldThrow<LimitsException> { requireP2().manual("Terraformer35") }
   }
 
   @Test

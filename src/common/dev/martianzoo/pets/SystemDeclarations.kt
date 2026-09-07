@@ -64,7 +64,7 @@ private val systemDeclarationsSource =
     }
 
     "The very first component created, which kicks the rest off and performs system operations"
-    CLASS Engine : System, Actor { HAS MAX 1 This }
+    CLASS Engine : System, Actor { HAS =1 This }
 
     "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
     CLASS Ok : Signal

@@ -159,12 +159,12 @@ Current replacement also accepts `This` with explicit arguments: it substitutes 
 Class but keeps the authored arguments. Thus `This<Player>` in a `Birds<Owner>` context becomes
 `Birds<Player>`, not `Birds<Owner, Player>`.
 
-The only production use with `This` as the root and explicit arguments is the inherited invariant
-`HAS MAX 1 This<Player>` on `CardFront`; it limits the card Class across owners rather than limiting
-each owner-specialized Type separately. No production Effect or dependency needs general
-`This<...>` substitution. The smallest durable model is therefore an invariant-only self-Type
-pattern, not a general expression feature. Do not extend specialized `This` to other syntax unless a
-second semantic use establishes one coherent rule.
+The production invariants `HAS MAX 1 This<Player>` on `CardFront` and `Milestone` limit one concrete
+card or milestone Class across owners rather than limiting each owner-specialized Type separately.
+No production Effect or dependency needs general `This<...>` substitution. The smallest durable
+model is therefore an invariant-only self-Class pattern, not a general expression feature. Do not
+extend specialized `This` to other syntax unless another semantic use establishes one coherent
+rule.
 
 ### Dependency targets must be unique
 

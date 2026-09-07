@@ -75,7 +75,7 @@ See [GAMEWORLD.md](GAMEWORLD.md),
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
-selected Modules, signed class selections, seat-ordered display names, and exact non-singleton types
+selected Modules, signed class selections, seat-ordered display names, and exact concrete types
 to create once. See [OPTIONS.md](OPTIONS.md).
 
 A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
@@ -86,9 +86,9 @@ Each Catalog owns one validated master `ClassTable`. A game's table projects it:
 are active and every other Catalog-known Class is uninhabited. Occupied seats activate canonical
 `Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
 an explicit projection root. Trigger positions are observational and do not activate their
-protocol Classes. Modules create the concrete standard actions and other protocols they issue; an
-exact-Class invariant remains the fallback for generic families that cannot be constructed as one
-concrete expression.
+protocol Classes. Modules directly create the concrete standard actions and other protocols they
+issue; generic families use `EACH` over the structurally present `Class<T>` representatives only
+when the family itself owns the fanout.
 
 Module defaults, constructive active-provenance edges, and premise requirements are authored in
 Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
@@ -115,14 +115,17 @@ card back, tags, immediate instructions, actions, effects, cost, requirement, an
 from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented
 `Class<CardBack>` determines its deck. Card resource directories preserve Module-specific card-pool
 grouping and activate unreferenced non-card roots; ordinary Pets references activate the remaining
-declarations. The engine alone decides which active Classes instantiate. Promo Card Pack contributes
+declarations. Domain components exist only when the premise or an explicit creator produces them.
+Promo Card Pack contributes
 three direct class exclusions for the cards its revised printings supersede; there is no general
 replacement registry.
 
-`Engine.newGame(premise)` currently wires the World, creates the `Engine` Actor Component and
-singleton components, marks initialization complete, and commits the pre-setup baseline. It does
-not create a Phase. Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful
-operation.
+`Engine.newGame(premise)` currently wires the World with one structural representative for every
+active concrete Class, creates the `Engine` Actor Component, selected Modules, seated Players, and
+the premise's explicit initial components, then commits the pre-setup baseline. Structural Class
+representatives are installed before event logging and therefore produce no Change Events. The
+initializer does not create a Phase; Terraforming Mars workflow later creates `SetupPhase` as an
+ordinary effectful operation.
 
 **Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
 Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
@@ -133,24 +136,25 @@ an up-front inventory. Do not prolong special initialization merely because the 
 
 Keep three bootstrap layers distinct:
 
-1. **Structural construction** forms the Class Table, empty state indexes, history, timeline, and
-   passive mutation executor. There is not yet an Actor mutation to record.
+1. **Structural construction** forms the Class Table, state indexes prepopulated with Class
+   representatives, history, timeline, and passive mutation executor. There is not yet an Actor
+   mutation to record.
 2. **Actor bootstrap** establishes the minimum concrete state needed for Admin to exist as an Actor
    Component and receive ordinary work. Add other directly created premise state only when the
    ordinary task route proves circular.
 3. **Game initialization** begins at the earliest point where history can honestly say that Admin
-   is selecting, narrowing, and executing assigned tasks. Singleton creation, Module activation,
-   Player creation, and later `SetupPhase` should move into this ordinary phase wherever the model
-   can express them without circular prerequisites.
+   is selecting, narrowing, and executing assigned tasks. Module activation, Player creation, and
+   later `SetupPhase` should move into this ordinary phase wherever the model can express them
+   without circular prerequisites.
 
 The goal is not to call every constructor step an Admin action. It is to make the special prefix as
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
-selected data families, Class representatives, and generic specialization fanout. Initialization
-materializes Modules in an order consistent with active provenance, then Module effects create the
-concrete components they own.
+In Canon, the initializer directly materializes only the premise-selected Modules, seated Players,
+and exact initial component Types. Module and card effects create the other concrete components
+they own; `EACH` over Class representatives supplies generic specialization fanout. An exact
+`HAS =1 This` remains a live multiplicity invariant, not an initialization instruction.
 
 ## Component graph
 
@@ -501,6 +505,59 @@ compiles them once into an immutable per-class component-limit lookup. A World's
 that shared lookup with the live component graph to compute current headroom and footroom.
 [QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete limits, abstract domains, dependencies, and
 instruction composition determine the result.
+
+An invariant has no constructive meaning. In particular, a positive lower bound can activate its
+named Classes during projection, but it neither creates the required Components nor chooses their
+concrete Types. Bare `HAS requirement` is therefore the preferred presence statement when a
+separate rule already guarantees uniqueness. Structural `Class<T>` representatives are the clearest
+case: `HAS Class<T>` says that T must be active, while `=1` would merely repeat their structural
+multiplicity.
+
+### Multiplicity audit
+
+Use exact one for state that must be present at every applicable resting point and has an explicit
+creator. Current examples are selected Modules and Players, Areas, track-rule providers, permanent
+action providers and slots, the engine Actor, and the solo opponent and reserve providers. Use
+maximum one when zero is a legitimate state: card locations and fronts, cleanup and once-per-round
+markers, claimed goals and funded awards, required actions and passing, payment state, phase-local
+rules, global-parameter completion state, end barriers, and setup operations. `Milestone` was the
+missing maximum-one declaration found by the current Canon audit. `TradeFleet` deliberately has no
+one-count limit: additional fleet components are real capacity granted by cards.
+
+`StartToken` is exact one: the first `Generation` creates it automatically and later generations
+move it only by atomic transmutation. Phase is likewise exact one after setup begins. Transitions
+use `NewPhase FROM Phase`, and `End` remains as the terminal Phase. A separate temporary
+`FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
+scoring task settles. The pre-setup World remains an explicit construction state before the first
+Phase is gained; a future comprehensive lower-bound validator must recognize that lifecycle or move
+setup into initialization.
+
+`GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
+exact-one sum; expressing that honestly requires one shared status family and an atomic
+transmutation. The proposed available/spent card-action status in
+[ACTIONS.md](ACTIONS.md#open-questions) has the same shape.
+
+### Exact lower bounds and transient repair
+
+The current Limiter checks a lower bound when removing and an upper bound when gaining. It permits
+the initial gain from zero, but it does not prove that every externally observable resting state
+satisfies every positive lower bound. Consequently, changing a declaration from maximum one to
+exact one is not yet proof that the component is always present.
+
+The smallest promising completion is asymmetric enforcement: keep upper bounds immediate, allow a
+lower bound to be temporarily false while one automatic consequence chain repairs it, and validate
+lower bounds before unrelated work can proceed. Atomic transmutation needs no such allowance because
+the old and new Types hold their shared invariant constant. Validation cannot occur at
+every `Timeline.atomic` exit because an operation may intentionally leave Player-choice Tasks.
+Nor should it wait for whole-World idleness, which can mix unrelated work. The validation point
+should instead be the completion of the causal task scope described in
+[SEQUENCING.md](SEQUENCING.md#selected-direction-scoped-completion). Relational invariants such as an
+Event Card's exact printed event tag should be instantiated only for a live owning component; an
+absent card must not require its dependent tag.
+
+Until that completion rule exists, retain maximum one for lifecycle state and use exact one only
+where the explicit creator and current execution path already make absence non-resting. Do not add
+a second representation or a hidden “repairing” marker merely to permit the transient state.
 
 **Disposition: at peace with the operator set.** `Metric.Max`, `Metric.Subtract`, and `Metric.Or`
 each have only a handful of authored uses, almost all inside `Award.metric`, so a sweep for

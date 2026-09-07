@@ -89,9 +89,10 @@ realized choice. Base rules, expansions, maps, modes, content groups, and varian
 exact live Module set is the complete statement of a game's general rules.
 
 `Module` is an ordinary Pets superclass except where premise construction and initialization ask
-whether a Class is its subtype. Its inherited rules make each concrete Module a permanent
-singleton; its `autoSelectWhen` and `premiseRequirement` properties have meaning because the
-Catalog reads them. There is no separate Kotlin Module object or special component storage.
+whether a Class is its subtype. The premise explicitly creates every selected concrete Module; its
+inherited rules keep that component unique and permanent. Its `autoSelectWhen` and
+`premiseRequirement` properties have meaning because the Catalog reads them. There is no separate
+Kotlin Module object or special component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. A constructive self-gain in an active Module is also **active provenance** for a
@@ -113,8 +114,9 @@ invalid. By contrast, an explicit exclusion that contradicts an active construct
 edge makes the configuration invalid.
 `premiseRequirement` is checked against the completed projection when that Module is selected.
 Module invariants provide the exact-count rules that are also meaningful in the live
-World. `Class<T>` representatives describe that already-fixed projection: required representatives
-are declared with invariants, not created by triggered instructions.
+World. `Class<T>` representatives describe that already-fixed projection and are structurally
+present before history begins. Required representatives are declared with invariants, not created
+by triggered instructions.
 
 ## Configuration and premise
 
@@ -129,7 +131,7 @@ contains only:
 2. selected Module Class Names;
 3. signed selections for other Catalog classes;
 4. user-facing player names in seat order; and
-5. exact concrete non-singleton types to instantiate once.
+5. exact concrete types to instantiate once.
 
 Occupied seats activate canonical `Player1` through `PlayerN`. Configured player names are
 Vocabulary aliases, not Class identities. Initial state is not an unrestricted Pets script.
@@ -154,9 +156,9 @@ use two more tiles than players.
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
 parallel map option component. `TerraformingMars` selects `TharsisMap` only when no map is already
-selected. Creating the selected map creates all of its Areas through the map instruction. The
-retained map record supplies the grid and compact display data, and the creation history keeps the
-selected map as the cause of its Areas.
+selected. Creating the selected map fans out over the active `Class<Area>` representatives and
+creates all of those Areas. The selected map also determines which map-area Classes are active,
+while the retained map record supplies the grid and compact display data.
 
 Concrete track-rule components own global-parameter limits, terminal steps, and printed bonuses.
 The base and Venus modules create their respective standard track-rule components when
@@ -232,9 +234,9 @@ hand-authored declarations. Semantic runtime facts—area identity, kind, row, c
 Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
 concrete `MarsArea` Classes without a name-prefix convention.
 
-The `Area` singleton invariant creates every active area during initialization, so the former
-`CreateMapAreas` custom instruction was redundant and is gone. Adjacency, placement-bonus metrics,
-largest-group scoring, the text renderer, and the game viewer consume the class-backed grid.
+The selected `MarsMap` creates every active Area with `EACH Class<Area> { Area }`; the former
+`CreateMapAreas` custom instruction is gone. Adjacency, placement-bonus metrics, largest-group
+scoring, the text renderer, and the game viewer consume the class-backed grid.
 `ScriptSession` and the standalone solo-placement tool are generation/presentation exceptions that
 consume `tfm-map-data` directly; the former retains authored bonus sigils in its public snapshot.
 
@@ -266,7 +268,7 @@ are implemented.
 Projection is premise semantics, not dead-code optimization. It must simultaneously provide:
 
 1. **Isolation.** A Class unnecessary or forbidden in one game contributes no Components, behavior,
-   singleton, or subtype choice there.
+   Class representative, or subtype choice there.
 2. **Optional reference.** An active declaration may observe a concept that is uninhabited in this
    game without importing the feature that introduced it.
 3. **Derived content compatibility.** Content Classes should not repeat expansion prerequisites

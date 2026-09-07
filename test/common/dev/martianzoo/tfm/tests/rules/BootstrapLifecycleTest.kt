@@ -26,6 +26,7 @@ internal class BootstrapLifecycleTest {
     engine.count("Phase") shouldBe 0
     engine.count("Generation") shouldBe 0
     engine.count("TerraformRating") shouldBe 0
+    engine.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
@@ -37,6 +38,7 @@ internal class BootstrapLifecycleTest {
     engineCreation.change.gaining shouldBe ENGINE.expression
     engineCreation.cause shouldBe null
     engineCreation.toString().shouldEndWith("(manual)")
+    changes.none { it.change.gaining?.className == cn("Class") } shouldBe true
     changes.drop(1).all { it.cause != null } shouldBe true
 
     shouldThrow<IllegalArgumentException> { game.timeline.rollBack(Checkpoint(0)) }

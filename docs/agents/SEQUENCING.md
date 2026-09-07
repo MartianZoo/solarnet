@@ -378,12 +378,13 @@ Three classes use it:
   and removing it creates the corresponding `PlayedEvent`. Law Suit is a deliberate exception in
   behavior, not in machinery: its authored consequence moves the card straight to `PlayedEvent`, so
   no EventCard is left for idle cleanup.
-- **`End`** — the live scoring operation, and also the terminal `Phase`. Gaining it queues every
-  `End` scoring reaction. Once those tasks and all their consequences drain, removing `End` leaves
-  no live phase and queues multiplayer victory assignment.
+- **`FinalScoringPending`** — a temporary marker created automatically by the terminal `End` Phase.
+  Gaining `End` queues every final-scoring reaction. Once those tasks and all their consequences
+  drain, removing `FinalScoringPending` queues multiplayer victory assignment while `End` remains as the
+  exact current Phase.
 - **`MeasureAward<Award>`** — snapshots every Player's `AwardTally` when gained. Idle cleanup removes
-  it in the same pass as `End`, and its automatic removal effect assigns places and their victory
-  points before the queued multiplayer victory assignment can run.
+  it in the same pass as `FinalScoringPending`, and its automatic removal effect assigns places and their
+  victory points before the queued multiplayer victory assignment can run.
 
 The reusable shape is a concrete operation component whose gain creates all the work that must
 precede completion, and whose automatic removal effect emits the fixed completion consequence:

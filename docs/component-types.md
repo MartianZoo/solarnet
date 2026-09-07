@@ -24,7 +24,7 @@ The definition of the `GlobalParameter` Class includes the line `+This.`. Any ga
 
 ### Maps
 
-One `MarsMap` instance will exist, such as `HellasMap`, but it doesn't do much. The interesting part is the areas. Every area is its own component instance; these are singleton classes so one of each is automatically created before the game begins.
+One `MarsMap` instance will exist, such as `HellasMap`. Creating it creates every active Area by fanning out over the structural Class representatives, and every area is its own component instance.
 
 The created areas have names like `Hellas_1_1`, `Hellas_1_2`, etc. The coordinate system is easy to understand if you try the `map` command in the command-line REPL tool (`./rego`).
 
@@ -46,7 +46,7 @@ As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the 
 
 Any component that makes actions available for possible selection extends the supertype `HasActions`; these includes the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
 
-Under the aspirational premise model, the first two are singleton types: each active concrete subtype in the game's class table, such as `AquiferSP`, would automatically have an instance created before the game starts. Therefore if the user signals `UseAction<AquiferSP>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue.
+The Module that contributes a standard action creates it directly. Therefore the base `TerraformingMars` Module creates `AquiferSP`, while an expansion owns and creates any action it adds. If the user signals `UseAction<AquiferSP>` it can respond, bill the user 18 money, and put an `OceanTile` instruction on the user's task queue.
 
 ### Phases
 

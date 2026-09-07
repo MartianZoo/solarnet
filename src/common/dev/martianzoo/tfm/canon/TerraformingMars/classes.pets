@@ -1,13 +1,14 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
   HAS =1 GameMode
-  HAS =1 Class<Production>
-  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<CheckGameEnd>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<End>
-  HAS =1 Class<UseAction>, =1 Class<NewTurn>, =1 Class<SecondAction>
+  HAS Class<Production>
+  HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
+  This:: Hand, Action1, Action2, Action3, CardPurchase, CardPlay
   This:: Selecting, Revealed
   SetupPhase:: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   SetupPhase:: EACH Player { 20 TerraformRating }
@@ -50,7 +51,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 "Every game must have exactly one of these (Tharsis Map, etc.)"
 ABSTRACT CLASS MarsMap : Module {
   HAS =1 MarsMap
-  This:: CreateMapAreas<This>
+  This:: EACH Class<Area> { Area }
 }
 
 "A hexagonal area where a tile can go"
@@ -78,9 +79,6 @@ ABSTRACT CLASS Area {
   "An area not on Mars (yes, it includes one for Stanford Torus)"
   ABSTRACT CLASS RemoteArea
 }
-
-"Creates every Area belonging to the selected map"
-CLASS CreateMapAreas<MarsMap> : Custom
 
 "A player's reservation of one land area"
 CLASS LandClaimMarker<LandArea> : Owned<Player> {
@@ -312,6 +310,9 @@ CLASS VictoryPoint : Owned<Player>
 
 "A milestone already claimed; unclaimed milestones exist only as a Class<ThatMilestoneType>"
 ABSTRACT CLASS Milestone : Owned<Player> {
+  // Wrong: bare This includes the Owner, allowing one claim by each Player.
+  // HAS MAX 1 This
+  HAS MAX 1 This<Player>
   HAS MAX 3 Milestone
   requirement = Requirement
 
@@ -517,9 +518,9 @@ ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
 
 // PHASES
 
-"The current game phase; exactly one exists from Setup through the live End operation"
+"The current game phase; exactly one exists from Setup through the terminal End phase"
 ABSTRACT CLASS Phase : System {
-  HAS MAX 1 Phase
+  HAS =1 Phase
 
   CLASS SetupPhase
   CLASS CorporationPhase {
@@ -541,7 +542,7 @@ ABSTRACT CLASS Phase : System {
 
 "Tells what generation we're in"
 CLASS Generation : System {
-  This IF =1 This: StartToken<Player1>
+  This IF =1 This:: StartToken<Player1>
 }
 
 "Supertype for anything that automatically disappears between generations"
@@ -577,8 +578,13 @@ CLASS GpGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
   GpComplete<Class<GlobalParameter>>:: -This!
 }
 
-"A live scoring operation removed after every scoring task has completed"
-CLASS End : Phase, Temporary
+"The terminal game phase"
+CLASS End : Phase {
+  This:: FinalScoringPending
+}
+
+"A marker removed after every final-scoring task has completed"
+CLASS FinalScoringPending : Temporary, System
 
 "Asks the first player to choose one mandatory global-parameter increase performed by Engine"
 CLASS WorldGovernmentTerraforming : Signal, System
@@ -588,8 +594,8 @@ CLASS ChooseOceanArea<Player> : Signal
 
 "Marks the player who takes the first turn; passes one seat left with each new generation"
 CLASS StartToken : Owned<Player> {
-  HAS MAX 1 StartToken
-  Generation: PassLeft<This>
+  HAS =1 StartToken
+  Generation IF 2 Generation: PassLeft<This>
   ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor
   WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
 }
@@ -617,7 +623,7 @@ ABSTRACT CLASS GameMode : Module {
     This:: ClaimMilestone, FundAward
     This:: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: Generation
-    -End: AssignMultiplayerVictory
+    -FinalScoringPending: AssignMultiplayerVictory
   }
 }
 
@@ -630,7 +636,7 @@ CLASS SoloMode : GameMode {
   HAS =1 Player
   autoSelectWhen = HAS "=1 Player"
 
-  HAS =1 SoloObjective, =1 Class<SoloStandardResourceReserve>, =1 Class<SoloCardResourceReserve>
+  HAS =1 SoloObjective
 
   This:: SoloOpponent
   This IF MAX 0 SoloObjective:: StandardSoloObjective.
@@ -665,7 +671,9 @@ CLASS SoloGenerationsLeft : GameEndBarrier
 
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {
-  HAS MAX 1 This
+  HAS =1 This
+  This:: EACH Class<StandardResource> { SoloStandardResourceReserve<Class<StandardResource>> }
+  This:: EACH Class<CardResource> { SoloCardResourceReserve<Class<CardResource>> }
   SetupPhase: PlaceNeutralTiles
 }
 

@@ -2,10 +2,12 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
@@ -35,7 +37,7 @@ internal class CatalogCompositionTest {
   }
 
   @Test
-  internal fun singletonCreationWaitsForDependencies() {
+  internal fun initialComponentCreationWaitsForDependencies() {
     val extension =
         object : TfmCatalog() {
           override val explicitClassDeclarations =
@@ -50,14 +52,23 @@ internal class CatalogCompositionTest {
         }
     val catalog = TfmCatalog.compose(Canon, extension)
 
-    val game = Engine.newGame(canonicalPremise(catalog = catalog))
+    val premise =
+        canonicalPremise(catalog = catalog)
+            .copy(
+                initialComponentTypes =
+                    setOf(
+                        cn("BootstrapDependency").expression,
+                        parse<Expression>("DependentBootstrap<BootstrapDependency>"),
+                    )
+            )
+    val game = Engine.newGame(premise)
 
     game.agent(PLAYER1).count("BootstrapDependency") shouldBe 1
     game.agent(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
   }
 
   @Test
-  internal fun singletonDependencyStallHasUsefulDiagnostic() {
+  internal fun initialComponentDependencyStallHasUsefulDiagnostic() {
     val extension =
         object : TfmCatalog() {
           override val explicitClassDeclarations =
@@ -74,20 +85,26 @@ internal class CatalogCompositionTest {
         }
     val catalog = TfmCatalog.compose(Canon, extension)
 
-    val failure = shouldThrow<PetException> { Engine.newGame(canonicalPremise(catalog = catalog)) }
+    val premise =
+        canonicalPremise(catalog = catalog)
+            .copy(
+                initialComponentTypes =
+                    setOf(parse<Expression>("BlockedBootstrap<MissingBootstrapDependency>"))
+            )
+    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
 
     failure.message.orEmpty().shouldInclude("BlockedBootstrap<MissingBootstrapDependency>")
     failure.message.orEmpty().shouldInclude("requires MissingBootstrapDependency")
   }
 
   @Test
-  internal fun `inactive gated provenance incorrectly creates a bootstrap cycle`() {
+  internal fun `inactive gated provenance does not create its target`() {
     val extension =
         object : TfmCatalog() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS BootstrapSource<BootstrapTarget> : Module {
+                      CLASS BootstrapSource : Module {
                         This IF ColoniesExpansion: BootstrapTarget
                       }
                       CLASS BootstrapTarget { HAS =1 This }
@@ -99,8 +116,8 @@ internal class CatalogCompositionTest {
     val catalog = TfmCatalog.compose(Canon, extension)
     val premise = catalog.gamePremise(GameConfig("BootstrapSource", "Player1", "Player2"))
 
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+    val game = Engine.newGame(premise)
 
-    failure.message.orEmpty().shouldInclude("is waiting for a constructive source")
+    game.agent(PLAYER1).count("BootstrapTarget") shouldBe 0
   }
 }

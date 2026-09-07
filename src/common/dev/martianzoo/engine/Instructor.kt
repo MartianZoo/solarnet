@@ -18,6 +18,7 @@ import dev.martianzoo.pets.api.Exceptions.requirementsNotMetInChoices
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
@@ -521,7 +522,9 @@ internal constructor(
     val ownsBody = transformers.selectionOwnsBody(each.selector)
     val named =
         each.body.descendantsOfType<Expression>().any {
-          it == each.selectorName || (ownsBody && it.className == OWNER)
+          it == each.selectorName ||
+              it == each.representedSelectorName ||
+              (ownsBody && it.className == OWNER)
         }
     if (!named) {
       throw ExpressionException(
@@ -537,9 +540,15 @@ internal constructor(
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
     val owner = ownerOf(selected)
+    val representedSelection =
+        each.representedSelectorName?.let {
+          check(selected.className == CLASS)
+          selected.arguments.single()
+        }
     val bind =
         PetTransformer.chain(
             replacer(each.selectorName, selected),
+            each.representedSelectorName?.let { replacer(it, checkNotNull(representedSelection)) },
             owner?.let(Transforming::replaceOwnerWith),
         )
     val bound = bind.transformInstructionTree(each.body)

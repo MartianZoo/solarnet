@@ -622,7 +622,9 @@ internal constructor(
           effect.descendantsOfType<Each>().flatMap { each ->
             listOf(each.selector) +
                 each.selector.descendantsOfType<Expression>() +
-                each.body.descendantsOfType<Expression>().filter { it == each.selectorName }
+                each.body.descendantsOfType<Expression>().filter {
+                  it == each.selectorName || it == each.representedSelectorName
+                }
           }
       effect.descendantsOfType<Expression>().forEach { expression ->
         if (expression.className == ANYONE) return@forEach

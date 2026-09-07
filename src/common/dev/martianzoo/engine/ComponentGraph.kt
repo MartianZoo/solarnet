@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.Class
@@ -35,9 +36,15 @@ private constructor(
   private val queryShardClassesByClass = mutableMapOf<Class, Set<Class>>()
   private val components =
       ShardedMultiset<Component, Type, Class>(
-          shardFor = { shardClass(it.type.rootClass) },
-          queryShardsFor = { queryShardClasses(it.rootClass) },
-      )
+              shardFor = { shardClass(it.type.rootClass) },
+              queryShardsFor = { queryShardClasses(it.rootClass) },
+          )
+          .apply {
+            classTable.allClasses().filterNot(Class::abstract).forEach { represented ->
+              add(classTable.resolve(CLASS.of(represented.className)).toComponent(), 1)
+            }
+          }
+
   private val dependentsByDependency = mutableMapOf<Component, MutableSet<Component>>()
 
   private data class CountListener(

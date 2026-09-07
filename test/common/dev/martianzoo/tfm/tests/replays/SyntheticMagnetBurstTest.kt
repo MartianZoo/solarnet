@@ -1277,7 +1277,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     pink.cardsHand shouldBe emptySet()
     green.cardsHand shouldBe emptySet()
-    engine.assertCounts(0 to "Phase")
+    engine.assertCounts(1 to "End", 1 to "Phase")
 
     pink.assertCounts(
         7 to "AwardTally<Pink, Landscaper>",
