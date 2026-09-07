@@ -64,7 +64,6 @@ internal class RankMetricTest {
                 """
                 CLASS Score : Owned<Player>
                 CLASS Candidate : Owned<Player>
-                CLASS Prize : Owned<Player>
                 """,
                 players = 2,
             )
@@ -75,10 +74,10 @@ internal class RankMetricTest {
     p1.manual("Score, Candidate")
     p2.manual("2 Score, Candidate")
 
-    admin.manual("EACH Candidate(HAS =1 (RANK Candidate { Score<Owner> })) { Prize<Owner> }")
+    admin.manual("EACH Candidate(HAS =1 (RANK Candidate { Score<Owner> })) { -Candidate }")
 
-    p1.count("Prize") shouldBe 0
-    p2.count("Prize") shouldBe 1
+    p1.count("Candidate") shouldBe 1
+    p2.count("Candidate") shouldBe 0
   }
 
   @Test

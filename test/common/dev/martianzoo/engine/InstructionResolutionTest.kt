@@ -126,18 +126,22 @@ internal class InstructionResolutionTest {
   internal fun testFanoutRefinementChoosesWhichSelectionsTakePart() {
     // A selector refinement is evaluated against each candidate, so only Player1, who was given a
     // Plant, takes part. A gate inside the body behaves like any other gate and is not a filter.
-    checkResolution("EACH Player(HAS 1 Plant<Anyone>) { Heat }", "Heat<Player1>!")
-    checkResolution("EACH Player(HAS 99 Plant<Anyone>) { Heat }", "Ok")
+    checkResolution("EACH Player(HAS 1 Plant) { Heat }", "Heat<Player1>!")
+    checkResolution("EACH Player(HAS 99 Plant) { Heat }", "Ok")
     shouldThrow<RequirementException> { preprocessAndResolve("EACH Player { 99 Plant: Heat }") }
   }
 
   @Test
-  internal fun testSelectionSuppliesTheOwnerOfItsBranch() {
-    // An Owner selection is the owner; an owned selection supplies whichever Owner it belongs to,
-    // which is what lets a fanout act on each component's owner without naming any player.
+  internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
-    checkResolution("EACH Anyone { Plant }", "Plant<Player1>!, Plant<Player2>!")
-    checkResolution("EACH ProjectCard<Anyone> { Plant }", "Plant<Player1>!")
+    shouldThrow<ExpressionException> { preprocessAndResolve("EACH Anyone { Plant }") }
+    checkResolution(
+        "EACH ProjectCard<Anyone> { -ProjectCard<Anyone>, Plant }",
+        "-ProjectCard<Player1, Hand>!, Plant<Player1>!",
+    )
+    shouldThrow<ExpressionException> {
+      preprocessAndResolve("EACH ProjectCard<Anyone> { Plant }")
+    }
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
     // ...but it does mean a selector names components in the enclosing owner's context: these are

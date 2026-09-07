@@ -125,6 +125,13 @@ component owns the effect. Its contextual Actor is the Player owner of the effec
 then the Player owner of the changed component, then the triggering Actor. Admin-driven setup and
 workflow retain that routing. An unselected task's assignee is its controller.
 
+Start-player requests locate the token's Player with `EACH Player(HAS StartToken)` and gain a request
+signal owned by that Player. `EACH` only supplies the contextual owner; the signal's own
+effect supplies the ordinary owned-component task routing. Icy Impactors separately captures the
+signal event's Actor and uses instruction-side `BY` so the card owner still performs the ocean
+placement chosen by the start player. World Government Advisor instead gains its owned request
+directly, so the card owner chooses regardless of who holds the Start Token.
+
 Selecting a concrete task executes it in place. The change records the task's Actor unless an
 instruction-side `BY` overrides it. Reactions caused by that execution return to the retained
 controller's queue.
