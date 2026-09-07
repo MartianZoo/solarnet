@@ -72,6 +72,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               5 to Metric.Scaled::class,
               3 to Metric.Max::class,
               3 to Metric.Subtract::class,
+              1 to Metric.Rank::class,
               2 to Metric.Or::class,
               3 to Metric.Transform::class,
               1 to Metric.Eval::class,
@@ -84,6 +85,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       fun RandomGenerator<PetNode>.metricOperand(): Metric =
           chooseS(4 to { recurse<Metric>() }, 1 to { recurse<Metric.Constant>() })
       register { Metric.Subtract(recurse(), metricOperand()) }
+      register {
+        Metric.Rank(
+            cn(randomName()).expression,
+            listOfSize(choose(1, 1, 1, 2)),
+        )
+      }
       register { Metric.Or(setOfSize<Metric.Count>(choose(2, 2, 2, 3, 4)).toList()) }
       register { Metric.Transform(recurse(), productionTransform) }
       register { Metric.Eval(Property(PropertyName("score"), recurse())) }

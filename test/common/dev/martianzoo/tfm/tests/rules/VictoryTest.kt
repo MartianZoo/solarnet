@@ -28,4 +28,18 @@ internal class VictoryTest {
     engine.count("End") shouldBe 1
     shouldThrow<LimitsException> { engine.manual("-End") }
   }
+
+  @Test
+  internal fun mcBreaksAVictoryPointTie() {
+    val game = setUpGame()
+    val engine = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    p1.sneak("MC")
+
+    engine.manual("End FROM Phase")
+
+    p1.count("Victory<Player1>") shouldBe 1
+    p2.count("Victory<Player2>") shouldBe 0
+  }
 }

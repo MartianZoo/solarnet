@@ -1,11 +1,14 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Or
+import dev.martianzoo.pets.ast.Metric.Rank
+import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.MetricType
@@ -47,7 +50,54 @@ internal class GameReaderImpl(
   override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
 
   override fun count(metric: Metric): Int =
-      metric.evaluate({ countExpression(it.expression) }, ::readProperty, ::countUnion)
+      metric.evaluate({ countExpression(it.expression) }, ::readProperty, ::countUnion, ::rank)
+
+  private fun rank(metric: Rank): Int {
+    val candidateExpression =
+        metric.candidate
+            ?: throw ExpressionException(
+                "RANK can only be evaluated while testing a concrete ${metric.selectorName}"
+            )
+    val candidate = classTable.resolve(candidateExpression)
+    if (candidate.isAbstract(this)) {
+      throw ExpressionException("RANK candidate is abstract: ${candidate.expressionFull}")
+    }
+
+    val peers = getComponents(classTable.resolve(metric.selector)).elements
+    if (candidate !in peers) {
+      throw ExpressionException(
+          "RANK candidate ${candidate.expressionFull} is not a live ${metric.selector}"
+      )
+    }
+    val candidateScore = rankScore(metric, candidate)
+    return 1 + peers.count { compareRankScores(rankScore(metric, it), candidateScore) > 0 }
+  }
+
+  private fun rankScore(metric: Rank, candidate: Type): List<Int> {
+    val owner = candidate.toComponent().owner
+    val binding =
+        chain(
+            replacer(metric.selectorName, candidate.expressionFull),
+            owner?.let(transformers::bindContextualOwner),
+        )
+    return metric.metrics.map { score ->
+      val bound = binding.transformMetric(score)
+      val evaluated =
+          transformers
+              .evaluateProperties(context = candidate.expressionFull, owner = owner)
+              .transformMetric(bound)
+      count(evaluated)
+    }
+  }
+
+  private fun compareRankScores(left: List<Int>, right: List<Int>): Int {
+    check(left.size == right.size)
+    left.indices.forEach { index ->
+      val comparison = left[index].compareTo(right[index])
+      if (comparison != 0) return comparison
+    }
+    return 0
+  }
 
   private fun readProperty(property: Property): Int {
     val receiver =

@@ -487,7 +487,7 @@ private constructor(
         // Apply that established contextual rule before evaluating the selector as an Actor type.
         if (specializedSelector == OWNER.expression) {
           val owner = actor as? Player ?: return null
-          hit = hit.then(replaceOwnerWith(owner))
+          hit = hit.then(reader.transformers.bindContextualOwner(owner))
           specializedSelector = specializeSelector()
         }
         val by = specializedSelector.className

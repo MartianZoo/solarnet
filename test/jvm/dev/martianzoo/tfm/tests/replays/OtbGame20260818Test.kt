@@ -1659,13 +1659,9 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     val score = Summarizer(game)
     green.assertCounts(
-        32 to "AwardTally<Green, Mogul>",
-        11 to "AwardTally<Green, Traveller>",
         44 to "TR",
     )
     yellow.assertCounts(
-        14 to "AwardTally<Yellow, Mogul>",
-        8 to "AwardTally<Yellow, Traveller>",
         56 to "TR",
     )
     score.net("Milestone", "VP<Green>") shouldBe 10

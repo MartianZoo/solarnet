@@ -1280,17 +1280,11 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     engine.assertCounts(1 to "End", 1 to "Phase")
 
     pink.assertCounts(
-        7 to "AwardTally<Pink, Landscaper>",
-        8 to "AwardTally<Pink, Founder>",
-        10 to "AwardTally<Pink, Contractor>",
         41 to "TerraformRating",
         100 to "VictoryPoint",
         1 to "Victory",
     )
     green.assertCounts(
-        2 to "AwardTally<Green, Landscaper>",
-        0 to "AwardTally<Green, Founder>",
-        12 to "AwardTally<Green, Contractor>",
         51 to "TerraformRating",
         75 to "VictoryPoint",
         0 to "Victory",

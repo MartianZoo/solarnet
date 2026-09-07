@@ -157,6 +157,7 @@ public object Engine {
               ::countActiveClasses,
               { property -> error("Module premise metrics cannot read properties: $property") },
               { union -> error("Module premise metrics cannot use OR: $union") },
+              { rank -> error("Module premise metrics cannot use RANK: $rank") },
           )
 
       fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)

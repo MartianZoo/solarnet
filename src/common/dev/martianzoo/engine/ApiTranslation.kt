@@ -12,7 +12,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
@@ -54,7 +53,8 @@ internal class ApiTranslation(
 
   override fun has(requirement: String) = reader.has(parse(requirement))
 
-  override fun count(metric: String) = reader.count(parse<Metric>(metric))
+  override fun count(metric: String) =
+      reader.count(readMetricPreprocessor.transformMetric(Parsing.parse(metric)))
 
   override fun list(type: String): Multiset<Expression> {
     val typeToList: Type = reader.resolve(parse(type))
@@ -73,16 +73,33 @@ internal class ApiTranslation(
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
-  private val preprocessor =
+  private val normalizeInput =
       chain(
-          xers.rejectPropertyEvaluations(),
           xers.canonicalize(vocabulary),
           xers.useFullNames(),
           classTable.inferTypeVariables(),
+      )
+
+  private val finishInput =
+      chain(
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(xers::bindContextualOwner),
           xers.transformMarkedSyntax(),
+      )
+
+  private val preprocessor =
+      chain(
+          xers.rejectPropertyEvaluations(),
+          normalizeInput,
+          finishInput,
+      )
+
+  private val readMetricPreprocessor =
+      chain(
+          normalizeInput,
+          xers.evaluateProperties(context = actor.expression, owner = actor as? Player),
+          finishInput,
       )
 
   override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =

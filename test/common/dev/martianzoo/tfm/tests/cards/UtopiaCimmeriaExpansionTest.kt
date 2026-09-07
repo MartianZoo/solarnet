@@ -77,11 +77,8 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     p1.stdAction("FundAward") { doTask("Founder") }
     engine.manual("End FROM Phase")
 
-    p1.assertCounts(
-        1 to "AwardTally<Player1, Founder>",
-        1 to "FirstPlace<Player1, Founder>",
-    )
-    p2.assertCounts(0 to "AwardTally<Player2, Founder>")
+    p1.assertCounts(1 to "FirstPlace<Player1, Founder>")
+    p2.assertCounts(0 to "FirstPlace<Player2, Founder>")
   }
 
   @Test

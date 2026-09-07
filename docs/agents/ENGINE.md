@@ -487,6 +487,12 @@ Numeric Metrics may also subtract Metrics or positive scalar operands, saturatin
 by itself is not a Metric. Complete-group scaling and `MAX` bind before subtraction, which binds
 before union.
 
+`RANK Selector { Metric, ... }` is a highest-first competition rank over the distinct live Types
+matching `Selector`: equal score vectors receive the same rank and later ranks skip the tied places.
+Multiple Metrics are compared lexicographically. Each score binds the candidate name and contextual
+`Owner` as an `EACH` body does. There is no direction keyword; a known upper cap minus a Metric can
+express lowest-first scoring.
+
 An abstract custom metric specializes only over dependency targets represented by live components,
 then sums the satisfying concrete implementations. This follows the ordinary dependency rule that
 a dependent value cannot exist without its targets and avoids enumerating the full structural
@@ -568,10 +574,9 @@ Influence after a capped or grouped Metric. Union and sum are also genuinely dif
 Awards need `Or`'s non-double-counting union, Turmoil needs arithmetic addition — so neither can
 stand in for the other. Propose completing this algebra, not trimming it.
 
-Separately, `AssignAwardPlaces` is a `Custom` because "rank owners by a Metric under a declared tie
-rule" is inexpressible, and Turmoil's `PartyLeader` and `Dominant` maintenance want the same
-primitive with different tie rules. That convergence, not the operator count, is the live design
-question here.
+`Metric.Rank` removed the former custom award-placement and multiplayer-victory instructions.
+Turmoil can reuse its comparison semantics, though its distinct tie-sensitive state changes remain
+a separate modeling question.
 
 ## Recoverable dead ends
 
