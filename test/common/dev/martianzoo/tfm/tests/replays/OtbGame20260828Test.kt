@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -12,37 +10,15 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// L1 Trade Terminal's general three-distinct-card selection is not yet modeled. This replay-local
-// card preserves its ordinary play, trade effect, tags, and VP; the sourced resource destinations
-// are supplied at the play site.
-private val fakeL1TradeTerminal = cn("FakeL1TradeTerminal")
-private val fakeL1TradeTerminalDefinition =
-    parseClasses(
-        """
-        CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
-          cost = 25
-          This:: SpaceTag<This>
-          This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
-          Trade<ColonyTile>:: TradeBarrier<ColonyTile>
-          Trade<ColonyTile>: (2 ColonyProduction<ColonyTile> OR Ok) THEN -TradeBarrier<ColonyTile>
-          End: 2 VictoryPoint
-        }
-        """
-    )
-
-private val otbGame20260828Catalog = Canon.withNonstandardClasses(fakeL1TradeTerminalDefinition)
-
 /** Three-player physical game begun Friday, 2026-08-28. */
 internal class OtbGame20260828Test : AbstractFullGameTest() {
   private val colonyTiles = listOf("Ganymede", "Io", "Luna", "Miranda", "Titan")
-  override val catalog = otbGame20260828Catalog
-
   override val config =
       GameConfig(
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
-          FakeBundle, FakeL1TradeTerminal
+          FakeCardsCardPack
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
@@ -965,7 +941,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Oh God, you like the wild tags."
       // "I love them. They're so useful."
       // "You like to live on the wild side."
-      playProject(fakeResearchCoordination, 3)
+      playProject(FakeResearchCoordination, 3)
     }
     blue.turn {
       // "I'm going to play Snow Algae, which costs me 12 money, and it gives me one plant
@@ -1340,9 +1316,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Pay four titanium and thirteen real money for L1 Trade Terminal."
-      // The replay-local card's cost includes the four M€ of applicable discounts Yellow ignored.
+      // The fake card's cost includes the four M€ of applicable discounts Yellow ignored.
       // "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
-      playProject(fakeL1TradeTerminal, 13, titanium = 4)
+      playProject(FakeL1TradeTerminal, 13, titanium = 4)
     }
     green.turn {
       // "Use my Space Elevator to destroy one steel and gain five real."

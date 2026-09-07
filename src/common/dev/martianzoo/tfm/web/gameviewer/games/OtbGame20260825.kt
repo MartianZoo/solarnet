@@ -17,6 +17,7 @@ public class OtbGame20260825 : RecordedGame() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilCardPack
+          FakeCardsCardPack
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
           Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
@@ -37,7 +38,7 @@ public class OtbGame20260825 : RecordedGame() {
     green.turn {
       playPrelude(FocusedOrganization) { doTask("Titanium") }
 
-      playPrelude(HeadStart) {
+      playPrelude(FakeHeadStart) {
         doTask("UseAction<UseCardAction, Action1>")
         doTask("ActionUsedMarker<$FocusedOrganization>")
         cardAction1(FocusedOrganization) {

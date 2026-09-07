@@ -1,48 +1,40 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.AbstractException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.TestOption.FakeCardsCardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.tests.cards.cardnames.FakeEstablishedMethods
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
-private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
-
-private val fakeEstablishedMethodsDefinition =
-    parseOneLinerClass(
-        "CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> { cost = 0; This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>! }"
-    )
-
-internal class FakeEstablishedMethodsBugsTest :
-    CardTest(additionalClassDeclarations = setOf(fakeEstablishedMethodsDefinition)) {
+internal class FakeEstablishedMethodsBugsTest : CardTest() {
   @Test
   internal fun `Established Methods without its note dead-ends when no second project is affordable`() {
-    newGame(PreludeExpansion)
+    newGame(PreludeExpansion, FakeCardsCardPack)
     p1.phase("Prelude")
     p1.manual("PreludeCard")
 
     val deadEnd =
         shouldThrow<AbstractException> {
-          p1.playPrelude(fakeEstablishedMethods) {
+          p1.playPrelude(FakeEstablishedMethods) {
             p1.manual("-20 MC")
             doTask("UseAction<GreenerySP, Action1>")
             p1.autoExecNow()
           }
         }
-    deadEnd.message shouldContain "FakeEstablishedMethods"
+    deadEnd.message shouldContain "$FakeEstablishedMethods"
   }
 
   @Test
   internal fun `Nested standard projects preserve pending payment offer positions`() {
-    newGame(PreludeExpansion)
+    newGame(PreludeExpansion, FakeCardsCardPack)
     p1.manual("PreludeCard")
     engine.phase("Prelude")
     p1.startTurn()
 
-    p1.playPrelude(fakeEstablishedMethods) {
+    p1.playPrelude(FakeEstablishedMethods) {
       val offers = standardActionOfferIds()
       offers.size shouldBe 2
 

@@ -1,44 +1,22 @@
 package dev.martianzoo.tfm.web.gameviewer.games
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
-import dev.martianzoo.tfm.web.gameviewer.fakeResearchCoordination
 import dev.martianzoo.tfm.web.gameviewer.fakeWildTags
-
-private val fakeL1TradeTerminal = cn("FakeL1TradeTerminal")
-private val fakeL1TradeTerminalDefinition =
-    parseClasses(
-        """
-        CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
-          cost = 25
-          This:: SpaceTag<This>
-          This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
-          Trade<ColonyTile>:: TradeBarrier<ColonyTile>
-          Trade<ColonyTile>: (2 ColonyProduction<ColonyTile> OR Ok) THEN -TradeBarrier<ColonyTile>
-          End: 2 VictoryPoint
-        }
-        """,
-    )
-private val otbGame20260828Catalog = Canon.withNonstandardClasses(fakeL1TradeTerminalDefinition)
 
 public class OtbGame20260828 : RecordedGame() {
   private val colonyTiles = listOf("Ganymede", "Io", "Luna", "Miranda", "Titan")
-  protected override val catalog: TfmCatalog = otbGame20260828Catalog
-
   protected override val config: GameConfig =
       GameConfig(
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
-          FakeBundle, FakeL1TradeTerminal
+          FakeCardsCardPack
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
@@ -331,7 +309,7 @@ public class OtbGame20260828 : RecordedGame() {
       playProject(ImportedGhg, 2, titanium = 1)
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
-    green.turn { playProject(fakeResearchCoordination, 3) }
+    green.turn { playProject(FakeResearchCoordination, 3) }
     blue.turn { playProject(SnowAlgae, 12) }
     yellow.turn {
       cardAction1(ElectroCatapult)
@@ -453,7 +431,7 @@ public class OtbGame20260828 : RecordedGame() {
     green.turn { cardAction1(PalladinShipping) }
     blue.turn { cardAction2(LocalShading) }
     yellow.turn {
-      playProject(fakeL1TradeTerminal, 13, titanium = 4)
+      playProject(FakeL1TradeTerminal, 13, titanium = 4)
     }
     green.turn { cardAction1(SpaceElevator) }
     blue.turn { cardAction1(Stratopolis) { addCardResources(JetStreamMicroscrappers, 2) } }

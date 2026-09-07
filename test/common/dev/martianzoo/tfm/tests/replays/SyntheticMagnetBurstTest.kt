@@ -21,7 +21,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, Merger
-          FakeBundle
+          FakeCardsCardPack
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
@@ -94,7 +94,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
 
     green.turn {
       // Green played Nobel Prize
-      playPrelude(fakeNobelPrize) {
+      playPrelude(FakeNobelPrize) {
             // Green gained 5 M€
             /* Discarded 6 cards Dirigibles,Asteroid Mining,Viral Enhancers,Soletta,Sabotage,Big Asteroid */
             // Green drew Insects,Stratopolis

@@ -71,8 +71,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Model L1 Trade Terminal's three-distinct-card resource choice, then replace the replay-local
-  `FakeL1TradeTerminal` declaration with the canonical card.
+- Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
+  with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
   iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
   `SavedGameReplayBenchmark`.
@@ -80,7 +80,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.
 - Model Mars Nomads' moving non-tile marker, adjacency and reservation rules, and destination
-  placement bonuses, then remove the replay's test-only stand-in and sourced reconciliations.
+  placement bonuses, then replace `FakeMarsNomads` and remove the sourced reconciliations.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.

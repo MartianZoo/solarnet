@@ -20,7 +20,7 @@ public object Canon :
         utopiaMapBundle, // 2024
         cimmeriaMapBundle, // 2024
         promoCardPackBundle,
-        fakeBundle, // explicitly selected replay support
+        fakeCardsCardPackBundle, // explicitly selected incomplete-card support
     ) {
   /** Returns Canon extended with replay- or scenario-specific class declarations. */
   public fun withNonstandardClasses(declarations: Collection<ClassDeclaration>): TfmCatalog =

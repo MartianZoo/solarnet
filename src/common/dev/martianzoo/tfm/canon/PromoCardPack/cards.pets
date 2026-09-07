@@ -114,12 +114,6 @@ CLASS NewPartner : CardFront<Class<PreludeCard>> {
   This: PROD[1 MC], 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
 }
 
-CLASS HeadStart : CardFront<Class<PreludeCard>> {
-  cost = 0
-
-  This: 2 Steel, 2 MC / ProjectCard<Hand>, UseAction<StandardAction>!, UseAction<StandardAction>!
-}
-
 CLASS AntiDesertificationTechniques : CardFront<Class<PreludeCard>> {
   cost = 0
 

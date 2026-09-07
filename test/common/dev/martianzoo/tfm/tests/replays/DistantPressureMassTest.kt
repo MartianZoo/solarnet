@@ -18,7 +18,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
-          FakeBundle
+          FakeCardsCardPack
 
           Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
           Electrician, Industrialist, Highlander, Investor, Scientist, Manufacturer
@@ -99,7 +99,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
     keen.turn {
       playPrelude(IndustrialComplex)
-      playPrelude(fakeAppliedScience).expect("6 Science, 4 MC")
+      playPrelude(FakeAppliedScience).expect("6 Science, 4 MC")
     }
 
     been.turn {
@@ -112,7 +112,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       playPrelude(EarlySettlement) { placeTile(2, 6) }
     }
 
-    keen.turn { cardAction1(fakeAppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
     been.turn {
       playProject(LunarExports, 4, titanium = 5) { doTask("PROD[5 MC]") }
     }
@@ -149,7 +149,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
             declineTask("Science<$SearchForLife>?")
           }
           .expect("0 Science")
-      cardAction1(fakeAppliedScience) { doTask("Titanium") }
+      cardAction1(FakeAppliedScience) { doTask("Titanium") }
       pass()
     }
     been.wgt("OceanTile<Hellas_4_6>")
@@ -190,7 +190,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.discardUnselectedProjectCards(MartianSurvey, HiredRaiders)
 
     keen.turn {
-      cardAction1(fakeAppliedScience) { doTask("Energy") }
+      cardAction1(FakeAppliedScience) { doTask("Energy") }
       claimMilestone(cn("Merchant"))
     }
     been.turn {
@@ -256,7 +256,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
     been.buyCards(InventionContest)
     been.discardUnselectedProjectCards(JupiterFloatingStation, ElectroCatapult, RedShips)
-    keen.buyCards(fakeResearchCoordination, LunarMining)
+    keen.buyCards(FakeResearchCoordination, LunarMining)
     keen.discardUnselectedProjectCards(Hospitals, SolarPower)
 
     been.turn {
@@ -280,7 +280,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         placeTile(6, 2)
       }
     }
-    keen.turn { playProject(fakeResearchCoordination, 2) }
+    keen.turn { playProject(FakeResearchCoordination, 2) }
     been.turn { stdProject("PowerPlantSP") }
     keen.turn {
       cardAction1(BusinessNetwork) {
@@ -294,7 +294,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     been.pass()
     keen.turn {
-      cardAction1(fakeAppliedScience) { doTask("Titanium") }
+      cardAction1(FakeAppliedScience) { doTask("Titanium") }
       pass()
     }
     been.wgt("VenusStep")
@@ -319,7 +319,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         addCardResources(ForcedPrecipitation, 3)
       }
     }
-    keen.turn { cardAction1(fakeAppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
       keen.exMachina(fakeWildTags("EarthTag", 2))
@@ -385,7 +385,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       intentionalUnderpay()
       playProject(SpaceMirrors, 3)
     }
-    keen.turn { cardAction1(fakeAppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(SpaceMirrors) }
     keen.turn {
       playProject(LightningHarvest, 4).expect("PROD[1 MC, Energy], -3 MC")

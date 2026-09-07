@@ -319,12 +319,11 @@ Case, which is a second reason not to keep them here.
 
 ### Known and accepted
 
-`FakeResearchCoordination`, `FakeResearchNetwork`, `FakeAppliedScience`, and `FakeNobelPrize` are
-deliberate stand-ins in Canon's explicitly selected `FakeBundle` for cards whose printed wild tags
-are unsupported. They preserve a real card play and every other modeled behavior while creating
-only an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence
-requires it. Their names must remain visibly fake so Canon does not claim to model the published
-cards faithfully.
+The `Fake`-prefixed cards in Canon's explicitly selected `FakeCardsCardPack` are deliberate incomplete
+stand-ins. The wild-tag cards preserve every other modeled behavior while creating only an inert
+`FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires it.
+The other stand-ins preserve only their documented subset of the printed card. Their names must
+remain visibly fake so Canon does not claim to model the published cards faithfully.
 
 `GrossHack` keeps its name. The ban on implementation vocabulary does not reach it; this is the
 decision, not an oversight. The representation itself is documented in

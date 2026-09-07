@@ -1,43 +1,22 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-// Helion is not yet in Canon. BaseResourceValue makes Heat available for every actual M€ bill;
-// only direct resource-removal instructions would require an explicit replay correction.
-private val FakeHelion = cn("FakeHelion")
-private val fakeHelionDefinition =
-    parseClasses(
-        """
-        CLASS FakeHelion : CardFront<Class<CorporationCard>> {
-          cost = 0
-          This:: SpaceTag<This>, BaseResourceValue<Class<Heat>>
-          This: 42 MC, PROD[3 Heat]
-          Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
-        }
-        """
-    )
-
-private val otbGame20260904Catalog = Canon.withNonstandardClasses(fakeHelionDefinition)
-
 /** Four-player physical game begun Friday, 2026-09-04; the recording ends before G8 Research. */
 internal class OtbGame20260904Test : AbstractFullGameTest() {
-  override val catalog = otbGame20260904Catalog
-
   override val config =
       GameConfig(
           """
           AmazonisMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack
-          FakeBundle, FakeHelion
+          FakeCardsCardPack
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist
@@ -75,7 +54,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playPrelude(HugeAsteroid)
     }
     rainbow.turn {
-      playPrelude(fakeAppliedScience)
+      playPrelude(FakeAppliedScience)
       playPrelude(SpaceLanes)
     }
     blue.turn {
@@ -124,7 +103,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { cardAction1(Factorum) }
     rainbow.turn { cardAction2(FloatingRefinery) }
     green.pass()
-    rainbow.pass(unused = fakeAppliedScience) // didn't know what resource she wanted
+    rainbow.pass(unused = FakeAppliedScience) // didn't know what resource she wanted
 
     // "Eight four for two cards and nobody gets the cards, of course."
     yellow.wgt("OceanTile<Amazonis_08_04>")
@@ -138,7 +117,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
       assertResources(m = 36, s = 2, t = 4, p = 0, e = 0, h = 0)
       assertCounts(26 to "TerraformRating")
-      assertCardResources(1 to FloatingRefinery, 6 to fakeAppliedScience)
+      assertCardResources(1 to FloatingRefinery, 6 to FakeAppliedScience)
     }
     with(blue) {
       assertProduction(m = 2, s = 0, t = 0, p = 0, e = 1, h = 5)
@@ -177,7 +156,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn { cardAction1(FloatingRefinery) }
     blue.turn { playProject(NeptunianPowerConsultants, 12, heat = 2) }
     rainbow.turn {
-      cardAction1(fakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     blue.pass()
     rainbow.turn { playProject(SpaceStation, 1, titanium = 3) }
@@ -197,7 +176,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           2 to FloatingRefinery,
           2 to SulphurEatingBacteria,
-          5 to fakeAppliedScience,
+          5 to FakeAppliedScience,
       )
     }
     with(blue) {
@@ -257,7 +236,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { cardAction1(CloudTourism) }
     yellow.pass()
     rainbow.turn {
-      cardAction1(fakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     green.pass()
     rainbow.turn { cardAction1(SulphurEatingBacteria) }
@@ -276,7 +255,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 6, s = 0, t = 1, p = 0, e = 0, h = 0)
       assertResources(m = 37, s = 0, t = 2, p = 0, e = 0, h = 0)
       assertCounts(28 to "TerraformRating")
-      assertCardResources(4 to SulphurEatingBacteria, 4 to fakeAppliedScience)
+      assertCardResources(4 to SulphurEatingBacteria, 4 to FakeAppliedScience)
     }
     with(blue) {
       assertProduction(m = 2, s = 0, t = 0, p = 1, e = 4, h = 7)
@@ -303,7 +282,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     yellow.turn { playProject(Sabotage, 1) { doTask("-3 Steel<Green>") } }
     rainbow.turn {
-      cardAction1(fakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
       cardAction2(SulphurEatingBacteria, x = 5)
     }
     blue.turn {
@@ -345,7 +324,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 6, s = 0, t = 1, p = 0, e = 1, h = 0)
       assertResources(m = 36, s = 0, t = 3, p = 0, e = 1, h = 0)
       assertCounts(28 to "TerraformRating")
-      assertCardResources(3 to SulphurEatingBacteria, 3 to fakeAppliedScience)
+      assertCardResources(3 to SulphurEatingBacteria, 3 to FakeAppliedScience)
     }
     with(blue) {
       assertProduction(m = 4, s = 0, t = 0, p = 1, e = 4, h = 7)
@@ -384,7 +363,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.exMachina("-TerraformRating")
     yellow.turn { playProject(LagrangeObservatory, 9) }
     rainbow.turn {
-      cardAction1(fakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
       cardAction2(SulphurEatingBacteria, x = 4)
     }
     blue.turn { convertHeat() }
@@ -465,7 +444,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           2 to FloatingRefinery,
           1 to SulphurEatingBacteria,
-          2 to fakeAppliedScience,
+          2 to FakeAppliedScience,
       )
     }
     with(blue) {
@@ -530,7 +509,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { cardAction1(Factorum) }
     yellow.turn { cardAction1(SpaceMirrors) }
     rainbow.turn {
-      cardAction1(fakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     blue.turn {
       playProject(IndenturedWorkers, 0)
@@ -627,7 +606,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           1 to Ants,
           1 to Fish,
-          1 to fakeAppliedScience,
+          1 to FakeAppliedScience,
       )
     }
     with(blue) {
@@ -700,7 +679,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // sourced illegal target can pass through the card's real action.
     rainbow.exMachina("Microbe<$SulphurEatingBacteria>")
     rainbow.turn {
-      cardAction1(fakeAppliedScience) {
+      cardAction1(FakeAppliedScience) {
         addCardResources(SulphurEatingBacteria)
       }
       exMachina("-Microbe<$SulphurEatingBacteria>")
