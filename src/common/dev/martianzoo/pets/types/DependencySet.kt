@@ -163,12 +163,12 @@ public class DependencySet private constructor(private val deps: List<Dependency
         if (this@DependencySet.getIfPresent(dependency.key) == null) add(dependency)
       }
     }
-    return of(merged)
+    return DependencySet(merged)
   }
 
   internal fun minus(that: DependencySet): DependencySet {
     requireSameClassTable(that)
-    return of(this.deps - that.deps)
+    return DependencySet(this.deps - that.deps)
   }
 
   @PublishedApi
@@ -182,7 +182,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
 
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
   internal fun subMapInOrder(keysInOrder: Iterable<Key>) =
-      of(keysInOrder.mapNotNull(::getIfPresent))
+      DependencySet(keysInOrder.mapNotNull(::getIfPresent))
 
   private inline fun map(function: (GroundType) -> GroundType) =
       DependencySet(deps.map { if (it is TypeDependency) it.map(function) else it })
@@ -204,7 +204,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
     val firstKey = path.keyList.first()
     if (path.keyList.size == 1) {
       require(replacement.key == firstKey)
-      return of(deps.map { if (it.key == firstKey) replacement else it })
+      return DependencySet(deps.map { if (it.key == firstKey) replacement else it })
     }
 
     fun GroundType.replaceNested(): GroundType =
