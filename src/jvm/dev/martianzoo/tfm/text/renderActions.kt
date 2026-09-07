@@ -54,7 +54,7 @@ internal fun renderActions(
 }
 
 private fun actionRefusalReason(action: Action, describers: Describers): RefusalReason {
-  val lowered = describers.lowerProductionSyntax(action)
+  val lowered = describers.prepareForRendering(action)
   val gatedInstruction = lowered.instruction as? Gated
   if (lowered.cost?.let { describers.renderCost(it) } == null && lowered.cost != null) {
     return RefusalReason.UNSUPPORTED_ACTION_COST
@@ -89,16 +89,21 @@ private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
       ?.let {
         return it
       }
-  productionExpression(expression, this)?.let { production ->
+  productionCategoryExpression(expression, this)?.let { production ->
     if (production.owner != null) return null
     val steps = if (count == 1) "step" else "steps"
+    val selectedProduction =
+        if (concrete(production.resource)) {
+          NounPhrase(
+              "${componentNoun(production.resource, 1)} production",
+              determiner = Determiner.YOUR,
+          )
+        } else {
+          oneOfYour("productions")
+        }
     return Predicate(
         Verb("decrease"),
-        Coordination.one(
-            NounPhrase.text(
-                "your ${componentNoun(production.resource, 1)} production $count $steps"
-            )
-        ),
+        Coordination.one(selectedProduction.withModifier(Modifier.Phrase("$count $steps"))),
     )
   }
   return null
@@ -212,7 +217,7 @@ private fun renderAction(
     action: Action,
     describers: Describers,
 ): RenderedAction? {
-  val lowered = describers.lowerProductionSyntax(action)
+  val lowered = describers.prepareForRendering(action)
   describers.renderLinkedXAction(lowered)?.let {
     return it.takeIf(RenderedAction::costCanJoinResult)
   }
@@ -225,7 +230,12 @@ private fun renderAction(
       gatedInstruction?.gate?.let {
         describers.renderGateCondition(it) ?: return null
       }
-  val result = renderInstructions(gatedInstruction?.inner ?: lowered.instruction, describers)
+  val result =
+      renderPreparedInstructions(
+          gatedInstruction?.inner ?: lowered.instruction,
+          describers,
+          TypeVariableReferences.from(lowered),
+      )
   val separateResultSentences =
       (lowered.instruction as? Instruction.Transform)?.transformKind == CardOperation.TRANSFORM_KIND
   return RenderedAction(cost, result, condition, separateResultSentences)

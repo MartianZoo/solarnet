@@ -22,7 +22,7 @@ internal fun renderEffect(
     effect: Effect,
     describers: Describers,
 ): Rendering<String> {
-  val lowered = describers.lowerProductionSyntax(effect)
+  val lowered = describers.prepareForRendering(effect)
   if (isEndEffect(lowered, describers)) {
     return renderEndEffect(lowered, describers)
         ?: Rendering.unresolved(
@@ -737,7 +737,8 @@ private fun renderTriggeredInstructions(
       } else {
         effect.instruction
       }
-  val result = renderInstructions(instruction, describers)
+  val result =
+      renderPreparedInstructions(instruction, describers, TypeVariableReferences.from(effect))
   return Sentence(
           Clause.Prefaced(
               Clause.Preface.Temporal(trigger),

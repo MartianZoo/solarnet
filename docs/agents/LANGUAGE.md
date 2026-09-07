@@ -120,6 +120,10 @@ sequencing. Folding it into a trigger frame would put its ownership in the wrong
 The useful architecture already present should be extended rather than replaced:
 
 - `ExpressionResolver` and `ResolvedExpression` centralize Class resolution and keyed dependencies.
+- `TypeVariableReferences` carries enclosing and nested Type-variable identities into instruction
+  realization so later occurrences can refer to the choice already introduced.
+  It does not infer identity from similar wording or from correlated alternatives that Pets has not
+  recorded as one variable.
 - `Quantity` and `Modality` remove Pets scalar and intensity variants from family renderers.
 - `ChangeFrame` replaced scattered change probes with one closed construction family.
 - `TriggerFrame` consolidates mutually exclusive event categories while action-use language remains

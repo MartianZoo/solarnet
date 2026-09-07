@@ -14,20 +14,32 @@ internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
 ): Rendering<String> {
-  val rendered = renderInstructions(instructionTree, describers)
+  val prepared = describers.prepareForRendering(instructionTree)
+  val rendered =
+      renderPreparedInstructions(prepared, describers, TypeVariableReferences.from(prepared))
   return Rendering(rendered.asSentences(), rendered.unresolved)
 }
 
 internal fun renderInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
-): RenderedInstructions =
-    renderLoweredInstructions(describers.lowerProductionSyntax(instructionTree), describers)
+): RenderedInstructions {
+  val prepared = describers.prepareForRendering(instructionTree)
+  return renderPreparedInstructions(prepared, describers, TypeVariableReferences.from(prepared))
+}
+
+internal fun renderPreparedInstructions(
+    instructionTree: InstructionTree,
+    describers: Describers,
+    references: TypeVariableReferences,
+): RenderedInstructions = renderLoweredInstructions(instructionTree, describers, references)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
+    references: TypeVariableReferences,
 ): RenderedInstructions {
+  val localReferences = references.including(instructionTree)
   val instructions = InstructionGroup.of(instructionTree).instructions
   if (instructions.isEmpty()) {
     return RenderedInstructions(
@@ -35,7 +47,7 @@ private fun renderLoweredInstructions(
     )
   }
   val rendered = instructions.flatMap { instruction ->
-    val rendering = renderInstructionClauses(instruction, describers)
+    val rendering = renderInstructionClauses(instruction, describers, localReferences)
     val clauses =
         rendering.value
             ?: listOf(
@@ -52,11 +64,12 @@ private fun renderLoweredInstructions(
 private fun renderInstructionClauses(
     instruction: Instruction,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Rendering<List<Clause>?> =
     if (instruction is Instruction.Transform) {
       Rendering.resolved(renderCardOperation(instruction, describers))
     } else {
-      renderInstruction(instruction, describers).map { it?.let(::listOf) }
+      renderInstruction(instruction, describers, references).map { it?.let(::listOf) }
     }
 
 private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
@@ -77,23 +90,25 @@ private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
 private fun renderInstruction(
     instruction: Instruction,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Rendering<Clause?> =
     when (instruction) {
       is Gain,
       is Remove,
-      is Instruction.Transmute -> renderChange(instruction, describers)
+      is Instruction.Transmute -> renderChange(instruction, describers, references)
       is Instruction.Each ->
           Rendering(null, listOf(Unresolved(instruction, RefusalReason.UNSUPPORTED_FANOUT)))
-      is Instruction.Or -> Rendering.resolved(renderAlternatives(instruction, describers))
-      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers))
-      is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers))
+      is Instruction.Or ->
+          Rendering.resolved(renderAlternatives(instruction, describers, references))
+      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers, references))
+      is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers, references))
       is Instruction.Then ->
           Rendering.resolved(
               renderCardPlaySequence(instruction, describers)
-                  ?: renderStandardResourceCostSequence(instruction, describers)
-                  ?: renderDiscardCostSequence(instruction, describers)
-                  ?: renderCardResourceCostSequence(instruction, describers)
-                  ?: renderSequentialThen(instruction, describers)
+                  ?: renderStandardResourceCostSequence(instruction, describers, references)
+                  ?: renderDiscardCostSequence(instruction, describers, references)
+                  ?: renderCardResourceCostSequence(instruction, describers, references)
+                  ?: renderSequentialThen(instruction, describers, references)
           )
       is NoOp ->
           Rendering.resolved(
@@ -106,6 +121,7 @@ private fun renderInstruction(
 private fun renderStandardResourceCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   if (
@@ -117,8 +133,9 @@ private fun renderStandardResourceCostSequence(
   }
   val count = removal.count.fixedQuantity() ?: return null
   val result =
-      renderLoweredInstructions(instruction.continuation, describers).clauses.singleOrNull()
-          ?: return null
+      renderLoweredInstructions(instruction.continuation, describers, references)
+          .clauses
+          .singleOrNull() ?: return null
   return Clause.Simple(
       Predicate(
           Verb("pay"),
@@ -131,26 +148,30 @@ private fun renderStandardResourceCostSequence(
 private fun renderDiscardCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
-  val discarded = renderChange(removal, describers).value as? Clause.Simple ?: return null
+  val discarded =
+      renderChange(removal, describers, references).value as? Clause.Simple ?: return null
   if (describers.changeFrame(removal.removing.className) !is ComponentDescriber.ChangeFrame.Deck) {
     return null
   }
   val result =
-      renderLoweredInstructions(instruction.continuation, describers).clauses.singleOrNull()
-          ?: return null
+      renderLoweredInstructions(instruction.continuation, describers, references)
+          .clauses
+          .singleOrNull() ?: return null
   return discarded.withModifier(Modifier.Purpose(result))
 }
 
 private fun renderSequentialThen(
     instruction: Instruction.Then,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
-  // TODO: Preserve Type Variable bindings when later stages refer to a choice made earlier.
   val clauses =
       (instruction.stages + instruction.continuation).map { part ->
-        renderLoweredInstructions(part, describers).clauses.singleOrNull() ?: return null
+        renderLoweredInstructions(part, describers, references).clauses.singleOrNull()
+            ?: return null
       }
   return Clause.Coordinated(Coordination(clauses, Conjunction.THEN))
 }
@@ -158,6 +179,7 @@ private fun renderSequentialThen(
 private fun renderCardResourceCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   val resolved = describers.resolveCardResource(removal.removing) ?: return null
@@ -172,8 +194,9 @@ private fun renderCardResourceCostSequence(
   val count = removal.count.fixedQuantity() ?: return null
   val resource = describers.cardResourceNounPhrase(removal.removing.className, count) ?: return null
   val result =
-      renderLoweredInstructions(instruction.continuation, describers).clauses.singleOrNull()
-          ?: return null
+      renderLoweredInstructions(instruction.continuation, describers, references)
+          .clauses
+          .singleOrNull() ?: return null
   return Clause.Simple(
       Predicate(
           Verb("remove"),
@@ -235,9 +258,11 @@ private fun renderCardPlaySequence(
 private fun renderGated(
     instruction: Instruction.Gated,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers).clauses.singleOrNull() ?: return null
+      renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
+          ?: return null
   val selectedClass =
       (instruction.gate as? Requirement.Min)
           ?.takeIf { it.minimum == 1 }
@@ -259,9 +284,11 @@ private fun renderGated(
 private fun renderPer(
     instruction: Instruction.Per,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers).clauses.singleOrNull() ?: return null
+      renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
+          ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Per(metric))
 }
@@ -269,13 +296,15 @@ private fun renderPer(
 private fun renderAlternatives(
     instruction: Instruction.Or,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   renderPlacementSiteFallback(instruction, describers)?.let {
     return it
   }
   val alternatives =
       instruction.instructions.map { option ->
-        renderLoweredInstructions(option, describers).clauses.singleOrNull() ?: return null
+        renderLoweredInstructions(option, describers, references).clauses.singleOrNull()
+            ?: return null
       }
   if (alternatives.size == 2) {
     val firstAction = alternatives.singleOrNull {

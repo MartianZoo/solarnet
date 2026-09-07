@@ -60,3 +60,12 @@ internal data class NounPhrase(
     PLURAL,
   }
 }
+
+internal fun oneOfYour(pluralNoun: String): NounPhrase =
+    NounPhrase.text("one")
+        .withModifier(
+            Modifier.Relation(
+                "of",
+                NounPhrase(pluralNoun, determiner = Determiner.YOUR),
+            )
+        )

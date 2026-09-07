@@ -123,6 +123,31 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun realizesLaterTypeVariableUsesAsAntecedents() {
+    english.describe(parse<Effect>("PROD[StandardResource]: StandardResource")) shouldBe
+        "When you increase one of your productions 1 step, gain that resource."
+    english.describe(listOf(parse<Action>("PROD[StandardResource] -> 4 StandardResource"))) shouldBe
+        "Decrease one of your productions 1 step to gain 4 of that resource."
+    english.describe(listOf(parse<Action>("PROD[StandardResource] -> 4 MC"))) shouldBe
+        "Decrease one of your productions 1 step to gain 4 M€."
+    english.describe(parse<InstructionTree>("StandardResource THEN StandardResource")) shouldBe
+        "Gain a standard resource, then gain that resource."
+    english.describe(parse<Effect>("Trade<ColonyTile>: ColonyProduction<ColonyTile>?")) shouldBe
+        "When you trade, you may raise that colony tile track 1 step."
+
+    val unintroduced =
+        syntheticCard(
+            """
+            CLASS Unintroduced<StandardResource> : ActiveCard<Class<ProjectCard>> {
+              cost = 0
+              BuyCard: StandardResource
+            }
+            """
+        )
+    english.topText(unintroduced) shouldBe "Effect: When you buy a card, gain a standard resource."
+  }
+
+  @Test
   internal fun compactAndExpandedTransmutationsRenderIdentically() {
     english.describe(parse<InstructionTree>("2 Steel<Owner FROM Anyone>?")) shouldBe
         english.describe(parse<InstructionTree>("2 Steel<Owner> FROM Steel<Anyone>?"))

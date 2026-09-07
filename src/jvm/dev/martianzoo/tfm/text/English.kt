@@ -52,16 +52,17 @@ internal class English(
       card: Class,
       cardDescribers: Describers,
   ): Rendering<String> {
-    val resourceValueEffects = renderCardResourceValueEffects(cardEffects(card), cardDescribers)
+    val interpretedEffects = interpretedCardEffects(card)
+    val resourceValueEffects = renderCardResourceValueEffects(interpretedEffects, cardDescribers)
     val requirement = cardRequirement(card)?.let { renderRequirement(it, cardDescribers) }
     val immediateEffects =
-        cardEffects(card)
+        interpretedEffects
             .filterNot { it in resourceValueEffects.first }
             .filter(::isImmediateSelfEffect)
             .map { renderInstructionTree(it.instruction, cardDescribers) }
     val instructions = cardImmediate(card)?.let { renderInstructionTree(it, cardDescribers) }
     val scoring =
-        cardEffects(card)
+        interpretedEffects
             .filter { isEndEffect(it, cardDescribers) }
             .filterNot { isUnconditionalFixedScore(it, cardDescribers) }
             .map { renderEffect(it, cardDescribers) }
@@ -74,9 +75,10 @@ internal class English(
       card: Class,
       cardDescribers: Describers,
   ): Rendering<String> {
-    val resourceValueEffects = renderCardResourceValueEffects(cardEffects(card), cardDescribers)
+    val interpretedEffects = interpretedCardEffects(card)
+    val resourceValueEffects = renderCardResourceValueEffects(interpretedEffects, cardDescribers)
     val persistentEffects =
-        cardEffects(card)
+        interpretedEffects
             .filterNot { it in resourceValueEffects.first }
             .filterNot { isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it) }
     val integratedPayment =
@@ -116,6 +118,9 @@ internal class English(
             ?.map { text -> "Effect: $text" }
     return joinRenderings(listOfNotNull(actions, effects), " / ")
   }
+
+  private fun interpretedCardEffects(card: Class): List<Effect> =
+      cardEffects(card).map(card::interpretTypeVariablesIn)
 
   private fun joinRenderings(
       renderings: List<Rendering<String>>,

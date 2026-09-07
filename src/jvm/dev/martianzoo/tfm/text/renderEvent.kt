@@ -419,12 +419,3 @@ private fun Describers.placementEvent(
       }
   return Event(Event.Kind.PLACE, actorConstraint, objectPhrase, complements)
 }
-
-private fun oneOfYour(pluralNoun: String): NounPhrase =
-    NounPhrase.text("one")
-        .withModifier(
-            Modifier.Relation(
-                "of",
-                NounPhrase(pluralNoun, determiner = Determiner.YOUR),
-            )
-        )

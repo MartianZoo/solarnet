@@ -16,6 +16,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 internal fun renderChange(
     instruction: Instruction,
     describers: Describers,
+    references: TypeVariableReferences = TypeVariableReferences.EMPTY,
 ): Rendering<Clause?> {
   val expression =
       when (instruction) {
@@ -24,7 +25,7 @@ internal fun renderChange(
         is Transmute -> instruction.gaining
         else -> return Rendering.unresolved(instruction, RefusalReason.UNKNOWN_CHANGE_FRAME, null)
       }
-  val clause = renderChangeOrNull(instruction, expression, describers)
+  val clause = renderChangeOrNull(instruction, expression, describers, references)
   return if (clause != null) Rendering.resolved(clause)
   else
       Rendering.unresolved(
@@ -38,11 +39,15 @@ private fun renderChangeOrNull(
     instruction: Instruction,
     expression: Expression,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Transmute) {
     renderCardResourceDrawExchange(instruction, describers)?.let {
       return it
     }
+  }
+  renderTypeVariableResourceChange(instruction, expression, describers, references)?.let {
+    return it
   }
   if (describers.isProduction(expression.className))
       return renderProductionChange(instruction, describers)
@@ -50,7 +55,8 @@ private fun renderChangeOrNull(
     return when (frame) {
       ComponentDescriber.ChangeFrame.Countable -> renderCountableChange(instruction, describers)
       is ComponentDescriber.ChangeFrame.Held -> renderCardResourceChange(instruction, describers)
-      is ComponentDescriber.ChangeFrame.Scale -> renderScaleChange(instruction, frame)
+      is ComponentDescriber.ChangeFrame.Scale ->
+          renderScaleChange(instruction, expression, frame, references)
       is ComponentDescriber.ChangeFrame.Positioned ->
           renderPlacement(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.Deck ->
@@ -61,6 +67,37 @@ private fun renderChangeOrNull(
     }
   }
   return null
+}
+
+private fun renderTypeVariableResourceChange(
+    instruction: Instruction,
+    expression: Expression,
+    describers: Describers,
+    references: TypeVariableReferences,
+): Clause.Simple? {
+  val change = instruction as? Instruction.Change ?: return null
+  if (
+      change.intensity.modality() != Modality.REQUIRED ||
+          !expression.simple ||
+          expression.refinement != null ||
+          expression.complement
+  ) {
+    return null
+  }
+  val variable = references.variableUsedAt(expression) ?: return null
+  if (!describers.isStandardResource(variable.bound.rootClass.className)) return null
+  val count = change.count.fixedQuantity() ?: return null
+  val antecedent = NounPhrase("resource", determiner = Determiner.THAT)
+  val resource =
+      if (count == 1) antecedent
+      else NounPhrase.text("$count").withModifier(Modifier.Relation("of", antecedent))
+  val verb =
+      when (change) {
+        is Gain -> "gain"
+        is Remove -> "remove"
+        is Transmute -> return null
+      }
+  return clause(verb, resource)
 }
 
 private fun changeRefusalReason(
@@ -553,7 +590,9 @@ private fun renderProductionConversion(
 
 private fun renderScaleChange(
     instruction: Instruction,
+    expression: Expression,
     frame: ComponentDescriber.ChangeFrame.Scale,
+    references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Transmute) {
     if (
@@ -569,14 +608,34 @@ private fun renderScaleChange(
     val decrease = clause("decrease", NounPhrase.text("another ${frame.subject} $count $steps"))
     return Clause.Coordinated(Coordination(listOf(increase, decrease), Conjunction.AND))
   }
-  val gain = concreteMandatoryGain(instruction)
-  val removal = concreteMandatoryRemoval(instruction)
-  val (_, count) = gain ?: removal ?: return null
+  val change = instruction as? Instruction.Change ?: return null
+  val verb =
+      when (change) {
+        is Gain -> "raise"
+        is Remove -> "lower"
+        is Transmute -> return null
+      }
+  val modalVerb =
+      when (change.intensity.modality()) {
+        Modality.REQUIRED -> verb
+        Modality.OPTIONAL -> "may $verb"
+        Modality.BEST_EFFORT -> return null
+      }
+  val count = change.count.fixedQuantity() ?: return null
   val steps = if (count == 1) "step" else "steps"
-  return clause(
-      if (gain != null) "raise" else "lower",
-      NounPhrase.text("${frame.subject} $count $steps"),
-  )
+  val subject =
+      when {
+        expression.simple -> NounPhrase.text(frame.subject)
+        references.variableUsedWithin(expression) != null ->
+            NounPhrase(frame.subject, determiner = Determiner.THAT)
+        else -> return null
+      }
+  val predicate =
+      Predicate(
+          Verb(modalVerb),
+          Coordination.one(subject.withModifier(Modifier.Phrase("$count $steps"))),
+      )
+  return Clause.Simple(predicate, NounPhrase.you().takeIf { modalVerb != verb })
 }
 
 private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {

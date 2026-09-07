@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 
 /** Looks up the English description supplied for each component Class. */
@@ -30,11 +31,22 @@ internal class Describers(
   internal fun lowerProductionSyntax(instructionTree: InstructionTree): InstructionTree =
       productionSyntaxLowerer().transformInstructionTree(instructionTree)
 
+  internal fun prepareForRendering(instructionTree: InstructionTree): InstructionTree =
+      classTable
+          .inferTypeVariables()
+          .transformInstructionTree(lowerProductionSyntax(instructionTree))
+
   internal fun lowerProductionSyntax(action: Action): Action =
       productionSyntaxLowerer().transformAction(action)
 
+  internal fun prepareForRendering(action: Action): Action =
+      classTable.inferTypeVariables().transformAction(lowerProductionSyntax(action))
+
   internal fun lowerProductionSyntax(effect: Effect): Effect =
       productionSyntaxLowerer().transformEffect(effect)
+
+  internal fun prepareForRendering(effect: Effect): Effect =
+      classTable.inferTypeVariables().transformEffect(lowerProductionSyntax(effect))
 
   internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
       productionSyntaxLowerer().transformRequirement(requirement)
