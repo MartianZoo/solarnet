@@ -56,7 +56,7 @@ internal class BugsTest : CardTest() {
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
-    newGame(PreludeExpansion, TurmoilCardPack, FakeCardsCardPack)
+    newGame(PreludeExpansion, TurmoilCardPack, FakeStuffBundle)
     p1.phase("Prelude")
     p1.manual("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
 
@@ -124,7 +124,7 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Fake SRR incorrectly accepts a card without a Building or Space tag`() {
-    newGame(PromoCardPack, FakeCardsCardPack)
+    newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
 
@@ -142,7 +142,7 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Corroder Suits incorrectly ignores a Venus card staged on Fake SRR`() {
-    newGame(VenusNextExpansion, PromoCardPack, FakeCardsCardPack)
+    newGame(VenusNextExpansion, PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
     p1.cardAction1(FakeSelfReplicatingRobots) {

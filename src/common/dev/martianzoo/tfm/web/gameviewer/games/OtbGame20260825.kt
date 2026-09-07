@@ -17,7 +17,7 @@ public class OtbGame20260825 : RecordedGame() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
           Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile

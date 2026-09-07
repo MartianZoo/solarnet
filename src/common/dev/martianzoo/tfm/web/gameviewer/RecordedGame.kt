@@ -9,6 +9,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.engine.exMachina
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -26,6 +27,7 @@ import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.fake.FakeCanon
 
 public abstract class RecordedGame {
   protected lateinit var game: World
@@ -34,7 +36,13 @@ public abstract class RecordedGame {
     get() = game.tfm(dev.martianzoo.pets.data.Actor.ADMIN)
 
   protected abstract val config: GameConfig
-  protected open val catalog: TfmCatalog = Canon
+  protected open val catalog: TfmCatalog by lazy {
+    if (cn("FakeStuffBundle") in config.includedClassNames) {
+      TfmCatalog.compose(Canon, FakeCanon)
+    } else {
+      Canon
+    }
+  }
   protected open val inputOnlySynonyms: List<Pair<String, String>> = CLASS_SYNONYMS
 
   public fun record(): GameRecording = record({}, {})

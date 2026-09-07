@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.FakeCardsCardPack
+import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.FakeResearchNetwork
 import io.kotest.matchers.shouldBe
@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class FakeWildTagTest : CardTest() {
   @Test
   internal fun `Fake wild tag stays inert on its card`() {
-    newGame(PreludeExpansion, FakeCardsCardPack)
+    newGame(PreludeExpansion, FakeStuffBundle)
     p1.manual("PreludeCard")
     admin.phase("Prelude")
     p1.startTurn()

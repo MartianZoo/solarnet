@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class HeadStartTest : CardTest() {
   @Test
   internal fun `Head Start grants two mandatory actions`() {
-    newGame(PreludeExpansion, FakeCardsCardPack)
+    newGame(PreludeExpansion, FakeStuffBundle)
     admin.phase("Prelude")
     p1.manual("4 MC, 10 ProjectCard, PreludeCard")
     p1.playPrelude(FakeHeadStart) {
@@ -28,7 +28,7 @@ internal class HeadStartTest : CardTest() {
 
   @Test
   internal fun `Head Start must use its first granted action to perform a required action`() {
-    newGame(PreludeExpansion, FakeCardsCardPack, retainedStartingProjects = 5)
+    newGame(PreludeExpansion, FakeStuffBundle, retainedStartingProjects = 5)
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Prelude")
     p1.manual("10 ProjectCard, PreludeCard")

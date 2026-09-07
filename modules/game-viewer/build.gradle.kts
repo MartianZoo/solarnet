@@ -22,6 +22,7 @@ kotlin {
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":tfm-canon"))
+        implementation(project(":tfm-fake"))
         implementation(project(":tfm-engine"))
       }
     }

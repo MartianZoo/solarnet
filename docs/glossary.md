@@ -25,6 +25,7 @@
 - **BootstrapPhase:** The first Terraforming Mars Phase. Its presence names the initialization interval in which Modules, Players, and their minimum runtime machinery are established; workflow replaces it with `SetupPhase` to begin effectful game setup.
 - **Bundle:** An internal grouping of Catalog data for file ownership, provenance, distribution, and loading. A Bundle is not itself a premise input, although a Module can select an entire content category from a named Bundle.
 - **Canon:** The Catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data Bundles.
+- **FakeCanon:** The separate Catalog of noncanonical support declarations. Tests, replays, and tools compose it with Canon only when they need fake content.
 - **Card Back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card Backs and Card Fronts are distinct Types that transmute into each other; an Owner may know a Back's represented Front without making that Card Front exist in the Game World.
 - **Card Front:** See **Card Back** for the distinction.
 - **Cause:** Attribution attached to non-manual Tasks and copied to the resulting Change Events. It pairs the context Component Type whose Effect fired with the ordinal of the triggering Change Event. Those pointers explain the causal chain but do not uniquely identify which of several matching Effects fired, so a Cause is attribution rather than a complete derivation proof.

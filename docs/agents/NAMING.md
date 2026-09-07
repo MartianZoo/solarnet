@@ -318,10 +318,10 @@ Case, which is a second reason not to keep them here.
 
 ### Known and accepted
 
-The `Fake`-prefixed cards in Canon's explicitly selected `FakeCardsCardPack` are deliberate incomplete
-stand-ins. The wild-tag cards preserve every other modeled behavior while creating only an inert
-`FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires it.
-The other stand-ins preserve only their documented subset of the printed card. Their names must
+The `Fake`-prefixed cards in FakeCanon's explicitly selected `FakeStuffBundle` are deliberate
+incomplete stand-ins. The wild-tag cards preserve every other modeled behavior while creating only
+an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires
+it. The other stand-ins preserve only their documented subset of the printed card. Their names must
 remain visibly fake so Canon does not claim to model the published cards faithfully.
 
 `ProdOffset` names the component representing the five synthetic M€-production steps. The

@@ -85,6 +85,7 @@ dependencies {
   dokka(project(":script"))
   dokka(project(":repl"))
   dokka(project(":tfm-canon"))
+  dokka(project(":tfm-fake"))
   dokka(project(":web"))
   dokka(project(":game-viewer"))
 }

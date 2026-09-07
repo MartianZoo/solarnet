@@ -12,7 +12,6 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -20,6 +19,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.retainStartingProjects
@@ -69,30 +69,31 @@ internal abstract class CardTest(
                   *selectedOptions,
                   players = players,
                   colonyTiles = colonyTiles,
-                  catalog = catalog,
+                  catalog = catalog(Option.FakeStuffBundle in selectedOptions),
               )
           )
         }
     return premise
   }
 
-  private val catalog: TfmCatalog by lazy {
-    if (!hasAdditionalContent) {
-      Canon
-    } else {
-      val additions =
-          object : TfmCatalog() {
-            override val explicitClassDeclarations = additionalClassDeclarations
-          }
-      TfmCatalog.compose(Canon, additions)
+  private val additions: TfmCatalog by lazy {
+    object : TfmCatalog() {
+      override val explicitClassDeclarations = additionalClassDeclarations
     }
+  }
+
+  private fun catalog(includeFakes: Boolean): TfmCatalog {
+    val base = canonicalCatalog(includeFakes)
+    return if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
   }
 
   private val hasAdditionalContent: Boolean
     get() = additionalClassDeclarations.isNotEmpty()
 
   private fun premise(config: GameConfig): GamePremise {
-    val premise = catalog.gamePremise(config)
+    val base = canonicalCatalog(config)
+    val premiseCatalog = if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
+    val premise = premiseCatalog.gamePremise(config)
     if (!hasAdditionalContent) return premise
     return withAdditionalSelections(premise)
   }

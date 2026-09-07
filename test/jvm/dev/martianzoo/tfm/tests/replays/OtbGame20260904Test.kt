@@ -16,7 +16,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
           """
           AmazonisMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist

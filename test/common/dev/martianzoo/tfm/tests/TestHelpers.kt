@@ -26,6 +26,7 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(
@@ -111,16 +112,25 @@ internal fun canonicalPremise(
           playerNames =
               if (players == 1) listOf(cn("Me")) else (1..players).map { cn("Player$it") },
       )
-  val base = Canon.gamePremise(config)
+  val defaultCatalog = canonicalCatalog(config)
+  val resolvedCatalog = catalog ?: defaultCatalog
+  val base = resolvedCatalog.gamePremise(config)
   if (catalog == null) return base
   val extensionClassNames =
       catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
-          Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
+          defaultCatalog.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
   return base.copy(
-      catalog = catalog,
       classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) },
   )
 }
+
+internal fun canonicalCatalog(config: GameConfig): TfmCatalog =
+    canonicalCatalog(cn("FakeStuffBundle") in config.includedClassNames)
+
+internal fun canonicalCatalog(includeFakeCards: Boolean): TfmCatalog =
+    if (includeFakeCards) CANON_WITH_FAKE_CARDS else Canon
+
+private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog.compose(Canon, FakeCanon) }
 
 private fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
   val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }

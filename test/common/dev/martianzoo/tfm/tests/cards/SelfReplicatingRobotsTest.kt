@@ -86,7 +86,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Berthed cards remain outside hand for Planner`() {
-    newGame(PromoCardPack, FakeCardsCardPack)
+    newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual("8 MC, $FakeSelfReplicatingRobots, 16 ProjectCard")
     stage(1)
@@ -99,7 +99,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   internal fun `Berthed cards remain outside hand for Visionary`() {
     newGame(
         GameConfig(
-            "PromoCardPack, FakeCardsCardPack, Visionary, Landlord, Banker",
+            "PromoCardPack, FakeStuffBundle, Visionary, Landlord, Banker",
             "Player1",
             "Player2",
         )
@@ -153,7 +153,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Excentric ignores resources on a card that is not in play`() {
-    newGame(Hellas, PromoCardPack, FakeCardsCardPack)
+    newGame(Hellas, PromoCardPack, FakeStuffBundle)
     val p2 = requireP2()
     admin.phase("Action")
     p1.manual("8 MC, $FakeSelfReplicatingRobots, ProjectCard")
@@ -186,7 +186,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Staging a card does not fire its play effects or triggers`() {
-    newGame(PromoCardPack, FakeCardsCardPack)
+    newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual("$FakeSelfReplicatingRobots, ProjectCard, PROD[2 MC, Energy]")
     stage(1)
@@ -355,7 +355,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Typeless berth resources do not satisfy Diversity Support`() {
-    newGame(VenusNextExpansion, PromoCardPack, FakeCardsCardPack)
+    newGame(VenusNextExpansion, PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual(
         "6 MC, 2 ProjectCard, Steel, Titanium, Plant, Energy, Heat, " +
@@ -370,7 +370,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Typeless berth resources do not satisfy Trader`() {
-    newGame(Utopia, PromoCardPack, FakeCardsCardPack)
+    newGame(Utopia, PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual(
         "8 MC, ProjectCard, $FakeSelfReplicatingRobots, $SearchForLife, " +
@@ -384,7 +384,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Typeless berth resources do not count for Collector`() {
-    newGame(Amazonis, PromoCardPack, FakeCardsCardPack)
+    newGame(Amazonis, PromoCardPack, FakeStuffBundle)
     val p2 = requireP2()
     admin.phase("Action")
     p1.manual("8 MC, ProjectCard, $FakeSelfReplicatingRobots")
@@ -399,7 +399,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   }
 
   private fun initialize(cards: Int, vararg options: dev.martianzoo.tfm.tests.TestOption) {
-    newGame(PromoCardPack, FakeCardsCardPack, *options)
+    newGame(PromoCardPack, FakeStuffBundle, *options)
     admin.phase("Action")
     p1.manual("$FakeSelfReplicatingRobots, $cards ProjectCard")
   }

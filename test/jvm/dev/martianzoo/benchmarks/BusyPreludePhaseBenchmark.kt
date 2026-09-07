@@ -8,9 +8,11 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.web.gameviewer.cardnames.FakeEstablishedMethods
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations.Benchmark
@@ -36,14 +38,15 @@ public open class BusyPreludePhaseBenchmark {
   public fun setUp() {
     game =
         Engine.newGame(
-            Canon.gamePremise(
-                GameConfig(
-                    "TerraformingMars, TharsisMap, PreludeExpansion, " +
-                        "ColoniesExpansion, PromoCardPack, FakeCardsCardPack, Callisto, Ceres, Ganymede, " +
-                        "Luna",
-                    "Me",
+            TfmCatalog.compose(Canon, FakeCanon)
+                .gamePremise(
+                    GameConfig(
+                        "TerraformingMars, TharsisMap, PreludeExpansion, " +
+                            "ColoniesExpansion, PromoCardPack, FakeStuffBundle, Callisto, Ceres, Ganymede, " +
+                            "Luna",
+                        "Me",
+                    )
                 )
-            )
         )
     me = game.tfm(PLAYER1)
     val admin = game.tfm(ADMIN)

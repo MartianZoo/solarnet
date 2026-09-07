@@ -33,6 +33,8 @@
 - [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
   [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when changing Terraforming Mars composition or resolution.
+- [`FakeCanon.kt`](../../src/common/dev/martianzoo/tfm/fake/FakeCanon.kt) — inspect when changing
+  noncanonical support content or its composition with Canon.
 - [`PremiseViability.kt`](../../src/common/dev/martianzoo/pets/types/PremiseViability.kt)
   — read only for projection closure and viability.
 
@@ -212,10 +214,10 @@ selection groups in one Bundle is not a simplification when it requires a routin
 declarations may live in a nonselected provider or coalesce identically; do not add per-Class
 availability annotations solely to preserve a product-shaped source directory.
 
-`FakeCardsCardPack` is an explicitly selected, nonpublished support bundle. It keeps incomplete card
-stand-ins and their supporting declarations in Canon's namespace without adding those cards to any
-published card pool. Replays, focused tests, and benchmarks select the Bundle directly rather than
-extending Canon with caller-local declarations.
+`FakeCanon` is a separate `:tfm-fake` Catalog containing the explicitly selected, nonpublished
+`FakeStuffBundle` support bundle. It keeps incomplete card stand-ins and their supporting
+declarations outside Canon. Replays, focused tests, and benchmarks that need them compose `Canon`
+with `FakeCanon`, then select the pack's Module.
 
 ## Card declarations and views
 

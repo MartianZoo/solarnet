@@ -7,7 +7,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -15,6 +14,7 @@ import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.canonicalCatalog
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
@@ -24,7 +24,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p3: TfmGameplay
 
   protected abstract val config: GameConfig
-  protected open val catalog: TfmCatalog = Canon
+  protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
   protected open val inputOnlySynonyms: List<Pair<String, String>> = TEST_CLASS_SYNONYMS
 
   @BeforeTest

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.AbstractException
-import dev.martianzoo.tfm.tests.TestOption.FakeCardsCardPack
+import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.FakeEstablishedMethods
 import io.kotest.assertions.throwables.shouldThrow
@@ -12,7 +12,7 @@ import kotlin.test.Test
 internal class FakeEstablishedMethodsBugsTest : CardTest() {
   @Test
   internal fun `Established Methods without its note dead-ends when no second project is affordable`() {
-    newGame(PreludeExpansion, FakeCardsCardPack)
+    newGame(PreludeExpansion, FakeStuffBundle)
     p1.phase("Prelude")
     p1.manual("PreludeCard")
 
@@ -29,7 +29,7 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
 
   @Test
   internal fun `Nested standard projects preserve pending payment offer positions`() {
-    newGame(PreludeExpansion, FakeCardsCardPack)
+    newGame(PreludeExpansion, FakeStuffBundle)
     p1.manual("PreludeCard")
     admin.phase("Prelude")
     p1.startTurn()

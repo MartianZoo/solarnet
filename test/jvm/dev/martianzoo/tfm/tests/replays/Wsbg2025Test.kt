@@ -25,7 +25,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           """
           ElysiumMap
           PreludeExpansion
-          FakeCardsCardPack
+          FakeStuffBundle
           """,
           "Stanley",
           "Jacopo",

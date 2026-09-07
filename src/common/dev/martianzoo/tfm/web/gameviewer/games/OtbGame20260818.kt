@@ -16,7 +16,7 @@ public class OtbGame20260818 : RecordedGame() {
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
-          FakeCardsCardPack
+          FakeStuffBundle
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile

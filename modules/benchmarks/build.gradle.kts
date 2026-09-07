@@ -14,6 +14,7 @@ kotlin {
 dependencies {
   implementation(project(":game-viewer"))
   implementation(project(":tfm-canon"))
+  implementation(project(":tfm-fake"))
   implementation(project(":engine"))
   implementation(project(":pets"))
   implementation(project(":tfm-engine"))

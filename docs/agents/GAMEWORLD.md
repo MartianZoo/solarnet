@@ -67,7 +67,8 @@ Using “depends on” explicitly:
 - `:engine` depends on `:gameworld` and interprets the pending instructions it contains;
 - `:agent` depends on `:engine` and owns Actor-scoped interaction and policies;
 - `:tfm-engine` depends on `:engine` for Terraforming Mars behavior; and
-- the game viewer depends on `:gameworld` and `:tfm-canon`, but not on `:engine` or `:tfm-engine`.
+- the game viewer depends on `:gameworld` and `:tfm-canon`, plus `:tfm-fake` for noncanonical
+  recordings, but not on `:engine` or `:tfm-engine`.
 
 The designated JVM replay exporter composes all needed layers. A browser that reads its output
 does not calculate consequences and must not acquire an engine dependency indirectly.
