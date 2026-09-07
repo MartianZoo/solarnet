@@ -63,11 +63,21 @@ internal class Limiter(
     require(type.abstract)
     require(minimum > 0)
     return classTable
-        .allConcreteSubtypes(type) { dependency -> components.matchingTypes(dependency, info) }
+        .allConcreteSubtypes(type) { dependency -> dependencyTargets(dependency, info) }
         .any { candidate ->
           candidate.narrows(type, info) &&
               findLimitWithDependenciesPresent(candidate.toComponent(), null) >= minimum
         }
+  }
+
+  private fun dependencyTargets(type: Type, info: TypeInfo): Sequence<Type> {
+    val concreteClasses = classTable.allSubclasses(type.rootClass).filterNot(Class::abstract)
+    return if (concreteClasses.isNotEmpty() && concreteClasses.all(Class::isSingletonType)) {
+      // Active invariant singletons are all present, so their domain is already in the catalog.
+      classTable.allConcreteSubtypes(type).filter { it.narrows(type, info) }
+    } else {
+      components.matchingTypes(type, info)
+    }
   }
 
   internal fun hasExecutableConcreteRemoval(
