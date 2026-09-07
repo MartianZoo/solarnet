@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
@@ -83,11 +82,11 @@ internal class Limiter(
   internal fun hasExecutableConcreteRemoval(
       type: Type,
       minimum: Int,
-      info: GameReader,
+      info: TypeInfo,
   ): Boolean {
     require(type.abstract)
     require(minimum > 0)
-    return info.getComponents(type).elements.any { candidate ->
+    return components.matchingTypes(type, info).any { candidate ->
       findLimit(null, candidate.toComponent()) >= minimum
     }
   }
