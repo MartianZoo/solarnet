@@ -73,7 +73,7 @@ enumerations.
 A game is at a **policy-relative stable point** when every Agent has consulted its policies against
 the same completed game revision and declined to issue another mutation. “Stable” is relative to
 the exact installed policies: changing them may make another action available without changing the
-Game World. It does not mean that the global task pool is empty.
+Game World. It does not mean that the global task queue is empty.
 
 A fully autonomous Agent promises to decline only when it has no legal action covered by its
 contract. A task may still be assigned to it when game state temporarily makes that task illegal,

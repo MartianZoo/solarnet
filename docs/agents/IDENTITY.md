@@ -71,7 +71,7 @@ or event performer.
 
 Core engine state derives a Task's current assignee from its selection state and enforces that
 ordinary task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
-Actor, presents a convenient filtered view of the one global task pool, and issues both explicit and
+Actor, presents a convenient filtered view of the one global task queue, and issues both explicit and
 policy-chosen mutations. Lower-level engine mutation remains available for deliberate workflow,
 replay, cheat, and test use.
 
