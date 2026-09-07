@@ -3,8 +3,10 @@ CLASS GainsOf<CardFront, Class<Component>> : Custom
 // A goal reprinted from a loaded map keeps the declaration from that map bundle. This bundle
 // supplies the remaining supported goals and revised goals with distinct implementations.
 
-// All Briber needs is a `Briber: -12 MC` effect attached to milestone claiming.
-// CLASS Briber : Milestone { requirement = HAS "Component" }
+CLASS Briber : Milestone {
+  requirement = HAS "This"
+  This:: -12 MC
+}
 CLASS Builder : Milestone { requirement = HAS "7 BuildingTag" }
 // Requires making global-parameter components Owned.
 // CLASS Hydrologist : Milestone { requirement = HAS "4 OceanTile" }

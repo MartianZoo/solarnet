@@ -84,9 +84,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
-- Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
-  Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
-  Politician rules.
+- Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
+  global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
