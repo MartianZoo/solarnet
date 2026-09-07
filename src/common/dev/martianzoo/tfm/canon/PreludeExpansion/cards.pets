@@ -12,7 +12,7 @@ CLASS PointLuna : CardFront<Class<CorporationCard>> {
 
   This:: EarthTag<This>, SpaceTag<This>
   This: 38 MC, PROD[Titanium]
-  EarthTag<>: ProjectCard
+  EarthTag: ProjectCard
 }
 
 CLASS RobinsonIndustries : ActionCard<Class<CorporationCard>> {
@@ -221,12 +221,6 @@ CLASS PowerGeneration : CardFront<Class<PreludeCard>> {
   This: PROD[3 Energy]
 }
 
-CLASS ResearchNetwork : CardFront<Class<PreludeCard>> {
-  cost = 0
-
-  This: PROD[1 MC], 3 ProjectCard, WildTag<This>
-}
-
 CLASS SelfSufficientSettlement : CardFront<Class<PreludeCard>> {
   cost = 0
 
@@ -306,12 +300,6 @@ CLASS Psychrophiles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<C
   PayFromCard<This>:: -2 Owed<>
 
   -> Microbe<This>
-}
-
-CLASS ResearchCoordination : AutomatedCard<Class<ProjectCard>> {
-  cost = 4
-
-  This: WildTag<This>
 }
 
 CLASS SfMemorial : AutomatedCard<Class<ProjectCard>> {

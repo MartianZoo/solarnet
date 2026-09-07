@@ -39,16 +39,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
   lowering knows any game's vocabulary.
-- Investigate why all wild-tag assignments must currently run before selecting a card or action.
-  Only assignments needed to satisfy a requirement should be early; assignments used by queued
-  effects such as per-tag gains should resolve normally from the task queue.
 ### Hypothetical Card Behavior
 
 - Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a
   future score depends on another score rather than directly on game state.
-- Give multiple wild tags on one card distinct occurrences if a future card has two wild tags, so
-  both can be assigned either the same tag or different tags for one action; otherwise document the
-  limitation.
 - Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
   `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
 - Give players 20 TR in multiplayer setup and 14 TR in solo setup directly if a future card can

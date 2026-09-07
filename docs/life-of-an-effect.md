@@ -9,7 +9,7 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
   This:: MicrobeTag<This>, BuildingTag<This>
   This: 38 MC, PROD[Steel]
-  BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
+  BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
 }
 ```
 
@@ -67,7 +67,7 @@ Class parsing reads the entire line as an Effect, not as a general Instruction o
 element. Reading must consume the entire string. The result has three principal parts:
 
 ```pets
-Trigger:      BuildingTag<>
+Trigger:      BuildingTag
 Instruction:  Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
 kind:         queued, because the separator is `:` rather than `::`
 ```
@@ -102,7 +102,7 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
   This:: MicrobeTag<This>, BuildingTag<This>
   This: 38 MC, PROD[Steel]
-  BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
+  BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
 }
 ```
 
@@ -124,8 +124,7 @@ it over Recyclon's Source Effect.
 
 The Catalog collects Recyclon's authored declaration with the Rule Classes and other Content
 Classes. Class Loading turns that mutually referring set into a Class Table. Recyclon thereby
-becomes a Class with a resolved hierarchy through `ResourceCard`, `CardFront`, `TagHolder`, `Card`,
-and `Owned`.
+becomes a Class with a resolved hierarchy through `ResourceCard`, `CardFront`, `Card`, and `Owned`.
 
 The Game Premise then supplies a game-specific Class-table Projection. If Recyclon is an Active
 Class there, it can contribute Effects and Recyclon Components can exist. If it is Uninhabited, its
@@ -143,17 +142,16 @@ game knows whether Recyclon is Active. These facts may now be used to form its C
 **PetTransformers, in order:**
 
 1. `inferTypeVariables`
-2. `insertTriggerDefaults`
-3. `insertGainRemoveDefaults`
-4. `insertExpressionDefaults`
-5. `atomizer`
-6. `Prod.deprodify`
-7. `fixEffectForUnownedContext`, only when the Effect's declaring Class is neither `Owned` nor an
+2. `insertGainRemoveDefaults`
+3. `insertExpressionDefaults`
+4. `atomizer`
+5. `Prod.deprodify`
+6. `fixEffectForUnownedContext`, only when the Effect's declaring Class is neither `Owned` nor an
    `Owner`
-8. `evaluateProperties`, using the inheriting Class as Context and leaving abstract property values
+7. `evaluateProperties`, using the inheriting Class as Context and leaving abstract property values
    for a later stage
 
-The three default passes are the expanded contents of `insertDefaults`. Steps 1–7 form
+The two default passes are the expanded contents of `insertDefaults`. Steps 1–7 form
 `attachToClassTransformer` and run separately on each Source Effect with its declaring Class as
 Context. After Effects from every superclass have been collected, step 8 runs on all of them with
 Recyclon as Context.
@@ -169,16 +167,15 @@ superclasses, transformed for Recyclon as far as possible without choosing a con
 The original line becomes:
 
 ```pets
-BuildingTag<Owner, CardFront<Owner>>:
+BuildingTag<Owner>:
   Microbe<This>. OR
   (-2 Microbe<This>! THEN Production<Owner, Class<Plant>>!)
 ```
 
 Several changes have happened at once:
 
-- `BuildingTag<>` accepts the Trigger default declared by `Tag`, so its holder becomes
-  `CardFront`. Because both tag and card are `Owned`, their ownership Dependencies are the same
-  contextual `Owner`.
+- The inherited `Owned` default supplies the contextual `Owner`; `Cardbound` constrains the omitted
+  card dependency to `CardFront<Owner>`.
 - The omitted Quantifier on gaining a Card Resource becomes AMAP (`.`), as declared by the
   `CardResource` default.
 - The omitted Quantifier on the removal becomes mandatory (`!`).
@@ -250,7 +247,7 @@ Its Minimal Form is normally just `Recyclon<Player1>`, because the microbe Class
 Recyclon declaration. Specializing the Class Effect for that concrete Type produces:
 
 ```pets
-BuildingTag<Player1, CardFront<Player1>>:
+BuildingTag<Player1>:
   Microbe<Recyclon<Player1>>. OR
   (-2 Microbe<Recyclon<Player1>>! THEN
     Production<Player1, Class<Plant>>!)
@@ -303,7 +300,7 @@ Now suppose Player1 plays Titanium Mine. Its printed building tag produces the e
 that gains a `BuildingTag` dependent on `TitaniumMine<Player1>`. Its Change Event matches:
 
 ```pets
-BuildingTag<Player1, CardFront<Player1>>
+BuildingTag<Player1>
 ```
 
 The Live Effect therefore produces this Triggered Instruction:
@@ -356,8 +353,7 @@ text to choose or narrow it, that input first passes through:
 4. `useFullNames`
 5. `inferTypeVariables`
 6. `atomizer`
-7. `insertTriggerDefaults`, `insertGainRemoveDefaults`, and `insertExpressionDefaults`, together
-   exposed as `insertDefaults`
+7. `insertGainRemoveDefaults` and `insertExpressionDefaults`, together exposed as `insertDefaults`
 8. `replaceOwnerWith`, when the client is a Player
 9. `Prod.deprodify`
 

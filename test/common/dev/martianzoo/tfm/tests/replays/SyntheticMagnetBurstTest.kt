@@ -21,6 +21,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, Merger
+          FakeBundle
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
@@ -93,7 +94,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
 
     green.turn {
       // Green played Nobel Prize
-      playPrelude(NobelPrize) {
+      playPrelude(fakeNobelPrize) {
             // Green gained 5 M€
             /* Discarded 6 cards Dirigibles,Asteroid Mining,Viral Enhancers,Soletta,Sabotage,Big Asteroid */
             // Green drew Insects,Stratopolis
@@ -222,11 +223,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
       // tag.
       // Green played Power Supply Consortium
-      playProject(
-          PowerSupplyConsortium,
-          5,
-          butFirst = assignAllWildTags("PowerTag"),
-      ) {
+      green.exMachina(fakeWildTags("PowerTag"))
+      playProject(PowerSupplyConsortium, 5) {
         // Green stole 1 energy production from Pink
         doTask("PROD[-Energy<Pink>]")
         // Green gained 2 M€ from Suitable Infrastructure
@@ -360,18 +358,12 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
       // Green gained 3 M€ production
       // Green gained 2 M€ from Suitable Infrastructure
-      playProject(
-              MirandaResort,
-              12,
-              butFirst = assignAllWildTags("EarthTag"),
-          )
-          .expect("PROD[3 MC], -10 MC")
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(MirandaResort, 12).expect("PROD[3 MC], -10 MC")
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
       // Green claimed Diversifier milestone
-      stdAction(
-          "ClaimMilestone",
-          beforeAction = assignAllWildTags("MicrobeTag"),
-      ) {
+      green.exMachina(fakeWildTags("MicrobeTag"))
+      stdAction("ClaimMilestone") {
         doTask("Diversifier")
       }
     }
@@ -655,11 +647,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Nobel Prize's wild icon counts as Green's second science tag.
       // Green gained 3 energy production
       // Green gained 2 M€ from Suitable Infrastructure
-      playProject(
-          TectonicStressPower,
-          18,
-          butFirst = assignAllWildTags("ScienceTag"),
-      )
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(TectonicStressPower, 18)
       // Green passed
       pass()
     }
@@ -1067,7 +1056,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Nobel Prize's wild icon counts as Green's second plant tag.
       // Green gained 2 plant production
       // Green gained 2 M€ from Suitable Infrastructure
-      playProject(Insects, 9, butFirst = assignAllWildTags("PlantTag"))
+      green.exMachina(fakeWildTags("PlantTag"))
+      playProject(Insects, 9)
     }
     pink.turn {
       // Pink used Space Elevator action

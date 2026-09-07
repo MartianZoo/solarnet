@@ -1,0 +1,32 @@
+"An inert stand-in for a printed wild tag"
+CLASS FakeWildTag : Cardbound
+
+"A temporary holder for tags supplied directly by a replay"
+CLASS FakeWildTagUse : TagHolder, Temporary { HAS MAX 1 This }
+
+CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: PROD[1 MC], 3 ProjectCard, FakeWildTag<This>
+}
+
+CLASS FakeResearchCoordination : AutomatedCard<Class<ProjectCard>> {
+  cost = 4
+
+  This: FakeWildTag<This>
+}
+
+CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
+  cost = 0
+
+  This: FakeWildTag<This>, 6 Science<This>
+
+  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
+}
+
+CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: FakeWildTag<This>, 5 MC, CARDS[2 SearchForCard(HAS requirement)]
+  End: 2 VictoryPoint
+}

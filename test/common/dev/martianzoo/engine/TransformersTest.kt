@@ -102,24 +102,11 @@ internal class TransformersTest {
   }
 
   @Test
-  internal fun triggerDependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
-    applyEffectDefaults("ScienceTag<>: Heat") shouldBe
-        applyEffectDefaults("ScienceTag<CardFront>: Heat")
-    applyEffectDefaults("-ScienceTag<>: Heat") shouldBe
-        applyEffectDefaults("-ScienceTag<CardFront>: Heat")
-
-    shouldThrow<PetSyntaxException> { applyEffectDefaults("ScienceTag: Heat") }.message shouldBe
-        "`ScienceTag` has trigger dependency defaults; write `ScienceTag<>` to accept them or provide dependency arguments"
-  }
-
-  @Test
   internal fun emptyArgumentsRequireDefaultsForTheirSpecificUse() {
     shouldThrow<PetSyntaxException> { applyDefaults("Plant<>") }.message shouldBe
         "`Plant<>` has no gain dependency defaults to accept"
     shouldThrow<PetSyntaxException> { applyDefaults("-Plant<>") }.message shouldBe
         "`Plant<>` has no removal dependency defaults to accept"
-    shouldThrow<PetSyntaxException> { applyEffectDefaults("Plant<>: Heat") }.message shouldBe
-        "`Plant<>` has no trigger dependency defaults to accept"
     shouldThrow<PetSyntaxException> {
           transformers
               .insertExpressionDefaults(cn("This").expression)
@@ -190,9 +177,6 @@ internal class TransformersTest {
       original: String,
       context: Expression = THIS.expression,
   ): Instruction = transformers.insertDefaults(context).transformInstruction(parse(original))
-
-  private fun applyEffectDefaults(original: String): Effect =
-      transformers.insertDefaults().transformEffect(parse(original))
 
   @Test
   internal fun testDeprodify_noProd() {

@@ -84,7 +84,6 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
                 universal = transformDefault(defaults.universal),
                 gainOnly = transformDefault(defaults.gainOnly),
                 removeOnly = transformDefault(defaults.removeOnly),
-                triggerOnly = transformDefault(defaults.triggerOnly),
             ),
         properties =
             declaration.properties.entries.associate {

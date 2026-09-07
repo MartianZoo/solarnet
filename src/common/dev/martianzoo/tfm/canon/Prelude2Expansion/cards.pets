@@ -31,7 +31,7 @@ CLASS EcoTec : CardFront<Class<CorporationCard>> {
 
   This:: MicrobeTag<This>, PlantTag<This>
   This: 42 MC, PROD[Plant]
-  BioTag<>: Plant OR Microbe
+  BioTag: Plant OR Microbe
 }
 
 CLASS Spire : ResourceCard<Class<Science>, Class<CorporationCard>> {
@@ -42,14 +42,6 @@ CLASS Spire : ResourceCard<Class<Science>, Class<CorporationCard>> {
   CardFront(HAS 2 Tag): Science<This>
   UseAction<StandardProject(HAS cost)>:: AcceptingFromCard<This>
   PayFromCard<This>:: -2 Owed<>
-}
-
-CLASS AppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
-  cost = 0
-
-  This: WildTag<This>, 6 Science<This>
-
-  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
 }
 
 CLASS AtmosphericEnhancers : CardFront<Class<PreludeCard>> {
@@ -119,13 +111,6 @@ CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<Prelud
   -> Asteroid
 }
 
-CLASS NobelPrize : CardFront<Class<PreludeCard>> {
-  cost = 0
-
-  This: WildTag<This>, 5 MC, CARDS[2 SearchForCard(HAS requirement)]
-  End: 2 VictoryPoint
-}
-
 CLASS OldMiningColony : CardFront<Class<PreludeCard>> {
   cost = 0
 
@@ -158,7 +143,7 @@ CLASS SoilBacteria : CardFront<Class<PreludeCard>> {
 
   This:: MicrobeTag<This>
   This: CARDS[2 SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)], 3 Plant
-  PlantTag<> OR MicrobeTag<>: Plant
+  PlantTag OR MicrobeTag: Plant
 }
 
 CLASS SpaceLanes : CardFront<Class<PreludeCard>> {

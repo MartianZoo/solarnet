@@ -24,6 +24,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           PromoCardPack
+          FakeBundle
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
@@ -243,7 +244,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I pay four for Research Coordination."
-      playProject(ResearchCoordination, 4)
+      playProject(fakeResearchCoordination, 4)
     }
 
     yellow.turn {
@@ -253,12 +254,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I pay four for Venus Governor... two money production."
-      playProject(
-              VenusGovernor,
-              4,
-              butFirst = assignAllWildTags("VenusTag"),
-          )
-          .expect("PROD[2 M]")
+      green.exMachina(fakeWildTags("VenusTag"))
+      playProject(VenusGovernor, 4).expect("PROD[2 M]")
     }
 
     yellow.pass()
@@ -307,11 +304,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I pay three for Mercurian Alloys."
-      playProject(
-          MercurianAlloys,
-          3,
-          butFirst = assignAllWildTags("ScienceTag"),
-      )
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(MercurianAlloys, 3)
     }
 
     yellow.turn {
@@ -341,11 +335,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I pay five for Floating Habs."
-      playProject(
-          FloatingHabs,
-          5,
-          butFirst = assignAllWildTags("ScienceTag"),
-      )
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(FloatingHabs, 5)
     }
 
     yellow.turn {
@@ -444,12 +435,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "Lunar Mining. It costs me 11... six Earth tags... six titanium production."
-      playProject(
-              LunarMining,
-              11,
-              butFirst = assignAllWildTags("EarthTag"),
-          )
-          .expect("PROD[3 T]")
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(LunarMining, 11).expect("PROD[3 T]")
     }
 
     yellow.turn { cardAction1(StratosphericBirds).expect("Animal") }
@@ -463,13 +450,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "Luna Metropolis... five titanium and one real money... seven money production."
-      playProject(
-              LunaMetropolis,
-              1,
-              titanium = 5,
-              butFirst = assignAllWildTags("EarthTag"),
-          )
-          .expect("PROD[7 M], Animal")
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(LunaMetropolis, 1, titanium = 5).expect("PROD[7 M], Animal")
     }
 
     yellow.turn {
@@ -518,10 +500,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I'm going to play Industrial Microbes for full price. And now I'm going to pay eight to
       // become the Ecologist."
       playProject(IndustrialMicrobes, 12).expect("PROD[S, E]")
-      stdAction(
-          "ClaimMilestone",
-          beforeAction = assignAllWildTags("MicrobeTag"),
-      ) {
+      green.exMachina(fakeWildTags("MicrobeTag"))
+      stdAction("ClaimMilestone") {
         doTask("Ecologist")
       }
     }
@@ -692,12 +672,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // Green: "I am going to play Miranda—Miranda Resort. I guess it costs me three titanium. And
       // I
       // get one, two, three, four, five, six, seven money production."
-      playProject(
-              MirandaResort,
-              titanium = 3,
-              butFirst = assignAllWildTags("EarthTag"),
-          )
-          .expect("PROD[7 M]")
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(MirandaResort, titanium = 3).expect("PROD[7 M]")
     }
 
     yellow.turn {
@@ -846,11 +822,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // tag
       // and a wild tag. I've gotten so much use out of this wild tag. So that costs me 15 entire
       // money. And then I place a greenery tile, which I'm going to place at five-three."
-      playProject(
-              Plantation,
-              15,
-              butFirst = assignAllWildTags("ScienceTag"),
-          ) {
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(Plantation, 15) {
             placeTile(5, 3)
           }
           .expect("GreeneryTile, OxygenStep, TR, -13 M")
@@ -1159,12 +1132,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // microbe now."
       cardAction1(VenusianInsects).expect("Microbe")
       // "Okay, here goes insects." "And I get one, two, three, four, five, five plant production."
-      playProject(
-              Insects,
-              9,
-              butFirst = assignAllWildTags("PlantTag"),
-          )
-          .expect("PROD[5 P]")
+      green.exMachina(fakeWildTags("PlantTag"))
+      playProject(Insects, 9).expect("PROD[5 P]")
       pass()
     }
 
@@ -1372,12 +1341,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
             doTask("CopyProductionBox<$IndustrialMicrobes>")
           }
           .expect("-9 MC, -ProjectCard, PROD[S, E]")
-      playProject(
-              DawnCity,
-              titanium = 3,
-              butFirst = assignAllWildTags("ScienceTag"),
-          )
-          .expect("PROD[-E, T], Animal<$Pets>, -ProjectCard")
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(DawnCity, titanium = 3).expect("PROD[-E, T], Animal<$Pets>, -ProjectCard")
       // "I'm gonna add a Venusian insect."
       cardAction1(VenusianInsects).expect("Microbe")
       // "I'm going to yet again, sell a patent for one money and spend that one money on asteroid

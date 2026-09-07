@@ -42,7 +42,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
-          FakeL1TradeTerminal
+          FakeBundle, FakeL1TradeTerminal
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
@@ -965,7 +965,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Oh God, you like the wild tags."
       // "I love them. They're so useful."
       // "You like to live on the wild side."
-      playProject(ResearchCoordination, 3)
+      playProject(fakeResearchCoordination, 3)
     }
     blue.turn {
       // "I'm going to play Snow Algae, which costs me 12 money, and it gives me one plant
@@ -1085,12 +1085,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       convertPlants { placeTile(2, 2) }
       // Green keeps exactly the two titanium used for Palladin Shipping later this generation.
       intentionalUnderpay()
-      playProject(
-          SkyDocks,
-          5,
-          titanium = 4,
-          butFirst = assignAllWildTags("EarthTag"),
-      )
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(SkyDocks, 5, titanium = 4)
     }
     blue.turn {
       // "I'm using my Floater Technology action to put a floater somewhere fun, I guess. I don't
@@ -1309,9 +1305,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     green.turn {
       // "Play Invention Contest for free. That gives me a little ... science resource on Olympus
       // Conference. And then I look at three cards from the deck. And I get to keep ... this one."
-      playProject(InventionContest, 0) {
-        declineTask() // Research Coordination is not used for this play.
-      }
+      playProject(InventionContest, 0)
     }
     blue.turn {
       // "Use my Nitrite Reducing Bacteria action to remove three microbes and raise my TR."
@@ -1380,9 +1374,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I will play Molecular Printing. That cost me nine ... it gives me eight."
-      playProject(MolecularPrinting, 9) {
-        declineTask() // Research Coordination is not used for this play.
-      }
+      playProject(MolecularPrinting, 9)
     }
     blue.turn {
       // "Use my Extremophiles action to add a microbe to Nitrate Reducing Bacteria."
@@ -1397,11 +1389,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I have one, two, three, four, five, six, seven science tags."
       // The seven are Research Outpost, Research Colony, Olympus Conference, Inventors' Guild,
       // Quantum Extractor, Molecular Printing, and Research Coordination's wild tag.
-      playProject(
-          AntiGravityTechnology,
-          12,
-          butFirst = assignAllWildTags("ScienceTag"),
-      ) {
+      green.exMachina(fakeWildTags("ScienceTag"))
+      playProject(AntiGravityTechnology, 12) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
       }
     }
@@ -1427,7 +1416,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     green.turn {
       // "This makes it four Earth tags. And that cost me seven money ... two titanium production."
-      playProject(LunarMining, 7, butFirst = assignAllWildTags("EarthTag"))
+      green.exMachina(fakeWildTags("EarthTag"))
+      playProject(LunarMining, 7)
     }
     blue.turn {
       // "Use the Dirigibles action to add a floater to Celestic."
@@ -1655,9 +1645,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     green.turn {
       // "I've spent seven on Breathing Filters and I'm putting a science resource on Olympus
       // Conference."
-      playProject(BreathingFilters, 7) {
-        declineTask() // Research Coordination is not used for this play.
-      }
+      playProject(BreathingFilters, 7)
     }
     blue.turn {
       // "I take my Extremophiles action and put a microbe on Nitrate Reducing Bacteria."
@@ -1932,9 +1920,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I might as well play it ... spend two steel and ... only spent 13. ... draw two cards."
-      playProject(AiCentral, 13, steel = 2) {
-        declineTask() // Research Coordination is not used for this play.
-      }
+      playProject(AiCentral, 13, steel = 2)
       cardAction1(AiCentral)
     }
     blue.turn {

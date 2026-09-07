@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -61,13 +60,6 @@ internal abstract class TfmTest {
 
   protected fun OperationBody.wgt(choice: String) {
     doTask("$choice! BY Engine")
-  }
-
-  protected fun assignAllWildTags(tag: String): BodyLambda = {
-    while (true) {
-      val assignment = wildTagAssignment(tasks.extract { it }, tag) ?: break
-      doTask(assignment)
-    }
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {
@@ -165,16 +157,6 @@ internal abstract class TfmTest {
       "Expected exactly one task narrowable to Ok$qualifier, found ${matches.size}"
     }
     return matches.single().index + 1
-  }
-
-  private fun wildTagAssignment(tasks: List<Task>, tag: String): String? {
-    val use =
-        tasks
-            .asSequence()
-            .flatMap { it.instruction.descendantsOfType<Expression>() }
-            .firstOrNull { it.className == cn("WildTagUse") } ?: return null
-    val card = requireNotNull(use.arguments.lastOrNull()?.className)
-    return "$tag<WildTagUse<$card>>"
   }
 
   private fun TfmGameplay.pendingTasks(): List<Task> =

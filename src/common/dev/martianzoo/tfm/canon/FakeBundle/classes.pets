@@ -1,0 +1,2 @@
+"Explicitly selected support for incomplete cards used by replays"
+CLASS FakeBundle : Module

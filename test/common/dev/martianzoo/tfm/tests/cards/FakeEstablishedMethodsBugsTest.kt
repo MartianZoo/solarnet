@@ -4,7 +4,6 @@ import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.cards.cardnames.ResearchNetwork
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -37,15 +36,12 @@ internal class FakeEstablishedMethodsBugsTest :
   }
 
   @Test
-  internal fun `Nested standard projects preserve pending payments offer positions and wild tags`() {
+  internal fun `Nested standard projects preserve pending payment offer positions`() {
     newGame(PreludeExpansion)
-    p1.manual("2 PreludeCard")
+    p1.manual("PreludeCard")
     engine.phase("Prelude")
     p1.startTurn()
 
-    p1.playPrelude(ResearchNetwork)
-    p1.startTurn()
-    p1.continueManual(assignAllWildTags("PowerTag"))
     p1.playPrelude(fakeEstablishedMethods) {
       val offers = standardActionOfferIds()
       offers.size shouldBe 2
@@ -57,16 +53,12 @@ internal class FakeEstablishedMethodsBugsTest :
             .extract { it }
             .any { "Pay" in "${it.instruction}" && "MC" in "${it.instruction}" } shouldBe true
         p1.count("Owed<>") shouldBe 11
-        p1.count("WildTagUse<$ResearchNetwork>") shouldBe 1
 
         p1.pay(11)
 
-        p1.count("WildTagUse<$ResearchNetwork>") shouldBe 1
         standardActionOfferIds() shouldBe offers.drop(projectIndex + 1)
       }
     }
-
-    p1.count("WildTagUse") shouldBe 0
   }
 
   private fun standardActionOfferIds() =

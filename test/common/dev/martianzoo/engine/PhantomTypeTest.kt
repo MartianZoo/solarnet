@@ -70,7 +70,7 @@ internal class PhantomTypeTest {
                         HAS =1 This
                         This: VenusTag?
                         This: VenusTag.
-                        VenusTag<TagHolder>: Plant<Player1>!
+                        VenusTag: Plant<Player1>!
                       }
                       """
                           .trimIndent()

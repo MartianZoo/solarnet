@@ -127,7 +127,7 @@ internal class GamePremiseTest {
             .classTable
 
     table.isActive(cn("PreludePhase")) shouldBe true
-    table.isActive(cn("AppliedScience")) shouldBe true
+    table.isActive(cn("SpaceLanes")) shouldBe true
     table.isActive(cn("MartianIndustries")) shouldBe false
   }
 
