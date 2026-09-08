@@ -730,8 +730,9 @@ in [WORKFLOW.md](WORKFLOW.md).
 ## Wiring details
 
 `Engine.Wiring` is the current manual composition root. Class Table, Event Log, Component Graph,
-Effector, Timeline, and other World-level services are shared. Each Actor currently receives its
-own `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` scope.
+Effector, Timeline, `Changer`, `Instructor`, and other World-level services are shared; `Changer` and
+`Instructor` take the acting Actor as a parameter rather than holding one. Each Actor currently
+receives its own `Implementations` and `ApiTranslation` scope.
 
 The target engine composition retains only the behavior and Actor context required to calculate one
 direct mutation. Game World retains Actor identities, assignment, and pending choices as data but

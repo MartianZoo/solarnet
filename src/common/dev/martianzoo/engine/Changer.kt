@@ -13,7 +13,6 @@ internal class Changer(
     private val reader: GameReader,
     private val components: ComponentGraph,
     private val events: EventLog,
-    private val defaultActor: Actor,
 ) {
 
   internal fun change(
@@ -22,7 +21,7 @@ internal class Changer(
       removing: Component?,
       cause: Cause?,
       orRemoveOneDependent: Boolean,
-      actor: Actor = defaultActor,
+      actor: Actor,
   ): Pair<ChangeEvent, Boolean> {
     return try {
       val change = StateChange(count, gaining?.expression, removing?.expression)

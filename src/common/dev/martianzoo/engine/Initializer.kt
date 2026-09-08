@@ -44,7 +44,9 @@ internal class Initializer(
    * Component must stop initialization rather than become an omitted change.
    */
   private fun execute(instruction: String, cause: Cause?): TaskResult = timeline.atomic {
-    instructor.execute(agent.parse<Instruction>("$instruction!"), cause).forEach(tasks::addTasks)
+    instructor
+        .execute(agent.parse<Instruction>("$instruction!"), cause, ADMIN)
+        .forEach(tasks::addTasks)
   }
 
   /**

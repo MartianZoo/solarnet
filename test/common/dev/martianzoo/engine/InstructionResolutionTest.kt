@@ -20,11 +20,16 @@ import kotlin.test.Test
 
 internal class InstructionResolutionTest {
   private val game: World = setUpGame(canonicalPremise())
+  private val transformers = Transformers(game.classTable)
   private val instructor: Instructor =
       Instructor(
           game.reader,
           Limiter(game.classTable, game.components),
+          Changer(game.reader, game.components, game.events),
+          Effector(transformers) { game.reader },
           game.classTable,
+          transformers,
+          CustomClassRuntime(game.reader.catalog, transformers),
       )
 
   init {
@@ -34,9 +39,9 @@ internal class InstructionResolutionTest {
   private fun preprocess(instr: InstructionTree): InstructionTree {
     val xer =
         chain(
-            Transformers(game.classTable).transformMarkedSyntax(),
-            Transformers(game.classTable).insertDefaults(),
-            Transformers(game.classTable).bindContextualOwner(PLAYER1),
+            transformers.transformMarkedSyntax(),
+            transformers.insertDefaults(),
+            transformers.bindContextualOwner(PLAYER1),
         )
     return xer.transformInstructionTree(instr)
   }
