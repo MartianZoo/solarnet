@@ -32,6 +32,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
 
   @Test
   internal fun soloGame20230721() {
+    retainStartingProjects(4)
     with(me) {
       // You discarded Enceladus
       doTask("-ColonyTileSelection<Class<Enceladus>>")

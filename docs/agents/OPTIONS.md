@@ -33,6 +33,8 @@
 - [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
   [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when changing Terraforming Mars composition or resolution.
+- [`FakeCanon.kt`](../../src/common/dev/martianzoo/tfm/fake/FakeCanon.kt) — inspect when changing
+  noncanonical support content or its composition with Canon.
 - [`PremiseViability.kt`](../../src/common/dev/martianzoo/pets/types/PremiseViability.kt)
   — read only for projection closure and viability.
 
@@ -89,18 +91,21 @@ realized choice. Base rules, expansions, maps, modes, content groups, and varian
 exact live Module set is the complete statement of a game's general rules.
 
 `Module` is an ordinary Pets superclass except where premise construction and initialization ask
-whether a Class is its subtype. Its inherited rules make each concrete Module a permanent
-singleton; its `autoSelectWhen` and `premiseRequirement` properties have meaning because the
-Catalog reads them. There is no separate Kotlin Module object or special component storage.
+whether a Class is its subtype. The resolved premise names every selected concrete Module, while
+initialization directly creates only roots and lets their ordinary self-effects create selected
+descendants. A selected target still absent after its potential source ran is created directly as a
+fallback. Inherited rules keep each Module component unique and permanent. Its `autoSelectWhen` and
+`premiseRequirement` properties have meaning because the Catalog reads them. There is no separate
+Kotlin Module object or special component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. A constructive self-gain in an active Module is also **active provenance** for a
-target Module: `A { This:: B }` lets A select B. A gated gain does so only when its Requirement is
-true in the settled selection after disregarding its own target. This selection is resolved before
-class projection. Initialization
-creates sources before their constructively selected targets, while still creating Modules needed
-to evaluate a source's gates first. Thus the declaration of A, rather than B or a central registry,
-owns “A causes B.” Other structural reachability may
+target Module: `A { This: B }` lets A select B, whether the effect is queued or immediate. A gated
+gain does so only when its Requirement is true in the settled selection after disregarding its own
+target. This selection is resolved before class projection. Initialization creates sources before
+their constructively selected targets, while still creating Modules needed to evaluate a source's
+gates first. Thus the declaration of A, rather than B or a central registry, owns “A causes B.”
+Other structural reachability may
 activate dependencies, but it may not activate an unselected Module or defeat an explicit
 exclusion.
 
@@ -113,8 +118,9 @@ invalid. By contrast, an explicit exclusion that contradicts an active construct
 edge makes the configuration invalid.
 `premiseRequirement` is checked against the completed projection when that Module is selected.
 Module invariants provide the exact-count rules that are also meaningful in the live
-World. `Class<T>` representatives describe that already-fixed projection: required representatives
-are declared with invariants, not created by triggered instructions.
+World. `Class<T>` representatives describe that already-fixed projection and are structurally
+present before history begins. Required representatives are declared with invariants, not created
+by triggered instructions.
 
 ## Configuration and premise
 
@@ -129,15 +135,18 @@ contains only:
 2. selected Module Class Names;
 3. signed selections for other Catalog classes;
 4. user-facing player names in seat order; and
-5. exact concrete non-singleton types to instantiate once.
+5. exact concrete types to instantiate once.
 
 Occupied seats activate canonical `Player1` through `PlayerN`. Configured player names are
-Vocabulary aliases, not Class identities. Initial state is not an unrestricted Pets script.
+Vocabulary aliases, not Class identities. The Pets-owned `SecondPlaceRule` Module is automatically
+selected for three or more Players and activates `SecondPlace`, keeping player-count policy out of
+Kotlin and numbered seat classes. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection
-representations. In solo play four are selected; setup asks the player to remove one
-`ColonyTileSelection` before continuing.
+representations. Normal selected colonies become tiles during setup; card-resource colonies remain
+delayed until a compatible card exists. In solo play four are selected; setup asks the player to
+remove one `ColonyTileSelection` before creating the remaining normal tiles.
 
 Defaults and active provenance are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
@@ -148,15 +157,21 @@ authored Bundle membership and freezes the resulting pools as exact signed selec
 and three award Classes. Explicitly naming any milestones or awards makes that category an exact
 pool, so named goals replace only their own category. Selecting colony tiles also requests their
 initial components.
-Solo Colonies uses three tiles, two-player Colonies uses five, and games with at least three players
-use two more tiles than players.
+Solo Colonies selects four and keeps three after the setup choice, two-player Colonies uses five,
+and games with at least three players use two more tiles than players.
+
+Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
+terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The premise's ordered
+player list creates a directed `Successor<Player, Player>` ring, where the second Player follows the
+first, and gives the first Player the initial `StartToken`; passing the token reads that relation.
+The solo game never passes through a synthetic 20-rating state followed by a compensating reduction.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
 parallel map option component. `TerraformingMars` selects `TharsisMap` only when no map is already
-selected. Creating the selected map creates all of its Areas through the map instruction. The
-retained map record supplies the grid and compact display data, and the creation history keeps the
-selected map as the cause of its Areas.
+selected. Creating the selected map fans out over the active `Class<Area>` representatives and
+creates all of those Areas. The selected map also determines which map-area Classes are active,
+while the retained map record supplies the grid and compact display data.
 
 Concrete track-rule components own global-parameter limits, terminal steps, and printed bonuses.
 The base and Venus modules create their respective standard track-rule components when
@@ -210,6 +225,11 @@ selection groups in one Bundle is not a simplification when it requires a routin
 declarations may live in a nonselected provider or coalesce identically; do not add per-Class
 availability annotations solely to preserve a product-shaped source directory.
 
+`FakeCanon` is a separate `:tfm-fake` Catalog containing the explicitly selected, nonpublished
+`FakeStuffBundle` support bundle. It keeps incomplete card stand-ins and their supporting
+declarations outside Canon. Replays, focused tests, and benchmarks that need them compose `Canon`
+with `FakeCanon`, then select the pack's Module.
+
 ## Card declarations and views
 
 `tfm-card-data` owns the pets-free `CardDefinition` records and their JSON5 datasets. The JVM generator
@@ -228,9 +248,11 @@ hand-authored declarations. Semantic runtime facts—area identity, kind, row, c
 Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
 concrete `MarsArea` Classes without a name-prefix convention.
 
-The `Area` singleton invariant creates every active area during initialization, so the former
-`CreateMapAreas` custom instruction was redundant and is gone. Adjacency, placement-bonus metrics,
-largest-group scoring, the text renderer, and the game viewer consume the class-backed grid.
+The selected `MarsMap` creates every active Mars area with `EACH Class<MarsArea> { MarsArea }`; the
+base `TerraformingMars` Module separately creates active remote areas. This keeps planetary area
+ownership with the selected map without making card-owned remote locations map content. The former
+`CreateMapAreas` custom instruction is gone. Adjacency, placement-bonus metrics, largest-group
+scoring, the text renderer, and the game viewer consume the class-backed grid.
 `ScriptSession` and the standalone solo-placement tool are generation/presentation exceptions that
 consume `tfm-map-data` directly; the former retains authored bonus sigils in its public snapshot.
 
@@ -262,7 +284,7 @@ are implemented.
 Projection is premise semantics, not dead-code optimization. It must simultaneously provide:
 
 1. **Isolation.** A Class unnecessary or forbidden in one game contributes no Components, behavior,
-   singleton, or subtype choice there.
+   Class representative, or subtype choice there.
 2. **Optional reference.** An active declaration may observe a concept that is uninhabited in this
    game without importing the feature that introduced it.
 3. **Derived content compatibility.** Content Classes should not repeat expansion prerequisites
@@ -302,13 +324,13 @@ derived Bundle condition and any separate non-Bundle compatibility condition, bu
 override the default pool-selection policy. Thus a Colonies card that only counts colonies is just
 as Colonies-dependent as one that places a colony.
 
-`VenusTag` and `VenusStep` are both ambient declarations of the Venus Next Bundle and therefore make
-referencing content Venus-dependent. `WorldGovernmentTerraforming` and `ChooseOceanArea` are shared
-protocols in the base Bundle, so `WorldGovernmentRule` and non-Venus cards may use them without
-enabling Venus Next. `PreludeCard` belongs to the Prelude Expansion Bundle; Valley Trust's
-RequiredAction reference therefore derives its Prelude 1 dependency without a card property. Automatic
-Prelude-card selection also requires a `PreludeCardPack`, so its draw uses exactly the selected
-pack or packs.
+`VenusTag` and `VenusStep` are ambient declarations of the Venus Next Bundle and therefore make
+referencing content Venus-dependent. `WorldGovernmentTerraforming` is a shared protocol in the base
+Bundle, so `WorldGovernmentRule` and World Government Advisor may use it without enabling Venus
+Next. `ChooseOceanArea` belongs to the Promo Card Pack that alone uses it. `PreludeCard` belongs to
+the Prelude Expansion Bundle; Valley Trust's RequiredAction reference therefore derives its Prelude
+1 dependency without a card property. Automatic Prelude-card selection also requires a
+`PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 
 Concrete awards retain their authored multiplayer-only condition. Explicit selection checks that
 condition too, so solo cannot bypass the rule.
@@ -320,7 +342,7 @@ For **projection closure**, classify references by what execution demands:
 - Structural positions such as supertypes and Dependency bounds, constructive positions such as a
   gain or transmutation destination, deck identity, and Custom implementation dependencies are hard
   references. A hard reference activates an available Class.
-- Counts, Metrics, Requirements, Triggers, Complements, and nonconstructive changes do not by
+- Counts, Metrics, Requirements, Triggers, difference refinements, and nonconstructive changes do not by
   themselves activate their referenced Classes. An uninhabited Class contributes an exactly empty
   domain.
 - Reachability matters. A hard reference beneath a Trigger or gate that is provably false because

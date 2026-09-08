@@ -172,7 +172,6 @@ public abstract class PetTransformer protected constructor() {
   }
 
   /** Returns [node] rebuilt after recursively transforming each immediate child. */
-  @Suppress("CyclomaticComplexMethod") // TODO: break up
   protected fun transformChildren(node: PetNode): PetNode {
     fun expressions(nodes: Iterable<Expression>): List<Expression> =
         nodes.map(::transformExpression)
@@ -188,13 +187,17 @@ public abstract class PetTransformer protected constructor() {
 
     return when (node) {
       is ClassName -> node
-      is Refinement -> Refinement(transformRequirement(node.requirement), node.forgiving)
+      is Refinement ->
+          when (node) {
+            is Refinement.Has ->
+                Refinement.Has(transformRequirement(node.requirement), node.forgiving)
+            is Refinement.Not -> Refinement.Not(transformExpression(node.excluded))
+          }
       is Expression ->
           Expression(
               transformClassName(node.className),
               expressions(node.arguments),
               node.refinement?.let(::transformRefinement),
-              node.complement,
               node.argumentsSpecified,
           )
       is ScaledExpression ->
@@ -217,6 +220,12 @@ public abstract class PetTransformer protected constructor() {
           when (node) {
             is Metric.Count -> Metric.Count(transformExpression(node.expression))
             is Metric.Constant -> node
+            is Metric.Rank ->
+                Metric.Rank(
+                    transformExpression(node.selector),
+                    metrics(node.metrics),
+                    node.candidate?.let(::transformExpression),
+                )
             is Property ->
                 Property(
                     transformPropertyName(node.propertyName),

@@ -65,10 +65,20 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `reports/kotlin-file-complexity.tsv` under the root build directory. The report is manual rather
   than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
   current scope excludes benchmarks and standalone tools.
+- `./gradlew :tools:dumpAllExpansionsEventLogs` creates three-player and solo games with every
+  supported expansion plus `FakeCardsCardPack`, completes Player 1's corporation-phase turn with
+  Interplanetary Cinematics and four bought cards in each, and writes every change event (including
+  `System` and `Hidden` changes, but no task events) to
+  `_local/eventlogs/three-player-all-expansions-eventlog.tsv` and
+  `_local/eventlogs/solo-all-expansions-eventlog.tsv`. The `actor` column is engine attribution,
+  not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
+  attribute its derived changes to that Player. Use the cause columns to trace derivation; because
+  task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
-  while choosing a random execution order for each batch of automatic-effect siblings. This is a
-  diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain a stable
-  diagnostic order. Game-state assertions pass, but the exact Advanced Alloys attribution totals in
+  while choosing a random execution order for each batch of independent automatic-effect listeners.
+  A component's own automatic Effects retain declaration order. This is a diagnostic mode for
+  finding undeclared ordering dependencies; ordinary runs retain a stable diagnostic order.
+  Game-state assertions pass, but the exact Advanced Alloys attribution totals in
   `Game20230521Test` and `ThermalMatterWaveTest` may fail because saturating payment reductions do
   not yet record every effect's gross contribution.
 
@@ -194,12 +204,9 @@ name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting 
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
-Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and
-`assignAllWildTags(tag)` instead of spelling their routine task expressions. The tile and
-card-resource helpers require a single matching pending choice; keep raw `doTask()` calls where
-multiple placements are pending. An action-phase wild-tag choice exists only after the standard
-action is selected: assign it from `playProject(butFirst = ...)` or another action helper's
-`beforeAction` block.
+Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
+routine task expressions. The tile and card-resource helpers require a single matching pending
+choice; keep raw `doTask()` calls where multiple placements are pending.
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action

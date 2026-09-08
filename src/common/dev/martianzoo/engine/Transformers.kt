@@ -10,7 +10,6 @@ import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
-import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -22,8 +21,6 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
@@ -40,7 +37,6 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
@@ -223,26 +219,20 @@ public class Transformers(public val classTable: ClassTable) {
   }
 
   /**
-   * Binds the contextual `Owner` placeholder to [owner] everywhere except inside a fanout body,
-   * where the selection supplies it instead.
+   * Binds the contextual `Owner` placeholder to [owner] everywhere except inside the body of an
+   * Owner-selecting fanout, where the selection supplies it instead.
    */
   internal fun bindContextualOwner(owner: HasClassName): PetTransformer =
       replaceOwnerWith(owner, ::shieldsContextualOwner)
 
-  /** Whether [node] is a fanout whose selection, not the enclosing context, owns its body. */
+  /** Whether [node] is a fanout whose Owner selection supplies its body's contextual owner. */
   internal fun shieldsContextualOwner(node: PetNode): Boolean =
-      node is Each && selectionOwnsBody(node.selector)
+      node is Each && selectionIsOwner(node.selector)
 
-  /**
-   * Whether an `EACH` selector's matches can own their branch's work: either they are Owners
-   * themselves, or they are owned and can supply their owner.
-   */
-  internal fun selectionOwnsBody(selector: Expression): Boolean {
+  /** Whether an `EACH` selector's matches are themselves Owners. */
+  internal fun selectionIsOwner(selector: Expression): Boolean {
     val klass = classTable.findClass(selector.className) ?: return false
-    // `Anyone` roots the ownership hierarchy, so this covers Owners and Players as well; `Owned`
-    // covers everything that can instead name the Owner it belongs to.
-    return listOfNotNull(classTable.findClass(ANYONE), classTable.findClass(OWNED))
-        .any(klass::isSubtypeOf)
+    return classTable.findClass(OWNER)?.let(klass::isSubtypeOf) == true
   }
 
   private fun attachToClassTransformer(klass: Class): PetTransformer {
@@ -256,18 +246,21 @@ public class Transformers(public val classTable: ClassTable) {
     )
   }
 
-  /** Whether an `Owner` occurrence outside any fanout body still needs a value from the event. */
+  /** Whether an `Owner` occurrence outside a candidate-owned scope needs a value from the event. */
   private fun ownerNeedsContext(instruction: InstructionTree): Boolean {
-    if (OWNER !in instruction) return false
-    val shieldedOwners =
-        instruction
-            .descendantsOfType<Each>()
-            .filter { selectionOwnsBody(it.selector) }
-            .sumOf {
-              it.body.descendantsOfType<Expression>().count { e -> e.className == OWNER }
-            }
-    val allOwners = instruction.descendantsOfType<Expression>().count { it.className == OWNER }
-    return allOwners > shieldedOwners
+    fun needsContext(node: PetNode): Boolean {
+      if (node is Expression && node.className == OWNER) return true
+      return when (node) {
+        is Each ->
+            needsContext(node.selector) ||
+                (!selectionIsOwner(node.selector) && needsContext(node.body))
+        is Metric.Rank ->
+            needsContext(node.selector) ||
+                (!selectionIsOwner(node.selector) && node.metrics.any(::needsContext))
+        else -> node.immediateChildren().any(::needsContext)
+      }
+    }
+    return needsContext(instruction)
   }
 
   /** Adds icon-grammar `BY Owner` when an ownerless Effect's result needs its event's Player. */
@@ -298,7 +291,6 @@ public class Transformers(public val classTable: ClassTable) {
         }
       }
 
-  @Suppress("ComplexCondition") // TODO: fix that
   internal fun atomizer(): PetTransformer {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 
@@ -325,35 +317,7 @@ public class Transformers(public val classTable: ClassTable) {
   internal fun insertDefaults(): PetTransformer = insertDefaults(THIS.expression)
 
   internal fun insertDefaults(context: Expression): PetTransformer =
-      chain(
-          insertTriggerDefaults(context),
-          insertGainRemoveDefaults(context),
-          insertExpressionDefaults(context),
-      )
-
-  private fun insertTriggerDefaults(context: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode =
-          when (node) {
-            is OnGainOf -> applyTriggerDefault(node, node.expression)
-            is OnRemoveOf -> applyTriggerDefault(node, node.expression)
-            else -> transformChildren(node)
-          }
-
-      private fun applyTriggerDefault(node: Effect.Trigger, original: Expression): Effect.Trigger {
-        val default = classTable.getClass(original.className).defaults.triggerOnly
-        rejectEmptyArgumentsWithoutDefaults(original, default, "trigger")
-        requireExplicitDependencyDefaults(original, default, "trigger")
-        val fixed = insertDefaultsIntoExpr(original, default.dependencies, context, classTable)
-        val replacer =
-            object : PetTransformer() {
-              override fun transformNode(node: PetNode): PetNode =
-                  if (node === original) fixed else transformChildren(node)
-            }
-        return replacer.transformTrigger(node)
-      }
-    }
-  }
+      chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
@@ -500,19 +464,43 @@ public class Transformers(public val classTable: ClassTable) {
 
   public fun insertExpressionDefaults(context: Expression): PetTransformer {
     var refinementDepth = 0
+    // An EACH selector refinement is specialized against that selector's candidate. A nested RANK
+    // establishes a separate candidate scope and therefore keeps its ordinary defaults.
+    var eachSelectorDepth = 0
+    var eachSelectorRefinementDepth = 0
+    var rankDepth = 0
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Each) {
+          eachSelectorDepth++
+          val selector =
+              try {
+                transformExpression(node.selector)
+              } finally {
+                eachSelectorDepth--
+              }
+          return Each(selector, transformInstructionTree(node.body))
+        }
         if (node is Expression.Refinement) {
           refinementDepth++
+          if (eachSelectorDepth > 0) eachSelectorRefinementDepth++
           try {
             return transformChildren(node)
           } finally {
+            if (eachSelectorDepth > 0) eachSelectorRefinementDepth--
             refinementDepth--
+          }
+        }
+        if (node is Metric.Rank) {
+          rankDepth++
+          try {
+            return transformChildren(node)
+          } finally {
+            rankDepth--
           }
         }
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
-        if (node.hasDeferredOwnerComplement()) return node
 
         val klass = classTable.getClass(node.className)
         val defaultDeps = klass.defaults.allUsages.dependencies
@@ -524,31 +512,13 @@ public class Transformers(public val classTable: ClassTable) {
                 context,
                 classTable,
                 deferVariableDefaults = refinementDepth > 0 && !node.argumentsSpecified,
+                deferContextualOwnerDefault =
+                    eachSelectorRefinementDepth > 0 && rankDepth == 0 && !node.argumentsSpecified,
             )
         return result
       }
     }
   }
-
-  internal fun insertDeferredComplementDefaults(context: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode {
-        if (node !is Expression) return transformChildren(node)
-        if (!node.hasComplement()) return node
-
-        val transformed = transformChildren(node) as Expression
-        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
-        val result = insertDefaultsIntoExpr(transformed, defaultDeps, context, classTable)
-        return result
-      }
-    }
-  }
-
-  private fun Expression.hasDeferredOwnerComplement(): Boolean =
-      (complement && className == OWNER) || arguments.any { it.hasDeferredOwnerComplement() }
-
-  private fun Expression.hasComplement(): Boolean =
-      complement || arguments.any { it.hasComplement() }
 
   private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
 
@@ -559,6 +529,7 @@ public class Transformers(public val classTable: ClassTable) {
       contextCpt: Expression,
       classTable: ClassTable,
       deferVariableDefaults: Boolean = false,
+      deferContextualOwnerDefault: Boolean = false,
   ): Expression {
 
     val klass: Class = classTable.getClass(original.className)
@@ -569,7 +540,10 @@ public class Transformers(public val classTable: ClassTable) {
     val fallbacks: Map<Key, Expression> =
         defaultDeps
             .typeDependencies()
-            .filterNot { deferVariableDefaults && klass.isEqualityConstrainedDependency(it.key) }
+            .filterNot {
+              (deferVariableDefaults && klass.isEqualityConstrainedDependency(it.key)) ||
+                  (deferContextualOwnerDefault && it.expression == OWNER.expression)
+            }
             .associate {
               it.key to it.expression
             }

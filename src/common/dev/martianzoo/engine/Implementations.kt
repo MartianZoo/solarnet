@@ -32,7 +32,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
@@ -58,7 +58,10 @@ internal class Implementations(
 
   private object ExecutionProbeSucceeded : RuntimeException()
 
-  private val immutableClassFacts =
+  private val immutableClassFacts = narrowingFacts(requirementsHold = false)
+  private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
+
+  private fun narrowingFacts(requirementsHold: Boolean): TypeInfo =
       object : TypeInfo {
         override fun isAbstract(e: Expression): Boolean = reader.resolve(e).isAbstract(this)
 
@@ -66,7 +69,7 @@ internal class Implementations(
           reader.resolve(narrow).ensureNarrows(reader.resolve(wide), this)
         }
 
-        override fun has(requirement: Requirement): Boolean = false
+        override fun has(requirement: Requirement): Boolean = requirementsHold
       }
 
   // CHANGES LAYER
@@ -163,17 +166,16 @@ internal class Implementations(
     while (autoExecNext(mode)) {}
   }
 
-  @Suppress("CyclomaticComplexMethod") // TODO: improve this
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
     if (allTasks.isEmpty()) return false
 
-    // Until Engine has its own scheduled policy, a disabled Player policy still advances
-    // deterministic Engine-owned work without touching any Player task.
+    // Until Admin has its own scheduled policy, a disabled Player policy still advances
+    // deterministic Admin-assigned work without touching any Player task.
     val eligible =
         if (mode == NONE) {
           if (actor !is Player) return false
           allTasks.ids().filter { taskId ->
-            queueForAnyTask(taskId).getTaskData(taskId).assignee == ENGINE
+            queueForAnyTask(taskId).getTaskData(taskId).assignee == ADMIN
           }
         } else {
           allTasks.ids()
@@ -313,7 +315,6 @@ internal class Implementations(
     }
     val continuation = selectedThen?.continuationAfterFirst() ?: task.then
 
-    instructor.validateAmApSelection(task.instruction, effectiveNarrowing)
     // A selected group completes structurally before its children resolve against successive
     // worlds.
     val replacement =
@@ -478,12 +479,12 @@ internal class Implementations(
 
   internal fun doTask(
       narrowing: InstructionTree,
-      taskNumber: Int? = null,
       intensityOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
+      taskId: TaskId? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
-    val id = matchingTask(evaluated, taskNumber, intensityOmitted)
+    val id = matchingTask(evaluated, taskId, intensityOmitted)
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
     if (narrowsTask(evaluated, task.instruction, intensityOmitted)) {
@@ -507,18 +508,17 @@ internal class Implementations(
 
   private fun matchingTask(
       narrowing: InstructionTree,
-      taskNumber: Int? = null,
+      taskId: TaskId? = null,
       intensityOmitted: Boolean = false,
   ): TaskId {
-    tasks.selectedTask()?.let {
-      return it
+    tasks.selectedTask()?.let { selected ->
+      if (taskId != null && taskId != selected) {
+        throw TaskException("task $selected is already selected")
+      }
+      return selected
     }
 
-    if (taskNumber != null) {
-      if (taskNumber < 1) throw TaskException("task number must be at least 1")
-      return tasks.ids().elementAtOrNull(taskNumber - 1)
-          ?: throw TaskException("there is no task $taskNumber; tasks are:\n$tasks")
-    }
+    if (taskId != null) return tasks.getTaskData(taskId).id
 
     fun weCanNarrowIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
@@ -532,7 +532,17 @@ internal class Implementations(
       }
     }
 
-    return uniqueMatchingTask(tasks.extract { it }.filter(::weCanNarrowIt))
+    val assigned = tasks.extract { it }.filter { it.assignee == actor }
+    val matches = assigned.filter(::weCanNarrowIt)
+    if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
+
+    // A failed live refinement can still identify the intended task. Let normal narrowing report
+    // which requirement failed instead of replacing that reason with a generic no-task match.
+    val possibleMatches = assigned.filter { task ->
+      effectiveNarrowing(narrowing, task.instruction, intensityOmitted, possibleWorldFacts)
+          .narrows(task.instruction, possibleWorldFacts)
+    }
+    return uniqueMatchingTask(possibleMatches)
   }
 
   private fun targetsThenFirstStage(
@@ -661,13 +671,13 @@ internal class Implementations(
 
   internal fun tryTask(
       narrowing: InstructionTree,
-      taskNumber: Int? = null,
       intensityOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
+      taskId: TaskId? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
     try {
-      doTask(evaluated, taskNumber, intensityOmitted, executeSubmittedGroup)
+      doTask(evaluated, intensityOmitted, executeSubmittedGroup, taskId)
     } catch (_: AbstractException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {

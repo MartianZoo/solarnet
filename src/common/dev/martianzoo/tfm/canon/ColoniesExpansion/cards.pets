@@ -24,7 +24,7 @@ CLASS Arklight : ResourceCard<Class<Animal>, Class<CorporationCard>> {
 
   This:: AnimalTag<This>
   This: 45 MC, PROD[2 MC]
-  AnimalTag<> OR PlantTag<>: Animal<This>
+  AnimalTag OR PlantTag: Animal<This>
   End: VictoryPoint / 2 Animal<This>
 }
 
@@ -242,7 +242,7 @@ CLASS MartianZoo : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Clas
   requirement = HAS "2 CityTile<Anyone>"
 
   This:: AnimalTag<This>, BuildingTag<This>
-  EarthTag<>: Animal<This>
+  EarthTag: Animal<This>
   End: VictoryPoint
 
   -> 1 MC / Animal<This>

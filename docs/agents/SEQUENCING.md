@@ -48,8 +48,6 @@
   — `CLASS PlayCard` and `ABSTRACT CLASS Billing` for the card-play and payment latches.
 - [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
-- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) — search for
-  `isWildTagOffer` and `declineWildTagOffers`; read as evidence, not as a pattern to copy.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
   [`AtomicOperationScopeTest.kt`](../../test/common/dev/martianzoo/engine/AtomicOperationScopeTest.kt).
@@ -65,7 +63,7 @@ The third column is what actually holds the promise today, which is not always a
 | **Freedom** | Every rules-legal ordering of the pending pool stays executable. | Nothing systematic. Scenario tests only. |
 | **Coherence** | No World is exposed to any Actor with an automatic consequence outstanding. | Structural: `Instructor.executeChange` runs `::` inline before returning. |
 | **Snapshot** | Every trigger-side condition in one automatic batch is tested against the World as it was before any sibling in that batch ran. | Structural: `Effector.fire` evaluates all `checkForHit` calls first. No test pins it. |
-| **Sibling indifference** | No automatic sibling order carries game meaning. | `SOLARNET_RANDOM_AUTOMATIC_EFFECTS`, run manually, with one known payment-attribution exception. |
+| **Sibling indifference** | No independent listener order carries game meaning. A component's own automatic Effects retain declaration order. | `SOLARNET_RANDOM_AUTOMATIC_EFFECTS`, run manually, with one known payment-attribution exception. |
 | **All-or-nothing** | A speculative operation that reaches a dead end leaves no trace. | `Timeline.atomic` and `EventLog.rollBackTo`. Tested. |
 | **Sealed tasks** | No authored game behavior edits, reprioritizes, cancels, or removes another task. | Structural: Pets has no instruction that can name a task. |
 | **No hidden ordering state** | No ordering guarantee depends on runtime state that rollback does not restore. | `AutomaticEffectOrderTest`. |
@@ -84,9 +82,10 @@ policy order may harden into an engine guarantee.
 
 Concretely:
 
-- A card's direct Effects are freely reorderable, and persistent reactions — rebates, tag reactions,
-  Mars University, Olympus Conference — may be resolved before, after, or between them once
-  triggered, subject only to ordering inside one Effect.
+- A component's direct automatic Effects run in declaration order. Its queued Effects are freely
+  reorderable, and persistent reactions — rebates, tag reactions, Mars University, Olympus
+  Conference — may be resolved in any order once triggered, subject only to ordering inside one
+  Effect.
 - Separate activations of one Effect remain separate tasks. Whether work inside one activation may
   be split around another activation is still open; see Live agenda.
 - Trade income and each colony bonus are separate siblings controlled by the active trader, so Pluto
@@ -139,10 +138,9 @@ The substitutes in use, and where each fails:
 | Client bridge (`TfmGameplay`) | A string match on instruction text or `cause.context` | Not a rule at all. |
 
 The strongest evidence that the concept is missing is the last row. `TfmGameplay` still identifies
-some tasks by their changed component or `cause.context`, and declines leftover wild-tag choices
-when they are the acting Player's only work. A public convenience API is reconstructing operation
-scope because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an
-instant, so nothing at all represents the action that is under way.
+some payment tasks by instruction shape. A public convenience API is reconstructing operation scope
+because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an instant,
+so nothing at all represents the action that is under way.
 
 ### Selected direction: scoped completion
 
@@ -171,7 +169,7 @@ What this is expected to absorb rather than add to:
 - whole-World idle becomes the special case where the scope is the game, so `End` is unaffected;
 - `EventCard` gets *more* precise, not less: today it survives until unrelated players' work drains;
 - `TradeBarrier` is a hand-maintained count of the same fact;
-- the `TfmGameplay` wild-tag and `Accepting`/`AcceptingFromCard` bridges become deletable;
+- the `TfmGameplay` `Accepting`/`AcceptingFromCard` bridges become deletable;
 - Head Start stops needing nested completion frames — the first action's scope completes, then a
   second ordinary action turn is granted.
 
@@ -299,8 +297,9 @@ Two canon effects stay queued for implementation reasons, not because they are d
 action-cost adjustments wait for the base action's `Owed`, and the solo production correction waits
 for production payouts. Do not make them automatic until the dependency is expressed directly.
 
-If one automatic effect must always follow another, make the first event trigger the second. Do not
-rely on registration order, and do not add a retry loop (see Settled).
+Across components, if one automatic effect must always follow another, make the first event trigger
+the second. Within one component, directly authored automatic Effects retain declaration order. Do
+not rely on listener registration order, and do not add a retry loop (see Settled).
 
 ### Choose condition time explicitly
 
@@ -341,8 +340,7 @@ complete before the next Actor mutation.
 
 Action-local temporary state follows the same rule. Its settlement must complete with the action,
 before workflow offers a second action. Declining that later offer is a separate turn decision and
-must not double as current-action cleanup. `WildTagUse?` is the one documented exception, and it is
-a bridge to delete rather than a pattern to copy.
+must not double as current-action cleanup.
 
 ## Cleanup vocabulary
 
@@ -382,12 +380,14 @@ Three classes use it:
   and removing it creates the corresponding `PlayedEvent`. Law Suit is a deliberate exception in
   behavior, not in machinery: its authored consequence moves the card straight to `PlayedEvent`, so
   no EventCard is left for idle cleanup.
-- **`End`** — the live scoring operation, and also the terminal `Phase`. Gaining it queues every
-  `End` scoring reaction. Once those tasks and all their consequences drain, removing `End` leaves
-  no live phase and queues multiplayer victory assignment.
-- **`MeasureAward<Award>`** — snapshots every Player's `AwardTally` when gained. Idle cleanup removes
-  it in the same pass as `End`, and its automatic removal effect assigns places and their victory
-  points before the queued multiplayer victory assignment can run.
+- **`FinalScoringPending`** — a temporary marker created automatically by the terminal `End` Phase.
+  Gaining `End` queues every final-scoring reaction. Once those tasks and all their consequences
+  drain, removing `FinalScoringPending` queues multiplayer victory assignment while `End` remains as the
+  exact current Phase.
+- **`MeasureAward<Award>`** — idle cleanup removes it in the same pass as
+  `FinalScoringPending`. Its automatic removal effects rank Players directly by the funded Award's
+  metric and assign places and their victory points before the queued multiplayer victory
+  assignment can run.
 
 The reusable shape is a concrete operation component whose gain creates all the work that must
 precede completion, and whose automatic removal effect emits the fixed completion consequence:
@@ -417,10 +417,9 @@ Both proposals target the weak rows in The promises. Neither needs new engine co
   choose legally among pending tasks in a different order and compare committed state at the next
   stable point. Start with one recorded game and one seed.
 
-One honest divergence to fix while nearby: presentation order is documented as non-semantic but is
-load-bearing in the API. `doTask(narrowing, taskNumber)` takes a 1-based position, `autoExecNext`
-falls back to `eligible.first()`, and `TfmGameplay` computes a positional `selectionTaskNumber`.
-Match on instruction or cause instead of position wherever a caller has that option.
+Presentation order remains load-bearing only in unsafe automatic execution, where `autoExecNext`
+falls back to `eligible.first()`. Explicit clients match on instruction or stable task id, and
+Terraforming Mars helpers match semantic task data before using that id.
 
 ## Live agenda
 
@@ -470,10 +469,10 @@ constraint, a real case — not by rediscovering the cost.
   must follow another, make the first trigger the second.
 - **Player queue drain as the generic completion mechanism — rejected.** It combines unrelated work
   and delays local completion arbitrarily. Queue cardinality has no gameplay meaning.
-- **Ordering by presentation — rejected.** Task numbers are ephemeral labels. If presentation ever
-  follows authored Class, hierarchy, and Effect order, encode that as immutable provenance assigned
-  at creation; never derive gameplay precedence from it, and never give effects a way to reach into
-  the pool.
+- **Ordering by presentation — rejected.** Presentation labels do not identify tasks. If
+  presentation ever follows authored Class, hierarchy, and Effect order, encode that as immutable
+  provenance assigned at creation; never derive gameplay precedence from it, and never give effects
+  a way to reach into the pool.
 - **Stabilizing payment attribution by ordering effects — rejected.** Applicable `ResourceValue`
   components remove the same saturating `Owed`, so order decides who is credited with the last
   units. Reconstructed games still reach the same paid state. The repair is the payment direction in

@@ -67,6 +67,7 @@ CLASS ThorGate : CardFront<Class<CorporationCard>> {
 
 CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
   cost = 0
+  HAS Class<TrWatcher>
 
   This:: EarthTag<This>
   This: 40 MC
@@ -718,7 +719,7 @@ CLASS EcologicalZone : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal
 
   This:: AnimalTag<This>, PlantTag<This>
   This: SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)> {}
-  AnimalTag<> OR PlantTag<>: Animal<This>
+  AnimalTag OR PlantTag: Animal<This>
   End: VictoryPoint / 2 Animal<This>
 }
 
@@ -743,7 +744,7 @@ CLASS Decomposers : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>>
   requirement = HAS "3 OxygenStep"
 
   This:: MicrobeTag<This>
-  BioTag<>: Microbe<This>
+  BioTag: Microbe<This>
   End: VictoryPoint / 3 Microbe<This>
 }
 
@@ -1093,7 +1094,7 @@ CLASS Flooding : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 MC<Anyone>?)
+  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
   End: -VictoryPoint
 }
 
@@ -1177,8 +1178,7 @@ CLASS HasRaisedTr : Generational, Owned {
   HAS MAX 1 This
 }
 
-CLASS TrWatcher : System {
-  HAS MAX 1 This
+CLASS TrWatcher : CardWatcher {
   TerraformRating:: HasRaisedTr.
 }
 

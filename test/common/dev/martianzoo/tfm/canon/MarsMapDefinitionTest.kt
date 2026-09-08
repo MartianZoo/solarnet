@@ -21,7 +21,7 @@ internal class MarsMapDefinitionTest {
       //   L    W3H
       //
 
-      CLASS Demo_1_1 : VolcanicArea { row = 1; column = 1; Tile<This>: Steel }
+      CLASS Demo_1_1 : VolcanicArea { row = 1; column = 1; Placement<This>: Steel }
       """
           .trimIndent()
 

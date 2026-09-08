@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.data.ClassDeclaration
 
-/** Published Terraforming Mars Catalog with typed Terraforming Mars definition registries. */
+/** Terraforming Mars Catalog with typed Terraforming Mars definition registries. */
 public object Canon :
     TfmCatalog.Composite(
         terraformingMarsBundle, // 2016

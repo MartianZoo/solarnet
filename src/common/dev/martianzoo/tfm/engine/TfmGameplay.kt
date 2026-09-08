@@ -21,7 +21,7 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
@@ -56,7 +56,6 @@ public class TfmGameplay(
 
   public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
-    asActor(ENGINE).manual("Generation")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
         asPlayer(player).buyCards(cards)
@@ -168,16 +167,15 @@ public class TfmGameplay(
       val secondAction =
           secondActionOffer()
               ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
-      doTask("Ok", secondAction.index + 1)
+      doTask("Ok", secondAction.id)
     }
   }
 
-  private fun secondActionOffer(): IndexedValue<Task>? =
+  private fun secondActionOffer(): Task? =
       game.tasks
           .extract { it }
           .filter { it.assignee == actor }
-          .withIndex()
-          .filter { (_, task) -> task.isActionPhaseSecondAction() }
+          .filter { task -> task.isActionPhaseSecondAction() }
           .singleOrNull()
 
   private fun Task.isActionPhaseSecondAction(): Boolean {
@@ -190,23 +188,19 @@ public class TfmGameplay(
   public fun stdAction(
       stdAction: String,
       which: Int = 1,
-      beforeAction: BodyLambda = {},
       payment: BodyLambda = { payInvoiceFromItsResourceIfOffered() },
       body: BodyLambda = {},
   ): TaskResult {
     // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
     return inTfmTurn {
       doTask("UseAction<$stdAction, ${whichAction(which)}>")
-      beforeAction()
       payment()
       body()
     }
   }
 
-  public fun claimMilestone(
-      milestone: ClassName,
-      beforeAction: BodyLambda = {},
-  ): TaskResult = stdAction("ClaimMilestone", beforeAction = beforeAction) { doTask("$milestone") }
+  public fun claimMilestone(milestone: ClassName): TaskResult =
+      stdAction("ClaimMilestone") { doTask("$milestone") }
 
   public fun fundAward(award: ClassName, amountPaid: Int): TaskResult {
     val which = count("Award") + 1
@@ -285,11 +279,10 @@ public class TfmGameplay(
       plants: Int = 0,
       energy: Int = 0,
       heat: Int = 0,
-      butFirst: BodyLambda = {},
       payment: BodyLambda = { pay(mc, steel, titanium, plants, energy, heat) },
       body: BodyLambda = {},
   ): TaskResult {
-    return inTfmTurn { playProjectWithinOperation(cardName, butFirst, payment, body) }
+    return inTfmTurn { playProjectWithinOperation(cardName, payment, body) }
   }
 
   public fun OperationBody.playProject(
@@ -300,23 +293,20 @@ public class TfmGameplay(
       plants: Int = 0,
       energy: Int = 0,
       heat: Int = 0,
-      butFirst: BodyLambda = {},
       payment: BodyLambda = { pay(mc, steel, titanium, plants, energy, heat) },
       body: BodyLambda = {},
   ) {
-    playProjectWithinOperation(cardName, butFirst, payment, body)
+    playProjectWithinOperation(cardName, payment, body)
   }
 
   private fun OperationBody.playProjectWithinOperation(
       cardName: ClassName,
-      butFirst: BodyLambda,
       payment: BodyLambda,
       body: BodyLambda,
   ) {
     if (tasks.matching { it.instruction.offersAction(cn("StandardAction")) }.any()) {
       doTask("UseAction<PlayCardFromHand, Action1>")
     }
-    butFirst()
     doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
     payment()
@@ -337,30 +327,14 @@ public class TfmGameplay(
                 val previous = preexistingTasks[task.id]
                 previous == null || previous.copy(selection = task.selection) != task
               }
-              // Unchosen wild-tag offers are handled by cleanup below, not unexpected work.
-              .filterNot { it.isWildTagOffer() }
       if (newPendingTasks.isNotEmpty()) {
         if (newPendingTasks.any { it.instruction.isAbstract(game.reader) }) {
           throw AbstractException("pending abstract tasks:\n${newPendingTasks.joinToString("\n")}")
         }
         throw TaskException("pending tasks:\n${newPendingTasks.joinToString("\n")}")
       }
-      declineWildTagOffers()
     }
   }
-
-  private fun declineWildTagOffers() {
-    while (true) {
-      val actorTasks = game.tasks.extract { it }.filter { it.assignee == actor }
-      // A nested operation may intentionally leave another task open; defer cleanup until it ends.
-      if (actorTasks.any { !it.isWildTagOffer() }) return
-      val offer = actorTasks.firstOrNull() ?: return
-      if (!offer.selected) selectTask(offer.id)
-      narrowTask("Ok")
-    }
-  }
-
-  private fun Task.isWildTagOffer(): Boolean = cause?.context?.className == cn("WildTagUse")
 
   /**
    * Pays the open invoice and rejects any allocation containing a unit that could be returned
@@ -564,31 +538,23 @@ public class TfmGameplay(
   private fun paymentValue(currency: String): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0
 
-  public fun cardAction1(
-      cardName: ClassName,
-      beforeAction: BodyLambda = {},
-      body: BodyLambda = {},
-  ): TaskResult = cardAction(1, cardName, beforeAction = beforeAction, body = body)
+  public fun cardAction1(cardName: ClassName, body: BodyLambda = {}): TaskResult =
+      cardAction(1, cardName, body = body)
 
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
-      beforeAction: BodyLambda = {},
       body: BodyLambda = {},
-  ): TaskResult = cardAction(1, cardName, x, beforeAction, body)
+  ): TaskResult = cardAction(1, cardName, x, body)
 
-  public fun cardAction2(
-      cardName: ClassName,
-      beforeAction: BodyLambda = {},
-      body: BodyLambda = {},
-  ): TaskResult = cardAction(2, cardName, beforeAction = beforeAction, body = body)
+  public fun cardAction2(cardName: ClassName, body: BodyLambda = {}): TaskResult =
+      cardAction(2, cardName, body = body)
 
   public fun cardAction2(
       cardName: ClassName,
       x: Int,
-      beforeAction: BodyLambda = {},
       body: BodyLambda = {},
-  ): TaskResult = cardAction(2, cardName, x, beforeAction, body)
+  ): TaskResult = cardAction(2, cardName, x, body)
 
   public fun OperationBody.cardAction1(cardName: ClassName, body: BodyLambda = {}) {
     useCardAction(1, cardName, body = body)
@@ -610,10 +576,9 @@ public class TfmGameplay(
       which: Int,
       cardName: ClassName,
       x: Int? = null,
-      beforeAction: BodyLambda = {},
       body: BodyLambda = {},
   ): TaskResult {
-    return stdAction("UseCardAction", beforeAction = beforeAction) {
+    return stdAction("UseCardAction") {
       doTask("ActionUsedMarker<$cardName>")
       useCardAction(which, cardName, x, body)
     }
@@ -665,11 +630,11 @@ public class TfmGameplay(
           "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
       )
     }
-    asActor(ENGINE).manual("${phase}Phase FROM Phase", body)
+    asActor(ADMIN).manual("${phase}Phase FROM Phase", body)
   }
 
   public fun production(kind: ClassName): Int =
-      count("PROD[$kind]") - if (kind == MC || kind == cn("M")) 5 else 0
+      count("PROD[$kind]") - count("ProdOffset<Class<$kind>>")
 
   public fun oxygenPercent(): Int = count("OxygenStep")
 

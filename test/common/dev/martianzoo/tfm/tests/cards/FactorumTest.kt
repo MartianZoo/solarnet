@@ -11,7 +11,7 @@ internal class FactorumTest : CardTest() {
   @Test
   internal fun `Can raise energy production when it has no energy`() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$Factorum")
     p1.autoExecMode = SAFE
 
@@ -21,7 +21,7 @@ internal class FactorumTest : CardTest() {
   @Test
   internal fun `Cannot raise energy production while it has energy`() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$Factorum, Energy")
 
     shouldThrow<RequirementException> { p1.cardAction1(Factorum) }

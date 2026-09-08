@@ -39,7 +39,7 @@ CLASS Viron : ActionCard<Class<CorporationCard>> {
   This:: MicrobeTag<This>
   This: 48 MC
 
-  -> UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>
+  -> UseAction<ActionCard(HAS ActionUsedMarker<ActionCard(NOT Viron)>)>
 }
 
 CLASS AerialMappers : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
@@ -439,7 +439,7 @@ CLASS VenusianAnimals : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Anima
   requirement = HAS "9 VenusStep"
 
   This:: VenusTag<This>, ScienceTag<This>, AnimalTag<This>
-  ScienceTag<>: Animal<This>
+  ScienceTag: Animal<This>
   End: VictoryPoint / Animal<This>
 }
 

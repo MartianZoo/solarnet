@@ -1,21 +1,23 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
   HAS =1 GameMode
-  HAS =1 Class<Production>
-  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<CheckGameEnd>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<End>
-  HAS =1 Class<UseAction>, =1 Class<NewTurn>, =1 Class<SecondAction>
+  HAS Class<Production>
+  HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
-  This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
-  This:: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, SellPatentsSP, DoRequiredActions
-  This:: Selecting, Revealed
-  SetupPhase:: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
-  SetupPhase:: EACH Player { 20 TerraformRating }
-  CorporationPhase:: TrWatcher.
-  This IF MAX 0 ExtendedGlobalParametersRule:: StandardGpTrackRules
-  This IF MAX 0 MarsMap:: TharsisMap
+  This:: BootstrapPhase
+  This: SellPatentsSP, PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
+  This: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, DoRequiredActions
+  This: Action1, Action2, Action3, CardPurchase, CardPlay
+  This: Hand, Selecting, Revealed
+  This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
+  This: EACH Class<RemoteArea> { RemoteArea }
+  This IF MAX 0 MarsMap: TharsisMap
+  This IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
   CorporationPhase: Photosynthesis
+  CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
@@ -25,6 +27,7 @@ CLASS TerraformingMars : Module {
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
 
+  // TODO: EACH Player { EACH Class<StandardResource> { PROD[StandardResource] } }
   SetupPhase: EACH Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
 }
 
@@ -34,15 +37,20 @@ CLASS QuickStartVariant : Module {
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
 
-  // Bootstrap gains Modules before Players, so a Module cannot grant these: `This` on Player is the
-  // only hook that fires at player creation, which is earlier than any phase.
-  This:: GrossHack<This> BY Engine
-  This:: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
+  // Bootstrap gains Modules before Players, so a Module's creation-time fanout cannot see them.
+  // Queued `This` work gives every Player its support after the complete seat layer exists.
+  This: 5 ProdOffset<This, Class<MC>> BY Admin
+  This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>> // TODO: doesn't belong here
 
-  CorporationPhase:: CorporationCard
+  SetupPhase: 2 CorporationCard THEN -CorporationCard \
+    THEN 10 ProjectCard THEN -10 ProjectCard?
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 
-  CLASS Player1, Player2, Player3, Player4, Player5
+  CLASS Player1
+  CLASS Player2
+  CLASS Player3
+  CLASS Player4
+  CLASS Player5
 }
 
 // MAPS AND AREAS
@@ -50,7 +58,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 "Every game must have exactly one of these (Tharsis Map, etc.)"
 ABSTRACT CLASS MarsMap : Module {
   HAS =1 MarsMap
-  This:: CreateMapAreas<This>
+  This: EACH Class<MarsArea> { MarsArea } // TODO <This>
 }
 
 "A hexagonal area where a tile can go"
@@ -59,11 +67,10 @@ ABSTRACT CLASS Area {
   HAS MAX 1 Tile<This>
 
   "One of the usually-61 areas on the planet itself"
-  ABSTRACT CLASS MarsArea {
+  ABSTRACT CLASS MarsArea { // TODO <MarsMap>
     row = Number
     column = Number
-
-    Tile<This>:: CreateAdjacencies<This>
+    Tile<This>:: Placement<This>
 
     // An unreserved area
     ABSTRACT CLASS LandArea {
@@ -81,18 +88,24 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea
 }
 
-"Creates every Area belonging to the selected map"
-CLASS CreateMapAreas<MarsMap> : Custom
+"A placement in a Mars area"
+CLASS Placement<MarsArea> : Signal
 
 "A player's reservation of one land area"
-CLASS LandClaimMarker<LandArea> : Owned<Player> {
-  Tile<LandArea> BY !Owner:: Die
+CLASS Community<LandArea> : Owned<Player> {
+  Tile<LandArea> BY Player(NOT Owner):: Die
+  Tile<LandArea> BY Owner:: -This!
 }
 
 // TILES AND ADJACENCY
 
 // A tile; if it's not on an Area / not in play, it doesn't exist yet
 ABSTRACT CLASS Tile<Area> {
+  This:: EACH Tile<MarsArea(HAS Neighbor<This>)> { \
+    ForwardAdjacency<Tile<MarsArea(HAS Neighbor<This>)>, This>, \
+    BackwardAdjacency<This, Tile<MarsArea(HAS Neighbor<This>)>> \
+  }
+
   // IMPL: This should narrow ownership to Owner, but bare owned-tile expressions rely on the Owned
   // default inserting an explicit contextual Owner variable, which a declared Owner bound erases.
   "Any tile that someone owns"
@@ -131,7 +144,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   This: TerraformRating
 
   CLASS OceanTile : Tile<MarsArea> {
-    DEFAULT +OceanTile<WaterArea>
+    DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
 
     // We could instead trigger on BackwardAdjacency<Tile, This> -- same thing.
     // But if we triggered on just Adjacency, it would also pay out for putting ocean tiles next to any tile.
@@ -229,8 +242,14 @@ CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
 
 // CARD BINDINGS, TAGS, AND EFFECTS
 
+"Anything that can hold a cube-like component"
+ABSTRACT CLASS QuasiResourceHolder
+
+"A cube-like component stored on a holder"
+ABSTRACT CLASS QuasiResource<QuasiResourceHolder> : Owned
+
 "Anything that can hold a particular kind of card resource"
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : QuasiResourceHolder, Owned<Owner>
 
 // Anything that 'lives on' a card / couldn't exist without the card
 ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
@@ -238,23 +257,7 @@ ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
 "Indicates that an action card has already been used this generation"
 CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 
-"A printed wild tag creates one temporary holder for each action slot"
-CLASS WildTag : Cardbound<CardFront> {
-  HAS MAX 1 This
-  NewTurn<Owner> IF PreludePhase:: WildTagUse<CardFront>
-  UseAction<StandardAction> IF ActionPhase:: WildTagUse<CardFront>
-}
-
-"The action-scoped meaning chosen for one printed wild tag"
-CLASS WildTagUse<CardFront<Player>> : TagHolder<Player>, Temporary {
-  HAS MAX 1 This
-  HAS MAX 1 Tag<This>
-  This: Tag<This>?
-}
-
 ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
-  DEFAULT Tag<CardFront>:
-
   CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
   "The printed event icon, derived for every EventCard and forbidden in authored card tags"
   CLASS EventTag : Tag<EventCard>
@@ -281,7 +284,7 @@ ABSTRACT CLASS Resource : Owned {
 
   "A resource cube living on a compatible card or neutral holder, such as `Animal<Pets>`"
   // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
-  ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>> : Owned<Owner> {
+  ABSTRACT CLASS CardResource : QuasiResource<ResourceHolder<Class<CardResource>, Owner>>, Owned<Owner> {
     DEFAULT +CardResource.
 
     "A particular kind of resource held by a card"
@@ -325,12 +328,18 @@ CLASS VictoryPoint : Owned<Player>
 
 "A milestone already claimed; unclaimed milestones exist only as a Class<ThatMilestoneType>"
 ABSTRACT CLASS Milestone : Owned<Player> {
+  // Wrong: bare This includes the Owner, allowing one claim by each Player.
+  // HAS MAX 1 This
+  HAS MAX 1 This<Player>
   HAS MAX 3 Milestone
   requirement = Requirement
 
   This:: (EVAL This.requirement: Ok)
   End: 5 VictoryPoint
 }
+
+"A singleton listener needed by selected content"
+ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
 
 "A funded award; unfunded awards exist only as a Class<ThatAwardType>"
 ABSTRACT CLASS Award {
@@ -472,8 +481,7 @@ CLASS BuySelectedCards : Owned<Player>, Signal {
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
-  This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
-  This:: (EVAL CardFront.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
+  This:: (EVAL CardFront<Class<CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
   This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
 }
 
@@ -531,15 +539,18 @@ ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
 
 // PHASES
 
-"The current game phase; exactly one exists from Setup through the live End operation"
+"The current game phase; exactly one exists from bootstrap through the terminal End phase"
 ABSTRACT CLASS Phase : System {
-  HAS MAX 1 Phase
+  HAS =1 Phase
 
-  CLASS SetupPhase
+  CLASS BootstrapPhase
+  CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>, Hand>, 10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>? THEN BuySelectedCards
+    NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
+      -10 ProjectCard<Selecting>? THEN BuySelectedCards
   }
-  CLASS ResearchPhase
+  CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
@@ -554,9 +565,7 @@ ABSTRACT CLASS Phase : System {
 // TIME FLOW
 
 "Tells what generation we're in"
-CLASS Generation : System {
-  This IF =1 This: StartToken<Player1>
-}
+CLASS Generation : System
 
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational {
@@ -591,22 +600,27 @@ CLASS GpGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
   GpComplete<Class<GlobalParameter>>:: -This!
 }
 
-"A live scoring operation removed after every scoring task has completed"
-CLASS End : Phase, Temporary
+"The terminal game phase"
+CLASS End : Phase {
+  This:: FinalScoringPending
+}
 
-"Asks the first player to choose one mandatory global-parameter increase performed by Engine"
-CLASS WorldGovernmentTerraforming : Signal, System
+"A marker removed after every final-scoring task has completed"
+CLASS FinalScoringPending : Temporary, System
 
-"Asks the first player where an ocean is placed while preserving the performing Player"
-CLASS ChooseOceanArea<Player> : Signal
+"Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
+CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
+  This IF GpIncomplete: GlobalParameter! BY Admin
+}
 
 "Marks the player who takes the first turn; passes one seat left with each new generation"
 CLASS StartToken : Owned<Player> {
-  HAS MAX 1 StartToken
-  Generation: PassLeft<This>
-  ChooseOceanArea<Actor> BY Actor: OceanTile<> BY Actor
-  WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
+  HAS =1 StartToken
+  Generation IF 2 Generation: PassLeft<This>
 }
+
+"The directed turn-order relationship whose second Player follows its first Player"
+CLASS Successor<Player, Player> : System { HAS =1 This }
 
 // GAME CONFIGURATION
 
@@ -628,14 +642,18 @@ ABSTRACT CLASS GameMode : Module {
     HAS 2 Player
     autoSelectWhen = HAS "2 Player"
 
-    This:: ClaimMilestone, FundAward
-    This:: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
-    SetupPhase: Generation
-    -End: AssignMultiplayerVictory
+    This: ClaimMilestone, FundAward
+    This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
+    SetupPhase: EACH Player { 20 TerraformRating }
+    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
   }
 }
 
-CLASS AssignMultiplayerVictory : Custom
+"Enables second-place award scoring when at least three players are seated"
+CLASS SecondPlaceRule : Module {
+  autoSelectWhen = HAS "3 Player"
+  HAS Class<SecondPlace>
+}
 
 // SOLO MODE
 
@@ -644,14 +662,13 @@ CLASS SoloMode : GameMode {
   HAS =1 Player
   autoSelectWhen = HAS "=1 Player"
 
-  HAS =1 SoloObjective, =1 Class<SoloStandardResourceReserve>, =1 Class<SoloCardResourceReserve>
+  HAS =1 SoloObjective
 
-  This:: SoloOpponent
-  This IF MAX 0 SoloObjective:: StandardSoloObjective.
-  SetupPhase:: SoloGenerationSetup THEN Generation
-  SoloGenerationSetup: 14 SoloGenerationsLeft
+  This: SoloOpponent
+  This IF MAX 0 SoloObjective: StandardSoloObjective.
+  This: 14 SoloGenerationsLeft
+  SetupPhase: 14 TerraformRating<Player>
   Generation: -SoloGenerationsLeft.
-  SetupPhase: -6 TerraformRating<Player1>
 }
 
 "Exactly one solo objective Module active in a solo game"
@@ -660,26 +677,25 @@ ABSTRACT CLASS SoloObjective : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloObjective {
-    CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player1>.
+    CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player>
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloObjective {
-    This:: BufferGasSP
+    This: BufferGasSP
 
-    CheckGameEnd IF 63 TerraformRating<Player1>: Victory<Player1>.
+    CheckGameEnd IF 63 TerraformRating<Player>: Victory<Player>
   }
 }
-
-"Lets selected variants initialize solo state immediately before generation 1 begins"
-CLASS SoloGenerationSetup : Signal, System
 
 "One generation that must begin before a solo game may end"
 CLASS SoloGenerationsLeft : GameEndBarrier
 
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {
-  HAS MAX 1 This
+  HAS =1 This
+  This:: EACH Class<StandardResource> { SoloStandardResourceReserve<Class<StandardResource>> }
+  This:: EACH Class<CardResource> { SoloCardResourceReserve<Class<CardResource>> }
   SetupPhase: PlaceNeutralTiles
 }
 
@@ -695,27 +711,24 @@ CLASS SoloStandardResourceReserve<Class<StandardResource>> : Owned<SoloOpponent>
   HAS =1 This
   SetupPhase: 42 StandardResource
   SetupPhase: PROD[42 StandardResource]
-  -StandardResource BY Player:: StandardResource BY Engine
-  StandardResource BY Player:: -StandardResource BY Engine
-  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Engine
-  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Engine
+  -StandardResource BY Player:: StandardResource BY Admin
+  StandardResource BY Player:: -StandardResource BY Admin
+  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Admin
+  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Admin
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
 CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
   HAS =1 This
   SetupPhase: 42 CardResource<This>
-  -CardResource<This> BY Player:: CardResource<This> BY Engine
-  CardResource<This> BY Player:: -CardResource<This> BY Engine
+  -CardResource<This> BY Player:: CardResource<This> BY Admin
+  CardResource<This> BY Player:: -CardResource<This> BY Admin
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created
 ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
-
-"Creates directional Adjacencies when a tile is placed"
-CLASS CreateAdjacencies<MarsArea> : Custom
 
 "A virtual metric whose count is the number of a particular resource printed as an area's bonus"
 CLASS PlacementBonus<Class<Resource>, MarsArea> : Custom
@@ -729,13 +742,12 @@ CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, Custom
 "Copies the single immediate production box on a chosen card"
 CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
 
-"You didn't see this"
-CLASS GrossHack : Owned<Player>, System {
-  This:: PROD[5 MC]
-  ProductionPhase: -5 MC
+"The five synthetic M€-production steps that represent the printed production floor"
+CLASS ProdOffset<Class<StandardResource>> : Owned<Player>, System {
+  This:: PROD[StandardResource]
+  ProductionPhase: -StandardResource
 }
 
-CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
 CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
 CLASS HandleCardTags<Class<CardFront>> : Owned<Player>, Custom
 
@@ -744,12 +756,10 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
 }
 
-"The number of geometric neighbor relations between live tiles and map areas"
-CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden, Custom
+"The number of geometric neighbor relations between live tiles and areas on the selected Mars map"
+CLASS Neighbor<Tile<Area>, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
-  This:: EACH Player { AwardTally<Award> / EVAL Award.metric }
-  -This:: AssignAwardPlaces<Award>
+  -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
+  -This IF Class<SecondPlace>:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
 }
-CLASS AwardTally<Award> : Owned<Player>, Hidden
-CLASS AssignAwardPlaces<Award> : Custom

@@ -20,6 +20,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilCardPack
+          FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
           Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
@@ -31,6 +32,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260825() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(10, 5)
     val green = game.tfm(Player.PLAYER1)
     val yellow = game.tfm(Player.PLAYER2)
 
@@ -49,14 +51,14 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       playPrelude(FocusedOrganization) { doTask("Titanium") }
       // "I had to experience what it might be like to have Terra Labs and have money at the same
       // time." Head Start gains two steel and 22 M€ for the eleven project cards in hand.
-      playPrelude(HeadStart) {
+      playPrelude(FakeHeadStart) {
         // The first immediate action reuses Focused Organization: discard Red Ships and 1 M€,
         // then draw a card and take titanium.
-        doTask("UseAction<UseCardAction, Action1>", 1)
+        doTask("UseAction<UseCardAction, Action1>")
         doTask("ActionUsedMarker<$FocusedOrganization>")
         cardAction1(FocusedOrganization) {
-          doTask("-MC", 2)
-          doTask("Titanium", 2)
+          doTask("-MC")
+          doTask("Titanium")
         }
 
         // "For the other one. Advertising for 4."
@@ -428,7 +430,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     green.assertCounts(
         14 to "ProjectCard",
         1 to "$TerraLabsResearch",
-        1 to "$HeadStart",
+        1 to "$FakeHeadStart",
         1 to "$FocusedOrganization",
         1 to "$Advertising",
         1 to "$OptimalAerobraking",

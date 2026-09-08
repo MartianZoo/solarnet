@@ -5,10 +5,9 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.exMachina
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -16,6 +15,7 @@ import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.canonicalCatalog
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
@@ -25,7 +25,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p3: TfmGameplay
 
   protected abstract val config: GameConfig
-  protected open val catalog: TfmCatalog = Canon
+  protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
   protected open val inputOnlySynonyms: List<Pair<String, String>> = TEST_CLASS_SYNONYMS
 
   @BeforeTest
@@ -91,6 +91,10 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     game.exMachina(this, adjustment)
   }
 
+  protected fun retainStartingProjects(vararg retainedCounts: Int) {
+    dev.martianzoo.tfm.tests.retainStartingProjects(game, *retainedCounts)
+  }
+
   protected fun TfmGameplay.assertDashMiddle(
       played: Int,
       actions: Int? = null,
@@ -129,12 +133,12 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {
-    engine.assertCounts(gen to "Generation")
-    engine.temperatureC() shouldBe temp
-    engine.oxygenPercent() shouldBe oxygen
-    engine.assertCounts(oceans to "OceanTile")
+    admin.assertCounts(gen to "Generation")
+    admin.temperatureC() shouldBe temp
+    admin.oxygenPercent() shouldBe oxygen
+    admin.assertCounts(oceans to "OceanTile")
     if (venus != -1) {
-      engine.venusPercent() shouldBe venus
+      admin.venusPercent() shouldBe venus
     }
   }
 
@@ -142,8 +146,8 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     val snapshot = Engine.overlay(game)
     snapshot.actors.forEach { snapshot.agent(it).autoExecMode = FIRST }
     snapshot.dropPendingTasksForSnapshot()
-    snapshot.tfm(ENGINE).phase("Production") { snapshot.dropPendingTasksForSnapshot() }
-    snapshot.tfm(ENGINE).manual("End FROM Phase") {
+    snapshot.tfm(ADMIN).phase("Production") { snapshot.dropPendingTasksForSnapshot() }
+    snapshot.tfm(ADMIN).manual("End FROM Phase") {
       snapshot.dropPendingTasksForSnapshot()
     }
     snapshot.tfm(actor).assertCounts(expected to "VictoryPoint")

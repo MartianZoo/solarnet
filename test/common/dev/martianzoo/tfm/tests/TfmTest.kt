@@ -3,17 +3,16 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Task
+import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
@@ -25,8 +24,8 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 internal abstract class TfmTest {
   protected lateinit var game: World
 
-  protected val engine: TfmGameplay
-    get() = game.tfm(ENGINE)
+  protected val admin: TfmGameplay
+    get() = game.tfm(ADMIN)
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
@@ -57,37 +56,28 @@ internal abstract class TfmTest {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
-  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Engine")
+  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
   protected fun OperationBody.wgt(choice: String) {
-    doTask("$choice! BY Engine")
-  }
-
-  protected fun assignAllWildTags(tag: String): BodyLambda = {
-    while (true) {
-      val assignment = wildTagAssignment(tasks.extract { it }, tag) ?: break
-      doTask(assignment)
-    }
+    doTask("$choice! BY Admin")
   }
 
   protected fun TfmGameplay.declineTask(): TaskResult {
-    val taskNumber = singleDeclinableTaskNumber(pendingTasks(), reader)
-    return doTask("Ok", taskNumber)
+    return doTask("Ok")
   }
 
   protected fun TfmGameplay.declineTask(instruction: String): TaskResult {
-    val taskNumber = singleDeclinableTaskNumber(pendingTasks(), reader, instruction)
-    return doTask("Ok", taskNumber)
+    val taskId = singleDeclinableTaskId(pendingTasks(), reader, instruction)
+    return doTask("Ok", taskId)
   }
 
   protected fun OperationBody.declineTask() {
-    val taskNumber = singleDeclinableTaskNumber(tasks.extract { it }, reader)
-    doTask("Ok", taskNumber)
+    doTask("Ok")
   }
 
   protected fun OperationBody.declineTask(instruction: String) {
-    val taskNumber = singleDeclinableTaskNumber(tasks.extract { it }, reader, instruction)
-    doTask("Ok", taskNumber)
+    val taskId = singleDeclinableTaskId(tasks.extract { it }, reader, instruction)
+    doTask("Ok", taskId)
   }
 
   protected fun TfmGameplay.playCorp(
@@ -138,8 +128,9 @@ internal abstract class TfmTest {
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
               (count == null || it.count == ActualScalar(count)) &&
-                  (it.gaining.className == resourceType ||
-                      it.gaining.className == cn("CardResource"))
+                  reader.catalog.classTable
+                      .getClass(resourceType)
+                      .isSubtypeOf(reader.resolve(it.gaining).rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()
     if (arguments.isEmpty()) arguments += card.expression
@@ -148,33 +139,20 @@ internal abstract class TfmTest {
     return "$gain".replace("${gain.gaining}", "$revisedExpression").removeSuffix("?")
   }
 
-  private fun singleDeclinableTaskNumber(
+  private fun singleDeclinableTaskId(
       tasks: List<Task>,
       reader: dev.martianzoo.pets.api.GameReader,
-      instruction: String? = null,
-  ): Int {
-    val matches =
-        tasks.withIndex().filter { (_, task) ->
-          (instruction == null ||
-              task.instruction == game.agent(task.assignee).parse<Instruction>(instruction)) &&
-              (NoOp.narrows(task.instruction, reader) ||
-                  task.instruction.descendantsOfType<NoOp>().isNotEmpty())
-        }
-    require(matches.size == 1) {
-      val qualifier = instruction?.let { " matching `$it`" } ?: ""
-      "Expected exactly one task narrowable to Ok$qualifier, found ${matches.size}"
+      instruction: String,
+  ): TaskId {
+    val matches = tasks.filter { task ->
+      task.instruction == game.agent(task.assignee).parse<Instruction>(instruction) &&
+          (NoOp.narrows(task.instruction, reader) ||
+              task.instruction.descendantsOfType<NoOp>().isNotEmpty())
     }
-    return matches.single().index + 1
-  }
-
-  private fun wildTagAssignment(tasks: List<Task>, tag: String): String? {
-    val use =
-        tasks
-            .asSequence()
-            .flatMap { it.instruction.descendantsOfType<Expression>() }
-            .firstOrNull { it.className == cn("WildTagUse") } ?: return null
-    val card = requireNotNull(use.arguments.lastOrNull()?.className)
-    return "$tag<WildTagUse<$card>>"
+    require(matches.size == 1) {
+      "Expected exactly one task narrowable to Ok matching `$instruction`, found ${matches.size}"
+    }
+    return matches.single().id
   }
 
   private fun TfmGameplay.pendingTasks(): List<Task> =

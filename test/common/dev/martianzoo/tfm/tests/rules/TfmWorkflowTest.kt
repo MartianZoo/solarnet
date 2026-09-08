@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -19,10 +19,11 @@ internal class TfmWorkflowTest {
   @Test
   internal fun turnDeclinesAnUnusedSecondAction() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
@@ -31,17 +32,18 @@ internal class TfmWorkflowTest {
     p2.pass()
     p1.pass()
 
-    engine.assertCounts(2 to "Generation", 1 to "ResearchPhase")
+    admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
     workflow.shutdown()
   }
 
   @Test
   internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
@@ -53,7 +55,7 @@ internal class TfmWorkflowTest {
       pass()
     }
 
-    engine.assertCounts(2 to "Generation", 1 to "ResearchPhase")
+    admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
     workflow.shutdown()
   }
 
@@ -63,8 +65,9 @@ internal class TfmWorkflowTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
-    p1.playCorp(UnitedNationsMarsInitiative, 0)
-    p2.playCorp(CrediCor, 0)
+    retainStartingProjects(game, 0, 0)
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
+    playCorporationWithoutStartingProjects(p2, CrediCor)
 
     p1.pass()
 

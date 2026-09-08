@@ -26,7 +26,7 @@ internal class ColoniesRulesTest : CardTest() {
     val p2 = requireP2()
     p1.manual("100 MC, 5 ProjectCard")
     p2.manual("100 MC, 5 ProjectCard")
-    engine.phase("Action")
+    admin.phase("Action")
     p2.playProject(RegolithEaters, 13)
     p1.playProject(NitriteReducingBacteria, 11)
     p1.stdProject("BuildColonySP") {
@@ -59,7 +59,7 @@ internal class ColoniesRulesTest : CardTest() {
     p1.manual("Colony<Pluto>")
     p1.manual("-2 ProjectCard")
     p2.manual("3 Energy")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p2.stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
 

@@ -59,7 +59,7 @@ internal class PropertyTest {
   }
 
   @Test
-  internal fun metricPropertiesAreEvaluatedExplicitlyInsideClassEffects() {
+  internal fun metricPropertiesAreEvaluatedExplicitlyInsideEffectsAndReadQueries() {
     val catalog = TfmCatalog.Composite(Canon, MetricPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.tfm(PLAYER1)
@@ -70,7 +70,7 @@ internal class PropertyTest {
     p1.count("FixedMetricPropertyResult") shouldBe 8
     p1.count("MetricPropertyProbe.fixedScore") shouldBe 8
     shouldThrow<ExpressionException> { p1.count("MetricPropertyProbe.score") }
-    shouldThrow<PetSyntaxException> { p1.count("EVAL MetricPropertyProbe.score") }
+    p1.count("EVAL MetricPropertyProbe.score") shouldBe 3
   }
 
   @Test

@@ -43,7 +43,7 @@ internal class SaturnSurfingTest : CardTest() {
 
   private fun initializeSaturnSurfing(floatersRemoved: Int = 0) {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$Teractor, $EarthOffice, $AcquiredCompany, $MediaGroup, $Cartel, $SaturnSurfing")
     if (floatersRemoved > 0) p1.manual("-$floatersRemoved Floater<$SaturnSurfing>")
   }

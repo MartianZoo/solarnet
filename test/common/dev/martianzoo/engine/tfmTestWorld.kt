@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -33,6 +34,7 @@ internal fun canonicalPremise(
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
     Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
       TfmWorkflow.Manual(this).setupPhase()
+      actors.filterIsInstance<Player>().forEach { agent(it).doTask("-10 ProjectCard<Hand>") }
     }
 
 internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =

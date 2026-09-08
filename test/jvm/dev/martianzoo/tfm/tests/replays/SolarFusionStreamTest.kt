@@ -1,36 +1,15 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
-
-private val fakeEstablishedMethodsDefinition =
-    parseOneLinerClass(
-        "CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> { cost = 0; This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>! }"
-    )
-
-private val solarFusionStreamCatalog =
-    TfmCatalog.compose(
-        Canon,
-        object : TfmCatalog() {
-          override val explicitClassDeclarations = setOf(fakeEstablishedMethodsDefinition)
-        },
-    )
-
 // Complete archive replay: Solar Fusion Stream (g4ce040d78bb6)
 // https://terraforming-mars.herokuapp.com/the-end?id=pc2de3208e4ca
 internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
-  override val catalog = solarFusionStreamCatalog
-
   // Player-record evidence: Elysium, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, and these limited-synergy milestone and award pools.
   // Unsupported component: unclaimed Terraformer substitutes for unclaimed Hydrologist.
@@ -39,7 +18,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           ElysiumMap
-          PreludeExpansion, PromoCardPack, FakeEstablishedMethods
+          PreludeExpansion, PromoCardPack
+          FakeStuffBundle
 
           Builder, Philantropist, Spacefarer, Terraformer, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
@@ -53,12 +33,13 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
   @Test
   internal fun game20260819() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(4, 5, 5)
 
     val JR = p1
     val KB = p2
     val ER = p3
 
-    engine.assertCounts(1 to "Generation")
+    admin.assertCounts(1 to "Generation")
 
     // Player-record evidence: JR rejected Teractor and PolderTECH Dutch; UNMI Contractor and
     // Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar Colony Ship,
@@ -104,13 +85,13 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
 
     KB.turn {
-      playPrelude(ResearchNetwork) {
+      playPrelude(FakeResearchNetwork) {
             draw(ResearchOutpost, RestrictedArea, AcquiredCompany)
           }
-          .expect("PROD[1 MC], WildTag")
+          .expect("PROD[1 MC], FakeWildTag")
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
-      playPrelude(fakeEstablishedMethods) {
+      playPrelude(FakeEstablishedMethods) {
             doTask("UseAction<PowerPlantSP, Action1>")
             pay(11)
             doTask("UseAction<PowerPlantSP, Action1>")
@@ -159,12 +140,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       placeTile(3, 3)
     }
     JR.playProject(Pets, 10)
-    KB.playProject(
-            StaticHarvesting,
-            4,
-            butFirst = assignAllWildTags("BuildingTag"),
-        )
-        .expect("-1 MC")
+    KB.exMachina(fakeWildTags("BuildingTag"))
+    KB.playProject(StaticHarvesting, 4).expect("-1 MC")
     KB.stdAction("ClaimMilestone") { doTask("Energizer") }
     ER.cardAction1(IndustrialCenter)
     ER.declineSecondAction()
@@ -190,11 +167,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.pass()
     JR.playProject(EnergyMarket, 3)
     JR.declineSecondAction()
-    KB.playProject(
-        QuantumExtractor,
-        12,
-        butFirst = assignAllWildTags("ScienceTag"),
-    ) {
+    KB.exMachina(fakeWildTags("ScienceTag"))
+    KB.playProject(QuantumExtractor, 12) {
       KB.draw(EarthOffice)
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
@@ -212,11 +186,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       JR.draw(HermeticOrderOfMars)
       doTask("CityTile<Elysium_2_6> FROM GreeneryTile<Elysium_2_6>")
     }
-    KB.playProject(
-        MassConverter,
-        7,
-        butFirst = assignAllWildTags("ScienceTag"),
-    )
+    KB.exMachina(fakeWildTags("ScienceTag"))
+    KB.playProject(MassConverter, 7)
     KB.playProject(InvestmentLoan, 0)
     ER.cardAction1(TychoMagnetics, x = 2) { ER.draw(GiantSpaceMirror) }
     ER.playProject(InventorsGuild, 9)
@@ -375,7 +346,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.playProject(AsteroidCard, 2, titanium = 3) { doTask("-3 Plant<JR>") }
         .expect("-3 MC<KB>, 3 MC<JR>")
     JR.pass()
-    engine.assertCounts(8 to "TemperatureStep")
+    admin.assertCounts(8 to "TemperatureStep")
     KB.playProject(DesignedMicroorganisms, 15)
     KB.convertHeat()
     ER.playProject(SolarWindPower, 3, titanium = 2).expect("0 Titanium")
@@ -407,7 +378,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.cardAction1(SpaceElevator)
     KB.playProject(EarthCatapult, 19)
     KB.playProject(BigAsteroid, 14, titanium = 2) { /* Decline removing an opponent's plants. */
-          declineTask("-4 Plant<Anyone>?")
+          declineTask()
         }
         .expect("2 Titanium")
     ER.playProject(GreatDamPromo, steel = 5) { placeTile(1, 5) }.expect("0 ProjectCard")
@@ -513,11 +484,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.stdAction("FundAward", which = 3) { doTask("Benefactor") }
     ER.sellPatents(SpecialDesign)
     ER.sellPatents(Trees)
-    KB.playProject(
-        BactoviralResearch,
-        7,
-        butFirst = assignAllWildTags("ScienceTag"),
-    ) {
+    KB.exMachina(fakeWildTags("ScienceTag"))
+    KB.playProject(BactoviralResearch, 7) {
       KB.draw(PermafrostExtraction)
       addCardResources(Ants)
     }
@@ -529,11 +497,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.sellPatents(BiomassCombustors)
     // Consequence reconstruction: ER gained one money production.
     ER.stdProject("CitySP") { placeTile(6, 2) }
-    KB.playProject(
-        Worms,
-        5,
-        butFirst = assignAllWildTags("MicrobeTag"),
-    )
+    KB.exMachina(fakeWildTags("MicrobeTag"))
+    KB.playProject(Worms, 5)
     KB.playProject(ImportedNutrients, 1, titanium = 1) {
       ER.draw(TransNeptuneProbe)
       addCardResources(Ants)
@@ -573,20 +538,12 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.assertResources(m = 54, s = 9, t = 5, p = 3, e = 0, h = 8)
     ER.assertProduction(m = 15, s = 5, t = 5, p = 1, e = 0, h = 8)
 
-    JR.assertCounts(
-        5 to "AwardTally<JR, Founder>",
-        33 to "AwardTally<JR, Benefactor>",
-    )
-    KB.assertCounts(
-        4 to "AwardTally<KB, Founder>",
-        43 to "AwardTally<KB, Benefactor>",
-    )
-    ER.assertCounts(
-        3 to "AwardTally<ER, Founder>",
-        38 to "AwardTally<ER, Benefactor>",
-    )
-    // Player-record evidence: Banker tallies are 42/11/15 for JR/KB/ER. Do not assert the raw
-    // internal tallies, which include the engine's five-unit production offset.
+    JR.count("EVAL Founder.metric") shouldBe 5
+    KB.count("EVAL Founder.metric") shouldBe 4
+    ER.count("EVAL Founder.metric") shouldBe 3
+    JR.count("EVAL Benefactor.metric") shouldBe 33
+    KB.count("EVAL Benefactor.metric") shouldBe 43
+    ER.count("EVAL Benefactor.metric") shouldBe 38
 
     val score = Summarizer(game)
     score.net("Milestone", "VictoryPoint<JR>") shouldBe 10

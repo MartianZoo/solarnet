@@ -12,7 +12,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
@@ -55,7 +54,8 @@ internal class ApiTranslation(
 
   override fun has(requirement: String) = reader.has(parse(requirement))
 
-  override fun count(metric: String) = reader.count(parse<Metric>(metric))
+  override fun count(metric: String) =
+      reader.count(readMetricPreprocessor.transformMetric(Parsing.parse(metric)))
 
   override fun list(type: String): Multiset<Expression> {
     val typeToList: Type = reader.resolve(parse(type))
@@ -74,16 +74,33 @@ internal class ApiTranslation(
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
-  private val preprocessor =
+  private val normalizeInput =
       chain(
-          xers.rejectPropertyEvaluations(),
           xers.canonicalize(vocabulary),
           xers.useFullNames(),
           classTable.inferTypeVariables(),
+      )
+
+  private val finishInput =
+      chain(
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(xers::bindContextualOwner),
           xers.transformMarkedSyntax(),
+      )
+
+  private val preprocessor =
+      chain(
+          xers.rejectPropertyEvaluations(),
+          normalizeInput,
+          finishInput,
+      )
+
+  private val readMetricPreprocessor =
+      chain(
+          normalizeInput,
+          xers.evaluateProperties(context = actor.expression, owner = actor as? Player),
+          finishInput,
       )
 
   override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =
@@ -160,13 +177,23 @@ internal class ApiTranslation(
 
     override val reader = this@ApiTranslation.reader
 
-    override fun doTask(narrowing: String, taskNumber: Int?) {
-      this@ApiTranslation.doTask(narrowing, taskNumber)
+    override fun doTask(narrowing: String) {
+      this@ApiTranslation.doTask(narrowing)
       impl.autoExecNow(autoExecMode)
     }
 
-    override fun tryTask(narrowing: String, taskNumber: Int?) {
-      this@ApiTranslation.tryTask(narrowing, taskNumber)
+    override fun doTask(narrowing: String, taskId: TaskId) {
+      this@ApiTranslation.doTask(narrowing, taskId)
+      impl.autoExecNow(autoExecMode)
+    }
+
+    override fun tryTask(narrowing: String) {
+      this@ApiTranslation.tryTask(narrowing)
+      impl.autoExecNow(autoExecMode)
+    }
+
+    override fun tryTask(narrowing: String, taskId: TaskId) {
+      this@ApiTranslation.tryTask(narrowing, taskId)
       impl.autoExecNow(autoExecMode)
     }
 
@@ -216,23 +243,41 @@ internal class ApiTranslation(
     impl.selectTask(parse<Instruction>(instruction))
   }
 
-  override fun doTask(narrowing: String, taskNumber: Int?) = atomic {
+  override fun doTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
     impl.doTask(
         parsed.instruction,
-        taskNumber,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
     )
   }
 
-  override fun tryTask(narrowing: String, taskNumber: Int?) = atomic {
+  override fun doTask(narrowing: String, taskId: TaskId) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.doTask(
+        parsed.instruction,
+        parsed.intensityOmitted,
+        parsed.submittedAsGroup,
+        taskId,
+    )
+  }
+
+  override fun tryTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
     impl.tryTask(
         parsed.instruction,
-        taskNumber,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
+    )
+  }
+
+  override fun tryTask(narrowing: String, taskId: TaskId) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    impl.tryTask(
+        parsed.instruction,
+        parsed.intensityOmitted,
+        parsed.submittedAsGroup,
+        taskId,
     )
   }
 

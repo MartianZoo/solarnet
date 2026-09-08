@@ -73,7 +73,7 @@ enumerations.
 A game is at a **policy-relative stable point** when every Agent has consulted its policies against
 the same completed game revision and declined to issue another mutation. “Stable” is relative to
 the exact installed policies: changing them may make another action available without changing the
-Game World. It does not mean that the global task pool is empty.
+Game World. It does not mean that the global task queue is empty.
 
 A fully autonomous Agent promises to decline only when it has no legal action covered by its
 contract. A task may still be assigned to it when game state temporarily makes that task illegal,
@@ -122,7 +122,7 @@ proof policy is implemented; do not add speculative public APIs ahead of it.
 Committed code still stores `AutoExecMode` on each `Agent`, defaults it to `FIRST`, and runs the
 queue drain from engine-side command and operation completion points. It does not yet provide
 policy attachment or the planned Admin-first policy schedule. As a transitional
-progress rule, a Player using `NONE` still drains only Engine-assigned work from the shared queue.
+progress rule, a Player using `NONE` still drains only Admin-assigned work from the shared queue.
 Treat the sections above and below as the extraction contract, not current behavior.
 
 Admin's default may execute concrete work, select abstract work, narrow choices, and intelligently

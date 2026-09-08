@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
@@ -19,7 +19,7 @@ import dev.martianzoo.pets.types.ClassTable
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
-  /** Creates a game at its committed pre-setup baseline, ready to be given to a workflow. */
+  /** Creates a game at its committed initialization state, ready to be given to a workflow. */
   public fun newGame(
       premise: GamePremise,
       locale: String = Vocabulary.ENGLISH,
@@ -107,8 +107,8 @@ public object Engine {
     private val initializer =
         if (backing == null) {
           Initializer(
-              agentByActor.getValue(ENGINE),
-              instructorByActor.getValue(ENGINE),
+              agentByActor.getValue(ADMIN),
+              instructorByActor.getValue(ADMIN),
               taskQueues,
               classTable,
               timeline,
@@ -165,7 +165,7 @@ public object Engine {
         val count = reader.countComponent(type)
         if (count > 0) {
           instructorByActor
-              .getValue(ENGINE)
+              .getValue(ADMIN)
               .execute(remove(type, count), cause = null)
               .forEach(taskQueues::addTasks)
         }
@@ -176,15 +176,16 @@ public object Engine {
     private fun validatePremise(classTable: ClassTable) {
       premise.initialComponentTypes.forEach { expression ->
         val type = classTable.resolve(expression)
-        require(
-            !type.abstract &&
-                classTable.isActive(type) &&
-                !type.rootClass.declaration.custom &&
-                !type.rootClass.isSingletonType()
-        ) {
-          "initial component type must be concrete, active, instantiable, and non-singleton: $expression"
+        require(!type.abstract && classTable.isActive(type) && !type.rootClass.declaration.custom) {
+          "initial component type must be concrete, active, and instantiable: $expression"
         }
       }
+
+      val initiallyPresentClassNames =
+          premise.modules +
+              premise.playerClassNames +
+              premise.classSelections.filter { it.included }.map { it.className } +
+              premise.initialComponentTypes.map { classTable.resolve(it).className }
 
       fun countActiveClasses(count: Count): Int {
         if (count.expression.className == CLASS) {
@@ -199,10 +200,7 @@ public object Engine {
         return classTable.allClasses().count { klass ->
           !klass.abstract &&
               klass.baseType.isSubtypeOf(type) &&
-              (klass.isSingletonType() ||
-                  premise.classSelections.any { selection ->
-                    selection.included && selection.className == klass.className
-                  })
+              klass.className in initiallyPresentClassNames
         }
       }
 
@@ -211,6 +209,7 @@ public object Engine {
               ::countActiveClasses,
               { property -> error("Module premise metrics cannot read properties: $property") },
               { union -> error("Module premise metrics cannot use OR: $union") },
+              { rank -> error("Module premise metrics cannot use RANK: $rank") },
           )
 
       fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)

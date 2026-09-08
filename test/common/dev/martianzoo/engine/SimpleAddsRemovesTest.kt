@@ -4,7 +4,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
@@ -90,31 +90,31 @@ internal class SimpleAddsRemovesTest {
 
     val checkpoint = game.timeline.checkpoint()
 
-    val eng = game.agent(ENGINE)
-    eng.count("Heat") shouldBe 0
+    val admin = game.agent(ADMIN)
+    admin.count("Heat") shouldBe 0
 
     val p2 = game.tfm(PLAYER2)
 
     p2.manual("5 Heat<Player2>!")
     p2.manual("10 Heat<Player1>!")
 
-    eng.count("Heat") shouldBe 15
+    admin.count("Heat") shouldBe 15
 
     p2.manual("-4 Heat")
-    eng.has("Heat<Player2>") shouldBe true
-    eng.has("=1 Heat<Player2>") shouldBe true
-    eng.has("MAX 1 Heat<Player2>") shouldBe true
-    eng.has("2 Heat<Player2>") shouldBe false
-    eng.count("StandardResource") shouldBe 11
-    eng.count("StandardResource<Player1>") shouldBe 10
+    admin.has("Heat<Player2>") shouldBe true
+    admin.has("=1 Heat<Player2>") shouldBe true
+    admin.has("MAX 1 Heat<Player2>") shouldBe true
+    admin.has("2 Heat<Player2>") shouldBe false
+    admin.count("StandardResource") shouldBe 11
+    admin.count("StandardResource<Player1>") shouldBe 10
 
     p2.manual("3 Steel<Player1> FROM Heat<Player1>!")
-    eng.count("StandardResource<Player1>") shouldBe 10
-    eng.count("Steel") shouldBe 3
+    admin.count("StandardResource<Player1>") shouldBe 10
+    admin.count("Steel") shouldBe 3
 
     p2.manual("2 Heat<Player2> FROM Heat<Player1>!")
-    eng.has("=3 Heat<Player2>") shouldBe true
-    eng.has("=5 Heat<Player1>") shouldBe true
+    admin.has("=3 Heat<Player2>") shouldBe true
+    admin.has("=5 Heat<Player1>") shouldBe true
 
     val changes = game.events.changesSince(checkpoint)
     changes

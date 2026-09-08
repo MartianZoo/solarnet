@@ -13,10 +13,10 @@ import kotlin.test.Test
 internal class ValleyTrustTest : CardTest() {
   @Test
   internal fun `Resolves Valley Trust's starting Prelude 1 card`() {
-    newGame(PreludeExpansion)
-    p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22 MC")
+    newGame(PreludeExpansion, retainedStartingProjects = 5)
+    p1.playCorp(ValleyTrust, 5).expect("22 MC")
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.stdAction("DoRequiredActions") { p1.playPrelude(MartianIndustries) }
         .expect("PROD[Steel, Energy]")
   }
@@ -26,18 +26,18 @@ internal class ValleyTrustTest : CardTest() {
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude1CardPack",
         selectedPrelude = MartianIndustries,
-        otherPrelude = AppliedScience,
+        otherPrelude = SpaceLanes,
         otherPreludeIsAvailable = false,
     )
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = false,
     )
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude1CardPack, Prelude2CardPack",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = true,
     )
@@ -47,13 +47,13 @@ internal class ValleyTrustTest : CardTest() {
   internal fun `Prelude 2 expansion and card pack add the same cards to Prelude 1 rules`() {
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude2Expansion",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = true,
     )
     resolveValleyTrustPrelude(
         "PreludeExpansion, Prelude2CardPack",
-        selectedPrelude = AppliedScience,
+        selectedPrelude = SpaceLanes,
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = true,
     )
@@ -61,9 +61,9 @@ internal class ValleyTrustTest : CardTest() {
 
   @Test
   internal fun `Must perform required action before another standard action`() {
-    newGame(PreludeExpansion)
+    newGame(PreludeExpansion, retainedStartingProjects = 5)
     p1.playCorp(ValleyTrust, 5)
-    engine.phase("Action")
+    admin.phase("Action")
 
     shouldThrow<RequirementException> { p1.stdAction("PowerPlantSP") }
   }
@@ -80,14 +80,15 @@ internal class ValleyTrustTest : CardTest() {
                 "ValleyTrust, $preludeConfiguration",
                 "Player1",
                 "Player2",
-            )
+            ),
+            retainedStartingProjects = 5,
         )
     game.classTable.isActive(cn("PreludePhase")) shouldBe true
     game.classTable.isActive(selectedPrelude) shouldBe true
     game.classTable.isActive(otherPrelude) shouldBe otherPreludeIsAvailable
 
     p1.playCorp(ValleyTrust, 5)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.stdAction("DoRequiredActions") { p1.playPrelude(selectedPrelude) }
   }
 }

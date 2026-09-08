@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class IceAsteroidTest : CardTest() {
@@ -14,10 +15,11 @@ internal class IceAsteroidTest : CardTest() {
     val existingOceans = waterAreas.take(8).joinToString { "OceanTile<$it>" }
     val ninthArea = waterAreas.elementAt(8)
     p1.manual("23 MC, ProjectCard, $existingOceans")
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.playProject(IceAsteroid, 23) {
-      shouldThrow<NarrowingException> { doTask("OceanTile<${waterAreas.first()}>") }
+      val failure = shouldThrow<NarrowingException> { doTask("OceanTile<${waterAreas.first()}>") }
+      failure.message!! shouldContain "MAX 0 Tile"
       doTask("OceanTile<$ninthArea>")
     }
 

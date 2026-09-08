@@ -34,7 +34,7 @@ internal class TransformersTest {
     checkApplyDefaults("Heat", "Heat<Owner>!")
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
-    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea>.")
+    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea(HAS MAX 0 Tile)>.")
     checkApplyDefaults("MoholeArea_SpecialTile", "MoholeArea_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
@@ -102,24 +102,11 @@ internal class TransformersTest {
   }
 
   @Test
-  internal fun triggerDependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
-    applyEffectDefaults("ScienceTag<>: Heat") shouldBe
-        applyEffectDefaults("ScienceTag<CardFront>: Heat")
-    applyEffectDefaults("-ScienceTag<>: Heat") shouldBe
-        applyEffectDefaults("-ScienceTag<CardFront>: Heat")
-
-    shouldThrow<PetSyntaxException> { applyEffectDefaults("ScienceTag: Heat") }.message shouldBe
-        "`ScienceTag` has trigger dependency defaults; write `ScienceTag<>` to accept them or provide dependency arguments"
-  }
-
-  @Test
   internal fun emptyArgumentsRequireDefaultsForTheirSpecificUse() {
     shouldThrow<PetSyntaxException> { applyDefaults("Plant<>") }.message shouldBe
         "`Plant<>` has no gain dependency defaults to accept"
     shouldThrow<PetSyntaxException> { applyDefaults("-Plant<>") }.message shouldBe
         "`Plant<>` has no removal dependency defaults to accept"
-    shouldThrow<PetSyntaxException> { applyEffectDefaults("Plant<>: Heat") }.message shouldBe
-        "`Plant<>` has no trigger dependency defaults to accept"
     shouldThrow<PetSyntaxException> {
           transformers
               .insertExpressionDefaults(cn("This").expression)
@@ -191,9 +178,6 @@ internal class TransformersTest {
       context: Expression = THIS.expression,
   ): Instruction = transformers.insertDefaults(context).transformInstruction(parse(original))
 
-  private fun applyEffectDefaults(original: String): Effect =
-      transformers.insertDefaults().transformEffect(parse(original))
-
   @Test
   internal fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
@@ -219,10 +203,10 @@ internal class TransformersTest {
 
   @Test
   internal fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
-    val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
+    val prodden: Instruction = parse("PROD[StandardResource(HAS EligibleResource)]")
 
     transformers.transformMarkedSyntax().transformInstruction(prodden).toString() shouldBe
-        "Production<Class<StandardResource>(HAS LowestProduction)>"
+        "Production<Class<StandardResource>(HAS EligibleResource)>"
   }
 
   @Test
@@ -333,15 +317,15 @@ internal class TransformersTest {
 
     LiveEffect.compile(component, transformers).map { it.effect.toString() }.toSet() shouldBe
         setOf(
-            "This BY !Engine: Die!",
+            "This BY Actor(NOT Admin): Die!",
             "SetupPhase: 42 MC<SoloOpponent>!",
             "SetupPhase: 42 Production<SoloOpponent, Class<MC>>!",
-            "-MC<SoloOpponent> BY Player:: MC<SoloOpponent>! BY Engine",
-            "MC<SoloOpponent> BY Player:: -MC<SoloOpponent>! BY Engine",
+            "-MC<SoloOpponent> BY Player:: MC<SoloOpponent>! BY Admin",
+            "MC<SoloOpponent> BY Player:: -MC<SoloOpponent>! BY Admin",
             "-Production<SoloOpponent, Class<MC>> BY Player:: " +
-                "Production<SoloOpponent, Class<MC>>! BY Engine",
+                "Production<SoloOpponent, Class<MC>>! BY Admin",
             "Production<SoloOpponent, Class<MC>> BY Player:: " +
-                "-Production<SoloOpponent, Class<MC>>! BY Engine",
+                "-Production<SoloOpponent, Class<MC>>! BY Admin",
         )
   }
 

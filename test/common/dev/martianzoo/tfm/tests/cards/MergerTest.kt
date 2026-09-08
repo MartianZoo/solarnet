@@ -11,9 +11,14 @@ import kotlin.test.Test
 internal class MergerTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
+    newGame(
+        VenusNextExpansion,
+        PreludeExpansion,
+        PromoCardPack,
+        retainedStartingProjects = 5,
+    )
     p1.playCorp(ValleyTrust, 5)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.playPrelude(UnmiContractor)
     p1.playPrelude(Merger) {
       p1.playCorp(Celestic)
@@ -27,7 +32,7 @@ internal class MergerTest : CardTest() {
 
   @Test
   internal fun `Resolves both corporations' starting benefits`() {
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.stdAction("DoRequiredActions") {
       p1.assertCounts(8 to "ProjectCard", 0 to "PreludeCard")
@@ -55,8 +60,8 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `Can resolve Merger payment and the second corporation`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    p1.playCorp(CrediCor, 0)
-    engine.phase("Prelude")
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    admin.phase("Prelude")
     p1.manual("PreludeCard")
 
     p1.playPrelude(Merger) {
@@ -69,8 +74,8 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `New Partner can play Merger while both card families are being selected`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    p1.playCorp(CrediCor, 0)
-    engine.phase("Prelude")
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    admin.phase("Prelude")
 
     p1.playPrelude(NewPartner) {
       p1.playPrelude(Merger) {
@@ -95,8 +100,8 @@ internal class MergerTest : CardTest() {
         PromoCardPack,
         colonyTiles = testColonyTiles(2),
     )
-    p1.playCorp(Polyphemos, 0)
-    engine.phase("Prelude")
+    playCorporationWithoutStartingProjects(p1, Polyphemos)
+    admin.phase("Prelude")
     p1.playPrelude(Merger) {
       p1.playCorp(TerraLabsResearch)
     }

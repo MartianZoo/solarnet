@@ -4,7 +4,7 @@ CLASS SaturnSystems : CardFront<Class<CorporationCard>> {
 
   This:: JovianTag<This>
   This: 42 MC, PROD[Titanium]
-  JovianTag<Anyone, CardFront<Anyone>>: PROD[1 MC]
+  JovianTag<Anyone>: PROD[1 MC]
 }
 
 CLASS Teractor : CardFront<Class<CorporationCard>> {
@@ -155,7 +155,7 @@ CLASS LandClaim : EventCard<Class<ProjectCard>> {
   cost = 1
 
   This:: EventTag<This>
-  This: LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>
+  This: Community<LandArea(HAS MAX 0 Tile, MAX 0 Community<Anyone>)>
 }
 
 CLASS Sponsors : AutomatedCard<Class<ProjectCard>> {
@@ -196,7 +196,7 @@ CLASS MarsUniversity : ActiveCard<Class<ProjectCard>> {
   cost = 8
 
   This:: ScienceTag<This>, BuildingTag<This>
-  ScienceTag<>: (-ProjectCard THEN ProjectCard) OR Ok
+  ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok
   End: VictoryPoint
 }
 
@@ -204,7 +204,7 @@ CLASS ViralEnhancers : ActiveCard<Class<ProjectCard>> {
   cost = 9
 
   This:: ScienceTag<This>, MicrobeTag<This>
-  BioTag<CardFront>: Plant OR CardResource<CardFront>
+  BioTag<CardFront>: Plant OR CardResource<CardFront>!
 }
 
 CLASS QuantumExtractor : ActiveCard<Class<ProjectCard>> {
@@ -243,7 +243,7 @@ CLASS RoboticWorkforce : AutomatedCard<Class<ProjectCard>> {
   cost = 9
 
   This:: ScienceTag<This>
-  This: CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>
+  This: CopyProductionBox<CardFront(HAS BuildingTag)>
 }
 
 CLASS Research : AutomatedCard<Class<ProjectCard>> {
@@ -301,7 +301,7 @@ CLASS TollStation : AutomatedCard<Class<ProjectCard>> {
   cost = 12
 
   This:: SpaceTag<This>
-  This: PROD[1 MC / SpaceTag<!Owner>]
+  This: PROD[1 MC / SpaceTag<Player(NOT Owner)>]
 }
 
 CLASS EarthOffice : ActiveCard<Class<ProjectCard>> {
@@ -404,7 +404,7 @@ CLASS CeosFavoriteProject : EventCard<Class<ProjectCard>> {
   cost = 1
 
   This:: EventTag<This>
-  This: CardResource<CardFront(HAS CardResource)>
+  This: QuasiResource<QuasiResourceHolder(HAS QuasiResource)>.
 }
 
 CLASS AntiGravityTechnology : ActiveCard<Class<ProjectCard>> {
@@ -448,7 +448,7 @@ CLASS PowerSupplyConsortium : AutomatedCard<Class<ProjectCard>> {
 CLASS ProtectedHabitats : ActiveCard<Class<ProjectCard>> {
   cost = 5
 
-  -Plant OR -Animal OR -Microbe BY !Owner:: Die
+  -Plant OR -Animal OR -Microbe BY Player(NOT Owner):: Die
 }
 
 CLASS Satellites : AutomatedCard<Class<ProjectCard>> {
@@ -477,7 +477,7 @@ CLASS OlympusConference : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Sci
   cost = 10
 
   This:: ScienceTag<This>, EarthTag<This>, BuildingTag<This>
-  ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)
+  ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)
   End: VictoryPoint
 }
 

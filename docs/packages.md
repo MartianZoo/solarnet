@@ -31,6 +31,12 @@ Various non-Terraforming-specific helpers.
 Contains the Terraforming Mars catalog model, data, custom instructions, and officially published
 cards, maps, etc.
 
+## module TFM-FAKE
+
+### <a href="tfm-fake/dev.martianzoo.tfm.fake/index.html">dev.martianzoo.tfm.fake</a>
+
+Contains noncanonical Terraforming Mars declarations for tests, replays, and support tools.
+
 ## module ENGINE
 
 ### <a href="engine/dev.martianzoo.engine/index.html">dev.martianzoo.engine</a>

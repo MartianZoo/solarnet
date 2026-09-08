@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
 
 internal class FirstPartialGameTest : TfmTest() {
@@ -27,11 +28,12 @@ internal class FirstPartialGameTest : TfmTest() {
               players = 2,
           )
       val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
-      val eng = game.tfm(ENGINE)
+      val admin = game.tfm(ADMIN)
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
 
       val workflow = TfmWorkflow.Auto(game).launch()
+      retainStartingProjects(game, 3, 8)
 
       p1.playCorp(LakefrontResorts, 3)
       p2.playCorp(InterplanetaryCinematics, 8)
@@ -148,8 +150,8 @@ internal class FirstPartialGameTest : TfmTest() {
       workflow.shutdown()
       TfmWorkflow.Manual(game).productionPhase()
 
-      eng.assertCounts(4 to "Generation")
-      eng.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
+      admin.assertCounts(4 to "Generation")
+      admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
 
       with(p1) {
         assertCounts(20 to "TerraformRating")

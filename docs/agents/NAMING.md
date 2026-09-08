@@ -39,10 +39,11 @@ Structured content uses globally unique semantic English names such as `Birds`, 
 award, colony, or standard-action identifier. Replacement relationships name the replaced Class
 directly.
 
-Two bundles may declare the same Class Name when the declarations are byte-identical, as
-`HasRaisedTr` and `TrWatcher` do in `TerraformingMars` and `TurmoilCardPack`. This is deliberate:
-each bundle stands alone, and identical declarations merge. Differing declarations under one name
-are an error.
+Two bundles may declare the same Class Name when the declarations are byte-identical; identical
+declarations merge, while differing declarations under one name are an error. Canon does not
+duplicate shared support declarations into an optional bundle when that bundle already requires
+the always-selected `TerraformingMars`: Turmoil's Pristar reuses the base game's `HasRaisedTr` and
+`TrWatcher` support.
 
 ## Choosing a name
 
@@ -59,9 +60,10 @@ Do not expand what the card does not expand. Digits stay digits. Spell a number 
 printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes `SixteenPsyche`,
 which is currently the only such case.
 
-A placeholder implementation still uses the real name. Never ship a class whose name announces its
-own incompleteness — an unimplemented card belongs in the `docs/what-is-supported.md` table plus, if
-it is worth exercising, a test-only fixture.
+A placeholder implementation still uses the real name unless it is one of the deliberate fake
+wild-tag cards recorded under [Known and accepted](#known-and-accepted). Otherwise, never ship a
+class whose name announces its own incompleteness — an unimplemented card belongs in the
+`docs/what-is-supported.md` table plus, if it is worth exercising, a test-only fixture.
 
 ### Supertype suffixes
 
@@ -128,8 +130,8 @@ base, adjusted the way the variant adjusts it. `Producer22` is 16 plus the 6 pro
 start with. Neither variant is actually printed; both numbers are what a printing would logically
 say, and that is the number to use.
 
-Do not derive a qualifier by reading the Pets requirement expression. Those carry engine offsets —
-GrossHack most often — and a name that inherits one is wrong even when it happens to match.
+Do not derive a qualifier by reading the Pets requirement expression. Those can carry engine
+offsets, and a name that inherits one is wrong even when it happens to match.
 
 ### Abbreviations
 
@@ -151,10 +153,10 @@ pays its owner when someone trades — Productive Outpost says "gain all your co
 
 ### Derived and card-local classes
 
-The `{}` sugar generates a derived class named `<CardName>_<SupertypeName>`, as in
-`NaturalPreserve_SpecialTile` and `SponsoredAcademies_Signal`. The underscore is the marker of a
-structurally derived class and is intentional. A hand-written declaration that fills the same slot
-uses the same spelling, as `LavaFlows_SpecialTile` does.
+The `{}` sugar generates a derived class named `<OwnerName>_<SupertypeName>`, as in
+`NaturalPreserve_SpecialTile`. The underscore is the marker of a structurally derived class and is
+intentional. A hand-written declaration that fills the same slot uses the same spelling, as
+`LavaFlows_SpecialTile` does.
 
 A hand-written helper that is *not* a structural derivative — a singleton observer, an extra action
 host — does not take the underscore.
@@ -170,23 +172,22 @@ looking it up.
   them as "when you ___": `PlayCard`, `PlayTag`, `Pay`, `BuyCard`, `AdvanceColonyTracks`. Write the
   name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
-  event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `WildTagUse`. Do not give it
+  event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
-- **Custom instructions** are imperative verb phrases: `CreateAdjacencies`, `AssignAwardPlaces`,
-  `PassLeft`, `CopyProductionBox`. Use the published verb when the game prints one — Robotic Workforce
+- **Custom instructions** are imperative verb phrases: `PassLeft`, `CopyProductionBox`. Use the
+  published verb when the game prints one — Robotic Workforce
   and Cyberia Systems both say "copy ... production box", which is why `CopyProductionBox` is right.
   Never a programming verb: `Handle`, `Get`, `Process`, `Update`.
 - **Custom metrics** are noun phrases naming the printed thing being counted, not things that happen:
-  `LowestProduction` (Robinson Industries prints "lowest production"), `TileInLargestGroup`. A name
-  may end in a preposition when the argument the reader sees next is its object, as in
-  `GainsOf<Class<VictoryPoint>>`.
+  `TileInLargestGroup`. A name may end in a preposition when the argument the reader sees next is
+  its object, as in `GainsOf<Class<VictoryPoint>>`.
 - **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
-  `HasActions`, `ResourceHolder`, `TagHolder`. Reserve the `Has` prefix for this use.
+  `HasActions`, `ResourceHolder`. Reserve the `Has` prefix for this use.
 - **Records** that something already happened use the passive voice when the actor does not matter
   (`SuitableInfrastructurePaid`, `ActionUsedMarker`) and the `My` prefix when it does: `My` marks
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
-- **Markers** name real physical components players handle: `ActionUsedMarker`, `LandClaimMarker`,
+- **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
   `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
   `StartMarker` reads wrong.
 - **Card locations** use noun phrases for places (`Hand`) and participles for
@@ -199,7 +200,7 @@ looking it up.
   `BuyCard`. It may **not** distinguish two different *kinds* of thing; give those unrelated names.
 - **Do not use implementation or game-design vocabulary** as a component name. "Mechanic", "hack",
   "fake", and Pets grammar terms such as "effect" describe how we built something, not what it is in
-  the game. Two names are settled exceptions and are not to be re-flagged; see
+  the game. Settled exceptions are not to be re-flagged; see
   [Known and accepted](#known-and-accepted).
 
 ## Modules
@@ -318,17 +319,22 @@ Case, which is a second reason not to keep them here.
 
 ### Known and accepted
 
-`GrossHack` keeps its name. The ban on implementation vocabulary does not reach it; this is the
-decision, not an oversight. The representation itself is documented in
-[GAME_HACKS.md](GAME_HACKS.md).
+The `Fake`-prefixed cards in FakeCanon's explicitly selected `FakeStuffBundle` are deliberate
+incomplete stand-ins. The wild-tag cards preserve every other modeled behavior while creating only
+an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires
+it. The other stand-ins preserve only their documented subset of the printed card. Their names must
+remain visibly fake so Canon does not claim to model the published cards faithfully.
+
+`ProdOffset` names the component representing the five synthetic M€-production steps. The
+representation itself is documented in [GAME_HACKS.md](GAME_HACKS.md).
 
 `NextCardEffect` keeps its name. It was chosen for how you would explain the thing to an ordinary
 player, and "effect" there is the ordinary English word, not the Pets grammar term the prohibition
 is aimed at.
 
 Hand-written card helpers use whatever category word fits the card — `NeptunianOption`,
-`CathedralOption`, `CyberiaSystemsFirstChoice`, `FocusedOrganizationGain`, and the `...Watcher`
-singletons. There is no plan to regularize these suffixes; do not propose one.
+`CathedralOption`, `CyberiaSystemsFirstChoice`, and the `...Watcher` singletons. There is no plan to
+regularize these suffixes; do not propose one.
 
 `SoloGenerationsLeft` deliberately names the counted collection: a solo game begins with fourteen
 and removes one whenever a Generation begins. The plural reads naturally at its principal uses and

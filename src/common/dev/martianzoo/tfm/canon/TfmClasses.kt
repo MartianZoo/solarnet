@@ -7,8 +7,11 @@ public object TfmClasses {
   private val STANDARD_ACTION = cn("StandardAction")
 
   internal val END = cn("End")
+  internal val START_TOKEN = cn("StartToken")
+  internal val SUCCESSOR = cn("Successor")
 
   internal val MARS_MAP = cn("MarsMap")
+  internal val PLACEMENT = cn("Placement")
   public val TILE: dev.martianzoo.pets.ast.ClassName = cn("Tile")
 
   internal val MILESTONE = cn("Milestone")
@@ -29,6 +32,7 @@ public object TfmClasses {
   public val STANDARD_RESOURCE: dev.martianzoo.pets.ast.ClassName = cn("StandardResource")
   public val PRODUCTION: dev.martianzoo.pets.ast.ClassName = cn("Production")
   public val MC: dev.martianzoo.pets.ast.ClassName = cn("MC")
+  internal val PROD_OFFSET: dev.martianzoo.pets.ast.ClassName = cn("ProdOffset")
 
   // Okay so it's not really a class name
   public const val PROD: String = "PROD"

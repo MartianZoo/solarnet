@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -77,15 +78,7 @@ internal class ClassTableProjectionTest {
     baseSolo.classTable.allSubclasses(award).shouldBeEmpty()
   }
 
-  @Test
-  internal fun `AssignMultiplayerVictory stays unloaded in solo`() =
-      assertNotLoaded("AssignMultiplayerVictory", baseSolo)
-
   // Game-mode and player-count divisions
-
-  @Test
-  internal fun `SoloGenerationSetup stays unloaded in multiplayer`() =
-      assertNotLoaded("SoloGenerationSetup", baseMultiplayer)
 
   @Test
   internal fun `solo classes stay unloaded in multiplayer`() {
@@ -97,6 +90,12 @@ internal class ClassTableProjectionTest {
     matchingClasses("award", baseSolo).shouldBeEmpty()
     baseSolo.classNames.shouldNotContain(cn("FirstPlace"))
     baseSolo.classNames.shouldNotContain(cn("SecondPlace"))
+  }
+
+  @Test
+  internal fun `second place exists only when a third player does`() {
+    baseMultiplayer.classNames.shouldNotContain(cn("SecondPlace"))
+    threePlayerMultiplayer.classNames.shouldContain(cn("SecondPlace"))
   }
 
   @Test
@@ -126,6 +125,7 @@ internal class ClassTableProjectionTest {
 
   private companion object {
     val baseMultiplayer = projection("", "Player1", "Player2")
+    val threePlayerMultiplayer = projection("", "Player1", "Player2", "Player3")
     val baseSolo = projection("", "Me")
     val preludeSolo = projection("PreludeExpansion", "Me")
     val withoutCorporateEra = projection("-CorporateEraExpansion", "Player1", "Player2")

@@ -71,7 +71,7 @@ internal class Limiter(
 
   private fun dependencyTargets(type: Type, info: TypeInfo): Sequence<Type> {
     val concreteClasses = classTable.allSubclasses(type.rootClass).filterNot(Class::abstract)
-    return if (concreteClasses.isNotEmpty() && concreteClasses.all(Class::isSingletonType)) {
+    return if (concreteClasses.isNotEmpty() && concreteClasses.all(::isSingletonType)) {
       // Active invariant singletons are all present, so their domain is already in the catalog.
       classTable.allConcreteSubtypes(type).filter { it.narrows(type, info) }
     } else {
@@ -95,9 +95,11 @@ internal class Limiter(
     val type = component?.type ?: return emptySet()
     return limits.limitsFor(type)
   }
-}
 
-internal fun Class.isSingletonType(): Boolean = invariants.any {
-  val counting = it as? Counting ?: return@any false
-  counting.range.first == 1 && (counting.metric as? Metric.Count)?.expression == THIS.expression
+  private fun isSingletonType(klass: Class): Boolean =
+      klass.invariants.any {
+        val counting = it as? Counting ?: return@any false
+        counting.range.first == 1 &&
+            (counting.metric as? Metric.Count)?.expression == THIS.expression
+      }
 }

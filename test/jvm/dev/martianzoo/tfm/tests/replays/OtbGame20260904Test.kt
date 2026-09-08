@@ -1,43 +1,22 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-// Helion is not yet in Canon. BaseResourceValue makes Heat available for every actual M€ bill;
-// only direct resource-removal instructions would require an explicit replay correction.
-private val FakeHelion = cn("FakeHelion")
-private val fakeHelionDefinition =
-    parseClasses(
-        """
-        CLASS FakeHelion : CardFront<Class<CorporationCard>> {
-          cost = 0
-          This:: SpaceTag<This>, BaseResourceValue<Class<Heat>>
-          This: 42 MC, PROD[3 Heat]
-          Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
-        }
-        """
-    )
-
-private val otbGame20260904Catalog = Canon.withNonstandardClasses(fakeHelionDefinition)
-
 /** Four-player physical game begun Friday, 2026-09-04; the recording ends before G8 Research. */
 internal class OtbGame20260904Test : AbstractFullGameTest() {
-  override val catalog = otbGame20260904Catalog
-
   override val config =
       GameConfig(
           """
           AmazonisMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack
-          FakeHelion
+          FakeStuffBundle
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist
@@ -51,6 +30,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260904() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(4, 6, 5, 4)
     val yellow = p1.requireExplicitUnusedActionCards()
     val rainbow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -75,7 +55,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playPrelude(HugeAsteroid)
     }
     rainbow.turn {
-      playPrelude(AppliedScience)
+      playPrelude(FakeAppliedScience)
       playPrelude(SpaceLanes)
     }
     blue.turn {
@@ -97,11 +77,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn {
       stdAction("DoRequiredActions")
       // Rainbow first paid seven, then took back the evidenced Space Lanes discount.
-      playProject(
-          FloatingRefinery,
-          5,
-          butFirst = assignAllWildTags("VenusTag"),
-      )
+      rainbow.exMachina(fakeWildTags("VenusTag"))
+      playProject(FloatingRefinery, 5)
     }
     blue.turn { playProject(HomeostasisBureau, 16) }
     green.turn { playProject(TitaniumMine, 1, steel = 3) }
@@ -127,7 +104,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { cardAction1(Factorum) }
     rainbow.turn { cardAction2(FloatingRefinery) }
     green.pass()
-    rainbow.pass(unused = AppliedScience) // didn't know what resource she wanted
+    rainbow.pass(unused = FakeAppliedScience) // didn't know what resource she wanted
 
     // "Eight four for two cards and nobody gets the cards, of course."
     yellow.wgt("OceanTile<Amazonis_08_04>")
@@ -141,7 +118,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
       assertResources(m = 36, s = 2, t = 4, p = 0, e = 0, h = 0)
       assertCounts(26 to "TerraformRating")
-      assertCardResources(1 to FloatingRefinery, 6 to AppliedScience)
+      assertCardResources(1 to FloatingRefinery, 6 to FakeAppliedScience)
     }
     with(blue) {
       assertProduction(m = 2, s = 0, t = 0, p = 0, e = 1, h = 5)
@@ -180,7 +157,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn { cardAction1(FloatingRefinery) }
     blue.turn { playProject(NeptunianPowerConsultants, 12, heat = 2) }
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     blue.pass()
     rainbow.turn { playProject(SpaceStation, 1, titanium = 3) }
@@ -197,7 +174,11 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
       assertResources(m = 34, s = 2, t = 1, p = 0, e = 0, h = 0)
       assertCounts(27 to "TerraformRating")
-      assertCardResources(2 to FloatingRefinery, 2 to SulphurEatingBacteria, 5 to AppliedScience)
+      assertCardResources(
+          2 to FloatingRefinery,
+          2 to SulphurEatingBacteria,
+          5 to FakeAppliedScience,
+      )
     }
     with(blue) {
       assertProduction(m = 4, s = 0, t = 0, p = 1, e = 1, h = 5)
@@ -226,13 +207,14 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     yellow.turn {
       playProject(Flooding, 7) {
         // Blue does not have to spend a heat (couldn't if she wanted to)
-        doTask("OceanTile<Amazonis_05_10> THEN -3 MC<Blue>")
+        doTask("OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>")
         blue.declineTask()
       }
       playProject(UndergroundCity, 10, steel = 4) { placeTile(10, 10) }
     }
     rainbow.turn {
-      playProject(SulphurExports, 14, titanium = 1, butFirst = assignAllWildTags("VenusTag"))
+      rainbow.exMachina(fakeWildTags("VenusTag"))
+      playProject(SulphurExports, 14, titanium = 1)
     }
     blue.turn { convertHeat() }
     green.turn {
@@ -255,7 +237,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { cardAction1(CloudTourism) }
     yellow.pass()
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     green.pass()
     rainbow.turn { cardAction1(SulphurEatingBacteria) }
@@ -274,7 +256,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 6, s = 0, t = 1, p = 0, e = 0, h = 0)
       assertResources(m = 37, s = 0, t = 2, p = 0, e = 0, h = 0)
       assertCounts(28 to "TerraformRating")
-      assertCardResources(4 to SulphurEatingBacteria, 4 to AppliedScience)
+      assertCardResources(4 to SulphurEatingBacteria, 4 to FakeAppliedScience)
     }
     with(blue) {
       assertProduction(m = 2, s = 0, t = 0, p = 1, e = 4, h = 7)
@@ -301,7 +283,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     yellow.turn { playProject(Sabotage, 1) { doTask("-3 Steel<Green>") } }
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
       cardAction2(SulphurEatingBacteria, x = 5)
     }
     blue.turn {
@@ -323,18 +305,12 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.pass(unused = setOf(Factorum, VenusShuttles))
     yellow.pass()
     rainbow.turn {
-      playProject(
-          BactoviralResearch,
-          10,
-          butFirst = assignAllWildTags("ScienceTag"),
-      ) {
+      rainbow.exMachina(fakeWildTags("ScienceTag"))
+      playProject(BactoviralResearch, 10) {
         addCardResources(SulphurEatingBacteria)
       }
-      playProject(
-          AtalantaPlanitiaLab,
-          8,
-          butFirst = assignAllWildTags("ScienceTag"),
-      )
+      rainbow.exMachina(fakeWildTags("ScienceTag"))
+      playProject(AtalantaPlanitiaLab, 8)
     }
     rainbow.pass(unused = FloatingRefinery)
 
@@ -349,7 +325,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 6, s = 0, t = 1, p = 0, e = 1, h = 0)
       assertResources(m = 36, s = 0, t = 3, p = 0, e = 1, h = 0)
       assertCounts(28 to "TerraformRating")
-      assertCardResources(3 to SulphurEatingBacteria, 3 to AppliedScience)
+      assertCardResources(3 to SulphurEatingBacteria, 3 to FakeAppliedScience)
     }
     with(blue) {
       assertProduction(m = 4, s = 0, t = 0, p = 1, e = 4, h = 7)
@@ -388,7 +364,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.exMachina("-TerraformRating")
     yellow.turn { playProject(LagrangeObservatory, 9) }
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
       cardAction2(SulphurEatingBacteria, x = 4)
     }
     blue.turn { convertHeat() }
@@ -469,7 +445,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           2 to FloatingRefinery,
           1 to SulphurEatingBacteria,
-          2 to AppliedScience,
+          2 to FakeAppliedScience,
       )
     }
     with(blue) {
@@ -534,7 +510,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { cardAction1(Factorum) }
     yellow.turn { cardAction1(SpaceMirrors) }
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     blue.turn {
       playProject(IndenturedWorkers, 0)
@@ -569,7 +545,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     rainbow.turn {
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
-      stdAction("UseCardAction", beforeAction = assignAllWildTags("VenusTag")) {
+      rainbow.exMachina(fakeWildTags("VenusTag"))
+      stdAction("UseCardAction") {
         doTask("ActionUsedMarker<$FloatingRefinery>")
         doTask("UseAction<$FloatingRefinery, Action2>")
       }
@@ -579,7 +556,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { sellPatents(1) }
     yellow.turn { playProject(Sabotage, 1) { doTask("-7 MC<Green>") } }
     rainbow.turn {
-      playProject(CloudSeeding, 11, butFirst = assignAllWildTags("PlantTag")) {
+      rainbow.exMachina(fakeWildTags("PlantTag"))
+      playProject(CloudSeeding, 11) {
         doTask("PROD[-Heat<Blue>]")
       }
       assertCounts(10 to "MC")
@@ -587,11 +565,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { sellPatents(1) }
     yellow.pass()
     rainbow.turn {
-      cardAction2(
-          SulphurEatingBacteria,
-          x = 3,
-          beforeAction = assignAllWildTags("MicrobeTag"),
-      )
+      rainbow.exMachina(fakeWildTags("MicrobeTag"))
+      cardAction2(SulphurEatingBacteria, x = 3)
       assertCounts(19 to "MC")
     }
     green.turn { playProject(NitrophilicMoss, 8) }
@@ -632,7 +607,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           1 to Ants,
           1 to Fish,
-          1 to AppliedScience,
+          1 to FakeAppliedScience,
       )
     }
     with(blue) {
@@ -674,7 +649,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(MoholeLake, 29, steel = 1) {
         placeTile(5, 5)
         autoExecNow()
-        rainbow.selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
         blue.doTask("UseAction<NeptunianOption, Action1>")
         blue.pay(5)
       }
@@ -693,7 +667,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     rainbow.turn {
       cardAction1(FloatingRefinery)
-      playProject(StratosphericBirds, 10, butFirst = assignAllWildTags("VenusTag"))
+      rainbow.exMachina(fakeWildTags("VenusTag"))
+      playProject(StratosphericBirds, 10)
     }
     blue.pass(unused = WaterSplittingPlant)
     green.turn { cardAction1(CloudTourism) }
@@ -705,15 +680,11 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // sourced illegal target can pass through the card's real action.
     rainbow.exMachina("Microbe<$SulphurEatingBacteria>")
     rainbow.turn {
-      cardAction1(AppliedScience) {
-        rainbow.selectTask("Tag<Player2, WildTagUse<AppliedScience<Player2>>>?")
-        rainbow.narrowTask("Ok")
+      cardAction1(FakeAppliedScience) {
         addCardResources(SulphurEatingBacteria)
       }
       exMachina("-Microbe<$SulphurEatingBacteria>")
       cardAction1(Thermophiles) {
-        rainbow.selectTask("Tag<Player2, WildTagUse<AppliedScience<Player2>>>?")
-        rainbow.narrowTask("Ok")
         addCardResources(SulphurEatingBacteria)
       }
     }
@@ -748,7 +719,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     rainbow.turn {
       intentionalUnderpay()
-      playProject(MirandaResort, 8, butFirst = assignAllWildTags("EarthTag"))
+      rainbow.exMachina(fakeWildTags("EarthTag"))
+      playProject(MirandaResort, 8)
     }
     rainbow.pass(unused = SulphurEatingBacteria)
 

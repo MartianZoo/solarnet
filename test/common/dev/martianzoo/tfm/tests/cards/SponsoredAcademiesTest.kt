@@ -11,8 +11,8 @@ internal class SponsoredAcademiesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion, players = 3)
-    engine.phase("Action")
-    engine.manual(
+    admin.phase("Action")
+    admin.manual(
         "9 MC<Player1>, ProjectCard<Player1, Hand>, ProjectCard<Player2, Hand>, ProjectCard<Player3, Hand>"
     )
   }

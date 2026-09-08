@@ -1,43 +1,22 @@
 package dev.martianzoo.tfm.web.gameviewer.games
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
-
-// Helion is not yet in Canon. BaseResourceValue makes Heat available for every actual M€ bill;
-// only direct resource-removal instructions would require an explicit replay correction.
-private val FakeHelion = cn("FakeHelion")
-private val fakeHelionDefinition =
-    parseClasses(
-        """
-        CLASS FakeHelion : CardFront<Class<CorporationCard>> {
-          cost = 0
-          This:: SpaceTag<This>, BaseResourceValue<Class<Heat>>
-          This: 42 MC, PROD[3 Heat]
-          Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
-        }
-        """,
-    )
-
-private val otbGame20260904Catalog = Canon.withNonstandardClasses(fakeHelionDefinition)
+import dev.martianzoo.tfm.web.gameviewer.fakeWildTags
 
 /** Four-player physical game begun Friday, 2026-09-04; the recording ends before G6 Research. */
 public class OtbGame20260904 : RecordedGame() {
-  protected override val catalog: TfmCatalog = otbGame20260904Catalog
-
   protected override val config: GameConfig =
       GameConfig(
           """
           AmazonisMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack
-          FakeHelion
+          FakeStuffBundle
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist
@@ -58,6 +37,10 @@ public class OtbGame20260904 : RecordedGame() {
             .tfm(game.actors.filterIsInstance<Player>()[3])
             .requireExplicitPaymentChoices()
             .requireExplicitUnusedActionCards()
+    yellow.doTask("-6 ProjectCard<Hand>")
+    rainbow.doTask("-4 ProjectCard<Hand>")
+    blue.doTask("-5 ProjectCard<Hand>")
+    green.doTask("-6 ProjectCard<Hand>")
 
     yellow.playCorp(Ecoline, 4)
     rainbow.playCorp(MorningStarInc, 6)
@@ -74,7 +57,7 @@ public class OtbGame20260904 : RecordedGame() {
       playPrelude(HugeAsteroid)
     }
     rainbow.turn {
-      playPrelude(AppliedScience)
+      playPrelude(FakeAppliedScience)
       playPrelude(SpaceLanes)
     }
     blue.turn {
@@ -96,11 +79,8 @@ public class OtbGame20260904 : RecordedGame() {
     rainbow.turn {
       stdAction("DoRequiredActions")
       // Rainbow first paid seven, then took back the evidenced Space Lanes discount.
-      playProject(
-          FloatingRefinery,
-          5,
-          butFirst = assignAllWildTags("VenusTag"),
-      )
+      rainbow.exMachina(fakeWildTags("VenusTag"))
+      playProject(FloatingRefinery, 5)
     }
     blue.turn { playProject(HomeostasisBureau, 16) }
     green.turn { playProject(TitaniumMine, 1, steel = 3) }
@@ -126,7 +106,7 @@ public class OtbGame20260904 : RecordedGame() {
     green.turn { cardAction1(Factorum) }
     rainbow.turn { cardAction2(FloatingRefinery) }
     green.pass()
-    rainbow.pass(unused = AppliedScience) // didn't know what resource she wanted
+    rainbow.pass(unused = FakeAppliedScience) // didn't know what resource she wanted
 
     // "Eight four for two cards and nobody gets the cards, of course."
     yellow.wgt("OceanTile<Amazonis_08_04>")
@@ -156,7 +136,7 @@ public class OtbGame20260904 : RecordedGame() {
     rainbow.turn { cardAction1(FloatingRefinery) }
     blue.turn { playProject(NeptunianPowerConsultants, 12, heat = 2) }
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     blue.pass()
     rainbow.turn { playProject(SpaceStation, 1, titanium = 3) }
@@ -178,13 +158,14 @@ public class OtbGame20260904 : RecordedGame() {
     yellow.turn {
       playProject(Flooding, 7) {
         // Blue does not have to spend a heat (couldn't if she wanted to)
-        doTask("OceanTile<Amazonis_05_10> THEN -3 MC<Blue>")
+        doTask("OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>")
         blue.declineTask()
       }
       playProject(UndergroundCity, 10, steel = 4) { placeTile(10, 10) }
     }
     rainbow.turn {
-      playProject(SulphurExports, 14, titanium = 1, butFirst = assignAllWildTags("VenusTag"))
+      rainbow.exMachina(fakeWildTags("VenusTag"))
+      playProject(SulphurExports, 14, titanium = 1)
     }
     blue.turn { convertHeat() }
     green.turn {
@@ -207,7 +188,7 @@ public class OtbGame20260904 : RecordedGame() {
     green.turn { cardAction1(CloudTourism) }
     yellow.pass()
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     green.pass()
     rainbow.turn { cardAction1(SulphurEatingBacteria) }
@@ -228,7 +209,7 @@ public class OtbGame20260904 : RecordedGame() {
     }
     yellow.turn { playProject(Sabotage, 1) { doTask("-3 Steel<Green>") } }
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
       cardAction2(SulphurEatingBacteria, x = 5)
     }
     blue.turn {
@@ -250,18 +231,12 @@ public class OtbGame20260904 : RecordedGame() {
     green.pass(unused = setOf(Factorum, VenusShuttles))
     yellow.pass()
     rainbow.turn {
-      playProject(
-          BactoviralResearch,
-          10,
-          butFirst = assignAllWildTags("ScienceTag"),
-      ) {
+      rainbow.exMachina(fakeWildTags("ScienceTag"))
+      playProject(BactoviralResearch, 10) {
         addCardResources(SulphurEatingBacteria)
       }
-      playProject(
-          AtalantaPlanitiaLab,
-          8,
-          butFirst = assignAllWildTags("ScienceTag"),
-      )
+      rainbow.exMachina(fakeWildTags("ScienceTag"))
+      playProject(AtalantaPlanitiaLab, 8)
     }
     rainbow.pass(unused = FloatingRefinery)
 
@@ -290,7 +265,7 @@ public class OtbGame20260904 : RecordedGame() {
     green.exMachina("-TerraformRating")
     yellow.turn { playProject(LagrangeObservatory, 9) }
     rainbow.turn {
-      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
       cardAction2(SulphurEatingBacteria, x = 4)
     }
     blue.turn { convertHeat() }

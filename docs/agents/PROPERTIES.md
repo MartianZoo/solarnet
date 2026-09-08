@@ -111,7 +111,9 @@ This:: (EVAL This.requirement: Ok)
 Expansion substitutes the concrete receiver for `This`, supplies the effect's contextual Owner,
 and then applies the normal defaults and lowering. Expansion may wait until trigger matching has
 specialized an abstract receiver. Inside `EACH`, it waits further until each fanout branch has bound
-its selected component and contextual Owner. `EVAL` is invalid in an arbitrary count query.
+its selected component and contextual Owner. An `Agent.count` read may also use `EVAL`; the Agent's
+Player supplies contextual `Owner`. Mutation input continues to reject property evaluation outside
+a class effect.
 
 ## Why class properties earn their cost
 

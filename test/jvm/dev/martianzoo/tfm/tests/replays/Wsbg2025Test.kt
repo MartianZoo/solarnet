@@ -25,6 +25,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           """
           ElysiumMap
           PreludeExpansion
+          FakeStuffBundle
           """,
           "Stanley",
           "Jacopo",
@@ -35,6 +36,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
   @Test
   internal fun wsbg2025() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(6, 7, 8, 7)
 
     val stanley = game.tfm(Player.PLAYER1)
     val jacopo = game.tfm(Player.PLAYER2)
@@ -53,7 +55,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       playPrelude(Biofuels)
-      playPrelude(ResearchNetwork)
+      playPrelude(FakeResearchNetwork)
     }
     jon.turn {
       playPrelude(EarlySettlement) { placeTile(8, 8) }
@@ -70,7 +72,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       stdAction("DoRequiredActions") { playPrelude(Mohole) }
-      playProject(LandClaim, 1) { doTask("LandClaimMarker<Elysium_5_6>") }
+      playProject(LandClaim, 1) { doTask("Community<Elysium_5_6>") }
     }
     jon.turn {
       cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }
@@ -85,7 +87,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       declineSecondAction()
     }
     jacopo.turn {
-      playProject(ResearchCoordination, 4)
+      playProject(FakeResearchCoordination, 4)
       declineSecondAction()
     }
     jon.pass()
@@ -97,7 +99,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     stanley.assertProduction(m = 2, s = 0, t = 0, p = 0, e = 1, h = 0)
     stanley.assertResources(m = 34, s = 0, t = 0, p = 1, e = 1, h = 0)
 
-    jacopo.assertCounts(20 to "TR", 1 to "LandClaimMarker")
+    jacopo.assertCounts(20 to "TR", 1 to "Community")
     jacopo.assertProduction(m = 1, s = 0, t = 0, p = 1, e = 0, h = 3)
     jacopo.assertResources(m = 32, s = 0, t = 0, p = 3, e = 0, h = 6)
 
@@ -116,10 +118,8 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
 
     jacopo.turn {
       playProject(Archaebacteria, 6)
-      claimMilestone(
-          cn("Ecologist"),
-          beforeAction = assignAllWildTags("PlantTag"),
-      )
+      jacopo.exMachina(fakeWildTags("PlantTag", 2))
+      claimMilestone(cn("Ecologist"))
     }
     jon.turn {
       playProject(IndustrialCenter, 4) { placeTile(4, 8) }
@@ -155,7 +155,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     stanley.assertProduction(m = 2, s = 0, t = 0, p = 0, e = 0, h = 0)
     stanley.assertResources(m = 45, s = 0, t = 0, p = 2, e = 0, h = 1)
 
-    jacopo.assertCounts(20 to "TR", 1 to "LandClaimMarker")
+    jacopo.assertCounts(20 to "TR", 1 to "Community")
     jacopo.assertProduction(m = 1, s = 0, t = 0, p = 2, e = 0, h = 3)
     jacopo.assertResources(m = 33, s = 0, t = 0, p = 5, e = 0, h = 9)
 

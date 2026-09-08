@@ -5,8 +5,10 @@ import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Catalog
@@ -177,13 +179,19 @@ public abstract class ClassTable {
   public fun allConcreteSubtypes(type: Type): Sequence<GroundType> {
     val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
-    return allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-      val dependencies = type.dependencies glb klass.baseType.dependencies
-      if (dependencies == null) {
-        emptySequence()
-      } else {
-        concreteSubtypesSameClass(klass.withAllDependencies(dependencies))
-      }
+    val candidates =
+        allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
+          val dependencies = type.dependencies glb klass.baseType.dependencies
+          if (dependencies == null) {
+            emptySequence()
+          } else {
+            concreteSubtypesSameClass(klass.withAllDependencies(dependencies))
+          }
+        }
+    return if (type.refinement is Not) {
+      candidates.filter { it.narrows(type, NoGameState) }
+    } else {
+      candidates
     }
   }
 
@@ -198,16 +206,22 @@ public abstract class ClassTable {
   ): Sequence<GroundType> {
     val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
-    return allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-      val dependencies = type.dependencies glb klass.baseType.dependencies
-      if (dependencies == null) {
-        emptySequence()
-      } else {
-        dependencies.concreteSubtypesSameClass(
-            klass.withAllDependencies(dependencies),
-            dependencyTargets,
-        )
-      }
+    val candidates =
+        allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
+          val dependencies = type.dependencies glb klass.baseType.dependencies
+          if (dependencies == null) {
+            emptySequence()
+          } else {
+            dependencies.concreteSubtypesSameClass(
+                klass.withAllDependencies(dependencies),
+                dependencyTargets,
+            )
+          }
+        }
+    return if (type.refinement is Not) {
+      candidates.filter { it.narrows(type, NoGameState) }
+    } else {
+      candidates
     }
   }
 
@@ -222,7 +236,7 @@ public abstract class ClassTable {
   /** The sole active concrete narrowing of [type] that satisfies [info], if there is one. */
   public fun singleConcreteSubtype(type: Type, info: TypeInfo): GroundType? {
     val type = type.groundType
-    if (type.rootClass.className == CLASS && type.refinement != null) {
+    if ((type.rootClass.className == CLASS && type.refinement != null) || type.refinement is Not) {
       return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
     }
     val klass = allSubclasses(type.rootClass).singleOrNull { !it.abstract } ?: return null
@@ -238,17 +252,14 @@ public abstract class ClassTable {
   /** Resolves every type expression in [node], throwing if any is invalid. */
   public fun checkAllTypes(node: PetNode): Unit = node.visitDescendants {
     if (it is Expression) {
-      resolve(it.uncomplemented()).expression
+      resolve(it).expression
       false
     } else {
       true
     }
   }
 
-  /**
-   * Tests [candidate] against [constraint] within [domain]. The explicit domain lets a complement
-   * expression act as a constraint without pretending that it has a standalone type.
-   */
+  /** Tests [candidate] against [constraint] within [domain]. */
   public fun matchesConstraint(
       candidate: Type,
       constraint: Expression,

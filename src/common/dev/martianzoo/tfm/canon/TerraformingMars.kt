@@ -9,7 +9,6 @@ import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
-import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -29,35 +28,30 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.util.Grid
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.TfmClasses.SUCCESSOR
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import kotlin.math.abs
 
 private val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
-        TerraformingMars.CreateAdjacencies,
         TerraformingMars.Neighbor,
-        TerraformingMars.CreateMapAreas,
-        TerraformingMars.CheckCardDeck,
         TerraformingMars.AdjustGpRequirement,
         TerraformingMars.HandleCardTags,
         TerraformingMars.ScoreEventVps,
         TerraformingMars.PassLeft,
-        TerraformingMars.AssignAwardPlaces,
-        TerraformingMars.AssignMultiplayerVictory,
         TerraformingMars.NonNegativeIconsOf,
         TerraformingMars.PlacementBonus,
         TerraformingMars.CopyProductionBox,
@@ -75,19 +69,6 @@ internal val terraformingMarsBundle: StandardFormBundle =
 
 /** Namespace for the core game's custom Pets implementations. */
 private object TerraformingMars {
-  internal object CreateMapAreas : CustomClass() {
-    override fun translate(reader: GameReader, mapType: Type): InstructionTree {
-      val map = reader.tfmCatalog.marsMap(mapType.className)
-      return Then.create(
-          map.areas.mapNotNull { area ->
-            gain(area.className.expression).takeIf {
-              reader.countComponent(reader.resolve(area.className.expression)) == 0
-            }
-          }
-      )
-    }
-  }
-
   internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
       val card = reader.tfmCatalog.card(cardType.className)
@@ -146,39 +127,6 @@ private object TerraformingMars {
   }
 
   private val NEIGHBOR = cn("Neighbor")
-  private val FORWARD_ADJACENCY = cn("ForwardAdjacency")
-  private val BACKWARD_ADJACENCY = cn("BackwardAdjacency")
-
-  internal object CreateAdjacencies : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(FORWARD_ADJACENCY, BACKWARD_ADJACENCY)
-
-    override fun translate(reader: GameReader, areaType: Type): Instruction {
-      val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
-      val row = areaType.getNumberPropertyValue("row")
-      val column = areaType.getNumberPropertyValue("column")
-      val area = grid[row, column]!!
-      val neighborAreas: List<AreaDefinition> = grid.hexNeighbors(row, column)
-
-      fun tileOn(area: AreaDefinition): Expression? {
-        val areaType = reader.resolve(area.className.expression)
-        val tileType = reader.resolve(TILE.of(area.className))
-        return reader
-            .getDependents(areaType)
-            .singleOrNull { it.narrows(tileType, reader) }
-            ?.expression
-      }
-
-      val newTile: Expression = tileOn(area)!!
-      val adjacencies =
-          neighborAreas.mapNotNull(::tileOn).flatMap {
-            listOf(
-                FORWARD_ADJACENCY.of(it, newTile),
-                BACKWARD_ADJACENCY.of(newTile, it),
-            )
-          }
-      return Then.create(adjacencies.map(::gain))
-    }
-  }
 
   internal object Neighbor : CustomMetric() {
     override fun countAbstract(game: GameReader, type: Type): Int {
@@ -202,26 +150,14 @@ private object TerraformingMars {
 
     private fun isNeighbor(tile: Type, target: Type): Boolean {
       val source = tile.typeDependencies.single { it.key.declaringClass == TILE }.boundType
+      if (listOf("row", "column").any { PropertyName(it) !in source.rootClass.properties }) {
+        return false
+      }
       val rowDelta = target.getNumberPropertyValue("row") - source.getNumberPropertyValue("row")
       val columnDelta =
           target.getNumberPropertyValue("column") - source.getNumberPropertyValue("column")
       if (abs(rowDelta) > 1 || abs(columnDelta) > 1) return false
       return rowDelta + columnDelta != 0
-    }
-  }
-
-  internal object CheckCardDeck : CustomClass() {
-    override fun translate(
-        reader: GameReader,
-        cardBackClassType: Type,
-        cardFrontClassType: Type,
-    ): Instruction {
-      val deck = cardBack(cardFromClassType(cardFrontClassType, reader))
-      return if (representedType(cardBackClassType, reader).className == deck?.className) {
-        NoOp
-      } else {
-        gain(DIE)
-      }
     }
   }
 
@@ -309,16 +245,19 @@ private object TerraformingMars {
 
   internal object PassLeft : CustomClass() {
     override fun translate(reader: GameReader, component: Type): Instruction {
-      val currentOwner: Player = getPlayerOwner(reader, component)
-      val players = reader.actors.filterIsInstance<Player>()
-      if (players.size == 1) return NoOp
+      val currentOwner = getOwner(reader, component).groundType
+      val outgoing =
+          reader.getComponents(reader.resolve(SUCCESSOR.expression)).single { relation ->
+            relation.typeDependencies.single { it.key == Key(SUCCESSOR, 0) }.boundType ==
+                currentOwner
+          }
+      val nextOwner = outgoing.typeDependencies.single { it.key == Key(SUCCESSOR, 1) }.boundType
+      if (nextOwner == currentOwner) return NoOp
 
-      val current = players.indexOf(currentOwner)
-      check(current >= 0) { "StartToken owner is not a seated Player: $currentOwner" }
-      val nextOwner = players[(current + 1) % players.size]
       val arguments =
           component.expressionFull.arguments.map {
-            if (it == currentOwner.expression) Full(nextOwner.expression, it) else Unchanged(it)
+            if (reader.resolve(it).groundType == currentOwner) Full(nextOwner.expression, it)
+            else Unchanged(it)
           }
       return Transmute(
           Compact(component.className, arguments),
@@ -326,60 +265,6 @@ private object TerraformingMars {
       )
     }
   }
-
-  private val AWARD_TALLY = cn("AwardTally")
-  private val FIRST_PLACE = cn("FirstPlace")
-  private val SECOND_PLACE = cn("SecondPlace")
-
-  internal object AssignAwardPlaces : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY, FIRST_PLACE, SECOND_PLACE)
-
-    override fun translate(reader: GameReader, awardType: Type): Instruction {
-      val players = reader.getComponents("Player").elements
-      val scores = players.associateWith { reader.count(reader.resolve(tally(it, awardType))) }
-      val firstScore = scores.values.maxOrNull() ?: return NoOp
-
-      val first = scores.filterValues { it == firstScore }.keys
-      val winners = first.map { FIRST_PLACE.of(it.expression, awardType.expression) }
-      val placements =
-          if (players.size < 3 || first.size > 1) {
-            winners
-          } else {
-            val secondScore = scores.filterKeys { it !in first }.values.maxOrNull() ?: 0
-            val runnersUp =
-                scores
-                    .filter { (player, score) -> player !in first && score == secondScore }
-                    .keys
-                    .map { SECOND_PLACE.of(it.expression, awardType.expression) }
-            winners + runnersUp
-          }
-      return Then.create(placements.map(::gain))
-    }
-  }
-
-  private val VICTORY = cn("Victory")
-
-  internal object AssignMultiplayerVictory : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(VICTORY)
-
-    override fun translate(reader: GameReader): Instruction {
-      val players = reader.getComponents("Player").elements
-      val victoryPoints = players.associateWith {
-        reader.count(reader.resolve(cn("VictoryPoint").of(it.expression)))
-      }
-      val mostVictoryPoints = victoryPoints.values.maxOrNull() ?: return NoOp
-      val leaders = victoryPoints.filterValues { it == mostVictoryPoints }.keys
-      val mc = leaders.associateWith {
-        reader.count(reader.resolve(cn("MC").of(it.expression)))
-      }
-      val mostMC = mc.values.maxOrNull() ?: return NoOp
-      val winners = mc.filterValues { it == mostMC }.keys
-      return Then.create(winners.map { gain(VICTORY.of(it.expression)) })
-    }
-  }
-
-  private fun tally(player: HasClassName, awardType: Type): Expression =
-      AWARD_TALLY.of(player.className.expression, awardType.expression)
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): Class {
     return reader.tfmCatalog.card(representedType(cardClassType, reader).className)

@@ -24,7 +24,7 @@ The definition of the `GlobalParameter` Class includes the line `+This.`. Any ga
 
 ### Maps
 
-One `MarsMap` instance will exist, such as `HellasMap`, but it doesn't do much. The interesting part is the areas. Every area is its own component instance; these are singleton classes so one of each is automatically created before the game begins.
+One `MarsMap` instance will exist, such as `HellasMap`. Creating it creates every active Area by fanning out over the structural Class representatives, and every area is its own component instance.
 
 The created areas have names like `Hellas_1_1`, `Hellas_1_2`, etc. The coordinate system is easy to understand if you try the `map` command in the command-line REPL tool (`./rego`).
 
@@ -46,11 +46,15 @@ As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the 
 
 Any component that makes actions available for possible selection extends the supertype `HasActions`; these includes the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
 
-Under the aspirational premise model, the first two are singleton types: each active concrete subtype in the game's class table, such as `AquiferSP`, would automatically have an instance created before the game starts. Therefore if the user signals `UseAction<AquiferSP>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue.
+The Module that contributes a standard action creates it directly. Therefore the base `TerraformingMars` Module creates `AquiferSP`, while an expansion owns and creates any action it adds. If the user signals `UseAction<AquiferSP>` it can respond, bill the user 18 money, and put an `OceanTile` instruction on the user's task queue.
 
 ### Phases
 
-Once setup begins, exactly one Phase instance exists at all times: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. A signal called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!).
+Once the Terraforming Mars Module is created, exactly one Phase instance exists at all times. It
+begins as `BootstrapPhase`, becomes `SetupPhase` when effectful setup starts, and continues through
+`CorporationPhase`, `ResearchPhase`, `ProductionPhase`, and the other ordinary phases. A signal
+called `End` triggers victory point payouts (it has such a short name because it has to be written
+on MANY cards!).
 
 ## Player stuff
 
@@ -114,7 +118,7 @@ The most important thing to understand about cards is that the engine supports o
 
 Even with this simplification, the whole play-a-card process is a bit complex to go into here and now.
 
-Cards can have three types of things "on" them, which all share the superclass `Cardbound`. These are `Tag`s, `CardResource`s, and `ActionUsedMarker`s. What these all have in common is that the `CardFront` must exist before they can, and if the `CardFront` ever went away they would have to as well. This is, of course, just how dependencies work in PETS.
+Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`: normally a `CardFront`, or temporarily the `FakeWildTagUse` supplied by a replay. `CardResource`s, `ActionUsedMarker`s, and the inert `FakeWildTag` used by incomplete wild-tag cards share the more specific `Cardbound` superclass. For every card-attached component, the `CardFront` must exist before it can, and if the `CardFront` ever went away the attached component would have to as well. This is, of course, just how dependencies work in PETS.
 
 `Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`. Its declaration repeats the `Owner` bound in both places, making the two owners always the same. Thus `Animal<Player2, Predators>` and `Animal<Predators<Player2>>` mean the same concrete type, while specifying different owners is invalid.
 

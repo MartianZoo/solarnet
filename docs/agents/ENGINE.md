@@ -58,7 +58,7 @@ A live Game World is a `World` containing:
 | Part | Meaning |
 | --- | --- |
 | `ComponentGraph` | Present state: a multiset of concrete components |
-| Global task pool | Deferred work and Actor choices, with one assignee on each Task |
+| Global task queue | Deferred work and Actor choices, with one assignee on each Task |
 | `EventLog` | Applied component and task history |
 | `Timeline` | Atomicity, rollback, revision, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
@@ -75,7 +75,7 @@ See [GAMEWORLD.md](GAMEWORLD.md),
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
 policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
-selected Modules, signed class selections, seat-ordered display names, and exact non-singleton types
+selected Modules, signed class selections, seat-ordered display names, and exact concrete types
 to create once. See [OPTIONS.md](OPTIONS.md).
 
 A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
@@ -86,9 +86,9 @@ Each Catalog owns one validated master `ClassTable`. A game's table projects it:
 are active and every other Catalog-known Class is uninhabited. Occupied seats activate canonical
 `Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
 an explicit projection root. Trigger positions are observational and do not activate their
-protocol Classes. Modules create the concrete standard actions and other protocols they issue; an
-exact-Class invariant remains the fallback for generic families that cannot be constructed as one
-concrete expression.
+protocol Classes. Modules directly create the concrete standard actions and other protocols they
+issue; generic families use `EACH` over the structurally present `Class<T>` representatives only
+when the family itself owns the fanout.
 
 Module defaults, constructive active-provenance edges, and premise requirements are authored in
 Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
@@ -115,14 +115,47 @@ card back, tags, immediate instructions, actions, effects, cost, requirement, an
 from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented
 `Class<CardBack>` determines its deck. Card resource directories preserve Module-specific card-pool
 grouping and activate unreferenced non-card roots; ordinary Pets references activate the remaining
-declarations. The engine alone decides which active Classes instantiate. Promo Card Pack contributes
+declarations. Domain components exist only when the premise or an explicit creator produces them.
+Promo Card Pack contributes
 three direct class exclusions for the cards its revised printings supersede; there is no general
 replacement registry.
 
-`Engine.newGame(premise)` currently wires the World, creates the `Engine` Actor Component and
-singleton components, marks initialization complete, and commits the pre-setup baseline. It does
-not create a Phase. Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful
-operation.
+`Engine.newGame(premise)` wires the World with one structural representative for every active
+concrete Class, then creates `Admin`. It directly creates root selected Modules and seated Players
+as one seed layer. Creating the Terraforming Mars Module immediately creates `BootstrapPhase`
+before the Players; after the whole seed layer exists, initialization drains its queued work. It
+next directly creates any selected Module left absent after its potential source ran and drains
+again, creates the premise's exact initial components, and performs a final drain. Completion
+requires an empty task queue and every premise-required component to exist before the initialized
+state is committed. Structural Class representatives are installed before event logging and
+therefore produce no Change Events. By the time `newGame` returns, the World has one Phase, every
+seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow later replaces
+Bootstrap with `SetupPhase` as an ordinary effectful operation.
+
+This staging is deliberate. A queued `:` self-effect is selected only after the whole seed layer
+exists, so peer initializers appear in stable level-by-level causal history and a queued `EACH`
+sees the Players and Modules in that layer. The component carrying the effect remains the cause of
+the resulting changes; the Kotlin initializer is not a second registry of everything a Module or
+Player owns. Stable drain order is diagnostic, not game meaning.
+
+Required state should arise at its earliest honest owner. The base Module creates initial
+global-parameter status, Player1 creates the first-player token, the selected map creates its Mars
+areas, and Game Modes create their distinct starting ratings during Setup. This gets resting
+invariants true promptly while preserving what each event means.
+
+Bootstrap tasks must have exactly one possible concrete outcome. Their syntax may begin abstract
+only when ordinary resolution proves a single concrete alternative from the initialized state; no
+bootstrap task may choose among two or more legal outcomes. Choice-bearing starting state must
+remain an exact premise component and open its choice during `SetupPhase` or later, as selected
+Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; the bootstrap drain
+is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
+`!` intensity.
+
+`drainBootstrapTasks` currently calls the Admin Agent's normal `FIRST` autoexecution policy.
+`FIRST` may select the stable execution order of several concrete tasks, but it does not invent a
+narrowing for an abstract task: unresolved choice remains queued and bootstrap completion fails.
+Preserve that rejection, cover it with a focused multi-alternative bootstrap test, and review task
+ordering separately whenever bootstrap effects can observe one another.
 
 **Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
 Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
@@ -133,24 +166,27 @@ an up-front inventory. Do not prolong special initialization merely because the 
 
 Keep three bootstrap layers distinct:
 
-1. **Structural construction** forms the Class Table, empty state indexes, history, timeline, and
-   passive mutation executor. There is not yet an Actor mutation to record.
+1. **Structural construction** forms the Class Table, state indexes prepopulated with Class
+   representatives, history, timeline, and passive mutation executor. There is not yet an Actor
+   mutation to record.
 2. **Actor bootstrap** establishes the minimum concrete state needed for Admin to exist as an Actor
    Component and receive ordinary work. Add other directly created premise state only when the
    ordinary task route proves circular.
 3. **Game initialization** begins at the earliest point where history can honestly say that Admin
-   is selecting, narrowing, and executing assigned tasks. Singleton creation, Module activation,
-   Player creation, and later `SetupPhase` should move into this ordinary phase wherever the model
-   can express them without circular prerequisites.
+   is selecting, narrowing, and executing assigned tasks. Terraforming Mars now names this interval
+   with `BootstrapPhase`; Module activation and Player creation should move under ordinary phase
+   work wherever the model can express them without circular prerequisites.
 
 The goal is not to call every constructor step an Admin action. It is to make the special prefix as
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
-selected data families, Class representatives, and generic specialization fanout. Initialization
-materializes Modules in an order consistent with active provenance, then Module effects create the
-concrete components they own.
+In Canon, the initializer directly materializes only root premise Modules, seated Players, and
+exact initial component Types. Queued Module and Player effects create their owned bootstrap state,
+including constructively selected Modules; `EACH` over Class representatives supplies generic
+specialization fanout. The initializer's direct fallback is only for a selected Module still absent
+after a potential source's gated effect had an opportunity to run. An exact `HAS =1 This` remains a
+live multiplicity invariant, not an initialization instruction.
 
 ## Component graph
 
@@ -232,9 +268,10 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 - selected flag;
 - optional `THEN` continuation group.
 
-A temporary 1-based display position may disambiguate equal-looking tasks. It is not an id.
+Clients normally identify work by an instruction that uniquely narrows one task. Code that already
+holds an exact task may use its stable `TaskId`; presentation order never identifies a task.
 
-Semantically there is one Game World task pool. Actor-specific queues are current filtered API
+Semantically there is one Game World task queue. Actor-specific queues are current filtered API
 views, not independent state containers. `Agent.tasks` may present the fiction of one Actor's queue
 without promoting that view into the Game World storage model.
 
@@ -459,7 +496,7 @@ to changed copies of the effect-bearing exact Type; existing equal copies do not
 Other subscriptions multiply by the number of live effect-bearing components.
 
 An effect on an owned component listening to an unowned event defaults to matching only its Owner
-unless it says `BY Anyone`. Unowned `System` components are engine-only; `Hidden` controls
+unless it says `BY Anyone`. Unowned `System` components are Admin-only; `Hidden` controls
 presentation instead. `Signal` is hidden but not necessarily engine-only.
 
 A positive abstract Actor selector can bind the matching Actor for reuse elsewhere in the trigger or
@@ -472,52 +509,6 @@ fails the operation atomically with `RunawayEffectChainException`, which carries
 chain. `:` effects become tasks. Use
 [SEQUENCING.md](SEQUENCING.md) before depending on that difference.
 
-### Terraforming Mars wild tags
-
-`Tag` depends on `TagHolder`; `CardFront` is one such holder. Printed tags therefore remain ordinary
-components such as `PlantTag<CardFront>`. In the action phase, a `WildTag` creates a distinct
-`WildTagUse` holder when its owner chooses a `UseAction<StandardAction>`; choosing `Pass` creates
-none. Prelude turns create the holder from `NewTurn` because they do not use the standard-action
-signal. The temporary holder offers the owner `Tag<This>?`, so a chosen wild meaning is a real tag
-and participates in bare tag metrics and requirements.
-
-The holder distinction is also the trigger distinction. `Tag` has the trigger default
-`Tag<CardFront>:`, so an effect that reacts only to printed tags can explicitly accept it with
-`PlantTag<>:` or spell out `PlantTag<CardFront>:`. It will not see
-`PlantTag<WildTagUse<...>>`; there is no dispatch filter or special change kind. Refinements can
-follow the dependency graph when card identity matters. Robotic Workforce uses
-`CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
-action-scoped wild holder received the Building interpretation.
-
-`WildTagUse` is `Temporary`. `TfmGameplay` declines an unchosen `WildTagUse?` task when it is the
-acting Player's only remaining work; ordinary temporary cleanup then removes the holder, and its
-dependent tag disappears through dependency cascade. The convenience layer does not remove the
-holder directly.
-
-#### Looking for a better wild-tag mechanism
-
-**Working direction:** this representation is not settled; keep looking for a smaller one.
-
-`WildTagUse` is the only reason the trigger-only `DEFAULT` channel exists. `DEFAULT Tag<CardFront>:`
-is the single trigger default authored anywhere, in this Catalog or in `SystemDeclarations`, and it
-buys a fourth `DefaultKind`, a fourth `DefaultsDeclaration` field with its merge and rendering arms,
-a fourth `Defaults.DefaultSpec`, and `Transformers.insertTriggerDefaults`. A mechanism that supports
-one class through a whole default channel is a candidate for replacement, not for extension.
-
-The two facts the design must keep separate are (a) a chosen wild meaning is a real tag, countable
-by bare tag metrics and refinements, and (b) an effect that reacts to printed tags must not see it.
-Look for a shape that gets (b) from something already in the model rather than from a new default
-kind. Candidates worth trying before anything else:
-
-- make the printed/chosen distinction a Class distinction rather than a holder distinction, so
-  ordinary nominal subtyping supplies the trigger filter;
-- give `WildTag` an occurrence-per-action-slot directly, so no second holder Class is needed; or
-- decide that `Tag<CardFront>` should be the ordinary `DEFAULT` for every usage, and let the two
-  refinement sites that genuinely want either holder say so explicitly.
-
-Do not settle any of these before checking it against Robotic Workforce and the
-multiple-wild-tags-on-one-card entry in [`TODO.md`](../../TODO.md).
-
 ## Metrics, refinements, and limits
 
 `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
@@ -527,6 +518,12 @@ property, and virtual custom counts cannot participate because they have no comp
 Numeric Metrics may also subtract Metrics or positive scalar operands, saturating at zero; a scalar
 by itself is not a Metric. Complete-group scaling and `MAX` bind before subtraction, which binds
 before union.
+
+`RANK Selector { Metric, ... }` is a highest-first competition rank over the distinct live Types
+matching `Selector`: equal score vectors receive the same rank and later ranks skip the tied places.
+Multiple Metrics are compared lexicographically. Each score binds the candidate name and contextual
+`Owner` as an `EACH` body does, including occurrences inside `NOT` refinements. There is no
+direction keyword; a known upper cap minus a Metric can express lowest-first scoring.
 
 An abstract custom metric normally specializes only over dependency targets represented by live
 components, then sums the satisfying concrete implementations. This follows the ordinary dependency
@@ -554,6 +551,66 @@ that shared lookup with the live component graph to compute current headroom and
 [QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete limits, abstract domains, dependencies, and
 instruction composition determine the result.
 
+An invariant has no constructive meaning. In particular, a positive lower bound can activate its
+named Classes during projection, but it neither creates the required Components nor chooses their
+concrete Types. Bare `HAS requirement` is therefore the preferred presence statement when a
+separate rule already guarantees uniqueness. Structural `Class<T>` representatives are the clearest
+case: `HAS Class<T>` says that T must be active, while `=1` would merely repeat their structural
+multiplicity.
+
+### Multiplicity audit
+
+Use exact one for state that must be present at every applicable resting point and has an explicit
+creator. Current examples are selected Modules and Players, Areas, track-rule providers, permanent
+action providers and slots, Admin, and the solo opponent and reserve providers. Use
+maximum one when zero is a legitimate state: card locations and fronts, cleanup and once-per-round
+markers, claimed goals and funded awards, required actions and passing, payment state, phase-local
+rules, global-parameter completion state, end barriers, and setup operations. `Milestone` was the
+missing maximum-one declaration found by the current Canon audit. `TradeFleet` deliberately has no
+one-count limit: additional fleet components are real capacity granted by cards.
+
+`StartToken` is exact one: Player1's queued bootstrap effect creates it, and generations move it
+only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the creation
+of its Module: Bootstrap is created first, and each transition replaces the current Phase; `End`
+remains as the terminal Phase. A separate temporary
+`FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
+scoring task settles. A future comprehensive lower-bound validator must account for the short
+construction interval before the Terraforming Mars Module creates Bootstrap. Bootstrap completion
+verifies its required components and empty task queue; ordinary mutations continue to enforce
+applicable multiplicity limits.
+
+**Audit:** bootstrap verification checks premise Modules, Players, and exact initial component
+Types, not every positive lower bound or every source-owned support component. Canon's lifecycle
+tests currently prove `StartToken` and track-status initialization; the generic initializer would
+not itself detect their accidental omission.
+
+`GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
+exact-one sum; expressing that honestly requires one shared status family and an atomic
+transmutation. The proposed available/spent card-action status in
+[ACTIONS.md](ACTIONS.md#open-questions) has the same shape.
+
+### Exact lower bounds and transient repair
+
+The current Limiter checks a lower bound when removing and an upper bound when gaining. It permits
+the initial gain from zero, but it does not prove that every externally observable resting state
+satisfies every positive lower bound. Consequently, changing a declaration from maximum one to
+exact one is not yet proof that the component is always present.
+
+The smallest promising completion is asymmetric enforcement: keep upper bounds immediate, allow a
+lower bound to be temporarily false while one automatic consequence chain repairs it, and validate
+lower bounds before unrelated work can proceed. Atomic transmutation needs no such allowance because
+the old and new Types hold their shared invariant constant. Validation cannot occur at
+every `Timeline.atomic` exit because an operation may intentionally leave Player-choice Tasks.
+Nor should it wait for whole-World idleness, which can mix unrelated work. The validation point
+should instead be the completion of the causal task scope described in
+[SEQUENCING.md](SEQUENCING.md#selected-direction-scoped-completion). Relational invariants such as an
+Event Card's exact printed event tag should be instantiated only for a live owning component; an
+absent card must not require its dependent tag.
+
+Until that completion rule exists, retain maximum one for lifecycle state and use exact one only
+where the explicit creator and current execution path already make absence non-resting. Do not add
+a second representation or a hidden “repairing” marker merely to permit the transient state.
+
 **Disposition: at peace with the operator set.** `Metric.Max`, `Metric.Subtract`, and `Metric.Or`
 each have only a handful of authored uses, almost all inside `Award.metric`, so a sweep for
 single-client machinery flags them. The measurement is backwards: the algebra is *under*-built, not
@@ -563,10 +620,9 @@ Influence after a capped or grouped Metric. Union and sum are also genuinely dif
 Awards need `Or`'s non-double-counting union, Turmoil needs arithmetic addition — so neither can
 stand in for the other. Propose completing this algebra, not trimming it.
 
-Separately, `AssignAwardPlaces` is a `Custom` because "rank owners by a Metric under a declared tie
-rule" is inexpressible, and Turmoil's `PartyLeader` and `Dominant` maintenance want the same
-primitive with different tie rules. That convergence, not the operator count, is the live design
-question here.
+`Metric.Rank` removed the former custom award-placement and multiplayer-victory instructions.
+Turmoil can reuse its comparison semantics, though its distinct tie-sensitive state changes remain
+a separate modeling question.
 
 ## Recoverable dead ends
 
@@ -646,7 +702,7 @@ auto-exec, preserves previously pending unselected tasks, and fails if newly cre
 timeline and graph mutation interfaces.
 
 **Forward-looking:** `:agent` owns the normal Actor-scoped client API. Agent calls the core engine's
-audited mutation families against the Game World's task pool; a separate passive access object is
+audited mutation families against the Game World's task queue; a separate passive access object is
 not needed. Actor assignment remains engine semantics even though the resulting assignment is Game
 World data. Agent is the sole issuer of ordinary explicit and policy-chosen mutations for one Actor.
 Direct engine primitives remain available for workflows, replay correction, cheats, and tests;

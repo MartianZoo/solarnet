@@ -29,7 +29,7 @@
 
 The core engine has no `Agent`, permissions policy, or autoexecution concept. It offers a few
 distinct mutation methods, validates each call against one live World, and returns its atomic
-result. A task retains one assignee in the global unordered task pool. Ordinary task calls name the
+result. A task retains one assignee in the global unordered task queue. Ordinary task calls name the
 acting Actor, and the engine rejects action by anyone other than the task's current assignee. That
 is game semantics, not caller permission.
 
@@ -48,6 +48,10 @@ narrowing, and error handling. `manual`, turn, and phase conveniences compose ex
 addition with ordinary task action. None justifies a universal request type or
 `engine.submit(actor, request)`.
 
+`doTask` and `tryTask` normally match the submitted narrowing semantically. Their `TaskId`
+overloads are the explicit escape hatch when distinct tasks accept the same narrowing; no engine
+API accepts a presentation index.
+
 The current flat Agent now exposes one checked id-based narrowing and one explicit ex-machina task
 removal. It has no arbitrary task replacement or bulk task-removal command. Internal task-data edits
 remain engine bookkeeping, including restoration around an evidenced replay correction.
@@ -64,6 +68,8 @@ must not evaluate AMAP, a gate, a Metric, current viability, or any other mutabl
 Selection establishes the promise to act next and the select-lock before those facts are resolved.
 The current `Agent.narrowTask(taskId, narrowing)` implements this check; the selected-task overload
 retains state-aware resolution and immediate execution when the result becomes concrete.
+Consequently, a task whose target has a live refinement cannot be narrowed to one concrete target
+before selection, even when that target happens to satisfy the refinement in the current World.
 
 Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
 is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that
@@ -137,13 +143,13 @@ choose adversarially, or use another legal strategy is not an engine concern.
 ## Current implementation divergence
 
 Today `Agent`, parsing, direct mutation powers, `autoExecMode`, and atomic completion all live in
-`:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, and the Actor
-is still named `Engine`. Public task mutation has been reduced to checked narrowing and explicit
+`:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, including
+`Admin`. Public task mutation has been reduced to checked narrowing and explicit
 single-task removal. The extraction should preserve behavior while successively:
 
 1. reduce core entry to the audited direct mutation families;
 2. create `:agent` above `:engine`, with one stable Agent per Actor and an Actor-scoped reader;
-3. replace public many-queue language with one Game World task pool plus Agent-filtered views;
+3. replace public many-queue language with one Game World task queue plus Agent-filtered views;
 4. move parsing, policy ownership, and the shared autoexecution loop into `:agent`; and
 5. migrate normal clients to Agent while keeping direct engine cheats and test helpers explicit.
 

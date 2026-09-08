@@ -41,7 +41,9 @@ internal abstract class PetTokenizer {
   internal val _has = word("HAS")
   internal val _if = word("IF")
   internal val _max = word("MAX")
+  internal val _not = word("NOT")
   internal val _or = word("OR")
+  internal val _rank = word("RANK")
   internal val _then = word("THEN")
   internal val _x = regex(Regex("""X\b"""), "X")
 

@@ -16,7 +16,7 @@ internal class InterplanetaryTradeTest : CardTest() {
   @Test
   internal fun `Does not count a tag from a played event`() {
     newGame(PromoCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("100 MC, 2 ProjectCard, $Ecoline, $Mine, $SearchForLife")
     p1.playProject(ImportedHydrogen, 16) {
       doTask("3 Plant")

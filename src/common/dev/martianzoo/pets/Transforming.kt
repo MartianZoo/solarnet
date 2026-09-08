@@ -54,10 +54,9 @@ public object Transforming {
 
   /**
    * Replaces each occurrence of the contextual `Owner` placeholder with [owner], except inside any
-   * subtree [shielded] accepts. A fanout shields its own body: `Owner` there denotes the selected
-   * component's owner and only the fanout may bind it.
+   * subtree [shielded] accepts. An Owner-selecting fanout shields its body because only that fanout
+   * may bind `Owner` to the selected Owner.
    */
-  @Suppress("ComplexCondition") // TODO fix
   public fun replaceOwnerWith(
       owner: HasClassName,
       shielded: (PetNode) -> Boolean = { false },

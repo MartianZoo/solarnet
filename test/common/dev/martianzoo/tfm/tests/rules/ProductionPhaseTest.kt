@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -14,10 +14,10 @@ internal class ProductionPhaseTest {
   @Test
   internal fun existingEnergyBecomesHeatBeforeNewEnergyIsProduced() {
     val game = setUpGame()
-    val engine = game.tfm(ENGINE)
+    val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     p1.manual("2 Energy, PROD[Energy]")
-    val manual = engine.also { it.autoExecMode = NONE }
+    val manual = admin.also { it.autoExecMode = NONE }
 
     manual.beginManual("ProductionPhase FROM Phase") {
       p1.count("Energy") shouldBe 0

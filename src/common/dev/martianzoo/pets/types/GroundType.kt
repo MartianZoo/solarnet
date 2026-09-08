@@ -9,6 +9,8 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
@@ -34,6 +36,7 @@ public data class GroundType(
 ) : Type {
   // Types are immutable; zero is the uncached sentinel (and a harmless rare recomputation).
   private var cachedHashCode: Int = 0
+  private val structuralOverlapCache = mutableMapOf<GroundType, Boolean>()
 
   override val classTable: ClassTable = rootClass.classTable
   override val groundType: GroundType
@@ -109,7 +112,12 @@ public data class GroundType(
           that.refinement == null -> refinement
           else -> Refinement.join(refinement, that.refinement) ?: return null
         }
-    return glbClass.withAllDependencies(glbDeps).refine(glbRefin)
+    val unrefined = glbClass.withAllDependencies(glbDeps)
+    if (glbRefin is Not) {
+      val excluded = classTable.resolve(glbRefin.excluded)
+      if (!unrefined.overlapsStructurally(excluded)) return unrefined
+    }
+    return unrefined.refine(glbRefin)
   }
 
   // Nearest common supertype
@@ -126,15 +134,19 @@ public data class GroundType(
   internal fun specialize(specs: List<Expression>): GroundType =
       rootClass.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
 
-  internal fun refine(newRef: Refinement?): GroundType =
-      copy(
-          refinement =
-              when {
-                refinement == null -> newRef
-                newRef == null -> refinement
-                else -> requireNotNull(Refinement.join(refinement, newRef))
-              }
-      )
+  internal fun refine(newRef: Refinement?): GroundType {
+    val combined =
+        when {
+          refinement == null -> newRef
+          newRef == null -> refinement
+          else -> requireNotNull(Refinement.join(refinement, newRef))
+        }
+    return if (combined is Not && !overlapsStructurally(classTable.resolve(combined.excluded))) {
+      copy(refinement = null)
+    } else {
+      copy(refinement = combined)
+    }
+  }
 
   private val expressionLazy = lazy {
     toExpressionUsingSpecs(minimalDependencyExpressions())
@@ -191,13 +203,19 @@ public data class GroundType(
    * this sequence can potentially be very large.
    */
   override fun allConcreteSubtypes(): Sequence<GroundType> {
-    return concreteSubclasses(rootClass).flatMap {
-      val deps: DependencySet? = dependencies glb it.baseType.dependencies
-      if (deps == null) {
-        emptySequence()
-      } else {
-        it.withAllDependencies(deps).concreteSubtypesSameClass()
-      }
+    val candidates =
+        concreteSubclasses(rootClass).flatMap {
+          val deps: DependencySet? = dependencies glb it.baseType.dependencies
+          if (deps == null) {
+            emptySequence()
+          } else {
+            it.withAllDependencies(deps).concreteSubtypesSameClass()
+          }
+        }
+    return if (refinement is Not) {
+      candidates.filter { it.narrows(this, NoGameState) }
+    } else {
+      candidates
     }
   }
 
@@ -206,7 +224,7 @@ public data class GroundType(
    * state-dependent constraints according to [info].
    */
   override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
-    if (rootClass.className == CLASS && refinement != null) {
+    if ((rootClass.className == CLASS && refinement != null) || refinement is Not) {
       return allConcreteSubtypes().filter { it.narrows(this, info) }.take(2).singleOrNull()
     }
     val intersection =
@@ -230,20 +248,27 @@ public data class GroundType(
     requireSameClassTable(that)
     rootClass.ensureNarrows(that.rootClass, info)
 
-    if (that.refinement != null && refinement != null && refinement != that.refinement) {
-      throw NarrowingException("$this does not have refinement ${that.refinement}")
-    }
     dependencies.ensureNarrows(that.dependencies, info)
 
-    if (that.refinement != null && refinement == null) {
-      val requirement =
-          try {
-            formRequirement(expressionFull, that.expressionFull)
-          } catch (e: ExpressionException) {
-            throw NarrowingException("$this does not satisfy ${that.refinement}", e)
-          }
-      if (!info.has(requirement)) {
-        throw Exceptions.refinementNotMet(requirement)
+    when (val targetRefinement = that.refinement) {
+      null -> Unit
+      refinement -> Unit
+      is Not -> {
+        if (!isDisjointFrom(targetRefinement.excluded)) {
+          throw NarrowingException("$this does not satisfy $targetRefinement")
+        }
+      }
+      is Has -> {
+        if (refinement != null) {
+          throw NarrowingException("$this does not have refinement $targetRefinement")
+        }
+        val requirement =
+            try {
+              formRequirement(expressionFull, that.expressionFull)
+            } catch (e: ExpressionException) {
+              throw NarrowingException("$this does not satisfy $targetRefinement", e)
+            }
+        if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
       }
     }
   }
@@ -255,19 +280,36 @@ public data class GroundType(
     val that = that.groundType
     requireSameClassTable(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
-    if (that.refinement != null && refinement != null && refinement != that.refinement) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
-    that.refinement ?: return true
-    if (refinement != null) return true
-    val requirement =
-        try {
-          formRequirement(expressionFull, that.expressionFull)
-        } catch (_: ExpressionException) {
-          return false
-        }
-    return info.has(requirement)
+    return when (val targetRefinement = that.refinement) {
+      null -> true
+      refinement -> true
+      is Not -> isDisjointFrom(targetRefinement.excluded)
+      is Has -> {
+        if (refinement != null) return false
+        val requirement =
+            try {
+              formRequirement(expressionFull, that.expressionFull)
+            } catch (_: ExpressionException) {
+              return false
+            }
+        info.has(requirement)
+      }
+    }
   }
+
+  /** Whether this entire structural domain has no member in common with [excludedExpression]. */
+  private fun isDisjointFrom(excludedExpression: Expression): Boolean =
+      !overlapsStructurally(classTable.resolve(excludedExpression))
+
+  /** Whether at least one concrete structural Type inhabits both domains. */
+  private fun overlapsStructurally(that: GroundType): Boolean =
+      structuralOverlapCache.getOrPut(that) {
+        copy(refinement = null).allConcreteSubtypes().any { candidate ->
+          candidate.narrows(that, NoGameState)
+        }
+      }
 
   private fun requireSameClassTable(that: GroundType) {
     require(classTable === that.classTable) { "$this and $that belong to different class tables" }
@@ -292,6 +334,8 @@ public data class GroundType(
         override fun transformNode(node: PetNode): PetNode {
           return if (node is Property && node.receiver == null) {
             node.copy(receiver = proposed)
+          } else if (node is Metric.Rank && node.candidate == null) {
+            node.copy(candidate = proposed)
           } else if (node is Expression) {
             val resolved = classTable.resolve(node)
             val modded =
@@ -315,29 +359,24 @@ public data class GroundType(
       val general = wide.arguments.single().className
       val specific = narrow.arguments.single().className
       return object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              val specialized =
-                  if (node is Expression && node.className == general) {
-                    node.copy(className = specific)
-                  } else {
-                    node
-                  }
-              return transformChildren(specialized)
-            }
+            override fun transformNode(node: PetNode): PetNode =
+                when {
+                  node is Metric.Rank -> node
+                  node is Expression && node.className == general ->
+                      transformChildren(node.copy(className = specific))
+                  else -> transformChildren(node)
+                }
           }
           .transformRequirement(requirement)
     }
 
-    val refin = wide.refinement!!
+    val refin = wide.refinement as Has
     val specializedRequirement = specializeRepresentedClassReferences(refin.requirement)
     val transformed =
         refinementMangler(narrow, ignoreUnmatched = narrow.className == CLASS)
             .transformRequirement(specializedRequirement)
     return if (refin.forgiving) {
-      Or(
-          transformed,
-          Max(scaledEx(wide.copy(refinement = refin.copy(forgiving = false)), 0)),
-      )
+      Or(transformed, Max(scaledEx(wide.copy(refinement = refin.copy(forgiving = false)), 0)))
     } else {
       transformed
     }

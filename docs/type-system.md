@@ -6,7 +6,7 @@ For now, I'll have to address this to the reader who is already familiar with th
 
 ## Components
 
-A Game World consists entirely of a multiset of **Component** instances (plus one pending Task Pool, which we can ignore for now). Each Component has a Concrete **Type**. Components are distinguishable by their *Type alone*; there are no occurrence-specific attributes or fields. Classes may carry immutable properties, so every Component of the same Concrete Type necessarily has the same values. Accordingly, Components are always immutable.
+A Game World consists entirely of a multiset of **Component** instances (plus one pending task queue, which we can ignore for now). Each Component has a Concrete **Type**. Components are distinguishable by their *Type alone*; there are no occurrence-specific attributes or fields. Classes may carry immutable properties, so every Component of the same Concrete Type necessarily has the same values. Accordingly, Components are always immutable.
 
 For example, when the game begins there are 20 instances of `TerraformRating<Player1>`, 20 of `TerraformRating<Player2>`, etc. The first 20 are indistinguishable from each other, and only their type distinguishes them from the latter 20. I'll try to use the term "component" consistently to mean a *single* instance, a.k.a a single occurrence of a component type (e.g., there were 40 components discussed in our example).
 
@@ -129,9 +129,9 @@ The effects inside a class declaration can use the special class name `This`. It
 
 ### Singleton types
 
-A class may be identifiable as a singleton class (*how* is not relevant here). If it is, then every concrete type whose root type is that class or any of its subclasses is considered a singleton type. Before a game begins, one instance of each singleton type is automatically created.
+A class invariant such as `HAS =1 This` constrains every concrete type rooted in that class or its subclasses to exactly one occurrence. It does not create that occurrence. A component that must exist needs an explicit creator, such as the premise, a Module, or another component's instruction.
 
-For example, `Area` is a singleton abstract class. It has 61 concrete subclasses (if playing with the Elysium expansion, these are called `Elysium_1_1`, `Elysium_1_2`, etc.). Therefore at the very start of a game, the Requirement `HAS 61 Area` will already evaluate to true; one instance of each of these concrete classes has already been created. 
+For example, `Area` has an exact-one invariant. The selected `MarsMap` uses `EACH Class<Area> { Area }` to create every active concrete Area, after which the invariant prevents duplicates or removal.
 
 ### Class types
 
@@ -141,7 +141,7 @@ The `Class` class is predefined. `Class<Foo>` contains one class name, not a dep
 * Only a single class name can go inside the angle brackets. `Class<Steel>` works but `Class<Steel<Player2>>` does not.
 * Even though the type `Steel` is abstract, and the type `AnythingElse<Steel>` would also be abstract, `Class<Steel>` is considered concrete! After all, it's as concrete as it *can* be.
 
-`Class` is a Singleton Class. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<MC>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
+Class representatives are structural: the Component Graph starts with one for every active concrete Class before event logging begins. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<MC>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
 
 #### What's that good for?
 

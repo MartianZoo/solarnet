@@ -72,6 +72,9 @@ internal class ClassDeclarationParsingTest {
   @Test
   internal fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar, Bar") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo<Bar(HAS Baz)>") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo<Bar(NOT Baz)>") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar(NOT Baz)") }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }") }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo @ CLASS Bar") }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { cost = -1 }") }
@@ -279,7 +282,6 @@ internal class ClassDeclarationParsingTest {
         ABSTRACT CLASS Component {
            DEFAULT +Component!
            DEFAULT Component<Foo>
-           DEFAULT Component<Foo>:
 
            CLASS What   // comment
 

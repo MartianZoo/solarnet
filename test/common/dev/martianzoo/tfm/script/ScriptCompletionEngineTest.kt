@@ -13,6 +13,11 @@ internal class ScriptCompletionEngineTest {
   private val repl = ScriptSession()
   private val completer = ScriptCompletionEngine(repl)
 
+  init {
+    repl.command("as Player1 task -10 ProjectCard<Hand>")
+    repl.command("as Player2 task -10 ProjectCard<Hand>")
+  }
+
   @Test
   internal fun completesCommandNames() {
     assertTrue("count" in values("co"))
@@ -86,15 +91,15 @@ internal class ScriptCompletionEngineTest {
   internal fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
     val taskLayer = repl.agent as Agent
     taskLayer.addTasks("2 Plant?")
-    assertTrue(repl.command("tasks").single().startsWith("[Engine] "))
-    assertTrue(repl.command("task select").single().startsWith("* [Engine] "))
+    assertTrue(repl.command("tasks").single().startsWith("[Admin] "))
+    assertTrue(repl.command("task select").single().startsWith("* [Admin] "))
 
     repl.command("mode yellow")
     repl.command("task drop")
     taskLayer.addTasks("3 Heat?")
 
     val remaining = repl.command("tasks").single()
-    assertTrue(remaining.startsWith("[Engine] "), remaining)
+    assertTrue(remaining.startsWith("[Admin] "), remaining)
     assertTrue("3 Heat<Owner>?" in remaining, remaining)
   }
 
@@ -108,14 +113,14 @@ internal class ScriptCompletionEngineTest {
     assertEquals(
         listOf(
             "this requires exactly one pending task",
-            "Usage: task [<number>] <Instruction> | task <select | drop>",
+            "Usage: task <Instruction> | task <select | drop>",
         ),
         repl.command("task select"),
     )
     assertEquals(
         listOf(
             "this requires exactly one pending task",
-            "Usage: task [<number>] <Instruction> | task <select | drop>",
+            "Usage: task <Instruction> | task <select | drop>",
         ),
         repl.command("task drop"),
     )
@@ -123,42 +128,37 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun treatsAnUnassignedUppercaseTokenAsAnInstruction() {
-    (repl.agent as Agent).addTasks("StandardAction?")
-    val taskBefore = repl.game.tasks.extract { it }.single()
+    (repl.agent as Agent).addTasks("MarsMap?")
+    assertEquals(1, repl.game.tasks.ids().size)
 
-    val output = repl.command("task PlayCardFromHand")
+    val output = repl.command("task TharsisMap")
 
     assertEquals(listOf("um, nothing happened"), output)
-    val taskAfter = repl.game.tasks.extract { it }.single()
-    assertEquals(taskBefore.copy(selection = taskAfter.selection), taskAfter)
+    assertTrue(repl.game.tasks.isEmpty())
   }
 
   @Test
-  internal fun disambiguatesAnInstructionWithItsCurrentTaskPosition() {
+  internal fun rejectsAnInstructionMatchingDistinctTasks() {
     val taskLayer = repl.agent as Agent
     taskLayer.addTasks("Plant? OR Ok")
     taskLayer.addTasks("Heat? OR Ok")
 
-    repl.command("task 2 Ok")
+    val output = repl.command("task Ok")
 
-    assertEquals(
-        listOf("Plant<Owner>? OR Ok"),
-        repl.game.tasks.extract { it.instruction.toString() },
-    )
+    assertTrue(output.single().contains("there wasn't exactly one matching task"))
+    assertEquals(2, repl.game.tasks.ids().size)
   }
 
   @Test
-  internal fun taskPositionsAreDerivedAgainAfterRollback() {
+  internal fun aLeadingNumberRemainsPartOfTheInstruction() {
+    repl.command("newgame BRP 2")
+    repl.command("become Player1")
     val taskLayer = repl.agent as Agent
-    taskLayer.addTasks("Plant? OR Ok")
-    taskLayer.addTasks("Heat? OR Ok")
-    val checkpoint = repl.game.timeline.checkpoint()
-    repl.command("task 2 Ok")
-    assertTrue("Plant<Owner>?" in repl.command("tasks").single())
-    repl.command("rollback $checkpoint")
+    taskLayer.addTasks("3 Plant?")
 
-    repl.command("task 2 Ok")
-    assertTrue("Plant<Owner>?" in repl.command("tasks").single())
+    repl.command("task 2 Plant!")
+
+    assertEquals(2, repl.agent.count("Plant"))
   }
 
   @Test

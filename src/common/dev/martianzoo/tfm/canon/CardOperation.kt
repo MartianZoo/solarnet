@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -60,7 +61,7 @@ public sealed interface CardOperation {
       ) {
         malformed(source)
       }
-      val filter = source.gaining.refinement?.requirement ?: malformed(source)
+      val filter = (source.gaining.refinement as? Has)?.requirement ?: malformed(source)
       return Search(source, filter)
     }
 
@@ -87,7 +88,7 @@ public sealed interface CardOperation {
       ) {
         malformed(source)
       }
-      val filter = retained.gaining.refinement?.requirement ?: malformed(source)
+      val filter = (retained.gaining.refinement as? Has)?.requirement ?: malformed(source)
       if (offered.count !is ActualScalar) malformed(source)
       return RevealAndPurchase(offered, retained, filter)
     }
@@ -111,7 +112,8 @@ public sealed interface CardOperation {
           } ?: malformed(source)
       val outcome = gated.inner as? Gain ?: malformed(source)
       if (!outcome.mandatory) malformed(source)
-      return RevealAndTest(revealed, matchingCard.refinement!!.requirement, outcome)
+      val filter = (matchingCard.refinement as? Has)?.requirement ?: malformed(source)
+      return RevealAndTest(revealed, filter, outcome)
     }
 
     private val Instruction.Change.mandatory: Boolean

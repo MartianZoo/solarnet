@@ -14,7 +14,7 @@ internal class TaskSelectionTest {
   private val tasks = agent as Agent
 
   @Test
-  internal fun `an omitted task number rejects distinct matching tasks`() {
+  internal fun `a narrowing rejects distinct matching tasks`() {
     tasks.addTasks("Plant?")
     tasks.addTasks("StandardResource?")
 
@@ -29,11 +29,11 @@ internal class TaskSelectionTest {
   }
 
   @Test
-  internal fun `a task number selects by current queue order`() {
+  internal fun `a task id disambiguates distinct matching tasks`() {
     tasks.addTasks("Plant?")
-    tasks.addTasks("StandardResource?")
+    val general = tasks.addTasks("StandardResource?").single()
 
-    agent.doTask("Plant!", 2)
+    agent.doTask("Plant!", general)
 
     agent.count("Plant") shouldBe 1
     game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Plant<Player1>?")
@@ -53,14 +53,19 @@ internal class TaskSelectionTest {
   }
 
   @Test
-  internal fun `a selected task wins even when a task number is supplied`() {
-    tasks.addTasks("Plant?")
-    tasks.addTasks("Heat?")
-    agent.selectTask("Heat?")
+  internal fun `a different task id cannot override the selected task`() {
+    val plant = tasks.addTasks("Plant?").single()
+    val heat = tasks.addTasks("Heat?").single()
+    agent.selectTask(heat)
 
-    agent.doTask("Heat!", 1)
+    shouldThrow<TaskException> { agent.doTask("Heat!", plant) }
 
-    agent.count("Heat") shouldBe 1
-    game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Plant<Player1>?")
+    agent.count("Heat") shouldBe 0
+    game.tasks
+        .extract { it.instruction.toString() }
+        .shouldContainExactly(
+            "Plant<Player1>?",
+            "Heat<Player1>?",
+        )
   }
 }

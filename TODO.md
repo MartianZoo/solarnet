@@ -6,6 +6,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Remove `Vocabulary`'s input-only Class-name synonym facility after expanding the abbreviated Pets
+  used by the REPL, tests, replays, and recorded games; preserve localization and configured Player
+  names, which use separate `Vocabulary` features.
+- Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
+  phase-caused tasks as soon as the required runtime state can express them.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
@@ -16,6 +21,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
+- Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
+  tile adjacency can avoid evaluating the metric against every live component.
 - **Medium-high priority:** Consolidate exception cleanup
   ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain
   failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain layers,
@@ -35,29 +42,47 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
+- Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
+  `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
+  requiring authored references to generated names. Preserve Cimmeria map generation,
+  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit berth selection.
 - Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
   lowering knows any game's vocabulary.
-- Investigate why all wild-tag assignments must currently run before selecting a card or action.
-  Only assignments needed to satisfy a requirement should be early; assignments used by queued
-  effects such as per-tag gains should resolve normally from the task queue.
+- **Better Task Disambiguation:** let callers state the intended task without searching the task
+  pool; use extra identity only when distinct tasks accept the same narrowing. Current use cases:
+  - `TfmTest` and `RecordedGame` search tasks for tile placement, card-resource placement, qualified
+    declines, and wild-tag assignment.
+  - `TfmGameplay` searches for project-card offers/discards, the second-action offer, wild-tag
+    offers, billing and payment tasks, and the variable-X task.
+  - `TfmPlayCommand`, `TfmActionCommand`, and `TfmPayCommand` search for standard actions, action
+    costs, invoices, and payment offers.
+  - `TaskDelegationTest`, `PhilaresTest`, `NewPromoCardsTest`, and `PropertyTest` recover a task by
+    scanning ids or instruction text before selecting or dropping it. Keep mechanism assertions
+    separate from gameplay calls when designing the replacement.
+  - Functional cross-player handoffs already proceed without explicit selection under `SAFE` when
+    the handoff is the only selectable task. The remaining tests mix it with forced sibling work;
+    `SAFE` stops because it cannot prove an order harmless. Prefer explicit sequencing or a narrow
+    proof of harmless reordering over making `SAFE` execute an arbitrary concrete sibling.
+  - Compare a context-component `ClassName` selector (for example, Search for Life or Big Asteroid)
+    with matching the original pending instruction and with an already-held stable `TaskId`. Keep
+    ordinary `doTask(concreteNarrowing)` as the default path.
+
 ### Hypothetical Card Behavior
 
 - Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a
   future score depends on another score rather than directly on game state.
-- Give multiple wild tags on one card distinct occurrences if a future card has two wild tags, so
-  both can be assigned either the same tag or different tags for one action; otherwise document the
-  limitation.
 - Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
   `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
-- Give players 20 TR in multiplayer setup and 14 TR in solo setup directly if a future card can
-  observe the current 20-then-minus-6 solo sequence.
 
 ## Autonomous Follow-ups
 
-- Model L1 Trade Terminal's three-distinct-card resource choice, then replace the replay-local
-  `FakeL1TradeTerminal` declaration with the canonical card.
+- Find a principled way for narrower dependency defaults to retain compatible refinements from
+  wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
+  areas and add placement rules.
+- Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
+  with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
   iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
   `SavedGameReplayBenchmark`.
@@ -65,13 +90,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.
 - Model Mars Nomads' moving non-tile marker, adjacency and reservation rules, and destination
-  placement bonuses, then remove the replay's test-only stand-in and sourced reconciliations.
+  placement bonuses, then replace `FakeMarsNomads` and remove the sourced reconciliations.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
-- Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
-  Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
-  Politician rules.
+- Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
+  global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and

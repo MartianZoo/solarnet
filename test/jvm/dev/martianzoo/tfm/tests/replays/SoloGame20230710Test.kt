@@ -11,6 +11,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       GameConfig(
           """
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
+          FakeStuffBundle
           Tr63SoloObjective
           Callisto, Ganymede, Luna, Miranda
           """,
@@ -23,6 +24,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
   @Test
   internal fun soloGame20230710() {
+    retainStartingProjects(10)
     with(me) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 
@@ -32,7 +34,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
         playCorp(Manutech)
       }
 
-      playPrelude(HeadStart) {
+      playPrelude(FakeHeadStart) {
         doTask("UseAction<PlayCardFromHand, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>, Hand>")
         pay(4, steel = 3)

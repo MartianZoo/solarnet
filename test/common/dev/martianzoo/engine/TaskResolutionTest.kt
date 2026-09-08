@@ -84,8 +84,8 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `the select-lock rejects a second selection`() {
-    initiate("Plant?, Heat?")
-    val (plant, heat) = tasks.ids().toList()
+    val plant = initiate("Plant?").single()
+    val heat = initiate("Heat?").single()
 
     agent.selectTask(plant)
 

@@ -18,6 +18,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
+          FakeStuffBundle
 
           Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
           Electrician, Industrialist, Highlander, Investor, Scientist, Manufacturer
@@ -39,6 +40,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   @Test
   internal fun distantPressureMass() {
     TfmWorkflow.Auto(game).launch()
+    retainStartingProjects(4, 4)
     generation1()
     generation2()
     generation3()
@@ -53,8 +55,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    // Technically I think these discards happen during InitialResearchPhase which we don't model,
-    // but we should soon...
+    // The archive identifies the projects rejected during setup.
     keen.discardUnselectedProjectCards(
         AirScrappingExpedition,
         Virus,
@@ -98,7 +99,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
     keen.turn {
       playPrelude(IndustrialComplex)
-      playPrelude(AppliedScience).expect("6 Science, 4 MC")
+      playPrelude(FakeAppliedScience).expect("6 Science, 4 MC")
     }
 
     been.turn {
@@ -111,7 +112,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       playPrelude(EarlySettlement) { placeTile(2, 6) }
     }
 
-    keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
     been.turn {
       playProject(LunarExports, 4, titanium = 5) { doTask("PROD[5 MC]") }
     }
@@ -148,7 +149,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
             declineTask("Science<$SearchForLife>?")
           }
           .expect("0 Science")
-      cardAction1(AppliedScience) { doTask("Titanium") }
+      cardAction1(FakeAppliedScience) { doTask("Titanium") }
       pass()
     }
     been.wgt("OceanTile<Hellas_4_6>")
@@ -183,13 +184,13 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 1, tagless = 1, cities = 2, colonies = 1)
     }
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 3, venus = 4)
-    engine.assertCounts(5 to "Tile")
+    admin.assertCounts(5 to "Tile")
 
     been.buyCards(AstraMechanica, ForcedPrecipitation)
     been.discardUnselectedProjectCards(MartianSurvey, HiredRaiders)
 
     keen.turn {
-      cardAction1(AppliedScience) { doTask("Energy") }
+      cardAction1(FakeAppliedScience) { doTask("Energy") }
       claimMilestone(cn("Merchant"))
     }
     been.turn {
@@ -208,10 +209,8 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       shouldThrow<RequirementException> {
         claimMilestone(cn("Researcher"))
       }
-      claimMilestone(
-          cn("Researcher"),
-          beforeAction = assignAllWildTags("ScienceTag"),
-      )
+      keen.exMachina(fakeWildTags("ScienceTag"))
+      claimMilestone(cn("Researcher"))
     }
     been.turn {
       cardAction1(ForcedPrecipitation)
@@ -253,11 +252,11 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 1, tagless = 1, cities = 2, colonies = 2)
     }
     assertSidebar(gen = 4, temp = -30, oxygen = 1, oceans = 3, venus = 4)
-    engine.assertCounts(5 to "Tile")
+    admin.assertCounts(5 to "Tile")
 
     been.buyCards(InventionContest)
     been.discardUnselectedProjectCards(JupiterFloatingStation, ElectroCatapult, RedShips)
-    keen.buyCards(ResearchCoordination, LunarMining)
+    keen.buyCards(FakeResearchCoordination, LunarMining)
     keen.discardUnselectedProjectCards(Hospitals, SolarPower)
 
     been.turn {
@@ -281,7 +280,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         placeTile(6, 2)
       }
     }
-    keen.turn { playProject(ResearchCoordination, 2) }
+    keen.turn { playProject(FakeResearchCoordination, 2) }
     been.turn { stdProject("PowerPlantSP") }
     keen.turn {
       cardAction1(BusinessNetwork) {
@@ -295,7 +294,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     been.pass()
     keen.turn {
-      cardAction1(AppliedScience) { doTask("Titanium") }
+      cardAction1(FakeAppliedScience) { doTask("Titanium") }
       pass()
     }
     been.wgt("VenusStep")
@@ -320,14 +319,11 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         addCardResources(ForcedPrecipitation, 3)
       }
     }
-    keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
-      playProject(
-          LunarMining,
-          9,
-          butFirst = assignAllWildTags("EarthTag"),
-      )
+      keen.exMachina(fakeWildTags("EarthTag", 2))
+      playProject(LunarMining, 9)
     }
     been.turn { playProject(SisterPlanetSupport, 7) }
     keen.turn {
@@ -389,7 +385,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       intentionalUnderpay()
       playProject(SpaceMirrors, 3)
     }
-    keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(SpaceMirrors) }
     keen.turn {
       playProject(LightningHarvest, 4).expect("PROD[1 MC, Energy], -3 MC")
@@ -496,7 +492,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 4, tagless = 1, cities = 3, colonies = 2)
     }
     assertSidebar(gen = 8, temp = -18, oxygen = 6, oceans = 5, venus = 22)
-    engine.assertCounts(14 to "Tile")
+    admin.assertCounts(14 to "Tile")
 
     been.buyCards(AerialMappers)
     been.discardUnselectedProjectCards(
@@ -624,7 +620,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       assertDashRight(events = 5, tagless = 1, cities = 3, colonies = 2)
     }
     assertSidebar(gen = 9, temp = -14, oxygen = 12, oceans = 8, venus = 30)
-    engine.assertCounts(21 to "Tile")
+    admin.assertCounts(21 to "Tile")
 
     been.turn {
       playProject(RimFreighters, 1, titanium = 1)
@@ -653,11 +649,8 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn {
       // The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
       intentionalUnderpay()
-      playProject(
-              SolarProbe,
-              7,
-              butFirst = assignAllWildTags("ScienceTag"),
-          ) {
+      keen.exMachina(fakeWildTags("ScienceTag", 2))
+      playProject(SolarProbe, 7) {
             draw(Algae, CloudTourism, SpinInducingAsteroid)
             doTask("-ProjectCard")
             discard(SpinInducingAsteroid)
@@ -861,7 +854,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.cardsHand shouldBe setOf(SolarWindPower)
     been.cardsHand shouldBe emptySet()
     checkHandSizes()
-    engine.assertCounts(0 to "Phase")
+    admin.assertCounts(1 to "End", 1 to "Phase")
 
     keen.assertCounts(47 to "TerraformRating", 117 to "VictoryPoint", 1 to "Victory")
     been.assertCounts(45 to "TerraformRating", 99 to "VictoryPoint", 0 to "Victory")

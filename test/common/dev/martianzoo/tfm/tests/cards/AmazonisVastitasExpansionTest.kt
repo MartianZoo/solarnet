@@ -68,8 +68,10 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     shutdownWorkflow()
     TfmWorkflow.Manual(game).endPhase()
 
-    p1.count("AwardTally<Player1, Manufacturer>") shouldBe 5
-    p2.count("AwardTally<Player2, Manufacturer>") shouldBe 4
+    p1.count("PROD[Steel OR Heat]") shouldBe 5
+    p2.count("PROD[Steel OR Heat]") shouldBe 4
+    p1.count("FirstPlace<Player1, Manufacturer>") shouldBe 1
+    p2.count("FirstPlace<Player2, Manufacturer>") shouldBe 0
   }
 
   @Test

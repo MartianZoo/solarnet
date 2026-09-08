@@ -6,7 +6,6 @@ import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
-import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -337,6 +336,13 @@ public open class TfmCatalog : Catalog {
     if (canonicalPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
       initialTypes.add(SOLO_COLONIES_SETUP.of(canonicalPlayerNames.single().expression))
     }
+    canonicalPlayerNames.firstOrNull()?.let { firstPlayer ->
+      initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
+      canonicalPlayerNames.zip(canonicalPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
+          (player, nextPlayer) ->
+        TfmClasses.SUCCESSOR.of(player.expression, nextPlayer.expression)
+      }
+    }
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }
@@ -347,7 +353,7 @@ public open class TfmCatalog : Catalog {
       requireGoalPoolSize(selectedAwardNames, TfmClasses.AWARD)
     }
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
-      "initial ColonyTiles must be provided by a selected Module"
+      "selected ColonyTiles must be provided by a selected Module"
     }
     return GamePremise(
         this,
@@ -373,6 +379,17 @@ public open class TfmCatalog : Catalog {
                 }
           }
           .mapTo(linkedSetOf()) { it.target }
+
+  private fun initialColonyTileType(className: ClassName) =
+      if (universe.getClass(className).isSubtypeOf(universe.getClass(COLONY_TILE_SELECTION))) {
+        SELECTED_COLONY_TILE.of(className.classExpression())
+      } else {
+        universe
+            .resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
+            .allConcreteSubtypes()
+            .single { it.rootClass.className != SELECTED_COLONY_TILE }
+            .expression
+      }
 
   private fun countConfigured(metric: Metric, configuredClassNames: Set<ClassName>): Int {
     require(metric is Count && metric.expression.simple) {
@@ -423,16 +440,6 @@ public open class TfmCatalog : Catalog {
     val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
     colonyTile.allSubclasses().filterNot { it.abstract }.mapTo(linkedSetOf()) { it.className }
   }
-
-  private fun initialColonyTileType(className: ClassName) =
-      requireNotNull(
-              universe
-                  .resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
-                  .singleConcreteSubtype(NoGameState)
-          ) {
-            "ColonyTileSelection<Class<$className>> must have exactly one concrete representation"
-          }
-          .expression
 
   private fun resolveConfigurationNames(names: Iterable<ClassName>): Set<ClassName> =
       names.mapTo(linkedSetOf()) { configuredName ->
@@ -790,8 +797,9 @@ public open class TfmCatalog : Catalog {
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
-    private val PRELUDE_CARD_PACK_ONLY: Requirement = parse("PreludeCardPack")
+    private val SELECTED_COLONY_TILE = cn("SelectedColonyTile")
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
+    private val PRELUDE_CARD_PACK_ONLY: Requirement = parse("PreludeCardPack")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
     private const val MINIMUM_GOAL_POOL_SIZE = 3
   }

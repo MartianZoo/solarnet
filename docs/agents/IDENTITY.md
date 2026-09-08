@@ -11,7 +11,7 @@
 > **Skip when:** changing ownership as a Type dependency without task routing, attribution, or the
 > contextual `Owner` spelling; read the dependency sections of [TYPES.md](TYPES.md).
 >
-> **Status:** current identity semantics plus the selected Engine/Admin naming direction. The
+> **Status:** current identity semantics. The
 > interaction between SAFE auto-selection and cross-Player handoff remains open, as does the entry
 > under Open audit.
 
@@ -67,12 +67,11 @@ requires Admin's decisions to be deterministic or outcome-preserving.
 
 Kotlin `Engine` is different: it is the passive mechanism that validates an Actor mutation and
 calculates the resulting state transition. It is not an Actor, Component, task assignee, narrower,
-or event performer. Current code and Pets still call the administrative Actor `Engine`; that is
-migration state, not the target vocabulary.
+or event performer.
 
 Core engine state derives a Task's current assignee from its selection state and enforces that
 ordinary task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
-Actor, presents a convenient filtered view of the one global task pool, and issues both explicit and
+Actor, presents a convenient filtered view of the one global task queue, and issues both explicit and
 policy-chosen mutations. Lower-level engine mutation remains available for deliberate workflow,
 replay, cheat, and test use.
 
@@ -114,7 +113,7 @@ This: TerraformRating
 
 Defaults elaborate the result to `TerraformRating<Owner>`, but the Trigger contains no `Owner` to
 bind. Class-Effect transformation therefore supplies `BY Owner`. Trigger matching accepts a Player
-Actor, rejects Engine as an Owner, and uses that Player to close the result's contextual `Owner`.
+Actor, rejects Admin as an Owner, and uses that Player to close the result's contextual `Owner`.
 No default-occurrence propagation can replace this rule because the value comes from the event's
 Actor rather than another Type expression.
 
@@ -125,6 +124,13 @@ triggered during a Player-controlled operation keeps that Player as controller, 
 component owns the effect. Its contextual Actor is the Player owner of the effect-bearing component,
 then the Player owner of the changed component, then the triggering Actor. Admin-driven setup and
 workflow retain that routing. An unselected task's assignee is its controller.
+
+Start-player requests locate the token's Player with `EACH Player(HAS StartToken)` and gain a request
+signal owned by that Player. `EACH` only supplies the contextual owner; the signal's own
+effect supplies the ordinary owned-component task routing. Icy Impactors separately captures the
+signal event's Actor and uses instruction-side `BY` so the card owner still performs the ocean
+placement chosen by the start player. World Government Advisor instead gains its owned request
+directly, so the card owner chooses regardless of who holds the Start Token.
 
 Selecting a concrete task executes it in place. The change records the task's Actor unless an
 instruction-side `BY` overrides it. Reactions caused by that execution return to the retained
@@ -152,8 +158,8 @@ The constraining cases are:
 | Homeostasis Bureau | Surrounding operation controller | No choice | Card owner |
 | Pharmacy Union | Operation that produced the Microbe tag | No choice | Pharmacy Union owner |
 
-`!Owner` is a complement Type and has nothing to do with either form of `BY` or postfix
-instruction `!`.
+`Player(NOT Owner)` filters an event Actor Type; it neither assigns task control nor makes an
+instruction mandatory.
 
 Philares is the primary sequencing scenario. The active Player controls a pending resource task
 caused by that Player's placement and may select other eligible siblings before it. Once the active
@@ -212,15 +218,11 @@ That single overload is the common cause of a scattered set of workarounds:
 - the `OWNER` carve-out in `Defaults.gatherDefaultDeps` ("Owner also acts as a contextual variable"),
   which sits directly under a `TODO: this is complex and this human doesn't understand it`;
 - the `arguments.isEmpty() && refinement == null` guard in `Transforming.replaceOwnerWith`;
-- `Transformers.insertDeferredComplementDefaults` and `hasDeferredOwnerComplement`; and
-- five `IMPL:` comments in Catalog sources recording bounds that **cannot be written**. Three
-  (`OwnedTile`, `Resource`, `Production`) say the declared `Owner` bound would erase the contextual
-  binding the `Owned` default inserts; two (`MyResourceWasRemoved`, `MyProductionWasDecreased`) say
-  it would lose the concrete victim while specializing a complemented `!Player`.
+- three `IMPL:` comments in Catalog sources (`OwnedTile`, `Resource`, `Production`) saying the
+  declared `Owner` bound would erase the contextual binding the `Owned` default inserts.
 
-Those last two overlap with the Complement direction in
-[TYPES.md](TYPES.md#7-complement-bounds); if contextual ownership gets its own spelling, recheck
-whether the watcher sites still need a Complement at all.
+The former watcher limitation is resolved: explicit `Owner(NOT Player)` differences preserve the
+concrete victim, so `MyResourceWasRemoved` and `MyProductionWasDecreased` now declare `Owned<Owner>`.
 
 The direction to investigate is giving the contextual owner a spelling distinct from the Class name,
 so `Anyone` and the carve-outs can go and a class can declare `Owner` as a real bound. Confirm first

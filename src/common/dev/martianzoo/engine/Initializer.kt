@@ -6,7 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProvenance
@@ -25,10 +25,15 @@ internal class Initializer(
 ) {
   // Taking about 10% of total solo game time on the JVM (2026-09-06)
   internal fun initialize() {
-    val engineEvent = execute("$ENGINE", cause = null).changes.first()
-    val engineCause = Cause(ENGINE.expression, engineEvent.ordinal)
-    createSingletons(engineCause)
-    createInitialComponents(engineCause)
+    val adminEvent = execute("$ADMIN", cause = null).changes.first()
+    val adminCause = Cause(ADMIN.expression, adminEvent.ordinal)
+    createPremiseComponents(adminCause)
+    drainBootstrapTasks()
+    createMissingPremiseModules(adminCause)
+    drainBootstrapTasks()
+    createInitialComponents(adminCause)
+    drainBootstrapTasks()
+    verifyCompletedBootstrap()
     timeline.initializationFinished()
     timeline.commit()
   }
@@ -43,35 +48,30 @@ internal class Initializer(
   }
 
   /**
-   * Singleton types are discovered by class, not dependency order. Retry only dependency-blocked
-   * types until each dependency has had a chance to be created by an earlier round.
+   * Creates root selected Modules and seated Players; selected descendants come from their roots.
    */
-  private fun createSingletons(cause: Cause) {
+  private fun createPremiseComponents(cause: Cause) {
     val orderedModules = orderModulesByActiveProvenance()
-    val moduleNames = premise.modules.toSet()
-    val playerNames = premise.playerClassNames.toSet()
+    val constructivelyCreatedModules =
+        premise.modules
+            .flatMap { source -> ModuleProvenance.gains(classTable.getClass(source).declaration) }
+            .mapNotNullTo(linkedSetOf()) { gain -> gain.target.takeIf { it in premise.modules } }
     createComponents(
-        premise.playerClassNames.map(classTable::getClass).flatMap {
-          classTable.concreteSubtypesSameClass(it.baseType)
-        } +
-            orderedModules.flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
-            classTable
-                .allClasses()
-                .filter {
-                  it.className !in moduleNames &&
-                      it.className !in playerNames &&
-                      it.isSingletonType()
-                }
-                .flatMap { classTable.concreteSubtypesSameClass(it.baseType) },
+        orderedModules
+            .filter { it.className !in constructivelyCreatedModules }
+            .flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
+            premise.playerClassNames.map(classTable::getClass).flatMap {
+              classTable.concreteSubtypesSameClass(it.baseType)
+            },
         cause,
-        "singleton",
+        "premise",
     )
   }
 
   /**
    * Orders Modules needed to evaluate provenance conditions before the source whose condition
-   * observes them. A source gets the first opportunity to create its target; the ordinary singleton
-   * pass later supplies any target that remains absent.
+   * observes them. A constructive source gets the first opportunity to create its target before the
+   * initializer considers creating that target directly from the premise.
    */
   private fun orderModulesByActiveProvenance(): List<Class> {
     val modules = premise.modules.associateWith(classTable::getClass)
@@ -107,6 +107,36 @@ internal class Initializer(
 
   private fun createInitialComponents(cause: Cause) {
     createComponents(premise.initialComponentTypes.map(classTable::resolve), cause, "initial")
+  }
+
+  /** Directly creates selected targets whose potential constructive conditions did not hold. */
+  private fun createMissingPremiseModules(cause: Cause) {
+    val missing =
+        premise.modules
+            .map(classTable::getClass)
+            .filter { agent.count("${it.baseType.expression}") == 0 }
+            .flatMap { classTable.concreteSubtypesSameClass(it.baseType) }
+    createComponents(missing, cause, "remaining premise")
+  }
+
+  /** Runs choice-free queued initialization work in stable insertion order. */
+  private fun drainBootstrapTasks() {
+    agent.autoExecNow()
+    tasks.all().requireAllQueuesEmpty()
+  }
+
+  private fun verifyCompletedBootstrap() {
+    val expected =
+        premise.modules.map(classTable::getClass).map(Class::baseType) +
+            premise.playerClassNames.map(classTable::getClass).map(Class::baseType) +
+            premise.initialComponentTypes.map(classTable::resolve)
+    val missing = expected.filter { agent.count("${it.expression}") == 0 }
+    if (missing.isNotEmpty()) {
+      throw invalidPetDefinition(
+          "Bootstrap completed without required components: " +
+              missing.joinToString { "${it.expressionFull}" }
+      )
+    }
   }
 
   private fun createComponents(types: Collection<Type>, cause: Cause, description: String) {

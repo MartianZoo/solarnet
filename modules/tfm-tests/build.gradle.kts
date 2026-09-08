@@ -12,6 +12,7 @@ kotlin {
         implementation(project(":pets"))
         implementation(project(":script"))
         implementation(project(":tfm-canon"))
+        implementation(project(":tfm-fake"))
         implementation(project(":tfm-engine"))
       }
     }

@@ -21,8 +21,7 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
             val actorDeclarations =
                 transformed.trigger.descendantsOfType<ByTrigger>().map(ByTrigger::by).filter {
                     selector ->
-                  !selector.complement &&
-                      selector.simple &&
+                  selector.simple &&
                       selector.className != ANYONE &&
                       transformed.typeVariables.variableAt(selector) == null &&
                       resolve(selector).rootClass.let { it.abstract && it.isSubtypeOf(actorClass) }

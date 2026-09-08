@@ -55,7 +55,7 @@ one replay, or the absence of a known counterexample yields `UNKNOWN`, not permi
 policy may be incomplete. It must be sound.
 
 Solarnet still needs its own theorem. Its transition vocabulary is reconstructed dynamically from
-task schemas and legal narrowings, and enabledness depends on the component graph and task pool.
+task schemas and legal narrowings, and enabledness depends on the component graph and task queue.
 After that reconstruction, Antti Valmari's
 [“Stubborn Sets for Reduced State Space Generation”](https://ai.dmi.unibas.ch/research/reading_group/valmari-apn1989.pdf)
 supplies the directly useful lemma: a terminating execution can be permuted to begin with a
@@ -80,7 +80,7 @@ all pending tasks are in P  and  MAX 0 MustCleanUp
 
 Whole-World idleness is the special case `P = ∅`. Let `N(S)` be the set of EGS classes reachable at
 that boundary while resolving the current operation. Queue clear alone is insufficient:
-`Implementations.complete` also rejects surviving `MustCleanUp` components such as `WildTagUse`.
+`Implementations.complete` also rejects surviving `MustCleanUp` components such as `Accepting`.
 If later end-of-turn play depends only on boundary EGS, equality there preserves end-of-turn
 outcomes too.
 

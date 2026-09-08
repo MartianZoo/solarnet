@@ -11,9 +11,9 @@ import kotlin.test.Test
 internal class DoubleDownTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(PreludeExpansion, PromoCardPack)
+    newGame(PreludeExpansion, PromoCardPack, retainedStartingProjects = 5)
     p1.playCorp(PharmacyUnion, 5)
-    engine.phase("Prelude")
+    admin.phase("Prelude")
     p1.playPrelude(BiosphereSupport)
   }
 

@@ -32,7 +32,6 @@ internal class ClassDeclarationTest {
           DEFAULT Foo<Xyz>
           DEFAULT +Foo<Abc>?
           DEFAULT -Foo<Def>!
-          DEFAULT Foo<Trigger>:
           row = Number
           column = 2
           This: DoStuff
@@ -81,7 +80,6 @@ internal class ClassDeclarationTest {
           HAS =1 This
           DEFAULT +Foo<Abc>?
           DEFAULT Foo<Xyz>
-          DEFAULT Foo<Trigger>:
 
           This: DoStuff
           Steel -> 5 MC
@@ -105,7 +103,6 @@ internal class ClassDeclarationTest {
     val paid = parse<Effect>("-Invoice<This, Action1>: 5 MC")
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
-    val trigger = cn("Trigger").expression
     val first = cn("Action1")
 
     decl.className shouldBe foo
@@ -118,7 +115,6 @@ internal class ClassDeclarationTest {
     decl.effects.shouldContainExactlyInAnyOrder(eff, invoice, paid)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
-    decl.defaultsDeclaration.triggerOnly.specs.shouldContainExactlyInAnyOrder(trigger)
     decl.defaultsDeclaration.gainOnly.intensity shouldBe Intensity.OPTIONAL
     decl.extraNodes.shouldContainExactlyInAnyOrder(first)
 
@@ -134,7 +130,6 @@ internal class ClassDeclarationTest {
         paid,
         gain,
         univ,
-        trigger,
         first,
     )
   }

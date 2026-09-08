@@ -8,7 +8,6 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.abstractInstruction
@@ -18,6 +17,7 @@ import dev.martianzoo.pets.api.Exceptions.requirementsNotMetInChoices
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
@@ -40,7 +40,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
@@ -209,90 +209,6 @@ internal constructor(
    */
   internal fun resolve(unresolved: Instruction): InstructionTree = doResolve(unresolved)
 
-  /**
-   * Validates a concrete target selected from an abstract pure AMAP gain or removal. Returns true
-   * when that kind of selection occurred, so an unselected task can be locked to this world before
-   * retaining the selection.
-   */
-  internal fun validateAmApSelection(
-      wide: InstructionTree,
-      proposed: InstructionTree,
-  ): Boolean {
-    val pairs =
-        firstStageChanges(wide).flatMap { domain ->
-          firstStageChanges(proposed).mapNotNull { selection ->
-            if (selection.change.narrows(domain.change, reader)) domain to selection else null
-          }
-        }
-    val selections = pairs.filter { (domain, selection) ->
-      isAbstractPureAmAp(domain.change, selection.change)
-    }
-    selections.forEach { (domain, selection) ->
-      if (
-          domain.metricPositive &&
-              selection.metricPositive &&
-              hasPositiveExecution(domain.change) &&
-              !hasPositiveExecution(selection.change)
-      ) {
-        throw NarrowingException(
-            "AMAP target `${selection.change}` cannot execute while " +
-                "`${domain.change}` has a positive choice"
-        )
-      }
-    }
-    return selections.isNotEmpty()
-  }
-
-  private data class FirstStageChange(val change: Change, val metricPositive: Boolean = true)
-
-  private fun firstStageChanges(tree: InstructionTree): List<FirstStageChange> =
-      when (tree) {
-        is Change -> listOf(FirstStageChange(tree))
-        is By -> firstStageChanges(tree.inner)
-        is Gated -> firstStageChanges(tree.inner)
-        is Per ->
-            firstStageChanges(tree.inner).map {
-              it.copy(metricPositive = reader.count(tree.metric) > 0)
-            }
-        is Then -> firstStageChanges(tree.first)
-        is Or -> tree.instructions.flatMap(::firstStageChanges)
-        is InstructionGroup -> tree.instructions.flatMap(::firstStageChanges)
-        else -> emptyList()
-      }
-
-  private fun isAbstractPureAmAp(domain: Change, selection: Change): Boolean {
-    if (domain.intensity != AMAP) return false
-    val domainTarget = domain.gaining ?: domain.removing ?: return false
-    if (domain.gaining != null && domain.removing != null) return false
-    val selectionTarget = selection.gaining ?: selection.removing ?: return false
-    val domainType = reader.resolve(domainTarget)
-    return domainType.abstract &&
-        !domainType.rootClass.declaration.custom &&
-        !reader.resolve(selectionTarget).abstract
-  }
-
-  private fun hasPositiveExecution(change: Change): Boolean {
-    val gaining = change.gaining?.let(reader::resolve)
-    val removing = change.removing?.let(reader::resolve)
-    if (listOfNotNull(gaining, removing).any { !classTable.isActive(it) }) return false
-    return when {
-      gaining != null && removing == null ->
-          if (gaining.abstract) {
-            !gaining.rootClass.declaration.custom &&
-                limiter.hasExecutableConcreteGain(gaining, minimum = 1, reader)
-          } else {
-            limiter.findLimitOrNull(gaining.toComponent(), null)?.let { it > 0 } == true
-          }
-      gaining == null && removing != null ->
-          if (removing.abstract) {
-            limiter.hasExecutableConcreteRemoval(removing, minimum = 1, reader)
-          } else {
-            limiter.findLimit(null, removing.toComponent()) > 0
-          }
-      else -> false
-    }
-  }
-
   private companion object {
     const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
   }
@@ -336,7 +252,7 @@ internal constructor(
     if (reader.countComponent(type) != 1) {
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }
-    if (type.className == ENGINE.className) return ENGINE
+    if (type.className == ADMIN.className) return ADMIN
     return Player.fromClassNameOrNull(type.className)
         ?: throw ExpressionException("unsupported Actor: ${type.expression}")
   }
@@ -529,10 +445,12 @@ internal constructor(
               "branch. Select an abstract type whose matching components can differ."
       )
     }
-    val ownsBody = transformers.selectionOwnsBody(each.selector)
+    val ownsBody = transformers.selectionIsOwner(each.selector)
     val named =
         each.body.descendantsOfType<Expression>().any {
-          it == each.selectorName || (ownsBody && it.className == OWNER)
+          it == each.selectorName ||
+              it == each.representedSelectorName ||
+              (ownsBody && it.className == OWNER)
         }
     if (!named) {
       throw ExpressionException(
@@ -547,10 +465,16 @@ internal constructor(
   }
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
-    val owner = ownerOf(selected)
+    val owner = selected.takeIf { transformers.selectionIsOwner(each.selector) }
+    val representedSelection =
+        each.representedSelectorName?.let {
+          check(selected.className == CLASS)
+          selected.arguments.single()
+        }
     val bind =
         PetTransformer.chain(
             replacer(each.selectorName, selected),
+            each.representedSelectorName?.let { replacer(it, checkNotNull(representedSelection)) },
             owner?.let(Transforming::replaceOwnerWith),
         )
     val bound = bind.transformInstructionTree(each.body)
@@ -559,21 +483,6 @@ internal constructor(
             .evaluateProperties(context = selected, owner = owner)
             .transformInstructionTree(bound)
     return resolveTree(evaluated)
-  }
-
-  /**
-   * The Owner that a selected component contributes to its branch: itself when it is one, otherwise
-   * whichever Owner it belongs to. This is what lets `EACH CityTile { ... }` act on each city's
-   * owner without naming any player.
-   */
-  private fun ownerOf(selected: Expression): Expression? {
-    val type = reader.resolve(selected)
-    if (type.rootClass.isSubtypeOf(classTable.getClass(OWNER))) return type.expression
-    return type.dependencies
-        .typeDependencies()
-        .map { it.boundType }
-        .firstOrNull { !it.abstract && it.rootClass.isSubtypeOf(classTable.getClass(OWNER)) }
-        ?.expression
   }
 
   private fun resolveOr(unresolved: Or): InstructionTree {

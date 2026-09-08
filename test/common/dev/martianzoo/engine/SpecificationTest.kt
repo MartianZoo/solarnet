@@ -46,9 +46,9 @@ internal class SpecificationTest {
     test("5 OxygenStep? / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
 
     test("WaterArea(HAS MAX 0 Tile)!", "Tharsis_5_5!")
-    test("StandardResource<!Player1>?", "Plant<Player2>!")
+    test("StandardResource<Owner(NOT Player1)>?", "Plant<Player2>!")
     testInvalid("WaterArea(HAS Tile)!", "Tharsis_5_5!")
-    testInvalid("StandardResource<!Player1>?", "Plant<Player1>!")
+    testInvalid("StandardResource<Owner(NOT Player1)>?", "Plant<Player1>!")
     testInvalid("Plant: 2 StandardResource?", "Heat: 2 Heat!")
   }
 

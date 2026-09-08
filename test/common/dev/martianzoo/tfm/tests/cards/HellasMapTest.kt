@@ -13,7 +13,7 @@ internal class HellasMapTest : CardTest() {
   internal fun `An unaffordable south pole remains a structurally available adjacent greenery area`() {
     newGame(Hellas)
     val p2 = requireP2()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("GreeneryTile<Hellas_9_6>")
     p2.manual("GreeneryTile<Hellas_8_6>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_9_5>")
     p1.manual("8 Plant")
@@ -27,7 +27,7 @@ internal class HellasMapTest : CardTest() {
   @Test
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
     newGame(Hellas, TurmoilCardPack)
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("$LakefrontResorts")
     p1.manual("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
     p1.manual("-54 MC")

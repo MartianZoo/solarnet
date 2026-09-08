@@ -59,104 +59,104 @@ CLASS AmazonisMap : MarsMap
 //
 //                  L    LST   LSS    L     LP    LC
 
-CLASS Amazonis_01_01 :     LandArea { row = 1; column = 1; Tile<This>: Steel }
-CLASS Amazonis_01_02 :     LandArea { row = 1; column = 2; Tile<This>: 2 Steel }
-CLASS Amazonis_01_03 :     LandArea { row = 1; column = 3; Tile<This>: Steel }
-CLASS Amazonis_01_04 :     LandArea { row = 1; column = 4; Tile<This>: ProjectCard }
-CLASS Amazonis_01_05 :     LandArea { row = 1; column = 5; Tile<This>: 2 Titanium }
+CLASS Amazonis_01_01 :     LandArea { row = 1; column = 1; Placement<This>: Steel }
+CLASS Amazonis_01_02 :     LandArea { row = 1; column = 2; Placement<This>: 2 Steel }
+CLASS Amazonis_01_03 :     LandArea { row = 1; column = 3; Placement<This>: Steel }
+CLASS Amazonis_01_04 :     LandArea { row = 1; column = 4; Placement<This>: ProjectCard }
+CLASS Amazonis_01_05 :     LandArea { row = 1; column = 5; Placement<This>: 2 Titanium }
 CLASS Amazonis_01_06 :     LandArea { row = 1; column = 6 }
 
 CLASS Amazonis_02_01 :    WaterArea { row = 2; column = 1 }
 CLASS Amazonis_02_02 :     LandArea { row = 2; column = 2 }
-CLASS Amazonis_02_03 :     LandArea { row = 2; column = 3; Tile<This>: Steel }
+CLASS Amazonis_02_03 :     LandArea { row = 2; column = 3; Placement<This>: Steel }
 CLASS Amazonis_02_04 :     LandArea { row = 2; column = 4 }
-CLASS Amazonis_02_05 :     LandArea { row = 2; column = 5; Tile<This>: Plant }
-CLASS Amazonis_02_06 :    WaterArea { row = 2; column = 6; Tile<This>: 2 Plant }
-CLASS Amazonis_02_07 :    WaterArea { row = 2; column = 7; Tile<This>: 2 Titanium }
+CLASS Amazonis_02_05 :     LandArea { row = 2; column = 5; Placement<This>: Plant }
+CLASS Amazonis_02_06 :    WaterArea { row = 2; column = 6; Placement<This>: 2 Plant }
+CLASS Amazonis_02_07 :    WaterArea { row = 2; column = 7; Placement<This>: 2 Titanium }
 
-CLASS Amazonis_03_01 :    WaterArea { row = 3; column = 1; Tile<This>: 2 Steel }
+CLASS Amazonis_03_01 :    WaterArea { row = 3; column = 1; Placement<This>: 2 Steel }
 CLASS Amazonis_03_02 :     LandArea { row = 3; column = 2 }
-CLASS Amazonis_03_03 :     LandArea { row = 3; column = 3; Tile<This>: 2 ProjectCard }
+CLASS Amazonis_03_03 :     LandArea { row = 3; column = 3; Placement<This>: 2 ProjectCard }
 CLASS Amazonis_03_04 :     LandArea { row = 3; column = 4 }
-CLASS Amazonis_03_05 :     LandArea { row = 3; column = 5; Tile<This>: Plant }
+CLASS Amazonis_03_05 :     LandArea { row = 3; column = 5; Placement<This>: Plant }
 CLASS Amazonis_03_06 :    WaterArea { row = 3; column = 6 }
-CLASS Amazonis_03_07 :     LandArea { row = 3; column = 7; Tile<This>: Plant }
-CLASS Amazonis_03_08 :     LandArea { row = 3; column = 8; Tile<This>: 2 Plant }
+CLASS Amazonis_03_07 :     LandArea { row = 3; column = 7; Placement<This>: Plant }
+CLASS Amazonis_03_08 :     LandArea { row = 3; column = 8; Placement<This>: 2 Plant }
 
-CLASS Amazonis_04_01 :     LandArea { row = 4; column = 1; Tile<This>: Titanium }
+CLASS Amazonis_04_01 :     LandArea { row = 4; column = 1; Placement<This>: Titanium }
 CLASS Amazonis_04_02 :    WaterArea { row = 4; column = 2 }
 CLASS Amazonis_04_03 :     LandArea { row = 4; column = 3 }
 CLASS Amazonis_04_04 :     LandArea { row = 4; column = 4 }
-CLASS Amazonis_04_05 :     LandArea { row = 4; column = 5; Tile<This>: Plant }
-CLASS Amazonis_04_06 :     LandArea { row = 4; column = 6; Tile<This>: Plant }
-CLASS Amazonis_04_07 :     LandArea { row = 4; column = 7; Tile<This>: 2 Plant }
-CLASS Amazonis_04_08 :     LandArea { row = 4; column = 8; Tile<This>: Plant }
-CLASS Amazonis_04_09 :     LandArea { row = 4; column = 9; Tile<This>: Plant, ProjectCard }
+CLASS Amazonis_04_05 :     LandArea { row = 4; column = 5; Placement<This>: Plant }
+CLASS Amazonis_04_06 :     LandArea { row = 4; column = 6; Placement<This>: Plant }
+CLASS Amazonis_04_07 :     LandArea { row = 4; column = 7; Placement<This>: 2 Plant }
+CLASS Amazonis_04_08 :     LandArea { row = 4; column = 8; Placement<This>: Plant }
+CLASS Amazonis_04_09 :     LandArea { row = 4; column = 9; Placement<This>: Plant, ProjectCard }
 
-CLASS Amazonis_05_01 : VolcanicArea { row = 5; column = 1; Tile<This>: 2 Steel }
-CLASS Amazonis_05_02 :     LandArea { row = 5; column = 2; Tile<This>: Plant }
-CLASS Amazonis_05_03 :     LandArea { row = 5; column = 3; Tile<This>: StandardResource }
-CLASS Amazonis_05_04 :     LandArea { row = 5; column = 4; Tile<This>: Plant }
-CLASS Amazonis_05_05 :    WaterArea { row = 5; column = 5; Tile<This>: ProjectCard }
-CLASS Amazonis_05_06 :     LandArea { row = 5; column = 6; Tile<This>: Plant }
-CLASS Amazonis_05_07 :     LandArea { row = 5; column = 7; Tile<This>: 2 Plant }
-CLASS Amazonis_05_08 :     LandArea { row = 5; column = 8; Tile<This>: Plant }
-CLASS Amazonis_05_09 :     LandArea { row = 5; column = 9; Tile<This>: StandardResource }
-CLASS Amazonis_05_10 :    WaterArea { row = 5; column = 10; Tile<This>: 2 Plant }
+CLASS Amazonis_05_01 : VolcanicArea { row = 5; column = 1; Placement<This>: 2 Steel }
+CLASS Amazonis_05_02 :     LandArea { row = 5; column = 2; Placement<This>: Plant }
+CLASS Amazonis_05_03 :     LandArea { row = 5; column = 3; Placement<This>: StandardResource }
+CLASS Amazonis_05_04 :     LandArea { row = 5; column = 4; Placement<This>: Plant }
+CLASS Amazonis_05_05 :    WaterArea { row = 5; column = 5; Placement<This>: ProjectCard }
+CLASS Amazonis_05_06 :     LandArea { row = 5; column = 6; Placement<This>: Plant }
+CLASS Amazonis_05_07 :     LandArea { row = 5; column = 7; Placement<This>: 2 Plant }
+CLASS Amazonis_05_08 :     LandArea { row = 5; column = 8; Placement<This>: Plant }
+CLASS Amazonis_05_09 :     LandArea { row = 5; column = 9; Placement<This>: StandardResource }
+CLASS Amazonis_05_10 :    WaterArea { row = 5; column = 10; Placement<This>: 2 Plant }
 
-CLASS Amazonis_06_01 :     LandArea { row = 6; column = 1; Tile<This>: Plant }
-CLASS Amazonis_06_02 :     LandArea { row = 6; column = 2; Tile<This>: Plant }
-CLASS Amazonis_06_03 :     LandArea { row = 6; column = 3; Tile<This>: 2 Plant }
-CLASS Amazonis_06_04 :     LandArea { row = 6; column = 4; Tile<This>: 2 Plant }
-CLASS Amazonis_06_05 :    WaterArea { row = 6; column = 5; Tile<This>: 2 Plant }
-CLASS Amazonis_06_06 :    WaterArea { row = 6; column = 6; Tile<This>: 2 Plant }
-CLASS Amazonis_06_07 :     LandArea { row = 6; column = 7; Tile<This>: Steel, 2 Plant }
-CLASS Amazonis_06_08 :     LandArea { row = 6; column = 8; Tile<This>: Plant }
+CLASS Amazonis_06_01 :     LandArea { row = 6; column = 1; Placement<This>: Plant }
+CLASS Amazonis_06_02 :     LandArea { row = 6; column = 2; Placement<This>: Plant }
+CLASS Amazonis_06_03 :     LandArea { row = 6; column = 3; Placement<This>: 2 Plant }
+CLASS Amazonis_06_04 :     LandArea { row = 6; column = 4; Placement<This>: 2 Plant }
+CLASS Amazonis_06_05 :    WaterArea { row = 6; column = 5; Placement<This>: 2 Plant }
+CLASS Amazonis_06_06 :    WaterArea { row = 6; column = 6; Placement<This>: 2 Plant }
+CLASS Amazonis_06_07 :     LandArea { row = 6; column = 7; Placement<This>: Steel, 2 Plant }
+CLASS Amazonis_06_08 :     LandArea { row = 6; column = 8; Placement<This>: Plant }
 CLASS Amazonis_06_09 :     LandArea { row = 6; column = 9 }
-CLASS Amazonis_06_10 :     LandArea { row = 6; column = 10; Tile<This>: Plant }
-CLASS Amazonis_06_11 :    WaterArea { row = 6; column = 11; Tile<This>: ProjectCard }
+CLASS Amazonis_06_10 :     LandArea { row = 6; column = 10; Placement<This>: Plant }
+CLASS Amazonis_06_11 :    WaterArea { row = 6; column = 11; Placement<This>: ProjectCard }
 
-CLASS Amazonis_07_02 :     LandArea { row = 7; column = 2; Tile<This>: Plant }
-CLASS Amazonis_07_03 :     LandArea { row = 7; column = 3; Tile<This>: 2 Plant }
-CLASS Amazonis_07_04 :    WaterArea { row = 7; column = 4; Tile<This>: 2 Plant }
-CLASS Amazonis_07_05 :     LandArea { row = 7; column = 5; Tile<This>: 2 Energy }
-CLASS Amazonis_07_06 :     LandArea { row = 7; column = 6; Tile<This>: Energy }
-CLASS Amazonis_07_07 :     LandArea { row = 7; column = 7; Tile<This>: 2 Energy }
+CLASS Amazonis_07_02 :     LandArea { row = 7; column = 2; Placement<This>: Plant }
+CLASS Amazonis_07_03 :     LandArea { row = 7; column = 3; Placement<This>: 2 Plant }
+CLASS Amazonis_07_04 :    WaterArea { row = 7; column = 4; Placement<This>: 2 Plant }
+CLASS Amazonis_07_05 :     LandArea { row = 7; column = 5; Placement<This>: 2 Energy }
+CLASS Amazonis_07_06 :     LandArea { row = 7; column = 6; Placement<This>: Energy }
+CLASS Amazonis_07_07 :     LandArea { row = 7; column = 7; Placement<This>: 2 Energy }
 CLASS Amazonis_07_08 :     LandArea { row = 7; column = 8 }
-CLASS Amazonis_07_09 :     LandArea { row = 7; column = 9; Tile<This>: Plant }
-CLASS Amazonis_07_10 :     LandArea { row = 7; column = 10; Tile<This>: Plant }
+CLASS Amazonis_07_09 :     LandArea { row = 7; column = 9; Placement<This>: Plant }
+CLASS Amazonis_07_10 :     LandArea { row = 7; column = 10; Placement<This>: Plant }
 CLASS Amazonis_07_11 : VolcanicArea { row = 7; column = 11 }
 
-CLASS Amazonis_08_03 :     LandArea { row = 8; column = 3; Tile<This>: Plant }
-CLASS Amazonis_08_04 :    WaterArea { row = 8; column = 4; Tile<This>: 2 ProjectCard }
-CLASS Amazonis_08_05 :     LandArea { row = 8; column = 5; Tile<This>: Plant }
-CLASS Amazonis_08_06 :     LandArea { row = 8; column = 6; Tile<This>: Energy }
-CLASS Amazonis_08_07 :     LandArea { row = 8; column = 7; Tile<This>: 2 Energy }
-CLASS Amazonis_08_08 :     LandArea { row = 8; column = 8; Tile<This>: Plant }
+CLASS Amazonis_08_03 :     LandArea { row = 8; column = 3; Placement<This>: Plant }
+CLASS Amazonis_08_04 :    WaterArea { row = 8; column = 4; Placement<This>: 2 ProjectCard }
+CLASS Amazonis_08_05 :     LandArea { row = 8; column = 5; Placement<This>: Plant }
+CLASS Amazonis_08_06 :     LandArea { row = 8; column = 6; Placement<This>: Energy }
+CLASS Amazonis_08_07 :     LandArea { row = 8; column = 7; Placement<This>: 2 Energy }
+CLASS Amazonis_08_08 :     LandArea { row = 8; column = 8; Placement<This>: Plant }
 CLASS Amazonis_08_09 : VolcanicArea { row = 8; column = 9 }
-CLASS Amazonis_08_10 :     LandArea { row = 8; column = 10; Tile<This>: Steel }
+CLASS Amazonis_08_10 :     LandArea { row = 8; column = 10; Placement<This>: Steel }
 CLASS Amazonis_08_11 :     LandArea { row = 8; column = 11 }
 
-CLASS Amazonis_09_04 :    WaterArea { row = 9; column = 4; Tile<This>: Steel, Titanium }
+CLASS Amazonis_09_04 :    WaterArea { row = 9; column = 4; Placement<This>: Steel, Titanium }
 CLASS Amazonis_09_05 :     LandArea { row = 9; column = 5 }
-CLASS Amazonis_09_06 :     LandArea { row = 9; column = 6; Tile<This>: Titanium }
+CLASS Amazonis_09_06 :     LandArea { row = 9; column = 6; Placement<This>: Titanium }
 CLASS Amazonis_09_07 :     LandArea { row = 9; column = 7 }
 CLASS Amazonis_09_08 :     LandArea { row = 9; column = 8 }
-CLASS Amazonis_09_09 :     LandArea { row = 9; column = 9; Tile<This>: 2 Plant }
+CLASS Amazonis_09_09 :     LandArea { row = 9; column = 9; Placement<This>: 2 Plant }
 CLASS Amazonis_09_10 :     LandArea { row = 9; column = 10 }
-CLASS Amazonis_09_11 : VolcanicArea { row = 9; column = 11; Tile<This>: Titanium }
+CLASS Amazonis_09_11 : VolcanicArea { row = 9; column = 11; Placement<This>: Titanium }
 
 CLASS Amazonis_10_05 :    WaterArea { row = 10; column = 5 }
 CLASS Amazonis_10_06 :     LandArea { row = 10; column = 6 }
-CLASS Amazonis_10_07 :     LandArea { row = 10; column = 7; Tile<This>: StandardResource }
+CLASS Amazonis_10_07 :     LandArea { row = 10; column = 7; Placement<This>: StandardResource }
 CLASS Amazonis_10_08 :     LandArea { row = 10; column = 8 }
-CLASS Amazonis_10_09 :     LandArea { row = 10; column = 9; Tile<This>: 3 Plant }
-CLASS Amazonis_10_10 :     LandArea { row = 10; column = 10; Tile<This>: 2 Plant }
-CLASS Amazonis_10_11 : VolcanicArea { row = 10; column = 11; Tile<This>: 2 Steel }
+CLASS Amazonis_10_09 :     LandArea { row = 10; column = 9; Placement<This>: 3 Plant }
+CLASS Amazonis_10_10 :     LandArea { row = 10; column = 10; Placement<This>: 2 Plant }
+CLASS Amazonis_10_11 : VolcanicArea { row = 10; column = 11; Placement<This>: 2 Steel }
 
 CLASS Amazonis_11_06 :     LandArea { row = 11; column = 6 }
-CLASS Amazonis_11_07 :     LandArea { row = 11; column = 7; Tile<This>: Steel, Titanium }
-CLASS Amazonis_11_08 :     LandArea { row = 11; column = 8; Tile<This>: 2 Steel }
+CLASS Amazonis_11_07 :     LandArea { row = 11; column = 7; Placement<This>: Steel, Titanium }
+CLASS Amazonis_11_08 :     LandArea { row = 11; column = 8; Placement<This>: 2 Steel }
 CLASS Amazonis_11_09 :     LandArea { row = 11; column = 9 }
-CLASS Amazonis_11_10 :     LandArea { row = 11; column = 10; Tile<This>: Plant }
-CLASS Amazonis_11_11 :     LandArea { row = 11; column = 11; Tile<This>: ProjectCard }
+CLASS Amazonis_11_10 :     LandArea { row = 11; column = 10; Placement<This>: Plant }
+CLASS Amazonis_11_11 :     LandArea { row = 11; column = 11; Placement<This>: ProjectCard }

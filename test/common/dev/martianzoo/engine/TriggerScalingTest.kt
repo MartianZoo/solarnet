@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -12,7 +13,10 @@ import kotlin.test.Test
 internal class TriggerScalingTest {
   @Test
   internal fun `ordinary triggers scale their result while X triggers produce one result`() {
-    val game = Engine.newGame(canonicalPremise(catalog = catalog))
+    val premise =
+        canonicalPremise(catalog = catalog)
+            .copy(initialComponentTypes = setOf(cn("TriggerScalingProbe").expression))
+    val game = Engine.newGame(premise)
     val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 
     agent.beginManual("5 ScalingSignal!") {

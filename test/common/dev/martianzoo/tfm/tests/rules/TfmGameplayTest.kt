@@ -33,13 +33,13 @@ internal class TfmGameplayTest :
   internal fun `No-argument pass asserts there are no unused action cards`() {
     newGame()
     p1.requireExplicitUnusedActionCards()
-    engine.phase("Action")
+    admin.phase("Action")
 
     p1.pass()
 
     newGame()
     p1.requireExplicitUnusedActionCards()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("AquiferPumping")
 
     shouldThrow<IllegalArgumentException> { p1.pass() }
@@ -60,7 +60,7 @@ internal class TfmGameplayTest :
   internal fun `Payment rejects leaving steel unspent at full value`() {
     newGame()
     p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("10 MC, 2 Steel, ProjectCard")
 
     shouldThrow<IllegalArgumentException> { p1.playProject(Mine, 4) }
@@ -71,7 +71,7 @@ internal class TfmGameplayTest :
 
     newGame()
     p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("10 MC, 2 Steel, ProjectCard")
     // Synthetic API test: no strategic reason; deliberate underpayment exercises the opt-in.
     p1.intentionalUnderpay()
@@ -82,7 +82,7 @@ internal class TfmGameplayTest :
   internal fun `Payment may preserve an accepted one-to-one resource without an opt-in`() {
     newGame()
     p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard")
 
     p1.playProject(Mine, 4)
@@ -95,7 +95,7 @@ internal class TfmGameplayTest :
   internal fun `Payment requires an opt-in to spend a one-to-one resource before money`() {
     newGame()
     p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard")
 
     shouldThrow<IllegalArgumentException> {
@@ -112,7 +112,7 @@ internal class TfmGameplayTest :
   internal fun `Required one-to-one resource is not audited as an alternative to money`() {
     newGame()
     p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("10 MC, Energy, DevelopmentCenter")
 
     p1.cardAction1(DevelopmentCenter)
@@ -126,7 +126,7 @@ internal class TfmGameplayTest :
   internal fun `Underpayment permission applies to only one payment`() {
     newGame()
     p1.requireExplicitPaymentChoices()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("14 MC, 2 Steel, 2 ProjectCard")
 
     // Synthetic API test: no strategic reason; deliberate underpayment exercises one-shot scope.
@@ -138,7 +138,7 @@ internal class TfmGameplayTest :
   @Test
   internal fun `Payment rejects a tender containing a unit that could be kept`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("3 Steel, ProjectCard")
 
     // Mine costs 4; two steel already settle it, so the third is returnable.
@@ -151,7 +151,7 @@ internal class TfmGameplayTest :
   @Test
   internal fun `Payment allows excess no single unit could have avoided`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("4 Steel, ProjectCard")
 
     // Titanium Mine costs 7; three steel are not enough, so the fourth may waste one M€.
@@ -164,7 +164,7 @@ internal class TfmGameplayTest :
   @Test
   internal fun `Payment rejects mc beyond the remainder after steel`() {
     newGame()
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("30 MC, 5 Steel, ProjectCard")
 
     shouldThrow<LimitsException> {

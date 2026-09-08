@@ -36,7 +36,7 @@ Canon loads only generated Class declarations. Each map's hand-authored map Modu
 awards remain in `classes.pets` beside `maps.pets`; premise resolution derives its default pools
 from that bundle ownership.
 
-A legend entry whose instruction is `Ok` is emitted as its own harmless `Tile<This>: Ok` effect.
+A legend entry whose instruction is `Ok` is emitted as its own harmless `Placement<This>: Ok` effect.
 Repeated sigils produce repeated effects. This preserves presentation codes such as `D` and `DD`
 on the runtime Class without introducing separate display metadata; semantic bonus consumers
 combine the effects while discarding the no-ops.

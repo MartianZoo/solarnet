@@ -10,7 +10,7 @@ internal class DirigiblesTest : CardTest() {
   internal fun `Can pay for a Venus card with two floaters`() {
     newGame(VenusNextExpansion)
 
-    engine.phase("Action")
+    admin.phase("Action")
     p1.manual("ProjectCard, $Dirigibles, 2 Floater<$Dirigibles>, 5 MC")
 
     p1.playProject(AerialMappers, 5) {
