@@ -10,7 +10,9 @@ CLASS Scientist : Award { metric = COUNT "ScienceTag" }
 CLASS Thermalist : Award { metric = COUNT "Heat" }
 CLASS Miner : Award { metric = COUNT "Metal" }
 
-CLASS TharsisMap : MarsMap
+CLASS TharsisMap : MarsMap {
+  autoSelectWhen = HAS "TerraformingMars, MAX 0 MarsMap"
+}
 
 // The map areas below are code-generated based on the following comment
 //              LSS   WSS    L     WC    W

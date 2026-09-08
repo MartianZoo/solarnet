@@ -110,6 +110,9 @@ public object Engine {
     }
 
     private fun validatePremise(classTable: ClassTable) {
+      require(premise.modules.isEmpty() || premise.premiseClassName != null) {
+        "a premise with Modules must provide a premise Class"
+      }
       premise.initialComponentTypes.forEach { expression ->
         val type = classTable.resolve(expression)
         require(!type.abstract && classTable.isActive(type) && !type.rootClass.declaration.custom) {
@@ -120,6 +123,7 @@ public object Engine {
       val initiallyPresentClassNames =
           premise.modules +
               premise.playerNames +
+              listOfNotNull(premise.premiseClassName) +
               premise.classSelections.filter { it.included }.map { it.className } +
               premise.initialComponentTypes.map { classTable.resolve(it).className }
 

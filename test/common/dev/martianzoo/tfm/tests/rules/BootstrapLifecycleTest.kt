@@ -23,9 +23,13 @@ import kotlin.test.Test
 internal class BootstrapLifecycleTest {
   @Test
   internal fun newGameReturnsCommittedCausallyCleanBootstrapState() {
-    val game = Engine.newGame(canonicalPremise())
+    val resolvedPremise = canonicalPremise()
+    val game = Engine.newGame(resolvedPremise)
     val admin = game.agent(ADMIN)
 
+    admin.count("Premise") shouldBe 1
+    admin.count("ModulesReady") shouldBe 0
+    admin.count("StandardGpTrackRules") shouldBe 1
     admin.count("Phase") shouldBe 1
     admin.count("BootstrapPhase") shouldBe 1
     admin.count("Generation") shouldBe 0
@@ -48,9 +52,31 @@ internal class BootstrapLifecycleTest {
     adminCreation.toString().shouldEndWith("(manual)")
     changes.none { it.change.gaining?.className == cn("Class") } shouldBe true
     changes.drop(1).all { it.cause != null } shouldBe true
+    val premise = changes.single { it.change.gaining?.className == cn("Premise") }
     val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
+    val modulesReady = changes.single { it.change.gaining?.className == cn("ModulesReady") }
+    val standardTracks = changes.single {
+      it.change.gaining?.className == cn("StandardGpTrackRules")
+    }
     val bootstrap = changes.single { it.change.gaining?.className == cn("BootstrapPhase") }
+    changes.drop(1).first() shouldBe premise
+    premise.cause shouldBe Cause(cn("Admin").expression, adminCreation.ordinal)
+    terraform.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
+    modulesReady.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
+    standardTracks.cause shouldBe Cause(cn("TerraformingMars").expression, modulesReady.ordinal)
     bootstrap.cause shouldBe Cause(cn("TerraformingMars").expression, terraform.ordinal)
+    resolvedPremise.modules.forEach { moduleName ->
+      changes
+          .single { it.change.gaining?.className == moduleName }
+          .also { module ->
+            module.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
+            (module.ordinal < modulesReady.ordinal) shouldBe true
+          }
+    }
+    resolvedPremise.playerNames.forEach { playerName ->
+      val player = changes.single { it.change.gaining?.className == playerName }
+      (player.ordinal < modulesReady.ordinal) shouldBe true
+    }
 
     shouldThrow<IllegalArgumentException> { game.timeline.rollBack(Checkpoint(0)) }
         .message
@@ -59,9 +85,26 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
+  internal fun modulesChooseTheirTrackRulesAfterTheCompleteModuleSetExists() {
+    val game = Engine.newGame(canonicalPremise(Amazonis, VenusNextExpansion))
+    val admin = game.agent(ADMIN)
+
+    admin.count("ExtendedGlobalParametersRule") shouldBe 1
+    admin.count("StandardGpTrackRules") shouldBe 0
+    admin.count("StandardVenusTrackRules") shouldBe 0
+    admin.count("ExtendedVenusTrackRules") shouldBe 1
+
+    val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
+    val modulesReady = changes.single { it.change.gaining?.className == cn("ModulesReady") }
+    changes.single { it.change.gaining?.className == cn("ExtendedVenusTrackRules") }.cause shouldBe
+        Cause(cn("VenusNextExpansion").expression, modulesReady.ordinal)
+  }
+
+  @Test
   internal fun soloModeCreatesItsOpponent() {
     val game = Engine.newGame(canonicalPremise(players = 1))
     val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
+    val premise = changes.single { it.change.gaining?.className == cn("Premise") }
     val soloMode = changes.single { it.change.gaining?.className == cn("SoloMode") }
     val soloOpponent = changes.single { it.change.gaining?.className == cn("SoloOpponent") }
 
@@ -69,32 +112,36 @@ internal class BootstrapLifecycleTest {
     val standardObjective = changes.single {
       it.change.gaining?.className == cn("StandardSoloObjective")
     }
-    standardObjective.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
+    standardObjective.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
   }
 
   @Test
   internal fun selectedSourcesCreateTheirRuntimeBootstrapComponents() {
     val game = Engine.newGame(canonicalPremise())
     val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
+    val premise = changes.single { it.change.gaining?.className == cn("Premise") }
     val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
     val map = changes.single { it.change.gaining?.className == cn("TharsisMap") }
     val area = changes.single { it.change.gaining?.className == cn("Tharsis_1_1") }
 
-    changes.drop(1).first() shouldBe terraform
-    map.cause shouldBe Cause(cn("TerraformingMars").expression, terraform.ordinal)
+    changes.drop(1).first() shouldBe premise
+    terraform.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
+    map.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
     area.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)
   }
 
   @Test
-  internal fun selectedNondefaultMapsExistBeforeTheDefaultMapIsEvaluated() {
-    listOf(Hellas, Elysium, Utopia, Cimmeria).forEach { selectedMap ->
+  internal fun `Terraforming Mars exists before every selected map`() {
+    listOf(Tharsis, Hellas, Elysium, Utopia, Cimmeria).forEach { selectedMap ->
       val game = Engine.newGame(canonicalPremise(selectedMap))
       val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
       val map = changes.single { it.change.gaining?.className == selectedMap.className }
       val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
 
-      (map.ordinal < terraform.ordinal) shouldBe true
-      changes.none { it.change.gaining?.className == cn("TharsisMap") } shouldBe true
+      (terraform.ordinal < map.ordinal) shouldBe true
+      if (selectedMap != Tharsis) {
+        changes.none { it.change.gaining?.className == cn("TharsisMap") } shouldBe true
+      }
     }
   }
 

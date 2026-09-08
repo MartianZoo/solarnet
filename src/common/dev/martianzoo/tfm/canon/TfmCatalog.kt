@@ -18,7 +18,6 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.data.Catalog
@@ -27,7 +26,6 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
-import dev.martianzoo.pets.data.ModuleProvenance
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.Class as PetClass
@@ -211,7 +209,8 @@ public open class TfmCatalog : Catalog {
    * Structured inputs may use unambiguous English Pets names. Naming any milestones or awards
    * selects the exact configured pool for that category. A playable Terraforming Mars Catalog
    * requires at least one player name in seat order. Missing names are composed into the Catalog as
-   * concrete `Player` subclasses before the premise is resolved.
+   * concrete `Player` subclasses before the premise is resolved. The returned Catalog also contains
+   * one generated concrete `Premise` Class whose immediate effects create the resolved Modules.
    */
   public open fun gamePremise(config: GameConfig): GamePremise {
     val configuredPlayerNames = config.playerNames
@@ -250,26 +249,12 @@ public open class TfmCatalog : Catalog {
               next.add(moduleName)
             }
           }
-      included
-          .filter { it in modules }
-          .flatMap { source -> constructivelySelectedModules(source, included) }
-          .filter { target -> target !in explicitlyExcluded }
-          .forEach(next::add)
       if (next == included) break
       included = next
     }
     require(seenSelections.last() == included) {
       "Module defaults do not converge: ${seenSelections.joinToString(" -> ")}"
     }
-
-    included
-        .filter { it in modules }
-        .flatMap { source -> constructivelySelectedModules(source, included) }
-        .forEach { target ->
-          require(target !in explicitlyExcluded) {
-            "active Module provenance selects excluded Module $target"
-          }
-        }
 
     cards
         .filter { it.className in explicitlyIncluded }
@@ -366,12 +351,14 @@ public open class TfmCatalog : Catalog {
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "selected ColonyTiles must be provided by a selected Module"
     }
+    val premiseCatalog = if (moduleNames.isEmpty()) this else withPremiseDeclaration()
     return GamePremise(
-        this,
+        premiseCatalog,
         moduleNames,
         classSelections,
         initialTypes,
         configuredPlayerNames,
+        premiseDeclaration.className.takeIf { moduleNames.isNotEmpty() },
     )
   }
 
@@ -388,22 +375,6 @@ public open class TfmCatalog : Catalog {
     val playerNames = playerDeclarations.map(ClassDeclaration::className)
     return catalog.gamePremise(config.copy(playerNames = playerNames))
   }
-
-  /** Module gains on an active Module's own creation are forward selection provenance. */
-  private fun constructivelySelectedModules(
-      source: ClassName,
-      configuredClassNames: Set<ClassName>,
-  ): Set<ClassName> =
-      ModuleProvenance.gains(universe.getClass(source).declaration)
-          .filter { gain ->
-            gain.target in modules &&
-                gain.requirements.all { requirement ->
-                  requirement.isMetBy { metric ->
-                    countConfigured(metric, configuredClassNames - gain.target)
-                  }
-                }
-          }
-          .mapTo(linkedSetOf()) { it.target }
 
   private fun initialColonyTileType(className: ClassName) =
       if (universe.getClass(className).isSubtypeOf(universe.getClass(COLONY_TILE_SELECTION))) {
@@ -552,6 +523,19 @@ public open class TfmCatalog : Catalog {
     )
   }
 
+  private val catalogWithPremise: TfmCatalog by lazy {
+    require(premiseDeclaration.className !in allClassNames) {
+      "${premiseDeclaration.className} is reserved for the resolved game configuration"
+    }
+    withDeclarations(setOf(premiseDeclaration))
+  }
+
+  private val premiseDeclaration: ClassDeclaration by lazy {
+    modulePremiseDeclaration(allClassNames)
+  }
+
+  private fun withPremiseDeclaration(): TfmCatalog = catalogWithPremise
+
   private fun addExactGoalSelections(
       selections: MutableMap<ClassName, Boolean>,
       goalNames: Set<ClassName>,
@@ -627,18 +611,7 @@ public open class TfmCatalog : Catalog {
           !declaration.abstract && isSubtypeOf(declaration.className, MODULE_CLASS)
         }
         .associate { declaration ->
-          val provenanceSelections =
-              ModuleProvenance.gains(declaration)
-                  .filter { gain -> isSubtypeOf(gain.target, MODULE_CLASS) }
-                  .mapTo(linkedSetOf()) { gain ->
-                    ClassSelection(
-                        gain.target,
-                        requirement =
-                            if (gain.requirements.isEmpty()) null
-                            else And.create(gain.requirements),
-                    )
-                  }
-          declaration.className to (selectionsFor(declaration.className) + provenanceSelections)
+          declaration.className to selectionsFor(declaration.className)
         }
   }
 

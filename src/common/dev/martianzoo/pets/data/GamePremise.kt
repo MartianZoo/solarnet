@@ -15,6 +15,10 @@ public data class GamePremise(
     public val initialComponentTypes: Set<Expression>,
     /** Concrete Player Class Names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
+    /**
+     * Concrete configuration Class created immediately after Admin, when the Catalog supplies one.
+     */
+    public val premiseClassName: ClassName? = null,
 ) {
   /** The immutable active-class projection shared by every World built from this premise. */
   private val classTableLazy = lazy { ClassTable.forPremise(this) }
@@ -57,6 +61,12 @@ public data class GamePremise(
         initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
     require(initialClassNames.all { it in catalog.allClassNames }) {
       "initial component types must belong to the premise Catalog"
+    }
+    premiseClassName?.let { className ->
+      val declaration = catalog.allClassDeclarations[className]
+      require(declaration != null && !declaration.abstract && declaration.dependencies.isEmpty()) {
+        "premise class must be a concrete dependency-free Catalog Class: $className"
+      }
     }
   }
 

@@ -74,6 +74,9 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
+- `./gradlew :tools:dumpOtbGame20260828EventLog` replays the complete August 28, 2026 game used by
+  the game viewer and writes every change event in the same format to
+  `_local/eventlogs/otb-game-20260828-eventlog.tsv`.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of independent automatic-effect listeners.
   A component's own automatic Effects retain declaration order. This is a diagnostic mode for

@@ -64,7 +64,8 @@ public abstract class ClassTable {
           premise.modules +
               ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
               initialClassNames +
-              premise.actors.map(Actor::className)
+              premise.actors.map(Actor::className) +
+              listOfNotNull(premise.premiseClassName)
 
       val table =
           ClassLoader.projection(
