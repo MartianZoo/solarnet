@@ -11,6 +11,10 @@ private val globalEventProbeDeclarations =
             """
             CLASS GlobalEventProbe : TagHolder { HAS MAX 1 This }
             CLASS PlayedEventProbe : EventCard<Class<ProjectCard>> { cost = 0 }
+            CLASS ActiveEventProbe : ActiveCard<Class<ProjectCard>> {
+              cost = 0
+              MeasureInfluence:: Ok
+            }
             """
                 .trimIndent()
         )
@@ -126,6 +130,71 @@ internal class TurmoilEventsTest :
 
     p1.count("MC") shouldBe 18
     requireP2().count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `money penalties cap holdings then subtract influence and available money`() {
+    newGame(TurmoilExpansion)
+    seatPlayerOneAsChairman()
+    p1.manual(
+        "100 MC, 5 Heat, GlobalEventProbe, 7 BuildingTag<GlobalEventProbe>, " +
+            "2 SpaceTag<GlobalEventProbe>, ActiveEventProbe, " +
+            "CityTile<Tharsis_1_1>, CityTile<Tharsis_1_3>, CityTile<Tharsis_2_5>"
+    )
+    admin.manual("MeasureInfluence<Player1>")
+
+    resolve("GlobalDustStorm")
+    resolve("Pandemic")
+    resolve("Riots")
+    resolve("SolarFlare")
+    resolve("SolarnetShutdown")
+
+    p1.count("Heat") shouldBe 0
+    p1.count("MC") shouldBe 69
+    requireP2().count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `resource production card and rating losses do as much as the player can`() {
+    newGame(TurmoilExpansion)
+    seatPlayerOneAsChairman()
+    p1.manual(
+        "10 MC, 10 Plant, 3 Titanium, ProjectCard, GlobalEventProbe, " +
+            "7 JovianTag<GlobalEventProbe>, PROD[Steel]"
+    )
+    admin.manual("MeasureInfluence<Player1>")
+
+    resolve("EcoSabotage")
+    resolve("MinersOnStrike")
+    resolve("SabotageGlobalEvent")
+    resolve("ParadigmBreakdown")
+    resolve("RedInfluence")
+    resolve("WarOnEarth")
+
+    p1.count("Plant") shouldBe 4
+    p1.count("Titanium") shouldBe 0
+    p1.count("Steel") shouldBe 1
+    p1.count("PROD[Steel]") shouldBe 0
+    p1.count("PROD[Energy]") shouldBe 0
+    p1.count("ProjectCard") shouldBe 2
+    p1.count("MC") shouldBe 4
+    p1.count("PROD[MC] - ProdOffset<Class<MC>>") shouldBe 1
+    p1.count("TerraformRating") shouldBe 17
+    requireP2().count("TerraformRating") shouldBe 16
+  }
+
+  @Test
+  internal fun `mud slides counts each owned coastal tile once`() {
+    newGame(TurmoilExpansion)
+    seatPlayerOneAsChairman()
+    p1.manual("50 MC, CityTile<Tharsis_4_4>, GreeneryTile<Tharsis_4_5>")
+    admin.manual("OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>")
+    admin.manual("MeasureInfluence<Player1>")
+
+    p1.count("OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>") shouldBe 2
+    resolve("MudSlides")
+
+    p1.count("MC") shouldBe 46
   }
 
   private fun resolve(event: String) {

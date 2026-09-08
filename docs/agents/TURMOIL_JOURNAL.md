@@ -347,3 +347,36 @@ Code review found no uncapped tag count, influence added before capping, global 
 count, inactive-card response, or accidental Wild-tag special case. The next slice will implement
 the resource-loss, production-loss, and rating-loss events, with FAQ cases for insufficient assets
 and influence reducing penalties to zero.
+
+## 2026-09-08 — Stage 11: loss and penalty events
+
+Implemented twelve events whose main effects remove resources, production, cards, money, or rating:
+Eco Sabotage, Global Dust Storm, Miners on Strike, Mud Slides, Pandemic, Paradigm Breakdown, Red
+Influence, Riots, Sabotage, Solar Flare, Solarnet Shutdown, and War on Earth. Metric subtraction
+directly models the FAQ rule that influence is removed from the already-capped printed count and
+never produces a negative result.
+
+Forced losses use AMAP only where the rules say a player loses what is available. This lets an
+empty or short supply of money, titanium, cards, or production settle honestly without a fallback
+branch. Eco Sabotage instead removes the exact computed subset of the player's own plants, which
+can never exceed that supply. Global Dust Storm orders complete heat loss before its money penalty.
+Sabotage independently decreases steel and energy production, so the absence of either does not
+cancel the other, then pays steel from influence. Red Influence applies its rating-derived money
+loss before increasing M€ production.
+
+Mud Slides selects owned Mars tiles whose areas have a live ocean neighbor. The metric counts each
+tile component once even when multiple oceans neighbor it, and naturally excludes opponents' and
+remote tiles. Functional tests cover the FAQ's short-hand cases: three titanium against a four-unit
+loss, one card against a two-card discard, only steel production, no energy production, no money,
+and a blue-card penalty fully erased by influence. They also verify all formulas, capped counts,
+event order, and both players' War on Earth rating loss. The focused event suite, complete Gradle
+suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: all twelve cards remain direct Pets responses on their exact event
+components. Existing nonnegative metric subtraction, ownership specialization, AMAP removal,
+production wrapping, and area-neighbor derivation express the rules without event-specific state,
+watchers, or Kotlin. Code review found no overdraw, negative final count, influence applied before
+the cap, duplicated coastal tile, cross-player holding count, or coupled Sabotage production loss.
+The next slice will implement the seven non-ranking base events involving parameter placement,
+resource-type diversity, flexible standard resources, divided energy production, and card-holder
+fanout.
