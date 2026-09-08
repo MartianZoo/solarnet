@@ -8,6 +8,15 @@ CLASS ArcadianCommunities : ActionCard<Class<CorporationCard>> {
   -Community: 3 MC
 }
 
+CLASS MarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 13
+
+  This: NomadsMarker<LandArea(HAS MAX 0 Occupant)>
+
+  -> NomadsMarker<LandArea(HAS MAX 0 Occupant, Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> \
+    THEN EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }
+}
+
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
 

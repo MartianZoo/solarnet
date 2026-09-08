@@ -192,7 +192,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
         ElectroCatapult,
         BeamFromAThoriumAsteroid,
     )
-    pink.buyCards(ReleaseOfInertGases, BusinessNetwork, FakeMarsNomads)
+    pink.buyCards(ReleaseOfInertGases, BusinessNetwork, MarsNomads)
     pink.discardUnselectedProjectCards(BioPrintingFacility)
 
     // Database save 98 evidence: after both research purchases.
@@ -213,15 +213,16 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { convertPlants { placeTile(3, 5) } }
     pink.turn {
       playProject(Harvest, 4)
-      playProject(FakeMarsNomads, 13)
+      playProject(MarsNomads, 13) { doTask("NomadsMarker<Hellas_8_7>") }
     }
     blue.turn { convertHeat() }
     pink.turn {
       convertPlants { placeTile(6, 6) }
-      cardAction1(FakeMarsNomads)
+      cardAction1(MarsNomads) {
+        doTask("NomadsMarker<Hellas_9_7 FROM Hellas_8_7>")
+        placeTile(5, 7)
+      }
     }
-    // Unsupported component: moving Mars Nomads granted the destination's complete bonus.
-    pink.exMachina("-6 MC, OceanTile<Hellas_5_7>, TerraformRating, 3 Heat, 6 MC")
     blue.turn { playProject(Windmills, 5) }
     pink.turn { claimMilestone(cn("Terraformer")) }
     blue.pass()
@@ -251,9 +252,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     pink.turn { playProject(ImportedGhg, 1, titanium = 1) }
     blue.turn { playProject(ExtractorBalloons, 20) }
-    pink.turn { cardAction1(FakeMarsNomads) }
-    // Unsupported component: the Nomads' new area supplied two heat.
-    pink.exMachina("2 Heat")
+    pink.turn {
+      cardAction1(MarsNomads) {
+        doTask("NomadsMarker<Hellas_8_6 FROM Hellas_9_7>")
+      }
+    }
     blue.turn {
       blue.exMachina(fakeWildTags("PlantTag", 2))
       playProject(Insects, 8).expect("PROD[6 Plant]")
@@ -298,11 +301,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       playProject(UndergroundCity, 13, steel = 2) { placeTile(7, 7) }
     }
     pink.turn {
-      cardAction1(FakeMarsNomads)
+      cardAction1(MarsNomads) {
+        doTask("NomadsMarker<Hellas_9_7 FROM Hellas_8_6>")
+        placeTile(6, 8)
+      }
       convertHeat()
     }
-    // Unsupported component: the Nomads' destination bonus placed an ocean and granted steel.
-    pink.exMachina("-2 MC, Steel, OceanTile<Hellas_6_8>, TerraformRating")
     blue.turn { claimMilestone(cn("Producer")) }
     pink.turn {
       playProject(BusinessNetwork, 1)
@@ -381,9 +385,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
       cardAction1(AiCentral) { draw(FloatingHabs, ArcticAlgae) }
     }
-    pink.turn { cardAction1(FakeMarsNomads) }
-    // Unsupported component: the Nomads' new area supplied two heat.
-    pink.exMachina("2 Heat")
+    pink.turn {
+      cardAction1(MarsNomads) {
+        doTask("NomadsMarker<Hellas_8_7 FROM Hellas_9_7>")
+      }
+    }
     blue.turn {
       convertPlants { placeTile(7, 8) }
       convertPlants { placeTile(1, 5) }
@@ -445,10 +451,10 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       blue.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(InterstellarColonyShip, 23)
     }
-    // Unsupported component: this Nomads destination supplies the heat spent by the next action.
-    pink.exMachina("2 Heat")
     pink.turn {
-      cardAction1(FakeMarsNomads)
+      cardAction1(MarsNomads) {
+        doTask("NomadsMarker<Hellas_8_6 FROM Hellas_8_7>")
+      }
       convertHeat()
     }
     blue.turn {
@@ -522,11 +528,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { fundAward(cn("Suburbian"), 14) }
     pink.turn {
       playProject(Harvest, 4)
-      cardAction1(FakeMarsNomads)
+      cardAction1(MarsNomads) {
+        doTask("NomadsMarker<Hellas_8_5 FROM Hellas_8_6>")
+        draw(ColonizerTrainingCamp)
+      }
     }
-    // Unsupported component: this Nomads destination supplied a project card.
-    pink.exMachina("ProjectCard")
-    pink.draw(ColonizerTrainingCamp)
     blue.turn {
       playProject(NoctisFarming, 1, steel = 4)
       convertPlants { placeTile(2, 6) }
