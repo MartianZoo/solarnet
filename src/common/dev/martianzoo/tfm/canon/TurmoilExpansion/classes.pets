@@ -1,0 +1,45 @@
+"Expansion adding the Terraforming Committee and Global Events"
+CLASS TurmoilExpansion : Module {
+  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists
+  SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate }
+  SetupPhase:: Chairman<Neutral>, Ruling<Greens>
+}
+
+"A player participating in the Turmoil political rules"
+CLASS TurmoilPlayer : Owned<Player>, System {
+  HAS MAX 1 This
+}
+
+"The owner of gray delegates"
+CLASS Neutral : Owner {
+  HAS MAX 1 This
+}
+
+ABSTRACT CLASS Party {
+  HAS MAX 1 This
+}
+CLASS MarsFirst : Party
+CLASS Scientists : Party
+CLASS Unity : Party
+CLASS Greens : Party
+CLASS Reds : Party
+CLASS Kelvinists : Party
+
+ABSTRACT CLASS PartyStatus<Party> {
+  "The party whose policy and bonus govern the current generation"
+  CLASS Ruling {
+    HAS MAX 1 Ruling
+  }
+}
+
+ABSTRACT CLASS AbstractDelegate : Owned<Owner> {
+  "The delegate holding the committee chair"
+  CLASS Chairman {
+    HAS MAX 1 Chairman
+  }
+
+  "A player's free delegate for the current generation"
+  CLASS LobbyDelegate {
+    HAS MAX 1 This
+  }
+}

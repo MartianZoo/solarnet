@@ -274,6 +274,16 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
+                description = "Turmoil rules include their published card pack by default",
+                config = "TurmoilExpansion",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap,
+                    TurmoilExpansion, TurmoilCardPack
+                    """,
+            ),
+            Configuration(
                 description = "Colonies is valid with the required two-player tile pool",
                 config = "ColoniesExpansion, Callisto, Ceres, Europa, Ganymede, Io",
                 selectsExactly =

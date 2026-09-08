@@ -20,6 +20,7 @@ import dev.martianzoo.tfm.tests.TestOption.Prelude2Expansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.Tharsis
 import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.Utopia
 import dev.martianzoo.tfm.tests.TestOption.Vastitas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -61,7 +62,7 @@ internal class CanonAdmissibilityTest {
             VenusNextExpansion,
             Prelude2Expansion,
             ColoniesExpansion,
-            TurmoilCardPack,
+            TurmoilExpansion,
             PromoCardPack,
             WorldGovernmentRule,
         )
@@ -69,6 +70,7 @@ internal class CanonAdmissibilityTest {
     val world = Engine.newGame(canonicalPremise(*selected, colonyTiles = colonies))
 
     selected.forEach { world.classTable.isActive(it.className) shouldBe true }
+    world.classTable.isActive(TurmoilCardPack.className) shouldBe true
     world.classTable.isActive(Prelude2CardPack.className) shouldBe true
     colonies.forEach { world.classTable.isActive(it) shouldBe true }
     world.classTable.isActive(cn("CimmeriaMap")) shouldBe true

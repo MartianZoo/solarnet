@@ -10,6 +10,7 @@ public object Canon :
         venusNextExpansionBundle, // 2017
         preludeExpansionBundle, // 2018
         coloniesExpansionBundle, // 2018
+        turmoilExpansionBundle, // 2019
         turmoilCardPackBundle, // 2019
         prelude2ExpansionBundle, // 2024
         milestonesAwardsExpansionBundle, // 2024
