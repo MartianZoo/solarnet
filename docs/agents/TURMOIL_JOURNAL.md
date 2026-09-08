@@ -183,3 +183,36 @@ VALUES and minimality review: the correction replaces an overbroad condition wit
 metric expression. It adds no representation, Class, Kotlin, or instruction mechanism. Defect
 review found no further mismatch in the three influence sources after checking the rulebook's
 examples and the FAQ cap clarification. Political-cycle work resumes next.
+
+## 2026-09-08 — Stage 6: ruling policies
+
+Implemented all six Policy tiles as components that exist only while their party is ruling during
+the Action phase. Each concrete Party supplies its matching Policy when `ActionPhase` begins;
+the `Policy` family removes itself when that phase ends. The global `HAS MAX 1 Policy` invariant
+keeps the active tile singular and makes ruling status the sole source of policy selection.
+
+The passive tiles own their reactions. `MarsFirstPolicy` grants one Steel when a Player places any
+tile on Mars. `UnityPolicy` gives every Player one additional titanium `ResourceValue` while live
+and removes those values with itself. `GreensPolicy` grants 4 M€ when a Player places greenery.
+`RedsPolicy` captures the number of player-attributed TR steps and requires 3 M€ per step; an
+unpayable automatic consequence rolls the entire attempted TR gain back, which directly enforces
+the printed prohibition against raising TR with less than the required money.
+
+The other two tiles are themselves ordinary `StandardAction` providers.
+`ScientistsPolicy` charges 10 M€, draws three ProjectCards, and records a generational per-player
+use marker. `KelvinistsPolicy` charges 10 M€ and raises both Heat and Energy production. Passive
+Policies do not implement `StandardAction`, so the ordinary turn menu has no unusable Turmoil
+action under those governments. This is smaller and more direct than the draft's permanent
+`UsePartyActionSA` router.
+
+Functional tests enter Action phases under each government. They place real Mars tiles and
+greenery, exercise both policy actions through `stdAction`, verify Scientists' second use rolls
+back, observe Unity's fourth titanium payment value, and prove that a two-step Reds gain charges
+6 M€ while an underfunded gain changes neither TR nor money. Policy removal is checked on entry to
+Production. The focused policy suite, complete JVM suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: the behavior lives on the active tiles that create it. No instruction
+properties, evaluator, custom action, or engine change was needed; six finite physical tiles and
+one Unity-specific value component are the only new vocabulary. Code review found no inactive
+doorway, setup bonus, stale Unity value, or multi-step Reds undercharge. The next slice will apply
+the separate one-time ruling bonuses during new-government formation.

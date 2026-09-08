@@ -19,12 +19,24 @@ CLASS Neutral : Owner {
 ABSTRACT CLASS Party {
   HAS MAX 1 This
 }
-CLASS MarsFirst : Party
-CLASS Scientists : Party
-CLASS Unity : Party
-CLASS Greens : Party
-CLASS Reds : Party
-CLASS Kelvinists : Party
+CLASS MarsFirst : Party {
+  ActionPhase IF Ruling<This>:: MarsFirstPolicy
+}
+CLASS Scientists : Party {
+  ActionPhase IF Ruling<This>:: ScientistsPolicy
+}
+CLASS Unity : Party {
+  ActionPhase IF Ruling<This>:: UnityPolicy
+}
+CLASS Greens : Party {
+  ActionPhase IF Ruling<This>:: GreensPolicy
+}
+CLASS Reds : Party {
+  ActionPhase IF Ruling<This>:: RedsPolicy
+}
+CLASS Kelvinists : Party {
+  ActionPhase IF Ruling<This>:: KelvinistsPolicy
+}
 
 ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
@@ -109,4 +121,49 @@ CLASS PartyLeaderInfluence : Influence {
 "One influence supplied by having one or more delegates in the Dominant party"
 CLASS DelegateInfluence : Influence {
   HAS MAX 1 This
+}
+
+"A ruling party's capability during the Action phase"
+ABSTRACT CLASS Policy<Party> {
+  HAS MAX 1 Policy
+  -ActionPhase:: -This!
+}
+
+"Mars First ruling policy: tiles placed on Mars grant one steel"
+CLASS MarsFirstPolicy : Policy<MarsFirst> {
+  Tile<MarsArea> BY Player:: Steel<Player>
+}
+
+"Scientists ruling policy: pay 10 M€ to draw three cards, once per generation"
+CLASS ScientistsPolicy : Policy<Scientists>, StandardAction {
+  10 MC -> (MAX 0 ScientistsUsedMarker: 3 ProjectCard, ScientistsUsedMarker)
+}
+
+CLASS ScientistsUsedMarker : Owned<Player>, Generational {
+  HAS MAX 1 This
+}
+
+"Unity ruling policy: each titanium is worth one additional M€"
+CLASS UnityPolicy : Policy<Unity> {
+  This:: EACH Player { UnityTitaniumValue<Player> }
+  -This:: EACH Player { -UnityTitaniumValue<Player>! }
+}
+
+CLASS UnityTitaniumValue : ResourceValue<Class<Titanium>> {
+  HAS MAX 1 This
+}
+
+"Greens ruling policy: greenery placement grants 4 M€"
+CLASS GreensPolicy : Policy<Greens> {
+  GreeneryTile BY Player:: 4 MC<Player>
+}
+
+"Reds ruling policy: each player-attributed TR step costs 3 M€"
+CLASS RedsPolicy : Policy<Reds> {
+  X TerraformRating BY Player:: -3X MC<Player>!
+}
+
+"Kelvinists ruling policy: pay 10 M€ for one heat and one energy production"
+CLASS KelvinistsPolicy : Policy<Kelvinists>, StandardAction {
+  10 MC -> PROD[Heat, Energy]
 }
