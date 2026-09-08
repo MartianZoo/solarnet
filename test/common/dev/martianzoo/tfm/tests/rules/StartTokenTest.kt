@@ -22,6 +22,12 @@ internal class StartTokenTest {
   internal fun startsWithPlayer1AndPassesLeftEachGeneration() {
     val admin = setUpGame(players = 3).tfm(ADMIN)
 
+    admin.assertCounts(
+        3 to "Successor",
+        1 to "Successor<Player1, Player2>",
+        1 to "Successor<Player2, Player3>",
+        1 to "Successor<Player3, Player1>",
+    )
     admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
     admin.manual("Generation")
@@ -34,6 +40,16 @@ internal class StartTokenTest {
     admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player3>")
     admin.assertCounts(1 to "StartToken")
     shouldThrow<LimitsException> { admin.manual("-StartToken<Player1>") }
+  }
+
+  @Test
+  internal fun passesAccordingToTheExplicitSuccessorRelation() {
+    val admin = setUpGame(players = 3).tfm(ADMIN)
+    admin.sneak("Successor<Player1, Player3> FROM Successor<Player1, Player2>")
+
+    admin.manual("Generation")
+
+    admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player3>")
   }
 
   @Test

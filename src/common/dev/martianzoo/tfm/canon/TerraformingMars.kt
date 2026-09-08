@@ -35,12 +35,13 @@ import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.TfmClasses.SUCCESSOR
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import kotlin.math.abs
 
@@ -224,16 +225,19 @@ private object TerraformingMars {
 
   internal object PassLeft : CustomClass() {
     override fun translate(reader: GameReader, component: Type): Instruction {
-      val currentOwner: Player = getPlayerOwner(reader, component)
-      val players = reader.actors.filterIsInstance<Player>()
-      if (players.size == 1) return NoOp
+      val currentOwner = getOwner(reader, component).groundType
+      val outgoing =
+          reader.getComponents(reader.resolve(SUCCESSOR.expression)).single { relation ->
+            relation.typeDependencies.single { it.key == Key(SUCCESSOR, 0) }.boundType ==
+                currentOwner
+          }
+      val nextOwner = outgoing.typeDependencies.single { it.key == Key(SUCCESSOR, 1) }.boundType
+      if (nextOwner == currentOwner) return NoOp
 
-      val current = players.indexOf(currentOwner)
-      check(current >= 0) { "StartToken owner is not a seated Player: $currentOwner" }
-      val nextOwner = players[(current + 1) % players.size]
       val arguments =
           component.expressionFull.arguments.map {
-            if (it == currentOwner.expression) Full(nextOwner.expression, it) else Unchanged(it)
+            if (reader.resolve(it).groundType == currentOwner) Full(nextOwner.expression, it)
+            else Unchanged(it)
           }
       return Transmute(
           Compact(component.className, arguments),

@@ -4,7 +4,7 @@ CLASS ColoniesExpansion : Module {
 
   This: TradeAction, BuildColonySP
   SetupPhase: EACH Player { TradeFleet }
-  SetupPhase IF SoloMode: PROD[-2 MC<Player1>]
+  SetupPhase IF SoloMode: PROD[-2 MC<Player>]
   SolarPhase: AdvanceColonyTracks
 }
 

@@ -138,7 +138,9 @@ contains only:
 5. exact concrete types to instantiate once.
 
 Occupied seats activate canonical `Player1` through `PlayerN`. Configured player names are
-Vocabulary aliases, not Class identities. Initial state is not an unrestricted Pets script.
+Vocabulary aliases, not Class identities. The Pets-owned `SecondPlaceRule` Module is automatically
+selected for three or more Players and activates `SecondPlace`, keeping player-count policy out of
+Kotlin and numbered seat classes. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection
@@ -159,8 +161,10 @@ Solo Colonies selects four and keeps three after the setup choice, two-player Co
 and games with at least three players use two more tiles than players.
 
 Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
-terraform rating during setup; `SoloMode` gives Player 1 14 directly. The solo game never passes
-through a synthetic 20-rating state followed by a compensating reduction.
+terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The premise's ordered
+player list creates a directed `Successor<Player, Player>` ring, where the second Player follows the
+first, and gives the first Player the initial `StartToken`; passing the token reads that relation.
+The solo game never passes through a synthetic 20-rating state followed by a compensating reduction.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
