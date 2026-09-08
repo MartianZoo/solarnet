@@ -1,0 +1,11 @@
+CLASS CloudSocieties : GlobalEvent {
+  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  Current<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCloudSocieties<Player> }
+}
+
+CLASS CorrosiveRain : GlobalEvent {
+  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCorrosiveRain<Player> }
+}

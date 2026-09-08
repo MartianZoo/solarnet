@@ -220,3 +220,27 @@ CLASS WarOnEarth : GlobalEvent {
   Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
   ResolveGlobalEvent<Class<This>>:: EACH Player { -TerraformRating. / (4 - Influence) }
 }
+
+CLASS JovianTaxRights : GlobalEvent {
+  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    PROD[MC / Colony MAX 5], Titanium / Influence \
+  }
+}
+
+CLASS MicrogravityHealthProblems : GlobalEvent {
+  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+  Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    -3 MC. / (Colony MAX 5 - Influence) \
+  }
+}
+
+CLASS VenusInfrastructure : GlobalEvent {
+  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    2 MC / VenusTag MAX 5, 2 MC / Influence \
+  }
+}

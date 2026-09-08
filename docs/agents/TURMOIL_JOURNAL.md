@@ -448,3 +448,39 @@ remains. Code review found no hostile tie handling, accidental second place afte
 counting, zero-score Revolution loss, multiplayer formula in solo play, or uncapped solo Election
 gain. The next slice will add the five optional Venus/Colonies events only when their companion
 expansions are active.
+
+## 2026-09-08 — Stage 14: Venus Next and Colonies events
+
+Implemented all five companion-expansion Global Events. Venus Infrastructure pays two M€ per
+owned Venus tag, capped at five before adding the same two-M€ rate for influence. Jovian Tax Rights
+uses the FAQ erratum: owned colonies increase M€ production only up to five, then influence grants
+titanium. Microgravity Health Problems loses three M€ for each owned colony after the five-colony
+cap and influence reduction.
+
+Cloud Societies adds one floater to every compatible project or corporation card, including empty
+cards, then offers one card on which all influence floaters are placed. Corrosive Rain is a
+player-owned request: its exact two-floater removal selects one concrete card, while the ten-M€
+alternative remains available; if no single card holds two floaters, only the money loss is legal.
+Cards for influence are drawn after that choice. These structures follow the FAQ's same-card and
+no-compatible-card cases without inspecting card identities.
+
+The three single-expansion events refer directly to `VenusTag` or `Colony`, so ordinary catalog
+compatibility projects them only with the module that supplies that domain. Cloud Societies and
+Corrosive Rain need both expansions even though `Floater` is a base resource type. A small
+auto-selected content module owns just those two declarations and activates only for Turmoil plus
+Venus Next plus Colonies. The only Kotlin change registers that conventional Pets resource
+directory; no engine behavior changed.
+
+Functional tests exercise inactive and active content through manual gameplay instructions, two
+compatible floater cards, the same-card Corrosive Rain removal, its forced-money fallback when two
+floaters are split, an over-cap owned-colony count, two influence, and seven Venus tags. The full
+base-and-optional Turmoil event test class passes.
+
+VALUES and minimality review: every effect remains on its Global Event or on a player-owned request
+representing an actual choice. Existing card-resource dependencies enforce one selected holder,
+and ordinary module projection supplies activation instead of runtime checks. The content-module
+registration is four formatting-only Kotlin lines around one constructor argument; there is no
+custom instruction, new engine phase, or duplicated card/resource model. Code review found no
+split floater gain or loss, empty-card omission, cross-player colony count, missing Jovian cap,
+influence applied before a cap, early Corrosive card draw, or optional event in the wrong pool. The
+next slice will place the complete Turmoil operation in its exact Solar phase order.

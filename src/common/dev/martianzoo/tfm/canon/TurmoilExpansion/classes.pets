@@ -5,12 +5,18 @@ CLASS TurmoilExpansion : Module {
   HAS Class<RemoveOceanForGlobalEvent>, Class<ChooseDryDesertResource>
   HAS Class<RaiseTemperatureForGlobalEvent>, Class<RaiseTemperatureAgainForGlobalEvent>
   HAS Class<ResolveDryDeserts>, Class<ResolveDiversity>
-  HAS Class<ResolveSponsoredProjects>
+  HAS Class<ResolveSponsoredProjects>, Class<ResolveCloudSocieties>
   HAS Class<AddResourceToCard>
+  HAS Class<ChooseInfluenceFloaterCard>, Class<ResolveCorrosiveRain>
   This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
+}
+
+"Adds the Global Events that require both Venus Next and Colonies"
+CLASS TurmoilVenusColoniesEvents : Module {
+  autoSelectWhen = HAS "TurmoilExpansion, VenusNextExpansion, ColoniesExpansion"
 }
 
 "A revealed Global Event card"
@@ -107,6 +113,27 @@ CLASS ResolveSponsoredProjects : Owned<Player>, Signal {
 "Adds the resource type accepted by one compatible resource card"
 CLASS AddResourceToCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal {
   This:: CardResource<ResourceCard>
+}
+
+"Adds Cloud Societies floaters to every compatible card, then requests one card for influence"
+CLASS ResolveCloudSocieties : Owned<Player>, Signal {
+  This IF ResourceCard<Class<Floater>>:: \
+    EACH ResourceCard<Class<Floater>, Owner> { \
+      AddResourceToCard<ResourceCard<Class<Floater>, Owner>> \
+    }, \
+    ChooseInfluenceFloaterCard<Owner>
+}
+
+"Lets one player put all Cloud Societies influence floaters on a single compatible card"
+CLASS ChooseInfluenceFloaterCard : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This: Floater<ResourceCard<Class<Floater>, Owner>> / Influence THEN -This!
+}
+
+"Lets a player resolve Corrosive Rain before drawing cards for influence"
+CLASS ResolveCorrosiveRain : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This: (-2 Floater! OR -10 MC.) THEN (ProjectCard / Influence, -This!)
 }
 
 "Moves every revealed Global Event one position and requests the next event"

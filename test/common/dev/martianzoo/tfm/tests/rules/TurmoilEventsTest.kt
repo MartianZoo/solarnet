@@ -1,8 +1,13 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
+import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -16,6 +21,14 @@ private val globalEventProbeDeclarations =
               MeasureInfluence:: Ok
             }
             CLASS EmptyResourceProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
+              cost = 0
+              MeasureInfluence:: Ok
+            }
+            CLASS FloaterEventProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+              cost = 0
+              MeasureInfluence:: Ok
+            }
+            CLASS OtherFloaterEventProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
               cost = 0
               MeasureInfluence:: Ok
             }
@@ -346,6 +359,119 @@ internal class TurmoilEventsTest :
     resolve("Revolution")
 
     p1.count("TerraformRating") shouldBe startingRating
+  }
+
+  @Test
+  internal fun `optional events require their companion expansions`() {
+    newGame(TurmoilExpansion)
+
+    shouldThrow<DeadEndException> { admin.manual("VenusInfrastructure") }
+    shouldThrow<DeadEndException> { admin.manual("JovianTaxRights") }
+    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+
+    newGame(TurmoilExpansion, VenusNextExpansion)
+
+    admin.manual("VenusInfrastructure")
+    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+
+    newGame(
+        TurmoilExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+
+    admin.manual("JovianTaxRights")
+    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+
+    newGame(
+        TurmoilExpansion,
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+
+    admin.manual("CloudSocieties, CorrosiveRain")
+  }
+
+  @Test
+  internal fun `floater events keep every multi floater change on one card`() {
+    newGame(
+        TurmoilExpansion,
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.manual(
+        "20 MC, FloaterEventProbe, OtherFloaterEventProbe, " +
+            "ChairmanInfluence, PartyLeaderInfluence"
+    )
+
+    admin.manual("CloudSocieties")
+    admin.manual("ResolveGlobalEvent<Class<CloudSocieties>>") {
+      p1.doTask("2 Floater<FloaterEventProbe>")
+    }
+
+    p1.count("Floater<FloaterEventProbe>") shouldBe 3
+    p1.count("Floater<OtherFloaterEventProbe>") shouldBe 1
+
+    admin.manual("CorrosiveRain")
+    admin.manual("ResolveGlobalEvent<Class<CorrosiveRain>>") {
+      p1.doTask("-2 Floater<FloaterEventProbe>")
+    }
+
+    p1.count("Floater<FloaterEventProbe>") shouldBe 1
+    p1.count("Floater<OtherFloaterEventProbe>") shouldBe 1
+    p1.count("MC") shouldBe 20
+    p1.count("ProjectCard") shouldBe 2
+
+    newGame(
+        TurmoilExpansion,
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.manual(
+        "20 MC, FloaterEventProbe, Floater<FloaterEventProbe>, " +
+            "OtherFloaterEventProbe, Floater<OtherFloaterEventProbe>"
+    )
+
+    resolve("CorrosiveRain")
+
+    p1.count("MC") shouldBe 10
+    p1.count("Floater<FloaterEventProbe>") shouldBe 1
+    p1.count("Floater<OtherFloaterEventProbe>") shouldBe 1
+  }
+
+  @Test
+  internal fun `optional tag and colony events use owned counts caps and influence`() {
+    newGame(
+        TurmoilExpansion,
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2, "Luna", "Io"),
+    )
+    p1.manual(
+        "20 MC, GlobalEventProbe, 7 VenusTag<GlobalEventProbe>, " +
+            "ChairmanInfluence, PartyLeaderInfluence"
+    )
+    repeat(3) {
+      admin.manual("Colony<Player1, Luna>")
+      admin.manual("Colony<Player1, Io>")
+    }
+    val moneyProduction = p1.count("PROD[MC]")
+
+    resolve("JovianTaxRights")
+
+    p1.count("PROD[MC]") shouldBe moneyProduction + 5
+    p1.count("Titanium") shouldBe 2
+
+    resolve("MicrogravityHealthProblems")
+
+    p1.count("MC") shouldBe 11
+
+    resolve("VenusInfrastructure")
+
+    p1.count("MC") shouldBe 25
   }
 
   private fun resolve(event: String) {
