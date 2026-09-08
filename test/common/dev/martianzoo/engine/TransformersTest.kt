@@ -317,7 +317,7 @@ internal class TransformersTest {
 
     LiveEffect.compile(component, transformers).map { it.effect.toString() }.toSet() shouldBe
         setOf(
-            "This BY !Admin: Die!",
+            "This BY Actor(NOT Admin): Die!",
             "SetupPhase: 42 MC<SoloOpponent>!",
             "SetupPhase: 42 Production<SoloOpponent, Class<MC>>!",
             "-MC<SoloOpponent> BY Player:: MC<SoloOpponent>! BY Admin",

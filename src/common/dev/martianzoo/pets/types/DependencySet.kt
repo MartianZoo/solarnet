@@ -7,7 +7,6 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.pets.types.Dependency.Companion.getClassForClassType
 import dev.martianzoo.pets.types.Dependency.Companion.isForClassType
-import dev.martianzoo.pets.types.Dependency.ComplementDependency
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
@@ -44,12 +43,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
   public fun at(path: DependencyPath): Dependency {
     val x: Dependency = get(path.keyList.first())
     if ((path.keyList.size) == 1) return x
-    val type =
-        when (x) {
-          is TypeDependency -> x.boundType
-          is ComplementDependency -> x.domainType
-          else -> error("unexpected dependency: $x")
-        }
+    val type = (x as TypeDependency).boundType
     return type.dependencies.at(path.drop(1))
   }
 
@@ -58,14 +52,8 @@ public class DependencySet private constructor(private val deps: List<Dependency
   public fun concreteDependencyTargets(): Sequence<GroundType> =
       deps
           .asSequence()
-          .filter { it is TypeDependency || it is ComplementDependency }
-          .flatMap {
-            when (it) {
-              is TypeDependency -> it.allConcreteSpecializations()
-              is ComplementDependency -> it.allConcreteSpecializations()
-              else -> error("Unexpected dependency: $it")
-            }
-          }
+          .filterIsInstance<TypeDependency>()
+          .flatMap(TypeDependency::allConcreteSpecializations)
           .map { it.boundType }
 
   public val keys: List<Key> = deps.map(Dependency::key)
@@ -96,7 +84,6 @@ public class DependencySet private constructor(private val deps: List<Dependency
     table.isActive(dependency.boundClass) &&
         when (dependency) {
           is TypeDependency -> table.isActive(dependency.boundType)
-          is ComplementDependency -> table.isActive(dependency.domainType)
           else -> true
         }
   }
@@ -198,17 +185,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
             .refine(refinement)
 
     val first = get(firstKey)
-    val narrowed =
-        when (first) {
-          is TypeDependency -> first.copy(boundType = first.boundType.replaceNested())
-          is ComplementDependency -> {
-            val domain = first.domainType.replaceNested()
-            val excluded = first.excludedType glb domain
-            if (excluded == null) TypeDependency(first.key, domain)
-            else first.copy(domainType = domain, excludedType = excluded)
-          }
-          else -> error("unexpected dependency: $first")
-        }
+    val narrowed = (first as TypeDependency).copy(boundType = first.boundType.replaceNested())
     return replaceAt(DependencyPath(firstKey), narrowed)
   }
 
@@ -248,11 +225,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
         types.flatMap { type ->
           val dependency = type.dependencies.get(key)
           if (!dependency.abstract) return@flatMap sequenceOf(type)
-          when (dependency) {
-            is TypeDependency -> dependency.allConcreteSpecializations()
-            is ComplementDependency -> dependency.allConcreteSpecializations()
-            else -> error("unexpected")
-          }.map { concrete ->
+          (dependency as TypeDependency).allConcreteSpecializations().map { concrete ->
             type.rootClass.withAllDependencies(
                 type.dependencies.replaceAt(DependencyPath(key), concrete)
             )
@@ -276,17 +249,8 @@ public class DependencySet private constructor(private val deps: List<Dependency
           val dependency = candidate.dependencies.get(key)
           if (!dependency.abstract) return@flatMap sequenceOf(candidate)
           val concreteDependencies =
-              when (dependency) {
-                is TypeDependency ->
-                    table.allConcreteSubtypes(dependency.boundType).map {
-                      dependency.copy(boundType = it)
-                    }
-                is ComplementDependency ->
-                    table
-                        .allConcreteSubtypes(dependency.domainType)
-                        .filterNot { it.isSubtypeOf(dependency.excludedType) }
-                        .map { TypeDependency(dependency.key, it) }
-                else -> error("unexpected dependency: $dependency")
+              (dependency as TypeDependency).let {
+                table.allConcreteSubtypes(it.boundType).map { type -> it.copy(boundType = type) }
               }
           concreteDependencies.map { concrete ->
             candidate.rootClass.withAllDependencies(
@@ -309,17 +273,10 @@ public class DependencySet private constructor(private val deps: List<Dependency
         types.flatMap { candidate ->
           val dependency = candidate.dependencies.get(key)
           val concreteDependencies =
-              when (dependency) {
-                is TypeDependency ->
-                    dependencyTargets(dependency.boundType).map { target ->
-                      dependency.copy(boundType = target.groundType)
-                    }
-                is ComplementDependency ->
-                    dependencyTargets(dependency.domainType)
-                        .map { it.groundType }
-                        .filterNot { it.isSubtypeOf(dependency.excludedType) }
-                        .map { TypeDependency(dependency.key, it) }
-                else -> error("unexpected dependency: $dependency")
+              (dependency as TypeDependency).let {
+                dependencyTargets(it.boundType).map { target ->
+                  it.copy(boundType = target.groundType)
+                }
               }
           concreteDependencies.map { concrete ->
             candidate.rootClass.withAllDependencies(
@@ -340,18 +297,8 @@ public class DependencySet private constructor(private val deps: List<Dependency
 
     return of(
         deps.map { dependency ->
-          when (dependency) {
-            is TypeDependency ->
-                dependency.boundType.singleConcreteSubtype(info)?.let {
-                  dependency.copy(boundType = it)
-                }
-            is ComplementDependency ->
-                dependency.domainType
-                    .allConcreteSubtypes()
-                    .filter { dependency.matches(it, info) }
-                    .map { TypeDependency(dependency.key, it) }
-                    .singleOrNull()
-            else -> error("unexpected dependency: $dependency")
+          (dependency as TypeDependency).boundType.singleConcreteSubtype(info)?.let {
+            dependency.copy(boundType = it)
           } ?: return null
         }
     )
@@ -366,18 +313,10 @@ public class DependencySet private constructor(private val deps: List<Dependency
 
     return of(
         deps.map { dependency ->
-          when (dependency) {
-            is TypeDependency ->
-                table.singleConcreteSubtype(dependency.boundType, info)?.let {
-                  dependency.copy(boundType = it)
-                }
-            is ComplementDependency ->
-                table
-                    .allConcreteSubtypes(dependency.domainType)
-                    .filter { dependency.matches(it, info) }
-                    .map { TypeDependency(dependency.key, it) }
-                    .singleOrNull()
-            else -> error("unexpected dependency: $dependency")
+          (dependency as TypeDependency).let {
+            table.singleConcreteSubtype(it.boundType, info)?.let { type ->
+              it.copy(boundType = type)
+            }
           } ?: return null
         }
     )

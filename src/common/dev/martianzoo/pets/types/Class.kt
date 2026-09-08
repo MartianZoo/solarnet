@@ -429,8 +429,7 @@ internal constructor(
     buildList {
       fun eligible(expression: Expression): Boolean =
           expression.className != THIS &&
-              runCatching { loader.resolve(expression.uncomplemented()).abstract }
-                  .getOrDefault(false)
+              runCatching { loader.resolve(expression).abstract }.getOrDefault(false)
 
       fun collectArguments(expression: Expression, prefix: List<Key>, region: Int) {
         if (expression.arguments.isEmpty()) return
@@ -544,7 +543,7 @@ internal constructor(
                   first.expression,
                   first.region,
                   first.ordinal,
-                  interpretedGroundType = loader.resolve(first.expression.uncomplemented()),
+                  interpretedGroundType = loader.resolve(first.expression),
               )
 
           val paths = occurrences.mapTo(mutableSetOf(), HeaderOccurrence::path)
@@ -554,7 +553,7 @@ internal constructor(
               when {
                 overlapping.isEmpty() ->
                     Seed(
-                        loader.resolve(first.expression.uncomplemented()),
+                        loader.resolve(first.expression),
                         localSite(),
                         mutableListOf(),
                         mutableSetOf(),
@@ -582,8 +581,7 @@ internal constructor(
                       occurrence.expression,
                       occurrence.region,
                       occurrence.ordinal,
-                      interpretedGroundType =
-                          loader.resolve(occurrence.expression.uncomplemented()),
+                      interpretedGroundType = loader.resolve(occurrence.expression),
                   )
             }
             target.headerExpressions += occurrence.expression
@@ -653,7 +651,6 @@ internal constructor(
                     expression,
                     declaration.dependencies.size + declaration.supertypes.size + effectIndex,
                     bodyOrdinal++,
-                    complementedUse = expression.complement,
                 )
             )
       }
@@ -726,31 +723,21 @@ internal constructor(
     fun capturedAt(
         type: GroundType,
         path: DependencyPath,
-        complemented: Boolean,
-    ): GroundType =
-        when (val dependency = type.dependencies.at(path)) {
-          is TypeDependency -> dependency.boundType
-          is Dependency.ComplementDependency ->
-              if (complemented) dependency.excludedType else dependency.domainType
-          else -> dependency.boundClass.baseType
-        }
+    ): GroundType {
+      val dependency = type.dependencies.at(path)
+      return (dependency as? TypeDependency)?.boundType ?: dependency.boundClass.baseType
+    }
 
     return buildMap {
       headerVariableBindings().forEach { binding ->
         val aliases = binding.aliases.intersect(requested)
         if (aliases.isEmpty()) return@forEach
-        val complemented = binding.variable.declaration.expression.complement
         val previous =
-            binding.paths
-                .map { path -> capturedAt(general, path, complemented) }
-                .distinct()
-                .singleOrNull()
+            binding.paths.map { path -> capturedAt(general, path) }.distinct().singleOrNull()
                 ?: error("Type variable ${binding.variable} has conflicting prior values")
         val next =
-            binding.paths
-                .map { path -> capturedAt(specific, path, complemented) }
-                .distinct()
-                .singleOrNull() ?: error("Type variable ${binding.variable} has conflicting values")
+            binding.paths.map { path -> capturedAt(specific, path) }.distinct().singleOrNull()
+                ?: error("Type variable ${binding.variable} has conflicting values")
         if (next == previous) return@forEach
         aliases.forEach { variable -> put(variable, next) }
       }

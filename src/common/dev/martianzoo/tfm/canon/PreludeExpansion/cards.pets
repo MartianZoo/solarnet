@@ -20,7 +20,7 @@ CLASS RobinsonIndustries : ActionCard<Class<CorporationCard>> {
 
   This: 47 MC
 
-  4 MC -> PROD[StandardResource(HAS =1 (RANK Class<StandardResource> { Production<!Class<StandardResource>> OR ProdOffset<Class<StandardResource>> }))]
+  4 MC -> PROD[StandardResource(HAS =1 (RANK Class<StandardResource> { Production<Class<StandardResource>(NOT Class<StandardResource>)> OR ProdOffset<Class<StandardResource>> }))]
 }
 
 CLASS ValleyTrust : CardFront<Class<CorporationCard>> {

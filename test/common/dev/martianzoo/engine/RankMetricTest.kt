@@ -19,7 +19,7 @@ internal class RankMetricTest {
                 CLASS Prize : Owned<Player>
                 CLASS TieBreakPrize : Owned<Player>
                 CLASS InversePrize : Owned<Player>
-                CLASS ComplementPrize : Owned<Player>
+                CLASS DifferencePrize : Owned<Player>
                 """,
                 players = 3,
             )
@@ -50,10 +50,12 @@ internal class RankMetricTest {
 
     game
         .agent(ADMIN)
-        .manual("EACH Player(HAS =1 (RANK Player { Score<!Player> })) { ComplementPrize<Player> }")
-    game.agent(PLAYER1).count("ComplementPrize<Player1>") shouldBe 0
-    game.agent(PLAYER2).count("ComplementPrize<Player2>") shouldBe 1
-    game.agent(PLAYER3).count("ComplementPrize<Player3>") shouldBe 1
+        .manual(
+            "EACH Player(HAS =1 (RANK Player { Score<Owner(NOT Player)> })) { DifferencePrize<Player> }"
+        )
+    game.agent(PLAYER1).count("DifferencePrize<Player1>") shouldBe 0
+    game.agent(PLAYER2).count("DifferencePrize<Player2>") shouldBe 1
+    game.agent(PLAYER3).count("DifferencePrize<Player3>") shouldBe 1
   }
 
   @Test
@@ -95,7 +97,9 @@ internal class RankMetricTest {
     val admin = game.agent(ADMIN)
     admin.manual("3 Score<Class<FirstKind>>, Score<Class<SecondKind>>")
 
-    admin.manual("Prize<Class<Kind>(HAS =1 (RANK Class<Kind> { Score<!Class<Kind>> }))>")
+    admin.manual(
+        "Prize<Class<Kind>(HAS =1 (RANK Class<Kind> { Score<Class<Kind>(NOT Class<Kind>)> }))>"
+    )
 
     admin.count("Prize<Class<FirstKind>>") shouldBe 0
     admin.count("Prize<Class<SecondKind>>") shouldBe 1

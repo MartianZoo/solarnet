@@ -89,7 +89,7 @@ ABSTRACT CLASS Area {
 
 "A player's reservation of one land area"
 CLASS LandClaimMarker<LandArea> : Owned<Player> {
-  Tile<LandArea> BY !Owner:: Die
+  Tile<LandArea> BY Player(NOT Owner):: Die
 }
 
 // TILES AND ADJACENCY
