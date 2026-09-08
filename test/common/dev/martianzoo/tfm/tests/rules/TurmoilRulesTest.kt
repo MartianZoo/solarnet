@@ -40,6 +40,10 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
+    admin.manual("MeasureInfluence<Player1>")
+    p1.count("PartyLeaderInfluence") shouldBe 1
+    p1.count("DelegateInfluence") shouldBe 0
+    p1.count("Influence") shouldBe 1
   }
 
   @Test

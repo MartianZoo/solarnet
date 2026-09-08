@@ -159,3 +159,27 @@ general arithmetic was added. Defect review found no issue in influence or scori
 removal-maintenance problem remains open by design: current state does not expose active-player
 rotation or clockwise party distance, and arbitrary Class iteration would not be a legitimate
 substitute for either printed tie rule.
+
+## 2026-09-08 — Stage 5: non-leader influence correction
+
+The post-commit source reread found that Stage 4's delegate source was too broad. The rulebook says
+the third influence comes from owning one or more **non-leader** delegates in the Dominant party.
+A party leader's marker counts as a delegate for party totals, but does not by itself satisfy that
+third source. The prior effect listened to every `PartyDelegate` and therefore gave a sole leader
+both the leader point and the non-leader point.
+
+Corrected the gate to require at least one `PartyDelegate - PartyLeader` for the measured owner and
+party. The existing saturating metric subtraction captures the physical statement directly: a
+leader with one marker has zero non-leaders, a leader with two markers has one, and an owner who is
+not leader subtracts zero. The capped `DelegateInfluence` effect remains AMAP because multiple
+eligible physical delegates still provide only one point.
+
+The original influence scenario continues to prove that a leader with a second delegate receives
+all three possible influence. The first-lobbying scenario now measures its sole party leader and
+proves that it receives leader influence 1, delegate influence 0, and total influence 1. The
+focused Turmoil class, complete JVM suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: the correction replaces an overbroad condition with one existing
+metric expression. It adds no representation, Class, Kotlin, or instruction mechanism. Defect
+review found no further mismatch in the three influence sources after checking the rulebook's
+examples and the FAQ cap clarification. Political-cycle work resumes next.

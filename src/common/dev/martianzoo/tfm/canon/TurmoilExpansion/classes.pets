@@ -61,7 +61,7 @@ CLASS PartyDelegate<Party> : Owned<Owner> {
     PartyLeader<Party, Anyone> \
   }
   This:: RecalculateDominance
-  MeasureInfluence IF Dominant<Party>:: DelegateInfluence.
+  MeasureInfluence IF Dominant<Party>, 1 (PartyDelegate<Party, Owner> - PartyLeader<Party, Owner>):: DelegateInfluence.
 }
 
 "The owner whose delegate occupies one party's leader seat"
