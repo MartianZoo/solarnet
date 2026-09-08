@@ -57,3 +57,34 @@ machinery to make an otherwise inapplicable generic fanout work. Defect review f
 issue in this slice. The next slice will add normal and leader delegates plus paid/free lobbying,
 then use those real transitions to determine how much of party maintenance current ranking and
 effects can express without custom code.
+
+## 2026-09-08 — Stage 2: delegate placement and strict incumbency on gains
+
+Added the two printed lobbying choices to a normal `StandardAction`: a player may move the one
+Lobby delegate to a selected Party for no money, or pay 5 M€ to place a delegate. A delegate gain
+now derives both political roles needed immediately after placement. The party's first delegate
+appoints its owner as leader; a challenger replaces that leader only with strictly more delegates.
+The party with the most delegates becomes dominant, while the incumbent remains dominant on an
+equal total. All of this behavior is expressed through existing selectors, ranking metrics, and
+effects.
+
+The leader marker is deliberately a role in addition to the owner's ordinary `PartyDelegate`, not
+a second physical delegate. The ranking metric therefore counts every ordinary delegate once and
+uses the leader marker only as its second, tie-breaking metric. A strict challenger briefly gains
+the role; the new role's own effect removes the rank-two incumbent. This avoids an owner-changing
+`FROM` expression, whose missing source owner would legitimately be completed from the target and
+could therefore select the challenger rather than the incumbent. Dominance has no owner dependency,
+so its corresponding party-to-party transfer remains one atomic `FROM` change.
+
+The functional tests perform real standard actions and cover the FAQ's two distinct strict-lead
+rules: equal party totals retain the dominant party, and equal personal totals retain a party
+leader. They also cover the free Lobby move, the paid 5 M€ choice, first-leader appointment, and
+both kinds of strict-lead replacement. The focused Turmoil class, complete JVM suite, and
+`spotlessCheck` pass.
+
+VALUES and minimality review: the slice adds no Kotlin and no custom instruction. The correction
+after the same-party test removed an unreliable implicit dependency choice instead of teaching the
+engine a political exception. Defect review leaves three intentionally unclaimed behaviors for the
+next maintenance slices: the seven-delegate player supply, Lobby refresh during government
+formation, and leader/dominance recomputation after removals. The next slice will model finite
+delegate supply and removal-side maintenance before influence depends on either role.
