@@ -10,9 +10,9 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research from 2026-08-23 and 2026-09-06 on the development host. Treat absolute
-> times as noisy: other JVM processes were consuming substantial CPU during the baseline. Relative
-> structure and the large parallel-speedup signal are still clear.
+> **Status:** dated research from 2026-08-23, 2026-09-06, and 2026-09-08 on the development host.
+> Treat absolute times as noisy: other JVM processes were consuming substantial CPU during the
+> baseline. Relative structure and the large parallel-speedup signal are still clear.
 
 ## Configuration entry points
 
@@ -190,6 +190,56 @@ so the result shows throughput parity rather than a speedup.
 after live and overlay component/task storage were separated. This supports that overlay machinery
 does not tax ordinary live execution.
 
+## Replay call-graph result
+
+A 2026-09-08 run selected the 24 JVM test methods in
+`dev.martianzoo.tfm.tests.replays.*`. All measurements passed. A warm four-fork repeat took 10.326s
+for `:tfm-tests:jvmTest`; a one-fork control took 18.001s. Their XML class times summed to 37.451s
+and 17.635s respectively. Four forks therefore reduced focused-suite elapsed time by 42.6%, while
+more than doubling aggregate class time because each process pays its own cold model and JVM work.
+This focused-run amplification should not be projected onto the complete suite, where each worker
+can amortize startup across other test classes.
+
+A 36s single-fork Java Flight Recorder run sampled 1,654 main-thread Java stacks and 35.60GB of
+main-thread allocation. The recording made the suite about twice as slow as the unrecorded control,
+so use its proportions to locate work rather than predict an exact speedup. Its 241 collection
+pauses totaled 1.69s; garbage-collector tuning is not the first macro target.
+
+| Inclusive path | CPU samples | Main-thread allocation |
+| --- | ---: | ---: |
+| Replay setup | 744 (45.0%) | 15.71GB (44.1%) |
+| Post-setup replay | 910 (55.0%) | 19.90GB (55.9%) |
+| `canSelectAnyTask` speculative probes | 577 (34.9%) | 12.36GB (34.7%) |
+| Probe forward execution | 392 (23.7%) | 8.86GB (24.9%) |
+| Probe event reversal | 181 (10.9%) | 3.49GB (9.8%) |
+| `ClassLimitTable` construction | 247 (14.9%) | 6.06GB (17.0%) |
+| Pets parsing | 151 (9.1%) | 3.75GB (10.5%) |
+
+The dominant call shape is `autoExecNext -> eligible.filter(canSelectAnyTask) -> timeline.atomic`.
+Each candidate is selected and possibly executed against the live World; the probe then throws or
+fails, and `TimelineImpl` reverses every recorded component and task event. If a candidate is later
+chosen, it executes again. Nearly all measured probe allocation split between forward work (8.86GB)
+and reversal (3.49GB). Of 4.75GB below `EventLog.record`, 3.98GB occurred inside probes; of 4.92GB
+below `TaskQueues.addToTaskSet`, 4.85GB occurred there. Retaining real replay history is therefore
+not the issue: manufacturing and deleting speculative history is.
+
+Most replay Agents use `FIRST`, yet current code computes the complete selectable-task list before
+making that mode's stable arbitrary choice. During the planned move of autoexecution into Agent,
+the smallest promising performance investigation is a `FIRST` policy path that tries candidates in
+stable order and retains the first successful atomic execution. `SAFE` still needs its stronger
+ambiguity proof and should remain a separate concern. The measured probe share is the ceiling, not
+the promised gain, because failed candidates still need a legal failure path.
+
+The next independent cost is premise-local static validation. Every replay creates a new
+`GamePremise`; first `Limiter` use constructs a `ClassLimitTable` and exhaustively checks active
+concrete dependencies. Investigate whether this immutable validity result can be retained with the
+Catalog or shared projection facts before optimizing its type operations. Full Catalog loading was
+only 0.40GB and active projection 1.74GB in this recording, both smaller than limit validation.
+
+Replay-specific bookkeeping is not material: card-tracking synchronization produced one CPU sample
+and about 0.5MB of allocation, while victory-point snapshot work was under 1% of CPU samples. Keep
+those mechanisms unless a more focused profile contradicts this result.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
@@ -201,3 +251,7 @@ does not tax ordinary live execution.
    even deleting the single 15.1s outlier would save under 4% of engine CPU.
 4. Do not prioritize Gradle configuration, compilation, or simply increasing worker heap from this
    evidence. They are not driving elapsed time, and collection pauses are small.
+5. For replay execution, investigate retaining the first successful `FIRST`-mode candidate instead
+   of probing every eligible task and reversing the selected work.
+6. Treat repeated `ClassLimitTable` validation as the next static-model reuse question. Do not
+   optimize replay card tracking, recording retention, or scoring overlays from the current data.
