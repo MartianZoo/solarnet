@@ -140,6 +140,8 @@ internal data class ComponentDescriber(
 
     public data class Purchase(internal val noun: Noun.Counted) : TriggerFrame
 
+    public data class Place(internal val noun: Noun.Counted) : TriggerFrame
+
     public data object SpendResource : TriggerFrame
   }
 

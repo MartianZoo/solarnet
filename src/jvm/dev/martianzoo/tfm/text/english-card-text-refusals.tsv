@@ -1,9 +1,9 @@
 count	reason	examples
-21	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | LandClaim: Community<LandArea(HAS MAX 0 Occupant)>
+23	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | LandClaim: Community<LandArea(HAS MAX 0 Occupant)>
 11	UNSUPPORTED_EFFECT_TRIGGER	Vitor: CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC | Vitor: This IF Class<Award>: Vitor_RequiredAction
 7	UNSUPPORTED_GATE	MiningRights: LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Steel>>): Production<Class<Steel>> | MiningRights: LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Titanium>>): Production<Class<Titanium>>
+5	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | Recession: EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., -Production<Class<MC>> }
 5	UNSUPPORTED_SCALING	CloudTourism: Production<Class<MC>> / EarthTag MAX VenusTag | SoilStudies: Plant / (VenusTag OR PlantTag OR Colony)
-4	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | Recession: EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., -Production<Class<MC>> }
 2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X MC | VenusShuttles: MC / 12 - VenusTag -> VenusStep
 2	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
 2	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	FocusedOrganization: -StandardResource | PharmacyUnion: -4 MC.

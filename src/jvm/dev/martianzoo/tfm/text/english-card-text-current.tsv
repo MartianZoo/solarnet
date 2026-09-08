@@ -371,7 +371,7 @@ TradeEnvoys	Trade Envoys		Effect: When you trade, [TradeBarrier<ColonyTile>]. Wh
 TradingColony	Trading Colony	Place a colony.	Effect: When you trade, [TradeBarrier<ColonyTile>]. When you trade, you may raise that colony tile track 1 step, then [-TradeBarrier<ColonyTile>].
 UrbanDecomposers	Urban Decomposers	Requires a city tile and a colony. Increase your plant production 1 step. Add 2 microbes to any card.
 WarpDrive	Warp Drive	Requires 5 science tags.	Effect: When you play a space tag, pay 4 M€ less.
-LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you create an adjacency between an ocean tile and a tile, gain 1 M€.
+LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you place a tile on Mars, gain 1 M€ per ocean tile next to that area.
 Pristar	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card.	Effect: [ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC].
 TerraLabsResearch	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card, pay 2 M€ less.
 UtopiaInvest	Utopia Invest	Gain 40 M€. Increase your steel production 1 step and your titanium production 1 step.	Action: Decrease one of your productions 1 step to gain 4 of that resource.
@@ -412,6 +412,7 @@ VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal 2 project cards. Draw an
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: [MC / 12 - VenusTag -> VenusStep].
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gain 3 M€.
 ArcadianCommunities	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, [Community<LandArea(HAS MAX 0 Occupant)>].	Action: [Community<LandArea(HAS MAX 0 Occupant, Neighbor<OwnedOccupant>)>]. / Effect: [-Community: 3 MC].
+MarsNomads	Mars Nomads	[NomadsMarker<LandArea(HAS MAX 0 Occupant)>].	Action: [NomadsMarker<LandArea(HAS MAX 0 Occupant, Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner>], then [EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }].
 Recyclon	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card or remove 2 microbes from this card to increase your plant production 1 step.
 SpliceTacticalGenomics	Splice Tactical Genomics	[Splicer<This>]. Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When any microbe tag is played, gain 2 M€.
 Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: If you have no energy, increase your energy production 1 step, or pay 3 M€ to draw 1 building card.

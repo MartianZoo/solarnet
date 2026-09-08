@@ -43,7 +43,6 @@ product, including goals reprinted from another product.
 | Milestones & Awards | Milestone | Lobbyist | Turmoil support |
 | Milestones & Awards | Award | Politician | Turmoil support |
 | Promos through 2026-08 | Project | New Holland | Hybrid tile |
-| Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Printed tags while staged |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |

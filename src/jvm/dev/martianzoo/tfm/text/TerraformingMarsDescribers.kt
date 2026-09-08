@@ -156,6 +156,10 @@ internal object TerraformingMarsDescribers {
                         forSubclasses = false,
                     ),
             ),
+        klass("Placement") to
+            ComponentDescriber(
+                triggerFrame = Trigger.Place(ComponentDescriber.Noun.Counted("tile", "tiles")),
+            ),
         klass("Hand") to ComponentDescriber(metricLocation = "in hand"),
         klass("RemoteArea") to
             ComponentDescriber(

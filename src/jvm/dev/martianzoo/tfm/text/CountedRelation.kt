@@ -63,6 +63,34 @@ internal fun renderCountedRelation(
   return CountedRelation(source, target, relation.phrase)
 }
 
+internal fun renderCountedRelationToAntecedent(
+    expression: Expression,
+    describers: Describers,
+    references: TypeVariableReferences,
+): NounPhrase? {
+  if (expression.refinement != null) return null
+  val relation =
+      describers.fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val sourceKey = Key(expression.className, 0)
+  val targetKey = Key(expression.className, 1)
+  if (resolved.sourceDependencies.keys != setOf(sourceKey, targetKey)) return null
+  val source =
+      resolved.sourceDependency(sourceKey)?.let { renderParticipant(it, describers) } ?: return null
+  val target = resolved.sourceDependency(targetKey) ?: return null
+  if (target.refinement != null || references.variableUsedAt(target) == null) return null
+  val site = describers.placementSite(target.className) ?: return null
+  val targetNoun = describers.describedNoun(target.className, site.noun, 1)
+  return source
+      .counted(null)
+      .withModifier(
+          Modifier.Relation(
+              relation.phrase,
+              NounPhrase(targetNoun, determiner = Determiner.THAT),
+          )
+      )
+}
+
 private fun renderParticipant(
     expression: Expression,
     describers: Describers,

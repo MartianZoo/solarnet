@@ -297,7 +297,12 @@ private fun renderPer(
   val clause =
       renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
           ?: return null
-  val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
+  val metric =
+      renderMetricPhrase(instruction.metric, describers)
+          ?: (instruction.metric as? Metric.Count)?.expression?.let {
+            renderCountedRelationToAntecedent(it, describers, references)
+          }
+          ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Per(metric))
 }
 

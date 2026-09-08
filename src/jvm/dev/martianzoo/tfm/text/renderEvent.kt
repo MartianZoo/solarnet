@@ -421,7 +421,11 @@ private fun Describers.placementEvent(
   ) {
     return null
   }
-  val placement = positionedFrame(expression.className) ?: return null
+  val positioned = positionedFrame(expression.className)
+  val placement =
+      positioned?.let {
+        ComponentDescriber.Noun.Counted(it.singular, it.plural)
+      } ?: (triggerFrame(expression.className) as? TriggerFrame.Place)?.noun ?: return null
   val location =
       resolvedPlacement.sites
           .singleOrNull()
@@ -434,7 +438,11 @@ private fun Describers.placementEvent(
   val objectPhrase =
       when (actorConstraint) {
         Event.ActorConstraint.YOU ->
-            NounPhrase(placement.singular, placement.plural, determiner = placement.determiner)
+            NounPhrase(
+                placement.singular,
+                placement.plural,
+                determiner = positioned?.determiner ?: Determiner.INDEFINITE,
+            )
         Event.ActorConstraint.UNRESTRICTED ->
             NounPhrase(placement.singular, placement.plural, determiner = Determiner.ANY)
       }

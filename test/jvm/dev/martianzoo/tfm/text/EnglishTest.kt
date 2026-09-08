@@ -51,6 +51,9 @@ internal class EnglishTest {
         "1 VP per animal on this card."
     english.describe(parse<Effect>("CityTile<MarsArea, Anyone>: Steel")) shouldBe
         "When any city tile is placed on Mars, gain 1 steel."
+    english.describe(
+        parse<Effect>("Placement<MarsArea>: MC / Neighbor<OceanTile, MarsArea>")
+    ) shouldBe "When you place a tile on Mars, gain 1 M€ per ocean tile next to that area."
     english.describe(parse<Effect>("PlantTag<CardFront<Anyone>, Anyone>: Steel")) shouldBe
         "When any plant tag is played, gain 1 steel."
     english.describe(parse<Effect>("TerraformRating: 2 MC")) shouldBe
