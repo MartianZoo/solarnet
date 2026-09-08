@@ -176,7 +176,7 @@ looking it up.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
   event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
-- **Custom instructions** are imperative verb phrases: `PassLeft`, `CopyProductionBox`. Use the
+- **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
   published verb when the game prints one — Robotic Workforce
   and Cyberia Systems both say "copy ... production box", which is why `CopyProductionBox` is right.
   Never a programming verb: `Handle`, `Get`, `Process`, `Update`.
@@ -190,8 +190,8 @@ looking it up.
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
-  `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
-  `StartMarker` reads wrong.
+  `NomadsMarker`, `CapitalMarker`. `StartToken` keeps `Token` because the honest
+  `StartPlayerMarker` is long and `StartMarker` reads wrong.
 - **Card locations** use noun phrases for places (`Hand`) and participles for
   explicitly transient states. The two participle forms are both correct and mean different things:
   the present participle names a stage the player is in the middle of (`Selecting`, and eventually

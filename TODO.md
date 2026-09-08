@@ -6,6 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Do not let `Engine.newGame` exit bootstrap until it has validated every invariant against the
+  completed World, including positive lower bounds and correctly scoped dependent-component
+  invariants.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
@@ -96,8 +99,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.
-- Model Mars Nomads' moving non-tile marker, adjacency and reservation rules, and destination
-  placement bonuses, then replace `FakeMarsNomads` and remove the sourced reconciliations.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.

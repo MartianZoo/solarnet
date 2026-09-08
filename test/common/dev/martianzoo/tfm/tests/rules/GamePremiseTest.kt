@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassSelection
@@ -29,7 +30,7 @@ internal class GamePremiseTest {
   internal fun directPremisesRequireConcretePlayerClasses() {
     val catalog = Canon.withPlayers(1)
 
-    listOf(cn("MC"), Player.CLASS_NAME).forEach { invalidPlayerName ->
+    listOf(cn("MC"), PLAYER).forEach { invalidPlayerName ->
       shouldThrow<IllegalArgumentException> {
         GamePremise(
             catalog,
@@ -44,14 +45,14 @@ internal class GamePremiseTest {
 
   @Test
   internal fun conventionalPlayerCatalogsAreReusableAndAbsentFromCanon() {
-    val catalog = Canon.withPlayers(2)
+    val catalog = Canon.withPlayers(6)
 
-    assertSame(catalog, Canon.withPlayers(2))
+    assertSame(catalog, Canon.withPlayers(6))
     Canon.classTable.findClass(cn("Player1")) shouldBe null
     catalog.classTable
         .getClass(cn("Player1"))
         .isSubtypeOf(catalog.classTable.getClass(cn("Player"))) shouldBe true
-    catalog.classTable.getClass(cn("Player2")).abstract shouldBe false
+    catalog.classTable.getClass(cn("Player6")).abstract shouldBe false
   }
 
   @Test
@@ -167,9 +168,16 @@ internal class GamePremiseTest {
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("Blue, Yellow, VenusNextExpansion", "Player1"))
     }
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(GameConfig("", "One", "Two", "Three", "Four", "Five", "Six"))
-    }
+  }
+
+  @Test
+  internal fun configurationsCanSeatMoreThanFivePlayers() {
+    val names = listOf("One", "Two", "Three", "Four", "Five", "Six").map(::cn)
+
+    val premise = Canon.gamePremise(GameConfig.create(included = emptyList(), playerNames = names))
+
+    premise.playerNames shouldBe names
+    Engine.newGame(premise).agent(ADMIN).count("Player") shouldBe 6
   }
 
   @Test

@@ -28,6 +28,7 @@ kotlin {
 }
 
 dependencies {
+  implementation(project(":game-viewer"))
   implementation(project(":tfm-canon"))
   implementation(project(":engine"))
   implementation(project(":pets"))
@@ -61,6 +62,8 @@ val eventLogDumpOutput =
     )
 val soloEventLogDumpOutput =
     rootProject.layout.projectDirectory.file("_local/eventlogs/solo-all-expansions-eventlog.tsv")
+val otbGame20260828EventLogDumpOutput =
+    rootProject.layout.projectDirectory.file("_local/eventlogs/otb-game-20260828-eventlog.tsv")
 
 tasks.register<JavaExec>("dumpAllExpansionsEventLogs") {
   group = "reporting"
@@ -68,6 +71,14 @@ tasks.register<JavaExec>("dumpAllExpansionsEventLogs") {
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tools.DumpEventlogKt")
   args(eventLogDumpOutput.asFile.absolutePath, soloEventLogDumpOutput.asFile.absolutePath)
+}
+
+tasks.register<JavaExec>("dumpOtbGame20260828EventLog") {
+  group = "reporting"
+  description = "Replays the complete 2026-08-28 game and dumps its change-event log as TSV."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tools.DumpEventlogKt")
+  args(otbGame20260828EventLogDumpOutput.asFile.absolutePath)
 }
 
 tasks.register<JavaExec>("regenerateMapAreas") {

@@ -4,7 +4,7 @@
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
 
-> **Read when:** deliberately replacing `PassLeft` or another custom instruction with
+> **Read when:** deliberately replacing a custom instruction with
 > hand-authored Pets and general runtime semantics.
 >
 > **Skip when:** just implementing a custom operation or metric, or when no custom is being
@@ -37,12 +37,6 @@ Custom metrics are a separate concern.
 fans out over the live neighboring tiles selected by the geometric `Neighbor` metric and creates
 the two directed `Adjacency` components in plain Pets. `Neighbor` accepts any tile as its source so
 the tile-owned effect remains valid for remote cities, which have no neighbors on the Mars map.
-
-### `PassLeft`
-
-A shared seat-topology model such as `LeftOf<From, To>` could let plain Pets move a
-`StartToken`. Do this only if turn order and every seat-relative rule use the same topology. A
-parallel relation invented solely to remove one custom is not an improvement.
 
 ## Customs that should remain
 

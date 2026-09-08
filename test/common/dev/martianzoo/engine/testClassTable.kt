@@ -15,7 +15,7 @@ import dev.martianzoo.pets.types.ClassTable
 internal fun testClassTable(source: String): ClassTable = testCatalog(source).classTable
 
 internal fun testGamePremise(source: String = "CLASS Token", players: Int = 1): GamePremise {
-  require(players in 0..5)
+  require(players >= 0)
   val playerDeclarations =
       if (players == 0) ""
       else

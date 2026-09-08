@@ -20,6 +20,7 @@ import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -235,7 +236,7 @@ internal constructor(
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }
     if (type.className == ADMIN.className) return ADMIN
-    if (type.rootClass.isSubtypeOf(classTable.getClass(Player.CLASS_NAME))) {
+    if (type.rootClass.isSubtypeOf(classTable.getClass(PLAYER))) {
       return Player(type.className)
     }
     throw ExpressionException("unsupported Actor: ${type.expression}")

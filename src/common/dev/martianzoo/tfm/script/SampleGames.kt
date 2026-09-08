@@ -3,8 +3,7 @@ package dev.martianzoo.tfm.script
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.OptionCodeTranslation
 import dev.martianzoo.script.createGame
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -17,8 +16,7 @@ internal object SampleGames {
     val setup = OptionCodeTranslation.setup("BRVPXT", 2)
     val game = createGame(setup)
     val admin = game.tfm(ADMIN)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val (p1, p2) = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
 
     TfmWorkflow.Manual(game).setupPhase()
     p1.doTask("-5 ProjectCard<Hand>")

@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -14,6 +15,10 @@ public data class GamePremise(
     public val initialComponentTypes: Set<Expression>,
     /** Concrete Player Class Names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
+    /**
+     * Concrete configuration Class created immediately after Admin, when the Catalog supplies one.
+     */
+    public val premiseClassName: ClassName? = null,
 ) {
   /** The immutable active-class projection shared by every World built from this premise. */
   private val classTableLazy = lazy { ClassTable.forPremise(this) }
@@ -23,7 +28,7 @@ public data class GamePremise(
   init {
     val selectedNames = classSelections.map(ClassSelection::className)
     val invalidPlayerNames = playerNames.filter { playerName ->
-      val playerClass = catalog.classTable.findClass(Player.CLASS_NAME)
+      val playerClass = catalog.classTable.findClass(PLAYER)
       val configuredClass = catalog.classTable.findClass(playerName)
       playerClass == null ||
           configuredClass == null ||
@@ -56,6 +61,12 @@ public data class GamePremise(
         initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
     require(initialClassNames.all { it in catalog.allClassNames }) {
       "initial component types must belong to the premise Catalog"
+    }
+    premiseClassName?.let { className ->
+      val declaration = catalog.allClassDeclarations[className]
+      require(declaration != null && !declaration.abstract && declaration.dependencies.isEmpty()) {
+        "premise class must be a concrete dependency-free Catalog Class: $className"
+      }
     }
   }
 

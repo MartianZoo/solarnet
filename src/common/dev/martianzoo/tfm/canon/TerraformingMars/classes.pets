@@ -1,6 +1,6 @@
 "The base Terraforming Mars rules"
-CLASS TerraformingMars : Module {
-  HAS =1 GameMode
+CLASS TerraformingMars : BaseGameModule {
+  HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
@@ -13,8 +13,8 @@ CLASS TerraformingMars : Module {
   This: Hand, Selecting, Revealed
   This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   This: EACH Class<RemoteArea> { RemoteArea }
-  This IF MAX 0 MarsMap: TharsisMap
-  This IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
+
+  ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
   CorporationPhase: Photosynthesis
   CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
@@ -37,7 +37,6 @@ CLASS QuickStartVariant : Module {
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
 
-  // Bootstrap gains Modules before Players, so a Module's creation-time fanout cannot see them.
   // Queued `This` work gives every Player its support after the complete seat layer exists.
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>> // TODO: doesn't belong here
@@ -55,8 +54,11 @@ ABSTRACT CLASS MarsMap : Module {
   This: EACH Class<MarsArea> { MarsArea } // TODO <This>
 }
 
-"A tile or community occupying one area"
-ABSTRACT CLASS Occupant<Area>
+"A board piece tied to one area"
+ABSTRACT CLASS AreaPiece
+
+"A board piece that exclusively occupies its area"
+ABSTRACT CLASS Occupant<Area> : AreaPiece
 
 "An occupant controlled by an actor"
 ABSTRACT CLASS OwnedOccupant : Occupant, Owned
@@ -148,9 +150,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   CLASS OceanTile : Tile<MarsArea> {
     DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
 
-    // We could instead trigger on BackwardAdjacency<Tile, This> -- same thing.
-    // But if we triggered on just Adjacency, it would also pay out for putting ocean tiles next to any tile.
-    ForwardAdjacency<This, Tile>: 2 MC
+    Placement<MarsArea(HAS Neighbor<This>)>: 2 MC
   }
 
   "Represents a 1% increase in oxygen level"
@@ -609,14 +609,16 @@ CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
   This IF GpIncomplete: GlobalParameter! BY Admin
 }
 
-"Marks the player who takes the first turn; passes one seat left with each new generation"
+"Marks the player who takes the first turn"
 CLASS StartToken : Owned<Player> {
   HAS =1 StartToken
-  Generation IF 2 Generation: PassLeft<This>
 }
 
-"The directed turn-order relationship whose second Player follows its first Player"
-CLASS Successor<Player, Player> : System { HAS =1 This }
+"Identifies the Player immediately after its owner in seat order"
+CLASS AfterMe<Player> : Owned<Owner>, System {
+  HAS MAX 1 This
+  ResearchPhase IF StartToken: StartToken<Player> FROM StartToken.
+}
 
 // GAME CONFIGURATION
 
@@ -627,6 +629,12 @@ ABSTRACT CLASS Module : System {
   premiseRequirement = Requirement?
   -This:: Die!
 }
+
+"The Module whose immediate setup must precede every other selected Module"
+ABSTRACT CLASS BaseGameModule : Module { HAS =1 BaseGameModule }
+
+"Signals that the complete selected Module layer is live"
+CLASS ModulesReady : Signal
 
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS GameMode : Module {
@@ -661,7 +669,6 @@ CLASS SoloMode : GameMode {
   HAS =1 SoloObjective
 
   This: SoloOpponent
-  This IF MAX 0 SoloObjective: StandardSoloObjective.
   This: 14 SoloGenerationsLeft
   SetupPhase: 14 TerraformRating<Player>
   Generation: -SoloGenerationsLeft.
@@ -673,6 +680,8 @@ ABSTRACT CLASS SoloObjective : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloObjective {
+    autoSelectWhen = HAS "SoloMode, MAX 0 SoloObjective"
+
     CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player>
   }
 
@@ -729,9 +738,6 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
 "A virtual metric whose count is the number of a particular resource printed as an area's bonus"
 CLASS PlacementBonus<Class<Resource>, MarsArea> : Custom
 
-"Moves an owned component to the next player in seat order"
-CLASS PassLeft<StartToken> : Custom
-
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
 CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, Custom
 
@@ -752,8 +758,8 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
 }
 
-"The number of geometric neighbor relations between live occupants and areas on the selected Mars map"
-CLASS Neighbor<Occupant<Area>, MarsArea> : Hidden, Custom
+"The number of geometric neighbor relations between live area pieces and areas on the selected Mars map"
+CLASS Neighbor<AreaPiece, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
   -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }

@@ -5,8 +5,8 @@ import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.util.toStrings
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels

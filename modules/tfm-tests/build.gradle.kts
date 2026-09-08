@@ -4,7 +4,10 @@ kotlin {
   sourceSets {
     commonTest {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"))
+          listOf(
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"),
+          )
       )
       dependencies {
         implementation(libs.kotest.assertions.core)

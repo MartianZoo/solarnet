@@ -54,7 +54,7 @@ public data class GroundType(
         "$rootClass and its dependencies belong to different class tables"
       }
     }
-    require(dependencies.keys.toList() == rootClass.dependencies.keys.toList()) {
+    require(dependencies.keys == rootClass.dependencies.keys) {
       "expected keys ${rootClass.dependencies.keys}, got $dependencies"
     }
     rootClass.requireVariableEqualitiesSatisfied(dependencies)
