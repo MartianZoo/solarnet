@@ -54,6 +54,9 @@ private constructor(
 
   internal val registryKey = RegistryKey(automatic, triggerClass)
 
+  internal val listensToOtherComponents: Boolean
+    get() = subscription.listensToOtherComponents
+
   internal fun onChangeToSelf(
       triggerEvent: ChangeEvent,
       controller: Actor,
@@ -303,6 +306,17 @@ private constructor(
     ): Hit?
 
     abstract val classToCheck: ClassName?
+
+    val listensToOtherComponents: Boolean
+      get() =
+          when (this) {
+            is AnyOf -> alternatives.any(Subscription::listensToOtherComponents)
+            is Self -> false
+            is Regular -> true
+            is Personal -> inner.listensToOtherComponents
+            is Conditional -> inner.listensToOtherComponents
+            is CountBinding -> inner.listensToOtherComponents
+          }
 
     abstract fun transform(transformer: PetTransformer): Subscription
 

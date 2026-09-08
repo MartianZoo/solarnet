@@ -56,7 +56,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
           .flatMap(TypeDependency::allConcreteSpecializations)
           .map { it.boundType }
 
-  public val keys: List<Key> = deps.map(Dependency::key)
+  public val keys: List<Key> = List(deps.size) { deps[it].key }
 
   internal val representedClass: Class? =
       if (isForClassType(deps)) getClassForClassType(deps) else null
@@ -72,11 +72,26 @@ public class DependencySet private constructor(private val deps: List<Dependency
 
   public fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
 
-  public fun getIfPresent(key: Key): Dependency? = deps.firstOrNull { it.key == key }
+  public fun getIfPresent(key: Key): Dependency? {
+    var index = 0
+    while (index < deps.size) {
+      val dependency = deps[index]
+      if (dependency.key == key) return dependency
+      index++
+    }
+    return null
+  }
 
   // HIERARCHY
 
-  public val abstract: Boolean = deps.any { it.abstract }
+  public val abstract: Boolean = run {
+    var index = 0
+    while (index < deps.size) {
+      if (deps[index].abstract) return@run true
+      index++
+    }
+    false
+  }
 
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
@@ -135,12 +150,12 @@ public class DependencySet private constructor(private val deps: List<Dependency
         if (this@DependencySet.getIfPresent(dependency.key) == null) add(dependency)
       }
     }
-    return of(merged)
+    return DependencySet(merged)
   }
 
   internal fun minus(that: DependencySet): DependencySet {
     requireSameClassTable(that)
-    return of(this.deps - that.deps)
+    return DependencySet(this.deps - that.deps)
   }
 
   @PublishedApi
@@ -153,8 +168,10 @@ public class DependencySet private constructor(private val deps: List<Dependency
   // OTHER
 
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
-  internal fun subMapInOrder(keysInOrder: Iterable<Key>) =
-      of(keysInOrder.mapNotNull(::getIfPresent))
+  internal fun subMapInOrder(keysInOrder: Iterable<Key>): DependencySet {
+    if (keysInOrder == keys) return this
+    return DependencySet(keysInOrder.mapNotNull(::getIfPresent))
+  }
 
   private inline fun map(function: (GroundType) -> GroundType) =
       DependencySet(deps.map { if (it is TypeDependency) it.map(function) else it })
@@ -176,7 +193,7 @@ public class DependencySet private constructor(private val deps: List<Dependency
     val firstKey = path.keyList.first()
     if (path.keyList.size == 1) {
       require(replacement.key == firstKey)
-      return of(deps.map { if (it.key == firstKey) replacement else it })
+      return DependencySet(deps.map { if (it.key == firstKey) replacement else it })
     }
 
     fun GroundType.replaceNested(): GroundType =

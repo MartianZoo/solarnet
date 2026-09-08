@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.types.ClassLimitTable
@@ -58,20 +57,22 @@ internal class Limiter(
   ): Boolean {
     require(type.abstract)
     require(minimum > 0)
-    return classTable.allConcreteSubtypes(type).any { candidate ->
-      candidate.narrows(type, info) &&
-          findLimitOrNull(candidate.toComponent(), null)?.let { it >= minimum } == true
-    }
+    return classTable
+        .allConcreteSubtypes(type) { dependency -> components.matchingTypes(dependency, info) }
+        .any { candidate ->
+          candidate.narrows(type, info) &&
+              findLimitWithDependenciesPresent(candidate.toComponent(), null) >= minimum
+        }
   }
 
   internal fun hasExecutableConcreteRemoval(
       type: Type,
       minimum: Int,
-      info: GameReader,
+      info: TypeInfo,
   ): Boolean {
     require(type.abstract)
     require(minimum > 0)
-    return info.getComponents(type).elements.any { candidate ->
+    return components.matchingTypes(type, info).any { candidate ->
       findLimit(null, candidate.toComponent()) >= minimum
     }
   }

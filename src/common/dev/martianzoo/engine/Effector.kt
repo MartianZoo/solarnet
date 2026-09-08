@@ -21,6 +21,7 @@ internal class Effector(
   internal fun add(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
+        if (!effect.listensToOtherComponents) return@forEach
         val bucket = registry.getOrPut(effect.registryKey, ::HashMultiset)
         bucket.add(effect, delta)
       }
@@ -28,6 +29,7 @@ internal class Effector(
   internal fun mustRemove(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
+        if (!effect.listensToOtherComponents) return@forEach
         val key = effect.registryKey
         val bucket = checkNotNull(registry[key])
         bucket.mustRemove(effect, delta)
