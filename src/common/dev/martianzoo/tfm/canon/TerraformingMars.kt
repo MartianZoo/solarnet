@@ -42,7 +42,6 @@ import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.SUCCESSOR
-import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import kotlin.math.abs
 
 private val terraformingMarsCustomClasses: Set<CustomClass> =
@@ -126,12 +125,12 @@ private object TerraformingMars {
     }
   }
 
-  private val NEIGHBOR = cn("Neighbor")
+  private val OCCUPANT = cn("Occupant")
 
   internal object Neighbor : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
-      val (tile, target) = type.typeDependencies.map { it.boundType }
-      val source = tile.typeDependencies.single { it.key.declaringClass == TILE }.boundType
+      val (piece, target) = type.typeDependencies.map { it.boundType }
+      val source = piece.typeDependencies.single { it.key.declaringClass == OCCUPANT }.boundType
       if (listOf("row", "column").any { PropertyName(it) !in source.rootClass.properties }) return 0
       val rowDelta = target.getNumberPropertyValue("row") - source.getNumberPropertyValue("row")
       val columnDelta =

@@ -1,4 +1,13 @@
 // Published promotional card declarations.
+CLASS ArcadianCommunities : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This: 40 MC, 10 Steel, RequiredAction { -> Community<LandArea(HAS MAX 0 Occupant)> }
+
+  -> Community<LandArea(HAS MAX 0 Occupant, Neighbor<OwnedOccupant>)>
+  -Community: 3 MC
+}
+
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
 

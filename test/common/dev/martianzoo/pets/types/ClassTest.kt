@@ -29,6 +29,27 @@ import kotlin.test.Test
 
 internal class ClassTest {
   @Test
+  internal fun `glb recognizes an indirectly inherited intersection operand`() {
+    val table =
+        loader(
+            """
+            ABSTRACT CLASS First
+            ABSTRACT CLASS Shared
+            ABSTRACT CLASS FirstShared : First, Shared
+            ABSTRACT CLASS Second : Shared
+            ABSTRACT CLASS Intersection : Second, FirstShared
+            ABSTRACT CLASS Third
+            ABSTRACT CLASS NarrowerIntersection : Intersection, Third
+            """
+                .trimIndent()
+        )
+
+    table.getClass(cn("First")) glb
+        table.getClass(cn("Second")) shouldBe
+        table.getClass(cn("Intersection"))
+  }
+
+  @Test
   internal fun `metric properties narrow through number bounds literals and metric expressions`() {
     val table =
         loader(
