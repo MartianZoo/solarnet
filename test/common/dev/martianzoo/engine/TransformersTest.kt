@@ -116,12 +116,13 @@ internal class TransformersTest {
   }
 
   private companion object {
-    val transformers = Transformers(Canon.classTable)
+    val table = Canon.withPlayers(3).classTable
+    val transformers = Transformers(table)
   }
 
   @Test
   internal fun `an action variable survives lowering and binds from its first stage`() {
-    val component = Component(Canon.classTable.resolve(parse("UtopiaInvest<Player1>")))
+    val component = Component(table.resolve(parse("UtopiaInvest<Player1>")))
     val effect =
         LiveEffect.compile(component, transformers).single {
           "4 StandardResource" in it.effect.instruction.toString()
@@ -129,12 +130,10 @@ internal class TransformersTest {
     val then = effect.effect.instruction as Then
     val structuralInfo =
         object : TypeInfo {
-          override fun isAbstract(e: Expression): Boolean = Canon.classTable.resolve(e).abstract
+          override fun isAbstract(e: Expression): Boolean = table.resolve(e).abstract
 
           override fun ensureNarrows(wide: Expression, narrow: Expression) {
-            Canon.classTable
-                .resolve(narrow)
-                .ensureNarrows(Canon.classTable.resolve(wide), NoGameState)
+            table.resolve(narrow).ensureNarrows(table.resolve(wide), NoGameState)
           }
 
           override fun has(requirement: dev.martianzoo.pets.ast.Requirement): Boolean =
@@ -152,11 +151,7 @@ internal class TransformersTest {
   @Test
   internal fun `a card-payment offer keeps its resource-card linkage`() {
     val component =
-        Component(
-            Canon.classTable.resolve(
-                parse("AcceptingFromCard<Player1, KuiperCooperative<Player1>>")
-            )
-        )
+        Component(table.resolve(parse("AcceptingFromCard<Player1, KuiperCooperative<Player1>>")))
 
     LiveEffect.compile(component, transformers)
         .map { it.effect.toString() }
@@ -228,12 +223,10 @@ internal class TransformersTest {
 
   @Test
   internal fun `variable specialization leaves an ordinary occurrence of the same class independent`() {
-    val general =
-        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
-    val specific =
-        Canon.classTable.resolve(parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>"))
+    val general = table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
+    val specific = table.resolve(parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>"))
     val effect =
-        Canon.classTable
+        table
             .inferTypeVariables()
             .transformEffect(
                 parse(
@@ -255,7 +248,7 @@ internal class TransformersTest {
 
   @Test
   internal fun `Class-scoped variables retain dependency constraints supplied by each use`() {
-    val playCard = Canon.classTable.getClass(parse<Expression>("PlayCard").className)
+    val playCard = table.getClass(parse<Expression>("PlayCard").className)
     val effect =
         transformers.classEffects(playCard).single { "CardInvoice" in it.instruction.toString() }
     val cardFront =
@@ -274,9 +267,7 @@ internal class TransformersTest {
 
     val component =
         Component(
-            Canon.classTable.resolve(
-                parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>, Hand>")
-            )
+            table.resolve(parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>, Hand>"))
         )
     LiveEffect.compile(component, transformers)
         .map(LiveEffect::effect)
@@ -293,10 +284,8 @@ internal class TransformersTest {
 
   @Test
   internal fun `represented Class capture specializes every SoloStandardResourceReserve effect`() {
-    val klass =
-        Canon.classTable.getClass(parse<Expression>("SoloStandardResourceReserve").className)
-    val component =
-        Component(Canon.classTable.resolve(parse("SoloStandardResourceReserve<Class<MC>>")))
+    val klass = table.getClass(parse<Expression>("SoloStandardResourceReserve").className)
+    val component = Component(table.resolve(parse("SoloStandardResourceReserve<Class<MC>>")))
     val resource =
         klass.typeVariables.single {
           it.declaration.expression.toString() == "StandardResource"
@@ -331,7 +320,7 @@ internal class TransformersTest {
 
   @Test
   internal fun `trigger variable survives Production lowering`() {
-    val klass = Canon.classTable.getClass(parse<Expression>("Manutech").className)
+    val klass = table.getClass(parse<Expression>("Manutech").className)
     val effect = transformers.classEffects(klass).single { "Production" in it.trigger.toString() }
 
     effect.typeVariables.variables.associate { variable ->
@@ -344,8 +333,8 @@ internal class TransformersTest {
     val bindings =
         effect.typeVariables.bindingsFrom(
             trigger,
-            Canon.classTable.resolve(trigger),
-            Canon.classTable.resolve(parse("Production<Player1, Class<Plant>>")),
+            table.resolve(trigger),
+            table.resolve(parse("Production<Player1, Class<Plant>>")),
         )
     bindings[variable].toString() shouldBe "Plant"
     effect.typeVariables

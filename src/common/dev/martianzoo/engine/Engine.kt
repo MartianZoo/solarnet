@@ -119,7 +119,7 @@ public object Engine {
 
       val initiallyPresentClassNames =
           premise.modules +
-              premise.playerClassNames +
+              premise.playerNames +
               premise.classSelections.filter { it.included }.map { it.className } +
               premise.initialComponentTypes.map { classTable.resolve(it).className }
 

@@ -150,7 +150,8 @@ Do not reopen these without new evidence:
   permits; the exact pre-task seed state remains to be selected.
 - Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
   structural reachability.
-- Runtime players use canonical seat identities; configured names are Vocabulary aliases.
+- Runtime players use the configured concrete Player Class identities supplied by Catalog
+  composition.
 
 If a dependency change is selected, prefer deleting a backward dependency or moving one whole policy
 over adding adapters on both sides.

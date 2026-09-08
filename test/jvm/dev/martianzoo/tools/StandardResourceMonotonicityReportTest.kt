@@ -3,7 +3,6 @@ package dev.martianzoo.tools
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -28,7 +27,7 @@ internal class StandardResourceMonotonicityReportTest {
     val basePremise = StandardResourceMonotonicityReport.maximalSoloPremise()
     val premise =
         basePremise.copy(
-            catalog = TfmCatalog.Composite(Canon, probe),
+            catalog = TfmCatalog.Composite(basePremise.catalog as TfmCatalog, probe),
             classSelections =
                 basePremise.classSelections + ClassSelection(cn("ProductionPerProbe")),
         )

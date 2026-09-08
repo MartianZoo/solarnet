@@ -2,8 +2,6 @@ package dev.martianzoo.tfm.web.gameviewer.games
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
@@ -28,8 +26,8 @@ public class OtbGame20260825 : RecordedGame() {
 
   protected override fun play() {
     TfmWorkflow.Auto(game).launch()
-    val green = game.tfm(Player.PLAYER1)
-    val yellow = game.tfm(Player.PLAYER2)
+    val green = player(1)
+    val yellow = player(2)
     green.doTask("Ok")
     yellow.doTask("-5 ProjectCard<Hand>")
 
@@ -654,7 +652,7 @@ public class OtbGame20260825 : RecordedGame() {
     }
 
     green.turn {
-      playProject(Sabotage, 0) { doTask("-7 MC<Player2>") }
+      playProject(Sabotage, 0) { doTask("-7 MC<Yellow>") }
 
       playProject(Comet, 1, titanium = 6) { doTask("Ok") }
     }
@@ -742,7 +740,7 @@ public class OtbGame20260825 : RecordedGame() {
       sellPatents(1)
     }
     green.turn {
-      cardAction1(Predators) { doTask("-Animal<Player2, $EcologicalZone<Player2>>") }
+      cardAction1(Predators) { doTask("-Animal<Yellow, $EcologicalZone<Yellow>>") }
     }
     yellow.turn {
       sellPatents(1)
@@ -767,7 +765,7 @@ public class OtbGame20260825 : RecordedGame() {
     }
     green.turn {
       playProject(Fish, 7) {
-        doTask("PROD[-Plant<Player2>]")
+        doTask("PROD[-Plant<Yellow>]")
         addCardResources(Fish)
       }
     }

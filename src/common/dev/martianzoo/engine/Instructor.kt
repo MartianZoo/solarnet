@@ -235,8 +235,10 @@ internal constructor(
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }
     if (type.className == ADMIN.className) return ADMIN
-    return Player.fromClassNameOrNull(type.className)
-        ?: throw ExpressionException("unsupported Actor: ${type.expression}")
+    if (type.rootClass.isSubtypeOf(classTable.getClass(Player.CLASS_NAME))) {
+      return Player(type.className)
+    }
+    throw ExpressionException("unsupported Actor: ${type.expression}")
   }
 
   private fun resolveChange(change: Change): InstructionTree {

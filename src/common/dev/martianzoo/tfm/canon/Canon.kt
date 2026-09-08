@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.data.ClassDeclaration
-
 /** Terraforming Mars Catalog with typed Terraforming Mars definition registries. */
 public object Canon :
     TfmCatalog.Composite(
@@ -20,13 +18,4 @@ public object Canon :
         utopiaMapBundle, // 2024
         cimmeriaMapBundle, // 2024
         promoCardPackBundle,
-    ) {
-  /** Returns Canon extended with replay- or scenario-specific class declarations. */
-  public fun withNonstandardClasses(declarations: Collection<ClassDeclaration>): TfmCatalog =
-      TfmCatalog.compose(
-          this,
-          object : TfmCatalog() {
-            override val explicitClassDeclarations: Set<ClassDeclaration> = declarations.toSet()
-          },
-      )
-}
+    )

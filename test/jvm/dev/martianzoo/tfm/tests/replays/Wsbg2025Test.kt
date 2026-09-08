@@ -38,9 +38,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     TfmWorkflow.Auto(game).launch()
     retainStartingProjects(6, 7, 8, 7)
 
-    val stanley = game.tfm(Player.PLAYER1)
-    val jacopo = game.tfm(Player.PLAYER2)
-    val jon = game.tfm(Player.PLAYER3)
+    val stanley = player(1)
+    val jacopo = player(2)
+    val jon = player(3)
     val charlie =
         game.tfm(game.actors.filterIsInstance<Player>()[3]).requireExplicitPaymentChoices()
 

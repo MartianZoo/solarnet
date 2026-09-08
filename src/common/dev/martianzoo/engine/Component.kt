@@ -43,7 +43,13 @@ public value class Component internal constructor(public val type: Type) : HasEx
 
   /** This component's owner when that owner is a seated Player. */
   internal val playerOwner: Player?
-    get() = owner?.className?.let(Player::fromClassNameOrNull)
+    get() =
+        owner
+            ?.takeIf { owner ->
+              owner.classTable.findClass(Player.CLASS_NAME)?.let(owner.rootClass::isSubtypeOf) ==
+                  true
+            }
+            ?.let { Player(it.className) }
 
   override val expression: Expression
     get() = type.expression

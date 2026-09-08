@@ -12,7 +12,7 @@ public data class GamePremise(
     public val modules: Set<ClassName>,
     public val classSelections: Set<ClassSelection>,
     public val initialComponentTypes: Set<Expression>,
-    /** User-facing player names in seat order. */
+    /** Concrete Player Class Names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
 ) {
   /** The immutable active-class projection shared by every World built from this premise. */
@@ -20,30 +20,21 @@ public data class GamePremise(
   public val classTable: ClassTable
     get() = classTableLazy.value
 
-  /** Canonical Player1 through Player5 class names for the occupied seats. */
-  public val playerClassNames: List<ClassName> =
-      Player.players(playerNames.size).map(Player::className)
-
-  private val petsNameAliases: Map<ClassName, ClassName> =
-      playerClassNames
-          .zip(playerNames)
-          .filter { (canonical, configured) -> canonical != configured }
-          .toMap()
-
   init {
     val selectedNames = classSelections.map(ClassSelection::className)
-    require(playerClassNames.all { it in catalog.allClassNames }) {
-      "Catalog lacks player classes: ${playerClassNames - catalog.allClassNames}"
+    val invalidPlayerNames = playerNames.filter { playerName ->
+      val playerClass = catalog.classTable.findClass(Player.CLASS_NAME)
+      val configuredClass = catalog.classTable.findClass(playerName)
+      playerClass == null ||
+          configuredClass == null ||
+          configuredClass.abstract ||
+          !configuredClass.isSubtypeOf(playerClass)
+    }
+    require(invalidPlayerNames.isEmpty()) {
+      "player names must be concrete Player classes: $invalidPlayerNames"
     }
     require(playerNames.distinct().size == playerNames.size) {
       "a game premise cannot seat the same player name more than once"
-    }
-    require(
-        playerClassNames.zip(playerNames).all { (canonical, configured) ->
-          configured == canonical || configured !in catalog.allClassNames
-        }
-    ) {
-      "player name collides with a Catalog class"
     }
     require(modules.all { it in catalog.modules }) {
       "unknown Modules: ${modules - catalog.modules.keys}"
@@ -70,7 +61,7 @@ public data class GamePremise(
 
   /** The administrative Actor plus the seated Players. */
   public val actors: List<Actor>
-    get() = playerClassNames.map { Player(it) } + ADMIN
+    get() = playerNames.map(::Player) + ADMIN
 
   /** Builds presentation and input translation for this premise's projected class names. */
   public fun createVocabulary(
@@ -83,6 +74,5 @@ public data class GamePremise(
           locale,
           inputOnlySynonyms,
           activeClassNames,
-          petsNameAliases,
       )
 }

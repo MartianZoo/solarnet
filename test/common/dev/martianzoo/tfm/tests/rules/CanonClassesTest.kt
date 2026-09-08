@@ -91,7 +91,7 @@ internal class CanonClassesTest {
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("StandardSoloObjective"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
-    game.agent(PLAYER1).count("TerraformRating<Me>") shouldBe 14
+    game.agent(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
       game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
@@ -130,7 +130,7 @@ internal class CanonClassesTest {
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
       game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
-      game.agent(PLAYER1).count("$it<Me>") shouldBe 0
+      game.agent(PLAYER1).count("$it<Player1>") shouldBe 0
     }
     game
         .agent(PLAYER1)
@@ -139,7 +139,7 @@ internal class CanonClassesTest {
         ) shouldBe 42
 
     admin.manual("End FROM Phase")
-    game.agent(PLAYER1).count("VictoryPoint<Me>") shouldBe 14
+    game.agent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }
 
