@@ -9,6 +9,7 @@ public object TfmClasses {
   internal val END = cn("End")
 
   internal val MARS_MAP = cn("MarsMap")
+  internal val PLACEMENT = cn("Placement")
   public val TILE: dev.martianzoo.pets.ast.ClassName = cn("Tile")
 
   internal val MILESTONE = cn("Milestone")

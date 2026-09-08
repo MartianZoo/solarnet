@@ -70,6 +70,7 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS MarsArea { // TODO <MarsMap>
     row = Number
     column = Number
+    Tile<This>:: Placement<This>
 
     // An unreserved area
     ABSTRACT CLASS LandArea {
@@ -86,6 +87,9 @@ ABSTRACT CLASS Area {
   "An area not on Mars (yes, it includes one for Stanford Torus)"
   ABSTRACT CLASS RemoteArea
 }
+
+"A placement in a Mars area"
+CLASS Placement<MarsArea> : Signal
 
 "A player's reservation of one land area"
 CLASS LandClaimMarker<LandArea> : Owned<Player> {
