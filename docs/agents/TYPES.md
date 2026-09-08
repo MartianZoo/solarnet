@@ -347,7 +347,7 @@ for themselves. The whole Catalog authors `!` in eight places, in three shapes:
 
 | Shape | Sites |
 | --- | --- |
-| `BY !Owner` on a trigger | `ProtectedHabitats`, `AsteroidDeflectionSystem`, `LandClaimMarker` |
+| `BY !Owner` on a trigger | `ProtectedHabitats`, `AsteroidDeflectionSystem`, `Community` |
 | Complemented argument in a trigger, carried into its instruction | `ResourceRemovalWatcher`, `ProductionDecreaseWatcher`, `Philares` |
 | Complemented argument in a count or refinement | `TollStation`'s `SpaceTag<!Owner>`, `Viron`'s `ActionUsedMarker<!Viron>` |
 

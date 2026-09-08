@@ -92,8 +92,9 @@ ABSTRACT CLASS Area {
 CLASS Placement<MarsArea> : Signal
 
 "A player's reservation of one land area"
-CLASS LandClaimMarker<LandArea> : Owned<Player> {
+CLASS Community<LandArea> : Owned<Player> {
   Tile<LandArea> BY !Owner:: Die
+  Tile<LandArea> BY Owner:: -This!
 }
 
 // TILES AND ADJACENCY
