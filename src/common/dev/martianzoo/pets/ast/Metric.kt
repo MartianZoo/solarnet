@@ -81,9 +81,6 @@ public sealed class Metric : PetElement() {
       public val candidate: Expression? = null,
   ) : Metric() {
     init {
-      if (selector.complement) {
-        throw PetSyntaxException("RANK selector can't be a complement: $selector")
-      }
       if (metrics.isEmpty()) throw PetSyntaxException("RANK needs a metric")
     }
 

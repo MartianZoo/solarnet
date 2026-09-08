@@ -38,7 +38,7 @@
 - **class synonym:** A configured, input-only convenience spelling such as `TR` for `TerraformRating`. It is never rendered or stored.
 - **class table:** An immutable set of mutually compatible classes that resolves expressions into types. A catalog has one master class table; each game world uses a class-table projection containing active classes plus catalog-known uninhabited classes.
 - **class-table projection:** A game-specific class table derived from a catalog's master class table. Active classes carry behavior and enumerate concrete possibilities, while other catalog-known identities remain resolvable as uninhabited classes.
-- **complement type:** A bound written like `!C`. It has meaning only within a known domain `B`, where it denotes the difference `B \ C`; the domain is part of the resolved type even though Pets does not print it.
+- **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **Component:** One immutable occurrence of a concrete type in a game world. Components have no identity or fields beyond their type, so occurrences of the same type differ only by multiplicity.
 - **component effect:** A class effect specialized for one concrete type by binding inherited dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
 - **component graph:** The logical directed graph whose vertices are Components and whose edges are dependencies. Because a type includes the exact types of its dependency targets, the game world stores the vertices as a multiset of types rather than as separately identified objects and edges.
@@ -85,7 +85,7 @@
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **multi-instruction:** An instruction containing two or more comma-separated, unordered child instructions. It is split into separate tasks because one task cannot contain a multi-instruction.
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”
-- **narrowing:** Replacing an expression, type, instruction, or selected task with a valid more specific form. For types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for choices such as refinements, complements, and linked variables. Task narrowing may fill one sub-specification at a time; each partial choice is recorded as task state rather than a state change, and resolution may reduce the choices offered for the remaining parts. An abstract task becomes executable only after it has narrowed to a concrete task.
+- **narrowing:** Replacing an expression, type, instruction, or selected task with a valid more specific form. For types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for refinements and linked variables. Task narrowing may fill one sub-specification at a time; each partial choice is recorded as task state rather than a state change, and resolution may reduce the choices offered for the remaining parts. An abstract task becomes executable only after it has narrowed to a concrete task.
 - **Ok:** A Signal whose gain is the standard do-nothing instruction. It always succeeds, leaves no observable state behind, and cannot trigger anything.
 - **operation:**
 - **origin indicator:**

@@ -64,6 +64,7 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS MarsArea { // TODO <MarsMap>
     row = Number
     column = Number
+    Tile<This>:: Placement<This>
 
     // An unreserved area
     ABSTRACT CLASS LandArea {
@@ -81,9 +82,13 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea
 }
 
+"A placement in a Mars area"
+CLASS Placement<MarsArea> : Signal
+
 "A player's reservation of one land area"
-CLASS LandClaimMarker<LandArea> : Owned<Player> {
-  Tile<LandArea> BY !Owner:: Die
+CLASS Community<LandArea> : Owned<Player> {
+  Tile<LandArea> BY Player(NOT Owner):: Die
+  Tile<LandArea> BY Owner:: -This!
 }
 
 // TILES AND ADJACENCY
@@ -133,7 +138,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   This: TerraformRating
 
   CLASS OceanTile : Tile<MarsArea> {
-    DEFAULT +OceanTile<WaterArea>
+    DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
 
     // We could instead trigger on BackwardAdjacency<Tile, This> -- same thing.
     // But if we triggered on just Adjacency, it would also pay out for putting ocean tiles next to any tile.

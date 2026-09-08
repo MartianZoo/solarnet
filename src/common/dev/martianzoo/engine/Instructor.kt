@@ -8,7 +8,6 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.abstractInstruction
@@ -209,90 +208,6 @@ internal constructor(
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
    */
   internal fun resolve(unresolved: Instruction): InstructionTree = doResolve(unresolved)
-
-  /**
-   * Validates a concrete target selected from an abstract pure AMAP gain or removal. Returns true
-   * when that kind of selection occurred, so an unselected task can be locked to this world before
-   * retaining the selection.
-   */
-  internal fun validateAmApSelection(
-      wide: InstructionTree,
-      proposed: InstructionTree,
-  ): Boolean {
-    val pairs =
-        firstStageChanges(wide).flatMap { domain ->
-          firstStageChanges(proposed).mapNotNull { selection ->
-            if (selection.change.narrows(domain.change, reader)) domain to selection else null
-          }
-        }
-    val selections = pairs.filter { (domain, selection) ->
-      isAbstractPureAmAp(domain.change, selection.change)
-    }
-    selections.forEach { (domain, selection) ->
-      if (
-          domain.metricPositive &&
-              selection.metricPositive &&
-              hasPositiveExecution(domain.change) &&
-              !hasPositiveExecution(selection.change)
-      ) {
-        throw NarrowingException(
-            "AMAP target `${selection.change}` cannot execute while " +
-                "`${domain.change}` has a positive choice"
-        )
-      }
-    }
-    return selections.isNotEmpty()
-  }
-
-  private data class FirstStageChange(val change: Change, val metricPositive: Boolean = true)
-
-  private fun firstStageChanges(tree: InstructionTree): List<FirstStageChange> =
-      when (tree) {
-        is Change -> listOf(FirstStageChange(tree))
-        is By -> firstStageChanges(tree.inner)
-        is Gated -> firstStageChanges(tree.inner)
-        is Per ->
-            firstStageChanges(tree.inner).map {
-              it.copy(metricPositive = reader.count(tree.metric) > 0)
-            }
-        is Then -> firstStageChanges(tree.first)
-        is Or -> tree.instructions.flatMap(::firstStageChanges)
-        is InstructionGroup -> tree.instructions.flatMap(::firstStageChanges)
-        else -> emptyList()
-      }
-
-  private fun isAbstractPureAmAp(domain: Change, selection: Change): Boolean {
-    if (domain.intensity != AMAP) return false
-    val domainTarget = domain.gaining ?: domain.removing ?: return false
-    if (domain.gaining != null && domain.removing != null) return false
-    val selectionTarget = selection.gaining ?: selection.removing ?: return false
-    val domainType = reader.resolve(domainTarget)
-    return domainType.abstract &&
-        !domainType.rootClass.declaration.custom &&
-        !reader.resolve(selectionTarget).abstract
-  }
-
-  private fun hasPositiveExecution(change: Change): Boolean {
-    val gaining = change.gaining?.let(reader::resolve)
-    val removing = change.removing?.let(reader::resolve)
-    if (listOfNotNull(gaining, removing).any { !classTable.isActive(it) }) return false
-    return when {
-      gaining != null && removing == null ->
-          if (gaining.abstract) {
-            !gaining.rootClass.declaration.custom &&
-                limiter.hasExecutableConcreteGain(gaining, minimum = 1, reader)
-          } else {
-            limiter.findLimitOrNull(gaining.toComponent(), null)?.let { it > 0 } == true
-          }
-      gaining == null && removing != null ->
-          if (removing.abstract) {
-            limiter.hasExecutableConcreteRemoval(removing, minimum = 1, reader)
-          } else {
-            limiter.findLimit(null, removing.toComponent()) > 0
-          }
-      else -> false
-    }
-  }
 
   private companion object {
     const val MAX_AUTOMATIC_EFFECT_DEPTH = 8

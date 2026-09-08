@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -77,8 +78,12 @@ private constructor(
   /** Returns the [Type] represented by [expression]. */
   override fun resolve(expression: Expression): GroundType {
     if (masterSource != null) return masterSource.resolve(expression)
-    if (expression.complement) {
-      throw ExpressionException("complement type expression has no standalone type: $expression")
+    (expression.refinement as? Not)?.let { refinement ->
+      fun containsRefinement(candidate: Expression): Boolean =
+          candidate.refinement != null || candidate.arguments.any(::containsRefinement)
+      if (containsRefinement(refinement.excluded)) {
+        throw ExpressionException("NOT operand cannot itself contain a refinement: $expression")
+      }
     }
     // Avoiding computeIfAbsent due to CME
     return cache[expression]
@@ -212,7 +217,7 @@ private constructor(
         )
 
     fun collectStructural(expression: Expression) {
-      if (!expression.complement) add(expression.className)
+      add(expression.className)
       expression.arguments.forEach(::collectStructural)
     }
 

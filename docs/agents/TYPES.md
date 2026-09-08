@@ -5,20 +5,20 @@
 > vouch for the information here.
 
 > **Read when:** changing a specific Pets type-system concept. Start with Quick model, then read only
-> its numbered section; read Known divergences only when diagnosing or deliberately fixing one.
+> its numbered section.
 >
 > **Skip when:** changing live component/task execution without changing static Type meaning; use
 > [ENGINE.md](ENGINE.md).
 >
-> **Status:** current implementation-facing model with explicit defects in section 12. The human
-> tutorial is [type-system.md](../type-system.md).
+> **Status:** current implementation-facing model. The human tutorial is
+> [type-system.md](../type-system.md).
 
 ## Source map by concept
 
 | Concept | Source entry point |
 | --- | --- |
 | Class identity and nominal hierarchy | [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt), search `public class Class` |
-| Ground Types, dependency lookup, complements | [`GroundType.kt`](../../src/common/dev/martianzoo/pets/types/GroundType.kt) and [`Type.kt`](../../src/common/dev/martianzoo/pets/types/Type.kt) |
+| Ground Types and refinements | [`GroundType.kt`](../../src/common/dev/martianzoo/pets/types/GroundType.kt) and [`Type.kt`](../../src/common/dev/martianzoo/pets/types/Type.kt) |
 | Dependency declarations and keys | [`Dependency.kt`](../../src/common/dev/martianzoo/pets/types/Dependency.kt) and [`DependencySet.kt`](../../src/common/dev/martianzoo/pets/types/DependencySet.kt) |
 | Class loading, inheritance, defaults, and inhabitation | [`ClassLoader.kt`](../../src/common/dev/martianzoo/pets/types/ClassLoader.kt) |
 | Closed-world lookup and bounds | [`ClassTable.kt`](../../src/common/dev/martianzoo/pets/types/ClassTable.kt) |
@@ -36,10 +36,9 @@
 - Type arguments are dependency edges to other unique components, not conventional generic parameters.
 - `Class<X>` names a Class without depending on an X component.
 - Class properties record immutable facts about a Class, not state on component occurrences.
-- Refinements filter candidates by querying the current World.
+- Refinements filter candidates through either a World requirement or a structural difference.
 - Unresolved `Expression` and resolved `GroundType` are both `Specification`s. Their roots, dependencies,
   and refinements narrow compositionally, and state-aware checks use `TypeInfo`.
-- Complements exclude a dependency subdomain.
 - Each World has one frozen closed Class Table, allowing concrete enumeration and automatic
   narrowing.
 - Eligible authored abstract Expressions declare Type variables whose uses are limited to defined
@@ -191,8 +190,7 @@ must retain which dependencies were supplied rather than only the fully resolved
 A full form states every bound. A minimal form uses the smallest dependency-ordered subset of direct
 arguments that greedily re-resolves to the same Type, including Type-variable equalities that let
 one argument determine another. Equal-size forms prefer earlier dependencies. Rendering uses
-minimal form. A Complement's unwritten domain is the known exception to round-tripping; see section
-7 and divergence 12.2.
+minimal form. Difference refinements round-trip both their domain and exclusion.
 
 ## 4. Class literals
 
@@ -216,7 +214,7 @@ Defaults preserve omitted physical-game context:
 
 ```pets
 DEFAULT Owned<Owner>
-DEFAULT +OceanTile<WaterArea>
+DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
 DEFAULT -Required.
 ```
 
@@ -265,9 +263,11 @@ semantic rulings, and cardinality/default/group directions are in
 
 ## 6. Refinements
 
-`CardFront(HAS 20 cost)` is an abstract subtype filtered by a Requirement. A candidate first
-narrows the base Type, then the reader substitutes that candidate into dependency positions in the
-Requirement and tests the current World.
+Refinements are predicates over candidates. `HAS` tests a World requirement, while `NOT` performs a
+state-independent structural exclusion. Both are abstract subtypes of their unrefined domain.
+
+A candidate for `CardFront(HAS 20 cost)` first narrows the base Type, then the reader substitutes
+that candidate into dependency positions in the Requirement and tests the current World.
 
 Examples:
 
@@ -277,8 +277,8 @@ LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)
 MarsArea(HAS PlacementBonus<Class<Metal>>)
 ```
 
-If no dependency position accepts the candidate, the refinement fails. Satisfying a refinement is a
-state-aware relation, not static nominal subtyping.
+If no dependency position accepts the candidate, the refinement fails. Satisfying a `HAS`
+refinement is a state-aware relation, not static nominal subtyping.
 
 **Current defect: refinement substitution forgets authored dependency positions.** Resolving an
 expression records the resulting dependency Types but not which dependency keys its written
@@ -293,11 +293,12 @@ the explicitly authored first one.
 ### Static operations
 
 A refinement is statically below its unrefined base. Narrowing the base while preserving the exact
-Requirement narrows the refinement. Different Requirements do not imply one another statically.
+predicate narrows the refinement. Different predicates do not imply one another statically.
 
-The greatest lower bound of refined and unrefined Types keeps the refinement. Two refinements combine
-only when both are strict or both forgiving; their Requirements are conjoined. A common upper bound
-keeps a refinement only when both operands have the exact same one.
+The greatest lower bound of refined and unrefined Types keeps the refinement. Two `HAS` refinements
+combine only when both are strict or both forgiving; their Requirements are conjoined. A `HAS` and
+`NOT` pair has no single representable common narrowing. A common upper bound keeps a refinement
+only when both operands have the exact same one.
 
 ### Forgiving `HAS?`
 
@@ -322,56 +323,42 @@ represented concrete Class satisfies it.
 
 This represented-Class binding is separate from implicit variable recognition.
 
-## 7. Complement bounds
+## 7. Difference refinements
 
-A prefixed dependency argument excludes one Type from that dependency's domain:
+`Domain(NOT Excluded)` denotes the part of an explicit domain that does not overlap the excluded
+Type:
 
 ```text
-SpaceTag<!Player1>
-OwnedTile<!Owner>
+Owner(NOT Player1)
+ActionCard(NOT Viron)
+Actor(NOT Owner)
 ```
 
-The domain comes from the constrained dependency: `Owner` for `SpaceTag`, `Anyone` for
-`OwnedTile`. The exclusion must narrow the domain. A Complement never stands alone.
+The excluded Type need not narrow the domain. Subtraction uses their structural intersection, so
+`Actor(NOT Owner)` excludes Players, which inherit both, while retaining Admin. A candidate satisfies
+`NOT` only when its entire structural domain is disjoint from the exclusion. An abstract `Player`
+therefore does not satisfy `Owner(NOT Player1)`, because it still admits Player1.
 
-A candidate matches when it narrows the domain and does not narrow the exclusion. Complemented Types
-remain abstract even if one concrete candidate survives. Two Complements have a common narrowing
-only when they exclude the same Type.
+Both operands are explicit and the result is an ordinary `GroundType`, so it can stand alone or
+appear in a dependency, count, trigger selector, `EACH` selector, or `RANK` metric. There is no
+separate dependency kind. If later structural narrowing makes the domain disjoint from the
+exclusion, the redundant refinement is removed. A currently empty difference remains representable
+because an excluded Type-variable use may specialize later. Concrete enumeration omits excluded
+candidates, including when the difference is nested in a dependency. Automatic narrowing may
+select the sole concrete candidate surviving `NOT`.
 
-The written form records the exclusion but not an independently narrowed domain. Current
-consequences and defects are listed in section 12; do not patch individual symptoms before deciding
-whether Complements are genuine difference Types.
+At a dependency use site, the written domain intersects the dependency's declared bound. A wider
+domain is therefore safe, while a narrower one intentionally restricts the candidates further; the
+domain is semantic input, not an annotation required to repeat the declaration.
 
-**Working direction: keep trying to remove Complements from the type system.** They are not paying
-for themselves. The whole Catalog authors `!` in eight places, in three shapes:
+The exclusion must be a refinement-free structural Type, recursively. In particular, neither
+`Owner(NOT Player(HAS Marker))` nor nested `NOT` is accepted. This keeps difference checks
+state-independent and prevents negating a World query. No refinement, including `NOT`, is permitted
+in a Class signature; Classes continue to declare structural dependencies and supertypes only.
 
-| Shape | Sites |
-| --- | --- |
-| `BY !Owner` on a trigger | `ProtectedHabitats`, `AsteroidDeflectionSystem`, `LandClaimMarker` |
-| Complemented argument in a trigger, carried into its instruction | `ResourceRemovalWatcher`, `ProductionDecreaseWatcher`, `Philares` |
-| Complemented argument in a count or refinement | `TollStation`'s `SpaceTag<!Owner>`, `Viron`'s `ActionUsedMarker<!Viron>` |
-
-Against that, Complements cost a third `Dependency` case with its own `glb`, `lub`, `narrows`,
-`intersect`, and `allConcreteSpecializations`; Complement branches through `TypeVariableScope`,
-`Class`, and `inferTypeVariables`; a whole extra defaults pass
-(`Transformers.insertDeferredComplementDefaults`, invoked twice from `LiveEffect` precisely because
-the second shape carries a Complement into an instruction); and both entries in section 12.
-
-Before extending them, try to eliminate them, shape by shape:
-
-- The `BY !Owner` sites ask about the *event's performer*, not about a Type. If trigger matching
-  could express "performed by anyone other than this component's owner" directly, those three uses
-  stop being Types at all, and they are the ones whose exclusion never needs to survive into an
-  instruction.
-- The watcher sites need the excluded party's identity *in the resulting instruction*, so they are
-  the real test. Decide whether that is a Type question or a binding question; if the trigger can
-  bind "the other owner" as an ordinary value, the deferred defaults pass goes with it.
-- The counting sites are arithmetic. Check whether a refinement over the ownership dependency, or
-  subtraction of two ordinary counts, expresses each one exactly.
-
-If every site can be re-expressed, delete Complements rather than settling section 12. If some site
-genuinely cannot, that site is the evidence needed to decide whether Complements are difference
-Types — record it here.
+Two identical `NOT` refinements have an ordinary common narrowing. Different exclusions have no
+single representable common narrowing because Pets has no union Type for their excluded operands.
+`lub` retains a refinement only when both operands carry exactly the same predicate.
 
 ## 8. Class Tables
 
@@ -396,8 +383,8 @@ enumeration receive the game view explicitly. See [CLASS_TABLES.md](CLASS_TABLES
 ### Enumeration and automatic narrowing
 
 Enumeration combines each active concrete root Class below an abstract Type with every admissible
-concrete dependency binding. Refinements are then tested against World state; Complements filter
-excluded candidates.
+concrete dependency binding. `HAS` refinements are then tested against World state; `NOT`
+refinements filter structurally overlapping candidates without consulting it.
 
 Consumers that already know a smaller set of possible dependency targets may provide that set to
 the Class Table's enumeration operation. Custom metrics use live component Types: because a
@@ -425,8 +412,8 @@ one unique result.
 produce incomparable minimal candidates, so the implementation uses a heuristic instead of
 promising a mathematical least upper bound.
 
-Dependency `lub` retains a Complement only when the other bound already satisfies it or both
-exclude the same Type; otherwise it falls back to the unexcluded domain.
+`lub` retains a refinement only when both operands have the exact same one; otherwise it falls back
+to the unrefined common domain.
 
 ## 10. Authored Type variables
 
@@ -510,7 +497,7 @@ syntax.
 | Class dependency | Each separately declared abstract dependency root declares one Class-scoped variable. Eligible abstract subexpressions along its nested dependency paths declare projected variables supplied by those paths. | The Class header and Effects authored in that declaration, plus inherited copies of those Effects; the structural dependency path survives subtype enumeration. | Specializing or enumerating the component Type. | `CLASS Trade<ColonyTile> ... { This: TradeBarrier<ColonyTile> ... }` |
 | Repeated Class-header projection | An abstract header occurrence at one stable dependency key; a matching occurrence at the same key is a use, even through different supertypes. | The complete header and the Class-scoped effect scope above. | Intersection of the dependency bounds, then component-Type specialization. | `CLASS Cardbound<CardFront<Player>> : Owned<Player>` |
 | Triggered Effect | Each maximal abstract expression in a choice-producing trigger position is a potential declaration. | That one trigger, including its `BY` and `IF` clauses, and its one instruction tree. | The concrete changed Type that matched the subscription. | `BioTag<CardFront>: Plant OR CardResource<CardFront>` |
-| Positive abstract Actor selector | A simple positive abstract Actor expression after `BY`, such as `Player`. This is a binder even without repetition. | The qualified trigger and the fired instruction. Uses under operators, such as `!Player`, receive the Actor value before the operator is applied. | The concrete Actor recorded on the triggering event. | `-OwnedActorTrigger<!Player> BY Player: Steel<Player>` |
+| Positive abstract Actor selector | A simple positive abstract Actor expression after `BY`, such as `Player`. This is a binder even without repetition. | The qualified trigger and the fired instruction. Uses inside `NOT` refinements receive the Actor value before the difference is tested. | The concrete Actor recorded on the triggering event. | `-OwnedActorTrigger<Owner(NOT Player)> BY Player: Steel<Player>` |
 | Action | Each maximal abstract expression in a choice-producing cost or result position is a potential declaration. | That one Action; lowering preserves it across the resulting sequence. | Narrowing the cost or result, normally the cost first. | `PROD[StandardResource] -> 4 StandardResource` |
 | `THEN` | Each maximal abstract expression in a stage is a potential declaration. | All stages of that one sequence, including its continuation as it is enqueued. | Narrowing any occurrence; selecting an earlier stage carries its value into later stages. | `CopyProductionBox<CardFront> THEN CyberiaSystemsFirstChoice<CardFront>` |
 | Atomic transmutation | Each maximal abstract proper subexpression in a gain or removal role is a potential declaration. | That one gain/removal pair. The complete destination and source roots are excluded. | Narrowing either role; both roles must agree. | `CityTile<LandArea> FROM GreeneryTile<LandArea>` |
@@ -539,13 +526,13 @@ the earliest potential declaration in authored order owns them.
 A local use normally requires exactly the same authored expression. Matching is structural equality of
 the parsed AST, which naturally ignores whitespace and parser-erased grouping but performs no
 resolution, default insertion, or dependency-order canonicalization. Omission, argument order,
-refinement, and Complement syntax remain meaningful authored differences:
+and refinement syntax remain meaningful authored differences:
 
 ```text
 Tile != Tile<Area>
 OceanTile != OceanTile<MarsArea>
 Owner != Anyone
-Player != !Player
+Player != Player(NOT Player1)
 ```
 
 The whole authored expression is the surface name of an inferred local variable. Resolving two different
@@ -568,13 +555,14 @@ choice, a rule needing a distinct local capture must use a distinct authored exp
 example, `ChooseOceanArea` uses `This BY Actor: OceanTile<> BY Actor` so the concrete performing
 Actor is captured independently of the owned signal's owner.
 
-Second, if `Player` is visible, `!Player` contains a derived use of that variable. Binding first
-specializes `Player`, then applies Complement, so narrowing the positive variable widens the
-complemented domain. The whole `!Player` expression may simultaneously declare a dependent variable
-under the ordinary declaration rules. In
-`-OwnedActorTrigger<!Player> BY Player: Heat<!Player>`, the Actor capture `T` is bound first; the
-event capture `U` is then selected under `!T`; and the result uses `U`. This retains the distinction
-between “anyone except this Actor” and the particular non-Actor value observed in the event.
+Second, if `Player` is visible, the excluded operand in `Owner(NOT Player)` is a use of that
+variable. Binding first specializes it to a concrete Actor, then tests the difference. The whole
+`Owner(NOT Player)` expression may simultaneously declare a dependent variable under the ordinary
+declaration rules. In
+`-OwnedActorTrigger<Owner(NOT Player)> BY Player: Heat<Owner(NOT Player)>`, the Actor capture `T` is
+bound first; the event capture `U` is then selected under `Owner(NOT T)`; and the result uses `U`.
+This retains the distinction between “anyone except this Actor” and the particular other value
+observed in the event.
 
 ### Non-declaring repetition
 
@@ -587,7 +575,6 @@ between “anyone except this Actor” and the particular non-Actor value observ
 | Complete source and destination roots of a transmutation | The two roots may intentionally differ, as in `ColonyProduction FROM ColonyProduction`; only repeated proper subexpressions assert equality. |
 | Sibling argument branches | Each branch has its own dependency path. An enclosing repeated maximal expression may still declare a variable. |
 | Separate dependency roots in one Class header | Each root declares its own component dependency. Equality must come from a shared nested dependency projection. |
-| A Complement with no visible declaration for its positive operand | It remains an ordinary difference bound and cannot declare that missing positive variable. |
 | A concrete expression or `This` | There is no open choice to bind. `This` is contextual. |
 
 These rows prevent declaration; they do not hide uses of a variable declared in an enclosing scope.
@@ -605,15 +592,15 @@ Class-header declaration may have uses in several comma-separated Effects.
   `Anyone` exists only to name that bound without the contextual meaning; whether that overload
   should survive is audited in
   [IDENTITY.md](IDENTITY.md#owner-is-overloaded-as-a-class-and-as-a-contextual-variable).
-- `BY Anyone` is an unrestricted Actor filter, not a declaration. `BY !Owner` and other complemented
-  selectors are filters, not binders. A positive simple abstract Actor subtype such as `BY Player`
-  uses the explicit binder rule in the table.
+- `BY Anyone` is an unrestricted Actor filter, not a declaration. A refined selector such as
+  `BY Player(NOT Owner)` is a filter, not a binder. A positive simple abstract Actor subtype such as
+  `BY Player` uses the explicit binder rule in the table.
 - Trigger `X` and repeated `X` in `THEN` bind a scalar event count, not a Type variable.
 - A refined `Class<Tag>` binds the represented candidate Class while testing its Requirement, as
   described in section 6. That represented-Class substitution is not an authored Type variable.
 - `RANK Selector { ... }` owns the candidate-name scope in its Metrics. A surrounding refined
   `Class<T>` therefore does not rewrite that subtree while specializing its represented Class;
-  ranking binds the selected peer later, including through a Complement.
+  ranking binds the selected peer later, including inside a `NOT` exclusion.
 
 ### Lifetime and specialization
 
@@ -673,9 +660,10 @@ master Class identity in one of two states: active or uninhabited. Unknown names
 uninhabited Class retains its name, declared hierarchy, and Dependency shape so resolution and
 nominal subtyping remain meaningful, but it contributes no live behavior or inhabitants.
 
-A Type is uninhabited when its root or a dependency bound is uninhabited. A refinement mentioning
-an uninhabited Class has an unsatisfiable Requirement instead; the refined Type itself need not be
-uninhabited. A Complement excluding an uninhabited Type remains active over its active domain.
+A Type is uninhabited when its root or a dependency bound is uninhabited. A `HAS` refinement
+mentioning an uninhabited Class has an unsatisfiable Requirement instead; the refined Type itself
+need not be uninhabited. A `NOT` refinement does not activate its excluded Type, so excluding an
+uninhabited Type leaves the active domain available.
 Here *uninhabited* is the permanent classification produced by the game projection, not a claim
 that every Type with no candidates in one current World receives that classification.
 
@@ -716,22 +704,6 @@ closure, premise construction rejects selected root Classes whose `requirement` 
 exactly false, and rejects selected structured content whose reachable mandatory removal targets an
 uninhabited Type. See
 [OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
-
-## 12. Known divergences
-
-Do not document these as intended semantics or fix them incidentally. The Complement direction must
-be settled as one design problem before either divergence is changed.
-
-### 12.1 Complement narrowing accepts wider abstract candidates
-
-The current test accepts a candidate that narrows the domain without narrowing the excluded Type.
-Thus abstract `SpaceTag` counts as narrowing `SpaceTag<!Player1>` even though it still admits
-Player 1. Concrete candidates behave as intended.
-
-### 12.2 Complement domains do not round-trip
-
-Written and full forms show the exclusion but omit a separately narrowed domain. Printing and
-resolving can therefore widen a Complement produced by `glb` or Type-variable narrowing.
 
 ## Appendix: Why covariance is sufficient in practice
 

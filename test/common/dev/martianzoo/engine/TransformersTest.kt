@@ -34,7 +34,7 @@ internal class TransformersTest {
     checkApplyDefaults("Heat", "Heat<Owner>!")
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
-    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea>.")
+    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea(HAS MAX 0 Tile)>.")
     checkApplyDefaults("MoholeArea_SpecialTile", "MoholeArea_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
@@ -306,7 +306,7 @@ internal class TransformersTest {
 
     LiveEffect.compile(component, transformers).map { it.effect.toString() }.toSet() shouldBe
         setOf(
-            "This BY !Admin: Die!",
+            "This BY Actor(NOT Admin): Die!",
             "SetupPhase: 42 MC<SoloOpponent>!",
             "SetupPhase: 42 Production<SoloOpponent, Class<MC>>!",
             "-MC<SoloOpponent> BY Player:: MC<SoloOpponent>! BY Admin",

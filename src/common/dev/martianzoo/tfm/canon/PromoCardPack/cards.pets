@@ -38,7 +38,7 @@ CLASS Philares : CardFront<Class<CorporationCard>> {
 
   This:: BuildingTag<This>
   This: 47 MC, RequiredAction { -> GreeneryTile<> }
-  Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource
+  Adjacency<OwnedTile<Owner>, OwnedTile<Anyone(NOT Owner)>> BY Anyone: StandardResource
 }
 
 CLASS AstroDrill : ActionCard, ResourceCard<Class<Asteroid>, Class<CorporationCard>> {
@@ -283,7 +283,7 @@ CLASS AsteroidDeflectionSystem : ActionCard, ActiveCard<Class<ProjectCard>>, Res
 
   This:: EarthTag<This>, SpaceTag<This>, BuildingTag<This>
   This: PROD[-Energy]
-  -Plant BY !Owner:: Die
+  -Plant BY Player(NOT Owner):: Die
   End: VictoryPoint / Asteroid<This>
 
   -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]

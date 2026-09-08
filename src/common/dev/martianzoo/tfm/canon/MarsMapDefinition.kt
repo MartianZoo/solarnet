@@ -14,7 +14,7 @@ import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.pets.util.Grid
-import dev.martianzoo.tfm.canon.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.TfmClasses.PLACEMENT
 
 public data class MarsMapDefinition(
     val className: ClassName,
@@ -82,6 +82,6 @@ public data class MarsMapDefinition(
                 ?.let { Effect(TRIGGER, it, false) }
         )
 
-    val TRIGGER: Trigger = OnGainOf.create(TILE.of(THIS))
+    val TRIGGER: Trigger = OnGainOf.create(PLACEMENT.of(THIS))
   }
 }

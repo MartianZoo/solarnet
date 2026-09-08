@@ -126,31 +126,29 @@ following `THEN`; target selection and component movement are separate consequen
 Resolution first performs ordinary unique-Type narrowing. If the target remains abstract, the
 following rules apply.
 
-For mandatory and AMAP, the engine can search a pure change's concrete domain. A concrete gain
-candidate must be active, narrow the authored Type, have all destination dependencies, and have the
-required invariant headroom. A concrete removal candidate must be a matching existing component
-with the required footroom.
+For mandatory and AMAP, the engine can search whether a pure change's concrete domain can execute.
+A concrete gain candidate must be active, narrow the authored Type, have all destination
+dependencies, and have the required invariant headroom. A concrete removal candidate must be a
+matching existing component with the required footroom. This search decides whether the entire
+change is meaningful; it does not make a target eligible.
 
 - Mandatory uses required count `n`. If no candidate can execute all `n`, resolution throws
   `LimitsException`. Otherwise every candidate that the player selects must execute all `n`.
 - AMAP uses required count one when deciding whether a useful target exists. If no candidate can
-  execute one, the whole abstract change becomes `Ok`. Otherwise the task remains a choice among
-  concrete targets with positive capacity. After a target is selected, it executes the greatest
-  count for that target, up to `n`.
+  execute one, the whole abstract change becomes `Ok` rather than presenting a meaningless choice.
+  Otherwise ordinary Type narrowing chooses the target. Capacity does not filter that Type domain.
+  After a target is selected, it executes the greatest count for that target, up to `n`, which may
+  be zero even when a different eligible target has positive capacity.
 - Optional does not globally filter gain targets by positive capacity. After unique narrowing, an
   abstract optional gain remains a choice unless its authored dependency is absent, in which case
   it becomes `Ok`. Selecting a concrete target then uses the concrete optional rules. An abstract
   optional removal becomes `Ok` when no matching component exists; otherwise it remains a choice,
   including when minimum invariants make every matching component currently unremovable.
 
-AMAP does not require selection of the candidate with the largest limit. It requires a positive
-candidate, then maximizes the count for that selected target. The count is never distributed among
-several targets.
-
-An abstract pure AMAP target may be narrowed only after its task is selected and resolved. The
-select-lock then prevents a client from validating the domain in one World and executing the
-chosen target in another. A zero-capacity or dependency-blocked target is rejected while the
-authored domain has any positive candidate.
+Target eligibility belongs to the authored Type and its refinements. AMAP does not require selection
+of the candidate with the largest limit and does not distribute one count among several targets.
+A missing concrete dependency remains unavailable because it does not name an existing target;
+zero capacity on an existing eligible target is different and resolves to `Ok`.
 
 Abstract custom gains are not searched using pure-gain feasibility. They narrow normally; after a
 concrete custom target is chosen, it translates to its instructions. Custom removal and
@@ -181,7 +179,8 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
   discarded. `Ok` is a real surviving arm, and equal surviving arms are deduplicated. If no arm
   survives, the `OR` reports the strongest applicable failure rather than becoming `Ok`.
 - `A THEN B`: only `A` resolves initially. `B` resolves against the World produced by `A`, after
-  Type Variables selected by `A` have been substituted.
+  Type Variables selected by `A` have been substituted. `B` still follows when nonmandatory `A`
+  resolves to `Ok`; author `A` as mandatory when the continuation requires a positive change.
 - `A, B`: the instructions become independent sibling tasks. Each resolves against the World in
   which it is selected, and either may be selected first unless another mechanism orders them.
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it
@@ -197,19 +196,20 @@ discarded when it is an arm of `OR`. The fallback comes from `OR`, not from AMAP
 
 ## Known Terraforming Mars consequences
 
-- Local Heat Trapping's `2 Animal` is abstract AMAP. If at least one animal holder has capacity,
-  the player must select a positive holder and place as many of the two animals as that holder can
-  accept. Absent Fish and maxed holders are not legal zero selections. With no positive animal
-  holder, the whole animal choice is `Ok`.
+- Local Heat Trapping's `2 Animal` is abstract AMAP. With no positive animal holder, the whole
+  animal choice is `Ok`. Otherwise the player chooses an existing eligible holder and places as
+  many of the two animals as that holder can accept. An absent Fish is unavailable; an existing
+  maxed holder would be an eligible zero selection.
 - CEO's Favorite Project and Corroder Suits use abstract AMAP card-resource gains. They become `Ok`
   when no compatible card can receive a resource.
-- An abstract AMAP tile placement cannot select an occupied area while any legal area exists. When
-  no legal area exists, the whole placement is `Ok`.
+- Ocean placement's default targets `WaterArea(HAS MAX 0 Tile)`, so occupied areas are outside its
+  Type domain. When the ocean invariant leaves every target at zero capacity, the whole abstract
+  AMAP placement is `Ok`.
 - Atmoscoop authors separate concrete AMAP global-parameter arms. A maxed arm resolves to `Ok` and
   remains selectable because it is an explicit arm; Atmoscoop is not one abstract parameter domain.
-- Viral Enhancers authors `Plant OR CardResource<CardFront>`. When the entering bio card cannot
-  hold a resource, the concrete resource arm has a missing dependency and is discarded, forcing
-  Plant. This is an engine characterization, not a claim about an official ruling.
+- Viral Enhancers authors `Plant OR CardResource<CardFront>!`. When the entering bio card cannot
+  hold a resource, the concrete mandatory resource arm has a missing dependency and is discarded,
+  forcing Plant. This is an engine characterization, not a claim about an official ruling.
 - Pharmacy Union does not rely on AMAP treating a vanished card as zero. Its microbe effect
   explicitly chooses between adding Disease while Pharmacy Union exists and `Ok` after it has
   flipped; its independent 4 M€ loss remains pending either way.
@@ -227,19 +227,11 @@ Fish even while Pets can receive animals. Viral Enhancers could retain an `Ok` r
 the player avoid the otherwise forced Plant. Misspelled, stale, or incorrectly specialized targets
 would silently succeed. Pharmacy Union instead states its genuine lifetime exception explicitly.
 
-### Let AMAP choose a target first, even when that target can execute zero
-
-This is the per-target-only interpretation of “as much as possible.” It would allow Local Heat
-Trapping to choose an absent or maxed animal holder while another holder can receive animals, and
-would allow an occupied area to satisfy an abstract tile placement while a legal area exists. The
-chosen rule first requires some positive target in the whole abstract domain, then maximizes within
-the selected positive target.
-
 ### Require the globally largest target
 
 This stronger interpretation would force Local Heat Trapping to choose a holder that can receive
 both animals over one that can receive only one. We instead preserve the printed target choice: any
-positive holder is legal, and AMAP determines only the amount placed on that holder.
+eligible holder is legal, and AMAP determines only the amount placed on that holder.
 
 ### Distribute one quantified change across several targets
 
@@ -248,14 +240,12 @@ would turn one Type choice into an allocation problem and make `-3 Animal.` remo
 holders. The engine instead treats one change as one concrete Type; cards that distribute resources
 must author several instructions or an explicit fanout mechanism.
 
-### Filter optional domains like AMAP domains
+### Filter target domains by positive capacity
 
-Requiring an optional target to be positive whenever any positive target exists would prevent the
-known BugsTest cases in which a player selects a zero transfer to avoid stealing or Air Raid's
-attack. It would also mean `?` no longer intrinsically permits zero after target selection. Cards
-such as Comet for Venus that intentionally make removal optional would need an explicit `OR Ok` to
-retain a voluntary decline. This may be a worthwhile future redesign of those card Pets, but it is
-not the current meaning of `?`.
+Requiring an AMAP or optional target to be positive whenever any positive target exists makes the
+quantifier decide both target eligibility and amount. For optional changes it would also mean `?`
+no longer intrinsically permits zero after target selection. Cards such as Comet for Venus that
+intentionally make removal optional would need an explicit `OR Ok` to retain a voluntary decline.
 
 ### Freeze every quantified task when its effect triggers
 

@@ -339,7 +339,6 @@ private object TypeStructureReport {
       section("Observed plain structural types")
       line("type-expression occurrences", expressionStats.expressionOccurrences)
       line("distinct contextual expressions", expressionStats.distinctExpressions)
-      line("expressions involving complements", expressionStats.complementExpressions)
       line("expressions involving refinements", expressionStats.refinedExpressions)
       line("distinct plain expressions resolved", expressionStats.resolvedTypeOccurrences.size)
       line("plain expression resolution failures", expressionStats.resolutionFailures.size)
@@ -432,7 +431,7 @@ private object TypeStructureReport {
       line(
           "product caveat",
           "flattening dependency paths can over- or under-count variable constraints, subtype-specific " +
-              "dependencies, covariance, defaults, and complements",
+              "dependencies, covariance, defaults, and refinements",
       )
 
       section("Exact concrete-type counts by nominal root")
@@ -451,7 +450,6 @@ private object TypeStructureReport {
   private data class ExpressionStats(
       val expressionOccurrences: Int,
       val distinctExpressions: Int,
-      val complementExpressions: Int,
       val refinedExpressions: Int,
       val resolvedTypeOccurrences: Map<Type, Int>,
       val resolutionFailures: List<String>,
@@ -590,7 +588,6 @@ private object TypeStructureReport {
       table: ClassTable,
   ): ExpressionStats {
     var occurrences = 0
-    var complements = 0
     var refinements = 0
     val contextualExpressions = linkedSetOf<Expression>()
     val resolved = linkedMapOf<Type, Int>()
@@ -604,11 +601,9 @@ private object TypeStructureReport {
           val expression = contextualizer.transformExpression(source)
           contextualExpressions += expression
           val nestedExpressions = expression.descendantsOfType<Expression>()
-          val hasComplement = nestedExpressions.any(Expression::complement)
           val hasRefinement = nestedExpressions.any { it.refinement != null }
-          if (hasComplement) complements++
           if (hasRefinement) refinements++
-          if (!hasComplement && !hasRefinement) {
+          if (!hasRefinement) {
             try {
               val type = table.resolve(expression)
               resolved[type] = resolved.getOrDefault(type, 0) + 1
@@ -622,7 +617,6 @@ private object TypeStructureReport {
     return ExpressionStats(
         occurrences,
         contextualExpressions.size,
-        complements,
         refinements,
         resolved,
         failures,
@@ -630,9 +624,7 @@ private object TypeStructureReport {
   }
 
   private fun isPlain(type: Type): Boolean =
-      type.expressionFull.descendantsOfType<Expression>().none {
-        it.complement || it.refinement != null
-      }
+      type.expressionFull.descendantsOfType<Expression>().none { it.refinement != null }
 
   private fun typeDepth(type: Type, visiting: Set<Type> = emptySet()): Int {
     if (type in visiting) return 0

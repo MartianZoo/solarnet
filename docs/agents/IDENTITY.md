@@ -158,8 +158,8 @@ The constraining cases are:
 | Homeostasis Bureau | Surrounding operation controller | No choice | Card owner |
 | Pharmacy Union | Operation that produced the Microbe tag | No choice | Pharmacy Union owner |
 
-`!Owner` is a complement Type and has nothing to do with either form of `BY` or postfix
-instruction `!`.
+`Player(NOT Owner)` filters an event Actor Type; it neither assigns task control nor makes an
+instruction mandatory.
 
 Philares is the primary sequencing scenario. The active Player controls a pending resource task
 caused by that Player's placement and may select other eligible siblings before it. Once the active
@@ -218,15 +218,11 @@ That single overload is the common cause of a scattered set of workarounds:
 - the `OWNER` carve-out in `Defaults.gatherDefaultDeps` ("Owner also acts as a contextual variable"),
   which sits directly under a `TODO: this is complex and this human doesn't understand it`;
 - the `arguments.isEmpty() && refinement == null` guard in `Transforming.replaceOwnerWith`;
-- `Transformers.insertDeferredComplementDefaults` and `hasDeferredOwnerComplement`; and
-- five `IMPL:` comments in Catalog sources recording bounds that **cannot be written**. Three
-  (`OwnedTile`, `Resource`, `Production`) say the declared `Owner` bound would erase the contextual
-  binding the `Owned` default inserts; two (`MyResourceWasRemoved`, `MyProductionWasDecreased`) say
-  it would lose the concrete victim while specializing a complemented `!Player`.
+- three `IMPL:` comments in Catalog sources (`OwnedTile`, `Resource`, `Production`) saying the
+  declared `Owner` bound would erase the contextual binding the `Owned` default inserts.
 
-Those last two overlap with the Complement direction in
-[TYPES.md](TYPES.md#7-complement-bounds); if contextual ownership gets its own spelling, recheck
-whether the watcher sites still need a Complement at all.
+The former watcher limitation is resolved: explicit `Owner(NOT Player)` differences preserve the
+concrete victim, so `MyResourceWasRemoved` and `MyProductionWasDecreased` now declare `Owned<Owner>`.
 
 The direction to investigate is giving the contextual owner a spelling distinct from the Class name,
 so `Anyone` and the carve-outs can go and a class can declare `Owner` as a real bound. Confirm first

@@ -344,7 +344,7 @@ For **projection closure**, classify references by what execution demands:
 - Structural positions such as supertypes and Dependency bounds, constructive positions such as a
   gain or transmutation destination, deck identity, and Custom implementation dependencies are hard
   references. A hard reference activates an available Class.
-- Counts, Metrics, Requirements, Triggers, Complements, and nonconstructive changes do not by
+- Counts, Metrics, Requirements, Triggers, difference refinements, and nonconstructive changes do not by
   themselves activate their referenced Classes. An uninhabited Class contributes an exactly empty
   domain.
 - Reachability matters. A hard reference beneath a Trigger or gate that is provably false because

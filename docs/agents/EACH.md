@@ -61,7 +61,8 @@ EACH Player(HAS MAX 0 This<Anyone>) { PROD[-2 MC] BY Owner }
 ```
 
 An unmet gate inside the body fails normally; it does not omit that branch. `EACH` rejects a
-concrete selector, a selector unused by its body, complements, nested fanouts, and an empty body.
+concrete selector, a selector unused by its body, nested fanouts, and an empty body. A `NOT`
+refinement may filter its selector like any other refinement.
 
 Class-property syntax in the body remains inert while the enclosing Class effect is prepared. Once
 the fanout snapshot is selected, each branch binds its selected component and, for an Owner

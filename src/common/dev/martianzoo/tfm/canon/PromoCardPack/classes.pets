@@ -10,21 +10,17 @@ CLASS ChooseOceanArea : Owned, Signal {
 }
 
 "A durable generational resource-removal record owned by the victim and naming the attacker"
-// IMPL: This should narrow ownership to Owner, but doing so loses the concrete victim while
-// specializing the complemented !Player binding used by the watcher below.
-CLASS MyResourceWasRemoved<Class<Resource>, Player> : Owned<Anyone>, Generational, Hidden
+CLASS MyResourceWasRemoved<Class<Resource>, Player> : Owned<Owner>, Generational, Hidden
 
 "A durable generational production-decrease record owned by the victim and naming the attacker"
-// IMPL: This should narrow ownership to Owner, but doing so loses the concrete victim while
-// specializing the complemented !Player binding used by the watcher below.
-CLASS MyProductionWasDecreased<Class<StandardResource>, Player> : Owned<Anyone>, Generational, Hidden
+CLASS MyProductionWasDecreased<Class<StandardResource>, Player> : Owned<Owner>, Generational, Hidden
 
 CLASS ResourceRemovalWatcher<Class<Resource>> : System {
   HAS =1 This
-  -X Resource<!Player> BY Player:: MyResourceWasRemoved<!Player, Class<Resource>, Player>.
+  -X Resource<Owner(NOT Player)> BY Player:: MyResourceWasRemoved<Owner(NOT Player), Class<Resource>, Player>.
 }
 
 CLASS ProductionDecreaseWatcher<Class<StandardResource>> : System {
   HAS =1 This
-  -X Production<!Player, Class<StandardResource>> BY Player:: MyProductionWasDecreased<!Player, Class<StandardResource>, Player>.
+  -X Production<Owner(NOT Player), Class<StandardResource>> BY Player:: MyProductionWasDecreased<Owner(NOT Player), Class<StandardResource>, Player>.
 }

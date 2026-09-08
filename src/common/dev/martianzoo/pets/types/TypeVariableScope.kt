@@ -5,10 +5,10 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.types.Dependency.ComplementDependency
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 import dev.martianzoo.pets.types.TypeVariable.Occurrence
 import dev.martianzoo.pets.types.TypeVariable.Site
@@ -119,7 +119,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     return proposed
         .descendantsOfType<Expression>()
         .filter { it != declaration && it.narrows(variable.bound.expressionFull, info) }
-        .map { variable.bound.classTable.resolve(it.uncomplemented()) }
+        .map { variable.bound.classTable.resolve(it) }
         .distinct()
   }
 
@@ -174,22 +174,8 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       expression.arguments.zip(keys).forEach { (argument, key) ->
         val wideDependency = wide.dependencies.get(key)
         val narrowDependency = narrow.dependencies.getIfPresent(key) ?: return@forEach
-        val wideChild =
-            when (wideDependency) {
-              is TypeDependency -> wideDependency.boundType
-              is ComplementDependency ->
-                  if (argument.complement) wideDependency.excludedType
-                  else wideDependency.domainType
-              else -> return@forEach
-            }
-        val narrowChild =
-            when (narrowDependency) {
-              is TypeDependency -> narrowDependency.boundType
-              is ComplementDependency ->
-                  if (argument.complement) narrowDependency.excludedType
-                  else narrowDependency.domainType
-              else -> return@forEach
-            }
+        val wideChild = (wideDependency as? TypeDependency)?.boundType ?: return@forEach
+        val narrowChild = (narrowDependency as? TypeDependency)?.boundType ?: return@forEach
         walk(argument, wideChild, narrowChild)
       }
     }
@@ -220,12 +206,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
       val captured = replacement.consumeCapturedRefinement()
       entry.currentExpressions.flatMap { (occurrence, source) ->
-        val constraint =
-            if (source.complement && !occurrence.appliesComplementOperator) {
-              occurrence.groundType
-            } else {
-              replacement.classTable.resolve(source.uncomplemented())
-            }
+        val constraint = replacement.classTable.resolve(source)
         val occurrenceBinding =
             (captured glb constraint.consumeCapturedRefinement())
                 ?: throw NarrowingException(
@@ -258,11 +239,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       private val classTable: ClassTable?,
   ) : PetTransformer() {
     private fun Expression.isExpandedFrom(source: Expression): Boolean {
-      if (
-          className != source.className ||
-              complement != source.complement ||
-              refinement != source.refinement
-      ) {
+      if (className != source.className || refinement != source.refinement) {
         return false
       }
       val klass = classTable?.getClass(className) ?: return false
@@ -326,8 +303,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           val region: Int,
           val ordinal: Int,
           val ancestors: Set<Expression>,
-          val parentExpression: Expression?,
-          val parentArgumentIndex: Int?,
           val inRequirement: Boolean,
           val directlyCounted: Boolean,
       )
@@ -338,8 +313,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             node: PetNode,
             region: Int,
             ancestors: Set<Expression>,
-            parentExpression: Expression?,
-            parentArgumentIndex: Int?,
             inRequirement: Boolean,
             directlyCounted: Boolean,
             regionRoot: Boolean,
@@ -353,26 +326,16 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                     region,
                     ordinal++,
                     ancestors,
-                    parentExpression,
-                    parentArgumentIndex,
                     inRequirement,
                     directlyCounted,
                 )
             )
           }
-          node.immediateChildren().forEachIndexed { childIndex, child ->
-            val childArgumentIndex =
-                if (expression != null && childIndex in 1..expression.arguments.size) {
-                  childIndex - 1
-                } else {
-                  null
-                }
+          node.immediateChildren().forEach { child ->
             collect(
                 child,
                 region,
                 nextAncestors,
-                expression ?: parentExpression,
-                childArgumentIndex,
                 inRequirement || node is Requirement,
                 node is Metric.Count && child is Expression,
                 false,
@@ -381,18 +344,17 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         }
 
         regions.forEachIndexed { index, region ->
-          collect(region, index, emptySet(), null, null, false, false, true)
+          collect(region, index, emptySet(), false, false, true)
         }
       }
 
       fun interpretedGroundType(found: Found): GroundType {
         val expression = found.expression
-        if (!expression.complement) return classTable.resolve(expression)
-        val parent = checkNotNull(found.parentExpression)
-        val argumentIndex = checkNotNull(found.parentArgumentIndex)
-        val parentType = classTable.resolve(parent)
-        val key = parentType.rootClass.matchDependencyKeys(parent.arguments)[argumentIndex]
-        return (parentType.dependencies.get(key) as ComplementDependency).domainType
+        return if (expression.refinement is Not) {
+          classTable.resolve(expression.copy(refinement = null))
+        } else {
+          classTable.resolve(expression)
+        }
       }
 
       val explicitIdentities = explicitDeclarations
@@ -403,11 +365,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             occurrences
                 .filter { found ->
                   found !== declaration &&
-                      (found.expression.sameAuthoredTypeExpressionAs(declarationIdentity) ||
-                          (found.expression.complement &&
-                              found.expression
-                                  .uncomplemented()
-                                  .sameAuthoredTypeExpressionAs(declarationIdentity)))
+                      found.expression.sameAuthoredTypeExpressionAs(declarationIdentity)
                 }
                 .sortedBy(Found::ordinal)
         val variable =
@@ -424,8 +382,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                       usage.expression,
                       usage.region,
                       usage.ordinal,
-                      complementedUse = usage.expression.complement,
-                      interpretedGroundType = classTable.resolve(usage.expression.uncomplemented()),
+                      interpretedGroundType = classTable.resolve(usage.expression),
                   )
                 },
             )
@@ -438,21 +395,14 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               .filterNot { found ->
                 explicitIdentities.any(found.expression::sameAuthoredTypeExpressionAs)
               }
-              .filterNot {
-                !it.expression.complement && visibleScope.variableAt(it.expression) != null
-              }
+              .filterNot { visibleScope.variableAt(it.expression) != null }
               .groupBy { it.expression.toString() }
       val candidates =
           grouped
               .filter { (_, found) ->
                 val source = found.first().expression
                 source.className != THIS &&
-                    (!source.complement ||
-                        explicitIdentities.any(
-                            source.uncomplemented()::sameAuthoredTypeExpressionAs
-                        )) &&
-                    runCatching { classTable.resolve(source.uncomplemented()).abstract }
-                        .getOrDefault(false) &&
+                    runCatching { classTable.resolve(source).abstract }.getOrDefault(false) &&
                     found.map(Found::region).distinct().size >= 2 &&
                     !found.all(Found::inRequirement)
               }

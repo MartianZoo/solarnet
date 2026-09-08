@@ -6,6 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Have the normal full application build stamp its output with the current Git commit and, when
+  source changes are present, a stable hash of those changes. Include that stamp in every exported
+  game record so a log identifies, or can later verify, the engine source that produced it.
 - Remove `Vocabulary`'s input-only Class-name synonym facility after expanding the abbreviated Pets
   used by the REPL, tests, replays, and recorded games; preserve localization. Configured Player
   names are concrete Catalog Classes and require no Vocabulary mechanism.
@@ -78,6 +81,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Find a principled way for narrower dependency defaults to retain compatible refinements from
+  wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
+  areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`

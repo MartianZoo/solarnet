@@ -152,7 +152,7 @@ public class OtbGame20260904 : RecordedGame() {
     yellow.turn {
       playProject(Flooding, 7) {
         // Blue does not have to spend a heat (couldn't if she wanted to)
-        doTask("OceanTile<Amazonis_05_10> THEN -3 MC<Blue>")
+        doTask("OceanTile<Amazonis_05_10>! THEN -3 MC<Blue>")
         blue.declineTask()
       }
       playProject(UndergroundCity, 10, steel = 4) { placeTile(10, 10) }

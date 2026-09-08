@@ -23,7 +23,7 @@ internal class InhabitanceInterpreter(
 ) {
   internal fun expressionIsUninhabited(expression: Expression): Boolean {
     if (expression.className == THIS) return false
-    if (!expression.complement && classIsUninhabited(expression.className)) return true
+    if (classIsUninhabited(expression.className)) return true
     return expression.arguments.any(::expressionIsUninhabited)
   }
 

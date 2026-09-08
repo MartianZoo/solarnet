@@ -348,7 +348,7 @@ internal class ClassTest {
   }
 
   @Test
-  internal fun `excluding an inactive type does not make a complement dependency inactive`() {
+  internal fun `excluding an inactive type does not activate it`() {
     val catalog =
         testCatalog(
             """
@@ -360,7 +360,7 @@ internal class ClassTest {
         )
     val table = project(catalog, "Holder")
 
-    table.isActive(table.resolve(te("Holder<!Inactive>"))) shouldBe true
+    table.isActive(table.resolve(te("Holder<Domain(NOT Inactive)>"))) shouldBe true
   }
 
   @Test

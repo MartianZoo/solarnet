@@ -46,7 +46,6 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
         Expression(
             className = base,
             arguments = loweredArguments.map(::withoutRefinements),
-            complement = node.complement,
         )
     val declaration = body.asDerivedDeclaration(generated, supertype)
     declarationsByBase[base] = transformDeclaration(declaration)
@@ -54,7 +53,6 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
         generated,
         loweredArguments,
         loweredRefinement,
-        node.complement,
         node.argumentsSpecified,
     )
   }

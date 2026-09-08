@@ -3,6 +3,7 @@ package dev.martianzoo.pets.ast
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
+import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
@@ -19,8 +20,9 @@ import kotlin.reflect.KClass
 /**
  * A noun expression in Pets language, which is a particular *representation* of a type. An
  * expression might have arguments (as in `Microbe<Player1, Ants>`), where each (like `Ants`) is
- * itself an expression. It also might have a refinement (as in `Card(HAS VenusTag)`), which is of
- * type [Requirement]. (It could have either, neither, or both.)
+ * itself an expression. It also might have a refinement, either a state-aware requirement (as in
+ * `Card(HAS VenusTag)`) or a structural difference (as in `Owner(NOT Player1)`). It could have
+ * arguments, a refinement, both, or neither.
  *
  * Many types can have different representations; for example `Microbe<This, Player1>` and
  * `Microbe<Player1, This>` represent the same actual type, as do `Tile` and `Tile<Area>`. As
@@ -32,7 +34,6 @@ public data class Expression(
     override val className: ClassName,
     val arguments: List<Expression> = emptyList(),
     val refinement: Refinement? = null,
-    val complement: Boolean = false,
     /** Whether the source wrote angle brackets, including an explicit empty `<>`. */
     val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 ) : PetElement(), HasClassName, HasExpression, Specification<Expression> {
@@ -59,7 +60,6 @@ public data class Expression(
               className == other.className &&
               arguments == other.arguments &&
               refinement == other.refinement &&
-              complement == other.complement &&
               derivedClassBody == other.derivedClassBody)
 
   override fun hashCode(): Int {
@@ -67,7 +67,6 @@ public data class Expression(
     var result = className.hashCode()
     result = 31 * result + arguments.hashCode()
     result = 31 * result + (refinement?.hashCode() ?: 0)
-    result = 31 * result + complement.hashCode()
     result = 31 * result + (derivedClassBody?.hashCode() ?: 0)
     cachedHashCode = result
     return result
@@ -88,15 +87,13 @@ public data class Expression(
   }
 
   override fun toString(): String = buildString {
-    if (complement) append("!")
     append(className)
     if (argumentsSpecified) append(arguments.joinToString(", ", "<", ">"))
     refinement?.let { append("($it)") }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
-  val simple: Boolean =
-      !complement && arguments.isEmpty() && refinement == null && !argumentsSpecified
+  val simple: Boolean = arguments.isEmpty() && refinement == null && !argumentsSpecified
 
   public fun appendArguments(moreArgs: List<Expression>): Expression =
       replaceArguments(arguments + moreArgs)
@@ -107,49 +104,61 @@ public data class Expression(
           argumentsSpecified = argumentsSpecified || newArgs.isNotEmpty(),
       )
 
-  internal fun uncomplemented(): Expression = copy(complement = false)
-
   /**
    * Returns this expression with the given refinement. This expression must not already have a
    * refinement.
    */
-  internal fun has(refinement: Refinement?) =
-      has(refinement?.requirement, refinement?.forgiving ?: false)
+  internal fun has(refinement: Refinement?): Expression {
+    require(this.refinement == null)
+    return if (refinement == null) this else copy(refinement = refinement)
+  }
 
   internal fun has(refinement: Requirement?, forgiving: Boolean): Expression {
     require(this.refinement == null)
-    return if (refinement != null) copy(refinement = Refinement(refinement, forgiving)) else this
+    return if (refinement != null) copy(refinement = Refinement.Has(refinement, forgiving))
+    else this
   }
 
   override val kind: KClass<out PetNode> = Expression::class
 
-  public data class Refinement(
-      val requirement: Requirement,
-      val forgiving: Boolean,
-  ) : PetNode() {
+  public sealed class Refinement : PetNode() {
     override val kind: KClass<out PetNode> = Refinement::class
 
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirement)
+    public data class Has(
+        val requirement: Requirement,
+        val forgiving: Boolean,
+    ) : Refinement() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirement)
 
-    override fun toString(): String = if (forgiving) "HAS? $requirement" else "HAS $requirement"
+      override fun toString(): String = if (forgiving) "HAS? $requirement" else "HAS $requirement"
+    }
+
+    /** Excludes every Type overlapping [excluded] from the explicitly written outer domain. */
+    public data class Not(val excluded: Expression) : Refinement() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(excluded)
+
+      override fun toString(): String = "NOT $excluded"
+    }
 
     internal companion object {
       internal fun join(ref1: Refinement, ref2: Refinement): Refinement? {
-        if (ref1.forgiving != ref2.forgiving) return null
-        return Refinement(
-            Requirement.join(ref1.requirement, ref2.requirement)!!,
-            ref1.forgiving,
-        )
+        if (ref1 == ref2) return ref1
+        if (ref1 !is Has || ref2 !is Has || ref1.forgiving != ref2.forgiving) return null
+        return Has(Requirement.join(ref1.requirement, ref2.requirement)!!, ref1.forgiving)
       }
     }
   }
 
   internal companion object : PetTokenizer() {
-    internal fun refinementParser(): Parser<Refinement> =
-        group(skip(_has) and isPresent(char('?')) and Requirement.parser()) map
-            { (forgiving, requirement) ->
-              Refinement(requirement, forgiving)
-            }
+    internal fun refinementParser(): Parser<Refinement> {
+      val has =
+          (skip(_has) and isPresent(char('?')) and Requirement.parser()) map
+              { (forgiving, requirement) ->
+                Refinement.Has(requirement, forgiving)
+              }
+      val not = (skip(_not) and parser(allowDerivedClass = false)) map { Refinement.Not(it) }
+      return group(has or not)
+    }
 
     fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
       return parser {
@@ -160,23 +169,21 @@ public data class Expression(
         val refinement = refinementParser()
 
         if (allowDerivedClass) {
-          isPresent(char('!')) and
-              ClassName.parser() and
+          ClassName.parser() and
               optional(argumentList) and
               optional(refinement) and
               optional(ClassParsing.Declarations.derivedClassBody) map
-              { (not, clazz, args, ref, body) ->
-                Expression(clazz, args.orEmpty(), ref, not, args != null).let {
+              { (clazz, args, ref, body) ->
+                Expression(clazz, args.orEmpty(), ref, args != null).let {
                   if (body == null) it else it.withDerivedClassBody(body)
                 }
               }
         } else {
-          isPresent(char('!')) and
-              ClassName.parser() and
+          ClassName.parser() and
               optional(argumentList) and
               optional(refinement) map
-              { (not, clazz, args, ref) ->
-                Expression(clazz, args.orEmpty(), ref, not, args != null)
+              { (clazz, args, ref) ->
+                Expression(clazz, args.orEmpty(), ref, args != null)
               }
         }
       }

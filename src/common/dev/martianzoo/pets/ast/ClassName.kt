@@ -28,6 +28,7 @@ public class ClassName private constructor(public val asString: String) :
             "HAS",
             "IF",
             "MAX",
+            "NOT",
             "OR",
             "THEN",
             "X",
