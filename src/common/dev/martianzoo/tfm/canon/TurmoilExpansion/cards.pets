@@ -6,11 +6,13 @@ CLASS AquiferReleasedByPublicCouncil : GlobalEvent {
 CLASS AsteroidMiningGlobalEvent : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { Titanium / JovianTag MAX 5, Titanium / Influence }
 }
 
 CLASS CelebrityLeaders : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / PlayedEvent MAX 5, 2 MC / Influence }
 }
 
 CLASS Diversity : GlobalEvent {
@@ -36,6 +38,9 @@ CLASS Election : GlobalEvent {
 CLASS GenerousFunding : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    2 MC / 5 (TerraformRating - 15) MAX 5, 2 MC / Influence \
+  }
 }
 
 CLASS GlobalDustStorm : GlobalEvent {
@@ -46,6 +51,7 @@ CLASS GlobalDustStorm : GlobalEvent {
 CLASS HomeworldSupport : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / EarthTag MAX 5, 2 MC / Influence }
 }
 
 CLASS ImprovedEnergyTemplates : GlobalEvent {
@@ -56,6 +62,7 @@ CLASS ImprovedEnergyTemplates : GlobalEvent {
 CLASS InterplanetaryTradeGlobalEvent : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / SpaceTag MAX 5, 2 MC / Influence }
 }
 
 CLASS MinersOnStrike : GlobalEvent {
@@ -81,6 +88,7 @@ CLASS ParadigmBreakdown : GlobalEvent {
 CLASS Productivity : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { Steel / PROD[Steel] MAX 5, Steel / Influence }
 }
 
 CLASS RedInfluence : GlobalEvent {
@@ -106,6 +114,7 @@ CLASS SabotageGlobalEvent : GlobalEvent {
 CLASS ScientificCommunity : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { MC / ProjectCard, MC / Influence }
 }
 
 CLASS SnowCover : GlobalEvent {
@@ -126,6 +135,7 @@ CLASS SolarnetShutdown : GlobalEvent {
 CLASS SpinOffProducts : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / ScienceTag MAX 5, 2 MC / Influence }
 }
 
 CLASS SponsoredProjects : GlobalEvent {
@@ -136,11 +146,13 @@ CLASS SponsoredProjects : GlobalEvent {
 CLASS StrongSociety : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / CityTile MAX 5, 2 MC / Influence }
 }
 
 CLASS SuccessfulOrganisms : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { Plant / PROD[Plant] MAX 5, Plant / Influence }
 }
 
 CLASS VolcanicEruptions : GlobalEvent {

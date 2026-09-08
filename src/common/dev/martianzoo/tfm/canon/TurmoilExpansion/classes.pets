@@ -1,6 +1,7 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
   HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
+  HAS Class<ResolveCurrentGlobalEvent>, Class<ResolveGlobalEvent>
   This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
@@ -45,6 +46,16 @@ CLASS RevealDistantEvent : Barrier {
   HAS MAX 1 This
   This: GlobalEvent THEN -This!
 }
+
+"Measures every player's influence and resolves the exact Current Global Event"
+CLASS ResolveCurrentGlobalEvent : Signal {
+  This:: \
+    EACH Player { MeasureInfluence<Player> }, \
+    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { ResolveGlobalEvent<Class<GlobalEvent>> }
+}
+
+"Requests the printed effect of one Global Event"
+CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
 
 "Moves every revealed Global Event one position and requests the next event"
 CLASS ChangingTimes : Signal {

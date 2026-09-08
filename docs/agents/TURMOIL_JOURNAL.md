@@ -317,3 +317,33 @@ from normal component removal. Code review found no duplicate reveal, early Curr
 discarded card, extra neutral delegate, or dependence on declaration order. The next slice will add
 the shared Current-event resolution request and the first coherent batch of FAQ-driven event
 effects.
+
+## 2026-09-08 — Stage 10: influence-first resolution and gain events
+
+Added the shared `ResolveCurrentGlobalEvent` signal. It first asks every player to measure the
+generation's influence snapshot, then finds the exact card carrying the Current marker and emits a
+typed `ResolveGlobalEvent` request for that card. Concrete event components remain the sole
+providers of their printed instructions; an absent event cannot respond, and the position marker
+does not acquire card behavior.
+
+Implemented ten gain-only events: Asteroid Mining, Celebrity Leaders, Generous Funding, Homeworld
+Support, Interplanetary Trade, Productivity, Scientific Community, Spin-off Products, Strong
+Society, and Successful Organisms. Every capped metric is evaluated before a separate influence
+gain, matching the FAQ's prescribed calculation order. The declaration naturally distinguishes
+cards in hand from played events, counts cities on any area, and evaluates tags and production per
+player. Generous Funding groups rating above 15 into five-step units before applying its cap.
+
+Functional tests seat a real player Chairman, build ordinary tags, production, cards, played-event
+records, and city tiles, and invoke the public resolution signals. They prove influence is measured
+before exact Current-card dispatch, printed counts cap at five before influence is added, each
+multiplier is applied to the influence portion too, and one player's holdings never pay another.
+The focused event suite, complete Gradle suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: the shared pair of typed signals expresses the real two-level domain
+operation—resolve the current card, then resolve that exact event—without instruction-valued
+properties or a new engine phase. Every payout is a direct composition of existing `EACH`, metric
+cap, metric subtraction, production metric, and instruction scaling. No production Kotlin changed.
+Code review found no uncapped tag count, influence added before capping, global rather than owned
+count, inactive-card response, or accidental Wild-tag special case. The next slice will implement
+the resource-loss, production-loss, and rating-loss events, with FAQ cases for insufficient assets
+and influence reducing penalties to zero.
