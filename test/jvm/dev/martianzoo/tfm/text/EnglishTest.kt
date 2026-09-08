@@ -126,6 +126,76 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun describesSelectedCardProcedures() {
+    english.describe(
+        parse<InstructionTree>("CopyProductionBox<CardFront(HAS BuildingTag)>")
+    ) shouldBe "Copy the immediate production box of a building card."
+  }
+
+  @Test
+  internal fun describesPositionedComponentConversions() {
+    english.describe(
+        parse<InstructionTree>("CityTile<LandArea> FROM GreeneryTile<LandArea>")
+    ) shouldBe "Change a greenery tile on any land area into a city tile on that land area."
+  }
+
+  @Test
+  internal fun describesActionUseSignalsAsCommands() {
+    english.describe(parse<InstructionTree>("UseAction<ActionCard(HAS ActionUsedMarker)>")) shouldBe
+        "Use an action from an action card that has an action-used marker."
+  }
+
+  @Test
+  internal fun describesCompletedGlobalParameterMetrics() {
+    english.describe(parse<InstructionTree>("3 MC / GpComplete")) shouldBe
+        "Gain 3 M€ per completed global parameter."
+  }
+
+  @Test
+  internal fun placesConditionalSelfEffectsWithImmediateText() {
+    val card =
+        syntheticCard(
+            """
+            CLASS ConditionalImmediate : AutomatedCard<Class<ProjectCard>> {
+              cost = 0
+              This IF SoloMode: PROD[2 MC]
+            }
+            """
+        )
+
+    english.topText(card) shouldBe ""
+    english.bottomText(card) shouldBe "If this is a solo game, increase your M€ production 2 steps."
+  }
+
+  @Test
+  internal fun describesBehaviorBearingSubclassesThroughTheirBaseClass() {
+    val flexibility =
+        syntheticCard(
+            """
+            CLASS FlexibleNextCard : AutomatedCard<Class<ProjectCard>> {
+              cost = 0
+              This: NextCardEffect { CheckRequirement:: -2 Required<Class<GlobalParameter>>. }
+            }
+            """
+        )
+    val discount =
+        syntheticCard(
+            """
+            CLASS DiscountNextCard : AutomatedCard<Class<ProjectCard>> {
+              cost = 0
+              This: NextCardEffect { Billing<CardPlay>:: -8 Owed<> }
+            }
+            """
+        )
+
+    English(flexibility.classTable, TerraformingMarsDescribers.descriptions)
+        .bottomText(flexibility) shouldBe
+        "You may treat the global parameter requirement of the next card you play this generation as if it is 2 steps lower or higher."
+    English(discount.classTable, TerraformingMarsDescribers.descriptions)
+        .bottomText(discount) shouldBe "The next card you play this generation costs 8 M€ less."
+  }
+
+  @Test
   internal fun realizesLaterTypeVariableUsesAsAntecedents() {
     english.describe(parse<Effect>("PROD[StandardResource]: StandardResource")) shouldBe
         "When you increase one of your productions 1 step, gain that resource."
@@ -364,6 +434,9 @@ internal class EnglishTest {
           override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
         }
     val catalog = TfmCatalog.compose(Canon, additions)
-    return catalog.card(declarations.single().className)
+    val cardFront = catalog.classTable.getClass(cn("CardFront"))
+    return declarations
+        .map { catalog.classTable.getClass(it.className) }
+        .single { it.isSubtypeOf(cardFront) }
   }
 }

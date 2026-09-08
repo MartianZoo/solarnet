@@ -162,6 +162,21 @@ private fun renderRequirementFlexibility(
     effect: Effect,
     describers: Describers,
 ): Rendering<String>? {
+  val result = renderRequirementFlexibilityResult(effect, describers) ?: return null
+  val event =
+      eventTrigger(
+          subject = NounPhrase.you(),
+          verb = Verb("play"),
+          objectPhrase = NounPhrase("card", determiner = Determiner.INDEFINITE),
+      )
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).render()
+}
+
+internal fun renderRequirementFlexibilityResult(
+    effect: Effect,
+    describers: Describers,
+    card: NounPhrase? = null,
+): Clause.Simple? {
   val trigger = effect.trigger as? OnGainOf ?: return null
   if (
       !trigger.expression.simple ||
@@ -187,29 +202,22 @@ private fun renderRequirementFlexibility(
       describers.scaleFrame(target.className)?.subject
           ?: describers.fact(target.className, ComponentDescriber::requirementKind)
           ?: return null
-  val event =
-      eventTrigger(
-          subject = NounPhrase.you(),
-          verb = Verb("play"),
-          objectPhrase = NounPhrase("card", determiner = Determiner.INDEFINITE),
-      )
   val steps = NounPhrase("step", "steps", count).linearize()
-  val result =
-      Clause.Simple(
-          subject = NounPhrase.you(),
-          predicate =
-              Predicate(
-                  Verb("may treat"),
-                  Coordination.one(
-                      NounPhrase(
-                          "$requirementKind requirement",
-                          determiner = Determiner.INDEFINITE,
-                      )
-                  ),
-                  listOf(Modifier.Phrase("as if it is $steps lower or higher")),
-              ),
-      )
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).render()
+  val requirement =
+      NounPhrase(
+              "$requirementKind requirement",
+              determiner = if (card == null) Determiner.INDEFINITE else Determiner.THE,
+          )
+          .let { noun -> card?.let { noun.withModifier(Modifier.Relation("of", it)) } ?: noun }
+  return Clause.Simple(
+      subject = NounPhrase.you(),
+      predicate =
+          Predicate(
+              Verb("may treat"),
+              Coordination.one(requirement),
+              listOf(Modifier.Phrase("as if it is $steps lower or higher")),
+          ),
+  )
 }
 
 private fun renderPurchaseAdjustment(
@@ -526,7 +534,7 @@ private fun resourceValueModifier(value: NounPhrase): Modifier.Relation =
         value.withModifier(Modifier.Phrase("each")),
     )
 
-private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
+internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
   completeOwedReduction(effect.instruction, describers)?.let { reduction ->
     val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
     if (!trigger.accepts(reduction)) return null

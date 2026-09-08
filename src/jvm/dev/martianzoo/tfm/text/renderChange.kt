@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -49,6 +50,12 @@ private fun renderChangeOrNull(
     renderCardResourceDrawExchange(instruction, describers)?.let {
       return it
     }
+    renderPositionedConversion(instruction, describers)?.let {
+      return it
+    }
+  }
+  renderActionUseChange(instruction, describers)?.let {
+    return it
   }
   renderTypeVariableResourceChange(instruction, expression, describers, references)?.let {
     return it
@@ -65,8 +72,9 @@ private fun renderChangeOrNull(
           renderPlacement(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.Deck ->
           renderDiscard(instruction, describers) ?: renderDraw(instruction, describers)
-      is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame)
+      is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.RequiredAction -> renderRequiredAction(instruction, describers)
+      ComponentDescriber.ChangeFrame.NextCardEffect -> renderNextCardEffect(instruction, describers)
       ComponentDescriber.ChangeFrame.Play -> renderCardPlay(instruction, describers)
     }
   }
@@ -128,6 +136,7 @@ private fun changeRefusalReason(
     ComponentDescriber.ChangeFrame.Countable -> RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
     is ComponentDescriber.ChangeFrame.Procedure,
     ComponentDescriber.ChangeFrame.RequiredAction,
+    ComponentDescriber.ChangeFrame.NextCardEffect,
     ComponentDescriber.ChangeFrame.Play -> RefusalReason.UNSUPPORTED_DECLARED_CHANGE
     null -> RefusalReason.UNKNOWN_CHANGE_FRAME
   }
@@ -190,17 +199,79 @@ internal fun standardResourceGain(
 private fun renderProcedure(
     instruction: Instruction,
     frame: ComponentDescriber.ChangeFrame.Procedure,
+    describers: Describers,
 ): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
+  if (gain.intensity.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1) {
+    return null
+  }
+  val objectPhrase = frame.objectPhrase ?: return Clause.Simple(Predicate(Verb(frame.verb)))
+  val targetRelation = frame.cardTargetRelation
+  if (targetRelation == null) {
+    if (!gain.gaining.simple) return null
+    return clause(frame.verb, NounPhrase.text(objectPhrase))
+  }
+  if (gain.gaining.refinement != null || gain.gaining.complement) return null
+  val target = gain.gaining.arguments.singleOrNull()?.let(describers::cardSelector) ?: return null
+  return clause(
+      frame.verb,
+      NounPhrase.text(objectPhrase).withModifier(Modifier.Relation(targetRelation, target)),
+  )
+}
+
+private fun renderActionUseChange(
+    instruction: Instruction,
+    describers: Describers,
+): Clause.Simple? {
+  val gain = instruction as? Gain ?: return null
+  if (gain.intensity.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1) return null
+  val action =
+      describers.actionUseEvent(Effect.Trigger.OnGainOf.create(gain.gaining))?.provider
+          ?: return null
+  return describers.renderActionUse(action)?.let { clause("use", it) }
+}
+
+private fun renderPositionedConversion(
+    transmute: Transmute,
+    describers: Describers,
+): Clause.Simple? {
+  if (transmute.intensity.modality() != Modality.REQUIRED) return null
+  if (transmute.count.fixedQuantity() != 1) return null
+  val gaining = transmute.gaining
+  val removing = transmute.removing
   if (
-      gain.intensity.modality() != Modality.REQUIRED ||
-          !gain.gaining.simple ||
-          gain.count.fixedQuantity() != 1
+      gaining.refinement != null ||
+          removing.refinement != null ||
+          gaining.complement ||
+          removing.complement ||
+          !describers.concrete(gaining.className) ||
+          !describers.concrete(removing.className)
   ) {
     return null
   }
-  return frame.objectPhrase?.let { clause(frame.verb, NounPhrase.text(it)) }
-      ?: Clause.Simple(Predicate(Verb(frame.verb)))
+  val gainingFrame = describers.positionedFrame(gaining.className) ?: return null
+  val removingFrame = describers.positionedFrame(removing.className) ?: return null
+  val gainingPlacement = resolvePlacementExpression(gaining, describers) ?: return null
+  val removingPlacement = resolvePlacementExpression(removing, describers) ?: return null
+  if (
+      gainingPlacement.owner != null ||
+          removingPlacement.owner != null ||
+          gainingPlacement.unknownDependencies.isNotEmpty() ||
+          removingPlacement.unknownDependencies.isNotEmpty()
+  ) {
+    return null
+  }
+  val site = gainingPlacement.sites.singleOrNull() ?: return null
+  if (removingPlacement.sites.singleOrNull() != site || !site.simple) return null
+  val siteDescription = describers.placementSite(site.className) ?: return null
+  val siteNoun = describers.describedNoun(site.className, siteDescription.noun, 1)
+  val source =
+      NounPhrase(removingFrame.singular, determiner = removingFrame.determiner)
+          .withModifier(Modifier.Relation("on", NounPhrase(siteNoun, determiner = Determiner.ANY)))
+  val destination =
+      NounPhrase(gainingFrame.singular, determiner = gainingFrame.determiner)
+          .withModifier(Modifier.Relation("on", NounPhrase(siteNoun, determiner = Determiner.THAT)))
+  return clause("change", source, Modifier.Relation("into", destination))
 }
 
 private fun renderCardPlay(instruction: Instruction, describers: Describers): Clause.Simple? {
@@ -224,7 +295,7 @@ private fun renderRequiredAction(
 ): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
-  val declaration = requiredActionSubclassDeclaration(className, describers) ?: return null
+  val declaration = behaviorSubclassDeclaration(className, describers) ?: return null
   val effect = declaration.authoredEffectsWithActions.singleOrNull() ?: return null
   if (effect.automatic) return null
   val actionUse = describers.actionUseEvent(effect.trigger) ?: return null
@@ -235,18 +306,13 @@ private fun renderRequiredAction(
   return Clause.Prefaced(Clause.Preface.FirstAction, result)
 }
 
-private fun requiredActionSubclassDeclaration(
+private fun behaviorSubclassDeclaration(
     className: ClassName,
     describers: Describers,
 ): ClassDeclaration? {
   val componentClass = describers.expressions.classesByName.getValue(className)
   if (componentClass.abstract) return null
   val superclass = componentClass.directSuperclasses.singleOrNull() ?: return null
-  if (
-      describers.changeFrame(superclass.className) != ComponentDescriber.ChangeFrame.RequiredAction
-  ) {
-    return null
-  }
   val declaration = describers.declaration(className)
   val supertype = declaration.supertypes.singleOrNull()
   if (
@@ -262,6 +328,32 @@ private fun requiredActionSubclassDeclaration(
     return null
   }
   return declaration
+}
+
+private fun renderNextCardEffect(
+    instruction: Instruction,
+    describers: Describers,
+): Clause.Simple? {
+  val (className, count) = concreteMandatoryGain(instruction) ?: return null
+  if (count != 1) return null
+  val declaration = behaviorSubclassDeclaration(className, describers) ?: return null
+  if (declaration.authoredEffectsWithActions.size != 1) return null
+  val effect =
+      declaration.authoredEffects.singleOrNull()?.let(describers::prepareForRendering)
+          ?: return null
+  val nextCard = NounPhrase.text("the next card you play this generation")
+  paymentDiscount(effect, describers)?.let { discount ->
+    if (discount.categoryReduction || discount.reduction.count == 0) return null
+    return Clause.Simple(
+        subject = nextCard,
+        predicate =
+            Predicate(
+                Verb("costs", "cost"),
+                Coordination.one(discount.reduction.phrase.withModifier(Modifier.Phrase("less"))),
+            ),
+    )
+  }
+  return renderRequirementFlexibilityResult(effect, describers, nextCard)
 }
 
 private fun renderCardResourceDrawExchange(

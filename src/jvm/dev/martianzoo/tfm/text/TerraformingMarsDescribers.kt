@@ -15,6 +15,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
+        klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
         klass("StandardResource") to
             ComponentDescriber(numericSingularChange = true, changeFrame = Frame.Countable),
         klass("Metal") to
@@ -61,6 +62,18 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("GlobalParameter") to ComponentDescriber(requirementKind = "global parameter"),
+        klass("GpComplete") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun =
+                            ComponentDescriber.Noun.Counted(
+                                "completed global parameter",
+                                "completed global parameters",
+                            ),
+                        unqualifiedSuffix = "",
+                    )
+            ),
         klass("QuasiResource") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
@@ -422,6 +435,24 @@ internal object TerraformingMarsDescribers {
         klass("ColonyTileSelection") to
             ComponentDescriber(changeFrame = Frame.Procedure("add", "a colony tile")),
         klass("RequiredAction") to ComponentDescriber(changeFrame = Frame.RequiredAction),
+        klass("NextCardEffect") to ComponentDescriber(changeFrame = Frame.NextCardEffect),
+        klass("CopyProductionBox") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Procedure(
+                        "copy",
+                        "the immediate production box",
+                        cardTargetRelation = "of",
+                    )
+            ),
+        klass("ActionUsedMarker") to
+            ComponentDescriber(
+                noun =
+                    ComponentDescriber.Noun.Counted(
+                        "action-used marker",
+                        "action-used markers",
+                    )
+            ),
         klass("Award") to
             ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),
         klass("TradeFleet") to

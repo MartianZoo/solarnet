@@ -236,6 +236,19 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
   val refinement = expression.refinement ?: return objectPhrase
   if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
+  val requiredComponent = (minimum.metric as? Metric.Count)?.expression
+  if (minimum.target == 1 && requiredComponent?.simple == true) {
+    val provider = describedNoun(expression.className, ComponentDescriber.Noun.ClassName, count = 1)
+    val required = componentNoun(requiredComponent.className, 1)
+    val source =
+        NounPhrase(provider, determiner = Determiner.INDEFINITE)
+            .withModifier(
+                Modifier.Phrase(
+                    "that has ${NounPhrase(required, determiner = Determiner.INDEFINITE).linearize()}"
+                )
+            )
+    return objectPhrase.withModifier(Modifier.Relation("from", source))
+  }
   val propertyMetric = minimum.metric as? Property ?: return null
   if (propertyMetric.receiver != null) return null
   val property = use.minimumProperties[propertyMetric.propertyName.value] ?: return null

@@ -66,6 +66,42 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
   return null
 }
 
+internal fun Describers.cardSelector(expression: Expression): NounPhrase? {
+  if (
+      expression.complement ||
+          triggerFrame(expression.className) !is ComponentDescriber.TriggerFrame.PlayCard
+  ) {
+    return null
+  }
+  val resolved = resolveExpression(expression) ?: return null
+  if (resolved.sourceDependencies.isNotEmpty()) return null
+  val refinement = expression.refinement?.takeIf { !it.forgiving } ?: return null
+  val criterion = cardCriterion(refinement.requirement) ?: return null
+  return NounPhrase(
+      matchingCardNoun(criterion, singular = true, this),
+      determiner = Determiner.INDEFINITE,
+  )
+}
+
+internal fun matchingCardNoun(
+    criterion: CardCriterion,
+    singular: Boolean,
+    describers: Describers,
+): String =
+    when (criterion) {
+      is CardCriterion.Tag -> {
+        val tag = checkNotNull(describers.tagName(criterion.className))
+        "$tag ${if (singular) "card" else "cards"}"
+      }
+      CardCriterion.NoTags -> "${if (singular) "card" else "cards"} with no tags"
+      CardCriterion.HasRequirement ->
+          "${if (singular) "card" else "cards"} with ${if (singular) "a requirement" else "requirements"}"
+      is CardCriterion.ResourceIcon -> {
+        val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
+        "${if (singular) "card" else "cards"} with $resource ${if (singular) "icon" else "icons"}"
+      }
+    }
+
 private fun representedClassName(expression: Expression): ClassName? {
   if (expression.refinement != null || expression.complement) return null
   val wrapper = expression.arguments.singleOrNull() ?: return null

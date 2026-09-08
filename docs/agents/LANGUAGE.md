@@ -5,302 +5,227 @@
 > vouch for the information here.
 
 > **Read when:** changing English output, renderer structure, lexical facts, card-region layout,
-> refusal behavior, or generated card-text evidence.
+> refusal behavior, or generated text evidence.
 >
 > **Skip when:** changing Pets or game semantics without changing human rendering.
->
-> **Status:** durable goal, current architectural understanding, and ordered working direction.
 
 ## Goal
 
-Pets is the specification of what a game component means. English card text should be one derived
-view of that specification, just as execution is another. The renderer should eventually describe
-every valid Pets element in the loaded Terraforming Mars vocabulary without consulting a stored
-answer for the card that contains it.
+Pets is the specification of what a game component means. English text is one derived view of that
+specification, just as execution is another. The renderer should eventually describe every valid
+Pets element in the loaded Terraforming Mars vocabulary without consulting a stored answer for the
+card or goal that contains it.
 
-Published cards are the proving corpus, not the production data source. Their text is evidence for
-meaning and good wording; incidental variation is not a rule. Prefer one clear, consistently
-derived sentence for equivalent Pets.
+Published text is the proving corpus, not the production data source. It is evidence for meaning and
+for good wording; incidental variation is not a rule. Prefer one clear, consistently derived
+sentence for equivalent Pets.
 
-Incomplete support must remain honest. When the renderer cannot describe a node safely, retain its
-canonical Pets source in square brackets at the narrowest useful location. Losing coverage is
-better than hiding a card-specific recognizer behind a general-looking API.
+Incomplete support must stay honest. When the renderer cannot describe a node safely, retain its
+canonical Pets source in square brackets at the narrowest useful location. Losing coverage is better
+than hiding a card-specific recognizer behind a general-looking API.
 
-The intended flow is:
+## Where each piece of logic belongs
+
+> **Status: target architecture.** The code does not work this way yet. Sections below name what is
+> already true and what is not. Read this before adding a renderer branch.
+
+Rendering is two passes over one English syntax tree, separated by a hard rule about what each pass
+may consult.
 
 ```text
-Pets AST + canonical Class Table
-              │
-              ▼
-interpret structure and semantic roles ◄── inherited English lexicon
-              │
-              ▼
-Clause / Predicate / NounPhrase / Modifier / Coordination
-              │
-              ▼
-final linearization stage: wording, agreement, capitalization, punctuation
-              │
-              ▼
-English facade: standalone descriptions and card-region layout
+Pets AST + Class Table
+          │
+          ▼
+  ExpressionResolver ──────────► resolved type, keyed dependencies
+          │
+          ▼
+  PASS 1 — lexicalize            may read Describers, ClassName, ResolvedExpression
+  one EST node per Pets node     must not glue a head noun into a string
+          │
+          ▼
+  PASS 2 — rewrite               may read the EST only
+  structural paraphrase rules    must not read Describers or mention a ClassName
+          │
+          ▼
+  linearize: agreement, capitalization, punctuation
+          │
+          ▼
+  English facade: standalone descriptions, card regions, goal text
 ```
 
-English stays out of the Pets AST. Pets supplies structure; the Class Table supplies type meaning;
-the lexicon supplies words; the syntax model retains decisions until final realization.
+**The decision procedure.** For any new logic, ask one question: *does this depend on which
+component it is?*
 
-## What belongs where
+- **Yes** → pass 1, as an inherited lexical fact. It is knowledge about a component.
+- **No** → pass 2, as a structural rule. It automatically applies to card text, requirements,
+  metrics, events, and goals alike.
 
-### Structural meaning
+That question is the thing this document exists to make answerable. When it has no clear answer, the
+concept is not yet named — stop and name it rather than adding a branch to whichever renderer is
+currently open.
 
-Derive structural facts from the AST and supplied Class Table:
+Run a request through it before writing code. "Milestones should say *4 played event cards*" — does
+"played" depend on which milestone? No. So it is a pass-2 rule, and being a pass-2 rule it applies to
+card text too, where it would visibly damage Media Archives. The discipline surfaces that conflict at
+design time instead of in a snapshot diff.
 
-- resolve expressions and subtype relationships rather than recognizing Class names;
-- identify dependency roles by `Dependency.Key`, not argument position;
-- resolve quantities and intensities once into `Quantity` and `Modality`;
-- preserve linked identity when later wording depends on two occurrences denoting the same choice;
-- keep instruction, requirement, metric, trigger, and action structure visible to their family
-  interpreters.
+### Pass 1: lexicalize
 
-`English` receives the Class Table for the vocabulary being rendered. `ExpressionResolver` uses
-that supplied table so composed catalogs and fan expansions participate in the same structural
-interpretation as canonical components.
+One node per Pets node, built bottom-up. Exhaustive, not a nullable ladder. This is the only place
+`Describers` may be touched.
 
-### Lexical meaning
+The nouns it produces must be **structured, not concatenated**. `Production<Energy>` is head plus
+argument in Pets, so it must be head plus attributive modifier in English — never the string
+`"energy production"`. The same holds for `"$name tag"` and `"$item resource"`.
 
-`ComponentDescriber` contains sparse, inheritable component-specific rendering facts: nouns, verbs,
-value roles, and constructions that the type system cannot answer. It must not restate structural
-membership such as “is a tag,” “is production,” or “is a card resource.”
+This is the single largest concrete gap today. `NounPhrase.linearize` places every `Modifier` *after*
+the noun; there is no pre-head slot. So attributive modifiers are currently glued into the noun
+string at roughly twenty sites, and any rule that would factor them cannot be written. **Adding a
+pre-head modifier slot to `NounPhrase` is the first step**, and the shape can be derived from the
+resolved dependency rather than declared.
+
+There is also no single named entry point for "expression to noun phrase." The real one is
+`renderCountMetric`, `private` inside `renderMetric.kt` and named for its caller — which is the
+mechanical reason milestone work grew a parallel string renderer before being folded back in.
+`Describers` additionally exposes seven partial producers (`componentNounPhrase`,
+`quantifiedComponentNounPhrase`, `cardResourceNounPhrase`, `playedTagPhrase`, `describedNoun`,
+`plainGainNoun`, `plainGainCategoryNoun`) that each fuse a classification guard to a noun
+derivation, so a caller must already know what kind of thing it holds before it can ask for words.
+That is backwards, and it is why the same classification questions (`isStandardResource`,
+`resolveCardResource`, `triggerFrame`, `positionedFrame`, and others) are each asked independently in
+three to eight files.
+
+`ChangeFrame` is the one axis that got this right: a closed classification, dispatched exhaustively,
+declared as data. Treat it as the template, not as a finished job.
+
+### Pass 2: rewrite
+
+Bottom-up structural rules over the EST. A rule matches tree shape and rewrites it.
+
+Two hard constraints, both checkable by review:
+
+1. **A pass-2 rule may not mention a `ClassName` or read `Describers`.** If a rule needs to know it
+   is Media Archives, it is not a rule.
+2. **A rule must be a meaning-preserving paraphrase.** This is what buys order-independence for
+   correctness; ordering then only selects which paraphrase you get, which is a wording question.
+
+The two rules the current output most obviously wants:
+
+- **Factor a shared head across coordination.** `Coord(N(head=P, attr=A), N(head=P, attr=B))` becomes
+  `N(head=P, attr=Coord(A, B))`, turning "energy production and heat production combined" into
+  "energy and heat production combined". Blocked today by the missing pre-head slot.
+- **Drop a contextually recoverable possessor.** Build "you have" unconditionally in pass 1 and let a
+  rule delete it where context supplies it. This replaces the `possessorEstablished` flag threaded
+  through ten functions in `renderMetric.kt`, and settles the "Requires that you have 3 city tiles"
+  versus "Requires 3 city tiles" split that branch ordering currently decides.
+
+A rewrite engine is the easiest possible place to hide special cases — easier than the ladders it
+replaces. Constraint 1 is not a preference.
+
+### This is not a semantic Description layer
+
+An earlier review proposed inserting a general semantic representation between interpretation and
+clauses, and that proposal was correctly rejected. This is a different claim. Nothing here adds a
+representation of *meaning*; it consolidates an `Expression → NounPhrase` operation that already
+exists in eight partial copies, and gives the paraphrase rules a place to live. If a proposed layer
+carries meaning that Pets already carries, it is the rejected idea again.
+
+## The lexicon
+
+`ComponentDescriber` holds sparse, inheritable component-specific facts: nouns, verbs, value roles,
+and constructions the type system cannot answer. It must not restate structural membership such as
+"is a tag," "is production," or "is a card resource" — derive those.
 
 Facts inherit independently. A more specific Class overrides one fact from an ancestor; unrelated
-facts from incomparable ancestors compose; conflicting nearest providers for the same fact are
-rejected at construction. This multiple-inheritance behavior is part of the design, not an
-implementation inconvenience.
+facts from incomparable ancestors compose; conflicting nearest providers for one fact are rejected at
+construction. This multiple inheritance is part of the design. When a fact should not reach
+subclasses, say so in the data with a `forSubclasses` flag resolved through `fact()` — do not add a
+second, non-inheriting accessor for one field.
 
-### English structure
+`TerraformingMarsDescribers` keys only authored facts by `ClassName`. `Describers` owns Class
+resolution; absent Classes fall back to structural interpretation and default naming.
 
-Clauses, predicates, noun phrases, modifiers, and coordinations carry realizable structure. A
-literal lexical leaf such as `NounPhrase.text("M€")` is fine. Assembled phrases that hide quantity
-or modality decisions from later composition are not.
+### Choosing the shape of a new fact
 
-Track assembled strings, not raw string-leaf calls. Current audit searches include interpolated or
-concatenated `NounPhrase.text`, including the few compound requirement quantifiers that remain
-explicit leaves. The goal is for semantic decisions to remain inspectable until final
-linearization, not for the renderer to contain no text literals.
-
-## Choose the right modeling shape
-
-The renderer has three recurring shapes. Confusing them caused both the original scattered record
-and the later, incorrect proposal to collapse `ComponentDescriber` to five fields.
-
-| Shape | Use when | Composition rule | Current example |
+| Shape | Use when | Composition rule | Example |
 | --- | --- | --- | --- |
-| Frame | Alternatives are mutually exclusive constructions | One channel and one exhaustive dispatch | `ChangeFrame`; the exclusive event categories in `TriggerFrame` |
-| Orthogonal fact | Meanings can coexist on one Class | Separate inherited channels | A card can have played-card wording and independently inherit action-use wording |
-| Protocol | Meaning spans several elements or a sequence | One named cross-element interpretation | Payment across Billing, Owed, Accepting, Barrier, actions, and effects |
+| Frame | Alternatives are mutually exclusive constructions | One channel, one exhaustive dispatch | `ChangeFrame` |
+| Orthogonal fact | Meanings can coexist on one Class | Separate inherited channels | `ActionCard` has played-card *and* action-use wording |
+| Protocol | Meaning spans several elements or a sequence | One named cross-element interpretation | Payment, across billing, actions, and effects |
 
-Use this test before adding or combining lexical data:
+Before adding or combining lexical data:
 
-1. Can one Class legitimately have both facts? If yes, they are not alternatives in one frame.
-2. Are the alternatives exclusive and stable across expansions? If yes, a closed frame may fit.
-3. Does the meaning belong to a relationship, sequence, or lifecycle rather than one Class? Model a
-   protocol.
+1. Can one Class legitimately have both facts? Then they are not alternatives in one frame.
+2. Are the alternatives exclusive and stable across expansions? Then a closed frame may fit.
+3. Does the meaning belong to a relationship or lifecycle rather than one Class? Model a protocol.
 4. Can the AST or type system answer it? Derive it instead of declaring it.
-5. Does the proposed fact serve one call site, one card operation, or one current card? Treat it as
-   a recognizer until a recurring semantic role is demonstrated.
+5. Does it serve one call site or one current card? Treat it as a recognizer until a recurring
+   semantic role is demonstrated.
 
-`ActionCard` is the decisive composition example: it inherits played-card language through
-`CardFront` and action-use language through `HasActions`. Combining those into one trigger fact
-creates conflicting incomparable providers. A design that permits both is more truthful than one
-with a lower field count.
-
-Payment is the decisive protocol example. It spans changes, actions, triggers, and adjacent effect
-sequencing. Folding it into a trigger frame would put its ownership in the wrong place.
-
-## Current foundation
-
-The useful architecture already present should be extended rather than replaced:
-
-- `ExpressionResolver` and `ResolvedExpression` centralize Class resolution and keyed dependencies.
-- `TypeVariableReferences` carries enclosing and nested Type-variable identities into instruction
-  realization so later occurrences can refer to the choice already introduced.
-  It does not infer identity from similar wording or from correlated alternatives that Pets has not
-  recorded as one variable.
-- `Quantity` and `Modality` remove Pets scalar and intensity variants from family renderers.
-- `ChangeFrame` replaced scattered change probes with one closed construction family.
-- `TriggerFrame` consolidates mutually exclusive event categories while action-use language remains
-  orthogonal.
-- `Clause` and related types preserve enough structure for coordination and final linearization.
-- `NounPhrase` retains grammatical number and typed determiners; indefinite articles are selected
-  from the realized noun rather than by family renderers.
-- `Verb` retains singular and plural forms, and clauses apply the realized subject's number during
-  final linearization.
-- Clause prefaces retain conditional and temporal clauses instead of flattening them into strings.
-- Metric renderers return noun phrases whose number, relations, maxima, and `per` attachment remain
-  structured.
-- Requirement predicates distinguish noun objects from `that`-clause complements and retain
-  coordinated and relational noun phrases.
-- Events carry one structured noun-phrase object plus independent complements; producers cannot
-  bypass that representation with a string constructor.
-- Ordinary card selection, purchase, play, reveal, and recovery are interpreted from adjacent Pets
-  location changes; only the remaining face-dependent hidden procedures use `CARDS[...]`.
-- Held-resource changes follow the `QuasiResource` holder dependency, so ordinary card resources and
-  resource-like components sharing that model use the same location language.
-- Lowest-production selection is interpreted from its rank over production and production-offset
-  counts rather than from a dedicated lexical selector Class.
-- Voice is selected after event interpretation: current wording realizes the acting player in
-  active voice and an unrestricted actor in passive voice, while `Event.Kind` supplies only the
-  matching verb forms.
-- Billing triggers are decoded once into a `BillingEvent`; trigger and payment rendering consume
-  that interpretation rather than recognizing the raw Pets form again.
-- Action-use triggers are likewise decoded once into their provider and optional slot before event,
-  payment, or card-action integration decisions are made.
-- Resource-payment triggers retain whether payment uses a standard resource or resources from one
-  card, and payment protocols consume that closed interpretation.
-- Whether a resource already has a base payment value is supplied as component knowledge; payment
-  interpretation does not identify the canonical resources that have one.
-- `CardCriterion` is the closed set of recurring printed-card facts shared by search, reveal, and
-  test operations; it is not tied to one canonical operation.
-- Sentence finalization returns `Rendering<String>`, carrying visible text together with every
-  typed `Unresolved` embedded in its clause structure.
-- `English` remains the facade for standalone descriptions and card-region assembly.
-- Milestone and award text is derived from their existing Pets `requirement` and `metric`
-  properties. Goal rendering only selects the shared requirement or ranked-metric realization.
-- `Describers` validates inherited lexical facts once at construction.
-- `TerraformingMarsDescribers` keys only authored lexical facts by `ClassName`; `Describers` owns
-  Class resolution, while absent Classes use structural interpretation and default naming.
-
-The realization layer is game-neutral. The interpretation layer may name common game concepts such
-as cards, actions, resources, production, placement, payment, and scoring. Concrete component
-identities and expansion-specific recognizers stay in supplied vocabulary data. Expansion
-components using existing mechanics should render through inheritance without interpreter changes.
-
-Do not introduce a separate semantic `Description` layer merely because an earlier review proposed
-one. Frames, orthogonal roles, protocols, and clauses may already carry everything aggregation
-needs. Add another layer only when a current decision cannot be represented honestly without it.
-
-## Prioritized architecture work
-
-When English architecture is selected, use this dependency order.
-
-### 1. Re-examine effects as interpretations
-
-The matcher chain in `renderEffect.kt` is evidence that some concepts may still be unnamed, but it
-does not prove that one frame is missing. For each recurring matcher group, decide whether it is:
-
-- an exclusive construction suited to a frame;
-- an orthogonal lexical role;
-- a cross-element protocol;
-- or an irreducible, honest branch in the interpreter.
-
-Payment should be improved on its own terms. Do not judge the result by how many helpers disappear;
-judge whether ownership becomes clearer and recurring recognizers are deleted.
-
-### 2. Finish ownership and layout
-
-Move expansion-owned lexical declarations toward their bundles when that work can replace the
-central registry cleanly; do not make registry movement a prerequisite for unrelated rendering.
-Extract a card-layout model only after semantic rendering no longer depends on printed regions.
-
-Then re-ask whether clauses are a sufficient intermediate representation.
-
-### 3. Replace semantic phrase escapes when their shape is known
-
-`Modifier.Phrase` remains appropriate for fixed lexical leaves such as `for free` and `1 step`.
-When a modifier embeds a realizable noun phrase, relation, or clause, retain that structure with the
-existing typed modifier variants. Add a new variant only for a recurring shape that those variants
-cannot express.
-
-### 4. Remove selected card-text fallbacks through existing concepts
-
-Take these only where the named existing machinery extends cleanly. Leave the Pets visible when a
-case would require a whole-card recognizer, a second semantic representation, or a substantial new
-protocol.
-
-- Reuse the existing `CardCriterion` wording for card-valued procedure arguments. In particular,
-  `CopyProductionBox` should contribute only its lexical operation, while the established tag
-  criterion realizes `CardFront(HAS BuildingTag)` as a building card. Do not build another general
-  component-selector renderer for this phrase.
-- Treat a concrete behavior-bearing subclass as its declared contents under the semantics of its
-  base Class, never as its generated name. Start with `NextCardEffect`: its base supplies “the next
-  card you play this generation,” while the owner-local declaration supplies the adjustment.
-- Classify `This IF condition: instruction` as conditional immediate card behavior. The condition
-  wraps the self trigger, so a false condition simply means that the effect does not fire; it does
-  not introduce an `OR` branch or the words “or do nothing.” Keep RHS instruction gates on their
-  existing choice-sensitive path.
-- Render a transmutation between positioned components when both sides resolve to the same site,
-  retaining that site so the destination can refer to “that” location.
-- Support structurally simple `EACH Player` fanout and preserve a grouped continuation under
-  `THEN`, so later coordinated clauses remain more tightly associated than the preceding stage.
-- Render a gained `UseAction` signal through the existing action-use event interpretation, including
-  provider refinements such as an action-used marker.
-- Supply `GpComplete` with the metric noun needed to count completed global parameters; this is a
-  vocabulary fact, not a special case for the card using it.
-
-Do not add a sequence protocol for Cyberia Systems' first-choice marker merely to say “a different
-building card” and hide its bookkeeping. That pattern is too isolated to earn permanent machinery.
-Industrial Complex likewise remains unresolved until a smaller general interpretation explains its
-production-floor behavior.
+`ActionCard` is the decisive composition case: combining its two trigger facts into one frame creates
+conflicting incomparable providers. Permitting both is more truthful than a lower field count.
 
 ## Working rules
 
-- Make one systemic transformation at a time. Name the recurring family or existing machinery it
-  will replace before implementation.
-- Frames are closed; lexicon entries are open. A new expansion should normally add entries, not
-  frame variants or renderer branches.
-- Do not abstract common game concepts out of the interpreter merely to support unrelated games.
-  Do keep concrete component identities and expansion-specific cases out of it.
-- Treat symmetry as a question, not a mandate. Similar families deserve comparison, but different
-  composition rules are evidence for different shapes.
-- A nullable matcher ladder is a prompt to investigate, not proof of a missing frame.
+- Make one systemic transformation at a time. Name the family or existing machinery it replaces
+  before implementing it.
+- Frames are closed; lexicon entries are open. A new expansion should add entries, not frame variants
+  or renderer branches.
 - Never recognize a whole card. Narrow Procedure or Wrapper wording is acceptable only when it
   delegates represented Pets back to a general renderer.
+- Bracket unsupported Pets rather than buying coverage with a one-card mechanism. Losing a row to an
+  honest refusal is a good trade for deleting a hardcoded answer.
+- Never bend a lexical fact to hit a target string. If a component's noun changes, check every other
+  place that noun appears before accepting it.
 - Change the active path and delete superseded machinery. Do not maintain parallel converters.
-- Prefer canonical wording derived from meaning over incidental published variation. Preserve
-  authored semantic order.
-- Use `raise` and `lower` for global parameters and a player's terraform rating; use `increase` and
-  `decrease` for production. Spell out `terraform rating` in card text.
-- Describe a card-resource location as `this card`, never `here`.
-- Introduce a triggering event with `when`, never `each time`. Describe one event; express the
-  result's multiplicity when one event produces several changes.
-- Render every ratio with `per`, whether its denominator is one or greater and whether or not its
-  result is victory points.
-- Render an explicit unrestricted player in a counted metric as `any`; preserve shared implicit
-  player identity across a trigger and its result as `that player`.
-- Omit unconditional fixed victory-point adjustments from card regions. Continue to render
-  conditional and metric-based victory-point behavior.
-- Make optional maxima explicit as `you may ... up to`, including when the maximum is greater than
-  one.
-- Use `pay` when standard resources are a cost for obtaining or doing something. Use `remove` for
-  card-resource costs and for standalone or involuntary resource reductions, including standard
-  resources. Do not use `spend` or `lose`. Describe substitution as `may be used as`, without a
-  payment verb.
-- Join a rendered action cost to its result with `to`. Refuse a costed action whose result cannot be
-  expressed as an infinitive; do not split it into separately modalized sentences.
-- Treat a mandatory standard-resource removal followed by `THEN` as a payment for its result and
-  join it with `to`.
-- Render `PlanetaryTag` as `planetary tag`.
-- Bracket unsupported Pets rather than buying coverage with a one-card mechanism.
+- Two general paths that render equivalent Pets differently are a defect, even when both are
+  general. Ordering is not a design.
+- The realization layer is game-neutral. The interpretation layer may name common game concepts
+  (cards, actions, resources, production, placement, payment, scoring). Concrete component identities
+  and expansion-specific recognizers stay in vocabulary data.
 - Do not build a general natural-language framework or support hypothetical games. This renderer is
   for Terraforming Mars.
+- Treat symmetry as a question, not a mandate. Different composition rules are evidence for different
+  shapes.
+- Some cases stay unresolved on purpose: Cyberia Systems' first-choice marker, Sponsored Academies'
+  grouped player fanout, and Industrial Complex's production-floor behavior are each too isolated to
+  earn permanent machinery. Reopen one only with a smaller general interpretation, not a protocol
+  built for it.
+
+## Wording decisions
+
+- Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
+  production. Spell out `terraform rating`.
+- Use `pay` when standard resources are a cost for obtaining or doing something. Use `remove` for
+  card-resource costs and for standalone or involuntary reductions, including standard resources.
+  Never `spend` or `lose`. Describe substitution as `may be used as`, with no payment verb.
+- Join a rendered action cost to its result with `to`. Refuse a costed action whose result cannot be
+  an infinitive; do not split it into separately modalized sentences. A mandatory standard-resource
+  removal followed by `THEN` is a payment for its result and joins with `to`.
+- Introduce a triggering event with `when`, never `each time`. Describe one event; express the
+  result's multiplicity when one event produces several changes.
+- Render every ratio with `per`, whatever the denominator and whether or not the result is victory
+  points.
+- Render an explicit unrestricted player in a counted metric as `any`; preserve shared implicit player
+  identity across a trigger and its result as `that player`.
+- Make optional maxima explicit as `you may ... up to`, including above one.
+- Describe a card-resource location as `this card`, never `here`.
+- Omit unconditional fixed victory-point adjustments from card regions; keep conditional and
+  metric-based victory-point behavior.
+- Render `PlanetaryTag` as `planetary tag`.
 
 ## Evidence and verification
 
 Use evidence in this order:
 
-1. Pets and the canonical Class model for meaning.
-2. Original published card text for wording evidence.
-3. `english-card-text-goals.tsv` as fallible reviewed targets.
-4. `english-card-text-current.tsv` as generated characterization, never a production answer source.
+1. Pets and the canonical Class model, for meaning.
+2. Original published text, for wording evidence.
+3. `english-card-text-goals.tsv` / `english-goal-text-goals.tsv`, as fallible reviewed targets.
+4. `english-card-text-current.tsv` / `english-goal-text-current.tsv`, as generated characterization —
+   never a production answer source.
 
-Milestone and award rendering follows the same evidence order with
-`english-goal-published-wording-evidence.tsv`, `english-goal-text-goals.tsv`, and
-`english-goal-text-current.tsv`. The goals file may cover a selected proving corpus rather than
-every loaded goal.
-
-Current goal-text gaps are explicit. Briber's modeled placeholder requirement does not express its
-printed immediate payment, Philantropist's custom `GainsOf` metric has no demonstrated general
-English role, and Suburbian's modeled neighbor count does not itself express the published map-edge
-concept. Hydrologist has no active declaration because ocean-placement provenance is not modeled.
-Their Pets remains visible instead of introducing goal-specific answers.
+The goals files may cover a selected proving corpus rather than every loaded card or goal. Current
+refusals are recorded mechanically in the generated `*-refusals.tsv`; do not restate them here.
 
 After an intentional output change, run:
 
@@ -310,33 +235,34 @@ After an intentional output change, run:
 ./gradlew :tfm-text:test
 ```
 
-Review the production diff and generated snapshot together. Group every distinct before-to-after
-wording transformation, count affected rows, give representative examples, and list unexplained
-changes individually. Pause before regenerating a change that would materially affect more than
-roughly 25 cards.
+Review the production diff and the regenerated snapshots together. Group every distinct
+before-to-after wording transformation, count affected rows, give representative examples, and list
+unexplained changes individually. Pause before regenerating a change that would materially affect
+more than roughly 25 rows.
 
-Track these as diagnostic trends, not optimization targets:
+Track as diagnostic trends, not optimization targets:
 
 - unresolved nodes grouped by typed refusal reason;
-- assembled-string sites that interpolate or concatenate semantic roles;
+- sites that interpolate or concatenate a semantic role into a noun;
 - positional `Expression.arguments` inspection outside role resolution;
-- production lines, nullable branch exits, and new renderer files;
+- nullable branch exits and new renderer files;
 - frame variants and lexical fields that fail the modeling test above.
 
-Raw field count and raw `NounPhrase.text` count are not design metrics. If a round adds production
+Raw field count and raw `NounPhrase.text` count are not design metrics. Divergence from a goals file
+is not one either: deleting a hardcoded answer correctly increases it. If a round adds production
 lines, nullable exits, and renderer files together, stop and explain the cost before continuing.
 
-Do not add a test merely to prove that one canonical card lost brackets. The all-card snapshot is
-the characterization for corpus coverage. Add a focused behavioral test when a new rule is not
-exercised by canonical cards or when a meaningful semantic invariant needs direct proof.
+Do not add a test merely to prove one card lost brackets — the snapshots are the coverage
+characterization. Add a focused test when a new rule is not exercised by the corpus, or when a
+semantic invariant needs direct proof.
 
 ## Source map
 
 - [`English.kt`](../../src/jvm/dev/martianzoo/tfm/text/English.kt) — facade and card-region assembly.
-- `Clause.kt`, `Predicate.kt`, `Verb.kt`, `NounPhrase.kt`, `Determiner.kt`, `Modifier.kt`, and
-  `Coordination.kt` in the text source directory — English syntax and final linearization.
+- `Clause.kt`, `Predicate.kt`, `Verb.kt`, `NounPhrase.kt`, `Determiner.kt`, `Modifier.kt`,
+  `Coordination.kt` — English syntax and final linearization.
 - [`ComponentDescriber.kt`](../../src/jvm/dev/martianzoo/tfm/text/ComponentDescriber.kt),
-  [`Describers.kt`](../../src/jvm/dev/martianzoo/tfm/text/Describers.kt), and
+  [`Describers.kt`](../../src/jvm/dev/martianzoo/tfm/text/Describers.kt),
   [`TerraformingMarsDescribers.kt`](../../src/jvm/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
   — lexical facts and inheritance.
 - [`ExpressionResolver.kt`](../../src/jvm/dev/martianzoo/tfm/text/ExpressionResolver.kt) — structural
@@ -344,7 +270,6 @@ exercised by canonical cards or when a meaningful semantic invariant needs direc
 - [`Rendering.kt`](../../src/jvm/dev/martianzoo/tfm/text/Rendering.kt) — visible fallback and refusal
   evidence.
 - `renderActions.kt`, `renderChange.kt`, `renderEffect.kt`, `renderInstructionTree.kt`,
-  `renderMetric.kt`, `renderRequirement.kt`, and `renderGoal.kt` in the same source directory —
-  family interpreters.
+  `renderMetric.kt`, `renderRequirement.kt`, `renderGoal.kt` — family interpreters.
 - [`EnglishCardTextCurrentGenerator.kt`](../../test/jvm/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)
-  — generated corpus snapshot and refusal report.
+  — generated snapshot and refusal report.

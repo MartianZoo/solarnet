@@ -267,25 +267,6 @@ private fun matchingCards(
 private fun anyMatchingCards(criterion: CardCriterion, describers: Describers): String =
     "any ${matchingCardNoun(criterion, false, describers)}"
 
-private fun matchingCardNoun(
-    criterion: CardCriterion,
-    singular: Boolean,
-    describers: Describers,
-): String =
-    when (criterion) {
-      is CardCriterion.Tag -> {
-        val tag = checkNotNull(describers.tagName(criterion.className))
-        "$tag ${if (singular) "card" else "cards"}"
-      }
-      CardCriterion.NoTags -> "${if (singular) "card" else "cards"} with no tags"
-      CardCriterion.HasRequirement ->
-          "${if (singular) "card" else "cards"} with ${if (singular) "a requirement" else "requirements"}"
-      is CardCriterion.ResourceIcon -> {
-        val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
-        "${if (singular) "card" else "cards"} with $resource ${if (singular) "icon" else "icons"}"
-      }
-    }
-
 private fun matchPredicate(criterion: CardCriterion, describers: Describers): Predicate =
     when (criterion) {
       is CardCriterion.Tag -> {

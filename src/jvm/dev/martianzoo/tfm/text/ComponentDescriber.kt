@@ -57,9 +57,12 @@ internal data class ComponentDescriber(
     public data class Procedure(
         internal val verb: String,
         internal val objectPhrase: String? = null,
+        internal val cardTargetRelation: String? = null,
     ) : ChangeFrame
 
     public data object RequiredAction : ChangeFrame
+
+    public data object NextCardEffect : ChangeFrame
 
     public data object Play : ChangeFrame
   }

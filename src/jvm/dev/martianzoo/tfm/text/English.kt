@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
@@ -62,7 +63,7 @@ internal class English(
         interpretedEffects
             .filterNot { it in resourceValueEffects.first }
             .filter(::isImmediateSelfEffect)
-            .map { renderInstructionTree(it.instruction, cardDescribers) }
+            .map { renderImmediateSelfEffect(it, cardDescribers) }
     val instructions = cardImmediate(card)?.let { renderInstructionTree(it, cardDescribers) }
     val scoring =
         interpretedEffects
@@ -126,6 +127,38 @@ internal class English(
       cardEffects(card).map(card::interpretTypeVariablesIn)
 
   private fun isImmediateSelfEffect(effect: Effect): Boolean {
-    return effect.automatic && effect.trigger == WhenGain
+    return (effect.automatic && effect.trigger == WhenGain) ||
+        (effect.trigger as? IfTrigger)?.inner == WhenGain
+  }
+
+  private fun renderImmediateSelfEffect(
+      effect: Effect,
+      cardDescribers: Describers,
+  ): Rendering<String> {
+    val prepared = cardDescribers.prepareForRendering(effect)
+    if (prepared.trigger == WhenGain) {
+      return renderInstructionTree(prepared.instruction, cardDescribers)
+    }
+    val conditional = prepared.trigger as? IfTrigger
+    val condition =
+        conditional
+            ?.takeIf { it.inner == WhenGain }
+            ?.condition
+            ?.let(cardDescribers::renderGateCondition)
+    if (condition == null) {
+      return Rendering.unresolved(
+          effect,
+          RefusalReason.UNSUPPORTED_EFFECT_TRIGGER,
+          completeSentence("[$effect]"),
+      )
+    }
+    val instruction = renderInstructions(prepared.instruction, cardDescribers)
+    return Sentence(
+            Clause.Prefaced(
+                Clause.Preface.Conditional(condition),
+                instruction.asCoordinatedClause(),
+            )
+        )
+        .render()
   }
 }
