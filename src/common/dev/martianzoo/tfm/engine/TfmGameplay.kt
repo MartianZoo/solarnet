@@ -200,11 +200,11 @@ public class TfmGameplay(
   }
 
   public fun claimMilestone(milestone: ClassName): TaskResult =
-      stdAction("ClaimMilestone") { doTask("$milestone") }
+      stdAction("ClaimMilestoneAction") { doTask("$milestone") }
 
   public fun fundAward(award: ClassName, amountPaid: Int): TaskResult {
     val which = count("Award") + 1
-    return stdAction("FundAward", which, payment = { pay(amountPaid) }) { doTask("$award") }
+    return stdAction("FundAwardAction", which, payment = { pay(amountPaid) }) { doTask("$award") }
   }
 
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
@@ -223,11 +223,11 @@ public class TfmGameplay(
       }
 
   public fun convertPlants(body: BodyLambda = {}): TaskResult {
-    return stdAction("ConvertPlants", body = body)
+    return stdAction("ConvertPlantsAction", body = body)
   }
 
   public fun convertHeat(body: BodyLambda = {}): TaskResult {
-    return stdAction("ConvertHeat", body = body)
+    return stdAction("ConvertHeatAction", body = body)
   }
 
   public fun stdProject(
@@ -237,7 +237,11 @@ public class TfmGameplay(
       },
       body: BodyLambda = {},
   ): TaskResult {
-    return stdAction(stdProject, payment = payment, body = body)
+    return stdAction("UseStandardProjectAction", payment = {}) {
+      doTask("UseAction<$stdProject, Action1>")
+      payment()
+      body()
+    }
   }
 
   public fun playPrelude(cardName: ClassName, body: BodyLambda = {}): TaskResult {
@@ -305,7 +309,7 @@ public class TfmGameplay(
       body: BodyLambda,
   ) {
     if (tasks.matching { it.instruction.offersAction(cn("StandardAction")) }.any()) {
-      doTask("UseAction<PlayCardFromHand, Action1>")
+      doTask("UseAction<PlayCardFromHandAction, Action1>")
     }
     doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
@@ -578,7 +582,7 @@ public class TfmGameplay(
       x: Int? = null,
       body: BodyLambda = {},
   ): TaskResult {
-    return stdAction("UseCardAction") {
+    return stdAction("UseActionOnCardAction") {
       doTask("ActionUsedMarker<$cardName>")
       useCardAction(which, cardName, x, body)
     }
@@ -620,7 +624,7 @@ public class TfmGameplay(
       }
 
   public fun sellPatents(count: Int): TaskResult =
-      stdAction("SellPatentsSP") {
+      stdProject("SellPatentsProject") {
         doTask("$count MC FROM ProjectCard<Hand>!")
       }
 

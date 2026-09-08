@@ -122,12 +122,13 @@ Three findings survived review and should not be re-litigated:
 1. **The used marker is a real game component.** In the physical game a cube is placed on the card.
    The viewer displays it correctly and it must keep a component of its own. What is wrong is using
    its *absence* as the permission mechanism, not its existence.
-2. **The doorway is the printed rule.** `UseCardAction` is a `StandardAction` because the player
-   board lists "use a card action" among the standard actions, and
+2. **The doorway is the printed rule.** `UseActionOnCardAction` is a `StandardAction` because the
+   player board lists "use an action on a card" among the standard actions, and
    [TURMOIL.md](TURMOIL.md#parties-dominance-and-ruling) reaches the same conclusion for `UsePartyActionSA`.
    Do not flatten the standard-action menu into one undifferentiated list of every available action;
-   the `StandardAction` subclasses are exactly what the rulebook prints, and restoring
-   `UseStandardProject` would make that correspondence more exact, not less.
+   `UseStandardProjectAction` keeps projects behind their one printed doorway.
+   `DoRequiredActionsAction` is the deliberate model-only addition that lets a required effect
+   consume its mandatory action-phase slot.
 3. **`UseAction` must stay unconditioned.** Viron, Project Inspection, and Head Start all hand a
    player a use that bypasses the normal route. Any condition attached to `UseAction` itself breaks
    them. **Conditions belong on the route, never on the act.** The routes are standard-action
@@ -152,7 +153,7 @@ are `GpIncomplete`/`GpComplete`.
 The doorway then reads as the printed rule, and the permission genuinely is the cost:
 
 ```pets
-CLASS UseCardAction { CardActionAvailable<ActionCard> -> UseAction<ActionCard> }
+CLASS UseActionOnCardAction { CardActionAvailable<ActionCard> -> UseAction<ActionCard> }
 ```
 
 Viron and Project Inspection are unchanged, textually as well as behaviorally: `HAS
@@ -164,7 +165,7 @@ Sharing the `ActionCard` Type variable across the arrow is supported and exercis
 writes `PROD[StandardResource] -> 4 StandardResource` and `UtopiaInvestTest` pins it.
 
 **Action identity is a Class, not a pair.** `UseAction<HasActions, ActionSlot>` admits meaningless
-pairs such as `UseAction<ConvertPlants, Action2>`, and that pair travels together through lowering,
+pairs such as `UseAction<ConvertPlantsAction, Action2>`, and that pair travels together through lowering,
 `Invoice`, task instructions, and the event log. The direction is one live component per available
 action, so `UseAction` takes one argument and invalid pairs become unrepresentable. Multi-action
 classes would lower to derived offer Classes carrying the declaring Class as a dependency;
@@ -199,8 +200,7 @@ Each step is independently valuable and independently revertible.
    that shows whether renewable permission is a real primitive or a card-shaped coincidence — and it
    answers `ScientistsUsedMarker` before Turmoil lands. Do not extract a shared `Renewable`
    declaration until at least these two exist.
-3. **Restore `UseStandardProject`.** Independent and small; recovers the rulebook's own list.
-4. **Collapse `ActionSlot` into offer Classes.** The only step with engine cost: lowering, `Invoice`
+3. **Collapse `ActionSlot` into offer Classes.** The only step with engine cost: lowering, `Invoice`
    arity, `UseAction` arity, the six authored `UseAction<This, Action1>` triggers, and the REPL and
    test helpers. Sequence it after step 1, which removes the marker bookkeeping that most entangles
    the pair today.

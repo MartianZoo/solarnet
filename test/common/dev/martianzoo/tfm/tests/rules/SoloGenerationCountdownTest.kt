@@ -46,10 +46,10 @@ internal class SoloGenerationCountdownTest {
 
     player.count("Tr63SoloObjective") shouldBe 1
     player.count("StandardSoloObjective") shouldBe 0
-    game.classTable.isActive(cn("BufferGasSP")) shouldBe true
+    game.classTable.isActive(cn("BufferGasProject")) shouldBe true
 
     player.manual("16 MC")
-    player.manual("UseAction<BufferGasSP, Action1>") {
+    player.manual("UseAction<BufferGasProject, Action1>") {
       doTask("16 Pay<Class<MC>> FROM MC")
     }
     player.count("MC<Player1>") shouldBe 0

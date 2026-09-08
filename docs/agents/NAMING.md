@@ -71,17 +71,18 @@ Do not append a supertype's name to a subtype *mechanically*, as a substitute fo
 not `BankerMilestone` or `ClaimMilestoneSA`. The declaration already records the supertype, and an
 initialism bolted on to every member of a category is usually noise.
 
-Standard projects deliberately use the `SP` suffix consistently, including `PowerPlantSP`,
-`AsteroidSP`, and `SellPatentsSP`. The game uses "standard project" as the name of this action
-family, and the uniform suffix distinguishes its members from cards, resources, and ordinary game
-concepts without deciding each collision differently.
+Standard projects deliberately use the `Project` suffix consistently, including
+`PowerPlantProject`, `AsteroidProject`, and `SellPatentsProject`. The game uses "standard project"
+as the name of this family, and the uniform suffix distinguishes its members from cards, resources,
+and ordinary game concepts without deciding each collision differently.
+
+Standard actions likewise use the `Action` suffix. In `UseActionOnCardAction`, the first `Action`
+belongs to the rulebook phrase and the second identifies the standard-action doorway.
 
 We are not zealots about this. A category word that reads naturally in English earns its place, and
 most of ours do: `GreeneryTile`, `BuildingTag`, `ActionPhase`, `ColonyTile`, and `ProjectCard` all
-keep their nouns because the game says them out loud. `UseCardAction` is the pleasant edge case —
-the trailing `Action` is simultaneously part of the printed phrase and the category, and it is
-welcome for both reasons. The test is whether a fluent speaker of the game would say the whole
-phrase, not whether the word happens to name a supertype.
+keep their nouns because the game says them out loud. The test is whether a fluent speaker of the
+game would say the whole phrase, not whether the word happens to name a supertype.
 
 ### Qualifying a collision
 
@@ -97,16 +98,16 @@ Grep the candidate in trigger position before deciding:
   action. So the concept keeps `Trade` and the standard action becomes `TradeAction`, and we are
   improving on the printed game by distinguishing them at all.
 - `PlayCard` names the reusable card-play operation invoked by standard turns, setup, and card
-  effects. The standard action is specifically `PlayCardFromHand`.
+  effects. The standard action is specifically `PlayCardFromHandAction`.
 
 Worked cases:
 
 | Collision | Bare name goes to | Qualified |
 | --- | --- | --- |
-| Power Plant: card vs. standard project | card `PowerPlant` | standard project `PowerPlantSP` |
-| Asteroid: card vs. resource vs. standard project | resource `Asteroid` | `AsteroidCard`, `AsteroidSP` |
+| Power Plant: card vs. standard project | card `PowerPlant` | standard project `PowerPlantProject` |
+| Asteroid: card vs. resource vs. standard project | resource `Asteroid` | `AsteroidCard`, `AsteroidProject` |
 | Trade: game concept vs. standard action | concept `Trade` | `TradeAction` |
-| Play card: operation vs. standard action | operation `PlayCard` | `PlayCardFromHand` |
+| Play card: operation vs. standard action | operation `PlayCard` | `PlayCardFromHandAction` |
 | Required action: component vs. its signal | component `RequiredAction` | `RequiredActionsSignal` |
 | Reprinted goals | the newer, revised printing | the superseded one (see below) |
 
@@ -262,8 +263,8 @@ to the canonical name.
 
 **Two classes may share display text, and often must.** Whenever a Class Name was qualified to break
 a collision, the display name drops the qualifier and goes back to the printed title, so the clash
-reappears on purpose: `Trade` and `TradeAction` both display "Trade", `PowerPlant` and `PowerPlantSP`
-both display "Power Plant", `AsteroidCard` and `AsteroidSP` both display "Asteroid", and
+reappears on purpose: `Trade` and `TradeAction` both display "Trade", `PowerPlant` and `PowerPlantProject`
+both display "Power Plant", `AsteroidCard` and `AsteroidProject` both display "Asteroid", and
 `DeimosDown` and `DeimosDownPromo` both display "Deimos Down". Never invent a parenthetical or other
 disambiguator that no printed component carries.
 
@@ -298,7 +299,7 @@ of the four that appears in a `GameConfig`.
 ### `RequiredActionsSignal`
 
 The only `<Noun>Signal` in the vocabulary, and the suffix is its own supertype. It wants a verb
-phrase, but the obvious one is taken by the `DoRequiredActions` standard action.
+phrase, but the obvious one is taken by the `DoRequiredActionsAction` standard action.
 
 ### `HasRaisedTr` and the reserved `Has` prefix
 
@@ -311,11 +312,11 @@ The conflict is acknowledged; the name is not yet settled. It is declared identi
 
 Only published content — cards, corporations, preludes, milestones, awards, and the like — belongs
 in a language file. Today these files also carry entries for standard resources (`Energy`, `Plant`,
-`Steel`, `Titanium`, `Heat`), `TerraformRating`, `VictoryPoint`, standard projects (`AquiferSP` and
-the rest), `TradeAction`, and generated `_SpecialTile` classes. Decide where display text for
-non-content classes should come from, then remove those entries. The resource entries also lowercase
-the standard resources while leaving every card resource (`Microbe`, `Animal`, `Floater`, ...) in Title
-Case, which is a second reason not to keep them here.
+`Steel`, `Titanium`, `Heat`), `TerraformRating`, `VictoryPoint`, standard projects (`AquiferProject`
+and the rest), standard-action doorways, `TradeAction`, and generated `_SpecialTile` classes. Decide
+where display text for non-content classes should come from, then remove those entries. The resource
+entries also lowercase the standard resources while leaving every card resource (`Microbe`,
+`Animal`, `Floater`, ...) in Title Case, which is a second reason not to keep them here.
 
 ### Known and accepted
 

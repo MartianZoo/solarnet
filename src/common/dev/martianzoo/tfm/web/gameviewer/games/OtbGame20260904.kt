@@ -72,7 +72,7 @@ public class OtbGame20260904 : RecordedGame() {
 
     yellow.turn { playProject(SpaceMirrors, 3) }
     rainbow.turn {
-      stdAction("DoRequiredActions")
+      stdAction("DoRequiredActionsAction")
       // Rainbow first paid seven, then took back the evidenced Space Lanes discount.
       rainbow.exMachina(fakeWildTags("VenusTag"))
       playProject(FloatingRefinery, 5)
@@ -114,7 +114,7 @@ public class OtbGame20260904 : RecordedGame() {
     green.buyCards(3)
     yellow.buyCards(2)
 
-    rainbow.turn { stdProject("AirScrappingSP") }
+    rainbow.turn { stdProject("AirScrappingProject") }
     blue.turn { playProject(NuclearZone, 10) { placeTile(3, 3) } }
     green.turn {
       cardAction2(Factorum)
@@ -209,7 +209,7 @@ public class OtbGame20260904 : RecordedGame() {
     }
     blue.turn {
       playProject(ProtectedValley, 18, heat = 5) { placeTile(2, 7) }
-      doTask("UseAction<ClaimMilestone, Action1>")
+      doTask("UseAction<ClaimMilestoneAction, Action1>")
       pay(4, heat = 4)
       doTask("Landshaper")
     }

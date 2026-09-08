@@ -16,7 +16,7 @@ internal class IndenturedWorkersTest : CardTest() {
   internal fun `Keeps its discount available through other actions`() {
     initializeGame("39 MC, 4 ProjectCard, 8 Heat")
     p1.playProject(IndenturedWorkers, 0)
-    p1.stdProject("AsteroidSP")
+    p1.stdProject("AsteroidProject")
     p1.convertHeat()
     p1.sellPatents(2)
     p1.playProject(Soletta, 27).expect("-27 MC")

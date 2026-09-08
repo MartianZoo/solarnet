@@ -28,7 +28,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, SpliceTacticalGenomics).expect("48 MC")
 
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions").expect("ProjectCard")
+    p1.stdAction("DoRequiredActionsAction").expect("ProjectCard")
   }
 
   @Test

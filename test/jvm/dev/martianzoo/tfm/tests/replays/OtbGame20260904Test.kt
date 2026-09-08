@@ -76,7 +76,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
 
     yellow.turn { playProject(SpaceMirrors, 3) }
     rainbow.turn {
-      stdAction("DoRequiredActions")
+      stdAction("DoRequiredActionsAction")
       // Rainbow first paid seven, then took back the evidenced Space Lanes discount.
       rainbow.exMachina(fakeWildTags("VenusTag"))
       playProject(FloatingRefinery, 5)
@@ -141,7 +141,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.buyCards(3)
     yellow.buyCards(2)
 
-    rainbow.turn { stdProject("AirScrappingSP") }
+    rainbow.turn { stdProject("AirScrappingProject") }
     blue.turn { playProject(NuclearZone, 10) { placeTile(3, 3) } }
     green.turn {
       cardAction2(Factorum)
@@ -289,7 +289,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     blue.turn {
       playProject(ProtectedValley, 18, heat = 5) { placeTile(2, 7) }
-      doTask("UseAction<ClaimMilestone, Action1>")
+      doTask("UseAction<ClaimMilestoneAction, Action1>")
       pay(4, heat = 4)
       doTask("Landshaper")
     }
@@ -547,7 +547,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn {
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
       rainbow.exMachina(fakeWildTags("VenusTag"))
-      stdAction("UseCardAction") {
+      stdAction("UseActionOnCardAction") {
         doTask("ActionUsedMarker<$FloatingRefinery>")
         doTask("UseAction<$FloatingRefinery, Action2>")
       }

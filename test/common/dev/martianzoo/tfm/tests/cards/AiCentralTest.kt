@@ -13,7 +13,7 @@ internal class AiCentralTest : CardTest() {
     newGameWithAutoWorkflow()
     playUntilFirstActionPhase()
     establishScienceTags(3)
-    p1.stdProject("PowerPlantSP")
+    p1.stdProject("PowerPlantProject")
 
     p1.playProject(AiCentral, 21).expect("PROD[-Energy]")
   }
@@ -47,7 +47,7 @@ internal class AiCentralTest : CardTest() {
     newGameWithAutoWorkflow()
     playUntilFirstActionPhase()
     establishScienceTags(2)
-    p1.stdProject("PowerPlantSP")
+    p1.stdProject("PowerPlantProject")
 
     shouldThrow<RequirementException> { p1.playProject(AiCentral, 21) }
   }
@@ -83,7 +83,7 @@ internal class AiCentralTest : CardTest() {
 
   private fun playAiCentral() {
     establishScienceTags(3)
-    p1.stdProject("PowerPlantSP")
+    p1.stdProject("PowerPlantProject")
     p1.playProject(AiCentral, 21)
   }
 }

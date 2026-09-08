@@ -147,7 +147,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     // Database save 5: Allied Bank introduced Purple's first Earth tag.
 
     pink.turn {
-      stdAction("DoRequiredActions") {
+      stdAction("DoRequiredActionsAction") {
         // Morning Star revealed these nine non-Venus cards before drawing the following three.
         discardProjectCardsFromDeck(
             AsteroidHollowing,
@@ -164,7 +164,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       }
       playProject(TitanShuttles, 23)
     }
-    purple.turn { stdAction("DoRequiredActions") { doTask("Luna") } }
+    purple.turn { stdAction("DoRequiredActionsAction") { doTask("Luna") } }
 
     pink.turn { cardAction1(TitanShuttles) { addCardResources(TitanShuttles, 2) } }
     purple.turn { playProject(PeroxidePower, 1, steel = 3) }
