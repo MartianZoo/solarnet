@@ -20,13 +20,13 @@ internal fun canonicalPremise(
           included = included.toList(),
           playerNames = (1..players).map { cn("Player$it") },
       )
-  val base = Canon.gamePremise(config)
+  val resolvedCatalog = (catalog ?: Canon).withPlayers(players)
+  val base = resolvedCatalog.gamePremise(config)
   if (catalog == null) return base
   val extensionClassNames =
       catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
           Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
   return base.copy(
-      catalog = catalog,
       classSelections = base.classSelections + extensionClassNames.map(::ClassSelection),
   )
 }

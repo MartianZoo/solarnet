@@ -58,7 +58,7 @@ A live Game World is a `World` containing:
 | Part | Meaning |
 | --- | --- |
 | `ComponentGraph` | Present state: a multiset of concrete components |
-| Global task pool | Deferred work and Actor choices, with one assignee on each Task |
+| Global task queue | Deferred work and Actor choices, with one assignee on each Task |
 | `EventLog` | Applied component and task history |
 | `Timeline` | Atomicity, rollback, revision, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
@@ -73,22 +73,22 @@ See [GAMEWORLD.md](GAMEWORLD.md),
 [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction), and
 [API.md](API.md). Current code still combines these responsibilities in `World` and `:engine`.
 
-`GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
-policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
-selected Modules, signed class selections, seat-ordered display names, and exact concrete types
-to create once. See [OPTIONS.md](OPTIONS.md).
+`GameConfig` is unresolved user intent. Catalog-specific resolution composes concrete Player
+Classes named by the configuration, then applies defaults, selection policy, and validation to
+produce an immutable `GamePremise`. The premise contains one Catalog, selected Modules, signed
+class selections, seat-ordered Player Class Names, and exact concrete types to create once. See
+[OPTIONS.md](OPTIONS.md).
 
 A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
 from that premise shares the projection and its compiled class metadata while retaining independent
 component, effect, task, event, timeline, and gameplay state.
 
 Each Catalog owns one validated master `ClassTable`. A game's table projects it: selected Classes
-are active and every other Catalog-known Class is uninhabited. Occupied seats activate canonical
-`Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
-an explicit projection root. Trigger positions are observational and do not activate their
-protocol Classes. Modules directly create the concrete standard actions and other protocols they
-issue; generic families use `EACH` over the structurally present `Class<T>` representatives only
-when the family itself owns the fanout.
+are active and every other Catalog-known Class is uninhabited. Each configured player name is a
+concrete Player Class in the composed Catalog and an explicit projection root. Trigger positions are
+observational and do not activate their protocol Classes. Modules directly create the concrete
+standard actions and other protocols they issue; generic families use `EACH` over the structurally
+present `Class<T>` representatives only when the family itself owns the fanout.
 
 Module defaults, constructive active-provenance edges, and premise requirements are authored in
 Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
@@ -120,14 +120,42 @@ Promo Card Pack contributes
 three direct class exclusions for the cards its revised printings supersede; there is no general
 replacement registry.
 
-`Engine.newGame(premise)` currently wires the World with one structural representative for every
-active concrete Class, creates the `Admin` Actor Component, selected Modules, seated Players, and
-the premise's explicit initial components, then commits the initialized state. Structural Class
-representatives are installed before event logging and therefore produce no Change Events. When
-Terraforming Mars is active, creating its Module automatically creates `BootstrapPhase` before the
-Players. By the time `newGame` returns, the World has one Phase, every seated Player, and each
-Player's five `ProdOffset<Class<MC>>` components; workflow later replaces Bootstrap with
-`SetupPhase` as an ordinary effectful operation.
+`Engine.newGame(premise)` wires the World with one structural representative for every active
+concrete Class, then creates `Admin`. It directly creates root selected Modules and seated Players
+as one seed layer. Creating the Terraforming Mars Module immediately creates `BootstrapPhase`
+before the Players; after the whole seed layer exists, initialization drains its queued work. It
+next directly creates any selected Module left absent after its potential source ran and drains
+again, creates the premise's exact initial components, and performs a final drain. Completion
+requires an empty task queue and every premise-required component to exist before the initialized
+state is committed. Structural Class representatives are installed before event logging and
+therefore produce no Change Events. By the time `newGame` returns, the World has one Phase, every
+seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow later replaces
+Bootstrap with `SetupPhase` as an ordinary effectful operation.
+
+This staging is deliberate. A queued `:` self-effect is selected only after the whole seed layer
+exists, so peer initializers appear in stable level-by-level causal history and a queued `EACH`
+sees the Players and Modules in that layer. The component carrying the effect remains the cause of
+the resulting changes; the Kotlin initializer is not a second registry of everything a Module or
+Player owns. Stable drain order is diagnostic, not game meaning.
+
+Required state should arise at its earliest honest owner. The base Module creates initial
+global-parameter status, Player1 creates the first-player token, the selected map creates its Mars
+areas, and Game Modes create their distinct starting ratings during Setup. This gets resting
+invariants true promptly while preserving what each event means.
+
+Bootstrap tasks must have exactly one possible concrete outcome. Their syntax may begin abstract
+only when ordinary resolution proves a single concrete alternative from the initialized state; no
+bootstrap task may choose among two or more legal outcomes. Choice-bearing starting state must
+remain an exact premise component and open its choice during `SetupPhase` or later, as selected
+Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; the bootstrap drain
+is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
+`!` intensity.
+
+`drainBootstrapTasks` currently calls the Admin Agent's normal `FIRST` autoexecution policy.
+`FIRST` may select the stable execution order of several concrete tasks, but it does not invent a
+narrowing for an abstract task: unresolved choice remains queued and bootstrap completion fails.
+Preserve that rejection, cover it with a focused multi-alternative bootstrap test, and review task
+ordering separately whenever bootstrap effects can observe one another.
 
 **Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
 Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
@@ -153,10 +181,12 @@ The goal is not to call every constructor step an Admin action. It is to make th
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, the initializer directly materializes only the premise-selected Modules, seated Players,
-and exact initial component Types. Module and card effects create the other concrete components
-they own; `EACH` over Class representatives supplies generic specialization fanout. An exact
-`HAS =1 This` remains a live multiplicity invariant, not an initialization instruction.
+In Canon, the initializer directly materializes only root premise Modules, seated Players, and
+exact initial component Types. Queued Module and Player effects create their owned bootstrap state,
+including constructively selected Modules; `EACH` over Class representatives supplies generic
+specialization fanout. The initializer's direct fallback is only for a selected Module still absent
+after a potential source's gated effect had an opportunity to run. An exact `HAS =1 This` remains a
+live multiplicity invariant, not an initialization instruction.
 
 ## Component graph
 
@@ -241,7 +271,7 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 Clients normally identify work by an instruction that uniquely narrows one task. Code that already
 holds an exact task may use its stable `TaskId`; presentation order never identifies a task.
 
-Semantically there is one Game World task pool. Actor-specific queues are current filtered API
+Semantically there is one Game World task queue. Actor-specific queues are current filtered API
 views, not independent state containers. `Agent.tasks` may present the fiction of one Actor's queue
 without promoting that view into the Game World storage model.
 
@@ -492,7 +522,7 @@ before union.
 `RANK Selector { Metric, ... }` is a highest-first competition rank over the distinct live Types
 matching `Selector`: equal score vectors receive the same rank and later ranks skip the tied places.
 Multiple Metrics are compared lexicographically. Each score binds the candidate name and contextual
-`Owner` as an `EACH` body does, including complemented occurrences of the candidate. There is no
+`Owner` as an `EACH` body does, including occurrences inside `NOT` refinements. There is no
 direction keyword; a known upper cap minus a Metric can express lowest-first scoring.
 
 An abstract custom metric specializes only over dependency targets represented by live components,
@@ -532,13 +562,20 @@ rules, global-parameter completion state, end barriers, and setup operations. `M
 missing maximum-one declaration found by the current Canon audit. `TradeFleet` deliberately has no
 one-count limit: additional fleet components are real capacity granted by cards.
 
-`StartToken` is exact one: the first `Generation` creates it automatically and later generations
-move it only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the
-creation of its Module: Bootstrap is created first, and each transition replaces the current Phase;
-`End` remains as the terminal Phase. A separate temporary
+`StartToken` is exact one: Player1's queued bootstrap effect creates it, and generations move it
+only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the creation
+of its Module: Bootstrap is created first, and each transition replaces the current Phase; `End`
+remains as the terminal Phase. A separate temporary
 `FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
 scoring task settles. A future comprehensive lower-bound validator must account for the short
-construction interval before the Terraforming Mars Module creates Bootstrap.
+construction interval before the Terraforming Mars Module creates Bootstrap. Bootstrap completion
+verifies its required components and empty task queue; ordinary mutations continue to enforce
+applicable multiplicity limits.
+
+**Audit:** bootstrap verification checks premise Modules, Players, and exact initial component
+Types, not every positive lower bound or every source-owned support component. Canon's lifecycle
+tests currently prove `StartToken` and track-status initialization; the generic initializer would
+not itself detect their accidental omission.
 
 `GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
 exact-one sum; expressing that honestly requires one shared status family and an atomic
@@ -658,7 +695,7 @@ auto-exec, preserves previously pending unselected tasks, and fails if newly cre
 timeline and graph mutation interfaces.
 
 **Forward-looking:** `:agent` owns the normal Actor-scoped client API. Agent calls the core engine's
-audited mutation families against the Game World's task pool; a separate passive access object is
+audited mutation families against the Game World's task queue; a separate passive access object is
 not needed. Actor assignment remains engine semantics even though the resulting assignment is Game
 World data. Agent is the sole issuer of ordinary explicit and policy-chosen mutations for one Actor.
 Direct engine primitives remain available for workflows, replay correction, cheats, and tests;
@@ -693,8 +730,9 @@ in [WORKFLOW.md](WORKFLOW.md).
 ## Wiring details
 
 `Engine.Wiring` is the current manual composition root. Class Table, Event Log, Component Graph,
-Effector, Timeline, and other World-level services are shared. Each Actor currently receives its
-own `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` scope.
+Effector, Timeline, `Changer`, `Instructor`, and other World-level services are shared; `Changer` and
+`Instructor` take the acting Actor as a parameter rather than holding one. Each Actor currently
+receives its own `Implementations` and `ApiTranslation` scope.
 
 The target engine composition retains only the behavior and Actor context required to calculate one
 direct mutation. Game World retains Actor identities, assignment, and pending choices as data but

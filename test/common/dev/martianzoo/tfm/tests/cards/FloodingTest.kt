@@ -5,6 +5,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class FloodingTest : CardTest() {
@@ -30,9 +31,27 @@ internal class FloodingTest : CardTest() {
     }
   }
 
+  @Test
+  internal fun `Cannot charge anyone when no ocean area neighbors a tile`() {
+    newGame(players = 4)
+    val p2 = requireP2()
+    admin.phase("Action")
+    p1.manual("7 MC, ProjectCard")
+    p2.manual("10 MC")
+
+    p1.playProject(Flooding, 7) {
+      shouldThrow<NarrowingException> {
+        doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>!")
+      }
+      doTask("OceanTile<Tharsis_5_4>")
+    }
+
+    p2.count("MC") shouldBe 10
+  }
+
   private fun playFlooding(owner: String?, expectedCharge: String?) {
     arrangeFlooding()
-    val task = owner?.let { "OceanTile<Tharsis_5_4> THEN -4 MC<$it>!" } ?: "OceanTile<Tharsis_5_4>"
+    val task = owner?.let { "OceanTile<Tharsis_5_4>! THEN -4 MC<$it>!" } ?: "OceanTile<Tharsis_5_4>"
     val expected = listOfNotNull("OceanTile<Tharsis_5_4>", expectedCharge).joinToString()
 
     p1.playProject(Flooding, 7) { doTask(task) }.expect(expected)

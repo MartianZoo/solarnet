@@ -6,6 +6,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Have the normal full application build stamp its output with the current Git commit and, when
+  source changes are present, a stable hash of those changes. Include that stamp in every exported
+  game record so a log identifies, or can later verify, the engine source that produced it.
+- Make tile placement over an owned `Community` an atomic transmutation, then enforce
+  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
+- Remove `Vocabulary`'s input-only Class-name synonym facility after expanding the abbreviated Pets
+  used by the REPL, tests, replays, and recorded games; preserve localization. Configured Player
+  names are concrete Catalog Classes and require no Vocabulary mechanism.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
@@ -72,13 +80,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   future score depends on another score rather than directly on game state.
 - Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
   `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
-- Give players 20 TR in multiplayer setup and 14 TR in solo setup directly if a future card can
-  observe the current 20-then-minus-6 solo sequence.
 
 ## Autonomous Follow-ups
 
 - Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
+- Find a principled way for narrower dependency defaults to retain compatible refinements from
+  wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
+  areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`

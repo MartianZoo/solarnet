@@ -8,6 +8,7 @@ import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.exMachina
 import dev.martianzoo.engine.recording
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -16,6 +17,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
@@ -35,7 +37,17 @@ public abstract class RecordedGame {
   protected val admin: TfmGameplay
     get() = game.tfm(dev.martianzoo.pets.data.Actor.ADMIN)
 
+  /** Returns gameplay for the Player occupying the one-based [seat]. */
+  protected fun player(seat: Int): TfmGameplay {
+    require(seat > 0) { "seat numbers begin at 1" }
+    val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
+    requireNotNull(player) { "no Player occupies seat $seat" }
+    return game.tfm(player)
+  }
+
   protected abstract val config: GameConfig
+  /** Pets declarations for concrete Players with sourced per-seat setup rules. */
+  protected open val playerClassPets: String = ""
   protected open val catalog: TfmCatalog by lazy {
     if (cn("FakeStuffBundle") in config.includedClassNames) {
       TfmCatalog.compose(Canon, FakeCanon)
@@ -51,7 +63,8 @@ public abstract class RecordedGame {
       onGameConstructed: () -> Unit,
       onReplayCompleted: () -> Unit,
   ): GameRecording {
-    game = Engine.newGame(catalog.gamePremise(config), inputOnlySynonyms = inputOnlySynonyms)
+    val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
+    game = Engine.newGame(premise, inputOnlySynonyms = inputOnlySynonyms)
     onGameConstructed()
     play()
     onReplayCompleted()

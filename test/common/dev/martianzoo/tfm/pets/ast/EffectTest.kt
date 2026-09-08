@@ -23,7 +23,7 @@ internal class EffectTest {
       -X This: 5 MC!
       This: 5 Abc?
       PROD[Qux]: MC?
-      This: MC, -!Foo
+      This: MC, -Bar(NOT Foo)
       X Eep<Bar>: 5X MC?
       PROD[X This]: Ok
       PROD[X Xyz]:: -2 MC.
@@ -35,7 +35,7 @@ internal class EffectTest {
       -X Foo(HAS Foo): -X Eep
       This BY Ooh: Foo!, 2 Xyz
       X This: PROD[2 Bar], -Abc
-      !Ooh<Ahh>: 2X Xyz FROM Qux
+      Foo(NOT Ooh<Ahh>): 2X Xyz FROM Qux
       -Eep: Ok THEN Ok, PROD[Foo]
       X This:: 2X Ahh, -Qux(HAS MC)
       PROD[Wau<Bar, Ooh>]: PROD[MC?]
@@ -44,16 +44,16 @@ internal class EffectTest {
       Foo BY Player2 IF =1 Xyz: -X Ahh
       PROD[X Ahh]: Bar<Ooh> / Xyz, -Qux
       -X This: -Foo! OR X Qux, Ahh, Bar?
-      This OR PROD[X This]: Bar FROM !Ooh
+      This OR PROD[X This]: Bar FROM Foo(NOT Ooh)
       -Bar: 11 Ahh<Foo, Foo> FROM Eep<Qux>
       Bar<Foo<Bar<Bar<Bar>>, Eep>, Bar>: -MC
       X This: Abc / 2 Bar<Bar, Ooh> - Qux
       PROD[Abc]: -X Qux, 11 Abc<Xyz> FROM Xyz
       This OR This: 2 Xyz<Ooh<Foo>(HAS 5 Xyz)>
       PROD[-Ooh<Qux<Bar>, Bar>]: -MC / PROD[Foo]
-      (This BY Abc) BY Xyz: !Foo<Foo>, MC!, MC: X MC.
+      (This BY Abc) BY Xyz: Bar(NOT Foo<Foo>), MC!, MC: X MC.
       PROD[Foo<Qux>]: 5X MC, Ahh<Qux> / Xyz, PROD[MC]
-      !Foo: -MC / Foo, Ooh FROM Bar, 5 MC!, Abc OR Qux
+      Bar(NOT Foo): -MC / Foo, Ooh FROM Bar, 5 MC!, Abc OR Qux
       PROD[-Xyz] BY Foo:: MC / Foo MAX 5, Foo(HAS MC)
       -This: X MC!, Xyz(HAS Foo) FROM Foo, -5 Foo / Qux
       Xyz IF MAX 0 MC: Xyz<Abc, Foo> FROM Ahh
@@ -65,7 +65,7 @@ internal class EffectTest {
       Ahh IF MAX 1 Foo: PROD[2 Bar, MC / Bar, Bar<Foo>: Xyz]
       PROD[Foo] OR PROD[Bar]:: -5X MC, 2 MC THEN Foo<Qux> FROM Foo
       PROD[Eep]:: -5 MC, -2 Ooh<Abc>, (Foo: 2 MC) OR (Qux FROM Foo)
-      -Foo<!Qux>: -X Foo<!Qux<Bar<Foo>, Abc>> / 2 (2 Foo<Abc>)
+      -Foo<Bar(NOT Qux)>: -X Foo<Bar(NOT Qux<Bar<Foo>, Abc>)> / 2 (2 Foo<Abc>)
       Bar IF MAX 2 Bar: X Abc / Qux<Eep> OR PROD[MC] BY Bar<Xyz>
       PROD[Foo]:: (2 Qux FROM Foo) OR (-Foo, MC), 2 Qux FROM Ahh.
       PROD[X This]: MC: MC, Abc / Bar<Bar<Bar>> OR 2 Foo., -2X Qux.
@@ -106,8 +106,10 @@ internal class EffectTest {
 
   @Test
   internal fun bySelectorsAreExpressions() {
-    parse<Effect>("Foo BY !Owner: Bar").toString() shouldBe "Foo BY !Owner: Bar"
-    parse<Effect>("Foo BY !Player2: Bar").toString() shouldBe "Foo BY !Player2: Bar"
+    parse<Effect>("Foo BY Player(NOT Owner): Bar").toString() shouldBe
+        "Foo BY Player(NOT Owner): Bar"
+    parse<Effect>("Foo BY Actor(NOT Player2): Bar").toString() shouldBe
+        "Foo BY Actor(NOT Player2): Bar"
   }
 
   @Test

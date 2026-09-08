@@ -2,7 +2,7 @@ Here's a few insights into the deep design of the game that working on this has 
 
 * Some gains/removes are "atomized" and some aren't. That is, any time you raise the temperature 2 steps, or gain 2 science tags, you have to address each one as its own independent event, or the right things won't happen. However, if (say) reducing plant production 2 steps, those have to be done as a single change, or else Mons Insurance would fire twice. Currently, Tags and GlobalParameters are the only things marked as Atomized. (OceanTile inherits that bit.)
 * Different component types have different instructions for "how to gain this type *by default*". For example:
-    * Gaining tiles defaults to certain kinds of areas (`OceanTile<WaterArea>`, `SpecialTile<LandArea>`)
+    * Gaining tiles defaults to certain kinds of areas (`OceanTile<WaterArea(HAS MAX 0 Tile)>`, `SpecialTile<LandArea>`)
     * Gaining a colony defaults to `Colony<ColonyTile(HAS MAX 0 Colony)>` -- a colony tile where you don't already have a colony.
     * Gaining a GlobalParameter or a CardResource applies the "as many as possible" modifier by default
 * We'd expect PharmacyUnion to have `This: 54 MC`. But, like no other corporation, it has to have `This:: 54 MC` instead; that is, we have to force that effect to be *immediate* instead of queued. This is because otherwise the engine tries to process the two "remove 4 money" instructions first *before* taking the money! Which, by the game rules, you *would* be able to do (don't try it IRL, you will not make friends).

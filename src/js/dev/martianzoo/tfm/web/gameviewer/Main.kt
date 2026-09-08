@@ -482,6 +482,7 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
   val (centerX, centerY) = areaCenter(area)
   val tile = reader.getComponents(reader.resolve(TILE.of(area.className))).singleOrNull()
   val players = game.actors.filterIsInstance<Player>()
+  val playerClassNames = players.mapTo(hashSetOf(), Player::className)
   val playerNames = players.map { game.vocabulary.displayName(it.className) }
   val playerColors = assignPlayerColors(playerNames)
   target.innerHTML =
@@ -490,7 +491,7 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
       } else {
         val owner =
             tile.expressionFull.arguments
-                .firstOrNull { Player.isValid(it.className) }
+                .firstOrNull { it.className in playerClassNames }
                 ?.className
                 ?.let { ownerName ->
                   players.indexOfFirst { it.className == ownerName }.takeIf { it >= 0 }

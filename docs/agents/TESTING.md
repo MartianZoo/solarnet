@@ -70,10 +70,20 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `reports/kotlin-file-complexity.tsv` under the root build directory. The report is manual rather
   than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
   current scope excludes benchmarks, standalone tools, and `dev.martianzoo.tfm.text`.
+- `./gradlew :tools:dumpAllExpansionsEventLogs` creates three-player and solo games with every
+  supported expansion plus `FakeCardsCardPack`, completes Player 1's corporation-phase turn with
+  Interplanetary Cinematics and four bought cards in each, and writes every change event (including
+  `System` and `Hidden` changes, but no task events) to
+  `_local/eventlogs/three-player-all-expansions-eventlog.tsv` and
+  `_local/eventlogs/solo-all-expansions-eventlog.tsv`. The `actor` column is engine attribution,
+  not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
+  attribute its derived changes to that Player. Use the cause columns to trace derivation; because
+  task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
-  while choosing a random execution order for each batch of automatic-effect siblings. This is a
-  diagnostic mode for finding undeclared ordering dependencies; ordinary runs retain a stable
-  diagnostic order. Game-state assertions pass, but the exact Advanced Alloys attribution totals in
+  while choosing a random execution order for each batch of independent automatic-effect listeners.
+  A component's own automatic Effects retain declaration order. This is a diagnostic mode for
+  finding undeclared ordering dependencies; ordinary runs retain a stable diagnostic order.
+  Game-state assertions pass, but the exact Advanced Alloys attribution totals in
   `Game20230521Test` and `ThermalMatterWaveTest` may fail because saturating payment reductions do
   not yet record every effect's gross contribution.
 
@@ -319,6 +329,9 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 
 ### Direct state reconciliation
 
+- Express a sourced per-player setup rule, such as a starting handicap, on that replay's concrete
+  Player Class with a `SetupPhase` effect supplied through `playerClassPets`. It is game
+  setup, not a direct state reconciliation.
 - Never call `sneak` directly in a game test. Use the test's `exMachina` helper for an
   evidence-backed player error that requires a direct state adjustment. Place it as late in the
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add

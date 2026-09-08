@@ -449,10 +449,10 @@ dependency cleanup discards any cards left there, and the location immediately r
 lifecycles are authored entirely in Pets; the marked-syntax handler does not create, remove, or
 clean locations.
 
-`QuasiResource<QuasiResourceHolder>` is the narrow overlap between ordinary `CardResource`s and
-`FakeSelfReplicatingRobots`' `StoredCardDiscount`s. `ResourceHolder` and the five berths are its holder
-types. CEO's Favorite Project targets that overlap, while `Resource` and `CardResource` queries
-continue to exclude the typeless discounts. Each stored discount listens for
+`FakeSelfReplicatingRobots` models each discount as a `RobotUnit` subtype of `Resource`.
+This deliberately lets generic `Resource` queries see the fake discounts rather than adding a
+parallel resource hierarchy solely for this fake card. CEO's Favorite Project targets ordinary
+`CardResource`s and cannot add a discount to a staged card. Each stored discount listens for
 `ReplicateForStagedProject<CardBack<StagedProject>>` and creates one copy of itself, so the ordinary
 live-effect multiplicity doubles exactly the berth of the selected card.
 

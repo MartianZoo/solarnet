@@ -14,7 +14,7 @@ internal class MetricTest {
       """
       This
       Xyz
-      !Ahh
+      Foo(NOT Ahh)
       3 Bar
       Bar - 11
       PROD[Bar]
@@ -23,15 +23,15 @@ internal class MetricTest {
       2 Bar MAX 11
       Qux<Foo, Qux>
       EVAL Abc.score
-      EVAL !Ahh.score
+      EVAL Foo(NOT Ahh).score
       RANK Player { Score<Player> }
       RANK Player { VictoryPoint<Player>, MC<Player> }
       RANK Player { 999 - TerraformRating<Player> }
-      Bar<Ooh> OR !Foo
+      Bar<Ooh> OR Abc(NOT Foo)
       Eep(HAS Foo) - 11
       PROD[2 Abc MAX 11]
       Bar<Abc> MAX 11 - 3
-      EVAL Eep<!Bar>.score
+      EVAL Eep<Foo(NOT Bar)>.score
       PROD[PROD[PROD[Xyz]]]
       2 Bar - EVAL Ahh.score
       EVAL Bar<Qux>.score - 1
@@ -41,36 +41,36 @@ internal class MetricTest {
       PROD[PROD[Foo<Bar> OR Xyz]]
       PROD[PROD[2 (2 Bar) MAX 11]]
       (2 Foo - 2 (2 Bar)) MAX 5 - 3
-      3 Foo<!Ahh<Foo, Abc>>(HAS Ooh)
+      3 Foo<Bar(NOT Ahh<Foo, Abc>)>(HAS Ooh)
       3 EVAL Foo<Bar<Ahh>, Foo>.score
       2 PROD[2 Foo MAX 5 - Foo] MAX 11
       3 Ooh - (2 (Foo MAX 5) - 3) MAX 5
       EVAL Eep<Qux<Abc, Bar>, Foo>.score
       Qux - PROD[PROD[Foo - (Foo - Qux)]]
-      EVAL Xyz<!Qux<Xyz, Foo, !Ooh>>.score
+      EVAL Xyz<Bar(NOT Qux<Xyz, Foo, Abc(NOT Ooh)>)>.score
       3 (2 Bar - Foo - Ooh) - 3 Qux - 3
       PROD[Abc<Foo> MAX 5 - (Foo - Bar) - 1]
       3 (Foo - (2 Qux - 2 (2 Foo) MAX 5))
-      2 (2 (3 Foo MAX 5)) - !Wau<Abc<Ooh>> - 1
+      2 (2 (3 Foo MAX 5)) - Bar(NOT Wau<Abc<Ooh>>) - 1
       3 EVAL Ahh<Foo, Ooh, Xyz<Qux, Bar>>.score
       Xyz<Bar<Ahh<Ooh, Foo>>, Foo<Ahh>>(HAS Qux)
       (Bar - (Bar OR Xyz OR Qux<Abc<Foo>>)) MAX 5
       EVAL Xyz<Eep<Xyz>(HAS 2 Qux)>(HAS Abc).score
-      Abc<Abc<Abc<Qux>>, Bar>(HAS Bar<Bar>) OR !Ahh
+      Abc<Abc<Abc<Qux>>, Bar>(HAS Bar<Bar>) OR Foo(NOT Ahh)
       Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, MC)> OR Wau
       EVAL Xyz<Eep>(HAS PROD[Abc OR MAX 1 Foo]).score
       Ooh<Abc<Ooh(HAS MAX 0 Foo OR MC), Xyz>, Abc<Ahh>>
-      !Bar<Eep<Bar>(HAS MAX 1 Foo)>(HAS MC, =1 Foo<Foo>)
+      Foo(NOT Bar<Eep<Bar>(HAS MAX 1 Foo)>)
       PROD[3 (Qux - (Foo<Foo> - Bar<Foo> MAX 5)) MAX 11]
       Foo<Wau> OR Abc<Ahh(HAS Bar)>(HAS MAX 0 MC)
-      EVAL Ahh.score MAX 5 - (!Bar OR Bar<Qux>) - 11 - Bar
+      EVAL Ahh.score MAX 5 - (Foo(NOT Bar) OR Bar<Qux>) - 11 - Bar
       PROD[2 (Foo - Abc - 2 (2 (2 Foo MAX 5)) - Foo) MAX 5]
       PROD[Xyz - Qux - PROD[Qux] - Foo - (2 Qux - Bar<Foo>)]
       Abc - PROD[Abc - PROD[Ahh]] - 11 - 2 (Foo MAX 5) MAX 11
-      Ooh<!Wau, Bar<!Xyz<Xyz<Ooh, Xyz, Qux>, Abc<Foo>>, !Abc>>
+      Ooh<Foo(NOT Wau), Bar<Foo(NOT Xyz<Xyz<Ooh, Xyz, Qux>, Abc<Foo>>), Foo(NOT Abc)>>
       PROD[Abc MAX 11 - 11 - (2 (Foo MAX 5) - 2 (2 Foo)) MAX 5]
       PROD[Foo MAX 11 - Foo - (Bar OR Abc<Bar> OR Foo(HAS Bar))]
-      EVAL Bar<Bar, Foo<!Xyz>, Abc<Foo>>(HAS =1 MC).score
+      EVAL Bar<Bar, Foo<Bar(NOT Xyz)>, Abc<Foo>>(HAS =1 MC).score
       Eep<Foo(HAS PROD[MC, =1 Foo]), Bar<Xyz(HAS 2 Foo), Qux>, Eep>
       """
           .trimIndent()
@@ -146,9 +146,10 @@ internal class MetricTest {
 
   @Test
   internal fun rankRequiresAHighestFirstScore() {
-    shouldThrow<PetSyntaxException> { parse<Metric>("RANK !Player { Score }") }
     shouldThrow<PetSyntaxException> { parse<Metric>("RANK Player { }") }
 
     parse<Metric>("RANK Player { Score, Cash }").toString() shouldBe "RANK Player { Score, Cash }"
+    parse<Metric>("RANK Player(NOT Player1) { Score }").toString() shouldBe
+        "RANK Player(NOT Player1) { Score }"
   }
 }

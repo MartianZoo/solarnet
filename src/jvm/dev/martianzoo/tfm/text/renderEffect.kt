@@ -64,7 +64,6 @@ private fun renderCardResourcePaymentValue(
       resourceRemoval.intensity.modality() != Modality.REQUIRED ||
           !describers.cardResourceHasHolder(resolvedResource, describers.thisExpression) ||
           resourceRemoval.removing.refinement != null ||
-          resourceRemoval.removing.complement ||
           !describers.isCardResource(resourceRemoval.removing.className)
   ) {
     return null
@@ -72,11 +71,7 @@ private fun renderCardResourcePaymentValue(
   val resourceScalar = resourceRemoval.count.variableQuantity() ?: return null
   if (resourceScalar.multiple != 1) return null
   val owed = sequence.continuation as? Remove ?: return null
-  if (
-      owed.intensity.modality() != Modality.BEST_EFFORT ||
-          owed.removing.refinement != null ||
-          owed.removing.complement
-  ) {
+  if (owed.intensity.modality() != Modality.BEST_EFFORT || owed.removing.refinement != null) {
     return null
   }
   if (
@@ -108,7 +103,7 @@ private fun renderLinkedPlayedTagResourceChoice(
     describers: Describers,
 ): Rendering<String>? {
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
-  if (trigger.refinement != null || trigger.complement) return null
+  if (trigger.refinement != null) return null
   val holderKey = Key(ClassName.cn("Tag"), 0)
   val resolvedTrigger = describers.resolveExpression(trigger) ?: return null
   val holder = resolvedTrigger.sourceDependency(holderKey)?.takeIf { it.simple } ?: return null
@@ -142,8 +137,7 @@ private fun renderLinkedCardResourceGain(
   if (
       gain.intensity.modality() != Modality.REQUIRED ||
           !describers.cardResourceHasHolder(resolved, holder) ||
-          gain.gaining.refinement != null ||
-          gain.gaining.complement
+          gain.gaining.refinement != null
   ) {
     return null
   }
@@ -188,7 +182,6 @@ internal fun renderRequirementFlexibilityResult(
   if (
       removal.intensity.modality() != Modality.BEST_EFFORT ||
           removal.removing.refinement != null ||
-          removal.removing.complement ||
           describers.fact(
               removal.removing.className,
               ComponentDescriber::requirementShortfall,
@@ -337,7 +330,7 @@ private fun renderRemovalPrevention(
           val resolved = describers.resolveCardResource(it) ?: return@all false
           describers.cardResourceHasHolder(resolved, describers.thisExpression)
         } -> Rendering.resolved(completeSentence("$resources may not be removed from this card"))
-    actor == describers.notOwnerExpression && removed.all(Expression::simple) ->
+    actor != null && describers.isNotOwner(actor) && removed.all(Expression::simple) ->
         Rendering.resolved(completeSentence("opponents may not remove your $resources"))
     else -> null
   }
@@ -356,11 +349,7 @@ private fun isDeadEndInstruction(
 }
 
 private fun protectedResourceNoun(expression: Expression, describers: Describers): String? {
-  if (
-      !describers.concrete(expression.className) ||
-          expression.refinement != null ||
-          expression.complement
-  ) {
+  if (!describers.concrete(expression.className) || expression.refinement != null) {
     return null
   }
   describers.cardResourceNoun(expression.className, 2)?.let {
@@ -488,7 +477,6 @@ private fun renderAcceptedCardResourcePayment(
       accepted.intensity.modality() != Modality.REQUIRED ||
           !resolvedAccepted.hasOnlySourceDependency(acceptingKey, describers.thisExpression) ||
           accepted.gaining.refinement != null ||
-          accepted.gaining.complement ||
           accepted.count.fixedQuantity() != 1
   ) {
     return null
@@ -638,7 +626,7 @@ private fun coordinateSharedSubjectPredicates(clauses: List<Clause.Simple>): Cla
 
 private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   if (triggerFrame(expression.className) !is TriggerFrame.PlayTag) {
     return null
   }
@@ -688,7 +676,7 @@ private fun Describers.renderBillingEvent(billing: BillingEvent): Clause.Simple?
 
 private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val operation =
       (changeFrame(expression.className) as? ComponentDescriber.ChangeFrame.Procedure)?.takeIf {
         it.objectPhrase == null

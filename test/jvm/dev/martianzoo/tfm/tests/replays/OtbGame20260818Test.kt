@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -38,8 +36,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
   internal fun otbGame20260818() {
     TfmWorkflow.Auto(game).launch()
     retainStartingProjects(7, 5)
-    val green = game.tfm(Player.PLAYER1)
-    val yellow = game.tfm(Player.PLAYER2)
+    val green = player(1)
+    val yellow = player(2)
 
     // board-11-00-18.jpg: initial global state, before either corporation is played.
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
@@ -1554,8 +1552,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     green.turn {
       // "Just to be funny, I'm going to play one for land claim, just so you can go there."
       // The source does not identify the claimed area; Utopia_1_1 is a neutral test inference.
-      playProject(LandClaim, 1) { doTask("LandClaimMarker<Utopia_1_1>") }
-          .expect("-1 MC, -ProjectCard")
+      playProject(LandClaim, 1) { doTask("Community<Utopia_1_1>") }.expect("-1 MC, -ProjectCard")
     }
 
     // "I sell a card for a money."

@@ -3,10 +3,8 @@ package dev.martianzoo.pets.types
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.Specification
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.TypeInfo
-import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 
@@ -75,141 +73,27 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     override fun isSubtypeOf(that: Dependency): Boolean = boundType.isSubtypeOf(boundOf(that))
 
     override fun glb(that: Dependency): Dependency? {
-      if (that is ComplementDependency) {
-        return that glb this
-      }
       if (that !is TypeDependency) return null
       return (boundType glb boundOf(that))?.let { copy(boundType = it) }
     }
 
-    override fun lub(that: Dependency): Dependency =
-        when (that) {
-          is ComplementDependency -> if (narrows(that, NoGameState)) that else that.domain()
-          else -> copy(boundType = boundType lub boundOf(that))
-        }
+    override fun lub(that: Dependency): Dependency = copy(boundType = boundType lub boundOf(that))
 
     internal inline fun map(function: (GroundType) -> GroundType) =
         copy(boundType = function(boundType))
 
     override fun intersect(expression: Expression): Dependency? {
-      if (expression.complement) {
-        val excluded = boundType.classTable.resolve(expression.uncomplemented())
-        if (!excluded.isSubtypeOf(boundType)) return null
-        return ComplementDependency(key, boundType, excluded)
-      }
       return glb(copy(boundType = boundType.classTable.resolve(expression)))
     }
 
-    override fun ensureNarrows(that: Dependency, info: TypeInfo) {
-      when (that) {
-        is ComplementDependency if !that.matches(boundType, info) ->
-            throw NarrowingException("$this does not narrow $that")
-        is ComplementDependency -> Unit
-        is TypeDependency -> boundType.ensureNarrows(boundOf(that), info)
-        else -> throw NarrowingException("$this does not narrow $that")
-      }
-    }
+    override fun ensureNarrows(that: Dependency, info: TypeInfo): Unit =
+        boundType.ensureNarrows(boundOf(that), info)
 
     override fun narrows(that: Dependency, info: TypeInfo): Boolean =
-        when (that) {
-          is ComplementDependency -> that.matches(boundType, info)
-          is TypeDependency -> boundType.narrows(boundOf(that), info)
-          else -> false
-        }
+        that is TypeDependency && boundType.narrows(boundOf(that), info)
 
     private fun boundOf(that: Dependency): GroundType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
-  }
-
-  /** A dependency constrained to exclude one narrower type, as in `OwnedTile<!Player1>`. */
-  internal data class ComplementDependency(
-      override val key: Key,
-      internal val domainType: GroundType,
-      internal val excludedType: GroundType,
-  ) : Dependency(), HasExpression {
-    init {
-      require(excludedType.isSubtypeOf(domainType)) { "$excludedType does not narrow $domainType" }
-    }
-
-    override val boundClass: Class
-      get() = domainType.rootClass
-
-    override val className: ClassName
-      get() = excludedType.className
-
-    override val expression: Expression = excludedType.expression.copy(complement = true)
-    override val expressionFull: Expression = excludedType.expressionFull.copy(complement = true)
-
-    internal fun domain() = TypeDependency(key, domainType)
-
-    internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
-        domainType
-            .allConcreteSubtypes()
-            .filterNot { it.isSubtypeOf(excludedType) }
-            .map { TypeDependency(key, it) }
-
-    internal fun matches(type: Type, info: TypeInfo): Boolean =
-        type.narrows(domainType, info) && !type.narrows(excludedType, info)
-
-    override fun toString() = "$key=$expressionFull"
-
-    override val abstract: Boolean = true
-
-    override fun isSubtypeOf(that: Dependency) =
-        when (that) {
-          is TypeDependency -> domainType.isSubtypeOf(that.boundType)
-          is ComplementDependency -> domainType.isSubtypeOf(that.domainType)
-          else -> false
-        }
-
-    override fun glb(that: Dependency): Dependency? =
-        when (that) {
-          is TypeDependency -> {
-            val intersectionDomain = domainType glb that.boundType ?: return null
-            val intersectionExcluded = excludedType glb intersectionDomain
-            when {
-              intersectionExcluded == null -> TypeDependency(key, intersectionDomain)
-              intersectionDomain.isSubtypeOf(intersectionExcluded) -> null
-              else -> copy(domainType = intersectionDomain, excludedType = intersectionExcluded)
-            }
-          }
-          is ComplementDependency ->
-              if (excludedType == that.excludedType) {
-                (domainType glb that.domainType)?.let { copy(domainType = it) }
-              } else {
-                null
-              }
-          else -> null
-        }
-
-    override fun lub(that: Dependency): Dependency =
-        when (that) {
-          is TypeDependency -> if (that.narrows(this, NoGameState)) this else domain()
-          is ComplementDependency ->
-              if (excludedType == that.excludedType) {
-                copy(domainType = domainType lub that.domainType)
-              } else {
-                domain()
-              }
-          else -> domain()
-        }
-
-    override fun ensureNarrows(that: Dependency, info: TypeInfo) {
-      if (!narrows(that, info)) {
-        throw NarrowingException("$this does not narrow $that")
-      }
-    }
-
-    override fun narrows(that: Dependency, info: TypeInfo) =
-        when (that) {
-          is TypeDependency -> domainType.narrows(that.boundType, info)
-          is ComplementDependency ->
-              domainType.narrows(that.domainType, info) && excludedType == that.excludedType
-          else -> false
-        }
-
-    override fun intersect(expression: Expression): Dependency? =
-        domain().intersect(expression)?.let { it glb this }
   }
 
   /**

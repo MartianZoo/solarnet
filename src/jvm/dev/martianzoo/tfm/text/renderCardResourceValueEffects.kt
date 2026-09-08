@@ -104,8 +104,7 @@ private fun Gain.resourceValue(effect: Effect, describers: Describers): Resource
   if (
       expression.className != GRANTED_RESOURCE_VALUE ||
           intensity.modality() != Modality.REQUIRED ||
-          expression.refinement != null ||
-          expression.complement
+          expression.refinement != null
   ) {
     return null
   }
@@ -139,8 +138,7 @@ private fun Instruction.Change.baseResource(describers: Describers): Expression?
       expression.className != BASE_RESOURCE_VALUE ||
           intensity.modality() != Modality.REQUIRED ||
           count.fixedQuantity() != 1 ||
-          expression.refinement != null ||
-          expression.complement
+          expression.refinement != null
   ) {
     return null
   }

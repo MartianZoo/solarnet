@@ -88,7 +88,7 @@ private fun paymentResourceAmount(
     role: ComponentDescriber.PaymentRole,
     describers: Describers,
 ): ResourceAmount? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   if (describers.fact(expression.className, ComponentDescriber::paymentRole) != role) return null
   val count = scalar.fixedQuantity() ?: return null
   val represented = describers.representedClass(expression)

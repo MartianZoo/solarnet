@@ -109,11 +109,10 @@ internal fun canonicalPremise(
               options.map(TestOption::className) +
                   colonyTiles.map(TEST_ENGLISH_VOCABULARY::canonicalName),
           excluded = excludedOptions.map(TestOption::className),
-          playerNames =
-              if (players == 1) listOf(cn("Me")) else (1..players).map { cn("Player$it") },
+          playerNames = Player.players(players).map(Player::className),
       )
   val defaultCatalog = canonicalCatalog(config)
-  val resolvedCatalog = catalog ?: defaultCatalog
+  val resolvedCatalog = (catalog ?: defaultCatalog).withPlayers(players)
   val base = resolvedCatalog.gamePremise(config)
   if (catalog == null) return base
   val extensionClassNames =
@@ -237,7 +236,10 @@ object TestHelpers {
     return changes
         .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }
         .mapNotNull {
-          game.reader.resolve(it).toComponent().owner?.className?.let(Player::fromClassNameOrNull)
+          val ownerName = game.reader.resolve(it).toComponent().owner?.className
+          game.actors.filterIsInstance<Player>().singleOrNull { player ->
+            player.className == ownerName
+          }
         }
         .distinct()
         .singleOrNull()

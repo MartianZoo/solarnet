@@ -16,7 +16,7 @@ internal fun renderPlacement(
   val gain = instruction as? Gain ?: return null
   if (gain.intensity.modality() != Modality.REQUIRED) return null
   if (!describers.concrete(gain.gaining.className)) return null
-  if (gain.gaining.refinement != null || gain.gaining.complement) return null
+  if (gain.gaining.refinement != null) return null
 
   val placement = resolvePlacementExpression(gain.gaining, describers) ?: return null
   if (placement.owner != null || placement.unknownDependencies.isNotEmpty()) return null
@@ -70,20 +70,22 @@ internal fun renderPlacementSites(
   val expression = placement.sites.singleOrNull() ?: return null
   val site = describers.placementSite(expression.className) ?: return null
   val resolvedSite = describers.resolveExpression(expression) ?: return null
-  if (resolvedSite.sourceDependencies.isNotEmpty() || expression.complement) return null
+  if (resolvedSite.sourceDependencies.isNotEmpty()) return null
 
   val siteNoun = describers.describedNoun(expression.className, site.noun, 1)
   val modifiers =
       mutableListOf<Modifier>(
           Modifier.Relation("on", NounPhrase(siteNoun, determiner = site.determiner))
       )
-  expression.refinement?.let { refinement ->
+  expression.refinement?.let {
+    val refinement = it as? Expression.Refinement.Has ?: return null
     if (refinement.forgiving) return null
     val authoredRequirements = refinement.requirement.conjuncts()
     val implicitRequirements =
         implicitSites
             .singleOrNull { it.className == expression.className }
             ?.refinement
+            ?.let { it as? Expression.Refinement.Has ?: return null }
             ?.takeUnless { it.forgiving }
             ?.requirement
             ?.conjuncts()
@@ -114,7 +116,7 @@ private fun renderPlacementBonusRequirement(
 ): Modifier? {
   val minimum = requirement as? Requirement.Min ?: return null
   val expression = countedExpression(minimum) ?: return null
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val bonus =
       describers.fact(expression.className, ComponentDescriber::placementBonus) ?: return null
   val resource = describers.representedClass(expression) ?: return null
@@ -136,7 +138,7 @@ private fun renderSpatialRequirement(
 ): Modifier? {
   val counting = requirement as? Requirement.Counting ?: return null
   val relationExpression = countedExpression(counting) ?: return null
-  if (relationExpression.refinement != null || relationExpression.complement) return null
+  if (relationExpression.refinement != null) return null
   val relation =
       describers.fact(relationExpression.className, ComponentDescriber::spatialRelation)
           ?: return null
@@ -213,8 +215,7 @@ private fun renderSpatialTarget(
   if (
       (resolvedTarget.sourceDependencies.isNotEmpty() &&
           !resolvedTarget.hasOnlySourceDependency(ownerKey, describers.anyoneExpression)) ||
-          target.refinement != null ||
-          target.complement
+          target.refinement != null
   ) {
     return null
   }

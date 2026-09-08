@@ -1,4 +1,13 @@
 // Published promotional card declarations.
+CLASS ArcadianCommunities : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This: 40 MC, 10 Steel, RequiredAction { -> Community<LandArea(HAS MAX 0 Occupant)> }
+
+  -> Community<LandArea(HAS MAX 0 Occupant, Neighbor<OwnedOccupant>)>
+  -Community: 3 MC
+}
+
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
 
@@ -10,6 +19,7 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
 CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
   cost = 0
 
+  This:: Splicer<This>
   This:: MicrobeTag<This>
   This: 44 MC, RequiredAction { -> CARDS[SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)] }
   MicrobeTag<Anyone>: 2 MC
@@ -37,7 +47,7 @@ CLASS Philares : CardFront<Class<CorporationCard>> {
 
   This:: BuildingTag<This>
   This: 47 MC, RequiredAction { -> GreeneryTile<> }
-  Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource
+  Adjacency<OwnedTile<Owner>, OwnedTile<Anyone(NOT Owner)>> BY Anyone: StandardResource
 }
 
 CLASS AstroDrill : ActionCard, ResourceCard<Class<Asteroid>, Class<CorporationCard>> {
@@ -282,7 +292,7 @@ CLASS AsteroidDeflectionSystem : ActionCard, ActiveCard<Class<ProjectCard>>, Res
 
   This:: EarthTag<This>, SpaceTag<This>, BuildingTag<This>
   This: PROD[-Energy]
-  -Plant BY !Owner:: Die
+  -Plant BY Player(NOT Owner):: Die
   End: VictoryPoint / Asteroid<This>
 
   -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
@@ -513,7 +523,7 @@ CLASS IcyImpactors : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   UseAction<This, Action1>:: Accepting<Class<Titanium>>
 
   10 MC -> 2 Asteroid<This>
-  Asteroid<This> -> ChooseOceanArea<Owner>
+  Asteroid<This> -> EACH Player(HAS StartToken) { ChooseOceanArea }
 }
 
 CLASS DirectedHeatUsage : ActionCard, ActiveCard<Class<ProjectCard>> {
@@ -573,7 +583,7 @@ CLASS KaguyaTech : AutomatedCard<Class<ProjectCard>> {
   cost = 10
 
   This:: CityTag<This>, PlantTag<This>
-  This: PROD[2 MC], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>
+  This: PROD[2 MC], ProjectCard, CityTile<MarsArea> FROM GreeneryTile<MarsArea>
 }
 
 CLASS MartianLumberCorp : ActiveCard<Class<ProjectCard>> {
@@ -704,7 +714,7 @@ CLASS Vermin : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<An
 
   This:: MicrobeTag<This>, AnimalTag<This>
   CityTile<Anyone>: Animal<This>
-  End IF 10 Animal<This>: EACH CityTile<Player> { -VictoryPoint }
+  End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }
 
   -> Animal<This> OR Microbe
 }
@@ -744,8 +754,7 @@ CLASS FloydContinuum : ActionCard, ActiveCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS SpliceTacticalGenomicsWatcher : System {
-  HAS =1 This
+CLASS Splicer<SpliceTacticalGenomics> {
   MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 MC
 }
 

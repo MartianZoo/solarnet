@@ -67,6 +67,7 @@ CLASS ThorGate : CardFront<Class<CorporationCard>> {
 
 CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
   cost = 0
+  HAS Class<TrWatcher>
 
   This:: EarthTag<This>
   This: 40 MC
@@ -1093,7 +1094,7 @@ CLASS Flooding : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 MC<Anyone>?)
+  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
   End: -VictoryPoint
 }
 
@@ -1177,8 +1178,7 @@ CLASS HasRaisedTr : Generational, Owned {
   HAS MAX 1 This
 }
 
-CLASS TrWatcher : System {
-  HAS MAX 1 This
+CLASS TrWatcher : CardWatcher {
   TerraformRating:: HasRaisedTr.
 }
 

@@ -118,7 +118,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
 
-    admin.assertCounts(2 to "ColonyTile", 4 to "ColonyTileSelection")
+    admin.assertCounts(0 to "ColonyTile", 4 to "ColonyTileSelection")
     TfmWorkflow.Manual(game).setupPhase()
     p1.doTask("-ColonyTileSelection<Class<Luna>>")
     admin.assertCounts(

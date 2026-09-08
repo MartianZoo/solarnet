@@ -17,9 +17,8 @@ internal class EachSelectorOwnerTest {
                 ABSTRACT CLASS Token : Owned<Player>
                 CLASS RedToken : Token
                 CLASS BlueToken : Token
-                CLASS Prize : Owned<Player>
                 CLASS Provider {
-                  SelectorEvent: EACH Token<Owner> { Prize<Owner> }
+                  SelectorEvent: EACH Token<Owner> { -Token<Owner> }
                 }
                 """,
                 players = 2,
@@ -34,7 +33,7 @@ internal class EachSelectorOwnerTest {
 
     p1.manual("SelectorEvent")
 
-    p1.count("Prize") shouldBe 2
-    p2.count("Prize") shouldBe 0
+    p1.count("Token") shouldBe 0
+    p2.count("Token") shouldBe 2
   }
 }

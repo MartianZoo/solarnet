@@ -29,7 +29,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
       expression: Expression,
       contextualThisKey: Key?,
   ): ResolvedExpression? {
-    if (expression.complement) return null
+    if (expression.refinement is Expression.Refinement.Not) return null
     val declaredClass = classesByName[expression.className] ?: return null
     val playerOwned = declaredClass.isSubtypeOf(classesByName.getValue(OWNED))
     val directSourceType =
@@ -51,7 +51,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
             when {
               argument == thisExpression && contextualThisType != null ->
                   contextualThisType.expression
-              playerOwned && (argument == anyoneExpression || argument == notOwnerExpression) ->
+              playerOwned && (argument == anyoneExpression || isNotOwner(argument)) ->
                   playerExpression
               else -> argument
             }
@@ -124,7 +124,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
   ): Boolean = heldResourceHasHolder(resolved, holder)
 
   internal fun resolveHeldResource(expression: Expression): ResolvedExpression? {
-    if (!isSubtypeOf(expression.className, QUASI_RESOURCE)) return null
+    if (!isSubtypeOf(expression.className, CARD_RESOURCE)) return null
     val holderKey =
         heldResourceHolderKey(classesByName.getValue(expression.className)) ?: return null
     return resolve(expression, holderKey)
@@ -150,7 +150,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
         val dependency =
             componentClass.baseType.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency
                 ?: return@singleOrNull false
-        dependency.boundType.rootClass.isSubtypeOf(classesByName.getValue(QUASI_RESOURCE_HOLDER))
+        dependency.boundType.rootClass.isSubtypeOf(classesByName.getValue(RESOURCE_HOLDER))
       }
 
   private fun representedClassType(expression: Expression) =
@@ -177,6 +177,11 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
 
   internal fun isGameParticipant(className: ClassName): Boolean = isSubtypeOf(className, PLAYER)
 
+  internal fun isNotOwner(expression: Expression): Boolean {
+    val excluded = (expression.refinement as? Expression.Refinement.Not)?.excluded ?: return false
+    return excluded == ownerExpression && isSubtypeOf(expression.className, ANYONE)
+  }
+
   internal fun isGenerationScoped(className: ClassName): Boolean =
       isSubtypeOf(className, GENERATIONAL)
 
@@ -193,20 +198,19 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
       classesByName.getValue(className).isSubtypeOf(classesByName.getValue(superclassName))
 
   internal val anyoneExpression = cn("Anyone").expression
-  internal val notOwnerExpression = cn("Owner").expression.copy(complement = true)
   internal val ownerExpression = cn("Owner").expression
   internal val playerExpression = cn("Player").expression
   internal val thisExpression = cn("This").expression
 
   private companion object {
     val BILLING = cn("Billing")
+    val ANYONE = cn("Anyone")
     val CARD_RESOURCE = cn("CardResource")
     val CLASS = cn("Class")
     val END = cn("End")
     val GENERATIONAL = cn("Generational")
     val PLAYER = cn("Player")
-    val QUASI_RESOURCE = cn("QuasiResource")
-    val QUASI_RESOURCE_HOLDER = cn("QuasiResourceHolder")
+    val RESOURCE_HOLDER = cn("ResourceHolder")
     val TAG = cn("Tag")
   }
 }

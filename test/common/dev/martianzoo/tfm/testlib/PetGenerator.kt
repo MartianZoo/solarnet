@@ -46,13 +46,17 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
-      register { Refinement(recurse(), choose(6 to false, 1 to true)) }
+      register<Refinement> {
+        chooseS(
+            1 to { Refinement.Has(recurse(), choose(6 to false, 1 to true)) },
+            1 to { Refinement.Not(recurse<Expression>().withoutRefinements()) },
+        )
+      }
       register(Expression::class) {
         Expression(
             recurse(),
             listOfSize(choose(specSizes)),
-            chooseS(7 to { null }, 1 to { recurse<Refinement>() }),
-            choose(7 to false, 1 to true),
+            chooseS(6 to { null }, 2 to { recurse<Refinement>() }),
         )
       }
       val scalarTypes = multiset(7 to ActualScalar::class, 3 to XScalar::class)
@@ -225,6 +229,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
     fun RandomGenerator<PetNode>.randomName() =
         choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
+
+    private fun Expression.withoutRefinements(): Expression =
+        copy(
+            arguments = arguments.map { it.withoutRefinements() },
+            refinement = null,
+        )
   }
 
   inline fun <reified T : PetNode> goNuts(count: Int = 10_000) {

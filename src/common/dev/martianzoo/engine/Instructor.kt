@@ -8,7 +8,6 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.abstractInstruction
@@ -46,7 +45,6 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.util.invoke
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It resolves and executes instructions. */
@@ -54,29 +52,18 @@ internal class Instructor
 internal constructor(
     private val reader: GameReader,
     private val limiter: Limiter,
-    private val changer: Changer?,
-    private val effector: Effector?,
+    private val changer: Changer,
+    private val effector: Effector,
     private val classTable: ClassTable,
-    private val defaultActor: Actor? = null,
-    private val customClasses: CustomClassRuntime =
-        CustomClassRuntime(reader.catalog, Transformers(classTable)),
-    private val transformers: Transformers = Transformers(classTable),
+    private val transformers: Transformers,
+    private val customClasses: CustomClassRuntime,
 ) {
-  internal constructor(
-      reader: GameReader,
-      limiter: Limiter,
-      classTable: ClassTable,
-  ) : this(reader, limiter, null, null, classTable)
-
   private val automaticEffectStack = mutableListOf<PendingTask>()
-  private val transformDispatcher: Lazy<PetTransformer> = lazy {
-    classTable.transformDispatcher()
-  }
 
   internal fun execute(
       instruction: Instruction,
       cause: Cause?,
-      actor: Actor = checkNotNull(defaultActor),
+      actor: Actor,
       controller: Actor = actor,
   ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor, controller) }
 
@@ -86,7 +73,7 @@ internal constructor(
   internal fun executeResolved(
       instruction: Instruction,
       cause: Cause?,
-      actor: Actor = checkNotNull(defaultActor),
+      actor: Actor,
       controller: Actor = actor,
   ): List<PendingTask> = buildList {
     doExecuteResolved(instruction, cause, this, actor, controller)
@@ -156,7 +143,7 @@ internal constructor(
 
     while (true) {
       val (result, done) =
-          changer!!.change(
+          changer.change(
               count = ct.value,
               gaining = gaining,
               removing = removing,
@@ -165,7 +152,7 @@ internal constructor(
               actor = actor,
           )
 
-      val now = effector!!.fire(result, controller, automatic = true)
+      val now = effector.fire(result, controller, automatic = true)
       for (task in now) {
         executeAutomaticEffect(task, deferred)
       }
@@ -208,105 +195,12 @@ internal constructor(
    * * Resolves each option of an [Or]
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
    */
-  internal fun resolve(unresolved: Instruction): InstructionTree = doResolve(unresolved)
-
-  /**
-   * Validates a concrete target selected from an abstract pure AMAP gain or removal. Returns true
-   * when that kind of selection occurred, so an unselected task can be locked to this world before
-   * retaining the selection.
-   */
-  internal fun validateAmApSelection(
-      wide: InstructionTree,
-      proposed: InstructionTree,
-  ): Boolean {
-    val pairs =
-        firstStageChanges(wide).flatMap { domain ->
-          firstStageChanges(proposed).mapNotNull { selection ->
-            if (selection.change.narrows(domain.change, reader)) domain to selection else null
-          }
-        }
-    val selections = pairs.filter { (domain, selection) ->
-      isAbstractPureAmAp(domain.change, selection.change)
-    }
-    selections.forEach { (domain, selection) ->
-      if (
-          domain.metricPositive &&
-              selection.metricPositive &&
-              hasPositiveExecution(domain.change) &&
-              !hasPositiveExecution(selection.change)
-      ) {
-        throw NarrowingException(
-            "AMAP target `${selection.change}` cannot execute while " +
-                "`${domain.change}` has a positive choice"
-        )
-      }
-    }
-    return selections.isNotEmpty()
-  }
-
-  private data class FirstStageChange(val change: Change, val metricPositive: Boolean = true)
-
-  private fun firstStageChanges(tree: InstructionTree): List<FirstStageChange> =
-      when (tree) {
-        is Change -> listOf(FirstStageChange(tree))
-        is By -> firstStageChanges(tree.inner)
-        is Gated -> firstStageChanges(tree.inner)
-        is Per ->
-            firstStageChanges(tree.inner).map {
-              it.copy(metricPositive = reader.count(tree.metric) > 0)
-            }
-        is Then -> firstStageChanges(tree.first)
-        is Or -> tree.instructions.flatMap(::firstStageChanges)
-        is InstructionGroup -> tree.instructions.flatMap(::firstStageChanges)
-        else -> emptyList()
-      }
-
-  private fun isAbstractPureAmAp(domain: Change, selection: Change): Boolean {
-    if (domain.intensity != AMAP) return false
-    val domainTarget = domain.gaining ?: domain.removing ?: return false
-    if (domain.gaining != null && domain.removing != null) return false
-    val selectionTarget = selection.gaining ?: selection.removing ?: return false
-    val domainType = reader.resolve(domainTarget)
-    return domainType.abstract &&
-        !domainType.rootClass.declaration.custom &&
-        !reader.resolve(selectionTarget).abstract
-  }
-
-  private fun hasPositiveExecution(change: Change): Boolean {
-    val gaining = change.gaining?.let(reader::resolve)
-    val removing = change.removing?.let(reader::resolve)
-    if (listOfNotNull(gaining, removing).any { !classTable.isActive(it) }) return false
-    return when {
-      gaining != null && removing == null ->
-          if (gaining.abstract) {
-            !gaining.rootClass.declaration.custom &&
-                limiter.hasExecutableConcreteGain(gaining, minimum = 1, reader)
-          } else {
-            limiter.findLimitOrNull(gaining.toComponent(), null)?.let { it > 0 } == true
-          }
-      gaining == null && removing != null ->
-          if (removing.abstract) {
-            limiter.hasExecutableConcreteRemoval(removing, minimum = 1, reader)
-          } else {
-            limiter.findLimit(null, removing.toComponent()) > 0
-          }
-      else -> false
-    }
-  }
-
-  private companion object {
-    const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
-  }
-
-  private fun resolveTree(unresolved: InstructionTree): InstructionTree =
-      if (unresolved is InstructionGroup) unresolved else doResolve(unresolved as Instruction)
-
-  private fun doResolve(unresolved: Instruction): InstructionTree {
+  internal fun resolve(unresolved: Instruction): InstructionTree {
     return when (unresolved) {
       is NoOp -> NoOp
       is Change -> resolveChange(unresolved)
-      is By -> By.createTree(doResolve(unresolved.inner), canonicalActorExpression(unresolved))
-      is Per -> doResolve(unresolved.inner * reader.count(unresolved.metric))
+      is By -> By.createTree(resolve(unresolved.inner), canonicalActorExpression(unresolved))
+      is Per -> resolve(unresolved.inner * reader.count(unresolved.metric))
       is Gated -> {
         if (!reader.has(unresolved.gate)) throw requirementNotMet(unresolved.gate)
         resolveTree(unresolved.inner)
@@ -320,6 +214,9 @@ internal constructor(
       is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
   }
+
+  private fun resolveTree(unresolved: InstructionTree): InstructionTree =
+      if (unresolved is InstructionGroup) unresolved else resolve(unresolved as Instruction)
 
   private fun canonicalActorExpression(instruction: By): Expression {
     val type = reader.resolve(instruction.actor)
@@ -338,8 +235,10 @@ internal constructor(
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }
     if (type.className == ADMIN.className) return ADMIN
-    return Player.fromClassNameOrNull(type.className)
-        ?: throw ExpressionException("unsupported Actor: ${type.expression}")
+    if (type.rootClass.isSubtypeOf(classTable.getClass(Player.CLASS_NAME))) {
+      return Player(type.className)
+    }
+    throw ExpressionException("unsupported Actor: ${type.expression}")
   }
 
   private fun resolveChange(change: Change): InstructionTree {
@@ -384,41 +283,31 @@ internal constructor(
     }
 
     if (listOfNotNull(g, r).any { it.abstract }) {
+      // Mandatory needs the whole count from one candidate; AMAP only needs a useful target.
+      val required = if (intens == MANDATORY) count else 1
+
+      fun unavailable(reason: String): InstructionTree {
+        if (intens == MANDATORY) throw LimitsException("Can't ${describe(g, r, count)}: $reason")
+        return NoOp
+      }
+
       if (
           g?.abstract == true &&
               r == null &&
               intens != OPTIONAL &&
               !g.rootClass.declaration.custom &&
-              !limiter.hasExecutableConcreteGain(
-                  g,
-                  minimum = if (intens == MANDATORY) count else 1,
-                  reader,
-              )
+              !limiter.hasExecutableConcreteGain(g, required, reader)
       ) {
-        if (intens == MANDATORY) {
-          throw LimitsException(
-              "Can't gain $count ${g.expression}: no concrete narrowing can execute"
-          )
-        }
-        return NoOp
+        return unavailable("no concrete narrowing can execute")
       }
       if (g == null && r?.abstract == true) {
         val canRemove =
             if (intens == OPTIONAL) {
               reader.hasAnyComponents(r)
             } else {
-              limiter.hasExecutableConcreteRemoval(
-                  r,
-                  minimum = if (intens == MANDATORY) count else 1,
-                  reader,
-              )
+              limiter.hasExecutableConcreteRemoval(r, required, reader)
             }
-        if (!canRemove) {
-          if (intens == MANDATORY) {
-            throw LimitsException("Can't remove $count ${r.expression}: max possible is 0")
-          }
-          return NoOp
-        }
+        if (!canRemove) return unavailable("max possible is 0")
       }
       // Still abstract, don't check limits yet
       return Change.change(g?.expression, r?.expression, count, intens)
@@ -467,10 +356,19 @@ internal constructor(
     }
     val gaining = gainingType.toComponent()
     val translated =
-        transformDispatcher()
+        transformers
+            .transformMarkedSyntax()
             .transformInstructionTree(customClasses.translateInstruction(gaining, reader))
     return resolveTree(translated)
   }
+
+  /** Names one change the way its error messages do: `gain 3 Plant<Player1>`. */
+  private fun describe(gaining: Type?, removing: Type?, count: Int): String =
+      when {
+        gaining == null -> "remove $count ${removing!!.expression}"
+        removing == null -> "gain $count ${gaining.expression}"
+        else -> "transmute $count ${removing.expression} into ${gaining.expression}"
+      }
 
   private fun limitChange(
       gainingType: Type?,
@@ -484,17 +382,9 @@ internal constructor(
     val adjusted: Int = min(count, limit)
 
     if (intensity == MANDATORY && adjusted != count) {
-      val mesg =
-          if (gainingType != null) {
-            if (removingType == null) {
-              "gain $count ${gainingType.expression}"
-            } else {
-              "transmute $count ${removingType.expression} into ${gainingType.expression}"
-            }
-          } else {
-            "remove $count ${removingType!!.expression}"
-          }
-      throw LimitsException("Can't $mesg: max possible is $adjusted")
+      throw LimitsException(
+          "Can't ${describe(gainingType, removingType, count)}: max possible is $adjusted"
+      )
     }
 
     return Change.change(
@@ -519,7 +409,7 @@ internal constructor(
               "branch. Select an abstract type whose matching components can differ."
       )
     }
-    val ownsBody = transformers.selectionOwnsBody(each.selector)
+    val ownsBody = transformers.selectionIsOwner(each.selector)
     val named =
         each.body.descendantsOfType<Expression>().any {
           it == each.selectorName ||
@@ -539,7 +429,7 @@ internal constructor(
   }
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
-    val owner = ownerOf(selected)
+    val owner = selected.takeIf { transformers.selectionIsOwner(each.selector) }
     val representedSelection =
         each.representedSelectorName?.let {
           check(selected.className == CLASS)
@@ -559,42 +449,27 @@ internal constructor(
     return resolveTree(evaluated)
   }
 
-  /**
-   * The Owner that a selected component contributes to its branch: itself when it is one, otherwise
-   * whichever Owner it belongs to. This is what lets `EACH CityTile { ... }` act on each city's
-   * owner without naming any player.
-   */
-  private fun ownerOf(selected: Expression): Expression? {
-    val type = reader.resolve(selected)
-    if (type.rootClass.isSubtypeOf(classTable.getClass(OWNER))) return type.expression
-    return type.dependencies
-        .typeDependencies()
-        .map { it.boundType }
-        .firstOrNull { !it.abstract && it.rootClass.isSubtypeOf(classTable.getClass(OWNER)) }
-        ?.expression
-  }
-
+  /** Resolves each arm against the same world, discarding the unavailable ones. */
   private fun resolveOr(unresolved: Or): InstructionTree {
-    val options: List<Any> =
-        unresolved.instructions.map {
-          try {
-            resolveTree(it)
-          } catch (e: NotNowException) {
-            e
-          } catch (e: DeadEndException) {
-            e
-          }
-        }
-    val good = options.filterIsInstance<InstructionTree>()
-    return if (good.any()) {
-      Or.createTree(good)
-    } else if (options.any { it is DeadEndException }) {
-      throw DeadEndException("every choice reaches an inactive type: $options")
-    } else if (options.all { it is RequirementException }) {
-      throw requirementsNotMetInChoices(options.filterIsInstance<RequirementException>())
-    } else {
-      throw NotNowException("all options impossible: $options")
+    val surviving = mutableListOf<InstructionTree>()
+    val failures = mutableListOf<Exception>()
+    unresolved.instructions.forEach {
+      try {
+        surviving += resolveTree(it)
+      } catch (e: NotNowException) {
+        failures += e
+      } catch (e: DeadEndException) {
+        failures += e
+      }
     }
+    if (surviving.any()) return Or.createTree(surviving)
+
+    // No arm survived, so report the strongest applicable failure rather than becoming `Ok`.
+    val why = failures.joinToString { it.message.orEmpty() }
+    if (failures.any { it is DeadEndException }) throw DeadEndException("no choice remains: $why")
+    val unmet = failures.filterIsInstance<RequirementException>()
+    if (unmet.size == failures.size) throw requirementsNotMetInChoices(unmet)
+    throw NotNowException("all options impossible: $why")
   }
 
   // Still spending 25% of solo game time in this method
@@ -629,6 +504,8 @@ internal constructor(
     return g to r
   }
 }
+
+private const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
 
 private fun GameReader.hasAnyComponents(type: Type): Boolean =
     (this as? GameReaderImpl)?.containsAny(type) ?: getComponents(type).isNotEmpty()

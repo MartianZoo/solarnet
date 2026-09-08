@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Metric
@@ -513,7 +514,7 @@ internal object StandardResourceMonotonicityReport {
       table: ClassTable,
   ): Boolean {
     if (expression.className == CLASS) {
-      val refinement = expression.refinement ?: return false
+      val refinement = expression.refinement as? Has ?: return false
       return refinement.requirement.descendantsOfType<Requirement.Counting>().any {
         metricCouldCountAsResource(
             it.metric,

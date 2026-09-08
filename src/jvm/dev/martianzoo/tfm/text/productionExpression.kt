@@ -45,19 +45,14 @@ private fun parseContextualProductionExpression(
     expression: Expression,
     describers: Describers,
 ): ProductionExpression? {
-  if (
-      !describers.isProduction(expression.className) ||
-          expression.refinement != null ||
-          expression.complement
-  ) {
+  if (!describers.isProduction(expression.className) || expression.refinement != null) {
     return null
   }
   val resourceDependency = expression.arguments.lastOrNull() ?: return null
   if (
       resourceDependency.className != CLASS ||
           resourceDependency.arguments.size != 1 ||
-          resourceDependency.refinement != null ||
-          resourceDependency.complement
+          resourceDependency.refinement != null
   ) {
     return null
   }
@@ -72,7 +67,12 @@ internal fun selectedProductionResource(
     expression: Expression,
     describers: Describers,
 ): Expression? {
-  if (!describers.isProduction(expression.className) || expression.complement) return null
+  if (
+      !describers.isProduction(expression.className) ||
+          expression.refinement is Expression.Refinement.Not
+  ) {
+    return null
+  }
   val resolved = describers.resolveExpression(expression) ?: return null
   val resourceKey = Key(PRODUCTION, 0)
   if (resolved.sourceDependencies.keys != setOf(resourceKey)) return null

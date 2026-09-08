@@ -1,9 +1,9 @@
 count	reason	examples
-19	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | LandClaim: LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>
-10	UNSUPPORTED_EFFECT_TRIGGER	Vitor: CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC | Vitor: This IF Class<Award>: Vitor_RequiredAction
+21	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | LandClaim: Community<LandArea(HAS MAX 0 Occupant)>
+11	UNSUPPORTED_EFFECT_TRIGGER	Vitor: CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC | Vitor: This IF Class<Award>: Vitor_RequiredAction
 7	UNSUPPORTED_GATE	MiningRights: LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Steel>>): Production<Class<Steel>> | MiningRights: LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Titanium>>): Production<Class<Titanium>>
 5	UNSUPPORTED_SCALING	CloudTourism: Production<Class<MC>> / EarthTag MAX VenusTag | SoilStudies: Plant / (VenusTag OR PlantTag OR Colony)
-3	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | Recession: EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., -Production<Class<MC>> }
+4	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | Recession: EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., -Production<Class<MC>> }
 2	UNSUPPORTED_ACTION_COST	CeresTechMarket: X ProjectCard -> 2X MC | VenusShuttles: MC / 12 - VenusTag -> VenusStep
 2	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
 2	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	FocusedOrganization: -StandardResource | PharmacyUnion: -4 MC.
@@ -12,7 +12,7 @@ count	reason	examples
 1	UNSUPPORTED_CARD_RESOURCE_CHANGE	BoardOfDirectors: -Director<This>
 1	UNSUPPORTED_CHANGE_QUANTITY	FloatingTradeHub: X StandardResource
 1	UNSUPPORTED_DECLARED_CHANGE	CyberiaSystems: CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)>
-1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH CityTile<Player> { -VictoryPoint }
+1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }
 1	UNSUPPORTED_METRIC	Capital: Adjacency<CityTile(HAS CapitalMarker), OceanTile>
 1	UNSUPPORTED_SEQUENCE	SponsoredAcademies: -ProjectCard THEN (2 ProjectCard, EACH Player { ProjectCard })
 1	UNSUPPORTED_TRACK_CHANGE	PharmacyUnion: TerraformRating FROM Disease<This>!

@@ -51,7 +51,7 @@ internal fun renderCountedRelation(
     expression: Expression,
     describers: Describers,
 ): CountedRelation? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val relation =
       describers.fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
   if (!relation.countedPair) return null
@@ -67,7 +67,7 @@ private fun renderParticipant(
     expression: Expression,
     describers: Describers,
 ): CountedRelation.Participant? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val placement = describers.positionedFrame(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)

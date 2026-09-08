@@ -27,7 +27,7 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
         is OnRemoveOf -> trigger.expression
         else -> return null
       }
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   if (!expressions.isBilling(expression.className)) return null
   val resolved = resolveExpression(expression) ?: return null
   val providerType = resolved.dependency(PROVIDER) ?: return null

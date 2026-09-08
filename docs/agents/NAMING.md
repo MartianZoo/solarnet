@@ -5,7 +5,7 @@
 > vouch for the information here.
 
 > **Read when:** naming or renaming a Class, resolving a printed-name collision, adding a Module,
-> changing player aliases, editing a `language/*.json5` file, or deciding whether a concept needs a
+> changing Player Class Names, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.
 >
 > **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
@@ -22,7 +22,7 @@
 - [`Vocabulary.kt`](../../src/common/dev/martianzoo/pets/Vocabulary.kt) — read when changing display
   lookup, aliases, or inheritance; `defaultEnglishDisplayName` defines the display default.
 - [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) — search for
-  `playerNames` only when changing configured Player display names.
+  `playerNames` when changing configured Player identities.
 - [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module,
   for the bundle-name coincidence rule.
 - Bundle `language/en.json5` files under
@@ -41,10 +41,11 @@ Structured content uses globally unique semantic English names such as `Birds`, 
 award, colony, or standard-action identifier. Replacement relationships name the replaced Class
 directly.
 
-Two bundles may declare the same Class Name when the declarations are byte-identical, as
-`HasRaisedTr` and `TrWatcher` do in `TerraformingMars` and `TurmoilCardPack`. This is deliberate:
-each bundle stands alone, and identical declarations merge. Differing declarations under one name
-are an error.
+Two bundles may declare the same Class Name when the declarations are byte-identical; identical
+declarations merge, while differing declarations under one name are an error. Canon does not
+duplicate shared support declarations into an optional bundle when that bundle already requires
+the always-selected `TerraformingMars`: Turmoil's Pristar reuses the base game's `HasRaisedTr` and
+`TrWatcher` support.
 
 ## Choosing a name
 
@@ -188,7 +189,7 @@ looking it up.
   (`SuitableInfrastructurePaid`, `ActionUsedMarker`) and the `My` prefix when it does: `My` marks
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
-- **Markers** name real physical components players handle: `ActionUsedMarker`, `LandClaimMarker`,
+- **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
   `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
   `StartMarker` reads wrong.
 - **Card locations** use noun phrases for places (`Hand`) and participles for

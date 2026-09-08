@@ -58,12 +58,7 @@ private fun Describers.renderScoringCondition(requirement: Requirement): String?
   val metric = minimum.metric as? Metric.Count ?: return null
   val expression = metric.expression
   val resolved = resolveCardResource(expression) ?: return null
-  if (
-      !cardResourceHasHolder(resolved, thisExpression) ||
-          expression.refinement != null ||
-          expression.complement
-  )
-      return null
+  if (!cardResourceHasHolder(resolved, thisExpression) || expression.refinement != null) return null
   val noun = cardResourceNoun(expression.className, maxOf(2, minimum.target)) ?: return null
   return "if you have ${minimum.target} or more $noun on this card"
 }

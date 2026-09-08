@@ -68,14 +68,15 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
 
 internal fun Describers.cardSelector(expression: Expression): NounPhrase? {
   if (
-      expression.complement ||
+      expression.refinement is Expression.Refinement.Not ||
           triggerFrame(expression.className) !is ComponentDescriber.TriggerFrame.PlayCard
   ) {
     return null
   }
   val resolved = resolveExpression(expression) ?: return null
   if (resolved.sourceDependencies.isNotEmpty()) return null
-  val refinement = expression.refinement?.takeIf { !it.forgiving } ?: return null
+  val refinement =
+      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
   val criterion = cardCriterion(refinement.requirement) ?: return null
   return NounPhrase(
       matchingCardNoun(criterion, singular = true, this),
@@ -103,9 +104,9 @@ internal fun matchingCardNoun(
     }
 
 private fun representedClassName(expression: Expression): ClassName? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val wrapper = expression.arguments.singleOrNull() ?: return null
-  if (wrapper.className != CLASS || wrapper.refinement != null || wrapper.complement) return null
+  if (wrapper.className != CLASS || wrapper.refinement != null) return null
   return wrapper.arguments.singleOrNull()?.takeIf { it.simple }?.className
 }
 

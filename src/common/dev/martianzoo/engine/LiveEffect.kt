@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.bindXTo
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
@@ -11,7 +10,6 @@ import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.api.SystemClasses.OWNER
-import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -185,7 +183,6 @@ private constructor(
                   effect,
                   ownerBinding,
                   thisBinding,
-                  transformers.insertDeferredComplementDefaults(component.expression),
               )
           val bound = checkedBinding.transformEffect(effect)
           try {
@@ -204,7 +201,6 @@ private constructor(
               chain(
                   ownerBinding,
                   thisBinding,
-                  transformers.insertDeferredComplementDefaults(component.expression),
               )
           val contextualScope = effect.typeVariables.transformedBy(contextualizer)
           val variableBinding =
@@ -442,8 +438,8 @@ private constructor(
         val actor = currentEvent.actor
         val actorType = reader.resolve(actor.expression)
 
-        // An explicit Actor declaration is bound before the inner trigger is matched. Derived
-        // uses such as `!Player` retain their operator while receiving the concrete Actor value.
+        // An explicit Actor declaration is bound before the inner trigger is matched. A use inside
+        // a NOT refinement therefore receives the concrete Actor before that difference is tested.
         if (actorVariable != null) {
           val actorDomain = reader.resolve(ACTOR.expression)
           if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
@@ -471,53 +467,20 @@ private constructor(
             ) ?: return null
 
         // BY describes the Actor that performed the triggering change, recorded on the event.
-        fun specializeSelector(): Expression {
-          if (!selector.complement) return hit.specialize(selector)
-
-          var excluded = hit.specialize(selector.copy(complement = false))
-          if (contextualOwner != null) {
-            excluded = replaceOwnerWith(contextualOwner).transformExpression(excluded)
-          }
-          return excluded.copy(complement = true)
-        }
-
-        var specializedSelector = specializeSelector()
+        var specializedSelector = hit.specialize(selector)
 
         // On an unowned effect, an otherwise-unbound positive Owner means the performing Player.
         // Apply that established contextual rule before evaluating the selector as an Actor type.
         if (specializedSelector == OWNER.expression) {
           val owner = actor as? Player ?: return null
           hit = hit.then(reader.transformers.bindContextualOwner(owner))
-          specializedSelector = specializeSelector()
+          specializedSelector = hit.specialize(selector)
         }
         val by = specializedSelector.className
 
         // Anyone is the icon-grammar spelling for an unrestricted trigger; unlike the other
         // selectors, its class hierarchy is about ownership rather than the Actor domain.
-        if (by == ANYONE && !specializedSelector.complement) return hit
-
-        if (specializedSelector.complement) {
-          val excludedType = reader.resolve(specializedSelector.copy(complement = false))
-          val actorClass = reader.resolve(ACTOR.expression).rootClass
-          val abstractActorSupertypes =
-              excludedType.rootClass.allSuperclasses().filter {
-                it.abstract && it.isSubtypeOf(actorClass)
-              }
-          val selectorDomain =
-              abstractActorSupertypes.singleOrNull { candidate ->
-                abstractActorSupertypes.none { it != candidate && it.isSubtypeOf(candidate) }
-              }
-                  ?: run {
-                    // A passive Owner such as SoloOpponent is not an Actor. Its opposing Actors
-                    // are Players, not Admin.
-                    val ownerClass = reader.resolve(OWNER.expression).rootClass
-                    if (!excludedType.rootClass.isSubtypeOf(ownerClass)) return null
-                    reader.resolve(PLAYER.expression).rootClass
-                  }
-          if (!actorType.narrows(selectorDomain.defaultType, reader)) return null
-          if (actorType.narrows(excludedType, reader)) return null
-          return hit
-        }
+        if (by == ANYONE && specializedSelector.refinement == null) return hit
 
         val actorDomain = reader.resolve(ACTOR.expression)
         if (!reader.matchesConstraint(actorType, specializedSelector, actorDomain)) return null

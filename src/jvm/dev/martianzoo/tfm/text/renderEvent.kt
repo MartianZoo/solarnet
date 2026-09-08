@@ -33,7 +33,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
     }
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
-  if (expression.complement) return null
+  if (expression.refinement is Expression.Refinement.Not) return null
   unrestrictedPlayedTagEvent(expression)?.let {
     return it
   }
@@ -154,7 +154,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
 }
 
 private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   val holderKey = Key(ClassName.cn("Tag"), 0)
@@ -177,7 +177,6 @@ private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event
   if (
       !resolvedHolder.hasOnlySourceDependency(ownerKey, anyoneExpression) ||
           holder.refinement != null ||
-          holder.complement ||
           fact(holder.className, ComponentDescriber::cardResourceHolder) == null
   ) {
     return null
@@ -194,7 +193,7 @@ private fun Describers.relationshipEvent(
     expression: Expression,
     actorConstraint: Event.ActorConstraint,
 ): Event? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val relation = fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
   val noun = relation.eventNoun ?: return null
   val resolved = resolveExpression(expression) ?: return null
@@ -214,7 +213,7 @@ private fun Describers.relationshipEvent(
 }
 
 private fun Describers.relationshipParticipant(expression: Expression): NounPhrase? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val placement = positionedFrame(expression.className) ?: return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
@@ -222,7 +221,8 @@ private fun Describers.relationshipParticipant(expression: Expression): NounPhra
     resolved.sourceDependencies.isEmpty() ->
         NounPhrase(placement.singular, determiner = Determiner.INDEFINITE)
     resolved.hasOnlySourceDependency(ownerKey, ownerExpression) -> oneOfYour(placement.plural)
-    resolved.hasOnlySourceDependency(ownerKey, notOwnerExpression) ->
+    resolved.sourceDependencies.size == 1 &&
+        resolved.sourceDependency(ownerKey)?.let(::isNotOwner) == true ->
         NounPhrase(placement.singular, determiner = Determiner.OPPONENT_POSSESSIVE)
     else -> null
   }
@@ -230,10 +230,10 @@ private fun Describers.relationshipParticipant(expression: Expression): NounPhra
 
 internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
   val resolved = resolveExpression(expression) ?: return null
-  if (resolved.sourceDependencies.isNotEmpty() || expression.complement) return null
+  if (resolved.sourceDependencies.isNotEmpty()) return null
   val use = fact(expression.className, ComponentDescriber::actionUse) ?: return null
   val objectPhrase = NounPhrase.text(use.objectPhrase)
-  val refinement = expression.refinement ?: return objectPhrase
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return objectPhrase
   if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   val requiredComponent = (minimum.metric as? Metric.Count)?.expression
@@ -323,7 +323,8 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
       }
   val cardPhrase = NounPhrase(card, determiner = determiner)
   val objectPhrase =
-      expression.refinement?.let { refinement ->
+      expression.refinement?.let {
+        val refinement = it as? Expression.Refinement.Has ?: return null
         if (refinement.forgiving) return null
         val counting = refinement.requirement as? Requirement.Counting ?: return null
         when (val metric = counting.metric) {
@@ -331,7 +332,6 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
             val tagExpression = countedExpression(counting) ?: return null
             if (
                 tagExpression.refinement != null ||
-                    tagExpression.complement ||
                     resolveExpression(tagExpression)?.let { tag ->
                       tag.sourceDependencies.isNotEmpty() &&
                           !tag.hasOnlySourceDependency(ownerKey, anyoneExpression)
@@ -410,7 +410,7 @@ private fun Describers.placementEvent(
     expression: Expression,
     actorConstraint: Event.ActorConstraint,
 ): Event? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val resolvedPlacement = resolvePlacementExpression(expression, this) ?: return null
   if (resolvedPlacement.unknownDependencies.isNotEmpty()) return null
   if (actorConstraint == Event.ActorConstraint.YOU && resolvedPlacement.owner != null) return null

@@ -29,7 +29,7 @@
 
 The core engine has no `Agent`, permissions policy, or autoexecution concept. It offers a few
 distinct mutation methods, validates each call against one live World, and returns its atomic
-result. A task retains one assignee in the global unordered task pool. Ordinary task calls name the
+result. A task retains one assignee in the global unordered task queue. Ordinary task calls name the
 acting Actor, and the engine rejects action by anyone other than the task's current assignee. That
 is game semantics, not caller permission.
 
@@ -68,6 +68,8 @@ must not evaluate AMAP, a gate, a Metric, current viability, or any other mutabl
 Selection establishes the promise to act next and the select-lock before those facts are resolved.
 The current `Agent.narrowTask(taskId, narrowing)` implements this check; the selected-task overload
 retains state-aware resolution and immediate execution when the result becomes concrete.
+Consequently, a task whose target has a live refinement cannot be narrowed to one concrete target
+before selection, even when that target happens to satisfy the refinement in the current World.
 
 Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
 is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that
@@ -147,7 +149,7 @@ single-task removal. The extraction should preserve behavior while successively:
 
 1. reduce core entry to the audited direct mutation families;
 2. create `:agent` above `:engine`, with one stable Agent per Actor and an Actor-scoped reader;
-3. replace public many-queue language with one Game World task pool plus Agent-filtered views;
+3. replace public many-queue language with one Game World task queue plus Agent-filtered views;
 4. move parsing, policy ownership, and the shared autoexecution loop into `:agent`; and
 5. migrate normal clients to Agent while keeping direct engine cheats and test helpers explicit.
 

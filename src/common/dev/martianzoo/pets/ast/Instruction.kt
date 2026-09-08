@@ -353,9 +353,6 @@ public sealed class Instruction : InstructionTree() {
    */
   public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
     init {
-      if (selector.complement) {
-        throw PetSyntaxException("EACH selector can't be a complement: $selector")
-      }
       if (body == NoOp) throw PetSyntaxException("EACH needs a body")
       // Nesting would make `Owner` and each selector name ambiguous between two fanouts, and no
       // rule needs it. Banning it keeps one selection in scope at a time.
@@ -486,7 +483,7 @@ public sealed class Instruction : InstructionTree() {
                     ?.transformExpression(declaration)
                     ?.takeIf { it != declaration }
         binding?.let {
-          val captured = variable.bound.classTable.resolve(binding.uncomplemented())
+          val captured = variable.bound.classTable.resolve(binding)
           val transformed =
               variables.bind(mapOf(variable to captured)).transformInstruction(specialized)
           specialized =
@@ -546,7 +543,7 @@ public sealed class Instruction : InstructionTree() {
                     variables
                         .bindings(selectableFirst, proposed, variable)
                         .filter { it != declaration && narrowsExpression(it, declaration, info) }
-                        .map { variable.bound.classTable.resolve(it.uncomplemented()) }
+                        .map { variable.bound.classTable.resolve(it) }
                         .distinct()
                 val bindings = positionalBindings.ifEmpty {
                   variables.bindingsIn(proposed, variable, info)

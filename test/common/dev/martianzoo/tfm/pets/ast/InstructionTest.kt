@@ -44,13 +44,15 @@ internal class InstructionTest {
     val refined = parse<Instruction>("EACH ResourceCard(HAS CardResource) { CardResource }")
     (refined as Instruction.Each).selectorName shouldBe parse("ResourceCard")
 
+    val difference = parse<Instruction>("EACH Player(NOT Player1) { Plant<Player> }")
+    (difference as Instruction.Each).selectorName shouldBe parse("Player")
+
     val classes = parse<Instruction>("EACH Class<Area> { Area }") as Instruction.Each
     classes.representedSelectorName shouldBe parse("Area")
   }
 
   @Test
   internal fun fanoutRejectsMeaninglessForms() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("EACH !Player { Plant }") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("EACH Player { Ok }") }
   }
 
@@ -117,12 +119,12 @@ internal class InstructionTest {
       5 Foo BY Wau
       Foo<Eep<Qux>>
       5 MC, 2 Qux / Bar
-      5 !Bar FROM Ahh
-      Abc(HAS 5 !Bar)?
+      5 Foo(NOT Bar) FROM Ahh
+      Abc(HAS 5 Foo(NOT Bar))?
       2 Bar THEN MC: Xyz
       Bar / PROD[Foo], MC
-      !Abc<Foo<Bar<Foo>>>
-      Ok BY Eep<!Qux<Qux>>
+      Foo(NOT Abc<Foo<Bar<Foo>>>)
+      Ok BY Eep<Foo(NOT Qux<Qux>)>
       -MC / 2 Foo MAX 5, Bar
       Foo / Bar MAX 5 - Qux
       -11X MC?, PROD[Bar] OR Ok
@@ -136,9 +138,9 @@ internal class InstructionTest {
       Ahh<Abc> THEN Qux, PROD[-Qux]
       Foo, Foo(HAS 2 Bar) / Bar<Foo>
       2 Abc(HAS MC) FROM Foo, 5 MC, 5 Bar
-      X !Qux<Foo, Ooh<Bar>>(HAS 5 Qux)
+      X Bar(NOT Qux<Foo, Ooh<Bar>>)
       X Wau FROM Bar, Foo / PROD[3 Qux]
-      !Bar, 5 MC BY Abc<Xyz<Bar<Bar<Qux>>>>
+      Foo(NOT Bar), 5 MC BY Abc<Xyz<Bar<Bar<Qux>>>>
       Foo(HAS Abc)!, Xyz OR 2 Abc<Ooh>, MC
       11X Wau<Ahh>(HAS MC OR Abc) FROM Abc.
       2X Qux / 2 Abc OR (-2 Ahh<Foo>., Qux)
@@ -157,14 +159,14 @@ internal class InstructionTest {
       2 Ahh, MAX 0 MC: Qux?, Abc?, Qux<Bar, Qux>
       MC?, -Bar<Qux> / PROD[Bar], Foo<Ooh<Foo, Bar, Bar>>!
       X MC? OR Foo<Qux>. / Xyz<Bar> OR -X Foo<Abc<Foo, Foo>>.
-      (Foo OR Ahh<Qux>): (Ok BY !Bar) BY Eep<Foo<Abc<Qux>>>
+      (Foo OR Ahh<Qux>): (Ok BY Foo(NOT Bar)) BY Eep<Foo<Abc<Qux>>>
       -5 Foo OR (Eep OR Foo), Bar BY Foo, MC, -Qux<Qux> / Bar
       2 Qux!, Foo FROM Foo, X Bar<Qux<Foo>>. BY Wau<Xyz, Ahh>
       Wau<Foo> FROM Foo!, (MC: 2 MC) OR (MC, 2 MC / Foo) OR -Qux / Foo
       MC / PROD[PROD[Bar]], 5X Ahh FROM Bar<Foo, Foo<Bar, Foo>>!
       ((Foo OR =1 MC) OR MAX 2 Ooh): (MC, Bar.) OR X Bar.
       Qux / 2 Abc<Bar>, MC OR (Foo, Qux, MC), -Foo, 2 Bar FROM Wau?
-      -X Wau<Ahh<Ahh>, !Foo<Abc>>, PROD[-MC OR (Foo FROM Qux<Abc>)]
+      -X Wau<Ahh<Ahh>, Bar(NOT Foo<Abc>)>, PROD[-MC OR (Foo FROM Qux<Abc>)]
       """
           .trimIndent()
 

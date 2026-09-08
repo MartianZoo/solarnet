@@ -228,14 +228,13 @@ Dependency choices—remain open.
 
 1. `replaceOwnerWith`
 2. `replaceThisExpressionsWith`
-3. `insertDeferredComplementDefaults`
-4. binding of the Class-header variables actually used by the Effect
-5. `invalidChangesToDie`
+3. binding of the Class-header variables actually used by the Effect
+4. `invalidChangesToDie`
 
 The Effect's Types are checked after this chain; that check is not a PetTransformer. On Recyclon,
 step 1 replaces contextual `Owner` with `Player1`, step 2 replaces `This` with the exact Recyclon
-Type, and step 4 captures the component values for any used Class variables. There is no deferred
-complement or invalid branch, so steps 3 and 5 make no visible change.
+Type, and step 3 captures the component values for any used Class variables. There is no invalid
+branch, so step 4 makes no visible change.
 
 Suppose Player1's Recyclon has the full Type:
 

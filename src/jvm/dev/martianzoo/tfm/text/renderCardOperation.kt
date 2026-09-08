@@ -163,7 +163,6 @@ private fun Gain.selectedCardFamily(describers: Describers): ClassName? {
   if (
       intensity.modality() != Modality.REQUIRED ||
           gaining.refinement != null ||
-          gaining.complement ||
           gaining.arguments.singleOrNull()?.className != SELECTING ||
           describers.changeFrame(gaining.className) != ComponentDescriber.ChangeFrame.Deck
   ) {
@@ -182,10 +181,7 @@ private fun Transmute.movesCards(
         removing.isCardAt(family, from)
 
 private fun Expression.isCardAt(family: ClassName, area: ClassName): Boolean =
-    className == family &&
-        refinement == null &&
-        !complement &&
-        arguments.singleOrNull()?.className == area
+    className == family && refinement == null && arguments.singleOrNull()?.className == area
 
 private fun countedCards(
     family: ClassName,

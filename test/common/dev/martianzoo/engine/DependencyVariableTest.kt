@@ -60,15 +60,18 @@ internal class DependencyVariableTest {
   }
 
   @Test
-  internal fun `shared complements are narrowed before exclusion`() {
-    table.resolve(te("Linked<Player1, !Card<Player2>>")) shouldBe
+  internal fun `shared variables are narrowed before a difference is tested`() {
+    (table.resolve(te("Card<Player1>")) glb table.resolve(te("Card<Player2>"))) shouldBe null
+    (table.resolve(te("Card<Player1>")) glb table.resolve(te("Card(NOT Card<Player2>)"))) shouldBe
+        table.resolve(te("Card<Player1>"))
+    table.resolve(te("Linked<Player1, Card(NOT Card<Player2>)>")) shouldBe
         table.resolve(te("Linked<Player1>"))
-    table.resolve(te("Linked<Player1, !Card>")).abstract shouldBe true
+    table.resolve(te("Linked<Player1, Owned(NOT Card)>")).abstract shouldBe true
   }
 
   @Test
-  internal fun `a complement constrains every variable occurrence`() {
-    val notPlayer1 = table.resolve(te("Linked<!Player1>"))
+  internal fun `a difference constrains every variable occurrence`() {
+    val notPlayer1 = table.resolve(te("Linked<Owner(NOT Player1)>"))
 
     table.resolve(te("Linked<Player2>")).isSubtypeOf(notPlayer1) shouldBe true
     table.resolve(te("Linked<Player1>")).isSubtypeOf(notPlayer1) shouldBe false

@@ -46,11 +46,11 @@ The `:gameworld` module owns that data model. A Game World contains:
 
 - immutable premise-derived context, including its Class Table, Actors, and Vocabulary;
 - the `ComponentGraph`, which materializes the components present at the current position;
-- one unordered pool of exact pending `Task` values;
+- one unordered queue of exact pending `Task` values;
 - the complete `GameEvent` log; and
 - the approved recording positions at which that world may be presented.
 
-The component graph is the present, the pending-task pool is the unresolved future, and the event
+The component graph is the present, the task queue is the unresolved future, and the event
 log is the past. They are three views of one game lifetime and must advance or reverse together.
 The current component and task projections are materialized from an event-log prefix; they may
 never disagree with that prefix.
@@ -107,7 +107,7 @@ outer mutation has reached a coherent presentable position. Game World stores th
 approved position but does not decide when the engine is finished.
 
 A recording is immutable exported history. Opening it creates an independent Game World view with
-its own component graph, task pool, and cursor. Seeking changes only that derived view. It cannot
+its own component graph, task queue, and cursor. Seeking changes only that derived view. It cannot
 alter the engine-owned world that produced the recording, the immutable recording, or another
 view opened from the same recording.
 

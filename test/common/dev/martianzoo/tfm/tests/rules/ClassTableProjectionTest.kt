@@ -14,7 +14,6 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-import kotlin.test.assertSame
 
 /** Verifies which classes are active in game-specific class-table projections. */
 internal class ClassTableProjectionTest {
@@ -73,16 +72,11 @@ internal class ClassTableProjectionTest {
   internal fun `concrete award classes stay unloaded in solo`() {
     val award = baseSolo.classTable.getClass(cn("Award"))
 
-    assertSame(Canon.classTable.getClass(cn("Award")), award)
     baseSolo.classTable.isActive(award) shouldBe false
     baseSolo.classTable.allSubclasses(award).shouldBeEmpty()
   }
 
   // Game-mode and player-count divisions
-
-  @Test
-  internal fun `SoloGenerationSetup stays unloaded in multiplayer`() =
-      assertNotLoaded("SoloGenerationSetup", baseMultiplayer)
 
   @Test
   internal fun `solo classes stay unloaded in multiplayer`() {

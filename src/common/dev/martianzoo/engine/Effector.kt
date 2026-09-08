@@ -52,10 +52,10 @@ internal class Effector(
     val pending = selfEffects + otherEffects
     return when {
       automatic != true -> pending
-      randomAutomaticEffectOrderEnabled -> pending.shuffled()
-      else ->
-          selfEffects.sortedWith(stableAutomaticOrder) +
-              otherEffects.sortedWith(stableAutomaticOrder)
+      // A component's own effects retain their authored order. Only independent listeners are
+      // siblings for diagnostic randomization and stable display ordering.
+      randomAutomaticEffectOrderEnabled -> selfEffects + otherEffects.shuffled()
+      else -> selfEffects + otherEffects.sortedWith(stableAutomaticOrder)
     }
   }
 

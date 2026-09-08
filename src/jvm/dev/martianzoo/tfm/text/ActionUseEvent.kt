@@ -14,7 +14,7 @@ internal data class ActionUseEvent(
 
 internal fun Describers.actionUseEvent(trigger: Trigger): ActionUseEvent? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   if (triggerFrame(expression.className) != ComponentDescriber.TriggerFrame.UseAction) return null
   val resolved = resolveExpression(expression, PROVIDER) ?: return null
   val provider = resolved.sourceDependency(PROVIDER) ?: return null

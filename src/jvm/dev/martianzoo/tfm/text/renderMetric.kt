@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
@@ -177,11 +176,7 @@ private fun Describers.renderCountMetric(
     return MetricRendering(phrase)
   }
   val resolved = resolveCardResource(expression) ?: return null
-  if (
-      !cardResourceHasHolder(resolved, thisExpression) ||
-          expression.refinement != null ||
-          expression.complement
-  ) {
+  if (!cardResourceHasHolder(resolved, thisExpression) || expression.refinement != null) {
     return null
   }
   val noun = cardResourceNounPhrase(expression.className, agreementCount) ?: return null
@@ -193,7 +188,8 @@ private fun Describers.renderFilteredPlacementCount(
     count: Int?,
     possessorEstablished: Boolean,
 ): NounPhrase? {
-  val refinement = expression.refinement?.takeIf { !it.forgiving } ?: return null
+  val refinement =
+      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
   val noun =
       placementCountPhrase(expression.copy(refinement = null), count, possessorEstablished)
           ?: return null
@@ -206,7 +202,8 @@ private fun Describers.renderFilteredComponentCount(
     count: Int?,
     possessorEstablished: Boolean,
 ): NounPhrase? {
-  val refinement = expression.refinement?.takeIf { !it.forgiving } ?: return null
+  val refinement =
+      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
   val noun =
       renderComponentCount(expression.copy(refinement = null), count, possessorEstablished)
           ?: return null
@@ -270,7 +267,7 @@ private fun Describers.renderUnrestrictedOwnedComponent(
     expression: Expression,
     count: Int?,
 ): NounPhrase? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   if (changeFrame(expression.className) != null) return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
@@ -283,12 +280,15 @@ internal fun distinctOwnedKinds(
     expression: Expression,
     describers: Describers,
 ): ComponentDescriber.Noun.Counted? {
-  if (expression.className != CLASS || expression.complement) return null
+  if (expression.className != CLASS || expression.refinement is Expression.Refinement.Not) {
+    return null
+  }
   val classKey = Key(CLASS, 0)
   val resolvedClass = describers.resolveExpression(expression) ?: return null
   val kind = resolvedClass.sourceDependency(classKey) ?: return null
   if (!resolvedClass.hasOnlySourceDependency(classKey, kind) || !kind.simple) return null
-  val refinement = expression.refinement?.takeIf { !it.forgiving } ?: return null
+  val refinement =
+      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   if (minimum.target != 1) return null
   val member = (minimum.metric as? Metric.Count)?.expression ?: return null
@@ -297,8 +297,7 @@ internal fun distinctOwnedKinds(
   if (
       member.className != kind.className ||
           !resolvedMember.hasOnlySourceDependency(ownerKey, describers.ownerExpression) ||
-          member.refinement != null ||
-          member.complement
+          member.refinement != null
   ) {
     return null
   }
@@ -310,7 +309,7 @@ private fun Describers.renderComponentCount(
     count: Int?,
     possessorEstablished: Boolean,
 ): NounPhrase? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   if (
       !possessorEstablished &&
           triggerFrame(expression.className) is ComponentDescriber.TriggerFrame.PlayCard
@@ -335,9 +334,9 @@ private fun Describers.renderZeroMaximumFilter(
     count: Int?,
 ): NounPhrase? {
   val resolved = resolveExpression(expression) ?: return null
-  if (resolved.sourceDependencies.isNotEmpty() || expression.complement) return null
+  if (resolved.sourceDependencies.isNotEmpty()) return null
   val outer = fact(expression.className, ComponentDescriber::countNoun) ?: return null
-  val refinement = expression.refinement ?: return null
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
   if (refinement.forgiving) return null
   val maximum = refinement.requirement as? Requirement.Max ?: return null
   if (maximum.target != 0) return null
@@ -364,7 +363,7 @@ private fun renderTagMetric(
     possessorEstablished: Boolean,
     describers: Describers,
 ): NounPhrase? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val singular = describers.playedTagPhrase(expression.className)?.noun() ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
@@ -373,7 +372,8 @@ private fun renderTagMetric(
         resolved.sourceDependencies.isEmpty() -> "you have"
         resolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) ->
             "among all players"
-        resolved.hasOnlySourceDependency(ownerKey, describers.notOwnerExpression) ->
+        resolved.sourceDependencies.size == 1 &&
+            resolved.sourceDependency(ownerKey)?.let(describers::isNotOwner) == true ->
             "your opponents have"
         else -> return null
       }
@@ -386,13 +386,19 @@ private fun Describers.placementCountPhrase(
     count: Int?,
     possessorEstablished: Boolean,
 ): NounPhrase? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val placement = positionedFrame(expression.className) ?: return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
-  val siteKey = Key(TILE, 0)
   val ownerType = resolved.dependency(ownerKey) ?: return null
-  val site = resolved.selectedDependency(siteKey)
+  val site =
+      resolved.type.rootClass.dependencies.keys
+          .mapNotNull { key ->
+            resolved.selectedDependency(key)?.takeIf {
+              placementSite(it.rootClass.className) != null
+            }
+          }
+          .singleOrNull()
   val explicitlyUnrestricted = resolved.sourceDependency(ownerKey) == anyoneExpression
   val ownedByYou =
       !explicitlyUnrestricted &&
@@ -437,7 +443,7 @@ private fun Describers.placementCountPhrase(
 }
 
 private fun Describers.renderPlacementLocation(expression: Expression): Modifier? {
-  if (expression.complement) return null
+  if (expression.refinement is Expression.Refinement.Not) return null
   if (expression.simple) {
     fact(expression.className, ComponentDescriber::metricLocation)?.let {
       return Modifier.Phrase(it)
@@ -451,7 +457,8 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
         ComponentDescriber.Noun.ClassName ->
             NounPhrase.plural(componentNoun(expression.className, 2))
       }
-  val refinement = expression.refinement ?: return Modifier.Relation("on", noun)
+  val refinement =
+      expression.refinement as? Expression.Refinement.Has ?: return Modifier.Relation("on", noun)
   if (refinement.forgiving) return null
   val modifier = renderSpatialFilter(refinement.requirement) ?: return null
   return Modifier.Relation("on", noun.withModifier(modifier))
@@ -493,7 +500,7 @@ private fun Describers.renderSpatialFilter(requirement: Requirement): Modifier? 
 }
 
 private fun Describers.spatialTarget(expression: Expression, count: Int): NounPhrase? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   positionedFrame(expression.className)?.let { placement ->
     val resolved = resolveExpression(expression) ?: return null
     val ownerKey = Key(OWNED, 0)
@@ -515,7 +522,7 @@ private fun Describers.renderDeckLocationMetric(
     expression: Expression,
     count: Int?,
 ): NounPhrase? {
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   if (changeFrame(expression.className) != ComponentDescriber.ChangeFrame.Deck) return null
   val resolved = resolveExpression(expression) ?: return null
   val location =
@@ -528,5 +535,3 @@ private fun Describers.renderDeckLocationMetric(
       .copy(count = count)
       .withModifier(Modifier.Phrase(location.single()))
 }
-
-private val TILE = cn("Tile")

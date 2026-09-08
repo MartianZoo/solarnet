@@ -73,8 +73,11 @@ public data class ClassDeclaration(
   public val custom: Boolean = CUSTOM.expression in supertypes
 
   init {
-    fun hasRefinement(it: Expression) = it.descendantsOfType<Requirement>().any()
-    require(supertypes.none(::hasRefinement)) { supertypes }
+    fun hasRefinement(expression: Expression): Boolean =
+        expression.refinement != null || expression.arguments.any(::hasRefinement)
+    require((dependencies + supertypes).none(::hasRefinement)) {
+      "Class signatures cannot contain refined Types"
+    }
 
     if (custom) {
       require(invariants.none())

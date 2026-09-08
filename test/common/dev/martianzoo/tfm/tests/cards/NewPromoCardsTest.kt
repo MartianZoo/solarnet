@@ -199,6 +199,19 @@ internal class NewPromoCardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Kaguya Tech can replace a Protected Valley greenery with its city`() {
+    newGame(PromoCardPack)
+    admin.phase("Action")
+    p1.manual("33 MC, 2 ProjectCard")
+    p1.playProject(ProtectedValley, 23) { placeTile(1, 2) }
+
+    p1.playProject(KaguyaTech, 10) {
+          doTask("CityTile<Tharsis_1_2> FROM GreeneryTile<Tharsis_1_2>")
+        }
+        .expect("-GreeneryTile<Tharsis_1_2>, CityTile<Tharsis_1_2>")
+  }
+
+  @Test
   internal fun `St Joseph of Cupertino Mission offers the city owner a paid draw and scores`() {
     newGame(PromoCardPack)
     val p2 = requireP2()

@@ -38,9 +38,9 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     TfmWorkflow.Auto(game).launch()
     retainStartingProjects(6, 7, 8, 7)
 
-    val stanley = game.tfm(Player.PLAYER1)
-    val jacopo = game.tfm(Player.PLAYER2)
-    val jon = game.tfm(Player.PLAYER3)
+    val stanley = player(1)
+    val jacopo = player(2)
+    val jon = player(3)
     val charlie =
         game.tfm(game.actors.filterIsInstance<Player>()[3]).requireExplicitPaymentChoices()
 
@@ -72,7 +72,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       stdAction("DoRequiredActions") { playPrelude(Mohole) }
-      playProject(LandClaim, 1) { doTask("LandClaimMarker<Elysium_5_6>") }
+      playProject(LandClaim, 1) { doTask("Community<Elysium_5_6>") }
     }
     jon.turn {
       cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }
@@ -99,7 +99,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     stanley.assertProduction(m = 2, s = 0, t = 0, p = 0, e = 1, h = 0)
     stanley.assertResources(m = 34, s = 0, t = 0, p = 1, e = 1, h = 0)
 
-    jacopo.assertCounts(20 to "TR", 1 to "LandClaimMarker")
+    jacopo.assertCounts(20 to "TR", 1 to "Community")
     jacopo.assertProduction(m = 1, s = 0, t = 0, p = 1, e = 0, h = 3)
     jacopo.assertResources(m = 32, s = 0, t = 0, p = 3, e = 0, h = 6)
 
@@ -155,7 +155,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     stanley.assertProduction(m = 2, s = 0, t = 0, p = 0, e = 0, h = 0)
     stanley.assertResources(m = 45, s = 0, t = 0, p = 2, e = 0, h = 1)
 
-    jacopo.assertCounts(20 to "TR", 1 to "LandClaimMarker")
+    jacopo.assertCounts(20 to "TR", 1 to "Community")
     jacopo.assertProduction(m = 1, s = 0, t = 0, p = 2, e = 0, h = 3)
     jacopo.assertResources(m = 33, s = 0, t = 0, p = 5, e = 0, h = 9)
 

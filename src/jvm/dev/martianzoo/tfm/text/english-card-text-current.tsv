@@ -164,7 +164,7 @@ GreatEscarpmentConsortium	Great Escarpment Consortium	Requires that you have ste
 MineralDeposit	Mineral Deposit	Gain 5 steel.
 MiningArea	Mining Area	Place this tile on a land area next to a tile you own, then [LandArea(HAS MiningArea_SpecialTile, PlacementBonus<Class<Steel>>): Production<Class<Steel>>] or [LandArea(HAS MiningArea_SpecialTile, PlacementBonus<Class<Titanium>>): Production<Class<Titanium>>].
 BuildingIndustries	Building Industries	Decrease your energy production 1 step and increase your steel production 2 steps.
-LandClaim	Land Claim	[LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>].
+LandClaim	Land Claim	[Community<LandArea(HAS MAX 0 Occupant)>].
 Sponsors	Sponsors	Increase your M€ production 2 steps.
 ElectroCatapult	Electro Catapult	Requires that oxygen is 8% or lower. Decrease your energy production 1 step.	Action: Pay 1 plant to gain 7 M€, or pay 1 steel to gain 7 M€.
 EarthCatapult	Earth Catapult		Effect: When you play a card, pay 2 M€ less.
@@ -222,7 +222,7 @@ Aphrodite	Aphrodite	Gain 47 M€. Increase your plant production 1 step.	Effect:
 Celestic	Celestic	Gain 42 M€. As your first action, draw 2 cards with floater icons. 1 VP per 3 floaters on this card.	Action: Add 1 floater to any card.
 Manutech	Manutech	Gain 35 M€. Increase your steel production 1 step.	Effect: When you increase one of your productions 1 step, gain that resource.
 MorningStarInc	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 Venus cards.	Effect: When you play a card, you may treat a Venus requirement as if it is 2 steps lower or higher.
-Viron	Viron	Gain 48 M€.	Action: [UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>].
+Viron	Viron	Gain 48 M€.	Action: [UseAction<ActionCard(HAS ActionUsedMarker<ActionCard(NOT Viron)>)>].
 AerialMappers	Aerial Mappers		Action: Add 1 floater to any card, or remove 1 floater from this card to draw 1 card.
 AerosportTournament	Aerosport Tournament	Requires 5 floaters. Gain 1 M€ per any city tile.
 AirScrappingExpedition	Air-Scrapping Expedition	Raise Venus 1 step. Add 3 floaters to a Venus card.
@@ -411,8 +411,9 @@ VenusAllies	Venus Allies	Raise Venus 2 steps. Gain 4 M€ per colony you own.
 VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal 2 project cards. Draw any Venus cards for free. You may buy each other card.
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: [MC / 12 - VenusTag -> VenusStep].
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gain 3 M€.
+ArcadianCommunities	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, [Community<LandArea(HAS MAX 0 Occupant)>].	Action: [Community<LandArea(HAS MAX 0 Occupant, Neighbor<OwnedOccupant>)>]. / Effect: [-Community: 3 MC].
 Recyclon	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card or remove 2 microbes from this card to increase your plant production 1 step.
-SpliceTacticalGenomics	Splice Tactical Genomics	Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When any microbe tag is played, gain 2 M€.
+SpliceTacticalGenomics	Splice Tactical Genomics	[Splicer<This>]. Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When any microbe tag is played, gain 2 M€.
 Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: If you have no energy, increase your energy production 1 step, or pay 3 M€ to draw 1 building card.
 MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. [EACH Player(HAS MAX 0 This<Anyone>) { -2 Production<Class<MC>> BY Owner }].	Effect: [MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.].
 Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain a standard resource.
@@ -473,7 +474,7 @@ OutdoorSports	Outdoor Sports	Requires any city tile adjacent to an ocean tile. I
 SixteenPsyche	16 Psyche	Increase your titanium production 2 steps. Gain 3 titanium.
 RobotPollinators	Robot Pollinators	Requires that oxygen is 4% or higher. Increase your plant production 1 step. Gain 1 plant per plant tag you have.
 Supercapacitors	Supercapacitors	Increase your M€ production 1 step.	Effect: [-Energy IF ProductionPhase: Energy FROM Heat?].
-IcyImpactors	Icy Impactors		Action: Pay 10 M€ (titanium may be used) to add 2 asteroids to this card, or remove 1 asteroid from this card to [ChooseOceanArea<Owner>].
+IcyImpactors	Icy Impactors		Action: Pay 10 M€ (titanium may be used) to add 2 asteroids to this card, or remove 1 asteroid from this card to [EACH Player(HAS StartToken) { ChooseOceanArea }].
 DirectedHeatUsage	Directed Heat Usage		Action: Pay 3 heat to gain 4 M€ or 2 plants.
 AqueductSystems	Aqueduct Systems	Requires a city tile adjacent to an ocean tile. Draw 3 building cards.
 AstraMechanica	Astra Mechanica	You may return up to one of your played event cards to your hand. You may return up to one of your played event cards to your hand.
@@ -481,7 +482,7 @@ CarbonNanosystems	Carbon Nanosystems		Effect: When you play a science tag, add 1
 CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. Copy the immediate production box of a building card, then [CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)>], then [CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)>], then [-CyberiaSystemsFirstChoice].
 HermeticOrderOfMars	Hermetic Order Of Mars	Requires that oxygen is 4% or lower. Increase your M€ production 2 steps. [MC / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)].
 HomeostasisBureau	Homeostasis Bureau	Increase your heat production 2 steps.	Effect: When you raise temperature 1 step, gain 3 M€.
-KaguyaTech	Kaguya Tech	Increase your M€ production 2 steps. Draw 1 card. Change a greenery tile on any land area into a city tile on that land area.
+KaguyaTech	Kaguya Tech	Increase your M€ production 2 steps. Draw 1 card. Change a greenery tile on any area into a city tile on that area.
 MartianLumberCorp	Martian Lumber Corp	Requires that you have 2 greenery tiles. Increase your plant production 1 step.	Effect: When you play a building tag, plants may be used as 3 M€ each.
 NeptunianPowerConsultants	Neptunian Power Consultants	[NeptunianOption]. 1 VP per hydroelectric resource on this card.	Effect: When any ocean tile is placed, [UseAction<NeptunianOption>?].
 RedShips	Red Ships	Requires that oxygen is 4% or higher.	Action: [MC / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)].
@@ -496,7 +497,7 @@ CityParks	City Parks	Requires that you have 3 city tiles. Gain 2 plants.
 Casinos	Casinos	Requires that you have a city tile. Decrease your energy production 1 step and increase your M€ production 4 steps.
 ProtectedGrowth	Protected Growth	Requires that oxygen is 7% or lower. Gain 1 plant per power tag you have.
 StaticHarvesting	Static Harvesting	Requires that there are 3 or fewer ocean tiles. Increase your energy production 1 step. Gain 1 M€ per building tag you have.
-Vermin	Vermin	[End IF 10 Animal<This>: EACH CityTile<Player> { -VictoryPoint }].	Action: Add 1 animal to this card or add 1 microbe to any card. / Effect: When any city tile is placed, add 1 animal to this card.
+Vermin	Vermin	[End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }].	Action: Add 1 animal to this card or add 1 microbe to any card. / Effect: When any city tile is placed, add 1 animal to this card.
 WeatherBalloons	Weather Balloons	Draw 1 card.	Action: Add 1 floater to this card, or remove 1 floater from this card to gain 1 M€ per any city tile on Mars.
 PublicPlans	Public Plans	[MC? / ProjectCard].
 SterlingVents	Sterling Vents	Decrease your heat production 2 steps and increase your energy production 2 steps.

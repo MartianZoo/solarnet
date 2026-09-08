@@ -113,7 +113,7 @@ private fun Describers.renderResourceSpend(
     expression: Expression,
     quantity: (NounPhrase) -> NounPhrase,
 ): Predicate? {
-  if (expression.refinement == null && !expression.complement) {
+  if (expression.refinement == null) {
     cardResourceNounPhrase(expression.className, 1)?.let { noun ->
       val resolved = resolveCardResource(expression) ?: return null
       val holder =

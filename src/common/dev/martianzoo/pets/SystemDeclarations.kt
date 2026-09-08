@@ -32,7 +32,7 @@ private val systemDeclarationsSource =
 
     "No one but Admin can create these"
     ABSTRACT CLASS System : Hidden {
-      This BY !Admin: Die
+      This BY Actor(NOT Admin): Die
     }
 
     // Anything that cannot exist after the task queue clears (i.e., the action ends)

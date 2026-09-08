@@ -50,8 +50,6 @@ public object TfmWorkflow {
     public fun solarPhase(): TaskResult? =
         if (adminOps.has("GameEndBarrier")) adminOps.beginManual("SolarPhase FROM Phase") else null
 
-    public fun generation(): TaskResult = adminOps.beginManual("Generation")
-
     public fun finalGreeneryPhase(): TaskResult = adminOps.manual("FinalGreeneryPhase FROM Phase")
 
     public fun researchPhase(body: BodyLambda = {}): TaskResult =
@@ -147,11 +145,10 @@ public object TfmWorkflow {
       corporationPhase()
       if (hasComponent("PreludeExpansion")) preludePhase()
       while (true) {
-        if (adminOps.count("Generation") > 1) researchPhase()
         actionPhase()
         productionPhase()
         if (!solarPhase()) break
-        generation()
+        researchPhase()
       }
       if (hasComponent("SoloMode")) {
         if (!adminOps.has("Victory<${players.single()}>")) return
@@ -187,11 +184,6 @@ public object TfmWorkflow {
       }
       letPlayerFinish()
       return true
-    }
-
-    private suspend fun generation() {
-      m.generation()
-      letPlayerFinish()
     }
 
     private suspend fun finalGreeneryPhase() {

@@ -63,7 +63,7 @@ The third column is what actually holds the promise today, which is not always a
 | **Freedom** | Every rules-legal ordering of the pending pool stays executable. | Nothing systematic. Scenario tests only. |
 | **Coherence** | No World is exposed to any Actor with an automatic consequence outstanding. | Structural: `Instructor.executeChange` runs `::` inline before returning. |
 | **Snapshot** | Every trigger-side condition in one automatic batch is tested against the World as it was before any sibling in that batch ran. | Structural: `Effector.fire` evaluates all `checkForHit` calls first. No test pins it. |
-| **Sibling indifference** | No automatic sibling order carries game meaning. | `SOLARNET_RANDOM_AUTOMATIC_EFFECTS`, run manually, with one known payment-attribution exception. |
+| **Sibling indifference** | No independent listener order carries game meaning. A component's own automatic Effects retain declaration order. | `SOLARNET_RANDOM_AUTOMATIC_EFFECTS`, run manually, with one known payment-attribution exception. |
 | **All-or-nothing** | A speculative operation that reaches a dead end leaves no trace. | `Timeline.atomic` and `EventLog.rollBackTo`. Tested. |
 | **Sealed tasks** | No authored game behavior edits, reprioritizes, cancels, or removes another task. | Structural: Pets has no instruction that can name a task. |
 | **No hidden ordering state** | No ordering guarantee depends on runtime state that rollback does not restore. | `AutomaticEffectOrderTest`. |
@@ -82,9 +82,10 @@ policy order may harden into an engine guarantee.
 
 Concretely:
 
-- A card's direct Effects are freely reorderable, and persistent reactions — rebates, tag reactions,
-  Mars University, Olympus Conference — may be resolved before, after, or between them once
-  triggered, subject only to ordering inside one Effect.
+- A component's direct automatic Effects run in declaration order. Its queued Effects are freely
+  reorderable, and persistent reactions — rebates, tag reactions, Mars University, Olympus
+  Conference — may be resolved in any order once triggered, subject only to ordering inside one
+  Effect.
 - Separate activations of one Effect remain separate tasks. Whether work inside one activation may
   be split around another activation is still open; see Live agenda.
 - Trade income and each colony bonus are separate siblings controlled by the active trader, so Pluto
@@ -296,8 +297,9 @@ Two canon effects stay queued for implementation reasons, not because they are d
 action-cost adjustments wait for the base action's `Owed`, and the solo production correction waits
 for production payouts. Do not make them automatic until the dependency is expressed directly.
 
-If one automatic effect must always follow another, make the first event trigger the second. Do not
-rely on registration order, and do not add a retry loop (see Settled).
+Across components, if one automatic effect must always follow another, make the first event trigger
+the second. Within one component, directly authored automatic Effects retain declaration order. Do
+not rely on listener registration order, and do not add a retry loop (see Settled).
 
 ### Choose condition time explicitly
 

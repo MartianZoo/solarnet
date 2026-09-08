@@ -28,7 +28,12 @@ internal class Initializer(
     val adminEvent = execute("$ADMIN", cause = null).changes.first()
     val adminCause = Cause(ADMIN.expression, adminEvent.ordinal)
     createPremiseComponents(adminCause)
+    drainBootstrapTasks()
+    createMissingPremiseModules(adminCause)
+    drainBootstrapTasks()
     createInitialComponents(adminCause)
+    drainBootstrapTasks()
+    verifyCompletedBootstrap()
     timeline.initializationFinished()
     timeline.commit()
   }
@@ -39,15 +44,25 @@ internal class Initializer(
    * Component must stop initialization rather than become an omitted change.
    */
   private fun execute(instruction: String, cause: Cause?): TaskResult = timeline.atomic {
-    instructor.execute(agent.parse<Instruction>("$instruction!"), cause).forEach(tasks::addTasks)
+    instructor
+        .execute(agent.parse<Instruction>("$instruction!"), cause, ADMIN)
+        .forEach(tasks::addTasks)
   }
 
-  /** Creates the selected Modules and seated Players, retrying around dependency order. */
+  /**
+   * Creates root selected Modules and seated Players; selected descendants come from their roots.
+   */
   private fun createPremiseComponents(cause: Cause) {
     val orderedModules = orderModulesByActiveProvenance()
+    val constructivelyCreatedModules =
+        premise.modules
+            .flatMap { source -> ModuleProvenance.gains(classTable.getClass(source).declaration) }
+            .mapNotNullTo(linkedSetOf()) { gain -> gain.target.takeIf { it in premise.modules } }
     createComponents(
-        orderedModules.flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
-            premise.playerClassNames.map(classTable::getClass).flatMap {
+        orderedModules
+            .filter { it.className !in constructivelyCreatedModules }
+            .flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
+            premise.playerNames.map(classTable::getClass).flatMap {
               classTable.concreteSubtypesSameClass(it.baseType)
             },
         cause,
@@ -94,6 +109,36 @@ internal class Initializer(
 
   private fun createInitialComponents(cause: Cause) {
     createComponents(premise.initialComponentTypes.map(classTable::resolve), cause, "initial")
+  }
+
+  /** Directly creates selected targets whose potential constructive conditions did not hold. */
+  private fun createMissingPremiseModules(cause: Cause) {
+    val missing =
+        premise.modules
+            .map(classTable::getClass)
+            .filter { agent.count("${it.baseType.expression}") == 0 }
+            .flatMap { classTable.concreteSubtypesSameClass(it.baseType) }
+    createComponents(missing, cause, "remaining premise")
+  }
+
+  /** Runs choice-free queued initialization work in stable insertion order. */
+  private fun drainBootstrapTasks() {
+    agent.autoExecNow()
+    tasks.all().requireAllQueuesEmpty()
+  }
+
+  private fun verifyCompletedBootstrap() {
+    val expected =
+        premise.modules.map(classTable::getClass).map(Class::baseType) +
+            premise.playerNames.map(classTable::getClass).map(Class::baseType) +
+            premise.initialComponentTypes.map(classTable::resolve)
+    val missing = expected.filter { agent.count("${it.expression}") == 0 }
+    if (missing.isNotEmpty()) {
+      throw invalidPetDefinition(
+          "Bootstrap completed without required components: " +
+              missing.joinToString { "${it.expressionFull}" }
+      )
+    }
   }
 
   private fun createComponents(types: Collection<Type>, cause: Cause, description: String) {

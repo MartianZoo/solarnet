@@ -74,18 +74,15 @@ internal object TerraformingMarsDescribers {
                         unqualifiedSuffix = "",
                     )
             ),
-        klass("QuasiResource") to
-            ComponentDescriber(
-                noun = ComponentDescriber.Noun.Counted("resource", "resources"),
-                numericSingularChange = true,
-                changeFrame = Frame.Held,
-            ),
-        klass("QuasiResourceHolder") to
+        klass("ResourceHolder") to
             ComponentDescriber(
                 cardResourceHolder = ComponentDescriber.Noun.Counted("card", "cards")
             ),
         klass("CardResource") to
             ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("resource", "resources"),
+                numericSingularChange = true,
+                changeFrame = Frame.Held,
                 distinctKinds =
                     ComponentDescriber.Noun.Counted(
                         "different type of card resource",

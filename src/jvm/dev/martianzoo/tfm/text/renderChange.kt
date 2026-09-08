@@ -91,8 +91,7 @@ private fun renderTypeVariableResourceChange(
   if (
       change.intensity.modality() != Modality.REQUIRED ||
           !expression.simple ||
-          expression.refinement != null ||
-          expression.complement
+          expression.refinement != null
   ) {
     return null
   }
@@ -117,7 +116,7 @@ private fun changeRefusalReason(
     expression: Expression,
     describers: Describers,
 ): RefusalReason {
-  if (expression.refinement != null || expression.complement) {
+  if (expression.refinement != null) {
     return RefusalReason.REFINED_CHANGE_EXPRESSION
   }
   if (instruction is Instruction.Change && instruction.count.fixedQuantity() == null) {
@@ -211,7 +210,7 @@ private fun renderProcedure(
     if (!gain.gaining.simple) return null
     return clause(frame.verb, NounPhrase.text(objectPhrase))
   }
-  if (gain.gaining.refinement != null || gain.gaining.complement) return null
+  if (gain.gaining.refinement != null) return null
   val target = gain.gaining.arguments.singleOrNull()?.let(describers::cardSelector) ?: return null
   return clause(
       frame.verb,
@@ -242,8 +241,6 @@ private fun renderPositionedConversion(
   if (
       gaining.refinement != null ||
           removing.refinement != null ||
-          gaining.complement ||
-          removing.complement ||
           !describers.concrete(gaining.className) ||
           !describers.concrete(removing.className)
   ) {
@@ -279,7 +276,6 @@ private fun renderCardPlay(instruction: Instruction, describers: Describers): Cl
   if (
       gain.intensity.modality() != Modality.REQUIRED ||
           gain.gaining.refinement != null ||
-          gain.gaining.complement ||
           gain.count.fixedQuantity() != 1
   ) {
     return null
@@ -368,8 +364,7 @@ private fun renderCardResourceDrawExchange(
   val resolved = describers.resolveCardResource(removing) ?: return null
   if (
       !describers.cardResourceHasHolder(resolved, describers.thisExpression) ||
-          removing.refinement != null ||
-          removing.complement
+          removing.refinement != null
   ) {
     return null
   }
@@ -401,7 +396,7 @@ private fun renderCountableChange(
   }
   val removal = instruction as? Remove ?: return null
   val expression = removal.removing
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val count = removal.count.fixedQuantity() ?: return null
   if (!describers.concrete(expression.className)) return null
   if (expression.simple && removal.intensity.modality() == Modality.REQUIRED) {
@@ -433,19 +428,17 @@ private fun Describers.renderEligiblePlayer(expression: Expression): NounPhrase?
   if (expression == playerExpression) return NounPhrase("player", determiner = Determiner.THAT)
   if (
       expression.className != anyoneExpression.className ||
-          resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false ||
-          expression.complement
+          resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false
   ) {
     return null
   }
-  val refinement = expression.refinement ?: return null
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
   if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   if (minimum.target != 1) return null
   val tagExpression = (minimum.metric as? Metric.Count)?.expression ?: return null
   if (
       tagExpression.refinement != null ||
-          tagExpression.complement ||
           resolveExpression(tagExpression)?.let { tag ->
             tag.sourceDependencies.isNotEmpty() &&
                 !tag.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression)
@@ -470,12 +463,7 @@ private fun renderStandardResourceTransfer(
   val gaining = transmute.gaining
   val removing = transmute.removing
   if (gaining.className != removing.className) return null
-  if (
-      gaining.refinement != null ||
-          removing.refinement != null ||
-          gaining.complement ||
-          removing.complement
-  ) {
+  if (gaining.refinement != null || removing.refinement != null) {
     return null
   }
   if (!describers.concrete(gaining.className)) return null
@@ -541,7 +529,7 @@ private fun renderCardResourceChange(
 ): Clause? {
   val change = instruction as? Instruction.Change ?: return null
   val expression = change.gaining ?: change.removing ?: return null
-  if (expression.refinement != null || expression.complement) return null
+  if (expression.refinement != null) return null
   val count = change.count.fixedQuantity() ?: return null
   val noun = describers.cardResourceNounPhrase(expression.className, count) ?: return null
   val resolved = describers.resolveHeldResource(expression) ?: return null
@@ -630,18 +618,19 @@ private fun renderSelectedProductionChange(
     expression: Expression,
     describers: Describers,
 ): Clause.Simple? {
-  if (expression.refinement != null || expression.complement) {
+  if (expression.refinement != null) {
     return null
   }
   val resource = selectedProductionResource(expression, describers) ?: return null
   if (
       !describers.isStandardResource(resource.className) ||
           describers.concrete(resource.className) ||
-          resource.complement
+          resource.refinement is Expression.Refinement.Not
   ) {
     return null
   }
-  val refinement = resource.refinement?.takeIf { !it.forgiving } ?: return null
+  val refinement =
+      (resource.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
   val first = refinement.requirement as? Requirement.Exact ?: return null
   if (first.target != 1 || !first.metric.isLowestStandardProductionRank(describers)) return null
   val count = change.count.fixedQuantity() ?: return null
@@ -658,24 +647,23 @@ private fun Metric.isLowestStandardProductionRank(describers: Describers): Boole
   if (
       selector.className != CLASS ||
           selector.arguments.singleOrNull()?.takeIf { it.simple }?.className != STANDARD_RESOURCE ||
-          selector.complement
+          selector.refinement is Expression.Refinement.Not
   ) {
     return false
   }
   val alternatives = (rank.metrics.singleOrNull() as? Metric.Or)?.metrics ?: return false
   if (alternatives.size != 2) return false
+  val excludedSelector = selector.copy(refinement = Expression.Refinement.Not(selector))
   val production =
       alternatives.singleOrNull { alternative ->
         val expression = alternative.expression
         describers.isProduction(expression.className) &&
-            expression.arguments == listOf(selector.copy(complement = true)) &&
-            expression.refinement == null &&
-            !expression.complement
+            expression.arguments == listOf(excludedSelector) &&
+            expression.refinement == null
       } ?: return false
   val offset = alternatives.single { it != production }.expression
   return offset.arguments == listOf(selector) &&
       offset.refinement == null &&
-      !offset.complement &&
       describers.fact(offset.className, ComponentDescriber::productionOffset) == true
 }
 
@@ -786,9 +774,9 @@ private fun Describers.renderCardResourceHolder(
     owned: Boolean,
 ): NounPhrase? {
   val resolved = resolveExpression(expression) ?: return null
-  if (resolved.sourceDependencies.isNotEmpty() || expression.complement) return null
+  if (resolved.sourceDependencies.isNotEmpty()) return null
   val holder = fact(expression.className, ComponentDescriber::cardResourceHolder) ?: return null
-  val refinement = expression.refinement ?: return null
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
   if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   val metric = minimum.metric as? Metric.Count ?: return null

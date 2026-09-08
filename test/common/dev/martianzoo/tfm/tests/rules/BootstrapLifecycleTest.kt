@@ -11,6 +11,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -32,12 +33,13 @@ internal class BootstrapLifecycleTest {
     admin.count("Player") shouldBe 2
     admin.count("ProdOffset<Player1, Class<MC>>") shouldBe 5
     admin.count("ProdOffset<Player2, Class<MC>>") shouldBe 5
+    admin.count("StartToken<Player1>") shouldBe 1
+    admin.count("GpIncomplete") shouldBe 3
     admin.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
     val bootstrapEntries = game.events.entriesSince(Checkpoint(0))
-    bootstrapEntries.all { it is ChangeEvent } shouldBe true
     val changes = bootstrapEntries.filterIsInstance<ChangeEvent>()
     val adminCreation = changes.first()
     adminCreation.actor shouldBe ADMIN
@@ -78,6 +80,7 @@ internal class BootstrapLifecycleTest {
     val map = changes.single { it.change.gaining?.className == cn("TharsisMap") }
     val area = changes.single { it.change.gaining?.className == cn("Tharsis_1_1") }
 
+    changes.drop(1).first() shouldBe terraform
     map.cause shouldBe Cause(cn("TerraformingMars").expression, terraform.ordinal)
     area.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)
   }
@@ -112,12 +115,48 @@ internal class BootstrapLifecycleTest {
 
     val setupChanges = game.events.changesSince(checkpoint)
     val setupEvent = setupChanges.single { it.change.gaining.toString() == "SetupPhase" }
+    val generationEvent = setupChanges.single { it.change.gaining.toString() == "Generation" }
     setupEvent.cause shouldBe null
     setupEvent.toString().shouldEndWith("(manual)")
+    generationEvent.cause shouldBe Cause(cn("SetupPhase").expression, setupEvent.ordinal)
+    setupChanges.none { it.change.gaining.toString().startsWith("StartToken") } shouldBe true
     setupChanges
         .filter { it.change.gaining.toString().startsWith("TerraformRating") }
         .also { it.size shouldBe 2 }
-        .all { it.cause?.triggerEvent == setupEvent.ordinal } shouldBe true
+        .all { it.cause == Cause(cn("MultiplayerMode").expression, setupEvent.ordinal) } shouldBe
+        true
+  }
+
+  @Test
+  internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
+    val game = Engine.newGame(canonicalPremise(players = 1))
+    val checkpoint = game.timeline.checkpoint()
+
+    TfmWorkflow.Manual(game).setupPhase()
+
+    game.agent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
+    val setupChanges = game.events.changesSince(checkpoint)
+    val setupEvent = setupChanges.single { it.change.gaining.toString() == "SetupPhase" }
+    val rating = setupChanges.single { it.change.gaining?.className == cn("TerraformRating") }
+    rating.change.count shouldBe 14
+    rating.cause shouldBe Cause(cn("SoloMode").expression, setupEvent.ordinal)
+    setupChanges.none { it.change.removing?.className == cn("TerraformRating") } shouldBe true
+  }
+
+  @Test
+  internal fun soloColoniesSetupAutoNarrowsThePlayerOwner() {
+    val game =
+        Engine.newGame(
+            canonicalPremise(
+                ColoniesExpansion,
+                players = 1,
+                colonyTiles = testColonyTiles(players = 1),
+            )
+        )
+
+    TfmWorkflow.Manual(game).setupPhase()
+
+    game.tfm(Player.PLAYER1).production(cn("MC")) shouldBe -2
   }
 
   @Test

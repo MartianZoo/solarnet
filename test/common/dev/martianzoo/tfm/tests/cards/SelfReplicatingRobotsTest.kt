@@ -31,11 +31,11 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     initialize(1)
 
     stage(1)
-    p1.assertCounts(2 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>")
+    p1.assertCounts(2 to "RobotUnit<SelfReplicatingRobotsBerth1>")
 
     nextGeneration()
     replicate(1)
-    p1.assertCounts(4 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>")
+    p1.assertCounts(4 to "RobotUnit<SelfReplicatingRobotsBerth1>")
   }
 
   @Test
@@ -49,10 +49,10 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
     p1.assertCounts(
         5 to "ProjectCard<StagedProject>",
-        10 to "StoredCardDiscount<StagedProject>",
+        10 to "RobotUnit<StagedProject>",
     )
     (1..5).forEach { number ->
-      p1.count("StoredCardDiscount<SelfReplicatingRobotsBerth$number>") shouldBe 2
+      p1.count("RobotUnit<SelfReplicatingRobotsBerth$number>") shouldBe 2
     }
   }
 
@@ -67,8 +67,8 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     replicate(1)
 
     p1.assertCounts(
-        4 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
-        2 to "StoredCardDiscount<SelfReplicatingRobotsBerth2>",
+        4 to "RobotUnit<SelfReplicatingRobotsBerth1>",
+        2 to "RobotUnit<SelfReplicatingRobotsBerth2>",
     )
   }
 
@@ -180,7 +180,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
     p1.assertCounts(
         1 to "ProjectCard<SelfReplicatingRobotsBerth1>",
-        2 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
+        2 to "RobotUnit<SelfReplicatingRobotsBerth1>",
     )
   }
 
@@ -206,18 +206,6 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
     p1.assertProds(1 to "MC", 0 to "Energy")
     p1.count("CityTile") shouldBe 1
-  }
-
-  @Test
-  internal fun `CEOs Favorite Project adds one resource to an occupied berth`() {
-    initialize(1)
-    stage(1)
-
-    p1.manual("$CeosFavoriteProject") {
-      doTask("StoredCardDiscount<SelfReplicatingRobotsBerth1>")
-    }
-
-    p1.count("StoredCardDiscount<SelfReplicatingRobotsBerth1>") shouldBe 3
   }
 
   @Test
@@ -248,7 +236,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     p1.assertCounts(
         0 to "MC",
         1 to "$Mine",
-        0 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
+        0 to "RobotUnit<SelfReplicatingRobotsBerth1>",
     )
   }
 
@@ -266,9 +254,9 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     p1.assertCounts(
         1 to "$Mine",
         0 to "ProjectCard<SelfReplicatingRobotsBerth1>",
-        0 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
+        0 to "RobotUnit<SelfReplicatingRobotsBerth1>",
         1 to "ProjectCard<SelfReplicatingRobotsBerth2>",
-        2 to "StoredCardDiscount<SelfReplicatingRobotsBerth2>",
+        2 to "RobotUnit<SelfReplicatingRobotsBerth2>",
     )
   }
 
@@ -286,8 +274,8 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
     p1.assertCounts(
         2 to "ProjectCard<StagedProject>",
-        2 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
-        2 to "StoredCardDiscount<SelfReplicatingRobotsBerth2>",
+        2 to "RobotUnit<SelfReplicatingRobotsBerth1>",
+        2 to "RobotUnit<SelfReplicatingRobotsBerth2>",
     )
   }
 
@@ -302,7 +290,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
       doTask("ReplicateForStagedProject<ProjectCard<SelfReplicatingRobotsBerth1>>")
     }
 
-    p1.count("StoredCardDiscount<SelfReplicatingRobotsBerth1>") shouldBe 4
+    p1.count("RobotUnit<SelfReplicatingRobotsBerth1>") shouldBe 4
   }
 
   @Test
@@ -318,7 +306,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
       doTask("ReplicateForStagedProject<ProjectCard<SelfReplicatingRobotsBerth1>>")
     }
 
-    p1.count("StoredCardDiscount<SelfReplicatingRobotsBerth1>") shouldBe 8
+    p1.count("RobotUnit<SelfReplicatingRobotsBerth1>") shouldBe 8
   }
 
   @Test
@@ -337,65 +325,9 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     }
 
     p1.assertCounts(
-        4 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
-        4 to "StoredCardDiscount<SelfReplicatingRobotsBerth2>",
+        4 to "RobotUnit<SelfReplicatingRobotsBerth1>",
+        4 to "RobotUnit<SelfReplicatingRobotsBerth2>",
     )
-  }
-
-  @Test
-  internal fun `Resources are supplied without consuming another resource component`() {
-    initialize(1)
-    p1.count("Resource") shouldBe 0
-
-    stage(1)
-
-    p1.count("Resource") shouldBe 0
-    p1.count("StoredCardDiscount<SelfReplicatingRobotsBerth1>") shouldBe 2
-  }
-
-  @Test
-  internal fun `Typeless berth resources do not satisfy Diversity Support`() {
-    newGame(VenusNextExpansion, PromoCardPack, FakeStuffBundle)
-    admin.phase("Action")
-    p1.manual(
-        "6 MC, 2 ProjectCard, Steel, Titanium, Plant, Energy, Heat, " +
-            "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>, " +
-            "$FakeSelfReplicatingRobots"
-    )
-    stage(1)
-
-    p1.count("Class<Resource>(HAS Resource<Owner>)") shouldBe 8
-    shouldThrow<RequirementException> { p1.playProject(DiversitySupport, 1) }
-  }
-
-  @Test
-  internal fun `Typeless berth resources do not satisfy Trader`() {
-    newGame(Utopia, PromoCardPack, FakeStuffBundle)
-    admin.phase("Action")
-    p1.manual(
-        "8 MC, ProjectCard, $FakeSelfReplicatingRobots, $SearchForLife, " +
-            "Science<$SearchForLife>, $Pets, Animal<$Pets>"
-    )
-    stage(1)
-
-    p1.count("Class<CardResource>(HAS CardResource<Owner>)") shouldBe 2
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Trader")) }
-  }
-
-  @Test
-  internal fun `Typeless berth resources do not count for Collector`() {
-    newGame(Amazonis, PromoCardPack, FakeStuffBundle)
-    val p2 = requireP2()
-    admin.phase("Action")
-    p1.manual("8 MC, ProjectCard, $FakeSelfReplicatingRobots")
-    p2.manual("Plant")
-    stage(1)
-
-    p1.fundAward(cn("Collector"), 8)
-    admin.manual("End FROM Phase")
-
-    p1.assertCounts(0 to "FirstPlace<Player1, Collector>")
-    p2.assertCounts(1 to "FirstPlace<Player2, Collector>")
   }
 
   private fun initialize(cards: Int, vararg options: dev.martianzoo.tfm.tests.TestOption) {

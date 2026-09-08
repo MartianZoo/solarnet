@@ -186,13 +186,14 @@ internal class Describers(
   internal fun isGameParticipant(className: ClassName): Boolean =
       expressions.isGameParticipant(className)
 
+  internal fun isNotOwner(expression: Expression): Boolean = expressions.isNotOwner(expression)
+
   internal fun isGenerationScoped(className: ClassName): Boolean =
       expressions.isGenerationScoped(className)
 
   internal fun isEndTrigger(className: ClassName): Boolean = expressions.isEndTrigger(className)
 
   internal val anyoneExpression: Expression = expressions.anyoneExpression
-  internal val notOwnerExpression: Expression = expressions.notOwnerExpression
   internal val ownerExpression: Expression = expressions.ownerExpression
   internal val playerExpression: Expression = expressions.playerExpression
   internal val thisExpression: Expression = expressions.thisExpression

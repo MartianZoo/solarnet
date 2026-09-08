@@ -364,6 +364,6 @@ Unresolved. Do not treat any answer below as decided.
    relocates the negation without removing it. It may simply be true that capability and obligation
    are different modalities and only the first is presence-shaped.
 6. **Does Viron's "already used" reading hold?** The model requires the target to carry a used
-   marker (`ActionCard(HAS ActionUsedMarker<!Viron>)`). Under the sum type that becomes a query on
+   marker (`ActionCard(HAS ActionUsedMarker<ActionCard(NOT Viron)>)`). Under the sum type that becomes a query on
    the other face, which is faithful to whatever the rule is — but the rule itself has not been
    verified against a Fryxelius ruling, and no one should verify it during unrelated work.

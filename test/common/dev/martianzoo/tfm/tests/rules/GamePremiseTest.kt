@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
@@ -21,8 +22,38 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertSame
 
 internal class GamePremiseTest {
+  @Test
+  internal fun directPremisesRequireConcretePlayerClasses() {
+    val catalog = Canon.withPlayers(1)
+
+    listOf(cn("MC"), Player.CLASS_NAME).forEach { invalidPlayerName ->
+      shouldThrow<IllegalArgumentException> {
+        GamePremise(
+            catalog,
+            modules = emptySet(),
+            classSelections = emptySet(),
+            initialComponentTypes = emptySet(),
+            playerNames = listOf(invalidPlayerName),
+        )
+      }
+    }
+  }
+
+  @Test
+  internal fun conventionalPlayerCatalogsAreReusableAndAbsentFromCanon() {
+    val catalog = Canon.withPlayers(2)
+
+    assertSame(catalog, Canon.withPlayers(2))
+    Canon.classTable.findClass(cn("Player1")) shouldBe null
+    catalog.classTable
+        .getClass(cn("Player1"))
+        .isSubtypeOf(catalog.classTable.getClass(cn("Player"))) shouldBe true
+    catalog.classTable.getClass(cn("Player2")).abstract shouldBe false
+  }
+
   @Test
   internal fun worldsFromOnePremiseShareTheClassModelButNotLiveState() {
     val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
@@ -84,7 +115,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun configuredPlayerNamesBecomeVocabularyAliasesForCanonicalPlayers() {
+  internal fun configuredPlayerNamesBecomeConcretePlayerClasses() {
     val blue = cn("Blue")
     val yellow = cn("Yellow")
     val config = GameConfig("-CorporateEraExpansion", "Blue", "Yellow")
@@ -92,24 +123,20 @@ internal class GamePremiseTest {
     val premise = Canon.gamePremise(config)
 
     premise.playerNames.shouldContainExactly(blue, yellow)
-    premise.playerClassNames.shouldContainExactly(cn("Player1"), cn("Player2"))
-    premise.classSelections.none {
-      it.className in setOf(blue, yellow, cn("Player1"), cn("Player2"))
-    } shouldBe true
+    premise.classSelections.none { it.className in setOf(blue, yellow) } shouldBe true
 
     val game = Engine.newGame(premise)
     Canon.classTable.findClass(blue) shouldBe null
-    game.classTable.findClass(blue) shouldBe null
-    game.actors.shouldContainExactly(Player.PLAYER1, Player.PLAYER2, ADMIN)
-    game.vocabulary.canonicalName(blue) shouldBe cn("Player1")
-    game.vocabulary.petsName(cn("Player1")) shouldBe blue
-    game.reader.getComponents("Player").map { it.className }.toSet() shouldBe
-        setOf(cn("Player1"), cn("Player2"))
+    game.classTable.isActive(blue) shouldBe true
+    game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
+    game.vocabulary.canonicalName(blue) shouldBe blue
+    game.vocabulary.petsName(blue) shouldBe blue
+    game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
     TfmWorkflow.Manual(game).setupPhase()
-    game.agent(Player.PLAYER1).count("TerraformRating<Blue>") shouldBe 20
-    game.agent(Player.PLAYER2).count("TerraformRating<Yellow>") shouldBe 20
+    game.agent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
+    game.agent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
-        Player.PLAYER1
+        Player(blue)
   }
 
   @Test
@@ -146,12 +173,14 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun unseatedCanonicalPlayerCannotBeActivatedAsAnOrdinaryClass() {
-    val premise =
-        Canon.gamePremise(GameConfig("", "Player1", "Player2"))
-            .copy(classSelections = setOf(ClassSelection(cn("Player3"), included = true)))
+  internal fun unconfiguredPlayerCannotBeActivatedAsAnOrdinaryClass() {
+    val premise = Canon.withPlayers(3).gamePremise(GameConfig("", "Player1", "Player2"))
 
-    shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
+    shouldThrow<IllegalArgumentException> {
+      Engine.newGame(
+          premise.copy(classSelections = setOf(ClassSelection(cn("Player3"), included = true)))
+      )
+    }
   }
 
   @Test

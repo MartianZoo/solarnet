@@ -195,8 +195,7 @@ private fun renderCardResourceCostSequence(
   if (
       removal.intensity.modality() != Modality.REQUIRED ||
           !describers.cardResourceHasHolder(resolved, describers.thisExpression) ||
-          removal.removing.refinement != null ||
-          removal.removing.complement
+          removal.removing.refinement != null
   ) {
     return null
   }
@@ -363,7 +362,6 @@ private fun renderPlacementSiteFallback(
       resolvePlacementExpression(unrestricted.gaining, describers) ?: return null
   if (
       preferred.gaining.refinement != null ||
-          preferred.gaining.complement ||
           preferred.gaining.className != unrestricted.gaining.className ||
           preferredPlacement.owner != null ||
           preferredPlacement.unknownDependencies.isNotEmpty() ||
@@ -371,7 +369,6 @@ private fun renderPlacementSiteFallback(
           unrestrictedPlacement.sites.isNotEmpty() ||
           unrestrictedPlacement.unknownDependencies.isNotEmpty() ||
           unrestricted.gaining.refinement != null ||
-          unrestricted.gaining.complement ||
           preferred.intensity.modality() != unrestricted.intensity.modality() ||
           preferred.count != unrestricted.count ||
           preferred.count.fixedQuantity() != 1
@@ -453,11 +450,7 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   val metric = counting.metric as? Metric.Count ?: return null
   val expression = metric.expression
   val resolved = resolveExpression(expression) ?: return null
-  if (
-      resolved.sourceDependencies.isNotEmpty() ||
-          expression.refinement != null ||
-          expression.complement
-  ) {
+  if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) {
     return null
   }
   if (

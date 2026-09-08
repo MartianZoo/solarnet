@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -155,7 +156,34 @@ internal class BugsTest : CardTest() {
 
     p1.assertCounts(
         1 to "$CorroderSuits",
-        2 to "StoredCardDiscount<SelfReplicatingRobotsBerth1>",
+        2 to "RobotUnit<SelfReplicatingRobotsBerth1>",
     )
+  }
+
+  @Test
+  internal fun `Fake SRR robot units incorrectly count as resource types and for Collector`() {
+    newGame(Amazonis, VenusNextExpansion, PromoCardPack, FakeStuffBundle)
+    val p2 = requireP2()
+    admin.phase("Action")
+    val standardResources = "MC, Steel, Titanium, Plant, Energy, Heat"
+    p1.manual(
+        "9 MC, 2 ProjectCard, $FakeSelfReplicatingRobots, $standardResources, " +
+            "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>"
+    )
+    p2.manual(
+        "$standardResources, $Predators, $RegolithEaters, " +
+            "Animal<$Predators>, Microbe<$RegolithEaters>"
+    )
+
+    p1.cardAction1(FakeSelfReplicatingRobots) {
+      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth1>")
+      doTask("ProjectCard<SelfReplicatingRobotsBerth1 FROM Hand>")
+    }
+    p1.playProject(DiversitySupport, 1).expect("TerraformRating")
+    p1.fundAward(cn("Collector"), 8)
+    admin.manual("End FROM Phase")
+
+    p1.assertCounts(1 to "FirstPlace<Player1, Collector>")
+    p2.assertCounts(0 to "FirstPlace<Player2, Collector>")
   }
 }

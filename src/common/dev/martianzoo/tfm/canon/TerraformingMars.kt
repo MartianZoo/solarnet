@@ -35,13 +35,13 @@ import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
-import dev.martianzoo.tfm.canon.TfmClasses.TILE
+import dev.martianzoo.tfm.canon.TfmClasses.SUCCESSOR
 import kotlin.math.abs
 
 private val terraformingMarsCustomClasses: Set<CustomClass> =
@@ -125,12 +125,12 @@ private object TerraformingMars {
     }
   }
 
-  private val NEIGHBOR = cn("Neighbor")
+  private val OCCUPANT = cn("Occupant")
 
   internal object Neighbor : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
-      val (tile, target) = type.typeDependencies.map { it.boundType }
-      val source = tile.typeDependencies.single { it.key.declaringClass == TILE }.boundType
+      val (piece, target) = type.typeDependencies.map { it.boundType }
+      val source = piece.typeDependencies.single { it.key.declaringClass == OCCUPANT }.boundType
       if (listOf("row", "column").any { PropertyName(it) !in source.rootClass.properties }) return 0
       val rowDelta = target.getNumberPropertyValue("row") - source.getNumberPropertyValue("row")
       val columnDelta =
@@ -224,16 +224,19 @@ private object TerraformingMars {
 
   internal object PassLeft : CustomClass() {
     override fun translate(reader: GameReader, component: Type): Instruction {
-      val currentOwner: Player = getPlayerOwner(reader, component)
-      val players = reader.actors.filterIsInstance<Player>()
-      if (players.size == 1) return NoOp
+      val currentOwner = getOwner(reader, component).groundType
+      val outgoing =
+          reader.getComponents(reader.resolve(SUCCESSOR.expression)).single { relation ->
+            relation.typeDependencies.single { it.key == Key(SUCCESSOR, 0) }.boundType ==
+                currentOwner
+          }
+      val nextOwner = outgoing.typeDependencies.single { it.key == Key(SUCCESSOR, 1) }.boundType
+      if (nextOwner == currentOwner) return NoOp
 
-      val current = players.indexOf(currentOwner)
-      check(current >= 0) { "StartToken owner is not a seated Player: $currentOwner" }
-      val nextOwner = players[(current + 1) % players.size]
       val arguments =
           component.expressionFull.arguments.map {
-            if (it == currentOwner.expression) Full(nextOwner.expression, it) else Unchanged(it)
+            if (reader.resolve(it).groundType == currentOwner) Full(nextOwner.expression, it)
+            else Unchanged(it)
           }
       return Transmute(
           Compact(component.className, arguments),

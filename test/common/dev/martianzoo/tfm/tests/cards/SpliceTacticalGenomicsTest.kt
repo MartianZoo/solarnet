@@ -11,6 +11,17 @@ import kotlin.test.Test
 
 internal class SpliceTacticalGenomicsTest : CardTest() {
   @Test
+  internal fun `Splicer depends on Splice`() {
+    newGame(PromoCardPack)
+    p1.manual("$SpliceTacticalGenomics")
+    p1.count("Splicer<$SpliceTacticalGenomics>") shouldBe 1
+
+    p1.manual("-$SpliceTacticalGenomics")
+
+    p1.count("Splicer") shouldBe 0
+  }
+
+  @Test
   internal fun `Splice pays itself because it is not a microbe card`() {
     newGame(PromoCardPack)
 

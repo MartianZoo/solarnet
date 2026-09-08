@@ -20,11 +20,16 @@ import kotlin.test.Test
 
 internal class InstructionResolutionTest {
   private val game: World = setUpGame(canonicalPremise())
+  private val transformers = Transformers(game.classTable)
   private val instructor: Instructor =
       Instructor(
           game.reader,
           Limiter(game.classTable, game.components),
+          Changer(game.reader, game.components, game.events),
+          Effector(transformers) { game.reader },
           game.classTable,
+          transformers,
+          CustomClassRuntime(game.reader.catalog, transformers),
       )
 
   init {
@@ -34,9 +39,9 @@ internal class InstructionResolutionTest {
   private fun preprocess(instr: InstructionTree): InstructionTree {
     val xer =
         chain(
-            Transformers(game.classTable).transformMarkedSyntax(),
-            Transformers(game.classTable).insertDefaults(),
-            Transformers(game.classTable).bindContextualOwner(PLAYER1),
+            transformers.transformMarkedSyntax(),
+            transformers.insertDefaults(),
+            transformers.bindContextualOwner(PLAYER1),
         )
     return xer.transformInstructionTree(instr)
   }
@@ -126,18 +131,22 @@ internal class InstructionResolutionTest {
   internal fun testFanoutRefinementChoosesWhichSelectionsTakePart() {
     // A selector refinement is evaluated against each candidate, so only Player1, who was given a
     // Plant, takes part. A gate inside the body behaves like any other gate and is not a filter.
-    checkResolution("EACH Player(HAS 1 Plant<Anyone>) { Heat }", "Heat<Player1>!")
-    checkResolution("EACH Player(HAS 99 Plant<Anyone>) { Heat }", "Ok")
+    checkResolution("EACH Player(HAS 1 Plant) { Heat }", "Heat<Player1>!")
+    checkResolution("EACH Player(HAS 99 Plant) { Heat }", "Ok")
     shouldThrow<RequirementException> { preprocessAndResolve("EACH Player { 99 Plant: Heat }") }
   }
 
   @Test
-  internal fun testSelectionSuppliesTheOwnerOfItsBranch() {
-    // An Owner selection is the owner; an owned selection supplies whichever Owner it belongs to,
-    // which is what lets a fanout act on each component's owner without naming any player.
+  internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
-    checkResolution("EACH Anyone { Plant }", "Plant<Player1>!, Plant<Player2>!")
-    checkResolution("EACH ProjectCard<Anyone> { Plant }", "Plant<Player1>!")
+    shouldThrow<ExpressionException> { preprocessAndResolve("EACH Anyone { Plant }") }
+    checkResolution(
+        "EACH ProjectCard<Anyone> { -ProjectCard<Anyone>, Plant }",
+        "-ProjectCard<Player1, Hand>!, Plant<Player1>!",
+    )
+    shouldThrow<ExpressionException> {
+      preprocessAndResolve("EACH ProjectCard<Anyone> { Plant }")
+    }
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
     // ...but it does mean a selector names components in the enclosing owner's context: these are
