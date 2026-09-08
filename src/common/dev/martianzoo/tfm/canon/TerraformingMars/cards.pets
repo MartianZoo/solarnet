@@ -1094,7 +1094,7 @@ CLASS Flooding : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 MC<Anyone>?)
+  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
   End: -VictoryPoint
 }
 

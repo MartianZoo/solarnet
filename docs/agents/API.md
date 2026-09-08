@@ -68,6 +68,8 @@ must not evaluate AMAP, a gate, a Metric, current viability, or any other mutabl
 Selection establishes the promise to act next and the select-lock before those facts are resolved.
 The current `Agent.narrowTask(taskId, narrowing)` implements this check; the selected-task overload
 retains state-aware resolution and immediate execution when the result becomes concrete.
+Consequently, a task whose target has a live refinement cannot be narrowed to one concrete target
+before selection, even when that target happens to satisfy the refinement in the current World.
 
 Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
 is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that

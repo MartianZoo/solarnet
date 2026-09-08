@@ -58,7 +58,10 @@ internal class Implementations(
 
   private object ExecutionProbeSucceeded : RuntimeException()
 
-  private val immutableClassFacts =
+  private val immutableClassFacts = narrowingFacts(requirementsHold = false)
+  private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
+
+  private fun narrowingFacts(requirementsHold: Boolean): TypeInfo =
       object : TypeInfo {
         override fun isAbstract(e: Expression): Boolean = reader.resolve(e).isAbstract(this)
 
@@ -66,7 +69,7 @@ internal class Implementations(
           reader.resolve(narrow).ensureNarrows(reader.resolve(wide), this)
         }
 
-        override fun has(requirement: Requirement): Boolean = false
+        override fun has(requirement: Requirement): Boolean = requirementsHold
       }
 
   // CHANGES LAYER
@@ -312,7 +315,6 @@ internal class Implementations(
     }
     val continuation = selectedThen?.continuationAfterFirst() ?: task.then
 
-    instructor.validateAmApSelection(task.instruction, effectiveNarrowing)
     // A selected group completes structurally before its children resolve against successive
     // worlds.
     val replacement =
@@ -530,7 +532,17 @@ internal class Implementations(
       }
     }
 
-    return uniqueMatchingTask(tasks.extract { it }.filter(::weCanNarrowIt))
+    val assigned = tasks.extract { it }.filter { it.assignee == actor }
+    val matches = assigned.filter(::weCanNarrowIt)
+    if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
+
+    // A failed live refinement can still identify the intended task. Let normal narrowing report
+    // which requirement failed instead of replacing that reason with a generic no-task match.
+    val possibleMatches = assigned.filter { task ->
+      effectiveNarrowing(narrowing, task.instruction, intensityOmitted, possibleWorldFacts)
+          .narrows(task.instruction, possibleWorldFacts)
+    }
+    return uniqueMatchingTask(possibleMatches)
   }
 
   private fun targetsThenFirstStage(
