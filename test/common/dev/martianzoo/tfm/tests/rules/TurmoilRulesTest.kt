@@ -168,4 +168,43 @@ internal class TurmoilRulesTest : CardTest() {
     requireP2().count("LobbyDelegate") shouldBe 1
     requireP2().count("ReserveDelegate") shouldBe 6
   }
+
+  @Test
+  internal fun `influence snapshot counts chairman leader and delegate presence once each`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+    p1.manual("5 MC")
+    admin.phase("Action")
+
+    p1.turn {
+      stdAction("SendDelegateSA", 1) {
+        doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+      }
+      stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+      }
+    }
+    p2.turn {
+      stdAction("SendDelegateSA", 1) {
+        doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+      }
+    }
+    admin.manual("Chairman<Player1> FROM Chairman<Neutral>")
+
+    admin.manual("MeasureInfluence<Player1>")
+    admin.manual("MeasureInfluence<Player2>")
+
+    p1.count("ChairmanInfluence") shouldBe 1
+    p1.count("PartyLeaderInfluence") shouldBe 1
+    p1.count("DelegateInfluence") shouldBe 1
+    p1.count("Influence") shouldBe 3
+    p2.count("ChairmanInfluence") shouldBe 0
+    p2.count("PartyLeaderInfluence") shouldBe 0
+    p2.count("DelegateInfluence") shouldBe 1
+    p2.count("Influence") shouldBe 1
+
+    admin.manual("End FROM Phase")
+    p1.count("VictoryPoint") shouldBe 22
+    p2.count("VictoryPoint") shouldBe 20
+  }
 }

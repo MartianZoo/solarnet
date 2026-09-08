@@ -1,6 +1,7 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA, RefillLobby
+  HAS Class<RefillLobby>, Class<MeasureInfluence>
+  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
 }
@@ -41,6 +42,8 @@ ABSTRACT CLASS AbstractDelegate : Owned<Owner> {
   "The delegate holding the committee chair"
   CLASS Chairman {
     HAS MAX 1 Chairman
+    MeasureInfluence:: ChairmanInfluence
+    End: VictoryPoint
   }
 
   "A player's free delegate for the current generation"
@@ -58,6 +61,7 @@ CLASS PartyDelegate<Party> : Owned<Owner> {
     PartyLeader<Party, Anyone> \
   }
   This:: RecalculateDominance
+  MeasureInfluence IF Dominant<Party>:: DelegateInfluence.
 }
 
 "The owner whose delegate occupies one party's leader seat"
@@ -65,6 +69,8 @@ CLASS PartyLeader<Party> : Owned<Owner> {
   This:: EACH Anyone(HAS PartyLeader<Party, Anyone>, 2 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
     -PartyLeader<Party, Anyone> \
   }
+  MeasureInfluence IF Dominant<Party>:: PartyLeaderInfluence
+  End: VictoryPoint
 }
 
 CLASS RecalculateDominance : Signal {
@@ -83,4 +89,24 @@ CLASS SendDelegateSA : StandardAction {
 "Refills each vacant Lobby seat from that player's finite reserve"
 CLASS RefillLobby : Signal {
   This:: EACH Player { LobbyDelegate<Player> FROM ReserveDelegate<Player>. }
+}
+
+"Requests the current political influence snapshot for one player"
+CLASS MeasureInfluence : Owned<Player>, Signal
+
+ABSTRACT CLASS Influence : Owned<Player>, Generational
+
+"One influence supplied by the committee Chairman"
+CLASS ChairmanInfluence : Influence {
+  HAS MAX 1 This
+}
+
+"One influence supplied by leading the Dominant party"
+CLASS PartyLeaderInfluence : Influence {
+  HAS MAX 1 This
+}
+
+"One influence supplied by having one or more delegates in the Dominant party"
+CLASS DelegateInfluence : Influence {
+  HAS MAX 1 This
 }

@@ -124,3 +124,38 @@ is one component Class, one source term on the paid action, setup counts, and on
 review found no issue inside this finite-supply slice. Removal-side political maintenance remains
 next; it must honor its different active-player and clockwise tie rules rather than reuse the
 gain-side incumbent metric by convenience.
+
+## 2026-09-08 — Stage 4: influence snapshots and political victory points
+
+Added an explicit `MeasureInfluence<Player>` Signal and three generational, owner-qualified
+results. The Chairman supplies one `ChairmanInfluence`; a player who leads the Dominant party
+receives one `PartyLeaderInfluence`; and every owned delegate in that party attempts the same
+AMAP `DelegateInfluence` gain. The concrete influence limit consolidates any number of those
+delegate attempts into the printed single point for having one or more delegates. Because the
+leader role supplements rather than replaces `PartyDelegate`, that physical marker correctly
+contributes both delegate presence and the additional leader point.
+
+The measurement is a snapshot request, not a continuously maintained score. This matches Global
+Events, which measure each player while resolving and then add that result after the event's
+printed maximum-five calculation. The generational lifetime gives later event effects a stable
+fact during that calculation and lets the existing `Generation` cleanup remove it. A second
+snapshot for the same player in one generation is intentionally outside the rule; mandatory
+Chairman and leader contributions are not weakened to AMAP merely to tolerate such a call.
+
+The same political role components now provide their printed end scoring: each Chairman and each
+party leader grants its owner one VictoryPoint. A functional scenario establishes a player with
+two dominant-party delegates, the party leadership, and the Chair, while another has one delegate.
+Outward measurement produces influence 3 and 1 respectively, proving both source addition and the
+multi-delegate cap. Transitioning to End produces the expected 22 versus 20 VictoryPoints.
+
+During this slice, reusable `RefillLobby` and `MeasureInfluence` Signals were activated through
+`Class<...>` module requirements rather than by gaining the Signals during module bootstrap. This
+keeps activation distinct from execution and removes a meaningless early firing. The focused
+Turmoil class, complete JVM suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: all behavior remains in the components that provide it, using only
+existing Signal, Generational, effect, and AMAP rules. No Kotlin, event-specific accumulator, or
+general arithmetic was added. Defect review found no issue in influence or scoring. The earlier
+removal-maintenance problem remains open by design: current state does not expose active-player
+rotation or clockwise party distance, and arbitrary Class iteration would not be a legitimate
+substitute for either printed tie rule.
