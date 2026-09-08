@@ -11,7 +11,11 @@ private val globalEventProbeDeclarations =
             """
             CLASS GlobalEventProbe : TagHolder { HAS MAX 1 This }
             CLASS PlayedEventProbe : EventCard<Class<ProjectCard>> { cost = 0 }
-            CLASS ActiveEventProbe : ActiveCard<Class<ProjectCard>> {
+            CLASS ActiveEventProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
+              cost = 0
+              MeasureInfluence:: Ok
+            }
+            CLASS EmptyResourceProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
               cost = 0
               MeasureInfluence:: Ok
             }
@@ -195,6 +199,108 @@ internal class TurmoilEventsTest :
     resolve("MudSlides")
 
     p1.count("MC") shouldBe 46
+  }
+
+  @Test
+  internal fun `public aquifer and dry deserts use neutral ocean changes and player resource choices`() {
+    newGame(TurmoilExpansion)
+    seatPlayerOneAsChairman()
+    admin.manual("MeasureInfluence<Player1>")
+
+    admin.manual("ResolveGlobalEvent<Class<AquiferReleasedByPublicCouncil>>") {
+      p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
+    }
+
+    admin.count("OceanTile") shouldBe 1
+    p1.count("TerraformRating") shouldBe 20
+    p1.count("Plant") shouldBe 1
+    p1.count("Steel") shouldBe 1
+
+    p1.manual("PartyLeaderInfluence")
+    admin.manual("ResolveGlobalEvent<Class<DryDeserts>>") {
+      val resourceChoices = game.tasks.extract { it }
+      resourceChoices.size shouldBe 2
+      p1.doTask("Heat", resourceChoices[0].id)
+      p1.doTask("Plant", resourceChoices[1].id)
+    }
+
+    admin.count("OceanTile") shouldBe 0
+    p1.count("TerraformRating") shouldBe 20
+    p1.count("Heat") shouldBe 1
+    p1.count("Plant") shouldBe 2
+  }
+
+  @Test
+  internal fun `diversity and energy templates combine distinct state with influence`() {
+    newGame(TurmoilExpansion)
+    seatPlayerOneAsChairman()
+    p1.manual(
+        "GlobalEventProbe, BuildingTag<GlobalEventProbe>, SpaceTag<GlobalEventProbe>, " +
+            "ScienceTag<GlobalEventProbe>, 3 PowerTag<GlobalEventProbe>, " +
+            "CityTag<GlobalEventProbe>, PlantTag<GlobalEventProbe>, " +
+            "EarthTag<GlobalEventProbe>, JovianTag<GlobalEventProbe>"
+    )
+    admin.manual("MeasureInfluence<Player1>")
+
+    resolve("Diversity")
+    resolve("ImprovedEnergyTemplates")
+
+    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 8
+    p1.count("MC") shouldBe 10
+    p1.count("PROD[Energy]") shouldBe 2
+    requireP2().count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `temperature events change an incomplete track but never a completed one`() {
+    newGame(TurmoilExpansion)
+    seatPlayerOneAsChairman()
+    admin.manual("MeasureInfluence<Player1>")
+    admin.manual("5 TemperatureStep")
+
+    resolve("SnowCover")
+    resolve("VolcanicEruptions")
+
+    admin.count("TemperatureStep") shouldBe 5
+    p1.count("ProjectCard") shouldBe 1
+    p1.count("PROD[Heat]") shouldBe 1
+
+    admin.manual("13 TemperatureStep") { p1.doTask("OceanTile<Tharsis_1_2> BY Admin") }
+    admin.manual("ResolveGlobalEvent<Class<VolcanicEruptions>>")
+    admin.manual("ResolveGlobalEvent<Class<SnowCover>>")
+    admin.manual("ResolveGlobalEvent<Class<VolcanicEruptions>>")
+
+    admin.count("TemperatureStep") shouldBe 19
+  }
+
+  @Test
+  internal fun `volcanic eruptions lets the first player place its threshold ocean for Admin`() {
+    newGame(TurmoilExpansion)
+    admin.manual("13 TemperatureStep")
+    admin.manual("VolcanicEruptions")
+
+    admin.manual("ResolveGlobalEvent<Class<VolcanicEruptions>>") {
+      p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
+    }
+
+    admin.count("TemperatureStep") shouldBe 15
+    admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
+    p1.count("TerraformRating") shouldBe 20
+  }
+
+  @Test
+  internal fun `sponsored projects adds to every compatible resource card then draws for influence`() {
+    newGame(TurmoilExpansion)
+    seatPlayerOneAsChairman()
+    p1.manual("ActiveEventProbe, Animal<ActiveEventProbe>, EmptyResourceProbe")
+    admin.manual("MeasureInfluence<Player1>")
+
+    resolve("SponsoredProjects")
+
+    p1.count("Animal<ActiveEventProbe>") shouldBe 2
+    p1.count("Microbe<EmptyResourceProbe>") shouldBe 1
+    p1.count("ProjectCard") shouldBe 1
+    requireP2().count("ProjectCard") shouldBe 0
   }
 
   private fun resolve(event: String) {

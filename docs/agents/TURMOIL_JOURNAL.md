@@ -380,3 +380,43 @@ the cap, duplicated coastal tile, cross-player holding count, or coupled Sabotag
 The next slice will implement the seven non-ranking base events involving parameter placement,
 resource-type diversity, flexible standard resources, divided energy production, and card-holder
 fanout.
+
+## 2026-09-08 — Stage 12: parameter and choice events
+
+Implemented the remaining seven non-ranking base events: Aquifer Released by Public Council,
+Diversity, Dry Deserts, Improved Energy Templates, Snow Cover, Sponsored Projects, and Volcanic
+Eruptions. Global-parameter changes are attributed to Admin, so they neither grant TR nor ordinary
+placement bonuses. Ocean and flexible-resource decisions are represented by short player-owned
+requests: the first player chooses public ocean changes, and every Dry Deserts resource can be
+chosen independently, allowing any same-or-different combination printed by the FAQ.
+
+The FAQ pass materially tightened two cases. Sponsored Projects now adds the accepted resource to
+every compatible card, including a card that was empty before resolution. An Admin temperature
+increase crossing 0°C now routes the triggered ocean choice to the first player. That rule is
+general for Admin-raised temperature, including World Government Terraforming, so the owning base
+global-parameter declaration now uses one shared `AdminOceanPlacement` signal instead of a
+Turmoil-only workaround. Ordinary player-raised temperature retains its existing actor and reward
+behavior.
+
+Diversity uses the four possible influence values to express its nine-type threshold without a
+second tag representation. Improved Energy Templates divides the disjoint union of power tags and
+influence by two. Snow Cover and Volcanic Eruptions both respect completed tracks; Volcanic
+Eruptions performs its two increases in sequence and rechecks completion between them, so one
+remaining step adds exactly one. Sponsored Projects resolves per player, then binds each compatible
+resource card's declared resource type, avoiding unsupported nested fanout while retaining the
+card as the source of truth.
+
+Functional coverage invokes only outward gameplay instructions. It verifies neutral ocean
+placement and removal without TR, independent Dry Deserts choices, Diversity's threshold,
+power-plus-influence division, incomplete and completed temperature tracks, the 0°C first-player
+ocean choice, the one-step-at-maximum case, and both occupied and empty resource cards. The related
+World Government scenarios, focused Turmoil scenarios, complete Gradle suite, and `spotlessCheck`
+pass.
+
+VALUES and minimality review: all event logic and the general Admin ocean correction are Pets; no
+Kotlin or custom engine instruction changed. The small owned signals correspond to real choices or
+ordered rule operations, while every numeric effect composes existing metrics, requirements, and
+signals. Code review found no TR leakage, lost placement choice, extra temperature step, completed
+track mutation, forced identical Dry Deserts resources, empty-card omission, or cross-player card
+resource. The next slice will implement Election and Revolution, using FAQ tests for friendly ties,
+the neutral participant, zero-score eligibility differences, and the solo formulas.

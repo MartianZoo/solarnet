@@ -1,6 +1,9 @@
 CLASS AquiferReleasedByPublicCouncil : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
+    EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { Plant / Influence, Steel / Influence }
 }
 
 CLASS AsteroidMiningGlobalEvent : GlobalEvent {
@@ -18,11 +21,15 @@ CLASS CelebrityLeaders : GlobalEvent {
 CLASS Diversity : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDiversity<Player> }
 }
 
 CLASS DryDeserts : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
+    EACH Player(HAS StartToken) { RemoveOceanForGlobalEvent<Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDryDeserts<Player> }
 }
 
 CLASS EcoSabotage : GlobalEvent {
@@ -61,6 +68,9 @@ CLASS HomeworldSupport : GlobalEvent {
 CLASS ImprovedEnergyTemplates : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    PROD[Energy / 2 (PowerTag OR Influence)] \
+  }
 }
 
 CLASS InterplanetaryTradeGlobalEvent : GlobalEvent {
@@ -141,6 +151,8 @@ CLASS ScientificCommunity : GlobalEvent {
 CLASS SnowCover : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep. BY Admin
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
 }
 
 CLASS SolarFlare : GlobalEvent {
@@ -164,6 +176,7 @@ CLASS SpinOffProducts : GlobalEvent {
 CLASS SponsoredProjects : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveSponsoredProjects<Player> }
 }
 
 CLASS StrongSociety : GlobalEvent {
@@ -181,6 +194,9 @@ CLASS SuccessfulOrganisms : GlobalEvent {
 CLASS VolcanicEruptions : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: \
+    EACH Player(HAS StartToken) { RaiseTemperatureForGlobalEvent<Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { PROD[Heat / Influence] }
 }
 
 CLASS WarOnEarth : GlobalEvent {
