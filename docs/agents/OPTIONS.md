@@ -140,7 +140,9 @@ contains only:
 
 Canon declares only the abstract `Player`; each configured name is the identity of a concrete
 `Player` subclass in the composed game Catalog. `withPlayers(count)` supplies reusable conventional
-names `Player1` through `PlayerN`. The `gamePremise(config, playerDeclarations)` overload instead
+names `Player1` through `PlayerN`; player counts have no fixed upper limit. Individual configurations
+may still be impossible when finite selected content cannot satisfy their player-count rules. The
+`gamePremise(config, playerDeclarations)` overload instead
 derives every player name and its seat order from explicit concrete Player declarations, including
 any per-seat Pets setup rules. The Pets-owned `SecondPlaceRule` Module is automatically selected for
 three or more Players and activates `SecondPlace`, keeping player-count policy out of Kotlin and

@@ -10,9 +10,9 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

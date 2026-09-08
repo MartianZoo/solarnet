@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Player
@@ -46,8 +47,7 @@ public value class Component internal constructor(public val type: Type) : HasEx
     get() =
         owner
             ?.takeIf { owner ->
-              owner.classTable.findClass(Player.CLASS_NAME)?.let(owner.rootClass::isSubtypeOf) ==
-                  true
+              owner.classTable.findClass(PLAYER)?.let(owner.rootClass::isSubtypeOf) == true
             }
             ?.let { Player(it.className) }
 

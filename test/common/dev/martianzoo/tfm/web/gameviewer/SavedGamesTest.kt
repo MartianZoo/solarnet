@@ -5,7 +5,6 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.visibleLogEvents
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 internal class SavedGamesTest {
@@ -98,9 +97,10 @@ internal class SavedGamesTest {
         listOf("green", "red", "yellow"),
         assignPlayerColors(listOf("Green", "Green", "Alex")),
     )
-    assertFailsWith<IllegalArgumentException> {
-      assignPlayerColors(List(6) { "Player$it" })
-    }
+    assertEquals(
+        listOf("red", "yellow", "green", "blue", "purple", "red"),
+        assignPlayerColors(List(6) { "Player$it" }),
+    )
   }
 
   @Test

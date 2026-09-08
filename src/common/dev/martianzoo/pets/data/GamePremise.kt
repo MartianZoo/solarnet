@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -23,7 +24,7 @@ public data class GamePremise(
   init {
     val selectedNames = classSelections.map(ClassSelection::className)
     val invalidPlayerNames = playerNames.filter { playerName ->
-      val playerClass = catalog.classTable.findClass(Player.CLASS_NAME)
+      val playerClass = catalog.classTable.findClass(PLAYER)
       val configuredClass = catalog.classTable.findClass(playerName)
       playerClass == null ||
           configuredClass == null ||

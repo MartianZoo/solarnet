@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.script.OptionCodeTranslation
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.createGame
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.Test
@@ -34,6 +34,9 @@ internal class BasicTest {
 
     session.command("newgame \"\" Blue Yellow")
     assertEquals("Blue", session.playerSnapshot().playerName)
+
+    session.command("newgame B 6")
+    assertEquals(6, session.playerCount)
   }
 
   @Test

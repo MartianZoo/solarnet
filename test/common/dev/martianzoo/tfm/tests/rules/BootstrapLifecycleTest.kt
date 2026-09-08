@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
@@ -156,7 +156,7 @@ internal class BootstrapLifecycleTest {
 
     TfmWorkflow.Manual(game).setupPhase()
 
-    game.tfm(Player.PLAYER1).production(cn("MC")) shouldBe -2
+    game.tfm(PLAYER1).production(cn("MC")) shouldBe -2
   }
 
   @Test
@@ -164,7 +164,7 @@ internal class BootstrapLifecycleTest {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
     val workflow = TfmWorkflow.Auto(game).launch()
     val admin = game.agent(ADMIN)
-    val p1 = game.tfm(Player.PLAYER1)
+    val p1 = game.tfm(PLAYER1)
 
     admin.count("SetupPhase") shouldBe 1
     p1.count("CorporationCard<Hand>") shouldBe 1

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.data.Player.Companion.PLAYER3
+import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion

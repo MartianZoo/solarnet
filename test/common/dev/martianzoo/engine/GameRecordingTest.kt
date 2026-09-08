@@ -3,7 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

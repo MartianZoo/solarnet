@@ -19,7 +19,7 @@ internal object OptionCodeTranslation {
       players: Int,
       selectedColonies: Set<ClassName> = emptySet(),
   ): Setup {
-    require(players in 1..5) { "player count must be between 1 and 5" }
+    require(players > 0) { "player count must be positive" }
     val codes = optionCodes.asIterable().map(Char::toString).toSetStrict()
     require(optionsByCode.containsAll(codes)) { "supported option codes are: $optionsByCode" }
     require("B" in codes) { "include B for the base game" }

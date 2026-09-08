@@ -28,7 +28,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
