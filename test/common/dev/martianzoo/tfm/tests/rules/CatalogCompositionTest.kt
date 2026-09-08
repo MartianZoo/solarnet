@@ -98,7 +98,7 @@ internal class CatalogCompositionTest {
   }
 
   @Test
-  internal fun `inactive gated provenance does not create its target`() {
+  internal fun `inactive gated Module effect does not create its target`() {
     val extension =
         object : TfmCatalog() {
           override val explicitClassDeclarations =

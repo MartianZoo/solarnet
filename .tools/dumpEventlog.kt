@@ -14,6 +14,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260828
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -96,7 +97,16 @@ private fun dump(game: World, output: Path) {
 }
 
 public fun main(args: Array<String>) {
-  require(args.size == 2) { "Usage: dumpEventlog <three-player.tsv> <solo.tsv>" }
-  dump(createGame(playerCount = 3), Path.of(args[0]))
-  dump(createGame(playerCount = 1), Path.of(args[1]))
+  when (args.size) {
+    1 -> dump(OtbGame20260828().record().world, Path.of(args.single()))
+    2 -> {
+      dump(createGame(playerCount = 3), Path.of(args[0]))
+      dump(createGame(playerCount = 1), Path.of(args[1]))
+    }
+    else ->
+        error(
+            "Usage: dumpEventlog <otb-game.tsv> OR " +
+                "dumpEventlog <three-player.tsv> <solo.tsv>"
+        )
+  }
 }

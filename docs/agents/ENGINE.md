@@ -90,11 +90,10 @@ observational and do not activate their protocol Classes. Modules directly creat
 standard actions and other protocols they issue; generic families use `EACH` over the structurally
 present `Class<T>` representatives only when the family itself owns the fanout.
 
-Module defaults, constructive active-provenance edges, and premise requirements are authored in
-Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
-requirement and configuration-facing invariants against the resolved projection before creating the
-World. Ambient Class ownership derives compatibility conditions from source declarations and
-lowered structured data. Bundle
+Module defaults and premise requirements are authored in Pets. The Catalog resolves defaults to a
+fixed point; the engine checks each selected Module's premise requirement and configuration-facing
+invariants against the resolved projection before creating the World. Ambient Class ownership
+derives compatibility conditions from source declarations and lowered structured data. Bundle
 availability locks ambient Classes behind their owning Modules, and exact uninhabited-domain
 viability checks reject impossible selected content before World construction.
 
@@ -121,22 +120,22 @@ three direct class exclusions for the cards its revised printings supersede; the
 replacement registry.
 
 `Engine.newGame(premise)` wires the World with one structural representative for every active
-concrete Class, then creates `Admin`. It directly creates root selected Modules and seated Players
-as one seed layer. Creating the Terraforming Mars Module immediately creates `BootstrapPhase`
-before the Players; after the whole seed layer exists, initialization drains its queued work. It
-next directly creates any selected Module left absent after its potential source ran and drains
-again, creates the premise's exact initial components, and performs a final drain. Completion
-requires an empty task queue and every premise-required component to exist before the initialized
-state is committed. Structural Class representatives are installed before event logging and
-therefore produce no Change Events. By the time `newGame` returns, the World has one Phase, every
-seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow later replaces
-Bootstrap with `SetupPhase` as an ordinary effectful operation.
+concrete Class, then creates `Admin`. Admin next creates the generated `Premise` component, whose
+immediate effects create the `BaseGameModule` first and then fan out over the other active
+`Class<Module>` representatives. Its queued `ModulesReady` signal runs after all selected Modules
+and seated Players exist. The initializer then drains the remaining queued work, creates the
+premise's exact initial components, and performs a
+final drain. Completion requires an empty task queue and every premise-required component to exist
+before the initialized state is committed. Structural Class representatives are installed before
+event logging and therefore produce no Change Events. By the time `newGame` returns, the World has
+one Phase, every seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow
+later replaces Bootstrap with `SetupPhase` as an ordinary effectful operation.
 
-This staging is deliberate. A queued `:` self-effect is selected only after the whole seed layer
-exists, so peer initializers appear in stable level-by-level causal history and a queued `EACH`
-sees the Players and Modules in that layer. The component carrying the effect remains the cause of
-the resulting changes; the Kotlin initializer is not a second registry of everything a Module or
-Player owns. Stable drain order is diagnostic, not game meaning.
+This staging is deliberate. The generated declaration is the executable form of the already
+resolved Module selection; live effects do not choose defaults from a partial World. Queued
+self-effects execute only after all Modules and Players have been created, so a queued `EACH` sees
+that whole layer. The component carrying the effect remains the cause of the resulting changes.
+Stable drain order is diagnostic, not game meaning.
 
 Required state should arise at its earliest honest owner. The base Module creates initial
 global-parameter status, Player1 creates the first-player token, the selected map creates its Mars
@@ -181,12 +180,11 @@ The goal is not to call every constructor step an Admin action. It is to make th
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, the initializer directly materializes only root premise Modules, seated Players, and
-exact initial component Types. Queued Module and Player effects create their owned bootstrap state,
-including constructively selected Modules; `EACH` over Class representatives supplies generic
-specialization fanout. The initializer's direct fallback is only for a selected Module still absent
-after a potential source's gated effect had an opportunity to run. An exact `HAS =1 This` remains a
-live multiplicity invariant, not an initialization instruction.
+In Canon, the initializer directly materializes only `Admin`, the generated `Premise`, seated
+Players, and exact initial component Types. Immediate Premise effects create all selected Modules;
+queued Module and Player effects create their owned bootstrap state. `EACH` over Class
+representatives supplies generic specialization fanout. An exact `HAS =1 This` remains a live
+multiplicity invariant, not an initialization instruction.
 
 ## Component graph
 

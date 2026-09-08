@@ -1,6 +1,6 @@
 "The base Terraforming Mars rules"
-CLASS TerraformingMars : Module {
-  HAS =1 GameMode
+CLASS TerraformingMars : BaseGameModule {
+  HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
@@ -13,8 +13,8 @@ CLASS TerraformingMars : Module {
   This: Hand, Selecting, Revealed
   This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   This: EACH Class<RemoteArea> { RemoteArea }
-  This IF MAX 0 MarsMap: TharsisMap
-  This IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
+
+  ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
   CorporationPhase: Photosynthesis
   CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
@@ -37,7 +37,6 @@ CLASS QuickStartVariant : Module {
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
 
-  // Bootstrap gains Modules before Players, so a Module's creation-time fanout cannot see them.
   // Queued `This` work gives every Player its support after the complete seat layer exists.
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>> // TODO: doesn't belong here
@@ -626,6 +625,12 @@ ABSTRACT CLASS Module : System {
   -This:: Die!
 }
 
+"The Module whose immediate setup must precede every other selected Module"
+ABSTRACT CLASS BaseGameModule : Module { HAS =1 BaseGameModule }
+
+"Signals that the complete selected Module layer is live"
+CLASS ModulesReady : Signal
+
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS GameMode : Module {
   HAS MAX 1 GameMode
@@ -659,7 +664,6 @@ CLASS SoloMode : GameMode {
   HAS =1 SoloObjective
 
   This: SoloOpponent
-  This IF MAX 0 SoloObjective: StandardSoloObjective.
   This: 14 SoloGenerationsLeft
   SetupPhase: 14 TerraformRating<Player>
   Generation: -SoloGenerationsLeft.
@@ -671,6 +675,8 @@ ABSTRACT CLASS SoloObjective : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloObjective {
+    autoSelectWhen = HAS "SoloMode, MAX 0 SoloObjective"
+
     CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player>
   }
 

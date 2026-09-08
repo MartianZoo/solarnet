@@ -3,13 +3,10 @@ package dev.martianzoo.engine
 import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
-import dev.martianzoo.pets.api.SystemClasses.THIS
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.ModuleProvenance
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
@@ -29,8 +26,6 @@ internal class Initializer(
     val adminCause = Cause(ADMIN.expression, adminEvent.ordinal)
     createPremiseComponents(adminCause)
     drainBootstrapTasks()
-    createMissingPremiseModules(adminCause)
-    drainBootstrapTasks()
     createInitialComponents(adminCause)
     drainBootstrapTasks()
     verifyCompletedBootstrap()
@@ -49,76 +44,20 @@ internal class Initializer(
         .forEach(tasks::addTasks)
   }
 
-  /**
-   * Creates root selected Modules and seated Players; selected descendants come from their roots.
-   */
+  /** Creates the resolved premise recipe followed by the seated Players. */
   private fun createPremiseComponents(cause: Cause) {
-    val orderedModules = orderModulesByActiveProvenance()
-    val constructivelyCreatedModules =
-        premise.modules
-            .flatMap { source -> ModuleProvenance.gains(classTable.getClass(source).declaration) }
-            .mapNotNullTo(linkedSetOf()) { gain -> gain.target.takeIf { it in premise.modules } }
+    premise.premiseClassName?.let { execute("$it", cause) }
     createComponents(
-        orderedModules
-            .filter { it.className !in constructivelyCreatedModules }
-            .flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
-            premise.playerNames.map(classTable::getClass).flatMap {
-              classTable.concreteSubtypesSameClass(it.baseType)
-            },
+        premise.playerNames.map(classTable::getClass).flatMap {
+          classTable.concreteSubtypesSameClass(it.baseType)
+        },
         cause,
         "premise",
     )
   }
 
-  /**
-   * Orders Modules needed to evaluate provenance conditions before the source whose condition
-   * observes them. A constructive source gets the first opportunity to create its target before the
-   * initializer considers creating that target directly from the premise.
-   */
-  private fun orderModulesByActiveProvenance(): List<Class> {
-    val modules = premise.modules.associateWith(classTable::getClass)
-    val dependencies = modules.mapValues { (_, source) ->
-      ModuleProvenance.gains(source.declaration).flatMapTo(linkedSetOf()) { gain ->
-        val observedModules =
-            gain.requirements
-                .flatMap { it.descendantsOfType<ClassName>() }
-                .filter { it != THIS && classTable.findClass(it) != null }
-                .flatMap { referencedName ->
-                  val referenced = classTable.getClass(referencedName)
-                  modules.values.filter { candidate ->
-                    candidate.className != gain.target && candidate.isSubtypeOf(referenced)
-                  }
-                }
-        observedModules
-      } - source
-    }
-    val ordered = mutableListOf<Class>()
-    val visiting = mutableSetOf<ClassName>()
-    val visited = mutableSetOf<ClassName>()
-    fun visit(name: ClassName) {
-      if (name in visited) return
-      require(visiting.add(name)) { "cyclic active Module provenance involving $name" }
-      dependencies.getValue(name).forEach { visit(it.className) }
-      visiting.remove(name)
-      visited.add(name)
-      ordered.add(modules.getValue(name))
-    }
-    premise.modules.forEach(::visit)
-    return ordered
-  }
-
   private fun createInitialComponents(cause: Cause) {
     createComponents(premise.initialComponentTypes.map(classTable::resolve), cause, "initial")
-  }
-
-  /** Directly creates selected targets whose potential constructive conditions did not hold. */
-  private fun createMissingPremiseModules(cause: Cause) {
-    val missing =
-        premise.modules
-            .map(classTable::getClass)
-            .filter { agent.count("${it.baseType.expression}") == 0 }
-            .flatMap { classTable.concreteSubtypesSameClass(it.baseType) }
-    createComponents(missing, cause, "remaining premise")
   }
 
   /** Runs choice-free queued initialization work in stable insertion order. */
@@ -129,7 +68,8 @@ internal class Initializer(
 
   private fun verifyCompletedBootstrap() {
     val expected =
-        premise.modules.map(classTable::getClass).map(Class::baseType) +
+        listOfNotNull(premise.premiseClassName).map(classTable::getClass).map(Class::baseType) +
+            premise.modules.map(classTable::getClass).map(Class::baseType) +
             premise.playerNames.map(classTable::getClass).map(Class::baseType) +
             premise.initialComponentTypes.map(classTable::resolve)
     val missing = expected.filter { agent.count("${it.expression}") == 0 }
@@ -144,39 +84,11 @@ internal class Initializer(
   private fun createComponents(types: Collection<Type>, cause: Cause, description: String) {
     val remaining = types.toMutableList()
     val missingByType = mutableMapOf<Type, Collection<Type>>()
-    // TODO: Ignore inactive gated gains here; false mutual provenance can otherwise deadlock.
-    val moduleSourcesByTarget =
-        premise.modules
-            .flatMap { source ->
-              ModuleProvenance.gains(classTable.getClass(source).declaration)
-                  .filter { it.target in premise.modules }
-                  .map { it.target to source }
-            }
-            .groupBy({ it.first }, { it.second })
-    val sourcesByConstructiveType =
-        premise.modules
-            .flatMap { source ->
-              ModuleProvenance.gains(classTable.getClass(source).declaration)
-                  .filter { THIS !in it.expression.descendantsOfType<ClassName>() }
-                  .mapNotNull { gain ->
-                    runCatching { classTable.resolve(gain.expression) }
-                        .getOrNull()
-                        ?.let { it to source }
-                  }
-            }
-            .groupBy({ it.first }, { it.second })
 
     while (remaining.isNotEmpty()) {
       var progress = false
       val round = remaining.toList()
       for (type in round) {
-        if (
-            (moduleSourcesByTarget[type.className].orEmpty() +
-                    sourcesByConstructiveType[type].orEmpty())
-                .any { source -> agent.count("$source") == 0 }
-        ) {
-          continue
-        }
         if (agent.count("${type.expression}") > 0) {
           remaining.remove(type)
           missingByType.remove(type)
@@ -201,7 +113,7 @@ internal class Initializer(
               val reason =
                   missingByType[type]?.let { dependencies ->
                     "requires " + dependencies.joinToString { "${it.expressionFull}" }
-                  } ?: "is waiting for a constructive source"
+                  } ?: "could not be created"
               "  ${type.expressionFull} $reason"
             }
         throw invalidPetDefinition(

@@ -150,8 +150,8 @@ Use `EACH` when one component owns a one-time rule that acts independently on th
 at that moment. Prefer an ordinary Class effect when each recipient owns the rule, especially when
 each player must make a choice. Prefer a persistent listener when the reaction must remain installed
 throughout the game. A fanout triggered before its intended recipients exist silently does nothing.
-During staged bootstrap, however, root Modules and all seated Players exist before queued self-effect
-tasks are selected, so a queued root initializer can reliably fan out over that seed layer. An
+During staged bootstrap, however, Premise-created Modules and all seated Players exist before queued
+self-effect tasks execute, so a queued initializer can reliably fan out over that seed layer. An
 immediate initializer cannot; outside that special staging, `SetupPhase` remains the earliest
 general host for fanout over all seated Players.
 

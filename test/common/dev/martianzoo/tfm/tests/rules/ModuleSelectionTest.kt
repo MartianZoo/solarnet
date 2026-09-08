@@ -355,11 +355,11 @@ internal class ModuleSelectionTest {
     val rejections =
         listOf(
             Rejection(
-                description = "the Prelude 2 expansion constructively includes its card pack",
+                description = "the Prelude 2 expansion requires its card pack",
                 config = "Prelude2Expansion, -Prelude2CardPack",
             ),
             Rejection(
-                description = "the Prelude 2 expansion constructively includes the Prelude 1 rules",
+                description = "the Prelude 2 expansion requires the Prelude 1 rules",
                 config = "Prelude2Expansion, -PreludeExpansion",
             ),
             Rejection(

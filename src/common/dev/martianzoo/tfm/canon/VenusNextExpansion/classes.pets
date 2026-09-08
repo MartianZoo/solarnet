@@ -1,7 +1,8 @@
 CLASS VenusNextExpansion : Module {
   This: AirScrappingSP
-  This IF MAX 0 ExtendedGlobalParametersRule: StandardVenusTrackRules
-  This IF ExtendedGlobalParametersRule: ExtendedVenusTrackRules
+
+  ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardVenusTrackRules
+  ModulesReady IF ExtendedGlobalParametersRule: ExtendedVenusTrackRules
 }
 
 CLASS AirScrappingSP : StandardProject {
