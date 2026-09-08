@@ -484,3 +484,36 @@ custom instruction, new engine phase, or duplicated card/resource model. Code re
 split floater gain or loss, empty-card omission, cross-player colony count, missing Jovian cap,
 influence applied before a cap, early Corrosive card draw, or optional event in the wrong pool. The
 next slice will place the complete Turmoil operation in its exact Solar phase order.
+
+## 2026-09-08 — Stage 15: ordered Solar operation
+
+Integrated Turmoil into the Solar phase as one short-lived `TurmoilSolarOperation`. Its two
+automatic gain effects run in declaration order: every player first loses one TR, then the current
+event measures influence and resolves. The operation remains present while any player choice or
+other queued consequence is unfinished. Idle cleanup removes it only after that work settles, and
+its removal queues `FormGovernment THEN ChangingTimes`. Government formation already includes the
+ruling bonus, chairman replacement, ruling-party cleanup, dominance selection, and Lobby refill.
+
+This latch is necessary because `THEN` waits for its direct task but not for consequences created
+by that task. Several events create ocean, resource, card, or floater choices; directly chaining
+the resolution signal to government would therefore let Admin advance politics while a player was
+still resolving the event. The temporary operation states the real completion fact once and relies
+on the engine's existing idle-cleanup rule. It adds no phase, scheduler, retry, priority, or Kotlin
+workflow branch.
+
+Functional Solar-phase coverage starts from three occupied event positions and makes Aquifer
+Released by Public Council current. It observes both players' TR revision while the ocean choice is
+pending, confirms Greens still rule and the current card remains, then completes the choice and
+verifies Mars First forms government before the event queue advances and requests the next Distant
+event. A second scenario makes Red Influence current at 20 TR: its three-M€ loss proves the event
+read 19 TR after revision, while the later Reds ruling bonus explains the final return to 20 TR.
+The focused Solar tests pass.
+
+VALUES and minimality review: the operation is one Pets class with three effects and corresponds
+to the named Turmoil step in the physical Solar sequence. Existing event, government, and queue
+components retain all of their behavior; the latch only states when the next real operation may
+begin. No production Kotlin or custom instruction changed. Code review found no event-before-TR
+calculation, government/event interleaving, early Lobby refill, Changing Times before government,
+unresolved event discard, extra TR revision, or first-generation requirement for a Current event.
+The next slice will audit the complete expansion against the source record and add the preserved
+solo game as replay-level evidence.

@@ -1,6 +1,7 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
   HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
+  HAS Class<TurmoilSolarOperation>
   HAS Class<ResolveCurrentGlobalEvent>, Class<ResolveGlobalEvent>
   HAS Class<RemoveOceanForGlobalEvent>, Class<ChooseDryDesertResource>
   HAS Class<RaiseTemperatureForGlobalEvent>, Class<RaiseTemperatureAgainForGlobalEvent>
@@ -12,11 +13,20 @@ CLASS TurmoilExpansion : Module {
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
+  SolarPhase: TurmoilSolarOperation
 }
 
 "Adds the Global Events that require both Venus Next and Colonies"
 CLASS TurmoilVenusColoniesEvents : Module {
   autoSelectWhen = HAS "TurmoilExpansion, VenusNextExpansion, ColoniesExpansion"
+}
+
+"Runs TR revision and the current event, then changes government and advances the event queue"
+CLASS TurmoilSolarOperation : Temporary, System {
+  HAS MAX 1 This
+  This:: EACH Player { -TerraformRating. }
+  This:: ResolveCurrentGlobalEvent
+  -This: FormGovernment THEN ChangingTimes
 }
 
 "A revealed Global Event card"
