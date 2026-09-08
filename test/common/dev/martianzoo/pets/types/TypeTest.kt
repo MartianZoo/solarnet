@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -120,9 +121,9 @@ internal class TypeTest {
     assertFails { table.resolve(te("Animal<Ants>")) }
 
     assertFails { table.resolve(te("Microbe<Player1, Ants<Player2>>")) }
-    table.resolve(te("Animal<Player1, !Fish>")).abstract shouldBe true
-    table.resolve(te("Animal<!Fish<Player1>>")).abstract shouldBe true
-    table.resolve(te("Animal<Player1, !Fish<Player2>>")) shouldBe
+    table.resolve(te("Animal<Player1, ResourceCard(NOT Fish)>")).abstract shouldBe true
+    table.resolve(te("Animal<ResourceCard(NOT Fish<Player1>)>")).abstract shouldBe true
+    table.resolve(te("Animal<Player1, ResourceCard(NOT Fish<Player2>)>")) shouldBe
         table.resolve(te("Animal<Player1>"))
 
     table.resolve(te("Pendant<Player1, Fish<Player2>>")).abstract shouldBe false
@@ -318,7 +319,7 @@ internal class TypeTest {
   }
 
   @Test
-  internal fun complementDependencies() {
+  internal fun differenceTypesAreStandaloneRefinements() {
     val table =
         loadTypes(
             """
@@ -328,14 +329,23 @@ internal class TypeTest {
                 .trimIndent()
         )
 
-    table.resolve(te("Owned<Player2>")).isSubtypeOf(table.resolve(te("Owned<!Player1>"))) shouldBe
-        true
-    table.resolve(te("Owned<Player1>")).isSubtypeOf(table.resolve(te("Owned<!Player1>"))) shouldBe
-        false
+    val notPlayer1 = table.resolve(te("Owner(NOT Player1)"))
+
+    table.resolve(te("Player2")).isSubtypeOf(notPlayer1) shouldBe true
+    table.resolve(te("Player1")).isSubtypeOf(notPlayer1) shouldBe false
+    table.resolve(te("Owner")).isSubtypeOf(notPlayer1) shouldBe false
+    notPlayer1.allConcreteSubtypes().toSet() shouldBe setOf(table.resolve(te("Player2")))
+    table.allConcreteSubtypes(notPlayer1).toSet() shouldBe setOf(table.resolve(te("Player2")))
+    table
+        .resolve(te("Owned<Player2>"))
+        .isSubtypeOf(table.resolve(te("Owned<Owner(NOT Player1)>"))) shouldBe true
+    table
+        .resolve(te("Owned<Player1>"))
+        .isSubtypeOf(table.resolve(te("Owned<Owner(NOT Player1)>"))) shouldBe false
   }
 
   @Test
-  internal fun complementConstraintWithExplicitDomain() {
+  internal fun differenceConstraintIntersectsAnExplicitUseSiteDomain() {
     val table =
         loadTypes(
             """
@@ -344,7 +354,7 @@ internal class TypeTest {
                 .trimIndent()
         )
     val actor = table.resolve(te("Actor"))
-    val notPlayer1 = te("!TestPlayer1")
+    val notPlayer1 = te("Actor(NOT TestPlayer1)")
 
     table.matchesConstraint(
         table.resolve(te("TestPlayer2")),
@@ -360,6 +370,55 @@ internal class TypeTest {
     ) shouldBe false
     table.matchesConstraint(table.resolve(te("Admin")), notPlayer1, actor, NoGameState) shouldBe
         true
+  }
+
+  @Test
+  internal fun differenceOperandsMustBeStructuralTypes() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner { CLASS Player1, Player2 }",
+            "CLASS Marker<Player>",
+        )
+
+    shouldThrow<ExpressionException> {
+      table.resolve(te("Owner(NOT Player(HAS Marker))"))
+    }
+    shouldThrow<ExpressionException> {
+      table.resolve(te("Owner(NOT Player(NOT Player1))"))
+    }
+  }
+
+  @Test
+  internal fun differenceExclusionsUseSetIntersection() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }",
+        )
+    val nonOwnerActor = table.resolve(te("Actor(NOT Owner)"))
+
+    table.resolve(te("Admin")).isSubtypeOf(nonOwnerActor) shouldBe true
+    table.resolve(te("Player1")).isSubtypeOf(nonOwnerActor) shouldBe false
+  }
+
+  @Test
+  internal fun differenceDetectsOverlapWithoutAUniqueIntersectionClass() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Left
+            ABSTRACT CLASS Right
+            CLASS FirstOverlap : Left, Right
+            CLASS SecondOverlap : Left, Right
+            CLASS LeftOnly : Left
+            """
+                .trimIndent()
+        )
+    val leftWithoutRight = table.resolve(te("Left(NOT Right)"))
+
+    table.resolve(te("FirstOverlap")).isSubtypeOf(leftWithoutRight) shouldBe false
+    table.resolve(te("SecondOverlap")).isSubtypeOf(leftWithoutRight) shouldBe false
+    table.resolve(te("LeftOnly")).isSubtypeOf(leftWithoutRight) shouldBe true
+    leftWithoutRight.allConcreteSubtypes().toSet() shouldBe setOf(table.resolve(te("LeftOnly")))
   }
 
   @Test
@@ -422,7 +481,7 @@ internal class TypeTest {
         .singleConcreteSubtype(onlyFirstIsMarked) shouldBe
         multipleTable.resolve(te("Class<FirstPlace>"))
 
-    val complementTable =
+    val differenceTable =
         loadTypes(
             """
             CLASS Player1 : Owner
@@ -431,8 +490,16 @@ internal class TypeTest {
             """
                 .trimIndent()
         )
-    complementTable.resolve(te("Possession<!Player1>")).singleConcreteSubtype(met) shouldBe
-        complementTable.resolve(te("Possession<Player2>"))
+    differenceTable
+        .resolve(te("Possession<Owner(NOT Player1)>"))
+        .singleConcreteSubtype(met) shouldBe differenceTable.resolve(te("Possession<Player2>"))
+    differenceTable
+        .resolve(te("Possession<Owner(NOT Player1)>"))
+        .allConcreteSubtypes()
+        .toList() shouldBe listOf(differenceTable.resolve(te("Possession<Player2>")))
+    differenceTable
+        .allConcreteSubtypes(differenceTable.resolve(te("Possession<Owner(NOT Player1)>")))
+        .toList() shouldBe listOf(differenceTable.resolve(te("Possession<Player2>")))
 
     val incompatibleTable =
         loadTypes(

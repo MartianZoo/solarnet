@@ -501,7 +501,6 @@ public class Transformers(public val classTable: ClassTable) {
         }
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
-        if (node.hasDeferredOwnerComplement()) return node
 
         val klass = classTable.getClass(node.className)
         val defaultDeps = klass.defaults.allUsages.dependencies
@@ -520,26 +519,6 @@ public class Transformers(public val classTable: ClassTable) {
       }
     }
   }
-
-  internal fun insertDeferredComplementDefaults(context: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode {
-        if (node !is Expression) return transformChildren(node)
-        if (!node.hasComplement()) return node
-
-        val transformed = transformChildren(node) as Expression
-        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
-        val result = insertDefaultsIntoExpr(transformed, defaultDeps, context, classTable)
-        return result
-      }
-    }
-  }
-
-  private fun Expression.hasDeferredOwnerComplement(): Boolean =
-      (complement && className == OWNER) || arguments.any { it.hasDeferredOwnerComplement() }
-
-  private fun Expression.hasComplement(): Boolean =
-      complement || arguments.any { it.hasComplement() }
 
   private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
 

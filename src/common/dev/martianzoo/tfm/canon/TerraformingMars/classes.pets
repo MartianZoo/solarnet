@@ -93,7 +93,7 @@ CLASS Placement<MarsArea> : Signal
 
 "A player's reservation of one land area"
 CLASS Community<LandArea> : Owned<Player> {
-  Tile<LandArea> BY !Owner:: Die
+  Tile<LandArea> BY Player(NOT Owner):: Die
   Tile<LandArea> BY Owner:: -This!
 }
 

@@ -30,6 +30,7 @@ internal class ExpressionTest {
   @Test
   internal fun exactPetsKeywordsCannotBeClassNames() {
     assertFailsWith<IllegalArgumentException> { cn("HAS") }
+    assertFailsWith<IllegalArgumentException> { cn("NOT") }
     assertFailsWith<IllegalArgumentException> { cn("CLASS") }
     assertFailsWith<IllegalArgumentException> { cn("X") }
   }
@@ -47,8 +48,8 @@ internal class ExpressionTest {
     testRoundTrip("Foo(HAS? Bar, MAX 0 Baz)")
     testRoundTrip("Class<Foo>(HAS Foo<Bar>)")
     testRoundTrip("Has<By, Max>")
-    testRoundTrip("!Foo")
-    testRoundTrip("Foo<!Bar>")
+    testRoundTrip("Foo(NOT Bar)")
+    testRoundTrip("Foo<Bar(NOT Baz)>")
     testRoundTrip("A_foo")
   }
 

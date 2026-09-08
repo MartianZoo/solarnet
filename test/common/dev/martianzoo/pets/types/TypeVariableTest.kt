@@ -131,7 +131,7 @@ internal class TypeVariableTest {
   }
 
   @Test
-  internal fun `a complemented occurrence captures its candidate from the dependency domain`() {
+  internal fun `a difference occurrence captures its candidate from its explicit domain`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner, Actor",
@@ -143,7 +143,9 @@ internal class TypeVariableTest {
     val effect =
         table
             .inferTypeVariables()
-            .transformEffect(parse("Resource<!Player> BY Player: Notice<!Player>"))
+            .transformEffect(
+                parse("Resource<Owner(NOT Player)> BY Player: Notice<Owner(NOT Player)>")
+            )
     val actor =
         effect.typeVariables.variables.single {
           it.declaration.expression.toString() == "Player"
@@ -152,20 +154,20 @@ internal class TypeVariableTest {
         effect.typeVariables
             .bind(mapOf(actor to table.resolve(parse("Player1"))))
             .transformEffect(effect)
-    val complemented = actorBound.typeVariables.variables.single()
+    val difference = actorBound.typeVariables.variables.single()
 
     val bindings =
         actorBound.typeVariables.bindingsFrom(
-            parse("Resource<!Player1>"),
-            table.resolve(parse("Resource<!Player1>")),
+            parse("Resource<Owner(NOT Player1)>"),
+            table.resolve(parse("Resource<Owner(NOT Player1)>")),
             table.resolve(parse("Resource<Passive>")),
         )
 
-    bindings[complemented].toString() shouldBe "Passive"
-    complemented.bound.toString() shouldBe "Owner"
+    bindings[difference].toString() shouldBe "Passive"
+    difference.bound.toString() shouldBe "Owner"
     actorBound.typeVariables.bind(bindings).transformEffect(actorBound).toString() shouldBe
         "Resource<Passive> BY Player1: Notice<Passive>"
-    complemented.declaration.expression.toString() shouldBe "!Player"
+    difference.declaration.expression.toString() shouldBe "Owner(NOT Player)"
   }
 
   @Test
@@ -215,19 +217,21 @@ internal class TypeVariableTest {
     val effect =
         table
             .inferTypeVariables()
-            .transformEffect(parse("Notice<!Player> BY Player: Pair<Player, !Player>"))
+            .transformEffect(
+                parse("Notice<Actor(NOT Player)> BY Player: Pair<Player, Actor(NOT Player)>")
+            )
     val variable =
         effect.typeVariables.variables.single {
           it.declaration.expression.toString() == "Player"
         }
     val eventVariable =
         effect.typeVariables.variables.single {
-          it.declaration.expression.toString() == "!Player"
+          it.declaration.expression.toString() == "Actor(NOT Player)"
         }
 
     variable.declaration.expression.toString() shouldBe "Player"
     variable.usages.map { it.expression.toString() } shouldContainExactly
-        listOf("!Player", "Player", "!Player")
+        listOf("Player", "Player", "Player")
     listOf<Type>(
             variable.bound,
             variable,
@@ -238,11 +242,13 @@ internal class TypeVariableTest {
         .distinct() shouldContainExactly listOf(table.resolve(parse("Player")))
     variable.bound.typeVariable shouldBe null
     variable.declaration.typeVariable shouldBe variable
-    eventVariable.usages.map { it.expression.toString() } shouldContainExactly listOf("!Player")
+    eventVariable.usages.map { it.expression.toString() } shouldContainExactly
+        listOf("Actor(NOT Player)")
     effect.typeVariables
         .bind(mapOf(variable to table.resolve(parse("Player1"))))
         .transformEffect(effect)
-        .toString() shouldBe "Notice<!Player1> BY Player1: Pair<Player1, !Player1>"
+        .toString() shouldBe
+        "Notice<Actor(NOT Player1)> BY Player1: Pair<Player1, Actor(NOT Player1)>"
   }
 
   @Test

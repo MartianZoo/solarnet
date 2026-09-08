@@ -301,7 +301,7 @@ CLASS TollStation : AutomatedCard<Class<ProjectCard>> {
   cost = 12
 
   This:: SpaceTag<This>
-  This: PROD[1 MC / SpaceTag<!Owner>]
+  This: PROD[1 MC / SpaceTag<Player(NOT Owner)>]
 }
 
 CLASS EarthOffice : ActiveCard<Class<ProjectCard>> {
@@ -448,7 +448,7 @@ CLASS PowerSupplyConsortium : AutomatedCard<Class<ProjectCard>> {
 CLASS ProtectedHabitats : ActiveCard<Class<ProjectCard>> {
   cost = 5
 
-  -Plant OR -Animal OR -Microbe BY !Owner:: Die
+  -Plant OR -Animal OR -Microbe BY Player(NOT Owner):: Die
 }
 
 CLASS Satellites : AutomatedCard<Class<ProjectCard>> {

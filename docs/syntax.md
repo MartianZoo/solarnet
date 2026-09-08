@@ -23,7 +23,7 @@ Class Declarations contain only their Class Name; Class Names use ASCII UpperCam
 
 This can be as simple as `Player1` or as complex as `CityTile<Player2, MarsArea(HAS MAX 0 CityTile<Anyone>)>`. First
 comes a class name, then an optional list of one or more dependency bounds inside angle brackets, and finally an optional
-requirement. Of course, each listed bound is an entire type expression itself.
+refinement. Of course, each listed bound is an entire type expression itself.
 
 These expressions are a way of identifying a type, and types are explained in the [type system](type-system.md) article.
 
@@ -32,7 +32,11 @@ For example, if `GreeneryTile` has a gain dependency default, a gain must say ei
 `GreeneryTile<>` or provide at least one dependency argument. Gain and removal defaults are
 independent, including on the two sides of `FROM`.
 
-A leading `!` can be used inside a dependency bound to mean "anything within this dependency's bound except the named type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not Player1. Complement type expressions are dependency constraints and have no standalone type.
+`Domain(NOT Excluded)` is a difference refinement. It denotes the part of `Domain` that does not
+overlap `Excluded`; for example, `Owner(NOT Player1)` denotes every owner except Player1. Both
+parts are explicit, so the refined type can stand alone or appear as a dependency argument.
+The excluded expression must be structural: it cannot itself contain `HAS` or `NOT`. Refined types
+are use-site expressions and cannot appear in class dependencies or supertypes.
 
 ### Class literal
 
@@ -198,4 +202,4 @@ Triggers can be joined with `OR` and restricted with `BY` or `IF`.
 
 ## TODO
 
-* Document complement bounds, `HAS?`, and refinements on class literals.
+* Document `HAS?`, difference refinements, and refinements on class literals.

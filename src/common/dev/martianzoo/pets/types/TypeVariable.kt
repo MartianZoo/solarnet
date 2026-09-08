@@ -32,7 +32,6 @@ internal constructor(
       val expression: Expression,
       val region: Int,
       val ordinal: Int,
-      val complementedUse: Boolean = false,
       val interpretedGroundType: GroundType? = null,
   )
 
@@ -62,16 +61,8 @@ internal constructor(
       val sourceClass = binding.classTable.getClass(source.className)
       val sourceArguments = source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments))
       val retainedArguments = sourceArguments.filterNot { (_, key) -> key in representedKeys }
-      val constrained = expression.appendArguments(retainedArguments.map { it.first })
-      return if (site.complementedUse) {
-        constrained.copy(complement = !constrained.complement)
-      } else {
-        constrained
-      }
+      return expression.appendArguments(retainedArguments.map { it.first })
     }
-
-    internal val appliesComplementOperator: Boolean
-      get() = site.complementedUse
   }
 
   /** The occurrence that introduces its [typeVariable]. */
