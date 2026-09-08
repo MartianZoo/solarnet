@@ -404,7 +404,7 @@ CLASS CeosFavoriteProject : EventCard<Class<ProjectCard>> {
   cost = 1
 
   This:: EventTag<This>
-  This: QuasiResource<QuasiResourceHolder(HAS QuasiResource)>.
+  This: CardResource<CardFront(HAS CardResource)>
 }
 
 CLASS AntiGravityTechnology : ActiveCard<Class<ProjectCard>> {
