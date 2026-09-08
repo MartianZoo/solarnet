@@ -54,9 +54,7 @@ internal class Implementations(
   // rather than exposing TaskQueues storage.
   private val allTasks = taskQueues.all()
 
-  private object SelectionProbeSucceeded : RuntimeException()
-
-  private object ExecutionProbeSucceeded : RuntimeException()
+  private object ProbeSucceeded : RuntimeException()
 
   private val immutableClassFacts = narrowingFacts(requirementsHold = false)
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
@@ -255,10 +253,6 @@ internal class Implementations(
     }
   }
 
-  // TURNS LAYER
-
-  internal fun startTurn() = execute("NewTurn<$actor>!")
-
   // GAMES LAYER
 
   internal fun narrowTask(narrowing: InstructionTree, intensityOmitted: Boolean = false) {
@@ -297,10 +291,6 @@ internal class Implementations(
       intensityOmitted: Boolean,
   ) {
     val task = tasks.getTaskData(taskId)
-    if (actor != task.assignee) {
-      throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
-    }
-
     val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, intensityOmitted)
     if (effectiveNarrowing == task.instruction) {
       selectAndExecuteIfConcrete(tasks, taskId)
@@ -325,35 +315,27 @@ internal class Implementations(
     if (taskId in allTasks) executeSelectedIfConcrete(queueForAnyTask(taskId), taskId)
   }
 
-  @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
-  internal fun canSelectTask(taskId: TaskId): Boolean {
+  // A probe treats every operation failure as a false result.
+  @Suppress("TooGenericExceptionCaught")
+  private fun probe(operation: () -> Unit): Boolean {
     return try {
       timeline.atomic {
-        selectAndExecuteIfConcrete(tasks, taskId)
-        throw SelectionProbeSucceeded
+        operation()
+        throw ProbeSucceeded
       }
       false
-    } catch (_: SelectionProbeSucceeded) {
+    } catch (_: ProbeSucceeded) {
       true
     } catch (_: Exception) {
       false
     }
   }
 
-  @Suppress("TooGenericExceptionCaught") // Keep this probe aligned with canSelectTask for now.
-  internal fun canExecuteTask(taskId: TaskId): Boolean {
-    return try {
-      timeline.atomic {
-        doTask(taskId)
-        throw ExecutionProbeSucceeded
-      }
-      false
-    } catch (_: ExecutionProbeSucceeded) {
-      true
-    } catch (_: Exception) {
-      false
-    }
+  internal fun canSelectTask(taskId: TaskId): Boolean = probe {
+    selectAndExecuteIfConcrete(tasks, taskId)
   }
+
+  internal fun canExecuteTask(taskId: TaskId): Boolean = probe { doTask(taskId) }
 
   internal fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
@@ -365,20 +347,9 @@ internal class Implementations(
 
   internal fun selectTask(instruction: Instruction) = selectTask(taskWithInstruction(instruction))
 
-  @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   private fun canSelectAnyTask(taskId: TaskId): Boolean {
     val queue = queueForAnyTask(taskId)
-    return try {
-      timeline.atomic {
-        selectAndExecuteIfConcrete(queue, taskId)
-        throw SelectionProbeSucceeded
-      }
-      false
-    } catch (_: SelectionProbeSucceeded) {
-      true
-    } catch (_: Exception) {
-      false
-    }
+    return probe { selectAndExecuteIfConcrete(queue, taskId) }
   }
 
   private fun selectAndExecuteIfConcrete(queue: TaskQueue, taskId: TaskId) {
@@ -660,15 +631,17 @@ internal class Implementations(
     throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
   }
 
-  internal fun tryTask(id: TaskId) {
+  private fun attempt(operation: () -> Unit) {
     try {
-      timeline.atomic { doTask(id) }
+      timeline.atomic(operation)
     } catch (_: AbstractException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
       // A probe that is unavailable in the current World likewise changes nothing.
     }
   }
+
+  internal fun tryTask(id: TaskId) = attempt { doTask(id) }
 
   internal fun tryTask(
       narrowing: InstructionTree,
@@ -677,12 +650,8 @@ internal class Implementations(
       taskId: TaskId? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
-    try {
+    attempt {
       doTask(evaluated, intensityOmitted, executeSubmittedGroup, taskId)
-    } catch (_: AbstractException) {
-      // A probe that needs narrowing leaves the task and event history unchanged.
-    } catch (_: NotNowException) {
-      // A probe that is unavailable in the current World likewise changes nothing.
     }
   }
 
@@ -701,8 +670,4 @@ internal class Implementations(
 
   private fun queueForAnyTask(taskId: TaskId): TaskQueue =
       tasks.queueFor(allTasks.getTaskData(taskId).assignee)
-
-  private fun execute(instruction: String, fakeCause: Cause? = null): Unit =
-      addTasks(InstructionGroup.of(parse<InstructionTree>(instruction)), fakeCause)
-          .forEach(::doTask)
 }

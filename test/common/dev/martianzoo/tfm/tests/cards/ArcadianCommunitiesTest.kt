@@ -13,8 +13,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
   internal fun `Starts with resources and a community on any empty land area`() {
     newGame(PromoCardPack)
 
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-        .expect("40 MC, 10 Steel, RequiredAction")
+    p1.playCorp(ArcadianCommunities).expect("40 MC, 10 Steel, RequiredAction")
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
 
@@ -26,7 +25,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("CityTile<Tharsis_1_1>")
     p1.manual("Community<Tharsis_1_3>")
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.playCorp(ArcadianCommunities)
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
@@ -41,7 +40,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
   @Test
   internal fun `Action places a community adjacent to an owned tile`() {
     newGame(PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.playCorp(ArcadianCommunities)
     p1.manual("CityTile<Tharsis_1_1>")
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
@@ -57,7 +56,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
   @Test
   internal fun `Action places a community adjacent to an owned community`() {
     newGame(PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.playCorp(ArcadianCommunities)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
 
@@ -70,7 +69,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
   internal fun `Action does not chain from another player's pieces`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.playCorp(ArcadianCommunities)
     p2.manual("CityTile<Tharsis_1_1>")
     p2.manual("Community<Tharsis_4_2>")
     admin.phase("Action")
@@ -87,7 +86,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
   internal fun `Developing a community removes it and pays its Arcadian owner`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.playCorp(ArcadianCommunities)
     p1.manual("Community<Tharsis_1_1>")
     p1.sneak("-40 MC")
 
@@ -100,7 +99,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
   @Test
   internal fun `Developing a Land Claim community pays its Arcadian owner`() {
     newGame(PromoCardPack, CorporateEraExpansion)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.playCorp(ArcadianCommunities)
     p1.manual("$LandClaim") { doTask("Community<Tharsis_1_1>") }
     p1.sneak("-40 MC")
 

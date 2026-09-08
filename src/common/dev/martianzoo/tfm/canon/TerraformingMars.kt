@@ -2,7 +2,6 @@
 
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.CustomMetric
@@ -37,21 +36,19 @@ import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import kotlin.math.abs
 
-private val terraformingMarsCustomClasses: Set<CustomClass> =
-    setOf(
-        TerraformingMars.Neighbor,
-        TerraformingMars.AdjustGpRequirement,
-        TerraformingMars.HandleCardTags,
-        TerraformingMars.ScoreEventVps,
-        TerraformingMars.NonNegativeIconsOf,
-        TerraformingMars.PlacementBonus,
-        TerraformingMars.CopyProductionBox,
-    )
-
 internal val terraformingMarsBundle: StandardFormBundle =
     StandardFormBundle(
         "TerraformingMars",
-        terraformingMarsCustomClasses,
+        customClasses =
+            setOf(
+                TerraformingMars.Neighbor,
+                TerraformingMars.AdjustGpRequirement,
+                TerraformingMars.HandleCardTags,
+                TerraformingMars.ScoreEventVps,
+                TerraformingMars.NonNegativeIconsOf,
+                TerraformingMars.PlacementBonus,
+                TerraformingMars.CopyProductionBox,
+            ),
         additionalResourceDirectories =
             setOf(
                 "bundles/CorporateEraExpansion",
@@ -80,7 +77,7 @@ private object TerraformingMars {
   internal object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (cardExpression, targetExpression) = type.expressionFull.arguments
-      val effects = cardEffects(card(cardExpression, game))
+      val effects = cardEffects(game.tfmCatalog.card(cardExpression.className))
       val target = targetExpression.arguments.single().className
       return effects.sumOf { it.citationsOutsideRemoval(target) }
     }
@@ -146,7 +143,8 @@ private object TerraformingMars {
         cardClassType: Type,
     ): Instruction {
       val requirement =
-          cardRequirement(representedType(cardClassType, reader)) ?: return FALLBACK_UNAVAILABLE
+          representedType(cardClassType, reader).getRequirementPropertyValue("requirement")
+              ?: return FALLBACK_UNAVAILABLE
       return globalParameterShortfall(requirement, reader)?.let { (parameter, count) ->
         Then.create(
             listOf(
@@ -226,10 +224,4 @@ private object TerraformingMars {
     require(classType.className == CLASS)
     return reader.resolve(classType.expressionFull.arguments.single())
   }
-
-  private fun card(type: HasClassName, reader: GameReader): Class =
-      reader.tfmCatalog.card(type.className)
-
-  private fun cardRequirement(cardType: Type): Requirement? =
-      cardType.getRequirementPropertyValue("requirement")
 }

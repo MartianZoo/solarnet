@@ -200,7 +200,7 @@ internal constructor(
     return when (unresolved) {
       is NoOp -> NoOp
       is Change -> resolveChange(unresolved)
-      is By -> By.createTree(resolve(unresolved.inner), canonicalActorExpression(unresolved))
+      is By -> By.createTree(resolve(unresolved.inner), actorType(unresolved).expression)
       is Per -> resolve(unresolved.inner * reader.count(unresolved.metric))
       is Gated -> {
         if (!reader.has(unresolved.gate)) throw requirementNotMet(unresolved.gate)
@@ -219,7 +219,7 @@ internal constructor(
   private fun resolveTree(unresolved: InstructionTree): InstructionTree =
       if (unresolved is InstructionGroup) unresolved else resolve(unresolved as Instruction)
 
-  private fun canonicalActorExpression(instruction: By): Expression {
+  private fun actorType(instruction: By): Type {
     val type = reader.resolve(instruction.actor)
     if (!type.rootClass.isSubtypeOf(classTable.getClass(ACTOR))) {
       throw ExpressionException("BY requires an Actor, not ${instruction.actor}")
@@ -227,7 +227,7 @@ internal constructor(
     if (type.abstract) {
       throw ExpressionException("BY requires one concrete Actor, not ${instruction.actor}")
     }
-    return type.expression
+    return type
   }
 
   private fun actorFor(instruction: By): Actor {

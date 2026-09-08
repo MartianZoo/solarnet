@@ -12,7 +12,6 @@ import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -37,10 +36,7 @@ private val MC: ClassName = cn("MC")
 public class TfmGameplay(
     private val game: World,
     override val actor: Actor,
-    private val agent: Agent = game.agent(actor),
-) : Agent by agent {
-  override val reader: GameReader
-    get() = game.reader
+) : Agent by game.agent(actor) {
 
   private var explicitPaymentChoicesRequired = false
   private var explicitUnusedActionCardsRequired = false
@@ -48,8 +44,8 @@ public class TfmGameplay(
 
   private fun asActor(actor: Actor) =
       TfmGameplay(game, actor).also {
-        if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
-        if (explicitUnusedActionCardsRequired) it.requireExplicitUnusedActionCards()
+        it.explicitPaymentChoicesRequired = explicitPaymentChoicesRequired
+        it.explicitUnusedActionCardsRequired = explicitUnusedActionCardsRequired
       }
 
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
@@ -64,16 +60,26 @@ public class TfmGameplay(
     phase("Action")
   }
 
+  /** Plays the chosen corporation without resolving any starting project-card purchase. */
+  public fun playCorp(cardName: ClassName, body: TfmGameplay.() -> Unit = {}): TaskResult {
+    val player = this
+    return inTurn {
+      playCorp(cardName)
+      player.body()
+    }
+  }
+
+  /** Plays the chosen corporation, then retains and buys [buyCards] starting project cards. */
   public fun playCorp(cardName: ClassName, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return inTurn {
-      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>, Hand>")
+      playCorp(cardName)
       buySelectedCards(buyCards)
       body()
     }
   }
 
   /** Buys the selected number of offered project cards and settles their M€ invoice. */
-  public fun buyCards(count: Int): TaskResult = agent.continueManual { buySelectedCards(count) }
+  public fun buyCards(count: Int): TaskResult = continueManual { buySelectedCards(count) }
 
   private fun OperationBody.buySelectedCards(count: Int) {
     openPendingProjectCardOffer()
@@ -174,8 +180,7 @@ public class TfmGameplay(
   private fun secondActionOffer(): Task? =
       game.tasks
           .extract { it }
-          .filter { it.assignee == actor }
-          .filter { task -> task.isActionPhaseSecondAction() }
+          .filter { task -> task.assignee == actor && task.isActionPhaseSecondAction() }
           .singleOrNull()
 
   private fun Task.isActionPhaseSecondAction(): Boolean {
@@ -363,12 +368,12 @@ public class TfmGameplay(
         val billingCause = openPendingBilling()
         val tender =
             linkedMapOf(
-                "Plant" to plants,
-                "Energy" to energy,
-                "Heat" to heat,
-                "Titanium" to titanium,
-                "Steel" to steel,
-                MC.toString() to mc,
+                cn("Plant") to plants,
+                cn("Energy") to energy,
+                cn("Heat") to heat,
+                cn("Titanium") to titanium,
+                cn("Steel") to steel,
+                MC to mc,
             )
         rejectReturnableUnit(tender)
         if (explicitPaymentChoicesRequired && !nondefaultPaymentAllowed) auditSourcedTender(tender)
@@ -389,7 +394,7 @@ public class TfmGameplay(
    * Applies the payment rule once to the complete tender. Rounding excess is legal when every
    * selected unit is necessary; a unit is illegal when removing it would still cover the debt.
    */
-  private fun rejectReturnableUnit(tender: Map<String, Int>) {
+  private fun rejectReturnableUnit(tender: Map<ClassName, Int>) {
     val debt = count("Owed<Class<MC>>")
     if (debt == 0) return
     val values =
@@ -408,14 +413,14 @@ public class TfmGameplay(
   }
 
   /** Audits sourced legal payments against the default resource allocation. */
-  private fun auditSourcedTender(tender: Map<String, Int>) {
+  private fun auditSourcedTender(tender: Map<ClassName, Int>) {
     var remainingDebt = count("Owed<Class<MC>>")
     if (remainingDebt == 0) return
     for ((currency, units) in tender) {
-      if (currency == MC.toString() || pendingPaymentOffers(currency).isEmpty()) continue
+      if (currency == MC || pendingPaymentOffers(currency).isEmpty()) continue
       val value = paymentValue(currency)
       if (value > 1) {
-        val fullValueUnits = minOf(count(currency), remainingDebt / value)
+        val fullValueUnits = minOf(count("$currency"), remainingDebt / value)
         if (units < fullValueUnits) {
           throw IllegalArgumentException(
               "$actor paid $units $currency but could pay $fullValueUnits at full value; " +
@@ -425,8 +430,8 @@ public class TfmGameplay(
       } else if (
           value == 1 &&
               units > 0 &&
-              pendingPaymentOffers(MC.toString()).isNotEmpty() &&
-              count(MC.toString()) >= remainingDebt
+              pendingPaymentOffers(MC).isNotEmpty() &&
+              count("$MC") >= remainingDebt
       ) {
         throw IllegalArgumentException(
             "$actor paid $units $currency while $remainingDebt M€ could settle the bill; " +
@@ -493,13 +498,13 @@ public class TfmGameplay(
     }
   }
 
-  private fun preparePayment(currency: String) {
+  private fun preparePayment(currency: ClassName) {
     val offer = pendingPaymentOffers(currency).singleOrNull() ?: return
     if (offer.assignee != actor) asActor(offer.assignee).selectTask(offer.id)
   }
 
   private fun pendingPaymentOffers(
-      currency: String? = null,
+      currency: ClassName? = null,
       fromCards: Boolean = false,
   ): List<Task> =
       game.tasks
@@ -511,7 +516,7 @@ public class TfmGameplay(
                   cn("Accepting") ->
                       currency == null ||
                           context.arguments.any {
-                            it.arguments.singleOrNull()?.className == cn(currency)
+                            it.arguments.singleOrNull()?.className == currency
                           }
                   cn("AcceptingFromCard") -> fromCards && currency == null
                   else -> false
@@ -539,7 +544,7 @@ public class TfmGameplay(
    * How much of the open invoice one unit of [currency] settles: one when the invoice uses that
    * denomination, plus one per [ResourceValue] the payer owns for it.
    */
-  private fun paymentValue(currency: String): Int =
+  private fun paymentValue(currency: ClassName): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0
 
   public fun cardAction1(cardName: ClassName, body: BodyLambda = {}): TaskResult =

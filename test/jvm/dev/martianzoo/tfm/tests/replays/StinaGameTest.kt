@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
 
 internal class StinaGameTest : AbstractSoloTest() {
@@ -14,7 +15,7 @@ internal class StinaGameTest : AbstractSoloTest() {
 
   @Test
   internal fun stinaSaturnSystemsGame() {
-    retainStartingProjects(10)
+    game.retainStartingProjects(10)
     with(me) {
       // Test inference: unnamed draws are assigned in the order the cards are later played.
       playCorp(SaturnSystems) {

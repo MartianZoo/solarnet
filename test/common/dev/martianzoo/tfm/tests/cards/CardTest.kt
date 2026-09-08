@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.engine.Agent
-import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -11,7 +9,6 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -107,12 +104,6 @@ internal abstract class CardTest(
 
   protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }
 
-  protected fun playCorporationWithoutStartingProjects(
-      player: TfmGameplay,
-      corporation: ClassName,
-  ): TaskResult =
-      dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
-
   private fun startGame(premise: GamePremise, retainedStartingProjects: Int): World {
     workflow?.shutdown()
     return setUpTfmGame(premise, retainedStartingProjects).initializeCardTestGame()
@@ -123,7 +114,7 @@ internal abstract class CardTest(
     return Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
       bindPlayers()
       workflow = TfmWorkflow.Auto(this).launch()
-      retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))
+      retainStartingProjects(*IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }
   }
@@ -190,7 +181,7 @@ internal abstract class CardTest(
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
     players.zip(corporations).forEach { (player, corporation) ->
-      playCorporationWithoutStartingProjects(player, corporation)
+      player.playCorp(corporation)
       player.sneak("5 ProjectCard, -15 MC")
     }
   }
@@ -205,17 +196,6 @@ internal abstract class CardTest(
   fun shutdownWorkflow() {
     workflow?.shutdown()
   }
-
-  /** Runs an instruction through the engine while hiding the uninteresting Agent plumbing. */
-  protected fun TfmGameplay.manual(
-      instruction: String,
-      body: BodyLambda = {},
-  ): TaskResult = manual(instruction, body)
-
-  protected fun Agent.manual(
-      instruction: String,
-      body: BodyLambda = {},
-  ): TaskResult = manual(instruction, body)
 
   private companion object {
     private val BORING_CORPORATIONS =

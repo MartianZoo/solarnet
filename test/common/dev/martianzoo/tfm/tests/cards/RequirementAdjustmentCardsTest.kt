@@ -11,7 +11,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   @Test
   internal fun `A satisfied printed requirement bypasses adjustment debt`() {
     newGame()
-    playCorporationWithoutStartingProjects(p1, Inventrix)
+    p1.playCorp(Inventrix)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction")
     p1.manual(
@@ -27,7 +27,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   @Test
   internal fun `Inventrix adjusts minimum and maximum global requirements by two`() {
     newGame()
-    playCorporationWithoutStartingProjects(p1, Inventrix)
+    p1.playCorp(Inventrix)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction")
     p1.manual(
@@ -45,7 +45,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   @Test
   internal fun `Requirement adjustments stack and Special Design expires on the next card`() {
     newGame()
-    playCorporationWithoutStartingProjects(p1, Inventrix)
+    p1.playCorp(Inventrix)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction")
     p1.manual("50 MC, 5 ProjectCard, 11 TemperatureStep, $AdaptationTechnology")
@@ -60,7 +60,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   @Test
   internal fun `Morning Star adjusts Venus requirements regardless of the card's tags`() {
     newGame(VenusNextExpansion)
-    playCorporationWithoutStartingProjects(p1, MorningStarInc)
+    p1.playCorp(MorningStarInc)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction")
     p1.manual("30 MC, 3 ProjectCard, 9 VenusStep")

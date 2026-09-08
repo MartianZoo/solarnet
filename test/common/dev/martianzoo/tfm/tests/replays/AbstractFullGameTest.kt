@@ -48,15 +48,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     return game.tfm(player)
   }
 
-  private fun copyThis() {
-    p1.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
-    p1.assertResources(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
-    p1.assertDashMiddle(played = 0, actions = 0, vp = 0, tr = 0, hand = 0)
-    p1.assertTags(but = 0, spt = 0) // ...
-    p1.assertDashRight(events = 0, tagless = 0, cities = 0, colonies = 0)
-    assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
-  }
-
   // Script-local counterparts live in
   // test/common/dev/martianzoo/tfm/script/StinaScriptTest.kt.
   protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
@@ -100,10 +91,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
   protected fun TfmGameplay.exMachina(adjustment: String) {
     game.exMachina(this, adjustment)
-  }
-
-  protected fun retainStartingProjects(vararg retainedCounts: Int) {
-    dev.martianzoo.tfm.tests.retainStartingProjects(game, *retainedCounts)
   }
 
   protected fun TfmGameplay.assertDashMiddle(
@@ -156,17 +143,17 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   private fun TfmGameplay.assertVps(expected: Int) {
     val onAtomicComplete = game.onAtomicComplete
     val checkpoint = game.timeline.checkpoint()
-    val autoExecModes = game.actors.associateWith { game.agent(it).autoExecMode }
+    val autoExecModes = game.actors.associateWith { game.tfm(it).autoExecMode }
     game.onAtomicComplete = {}
     try {
-      game.actors.forEach { game.agent(it).autoExecMode = FIRST }
+      game.actors.forEach { game.tfm(it).autoExecMode = FIRST }
       dropPendingTasksForSnapshot()
       admin.phase("Production") { dropPendingTasksForSnapshot() }
       admin.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
       assertCounts(expected to "VictoryPoint")
     } finally {
       game.timeline.rollBack(checkpoint)
-      autoExecModes.forEach { (actor, mode) -> game.agent(actor).autoExecMode = mode }
+      autoExecModes.forEach { (actor, mode) -> game.tfm(actor).autoExecMode = mode }
       game.onAtomicComplete = onAtomicComplete
     }
   }
@@ -183,7 +170,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     game.tasks
         .extract { it.id to it.assignee }
         .forEach { (id, assignee) ->
-          game.agent(assignee).dropTask(id)
+          game.tfm(assignee).dropTask(id)
         }
   }
 }

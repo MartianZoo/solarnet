@@ -4,6 +4,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -33,7 +34,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
   @Test
   internal fun game20260819() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(4, 5, 5)
+    game.retainStartingProjects(4, 5, 5)
 
     val JR = p1
     val KB = p2

@@ -47,9 +47,6 @@ public open class TfmCatalog : Catalog {
     ClassLoader(this).loadEverything().also(::validateCards)
   }
 
-  private val universe: ClassTable
-    get() = classTable
-
   private fun validateCards(table: ClassTable) {
     val tagClass = table.findClass(TAG_CLASS) ?: return
     val eventCard = table.findClass(TfmClasses.EVENT_CARD)
@@ -63,12 +60,13 @@ public open class TfmCatalog : Catalog {
     val activeCard = table.findClass(TfmClasses.ACTIVE_CARD)
     val automatedCard = table.findClass(TfmClasses.AUTOMATED_CARD)
     cardClassNames.map(table::getClass).forEach { card ->
-      cardTags(card).elements.forEach { tagName ->
+      val tags = cardTags(card).elements
+      tags.forEach { tagName ->
         require(table.getClass(tagName).isSubtypeOf(tagClass)) {
           "${card.className} names non-Tag class $tagName as a tag"
         }
       }
-      if (TfmClasses.EVENT_TAG in cardTags(card).elements) {
+      if (TfmClasses.EVENT_TAG in tags) {
         require(eventCard != null && card.isSubtypeOf(eventCard)) {
           "non-EventCard ${card.className} has an EventTag"
         }
@@ -103,25 +101,18 @@ public open class TfmCatalog : Catalog {
     }
   }
 
-  private fun Trigger.isEndTrigger(): Boolean =
+  private fun Trigger.allLeavesMatch(predicate: (Trigger) -> Boolean): Boolean =
       when (this) {
-        is OnGainOf -> expression.className == TfmClasses.END
-        is Trigger.Or -> triggers.all { it.isEndTrigger() }
-        is Trigger.WrappingTrigger -> inner.isEndTrigger()
-        is Trigger.OnRemoveOf,
-        WhenGain,
-        Trigger.WhenRemove -> false
+        is Trigger.Or -> triggers.all { it.allLeavesMatch(predicate) }
+        is Trigger.WrappingTrigger -> inner.allLeavesMatch(predicate)
+        else -> predicate(this)
       }
 
-  private fun Trigger.isSelfGainTrigger(): Boolean =
-      when (this) {
-        WhenGain -> true
-        is Trigger.Or -> triggers.all { it.isSelfGainTrigger() }
-        is Trigger.WrappingTrigger -> inner.isSelfGainTrigger()
-        is OnGainOf,
-        is Trigger.OnRemoveOf,
-        Trigger.WhenRemove -> false
-      }
+  private fun Trigger.isEndTrigger(): Boolean = allLeavesMatch {
+    it is OnGainOf && it.expression.className == TfmClasses.END
+  }
+
+  private fun Trigger.isSelfGainTrigger(): Boolean = allLeavesMatch { it == WhenGain }
 
   private fun PetClass.carriesPersistentBehavior(): Boolean =
       allSuperclasses().any { superclass ->
@@ -220,15 +211,7 @@ public open class TfmCatalog : Catalog {
       require(configuredPlayerNames.isNotEmpty()) {
         "a Terraforming Mars configuration must have at least one player name"
       }
-      val catalogWithPlayers =
-          if (
-              configuredPlayerNames ==
-                  Player.players(configuredPlayerNames.size).map(Player::className)
-          ) {
-            withPlayers(configuredPlayerNames.size)
-          } else {
-            withPlayers(configuredPlayerNames)
-          }
+      val catalogWithPlayers = withPlayers(configuredPlayerNames)
       if (catalogWithPlayers !== this) return catalogWithPlayers.gamePremise(config)
     }
     val explicitlyIncluded =
@@ -245,7 +228,7 @@ public open class TfmCatalog : Catalog {
       modules.keys
           .filter { moduleName -> moduleName !in explicitlyExcluded }
           .forEach { moduleName ->
-            val property = universe.getClass(moduleName).properties[AUTO_SELECT_WHEN]
+            val property = classTable.getClass(moduleName).properties[AUTO_SELECT_WHEN]
             val requirement = (property as? RequirementValue)?.value ?: return@forEach
             if (requirement.isMetBy { metric -> countConfigured(metric, included - moduleName) }) {
               next.add(moduleName)
@@ -261,7 +244,7 @@ public open class TfmCatalog : Catalog {
     cards
         .filter { it.className in explicitlyIncluded }
         .forEach { card ->
-          cardCompatibilityRequirement(card)?.let { requirement ->
+          cardBundleCompatibilityRequirement(card)?.let { requirement ->
             require(
                 requirement.isMetBy { metric -> countConfigured(metric, included - card.className) }
             ) {
@@ -344,7 +327,7 @@ public open class TfmCatalog : Catalog {
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(included, universe) }
+            .filter { it.included && it.appliesTo(included, classTable) }
             .mapTo(hashSetOf(), ClassSelection::className)
     if (MULTIPLAYER_MODE in moduleNames) {
       requireGoalPoolSize(selectedMilestoneNames, TfmClasses.MILESTONE)
@@ -357,13 +340,13 @@ public open class TfmCatalog : Catalog {
         if (moduleNames.isEmpty()) {
           this
         } else {
-          val baseGameModule = universe.findClass(BASE_GAME_MODULE)
+          val baseGameModule = classTable.findClass(BASE_GAME_MODULE)
           val orderedModuleNames =
               if (baseGameModule == null) {
                 moduleNames.toList()
               } else {
-                moduleNames.filter { universe.getClass(it).isSubtypeOf(baseGameModule) } +
-                    moduleNames.filterNot { universe.getClass(it).isSubtypeOf(baseGameModule) }
+                moduleNames.filter { classTable.getClass(it).isSubtypeOf(baseGameModule) } +
+                    moduleNames.filterNot { classTable.getClass(it).isSubtypeOf(baseGameModule) }
               }
           withPremiseDeclaration(orderedModuleNames, configuredPlayerNames, initialTypes)
         }
@@ -396,10 +379,10 @@ public open class TfmCatalog : Catalog {
   }
 
   private fun initialColonyTileType(className: ClassName) =
-      if (universe.getClass(className).isSubtypeOf(universe.getClass(COLONY_TILE_SELECTION))) {
+      if (classTable.getClass(className).isSubtypeOf(classTable.getClass(COLONY_TILE_SELECTION))) {
         SELECTED_COLONY_TILE.of(className.classExpression())
       } else {
-        universe
+        classTable
             .resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
             .allConcreteSubtypes()
             .single { it.rootClass.className != SELECTED_COLONY_TILE }
@@ -410,9 +393,9 @@ public open class TfmCatalog : Catalog {
     require(metric is Count && metric.expression.simple) {
       "Module defaults must count simple classes: $metric"
     }
-    val countedClass = universe.getClass(metric.expression.className)
+    val countedClass = classTable.getClass(metric.expression.className)
     return configuredClassNames.count { configuredName ->
-      universe.getClass(configuredName).isSubtypeOf(countedClass)
+      classTable.getClass(configuredName).isSubtypeOf(countedClass)
     }
   }
 
@@ -438,7 +421,7 @@ public open class TfmCatalog : Catalog {
               requirement = goalAutomaticSelectionRequirement(declaration, goalClass),
           )
         }
-        .filter { selection -> selection.appliesTo(configuredClassNames, universe) }
+        .filter { selection -> selection.appliesTo(configuredClassNames, classTable) }
         .mapTo(linkedSetOf(), ClassSelection::className)
         .minus(explicitlyExcluded)
   }
@@ -452,7 +435,7 @@ public open class TfmCatalog : Catalog {
 
   /** Catalog-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
   public val colonyTileClassNames: Set<ClassName> by lazy {
-    val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
+    val colonyTile = classTable.findClass(COLONY_TILE) ?: return@lazy emptySet()
     colonyTile.allSubclasses().filterNot { it.abstract }.mapTo(linkedSetOf()) { it.className }
   }
 
@@ -463,8 +446,8 @@ public open class TfmCatalog : Catalog {
       }
 
   private fun resolveConfigurationName(configuredName: ClassName): ClassName? {
-    val configuredClass = universe.findClass(configuredName) ?: return null
-    val playerClass = universe.findClass(PLAYER)
+    val configuredClass = classTable.findClass(configuredName) ?: return null
+    val playerClass = classTable.findClass(PLAYER)
     if (playerClass != null && configuredClass.isSubtypeOf(playerClass)) return null
     return configuredName.takeIf { it in allClassNames }
   }
@@ -473,7 +456,6 @@ public open class TfmCatalog : Catalog {
   public fun withPlayers(playerCount: Int): TfmCatalog {
     require(playerCount > 0) { "player count must be positive: $playerCount" }
     val names = Player.players(playerCount).map(Player::className)
-    if (hasPlayerClasses(names)) return this
     return conventionalPlayerCatalogs.getOrPut(playerCount) { withPlayerClassesUncached(names) }
   }
 
@@ -481,9 +463,9 @@ public open class TfmCatalog : Catalog {
     if (playerDeclarations.isEmpty()) return this
     val result = withDeclarations(playerDeclarations)
     val playerClass =
-        requireNotNull(result.universe.findClass(PLAYER)) { "Catalog does not define Player" }
+        requireNotNull(result.classTable.findClass(PLAYER)) { "Catalog does not define Player" }
     playerDeclarations.forEach { declaration ->
-      val player = result.universe.getClass(declaration.className)
+      val player = result.classTable.getClass(declaration.className)
       require(!player.abstract && player.isSubtypeOf(playerClass)) {
         "player declaration does not define a concrete Player Class: ${declaration.className}"
       }
@@ -507,19 +489,12 @@ public open class TfmCatalog : Catalog {
 
   private val conventionalPlayerCatalogs: MutableMap<Int, TfmCatalog> = mutableMapOf()
 
-  private fun hasPlayerClasses(playerNames: List<ClassName>): Boolean {
-    val playerClass = universe.findClass(PLAYER) ?: return false
-    return playerNames.all { name ->
-      universe.findClass(name)?.let { !it.abstract && it.isSubtypeOf(playerClass) } == true
-    }
-  }
-
   private fun withPlayerClassesUncached(playerNames: List<ClassName>): TfmCatalog {
     val playerClass =
-        requireNotNull(universe.findClass(PLAYER)) { "Catalog does not define Player" }
+        requireNotNull(classTable.findClass(PLAYER)) { "Catalog does not define Player" }
     val missingNames = linkedSetOf<ClassName>()
     playerNames.forEach { name ->
-      val existing = universe.findClass(name)
+      val existing = classTable.findClass(name)
       when {
         existing == null -> missingNames.add(name)
         existing.abstract || !existing.isSubtypeOf(playerClass) ->
@@ -815,9 +790,6 @@ public open class TfmCatalog : Catalog {
           if (goalClass == TfmClasses.AWARD) MULTIPLAYER_ONLY else null,
           bundleCompatibilityRequirement(className, listOf(classDeclaration(className))),
       )
-
-  private fun cardCompatibilityRequirement(card: PetClass): Requirement? =
-      cardBundleCompatibilityRequirement(card)
 
   private fun cardBundleCompatibilityRequirement(card: PetClass): Requirement? {
     val declarations = linkedMapOf<ClassName, ClassDeclaration>()

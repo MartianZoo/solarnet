@@ -11,7 +11,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
   @Test
   internal fun `Starts with 48 mc and can add a floater to another card`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, StormcraftIncorporated).expect("48 MC")
+    p1.playCorp(StormcraftIncorporated).expect("48 MC")
 
     admin.phase("Action")
     p1.manual("$TitanShuttles")

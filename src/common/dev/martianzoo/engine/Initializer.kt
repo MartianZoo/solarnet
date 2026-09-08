@@ -98,22 +98,18 @@ internal class Initializer(
       var progress = false
       val round = remaining.toList()
       for (type in round) {
-        if (agent.count("${type.expression}") > 0) {
-          remaining.remove(type)
-          missingByType.remove(type)
-          progress = true
-          if (aBlockedTypeCanNowProceed(missingByType)) break
-          continue
+        if (agent.count("${type.expression}") == 0) {
+          try {
+            execute("${type.expression}", cause)
+          } catch (e: DependencyException) {
+            missingByType[type] = e.dependencies
+            continue
+          }
         }
-        try {
-          execute("${type.expression}", cause)
-          remaining.remove(type)
-          missingByType.remove(type)
-          progress = true
-          if (aBlockedTypeCanNowProceed(missingByType)) break
-        } catch (e: DependencyException) {
-          missingByType[type] = e.dependencies
-        }
+        remaining.remove(type)
+        missingByType.remove(type)
+        progress = true
+        if (aBlockedTypeCanNowProceed(missingByType)) break
       }
 
       if (!progress) {

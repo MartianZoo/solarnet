@@ -15,7 +15,7 @@ internal class KuiperCooperativeTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, KuiperCooperative)
+    p1.playCorp(KuiperCooperative)
     admin.phase("Action")
   }
 

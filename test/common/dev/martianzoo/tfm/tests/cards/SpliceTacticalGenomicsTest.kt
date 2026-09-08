@@ -25,7 +25,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Splice pays itself because it is not a microbe card`() {
     newGame(PromoCardPack)
 
-    playCorporationWithoutStartingProjects(p1, SpliceTacticalGenomics).expect("48 MC")
+    p1.playCorp(SpliceTacticalGenomics).expect("48 MC")
 
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction").expect("ProjectCard")

@@ -6,6 +6,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -26,7 +27,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
   @Test
   internal fun game20230521() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(5, 4)
+    game.retainStartingProjects(5, 4)
 
     // Good luck Player1!
     // Good luck Player2!

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -115,18 +114,18 @@ internal class CanonClassesTest {
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("StandardSoloObjective"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
-    game.agent(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
+    game.tfm(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.tfm(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.tfm(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
     }
-    game.agent(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
-        game.agent(PLAYER1).count("Class<StandardResource>")
-    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
-        game.agent(PLAYER1).count("Class<CardResource>")
-    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
+    game.tfm(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
+        game.tfm(PLAYER1).count("Class<StandardResource>")
+    game.tfm(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
+        game.tfm(PLAYER1).count("Class<CardResource>")
+    game.tfm(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
     game
-        .agent(PLAYER1)
+        .tfm(PLAYER1)
         .count(
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
@@ -134,17 +133,17 @@ internal class CanonClassesTest {
     soloReserve.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
     soloReserve.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
 
-    val admin = game.agent(ADMIN) as Agent
+    val admin = game.tfm(ADMIN)
     game.tasks.extract { it.assignee } shouldBe listOf(ADMIN, ADMIN)
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     admin.manual("OceanTile<Tharsis_1_2>")
-    game.agent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
-    game.agent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
+    game.tfm(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
+    game.tfm(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
-    val player = game.agent(PLAYER1)
+    val player = game.tfm(PLAYER1)
     player.manual("-5 Plant<SoloOpponent>")
     player.manual("PROD[-5 Plant<SoloOpponent>]")
     player.manual("5 Plant<SoloOpponent>")
@@ -152,18 +151,18 @@ internal class CanonClassesTest {
     player.manual("-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
     player.manual("5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
-      game.agent(PLAYER1).count("$it<Player1>") shouldBe 0
+      game.tfm(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.tfm(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.tfm(PLAYER1).count("$it<Player1>") shouldBe 0
     }
     game
-        .agent(PLAYER1)
+        .tfm(PLAYER1)
         .count(
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
 
     admin.manual("End FROM Phase")
-    game.agent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
+    game.tfm(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }
 
@@ -200,9 +199,8 @@ internal class CanonClassesTest {
   @Test
   internal fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(PLAYER1) as Agent
-    val withVenus =
-        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).agent(PLAYER1) as Agent
+    val agent = game.tfm(PLAYER1)
+    val withVenus = Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).tfm(PLAYER1)
 
     assertFailsWith<ExpressionException> { agent.count("Class<AnyWordHere>") }
     agent.count("Class<VenusStep>") shouldBe 0

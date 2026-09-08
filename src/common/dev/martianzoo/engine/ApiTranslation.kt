@@ -145,7 +145,7 @@ internal class ApiTranslation(
         block = {
           allowedPendingTasks =
               impl.manual(parseInstructionGroup(initialInstructions), autoExecMode) {
-                Adapter().body()
+                operationBody.body()
               }
         },
         afterIdleCleanup = { impl.requireComplete(allowedPendingTasks) },
@@ -155,51 +155,53 @@ internal class ApiTranslation(
   override fun beginManual(initialInstructions: String, body: BodyLambda): TaskResult {
     return atomic {
       impl.beginManual(parseInstructionGroup(initialInstructions), autoExecMode) {
-        Adapter().body()
+        operationBody.body()
       }
     }
   }
 
   override fun continueManual(body: BodyLambda): TaskResult {
-    return atomic { impl.continueManual(autoExecMode) { Adapter().body() } }
+    return atomic { impl.continueManual(autoExecMode) { operationBody.body() } }
   }
 
   override fun finish(body: BodyLambda): TaskResult {
     return atomic(
-        block = { impl.complete(autoExecMode) { Adapter().body() } },
+        block = { impl.complete(autoExecMode) { operationBody.body() } },
         afterIdleCleanup = { impl.requireComplete() },
     )
   }
 
-  private inner class Adapter : OperationBody {
-    override val tasks = this@ApiTranslation.tasks
+  private val operationBody =
+      object : OperationBody {
+        override val tasks = this@ApiTranslation.tasks
 
-    override val reader = this@ApiTranslation.reader
+        override val reader = this@ApiTranslation.reader
 
-    override fun doTask(narrowing: String) {
-      this@ApiTranslation.doTask(narrowing)
-      impl.autoExecNow(autoExecMode)
-    }
+        override fun doTask(narrowing: String) {
+          perform { this@ApiTranslation.doTask(narrowing) }
+        }
 
-    override fun doTask(narrowing: String, taskId: TaskId) {
-      this@ApiTranslation.doTask(narrowing, taskId)
-      impl.autoExecNow(autoExecMode)
-    }
+        override fun doTask(narrowing: String, taskId: TaskId) {
+          perform { this@ApiTranslation.doTask(narrowing, taskId) }
+        }
 
-    override fun tryTask(narrowing: String) {
-      this@ApiTranslation.tryTask(narrowing)
-      impl.autoExecNow(autoExecMode)
-    }
+        override fun tryTask(narrowing: String) {
+          perform { this@ApiTranslation.tryTask(narrowing) }
+        }
 
-    override fun tryTask(narrowing: String, taskId: TaskId) {
-      this@ApiTranslation.tryTask(narrowing, taskId)
-      impl.autoExecNow(autoExecMode)
-    }
+        override fun tryTask(narrowing: String, taskId: TaskId) {
+          perform { this@ApiTranslation.tryTask(narrowing, taskId) }
+        }
 
-    override fun autoExecNow() {
-      impl.autoExecNow(autoExecMode)
-    }
-  }
+        override fun autoExecNow() {
+          impl.autoExecNow(autoExecMode)
+        }
+
+        private fun perform(operation: () -> Unit) {
+          operation()
+          impl.autoExecNow(autoExecMode)
+        }
+      }
 
   override fun autoExecNow() = atomic {}
 
@@ -208,7 +210,9 @@ internal class ApiTranslation(
 
   // TURNS
 
-  override fun startTurn() = atomic { impl.startTurn() }
+  override fun startTurn() = atomic {
+    impl.addTasks(parseInstructionGroup("NewTurn!")).forEach(impl::doTask)
+  }
 
   override fun inTurn(body: BodyLambda): TaskResult {
     return if (tasks.isEmpty()) {
@@ -242,45 +246,31 @@ internal class ApiTranslation(
     impl.selectTask(parse<Instruction>(instruction))
   }
 
-  override fun doTask(narrowing: String) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    impl.doTask(
-        parsed.instruction,
-        parsed.intensityOmitted,
-        parsed.submittedAsGroup,
-    )
-  }
+  override fun doTask(narrowing: String) = submitTask(narrowing, submit = impl::doTask)
 
-  override fun doTask(narrowing: String, taskId: TaskId) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    impl.doTask(
-        parsed.instruction,
-        parsed.intensityOmitted,
-        parsed.submittedAsGroup,
-        taskId,
-    )
-  }
+  override fun doTask(narrowing: String, taskId: TaskId) =
+      submitTask(narrowing, taskId, impl::doTask)
 
-  override fun tryTask(narrowing: String) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    impl.tryTask(
-        parsed.instruction,
-        parsed.intensityOmitted,
-        parsed.submittedAsGroup,
-    )
-  }
+  override fun tryTask(narrowing: String) = submitTask(narrowing, submit = impl::tryTask)
 
-  override fun tryTask(narrowing: String, taskId: TaskId) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    impl.tryTask(
-        parsed.instruction,
-        parsed.intensityOmitted,
-        parsed.submittedAsGroup,
-        taskId,
-    )
-  }
+  override fun tryTask(narrowing: String, taskId: TaskId) =
+      submitTask(narrowing, taskId, impl::tryTask)
 
   override fun tryTask(taskId: TaskId) = atomic { impl.tryTask(taskId) }
+
+  private fun submitTask(
+      narrowing: String,
+      taskId: TaskId? = null,
+      submit: (InstructionTree, Boolean, Boolean, TaskId?) -> Unit,
+  ): TaskResult = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    submit(
+        parsed.instruction,
+        parsed.intensityOmitted,
+        parsed.submittedAsGroup,
+        taskId,
+    )
+  }
 
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.

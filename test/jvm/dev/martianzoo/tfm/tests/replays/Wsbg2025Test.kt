@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -36,7 +37,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
   @Test
   internal fun wsbg2025() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(6, 7, 8, 7)
+    game.retainStartingProjects(6, 7, 8, 7)
 
     val stanley = player(1)
     val jacopo = player(2)

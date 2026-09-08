@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -12,6 +11,7 @@ import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -21,7 +21,7 @@ internal class ApiUtilsTest {
   @Test
   internal fun componentOwnershipUsesTheOwnerRole() {
     val game = Engine.newGame(canonicalPremise())
-    val plant = game.agent(PLAYER1).resolve("Plant")
+    val plant = game.tfm(PLAYER1).resolve("Plant")
 
     getOwner(game.reader, plant).className shouldBe PLAYER1.className
     getPlayerOwner(game.reader, plant) shouldBe PLAYER1
@@ -42,7 +42,7 @@ internal class ApiUtilsTest {
             cn("Heat") to 0,
         )
 
-    (game.agent(PLAYER1) as Agent).sneak("PROD[2 Plant]")
+    game.tfm(PLAYER1).sneak("PROD[2 Plant]")
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods2
         .map { it.key to it.value }

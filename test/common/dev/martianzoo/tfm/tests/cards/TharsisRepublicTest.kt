@@ -17,13 +17,13 @@ internal class TharsisRepublicTest : CardTest() {
   internal fun `Does not gain starting mc production in multiplayer mode`() {
     newGame(players = 2)
 
-    playCorporationWithoutStartingProjects(p1, TharsisRepublic).expect("40 MC, PROD[0 MC]")
+    p1.playCorp(TharsisRepublic).expect("40 MC, PROD[0 MC]")
   }
 
   @Test
   internal fun `Gains the solo mc production bonus when Merger plays it later`() {
     newGame(PreludeExpansion, PromoCardPack, players = 1)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.playCorp(CrediCor)
     admin.phase("Prelude")
     p1.manual("PreludeCard")
 

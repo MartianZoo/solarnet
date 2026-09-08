@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -31,7 +32,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
   @Test
   internal fun letsPlay() {
-    retainStartingProjects(5)
+    game.retainStartingProjects(5)
     with(me) {
       playCorp(ValleyTrust, 5).expect("5 ProjectCard")
 

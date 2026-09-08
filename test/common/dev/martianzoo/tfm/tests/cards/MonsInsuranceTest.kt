@@ -18,7 +18,7 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
 
-    playCorporationWithoutStartingProjects(p1, MonsInsurance)
+    p1.playCorp(MonsInsurance)
         .expect("48 MC, PROD[4 MC<Player1>], PROD[-2 MC<Player2>], PROD[-2 MC<Player3>]")
 
     p3.assertProds(-2 to "MC")
@@ -28,15 +28,14 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Starting production loss does not target the solo opponent`() {
     newGame(PromoCardPack, players = 1)
 
-    playCorporationWithoutStartingProjects(p1, MonsInsurance)
-        .expect("48 MC, PROD[4 MC<Player1>], PROD[0 MC<SoloOpponent>]")
+    p1.playCorp(MonsInsurance).expect("48 MC, PROD[4 MC<Player1>], PROD[0 MC<SoloOpponent>]")
   }
 
   @Test
   internal fun `Gains only four mc when Merger plays it after Manutech`() {
     newGame(PromoCardPack, PreludeExpansion, VenusNextExpansion)
     val p2 = requireP2()
-    playCorporationWithoutStartingProjects(p1, Manutech)
+    p1.playCorp(Manutech)
     admin.phase("Prelude")
     val moneyBefore = p1.count("MC")
 
@@ -99,10 +98,7 @@ internal class MonsInsuranceTest : CardTest() {
     p2.manual("Plant, PROD[Plant]")
 
     p2.manual("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
-    game
-        .agent(ADMIN)
-        .manual("Plant<Player2>, -Plant<Player2>")
-        .expect("0 MC<Player1>, 0 MC<Player2>")
+    game.tfm(ADMIN).manual("Plant<Player2>, -Plant<Player2>").expect("0 MC<Player1>, 0 MC<Player2>")
   }
 
   @Test

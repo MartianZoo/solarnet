@@ -114,11 +114,8 @@ public class Transformers(public val classTable: ClassTable) {
       deferAbstract: Boolean = false,
   ): PetTransformer {
     val expanding = mutableSetOf<Pair<Expression, PropertyName>>()
-    val contextualizer =
-        chain(
-            replaceThisExpressionsWith(context),
-            owner?.let(::bindContextualOwner),
-        )
+    val ownerBinding = owner?.let(::bindContextualOwner)
+    val contextualizer = chain(replaceThisExpressionsWith(context), ownerBinding)
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
         // The selected component supplies a fanout branch's context, so its property evaluations
@@ -191,10 +188,7 @@ public class Transformers(public val classTable: ClassTable) {
         val expanded: PetNode =
             try {
               val transformer =
-                  chain(
-                      replaceThisExpressionsWith(propertyType.expressionFull),
-                      owner?.let(::bindContextualOwner),
-                  )
+                  chain(replaceThisExpressionsWith(propertyType.expressionFull), ownerBinding)
               when (syntax) {
                 is Metric -> transformMetric(transformer.transformMetric(syntax))
                 is Requirement -> transformRequirement(transformer.transformRequirement(syntax))

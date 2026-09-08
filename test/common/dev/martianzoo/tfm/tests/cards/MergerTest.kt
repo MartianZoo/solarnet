@@ -60,7 +60,7 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `Can resolve Merger payment and the second corporation`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.playCorp(CrediCor)
     admin.phase("Prelude")
     p1.manual("PreludeCard")
 
@@ -74,7 +74,7 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `New Partner can play Merger while both card families are being selected`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.playCorp(CrediCor)
     admin.phase("Prelude")
 
     p1.playPrelude(NewPartner) {
@@ -100,7 +100,7 @@ internal class MergerTest : CardTest() {
         PromoCardPack,
         colonyTiles = testColonyTiles(2),
     )
-    playCorporationWithoutStartingProjects(p1, Polyphemos)
+    p1.playCorp(Polyphemos)
     admin.phase("Prelude")
     p1.playPrelude(Merger) {
       p1.playCorp(TerraLabsResearch)

@@ -4,6 +4,7 @@ import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -43,56 +44,33 @@ internal abstract class TfmTest {
   }
 
   protected fun TfmGameplay.placeTile(row: Int, column: Int): TaskResult =
-      doTask(tilePlacement(reader, pendingTasks(), row, column))
+      doTask(tilePlacement(reader, tasks.extract { it }, row, column))
 
-  protected fun OperationBody.placeTile(row: Int, column: Int) {
-    doTask(tilePlacement(reader, tasks.extract { it }, row, column))
-  }
+  protected fun OperationBody.placeTile(row: Int, column: Int) =
+      doTask(tilePlacement(reader, tasks.extract { it }, row, column))
 
   protected fun TfmGameplay.addCardResources(card: ClassName, count: Int? = null): TaskResult =
-      doTask(cardResources(reader, pendingTasks(), card, count))
+      doTask(cardResources(reader, tasks.extract { it }, card, count))
 
-  protected fun OperationBody.addCardResources(card: ClassName, count: Int? = null) {
-    doTask(cardResources(reader, tasks.extract { it }, card, count))
-  }
+  protected fun OperationBody.addCardResources(card: ClassName, count: Int? = null) =
+      doTask(cardResources(reader, tasks.extract { it }, card, count))
 
   protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
-  protected fun OperationBody.wgt(choice: String) {
-    doTask("$choice! BY Admin")
-  }
+  protected fun OperationBody.wgt(choice: String) = doTask("$choice! BY Admin")
 
-  protected fun TfmGameplay.declineTask(): TaskResult {
-    return doTask("Ok")
-  }
+  protected fun TfmGameplay.declineTask(): TaskResult = doTask("Ok")
 
-  protected fun TfmGameplay.declineTask(instruction: String): TaskResult {
-    val taskId = singleDeclinableTaskId(pendingTasks(), reader, instruction)
-    return doTask("Ok", taskId)
-  }
+  protected fun TfmGameplay.declineTask(instruction: String): TaskResult =
+      doTask("Ok", singleDeclinableTaskId(tasks.extract { it }, reader, instruction))
 
-  protected fun OperationBody.declineTask() {
-    doTask("Ok")
-  }
+  protected fun OperationBody.declineTask() = doTask("Ok")
 
-  protected fun OperationBody.declineTask(instruction: String) {
-    val taskId = singleDeclinableTaskId(tasks.extract { it }, reader, instruction)
-    doTask("Ok", taskId)
-  }
-
-  protected fun TfmGameplay.playCorp(
-      cardName: ClassName,
-      body: TfmGameplay.() -> Unit = {},
-  ): TaskResult {
-    val player = this
-    return inTurn {
-      playCorp(cardName)
-      player.body()
-    }
-  }
+  protected fun OperationBody.declineTask(instruction: String) =
+      doTask("Ok", singleDeclinableTaskId(tasks.extract { it }, reader, instruction))
 
   private fun tilePlacement(
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: GameReader,
       tasks: List<Task>,
       row: Int,
       column: Int,
@@ -113,7 +91,7 @@ internal abstract class TfmTest {
   }
 
   private fun cardResources(
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: GameReader,
       tasks: List<Task>,
       card: ClassName,
       count: Int?,
@@ -141,11 +119,11 @@ internal abstract class TfmTest {
 
   private fun singleDeclinableTaskId(
       tasks: List<Task>,
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: GameReader,
       instruction: String,
   ): TaskId {
     val matches = tasks.filter { task ->
-      task.instruction == game.agent(task.assignee).parse<Instruction>(instruction) &&
+      task.instruction == game.tfm(task.assignee).parse<Instruction>(instruction) &&
           (NoOp.narrows(task.instruction, reader) ||
               task.instruction.descendantsOfType<NoOp>().isNotEmpty())
     }
@@ -154,7 +132,4 @@ internal abstract class TfmTest {
     }
     return matches.single().id
   }
-
-  private fun TfmGameplay.pendingTasks(): List<Task> =
-      game.tasks.extract { it }.filter { it.assignee == actor }
 }

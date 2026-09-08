@@ -6,6 +6,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -40,7 +41,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   @Test
   internal fun distantPressureMass() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(4, 4)
+    game.retainStartingProjects(4, 4)
     generation1()
     generation2()
     generation3()

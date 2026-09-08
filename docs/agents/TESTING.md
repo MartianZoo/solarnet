@@ -216,6 +216,9 @@ name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting 
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
+Use `player.playCorp(corporation)` when setup already resolved the starting project cards, and
+`player.playCorp(corporation, retainedCount)` when their purchase is part of the scenario. Setup
+code records those earlier choices as `game.retainStartingProjects(...)`.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
 routine task expressions. The tile and card-resource helpers require a single matching pending
 choice; keep raw `doTask()` calls where multiple placements are pending.

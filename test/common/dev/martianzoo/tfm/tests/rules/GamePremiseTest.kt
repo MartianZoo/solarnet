@@ -15,6 +15,7 @@ import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
@@ -63,8 +64,8 @@ internal class GamePremiseTest {
 
     first.classTable shouldBe second.classTable
     TfmWorkflow.Manual(first).setupPhase()
-    first.agent(ADMIN).count("SetupPhase") shouldBe 1
-    second.agent(ADMIN).count("SetupPhase") shouldBe 0
+    first.tfm(ADMIN).count("SetupPhase") shouldBe 1
+    second.tfm(ADMIN).count("SetupPhase") shouldBe 0
   }
 
   @Test
@@ -134,8 +135,8 @@ internal class GamePremiseTest {
     game.vocabulary.petsName(blue) shouldBe blue
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
     TfmWorkflow.Manual(game).setupPhase()
-    game.agent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
-    game.agent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
+    game.tfm(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
+    game.tfm(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
         Player(blue)
   }
@@ -177,7 +178,7 @@ internal class GamePremiseTest {
     val premise = Canon.gamePremise(GameConfig.create(included = emptyList(), playerNames = names))
 
     premise.playerNames shouldBe names
-    Engine.newGame(premise).agent(ADMIN).count("Player") shouldBe 6
+    Engine.newGame(premise).tfm(ADMIN).count("Player") shouldBe 6
   }
 
   @Test

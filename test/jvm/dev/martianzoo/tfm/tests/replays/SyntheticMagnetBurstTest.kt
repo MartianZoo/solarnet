@@ -4,6 +4,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -34,7 +35,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   @Test
   internal fun gameThroughGeneration10() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(7, 4)
+    game.retainStartingProjects(7, 4)
 
     val pink = p1
     val green = p2

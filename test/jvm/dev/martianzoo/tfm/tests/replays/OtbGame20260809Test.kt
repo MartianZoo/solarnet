@@ -4,6 +4,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -34,7 +35,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260809() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(6, 4)
+    game.retainStartingProjects(6, 4)
     val yellow = player(1)
     val green = player(2)
     // "Miranda and Enceladus are currently out of play."

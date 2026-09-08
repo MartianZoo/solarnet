@@ -33,7 +33,7 @@ internal class FirstPartialGameTest : TfmTest() {
       val p2 = game.tfm(PLAYER2)
 
       val workflow = TfmWorkflow.Auto(game).launch()
-      retainStartingProjects(game, 3, 8)
+      game.retainStartingProjects(3, 8)
 
       p1.playCorp(LakefrontResorts, 3)
       p2.playCorp(InterplanetaryCinematics, 8)

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -31,7 +32,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
 
   @Test
   internal fun thermalPlasmaState() {
-    retainStartingProjects(8)
+    game.retainStartingProjects(8)
     with(me) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 

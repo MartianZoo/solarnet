@@ -5,6 +5,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -39,7 +40,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   @Test
   internal fun distantSignalBeam() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(7, 10)
+    game.retainStartingProjects(7, 10)
     generation1()
     generation2()
     generation3BeforeResignation()

@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -32,7 +33,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260828() {
     TfmWorkflow.Auto(game).launch()
-    retainStartingProjects(4, 5, 5)
+    game.retainStartingProjects(4, 5, 5)
     val green = p1.requireExplicitUnusedActionCards()
     val blue = p2.requireExplicitUnusedActionCards()
     val yellow = p3.requireExplicitUnusedActionCards()
