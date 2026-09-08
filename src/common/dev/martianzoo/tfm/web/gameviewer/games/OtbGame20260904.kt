@@ -2,8 +2,6 @@ package dev.martianzoo.tfm.web.gameviewer.games
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
@@ -29,14 +27,10 @@ public class OtbGame20260904 : RecordedGame() {
 
   protected override fun play() {
     TfmWorkflow.Auto(game).launch()
-    val yellow = game.tfm(Player.PLAYER1).requireExplicitUnusedActionCards()
-    val rainbow = game.tfm(Player.PLAYER2).requireExplicitUnusedActionCards()
-    val blue = game.tfm(Player.PLAYER3).requireExplicitUnusedActionCards()
-    val green =
-        game
-            .tfm(game.actors.filterIsInstance<Player>()[3])
-            .requireExplicitPaymentChoices()
-            .requireExplicitUnusedActionCards()
+    val yellow = player(1).requireExplicitUnusedActionCards()
+    val rainbow = player(2).requireExplicitUnusedActionCards()
+    val blue = player(3).requireExplicitUnusedActionCards()
+    val green = player(4).requireExplicitPaymentChoices().requireExplicitUnusedActionCards()
     yellow.doTask("-6 ProjectCard<Hand>")
     rainbow.doTask("-4 ProjectCard<Hand>")
     blue.doTask("-5 ProjectCard<Hand>")
@@ -278,18 +272,18 @@ public class OtbGame20260904 : RecordedGame() {
       playProject(GiantIceAsteroid, 25, titanium = 3) {
         placeTile(7, 4)
         autoExecNow()
-        selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+        selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
         blue.doTask("UseAction<NeptunianOption, Action1>")
         blue.pay(5)
         placeTile(9, 4)
         autoExecNow()
-        selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+        selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
         blue.doTask("UseAction<NeptunianOption, Action1>")
         blue.pay(5)
         // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
         placeTile(6, 11)
         autoExecNow()
-        selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+        selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
         blue.doTask("UseAction<NeptunianOption, Action1>")
         blue.pay(5)
         // "Up to six plants from Ellie" cleaned out Yellow's actual five.

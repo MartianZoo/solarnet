@@ -29,7 +29,7 @@ public abstract class ClassTable {
               premise.classSelections
                   .filter(ClassSelection::included)
                   .map(ClassSelection::className) +
-              premise.playerClassNames +
+              premise.playerNames +
               initialClassNames
       val moduleSelections = premise.modules.flatMap { premise.catalog.modules.getValue(it) }
       val (applicableModuleSelections, inapplicableModuleSelections) =
@@ -79,9 +79,14 @@ public abstract class ClassTable {
       require(unexpectedModules.isEmpty()) {
         "structural activation selected unrequested Modules: $unexpectedModules"
       }
+      val playerClass = masterTable.findClass(Player.CLASS_NAME)
       val activePlayerClassNames =
-          Player.players(5).map(Player::className).filterTo(linkedSetOf(), table::isActive)
-      require(activePlayerClassNames == premise.playerClassNames.toSet()) {
+          playerClass
+              ?.let(table::allSubclasses)
+              .orEmpty()
+              .filterNot(Class::abstract)
+              .mapTo(linkedSetOf(), Class::className)
+      require(activePlayerClassNames == premise.playerNames.toSet()) {
         "active Player classes do not match occupied seats: $activePlayerClassNames"
       }
       val reactivated = excluded.filterTo(linkedSetOf(), table::isActive)

@@ -44,7 +44,7 @@ public open class BusyPreludePhaseBenchmark {
                         "TerraformingMars, TharsisMap, PreludeExpansion, " +
                             "ColoniesExpansion, PromoCardPack, FakeStuffBundle, Callisto, Ceres, Ganymede, " +
                             "Luna",
-                        "Me",
+                        "Player1",
                     )
                 )
         )

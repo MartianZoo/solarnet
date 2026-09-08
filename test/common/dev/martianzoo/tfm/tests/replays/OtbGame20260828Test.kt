@@ -1837,7 +1837,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     yellow.turn {
       // "Take your final nitrite ... and my thing gives me a money."
       cardAction1(Ants) {
-        doTask("-Microbe<Player2, $NitriteReducingBacteria<Player2>>")
+        doTask("-Microbe<Blue, $NitriteReducingBacteria<Blue>>")
       }
     }
     green.turn {

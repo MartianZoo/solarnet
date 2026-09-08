@@ -52,13 +52,13 @@ internal class SoloGenerationCountdownTest {
     player.manual("UseAction<BufferGasSP, Action1>") {
       doTask("16 Pay<Class<MC>> FROM MC")
     }
-    player.count("MC<Me>") shouldBe 0
-    player.count("TerraformRating<Me>") shouldBe 15
+    player.count("MC<Player1>") shouldBe 0
+    player.count("TerraformRating<Player1>") shouldBe 15
 
     player.manual("48 TerraformRating")
     admin.manual("CheckGameEnd")
 
-    player.count("Victory<Me>") shouldBe 1
+    player.count("Victory<Player1>") shouldBe 1
   }
 
   private fun finishNeutralSetup(admin: TfmGameplay) {

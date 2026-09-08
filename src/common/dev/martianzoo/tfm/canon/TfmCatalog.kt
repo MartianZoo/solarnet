@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.PetException
@@ -208,8 +209,8 @@ public open class TfmCatalog : Catalog {
    *
    * Structured inputs may use unambiguous English Pets names. Naming any milestones or awards
    * selects the exact configured pool for that category. A playable Terraforming Mars Catalog
-   * requires one to five player names in seat order. These become vocabulary aliases for the
-   * canonical `Player1` through `Player5` classes.
+   * requires one to five player names in seat order. Missing names are composed into the Catalog as
+   * concrete `Player` subclasses before the premise is resolved.
    */
   public open fun gamePremise(config: GameConfig): GamePremise {
     val configuredPlayerNames = config.playerNames
@@ -217,10 +218,19 @@ public open class TfmCatalog : Catalog {
       require(configuredPlayerNames.size in 1..5) {
         "a Terraforming Mars configuration must have 1 to 5 player names"
       }
+      val catalogWithPlayers =
+          if (
+              configuredPlayerNames ==
+                  Player.players(configuredPlayerNames.size).map(Player::className)
+          ) {
+            withPlayers(configuredPlayerNames.size)
+          } else {
+            withPlayers(configuredPlayerNames)
+          }
+      if (catalogWithPlayers !== this) return catalogWithPlayers.gamePremise(config)
     }
-    val canonicalPlayerNames = Player.players(configuredPlayerNames.size).map(Player::className)
     val explicitlyIncluded =
-        resolveConfigurationNames(config.includedClassNames) + canonicalPlayerNames
+        resolveConfigurationNames(config.includedClassNames) + configuredPlayerNames
     val explicitlyExcluded = resolveConfigurationNames(config.excludedClassNames)
     require(explicitlyIncluded.intersect(explicitlyExcluded).isEmpty()) {
       "a game configuration cannot include and exclude the same class"
@@ -329,16 +339,16 @@ public open class TfmCatalog : Catalog {
     )
     val classSelections =
         individualSelections
-            .filterKeys { it !in canonicalPlayerNames }
+            .filterKeys { it !in configuredPlayerNames }
             .mapTo(linkedSetOf()) { (className, included) -> ClassSelection(className, included) }
     val initialTypes =
         individualNames.filter { it in colonyNames }.mapTo(linkedSetOf(), ::initialColonyTileType)
-    if (canonicalPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
-      initialTypes.add(SOLO_COLONIES_SETUP.of(canonicalPlayerNames.single().expression))
+    if (configuredPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
+      initialTypes.add(SOLO_COLONIES_SETUP.of(configuredPlayerNames.single().expression))
     }
-    canonicalPlayerNames.firstOrNull()?.let { firstPlayer ->
+    configuredPlayerNames.firstOrNull()?.let { firstPlayer ->
       initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
-      canonicalPlayerNames.zip(canonicalPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
+      configuredPlayerNames.zip(configuredPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
           (player, nextPlayer) ->
         TfmClasses.SUCCESSOR.of(player.expression, nextPlayer.expression)
       }
@@ -448,9 +458,68 @@ public open class TfmCatalog : Catalog {
       }
 
   private fun resolveConfigurationName(configuredName: ClassName): ClassName? {
-    // Canonical PlayerN seat classes are activated only by the ordered player-name list.
-    if (Player.isValid(configuredName)) return null
+    val configuredClass = universe.findClass(configuredName) ?: return null
+    val playerClass = universe.findClass(PLAYER_CLASS)
+    if (playerClass != null && configuredClass.isSubtypeOf(playerClass)) return null
     return configuredName.takeIf { it in allClassNames }
+  }
+
+  /** Returns this Catalog composed with concrete `Player1` through `PlayerN` seat Classes. */
+  public fun withPlayers(playerCount: Int): TfmCatalog {
+    require(playerCount in 1..5) { "player count must be between 1 and 5: $playerCount" }
+    val names = Player.players(playerCount).map(Player::className)
+    if (hasPlayerClasses(names)) return this
+    return conventionalPlayerCatalogs.value[playerCount - 1]
+  }
+
+  /** Returns this Catalog composed with concrete `Player` subclasses named by [playerNames]. */
+  public fun withPlayers(playerNames: List<ClassName>): TfmCatalog {
+    require(playerNames.size in 1..5) { "a game must have 1 to 5 player names" }
+    require(playerNames.distinct().size == playerNames.size) {
+      "a game cannot seat the same player name more than once"
+    }
+    val conventionalNames = Player.players(playerNames.size).map(Player::className)
+    return if (playerNames == conventionalNames) {
+      withPlayers(playerNames.size)
+    } else {
+      withPlayerClassesUncached(playerNames)
+    }
+  }
+
+  private val conventionalPlayerCatalogs: Lazy<List<TfmCatalog>> = lazy {
+    (1..5).map { count ->
+      withPlayerClassesUncached(Player.players(count).map(Player::className))
+    }
+  }
+
+  private fun hasPlayerClasses(playerNames: List<ClassName>): Boolean {
+    val playerClass = universe.findClass(PLAYER_CLASS) ?: return false
+    return playerNames.all { name ->
+      universe.findClass(name)?.let { !it.abstract && it.isSubtypeOf(playerClass) } == true
+    }
+  }
+
+  private fun withPlayerClassesUncached(playerNames: List<ClassName>): TfmCatalog {
+    val playerClass =
+        requireNotNull(universe.findClass(PLAYER_CLASS)) { "Catalog does not define Player" }
+    val missingNames = linkedSetOf<ClassName>()
+    playerNames.forEach { name ->
+      val existing = universe.findClass(name)
+      when {
+        existing == null -> missingNames.add(name)
+        existing.abstract || !existing.isSubtypeOf(playerClass) ->
+            throw IllegalArgumentException("player name collides with Catalog Class $name")
+      }
+    }
+    if (missingNames.isEmpty()) return this
+    val declarations =
+        parseClasses(missingNames.joinToString("\n") { name -> "CLASS $name : Player" }).toSet()
+    return compose(
+        this,
+        object : TfmCatalog() {
+          override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
+        },
+    )
   }
 
   private fun addExactGoalSelections(

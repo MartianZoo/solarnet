@@ -36,6 +36,14 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     if (players.size > 2) p3 = game.tfm(players[2]).requireExplicitPaymentChoices()
   }
 
+  /** Returns fresh gameplay for the Player occupying the one-based [seat]. */
+  protected fun player(seat: Int): TfmGameplay {
+    require(seat > 0) { "seat numbers begin at 1" }
+    val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
+    requireNotNull(player) { "no Player occupies seat $seat" }
+    return game.tfm(player)
+  }
+
   private fun copyThis() {
     p1.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
     p1.assertResources(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)

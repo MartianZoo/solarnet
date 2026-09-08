@@ -107,22 +107,15 @@ private constructor(
         locale: String = ENGLISH,
         inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
         activeClassNames: Set<ClassName>,
-        petsNameAliases: Map<ClassName, ClassName> = emptyMap(),
-    ): Vocabulary {
-      val canonicalByAlias =
-          petsNameAliases.entries.associate { (canonical, alias) -> alias to canonical }
-      return create(
-          canonicalNames = catalog.allClassNames,
-          displayNamesByLanguage = catalog.displayNamesByLanguage,
-          derivedPetsNameClassNames = catalog.derivedPetsNameClassNames intersect activeClassNames,
-          locale = locale,
-          inputOnlySynonyms =
-              inputOnlySynonyms.map { (synonym, target) ->
-                synonym to (canonicalByAlias[cn(target)] ?: cn(target)).toString()
-              },
-          petsNameAliases = petsNameAliases,
-      )
-    }
+    ): Vocabulary =
+        create(
+            canonicalNames = catalog.allClassNames,
+            displayNamesByLanguage = catalog.displayNamesByLanguage,
+            derivedPetsNameClassNames =
+                catalog.derivedPetsNameClassNames intersect activeClassNames,
+            locale = locale,
+            inputOnlySynonyms = inputOnlySynonyms,
+        )
 
     /** Builds a vocabulary directly; useful for clients assembling their own class catalog. */
     public fun create(
@@ -131,7 +124,6 @@ private constructor(
         derivedPetsNameClassNames: Set<ClassName> = canonicalNames,
         locale: String = ENGLISH,
         inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
-        petsNameAliases: Map<ClassName, ClassName> = emptyMap(),
     ): Vocabulary {
       val normalizedInputOnlySynonymPairs = inputOnlySynonyms.map { (synonym, canonical) ->
         cn(synonym) to cn(canonical)
@@ -161,12 +153,6 @@ private constructor(
           requireAscii(displayName)
           put(canonical, displayName)
         }
-        petsNameAliases.forEach { (canonical, petsName) ->
-          require(canonical in canonicalNames) {
-            "Pets-name alias $petsName targets unknown class $canonical"
-          }
-          put(canonical, petsName.toString())
-        }
       }
       require(canonicalNames.containsAll(derivedPetsNameClassNames)) {
         "Pets-name derivation requested for unknown classes: ${derivedPetsNameClassNames - canonicalNames}"
@@ -186,7 +172,6 @@ private constructor(
                 }
               }
             }
-        putAll(petsNameAliases)
       }
 
       val inputOwners = mutableMapOf<ClassName, ClassName>()

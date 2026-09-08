@@ -71,21 +71,6 @@ internal class VocabularyTest {
   }
 
   @Test
-  internal fun explicitPetsNamesAreAliasesForCanonicalClasses() {
-    val vocabulary =
-        Vocabulary.create(
-            setOf(cn("Player1")),
-            emptyMap(),
-            derivedPetsNameClassNames = emptySet(),
-            petsNameAliases = mapOf(cn("Player1") to cn("Blue")),
-        )
-
-    vocabulary.canonicalName(cn("Blue")) shouldBe cn("Player1")
-    vocabulary.displayName(cn("Player1")) shouldBe "Blue"
-    vocabulary.renderPets(parse<Expression>("Player1")) shouldBe "Blue"
-  }
-
-  @Test
   internal fun localizedNameCollisionsAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(

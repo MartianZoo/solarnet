@@ -190,7 +190,9 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   private fun ChangeEvent.playerOwner(expression: Expression): Player =
       checkNotNull(
-          expression.toComponent(game.reader).owner?.className?.let(Player::fromClassNameOrNull)
+          expression.toComponent(game.reader).owner?.className?.let { ownerName ->
+            game.actors.filterIsInstance<Player>().singleOrNull { it.className == ownerName }
+          }
       ) {
         "$expression changed without a Player owner in $this"
       }

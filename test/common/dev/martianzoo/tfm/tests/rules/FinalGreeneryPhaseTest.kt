@@ -73,7 +73,7 @@ internal class FinalGreeneryPhaseTest {
 
     admin.count("FinalGreeneryPhase") shouldBe 0
     admin.count("End") shouldBe 0
-    admin.count("Victory<Me>") shouldBe 0
+    admin.count("Victory<Player1>") shouldBe 0
     admin.count("TemperatureStep") shouldBe 0
     admin.count("OxygenStep") shouldBe 0
     admin.count("OceanTile") shouldBe 0
@@ -104,7 +104,7 @@ internal class FinalGreeneryPhaseTest {
 
     p1.pass()
 
-    admin.count("Victory<Me>") shouldBe 1
+    admin.count("Victory<Player1>") shouldBe 1
     admin.count("FinalGreeneryPhase") shouldBe 1
     workflow.shutdown()
   }
@@ -134,7 +134,7 @@ internal class FinalGreeneryPhaseTest {
 
     admin.count("FinalGreeneryPhase") shouldBe 0
     admin.count("End") shouldBe 0
-    admin.count("Victory<Me>") shouldBe 0
+    admin.count("Victory<Player1>") shouldBe 0
     workflow.isRunning shouldBe false
     workflow.shutdown()
   }

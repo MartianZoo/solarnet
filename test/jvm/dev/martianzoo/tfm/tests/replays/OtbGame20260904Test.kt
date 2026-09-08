@@ -377,18 +377,18 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(GiantIceAsteroid, 25, titanium = 3) {
             placeTile(7, 4)
             autoExecNow()
-            selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+            selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
             blue.doTask("UseAction<NeptunianOption, Action1>")
             blue.pay(5)
             placeTile(9, 4)
             autoExecNow()
-            selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+            selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
             blue.doTask("UseAction<NeptunianOption, Action1>")
             blue.pay(5)
             // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
             placeTile(6, 11)
             autoExecNow()
-            selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+            selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
             blue.doTask("UseAction<NeptunianOption, Action1>")
             blue.pay(5)
             // "Up to six plants from Ellie" cleaned out Yellow's actual five.
@@ -586,7 +586,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       cardAction2(IcyImpactors) {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Player3, NeptunianOption<Player3>>?")
+        selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
         blue.narrowTask("Ok")
       }
     }

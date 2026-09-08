@@ -144,9 +144,12 @@ public class ScriptSession(
   public fun prompt(): String =
       if (useAnsiColors) mode.color.foreground(promptPlain()) else promptPlain()
 
-  /** Returns the current player-board values for a host UI without exposing mutable game state. */
-  public fun playerSnapshot(playerName: String = "Player1"): PlayerSnapshot {
-    val player = player(playerName)
+  /** Returns one player board for a host UI, defaulting to the first occupied seat. */
+  public fun playerSnapshot(playerName: String? = null): PlayerSnapshot {
+    val player =
+        playerName?.let(::player)
+            ?: game.actors.filterIsInstance<Player>().firstOrNull()
+            ?: throw UsageException("the game has no participating Player")
     val tfm = TfmGameplay(game, player)
 
     fun countIfLoaded(type: String): Int =
@@ -206,6 +209,8 @@ public class ScriptSession(
   public fun mapSnapshot(): MarsMapSnapshot {
     val reader = game.reader
     val map = ApiUtils.mapDefinition(reader)
+    val playerClassNames =
+        game.actors.filterIsInstance<Player>().mapTo(hashSetOf(), Player::className)
 
     fun tileKind(areaName: dev.martianzoo.pets.ast.ClassName): Pair<String, String?>? {
       val tile =
@@ -221,7 +226,7 @@ public class ScriptSession(
           }
       val owner =
           tile.expressionFull.arguments
-              .firstOrNull { Player.isValid(it.className) }
+              .firstOrNull { it.className in playerClassNames }
               ?.className
               ?.toString()
       return kind to owner

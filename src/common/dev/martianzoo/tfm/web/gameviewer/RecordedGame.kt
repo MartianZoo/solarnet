@@ -16,6 +16,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
@@ -34,6 +35,14 @@ public abstract class RecordedGame {
 
   protected val admin: TfmGameplay
     get() = game.tfm(dev.martianzoo.pets.data.Actor.ADMIN)
+
+  /** Returns gameplay for the Player occupying the one-based [seat]. */
+  protected fun player(seat: Int): TfmGameplay {
+    require(seat > 0) { "seat numbers begin at 1" }
+    val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
+    requireNotNull(player) { "no Player occupies seat $seat" }
+    return game.tfm(player)
+  }
 
   protected abstract val config: GameConfig
   protected open val catalog: TfmCatalog by lazy {

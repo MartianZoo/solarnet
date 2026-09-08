@@ -128,19 +128,21 @@ by triggered instructions.
 names in seat order. Defaults, selection policy, and validation resolve it to a
 `GamePremise`.
 
-A `GamePremise` is the complete immutable input needed to construct equivalent Game Worlds. It
+A `GamePremise` is the complete immutable input needed to construct equivalent Game Worlds. Player
+Classes named by the configuration are first composed with the selected Catalog. The premise then
 contains only:
 
 1. one Catalog;
 2. selected Module Class Names;
 3. signed selections for other Catalog classes;
-4. user-facing player names in seat order; and
+4. concrete Player Class Names in seat order; and
 5. exact concrete types to instantiate once.
 
-Occupied seats activate canonical `Player1` through `PlayerN`. Configured player names are
-Vocabulary aliases, not Class identities. The Pets-owned `SecondPlaceRule` Module is automatically
-selected for three or more Players and activates `SecondPlace`, keeping player-count policy out of
-Kotlin and numbered seat classes. Initial state is not an unrestricted Pets script.
+Canon declares only the abstract `Player`; each configured name is the identity of a concrete
+`Player` subclass in the composed game Catalog. `withPlayers(count)` supplies reusable conventional
+names `Player1` through `PlayerN`. The Pets-owned `SecondPlaceRule` Module is automatically selected
+for three or more Players and activates `SecondPlace`, keeping player-count policy out of Kotlin and
+numbered seat classes. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection

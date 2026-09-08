@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -37,8 +35,8 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
   internal fun otbGame20260809() {
     TfmWorkflow.Auto(game).launch()
     retainStartingProjects(6, 4)
-    val yellow = game.tfm(Player.PLAYER1)
-    val green = game.tfm(Player.PLAYER2)
+    val yellow = player(1)
+    val green = player(2)
     // "Miranda and Enceladus are currently out of play."
     admin.assertCounts(3 to "ColonyTile", 5 to "ColonyTileSelection")
 

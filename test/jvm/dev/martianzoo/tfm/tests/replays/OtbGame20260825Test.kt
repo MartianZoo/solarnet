@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -33,8 +32,8 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
   internal fun otbGame20260825() {
     TfmWorkflow.Auto(game).launch()
     retainStartingProjects(10, 5)
-    val green = game.tfm(Player.PLAYER1)
-    val yellow = game.tfm(Player.PLAYER2)
+    val green = player(1)
+    val yellow = player(2)
 
     // 9:17:17 pm: "This is a two-player game on the Terra Cimmeria board. We're using
     // Venus, Prelude, Prelude 2, Promos, the following milestones and awards: Energizer,
@@ -1103,7 +1102,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
     green.turn {
       // "I'm going to Sabotage for free. You lose seven money."
-      playProject(Sabotage, 0) { doTask("-7 MC<Player2>") }
+      playProject(Sabotage, 0) { doTask("-7 MC<Yellow>") }
       // "Then you're going to lose three plants as well." "Asteroid Deflection System. You're not
       // going to lose three plants as well. Hee hee hee." "I'll do it anyway. It costs 19 and I
       // use 18 worth of titanium." The last ocean is already placed.
@@ -1229,7 +1228,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I'll use Predators to predate on your last ecomal. And that gives me two money."
-      cardAction1(Predators) { doTask("-Animal<Player2, $EcologicalZone<Player2>>") }.expect("2 MC")
+      cardAction1(Predators) { doTask("-Animal<Yellow, $EcologicalZone<Yellow>>") }.expect("2 MC")
     }
     yellow.turn {
       // "What was it? Sell a card."
@@ -1263,7 +1262,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Wait a minute! We're fish. You lose a plant production. I pay seven. But I receive one
       // fish from Viral Enhancers ... I get two money for that one fish."
       playProject(Fish, 7) {
-            doTask("PROD[-Plant<Player2>]")
+            doTask("PROD[-Plant<Yellow>]")
             addCardResources(Fish)
           }
           .expect("-5 MC")
