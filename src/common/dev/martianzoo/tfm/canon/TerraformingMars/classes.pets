@@ -244,14 +244,8 @@ CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
 
 // CARD BINDINGS, TAGS, AND EFFECTS
 
-"Anything that can hold a cube-like component"
-ABSTRACT CLASS QuasiResourceHolder
-
-"A cube-like component stored on a holder"
-ABSTRACT CLASS QuasiResource<QuasiResourceHolder> : Owned
-
 "Anything that can hold a particular kind of card resource"
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : QuasiResourceHolder, Owned<Owner>
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
 
 // Anything that 'lives on' a card / couldn't exist without the card
 ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
@@ -269,7 +263,7 @@ ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
 
 // RESOURCES, PRODUCTION, AND PAYMENT
 
-// Anything represented by a copper cube IRL, perhaps except for SRR resources (not sure)
+// Anything represented by a copper cube IRL
 // IMPL: This should narrow ownership to Owner, but bare resources rely on the Owned default
 // inserting an explicit Owner variable; making Owner the bound erases that contextual binding.
 ABSTRACT CLASS Resource : Owned {
@@ -286,7 +280,7 @@ ABSTRACT CLASS Resource : Owned {
 
   "A resource cube living on a compatible card or neutral holder, such as `Animal<Pets>`"
   // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
-  ABSTRACT CLASS CardResource : QuasiResource<ResourceHolder<Class<CardResource>, Owner>>, Owned<Owner> {
+  ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>> : Owned<Owner> {
     DEFAULT +CardResource.
 
     "A particular kind of resource held by a card"

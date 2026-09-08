@@ -75,8 +75,8 @@ CLASS FakeMarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> {
   -> Ok
 }
 
-"One resource stored with a card that reduces its play cost by 1 MC"
-CLASS StoredCardDiscount : QuasiResource<StagedProject>, Owned<Player>, Hidden {
+"One robot unit stored with a card that reduces its play cost by 1 MC"
+CLASS RobotUnit<StagedProject> : Resource, Owned<Player>, Hidden {
   ReplicateForStagedProject<CardBack<StagedProject>>: This!
   PlayCard<Class<CardBack>, Class<CardFront>, StagedProject>: -Owed<>, -This!
   -CardBack<StagedProject>:: -This!
@@ -92,13 +92,13 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard<Class<ProjectCard>> {
 }
 
 CLASS StageForReplicatedProject<StagedProject> : Owned<Player>, Signal {
-  This: ProjectCard<StagedProject FROM Hand> THEN 2 StoredCardDiscount<StagedProject>!
+  This: ProjectCard<StagedProject FROM Hand> THEN 2 RobotUnit<StagedProject>!
 }
 
 CLASS ReplicateForStagedProject<CardBack<StagedProject>> : Owned<Player>, Signal
 
 "One of the five face-down card positions on Self-Replicating Robots"
-ABSTRACT CLASS StagedProject : CardLocation, QuasiResourceHolder {
+ABSTRACT CLASS StagedProject : CardLocation {
   HAS MAX 1 CardBack<This>
 }
 
