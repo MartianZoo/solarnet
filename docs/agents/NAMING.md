@@ -187,7 +187,7 @@ looking it up.
   (`SuitableInfrastructurePaid`, `ActionUsedMarker`) and the `My` prefix when it does: `My` marks
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
-- **Markers** name real physical components players handle: `ActionUsedMarker`, `LandClaimMarker`,
+- **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
   `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
   `StartMarker` reads wrong.
 - **Card locations** use noun phrases for places (`Hand`) and participles for

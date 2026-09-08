@@ -931,7 +931,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      playProject(LandClaim, 1) { doTask("LandClaimMarker<Utopia_1_1>") }
+      playProject(LandClaim, 1) { doTask("Community<Utopia_1_1>") }
     }
 
     yellow.turn { sellPatents(1) }

@@ -10,26 +10,50 @@ import kotlin.test.Test
 
 internal class LandClaimTest : CardTest() {
   @Test
-  internal fun `Places a claim marker on an empty land area`() {
+  internal fun `Reserves an empty land area until its owner places a tile`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
 
-    p1.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_1>") }
+    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_1>") }
 
     shouldThrow<DeadEndException> { p2.manual("CityTile<Tharsis_1_1>") }
     p1.manual("GreeneryTile<Tharsis_1_1>")
-    p1.assertCounts(1 to "LandClaimMarker<Tharsis_1_1>")
+    p1.assertCounts(0 to "Community<Tharsis_1_1>")
   }
 
   @Test
   internal fun `Artificial Lake respects a claim according to its owner`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
-    p1.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_3>") }
+    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
 
     shouldThrow<DeadEndException> { p2.manual("$ArtificialLake") { placeTile(1, 3) } }
     p1.manual("$ArtificialLake") { placeTile(1, 3) }
     p1.assertCounts(1 to "OceanTile<Tharsis_1_3>")
+  }
+
+  @Test
+  internal fun `Placing an unrelated tile does not remove a community`() {
+    newGame(CorporateEraExpansion)
+    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
+
+    p1.manual("CityTile<Tharsis_4_2>")
+
+    p1.assertCounts(1 to "Community<Tharsis_1_3>")
+  }
+
+  @Test
+  internal fun `A community does not establish greenery placement adjacency`() {
+    newGame(CorporateEraExpansion)
+    p1.manual("$LandClaim") { doTask("Community<Tharsis_4_2>") }
+    p1.manual("CityTile<Tharsis_1_1>")
+
+    shouldThrow<NarrowingException> {
+      p1.manual("GreeneryTile<>") { doTask("GreeneryTile<Tharsis_4_3>") }
+    }
+    p1.manual("GreeneryTile<>") { doTask("GreeneryTile<Tharsis_2_1>") }
+
+    p1.assertCounts(1 to "Community<Tharsis_4_2>", 1 to "GreeneryTile<Tharsis_2_1>")
   }
 
   @Test
@@ -38,7 +62,7 @@ internal class LandClaimTest : CardTest() {
     val p2 = requireP2()
     p1.manual("GreeneryTile<Tharsis_1_1>")
     p2.manual("CityTile<Tharsis_2_1>")
-    p2.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_2_2>") }
+    p2.manual("$LandClaim") { doTask("Community<Tharsis_2_2>") }
 
     shouldThrow<DeadEndException> { p1.manual("GreeneryTile<Tharsis_2_2>") }
     p1.manual("GreeneryTile<Tharsis_9_7>")
@@ -52,11 +76,11 @@ internal class LandClaimTest : CardTest() {
     p1.manual("GreeneryTile<Tharsis_1_1>")
 
     shouldThrow<NarrowingException> {
-      p1.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_1>") }
+      p1.manual("$LandClaim") { doTask("Community<Tharsis_1_1>") }
     }
-    p1.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_3>") }
+    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
     shouldThrow<NarrowingException> {
-      p2.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_3>") }
+      p2.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
     }
   }
 }

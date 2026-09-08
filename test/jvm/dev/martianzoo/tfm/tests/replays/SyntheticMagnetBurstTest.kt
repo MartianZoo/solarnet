@@ -918,7 +918,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green played Land Claim
       // Green placed land claim at 11
       // Green gained 3 M€
-      playProject(LandClaim, 1) { doTask("LandClaimMarker<Hellas_2_4>") }
+      playProject(LandClaim, 1) { doTask("Community<Hellas_2_4>") }
       // Green ended turn
     }
     // Pink passed

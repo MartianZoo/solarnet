@@ -1554,8 +1554,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     green.turn {
       // "Just to be funny, I'm going to play one for land claim, just so you can go there."
       // The source does not identify the claimed area; Utopia_1_1 is a neutral test inference.
-      playProject(LandClaim, 1) { doTask("LandClaimMarker<Utopia_1_1>") }
-          .expect("-1 MC, -ProjectCard")
+      playProject(LandClaim, 1) { doTask("Community<Utopia_1_1>") }.expect("-1 MC, -ProjectCard")
     }
 
     // "I sell a card for a money."
