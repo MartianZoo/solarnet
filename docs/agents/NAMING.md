@@ -174,7 +174,7 @@ looking it up.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
   event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
-- **Custom instructions** are imperative verb phrases: `PassLeft`, `CopyProductionBox`. Use the
+- **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
   published verb when the game prints one — Robotic Workforce
   and Cyberia Systems both say "copy ... production box", which is why `CopyProductionBox` is right.
   Never a programming verb: `Handle`, `Get`, `Process`, `Update`.

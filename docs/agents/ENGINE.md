@@ -560,8 +560,9 @@ rules, global-parameter completion state, end barriers, and setup operations. `M
 missing maximum-one declaration found by the current Canon audit. `TradeFleet` deliberately has no
 one-count limit: additional fleet components are real capacity granted by cards.
 
-`StartToken` is exact one: Player1's queued bootstrap effect creates it, and generations move it
-only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the creation
+`StartToken` is exact one: Player1's queued bootstrap effect creates it, and each `ResearchPhase`
+moves it along the source-owned `AfterMe` relation by atomic transmutation. In Terraforming Mars,
+Phase is likewise exact one from the creation
 of its Module: Bootstrap is created first, and each transition replaces the current Phase; `End`
 remains as the terminal Phase. A separate temporary
 `FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every

@@ -14,9 +14,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.FromExpression.Compact
-import dev.martianzoo.pets.ast.FromExpression.Full
-import dev.martianzoo.pets.ast.FromExpression.Unchanged
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
@@ -24,7 +21,6 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
-import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -36,12 +32,9 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
-import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
-import dev.martianzoo.tfm.canon.TfmClasses.SUCCESSOR
 import kotlin.math.abs
 
 private val terraformingMarsCustomClasses: Set<CustomClass> =
@@ -50,7 +43,6 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.AdjustGpRequirement,
         TerraformingMars.HandleCardTags,
         TerraformingMars.ScoreEventVps,
-        TerraformingMars.PassLeft,
         TerraformingMars.NonNegativeIconsOf,
         TerraformingMars.PlacementBonus,
         TerraformingMars.CopyProductionBox,
@@ -224,29 +216,6 @@ private object TerraformingMars {
     }
 
     private val end: Trigger = parse("End")
-  }
-
-  internal object PassLeft : CustomClass() {
-    override fun translate(reader: GameReader, component: Type): Instruction {
-      val currentOwner = getOwner(reader, component).groundType
-      val outgoing =
-          reader.getComponents(reader.resolve(SUCCESSOR.expression)).single { relation ->
-            relation.typeDependencies.single { it.key == Key(SUCCESSOR, 0) }.boundType ==
-                currentOwner
-          }
-      val nextOwner = outgoing.typeDependencies.single { it.key == Key(SUCCESSOR, 1) }.boundType
-      if (nextOwner == currentOwner) return NoOp
-
-      val arguments =
-          component.expressionFull.arguments.map {
-            if (reader.resolve(it).groundType == currentOwner) Full(nextOwner.expression, it)
-            else Unchanged(it)
-          }
-      return Transmute(
-          Compact(component.className, arguments),
-          ActualScalar(reader.countComponent(component)),
-      )
-    }
   }
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): Class {

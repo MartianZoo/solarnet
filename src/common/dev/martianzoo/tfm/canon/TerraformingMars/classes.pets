@@ -609,14 +609,16 @@ CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
   This IF GpIncomplete: GlobalParameter! BY Admin
 }
 
-"Marks the player who takes the first turn; passes one seat left with each new generation"
+"Marks the player who takes the first turn"
 CLASS StartToken : Owned<Player> {
   HAS =1 StartToken
-  Generation IF 2 Generation: PassLeft<This>
 }
 
-"The directed turn-order relationship whose second Player follows its first Player"
-CLASS Successor<Player, Player> : System { HAS =1 This }
+"Identifies the Player immediately after its owner in seat order"
+CLASS AfterMe<Player> : Owned<Owner>, System {
+  HAS MAX 1 This
+  ResearchPhase IF StartToken: StartToken<Player> FROM StartToken.
+}
 
 // GAME CONFIGURATION
 
@@ -735,9 +737,6 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
 
 "A virtual metric whose count is the number of a particular resource printed as an area's bonus"
 CLASS PlacementBonus<Class<Resource>, MarsArea> : Custom
-
-"Moves an owned component to the next player in seat order"
-CLASS PassLeft<StartToken> : Custom
 
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
 CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, Custom

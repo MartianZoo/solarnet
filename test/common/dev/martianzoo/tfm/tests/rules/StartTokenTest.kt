@@ -19,35 +19,35 @@ import kotlin.test.Test
 
 internal class StartTokenTest {
   @Test
-  internal fun startsWithPlayer1AndPassesLeftEachGeneration() {
+  internal fun startsWithPlayer1AndPassesAfterEachResearchPhase() {
     val admin = setUpGame(players = 3).tfm(ADMIN)
 
     admin.assertCounts(
-        3 to "Successor",
-        1 to "Successor<Player1, Player2>",
-        1 to "Successor<Player2, Player3>",
-        1 to "Successor<Player3, Player1>",
+        3 to "AfterMe",
+        1 to "AfterMe<Player1, Player2>",
+        1 to "AfterMe<Player2, Player3>",
+        1 to "AfterMe<Player3, Player1>",
     )
     admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
-    admin.manual("Generation")
+    admin.nextGeneration(0, 0, 0)
     admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player2>")
 
-    admin.manual("Generation")
+    admin.nextGeneration(0, 0, 0)
     admin.assertCounts(0 to "StartToken<Player2>", 1 to "StartToken<Player3>")
 
-    admin.manual("Generation")
+    admin.nextGeneration(0, 0, 0)
     admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player3>")
     admin.assertCounts(1 to "StartToken")
     shouldThrow<LimitsException> { admin.manual("-StartToken<Player1>") }
   }
 
   @Test
-  internal fun passesAccordingToTheExplicitSuccessorRelation() {
+  internal fun passesAccordingToTheExplicitAfterMeRelation() {
     val admin = setUpGame(players = 3).tfm(ADMIN)
-    admin.sneak("Successor<Player1, Player3> FROM Successor<Player1, Player2>")
+    admin.sneak("AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>")
 
-    admin.manual("Generation")
+    admin.nextGeneration(0, 0, 0)
 
     admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player3>")
   }
@@ -61,7 +61,7 @@ internal class StartTokenTest {
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    admin.manual("Generation")
+    admin.nextGeneration(0)
 
     admin.assertCounts(1 to "StartToken<Player1>")
   }
