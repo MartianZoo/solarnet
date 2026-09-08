@@ -34,7 +34,7 @@ internal class TransformersTest {
     checkApplyDefaults("Heat", "Heat<Owner>!")
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
-    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea>.")
+    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea(HAS MAX 0 Tile)>.")
     checkApplyDefaults("MoholeArea_SpecialTile", "MoholeArea_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(

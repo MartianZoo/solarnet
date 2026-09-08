@@ -144,7 +144,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   This: TerraformRating
 
   CLASS OceanTile : Tile<MarsArea> {
-    DEFAULT +OceanTile<WaterArea>
+    DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
 
     // We could instead trigger on BackwardAdjacency<Tile, This> -- same thing.
     // But if we triggered on just Adjacency, it would also pay out for putting ocean tiles next to any tile.

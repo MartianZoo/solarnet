@@ -204,7 +204,7 @@ CLASS ViralEnhancers : ActiveCard<Class<ProjectCard>> {
   cost = 9
 
   This:: ScienceTag<This>, MicrobeTag<This>
-  BioTag<CardFront>: Plant OR CardResource<CardFront>
+  BioTag<CardFront>: Plant OR CardResource<CardFront>!
 }
 
 CLASS QuantumExtractor : ActiveCard<Class<ProjectCard>> {

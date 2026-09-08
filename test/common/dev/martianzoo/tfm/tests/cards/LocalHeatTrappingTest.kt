@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.AbstractException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -50,7 +50,7 @@ internal class LocalHeatTrappingTest : CardTest() {
   internal fun `Cannot evade an eligible holder by selecting an absent holder`() {
     p1.manual("6 Heat, $Pets")
     p1.manual("$LocalHeatTrapping") {
-          shouldThrow<NarrowingException> { doTask("2 Animal<$Fish>") }
+          shouldThrow<NotNowException> { doTask("2 Animal<$Fish>") }
           addCardResources(Pets)
         }
         .expect("-5 Heat, 2 Animal<$Pets>")

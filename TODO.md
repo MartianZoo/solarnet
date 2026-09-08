@@ -78,6 +78,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Find a principled way for narrower dependency defaults to retain compatible refinements from
+  wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
+  areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
 - Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`

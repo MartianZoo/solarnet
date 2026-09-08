@@ -285,7 +285,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `narrowing a selected AMAP target rejects an occupied area`() {
+  internal fun `ocean target refinement rejects an occupied area`() {
     writer.autoExecMode = AutoExecMode.FIRST
     writer.manual("OceanTile<Tharsis_1_2>")
     writer.autoExecMode = NONE
@@ -297,6 +297,32 @@ internal class TaskNarrowingTest {
 
     tasks.selectedTask() shouldBe null
     writer.count("OceanTile<Tharsis_1_4>") shouldBe 1
+  }
+
+  @Test
+  internal fun `AMAP saturates only the selected target`() {
+    game.agent(PLAYER2).manual("3 MC")
+    initiate("-5 MC<Player>.")
+
+    selectAndNarrow("-5 MC<Player>.", "-5 MC<Player1>.")
+
+    tasks.isEmpty() shouldBe true
+    writer.count("MC") shouldBe 0
+    game.agent(PLAYER2).count("MC") shouldBe 3
+  }
+
+  @Test
+  internal fun `AMAP gain may select a maxed target while another target has capacity`() {
+    writer.autoExecMode = AutoExecMode.FIRST
+    writer.manual("14 OxygenStep!")
+    writer.autoExecMode = NONE
+    initiate("GlobalParameter.")
+
+    selectAndNarrow("GlobalParameter.", "OxygenStep.")
+
+    tasks.isEmpty() shouldBe true
+    writer.count("OxygenStep") shouldBe 14
+    writer.count("TemperatureStep") shouldBe 1
   }
 
   @Test

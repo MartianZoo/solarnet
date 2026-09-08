@@ -216,7 +216,7 @@ Defaults preserve omitted physical-game context:
 
 ```pets
 DEFAULT Owned<Owner>
-DEFAULT +OceanTile<WaterArea>
+DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
 DEFAULT -Required.
 ```
 
