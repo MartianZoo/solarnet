@@ -1,9 +1,62 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>
+  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
   This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
+  SetupPhase: RevealComingEvent
+}
+
+"A revealed Global Event card"
+ABSTRACT CLASS GlobalEvent {
+  HAS MAX 1 This
+  This IF RevealComingEvent:: Coming<Class<This>>, PlaceDistantDelegate<Class<This>>
+  This IF RevealDistantEvent:: Distant<Class<This>>
+  Distant<Class<This>>:: PlaceDistantDelegate<Class<This>>
+  -Current<Class<This>>:: -This!
+}
+
+"One Global Event card occupying its printed board position"
+ABSTRACT CLASS GlobalEventPosition<Class<GlobalEvent>>
+
+CLASS Current<Class<GlobalEvent>> : GlobalEventPosition<Class<GlobalEvent>> {
+  HAS MAX 1 Current
+}
+
+CLASS Coming<Class<GlobalEvent>> : GlobalEventPosition<Class<GlobalEvent>> {
+  HAS MAX 1 Coming
+}
+
+CLASS Distant<Class<GlobalEvent>> : GlobalEventPosition<Class<GlobalEvent>> {
+  HAS MAX 1 Distant
+}
+
+"Requests the top-left neutral delegate printed on one revealed event"
+CLASS PlaceDistantDelegate<Class<GlobalEvent>> : Signal
+
+"Requests the first revealed event and then the second setup event"
+CLASS RevealComingEvent : Barrier {
+  HAS MAX 1 This
+  This: GlobalEvent THEN RevealDistantEvent FROM This
+}
+
+"Requests the next event for the Distant position"
+CLASS RevealDistantEvent : Barrier {
+  HAS MAX 1 This
+  This: GlobalEvent THEN -This!
+}
+
+"Moves every revealed Global Event one position and requests the next event"
+CLASS ChangingTimes : Signal {
+  This:: \
+    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { -Current<Class<GlobalEvent>>! }, \
+    EACH Class<GlobalEvent>(HAS Coming<Class<GlobalEvent>>) { \
+      Current<Class<GlobalEvent>> FROM Coming<Class<GlobalEvent>> \
+    }, \
+    EACH Class<GlobalEvent>(HAS Distant<Class<GlobalEvent>>) { \
+      Coming<Class<GlobalEvent>> FROM Distant<Class<GlobalEvent>> \
+    }, \
+    RevealDistantEvent
 }
 
 "A player participating in the Turmoil political rules"

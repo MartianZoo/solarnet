@@ -20,16 +20,20 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("ReserveDelegate") shouldBe 6
     p2.count("ReserveDelegate") shouldBe 6
     admin.count("Neutral") shouldBe 1
-    admin.count("ReserveDelegate<Neutral>") shouldBe 13
+    admin.count("ReserveDelegate<Neutral>") shouldBe 11
     admin.count("Party") shouldBe 6
     admin.count("Chairman<Neutral>") shouldBe 1
     admin.count("Ruling<Greens>") shouldBe 1
     admin.count("Ruling") shouldBe 1
+    admin.count("Coming") shouldBe 1
+    admin.count("Distant") shouldBe 1
+    admin.count("Current") shouldBe 0
   }
 
   @Test
-  internal fun `lobbying moves the lobby delegate for free and appoints the first leader`() {
+  internal fun `a sole lobbied delegate becomes party leader and supplies no delegate influence`() {
     newGame(TurmoilExpansion)
+    clearSetupPolitics()
     admin.phase("Action")
 
     p1.stdAction("SendDelegateSA", 1) {
@@ -51,7 +55,7 @@ internal class TurmoilRulesTest : CardTest() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
     p1.manual("10 MC")
-    p2.manual("10 MC")
+    p2.manual("15 MC")
     admin.phase("Action")
 
     p1.turn {
@@ -81,12 +85,15 @@ internal class TurmoilRulesTest : CardTest() {
       stdAction("SendDelegateSA", 2) {
         doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
       }
+      stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+      }
     }
 
     p1.count("MC") shouldBe 5
     p2.count("MC") shouldBe 0
     p1.count("ReserveDelegate") shouldBe 5
-    p2.count("ReserveDelegate") shouldBe 4
+    p2.count("ReserveDelegate") shouldBe 3
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     p2.count("PartyLeader<Scientists>") shouldBe 1
     admin.count("Dominant<Scientists>") shouldBe 1
@@ -101,22 +108,22 @@ internal class TurmoilRulesTest : CardTest() {
 
     p1.turn {
       stdAction("SendDelegateSA", 1) {
-        doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+        doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
       }
     }
     p2.turn {
       stdAction("SendDelegateSA", 1) {
-        doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+        doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
       }
-      p1.count("PartyLeader<MarsFirst>") shouldBe 1
-      p2.count("PartyLeader<MarsFirst>") shouldBe 0
+      p1.count("PartyLeader<Scientists>") shouldBe 1
+      p2.count("PartyLeader<Scientists>") shouldBe 0
       stdAction("SendDelegateSA", 2) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
       }
     }
 
-    p1.count("PartyLeader<MarsFirst>") shouldBe 0
-    p2.count("PartyLeader<MarsFirst>") shouldBe 1
+    p1.count("PartyLeader<Scientists>") shouldBe 0
+    p2.count("PartyLeader<Scientists>") shouldBe 1
   }
 
   @Test
@@ -210,5 +217,13 @@ internal class TurmoilRulesTest : CardTest() {
     admin.manual("End FROM Phase")
     p1.count("VictoryPoint") shouldBe 22
     p2.count("VictoryPoint") shouldBe 20
+  }
+
+  private fun clearSetupPolitics() {
+    listOf("MarsFirst", "Reds").forEach { party ->
+      admin.manual("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
+      admin.manual("-PartyLeader<$party, Neutral>!")
+    }
+    admin.manual("-Dominant!")
   }
 }

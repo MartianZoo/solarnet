@@ -285,3 +285,35 @@ Code review found no lost delegate, duplicate Chairman, erroneous TR for Neutral
 failure, stale priority, or orientation error. The next slice will establish the Distant, Coming,
 and Current Global Event positions and their setup/Changing Times movement before individual event
 effects are added.
+
+## 2026-09-08 — Stage 9: Global Event deck and movement
+
+Added the complete 31-card base Global Event inventory and the three printed board positions. Each
+event is a unique finite component and owns its two printed neutral-delegate signals: one when it is
+revealed as Distant and one when it becomes Current. The four cards missing from the design
+inventory—Strong Society, Successful Organisms, Volcanic Eruptions, and War on Earth—complete the
+31-card rulebook count. Existing project-card names required explicit `GlobalEvent` qualifiers for
+Asteroid Mining, Interplanetary Trade, and Sabotage.
+
+Setup now requests a first event for Coming and chains directly to the Distant reveal. Changing
+Times discards the exact Current event, moves Coming to Current, moves Distant to Coming, and asks
+for the next Distant card in printed order. A Current marker's removal owns disposal of that exact
+event, so no separate discard representation is retained. Reveal requests are finite Barriers:
+production follow-mode therefore exposes the shuffled-deck decisions to Admin, while the shared
+functional-test setup supplies fixed cards for deterministic scenarios.
+
+Functional coverage observes only public administrative tasks and component counts. It verifies
+the two setup positions, both initial neutral delegates, initial dominance and reserve consumption,
+then advances twice to prove exact movement, Current-event disposal, successive delegate placement,
+and finite neutral reserves. Existing political scenarios that intentionally model isolated
+committees now return the two setup delegates through ordinary instructions before arranging their
+fixtures. The focused Turmoil suite, complete Gradle suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: event identity, position, movement, and printed party arrows are all
+Pets declarations. The only Kotlin change is deterministic test setup through the same outward task
+API used by clients; there is no production Kotlin or engine change. Class-valued position markers
+connect a position to its exact card without another card-state model, and card disposal follows
+from normal component removal. Code review found no duplicate reveal, early Current event, stale
+discarded card, extra neutral delegate, or dependence on declaration order. The next slice will add
+the shared Current-event resolution request and the first coherent batch of FAQ-driven event
+effects.

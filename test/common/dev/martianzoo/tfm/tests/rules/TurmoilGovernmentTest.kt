@@ -15,6 +15,7 @@ internal class TurmoilGovernmentTest :
   internal fun `new government resolves the complete delegate and chairman sequence`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
+    clearSetupPolitics()
     p1.manual("RulingBonusProbe, 2 BuildingTag<RulingBonusProbe>")
     admin.manual("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
     p2.manual("Chairman FROM ReserveDelegate")
@@ -59,6 +60,7 @@ internal class TurmoilGovernmentTest :
 
     clockwise.forEach { (former, expected) ->
       newGame(TurmoilExpansion)
+      clearSetupPolitics()
       sendNeutralDelegate(former)
       sendNeutralDelegate(former)
       parties.filterNot { it == former }.forEach(::sendNeutralDelegate)
@@ -134,5 +136,13 @@ internal class TurmoilGovernmentTest :
 
   private fun sendNeutralDelegate(party: String) {
     admin.manual("PartyDelegate<$party, Neutral> FROM ReserveDelegate<Neutral>")
+  }
+
+  private fun clearSetupPolitics() {
+    listOf("MarsFirst", "Reds").forEach { party ->
+      admin.manual("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
+      admin.manual("-PartyLeader<$party, Neutral>!")
+    }
+    admin.manual("-Dominant!")
   }
 }
