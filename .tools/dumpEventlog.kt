@@ -42,14 +42,15 @@ private fun createGame(playerCount: Int): World {
       )
   return Engine.newGame(premise).also { game ->
     TfmWorkflow.Manual(game).setupPhase()
-    game.actors.filterIsInstance<Player>().forEach { player ->
+    val players = game.actors.filterIsInstance<Player>()
+    players.forEach { player ->
       game.agent(player).doTask("-6 ProjectCard<Hand>")
     }
     if (playerCount == 1) {
-      game.tfm(Player.PLAYER1).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
+      game.tfm(players.first()).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
     }
     TfmWorkflow.Manual(game).corporationPhase()
-    game.tfm(Player.PLAYER1).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
+    game.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
   }
 }
 
