@@ -5,6 +5,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.data.Player.Companion.PLAYER2
 import dev.martianzoo.script.OptionCodeTranslation
+import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.createGame
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -24,6 +25,17 @@ internal fun setUpGame(
 }
 
 internal class BasicTest {
+  @Test
+  internal fun playerSnapshotDefaultsToTheFirstConfiguredPlayer() {
+    val session = ScriptSession()
+
+    session.command("newgame B 1")
+    assertEquals("Me", session.playerSnapshot().playerName)
+
+    session.command("newgame \"\" Blue Yellow")
+    assertEquals("Blue", session.playerSnapshot().playerName)
+  }
+
   @Test
   internal fun configuredInputOnlySynonyms() {
     val game = setUpGame()

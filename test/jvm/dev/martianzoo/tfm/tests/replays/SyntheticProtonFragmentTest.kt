@@ -25,11 +25,16 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
           Mayor, Diversifier, Trader, Sponsor, Tycoon
           Biologist, SpaceBaron, Forecaster, Botanist, Collector
-          """,
-          "Player1",
-          "Player2",
-          "Player3",
+          """
       )
+  // Player-record evidence: Purple has a five-TR handicap.
+  override val playerClassPets =
+      """
+      CLASS Player1 : Player { SetupPhase: 5 TerraformRating }
+      CLASS Player2 : Player
+      CLASS Player3 : Player
+      """
+          .trimIndent()
   override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
@@ -40,9 +45,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     val purple = p1
     val pink = p2
     val green = p3
-
-    // Player-record evidence: Purple has a five-TR handicap, which GameConfig cannot express.
-    purple.exMachina("5 TerraformRating")
 
     admin.assertCounts(1 to "Generation")
 

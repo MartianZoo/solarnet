@@ -89,26 +89,15 @@ public object Engine {
             recordingPositions,
             ::removeTemporaryComponents,
         )
-    private val changerByActor: Map<Actor, Changer> =
-        premise.actors.associateWith { Changer(reader, components, events, it) }
-    private val instructorByActor: Map<Actor, Instructor> =
-        premise.actors.associateWith {
-          Instructor(
-              reader,
-              limiter,
-              changerByActor.getValue(it),
-              effector,
-              classTable,
-              it,
-              customClasses,
-          )
-        }
+    private val changer = Changer(reader, components, events)
+    private val instructor =
+        Instructor(reader, limiter, changer, effector, classTable, transformers, customClasses)
     private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
     private val initializer =
         if (backing == null) {
           Initializer(
               agentByActor.getValue(ADMIN),
-              instructorByActor.getValue(ADMIN),
+              instructor,
               taskQueues,
               classTable,
               timeline,
@@ -164,9 +153,8 @@ public object Engine {
       temporaryComponents.elements.forEach { type ->
         val count = reader.countComponent(type)
         if (count > 0) {
-          instructorByActor
-              .getValue(ADMIN)
-              .execute(remove(type, count), cause = null)
+          instructor
+              .execute(remove(type, count), cause = null, actor = ADMIN)
               .forEach(taskQueues::addTasks)
         }
       }
@@ -183,7 +171,7 @@ public object Engine {
 
       val initiallyPresentClassNames =
           premise.modules +
-              premise.playerClassNames +
+              premise.playerNames +
               premise.classSelections.filter { it.included }.map { it.className } +
               premise.initialComponentTypes.map { classTable.resolve(it).className }
 
@@ -230,8 +218,6 @@ public object Engine {
 
     private fun createAgent(actor: Actor): Agent {
       val tasks = taskQueues[actor]
-      val changer = changerByActor.getValue(actor)
-      val instructor = instructorByActor.getValue(actor)
       val implementations =
           Implementations(
               tasks,

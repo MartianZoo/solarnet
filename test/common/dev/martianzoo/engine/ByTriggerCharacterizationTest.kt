@@ -187,7 +187,7 @@ internal class ByTriggerCharacterizationTest {
   }
 }
 
-private object ProbeCatalog : TfmCatalog.Composite(Canon, ProbeDeclarations)
+private object ProbeCatalog : TfmCatalog.Composite(Canon.withPlayers(2), ProbeDeclarations)
 
 private object ProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =

@@ -6,9 +6,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Have the normal full application build stamp its output with the current Git commit and, when
+  source changes are present, a stable hash of those changes. Include that stamp in every exported
+  game record so a log identifies, or can later verify, the engine source that produced it.
 - Remove `Vocabulary`'s input-only Class-name synonym facility after expanding the abbreviated Pets
-  used by the REPL, tests, replays, and recorded games; preserve localization and configured Player
-  names, which use separate `Vocabulary` features.
+  used by the REPL, tests, replays, and recorded games; preserve localization. Configured Player
+  names are concrete Catalog Classes and require no Vocabulary mechanism.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for

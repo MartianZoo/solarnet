@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.web.gameviewer.games
 
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
@@ -26,8 +24,8 @@ public class OtbGame20260809 : RecordedGame() {
 
   protected override fun play() {
     TfmWorkflow.Auto(game).launch()
-    val yellow = game.tfm(Player.PLAYER1)
-    val green = game.tfm(Player.PLAYER2)
+    val yellow = player(1)
+    val green = player(2)
     yellow.doTask("-4 ProjectCard<Hand>")
     green.doTask("-6 ProjectCard<Hand>")
 

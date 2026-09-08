@@ -29,7 +29,7 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PromoCardPack, players = 1)
 
     playCorporationWithoutStartingProjects(p1, MonsInsurance)
-        .expect("48 MC, PROD[4 MC<Me>], PROD[0 MC<SoloOpponent>]")
+        .expect("48 MC, PROD[4 MC<Player1>], PROD[0 MC<SoloOpponent>]")
   }
 
   @Test
@@ -179,10 +179,10 @@ internal class MonsInsuranceTest : CardTest() {
     p1.manual("$MonsInsurance, ProjectCard")
 
     p1.playProject(HiredRaiders, 1) {
-          doTask("3 MC<Me> FROM MC<SoloOpponent>")
+          doTask("3 MC<Player1> FROM MC<SoloOpponent>")
         }
-        .expect("-1 MC<Me>")
-    p1.manual("PROD[-2 Plant<SoloOpponent>]").expect("-3 MC<Me>")
+        .expect("-1 MC<Player1>")
+    p1.manual("PROD[-2 Plant<SoloOpponent>]").expect("-3 MC<Player1>")
   }
 
   @Test

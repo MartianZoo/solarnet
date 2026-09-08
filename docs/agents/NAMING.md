@@ -5,7 +5,7 @@
 > vouch for the information here.
 
 > **Read when:** naming or renaming a Class, resolving a printed-name collision, adding a Module,
-> changing player aliases, editing a `language/*.json5` file, or deciding whether a concept needs a
+> changing Player Class Names, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.
 >
 > **Status:** current model. [Pending naming work](#pending-naming-work) records unresolved names or
@@ -20,7 +20,7 @@
 - [`Vocabulary.kt`](../../src/common/dev/martianzoo/pets/Vocabulary.kt) — read when changing display
   lookup, aliases, or inheritance; `defaultEnglishDisplayName` defines the display default.
 - [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) — search for
-  `playerNames` only when changing configured Player display names.
+  `playerNames` when changing configured Player identities.
 - [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module,
   for the bundle-name coincidence rule.
 - Bundle `language/en.json5` files under

@@ -102,7 +102,7 @@ public fun main() {
   val completionEngine = ScriptCompletionEngine(session)
 
   fun renderDashboard() {
-    val snapshot = session.playerSnapshot("Player1")
+    val snapshot = session.playerSnapshot()
 
     fun setValue(name: String, value: Any?) {
       document.querySelector("[data-stat='$name']")?.textContent = value?.toString() ?: "—"

@@ -45,12 +45,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase: 2 CorporationCard THEN -CorporationCard \
     THEN 10 ProjectCard THEN -10 ProjectCard?
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
-
-  CLASS Player1
-  CLASS Player2
-  CLASS Player3
-  CLASS Player4
-  CLASS Player5
 }
 
 // MAPS AND AREAS

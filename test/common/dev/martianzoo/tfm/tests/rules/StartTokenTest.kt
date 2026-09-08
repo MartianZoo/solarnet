@@ -53,7 +53,7 @@ internal class StartTokenTest {
   }
 
   @Test
-  internal fun staysWithMeInAnActualOnePlayerSetup() {
+  internal fun staysWithPlayer1InAnActualOnePlayerSetup() {
     val game = setUpGame(players = 1)
     val admin = game.tfm(ADMIN)
 
@@ -63,7 +63,7 @@ internal class StartTokenTest {
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     admin.manual("Generation")
 
-    admin.assertCounts(1 to "StartToken<Me>")
+    admin.assertCounts(1 to "StartToken<Player1>")
   }
 
   @Test

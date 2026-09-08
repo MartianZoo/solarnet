@@ -44,7 +44,9 @@ internal class Initializer(
    * Component must stop initialization rather than become an omitted change.
    */
   private fun execute(instruction: String, cause: Cause?): TaskResult = timeline.atomic {
-    instructor.execute(agent.parse<Instruction>("$instruction!"), cause).forEach(tasks::addTasks)
+    instructor
+        .execute(agent.parse<Instruction>("$instruction!"), cause, ADMIN)
+        .forEach(tasks::addTasks)
   }
 
   /**
@@ -60,7 +62,7 @@ internal class Initializer(
         orderedModules
             .filter { it.className !in constructivelyCreatedModules }
             .flatMap { classTable.concreteSubtypesSameClass(it.baseType) } +
-            premise.playerClassNames.map(classTable::getClass).flatMap {
+            premise.playerNames.map(classTable::getClass).flatMap {
               classTable.concreteSubtypesSameClass(it.baseType)
             },
         cause,
@@ -128,7 +130,7 @@ internal class Initializer(
   private fun verifyCompletedBootstrap() {
     val expected =
         premise.modules.map(classTable::getClass).map(Class::baseType) +
-            premise.playerClassNames.map(classTable::getClass).map(Class::baseType) +
+            premise.playerNames.map(classTable::getClass).map(Class::baseType) +
             premise.initialComponentTypes.map(classTable::resolve)
     val missing = expected.filter { agent.count("${it.expression}") == 0 }
     if (missing.isNotEmpty()) {

@@ -324,6 +324,9 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 
 ### Direct state reconciliation
 
+- Express a sourced per-player setup rule, such as a starting handicap, on that replay's concrete
+  Player Class with a `SetupPhase` effect supplied through `playerClassPets`. It is game
+  setup, not a direct state reconciliation.
 - Never call `sneak` directly in a game test. Use the test's `exMachina` helper for an
   evidence-backed player error that requires a direct state adjustment. Place it as late in the
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add

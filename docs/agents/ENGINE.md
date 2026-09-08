@@ -73,22 +73,22 @@ See [GAMEWORLD.md](GAMEWORLD.md),
 [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction), and
 [API.md](API.md). Current code still combines these responsibilities in `World` and `:engine`.
 
-`GameConfig` is unresolved user intent. Catalog-specific resolution applies defaults, selection
-policy, and validation to produce an immutable `GamePremise`. The premise contains one Catalog,
-selected Modules, signed class selections, seat-ordered display names, and exact concrete types
-to create once. See [OPTIONS.md](OPTIONS.md).
+`GameConfig` is unresolved user intent. Catalog-specific resolution composes concrete Player
+Classes named by the configuration, then applies defaults, selection policy, and validation to
+produce an immutable `GamePremise`. The premise contains one Catalog, selected Modules, signed
+class selections, seat-ordered Player Class Names, and exact concrete types to create once. See
+[OPTIONS.md](OPTIONS.md).
 
 A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
 from that premise shares the projection and its compiled class metadata while retaining independent
 component, effect, task, event, timeline, and gameplay state.
 
 Each Catalog owns one validated master `ClassTable`. A game's table projects it: selected Classes
-are active and every other Catalog-known Class is uninhabited. Occupied seats activate canonical
-`Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
-an explicit projection root. Trigger positions are observational and do not activate their
-protocol Classes. Modules directly create the concrete standard actions and other protocols they
-issue; generic families use `EACH` over the structurally present `Class<T>` representatives only
-when the family itself owns the fanout.
+are active and every other Catalog-known Class is uninhabited. Each configured player name is a
+concrete Player Class in the composed Catalog and an explicit projection root. Trigger positions are
+observational and do not activate their protocol Classes. Modules directly create the concrete
+standard actions and other protocols they issue; generic families use `EACH` over the structurally
+present `Class<T>` representatives only when the family itself owns the fanout.
 
 Module defaults, constructive active-provenance edges, and premise requirements are authored in
 Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
@@ -737,8 +737,9 @@ in [WORKFLOW.md](WORKFLOW.md).
 ## Wiring details
 
 `Engine.Wiring` is the current manual composition root. Class Table, Event Log, Component Graph,
-Effector, Timeline, and other World-level services are shared. Each Actor currently receives its
-own `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` scope.
+Effector, Timeline, `Changer`, `Instructor`, and other World-level services are shared; `Changer` and
+`Instructor` take the acting Actor as a parameter rather than holding one. Each Actor currently
+receives its own `Implementations` and `ApiTranslation` scope.
 
 The target engine composition retains only the behavior and Actor context required to calculate one
 direct mutation. Game World retains Actor identities, assignment, and pending choices as data but

@@ -86,6 +86,7 @@ internal class Implementations(
           change.removing?.toComponent(reader),
           cause,
           orRemoveOneDependent = false,
+          actor = actor,
       )
     }
   }
