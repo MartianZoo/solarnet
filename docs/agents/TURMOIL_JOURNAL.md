@@ -420,3 +420,31 @@ signals. Code review found no TR leakage, lost placement choice, extra temperatu
 track mutation, forced identical Dry Deserts resources, empty-card omission, or cross-player card
 resource. The next slice will implement Election and Revolution, using FAQ tests for friendly ties,
 the neutral participant, zero-score eligibility differences, and the solo formulas.
+
+## 2026-09-08 — Stage 13: ranking events
+
+Implemented Election and Revolution, completing the 31 base Global Event effects. Both multiplayer
+events use the engine's existing competition rank: equal scores share their friendly place and a
+tie for first skips second. Election counts influence, Building tags, and City tiles, then grants
+two or one TR. Revolution counts influence and Earth tags, makes a zero score immune, and removes
+two or one TR. The solo branches use their printed thresholds directly: one TR per five Election
+points up to two, and two TR lost at four or more Revolution points.
+
+The FAQ says the neutral player participates with a score of zero. It cannot alter either result:
+Election's friendly ties already give every zero-score human first place when all scores are zero,
+while Revolution explicitly exempts zero scores. Ranking the real players therefore preserves all
+observable rules without inventing a neutral proxy for player-owned tags and tiles. Explicit
+player arguments inside each rank metric keep the candidate scope unambiguous and exclude Wild
+tags naturally.
+
+Functional tests resolve the actual event components through `ResolveGlobalEvent`. They prove
+distinct first and second awards, the Revolution zero-score exemption, a tied first place with no
+second-place effect, and both solo thresholds. The complete Turmoil event test class passes.
+
+VALUES and minimality review: both cards are declarative Pets compositions of existing rank,
+metric union, threshold, cap, and TR instructions. A trial participant proxy was removed once the
+existing Player owner model proved sufficient; no second representation or production Kotlin
+remains. Code review found no hostile tie handling, accidental second place after a tie, Wild-tag
+counting, zero-score Revolution loss, multiplayer formula in solo play, or uncapped solo Election
+gain. The next slice will add the five optional Venus/Colonies events only when their companion
+expansions are active.

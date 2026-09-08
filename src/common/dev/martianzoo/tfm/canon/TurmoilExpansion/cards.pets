@@ -41,6 +41,12 @@ CLASS EcoSabotage : GlobalEvent {
 CLASS Election : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
+    EACH Player(HAS =1 (RANK Player { Influence<Player> OR BuildingTag<Player> OR CityTile<Player> })) { 2 TerraformRating }
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
+    EACH Player(HAS =2 (RANK Player { Influence<Player> OR BuildingTag<Player> OR CityTile<Player> })) { TerraformRating }
+  ResolveGlobalEvent<Class<This>> IF SoloMode:: \
+    EACH Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
 }
 
 CLASS GenerousFunding : GlobalEvent {
@@ -126,6 +132,16 @@ CLASS RedInfluence : GlobalEvent {
 CLASS Revolution : GlobalEvent {
   PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
   Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
+    EACH Player(HAS 1 (EarthTag OR Influence), =1 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
+      -2 TerraformRating. \
+    }
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
+    EACH Player(HAS 1 (EarthTag OR Influence), =2 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
+      -TerraformRating. \
+    }
+  ResolveGlobalEvent<Class<This>> IF SoloMode:: \
+    EACH Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }
 }
 
 CLASS Riots : GlobalEvent {

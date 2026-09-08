@@ -303,6 +303,51 @@ internal class TurmoilEventsTest :
     requireP2().count("ProjectCard") shouldBe 0
   }
 
+  @Test
+  internal fun `ranking events award friendly places and protect zero revolution scores`() {
+    newGame(TurmoilExpansion)
+    p1.manual("GlobalEventProbe, 2 BuildingTag<GlobalEventProbe>, 2 EarthTag<GlobalEventProbe>")
+
+    resolve("Election")
+
+    p1.count("TerraformRating") shouldBe 22
+    requireP2().count("TerraformRating") shouldBe 21
+
+    resolve("Revolution")
+
+    p1.count("TerraformRating") shouldBe 20
+    requireP2().count("TerraformRating") shouldBe 21
+
+    newGame(TurmoilExpansion)
+    p1.manual("GlobalEventProbe, BuildingTag<GlobalEventProbe>, EarthTag<GlobalEventProbe>")
+    requireP2()
+        .manual("GlobalEventProbe, BuildingTag<GlobalEventProbe>, EarthTag<GlobalEventProbe>")
+
+    resolve("Election")
+    resolve("Revolution")
+
+    p1.count("TerraformRating") shouldBe 20
+    requireP2().count("TerraformRating") shouldBe 20
+  }
+
+  @Test
+  internal fun `solo ranking events use their printed thresholds`() {
+    newGame(TurmoilExpansion, players = 1)
+    val startingRating = p1.count("TerraformRating")
+    p1.manual(
+        "GlobalEventProbe, 9 BuildingTag<GlobalEventProbe>, " +
+            "3 EarthTag<GlobalEventProbe>, ChairmanInfluence"
+    )
+
+    resolve("Election")
+
+    p1.count("TerraformRating") shouldBe startingRating + 2
+
+    resolve("Revolution")
+
+    p1.count("TerraformRating") shouldBe startingRating
+  }
+
   private fun resolve(event: String) {
     admin.manual(event)
     admin.manual("ResolveGlobalEvent<Class<$event>>")
