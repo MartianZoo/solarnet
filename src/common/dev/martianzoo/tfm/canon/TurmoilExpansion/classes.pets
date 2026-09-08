@@ -1,8 +1,8 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
-  SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate }
-  SetupPhase:: Chairman<Neutral>, Ruling<Greens>
+  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA, RefillLobby
+  SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
+  SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
 }
 
 "A player participating in the Turmoil political rules"
@@ -47,6 +47,9 @@ ABSTRACT CLASS AbstractDelegate : Owned<Owner> {
   CLASS LobbyDelegate {
     HAS MAX 1 This
   }
+
+  "A delegate available to enter the Lobby or a political party"
+  CLASS ReserveDelegate
 }
 
 "A delegate currently assigned to one political party"
@@ -74,5 +77,10 @@ CLASS RecalculateDominance : Signal {
 "The repeatable lobbying action, free from the Lobby or costing 5 M€ from the reserve"
 CLASS SendDelegateSA : StandardAction {
   -> PartyDelegate FROM LobbyDelegate
-  5 MC -> PartyDelegate
+  5 MC -> PartyDelegate FROM ReserveDelegate
+}
+
+"Refills each vacant Lobby seat from that player's finite reserve"
+CLASS RefillLobby : Signal {
+  This:: EACH Player { LobbyDelegate<Player> FROM ReserveDelegate<Player>. }
 }

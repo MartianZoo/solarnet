@@ -88,3 +88,39 @@ engine a political exception. Defect review leaves three intentionally unclaimed
 next maintenance slices: the seven-delegate player supply, Lobby refresh during government
 formation, and leader/dominance recomputation after removals. The next slice will model finite
 delegate supply and removal-side maintenance before influence depends on either role.
+
+## 2026-09-08 — Stage 3: finite delegate reserves and Lobby refill
+
+Added the physical delegate reserves omitted by the initial modeling draft. Each player now starts
+with the complete printed supply of seven markers: one `LobbyDelegate` and six
+`ReserveDelegate`s. Neutral starts with fourteen markers as well: one Chairman and thirteen in its
+reserve. Paid lobbying now transmutates a reserve marker into a party delegate, while the free
+choice still transmutates the Lobby marker. Running out of reserve therefore makes the paid choice
+impossible through ordinary source availability and never charges the 5 M€ cost.
+
+This revises the earlier tentative analogy to unplaced board tiles. The local rulebook explicitly
+keeps every delegate marker on the committee board, and the FAQ makes the supply observable in
+several ways: each player has exactly seven, neutral placement is ignored when its fourteen are
+exhausted, mandatory placements can make a card unplayable, and Lobby refill fails without a
+reserve marker. A reserve component is one physical fact that composes with every one of those
+rules; a numeric cap would duplicate the same state and could not identify the marker returned by
+government formation.
+
+Added `RefillLobby` as a small reusable Signal. It moves at most one reserve marker into each
+player's vacant Lobby and leaves an occupied Lobby untouched. It is intentionally not subscribed
+to `SolarPhase` yet: government formation must return ruling-party delegates before the refill,
+and a broad phase subscription would not prove that order. A later sequencing slice will invoke
+this Signal in its printed step 3f position.
+
+The functional tests use standard-action doorways to spend all seven player markers, verify that a
+seventh paid placement is rejected without payment, and observe reserve consumption by existing
+lobbying scenarios. A separate outward task invokes Lobby refill and verifies both the vacant and
+already-occupied results. Setup assertions cover player and neutral counts. The focused Turmoil
+class, complete JVM suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: the implementation is Pets-only and represents the real pieces
+rather than adding arithmetic, a custom supply service, or a Turmoil engine rule. Production cost
+is one component Class, one source term on the paid action, setup counts, and one Signal. Defect
+review found no issue inside this finite-supply slice. Removal-side political maintenance remains
+next; it must honor its different active-player and clockwise tie rules rather than reuse the
+gain-side incumbent metric by convenience.

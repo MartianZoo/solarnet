@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -15,7 +17,10 @@ internal class TurmoilRulesTest : CardTest() {
     p2.count("TurmoilPlayer") shouldBe 1
     p1.count("LobbyDelegate") shouldBe 1
     p2.count("LobbyDelegate") shouldBe 1
+    p1.count("ReserveDelegate") shouldBe 6
+    p2.count("ReserveDelegate") shouldBe 6
     admin.count("Neutral") shouldBe 1
+    admin.count("ReserveDelegate<Neutral>") shouldBe 13
     admin.count("Party") shouldBe 6
     admin.count("Chairman<Neutral>") shouldBe 1
     admin.count("Ruling<Greens>") shouldBe 1
@@ -49,7 +54,9 @@ internal class TurmoilRulesTest : CardTest() {
       stdAction("SendDelegateSA", 1) {
         doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
       }
-      stdAction("SendDelegateSA", 2) { doTask("PartyDelegate<MarsFirst>") }
+      stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+      }
     }
     p1.count("PartyDelegate<MarsFirst>") shouldBe 2
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -60,14 +67,22 @@ internal class TurmoilRulesTest : CardTest() {
       p2.count("PartyDelegate<Scientists>") shouldBe 1
       admin.count("Dominant<Scientists>") shouldBe 0
       admin.count("Dominant<MarsFirst>") shouldBe 1
-      stdAction("SendDelegateSA", 2) { doTask("PartyDelegate<Scientists>") }
+      stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+      }
     }
     admin.count("Dominant<MarsFirst>") shouldBe 1
     p1.pass()
-    p2.turn { stdAction("SendDelegateSA", 2) { doTask("PartyDelegate<Scientists>") } }
+    p2.turn {
+      stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+      }
+    }
 
     p1.count("MC") shouldBe 5
     p2.count("MC") shouldBe 0
+    p1.count("ReserveDelegate") shouldBe 5
+    p2.count("ReserveDelegate") shouldBe 4
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     p2.count("PartyLeader<Scientists>") shouldBe 1
     admin.count("Dominant<Scientists>") shouldBe 1
@@ -91,10 +106,66 @@ internal class TurmoilRulesTest : CardTest() {
       }
       p1.count("PartyLeader<MarsFirst>") shouldBe 1
       p2.count("PartyLeader<MarsFirst>") shouldBe 0
-      stdAction("SendDelegateSA", 2) { doTask("PartyDelegate<MarsFirst>") }
+      stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+      }
     }
 
     p1.count("PartyLeader<MarsFirst>") shouldBe 0
     p2.count("PartyLeader<MarsFirst>") shouldBe 1
+  }
+
+  @Test
+  internal fun `all seven delegates are finite and paid lobbying uses only the reserve`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+    p1.manual("35 MC")
+    admin.phase("Action")
+
+    p1.turn {
+      stdAction("SendDelegateSA", 1) {
+        doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+      }
+      stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+      }
+    }
+    p2.pass()
+    p1.turn {
+      repeat(5) {
+        stdAction("SendDelegateSA", 2) {
+          doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        }
+      }
+    }
+
+    p1.count("PartyDelegate") shouldBe 7
+    p1.count("LobbyDelegate") shouldBe 0
+    p1.count("ReserveDelegate") shouldBe 0
+    p1.count("MC") shouldBe 5
+    shouldThrow<NotNowException> {
+      p1.stdAction("SendDelegateSA", 2) {
+        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+      }
+    }
+    p1.count("MC") shouldBe 5
+    admin.manual("RefillLobby")
+    p1.count("LobbyDelegate") shouldBe 0
+  }
+
+  @Test
+  internal fun `lobby refill moves one reserve delegate only into a vacant lobby`() {
+    newGame(TurmoilExpansion)
+    admin.phase("Action")
+    p1.stdAction("SendDelegateSA", 1) {
+      doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+    }
+
+    admin.manual("RefillLobby")
+
+    p1.count("LobbyDelegate") shouldBe 1
+    p1.count("ReserveDelegate") shouldBe 5
+    requireP2().count("LobbyDelegate") shouldBe 1
+    requireP2().count("ReserveDelegate") shouldBe 6
   }
 }
