@@ -216,3 +216,33 @@ properties, evaluator, custom action, or engine change was needed; six finite ph
 one Unity-specific value component are the only new vocabulary. Code review found no inactive
 doorway, setup bonus, stale Unity value, or multi-step Reds undercharge. The next slice will apply
 the separate one-time ruling bonuses during new-government formation.
+
+## 2026-09-08 — Stage 7: ruling bonuses
+
+Added one typed `ApplyRulingBonus<Party>` Signal for the discrete new-government step. Each concrete
+Party owns its printed response: Mars First counts Building tags, Scientists counts Science tags,
+Unity counts the complete Planetary-tag family, Greens counts the complete Bio-tag family, and
+Kelvinists counts Heat production. All five rewards iterate over every Player, including players
+whose matching count is zero, and derive the exact M€ amount from existing component metrics.
+
+Reds has the two official forms. In multiplayer, candidates rank by the total TerraformRating owned
+by every other player. Since that metric is total rating minus the candidate's own rating, its
+greatest value selects the lowest rating without introducing a guessed numeric ceiling or an
+inverse-ranking mechanism. Competition ranking preserves friendly ties, so every tied lowest player
+gains one TR. In solo, ranking is irrelevant and the player gains one TR only while at 20 or less.
+Separate gates on `SoloMode` make the two forms mutually exclusive.
+
+Functional tests invoke the typed government request through the normal administrative API. A
+small test-only `TagHolder` supplies real Building, Science, Earth, Jovian, Plant, Microbe, and
+Animal components; the assertions prove both abstract tag-family aggregation and that players with
+zero matching tags receive no M€. Further scenarios cover Heat production, a unique multiplayer
+low, a friendly multiplayer tie, and the FAQ's solo 20-TR threshold. The focused suite, complete JVM
+suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: the one Signal is a reusable domain event that later government
+formation can invoke; it does not store a second ruling identity or route six instruction-valued
+properties. All permanent behavior remains Pets, and the engine and Kotlin production code are
+unchanged. Code review found no setup-time bonus, optional-expansion tag omission, incorrect Reds
+tie, solo leakage, or bonus given to only one player. The next slice will form a government around
+this request, including the ruling change, delegate returns, Chair succession, TR award, dominance
+recalculation, and Lobby refill in printed order.

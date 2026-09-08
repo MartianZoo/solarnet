@@ -1,6 +1,6 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  HAS Class<RefillLobby>, Class<MeasureInfluence>
+  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>
   This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
@@ -20,23 +20,35 @@ ABSTRACT CLASS Party {
   HAS MAX 1 This
 }
 CLASS MarsFirst : Party {
+  ApplyRulingBonus<This>:: EACH Player { 1 MC / BuildingTag }
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
 CLASS Scientists : Party {
+  ApplyRulingBonus<This>:: EACH Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS Unity : Party {
+  ApplyRulingBonus<This>:: EACH Player { 1 MC / PlanetaryTag }
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
 CLASS Greens : Party {
+  ApplyRulingBonus<This>:: EACH Player { 1 MC / BioTag }
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
 CLASS Reds : Party {
+  ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Player(HAS =1 (RANK Player { TerraformRating<Owner(NOT Player)> })) { \
+    TerraformRating<Player> \
+  }
+  ApplyRulingBonus<This> IF SoloMode:: EACH Player(HAS MAX 20 TerraformRating<Player>) { TerraformRating<Player> }
   ActionPhase IF Ruling<This>:: RedsPolicy
 }
 CLASS Kelvinists : Party {
+  ApplyRulingBonus<This>:: EACH Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
+
+"Requests the one-time bonus for the party forming the new government"
+CLASS ApplyRulingBonus<Party> : Signal
 
 ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
