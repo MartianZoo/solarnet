@@ -7,8 +7,8 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
 import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty

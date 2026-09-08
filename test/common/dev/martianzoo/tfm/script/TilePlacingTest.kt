@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals

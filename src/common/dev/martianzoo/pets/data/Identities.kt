@@ -2,6 +2,7 @@ package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.api.SystemClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -30,27 +31,18 @@ public data class Player(override val className: ClassName) : Actor, Owner {
   override fun toString(): String = className.toString()
 
   public companion object {
-    public val CLASS_NAME: ClassName = cn("Player")
-    public val PLAYER1: Player = Player(player(1))
-    public val PLAYER2: Player = Player(player(2))
-    public val PLAYER3: Player = Player(player(3))
-    private val PLAYER4: Player = Player(player(4))
-    private val PLAYER5: Player = Player(player(5))
-    private val conventionalPlayers: List<Player> =
-        listOf(PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5)
-
     /** Returns the conventional `Player1` through `PlayerN` identities in seat order. */
     public fun players(upTo: Int): List<Player> {
-      require(upTo in 0..5) { "player count must be between 0 and 5: $upTo" }
-      return conventionalPlayers.subList(0, upTo)
+      require(upTo >= 0) { "player count cannot be negative: $upTo" }
+      return (1..upTo).map { Player(player(it)) }
     }
 
-    private fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }
+    private fun player(seat: Int) = cn("Player$seat").also { require(seat > 0) }
   }
 }
 
 private data object AdminActor : Actor {
-  override val className = cn("Admin")
+  override val className = SystemClasses.ADMIN
   override val expression: Expression = className.expression
 
   override val expressionFull: Expression

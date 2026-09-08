@@ -9,7 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.NoNewClassDeclarationsException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test

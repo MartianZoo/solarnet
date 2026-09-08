@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly

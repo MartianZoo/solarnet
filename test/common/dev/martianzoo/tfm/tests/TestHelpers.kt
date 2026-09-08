@@ -150,7 +150,7 @@ private val MAP_OPTIONS =
 
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
-    require(players in 1..5)
+    require(players > 0)
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2
     val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
     TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }

@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
