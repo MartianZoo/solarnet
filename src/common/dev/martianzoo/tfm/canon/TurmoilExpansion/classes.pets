@@ -9,7 +9,7 @@ CLASS TurmoilExpansion : Module {
   HAS Class<ResolveSponsoredProjects>, Class<ResolveCloudSocieties>
   HAS Class<AddResourceToCard>
   HAS Class<ChooseInfluenceFloaterCard>, Class<ResolveCorrosiveRain>
-  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
+  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA, UseTurmoilPolicySA
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
@@ -341,13 +341,18 @@ ABSTRACT CLASS Policy<Party> {
   -ActionPhase:: -This!
 }
 
+CLASS UseTurmoilPolicySA : StandardAction {
+  -> UseAction<ScientistsPolicy, Action1>
+  -> UseAction<KelvinistsPolicy, Action1>
+}
+
 "Mars First ruling policy: tiles placed on Mars grant one steel"
 CLASS MarsFirstPolicy : Policy<MarsFirst> {
   Tile<MarsArea> BY Player:: Steel<Player>
 }
 
 "Scientists ruling policy: pay 10 M€ to draw three cards, once per generation"
-CLASS ScientistsPolicy : Policy<Scientists>, StandardAction {
+CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
   10 MC -> (MAX 0 ScientistsUsedMarker: 3 ProjectCard, ScientistsUsedMarker)
 }
 
@@ -376,6 +381,6 @@ CLASS RedsPolicy : Policy<Reds> {
 }
 
 "Kelvinists ruling policy: pay 10 M€ for one heat and one energy production"
-CLASS KelvinistsPolicy : Policy<Kelvinists>, StandardAction {
+CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
   10 MC -> PROD[Heat, Energy]
 }

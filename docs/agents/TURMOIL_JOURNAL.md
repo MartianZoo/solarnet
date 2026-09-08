@@ -517,3 +517,37 @@ calculation, government/event interleaving, early Lobby refill, Changing Times b
 unresolved event discard, extra TR revision, or first-generation requirement for a Current event.
 The next slice will audit the complete expansion against the source record and add the preserved
 solo game as replay-level evidence.
+
+## 2026-09-08 — Stage 16: preserved solo replay
+
+Recovered Synthetic Plasma Current (`g5625e0252c7c`) from the local game server and preserved its
+player view, rendered log, initial and final saves, save index, and a game-only SQLite archive under
+`_local/replays/Game20260908`. The 203 retained database saves provide the exact political state at
+each transition rather than relying on the less detailed rendered log.
+
+Added a functional replay of the complete twelve-generation Turmoil timeline. It uses the public
+delegate standard action, World Government Terraforming operation, Solar workflow, research
+workflow, and ordinary task choices. It reproduces every recorded delegate move and World
+Government choice; the eleven resolved Global Events; all ruling, dominant-party, and chairman
+transitions; event-queue advancement; event and ruling payouts; chairman TR effects; and the final
+generation and political state. A test-only tableau holder supplies source-derived card, tag,
+production, and played-event totals at the checkpoints where unrelated card play affects a Turmoil
+formula. This keeps the replay about the outward Turmoil behavior without inventing unfinished
+Prelude 2 card implementations.
+
+The long replay exposed a lifecycle defect that isolated policy tests had missed. Scientists and
+Kelvinists policies inherited `StandardAction`, whose required singleton prevented the temporary
+policy object from being removed at the end of the Action phase. Both policies now use the existing
+action-slot capability, while one permanent Turmoil standard action delegates to the action on the
+currently active policy. Direct tests now prove each action works, remains once-per-generation when
+required, and its policy disappears on leaving the phase. The recovered replay and focused policy
+suite pass.
+
+VALUES and minimality review: the only production change is a five-line Pets doorway plus replacing
+two overly strong supertypes; there is no Kotlin or engine change. One stable player action is the
+real outward affordance, while the temporary ruling object remains the source of its cost and
+effect. The replay adds one test-only class-like declaration and otherwise drives existing outward
+APIs. Code review found no retained policy after Action, duplicated policy effect, direct internal
+event resolution, fabricated Turmoil payout, omitted recorded political transition, or dependency
+on the live server. The final slice will reconcile the owning design record with the implemented
+model, audit the full event catalog and production diff, and run the complete build.

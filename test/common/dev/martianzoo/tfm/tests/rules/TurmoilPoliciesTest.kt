@@ -42,13 +42,16 @@ internal class TurmoilPoliciesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("ScientistsPolicy")
-      shouldThrow<NotNowException> { stdAction("ScientistsPolicy") }
+      stdAction("UseTurmoilPolicySA")
+      shouldThrow<NotNowException> { stdAction("UseTurmoilPolicySA") }
     }
 
     p1.count("ProjectCard") shouldBe 3
     p1.count("ScientistsUsedMarker") shouldBe 1
     p1.count("MC") shouldBe 10
+
+    admin.phase("Production")
+    admin.count("ScientistsPolicy") shouldBe 0
   }
 
   @Test
@@ -90,10 +93,13 @@ internal class TurmoilPoliciesTest : CardTest() {
     p1.manual("10 MC")
     admin.phase("Action")
 
-    p1.stdAction("KelvinistsPolicy")
+    p1.stdAction("UseTurmoilPolicySA", 2)
 
     p1.count("MC") shouldBe 0
     p1.count("PROD[Heat]") shouldBe 1
     p1.count("PROD[Energy]") shouldBe 1
+
+    admin.phase("Production")
+    admin.count("KelvinistsPolicy") shouldBe 0
   }
 }
