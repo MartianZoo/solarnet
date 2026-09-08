@@ -12,6 +12,64 @@ private val rulingBonusProbeDeclarations =
 internal class TurmoilGovernmentTest :
     CardTest(additionalClassDeclarations = rulingBonusProbeDeclarations) {
   @Test
+  internal fun `new government resolves the complete delegate and chairman sequence`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+    p1.manual("RulingBonusProbe, 2 BuildingTag<RulingBonusProbe>")
+    admin.manual("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
+    p2.manual("Chairman FROM ReserveDelegate")
+    p1.manual("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+    p1.manual("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+    p2.manual("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+    admin.manual("PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>")
+    admin.manual("PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>")
+
+    admin.manual("FormGovernment")
+
+    admin.count("Ruling<MarsFirst>") shouldBe 1
+    p1.count("MC") shouldBe 2
+    p1.count("PartyDelegate<MarsFirst>") shouldBe 0
+    p2.count("PartyDelegate<MarsFirst>") shouldBe 0
+    admin.count("PartyLeader<MarsFirst>") shouldBe 0
+    admin.count("Chairman<Neutral>") shouldBe 0
+    p1.count("Chairman") shouldBe 1
+    p2.count("Chairman") shouldBe 0
+    p1.count("TerraformRating") shouldBe 21
+    admin.count("Dominant<Kelvinists>") shouldBe 1
+    p1.count("LobbyDelegate") shouldBe 1
+    p1.count("ReserveDelegate") shouldBe 5
+    p2.count("LobbyDelegate") shouldBe 1
+    p2.count("ReserveDelegate") shouldBe 6
+    admin.count("ReserveDelegate<Neutral>") shouldBe 12
+    admin.count("DominancePriority") shouldBe 0
+  }
+
+  @Test
+  internal fun `government dominance ties follow clockwise party order`() {
+    val clockwise =
+        listOf(
+            "MarsFirst" to "Kelvinists",
+            "Kelvinists" to "Reds",
+            "Reds" to "Greens",
+            "Greens" to "Unity",
+            "Unity" to "Scientists",
+            "Scientists" to "MarsFirst",
+        )
+    val parties = clockwise.map { it.first }
+
+    clockwise.forEach { (former, expected) ->
+      newGame(TurmoilExpansion)
+      sendNeutralDelegate(former)
+      sendNeutralDelegate(former)
+      parties.filterNot { it == former }.forEach(::sendNeutralDelegate)
+
+      admin.manual("FormGovernment")
+
+      admin.count("Dominant<$expected>") shouldBe 1
+    }
+  }
+
+  @Test
   internal fun `four parties pay every player for the matching tag families`() {
     newGame(TurmoilExpansion)
     p1.manual("RulingBonusProbe")
@@ -72,5 +130,9 @@ internal class TurmoilGovernmentTest :
     p1.count("TerraformRating") shouldBe 21
     admin.manual("ApplyRulingBonus<Reds>")
     p1.count("TerraformRating") shouldBe 21
+  }
+
+  private fun sendNeutralDelegate(party: String) {
+    admin.manual("PartyDelegate<$party, Neutral> FROM ReserveDelegate<Neutral>")
   }
 }

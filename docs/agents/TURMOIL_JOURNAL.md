@@ -246,3 +246,42 @@ unchanged. Code review found no setup-time bonus, optional-expansion tag omissio
 tie, solo leakage, or bonus given to only one player. The next slice will form a government around
 this request, including the ruling change, delegate returns, Chair succession, TR award, dominance
 recalculation, and Lobby refill in printed order.
+
+## 2026-09-08 — Stage 8: new government formation
+
+Added `FormGovernment` as the domain signal for the rulebook's complete step 3. The current
+Dominant Party owns one ordered automatic effect that changes the ruling party, invokes its ruling
+bonus, returns the former Chairman, returns every non-leader delegate from the incoming ruling
+party, moves that party's leader delegate to the Chair, awards the new player Chairman 1 TR,
+removes the old leader role, chooses the next Dominant party, and finally refills every Lobby. A
+party reelected while already ruling takes an explicit no-op branch for the unchanged status
+component, while every later step still occurs.
+
+Delegate returns preserve the finite physical supply introduced in Stage 3. For each owner, the
+return count is the party-delegate count minus the zero-or-one leader role. This returns extra
+delegates belonging to the leader as well as every delegate belonging to other owners. The leader's
+remaining physical delegate is then transmuted into the Chairman. A Player leader receives the TR;
+a Neutral leader takes the Chair without attempting an invalid Player-owned rating gain.
+
+The committee's printed circular layout is now represented during dominance selection by temporary
+`DominancePriority<Party>` rank weights. Each former ruling Party supplies the five clockwise
+priorities after itself, then a shared recalculation ranks delegate count first and clockwise
+priority second. The weights disappear through existing Temporary cleanup once the nested
+selection completes. This models the circular tie rule directly; it does not rely on declaration,
+iteration, or automatic-effect order to stand in for board geometry.
+
+Functional coverage constructs real player and neutral delegates, a former player Chairman, a
+ruling-bonus tag, and tied successor parties, then invokes `FormGovernment` through the public
+administrative API. It verifies every final political role, TR and M€ reward, reserve and Lobby
+count, and absence of leaked priority state. A second scenario repeats formation from all six
+parties and proves the next clockwise party wins an otherwise complete six-way tie. The focused
+suite, complete JVM suite, and `spotlessCheck` pass.
+
+VALUES and minimality review: all production behavior remains Pets and the existing ordered effect,
+metric ranking, transmutation, Signal, and Temporary rules are sufficient. The two-step dominance
+request is the smallest honest way to create party-specific circular rank weights before a shared
+rank consumes them; no general arithmetic, custom instruction, workflow hook, or Kotlin was added.
+Code review found no lost delegate, duplicate Chairman, erroneous TR for Neutral, same-party ruling
+failure, stale priority, or orientation error. The next slice will establish the Distant, Coming,
+and Current Global Event positions and their setup/Changing Times movement before individual event
+effects are added.

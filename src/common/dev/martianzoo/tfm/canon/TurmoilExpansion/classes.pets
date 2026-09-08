@@ -1,6 +1,6 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>
+  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>
   This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
@@ -18,24 +18,51 @@ CLASS Neutral : Owner {
 
 ABSTRACT CLASS Party {
   HAS MAX 1 This
+  FormGovernment IF Dominant<This>:: \
+    (MAX 0 Ruling<This>: Ruling<This> FROM Ruling) OR (Ruling<This>: Ok), \
+    ApplyRulingBonus<This>, \
+    EACH Anyone(HAS Chairman<Anyone>) { ReserveDelegate<Anyone> FROM Chairman<Anyone> }, \
+    EACH Anyone(HAS PartyDelegate<This, Anyone>) { \
+      (ReserveDelegate<Anyone> FROM PartyDelegate<This, Anyone>) / (PartyDelegate<This, Anyone> - PartyLeader<This, Anyone>) \
+    }, \
+    EACH Anyone(HAS PartyLeader<This, Anyone>) { Chairman<Anyone> FROM PartyDelegate<This, Anyone> }, \
+    EACH Player(HAS PartyLeader<This, Player>) { TerraformRating<Player> }, \
+    EACH Anyone(HAS PartyLeader<This, Anyone>) { -PartyLeader<This, Anyone>! }, \
+    SelectDominanceAfter<This>, \
+    RefillLobby
 }
 CLASS MarsFirst : Party {
+  SelectDominanceAfter<This>:: \
+    5 DominancePriority<Kelvinists>, 4 DominancePriority<Reds>, 3 DominancePriority<Greens>, \
+    2 DominancePriority<Unity>, DominancePriority<Scientists>, RecalculateDominanceClockwise
   ApplyRulingBonus<This>:: EACH Player { 1 MC / BuildingTag }
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
 CLASS Scientists : Party {
+  SelectDominanceAfter<This>:: \
+    5 DominancePriority<MarsFirst>, 4 DominancePriority<Kelvinists>, 3 DominancePriority<Reds>, \
+    2 DominancePriority<Greens>, DominancePriority<Unity>, RecalculateDominanceClockwise
   ApplyRulingBonus<This>:: EACH Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS Unity : Party {
+  SelectDominanceAfter<This>:: \
+    5 DominancePriority<Scientists>, 4 DominancePriority<MarsFirst>, 3 DominancePriority<Kelvinists>, \
+    2 DominancePriority<Reds>, DominancePriority<Greens>, RecalculateDominanceClockwise
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PlanetaryTag }
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
 CLASS Greens : Party {
+  SelectDominanceAfter<This>:: \
+    5 DominancePriority<Unity>, 4 DominancePriority<Scientists>, 3 DominancePriority<MarsFirst>, \
+    2 DominancePriority<Kelvinists>, DominancePriority<Reds>, RecalculateDominanceClockwise
   ApplyRulingBonus<This>:: EACH Player { 1 MC / BioTag }
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
 CLASS Reds : Party {
+  SelectDominanceAfter<This>:: \
+    5 DominancePriority<Greens>, 4 DominancePriority<Unity>, 3 DominancePriority<Scientists>, \
+    2 DominancePriority<MarsFirst>, DominancePriority<Kelvinists>, RecalculateDominanceClockwise
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Player(HAS =1 (RANK Player { TerraformRating<Owner(NOT Player)> })) { \
     TerraformRating<Player> \
   }
@@ -43,12 +70,24 @@ CLASS Reds : Party {
   ActionPhase IF Ruling<This>:: RedsPolicy
 }
 CLASS Kelvinists : Party {
+  SelectDominanceAfter<This>:: \
+    5 DominancePriority<Reds>, 4 DominancePriority<Greens>, 3 DominancePriority<Unity>, \
+    2 DominancePriority<Scientists>, DominancePriority<MarsFirst>, RecalculateDominanceClockwise
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
 
 "Requests the one-time bonus for the party forming the new government"
 CLASS ApplyRulingBonus<Party> : Signal
+
+"Performs the complete new-government sequence for the current Dominant party"
+CLASS FormGovernment : Signal
+
+"Requests the post-government dominance choice clockwise from one party"
+CLASS SelectDominanceAfter<Party> : Signal
+
+"A temporary rank weight representing clockwise party order"
+CLASS DominancePriority<Party> : Temporary, Hidden
 
 ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
@@ -101,6 +140,14 @@ CLASS RecalculateDominance : Signal {
   This:: EACH Party(HAS MAX 0 Dominant<Party>, =1 (RANK Party { PartyDelegate<Party, Anyone>, Dominant<Party> })) { \
     (Dominant: Dominant<Party> FROM Dominant) OR \
     (MAX 0 Dominant: Dominant<Party>) \
+  }
+}
+
+"Recalculates dominance with the active clockwise priorities breaking ties"
+CLASS RecalculateDominanceClockwise : Signal {
+  This:: -Dominant!
+  This:: EACH Party(HAS =1 (RANK Party { PartyDelegate<Party, Anyone>, DominancePriority<Party> })) { \
+    Dominant<Party> \
   }
 }
 
