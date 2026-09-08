@@ -193,16 +193,14 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
+  /** Finds the greatest Class that is a subtype of both operands, when it is unique. */
   public infix fun glb(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
         else -> {
-          allSubclasses().singleOrNull {
-            it.isIntersectionType() &&
-                this in it.directSuperclasses &&
-                that in it.directSuperclasses
-          }
+          val lowerBounds = allSubclasses().filter(that::isSupertypeOf)
+          lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
         }
       }
 

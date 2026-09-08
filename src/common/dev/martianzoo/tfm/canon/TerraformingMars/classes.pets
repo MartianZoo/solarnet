@@ -55,6 +55,12 @@ ABSTRACT CLASS MarsMap : Module {
   This: EACH Class<MarsArea> { MarsArea } // TODO <This>
 }
 
+"A tile or community occupying one area"
+ABSTRACT CLASS Occupant<Area>
+
+"An occupant controlled by an actor"
+ABSTRACT CLASS OwnedOccupant : Occupant, Owned
+
 "A hexagonal area where a tile can go"
 ABSTRACT CLASS Area {
   HAS =1 This
@@ -68,6 +74,8 @@ ABSTRACT CLASS Area {
 
     // An unreserved area
     ABSTRACT CLASS LandArea {
+      HAS MAX 1 Community<This>
+
       ABSTRACT CLASS VolcanicArea
     }
 
@@ -86,7 +94,7 @@ ABSTRACT CLASS Area {
 CLASS Placement<MarsArea> : Signal
 
 "A player's reservation of one land area"
-CLASS Community<LandArea> : Owned<Player> {
+CLASS Community : OwnedOccupant<LandArea> {
   Tile<LandArea> BY Player(NOT Owner):: Die
   Tile<LandArea> BY Owner:: -This!
 }
@@ -94,7 +102,7 @@ CLASS Community<LandArea> : Owned<Player> {
 // TILES AND ADJACENCY
 
 // A tile; if it's not on an Area / not in play, it doesn't exist yet
-ABSTRACT CLASS Tile<Area> {
+ABSTRACT CLASS Tile : Occupant {
   This:: EACH Tile<MarsArea(HAS Neighbor<This>)> { \
     ForwardAdjacency<Tile<MarsArea(HAS Neighbor<This>)>, This>, \
     BackwardAdjacency<This, Tile<MarsArea(HAS Neighbor<This>)>> \
@@ -103,7 +111,7 @@ ABSTRACT CLASS Tile<Area> {
   // IMPL: This should narrow ownership to Owner, but bare owned-tile expressions rely on the Owned
   // default inserting an explicit contextual Owner variable, which a declared Owner bound erases.
   "Any tile that someone owns"
-  ABSTRACT CLASS OwnedTile : Owned {
+  ABSTRACT CLASS OwnedTile : OwnedOccupant {
     "A greenery tile"
     CLASS GreeneryTile : Tile<MarsArea> {
       DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>, MAX 0 Tile)>
@@ -750,8 +758,8 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
 }
 
-"The number of geometric neighbor relations between live tiles and areas on the selected Mars map"
-CLASS Neighbor<Tile<Area>, MarsArea> : Hidden, Custom
+"The number of geometric neighbor relations between live occupants and areas on the selected Mars map"
+CLASS Neighbor<Occupant<Area>, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
   -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }

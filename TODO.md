@@ -9,6 +9,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
+- Make tile placement over an owned `Community` an atomic transmutation, then enforce
+  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
 - Remove `Vocabulary`'s input-only Class-name synonym facility after expanding the abbreviated Pets
   used by the REPL, tests, replays, and recorded games; preserve localization. Configured Player
   names are concrete Catalog Classes and require no Vocabulary mechanism.

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
@@ -82,5 +83,17 @@ internal class LandClaimTest : CardTest() {
     shouldThrow<NarrowingException> {
       p2.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
     }
+  }
+
+  @Test
+  internal fun `A land area intrinsically allows only one community`() {
+    newGame(CorporateEraExpansion)
+    val p2 = requireP2()
+    p1.manual("Community<Tharsis_1_3>")
+
+    shouldThrow<LimitsException> { p2.manual("Community<Tharsis_1_3>") }
+
+    p1.assertCounts(1 to "Community<Tharsis_1_3>")
+    p2.assertCounts(0 to "Community<Tharsis_1_3>")
   }
 }

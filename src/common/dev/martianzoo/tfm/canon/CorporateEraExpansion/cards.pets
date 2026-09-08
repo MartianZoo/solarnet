@@ -155,7 +155,7 @@ CLASS LandClaim : EventCard<Class<ProjectCard>> {
   cost = 1
 
   This:: EventTag<This>
-  This: Community<LandArea(HAS MAX 0 Tile, MAX 0 Community<Anyone>)>
+  This: Community<LandArea(HAS MAX 0 Occupant)>
 }
 
 CLASS Sponsors : AutomatedCard<Class<ProjectCard>> {
