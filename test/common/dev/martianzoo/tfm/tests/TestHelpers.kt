@@ -36,15 +36,15 @@ internal fun setUpGame(
 ): World =
     Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
       TfmWorkflow.Manual(this).setupPhase()
-      revealTurmoilSetupEvents()
+      revealTurmoilSetupEvents(this)
       retainStartingProjects(
           this,
           *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },
       )
     }
 
-private fun World.revealTurmoilSetupEvents() {
-  val admin = agent(ADMIN)
+private fun revealTurmoilSetupEvents(game: World) {
+  val admin = game.agent(ADMIN)
   if (admin.count("RevealComingEvent") == 0) return
   admin.doTask("AquiferReleasedByPublicCouncil")
   admin.doTask("DryDeserts")

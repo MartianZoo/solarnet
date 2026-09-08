@@ -551,3 +551,42 @@ APIs. Code review found no retained policy after Action, duplicated policy effec
 event resolution, fabricated Turmoil payout, omitted recorded political transition, or dependency
 on the live server. The final slice will reconcile the owning design record with the implemented
 model, audit the full event catalog and production diff, and run the complete build.
+
+## 2026-09-08 — Stage 17: final implementation audit
+
+Reconciled the owning Turmoil design record with the completed implementation. The former
+615-line proposal mixed stable principles, obsolete draft Pets, and seven questions that the
+implemented model has now answered. Replaced it with a compact current-model record that routes
+directly to the owning source and functional suites, explains finite delegates and political ties,
+records the complete government and Solar sequences, lists the 31 base and five companion events,
+and preserves the FAQ interpretations that matter to future changes. Updated the agent-document
+router to classify Turmoil as a current model.
+
+Audited every concrete `GlobalEvent` declaration against the catalog and every event invocation in
+the functional suite. The base directory contains all 31 base cards plus the three events whose
+Venus or Colony types project them only with one companion expansion. The jointly gated resource
+directory contains Cloud Societies and Corrosive Rain. Thirty-three events use the common outward
+resolution helper; Aquifer Released by Public Council, Dry Deserts, and Cloud Societies are covered
+through their actual multi-step choice flows. The suite also covers setup reveals, Changing Times,
+all policies and ruling bonuses, finite delegate movement, both political tie rules, solo ranking
+formulas, ordered Solar integration, and the preserved twelve-generation solo timeline.
+
+The final production diff adds 643 lines of Turmoil Pets for the rules and cards. Production
+Kotlin is only one catalog registration line and the seven-line conventional bundle declaration
+needed to load the base and jointly gated Pets resources. The sole shared base-game change is the
+general `AdminOceanPlacement` rule for an Admin temperature increase crossing 0°C. There is no
+custom Turmoil instruction, metric, engine scheduler, workflow branch, data class, or client API.
+The audit also removed an unnecessary test-only Kotlin extension in favor of a plain private helper.
+
+VALUES and minimality review: political roles, event positions, and influence each have one live
+component representation. Parties own bonuses, policies own action-phase capabilities, event cards
+own printed behavior, and the short-lived Solar operation states only completion of the real
+ordered step. Ordinary ranks encode incumbent and clockwise tie handling; module projection handles
+companion content; existing metrics, effects, barriers, and AMAP handle every printed event. Code
+review found no unlimited delegate supply, duplicated political state, event-specific Kotlin,
+player attribution on Admin parameter changes, companion event in an invalid premise, stale design
+claim, untracked implementation TODO, or new Kotlin extension function.
+
+`./gradlew spotlessApply build` passes all 231 tasks, including the complete JVM suites, JavaScript
+compilation, formatting and static checks, and the representative browser replay. The Turmoil
+expansion is complete on the `turmoil` branch.
