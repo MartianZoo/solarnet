@@ -8,6 +8,7 @@ import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.exMachina
 import dev.martianzoo.engine.recording
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -45,6 +46,8 @@ public abstract class RecordedGame {
   }
 
   protected abstract val config: GameConfig
+  /** Pets declarations for concrete Players with sourced per-seat setup rules. */
+  protected open val playerClassPets: String = ""
   protected open val catalog: TfmCatalog by lazy {
     if (cn("FakeStuffBundle") in config.includedClassNames) {
       TfmCatalog.compose(Canon, FakeCanon)
@@ -60,7 +63,8 @@ public abstract class RecordedGame {
       onGameConstructed: () -> Unit,
       onReplayCompleted: () -> Unit,
   ): GameRecording {
-    game = Engine.newGame(catalog.gamePremise(config), inputOnlySynonyms = inputOnlySynonyms)
+    val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
+    game = Engine.newGame(premise, inputOnlySynonyms = inputOnlySynonyms)
     onGameConstructed()
     play()
     onReplayCompleted()

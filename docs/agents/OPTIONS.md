@@ -140,8 +140,10 @@ contains only:
 
 Canon declares only the abstract `Player`; each configured name is the identity of a concrete
 `Player` subclass in the composed game Catalog. `withPlayers(count)` supplies reusable conventional
-names `Player1` through `PlayerN`. The Pets-owned `SecondPlaceRule` Module is automatically selected
-for three or more Players and activates `SecondPlace`, keeping player-count policy out of Kotlin and
+names `Player1` through `PlayerN`. The `gamePremise(config, playerDeclarations)` overload instead
+derives every player name and its seat order from explicit concrete Player declarations, including
+any per-seat Pets setup rules. The Pets-owned `SecondPlaceRule` Module is automatically selected for
+three or more Players and activates `SecondPlace`, keeping player-count policy out of Kotlin and
 numbered seat classes. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active

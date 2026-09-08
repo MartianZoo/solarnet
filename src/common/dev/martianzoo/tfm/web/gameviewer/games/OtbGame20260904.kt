@@ -18,12 +18,18 @@ public class OtbGame20260904 : RecordedGame() {
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist
-          """,
-          "Yellow",
-          "Rainbow",
-          "Blue",
-          "Green",
+          """
       )
+  // "We'll give you two and we'll give her four." Blue and Rainbow used those TR handicaps;
+  // the joking suggestion of six for Green never reached any player record.
+  protected override val playerClassPets: String =
+      """
+      CLASS Yellow : Player
+      CLASS Rainbow : Player { SetupPhase: 4 TerraformRating }
+      CLASS Blue : Player { SetupPhase: 2 TerraformRating }
+      CLASS Green : Player
+      """
+          .trimIndent()
 
   protected override fun play() {
     TfmWorkflow.Auto(game).launch()
@@ -40,11 +46,6 @@ public class OtbGame20260904 : RecordedGame() {
     rainbow.playCorp(MorningStarInc, 6)
     blue.playCorp(FakeHelion, 5)
     green.playCorp(Factorum, 4)
-
-    // "We'll give you two and we'll give her four." Blue and Rainbow used those TR handicaps;
-    // the joking suggestion of six for Green never reached any player record.
-    blue.exMachina("2 TerraformRating")
-    rainbow.exMachina("4 TerraformRating")
 
     yellow.turn {
       playPrelude(DomeFarming)

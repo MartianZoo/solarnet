@@ -374,6 +374,20 @@ public open class TfmCatalog : Catalog {
     )
   }
 
+  /** Cooks a premise whose player names and seat order come from [playerDeclarations]. */
+  public fun gamePremise(
+      config: GameConfig,
+      playerDeclarations: List<ClassDeclaration>,
+  ): GamePremise {
+    if (playerDeclarations.isEmpty()) return gamePremise(config)
+    require(config.playerNames.isEmpty()) {
+      "player names must come from either GameConfig or Player declarations, not both"
+    }
+    val catalog = withPlayerDeclarations(playerDeclarations.toSet())
+    val playerNames = playerDeclarations.map(ClassDeclaration::className)
+    return catalog.gamePremise(config.copy(playerNames = playerNames))
+  }
+
   /** Module gains on an active Module's own creation are forward selection provenance. */
   private fun constructivelySelectedModules(
       source: ClassName,
@@ -472,6 +486,20 @@ public open class TfmCatalog : Catalog {
     return conventionalPlayerCatalogs.value[playerCount - 1]
   }
 
+  private fun withPlayerDeclarations(playerDeclarations: Set<ClassDeclaration>): TfmCatalog {
+    if (playerDeclarations.isEmpty()) return this
+    val result = withDeclarations(playerDeclarations)
+    val playerClass =
+        requireNotNull(result.universe.findClass(PLAYER_CLASS)) { "Catalog does not define Player" }
+    playerDeclarations.forEach { declaration ->
+      val player = result.universe.getClass(declaration.className)
+      require(!player.abstract && player.isSubtypeOf(playerClass)) {
+        "player declaration does not define a concrete Player Class: ${declaration.className}"
+      }
+    }
+    return result
+  }
+
   /** Returns this Catalog composed with concrete `Player` subclasses named by [playerNames]. */
   public fun withPlayers(playerNames: List<ClassName>): TfmCatalog {
     require(playerNames.size in 1..5) { "a game must have 1 to 5 player names" }
@@ -514,6 +542,11 @@ public open class TfmCatalog : Catalog {
     if (missingNames.isEmpty()) return this
     val declarations =
         parseClasses(missingNames.joinToString("\n") { name -> "CLASS $name : Player" }).toSet()
+    return withDeclarations(declarations)
+  }
+
+  private fun withDeclarations(declarations: Set<ClassDeclaration>): TfmCatalog {
+    if (declarations.isEmpty()) return this
     return compose(
         this,
         object : TfmCatalog() {
