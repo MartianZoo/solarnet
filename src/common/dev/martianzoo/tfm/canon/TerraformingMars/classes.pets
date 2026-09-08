@@ -55,8 +55,11 @@ ABSTRACT CLASS MarsMap : Module {
   This: EACH Class<MarsArea> { MarsArea } // TODO <This>
 }
 
-"A tile or community occupying one area"
-ABSTRACT CLASS Occupant<Area>
+"A board piece tied to one area"
+ABSTRACT CLASS AreaPiece
+
+"A board piece that exclusively occupies its area"
+ABSTRACT CLASS Occupant<Area> : AreaPiece
 
 "An occupant controlled by an actor"
 ABSTRACT CLASS OwnedOccupant : Occupant, Owned
@@ -148,9 +151,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   CLASS OceanTile : Tile<MarsArea> {
     DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
 
-    // We could instead trigger on BackwardAdjacency<Tile, This> -- same thing.
-    // But if we triggered on just Adjacency, it would also pay out for putting ocean tiles next to any tile.
-    ForwardAdjacency<This, Tile>: 2 MC
+    Placement<MarsArea(HAS Neighbor<This>)>: 2 MC
   }
 
   "Represents a 1% increase in oxygen level"
@@ -758,8 +759,8 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
 }
 
-"The number of geometric neighbor relations between live occupants and areas on the selected Mars map"
-CLASS Neighbor<Occupant<Area>, MarsArea> : Hidden, Custom
+"The number of geometric neighbor relations between live area pieces and areas on the selected Mars map"
+CLASS Neighbor<AreaPiece, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
   -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }

@@ -125,13 +125,17 @@ private object TerraformingMars {
     }
   }
 
-  private val OCCUPANT = cn("Occupant")
-
   internal object Neighbor : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (piece, target) = type.typeDependencies.map { it.boundType }
-      val source = piece.typeDependencies.single { it.key.declaringClass == OCCUPANT }.boundType
-      if (listOf("row", "column").any { PropertyName(it) !in source.rootClass.properties }) return 0
+      val source =
+          piece.typeDependencies
+              .map { it.boundType }
+              .singleOrNull {
+                listOf("row", "column").all { property ->
+                  PropertyName(property) in it.rootClass.properties
+                }
+              } ?: return 0
       val rowDelta = target.getNumberPropertyValue("row") - source.getNumberPropertyValue("row")
       val columnDelta =
           target.getNumberPropertyValue("column") - source.getNumberPropertyValue("column")

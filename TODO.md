@@ -94,8 +94,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.
-- Model Mars Nomads' moving non-tile marker, adjacency and reservation rules, and destination
-  placement bonuses, then replace `FakeMarsNomads` and remove the sourced reconciliations.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.

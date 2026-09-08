@@ -188,8 +188,8 @@ looking it up.
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
-  `CapitalMarker`. `StartToken` keeps `Token` because the honest `StartPlayerMarker` is long and
-  `StartMarker` reads wrong.
+  `NomadsMarker`, `CapitalMarker`. `StartToken` keeps `Token` because the honest
+  `StartPlayerMarker` is long and `StartMarker` reads wrong.
 - **Card locations** use noun phrases for places (`Hand`) and participles for
   explicitly transient states. The two participle forms are both correct and mean different things:
   the present participle names a stage the player is in the middle of (`Selecting`, and eventually

@@ -5,7 +5,7 @@ CLASS LakefrontResorts : CardFront<Class<CorporationCard>> {
   This:: BuildingTag<This>
   This: 54 MC
   OceanTile BY Anyone: PROD[1 MC]
-  ForwardAdjacency<OceanTile, Tile>: 1 MC
+  Placement<MarsArea>: 1 MC / Neighbor<OceanTile, MarsArea>
 }
 
 CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {

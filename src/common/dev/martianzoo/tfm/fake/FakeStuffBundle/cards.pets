@@ -68,13 +68,6 @@ CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
   End: 2 VictoryPoint
 }
 
-"Mars Nomads without its moving map marker and placement bonus"
-CLASS FakeMarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> {
-  cost = 13
-
-  -> Ok
-}
-
 "One resource stored with a card that reduces its play cost by 1 MC"
 CLASS StoredCardDiscount : QuasiResource<StagedProject>, Owned<Player>, Hidden {
   ReplicateForStagedProject<CardBack<StagedProject>>: This!
