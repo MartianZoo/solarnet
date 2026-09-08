@@ -151,7 +151,6 @@ location by Player. Only card backs have a location; a card front represents a c
 | `Hand` | back | acquired card available to its Player |
 | `Selecting` | back | Player-associated selection pool |
 | `Revealed` | back | exact face exposed by a reveal operation |
-| five `SelfReplicatingRobotsBerth` subtypes of `StagedProject` | back | independently discounted cards staged by `FakeSelfReplicatingRobots` |
 
 Cards retain direct ownership in every location. It identifies whose choice or reveal operation the
 card belongs to and supplies the usual contextual `Owner`, task routing, defaults, and queries.
@@ -367,21 +366,24 @@ repeat until one hit:
 perform that one-hit operation three times
 ```
 
-The canonical authoring form for this family is a `SearchForCard` operation with a printed
-predicate inside a `CARDS[...]` zone:
+The canonical authoring forms put a printed predicate inside a `CARDS[...]` zone. Searches carry
+the predicate on `SearchForCard`; operations that select a known card face carry it on the
+represented front Class:
 
 ```pets
 CARDS[SearchForCard(HAS requirement)]
 CARDS[SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
 CARDS[SearchForCard(HAS MAX 0 PrintedTag)]
 CARDS[SearchForCard(HAS ReferenceTo<Class<Floater>>)]
+CARDS[StageForReplicatedProject<Class<CardFront>(HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>)>]
 ```
 
 The follow-mode `CARDS` handler currently validates the operation shape, erases the predicate, and
-replaces the operation with the same quantified `ProjectCard` gain as an ordinary draw. Code
-outside a `CARDS` zone is untouched. The predicate is deliberately inert until real-mode lowering
-can inspect immutable front-Class metadata. That lowering still has to make deck exhaustion
-explicit: fail, accept fewer, or reshuffle according to the actual rule.
+replaces a search with the same quantified `ProjectCard` gain as an ordinary draw. For a
+represented-front Class selection, it preserves the surrounding operation and removes the Class
+refinement. Code outside a `CARDS` zone is untouched. The predicate is deliberately inert until
+real-mode lowering can inspect immutable front-Class metadata. That lowering still has to make deck
+exhaustion explicit: fail, accept fewer, or reshuffle according to the actual rule.
 
 A back has no live tag Components. Printed predicates inspect immutable front-Class metadata, for
 example through a property or represented-Class refinement:
@@ -404,6 +406,7 @@ face-dependent source meaning that follow mode cannot execute directly:
 
 ```pets
 CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
+CARDS[StageForReplicatedProject<Class<CardFront>(HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>)>]
 CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]
 CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
 ```
@@ -437,29 +440,34 @@ in the Player's hand. Public Plans directly moves one linked quantity from `Hand
 returns those exact cards to `Hand`, and awards that quantity. Completed Events are already visible
 as `PlayedEvent` and need no transform.
 
-Follow mode has an intermediate model named `CardLocation`. A generic `CardBack`
-depends on `Hand`, `Selecting`, `Revealed`, or one of Self-Replicating Robots' five named berths,
-but does not depend on the represented `Class<CardFront>`. Bare card references default to `Hand`.
+Follow mode has an intermediate model named `CardLocation`. A generic `CardBack` depends on `Hand`,
+`Selecting`, or `Revealed`, but does not depend on the represented `Class<CardFront>`. Bare card
+references default to `Hand`.
 
 Every location is a permanent ownerless `System` component. A card entering `Selecting` or
 `Revealed` automatically creates at most one `CardLocationCleanup` for that transient-use location.
 The cleanup is `Temporary`: when the World becomes idle, removing it removes the location,
 dependency cleanup discards any cards left there, and the location immediately recreates itself.
-`FakeSelfReplicatingRobots`' berths instead persist with their staged cards between actions. These
-lifecycles are authored entirely in Pets; the marked-syntax handler does not create, remove, or
-clean locations.
+These lifecycles are authored entirely in Pets; the marked-syntax handler does not create, remove,
+or clean locations.
 
-`FakeSelfReplicatingRobots` models each discount as a `RobotUnit` subtype of `Resource`.
-This deliberately lets generic `Resource` queries see the fake discounts rather than adding a
-parallel resource hierarchy solely for this fake card. CEO's Favorite Project targets ordinary
-`CardResource`s and cannot add a discount to a staged card. Each stored discount listens for
-`ReplicateForStagedProject<CardBack<StagedProject>>` and creates one copy of itself, so the ordinary
-live-effect multiplicity doubles exactly the berth of the selected card.
+`FakeSelfReplicatingRobots` does not use card locations. Staging removes one generic project back
+from `Hand`; the resulting `RobotUnit<Class<CardFront>>` components jointly record both the staged
+card's represented Class and its discount, so there is no artificial five-card limit. The staging
+action authors its Building-or-Space restriction as a `CARDS[...]` represented-front selection;
+follow mode delegates that printed predicate to the client. Replication selects only Classes with
+matching robot units.
 
-Follow mode does not retain the staged back's represented `Class<CardFront>`. It therefore cannot
-currently enforce the printed Building/Space staging restriction or expose a staged card's printed
-Venus tag to Corroder Suits and Maxwell Base. The FAQ scenarios remain explicit tests rather than
-being approximated with in-play tags.
+The ordinary `PlayCardFromHand` action plays a staged card. When its `PlayCard` signal names a Class
+with matching robot units, Self-Replicating Robots supplies the one generic `ProjectCard<Hand>` that
+the operation will consume. Each unit reduces that exact card's debt by 1 M€ and removes itself.
+Requirements, payment, tags, and creation of the final front remain entirely in `PlayCard`.
+
+The staged card's represented `Class<CardFront>` is retained as data, but there is no live front
+component before play. Follow mode does not itself enforce the printed Building/Space staging
+restriction, and in-play tag or card-resource queries such as Corroder Suits and Maxwell Base cannot
+target the staged card. The FAQ scenarios remain explicit tests rather than being approximated with
+in-play tags.
 
 Printed-face predicates are still delegated to the follow-mode client: `SearchForCard` predicates
 and refinements on generic backs are erased, and a filtered retention becomes an explicit optional

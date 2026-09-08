@@ -19,6 +19,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   names are concrete Catalog Classes and require no Vocabulary mechanism.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
+- Let refinements reference their candidate explicitly, so a selector can relate a nested
+  dependency to that candidate without repeating its complete expression.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
@@ -53,7 +55,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
-  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit berth selection.
+  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
 - Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
