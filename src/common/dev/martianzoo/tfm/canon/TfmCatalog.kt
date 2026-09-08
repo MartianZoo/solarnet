@@ -350,7 +350,7 @@ public open class TfmCatalog : Catalog {
       initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
       configuredPlayerNames.zip(configuredPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
           (player, nextPlayer) ->
-        TfmClasses.SUCCESSOR.of(player.expression, nextPlayer.expression)
+        TfmClasses.AFTER_ME.of(player.expression, nextPlayer.expression)
       }
     }
     val selectedByModules =

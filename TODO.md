@@ -6,6 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Do not let `Engine.newGame` exit bootstrap until it has validated every invariant against the
+  completed World, including positive lower bounds and correctly scoped dependent-component
+  invariants.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.

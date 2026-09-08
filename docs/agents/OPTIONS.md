@@ -166,8 +166,9 @@ and games with at least three players use two more tiles than players.
 
 Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
 terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The premise's ordered
-player list creates a directed `Successor<Player, Player>` ring, where the second Player follows the
-first, and gives the first Player the initial `StartToken`; passing the token reads that relation.
+player list creates a source-owned `AfterMe<Player>` ring, where the argument is the Player after
+the owner, and gives the first Player the initial `StartToken`. Each `ResearchPhase` passes the token
+along that relation.
 The solo game never passes through a synthetic 20-rating state followed by a compensating reduction.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
