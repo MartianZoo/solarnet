@@ -11,6 +11,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -140,6 +141,22 @@ internal class BootstrapLifecycleTest {
     rating.change.count shouldBe 14
     rating.cause shouldBe Cause(cn("SoloMode").expression, setupEvent.ordinal)
     setupChanges.none { it.change.removing?.className == cn("TerraformRating") } shouldBe true
+  }
+
+  @Test
+  internal fun soloColoniesSetupAutoNarrowsThePlayerOwner() {
+    val game =
+        Engine.newGame(
+            canonicalPremise(
+                ColoniesExpansion,
+                players = 1,
+                colonyTiles = testColonyTiles(players = 1),
+            )
+        )
+
+    TfmWorkflow.Manual(game).setupPhase()
+
+    game.tfm(Player.PLAYER1).production(cn("MC")) shouldBe -2
   }
 
   @Test

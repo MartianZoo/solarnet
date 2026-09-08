@@ -46,9 +46,9 @@ ABSTRACT CLASS Player : Owner, Actor {
     THEN 10 ProjectCard THEN -10 ProjectCard?
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 
-  CLASS Player1 { This: StartToken }
+  CLASS Player1
   CLASS Player2
-  CLASS Player3 { HAS Class<SecondPlace> } // only at 3+ do we give out 2nd place awards
+  CLASS Player3
   CLASS Player4
   CLASS Player5
 }
@@ -614,6 +614,9 @@ CLASS StartToken : Owned<Player> {
   Generation IF 2 Generation: PassLeft<This>
 }
 
+"The directed turn-order relationship whose second Player follows its first Player"
+CLASS Successor<Player, Player> : System { HAS =1 This }
+
 // GAME CONFIGURATION
 
 "An affirmative, immutable Module active in a playable game"
@@ -641,6 +644,12 @@ ABSTRACT CLASS GameMode : Module {
   }
 }
 
+"Enables second-place award scoring when at least three players are seated"
+CLASS SecondPlaceRule : Module {
+  autoSelectWhen = HAS "3 Player"
+  HAS Class<SecondPlace>
+}
+
 // SOLO MODE
 
 "Solo play with a neutral opponent and a fixed generation limit"
@@ -653,7 +662,7 @@ CLASS SoloMode : GameMode {
   This: SoloOpponent
   This IF MAX 0 SoloObjective: StandardSoloObjective.
   This: 14 SoloGenerationsLeft
-  SetupPhase: 14 TerraformRating<Player1>
+  SetupPhase: 14 TerraformRating<Player>
   Generation: -SoloGenerationsLeft.
 }
 
@@ -663,14 +672,14 @@ ABSTRACT CLASS SoloObjective : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloObjective {
-    CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player1>.
+    CheckGameEnd IF MAX 0 GpIncomplete: Victory<Player>
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloObjective {
     This: BufferGasSP
 
-    CheckGameEnd IF 63 TerraformRating<Player1>: Victory<Player1>.
+    CheckGameEnd IF 63 TerraformRating<Player>: Victory<Player>
   }
 }
 

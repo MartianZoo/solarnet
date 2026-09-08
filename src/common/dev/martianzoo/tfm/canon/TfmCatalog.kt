@@ -336,6 +336,13 @@ public open class TfmCatalog : Catalog {
     if (canonicalPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
       initialTypes.add(SOLO_COLONIES_SETUP.of(canonicalPlayerNames.single().expression))
     }
+    canonicalPlayerNames.firstOrNull()?.let { firstPlayer ->
+      initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
+      canonicalPlayerNames.zip(canonicalPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
+          (player, nextPlayer) ->
+        TfmClasses.SUCCESSOR.of(player.expression, nextPlayer.expression)
+      }
+    }
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }

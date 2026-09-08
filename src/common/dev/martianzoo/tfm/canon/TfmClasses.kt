@@ -7,6 +7,8 @@ public object TfmClasses {
   private val STANDARD_ACTION = cn("StandardAction")
 
   internal val END = cn("End")
+  internal val START_TOKEN = cn("StartToken")
+  internal val SUCCESSOR = cn("Successor")
 
   internal val MARS_MAP = cn("MarsMap")
   public val TILE: dev.martianzoo.pets.ast.ClassName = cn("Tile")
