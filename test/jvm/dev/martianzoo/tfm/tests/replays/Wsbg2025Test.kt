@@ -71,7 +71,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       playProject(ArcticAlgae, 10)
     }
     jacopo.turn {
-      stdAction("DoRequiredActions") { playPrelude(Mohole) }
+      stdAction("DoRequiredActionsAction") { playPrelude(Mohole) }
       playProject(LandClaim, 1) { doTask("Community<Elysium_5_6>") }
     }
     jon.turn {
@@ -201,7 +201,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       sellPatents(1)
-      stdProject("CitySP") { placeTile(5, 6) }
+      stdProject("CityProject") { placeTile(5, 6) }
     }
     jon.turn {
       playProject(MiningRights, 7, steel = 1) { placeTile(5, 9) }

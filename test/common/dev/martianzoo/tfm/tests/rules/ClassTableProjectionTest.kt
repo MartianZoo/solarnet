@@ -64,8 +64,8 @@ internal class ClassTableProjectionTest {
 
   @Test
   internal fun `multiplayer standard actions stay unloaded in solo`() {
-    assertNotLoaded("ClaimMilestone", baseSolo)
-    assertNotLoaded("FundAward", baseSolo)
+    assertNotLoaded("ClaimMilestoneAction", baseSolo)
+    assertNotLoaded("FundAwardAction", baseSolo)
   }
 
   @Test

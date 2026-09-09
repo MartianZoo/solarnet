@@ -447,7 +447,7 @@ unavailable.
 
 These encodings are considered principled and need no re-litigation: global-parameter change before
 TR and threshold reactions; tile placement before adjacency and bonuses, with the reactions as
-siblings; `UseCardAction` placing the `ActionUsedMarker` before `UseAction`; trade income and
+siblings; `UseActionOnCardAction` placing the `ActionUsedMarker` before `UseAction`; trade income and
 individual colony bonuses as reorderable siblings; and card-resource `THEN` chains carrying X into an
 `Owed` reduction.
 

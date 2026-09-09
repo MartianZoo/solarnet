@@ -15,7 +15,7 @@ internal class ArtificialLakeTest : CardTest() {
     startTerraforming(startingMc = 1_500)
     raiseTemperatureTo(12)
     connectedLandAreas().forEach { area ->
-      p1.stdProject("GreenerySP") { placeTile(area.row, area.column) }
+      p1.stdProject("GreeneryProject") { placeTile(area.row, area.column) }
     }
 
     shouldThrow<NotNowException> { p1.playProject(ArtificialLake, 15) }
@@ -62,19 +62,19 @@ internal class ArtificialLakeTest : CardTest() {
     newGameWithAutoWorkflow()
     playUntilFirstActionPhase(startingMc = startingMc)
     p1.turn {
-      stdProject("AsteroidSP")
-      stdProject("AsteroidSP")
+      stdProject("AsteroidProject")
+      stdProject("AsteroidProject")
     }
     requireP2().pass()
   }
 
   private fun raiseTemperatureTo(step: Int) {
-    repeat(step - 2) { p1.stdProject("AsteroidSP") }
+    repeat(step - 2) { p1.stdProject("AsteroidProject") }
   }
 
   private fun placeOceans(count: Int) {
     p1.list("WaterArea").take(count).forEach { area ->
-      p1.stdProject("AquiferSP") { doTask("OceanTile<$area>") }
+      p1.stdProject("AquiferProject") { doTask("OceanTile<$area>") }
     }
   }
 

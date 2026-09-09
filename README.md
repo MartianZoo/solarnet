@@ -18,7 +18,7 @@
 | `Insulation`      | `This: PROD[X MC FROM Heat]`                                |
 | `EarthCatapult`   | `PlayCard:: -2 Owed<MC>`                              |
 | `TerraformRating` | `ProductionPhase: MC`, `End: VictoryPoint`                  |
-| `CitySP`        | `25 MC -> CityTile<>, PROD[MC]`                             |
+| `CityProject`     | `25 MC -> CityTile<>, PROD[MC]`                             |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
 * This means you can add your own fan cards to it pretty easily and without actual "programming" -- so long as the cards don't introduce entirely new game mechanics.

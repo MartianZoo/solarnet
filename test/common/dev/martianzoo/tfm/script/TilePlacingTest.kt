@@ -17,7 +17,7 @@ internal class TilePlacingTest {
       phase("Action")
       manual("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
       assertFailsWith<NarrowingException> {
-        stdProject("CitySP") { doTask("CityTile<Tharsis_3_4>") }
+        stdProject("CityProject") { doTask("CityTile<Tharsis_3_4>") }
       }
     }
   }
@@ -38,9 +38,9 @@ internal class TilePlacingTest {
     with(game.tfm(PLAYER1)) {
       sneak("100 MC")
       phase("Action")
-      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_3>") }
+      stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_3>") }
       assertFailsWith<NarrowingException> {
-        stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+        stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_7_5>") }
       }
       // Yer surrounded!
       game
@@ -50,7 +50,7 @@ internal class TilePlacingTest {
                   "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
           )
 
-      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+      stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_7_5>") }
     }
   }
 
@@ -104,7 +104,7 @@ internal class TilePlacingTest {
       manual("CityTile<Player2, Tharsis_6_7>")
 
       // Use the standard project so that the placement rule is in effect
-      stdProject("GreenerySP") {
+      stdProject("GreeneryProject") {
         fun checkCantPlaceGreenery(area: String) =
             assertFailsWith<NarrowingException>(area) { doTask("GreeneryTile<$area>") }
 

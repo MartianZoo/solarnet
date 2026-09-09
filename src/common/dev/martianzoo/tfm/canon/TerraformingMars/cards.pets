@@ -11,7 +11,7 @@ CLASS Ecoline : CardFront<Class<CorporationCard>> {
 
   This:: PlantTag<This>
   This: 36 MC, 3 Plant, PROD[2 Plant]
-  Invoice<ConvertPlants, Action1>:: -Owed<Class<Plant>>
+  Invoice<ConvertPlantsAction>:: -Owed<Class<Plant>>
 }
 
 CLASS InterplanetaryCinematics : CardFront<Class<CorporationCard>> {
@@ -62,7 +62,7 @@ CLASS ThorGate : CardFront<Class<CorporationCard>> {
   This:: PowerTag<This>
   This: 48 MC, PROD[Energy]
   PlayTag<Class<PowerTag>>:: -3 Owed<>
-  Invoice<PowerPlantSP, Action1>:: -3 Owed<>
+  Invoice<PowerPlantProject>:: -3 Owed<>
 }
 
 CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {

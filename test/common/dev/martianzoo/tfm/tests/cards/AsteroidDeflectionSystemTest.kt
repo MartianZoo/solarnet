@@ -16,7 +16,7 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
     playUntilFirstActionPhase()
 
     p1.turn {
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
       playProject(AsteroidDeflectionSystem, 13).expect("PROD[-Energy]")
     }
     p2.turn {
@@ -24,7 +24,7 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
       sellPatents(1)
     }
     p1.turn {
-      stdProject("CitySP") { placeTile(4, 2) }.expect("Plant")
+      stdProject("CityProject") { placeTile(4, 2) }.expect("Plant")
       sellPatents(1)
     }
 
@@ -32,7 +32,7 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
       p2.playProject(Virus, 1) { doTask("-Plant<Player1>") }
     }
     p2.turn {
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
       sellPatents(1)
     }
 

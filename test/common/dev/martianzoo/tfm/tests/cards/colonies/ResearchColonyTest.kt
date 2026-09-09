@@ -17,7 +17,7 @@ internal class ResearchColonyTest : ColoniesCardTest() {
   internal fun `Cannot build a second colony on the same colony tile`() {
     p1.manual("17 MC, Colony<Luna>")
     shouldThrow<NarrowingException> {
-      p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
+      p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
     }
   }
 

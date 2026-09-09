@@ -20,7 +20,8 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
         shouldThrow<AbstractException> {
           p1.playPrelude(FakeEstablishedMethods) {
             p1.manual("-20 MC")
-            doTask("UseAction<GreenerySP, Action1>")
+            doTask("UseAction<UseStandardProjectAction, Action1>")
+            doTask("UseAction<GreeneryProject, Action1>")
             p1.autoExecNow()
           }
         }
@@ -39,7 +40,8 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
       offers.size shouldBe 2
 
       repeat(2) { projectIndex ->
-        doTask("UseAction<PowerPlantSP, Action1>")
+        doTask("UseAction<UseStandardProjectAction, Action1>")
+        doTask("UseAction<PowerPlantProject, Action1>")
 
         tasks
             .extract { it }

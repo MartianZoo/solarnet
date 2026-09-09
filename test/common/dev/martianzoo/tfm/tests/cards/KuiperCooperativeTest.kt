@@ -34,7 +34,7 @@ internal class KuiperCooperativeTest : CardTest() {
     p1.cardAction1(KuiperCooperative)
 
     p1.stdProject(
-            "AsteroidSP",
+            "AsteroidProject",
             payment = { payWithKuiperAsteroids(this) },
         )
         .expect("-2 Asteroid<$KuiperCooperative>, -12 MC, TemperatureStep")
@@ -44,7 +44,7 @@ internal class KuiperCooperativeTest : CardTest() {
   internal fun `Asteroids can help pay for an aquifer standard project`() {
     p1.cardAction1(KuiperCooperative)
 
-    p1.stdProject("AquiferSP", payment = { payWithKuiperAsteroids(this) }) {
+    p1.stdProject("AquiferProject", payment = { payWithKuiperAsteroids(this) }) {
           placeTile(1, 2)
         }
         .expect("-2 Asteroid<$KuiperCooperative>, -16 MC, OceanTile, TerraformRating")
@@ -55,7 +55,7 @@ internal class KuiperCooperativeTest : CardTest() {
     p1.cardAction1(KuiperCooperative)
 
     shouldThrow<NarrowingException> {
-      p1.stdProject("PowerPlantSP", payment = { payWithKuiperAsteroids(this) })
+      p1.stdProject("PowerPlantProject", payment = { payWithKuiperAsteroids(this) })
     }
   }
 
@@ -65,7 +65,7 @@ internal class KuiperCooperativeTest : CardTest() {
 
     shouldThrow<TaskException> {
       p1.stdProject(
-          "AsteroidSP",
+          "AsteroidProject",
           payment = {
             doTask("PayFromCard<$KuiperCooperative> FROM Asteroid<$AstroDrill>")
           },

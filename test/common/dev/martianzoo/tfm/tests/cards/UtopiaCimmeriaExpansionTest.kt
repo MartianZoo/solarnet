@@ -44,7 +44,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     p2.manual("$Mine")
     admin.phase("Action")
 
-    p1.stdAction("FundAward") { doTask("Incorporator") }
+    p1.stdAction("FundAwardAction") { doTask("Incorporator") }
     admin.manual("End FROM Phase")
 
     p1.assertCounts(22 to "VictoryPoint")
@@ -59,7 +59,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     p2.manual("CityTile<Utopia_5_5>")
     admin.phase("Action")
 
-    p1.stdAction("FundAward") { doTask("Suburbian") }
+    p1.stdAction("FundAwardAction") { doTask("Suburbian") }
     admin.manual("End FROM Phase")
 
     p1.assertCounts(25 to "VictoryPoint")
@@ -74,7 +74,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     p2.manual("MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>")
     admin.phase("Action")
 
-    p1.stdAction("FundAward") { doTask("Founder") }
+    p1.stdAction("FundAwardAction") { doTask("Founder") }
     admin.manual("End FROM Phase")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Founder>")
@@ -90,8 +90,8 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     )
     admin.phase("Action")
 
-    p1.stdAction("ClaimMilestone") { doTask("Metallurgist") }.expect("-8 MC, Milestone")
-    p1.stdAction("ClaimMilestone") { doTask("Trader") }.expect("-8 MC, Milestone")
+    p1.stdAction("ClaimMilestoneAction") { doTask("Metallurgist") }.expect("-8 MC, Milestone")
+    p1.stdAction("ClaimMilestoneAction") { doTask("Trader") }.expect("-8 MC, Milestone")
 
     p1.assertCounts(2 to "Milestone")
   }

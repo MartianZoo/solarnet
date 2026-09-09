@@ -38,7 +38,7 @@ internal object SampleGames {
     p2.playProject(cn("ArcticAlgae"), 12)
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
     p2.cardAction1(cn("Factorum"))
-    p1.stdProject("PowerPlantSP")
+    p1.stdProject("PowerPlantProject")
     p1.playProject(cn("BuildingIndustries"), 4, steel = 1)
     p2.playProject(cn("RotatorImpacts"), titanium = 2)
     p2.cardAction1(cn("RotatorImpacts")) { p2.pay(titanium = 2) }
@@ -54,7 +54,7 @@ internal object SampleGames {
     p1.playProject(cn("EarthOffice"), 1)
     p2.cardAction2(cn("RotatorImpacts"))
     p1.playProject(cn("DevelopmentCenter"), 1, steel = 5)
-    p1.stdProject("PowerPlantSP")
+    p1.stdProject("PowerPlantProject")
     p1.cardAction1(cn("DevelopmentCenter"))
     p1.playProject(cn("InvestmentLoan"), 0)
     p1.playProject(cn("DeuteriumExport"), 11)
@@ -91,7 +91,7 @@ internal object SampleGames {
     p2.cardAction2(cn("RotatorImpacts"))
     p2.cardAction1(cn("SearchForLife")) { doTask("Ok") }
     p1.convertHeat()
-    p1.stdProject("AsteroidSP")
+    p1.stdProject("AsteroidProject")
     p1.sellPatents(1)
     p1.playProject(cn("SpinInducingAsteroid"), 16)
 
@@ -157,7 +157,7 @@ internal object SampleGames {
     if (gens-- == 0) return game
     admin.nextGeneration(3, 1)
 
-    p1.stdAction("ClaimMilestone") { doTask("Builder8") }
+    p1.stdAction("ClaimMilestoneAction") { doTask("Builder8") }
     p1.cardAction1(cn("DevelopmentCenter"))
     p2.playProject(cn("EarthCatapult"), 23)
     p2.playProject(cn("InventionContest"), 0) { doTask("-ProjectCard") }
@@ -193,7 +193,7 @@ internal object SampleGames {
     p2.cardAction2(cn("RotatorImpacts"))
     p2.playProject(cn("IshtarMining"), 3)
     p1.playProject(cn("MoholeLake"), 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
-    p1.stdAction("ClaimMilestone") { doTask("Terraformer35") }
+    p1.stdAction("ClaimMilestoneAction") { doTask("Terraformer35") }
     p2.convertHeat()
     p2.convertPlants { doTask("GreeneryTile<Tharsis_8_6>") }
     p1.cardAction1(cn("InventorsGuild")) { p1.buyCards(1) }
@@ -224,7 +224,7 @@ internal object SampleGames {
     p2.convertPlants { doTask("GreeneryTile<Tharsis_9_7>") }
     p1.playProject(cn("RegoPlastics"), 10)
     p1.playProject(cn("SfMemorial"), 1, steel = 2)
-    p2.stdAction("ClaimMilestone") { doTask("Gardener") }
+    p2.stdAction("ClaimMilestoneAction") { doTask("Gardener") }
     p2.cardAction1(cn("DirectedImpactors")) {
       p2.pay(6)
       doTask("Asteroid<RotatorImpacts>")

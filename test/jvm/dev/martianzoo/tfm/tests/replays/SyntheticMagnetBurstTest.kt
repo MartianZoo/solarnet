@@ -109,7 +109,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
 
     pink.turn {
       // Pink took the first action of Tharsis Republic corporation
-      stdAction("DoRequiredActions") {
+      stdAction("DoRequiredActionsAction") {
             // Pink placed city tile at 61
             placeTile(9, 7)
             // Pink placed ocean tile at 34
@@ -364,7 +364,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
       // Green claimed Diversifier milestone
       green.exMachina(fakeWildTags("MicrobeTag"))
-      stdAction("ClaimMilestone") {
+      stdAction("ClaimMilestoneAction") {
         doTask("Diversifier")
       }
     }
@@ -495,7 +495,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 2 titanium
       playProject(SolarWindPower, titanium = 3)
       // Pink claimed Generalist milestone
-      stdAction("ClaimMilestone") { doTask("Generalist") }
+      stdAction("ClaimMilestoneAction") { doTask("Generalist") }
     }
     green.turn {
       // Green used Ironworks action
@@ -540,7 +540,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green funded Contractor award
-      stdAction("FundAward") { doTask("Contractor") }
+      stdAction("FundAwardAction") { doTask("Contractor") }
       // Green ended turn
     }
     pink.turn {
@@ -591,7 +591,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       playProject(DeimosDown, 14, titanium = 5) { doTask("-7 Plant<Green>") }
           .expect("4 Steel, -7 Plant<Green>")
       // Pink claimed Terraformer milestone
-      stdAction("ClaimMilestone") { doTask("Terraformer") }
+      stdAction("ClaimMilestoneAction") { doTask("Terraformer") }
     }
     green.turn {
       // Green played Terraforming Contract
@@ -815,7 +815,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink placed greenery tile at 19
       // Pink gained 2 plants
       // Pink gained 4 M€ from 2 ocean(s)
-      stdProject("GreenerySP", { pay(23) }) { placeTile(3, 6) }
+      stdProject("GreeneryProject", { pay(23) }) { placeTile(3, 6) }
       // Pink used Convert Plants standard action
       // Pink placed greenery tile at 55
       // Pink gained 2 heat
@@ -859,7 +859,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green used Air Scrapping standard project
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
       // Green played Neutralizer Factory
       playProject(NeutralizerFactory, 7)
     }
@@ -1078,7 +1078,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       // Pink funded Landscaper award
-      stdAction("FundAward", which = 2) { doTask("Landscaper") }
+      stdAction("FundAwardAction", which = 2) { doTask("Landscaper") }
       // Pink ended turn
     }
     // Green passed
@@ -1119,7 +1119,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink placed greenery tile at 04
       // Pink gained 2 plants
       // Pink added 1 Animal to Herbivores
-      stdProject("GreenerySP") { placeTile(1, 2) }
+      stdProject("GreeneryProject") { placeTile(1, 2) }
       // Pink used Convert Plants standard action
       // Pink placed greenery tile at 13
       // Pink gained 1 plant
@@ -1145,7 +1145,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // You drew Toll Station,Fueled Generators
       playProject(TechnologyDemonstration, titanium = 1) { draw(TollStation, FueledGenerators) }
       // Pink funded Founder award
-      stdAction("FundAward", which = 3) { doTask("Founder") }.expect("Award")
+      stdAction("FundAwardAction", which = 3) { doTask("Founder") }.expect("Award")
     }
     green.turn {
       // Green used Ironworks action
@@ -1200,7 +1200,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       // Pink used Air Scrapping standard project
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
       // Pink ended turn
     }
     green.turn {

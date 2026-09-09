@@ -116,12 +116,12 @@ internal class CoreRulesTest : CardTest() {
     p1.manual("100 MC")
     admin.phase("Action")
 
-    p1.stdProject("PowerPlantSP").expect("PROD[Energy]")
-    p1.stdProject("AsteroidSP").expect("TemperatureStep, TerraformRating")
-    p1.stdProject("AquiferSP") { doTask("OceanTile<Tharsis_1_2>") }
+    p1.stdProject("PowerPlantProject").expect("PROD[Energy]")
+    p1.stdProject("AsteroidProject").expect("TemperatureStep, TerraformRating")
+    p1.stdProject("AquiferProject") { doTask("OceanTile<Tharsis_1_2>") }
         .expect("OceanTile, TerraformRating")
-    p1.stdProject("CitySP") { doTask("CityTile<Tharsis_4_4>") }.expect("CityTile, PROD[1 MC]")
-    p1.stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_5>") }
+    p1.stdProject("CityProject") { doTask("CityTile<Tharsis_4_4>") }.expect("CityTile, PROD[1 MC]")
+    p1.stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_5>") }
         .expect("GreeneryTile, OxygenStep, TerraformRating")
   }
 

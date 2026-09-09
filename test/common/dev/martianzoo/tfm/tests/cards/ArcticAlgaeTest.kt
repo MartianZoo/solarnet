@@ -18,7 +18,7 @@ internal class ArcticAlgaeTest : CardTest() {
       playProject(ArcticAlgae, 12)
       sellPatents(1)
     }
-    p2.stdProject("AquiferSP") { placeTile(1, 2) }.expect("2 Plant<Player1>")
+    p2.stdProject("AquiferProject") { placeTile(1, 2) }.expect("2 Plant<Player1>")
   }
 
   @Test

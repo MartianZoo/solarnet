@@ -316,7 +316,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me placed greenery tile on row 3 position 7
       // me drew 3 card(s)
       // You drew Insects, Impactor Swarm and Solarnet
-      stdProject("GreenerySP") { placeTile(3, 7) }.expect("3 Card")
+      stdProject("GreeneryProject") { placeTile(3, 7) }.expect("3 Card")
       // me played Solarnet
       // me drew 2 card(s)
       playProject(Solarnet, 7)
@@ -356,7 +356,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me's plants production increased by 1
       playProject(Moss, 4)
       // me used City standard project
-      stdProject("CitySP") {
+      stdProject("CityProject") {
         // me placed city tile on row 5 position 6
         // me's plants amount increased by 3
         placeTile(5, 6)
@@ -366,7 +366,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me's mc amount increased by 2
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("9 MC")
       // me used Greenery standard project
-      stdProject("GreenerySP") {
+      stdProject("GreeneryProject") {
         // me placed greenery tile on row 5 position 7
         // me's plants amount increased by 2
         placeTile(5, 7)
@@ -414,7 +414,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
         placeTile(4, 4)
       }
       // me used Aquifer standard project
-      stdProject("AquiferSP") {
+      stdProject("AquiferProject") {
         // me placed ocean tile on row 5 position 4
         // me's plants amount increased by 2
         placeTile(5, 4)
@@ -469,7 +469,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me's plants amount increased by 1
       playProject(Trees, 13)
       // me used Aquifer standard project
-      stdProject("AquiferSP") {
+      stdProject("AquiferProject") {
         // me placed ocean tile on row 3 position 5
         // me's plants amount increased by 1
         placeTile(3, 5)
@@ -489,7 +489,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me added 1 asteroid(s) to Rotator Impacts
       cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
       // me used City standard project
-      stdProject("CitySP") {
+      stdProject("CityProject") {
         // me placed city tile on row 6 position 7
         // me's plants amount increased by 1
         placeTile(6, 8)
@@ -541,19 +541,19 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me's energy production increased by 1
       playProject(SolarPower, 0, steel = 6) // "overpay" 1
       // me used Greenery standard project
-      stdProject("GreenerySP") {
+      stdProject("GreeneryProject") {
         // me placed greenery tile on row 5 position 8
         // me's plants amount increased by 2
         placeTile(5, 8)
       }
       // me used City standard project
-      stdProject("CitySP") {
+      stdProject("CityProject") {
         // me placed city tile on row 7 position 5
         // me's steel amount increased by 1
         placeTile(7, 7)
       }
       // me used Greenery standard project
-      stdProject("GreenerySP") {
+      stdProject("GreeneryProject") {
         // me placed greenery tile on row 6 position 5
         // me's plants amount increased by 1
         placeTile(6, 6)
