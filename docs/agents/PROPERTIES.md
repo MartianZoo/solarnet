@@ -71,7 +71,7 @@ quantities, and instructions.
 
 ### Narrowing and inheritance
 
-An ordinary class-property declaration narrows an inherited bound; it does not override a value:
+A class-property declaration narrows an inherited bound; it does not override a value:
 
 ```pets
 ABSTRACT CLASS Scored { score = Metric }
@@ -139,7 +139,7 @@ A class property should be declared at the highest Class for which asking the qu
 not at a broader Class with a dummy value.
 
 `row` and `column` belong to `MarsArea`, not `Area`. Phobos Space Haven's derived
-`PhobosSpaceHaven_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
+`PhobosSpaceHaven_RemoteArea : RemoteArea` has no such class properties. Asking for
 `PhobosSpaceHaven_RemoteArea.row` is a nonsense question and fails
 because the class property does not exist; it does not return zero or an absent value.
 
@@ -256,7 +256,7 @@ Project-card cost illustrates the first case: each project card should state its
 zero-cost cards should explicitly state zero. A family whose members share a normal value
 might use a default. A family whose value is definitionally fixed should narrow to a final fact.
 
-Syntax and multiple-inheritance rules remain open. In particular, competing defaults, nearer
+Syntax and multiple-inheritance rules are still open. In particular, competing defaults, nearer
 defaults, and an abstract descendant replacing an ancestor's default need one systemic rule before
 the feature is implemented.
 

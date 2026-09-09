@@ -138,11 +138,11 @@ spell out `public` and their public types; declarations used only within one mod
 
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
 component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
-contains whole-game chronologies. Shared integrated-test support remains directly in the parent
+contains whole-game chronologies. Shared integrated-test support lives directly in the parent
 package. Test placement follows purpose: a test of engine behavior belongs with engine even when it
 uses Terraforming Mars declarations to construct its scenario, while a test of Terraforming Mars
 rules or content belongs in the Terraforming Mars suites. Test-only dependencies may cross that
-direction; production dependencies may not. Small generic declarations remain preferable when they
+direction; production dependencies may not. Small generic declarations are preferable when they
 make a test clearer, but replacing domain examples is independent cleanup rather than a prerequisite
 for correct ownership.
 
@@ -155,26 +155,26 @@ clear coverage of these contracts matters more than preserving every current tes
    exercised without Terraforming Mars content.
 2. **Pure Pets type-system tests.** Class loading, type relationships, metrics, requirements, and
    related semantics, using small declarations owned by the test rather than Canon.
-3. **Game World and engine-coordination tests.** Pure `:gameworld` scenarios prove that exact
+3. **Game World and engine-coordination tests.** Pure `:gameworld` scenarios verify that exact
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
-   scenarios prove consequence calculation and failure atomicity: a failed operation must restore
+   scenarios cover consequence calculation and failure atomicity: a failed operation must restore
    present components, pending work, and recorded history together while retaining a fresh revision
    identity. [GAMEWORLD.md](GAMEWORLD.md) owns the detailed split.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
-5. **Whole-game tests.** Long scenarios that prove the workflow and many rules operate together,
+5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
    especially when reconstructed from independent game records. Designated JVM replays are also
    the sole authored source of deterministic checked-in game-viewer exports.
-6. **Canon admissibility tests.** A compact gate proving that the complete authority loads and that
-   representative supported configurations compose into usable projected class tables and worlds.
-   This is not a demand to restate the contents of every card or bundle in assertions.
+6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
+   that representative supported configurations compose into usable projected class tables and
+   worlds. This is not a demand to restate the contents of every card or bundle in assertions.
 7. **Known-defect scenarios.** Focused passing characterizations of important behavior known to be
    wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
-9. **Cross-runtime packaging smoke coverage.** One representative browser game proving that the
+9. **Cross-runtime packaging smoke coverage.** One representative browser game showing that the
    JavaScript artifact, generated Canon data, and engine work together outside the JVM.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
@@ -192,7 +192,7 @@ which Player can select or narrow, whether competing gameplay is blocked, the re
 when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card
 reactions by exact rendered instruction, `Task.cause`, `Task.actor`, or raw Event Log inspection.
 
-Keep trigger matching separate from queue routing. A `BY` characterization should prove which
+Keep trigger matching separate from queue routing. A `BY` characterization should show which
 triggers fire and how Actor variables bind through observable changes. Do not make its continued
 success depend on an incidental assignee unless that test is explicitly about delegation.
 
@@ -252,7 +252,7 @@ the happy path. A filtering or Type-variable test should include several temptin
 match. Preserve this coverage during refactoring.
 
 Assert a particular exception subclass only when callers or game semantics depend on that
-classification. Otherwise prove that the command is rejected, state and history remain atomic, and
+classification. Otherwise assert that the command is rejected, state and history remain atomic, and
 the diagnostic identifies the problem. The current distinction among task, abstractness, and
 narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
 
@@ -264,7 +264,7 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 
 ## Game replay tests
 
-Whole-game tests are high-value integration evidence. When translating a supplied game log:
+Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project
   cards. `expectProjectCards()` assigns sourced identities to an otherwise anonymous selection;
@@ -275,7 +275,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   selection or introduce the rejected names directly; inside an operation it also resolves an
   already-open anonymous selection-removal task.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
-  player's ordinary deal when the tested engine does not support drafting. Express an ordinary
+  player's ordinary deal when the tested engine does not support drafting. Express an
   research deal directly by partitioning its cards between `buyCards()` and
   `discardUnselectedProjectCards()`; do not declare the same offer first.
   `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using

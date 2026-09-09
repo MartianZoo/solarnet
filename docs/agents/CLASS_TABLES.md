@@ -77,15 +77,15 @@ it by reverse navigation.
 
 ## Identity and integrity
 
-Classes and Types from different master universes remain incomparable. Values from two games using
+Classes and Types from different master universes are incomparable. Values from two games using
 the same master universe are structurally comparable, even when their inhabited domains differ.
 
 World mutation therefore validates both that an incoming Type belongs to the World's master
 universe and that the Type is inhabited in that World's view. Projection identity must not stand in
 for either check.
 
-Unknown and uninhabited remain distinct. A Catalog-known uninhabited Class resolves and keeps its
-nominal relationships, but the game view gives it an empty domain. An unknown Class Name remains an
+Unknown and uninhabited are distinct. A Catalog-known uninhabited Class resolves and keeps its
+nominal relationships, but the game view gives it an empty domain. An unknown Class Name is an
 error.
 
 ## Projection shape

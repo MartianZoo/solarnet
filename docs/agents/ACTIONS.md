@@ -13,7 +13,7 @@
 >
 > **Status:** current implementation plus a working direction. The semantic lifecycle under
 > “Working model” is the direction to design toward. Concrete action signals, placement and
-> rewriting of the left-side instruction, and the single payment-choice loop remain proposals.
+> rewriting of the left-side instruction, and the single payment-choice loop are still proposals.
 
 ## Read only the relevant sections
 
@@ -61,7 +61,7 @@ The intended lifecycle is:
 4. General action machinery resolves the chosen action's left side. It may execute it directly or
    let a domain-specific transform replace it with a workflow such as Terraforming Mars billing.
 5. Only after the left side has been satisfied does the machinery gain the chosen action Signal.
-6. The action's right side is an ordinary effect responding to that Signal. The action machinery
+6. The action's right side is an effect responding to that Signal. The action machinery
    has completed its responsibility and does not inspect or manage the right side.
 
 The Signal is therefore the successful product of action handling, not necessarily the beginning
@@ -71,7 +71,7 @@ the encompassing transaction rolls back, including the Signal.
 
 This explains both the unity and the apparent split between actions and triggered effects. There is
 no special kind of right-side execution. Actions need additional machinery only because a player
-chooses one and because its left side is available for mediation before an ordinary trigger is
+chooses one and because its left side is available for mediation before a trigger is
 issued.
 
 Keep the vocabulary small:
@@ -82,7 +82,7 @@ Keep the vocabulary small:
 - A permission component records a limited use where the game needs one.
 
 Do not introduce separate public concepts for an offer, invocation, and execution unless the model
-eventually proves that they have independent behavior.
+eventually shows that they have independent behavior.
 
 ## Actions and their syntax
 
@@ -139,7 +139,7 @@ The dependency on `DirectImpactors` makes that concrete choice inhabitable only 
 live. The action Class supplies identity; its gained instance is the event. No persistent second
 component needs to duplicate the provider's presence.
 
-This loses nothing essential from the generic verb if every concrete action remains a subtype of
+This loses nothing essential from the generic verb if every concrete action is a subtype of
 `UseAction`. A task can still request any `UseAction`; shared rules can still listen to that
 supertype; more specific supertypes such as `StandardAction` can still group actions. What changes is
 that identity is expressed by the concrete Class instead of by generic arguments.
@@ -172,7 +172,7 @@ additional game facts, not replacements for that task.
 
 The normal card-action route illustrates the distinction. `UseActionOnCardAction` is a printed
 standard action. Its left side can spend the card's once-per-generation permission; after its own
-Signal, its ordinary right-side effect creates the narrower task for the selected card action.
+Signal, its right-side effect creates the narrower task for the selected card action.
 Viron and Project Inspection instead create that inner task directly, so they bypass the normal
 route without weakening the card action itself.
 
@@ -223,11 +223,11 @@ to consume or commit one fleet, not necessarily a second face shaped like the ca
 `DoRequiredActionsAction` may remain a `StandardAction`. It is the deliberate model action that lets
 a mandatory effect consume its action-phase slot. The unresolved issue is not its classification
 but how a live `RequiredAction` replaces the components supplying ordinary standard actions with
-the component supplying only this action, and restores the ordinary set when it disappears.
+the component supplying only this action, and restores the set when it disappears.
 
 The smallest current candidate is one player-owned component on which every ordinary standard
 action depends. Gaining `RequiredAction` removes that component; `DoRequiredActionsAction` depends
-directly on the live requirement; removing the requirement restores ordinary availability. The
+directly on the live requirement; removing the requirement restores availability. The
 pending abstract standard-action task would then have exactly the intended concrete domain in both
 states. Verify the gain/removal transitions and setup invariant before preferring this to a fuller
 action-mode sum type.
@@ -249,7 +249,7 @@ Whatever representation is chosen must preserve these rules:
    `Invoice` workflow.
 5. Type variables, selected values, and X shared across the arrow must survive until the right-side
    effect responds to the Signal.
-6. Dynamic feasibility remains attempt-and-rollback. Enumeration need not prove that every left
+6. Dynamic feasibility is attempt-and-rollback. Enumeration need not prove that every left
    side and every later consequence will succeed.
 
 An instruction-valued Class property is one plausible place to store it. It would let a concrete
@@ -287,13 +287,13 @@ choose concrete action
 → ordinary right-side effect
 ```
 
-This is a semantic change, not merely a rename. It should be proved first for a direct left side,
-a fixed billable left side, an X-scaled action, and a Type variable shared across the arrow.
+This is a semantic change, not merely a rename. It should be demonstrated first for a direct left
+side, a fixed billable left side, an X-scaled action, and a Type variable shared across the arrow.
 
 The remaining completion question is about sequencing, not the value of the left side. `THEN` knows
 that one instruction task completed, but does not wait for all work descended from that task.
 Invoice removal is already a precise completion event for payment, and a strictly sequential
-payment loop may therefore need no `Temporary`. If some other left-side instruction must wait for
+payment loop may need no `Temporary`. If some other left-side instruction must wait for
 all work it caused, whole-World-idle `Temporary` is too broad; the scoped-completion direction in
 [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) is the relevant candidate.
 
@@ -346,7 +346,7 @@ cleanup; see [SEQUENCING.md](SEQUENCING.md#current-behavior-whole-world-idle-cle
 
 An action with billing is one operation with ordered stages. The player chooses the action, settles
 its left side through zero or more payment choices, and only then receives consequences created by
-the action Signal's ordinary effects.
+the action Signal's effects.
 
 Client helpers must recognize payment from live Billing state, not from arbitrary resource-removal
 instructions. A direct floater removal, production transformation, or holder-sensitive removal is
@@ -400,9 +400,9 @@ Use a focused Pets test catalog containing one live provider with one non-billin
 2. Make the arrow's left side available to general action machinery as an `Instruction`.
 3. Let a pending abstract action task narrow to that concrete Class.
 4. Execute the left-side instruction and gain the concrete Signal only after it succeeds.
-5. Express the right side solely as an ordinary effect on that Signal, preferably `This::` in the
+5. Express the right side solely as an effect on that Signal, preferably `This::` in the
    lowered declaration.
-6. Prove that an absent provider removes the choice, an impossible left side leaves no trace, the
+6. Verify that an absent provider removes the choice, an impossible left side leaves no trace, the
    Signal precedes its right-side effect, and the Signal cleans itself up normally.
 
 Do not migrate a production card, alter permission, solve required-action availability, or generalize
@@ -417,9 +417,9 @@ After Stage 1 is coherent, carry the same shape through one fixed standard-resou
 2. Complete payment sequentially.
 3. Make invoice removal cause the concrete action Signal rather than the right side directly.
 4. Keep the right-side effect identical to the direct prototype.
-5. Prove successful payment ordering, failed-payment rollback, and one invoice modifier.
+5. Verify successful payment ordering, failed-payment rollback, and one invoice modifier.
 6. Use the result to decide whether invoice removal is sufficient completion or action-local scoped
-   state still earns a role. Do not introduce `Temporary` merely to bridge parallel payment tasks
+   state still earns a role. Do not introduce `Temporary` just to bridge parallel payment tasks
    that the sequential payment loop will remove.
 
 Stop if either stage needs a persistent duplicate of the provider, a second instruction system,
@@ -449,7 +449,7 @@ Unresolved, in decision order:
    through `Invoice<TradeAction>`. A concrete-Signal design must preserve both without parallel
    identity data.
 5. **How does `RequiredAction` positively replace and restore the ordinary action providers?** The
-   leading shape is one removable player-owned provider for ordinary standard actions, while the
+   leading shape is one removable player-owned provider for standard actions, while the
    live required component supplies `DoRequiredActionsAction`. Work out its setup and transition
    invariants before deciding whether a fuller action-mode sum type is necessary or deleting the
    current gate.

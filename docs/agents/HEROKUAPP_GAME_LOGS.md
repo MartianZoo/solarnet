@@ -203,7 +203,7 @@ behavioral evidence. Add an expectation when the result is interesting because i
 - needed to bound a nearby sourced reconciliation or uncertain payment allocation; or
 - evidence for behavior that the action body cannot express directly.
 
-An ordinary card can therefore merit an expectation when its sourced result has multiple interacting
+A plain card can therefore merit an expectation when its sourced result has multiple interacting
 parts or a state-dependent amount. A single fixed production or resource gain usually does not. Do not
 add an expectation just because a standard action produced its usual result or a global-parameter
 increase granted TR as expected. Do not restate an explicit cost, payment argument, literal `doTask()`,
@@ -314,4 +314,4 @@ Before handoff:
    claims copied from an old test.
 
 A green replay proves internal consistency, not fidelity to the archive. The test is finished only
-when its chronology and assertions remain independently traceable to the preserved source set.
+when its chronology and assertions are independently traceable to the preserved source set.

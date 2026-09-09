@@ -118,7 +118,7 @@ The agent library should eventually supply `slow`: an exhaustive proof policy th
 analysis as necessary to automate every command it can prove preserves the complete net-effect
 decision tree. Uncertainty means no command.
 
-The disposable World model needed for this analysis remains unplanned. The policy must enumerate
+The disposable World model needed for this analysis is unplanned. The policy must enumerate
 all relevant legal commands, explore their continuations, and compare normalized component/task state
 at a shared semantic comparison point. A successful branch, matching headline resources, or the
 absence of a known counterexample is insufficient. Event ordinals, task ids, and policy credit may
