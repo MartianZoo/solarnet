@@ -56,6 +56,27 @@ internal class TypeVariableTest {
   }
 
   @Test
+  internal fun `an inherited variable captures a concrete value fixed by the subclass`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person",
+            "CLASS Alice : Person",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Parent<Person> { This: Token<Person> }",
+            "CLASS Child : Parent<Alice>",
+        )
+    val parent = table.getClass(parse<Expression>("Parent").className)
+    val child = table.getClass(parse<Expression>("Child").className)
+    val variable = parent.typeVariables.single()
+
+    parent.defaultType.variableBindingsFrom(parent.defaultType, listOf(variable)) shouldBe
+        emptyMap()
+    child.defaultType
+        .variableBindingsFrom(child.defaultType, listOf(variable))[variable]
+        .toString() shouldBe "Alice"
+  }
+
+  @Test
   internal fun `a first-stage dependency choice takes precedence over a Class variable`() {
     val table =
         loadTypes(
