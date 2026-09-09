@@ -8,7 +8,7 @@
 > and screenshots.
 >
 > **Skip when:** reconstructing a physical game from audio/photos; use
-> [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md). For card or rule tests, use
+> [`_local/OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md). For card or rule tests, use
 > [TESTING.md](TESTING.md).
 >
 > **Status:** replay procedure. It intentionally contains no game-specific answers.

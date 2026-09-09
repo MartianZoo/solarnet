@@ -24,6 +24,16 @@
   [`TaskResolutionTest.kt`](../../test/common/dev/martianzoo/engine/TaskResolutionTest.kt)
   — select scenarios matching the changed resolution phase.
 
+## Before writing an explicit quantifier
+
+1. Inspect the changed Class's gain or removal default; omission does not mean mandatory in every
+   context.
+2. Count matching events and effect activations. Repeated components normally scale through
+   repeated hits, not an added `AMAP` or authored count.
+3. Add `!`, `?`, or `.` only when the rule intentionally differs from the inherited default.
+4. Keep the quantifier responsible only for the count of one change; choice, targeting, gates, and
+   sequencing have separate rules.
+
 A quantifier controls the count executed by one gain, removal, or transmutation. It does not choose
 an `OR` arm, satisfy a gate, choose a concrete target, or determine a `PER` metric. Those operations
 compose with quantification but have their own rules.

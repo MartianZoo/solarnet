@@ -17,7 +17,9 @@
 | --- | --- |
 | Choose commands or suite scope | Standard verification |
 | Change Gradle/dependencies/source sets | Build configuration |
-| Write or move a test | Test design through the relevant test category |
+| Write or move a card/rule test or gameplay helper | Test design through the relevant test category |
+| Use `TaskResult.expect()` | Expectations |
+| Preserve known incorrect behavior | Known-defect tests |
 | Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
 | Change shared multiplatform tests | Multiplatform tests |
 
@@ -129,6 +131,11 @@ spell out `public` and their public types; declarations used only within one mod
 
 ## Test design
 
+> **Recurring failure warning:** Card and rule tests operate through player-facing gameplay and
+> assert observable results. They do not inspect rendered task text, causes, incidental queue order,
+> or mirrored Canon data. A test-support helper must express a recurring component-independent
+> operation, never one card's rule or missing engine semantics.
+
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
 component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
 contains whole-game chronologies. Shared integrated-test support remains directly in the parent
@@ -194,7 +201,9 @@ one card, corporation, Prelude, or other component. Use existing gameplay helper
 operation scopes fit. When component-specific steps must stay inside an outer operation, express
 them through existing `OperationBody` primitives so any sibling task may remain pending. Add a
 shared helper only for a recurring, component-independent concept that materially simplifies
-several call sites.
+several call sites. `TfmGameplay` must not repair the game model by creating or relocating rule
+components, imposing order absent from Pets or the engine, or identifying work by rendered text or
+cause.
 
 Do not inspect Canon declarations or definitions and assert their exact Pets trees or rendered
 strings. Do not assert card totals by bundle, deck, expansion, or other content group. Canon
@@ -226,6 +235,8 @@ entry, so these literals do not need `trimIndent()`. Solo tests conventionally g
 `Player1` the vocabulary alias `Me` and use `Player.PLAYER1` in Kotlin. The raw-configuration
 overload in `CardTest` uses the same resolution path.
 
+### Expectations
+
 `CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
 to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
@@ -244,6 +255,8 @@ Assert a particular exception subclass only when callers or game semantics depen
 classification. Otherwise prove that the command is rejected, state and history remain atomic, and
 the diagnostic identifies the problem. The current distinction among task, abstractness, and
 narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
+
+### Known-defect tests
 
 `BugsTest` is different: its passing tests characterize known incorrect behavior, and their names
 say what currently happens incorrectly. Prefer such a characterization over a disproportionate
@@ -276,7 +289,8 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   not game facts: establish all setup, chronology, values, and reconciliations from original sources.
 - For a herokuapp archive, read `docs/agents/HEROKUAPP_GAME_LOGS.md` before implementation. Its API,
   payment-reconstruction, screenshot, counterfactual, and endgame rules supplement this section.
-- For a recorded physical game, read `docs/agents/OTB_GAME_RECORDS.md` before implementation. Its
+- For a recorded physical game, read [`_local/OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md)
+  before implementation. Its
   source-preservation, mixed-evidence, photograph, reconciliation, and endgame rules supplement this
   section.
 - Do not inspect an existing dated test, Git history, or previous agent summary to learn what

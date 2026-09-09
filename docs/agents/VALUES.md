@@ -170,6 +170,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ## Keep Pets central
 
+> **Recurring failure warning:** If one card or rule appears to need custom Kotlin, a custom
+> instruction, or a component-specific gameplay helper, stop before implementing it. Name the
+> general capability ordinary Pets lacks, and first try removal or composition of existing
+> mechanisms.
+
 Pets should read like the physical game: compact, composable, and precise about ownership, identity,
 timing, and choice. Prefer hand-authored Pets plus general runtime semantics. Every custom class or
 instruction is evidence that Pets cannot yet express part of the game and therefore a design-failure

@@ -13,6 +13,16 @@
 > **Status:** selected layer ownership and forward-looking synchronous-settlement contract. Current
 > code still implements autoexecution inside `:engine` through `AutoExecMode`.
 
+## Choice-safety check
+
+- No active policy means no automatic choice.
+- `FIRST` deliberately chooses strategy and may change the outcome. Never add it merely to make a
+  card test or faithful replay proceed.
+- `SAFE` may act only when its named proof contract shows that no legitimate continuation is lost;
+  a singleton-looking task is not sufficient by itself.
+- Authored `::` consequences are engine semantics, not Agent policy. Do not use autoexecution to
+  compensate for missing immediacy, task identity, or completion semantics.
+
 ## Source map
 
 - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt),
