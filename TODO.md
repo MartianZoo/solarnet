@@ -6,6 +6,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Revisit the tested `GenerationScope` lifetime model preserved in stash commit `d8a94cc1c`.
+- Revisit the cleanup-vocabulary draft that removes broad `Barrier` waits, preserved in stash commit
+  `db9302652`.
+- Review the committed `OverlayWorld` and query-performance work on branch `perf` before integrating
+  selected changes into `main`.
 - Do not let `Engine.newGame` exit bootstrap until it has validated every invariant against the
   completed World, including positive lower bounds and correctly scoped dependent-component
   invariants.
@@ -63,7 +68,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
   lowering knows any game's vocabulary.
 - **Better Task Disambiguation:** let callers state the intended task without searching the task
-  pool; use extra identity only when distinct tasks accept the same narrowing. Current use cases:
+  pool; use extra identity only when distinct tasks accept the same narrowing. Prior partial work is
+  in commits `fc84e1490` and `a76bb9949`. Current use cases:
   - `TfmTest` and `RecordedGame` search tasks for tile placement, card-resource placement, qualified
     declines, and wild-tag assignment.
   - `TfmGameplay` searches for project-card offers/discards, the second-action offer, wild-tag
@@ -95,9 +101,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
-  iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
-  `SavedGameReplayBenchmark`.
 - Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.
