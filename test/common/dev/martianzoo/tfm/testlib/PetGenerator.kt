@@ -48,7 +48,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { cn(randomName()) }
       register<Refinement> {
         chooseS(
-            1 to { Refinement.Has(recurse(), choose(6 to false, 1 to true)) },
+            1 to { Refinement.Has(recurse()) },
             1 to { Refinement.Not(recurse<Expression>().withoutRefinements()) },
         )
       }

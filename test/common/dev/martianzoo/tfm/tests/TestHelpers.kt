@@ -1,14 +1,13 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Vocabulary
-import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -16,6 +15,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
@@ -163,16 +163,24 @@ object TestHelpers {
       expectedAsInstructions: String,
   ) {
     val inferredOwner = result.inferredExpectationOwner(game)
+    val elaborator = PetElaborator(game.classTable)
+    // Gain/Remove are only signed-count notation in this assertion DSL. Elaborating the whole
+    // instruction would wrongly apply mutation defaults and atomization, so elaborate each queried
+    // Expression through the public input operation. The final dispatcher handles marked syntax
+    // above Expression level, such as PROD; marked syntax nested within an Expression has already
+    // been consumed or deliberately preserved by its elaboration.
     val preprocessor =
-        with(Transformers(game.classTable)) {
-          chain(
-              canonicalize(game.vocabulary),
-              useFullNames(),
-              insertExpressionDefaults(THIS.expression),
-              transformMarkedSyntax(),
-              inferredOwner?.let(::replaceOwnerWith),
-          )
-        }
+        chain(
+            object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (node is Expression) {
+                    elaborator.elaborateInput(node, game.vocabulary, inferredOwner)
+                  } else {
+                    transformChildren(node)
+                  }
+            },
+            game.classTable.transformDispatcher(),
+        )
 
     // Zero is not a valid instruction scalar, so preserve its position with a value that can pass
     // through the normal parser and transformers before restoring it as an expected count.

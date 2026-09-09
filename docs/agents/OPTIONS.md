@@ -10,7 +10,7 @@
 > **Skip when:** changing live World state after premise creation; use [ENGINE.md](ENGINE.md).
 >
 > **Status:** current model except where a section is explicitly marked as settled direction.
-> Stronger closed-world viability proofs and durable projection-decision explanations remain future
+> Stronger closed-world viability proofs and durable projection-decision explanations are future
 > work.
 
 ## Read only the relevant sections
@@ -69,7 +69,7 @@ Within a Catalog, every Class Name has one meaning. The Catalog loads and valida
 
 - selected classes are active;
 - Catalog-known inactive classes are uninhabited; and
-- unknown names remain errors.
+- unknown names are errors.
 
 The master table is a schema, not a playable Game World. It is never instantiated because it
 contains mutually exclusive maps, modes, and replacement classes.
@@ -200,7 +200,7 @@ declarations, category-specific card or map data, and custom implementations. It
 directly and never becomes a live component.
 
 A Bundle may contain several Modules while retaining their separate card pools. A Module named for
-its owning Bundle selects that Bundle's ordinary cards and colony tiles. In multiplayer, its
+its owning Bundle selects that Bundle's cards and colony tiles. In multiplayer, its
 applicable concrete milestones and awards also become category defaults during premise resolution.
 Each map has its own same-named Bundle containing its map definition, areas, goals, and source-local
 goal support. Exceptional cross-Bundle or narrowed selections remain expressible, but Canon's
@@ -212,7 +212,7 @@ Prelude 2 Expansion Bundle. These should be removed only after declaration autho
 
 ### Content grouping
 
-**Status: current for cards; broader simplification remains a direction.**
+**Status: current for cards; broader simplification is still a direction.**
 
 Card membership comes from the bundle/resource organization itself, not a list of
 individual members and not reconstruction from Class-name prefixes. A card resource directory
@@ -220,7 +220,7 @@ selects its concrete `CardFront` declarations and unreferenced non-card roots fo
 Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
 which active Classes instantiate. None has a per-card metadata relationship.
 
-A same-named Module selects the Bundle's ordinary cards and supplies its default goal pools through
+A same-named Module selects the Bundle's cards and supplies its default goal pools through
 general rules. `Prelude1CardPack` should own a separate selectable resource group, represented by
 its own internal Bundle even though it shares a published product with the Prelude 1 rules and
 project cards. Once the common cases use those mechanisms, delete `BundleContentSelection` instead
@@ -320,7 +320,7 @@ compatibility does not promise that every conditional branch executes in every g
 
 The rule applies to hand-authored Class declarations and structured standard-action declarations.
 Cards, maps, areas, milestones, awards, and colony tiles remain independently selectable content;
-merely residing in an expansion Bundle does not make a content Class expansion-dependent. Module
+residing in an expansion Bundle does not by itself make a content Class expansion-dependent. Module
 Classes are never availability-locked: premise selection alone decides whether a Module is active.
 
 For content compatibility, inspect every semantic Class reference in the loaded content
@@ -334,7 +334,7 @@ as Colonies-dependent as one that places a colony.
 referencing content Venus-dependent. `WorldGovernmentTerraforming` is a shared protocol in the base
 Bundle, so `WorldGovernmentRule` and World Government Advisor may use it without enabling Venus
 Next. `ChooseOceanArea` belongs to the Promo Card Pack that alone uses it. `PreludeCard` belongs to
-the Prelude Expansion Bundle; Valley Trust's RequiredAction reference therefore derives its Prelude
+the Prelude Expansion Bundle; Valley Trust's RequiredAction reference derives its Prelude
 1 dependency without a card property. Automatic Prelude-card selection also requires a
 `PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 

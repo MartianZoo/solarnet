@@ -20,9 +20,7 @@ import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.Max
-import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.Requirement.Companion.split
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
@@ -252,7 +250,7 @@ public data class GroundType(
 
     when (val targetRefinement = that.refinement) {
       null -> Unit
-      refinement -> Unit
+      refinement.takeIf { readsPredicatesAlike(that) } -> Unit
       is Not -> {
         if (!isDisjointFrom(targetRefinement.excluded)) {
           throw NarrowingException("$this does not satisfy $targetRefinement")
@@ -260,15 +258,18 @@ public data class GroundType(
       }
       is Has -> {
         if (refinement != null) {
-          throw NarrowingException("$this does not have refinement $targetRefinement")
+          if (!alreadyGuarantees(targetRefinement) || !readsPredicatesAlike(that)) {
+            throw NarrowingException("$this does not have refinement $targetRefinement")
+          }
+        } else {
+          val requirement =
+              try {
+                formRequirement(expressionFull, that.expressionFull)
+              } catch (e: ExpressionException) {
+                throw NarrowingException("$this does not satisfy $targetRefinement", e)
+              }
+          if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
         }
-        val requirement =
-            try {
-              formRequirement(expressionFull, that.expressionFull)
-            } catch (e: ExpressionException) {
-              throw NarrowingException("$this does not satisfy $targetRefinement", e)
-            }
-        if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
       }
     }
   }
@@ -283,10 +284,12 @@ public data class GroundType(
 
     return when (val targetRefinement = that.refinement) {
       null -> true
-      refinement -> true
+      refinement.takeIf { readsPredicatesAlike(that) } -> true
       is Not -> isDisjointFrom(targetRefinement.excluded)
       is Has -> {
-        if (refinement != null) return false
+        if (refinement != null) {
+          return alreadyGuarantees(targetRefinement) && readsPredicatesAlike(that)
+        }
         val requirement =
             try {
               formRequirement(expressionFull, that.expressionFull)
@@ -296,6 +299,21 @@ public data class GroundType(
         info.has(requirement)
       }
     }
+  }
+
+  /**
+   * Whether comparing our predicate with [that]'s as written is meaningful. It is, unless the two
+   * are class literals for different classes: a refined class literal rewrites its own represented
+   * class into its predicate before testing it, so the same words say different things about each
+   * of them.
+   */
+  private fun readsPredicatesAlike(that: GroundType): Boolean =
+      representedClass == null || representedClass == that.representedClass
+
+  /** Whether our own refinement conjoins at least all of [target]'s requirements. */
+  private fun alreadyGuarantees(target: Has): Boolean {
+    val own = refinement as? Has ?: return false
+    return split(own.requirement).containsAll(split(target.requirement))
   }
 
   /** Whether this entire structural domain has no member in common with [excludedExpression]. */
@@ -374,11 +392,7 @@ public data class GroundType(
     val transformed =
         refinementMangler(narrow, ignoreUnmatched = wide.className == CLASS)
             .transformRequirement(specializedRequirement)
-    return if (refin.forgiving) {
-      Or(transformed, Max(scaledEx(wide.copy(refinement = refin.copy(forgiving = false)), 0)))
-    } else {
-      transformed
-    }
+    return transformed
   }
 
   override fun toString(): String = "$expression"

@@ -118,8 +118,6 @@ ABSTRACT CLASS Tile : Occupant {
   ABSTRACT CLASS OwnedTile : OwnedOccupant {
     "A greenery tile"
     CLASS GreeneryTile : Tile<MarsArea> {
-      DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>, MAX 0 Tile)>
-
       This IF Photosynthesis: OxygenStep
       End: VictoryPoint
     }
@@ -138,6 +136,12 @@ ABSTRACT CLASS Tile : Occupant {
   }
 
   // OceanTile is declared below with the other global parameters.
+}
+
+"Place a greenery tile next to one of yours if possible, otherwise on any empty land area"
+CLASS DefaultGreeneryTile : Owned, Signal {
+  This: GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> OR \
+    (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 Tile)>: GreeneryTile<LandArea>)
 }
 
 // GLOBAL PARAMETERS
@@ -402,7 +406,7 @@ ABSTRACT CLASS StandardAction : HasActions {
   CLASS UseActionOnCardAction { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
 
   "Convert plants into a greenery tile"
-  CLASS ConvertPlantsAction { 8 Plant -> GreeneryTile<> }
+  CLASS ConvertPlantsAction { 8 Plant -> DefaultGreeneryTile }
 
   "Convert heat into a temperature increase"
   CLASS ConvertHeatAction { 8 Heat -> TemperatureStep }
@@ -459,7 +463,7 @@ ABSTRACT CLASS StandardProject : HasActions {
 
   CLASS GreeneryProject {
     cost = 23
-    1 MC / cost -> GreeneryTile<>
+    1 MC / cost -> DefaultGreeneryTile
   }
 
   CLASS CityProject {

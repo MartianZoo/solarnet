@@ -138,7 +138,7 @@ chooses when to request removal; dependency ordering chooses what must finish fi
 ## Bootstrap and the one explicit start
 
 Bootstrap must remain quiescent after initialization. It therefore does not create a temporary
-phase scope merely by existing. Starting a configured workflow is one explicit Pets operation that
+phase scope just by existing. Starting a configured workflow is one explicit Pets operation that
 creates the Bootstrap continuation, conceptually:
 
 ```pets
@@ -147,7 +147,7 @@ CLASS StartWorkflow : Signal, System {
 }
 ```
 
-Without `StartWorkflow`, `Engine.newGame` ends at the committed `BootstrapPhase`. With it, ordinary
+Without `StartWorkflow`, `Engine.newGame` ends at the committed `BootstrapPhase`. With it,
 cleanup removes the new scope and queues `SetupPhase FROM BootstrapPhase`. From that point onward,
 the generated scopes sustain phase progression themselves. An application API may provide a typed
 convenience for issuing `StartWorkflow`, but it owns no continuing runner.
@@ -204,7 +204,7 @@ same, and Kotlin must not retain a second topology registry.
 ## Dynamic paths remain Pets behavior
 
 Static ordering and a game-state-dependent branch are different problems. The topology compiler
-orders phases that exist; ordinary Pets requirements select a path whose answer depends on current
+orders phases that exist; Pets requirements select a path whose answer depends on current
 World state.
 
 For example, the scope completing Production may have generated removal effects shaped like:
@@ -313,7 +313,7 @@ normal cleanup removes the scope. This is a wakeup-mechanics issue, not a phase 
 The full JVM suite passes with this proof, including complete replays, rollback-oriented workflow
 tests, optional Production tasks, solo win/loss, and multiplayer final greenery.
 
-The intended coarse Terraforming Mars shape remains:
+The intended coarse Terraforming Mars shape is:
 
 ```text
 Bootstrap -> Setup -> Corporation -> [Prelude] -> Action
@@ -342,7 +342,7 @@ The phase workflow is successful only when all of these hold:
 - Phase-internal turn design can be added through nested scopes without changing these phase-level
   rules.
 
-## First proof
+## First demonstration
 
 Continue the narrow proof before migrating the whole game:
 

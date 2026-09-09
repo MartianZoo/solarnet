@@ -245,8 +245,14 @@ public abstract class ClassTable {
     if ((type.rootClass.className == CLASS && type.refinement != null) || type.refinement is Not) {
       return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
     }
-    val klass = allSubclasses(type.rootClass).singleOrNull { !it.abstract } ?: return null
-    val intersection = type glb klass.baseType ?: return null
+    // A concrete subclass incompatible with [type] is not a choice, so it must not count as one.
+    val intersection =
+        allSubclasses(type.rootClass)
+            .asSequence()
+            .filterNot(Class::abstract)
+            .mapNotNull { type glb it.baseType }
+            .take(2)
+            .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null
     val candidate = intersection.rootClass.withAllDependencies(dependencies)
     return candidate.takeIf { !it.abstract && it.narrows(type, info) }

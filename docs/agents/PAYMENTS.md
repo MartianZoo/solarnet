@@ -33,8 +33,8 @@ Payment **sequencing** and payment **allocation evidence** are separate. The pro
 direction in [ACTIONS.md](ACTIONS.md#proposed-single-payment-choice-loop) offers one required
 abstract tender choice at a time and removes Billing directly when no matching debt remains. That
 removes parallel tender tasks, explicit rejection of unused methods, and client-side cleanup scans.
-It does not reveal gross value hidden by saturated `Owed` removals and therefore does not by itself
-repair the allocation defect below.
+It does not reveal gross value hidden by saturated `Owed` removals and does not by itself repair the
+allocation defect below.
 
 The payment system must eventually distinguish three facts:
 
@@ -220,7 +220,7 @@ Billing directly from debt reaching zero. Do not add a separate `Paid` component
 remains the completion event.
 
 Do not repair Space Elevator by prohibiting all excess or by relying on automatic-effect order.
-Client-side return testing is the initial enforcement point and reads ordinary per-unit value from
+Client-side return testing is the initial enforcement point and reads per-unit value from
 owned `ResourceValue` components. It does not reach raw task callers or expose complete transitive
 payment value. A larger in-engine ledger is justified only if it makes those existing rules
 materially clearer rather than adding a second machinery alongside them.

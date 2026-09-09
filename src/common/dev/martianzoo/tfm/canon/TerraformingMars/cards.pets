@@ -1125,7 +1125,7 @@ CLASS Plantation : AutomatedCard<Class<ProjectCard>> {
   requirement = HAS "2 ScienceTag"
 
   This:: PlantTag<This>
-  This: GreeneryTile<>
+  This: DefaultGreeneryTile
 }
 
 CLASS ImmigrationShuttles : AutomatedCard<Class<ProjectCard>> {

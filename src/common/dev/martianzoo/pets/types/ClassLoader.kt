@@ -101,7 +101,7 @@ private constructor(
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
   override fun allClasses(): Set<Class> {
-    require(frozen)
+    require(frozen) { "this class table must be frozen before its classes can be enumerated" }
     return frozenClasses
   }
 
@@ -354,12 +354,16 @@ private constructor(
   private var directSubclassesByClass: Map<Class, Set<Class>>? = null
 
   internal fun allSubclassesOf(klass: Class): Set<Class> {
-    require(frozen)
+    require(frozen) {
+      "this class table must be frozen before the subclasses of $klass can be enumerated"
+    }
     return checkNotNull(allSubclassesByClass).getValue(klass)
   }
 
   internal fun directSubclassesOf(klass: Class): Set<Class> {
-    require(frozen)
+    require(frozen) {
+      "this class table must be frozen before the subclasses of $klass can be enumerated"
+    }
     return checkNotNull(directSubclassesByClass)[klass] ?: emptySet()
   }
 
@@ -413,7 +417,7 @@ private constructor(
 
   public override val allClassNames: Set<ClassName>
     get() {
-      require(frozen)
+      require(frozen) { "this class table must be frozen before its classes can be enumerated" }
       return loadedClasses.keys
     }
 

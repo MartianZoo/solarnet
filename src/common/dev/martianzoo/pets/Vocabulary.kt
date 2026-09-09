@@ -98,6 +98,8 @@ private constructor(
   private val canonicalizer: PetTransformer = classNameTransformer(::canonicalName)
   private val petsRenderer: PetTransformer = classNameTransformer(::petsName)
 
+  internal fun inputCanonicalizer(): PetTransformer = canonicalizer
+
   public companion object {
     public const val ENGLISH: String = "en"
 
