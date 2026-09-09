@@ -1,0 +1,6 @@
+"A selectable pool of Prelude cards"
+ABSTRACT CLASS PreludeCardPack : Module
+
+CLASS PreludeCard : CardBack {
+  autoSelectWhen = HAS "PreludeCardPack"
+}

@@ -305,8 +305,10 @@ internal class GamePremiseTest {
   @Test
   internal fun initialComponentTypesMustBeConcreteAndInstantiable() {
     val premise =
-        Canon.gamePremise(GameConfig("", "Player1", "Player2"))
-            .copy(initialComponentTypes = setOf(cn("Card").expression))
+        Canon.gamePremise(
+            GameConfig("", "Player1", "Player2"),
+            additionalInitialComponentTypes = setOf(cn("Card").expression),
+        )
 
     shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }

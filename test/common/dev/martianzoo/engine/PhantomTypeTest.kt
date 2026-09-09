@@ -79,8 +79,10 @@ internal class PhantomTypeTest {
                   .toSet()
         }
     val premise =
-        canonicalPremise(catalog = TfmCatalog.Composite(Canon, probeCatalog))
-            .copy(initialComponentTypes = setOf(cn("PhantomEffectProbe").expression))
+        canonicalPremise(
+            catalog = TfmCatalog.Composite(Canon, probeCatalog),
+            initialComponentTypes = setOf(cn("PhantomEffectProbe").expression),
+        )
 
     shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }

@@ -84,6 +84,7 @@ internal fun canonicalPremise(
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     catalog: TfmCatalog? = null,
+    initialComponentTypes: Set<Expression> = emptySet(),
 ): GamePremise {
   val included = selectedOptions.filterIsInstance<TestOption>()
   val excluded = selectedOptions.filterIsInstance<ExcludedTestOption>().map { it.option }.toSet()
@@ -93,6 +94,7 @@ internal fun canonicalPremise(
       colonyTiles,
       catalog,
       excluded,
+      initialComponentTypes,
   )
 }
 
@@ -102,6 +104,7 @@ internal fun canonicalPremise(
     colonyTiles: Set<ClassName> = emptySet(),
     catalog: TfmCatalog? = null,
     excludedOptions: Set<TestOption> = emptySet(),
+    initialComponentTypes: Set<Expression> = emptySet(),
 ): GamePremise {
   val config =
       GameConfig.create(
@@ -113,7 +116,7 @@ internal fun canonicalPremise(
       )
   val defaultCatalog = canonicalCatalog(config)
   val resolvedCatalog = (catalog ?: defaultCatalog).withPlayers(players)
-  val base = resolvedCatalog.gamePremise(config)
+  val base = resolvedCatalog.gamePremise(config, initialComponentTypes)
   if (catalog == null) return base
   val extensionClassNames =
       catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
