@@ -4,7 +4,7 @@ import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.pets.Parsing
-import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
@@ -21,7 +21,6 @@ import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
@@ -36,8 +35,8 @@ internal class ApiTranslation(
     private val impl: Implementations,
     override val tasks: TaskQueue,
     private val classTable: ClassTable,
-    xers: Transformers,
-    vocabulary: Vocabulary,
+    private val elaborator: PetElaborator,
+    private val vocabulary: Vocabulary,
     private val atomicOperationScope: AtomicOperationScope,
 ) : Agent {
 
@@ -54,7 +53,14 @@ internal class ApiTranslation(
   override fun has(requirement: String) = reader.has(parse(requirement))
 
   override fun count(metric: String) =
-      reader.count(readMetricPreprocessor.transformMetric(Parsing.parse(metric)))
+      reader.count(
+          elaborator.elaborateMetricInput(
+              Parsing.parse(metric),
+              vocabulary,
+              actor.expression,
+              actor as? Player,
+          )
+      )
 
   override fun list(type: String): Multiset<Expression> {
     val typeToList: Type = reader.resolve(parse(type))
@@ -73,42 +79,13 @@ internal class ApiTranslation(
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
-  private val normalizeInput =
-      chain(
-          xers.canonicalize(vocabulary),
-          xers.useFullNames(),
-          classTable.inferTypeVariables(),
-      )
-
-  private val finishInput =
-      chain(
-          xers.atomizer(),
-          xers.insertDefaults(),
-          (actor as? Player)?.let(xers::bindContextualOwner),
-          xers.transformMarkedSyntax(),
-      )
-
-  private val preprocessor =
-      chain(
-          xers.rejectPropertyEvaluations(),
-          normalizeInput,
-          finishInput,
-      )
-
-  private val readMetricPreprocessor =
-      chain(
-          normalizeInput,
-          xers.evaluateProperties(context = actor.expression, owner = actor as? Player),
-          finishInput,
-      )
-
   override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =
-      preprocessor.transformElement(Parsing.parse(type, text))
+      elaborator.elaborateInput(Parsing.parse(type, text), vocabulary, actor as? Player)
 
   private fun parseTaskNarrowing(text: String): ParsedTaskNarrowing {
     val parsed = Parsing.parse<InstructionTree>(text)
     return ParsedTaskNarrowing(
-        preprocessor.transformInstructionTree(parsed),
+        elaborator.elaborateInput(parsed, vocabulary, actor as? Player),
         intensityOmitted = parsed is Change && parsed.intensity == null,
         submittedAsGroup = parsed is InstructionGroup,
     )

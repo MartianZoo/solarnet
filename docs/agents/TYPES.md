@@ -23,9 +23,9 @@
 | Class loading, inheritance, defaults, and inhabitation | [`ClassLoader.kt`](../../src/common/dev/martianzoo/pets/types/ClassLoader.kt) |
 | Closed-world lookup and bounds | [`ClassTable.kt`](../../src/common/dev/martianzoo/pets/types/ClassTable.kt) |
 | Authored Type variables and scopes | [`TypeVariable.kt`](../../src/common/dev/martianzoo/pets/types/TypeVariable.kt), [`TypeVariableScope.kt`](../../src/common/dev/martianzoo/pets/types/TypeVariableScope.kt), and [`inferTypeVariables.kt`](../../src/common/dev/martianzoo/pets/types/inferTypeVariables.kt) |
-| Class-scoped variables | [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt), search `headerVariableBindings`, and [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt), search `bindEffectVariables` |
+| Class-scoped variables | [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt), search `headerVariableBindings`, and [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt), search `specializeEffect` |
 | Trigger and Actor specialization | [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), search `positive abstract Actor selector` and `Subscription` |
-| Type-variable behavior tests | [`TypeVariableTest.kt`](../../test/common/dev/martianzoo/pets/types/TypeVariableTest.kt), [`DependencyVariableTest.kt`](../../test/common/dev/martianzoo/engine/DependencyVariableTest.kt), and [`TransformersTest.kt`](../../test/common/dev/martianzoo/engine/TransformersTest.kt) |
+| Type-variable behavior tests | [`TypeVariableTest.kt`](../../test/common/dev/martianzoo/pets/types/TypeVariableTest.kt), [`PetElaboratorTest.kt`](../../test/common/dev/martianzoo/pets/PetElaboratorTest.kt), [`DependencyVariableTest.kt`](../../test/common/dev/martianzoo/engine/DependencyVariableTest.kt), and [`PetElaboratorIntegrationTest.kt`](../../test/common/dev/martianzoo/engine/PetElaboratorIntegrationTest.kt) |
 | Foundational declaration vocabulary | [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt), search for the named Class |
 
 ## Quick model

@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
@@ -39,19 +40,19 @@ public object Engine {
             locale,
             inputOnlySynonyms,
         )
-    private val transformers: Transformers = Transformers(classTable)
-    private val customClasses = CustomClassRuntime(premise.catalog, transformers)
+    private val elaborator: PetElaborator = PetElaborator(classTable)
+    private val customClasses = CustomClassRuntime(premise.catalog, elaborator)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
     // complete.
-    private val effector: Effector = Effector(transformers) { reader }
+    private val effector: Effector = Effector(elaborator) { reader }
     private val components = ComponentGraph(effector, classTable)
     private val events = EventLog()
     private val taskQueues = TaskQueues(events, classTable)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReaderImpl =
-        GameReaderImpl(classTable, components, transformers, customClasses, premise)
+        GameReaderImpl(classTable, components, elaborator, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
     private val atomicOperationScope: AtomicOperationScope =
@@ -63,7 +64,7 @@ public object Engine {
         )
     private val changer = Changer(reader, components, events)
     private val instructor =
-        Instructor(reader, limiter, changer, effector, classTable, transformers, customClasses)
+        Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
     private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
     private val initializer =
         Initializer(
@@ -186,7 +187,7 @@ public object Engine {
           implementations,
           tasks,
           classTable,
-          transformers,
+          elaborator,
           vocabulary,
           atomicOperationScope,
       )

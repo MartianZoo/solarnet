@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
@@ -27,7 +28,7 @@ import dev.martianzoo.pets.util.HashMultiset
 internal class GameReaderImpl(
     private val classTable: ClassTable,
     private val components: ComponentGraph,
-    internal val transformers: Transformers,
+    internal val elaborator: PetElaborator,
     private val customClasses: CustomClassRuntime,
     private val premise: GamePremise,
 ) : GameReader {
@@ -78,14 +79,16 @@ internal class GameReaderImpl(
     val binding =
         chain(
             replacer(metric.selectorName, candidate.expressionFull),
-            owner?.let(transformers::bindContextualOwner),
+            owner?.let(elaborator::contextualOwnerBinding),
         )
     return metric.metrics.map { score ->
       val bound = binding.transformMetric(score)
       val evaluated =
-          transformers
-              .evaluateProperties(context = candidate.expressionFull, owner = owner)
-              .transformMetric(bound)
+          elaborator.evaluateProperties(
+              bound,
+              context = candidate.expressionFull,
+              owner = owner,
+          )
       count(evaluated)
     }
   }

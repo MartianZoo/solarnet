@@ -141,7 +141,7 @@ Keep the substantive reasoning in the owning document and keep this table to one
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
 - **The `Die` produce/consume pipeline** —
-  [SEQUENCING.md](SEQUENCING.md#settled). `Transformers.invalidChangesToDie` emits the
+  [SEQUENCING.md](SEQUENCING.md#settled). `PetElaborator.invalidChangesToDie` emits the
   marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
   duplicated fact. `PremiseViability`'s separate static check buys fail-fast at premise time instead
   of a confusing mid-game `DeadEndException`. Only the interpreter it duplicates from `ClassLoader`
