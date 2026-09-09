@@ -41,6 +41,15 @@ CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
 }
 
+"Septem Tribus with an inert wild tag"
+CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This: 36 MC, FakeWildTag<This>
+
+  -> 2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)
+}
+
 "Established Methods without its unaffordable-second-project rule"
 CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
   cost = 0
