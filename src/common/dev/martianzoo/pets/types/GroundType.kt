@@ -23,9 +23,10 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
 
 /**
- * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
- * [ClassTable]. These are usually obtained by [ClassTable.resolve]. These can be abstract. Usages
- * of this type should be fairly unrelated to questions of whether instances exist in a world.
+ * The translation of an [Expression] into a resolved, non-variable Type, referencing actual
+ * [Class]es loaded by a [ClassTable]. These are usually obtained by [ClassTable.resolve], can be
+ * abstract, and may carry refinements. "Ground" excludes Type variables; it does not mean
+ * refinement-free. A narrowing judgment involving a state-dependent refinement may need a world.
  */
 public data class GroundType(
     override val rootClass: Class,
@@ -197,8 +198,9 @@ public data class GroundType(
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**
-   * Returns every possible [Type] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
-   * this sequence can potentially be very large.
+   * Returns every concrete structural candidate below this Type's structural domain. A `NOT`
+   * refinement filters the candidates because it is decided structurally; a `HAS` refinement is
+   * left for a caller with a world to test. This sequence can potentially be very large.
    */
   override fun allConcreteSubtypes(): Sequence<GroundType> {
     val candidates =

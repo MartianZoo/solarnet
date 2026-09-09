@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.Expression
 /** One authored Type variable, independent of the spelling used to refer to it. */
 public class TypeVariable
 internal constructor(
-    /** The structural constraint on values captured by this variable. */
+    /** The Type constraint on values captured by this variable, including any refinement. */
     public val bound: GroundType,
     declarationSite: Site,
     usageSites: List<Site>,

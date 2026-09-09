@@ -149,6 +149,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### Accepted for now
 
+- **Refinements as Types** — [type-system-spec.md](../type-system-spec.md#refinements-are-types).
+  One recursive Type model preserves refinements in dependency positions and Type variables without
+  a parallel resolved-expression representation. A separate structural Type model would be more
+  ontologically precise, but its aggregate complexity is not currently justified. Revisit if
+  world-dependent Type operations cause concrete API or correctness problems.
 - **`BigInt`** — a bespoke immutable bit mask serving one field, `Class.abstractSupertypeBits`.
   Common code has no `java.util.BitSet`, so the alternative is a slower supertype test on a hot
   path. Revisit if a multiplatform bitset becomes available or if the test stops being hot.
