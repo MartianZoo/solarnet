@@ -531,10 +531,36 @@ public open class TfmCatalog : Catalog {
   }
 
   private val premiseDeclaration: ClassDeclaration by lazy {
-    modulePremiseDeclaration(allClassNames)
+    modulePremiseDeclaration()
   }
 
   private fun withPremiseDeclaration(): TfmCatalog = catalogWithPremise
+
+  private fun modulePremiseDeclaration(): ClassDeclaration {
+    val hasOrderedBootstrap =
+        cn("BaseGameModule") in allClassNames && cn("ModulesReady") in allClassNames
+    val effects =
+        if (hasOrderedBootstrap) {
+          """
+          This:: EACH Class<BaseGameModule> { BaseGameModule }, EACH Class<Module>(NOT Class<BaseGameModule>) { Module }
+          This: ModulesReady
+          """
+              .trimIndent()
+        } else {
+          "This:: EACH Class<Module> { Module }"
+        }
+    return parseClasses(
+            """
+            "The resolved Module selection that initializes this game"
+            CLASS Premise : System {
+              HAS =1 This
+              $effects
+            }
+            """
+                .trimIndent()
+        )
+        .single()
+  }
 
   private fun addExactGoalSelections(
       selections: MutableMap<ClassName, Boolean>,

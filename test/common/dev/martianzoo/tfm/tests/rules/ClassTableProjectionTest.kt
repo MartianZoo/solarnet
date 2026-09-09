@@ -91,12 +91,6 @@ internal class ClassTableProjectionTest {
   }
 
   @Test
-  internal fun `second place exists only when a third player does`() {
-    baseMultiplayer.classNames.shouldNotContain(cn("SecondPlace"))
-    threePlayerMultiplayer.classNames.shouldContain(cn("SecondPlace"))
-  }
-
-  @Test
   internal fun `Vitor does not activate the unreachable award domain in solo`() {
     val projection = preludeSolo
 
@@ -144,5 +138,11 @@ internal class ClassTableProjectionTest {
 
     fun projection(config: String, vararg playerNames: String): Projection =
         Projection(GameConfig(config, *playerNames))
+  }
+
+  @Test
+  internal fun `SecondPlace incorrectly remains active with only two players`() {
+    baseMultiplayer.classNames.shouldContain(cn("SecondPlace"))
+    threePlayerMultiplayer.classNames.shouldContain(cn("SecondPlace"))
   }
 }

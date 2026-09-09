@@ -653,12 +653,6 @@ ABSTRACT CLASS GameMode : Module {
   }
 }
 
-"Enables second-place award scoring when at least three players are seated"
-CLASS SecondPlaceRule : Module {
-  autoSelectWhen = HAS "3 Player"
-  HAS Class<SecondPlace>
-}
-
 // SOLO MODE
 
 "Solo play with a neutral opponent and a fixed generation limit"
@@ -737,7 +731,7 @@ CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloO
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created
-ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
+ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> : Hidden {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
@@ -769,5 +763,5 @@ CLASS Neighbor<AreaPiece, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
   -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
-  -This IF Class<SecondPlace>:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
+  -This IF 3 Player:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
 }

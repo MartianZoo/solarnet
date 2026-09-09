@@ -54,8 +54,14 @@ internal class AwardsTest : TfmTest() {
 
     admin.manual("End FROM Phase")
 
-    p1.assertCounts(0 to "FirstPlace<Player1, Incorporator>")
-    p2.assertCounts(1 to "FirstPlace<Player2, Incorporator>")
+    p1.assertCounts(
+        0 to "FirstPlace<Player1, Incorporator>",
+        0 to "SecondPlace<Player1, Incorporator>",
+    )
+    p2.assertCounts(
+        1 to "FirstPlace<Player2, Incorporator>",
+        0 to "SecondPlace<Player2, Incorporator>",
+    )
   }
 
   @Test
