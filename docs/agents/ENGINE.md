@@ -121,11 +121,10 @@ replacement registry.
 
 `Engine.newGame(premise)` wires the World with one structural representative for every active
 concrete Class, then creates `Admin`. Admin next creates the generated `Premise` component, whose
-immediate effects create the `BaseGameModule` first and then fan out over the other active
-`Class<Module>` representatives. Its queued `ModulesReady` signal runs after all selected Modules
-and seated Players exist. The initializer then drains the remaining queued work, creates the
-premise's exact initial components, and performs a
-final drain. Completion requires an empty task queue and every premise-required component to exist
+immediate effects create the `BaseGameModule` first, then the other literally named Modules, seated
+Players in order, and the premise's exact initial components. Its queued `ModulesReady` signal runs
+after that complete layer exists. The initializer then drains the remaining queued work and
+performs a final drain. Completion requires an empty task queue and every premise-required component to exist
 before the initialized state is committed. Structural Class representatives are installed before
 event logging and therefore produce no Change Events. By the time `newGame` returns, the World has
 one Phase, every seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow
@@ -180,10 +179,10 @@ The goal is not to call every constructor step an Admin action. It is to make th
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, the initializer directly materializes only `Admin`, the generated `Premise`, seated
-Players, and exact initial component Types. Immediate Premise effects create all selected Modules;
-queued Module and Player effects create their owned bootstrap state. `EACH` over Class
-representatives supplies generic specialization fanout. An exact `HAS =1 This` remains a live
+In Canon, the initializer directly materializes `Admin` and the generated `Premise`. Immediate
+Premise effects create all selected Modules, seated Players, and exact initial component Types;
+direct initialization remains only an idempotent fallback for copied custom premises. Module and
+Player effects create their owned bootstrap state. An exact `HAS =1 This` remains a live
 multiplicity invariant, not an initialization instruction.
 
 ## Component graph

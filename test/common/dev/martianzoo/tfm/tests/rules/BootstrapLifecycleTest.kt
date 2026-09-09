@@ -75,6 +75,7 @@ internal class BootstrapLifecycleTest {
     }
     resolvedPremise.playerNames.forEach { playerName ->
       val player = changes.single { it.change.gaining?.className == playerName }
+      player.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
       (player.ordinal < modulesReady.ordinal) shouldBe true
     }
 

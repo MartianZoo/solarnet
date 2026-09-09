@@ -93,12 +93,13 @@ exact live Module set is the complete statement of a game's general rules.
 `Module` is an ordinary Pets superclass except where premise construction and initialization ask
 whether a Class is its subtype. The resolved premise names every selected concrete Module and adds
 a generated concrete `Premise` Class to its composed Catalog. In Canon, its Pets effects first
-create the selected `BaseGameModule`, then fan out over the other active `Class<Module>`
-representatives, and finally emit `ModulesReady`. Module effects create their owned non-Module
-state; they do not repeat
-configuration decisions in a partial live World. Inherited rules keep each Module component unique
-and permanent. Its `autoSelectWhen` and `premiseRequirement` properties have meaning because the
-Catalog reads them. There is no separate Kotlin Module object or special component storage.
+create the selected `BaseGameModule`, then the other literally named Modules, the ordered Players,
+and exact starting components, and finally emit `ModulesReady`. The generated declaration is the
+executable recipe for that specific game. Module effects create their owned non-Module state; they
+do not repeat configuration decisions in a partial live World. Inherited rules keep each Module
+component unique and permanent. Its `autoSelectWhen` and `premiseRequirement` properties have
+meaning because the Catalog reads them. There is no separate Kotlin Module object or special
+component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. Module-to-Module defaults and implications are premise policy: the target's
