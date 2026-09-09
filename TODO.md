@@ -6,6 +6,22 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Rewrite the agent documents that have outgrown their intended teaching or orientation role:
+  - make `ENGINE.md` only a quick tour of the runtime's major pieces;
+  - make `GAMEWORLD.md` a quick orientation to the intended `state`/`engine` split;
+  - reduce `API.md` to its important core principles and decisions;
+  - make `RESPONSIBILITIES.md` tight and focused;
+  - make `SEQUENCING.md` an overview of intra-turn ordering mechanisms and ideas for improving them;
+  - rewrite `IDENTITY.md` as a teaching document about the runtime roles and their uses;
+  - make `QUANTIFIERS.md` a focused educational reference;
+  - reduce `EACH.md` to a terse feature reference;
+  - let `AUTOEXEC.md` broadly survey the ideas for improving autoexecution;
+  - make `PROPERTIES.md` a focused feature reference followed by the possible future design for
+    instruction-valued properties;
+  - replace `OPTIONS.md` with a focused educational explanation of the features;
+  - reduce `TESTING.md` to the important repository-specific guidance; and
+  - rewrite `JVM_TEST_PERFORMANCE.md` holistically, incorporating the work on `perf` and keeping the
+    document identical on `perf` and `main`.
 - Revisit the tested `GenerationScope` lifetime model preserved in stash commit `d8a94cc1c`.
 - Revisit the cleanup-vocabulary draft that removes broad `Barrier` waits, preserved in stash commit
   `db9302652`.

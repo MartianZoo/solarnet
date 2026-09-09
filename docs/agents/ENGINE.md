@@ -605,8 +605,7 @@ a second representation or a hidden “repairing” marker merely to permit the 
 **Disposition: at peace with the operator set.** `Metric.Max`, `Metric.Subtract`, and `Metric.Or`
 each have only a handful of authored uses, almost all inside `Award.metric`, so a sweep for
 single-client machinery flags them. The measurement is backwards: the algebra is *under*-built, not
-over-built. `Subtract` saturates but there is no `Add`, and
-[TURMOIL.md](TURMOIL.md#open-language-and-modeling-questions) needs one for global events that add
+over-built. `Subtract` saturates but there is no `Add`, which is needed for global events that add
 Influence after a capped or grouped Metric. Union and sum are also genuinely different operators —
 Awards need `Or`'s non-double-counting union, Turmoil needs arithmetic addition — so neither can
 stand in for the other. Propose completing this algebra, not trimming it.

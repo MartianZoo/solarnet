@@ -47,7 +47,6 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
 | Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |
-| Eliminating a custom instruction | [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) | Audit |
 
 ### Change content, names, or human rendering
 
@@ -55,7 +54,6 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
-| Model Turmoil | Select only the relevant rule family in [`TURMOIL.md`](TURMOIL.md) | Research-backed proposal |
 | Design shuffle/deal, hidden cards, or chance | Select the relevant gate in [`REAL_CARDS_MODE.md`](REAL_CARDS_MODE.md) | Proposal |
 
 ### Change project structure or APIs
