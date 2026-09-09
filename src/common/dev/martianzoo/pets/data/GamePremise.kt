@@ -15,9 +15,9 @@ public data class GamePremise(
     public val initialComponentTypes: Set<Expression>,
     /** Concrete Player Class Names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
-    /**
-     * Concrete configuration Class created immediately after Admin, when the Catalog supplies one.
-     */
+    /** Concrete Component created by Admin immediately before the generated premise Class. */
+    public val bootstrapClassName: ClassName? = null,
+    /** Concrete configuration Class created during bootstrap, when the Catalog supplies one. */
     public val premiseClassName: ClassName? = null,
 ) {
   /** The immutable active-class projection shared by every World built from this premise. */
@@ -66,6 +66,12 @@ public data class GamePremise(
       val declaration = catalog.allClassDeclarations[className]
       require(declaration != null && !declaration.abstract && declaration.dependencies.isEmpty()) {
         "premise class must be a concrete dependency-free Catalog Class: $className"
+      }
+    }
+    bootstrapClassName?.let { className ->
+      val declaration = catalog.allClassDeclarations[className]
+      require(declaration != null && !declaration.abstract && declaration.dependencies.isEmpty()) {
+        "bootstrap class must be a concrete dependency-free Catalog Class: $className"
       }
     }
   }

@@ -2,7 +2,7 @@
 CLASS ColoniesExpansion : Module {
   premiseRequirement = HAS "(=1 Player, =4 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))"
 
-  This: TradeAction, BuildColonySP
+  This: TradeAction, BuildColonyProject
   SetupPhase: EACH Player { TradeFleet }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
   SolarPhase: AdvanceColonyTracks
@@ -21,7 +21,7 @@ CLASS TradeAction : StandardAction {
   3 Titanium -> Trade
 }
 
-CLASS BuildColonySP : StandardProject {
+CLASS BuildColonyProject : StandardProject {
   cost = 17
   1 MC / cost -> Colony<>
 }

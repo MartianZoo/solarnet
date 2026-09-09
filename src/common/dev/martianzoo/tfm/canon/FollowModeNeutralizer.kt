@@ -33,6 +33,9 @@ internal object FollowModeNeutralizer : TransformHandler {
 
   private fun transformCards(source: InstructionTree): InstructionTree =
       when (val operation = CardOperation.decode(source)) {
+        is CardOperation.SelectCardClass ->
+            replacer(operation.filteredClass, operation.filteredClass.copy(refinement = null))
+                .transformInstructionTree(operation.selection)
         is CardOperation.Search ->
             operation.cards.copy(scaledEx = scaledEx(PROJECT_CARD, operation.cards.count))
         is CardOperation.RevealAndTest ->

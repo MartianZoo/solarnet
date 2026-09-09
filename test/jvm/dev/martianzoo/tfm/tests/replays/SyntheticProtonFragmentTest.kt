@@ -109,7 +109,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // Splice Tactical Genomics' mandatory first action prevents Green from playing Lichen first.
     shouldThrow<RequirementException> { green.playProject(Lichen, 7) }
 
-    green.stdAction("DoRequiredActions") {
+    green.stdAction("DoRequiredActionsAction") {
       green.draw(Ants, CorporateStronghold, SolarLogistics, DiversitySupport)
     }
     green.playProject(Lichen, 7)
@@ -195,7 +195,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     // Green does not meet Diversifier before Corporate Stronghold enters play.
     shouldThrow<RequirementException> {
-      green.stdAction("ClaimMilestone") { doTask("Diversifier") }
+      green.stdAction("ClaimMilestoneAction") { doTask("Diversifier") }
     }
     green
         .playProject(CorporateStronghold, 7, steel = 2) {
@@ -203,7 +203,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         }
         .expect("Disease<Player1>")
     purple.assertCounts(7 to "Plant")
-    green.stdAction("ClaimMilestone") { doTask("Diversifier") }
+    green.stdAction("ClaimMilestoneAction") { doTask("Diversifier") }
 
     purple.playProject(IndustrialCenter, 4) {
       placeTile(2, 3)
@@ -242,7 +242,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.buyCards(TollStation, NaturalPreserve)
     green.buyCards(LunarBeam, WeatherBalloons)
 
-    purple.stdProject("AquiferSP") {
+    purple.stdProject("AquiferProject") {
       placeTile(2, 1)
     }
     purple.convertPlants {
@@ -315,10 +315,10 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     // Pink does not meet Tycoon before Hermetic Order of Mars enters play.
     shouldThrow<RequirementException> {
-      pink.stdAction("ClaimMilestone") { doTask("Tycoon") }
+      pink.stdAction("ClaimMilestoneAction") { doTask("Tycoon") }
     }
     pink.playProject(HermeticOrderOfMars, 8).expect("PROD[2 MC], -2 MC")
-    pink.stdAction("ClaimMilestone") { doTask("Tycoon") }
+    pink.stdAction("ClaimMilestoneAction") { doTask("Tycoon") }
 
     green.playProject(Ants, 9) { doTask("2 MC") }
     green.cardAction1(Ants) {
@@ -326,7 +326,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     }
 
     purple.cardAction1(Psychrophiles)
-    purple.stdProject("PowerPlantSP")
+    purple.stdProject("PowerPlantProject")
 
     pink.convertHeat()
     pink.cardAction2(DirectedImpactors)
@@ -382,7 +382,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       doTask("-Microbe<Player1, $Psychrophiles<Player1>>")
     }
 
-    purple.stdAction("ClaimMilestone") { doTask("Trader") }
+    purple.stdAction("ClaimMilestoneAction") { doTask("Trader") }
     purple
         .playProject(ProtectedValley, 9, steel = 5) {
           doTask("2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
@@ -401,7 +401,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.playProject(Hackers, 3) { doTask("PROD[-2 MC<Player2>]") }
 
     purple.convertHeat()
-    purple.stdProject("AquiferSP") {
+    purple.stdProject("AquiferProject") {
       placeTile(4, 7)
     }
 
@@ -440,7 +440,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.buyCards(Supercapacitors)
     green.buyCards(Algae, BactoviralResearch)
 
-    purple.stdProject("CitySP") {
+    purple.stdProject("CityProject") {
       placeTile(4, 5)
     }
     purple.convertPlants {
@@ -458,12 +458,12 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.cardAction1(Psychrophiles)
     purple.playProject(BioPrintingFacility, 1, steel = 3)
 
-    pink.stdAction("FundAward") { doTask("SpaceBaron") }
+    pink.stdAction("FundAwardAction") { doTask("SpaceBaron") }
     pink.playProject(AsteroidCard, titanium = 4) {
       green.draw(SterlingVents)
       doTask("-3 Plant<Player3>")
     }
-    green.stdProject("AsteroidSP")
+    green.stdProject("AsteroidProject")
     green.convertHeat() {
       placeTile(3, 1)
     }
@@ -522,9 +522,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.cardAction1(Ants) {
       doTask("-Microbe<Player1, $Recyclon<Player1>>")
     }
-    green.stdAction("FundAward", which = 2) { doTask("Forecaster") }
+    green.stdAction("FundAwardAction", which = 2) { doTask("Forecaster") }
 
-    purple.stdProject("AquiferSP") {
+    purple.stdProject("AquiferProject") {
       placeTile(5, 6)
       purple.draw(ProjectInspection)
     }
@@ -625,7 +625,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.buyCards(ProtectedHabitats, PhysicsComplex, AdaptedLichen)
     pink.buyCards(HousePrinting, BeamFromAThoriumAsteroid)
 
-    green.stdProject("GreenerySP") {
+    green.stdProject("GreeneryProject") {
       placeTile(2, 5)
     }
     green.convertPlants {
@@ -641,7 +641,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.playProject(ProtectedHabitats, 5)
 
     pink
-        .stdProject("CitySP") {
+        .stdProject("CityProject") {
           placeTile(7, 7)
         }
         .expect("Disease<Player1>")
@@ -692,7 +692,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     // Test inference: the log gives only the count; none of these cards is played later.
     purple.sellPatents(WaterImportFromEuropa, PhysicsComplex, LightningHarvest)
-    purple.stdProject("CitySP") {
+    purple.stdProject("CityProject") {
       placeTile(1, 5)
     }
 
@@ -704,7 +704,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.cardAction2(AsteroidRights) { doTask("2 Titanium") }
     green.cardAction1(WeatherBalloons)
 
-    purple.stdAction("FundAward", which = 3) { doTask("Botanist") }
+    purple.stdAction("FundAwardAction", which = 3) { doTask("Botanist") }
     purple.cardAction1(IndustrialCenter)
 
     pink.pass()

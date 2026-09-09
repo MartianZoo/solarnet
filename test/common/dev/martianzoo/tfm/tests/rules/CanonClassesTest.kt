@@ -33,6 +33,30 @@ internal class CanonClassesTest {
   }
 
   @Test
+  internal fun standardActionsUseDoorwaysForOtherActionFamilies() {
+    val standardAction = table.getClass(cn("StandardAction"))
+    val standardProject = table.getClass(cn("StandardProject"))
+
+    standardAction
+        .allSubclasses()
+        .filterNot { it.abstract }
+        .mapTo(linkedSetOf()) { it.className } shouldBe
+        setOf(
+            cn("PlayCardFromHandAction"),
+            cn("UseStandardProjectAction"),
+            cn("UseActionOnCardAction"),
+            cn("ConvertPlantsAction"),
+            cn("ConvertHeatAction"),
+            cn("ClaimMilestoneAction"),
+            cn("FundAwardAction"),
+            cn("DoRequiredActionsAction"),
+            cn("TradeAction"),
+        )
+    standardProject.isSubtypeOf(standardAction) shouldBe false
+    table.getClass(cn("DoRequiredActionsAction")).isSubtypeOf(standardAction) shouldBe true
+  }
+
+  @Test
   internal fun setupSeparatesPlayersFromActors() {
     val premise = canonicalPremise()
     premise.actors

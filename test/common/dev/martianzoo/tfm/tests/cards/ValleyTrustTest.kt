@@ -17,7 +17,7 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5).expect("22 MC")
 
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { p1.playPrelude(MartianIndustries) }
+    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(MartianIndustries) }
         .expect("PROD[Steel, Energy]")
   }
 
@@ -65,7 +65,7 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
 
-    shouldThrow<RequirementException> { p1.stdAction("PowerPlantSP") }
+    shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
   }
 
   private fun resolveValleyTrustPrelude(
@@ -89,6 +89,6 @@ internal class ValleyTrustTest : CardTest() {
 
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { p1.playPrelude(selectedPrelude) }
+    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(selectedPrelude) }
   }
 }

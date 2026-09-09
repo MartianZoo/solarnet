@@ -1,6 +1,2 @@
 "Explicitly selected support for incomplete cards"
-CLASS FakeStuffBundle : Module {
-  This: SelfReplicatingRobotsBerth1, SelfReplicatingRobotsBerth2
-  This: SelfReplicatingRobotsBerth3, SelfReplicatingRobotsBerth4
-  This: SelfReplicatingRobotsBerth5
-}
+CLASS FakeStuffBundle : Module

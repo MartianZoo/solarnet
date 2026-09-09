@@ -10,7 +10,7 @@
 > **Skip when:** changing live World state after premise creation; use [ENGINE.md](ENGINE.md).
 >
 > **Status:** current model except where a section is explicitly marked as settled direction.
-> Stronger closed-world viability proofs and durable projection-decision explanations remain future
+> Stronger closed-world viability proofs and durable projection-decision explanations are future
 > work.
 
 ## Read only the relevant sections
@@ -69,7 +69,7 @@ Within a Catalog, every Class Name has one meaning. The Catalog loads and valida
 
 - selected classes are active;
 - Catalog-known inactive classes are uninhabited; and
-- unknown names remain errors.
+- unknown names are errors.
 
 The master table is a schema, not a playable Game World. It is never instantiated because it
 contains mutually exclusive maps, modes, and replacement classes.
@@ -93,12 +93,13 @@ exact live Module set is the complete statement of a game's general rules.
 `Module` is an ordinary Pets superclass except where premise construction and initialization ask
 whether a Class is its subtype. The resolved premise names every selected concrete Module and adds
 a generated concrete `Premise` Class to its composed Catalog. In Canon, its Pets effects first
-create the selected `BaseGameModule`, then fan out over the other active `Class<Module>`
-representatives, and finally emit `ModulesReady`. Module effects create their owned non-Module
-state; they do not repeat
-configuration decisions in a partial live World. Inherited rules keep each Module component unique
-and permanent. Its `autoSelectWhen` and `premiseRequirement` properties have meaning because the
-Catalog reads them. There is no separate Kotlin Module object or special component storage.
+create the selected `BaseGameModule`, then the other literally named Modules, the ordered Players,
+and exact starting components, and finally emit `ModulesReady`. The generated declaration is the
+executable recipe for that specific game. Module effects create their owned non-Module state; they
+do not repeat configuration decisions in a partial live World. Inherited rules keep each Module
+component unique and permanent. Its `autoSelectWhen` and `premiseRequirement` properties have
+meaning because the Catalog reads them. There is no separate Kotlin Module object or special
+component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. Module-to-Module defaults and implications are premise policy: the target's
@@ -134,7 +135,7 @@ contains only:
 3. signed selections for other Catalog classes;
 4. concrete Player Class Names in seat order;
 5. exact concrete types to instantiate once; and
-6. the generated concrete `Premise` Class Name.
+6. the concrete bootstrap Class Name and generated concrete `Premise` Class Name.
 
 Canon declares only the abstract `Player`; each configured name is the identity of a concrete
 `Player` subclass in the composed game Catalog. `withPlayers(count)` supplies reusable conventional
@@ -142,9 +143,8 @@ names `Player1` through `PlayerN`; player counts have no fixed upper limit. Indi
 may still be impossible when finite selected content cannot satisfy their player-count rules. The
 `gamePremise(config, playerDeclarations)` overload instead
 derives every player name and its seat order from explicit concrete Player declarations, including
-any per-seat Pets setup rules. The Pets-owned `SecondPlaceRule` Module is automatically selected for
-three or more Players and activates `SecondPlace`, keeping player-count policy out of Kotlin and
-numbered seat classes. Initial state is not an unrestricted Pets script.
+any per-seat Pets setup rules. Award scoring conditions its second-place effect directly on the
+presence of at least three Players. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection
@@ -165,10 +165,10 @@ Solo Colonies selects four and keeps three after the setup choice, two-player Co
 and games with at least three players use two more tiles than players.
 
 Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
-terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The premise's ordered
-player list creates a source-owned `AfterMe<Player>` ring, where the argument is the Player after
-the owner, and gives the first Player the initial `StartToken`. Each `ResearchPhase` passes the token
-along that relation.
+terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The generated Premise
+explicitly creates the initial `StartToken` and a binary `AfterMe<Owner, Player>` ring from the
+ordered player list. Each Player permits at most one incoming and one outgoing edge. Each
+`ResearchPhase` passes the token along that relation.
 The solo game never passes through a synthetic 20-rating state followed by a compensating reduction.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
@@ -200,7 +200,7 @@ declarations, category-specific card or map data, and custom implementations. It
 directly and never becomes a live component.
 
 A Bundle may contain several Modules while retaining their separate card pools. A Module named for
-its owning Bundle selects that Bundle's ordinary cards and colony tiles. In multiplayer, its
+its owning Bundle selects that Bundle's cards and colony tiles. In multiplayer, its
 applicable concrete milestones and awards also become category defaults during premise resolution.
 Each map has its own same-named Bundle containing its map definition, areas, goals, and source-local
 goal support. Exceptional cross-Bundle or narrowed selections remain expressible, but Canon's
@@ -212,7 +212,7 @@ Prelude 2 Expansion Bundle. These should be removed only after declaration autho
 
 ### Content grouping
 
-**Status: current for cards; broader simplification remains a direction.**
+**Status: current for cards; broader simplification is still a direction.**
 
 Card membership comes from the bundle/resource organization itself, not a list of
 individual members and not reconstruction from Class-name prefixes. A card resource directory
@@ -220,7 +220,7 @@ selects its concrete `CardFront` declarations and unreferenced non-card roots fo
 Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
 which active Classes instantiate. None has a per-card metadata relationship.
 
-A same-named Module selects the Bundle's ordinary cards and supplies its default goal pools through
+A same-named Module selects the Bundle's cards and supplies its default goal pools through
 general rules. `Prelude1CardPack` should own a separate selectable resource group, represented by
 its own internal Bundle even though it shares a published product with the Prelude 1 rules and
 project cards. Once the common cases use those mechanisms, delete `BundleContentSelection` instead
@@ -320,7 +320,7 @@ compatibility does not promise that every conditional branch executes in every g
 
 The rule applies to hand-authored Class declarations and structured standard-action declarations.
 Cards, maps, areas, milestones, awards, and colony tiles remain independently selectable content;
-merely residing in an expansion Bundle does not make a content Class expansion-dependent. Module
+residing in an expansion Bundle does not by itself make a content Class expansion-dependent. Module
 Classes are never availability-locked: premise selection alone decides whether a Module is active.
 
 For content compatibility, inspect every semantic Class reference in the loaded content
@@ -334,7 +334,7 @@ as Colonies-dependent as one that places a colony.
 referencing content Venus-dependent. `WorldGovernmentTerraforming` is a shared protocol in the base
 Bundle, so `WorldGovernmentRule` and World Government Advisor may use it without enabling Venus
 Next. `ChooseOceanArea` belongs to the Promo Card Pack that alone uses it. `PreludeCard` belongs to
-the Prelude Expansion Bundle; Valley Trust's RequiredAction reference therefore derives its Prelude
+the Prelude Expansion Bundle; Valley Trust's RequiredAction reference derives its Prelude
 1 dependency without a card property. Automatic Prelude-card selection also requires a
 `PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 

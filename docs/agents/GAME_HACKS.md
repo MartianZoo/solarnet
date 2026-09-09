@@ -27,7 +27,7 @@ Each player has five
 Each contributes one M€-production component and removes one M€ during each production phase.
 Together they represent the printed -5 floor without negative component counts. Their represented
 `Class<StandardResource>` dependency lets ordinary metrics pair offsets with their production kind.
-Setup creates offsets only for MC, but the representation and shared display helpers remain uniform
+Setup creates offsets only for MC, but the representation and shared display helpers are uniform
 across all six resources.
 
 Consequently, raw `PROD[MC]` counts production assets above the minimum, not the signed track value.
@@ -38,7 +38,7 @@ erase distinctions that Banker must retain.
 
 Industrial Complex remains the one authored arithmetic exception. Filling a negative M€-production
 track to one or two needs the signed deficit, while Metric subtraction saturates at zero and Metric
-union cannot add a scalar to the five offset components. Its targets therefore remain six and seven;
+union cannot add a scalar to the five offset components. Its targets are therefore six and seven;
 counting unrelated singleton components as numerals would be less truthful than those local offsets.
 
 ### 2. The solo opponent has replenished backing stocks, not possessions

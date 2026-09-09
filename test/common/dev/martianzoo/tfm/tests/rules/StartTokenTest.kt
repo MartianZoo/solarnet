@@ -40,6 +40,8 @@ internal class StartTokenTest {
     admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player3>")
     admin.assertCounts(1 to "StartToken")
     shouldThrow<LimitsException> { admin.manual("-StartToken<Player1>") }
+    shouldThrow<LimitsException> { admin.manual("AfterMe<Player1, Player3>") }
+    shouldThrow<LimitsException> { admin.manual("AfterMe<Player3, Player2>") }
   }
 
   @Test
@@ -63,7 +65,11 @@ internal class StartTokenTest {
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     admin.nextGeneration(0)
 
-    admin.assertCounts(1 to "StartToken<Player1>")
+    admin.assertCounts(
+        1 to "StartToken<Player1>",
+        1 to "AfterMe<Player1, Player1>",
+        1 to "AfterMe",
+    )
   }
 
   @Test

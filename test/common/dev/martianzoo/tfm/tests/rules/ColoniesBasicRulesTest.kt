@@ -149,7 +149,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     p1.sneak("100 MC, 5 ProjectCard")
 
     shouldThrow<DependencyException> {
-      p1.stdProject("BuildColonySP") { doTask("Colony<Miranda>") }
+      p1.stdProject("BuildColonyProject") { doTask("Colony<Miranda>") }
     }
 
     shouldThrow<DependencyException> { p1.stdAction("TradeAction") { doTask("Trade<Miranda>") } }
@@ -170,7 +170,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     admin.sneak("-ColonyProduction<Luna>")
     admin.assertCounts(0 to "ColonyProduction<Luna>")
 
-    p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
         // Take the placement bonus printed inside the track.
         .expect("PROD[2 MC]")
 
@@ -192,9 +192,11 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
   @Test
   internal fun `duplicate colony`() {
-    p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
     p1.assertCounts(1 to "Colony<Luna>")
-    shouldThrow<NarrowingException> { p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") } }
+    shouldThrow<NarrowingException> {
+      p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+    }
     p1.assertCounts(1 to "Colony<Luna>")
   }
 

@@ -18,7 +18,7 @@ internal class ThorgateTest : CardTest() {
 
   @Test
   internal fun `Discounts power-production standard projects`() {
-    val result = p1.stdProject("PowerPlantSP")
+    val result = p1.stdProject("PowerPlantProject")
     result.expect("-8 MC, PROD[Energy]")
 
     result.changes
@@ -35,6 +35,6 @@ internal class ThorgateTest : CardTest() {
   @Test
   internal fun `Cannot buy power production with only seven mc`() {
     p1.manual("-1 MC")
-    shouldThrow<LimitsException> { p1.stdProject("PowerPlantSP") }
+    shouldThrow<LimitsException> { p1.stdProject("PowerPlantProject") }
   }
 }

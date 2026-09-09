@@ -231,7 +231,7 @@ internal constructor(
   }
 
   private fun actorFor(instruction: By): Actor {
-    val type = reader.resolve(canonicalActorExpression(instruction))
+    val type = reader.resolve(instruction.actor)
     if (reader.countComponent(type) != 1) {
       throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
     }

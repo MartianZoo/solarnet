@@ -19,13 +19,13 @@ internal class CelesticTest : CardTest() {
   @Test
   internal fun `Can pass the first generation and draw two cards in the second`() {
     advanceToStartingCardDraw()
-    p1.stdAction("DoRequiredActions").expect("2 ProjectCard")
+    p1.stdAction("DoRequiredActionsAction").expect("2 ProjectCard")
   }
 
   @Test
   internal fun `Can play a project after resolving its mandatory card draw`() {
     advanceToStartingCardDraw()
-    p1.stdAction("DoRequiredActions")
+    p1.stdAction("DoRequiredActionsAction")
     p1.playProject(Mine, 4).expect("PROD[Steel]")
   }
 
@@ -36,7 +36,7 @@ internal class CelesticTest : CardTest() {
 
   @Test
   internal fun `Cannot buy a standard project before resolving its mandatory card draw`() {
-    shouldThrow<RequirementException> { p1.stdProject("AsteroidSP") }
+    shouldThrow<RequirementException> { p1.stdProject("AsteroidProject") }
   }
 
   @Test

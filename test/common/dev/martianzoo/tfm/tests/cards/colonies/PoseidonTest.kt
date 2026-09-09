@@ -15,7 +15,7 @@ internal class PoseidonTest : CardTest() {
     p1.assertCounts(1 to "RequiredAction", 0 to "Colony")
 
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { doTask("Colony<Luna>") }.expect("Colony<Luna>")
+    p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }.expect("Colony<Luna>")
     p1.assertCounts(0 to "RequiredAction")
   }
 }

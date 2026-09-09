@@ -17,7 +17,7 @@ internal class VocabularyTest {
     defaultEnglishDisplayName(cn("Builder8")) shouldBe "Builder 8"
     defaultEnglishDisplayName(cn("NaturalPreserve_SpecialTile")) shouldBe
         "Natural Preserve Special Tile"
-    defaultEnglishDisplayName(cn("PlayCardFromHand")) shouldBe "Play Card From Hand"
+    defaultEnglishDisplayName(cn("PlayCardFromHandAction")) shouldBe "Play Card From Hand Action"
 
     val vocabulary = Vocabulary.create(setOf(cn("ColonizerTrainingCamp")), emptyMap())
     vocabulary.displayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"

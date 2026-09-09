@@ -29,7 +29,7 @@ internal class ColoniesRulesTest : CardTest() {
     admin.phase("Action")
     p2.playProject(RegolithEaters, 13)
     p1.playProject(NitriteReducingBacteria, 11)
-    p1.stdProject("BuildColonySP") {
+    p1.stdProject("BuildColonyProject") {
       doTask("Colony<Enceladus>")
       doTask("3 Microbe<$NitriteReducingBacteria>")
     }

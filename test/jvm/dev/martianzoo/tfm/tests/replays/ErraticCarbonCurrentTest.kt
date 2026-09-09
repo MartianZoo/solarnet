@@ -207,7 +207,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       playProject(NitrogenRichAsteroid, 30) { doTask("PROD[4 Plant]") }
     }
     pink.turn {
-      stdProject("AquiferSP") { placeTile(4, 6) }
+      stdProject("AquiferProject") { placeTile(4, 6) }
       convertPlants { placeTile(4, 5) }
     }
     blue.turn { convertPlants { placeTile(3, 5) } }
@@ -244,7 +244,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 6, temp = -12, oxygen = 8, oceans = 4, venus = 0)
 
     pink.turn {
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
       playProject(LavaTubeSettlement, 5, steel = 5) { placeTile(6, 5) }
     }
     blue.turn {
@@ -425,7 +425,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     blue.turn {
       convertHeat()
-      stdProject("AsteroidSP") { placeTile(2, 1) }
+      stdProject("AsteroidProject") { placeTile(2, 1) }
     }
     pink.turn {
       playProject(AsteroidCard, 8, titanium = 2) { doTask("-3 Plant<Blue>") }
@@ -496,7 +496,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 10, temp = 8, oxygen = 14, oceans = 9, venus = 6)
 
     pink.turn {
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
       draw(Decomposers)
       cardAction1(BusinessNetwork) { discardUnselectedProjectCards(AerialMappers) }
     }
@@ -505,7 +505,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       // The source records an explicit unused second action.
     }
     pink.turn {
-      stdProject("CitySP") { placeTile(5, 3) }
+      stdProject("CityProject") { placeTile(5, 3) }
       convertPlants { placeTile(4, 2) }
     }
     blue.turn {

@@ -294,8 +294,8 @@ internal class GamePremiseTest {
     Canon.classTable.getClass(cn("Award")).allSubclasses().none {
       table.isActive(it.className)
     } shouldBe true
-    table.isActive(cn("ClaimMilestone")) shouldBe false
-    table.isActive(cn("FundAward")) shouldBe false
+    table.isActive(cn("ClaimMilestoneAction")) shouldBe false
+    table.isActive(cn("FundAwardAction")) shouldBe false
 
     shouldThrow<IllegalArgumentException> {
       Engine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))

@@ -59,7 +59,7 @@ public class OtbGame20260809 : RecordedGame() {
       }
     }
 
-    green.turn { stdAction("DoRequiredActions") }
+    green.turn { stdAction("DoRequiredActionsAction") }
 
     yellow.turn {
       sellPatents(1)
@@ -183,7 +183,7 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(SponsoredAcademies, 9)
     }
 
-    green.turn { stdProject("PowerPlantSP") }
+    green.turn { stdProject("PowerPlantProject") }
 
     yellow.turn {
       convertPlants {
@@ -301,7 +301,7 @@ public class OtbGame20260809 : RecordedGame() {
         placeTile(4, 8)
       }
 
-      stdAction("ClaimMilestone") { doTask("Landshaper") }
+      stdAction("ClaimMilestoneAction") { doTask("Landshaper") }
     }
 
     green.turn {
@@ -334,7 +334,7 @@ public class OtbGame20260809 : RecordedGame() {
       cardAction1(Ironworks)
     }
 
-    green.turn { stdAction("FundAward") { doTask("Venuphile") } }
+    green.turn { stdAction("FundAwardAction") { doTask("Venuphile") } }
 
     yellow.pass()
 
@@ -361,7 +361,7 @@ public class OtbGame20260809 : RecordedGame() {
     green.buyCards(4)
 
     yellow.turn {
-      stdProject("CitySP") {
+      stdProject("CityProject") {
         placeTile(1, 2)
       }
 
@@ -444,7 +444,7 @@ public class OtbGame20260809 : RecordedGame() {
     }
 
     yellow.turn {
-      stdProject("CitySP") {
+      stdProject("CityProject") {
         placeTile(3, 5)
       }
 
@@ -464,18 +464,18 @@ public class OtbGame20260809 : RecordedGame() {
         placeTile(4, 5)
       }
 
-      stdAction("ClaimMilestone") { doTask("Mayor") }
+      stdAction("ClaimMilestoneAction") { doTask("Mayor") }
     }
 
     green.turn { playProject(Extremophiles, 1) }
 
-    yellow.turn { stdAction("ClaimMilestone") { doTask("Producer") } }
+    yellow.turn { stdAction("ClaimMilestoneAction") { doTask("Producer") } }
 
     green.turn {
       cardAction1(VenusianInsects)
     }
 
-    yellow.turn { stdAction("FundAward", which = 2) { doTask("Botanist") } }
+    yellow.turn { stdAction("FundAwardAction", which = 2) { doTask("Botanist") } }
 
     green.turn { playProject(Satellites, 2, titanium = 2) }
 
@@ -507,7 +507,7 @@ public class OtbGame20260809 : RecordedGame() {
     yellow.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
 
-      stdProject("CitySP") { placeTile(1, 4) }
+      stdProject("CityProject") { placeTile(1, 4) }
     }
 
     green.turn {
@@ -528,7 +528,7 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(IndustrialMicrobes, 0, steel = 4)
     }
 
-    green.turn { stdAction("FundAward", which = 3) { doTask("Magnate") } }
+    green.turn { stdAction("FundAwardAction", which = 3) { doTask("Magnate") } }
 
     yellow.turn {
       playProject(MethaneFromTitan, 12, titanium = 4)
@@ -586,7 +586,7 @@ public class OtbGame20260809 : RecordedGame() {
     }
 
     yellow.turn {
-      stdProject("CitySP") {
+      stdProject("CityProject") {
         placeTile(5, 5)
       }
 
@@ -634,7 +634,7 @@ public class OtbGame20260809 : RecordedGame() {
     yellow.turn { cardAction1(SubZeroSaltFish) }
 
     green.turn {
-      stdProject("GreenerySP") { placeTile(4, 3) }
+      stdProject("GreeneryProject") { placeTile(4, 3) }
     }
 
     yellow.turn { cardAction1(NitriteReducingBacteria) }
@@ -748,8 +748,8 @@ public class OtbGame20260809 : RecordedGame() {
     green.turn { cardAction1(JovianLanterns) }
 
     yellow.turn {
-      stdProject("AsteroidSP")
-      stdProject("AsteroidSP")
+      stdProject("AsteroidProject")
+      stdProject("AsteroidProject")
     }
 
     green.turn {

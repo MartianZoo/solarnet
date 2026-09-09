@@ -70,7 +70,7 @@ calculates the resulting state transition. It is not an Actor, Component, task a
 or event performer.
 
 Core engine state derives a Task's current assignee from its selection state and enforces that
-ordinary task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
+task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
 Actor, presents a convenient filtered view of the one global task queue, and issues both explicit and
 policy-chosen mutations. Lower-level engine mutation remains available for deliberate workflow,
 replay, cheat, and test use.
@@ -99,7 +99,7 @@ stealing a victim's heat is still an action by the attacker.
 
 ## Implicit trigger Owner
 
-The icon grammar gives an ordinary trigger on a Player-owned card an implicit Actor filter. For
+The icon grammar gives a trigger on a Player-owned card an implicit Actor filter. For
 example, `OceanTile` on that card means `OceanTile BY Owner`; writing `OceanTile BY Anyone`
 explicitly cancels the filter. This is trigger matching, not task attribution and not an authored
 Type variable.
@@ -127,7 +127,7 @@ workflow retain that routing. An unselected task's assignee is its controller.
 
 Start-player requests locate the token's Player with `EACH Player(HAS StartToken)` and gain a request
 signal owned by that Player. `EACH` only supplies the contextual owner; the signal's own
-effect supplies the ordinary owned-component task routing. Icy Impactors separately captures the
+effect supplies the owned-component task routing. Icy Impactors separately captures the
 signal event's Actor and uses instruction-side `BY` so the card owner still performs the ocean
 placement chosen by the start player. World Government Advisor instead gains its owned request
 directly, so the card owner chooses regardless of who holds the Start Token.
@@ -143,7 +143,7 @@ or executing competing work until the selected task completes. `Task.controller`
 during this handoff.
 
 If resolution or narrowing replaces the selected task with independent siblings, those siblings
-return to the controller as ordinary unselected work. `THEN` continuations and tasks triggered by
+return to the controller as unselected work. `THEN` continuations and tasks triggered by
 the delegated change likewise return to the controller. This keeps one task lifecycle rather than
 introducing a second parent representation.
 
@@ -183,17 +183,17 @@ itself prove that the owner received narrowing authority.
 ## Test responsibilities
 
 Generic engine tests may inspect `Task.controller`, derived assignee changes, selection state, and
-recorded Actor to prove the mechanism once. Player-level card and rule tests must stay functional:
-prove who can select or narrow through gameplay calls, prove the controller is blocked through
-rejected gameplay, and prove attribution through a visible trigger-side `BY` consequence when
+recorded Actor to cover the mechanism once. Player-level card and rule tests must stay functional:
+they show who can select or narrow through gameplay calls, that the controller is blocked through
+rejected gameplay, and attribution through a visible trigger-side `BY` consequence when
 attribution is material. They should not filter tasks by cause or Actor, match exact internal task
-strings, or read the Event Log merely to restate engine metadata.
+strings, or read the Event Log to restate engine metadata.
 
 `ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding. Task assignment is
 incidental there and should be removed from those assertions or made explicit in separately named
 delegation tests. Card tests for Pharmacy Union and Splice should assert their normal outcomes and
 which Player can make any offered choice; generic engine coverage should carry the internal routing
-proof.
+coverage.
 
 ## Open policy questions
 

@@ -23,8 +23,8 @@ internal class GameRecordingTest {
     agent.doTask("Heat!")
     val recording = game.recording()
 
-    recording.positions.size shouldBe 4
-    recording.positionIndex shouldBe 3
+    recording.positions.size shouldBe 3
+    recording.positionIndex shouldBe 2
     observedCounts.shouldContainExactly(0, 1)
 
     val invalidPosition =
@@ -41,8 +41,6 @@ internal class GameRecordingTest {
     recording.seek(1)
     agent.count("Heat<Player1>") shouldBe 0
     recording.seek(2)
-    agent.count("Heat<Player1>") shouldBe 0
-    recording.seek(3)
     agent.count("Heat<Player1>") shouldBe 1
     observedCounts.shouldContainExactly(0, 1, 0, 1, 0, 1)
 
@@ -67,12 +65,12 @@ internal class GameRecordingTest {
     agent.manual("Heat")
     val recording = game.recording()
 
-    recording.positions.size shouldBe 4
-    recording.seek(2)
+    recording.positions.size shouldBe 3
+    recording.seek(1)
     agent.count("Heat<Player1>") shouldBe 1
     agent.count("Plant<Player1>") shouldBe 0
     agent.count("Steel<Player1>") shouldBe 0
-    recording.seek(3)
+    recording.seek(2)
     agent.count("Plant<Player1>") shouldBe 1
     agent.count("Steel<Player1>") shouldBe 1
   }

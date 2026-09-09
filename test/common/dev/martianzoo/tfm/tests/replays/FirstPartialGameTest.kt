@@ -144,7 +144,7 @@ internal class FirstPartialGameTest : TfmTest() {
 
       p2.turn {
         playProject(SolarPower, 1, steel = 4)
-        stdProject("CitySP") { placeTile(6, 5) }
+        stdProject("CityProject") { placeTile(6, 5) }
       }
 
       workflow.shutdown()

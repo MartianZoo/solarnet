@@ -39,14 +39,14 @@ public class OtbGame20260825 : RecordedGame() {
       playPrelude(FocusedOrganization) { doTask("Titanium") }
 
       playPrelude(FakeHeadStart) {
-        doTask("UseAction<UseCardAction, Action1>")
+        doTask("UseAction<UseActionOnCardAction, Action1>")
         doTask("ActionUsedMarker<$FocusedOrganization>")
         cardAction1(FocusedOrganization) {
           doTask("-MC")
           doTask("Titanium")
         }
 
-        doTask("UseAction<PlayCardFromHand, Action1>")
+        doTask("UseAction<PlayCardFromHandAction, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>, Hand>")
         pay(4)
       }
@@ -160,7 +160,7 @@ public class OtbGame20260825 : RecordedGame() {
       convertPlants { placeTile(9, 8) }
     }
     green.turn {
-      stdProject("CitySP") { placeTile(8, 8) }
+      stdProject("CityProject") { placeTile(8, 8) }
     }
     yellow.turn {
       cardAction1(Viron) {
@@ -383,7 +383,7 @@ public class OtbGame20260825 : RecordedGame() {
       playProject(Atmoscoop, 16, titanium = 2) { doTask("2 VenusStep") }
     }
     yellow.turn {
-      stdProject("CitySP") { placeTile(6, 3) }
+      stdProject("CityProject") { placeTile(6, 3) }
       convertPlants { placeTile(6, 2) }
     }
     green.turn {
@@ -466,7 +466,7 @@ public class OtbGame20260825 : RecordedGame() {
     }
 
     yellow.turn {
-      stdProject("CitySP") { placeTile(6, 6) }
+      stdProject("CityProject") { placeTile(6, 6) }
 
       cardAction1(OreProcessor)
     }
@@ -478,7 +478,7 @@ public class OtbGame20260825 : RecordedGame() {
       cardAction1(SpaceElevator)
     }
     yellow.turn {
-      stdProject("GreenerySP") { placeTile(7, 3) }
+      stdProject("GreeneryProject") { placeTile(7, 3) }
 
       convertPlants { placeTile(6, 7) }
     }
@@ -544,7 +544,7 @@ public class OtbGame20260825 : RecordedGame() {
       cardAction1(Predators) { doTask("-Animal<Yellow, $EcologicalZone<Yellow>>") }
     }
     yellow.turn {
-      stdProject("CitySP") { placeTile(5, 7) }
+      stdProject("CityProject") { placeTile(5, 7) }
 
       convertPlants { placeTile(4, 7) }
     }
@@ -694,13 +694,13 @@ public class OtbGame20260825 : RecordedGame() {
       cardAction1(CloudTourism)
     }
     green.turn {
-      stdProject("AsteroidSP")
+      stdProject("AsteroidProject")
     }
 
     yellow.exMachina("TerraformRating")
 
     yellow.turn {
-      stdProject("AsteroidSP")
+      stdProject("AsteroidProject")
     }
     green.turn {
       cardAction1(SymbioticFungus) { doTask("Microbe<$SulphurEatingBacteria>") }
@@ -761,7 +761,7 @@ public class OtbGame20260825 : RecordedGame() {
       sellPatents(1)
     }
     yellow.turn {
-      stdProject("GreenerySP") { placeTile(1, 4) }
+      stdProject("GreeneryProject") { placeTile(1, 4) }
     }
     green.turn {
       playProject(Fish, 7) {

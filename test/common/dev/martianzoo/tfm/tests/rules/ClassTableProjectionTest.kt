@@ -64,8 +64,8 @@ internal class ClassTableProjectionTest {
 
   @Test
   internal fun `multiplayer standard actions stay unloaded in solo`() {
-    assertNotLoaded("ClaimMilestone", baseSolo)
-    assertNotLoaded("FundAward", baseSolo)
+    assertNotLoaded("ClaimMilestoneAction", baseSolo)
+    assertNotLoaded("FundAwardAction", baseSolo)
   }
 
   @Test
@@ -88,12 +88,6 @@ internal class ClassTableProjectionTest {
     matchingClasses("award", baseSolo).shouldBeEmpty()
     baseSolo.classNames.shouldNotContain(cn("FirstPlace"))
     baseSolo.classNames.shouldNotContain(cn("SecondPlace"))
-  }
-
-  @Test
-  internal fun `second place exists only when a third player does`() {
-    baseMultiplayer.classNames.shouldNotContain(cn("SecondPlace"))
-    threePlayerMultiplayer.classNames.shouldContain(cn("SecondPlace"))
   }
 
   @Test
@@ -144,5 +138,11 @@ internal class ClassTableProjectionTest {
 
     fun projection(config: String, vararg playerNames: String): Projection =
         Projection(GameConfig(config, *playerNames))
+  }
+
+  @Test
+  internal fun `SecondPlace incorrectly remains active with only two players`() {
+    baseMultiplayer.classNames.shouldContain(cn("SecondPlace"))
+    threePlayerMultiplayer.classNames.shouldContain(cn("SecondPlace"))
   }
 }

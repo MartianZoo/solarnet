@@ -372,7 +372,7 @@ public data class GroundType(
     val refin = wide.refinement as Has
     val specializedRequirement = specializeRepresentedClassReferences(refin.requirement)
     val transformed =
-        refinementMangler(narrow, ignoreUnmatched = narrow.className == CLASS)
+        refinementMangler(narrow, ignoreUnmatched = wide.className == CLASS)
             .transformRequirement(specializedRequirement)
     return if (refin.forgiving) {
       Or(transformed, Max(scaledEx(wide.copy(refinement = refin.copy(forgiving = false)), 0)))

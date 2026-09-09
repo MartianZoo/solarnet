@@ -136,7 +136,7 @@ internal class NewPromoCardsTest : CardTest() {
     p1.manual("50 MC, 2 ProjectCard")
     p1.playProject(NeptunianPowerConsultants, 14)
 
-    p1.stdProject("AquiferSP") {
+    p1.stdProject("AquiferProject") {
       doTask("OceanTile<Tharsis_1_2>")
       doTask("UseAction<NeptunianOption, Action1>")
       p1.pay(mc = 1, steel = 2)
@@ -158,7 +158,7 @@ internal class NewPromoCardsTest : CardTest() {
     p1.autoExecMode = NONE
     val ownerMcBeforeOcean = p1.count("MC")
 
-    p2.stdProject("AquiferSP") {
+    p2.stdProject("AquiferProject") {
       doTask("OceanTile<Tharsis_1_2>")
       p2.selectTask("UseAction<Player1, NeptunianOption<Player1>>?")
       p1.doTask("UseAction<NeptunianOption, Action1>")

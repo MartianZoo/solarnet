@@ -72,7 +72,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     yellow.turn {
       // "I use Valley Trust and I get Double Down, which I play... copy Martian Industries."
-      stdAction("DoRequiredActions") {
+      stdAction("DoRequiredActionsAction") {
             playPrelude(DoubleDown) { doTask("CopyPrelude<$MartianIndustries>") }
           }
           .expect("PROD[S, E], 6 MC")
@@ -500,7 +500,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // become the Ecologist."
       playProject(IndustrialMicrobes, 12).expect("PROD[S, E]")
       green.exMachina(fakeWildTags("MicrobeTag"))
-      stdAction("ClaimMilestone") {
+      stdAction("ClaimMilestoneAction") {
         doTask("Ecologist")
       }
     }
@@ -520,9 +520,9 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       playProject(ImportOfAdvancedGhg, 1, titanium = 2).expect("PROD[2 H]")
       // "For my second, let's just get this other milestone taken care of. Eight to be the
       // Metallurgist."
-      stdAction("ClaimMilestone") { doTask("Metallurgist") }
+      stdAction("ClaimMilestoneAction") { doTask("Metallurgist") }
     }
-    yellow.turn { stdAction("ClaimMilestone") { doTask("Tactician") } }
+    yellow.turn { stdAction("ClaimMilestoneAction") { doTask("Tactician") } }
     green.turn {
       // "Use Floating Habs to spend two money to put a floater on Aerial Mappers, and use that to
       // draw a card."
@@ -625,7 +625,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // Green: "Sure. Let's pay eight to fund Traveller. I have funded the Traveller award."
-      stdAction("FundAward") { doTask("Traveller") }
+      stdAction("FundAwardAction") { doTask("Traveller") }
     }
 
     yellow.turn {
@@ -1061,7 +1061,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           .expect("2 TR, 7 M")
       // "Yeah, what the hell, let's buy a standard project, shall we?" "Aquifer." "I'm just gonna
       // take two plants by placing on four, five."
-      stdProject("AquiferSP") { placeTile(4, 5) }.expect("2 P, TR")
+      stdProject("AquiferProject") { placeTile(4, 5) }.expect("2 P, TR")
     }
 
     // "I spend 26 money. Lose two energy productions. Gain five money productions." "Place." "It'll
@@ -1098,7 +1098,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     yellow.turn {
       // "You know, it occurred to me I can probably spend 15 on a final Venus boop."
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
       // "I'm going to psychrophile."
       cardAction1(Psychrophiles).expect("Microbe")
     }
@@ -1199,13 +1199,13 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       convertPlants { placeTile(5, 5) }.expect("-7 P, TR")
       // "And I will greenery standard project." "But you've got two TR from one move." "Yeah, and
       // an extra for being the one to get it." "Anyways, the second one goes... 2-1."
-      stdProject("GreenerySP") { placeTile(2, 1) }.expect("2 TR")
+      stdProject("GreeneryProject") { placeTile(2, 1) }.expect("2 TR")
     }
 
     green.turn {
       // "I am feeling like I had better put a cute little city down while I can. So I paid for
       // standard project." "4-4 for two money and two plants."
-      stdProject("CitySP") { placeTile(4, 4) }
+      stdProject("CityProject") { placeTile(4, 4) }
       // "Ecological zone. Cost me 12 entire." "Well, for these two, I get two animals right away."
       // "Putting it on 2-2?" "Yes. For two steel."
       playProject(EcologicalZone, 12) { placeTile(2, 2) }
@@ -1437,7 +1437,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I pay fourteen... Mogul." "Yeah. I think I got that one."
-      stdAction("FundAward", which = 2) { doTask("Mogul") }
+      stdAction("FundAwardAction", which = 2) { doTask("Mogul") }
       // "Listen, all of y'all. It's sabotage. So... You lose... Seven money, and that's it."
       playProject(Sabotage, 1) { doTask("-7 M<Yellow>") }.expect("-ProjectCard")
     }
@@ -1472,7 +1472,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I'm gonna put it right here, two energy."
       // The City standard project and Immigrant City each increase M€ production for this
       // placement.
-      stdProject("CitySP") { placeTile(2, 3) }.expect("PROD[2 M]")
+      stdProject("CityProject") { placeTile(2, 3) }.expect("PROD[2 M]")
       // "And for my second trick, commercial district, from sixteen, lose an energy production,
       // gain four money production, place a shitty tile, not a shitty tile."
       playProject(CommercialDistrict, 16) { placeTile(3, 3) }.expect("PROD[4 M], -ProjectCard")

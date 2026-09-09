@@ -60,7 +60,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
                     .matching { it.instruction.toString().contains("StandardAction") }
                     .any()
             if (choosingStandardAction) {
-              TaskCommand(repl).withArgs("UseAction<UseCardAction, Action1>")
+              TaskCommand(repl).withArgs("UseAction<UseActionOnCardAction, Action1>")
             }
             TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
             if (pauseForWrittenCost) {

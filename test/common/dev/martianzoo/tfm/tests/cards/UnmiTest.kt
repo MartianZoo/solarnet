@@ -9,7 +9,7 @@ internal class UnmiTest : CardTest() {
   @Test
   internal fun `Can use its action after raising TR`() {
     initializeUnmi()
-    p1.stdProject("AsteroidSP").expect("-14 MC, TerraformRating")
+    p1.stdProject("AsteroidProject").expect("-14 MC, TerraformRating")
     p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
   }
 

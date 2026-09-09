@@ -84,7 +84,7 @@ internal class ScriptCompletionEngineTest {
     assertFalse(values("task ").any { it == "A" || it == "B" })
     assertContainsAll(values("task Pl"), "Plant", "PlantTag")
     assertTrue("select" in values("task se"))
-    assertContainsAll(values("task 1 Play"), "PlayCardFromHand", "Player1")
+    assertContainsAll(values("task 1 Play"), "PlayCardFromHandAction", "Player1")
   }
 
   @Test
