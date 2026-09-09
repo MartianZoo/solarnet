@@ -385,23 +385,50 @@ and the recognition of billable Terraforming Mars left sides belong to Terraform
 generic transformer currently recognizes six Terraforming Mars resource names; treat that as one
 existing layering flaw rather than justification for pushing billing into generic Pets.
 
-## Program of work
+## Next phase: constrained prototype
 
-Do not begin the action-identity rewrite until the first three ranked questions below have concrete
-answers. Card-permission cleanup can proceed independently if it preserves direct grants.
+**Status: selected next step.** Answer the leading design questions with a small implementation
+experiment before migrating production Terraforming Mars declarations. The prototype should be
+cheap to discard if concrete action Signals require compensating machinery.
 
-1. Replace the negative card-action availability calculation with the available/used status, while
-   preserving the physical marker and Viron behavior.
-2. Prototype one concrete action Signal with a direct left side. Its right side must be an ordinary
-   `This::`-style effect and the Signal must occur only after the left side succeeds.
-3. Extend that prototype through standard-resource billing. Invoice completion should issue the
-   Signal; the Signal should trigger the unchanged right side.
-4. Prove existing `THEN` binding and X behavior can survive the inserted Signal before replacing
-   `ActionSlot` generally.
-5. Replace provider/slot identity only after card actions, standard projects, Fund Award, Trade,
-   direct grants, generic listeners, logs, and client choice enumeration all have a coherent form.
-6. Replace the required-action gate only after a positive provider transition can remove and
-   restore the ordinary standard-action set without transient invalid states.
+### Stage 1: direct action
+
+Use a focused Pets test catalog containing one live provider with one non-billing arrow.
+
+1. Lower the arrow to a concrete action Signal Class that is a subtype of abstract `UseAction` and
+   depends on the live provider.
+2. Make the arrow's left side available to general action machinery as an `Instruction`.
+3. Let a pending abstract action task narrow to that concrete Class.
+4. Execute the left-side instruction and gain the concrete Signal only after it succeeds.
+5. Express the right side solely as an ordinary effect on that Signal, preferably `This::` in the
+   lowered declaration.
+6. Prove that an absent provider removes the choice, an impossible left side leaves no trace, the
+   Signal precedes its right-side effect, and the Signal cleans itself up normally.
+
+Do not migrate a production card, alter permission, solve required-action availability, or generalize
+multi-arrow providers in this stage.
+
+### Stage 2: Terraforming Mars billing
+
+After Stage 1 is coherent, carry the same shape through one fixed standard-resource left side.
+
+1. Let Terraforming Mars rewrite the selected action's left-side instruction into `Owed` and
+   `Invoice` work.
+2. Complete payment sequentially.
+3. Make invoice removal cause the concrete action Signal rather than the right side directly.
+4. Keep the right-side effect identical to the direct prototype.
+5. Prove successful payment ordering, failed-payment rollback, and one invoice modifier.
+6. Use the result to decide whether invoice removal is sufficient completion or action-local scoped
+   state still earns a role. Do not introduce `Temporary` merely to bridge parallel payment tasks
+   that the sequential payment loop will remove.
+
+Stop if either stage needs a persistent duplicate of the provider, a second instruction system,
+parallel action identity data, or special handling of the right side. Report which requirement
+caused that pressure before enlarging the prototype.
+
+Only after both stages succeed should work proceed to shared X and Type variables, multi-arrow
+providers and declaring-family listeners, then production migration. Card permission and the
+positive required-action provider transition remain separate work.
 
 ## Ranked questions
 
