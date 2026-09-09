@@ -736,7 +736,8 @@ internal constructor(
         val next =
             binding.paths.map { path -> capturedAt(specific, path) }.distinct().singleOrNull()
                 ?: error("Type variable ${binding.variable} has conflicting values")
-        if (next == previous) return@forEach
+        // A fixed inherited dependency still has to replace its superclass's open variable.
+        if (next == previous && next.abstract) return@forEach
         aliases.forEach { variable -> put(variable, next) }
       }
     }
