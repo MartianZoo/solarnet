@@ -120,11 +120,12 @@ three direct class exclusions for the cards its revised printings supersede; the
 replacement registry.
 
 `Engine.newGame(premise)` wires the World with one structural representative for every active
-concrete Class, then creates `Admin`. Admin next creates the generated `Premise` component, whose
-immediate effects create the `BaseGameModule` first, then the other literally named Modules, seated
-Players in order, and the premise's exact initial components. Its queued `ModulesReady` signal runs
-after that complete layer exists. The initializer then drains the remaining queued work and
-performs a final drain. Completion requires an empty task queue and every premise-required component to exist
+concrete Class, then creates `Admin`. Admin creates `BootstrapPhase`, which creates the generated
+`Premise` component. Its immediate effects create the `BaseGameModule` first, then the other
+literally named Modules, seated Players in order, and the premise's exact initial components. Its
+queued `ModulesReady` signal runs after that complete layer exists. The initializer then drains the
+remaining queued work and performs a final drain. Completion requires an empty task queue and every
+premise-required component to exist
 before the initialized state is committed. Structural Class representatives are installed before
 event logging and therefore produce no Change Events. By the time `newGame` returns, the World has
 one Phase, every seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow
@@ -179,11 +180,12 @@ The goal is not to call every constructor step an Admin action. It is to make th
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, the initializer directly materializes `Admin` and the generated `Premise`. Immediate
-Premise effects create all selected Modules, seated Players, and exact initial component Types;
-direct initialization remains only an idempotent fallback for copied custom premises. Module and
-Player effects create their owned bootstrap state. An exact `HAS =1 This` remains a live
-multiplicity invariant, not an initialization instruction.
+In Canon, the initializer directly materializes only `Admin` and `BootstrapPhase`, then creates the
+generated `Premise` with the phase as its cause. Immediate Premise effects create all selected
+Modules, seated Players, and exact initial component Types; direct initialization remains only an
+idempotent fallback for copied custom premises. Module and Player effects create their owned
+bootstrap state. An exact `HAS =1 This` remains a live multiplicity invariant, not an initialization
+instruction.
 
 ## Component graph
 
@@ -559,14 +561,14 @@ rules, global-parameter completion state, end barriers, and setup operations. `M
 missing maximum-one declaration found by the current Canon audit. `TradeFleet` deliberately has no
 one-count limit: additional fleet components are real capacity granted by cards.
 
-`StartToken` is exact one: Player1's queued bootstrap effect creates it, and each `ResearchPhase`
-moves it along the source-owned `AfterMe` relation by atomic transmutation. In Terraforming Mars,
-Phase is likewise exact one from the creation
-of its Module: Bootstrap is created first, and each transition replaces the current Phase; `End`
-remains as the terminal Phase. A separate temporary
+`StartToken` is exact one: the generated Premise creates it with the explicit binary `AfterMe`
+ring, and each `ResearchPhase` moves it along that relation by atomic transmutation. Each Player
+permits at most one incoming and one outgoing edge. Phase is likewise exact one after Admin creates
+BootstrapPhase; each transition replaces the current Phase, and `End` remains as the terminal Phase.
+A separate temporary
 `FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
 scoring task settles. A future comprehensive lower-bound validator must account for the short
-construction interval before the Terraforming Mars Module creates Bootstrap. Bootstrap completion
+construction interval before Admin creates BootstrapPhase. Bootstrap completion
 verifies its required components and empty task queue; ordinary mutations continue to enforce
 applicable multiplicity limits.
 
