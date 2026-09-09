@@ -18,7 +18,8 @@ Pets element types, like Requirement, Action, Instruction, Expression, and so on
 
 ### <a href="pets/dev.martianzoo.pets.types/index.html">dev.martianzoo.pets.types</a>
 
-The Pets type system.
+The Kotlin API for the concepts and rules in the
+[Pets type-system specification](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md).
 
 ### <a href="pets/dev.martianzoo.pets.util/index.html">dev.martianzoo.pets.util</a>
 
