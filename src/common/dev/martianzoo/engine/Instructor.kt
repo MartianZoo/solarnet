@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.api.CustomClass
@@ -56,7 +57,7 @@ internal constructor(
     private val changer: Changer,
     private val effector: Effector,
     private val classTable: ClassTable,
-    private val transformers: Transformers,
+    private val elaborator: PetElaborator,
     private val customClasses: CustomClassRuntime,
 ) {
   private val automaticEffectStack = mutableListOf<PendingTask>()
@@ -356,10 +357,7 @@ internal constructor(
       throw ExpressionException("custom class instructions can only be pure gains: $original")
     }
     val gaining = gainingType.toComponent()
-    val translated =
-        transformers
-            .transformMarkedSyntax()
-            .transformInstructionTree(customClasses.translateInstruction(gaining, reader))
+    val translated = customClasses.translateInstruction(gaining, reader)
     return resolveTree(translated)
   }
 
@@ -410,7 +408,7 @@ internal constructor(
               "branch. Select an abstract type whose matching components can differ."
       )
     }
-    val ownsBody = transformers.selectionIsOwner(each.selector)
+    val ownsBody = elaborator.selectionSuppliesOwner(each.selector)
     val named =
         each.body.descendantsOfType<Expression>().any {
           it == each.selectorName ||
@@ -430,7 +428,7 @@ internal constructor(
   }
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
-    val owner = selected.takeIf { transformers.selectionIsOwner(each.selector) }
+    val owner = selected.takeIf { elaborator.selectionSuppliesOwner(each.selector) }
     val representedSelection =
         each.representedSelectorName?.let {
           check(selected.className == CLASS)
@@ -440,13 +438,12 @@ internal constructor(
         PetTransformer.chain(
             replacer(each.selectorName, selected),
             each.representedSelectorName?.let { replacer(it, checkNotNull(representedSelection)) },
+            // This selection, rather than the enclosing context, supplies Owner. The unshielded
+            // replacement is intentional.
             owner?.let(Transforming::replaceOwnerWith),
         )
     val bound = bind.transformInstructionTree(each.body)
-    val evaluated =
-        transformers
-            .evaluateProperties(context = selected, owner = owner)
-            .transformInstructionTree(bound)
+    val evaluated = elaborator.evaluateProperties(bound, context = selected, owner = owner)
     return resolveTree(evaluated)
   }
 

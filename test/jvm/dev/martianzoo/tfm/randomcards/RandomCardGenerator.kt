@@ -461,7 +461,7 @@ internal class RandomCardGenerator(seed: Int) :
                 },
             5 to
                 {
-                  InstructionAtom(choose("OceanTile<>", "CityTile<>", "GreeneryTile<>"))
+                  InstructionAtom(choose("OceanTile<>", "CityTile<>", "DefaultGreeneryTile"))
                 },
             5 to
                 {

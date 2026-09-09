@@ -1,14 +1,38 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
+/**
+ * The three independently inherited default sets defined by
+ * [rule 10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+ * Defaults provide authored context during elaboration; they do not change which types exist.
+ *
+ * @constructor Groups the independently inherited [allUsages], [gainOnly], and [removeOnly] sets
+ *   separated by
+ *   [rule 10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+ */
 public data class Defaults(
+    /**
+     * Dependency defaults applied to every use of the class under
+     * [rule 10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+     */
     val allUsages: DefaultSpec,
+
+    /**
+     * Dependency and intensity defaults applied only to gains under
+     * [rules 10-1 and 10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+     */
     val gainOnly: DefaultSpec,
+
+    /**
+     * Dependency and intensity defaults applied only to removals under
+     * [rules 10-1 and 10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+     */
     val removeOnly: DefaultSpec,
 ) {
   internal companion object {
@@ -21,14 +45,29 @@ public data class Defaults(
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
       val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
 
-      val gainIntensity = inheritDefault(klass, { it.defaultsDecl.gainOnly.intensity })!!
-      val removeIntensity = inheritDefault(klass, { it.defaultsDecl.removeOnly.intensity })!!
+      val gainIntensity =
+          inheritDefault(klass, { it.defaultsDecl.gainOnly.intensity }, onlyOne(klass, "gain"))!!
+      val removeIntensity =
+          inheritDefault(
+              klass,
+              { it.defaultsDecl.removeOnly.intensity },
+              onlyOne(klass, "removal"),
+          )!!
 
       return Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
           gainOnly = DefaultSpec(gainDeps, gainIntensity),
           removeOnly = DefaultSpec(removeDeps, removeIntensity),
       )
+    }
+
+    /** Reports the class rather than failing anonymously when supertypes disagree. */
+    private fun <T> onlyOne(klass: Class, kind: String): (List<T>) -> T = { candidates ->
+      candidates.singleOrNull()
+          ?: throw invalidPetDefinition(
+              "${klass.className} inherits conflicting $kind intensity defaults: " +
+                  candidates.joinToString()
+          )
     }
 
     private fun <T> inheritDefault(
@@ -78,15 +117,41 @@ public data class Defaults(
                     inherited?.glb(klass.dependencies.get(key))
                   }
                 },
-                { deps: List<Dependency> -> deps.reduce { left, right -> (left glb right)!! } },
+                { deps: List<Dependency> ->
+                  deps.reduce { left, right ->
+                    (left glb right)
+                        ?: throw invalidPetDefinition(
+                            "${klass.className} inherits incompatible defaults for $key: " +
+                                "$left and $right"
+                        )
+                  }
+                },
             )
           }
       return DependencySet.of(deps)
     }
   }
 
+  /**
+   * One inherited default set for a use kind, combined according to
+   * [rules 10-2 through 10-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+   *
+   * @constructor Associates narrowed default [dependencies] with the gain or removal [intensity]
+   *   under
+   *   [rules 10-1 and 10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+   */
   public data class DefaultSpec(
+      /**
+       * Only dependency bounds narrowed by defaults; omitted keys retain declared bounds under
+       * [rule 10-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+       */
       val dependencies: DependencySet = DependencySet.of(),
+
+      /**
+       * The gain or removal intensity inherited independently under
+       * [rule 10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults),
+       * or null for all-usage defaults.
+       */
       val intensity: Intensity?,
   )
 }

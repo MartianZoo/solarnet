@@ -129,7 +129,7 @@ CLASS ProjectEden : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: CityTag<This>, PlantTag<This>
-  This: OceanTile<>, CityTile<>, GreeneryTile<>, -3 ProjectCard
+  This: OceanTile<>, CityTile<>, DefaultGreeneryTile, -3 ProjectCard
 }
 
 CLASS Recession : CardFront<Class<PreludeCard>> {

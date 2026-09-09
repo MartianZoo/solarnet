@@ -50,9 +50,9 @@ internal class LandClaimTest : CardTest() {
     p1.manual("CityTile<Tharsis_1_1>")
 
     shouldThrow<NarrowingException> {
-      p1.manual("GreeneryTile<>") { doTask("GreeneryTile<Tharsis_4_3>") }
+      p1.manual("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_4_3>") }
     }
-    p1.manual("GreeneryTile<>") { doTask("GreeneryTile<Tharsis_2_1>") }
+    p1.manual("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_2_1>") }
 
     p1.assertCounts(1 to "Community<Tharsis_4_2>", 1 to "GreeneryTile<Tharsis_2_1>")
   }

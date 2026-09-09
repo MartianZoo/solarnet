@@ -8,7 +8,7 @@
 > or any API that lets a `Class`/`Type` enumerate game-specific candidates.
 >
 > **Skip when:** changing parsing or nominal subtyping without projection-dependent
-> enumeration; use [TYPES.md](TYPES.md).
+> enumeration; use [type-system-spec.md](../type-system-spec.md).
 >
 > **Status:** current model.
 

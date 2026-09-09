@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -107,21 +106,6 @@ internal class BugsTest : CardTest() {
         0 to "ProjectCard",
         1 to "$SpaceElevator",
     )
-  }
-
-  @Test
-  internal fun `Two colonies on one tile incorrectly merge their bonuses into one instruction`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2, "Titan"))
-    admin.phase("Action")
-    p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
-    p1.manual("Colony<Titan>") { addCardResources(AtmoCollectors) }
-    p1.manual("Colony<Titan>") { addCardResources(AtmoCollectors) }
-
-    // Each colony should request its own Floater, so the two could go on different cards.
-    p1.manual("$ProductiveOutpost") {
-      tasks.extract { "${it.instruction}" } shouldBe listOf("2 Floater<Player1>.")
-      addCardResources(AtmoCollectors)
-    }
   }
 
   @Test

@@ -141,7 +141,7 @@ Keep the substantive reasoning in the owning document and keep this table to one
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
 - **The `Die` produce/consume pipeline** —
-  [SEQUENCING.md](SEQUENCING.md#settled). `Transformers.invalidChangesToDie` emits the
+  [SEQUENCING.md](SEQUENCING.md#settled). `PetElaborator.invalidChangesToDie` emits the
   marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
   duplicated fact. `PremiseViability`'s separate static check buys fail-fast at premise time instead
   of a confusing mid-game `DeadEndException`. Only the interpreter it duplicates from `ClassLoader`
@@ -149,6 +149,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### Accepted for now
 
+- **Refinements as Types** — [type-system-spec.md](../type-system-spec.md#refinements-are-types).
+  One recursive Type model preserves refinements in dependency positions and Type variables without
+  a parallel resolved-expression representation. A separate structural Type model would be more
+  ontologically precise, but its aggregate complexity is not currently justified. Revisit if
+  world-dependent Type operations cause concrete API or correctness problems.
 - **`BigInt`** — a bespoke immutable bit mask serving one field, `Class.abstractSupertypeBits`.
   Common code has no `java.util.BitSet`, so the alternative is a slower supertype test on a hot
   path. Revisit if a multiplatform bitset becomes available or if the test stops being hot.

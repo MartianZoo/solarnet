@@ -3,7 +3,7 @@ package dev.martianzoo.pets.api
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
 
-/** The world-aware operations needed while resolving and narrowing Pets types. */
+/** The semantic environment needed for Type judgments involving state-dependent refinements. */
 public interface TypeInfo {
   public fun isAbstract(e: Expression): Boolean
 

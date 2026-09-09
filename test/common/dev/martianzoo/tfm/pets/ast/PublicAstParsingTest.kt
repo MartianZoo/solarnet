@@ -14,7 +14,7 @@ internal class PublicAstParsingTest {
   @Test
   internal fun publicParsingCoversStructuralAstKinds() {
     parse<FromExpression>("Foo FROM Bar").toExpression.toString() shouldBe "Foo"
-    (parse<Refinement>("(HAS? Foo)") as Has).forgiving shouldBe true
+    (parse<Refinement>("(HAS Foo)") as Has).requirement.toString() shouldBe "Foo"
     parse<Refinement>("(NOT Foo)").toString() shouldBe "NOT Foo"
     parse<Property>("Owner.amount").propertyName.value shouldBe "amount"
     parse<Scalar>("2X") shouldBe XScalar(2)

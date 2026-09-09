@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -21,13 +22,13 @@ internal class ComponentEffectsValidationTest {
           CLASS BrokenHolder<Target> { Wrapper<Target>: Good }
           """
       )
-  private val transformers = Transformers(table)
+  private val elaborator = PetElaborator(table)
 
   @Test
   internal fun `valid specialized component effect is retained`() {
     val component = Component(table.resolve(te("Holder<Good>")))
 
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Good! OR Wrapper<Good>!")
@@ -37,7 +38,7 @@ internal class ComponentEffectsValidationTest {
   internal fun `invalid atomic branch after component specialization becomes Die`() {
     val component = Component(table.resolve(te("Holder<Bad>")))
 
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Good! OR Die!")
@@ -47,7 +48,7 @@ internal class ComponentEffectsValidationTest {
   internal fun `invalid specialized component trigger fails validation`() {
     val component = Component(table.resolve(te("BrokenHolder<Bad>")))
 
-    shouldThrow<ExpressionException> { LiveEffect.compile(component, transformers) }
+    shouldThrow<ExpressionException> { LiveEffect.compile(component, elaborator) }
   }
 
   @Test
@@ -55,7 +56,7 @@ internal class ComponentEffectsValidationTest {
     val otherUniverse = testClassTable("CLASS Holder")
 
     shouldThrow<IllegalArgumentException> {
-      transformers.classEffects(otherUniverse.getClass(cn("Holder")))
+      elaborator.classEffects(otherUniverse.getClass(cn("Holder")))
     }
   }
 
@@ -82,7 +83,7 @@ internal class ComponentEffectsValidationTest {
         )
     val component = Component(table.resolve(te("Receipt<Class<Money>, Class<Operation>>")))
 
-    LiveEffect.compile(component, Transformers(table))
+    LiveEffect.compile(component, PetElaborator(table))
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Debt<Class<Money>>!")

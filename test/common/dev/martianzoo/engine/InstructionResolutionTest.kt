@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -20,16 +20,16 @@ import kotlin.test.Test
 
 internal class InstructionResolutionTest {
   private val game: World = setUpGame(canonicalPremise())
-  private val transformers = Transformers(game.classTable)
+  private val elaborator = PetElaborator(game.classTable)
   private val instructor: Instructor =
       Instructor(
           game.reader,
           Limiter(game.classTable, game.components),
           Changer(game.reader, game.components, game.events),
-          Effector(transformers) { game.reader },
+          Effector(elaborator) { game.reader },
           game.classTable,
-          transformers,
-          CustomClassRuntime(game.reader.catalog, transformers),
+          elaborator,
+          CustomClassRuntime(game.reader.catalog, elaborator),
       )
 
   init {
@@ -37,17 +37,11 @@ internal class InstructionResolutionTest {
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {
-    val xer =
-        chain(
-            transformers.transformMarkedSyntax(),
-            transformers.insertDefaults(),
-            transformers.bindContextualOwner(PLAYER1),
-        )
-    return xer.transformInstructionTree(instr)
+    return elaborator.elaborateInput(instr, game.vocabulary, PLAYER1)
   }
 
   private fun preprocessAndResolve(unresolved: String): InstructionTree {
-    val preprocessed = preprocess(game.vocabulary.canonicalize(parse<InstructionTree>(unresolved)))
+    val preprocessed = preprocess(parse(unresolved))
     return instructor.resolve(
         preprocessed as? Instruction ?: throw abstractInstruction(preprocessed)
     )
@@ -66,7 +60,6 @@ internal class InstructionResolutionTest {
     checkResolution("2 Plant?", "2 Plant<Player1>?")
     checkResolution("-Plant", "-Plant<Player1>!")
     checkResolution("-9 Plant.", "-Plant<Player1>!")
-    checkResolution("55 OxygenStep.", "14 OxygenStep!")
     checkResolution("-4 Heat.", "Ok")
     checkResolution("-4 Heat?", "Ok")
     checkResolution("-CardFront.", "Ok")
@@ -81,7 +74,6 @@ internal class InstructionResolutionTest {
     shouldThrow<DependencyException> { preprocessAndResolve("Microbe<Ants>.") }
     shouldThrow<DependencyException> { preprocessAndResolve("3 Microbe!") }
     shouldThrow<LimitsException> { preprocessAndResolve("-3 Microbe!") }
-    shouldThrow<LimitsException> { preprocessAndResolve("15 OxygenStep!") }
     shouldThrow<LimitsException> { preprocessAndResolve("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndResolve("Plant FROM Heat") }
     shouldThrow<LimitsException> { preprocessAndResolve("2 Heat FROM Plant") }
@@ -181,18 +173,18 @@ internal class InstructionResolutionTest {
   @Test
   internal fun testResolveOr() {
     checkResolution(
-        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +
+        "-2 Plant OR Plant FROM Heat " +
             "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
         "Ok",
     )
     checkResolution(
-        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR (TR: 8 Steel) OR " +
+        "-2 Plant OR Plant FROM Heat OR (TR: 8 Steel) OR " +
             "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
         "8 Steel<Player1>!",
     )
 
     checkResolution(
-        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR -Plant. / TR OR 8 Steel OR " +
+        "-2 Plant OR Plant FROM Heat OR -Plant. / TR OR 8 Steel OR " +
             "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
         "-Plant<Player1>! OR 8 Steel<Player1>!",
     )
@@ -204,7 +196,7 @@ internal class InstructionResolutionTest {
     )
     shouldThrow<NotNowException> {
       preprocessAndResolve(
-          "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
+          "-2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
               "OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
       )
     }

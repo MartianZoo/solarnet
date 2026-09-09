@@ -23,8 +23,8 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 /**
- * Various functions for transforming Pets syntax trees. Many more interesting transformers require
- * a class table, and therefore are found in the `engine` module's `Transformers` class.
+ * Small context-free functions for transforming Pets syntax trees. [PetElaborator] owns the
+ * Class-table-dependent transformation packages.
  */
 public object Transforming {
   // TODO: Move Terraforming Mars payment lowering into tfm-canon.

@@ -67,7 +67,6 @@
 - **expression:** A Pets source or AST representation of a type, naming it through a class, optional written dependency bounds, and an optional refinement. Distinct expressions may resolve to the same type, and one expression may resolve differently in different contexts.
 - **FakeCanon:** The separate catalog of noncanonical support declarations. Tests, replays, and tools compose it with Canon only when they need fake content.
 - **follow mode:** The mode in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays.
-- **forgiving refinement:** A refinement ignored when no currently available type can satisfy it.
 - **game config:** Unresolved user intent: the class names to include, the class names to exclude (spelled with a leading `-`), and the Player names in seat order. A catalog applies defaults, selection policies, and validation to produce one exact game premise.
 - **game premise:** The complete immutable facts needed to create equivalent game worlds: one catalog, the Module classes, the included and excluded other classes, and the exact concrete types initialized once.
 - **game world:** The complete live engine state of a game: its component graph, global task queue, event log, timeline, class table, and vocabulary, together with the catalog and immutable premise behind them. ActorAccess, agents, agent drivers, and generic pulse dispatch are configured above that state.

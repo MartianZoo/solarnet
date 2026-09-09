@@ -55,7 +55,7 @@ CLASS Philares : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 47 MC, RequiredAction { -> GreeneryTile<> }
+  This: 47 MC, RequiredAction { -> DefaultGreeneryTile }
   Adjacency<OwnedTile<Owner>, OwnedTile<Anyone(NOT Owner)>> BY Anyone: StandardResource
 }
 

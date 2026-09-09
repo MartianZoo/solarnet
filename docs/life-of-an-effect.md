@@ -224,7 +224,7 @@ Dependency choices—remain open.
 
 ## 6. A concrete Recyclon Type produces a Component Effect
 
-**PetTransformers, in order:** `bindEffectVariables` composes:
+**PetTransformers, in order:** `PetElaborator.specializeEffect` composes:
 
 1. `replaceOwnerWith`
 2. `replaceThisExpressionsWith`
@@ -282,7 +282,7 @@ test the Live Effect against relevant Change Events for exactly as long as that 
 
 ## 8. A Change Event produces a Triggered Instruction
 
-**PetTransformers, in order:** `bindVariablesFrom` first binds each Trigger variable from
+**PetTransformers, in order:** `PetElaborator.specializeVariables` first binds each Trigger variable from
 the matching Change Event, then builds this effective chain over the Instruction:
 
 1. binding of the Type Variable usages declared by the Trigger
