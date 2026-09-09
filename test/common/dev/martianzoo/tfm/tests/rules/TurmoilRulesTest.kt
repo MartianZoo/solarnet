@@ -36,7 +36,7 @@ internal class TurmoilRulesTest : CardTest() {
     clearSetupPolitics()
     admin.phase("Action")
 
-    p1.stdAction("SendDelegateSA", 1) {
+    p1.stdAction("LobbyAction", 1) {
       doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
     }
 
@@ -59,33 +59,33 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
       }
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
       }
     }
     p1.count("PartyDelegate<MarsFirst>") shouldBe 2
     admin.count("Dominant<MarsFirst>") shouldBe 1
     p2.turn {
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
       }
       p2.count("PartyDelegate<Scientists>") shouldBe 1
       admin.count("Dominant<Scientists>") shouldBe 0
       admin.count("Dominant<MarsFirst>") shouldBe 1
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
       }
     }
     admin.count("Dominant<MarsFirst>") shouldBe 1
     p1.pass()
     p2.turn {
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
       }
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
       }
     }
@@ -107,17 +107,17 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
       }
     }
     p2.turn {
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
       }
       p1.count("PartyLeader<Scientists>") shouldBe 1
       p2.count("PartyLeader<Scientists>") shouldBe 0
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
       }
     }
@@ -134,17 +134,17 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
       }
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
       }
     }
     p2.pass()
     p1.turn {
       repeat(5) {
-        stdAction("SendDelegateSA", 2) {
+        stdAction("LobbyAction", 2) {
           doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
         }
       }
@@ -155,7 +155,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("ReserveDelegate") shouldBe 0
     p1.count("MC") shouldBe 5
     shouldThrow<NotNowException> {
-      p1.stdAction("SendDelegateSA", 2) {
+      p1.stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
       }
     }
@@ -168,7 +168,7 @@ internal class TurmoilRulesTest : CardTest() {
   internal fun `lobby refill moves one reserve delegate only into a vacant lobby`() {
     newGame(TurmoilExpansion)
     admin.phase("Action")
-    p1.stdAction("SendDelegateSA", 1) {
+    p1.stdAction("LobbyAction", 1) {
       doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
     }
 
@@ -188,15 +188,15 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
       }
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
       }
     }
     p2.turn {
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
       }
     }

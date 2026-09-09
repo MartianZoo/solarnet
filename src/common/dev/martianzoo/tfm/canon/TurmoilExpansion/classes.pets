@@ -9,7 +9,7 @@ CLASS TurmoilExpansion : Module {
   HAS Class<ResolveSponsoredProjects>, Class<ResolveCloudSocieties>
   HAS Class<AddResourceToCard>
   HAS Class<ChooseInfluenceFloaterCard>, Class<ResolveCorrosiveRain>
-  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, SendDelegateSA, UseTurmoilPolicySA
+  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, LobbyAction, UseTurmoilPolicyAction
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
@@ -310,7 +310,7 @@ CLASS RecalculateDominanceClockwise : Signal {
 }
 
 "The repeatable lobbying action, free from the Lobby or costing 5 M€ from the reserve"
-CLASS SendDelegateSA : StandardAction {
+CLASS LobbyAction : StandardAction {
   -> PartyDelegate FROM LobbyDelegate
   5 MC -> PartyDelegate FROM ReserveDelegate
 }
@@ -364,7 +364,7 @@ ABSTRACT CLASS Policy<Party> {
   -ActionPhase:: -This!
 }
 
-CLASS UseTurmoilPolicySA : StandardAction {
+CLASS UseTurmoilPolicyAction : StandardAction {
   -> UseAction<ScientistsPolicy, Action1>
   -> UseAction<KelvinistsPolicy, Action1>
 }

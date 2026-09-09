@@ -97,11 +97,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(AsteroidMining, mc = 2, titanium = 7)
       draw(LocalShading)
 
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
         draw(GhgFactories)
       }
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Reds> FROM ReserveDelegate")
       }
       playProject(TowingAComet, mc = 3, titanium = 5) {
@@ -144,7 +144,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(LocalShading, 4)
       cardAction1(LocalShading)
       draw(Omnicourt)
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens> FROM LobbyDelegate")
       }
       pass()
@@ -181,7 +181,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction2(LocalShading)
       playProject(AdvancedAlloys, 9)
       draw(GiantSpaceMirror)
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Kelvinists> FROM LobbyDelegate")
       }
       playProject(GiantSpaceMirror, mc = 2, titanium = 3)
@@ -227,12 +227,12 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         declineTask()
         draw(CeosFavoriteProject)
       }
-      stdAction("UseTurmoilPolicySA") {
+      stdAction("UseTurmoilPolicyAction") {
         draw(VestaShipyard, ResearchOutpost, MiningArea)
       }
       playProject(VestaShipyard, titanium = 3)
       playProject(BribedCommittee, 5)
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
         draw(NewHolland)
       }
@@ -276,7 +276,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(Satellites, titanium = 2)
       playProject(WavePower, 8)
       playProject(Algae, 10)
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens> FROM LobbyDelegate")
         draw(SearchForLife)
       }
@@ -312,7 +312,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin.assertCounts(1 to "PartyDelegate<Scientists>")
       checkHandSizes()
 
-      stdAction("UseTurmoilPolicySA", 2)
+      stdAction("UseTurmoilPolicyAction", 2)
       convertPlants { placeTile(6, 6) }
       playProject(MarsUniversity, 8) {
         doTask("-ProjectCard")
@@ -329,7 +329,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction2(LocalShading)
       playProject(MethaneFromTitan, mc = 2, titanium = 5)
       playProject(EnergyTapping, 2) { doTask("PROD[-Energy<SoloOpponent>]") }
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
       }
       pass()
@@ -368,7 +368,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       checkHandSizes()
 
       cardAction1(LocalShading)
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Reds> FROM LobbyDelegate")
         draw(HiTechLab)
       }
@@ -412,7 +412,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertSidebar(gen = 8, temp = -30, oxygen = 2, oceans = 5, venus = 6)
       checkHandSizes()
 
-      stdAction("UseTurmoilPolicySA") {
+      stdAction("UseTurmoilPolicyAction") {
         draw(CometForVenus, UndergroundDetonations, Tardigrades)
       }
       convertHeat()
@@ -442,7 +442,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(StripMine, mc = 18, steel = 2)
       playProject(SulphurExports, mc = 5, titanium = 3)
       draw(RegoPlastics)
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists> FROM LobbyDelegate")
       }
       pass()
@@ -499,10 +499,10 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         draw(AirScrappingExpedition, Extremophiles)
       }
       sellPatents(TropicalResort, UndergroundDetonations, SoilFactory)
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens> FROM LobbyDelegate")
       }
-      stdAction("SendDelegateSA", 2) {
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Unity> FROM ReserveDelegate")
       }
       playProject(GanymedeColony, mc = 1, titanium = 3)
@@ -556,7 +556,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       checkHandSizes()
 
       convertHeat()
-      stdAction("UseTurmoilPolicySA", 2)
+      stdAction("UseTurmoilPolicyAction", 2)
       cardAction2(ExtractorBalloons)
       cardAction1(Steelworks)
       cardAction1(SmallAnimals)
@@ -577,7 +577,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         discard(CaretakerContract)
         draw(Heather)
       }
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Kelvinists> FROM LobbyDelegate")
         draw(NitriteReducingBacteria)
       }
@@ -688,14 +688,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(VenusianPlants, 10) { addCardResources(Extremophiles) }
       playProject(NoctisFarming, 7)
       convertPlants { placeTile(6, 4) }
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens> FROM LobbyDelegate")
         draw(FuelFactory)
       }
       playProject(MagneticFieldGeneratorsPromo, 19) { placeTile(5, 7) }
       playProject(Plantation, 12) { placeTile(8, 5) }
-      stdProject("AsteroidSP")
-      stdAction("SendDelegateSA", 2) {
+      stdProject("AsteroidProject")
+      stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Greens> FROM ReserveDelegate")
       }
       pass()
@@ -753,7 +753,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         draw(CulturalMetropolis)
         declineTask()
       }
-      stdAction("SendDelegateSA", 1) {
+      stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
         draw(MartianRails)
       }
@@ -775,13 +775,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           WgProject,
           CulturalMetropolis,
       )
-      stdProject("AsteroidSP")
-      stdProject("CitySP") { placeTile(7, 4) }
-      stdProject("CitySP") { placeTile(9, 8) }
-      stdProject("GreenerySP") { placeTile(5, 2) }
+      stdProject("AsteroidProject")
+      stdProject("CityProject") { placeTile(7, 4) }
+      stdProject("CityProject") { placeTile(9, 8) }
+      stdProject("GreeneryProject") { placeTile(5, 2) }
       convertPlants { placeTile(9, 7) }
-      stdProject("CitySP") { placeTile(6, 2) }
-      stdProject("AsteroidSP")
+      stdProject("CityProject") { placeTile(6, 2) }
+      stdProject("AsteroidProject")
       pass()
 
       // Save 200: production completed and final greenery placement is pending.

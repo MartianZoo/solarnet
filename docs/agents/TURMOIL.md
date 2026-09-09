@@ -110,7 +110,7 @@ and removes itself when that phase ends:
 - Reds: every player-attributed rating increase costs 3 M€ per step.
 - Kelvinists: pay 10 M€ for one heat and one energy production.
 
-Scientists and Kelvinists use ordinary action slots. The permanent `UseTurmoilPolicySA` doorway
+Scientists and Kelvinists use ordinary action slots. The permanent `UseTurmoilPolicyAction` doorway
 delegates to whichever of those temporary policies is active; it does not duplicate either cost or
 effect. Making the policy itself a `StandardAction` would incorrectly require it to remain present
 after the Action phase.

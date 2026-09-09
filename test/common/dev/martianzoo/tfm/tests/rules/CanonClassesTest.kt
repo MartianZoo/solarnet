@@ -51,6 +51,8 @@ internal class CanonClassesTest {
             cn("FundAwardAction"),
             cn("DoRequiredActionsAction"),
             cn("TradeAction"),
+            cn("LobbyAction"),
+            cn("UseTurmoilPolicyAction"),
         )
     standardProject.isSubtypeOf(standardAction) shouldBe false
     table.getClass(cn("DoRequiredActionsAction")).isSubtypeOf(standardAction) shouldBe true
