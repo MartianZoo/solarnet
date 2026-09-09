@@ -37,7 +37,7 @@ import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import kotlin.math.abs
 
-private val terraformingMarsCustomClasses: Set<CustomClass> =
+internal val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
         TerraformingMars.Neighbor,
         TerraformingMars.AdjustGpRequirement,
@@ -46,16 +46,6 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.NonNegativeIconsOf,
         TerraformingMars.PlacementBonus,
         TerraformingMars.CopyProductionBox,
-    )
-
-internal val terraformingMarsBundle: StandardFormBundle =
-    StandardFormBundle(
-        "TerraformingMars",
-        terraformingMarsCustomClasses,
-        additionalResourceDirectories =
-            setOf(
-                "bundles/CorporateEraExpansion",
-            ),
     )
 
 /** Namespace for the core game's custom Pets implementations. */

@@ -228,10 +228,10 @@ deferred**; nothing here is a violation until we settle one, and no new abstract
 just to supply the word.
 
 A Module whose Class Name equals its bundle name automatically claims that bundle's cards
-and colony tiles. Any other Module needs an explicit `moduleContentSelections` entry. This
-coincidence is load-bearing, not decorative — check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt)
-before renaming a Module or adding one to an existing bundle. A bundle whose content is claimed by
-map Modules or explicit selections has no self-named Module at all, which is fine.
+and colony tiles. Other Modules do not claim resource content; content needing its own selection
+therefore lives in a separate same-named resource group. This coincidence is load-bearing, not
+decorative — check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) before
+renaming a Module or moving its content.
 
 ## Display names and localization
 

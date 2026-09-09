@@ -181,16 +181,11 @@ internal fun formatPlacements(placements: List<Placement>): String {
 
 private val soloPlacementCatalog: TfmCatalog = Canon
 
-private val soloPlacementVocabulary: Vocabulary = run {
-  val excludedClasses =
-      soloPlacementCatalog.bundles
-          .flatMap { bundle -> bundle.moduleClassExclusions.values.flatten() }
-          .toSet()
-  Vocabulary.create(
-      soloPlacementCatalog,
-      activeClassNames = soloPlacementCatalog.allClassNames - excludedClasses,
-  )
-}
+private val soloPlacementVocabulary: Vocabulary =
+    Vocabulary.create(
+        soloPlacementCatalog,
+        activeClassNames = soloPlacementCatalog.allClassNames,
+    )
 
 public fun main(args: Array<String>) {
   try {

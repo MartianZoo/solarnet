@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
@@ -44,6 +45,62 @@ internal class BootstrapLifecycleTest {
         .message
         .orEmpty()
         .shouldInclude("committed through")
+  }
+
+  @Test
+  internal fun generatedPremiseAloneCreatesRepresentativeConfiguredWorlds() {
+    data class Scenario(
+        val options: List<TestOption>,
+        val players: Int,
+        val map: TestOption,
+        val colonyTiles: Set<ClassName> = emptySet(),
+    )
+
+    val scenarios =
+        listOf(
+            Scenario(emptyList(), players = 1, map = Tharsis),
+            Scenario(listOf(Hellas, PreludeExpansion), players = 2, map = Hellas),
+            Scenario(
+                listOf(Amazonis, VenusNextExpansion, Prelude2Expansion),
+                players = 3,
+                map = Amazonis,
+            ),
+            Scenario(
+                listOf(Cimmeria, ColoniesExpansion),
+                players = 4,
+                map = Cimmeria,
+                colonyTiles = testColonyTiles(players = 4),
+            ),
+        )
+
+    scenarios.forEach { scenario ->
+      val premise =
+          canonicalPremise(
+              *scenario.options.toTypedArray(),
+              players = scenario.players,
+              colonyTiles = scenario.colonyTiles,
+          )
+      val game = Engine.newGame(premise)
+      val admin = game.agent(ADMIN)
+      val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
+      val premiseEvent = changes.single { it.change.gaining?.className == cn("Premise") }
+      val premiseCause = Cause(cn("Premise").expression, premiseEvent.ordinal)
+      val modulesReady = changes.single { it.change.gaining?.className == cn("ModulesReady") }
+
+      admin.count("Player") shouldBe scenario.players
+      admin.count("${scenario.map.className}") shouldBe 1
+      game.tasks.isEmpty() shouldBe true
+
+      val configuredExpressions =
+          premise.modules.map { it.expression } +
+              premise.playerNames.map { it.expression } +
+              premise.initialComponentTypes
+      configuredExpressions.forEach { expression ->
+        val creation = changes.single { it.change.gaining == expression }
+        creation.cause shouldBe premiseCause
+        (creation.ordinal < modulesReady.ordinal) shouldBe true
+      }
+    }
   }
 
   @Test

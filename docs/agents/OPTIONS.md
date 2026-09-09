@@ -95,11 +95,13 @@ whether a Class is its subtype. The resolved premise names every selected concre
 a generated concrete `Premise` Class to its composed Catalog. In Canon, its Pets effects first
 create the selected `BaseGameModule`, then the other literally named Modules, the ordered Players,
 and exact starting components, and finally emit `ModulesReady`. The generated declaration is the
-executable recipe for that specific game. Module effects create their owned non-Module state; they
-do not repeat configuration decisions in a partial live World. Inherited rules keep each Module
-component unique and permanent. Its `autoSelectWhen` and `premiseRequirement` properties have
-meaning because the Catalog reads them. There is no separate Kotlin Module object or special
-component storage.
+exclusive executable recipe for that specific game; initialization does not repeat direct creation
+after executing it. Catalogs without a generated premise use direct creation instead. Both paths
+must finish with exactly one of every configured Module, Player, and initial type. Module effects
+create their owned non-Module state; they do not repeat configuration decisions in a partial live
+World. Inherited rules keep each Module component unique and permanent. Its `autoSelectWhen` and
+`premiseRequirement` properties have meaning because the Catalog reads them. There is no separate
+Kotlin Module object or special component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
 configuration. Module-to-Module defaults and implications are premise policy: the target's
@@ -143,8 +145,10 @@ names `Player1` through `PlayerN`; player counts have no fixed upper limit. Indi
 may still be impossible when finite selected content cannot satisfy their player-count rules. The
 `gamePremise(config, playerDeclarations)` overload instead
 derives every player name and its seat order from explicit concrete Player declarations, including
-any per-seat Pets setup rules. Award scoring conditions its second-place effect directly on the
-presence of at least three Players. Initial state is not an unrestricted Pets script.
+any per-seat Pets setup rules. Callers with test or composed-catalog setup state pass the additional
+exact initial component types to premise generation rather than mutating the finished premise and
+leaving its executable declaration stale. Award scoring conditions its second-place effect directly
+on the presence of at least three Players. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection
@@ -199,16 +203,12 @@ A **Bundle** is an internal unit of ownership, provenance, distribution, and loa
 declarations, category-specific card or map data, and custom implementations. It is not selected
 directly and never becomes a live component.
 
-A Bundle may contain several Modules while retaining their separate card pools. A Module named for
-its owning Bundle selects that Bundle's cards and colony tiles. In multiplayer, its
+A Bundle may contain several Modules, but only a Module named for its owning resource group selects
+that group's cards and colony tiles. In multiplayer, its
 applicable concrete milestones and awards also become category defaults during premise resolution.
 Each map has its own same-named Bundle containing its map definition, areas, goals, and source-local
-goal support. Exceptional cross-Bundle or narrowed selections remain expressible, but Canon's
-normal expansions do not require a central registry to restate their ownership.
-
-Two registry-shaped exceptions remain. `Prelude1CardPack` routes the Prelude 1 cards from the
-larger Prelude Expansion Bundle, and `Prelude2CardPack` routes cards from the differently named
-Prelude 2 Expansion Bundle. These should be removed only after declaration authority is complete.
+goal support. Canon discovers these resource groups from generated resource names; it has no
+per-product Kotlin bundle list or cross-Bundle routing registry.
 
 ### Content grouping
 
@@ -221,10 +221,8 @@ Module. Ordinary Pets references activate the remaining declarations, and the en
 which active Classes instantiate. None has a per-card metadata relationship.
 
 A same-named Module selects the Bundle's cards and supplies its default goal pools through
-general rules. `Prelude1CardPack` should own a separate selectable resource group, represented by
-its own internal Bundle even though it shares a published product with the Prelude 1 rules and
-project cards. Once the common cases use those mechanisms, delete `BundleContentSelection` instead
-of replacing it with directory-basename or map-suffix policy.
+general rules. Prelude rules, shared declarations, and each selectable Prelude card pool therefore
+live in separate resource groups even though they share published products.
 
 Physical product packaging does not require one internal Bundle. Conversely, combining several
 selection groups in one Bundle is not a simplification when it requires a routing registry. Shared
@@ -423,17 +421,15 @@ named domain concept should become generic.
 2. **Moderate — Colonies remains privileged in premise infrastructure.**
    Concrete colony tiles and their immediate or delayed `ColonyTileSelection` representations are
    ordinary Pets classes. `tfm-canon/.../TfmCatalog.kt` still recognizes the `ColonyTile`
-   hierarchy when constructing initial component Types;
-   `tfm-canon/.../BundleContentSelection.kt` retains
-   `COLONY_TILES` as a dedicated content kind so every available tile remains active for mid-game
-   additions. These are premise responsibilities rather than a parallel class-definition format,
-   but a future general model for configured starting components could remove the remaining
-   expansion names.
+   hierarchy when constructing initial component Types and deciding which available tiles remain
+   active for mid-game additions. These are premise responsibilities rather than a parallel
+   class-definition format, but a future general model for configured starting components could
+   remove the remaining expansion names.
 3. **Moderate — expansion concepts appear in engine and card APIs.**
    `engine/.../TfmAgent.kt` publishes `playPrelude` and `venusPercent`.
-   `tfm-canon/.../TfmCatalog.kt` and `tfm-canon/.../TfmClasses.kt` give Prelude cards a special
-   automatic-selection condition. These are real dependencies, but `PreludeCard` and `VenusStep` are
-   legitimate Terraforming Mars concepts; removing their names is not inherently a simplification.
+   `tfm-canon/.../TfmClasses.kt` names Prelude cards for card-specific custom behavior, while
+   automatic selection is authored in Pets. `PreludeCard` and `VenusStep` are legitimate
+   Terraforming Mars concepts; removing their names is not inherently a simplification.
 4. **Low — the legacy script layer enumerates concrete products.**
    `script/.../OptionCodeTranslation.kt` names Corporate Era, the map products, Milestones and
    Awards, Venus, Prelude, Colonies, Turmoil, and Promos. `script/.../ScriptSession.kt` and

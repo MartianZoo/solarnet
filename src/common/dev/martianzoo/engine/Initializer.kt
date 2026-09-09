@@ -25,9 +25,7 @@ internal class Initializer(
     val adminEvent = execute("$ADMIN", cause = null).changes.first()
     val adminCause = Cause(ADMIN.expression, adminEvent.ordinal)
     val premiseCause = createBootstrapComponent(adminCause) ?: adminCause
-    createPremiseComponents(premiseCause)
-    drainBootstrapTasks()
-    createInitialComponents(adminCause)
+    createConfiguredComponents(premiseCause, adminCause)
     drainBootstrapTasks()
     verifyCompletedBootstrap()
     timeline.initializationFinished()
@@ -51,20 +49,24 @@ internal class Initializer(
         .forEach(tasks::addTasks)
   }
 
-  /** Creates the resolved premise recipe; direct creation remains a custom-premise fallback. */
-  private fun createPremiseComponents(cause: Cause) {
-    premise.premiseClassName?.let { execute("$it", cause) }
+  /** Executes a generated premise recipe, or directly creates an uncompiled custom premise. */
+  private fun createConfiguredComponents(premiseCause: Cause, fallbackCause: Cause) {
+    premise.premiseClassName?.let {
+      execute("$it", premiseCause)
+      return
+    }
     createComponents(
         premise.playerNames.map(classTable::getClass).flatMap {
           classTable.concreteSubtypesSameClass(it.baseType)
         },
-        cause,
+        fallbackCause,
         "premise",
     )
-  }
-
-  private fun createInitialComponents(cause: Cause) {
-    createComponents(premise.initialComponentTypes.map(classTable::resolve), cause, "initial")
+    createComponents(
+        premise.initialComponentTypes.map(classTable::resolve),
+        fallbackCause,
+        "initial",
+    )
   }
 
   /** Runs choice-free queued initialization work in stable insertion order. */
@@ -81,11 +83,14 @@ internal class Initializer(
             premise.modules.map(classTable::getClass).map(Class::baseType) +
             premise.playerNames.map(classTable::getClass).map(Class::baseType) +
             premise.initialComponentTypes.map(classTable::resolve)
-    val missing = expected.filter { agent.count("${it.expression}") == 0 }
-    if (missing.isNotEmpty()) {
+    val invalidCounts =
+        expected.associateWith { agent.count("${it.expression}") }.filterValues { it != 1 }
+    if (invalidCounts.isNotEmpty()) {
       throw invalidPetDefinition(
-          "Bootstrap completed without required components: " +
-              missing.joinToString { "${it.expressionFull}" }
+          "Bootstrap did not create each required component exactly once: " +
+              invalidCounts.entries.joinToString { (type, count) ->
+                "${type.expressionFull} (found $count)"
+              }
       )
     }
   }

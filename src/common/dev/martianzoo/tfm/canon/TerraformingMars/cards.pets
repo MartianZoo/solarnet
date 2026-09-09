@@ -327,6 +327,7 @@ CLASS RoverConstruction : ActiveCard<Class<ProjectCard>> {
 
 CLASS DeimosDown : EventCard<Class<ProjectCard>> {
   cost = 31
+  autoSelectWhen = HAS "MAX 0 PromoCardPack"
 
   This:: SpaceTag<This>, EventTag<This>
   This: 3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?
@@ -786,6 +787,7 @@ CLASS AdvancedEcosystems : AutomatedCard<Class<ProjectCard>> {
 CLASS GreatDam : AutomatedCard<Class<ProjectCard>> {
   cost = 12
   requirement = HAS "4 OceanTile"
+  autoSelectWhen = HAS "MAX 0 PromoCardPack"
 
   This:: PowerTag<This>, BuildingTag<This>
   This: PROD[2 Energy]
@@ -948,6 +950,7 @@ CLASS MicroMills : AutomatedCard<Class<ProjectCard>> {
 
 CLASS MagneticFieldGenerators : AutomatedCard<Class<ProjectCard>> {
   cost = 20
+  autoSelectWhen = HAS "MAX 0 PromoCardPack"
 
   This:: BuildingTag<This>
   This: PROD[-4 Energy, 2 Plant], 3 TerraformRating

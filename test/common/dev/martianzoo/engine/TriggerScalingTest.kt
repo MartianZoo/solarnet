@@ -14,8 +14,10 @@ internal class TriggerScalingTest {
   @Test
   internal fun `ordinary triggers scale their result while X triggers produce one result`() {
     val premise =
-        canonicalPremise(catalog = catalog)
-            .copy(initialComponentTypes = setOf(cn("TriggerScalingProbe").expression))
+        canonicalPremise(
+            catalog = catalog,
+            initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
+        )
     val game = Engine.newGame(premise)
     val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
 

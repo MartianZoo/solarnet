@@ -33,7 +33,6 @@ import dev.martianzoo.pets.types.Class as PetClass
 import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.util.associateByStrict
-import dev.martianzoo.tfm.canon.BundleContentSelection.Kind
 
 /** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
 public open class TfmCatalog : Catalog {
@@ -173,7 +172,7 @@ public open class TfmCatalog : Catalog {
                   listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).flatMap { goalClass ->
                     bundleClassesBelow(bundle, goalClass, includeAbstract = true)
                   }
-              val customClassNames = bundle.customClasses.mapTo(hashSetOf(), CustomClass::className)
+              val customClassNames = customClasses.mapTo(hashSetOf(), CustomClass::className)
               val goalSupportClassNames =
                   goalDeclarations
                       .flatMap(ClassDeclaration::allNodes)
@@ -214,7 +213,10 @@ public open class TfmCatalog : Catalog {
    * one generated concrete `Premise` Class whose immediate effects create the resolved Modules,
    * Players, and exact starting Components.
    */
-  public open fun gamePremise(config: GameConfig): GamePremise {
+  public open fun gamePremise(
+      config: GameConfig,
+      additionalInitialComponentTypes: Set<Expression> = emptySet(),
+  ): GamePremise {
     val configuredPlayerNames = config.playerNames
     if (PLAYER in allClassNames) {
       require(configuredPlayerNames.isNotEmpty()) {
@@ -229,7 +231,9 @@ public open class TfmCatalog : Catalog {
           } else {
             withPlayers(configuredPlayerNames)
           }
-      if (catalogWithPlayers !== this) return catalogWithPlayers.gamePremise(config)
+      if (catalogWithPlayers !== this) {
+        return catalogWithPlayers.gamePremise(config, additionalInitialComponentTypes)
+      }
     }
     val explicitlyIncluded =
         resolveConfigurationNames(config.includedClassNames) + configuredPlayerNames
@@ -330,7 +334,12 @@ public open class TfmCatalog : Catalog {
             .filterKeys { it !in configuredPlayerNames }
             .mapTo(linkedSetOf()) { (className, included) -> ClassSelection(className, included) }
     val initialTypes =
-        individualNames.filter { it in colonyNames }.mapTo(linkedSetOf(), ::initialColonyTileType)
+        individualNames
+            .filter { it in colonyNames }
+            .mapTo(
+                additionalInitialComponentTypes.toCollection(linkedSetOf()),
+                ::initialColonyTileType,
+            )
     if (configuredPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
       initialTypes.add(SOLO_COLONIES_SETUP.of(configuredPlayerNames.single().expression))
     }
@@ -683,82 +692,22 @@ public open class TfmCatalog : Catalog {
             map.areas.forEach { area -> add(ClassSelection(area.className)) }
           }
         }
-    val ordinaryCards =
-        if (moduleName in owner.moduleContentSelections) {
-          null
-        } else {
-          owner.moduleCardClassNames[moduleName]?.let { names ->
-            cards.filterTo(linkedSetOf()) { it.className in names }
-          }
-        }
-    val contentSelections =
-        owner.moduleContentSelections[moduleName]
-            ?: if (moduleName == owner.bundleName) {
-              setOf(
-                  BundleContentSelection(
-                      owner.bundleName,
-                      if (ordinaryCards == null) setOf(Kind.CARDS, Kind.COLONY_TILES)
-                      else setOf(Kind.COLONY_TILES),
-                  )
-              )
-            } else {
-              emptySet()
-            }
-    val bundlesByName = bundles.associateByStrict(Bundle::bundleName)
-    val selections =
-        contentSelections.flatMapTo(linkedSetOf()) { content ->
-          require(content.bundleName in bundlesByName) {
-            "Module $moduleName selects unknown bundle ${content.bundleName}"
-          }
-          selectionsFrom(bundlesByName.getValue(content.bundleName), content)
-        }
-    owner.moduleClassExclusions[moduleName].orEmpty().forEach { className ->
-      selections.add(ClassSelection(className, included = false))
-    }
-    ordinaryCards?.let { cards ->
+    val selections = linkedSetOf<ClassSelection>()
+    owner.moduleCardClassNames[moduleName]?.let { names ->
+      val cards = cards.filterTo(linkedSetOf()) { it.className in names }
       selections.addCards(cards)
       selections.addCardResourceRoots(owner.moduleCardClassNames.getValue(moduleName))
     }
-    return selections
-  }
-
-  private fun selectionsFrom(
-      bundle: Bundle,
-      selection: BundleContentSelection,
-  ): Set<ClassSelection> = buildSet {
-    val kinds = selection.kinds
-    if (Kind.CARDS in kinds) {
-      val selectedCards = bundleCards(bundle)
-      addCards(selectedCards)
-      addCardResourceRoots(bundle.cardResourceClassNames)
-    }
-    if (Kind.MAPS in kinds) {
-      bundle.marsMapDefinitions.forEach { map ->
-        val requirement = contentCompatibilityRequirement(map.className)
-        add(ClassSelection(map.className, requirement = requirement))
-        map.areas.forEach { area ->
-          add(
-              ClassSelection(
-                  area.className,
-                  requirement =
-                      Requirement.join(
-                          requirement,
-                          contentCompatibilityRequirement(area.className),
-                      ),
-              )
-          )
-        }
-      }
-    }
-    if (Kind.COLONY_TILES in kinds) {
-      bundle.explicitClassDeclarations
+    if (moduleName == owner.bundleName) {
+      owner.explicitClassDeclarations
           .filter { declaration ->
             !declaration.abstract &&
                 (isSubtypeOf(declaration.className, COLONY_TILE) ||
                     isSubtypeOf(declaration.className, COLONY_TILE_SELECTION))
           }
-          .mapTo(this) { declaration -> ClassSelection(declaration.className) }
+          .mapTo(selections) { declaration -> ClassSelection(declaration.className) }
     }
+    return selections
   }
 
   private fun MutableSet<ClassSelection>.addCards(
@@ -790,7 +739,11 @@ public open class TfmCatalog : Catalog {
 
   private fun automaticSelectionRequirement(card: PetClass): Requirement? {
     return Requirement.join(
-        PRELUDE_CARD_PACK_ONLY.takeIf { cardBack(card)?.className == TfmClasses.PRELUDE_CARD },
+        listOf(card, cardBack(card))
+            .mapNotNull { selectedClass ->
+              (selectedClass?.properties?.get(AUTO_SELECT_WHEN) as? RequirementValue)?.value
+            }
+            .fold<Requirement, Requirement?>(null, Requirement::join),
         cardBundleCompatibilityRequirement(card),
     )
   }
@@ -886,11 +839,6 @@ public open class TfmCatalog : Catalog {
     cardClassNames.mapTo(linkedSetOf(), classTable::getClass)
   }
 
-  private fun bundleCards(bundle: Bundle): Set<PetClass> {
-    val names = bundle.explicitClassDeclarations.mapTo(hashSetOf(), ClassDeclaration::className)
-    return cards.filterTo(linkedSetOf()) { it.className in names }
-  }
-
   private val cardsByClassName by lazy {
     cards.associateByStrict(PetClass::className)
   }
@@ -922,7 +870,6 @@ public open class TfmCatalog : Catalog {
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
     private val SELECTED_COLONY_TILE = cn("SelectedColonyTile")
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
-    private val PRELUDE_CARD_PACK_ONLY: Requirement = parse("PreludeCardPack")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
     private const val MINIMUM_GOAL_POOL_SIZE = 3
   }

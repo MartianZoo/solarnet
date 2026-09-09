@@ -1,0 +1,4 @@
+"Prelude 2 card pool, including active preludes and cards that combine expansions"
+CLASS Prelude2CardPack : PreludeCardPack {
+  autoSelectWhen = HAS "Prelude2Expansion"
+}
