@@ -1,46 +1,32 @@
-CLASS AquiferReleasedByPublicCouncil : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS AquiferReleasedByPublicCouncil : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
     EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
   ResolveGlobalEvent<Class<This>>:: EACH Player { Plant / Influence, Steel / Influence }
 }
 
-CLASS AsteroidMiningGlobalEvent : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS AsteroidMiningGlobalEvent : GePartyDistant<Reds>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { Titanium / JovianTag MAX 5, Titanium / Influence }
 }
 
-CLASS CelebrityLeaders : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS CelebrityLeaders : GePartyDistant<Unity>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / PlayedEvent MAX 5, 2 MC / Influence }
 }
 
-CLASS Diversity : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS Diversity : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDiversity<Player> }
 }
 
-CLASS DryDeserts : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
     EACH Player(HAS StartToken) { RemoveOceanForGlobalEvent<Player> }
   ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDryDeserts<Player> }
 }
 
-CLASS EcoSabotage : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { -Plant! / (Plant - Influence - 3) }
 }
 
-CLASS Election : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS Election : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
     EACH Player(HAS =1 (RANK Player { Influence<Player> OR BuildingTag<Player> OR CityTile<Player> })) { 2 TerraformRating }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
@@ -49,89 +35,65 @@ CLASS Election : GlobalEvent {
     EACH Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
 }
 
-CLASS GenerousFunding : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS GenerousFunding : GePartyDistant<Kelvinists>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     2 MC / 5 (TerraformRating - 15) MAX 5, 2 MC / Influence \
   }
 }
 
-CLASS GlobalDustStorm : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS GlobalDustStorm : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     -Heat! / Heat, -2 MC. / (BuildingTag MAX 5 - Influence) \
   }
 }
 
-CLASS HomeworldSupport : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS HomeworldSupport : GePartyDistant<Reds>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / EarthTag MAX 5, 2 MC / Influence }
 }
 
-CLASS ImprovedEnergyTemplates : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS ImprovedEnergyTemplates : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     PROD[Energy / 2 (PowerTag OR Influence)] \
   }
 }
 
-CLASS InterplanetaryTradeGlobalEvent : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS InterplanetaryTradeGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / SpaceTag MAX 5, 2 MC / Influence }
 }
 
-CLASS MinersOnStrike : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS MinersOnStrike : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     -Titanium. / (JovianTag MAX 5 - Influence) \
   }
 }
 
-CLASS MudSlides : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS MudSlides : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     -4 MC. / (OwnedTile<MarsArea(HAS Neighbor<OceanTile>)> MAX 5 - Influence) \
   }
 }
 
-CLASS Pandemic : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS Pandemic : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     -3 MC. / (BuildingTag MAX 5 - Influence) \
   }
 }
 
-CLASS ParadigmBreakdown : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS ParadigmBreakdown : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { -2 ProjectCard., 2 ProjectCard / Influence }
 }
 
-CLASS Productivity : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS Productivity : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { Steel / PROD[Steel] MAX 5, Steel / Influence }
 }
 
-CLASS RedInfluence : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     -3 MC. / (5 (TerraformRating - 10) MAX 5), PROD[MC / Influence] \
   }
 }
 
-CLASS Revolution : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS Revolution : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
     EACH Player(HAS 1 (EarthTag OR Influence), =1 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
       -2 TerraformRating. \
@@ -144,80 +106,56 @@ CLASS Revolution : GlobalEvent {
     EACH Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }
 }
 
-CLASS Riots : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS Riots : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { -4 MC. / (CityTile MAX 5 - Influence) }
 }
 
-CLASS SabotageGlobalEvent : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS SabotageGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     PROD[-Steel., -Energy.], Steel / Influence \
   }
 }
 
-CLASS ScientificCommunity : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS ScientificCommunity : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { MC / ProjectCard, MC / Influence }
 }
 
-CLASS SnowCover : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep. BY Admin
   ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
 }
 
-CLASS SolarFlare : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS SolarFlare : GePartyDistant<Unity>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { -3 MC. / (SpaceTag MAX 5 - Influence) }
 }
 
-CLASS SolarnetShutdown : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS SolarnetShutdown : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { -3 MC. / (ActiveCard MAX 5 - Influence) }
 }
 
-CLASS SpinOffProducts : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / ScienceTag MAX 5, 2 MC / Influence }
 }
 
-CLASS SponsoredProjects : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveSponsoredProjects<Player> }
 }
 
-CLASS StrongSociety : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS StrongSociety : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / CityTile MAX 5, 2 MC / Influence }
 }
 
-CLASS SuccessfulOrganisms : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS SuccessfulOrganisms : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { Plant / PROD[Plant] MAX 5, Plant / Influence }
 }
 
-CLASS VolcanicEruptions : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS VolcanicEruptions : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: \
     EACH Player(HAS StartToken) { RaiseTemperatureForGlobalEvent<Player> }
   ResolveGlobalEvent<Class<This>>:: EACH Player { PROD[Heat / Influence] }
 }
 
-CLASS WarOnEarth : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS WarOnEarth : GePartyDistant<MarsFirst>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { -TerraformRating. / (4 - Influence) }
 }
 

@@ -297,43 +297,33 @@ CLASS PoliticalAlliance : EventCard<Class<ProjectCard>> {
   This: TerraformRating
 }
 
-CLASS JovianTaxRights : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS JovianTaxRights : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     PROD[MC / Colony MAX 5], Titanium / Influence \
   }
 }
 
-CLASS MicrogravityHealthProblems : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS MicrogravityHealthProblems : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     -3 MC. / (Colony MAX 5 - Influence) \
   }
 }
 
-CLASS VenusInfrastructure : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
+CLASS VenusInfrastructure : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
     2 MC / VenusTag MAX 5, 2 MC / Influence \
   }
 }
 
-CLASS CloudSocieties : GlobalEvent {
+CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
 
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>.
   ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCloudSocieties<Player> }
 }
 
-CLASS CorrosiveRain : GlobalEvent {
+CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   HAS Class<VenusTag>, Class<Colony>
 
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
-  Current<Class<This>>:: PartyDelegate<Greens, Neutral> FROM ReserveDelegate<Neutral>.
   ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCorrosiveRain<Player> }
 }
 

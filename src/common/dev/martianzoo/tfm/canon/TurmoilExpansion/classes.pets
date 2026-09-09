@@ -33,6 +33,16 @@ ABSTRACT CLASS GlobalEvent {
   -Current<Class<This>>:: -This!
 }
 
+"The party receiving the neutral delegate printed in a Global Event's distant position"
+ABSTRACT CLASS GePartyDistant<Party> : GlobalEvent {
+  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Party, Neutral> FROM ReserveDelegate<Neutral>.
+}
+
+"The party receiving the neutral delegate when a Global Event becomes current"
+ABSTRACT CLASS GePartyCurrent<Party> : GlobalEvent {
+  Current<Class<This>>:: PartyDelegate<Party, Neutral> FROM ReserveDelegate<Neutral>.
+}
+
 "One Global Event card occupying its printed board position"
 ABSTRACT CLASS GlobalEventPosition<Class<GlobalEvent>>
 
