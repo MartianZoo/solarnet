@@ -330,6 +330,24 @@ CLASS DelegateInfluence : Influence {
   HAS MAX 1 This
 }
 
+"The extra influence supplied by Event Analysts"
+CLASS EventAnalystsInfluence : Influence {
+  HAS MAX 1 This
+}
+
+"Returns one selected non-leader delegate to its owner's reserve"
+CLASS BannedDelegateRemoval<Party, Anyone> : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This: ReserveDelegate<Anyone> FROM PartyDelegate<Party, Anyone> THEN -This!
+}
+
+"Exchanges one neutral non-leader delegate for one of the player's reserve delegates"
+CLASS RecruitmentExchange<Party> : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This: ReserveDelegate<Neutral> FROM PartyDelegate<Party, Neutral> THEN \
+    PartyDelegate<Party, Owner> FROM ReserveDelegate<Owner> THEN -This!
+}
+
 "A ruling party's capability during the Action phase"
 ABSTRACT CLASS Policy<Party> {
   HAS MAX 1 Policy

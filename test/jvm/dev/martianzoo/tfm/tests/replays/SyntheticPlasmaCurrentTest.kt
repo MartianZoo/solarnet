@@ -1,29 +1,11 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-
-// One card in this archive is not yet canonical Solarnet content. This replay-local Pets form
-// states its recorded behavior.
-private val syntheticPlasmaCurrentCards =
-    parseClasses(
-            """
-            CLASS RedTourismWave : EventCard<Class<ProjectCard>> {
-              cost = 3
-              requirement = HAS "Ruling<Reds> OR 2 PartyDelegate<Reds>"
-              This:: EarthTag<This>, EventTag<This>
-              This: 8 MC
-            }
-            """
-        )
-        .toSet()
 
 // Complete archive replay: Synthetic Plasma Current (g5625e0252c7c), solo win in generation 12.
 // Source: _local/replays/Game20260908/game-g5625e0252c7c.sqlite and full-log.txt
@@ -35,19 +17,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           TharsisMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilExpansion
           Tr63SoloObjective
-          RedTourismWave
           """,
           "Bloo",
       )
-
-  override val catalog: TfmCatalog by lazy {
-    TfmCatalog.compose(
-        canonicalCatalog(config),
-        object : TfmCatalog() {
-          override val explicitClassDeclarations = syntheticPlasmaCurrentCards
-        },
-    )
-  }
 
   override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
@@ -886,18 +858,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   }
 
   private companion object {
-    val AerialLenses = cn("AerialLenses")
-    val CulturalMetropolis = cn("CulturalMetropolis")
-    val CorridorsOfPower = cn("CorridorsOfPower")
-    val EnvoysFromVenus = cn("EnvoysFromVenus")
-    val FrontierTown = cn("FrontierTown")
-    val MartianMediaCenter = cn("MartianMediaCenter")
-    val RedTourismWave = cn("RedTourismWave")
-    val SpecialPermit = cn("SpecialPermit")
     val SpinOffProducts = cn("SpinOffProducts")
     val SuccessfulOrganisms = cn("SuccessfulOrganisms")
     val VolcanicEruptions = cn("VolcanicEruptions")
-    val VoteOfNoConfidence = cn("VoteOfNoConfidence")
-    val WgProject = cn("WgProject")
   }
 }

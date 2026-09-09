@@ -25,7 +25,7 @@ Owning implementation:
   owns setup, delegates, political state, influence, government, policies, event movement, and the
   Solar operation.
 - [`TurmoilExpansion/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/cards.pets)
-  owns the expansion's supported cards and 31 base events.
+  owns its four supported corporations, all sixteen project cards, and 31 base events.
 - [`PromoCardPack/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
   owns the five promotional events associated with Venus Next or Colonies. Their semantic
   references make premise projection require the promo pack, Turmoil, and the applicable companion
@@ -46,8 +46,10 @@ Test ownership:
   solo formulas.
 - [`TurmoilSolarPhaseTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilSolarPhaseTest.kt)
   covers ordered Solar integration and unfinished event choices.
+- [`TurmoilProjectCardsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/TurmoilProjectCardsTest.kt)
+  covers the project cards whose delegate, influence, and triggered effects need focused evidence.
 - [`SyntheticPlasmaCurrentTest.kt`](../../test/jvm/dev/martianzoo/tfm/tests/replays/SyntheticPlasmaCurrentTest.kt)
-  replays a preserved twelve-generation solo game through outward gameplay APIs.
+  replays a preserved twelve-generation solo game with the canonical project cards.
 
 ## Political components
 

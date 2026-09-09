@@ -104,7 +104,7 @@ CLASS HighCircles : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: EarthTag<This>
-  This: TerraformRating, CARDS[SearchForCard(HAS PartyRequirementCard)], \
+  This: TerraformRating, CARDS[SearchForCard(HAS partyRequirement)], \
     PartyDelegate<Party> FROM ReserveDelegate THEN PartyDelegate<Party> FROM ReserveDelegate
   MeasureInfluence:: HighCirclesInfluence
 }
@@ -241,7 +241,7 @@ CLASS CloudTourism : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   -> Floater<This>
 }
 
-CLASS ColonialEnvoys : PartyRequirementCard, EventCard<Class<ProjectCard>> {
+CLASS ColonialEnvoys : EventCard<Class<ProjectCard>> {
   cost = 4
   requirement = HAS "Ruling<Unity> OR 2 PartyDelegate<Unity>"
 
@@ -274,7 +274,7 @@ CLASS FloatingRefinery : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCar
   2 Floater -> Titanium, 2 MC
 }
 
-CLASS FrontierTown : PartyRequirementCard, AutomatedCard<Class<ProjectCard>> {
+CLASS FrontierTown : AutomatedCard<Class<ProjectCard>> {
   cost = 11
   requirement = HAS "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>"
 
@@ -282,7 +282,7 @@ CLASS FrontierTown : PartyRequirementCard, AutomatedCard<Class<ProjectCard>> {
   This: FrontierTownBonus, PROD[-Energy], CityTile<> THEN -FrontierTownBonus.
 }
 
-CLASS GhgShipment : PartyRequirementCard, EventCard<Class<ProjectCard>> {
+CLASS GhgShipment : EventCard<Class<ProjectCard>> {
   cost = 3
   requirement = HAS "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>"
 
@@ -314,7 +314,7 @@ CLASS MicrogravityNutrition : AutomatedCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS RedAppeasement : PartyRequirementCard, EventCard<Class<ProjectCard>> {
+CLASS RedAppeasement : EventCard<Class<ProjectCard>> {
   cost = 0
   requirement = HAS "(Ruling<Reds> OR 2 PartyDelegate<Reds>), MAX 0 Pass<Anyone>"
 
@@ -330,7 +330,7 @@ CLASS SoilStudies : EventCard<Class<ProjectCard>> {
   This: Plant / (VenusTag OR PlantTag OR Colony)
 }
 
-CLASS SpecialPermit : PartyRequirementCard, EventCard<Class<ProjectCard>> {
+CLASS SpecialPermit : EventCard<Class<ProjectCard>> {
   cost = 5
   requirement = HAS "Ruling<Greens> OR 2 PartyDelegate<Greens>"
 
@@ -355,7 +355,7 @@ CLASS StratosphericExpedition : EventCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS SummitLogistics : PartyRequirementCard, AutomatedCard<Class<ProjectCard>> {
+CLASS SummitLogistics : AutomatedCard<Class<ProjectCard>> {
   cost = 10
   requirement = HAS "Ruling<Scientists> OR 2 PartyDelegate<Scientists>"
 
@@ -414,8 +414,6 @@ CLASS WgProject : AutomatedCard<Class<ProjectCard>> {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-ABSTRACT CLASS PartyRequirementCard
-
 CLASS Director : CardResource<ResourceHolder<Class<Director>>>
 
 CLASS ColonialRepresentationInfluence : Influence { HAS MAX 1 This }

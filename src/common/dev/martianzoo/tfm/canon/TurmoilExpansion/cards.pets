@@ -255,5 +255,139 @@ CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
   PROD[StandardResource] -> 4 StandardResource
 }
 
+CLASS AerialLenses : AutomatedCard<Class<ProjectCard>> {
+  cost = 2
+  requirement = HAS "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>"
+
+  This: -2 Plant<Anyone>?, PROD[2 Heat]
+  End: -VictoryPoint
+}
+
+CLASS BannedDelegate : EventCard<Class<ProjectCard>> {
+  cost = 0
+  requirement = HAS "Chairman"
+
+  This:: EventTag<This>
+  This: BannedDelegateRemoval<Party, Anyone>. / \
+    (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
+}
+
+CLASS CulturalMetropolis : AutomatedCard<Class<ProjectCard>> {
+  cost = 20
+  requirement = HAS "(Ruling<Unity> OR 2 PartyDelegate<Unity>), 2 ReserveDelegate"
+
+  This:: CityTag<This>, BuildingTag<This>
+  This: PROD[-Energy, 3 MC], CityTile<>, \
+    PartyDelegate<Party> FROM ReserveDelegate THEN PartyDelegate<Party> FROM ReserveDelegate
+}
+
+CLASS DiasporaMovement : AutomatedCard<Class<ProjectCard>> {
+  cost = 7
+  requirement = HAS "Ruling<Reds> OR 2 PartyDelegate<Reds>"
+
+  This:: JovianTag<This>
+  This: MC / JovianTag<Anyone>
+  End: VictoryPoint
+}
+
+CLASS EventAnalysts : ActiveCard<Class<ProjectCard>> {
+  cost = 5
+  requirement = HAS "Ruling<Scientists> OR 2 PartyDelegate<Scientists>"
+
+  This:: ScienceTag<This>
+  MeasureInfluence:: EventAnalystsInfluence
+}
+
+CLASS GmoContract : ActiveCard<Class<ProjectCard>> {
+  cost = 3
+  requirement = HAS "Ruling<Greens> OR 2 PartyDelegate<Greens>"
+
+  This:: MicrobeTag<This>, ScienceTag<This>
+  AnimalTag OR PlantTag OR MicrobeTag: 2 MC
+}
+
+CLASS MartianMediaCenter : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 7
+  requirement = HAS "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>"
+
+  This:: BuildingTag<This>
+  This: PROD[2 MC]
+  3 MC -> PartyDelegate<Party> FROM ReserveDelegate
+}
+
+CLASS ParliamentHall : AutomatedCard<Class<ProjectCard>> {
+  cost = 8
+  requirement = HAS "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>"
+
+  This:: BuildingTag<This>
+  This: PROD[MC / 3 BuildingTag]
+  End: VictoryPoint
+}
+
+CLASS PrOffice : AutomatedCard<Class<ProjectCard>> {
+  cost = 7
+  requirement = HAS "Ruling<Unity> OR 2 PartyDelegate<Unity>"
+
+  This:: EarthTag<This>
+  This: TerraformRating, MC / EarthTag
+}
+
+CLASS PublicCelebrations : EventCard<Class<ProjectCard>> {
+  cost = 8
+  requirement = HAS "Chairman"
+
+  This:: EventTag<This>
+  End: 2 VictoryPoint
+}
+
+CLASS Recruitment : EventCard<Class<ProjectCard>> {
+  cost = 2
+  requirement = HAS "ReserveDelegate, 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)"
+
+  This:: EventTag<This>
+  This: RecruitmentExchange<Party> / \
+    (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>) MAX 1
+}
+
+CLASS RedTourismWave : EventCard<Class<ProjectCard>> {
+  cost = 3
+  requirement = HAS "Ruling<Reds> OR 2 PartyDelegate<Reds>"
+
+  This:: EarthTag<This>, EventTag<This>
+  This: MC / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)
+}
+
+CLASS SponsoredMohole : AutomatedCard<Class<ProjectCard>> {
+  cost = 5
+  requirement = HAS "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>"
+
+  This:: BuildingTag<This>
+  This: PROD[2 Heat]
+}
+
+CLASS SupportedResearch : AutomatedCard<Class<ProjectCard>> {
+  cost = 3
+  requirement = HAS "Ruling<Scientists> OR 2 PartyDelegate<Scientists>"
+
+  This:: ScienceTag<This>
+  This: 2 ProjectCard
+}
+
+CLASS WildlifeDome : AutomatedCard<Class<ProjectCard>> {
+  cost = 15
+  requirement = HAS "Ruling<Greens> OR 2 PartyDelegate<Greens>"
+
+  This:: AnimalTag<This>, PlantTag<This>, BuildingTag<This>
+  This: GreeneryTile<>
+}
+
+CLASS VoteOfNoConfidence : EventCard<Class<ProjectCard>> {
+  cost = 5
+  requirement = HAS "PartyLeader, Chairman<Neutral>, ReserveDelegate"
+
+  This:: EventTag<This>
+  This: ReserveDelegate<Neutral> FROM Chairman<Neutral> THEN Chairman FROM ReserveDelegate, TerraformRating
+}
+
 // Supporting declarations contributed by cards in this expansion.
 CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>
