@@ -57,6 +57,19 @@ A few terms are used precisely throughout:
   interface. Most of the type system never needs one. Where a rule does, it says so.
 - A **universe** is one Catalog's complete, immutable set of classes and types.
 
+### Refinements are types
+
+This specification treats refinement types as genuine types. A `HAS` refinement gives its type a
+denotation relative to a world, so a narrowing judgment involving it may need that world as an
+input. `TypeInfo` supplies the environment for that judgment; it does not complete an otherwise
+incomplete type. A **structural type** means the refinement-free subset of Types, recursively through
+its dependencies. `GroundType` means only that a Type is not a Type variable; a Ground Type may
+carry refinements.
+
+Not every Type is legal in every role. In particular, a component needs one concrete Type as its
+state-independent identity, and Class signatures accept only structural Types. Those restrictions
+do not make refinement types a separate kind of expression.
+
 ### What this document does not cover
 
 Three neighbours are deliberately out of scope:
@@ -411,9 +424,10 @@ ignored, which is exactly what projects a type onto each of its supertypes — a
 is not part of what an `Occupant` is. `Class.specialize(arguments)` applies arguments to the base
 type, using the matching rule of 3-5.
 
-**5-8. `Type` has two forms.** A `GroundType` is an ordinary resolved type: it is its own
-`groundType`, and its `typeVariable` is absent. The other form is a type variable; see section 13.
-Code that only needs classes, dependencies or narrowing can treat both uniformly.
+**5-8. `Type` has two forms.** A `GroundType` is a resolved, non-variable type, optionally carrying
+a refinement: it is its own `groundType`, and its `typeVariable` is absent. The other form is a type
+variable; see section 13. Code that only needs classes, dependencies or narrowing can treat both
+uniformly.
 
 ---
 
@@ -798,7 +812,7 @@ PROD[StandardResource]: StandardResource
 **type variable**: one choice, used twice.
 
 **13-1. A variable is a kind of type.** `Type` has exactly two forms: an ordinary `GroundType`, and a
-`TypeVariable` whose structural meaning is its `bound` — itself a ground type. Every ordinary
+`TypeVariable` whose resolved meaning is its `bound` — itself a ground type. Every ordinary
 operation (`rootClass`, `dependencies`, `narrows`, `abstract`) works on a variable through its bound,
 so code that does not care about capture can ignore the distinction. Code that does care asks for
 `typeVariable`, which is absent on a ground type.
