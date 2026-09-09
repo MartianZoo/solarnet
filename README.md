@@ -62,7 +62,8 @@ I haven't written too much yet.
 * [Cheat sheet](docs/cheat-sheet.md)
 * Overview of [component types](docs/component-types.md) -- not a bad place to start
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
-* The Pets [type system](docs/type-system.md) (incomplete)
+* The Pets [type system](docs/type-system.md) (incomplete), and its full
+  [specification](docs/type-system-spec.md)
 * The growing project [glossary](docs/glossary.md)
 * API docs -- see below
 

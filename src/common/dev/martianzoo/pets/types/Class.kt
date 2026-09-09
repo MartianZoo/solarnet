@@ -348,15 +348,27 @@ internal constructor(
         }
     )
   }
-  // Laziness enables dependency cycles.
+  private var resolvingDependencies: Boolean = false
+
+  // Laziness lets classes refer to each other; a true cycle has no finite answer, so it is
+  // rejected.
   private val dependenciesLazy = lazy {
-    val result =
-        if (className == CLASS) {
-          depsForClassType(loader.componentClass)
-        } else {
-          inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
-        }
-    result
+    if (resolvingDependencies) {
+      throw PetException(
+          "$className has a circular dependency: resolving its dependency bounds requires " +
+              "those same bounds"
+      )
+    }
+    resolvingDependencies = true
+    try {
+      if (className == CLASS) {
+        depsForClassType(loader.componentClass)
+      } else {
+        inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
+      }
+    } finally {
+      resolvingDependencies = false
+    }
   }
   public val dependencies: DependencySet
     get() = dependenciesLazy.value
@@ -800,7 +812,14 @@ internal constructor(
     ): List<Class> {
       return declaration.supertypes
           .classNames()
-          .also { require(COMPONENT !in it) }
+          .also {
+            if (COMPONENT in it) {
+              throw PetException(
+                  "${declaration.className} must not name $COMPONENT as a supertype; " +
+                      "every class extends it already"
+              )
+            }
+          }
           .ifEmpty { listOf(COMPONENT) }
           .map { loader.loadRelated(it, active = true) }
     }

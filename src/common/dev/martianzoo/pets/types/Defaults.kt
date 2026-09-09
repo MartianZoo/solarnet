@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
@@ -21,14 +22,29 @@ public data class Defaults(
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
       val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
 
-      val gainIntensity = inheritDefault(klass, { it.defaultsDecl.gainOnly.intensity })!!
-      val removeIntensity = inheritDefault(klass, { it.defaultsDecl.removeOnly.intensity })!!
+      val gainIntensity =
+          inheritDefault(klass, { it.defaultsDecl.gainOnly.intensity }, onlyOne(klass, "gain"))!!
+      val removeIntensity =
+          inheritDefault(
+              klass,
+              { it.defaultsDecl.removeOnly.intensity },
+              onlyOne(klass, "removal"),
+          )!!
 
       return Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
           gainOnly = DefaultSpec(gainDeps, gainIntensity),
           removeOnly = DefaultSpec(removeDeps, removeIntensity),
       )
+    }
+
+    /** Reports the class rather than failing anonymously when supertypes disagree. */
+    private fun <T> onlyOne(klass: Class, kind: String): (List<T>) -> T = { candidates ->
+      candidates.singleOrNull()
+          ?: throw invalidPetDefinition(
+              "${klass.className} inherits conflicting $kind intensity defaults: " +
+                  candidates.joinToString()
+          )
     }
 
     private fun <T> inheritDefault(
@@ -78,7 +94,15 @@ public data class Defaults(
                     inherited?.glb(klass.dependencies.get(key))
                   }
                 },
-                { deps: List<Dependency> -> deps.reduce { left, right -> (left glb right)!! } },
+                { deps: List<Dependency> ->
+                  deps.reduce { left, right ->
+                    (left glb right)
+                        ?: throw invalidPetDefinition(
+                            "${klass.className} inherits incompatible defaults for $key: " +
+                                "$left and $right"
+                        )
+                  }
+                },
             )
           }
       return DependencySet.of(deps)
