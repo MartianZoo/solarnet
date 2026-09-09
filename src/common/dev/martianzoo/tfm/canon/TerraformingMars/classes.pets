@@ -6,7 +6,6 @@ CLASS TerraformingMars : BaseGameModule {
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
-  This:: BootstrapPhase
   This: SellPatentsSP, PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
   This: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, DoRequiredActions
   This: Action1, Action2, Action3, CardPurchase, CardPlay
@@ -36,6 +35,7 @@ CLASS QuickStartVariant : Module {
 "One of the actual people or bots playing Terraforming Mars"
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
+  HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
 
   // Queued `This` work gives every Player its support after the complete seat layer exists.
   This: 5 ProdOffset<This, Class<MC>> BY Admin
@@ -614,10 +614,10 @@ CLASS StartToken : Owned<Player> {
   HAS =1 StartToken
 }
 
-"Identifies the Player immediately after its owner in seat order"
-CLASS AfterMe<Player> : Owned<Owner>, System {
+"Identifies the Player immediately after another Player in seat order"
+CLASS AfterMe<Owner, Player> : System {
   HAS MAX 1 This
-  ResearchPhase IF StartToken: StartToken<Player> FROM StartToken.
+  ResearchPhase IF StartToken<Owner>: StartToken<Player> FROM StartToken<Owner>.
 }
 
 // GAME CONFIGURATION

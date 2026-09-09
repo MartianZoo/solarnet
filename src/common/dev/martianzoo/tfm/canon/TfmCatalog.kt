@@ -373,6 +373,10 @@ public open class TfmCatalog : Catalog {
         classSelections = classSelections,
         initialComponentTypes = initialTypes,
         playerNames = configuredPlayerNames,
+        bootstrapClassName =
+            BOOTSTRAP_PHASE.takeIf {
+              moduleNames.isNotEmpty() && it in premiseCatalog.allClassNames
+            },
         premiseClassName = PREMISE_CLASS.takeIf { moduleNames.isNotEmpty() },
     )
   }
@@ -907,6 +911,7 @@ public open class TfmCatalog : Catalog {
     /** Returns one Catalog containing the unique contributions from [catalogs]. */
     public fun compose(vararg catalogs: TfmCatalog): TfmCatalog = Composite(*catalogs)
 
+    private val BOOTSTRAP_PHASE = cn("BootstrapPhase")
     private val BASE_GAME_MODULE = cn("BaseGameModule")
     private val MODULE_CLASS = cn("Module")
     private val MODULES_READY = cn("ModulesReady")

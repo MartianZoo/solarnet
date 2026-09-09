@@ -33,8 +33,8 @@ The required primitives already exist:
 
 - [`Engine.newGame`](../../src/common/dev/martianzoo/engine/Engine.kt) completes and commits
   bootstrap before returning.
-- The Terraforming Mars Module creates `BootstrapPhase`; bootstrap begins and ends with that same
-  Phase.
+- Admin creates `BootstrapPhase` before the generated `Premise`; bootstrap begins and ends with
+  that same Phase.
 - [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) is legitimate
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its

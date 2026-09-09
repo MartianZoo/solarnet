@@ -135,7 +135,7 @@ contains only:
 3. signed selections for other Catalog classes;
 4. concrete Player Class Names in seat order;
 5. exact concrete types to instantiate once; and
-6. the generated concrete `Premise` Class Name.
+6. the concrete bootstrap Class Name and generated concrete `Premise` Class Name.
 
 Canon declares only the abstract `Player`; each configured name is the identity of a concrete
 `Player` subclass in the composed game Catalog. `withPlayers(count)` supplies reusable conventional
@@ -165,10 +165,10 @@ Solo Colonies selects four and keeps three after the setup choice, two-player Co
 and games with at least three players use two more tiles than players.
 
 Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
-terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The premise's ordered
-player list creates a source-owned `AfterMe<Player>` ring, where the argument is the Player after
-the owner, and gives the first Player the initial `StartToken`. Each `ResearchPhase` passes the token
-along that relation.
+terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The generated Premise
+explicitly creates the initial `StartToken` and a binary `AfterMe<Owner, Player>` ring from the
+ordered player list. Each Player permits at most one incoming and one outgoing edge. Each
+`ResearchPhase` passes the token along that relation.
 The solo game never passes through a synthetic 20-rating state followed by a compensating reduction.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names

@@ -24,7 +24,8 @@ internal class Initializer(
   internal fun initialize() {
     val adminEvent = execute("$ADMIN", cause = null).changes.first()
     val adminCause = Cause(ADMIN.expression, adminEvent.ordinal)
-    createPremiseComponents(adminCause)
+    val premiseCause = createBootstrapComponent(adminCause) ?: adminCause
+    createPremiseComponents(premiseCause)
     drainBootstrapTasks()
     createInitialComponents(adminCause)
     drainBootstrapTasks()
@@ -32,6 +33,12 @@ internal class Initializer(
     timeline.initializationFinished()
     timeline.commit()
   }
+
+  private fun createBootstrapComponent(cause: Cause): Cause? =
+      premise.bootstrapClassName?.let { className ->
+        val event = execute("$className", cause).changes.first()
+        Cause(className.expression, event.ordinal)
+      }
 
   /**
    * Executes a bootstrap instruction without creating a task for the instruction itself. Bootstrap
@@ -44,7 +51,7 @@ internal class Initializer(
         .forEach(tasks::addTasks)
   }
 
-  /** Creates the resolved premise recipe followed by the seated Players. */
+  /** Creates the resolved premise recipe; direct creation remains a custom-premise fallback. */
   private fun createPremiseComponents(cause: Cause) {
     premise.premiseClassName?.let { execute("$it", cause) }
     createComponents(
@@ -68,7 +75,9 @@ internal class Initializer(
 
   private fun verifyCompletedBootstrap() {
     val expected =
-        listOfNotNull(premise.premiseClassName).map(classTable::getClass).map(Class::baseType) +
+        listOfNotNull(premise.bootstrapClassName, premise.premiseClassName)
+            .map(classTable::getClass)
+            .map(Class::baseType) +
             premise.modules.map(classTable::getClass).map(Class::baseType) +
             premise.playerNames.map(classTable::getClass).map(Class::baseType) +
             premise.initialComponentTypes.map(classTable::resolve)
