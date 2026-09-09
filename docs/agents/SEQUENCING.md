@@ -15,6 +15,17 @@
 > owns the current task lifecycle; this document does not restate it. A passing characterization
 > does not turn a known defect into intended behavior.
 
+## Before adding order
+
+1. Start with no new ordering mechanism. Pending work is a choice pool, not a procedural stack.
+2. Name the illegal committed result the proposed order prevents. A recoverable dead end is not one.
+3. Remember that `A THEN B` waits only for A's task; B gains neither priority nor transitive
+   completion semantics.
+4. Use `::` only for a choice-free consequence whose absence would expose an incoherent World.
+5. Treat stable iteration order as diagnostics only. Never turn it into a rule or test expectation.
+6. If the proposed fix is a `TfmGameplay` bridge based on rendered instruction or cause, stop: that
+   is evidence of missing authored or engine semantics.
+
 ## Read only what you need
 
 | Question | Read |
