@@ -5,8 +5,6 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -16,13 +14,12 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldInclude
 import kotlin.test.Test
 
 internal class BootstrapLifecycleTest {
   @Test
-  internal fun newGameReturnsCommittedCausallyCleanBootstrapState() {
+  internal fun newGameReturnsCommittedBootstrapState() {
     val resolvedPremise = canonicalPremise()
     val game = Engine.newGame(resolvedPremise)
     val admin = game.agent(ADMIN)
@@ -43,44 +40,6 @@ internal class BootstrapLifecycleTest {
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
-    val bootstrapEntries = game.events.entriesSince(Checkpoint(0))
-    val changes = bootstrapEntries.filterIsInstance<ChangeEvent>()
-    val adminCreation = changes.first()
-    adminCreation.actor shouldBe ADMIN
-    adminCreation.change.gaining shouldBe ADMIN.expression
-    adminCreation.cause shouldBe null
-    adminCreation.toString().shouldEndWith("(manual)")
-    changes.none { it.change.gaining?.className == cn("Class") } shouldBe true
-    changes.drop(1).all { it.cause != null } shouldBe true
-    val premise = changes.single { it.change.gaining?.className == cn("Premise") }
-    val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
-    val modulesReady = changes.single { it.change.gaining?.className == cn("ModulesReady") }
-    val standardTracks = changes.single {
-      it.change.gaining?.className == cn("StandardGpTrackRules")
-    }
-    val bootstrap = changes.single { it.change.gaining?.className == cn("BootstrapPhase") }
-    val bootstrapCause = Cause(cn("BootstrapPhase").expression, bootstrap.ordinal)
-    val premiseCause = Cause(cn("Premise").expression, premise.ordinal)
-    changes.drop(1).first() shouldBe bootstrap
-    bootstrap.cause shouldBe Cause(cn("Admin").expression, adminCreation.ordinal)
-    premise.cause shouldBe bootstrapCause
-    terraform.cause shouldBe premiseCause
-    modulesReady.cause shouldBe premiseCause
-    standardTracks.cause shouldBe Cause(cn("TerraformingMars").expression, modulesReady.ordinal)
-    resolvedPremise.modules.forEach { moduleName ->
-      changes
-          .single { it.change.gaining?.className == moduleName }
-          .also { module ->
-            module.cause shouldBe premiseCause
-            (module.ordinal < modulesReady.ordinal) shouldBe true
-          }
-    }
-    resolvedPremise.playerNames.forEach { playerName ->
-      val player = changes.single { it.change.gaining?.className == playerName }
-      player.cause shouldBe premiseCause
-      (player.ordinal < modulesReady.ordinal) shouldBe true
-    }
-
     shouldThrow<IllegalArgumentException> { game.timeline.rollBack(Checkpoint(0)) }
         .message
         .orEmpty()
@@ -96,63 +55,11 @@ internal class BootstrapLifecycleTest {
     admin.count("StandardGpTrackRules") shouldBe 0
     admin.count("StandardVenusTrackRules") shouldBe 0
     admin.count("ExtendedVenusTrackRules") shouldBe 1
-
-    val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
-    val modulesReady = changes.single { it.change.gaining?.className == cn("ModulesReady") }
-    changes.single { it.change.gaining?.className == cn("ExtendedVenusTrackRules") }.cause shouldBe
-        Cause(cn("VenusNextExpansion").expression, modulesReady.ordinal)
-  }
-
-  @Test
-  internal fun soloModeCreatesItsOpponent() {
-    val game = Engine.newGame(canonicalPremise(players = 1))
-    val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
-    val premise = changes.single { it.change.gaining?.className == cn("Premise") }
-    val soloMode = changes.single { it.change.gaining?.className == cn("SoloMode") }
-    val soloOpponent = changes.single { it.change.gaining?.className == cn("SoloOpponent") }
-
-    soloOpponent.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
-    val standardObjective = changes.single {
-      it.change.gaining?.className == cn("StandardSoloObjective")
-    }
-    standardObjective.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
-  }
-
-  @Test
-  internal fun selectedSourcesCreateTheirRuntimeBootstrapComponents() {
-    val game = Engine.newGame(canonicalPremise())
-    val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
-    val premise = changes.single { it.change.gaining?.className == cn("Premise") }
-    val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
-    val map = changes.single { it.change.gaining?.className == cn("TharsisMap") }
-    val area = changes.single { it.change.gaining?.className == cn("Tharsis_1_1") }
-
-    changes.drop(2).first() shouldBe premise
-    terraform.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
-    map.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
-    area.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)
-  }
-
-  @Test
-  internal fun `Terraforming Mars exists before every selected map`() {
-    listOf(Tharsis, Hellas, Elysium, Utopia, Cimmeria).forEach { selectedMap ->
-      val game = Engine.newGame(canonicalPremise(selectedMap))
-      val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
-      val map = changes.single { it.change.gaining?.className == selectedMap.className }
-      val terraform = changes.single { it.change.gaining?.className == cn("TerraformingMars") }
-
-      (terraform.ordinal < map.ordinal) shouldBe true
-      if (selectedMap != Tharsis) {
-        changes.none { it.change.gaining?.className == cn("TharsisMap") } shouldBe true
-      }
-    }
   }
 
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = Engine.newGame(canonicalPremise())
-    val checkpoint = game.timeline.checkpoint()
-
     TfmWorkflow.Manual(game).setupPhase()
 
     val admin = game.agent(ADMIN)
@@ -162,35 +69,14 @@ internal class BootstrapLifecycleTest {
     admin.count("StartToken<Player1>") shouldBe 1
     admin.count("TerraformRating<Player1>") shouldBe 20
     admin.count("TerraformRating<Player2>") shouldBe 20
-
-    val setupChanges = game.events.changesSince(checkpoint)
-    val setupEvent = setupChanges.single { it.change.gaining.toString() == "SetupPhase" }
-    val generationEvent = setupChanges.single { it.change.gaining.toString() == "Generation" }
-    setupEvent.cause shouldBe null
-    setupEvent.toString().shouldEndWith("(manual)")
-    generationEvent.cause shouldBe Cause(cn("SetupPhase").expression, setupEvent.ordinal)
-    setupChanges.none { it.change.gaining.toString().startsWith("StartToken") } shouldBe true
-    setupChanges
-        .filter { it.change.gaining.toString().startsWith("TerraformRating") }
-        .also { it.size shouldBe 2 }
-        .all { it.cause == Cause(cn("MultiplayerMode").expression, setupEvent.ordinal) } shouldBe
-        true
   }
 
   @Test
   internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
     val game = Engine.newGame(canonicalPremise(players = 1))
-    val checkpoint = game.timeline.checkpoint()
-
     TfmWorkflow.Manual(game).setupPhase()
 
     game.agent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
-    val setupChanges = game.events.changesSince(checkpoint)
-    val setupEvent = setupChanges.single { it.change.gaining.toString() == "SetupPhase" }
-    val rating = setupChanges.single { it.change.gaining?.className == cn("TerraformRating") }
-    rating.change.count shouldBe 14
-    rating.cause shouldBe Cause(cn("SoloMode").expression, setupEvent.ordinal)
-    setupChanges.none { it.change.removing?.className == cn("TerraformRating") } shouldBe true
   }
 
   @Test

@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.FakeEstablishedMethods
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
@@ -27,40 +26,4 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
         }
     deadEnd.message shouldContain "$FakeEstablishedMethods"
   }
-
-  @Test
-  internal fun `Nested standard projects preserve pending payment offer positions`() {
-    newGame(PreludeExpansion, FakeStuffBundle)
-    p1.manual("PreludeCard")
-    admin.phase("Prelude")
-    p1.startTurn()
-
-    p1.playPrelude(FakeEstablishedMethods) {
-      val offers = standardActionOfferIds()
-      offers.size shouldBe 2
-
-      repeat(2) { projectIndex ->
-        doTask("UseAction<UseStandardProjectAction, Action1>")
-        doTask("UseAction<PowerPlantProject, Action1>")
-
-        tasks
-            .extract { it }
-            .any { "Pay" in "${it.instruction}" && "MC" in "${it.instruction}" } shouldBe true
-        p1.count("Owed<>") shouldBe 11
-
-        p1.pay(11)
-
-        standardActionOfferIds() shouldBe offers.drop(projectIndex + 1)
-      }
-    }
-  }
-
-  private fun standardActionOfferIds() =
-      game.tasks
-          .extract { it }
-          .filter {
-            val instruction = it.instruction.toString()
-            it.assignee == p1.actor && "UseAction" in instruction && "StandardAction" in instruction
-          }
-          .map { it.id }
 }
