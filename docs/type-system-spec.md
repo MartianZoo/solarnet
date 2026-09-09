@@ -1,7 +1,7 @@
 # The Pets type system: a specification
 
-This document defines the type system implemented in `dev.martianzoo.pets.types`. It is meant to be
-readable start to finish, but it is organized so you can look one rule up and stop.
+This document defines the Pets type system independently of any implementation API. It is meant to
+be readable start to finish, but it is organized so you can look one rule up and stop.
 
 ## How to read this
 
@@ -9,40 +9,21 @@ The specification is divided into **sections**, numbered 1 to 13. Each section s
 numbered **rules**. A rule is written `4-2`, meaning "section 4, rule 2", and it is the unit you
 cite.
 
-Every rule is checked by tests whose names begin with the same number, in
-`test/common/dev/martianzoo/pets/types/`:
-
-| Section | Test file |
-| --- | --- |
-| 1. Universes and identity | `Spec01UniversesTest.kt` |
-| 2. Classes | `Spec02ClassesTest.kt` |
-| 3. Dependencies | `Spec03DependenciesTest.kt` |
-| 4. Class literals | `Spec04ClassLiteralsTest.kt` |
-| 5. Types | `Spec05TypesTest.kt` |
-| 6. Subtyping | `Spec06SubtypingTest.kt` |
-| 7. Bounds | `Spec07BoundsTest.kt` |
-| 8. Refinements | `Spec08RefinementsTest.kt` |
-| 9. Class properties | `Spec09PropertiesTest.kt` |
-| 10. Defaults | `Spec10DefaultsTest.kt` |
-| 11. Enumeration and automatic narrowing | `Spec11EnumerationTest.kt` |
-| 12. Inhabitance | `Spec12InhabitanceTest.kt` |
-| 13. Type variables | `Spec13TypeVariablesTest.kt` |
-
-So `grep -rn "8-9" docs/type-system-spec.md test/common/dev/martianzoo/pets/types/` finds a rule and
-everything that proves it. One known departure from these rules has a passing characterization in
-`BugsTest.kt`; it is flagged where it belongs and listed again in the appendix.
+Every rule has correspondingly numbered conformance tests. One known departure from these rules is
+flagged where it belongs and listed again in the appendix.
 
 Examples use real Terraforming Mars component names — `GreeneryTile`, `Tharsis_2_2`, `Plant`,
 `Cardbound` — but the declarations shown are simplified. They illustrate a rule; they are not a
-transcript of `tfm-canon`.
+transcript of any particular catalog. Every code-form identifier in this document is Pets syntax or
+a domain example, never the name of a host-language API element.
 
 ### Notation
 
 | Written | Means |
 | --- | --- |
 | `A <: B` | every A is a B; A *narrows* B |
-| `A ⊓ B` | the greatest lower bound (`glb`) of A and B: the most specific type below both |
-| `A ⊔ B` | the least upper bound (`lub`) of A and B: a common supertype |
+| `A ⊓ B` | the greatest lower bound of A and B: the most specific type below both |
+| `A ⊔ B` | the least upper bound of A and B: a common supertype |
 | `CLASS Foo` | Pets source for a class declaration |
 | `Foo<Bar>` | Pets source for a type expression |
 
@@ -53,9 +34,10 @@ A few terms are used precisely throughout:
   refinement. `GreeneryTile<Tharsis_2_2, Player1>` is a type; `GreeneryTile` is a class.
 - A **component** is one occurrence of a concrete type in a game world. This specification is about
   types, not worlds; it mentions components only to explain what a type *means*.
-- A **world** is whatever can answer "does this requirement hold right now?" — the `TypeInfo`
-  interface. Most of the type system never needs one. Where a rule does, it says so.
-- A **universe** is one Catalog's complete, immutable set of classes and types.
+- A **world** is anything that can answer "does this requirement hold right now?" Most of the type
+  system never needs one. Where a rule does, it says so.
+- A **catalog** is a complete collection of declarations from which one universe can be compiled.
+- A **universe** is one catalog's complete, immutable set of classes and types.
 
 ### Refinements are types
 
@@ -76,40 +58,38 @@ Three neighbours are deliberately out of scope:
 
 - **How a game decides which classes it contains.** Section 12 defines what an *uninhabited* class
   means; the activation-closure policy that decides which classes end up uninhabited belongs to
-  premise construction. Its behavior is pinned by `ActivationTest.kt` and described in
-  `docs/agents/OPTIONS.md`.
+  premise construction.
 - **Component-count invariants**, except for the one rule the type system leans on (3-9): a
   dependency may only target a type limited to a single copy.
-- **What happens at runtime** — instructions, triggers, tasks, the task queue. See
-  `docs/agents/ENGINE.md`.
+- **What happens at runtime** — instructions, triggers, tasks, and the task queue.
 
 ---
 
 ## 1. Universes and identity
 
-Compiling a Catalog produces one **master class table**: a complete, frozen universe of classes and
+Compiling a catalog produces one **master class table**: a complete, frozen universe of classes and
 the types built from them. Nothing in this specification is meaningful except relative to one such
 universe.
 
-**1-1. One class per name, one universe per Catalog.** A Catalog compiles to exactly one class
-object for each declared name. Two separately compiled tables over identical source are *different*
+**1-1. One class per name, one universe per catalog.** A catalog compiles to exactly one class value
+for each declared name. Two separately compiled tables over identical source are *different*
 universes whose classes and types are not equal to each other.
 
 **1-2. Values are universe-scoped.** Every class, type and dependency belongs to one master
-universe. An operation that compares values from two universes — subtyping, `glb`, `lub`, subclass
-enumeration, constraint matching — raises `IllegalArgumentException`. It does not quietly answer
-"no". `ClassTable.knows(type)` is the safe question to ask first.
+universe. An operation that compares values from two universes — subtyping, bounds, subclass
+enumeration, or constraint matching — reports a **universe mismatch**. It does not quietly answer
+"no". Membership in a universe can be tested safely before such an operation.
 
 This matters because a false "not a subtype" would silently misroute a trigger, whereas an exception
 stops the caller at the bug.
 
-**1-3. Resolution is a function of the written expression.** `ClassTable.resolve` maps an
-`Expression` to a type. The same expression always yields the identical object; different spellings
-of one type yield *equal* types that need not be identical:
+**1-3. Resolution is a function of the written expression.** **Resolution** maps a Pets type
+expression to a type. The same expression always yields the same identity; different spellings of
+one type yield *equal* type values that need not share identity:
 
 ```text
 GreeneryTile<Area>  and  GreeneryTile   →  equal types
-GreeneryTile        and  GreeneryTile   →  the identical object
+GreeneryTile        and  GreeneryTile   →  the same identity
 ```
 
 A type's own renderings (5-4, 5-5) always resolve back to it.
@@ -121,12 +101,11 @@ supertypes and no dependencies. Every other class has it as a supertype.
 it.
 
 **1-6. Enumeration requires a frozen table.** A class table is built by loading classes and then
-freezing. Lookup (`findClass`, `resolve`) works during loading; anything that enumerates the
-universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and therefore
-`glb` between unrelated classes — requires the table to be frozen first.
+freezing. Name lookup and resolution work during loading; enumerating classes, names, subclasses,
+or bounds between unrelated classes requires the table to be frozen first.
 
-**1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, no
-nearest-match. An unknown name raises `ExpressionException`.
+**1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, and no
+nearest-match. An unknown name is an **expression error**.
 
 ---
 
@@ -160,21 +139,20 @@ subclass is itself. This is what makes "narrow this to a concrete type" a termin
 player who chooses `GreeneryTile<Tharsis_2_2, Player1>` cannot then be asked to choose again.
 
 **2-4. The subclass relation.** It is reflexive, transitive, and antisymmetric, and it is *nominal*:
-`LandArea` is below `MarsArea` because it says so, not because their shapes agree. `isSubtypeOf`
-answers; `isSupertypeOf` is its converse; `ensureNarrows` throws `NarrowingException` instead of
-returning false.
+`LandArea` is below `MarsArea` because it says so, not because their shapes agree. The relation can
+be tested in either direction or asserted, with a failed assertion producing a **narrowing error**.
 
 **2-5. Cycles are rejected.** A class may not be its own supertype, directly or through a chain.
 
 **2-6. Declaration order is irrelevant.** A supertype may be declared after its subclass.
 
-**2-7. The hierarchy can be walked in both directions.** A class knows `allSuperclasses()` (itself
-included), `allSubclasses()` and `directSubclasses()`. The downward ones need a frozen table (1-6).
+**2-7. The hierarchy can be walked in both directions.** A class has all superclasses (itself
+included), all subclasses, and direct subclasses. The downward sets need a frozen table (1-6).
 
 **2-8. Greatest lower bound of two classes (`⊓`).** If one operand is below the other, that one is
 the answer. Otherwise Pets looks for a *unique greatest common subclass*: a class below both, which
 every other class below both is also below. If there is no such class — because the two are disjoint,
-or because two rival classes combine them — the result is **absent** (`null`).
+or because two rival classes combine them — the result is **absent**.
 
 ```pets
 ABSTRACT CLASS Tile
@@ -192,20 +170,20 @@ between them prefers the class carrying more dependencies, then the one with mor
 is otherwise arbitrary. **Do not depend on which of several minimal candidates comes back** — the
 guarantee is only that the result is a common superclass, and a minimal one.
 
-**2-10. Intersection classes.** `isIntersectionType()` asks whether a class *is* the intersection of
+**2-10. Intersection classes.** An **intersection class** *is* the intersection of
 its own direct supertypes: whether every class below all of them is also below it. `OwnedTile` is
 one, and the question is worth asking, because a component that is both `Owned` and a `Tile` but
 forgot to extend `OwnedTile` would go uncounted by the Landlord award.
 
-**2-11. Custom classes.** A class declared `: Custom` has its behavior supplied by Kotlin instead of
-Pets. A declaration and an implementation must agree: a class declared `Custom` with no
-implementation is rejected, and so is an implementation for a class not declared `Custom` — including
-for a root class. A `Custom` class may also not *inherit* Pets behavior: no supertype of it may
+**2-11. Custom classes.** A class declared `: Custom` has its behavior supplied by the host instead
+of Pets. A declaration and a host implementation must agree: a class declared `Custom` with no host
+implementation is rejected, and so is a host implementation for a class not declared `Custom` —
+including for a root class. A `Custom` class may also not *inherit* Pets behavior: no supertype may
 declare effects, invariants, or instruction-intensity defaults. A load that fails these checks is not
 cached as a success; loading again fails the same way.
 
-**2-12. Class identity.** Within a universe, a class is identified by its name. Its `toString` is
-that name.
+**2-12. Class identity.** Within a universe, a class is identified by its name. Its canonical text
+is that name.
 
 ---
 
@@ -255,9 +233,9 @@ A useful consequence: when the bounds are disjoint, argument order does not matt
 Order *is* meaningful when two bounds overlap, as in `Adjacency<Area, Area>`, and then
 `Adjacency<Tharsis_2_2>` fills the first slot and leaves the second open.
 
-**3-6. Which key an argument filled is recoverable.** `Class.matchDependencyKeys(arguments)` replays
-the match and reports the key each authored argument took, for callers that need to remember what was
-supplied rather than only the resulting type.
+**3-6. Which key an argument filled is recoverable.** The **argument-to-key match** replays argument
+matching and reports the key each authored argument took, for consumers that need to remember what
+was supplied rather than only the resulting type.
 
 **3-7. `This` in a supertype argument names the inheriting class.** It is rebound at each level of
 the hierarchy, in place, leaving every other argument alone:
@@ -297,14 +275,14 @@ concrete type a dependency bound admits must therefore carry an applicable `MAX 
 This is checked when a game's component-limit table is built, and it is the only place invariants
 enter this specification.
 
-**3-10. Dependency sets.** A type's dependencies form a keyed set: `get(key)`, `getIfPresent(key)`,
-`keys` in declaration order. Equality is key-wise and ignores order. `flatten()` walks nested paths
-(`Cardbound_0.Owned_0`), and `at(path)` reads one. `narrowedDependencies` reports only what a type
-narrowed below its own class's base type.
+**3-10. Dependency sets.** A type's dependencies form a **dependency set** that supports required
+and optional lookup by key and lists its keys in declaration order. Equality is key-wise and ignores
+order. A dependency set can be flattened to nested paths (`Cardbound_0.Owned_0`) or read at one such
+path. A type's **narrowed dependencies** are only those it narrowed below its own class's base type.
 
 **3-11. Cycles are rejected.** Two classes may refer to each other freely, but a genuine cycle of
 dependency *bounds* — `CLASS Foo<Bar>` with `CLASS Bar<Foo>`, or `CLASS Foo<Foo>` — has no finite
-answer and raises `PetException` when the bounds are computed. A one-way chain is fine.
+answer and is an **invalid definition**. A one-way chain is fine.
 
 ---
 
@@ -331,12 +309,12 @@ Class<Metal>      is abstract  — `Metal` is not
 and this carries into dependency positions:
 `Production<Class<Steel>> <: Production<Class<Metal>>`.
 
-**4-4. `representedClass`** returns the named class, and is absent for every type that is not a class
-literal.
+**4-4. Represented class.** A class literal's **represented class** is the class it names. Other
+types have no represented class.
 
 **4-5. Bounds follow the class hierarchy.** `Class<Metal> ⊓ Class<Steel>` is `Class<Steel>`;
-`Class<Steel> ⊔ Class<Titanium>` is `Class<Metal>`; the `glb` of literals for disjoint classes is
-absent.
+`Class<Steel> ⊔ Class<Titanium>` is `Class<Metal>`; the greatest lower bound of literals for
+disjoint classes is absent.
 
 **4-6. The operand is one bare, existing class name.** All of these are errors:
 
@@ -353,9 +331,9 @@ not *gain* a class representative: the one component per concrete class is fixed
 runs.
 
 **4-7. The slot inside a literal is not a component dependency.** It holds a class, so it does not
-appear among a type's `typeDependencies`. A class that *declares* a dependency bounded by a class
-literal — `CLASS Production<Class<StandardResource>>` — has an ordinary dependency whose bound
-happens to be a class literal.
+appear among a type's component-targeting dependencies. A class that *declares* a dependency bounded
+by a class literal — `CLASS Production<Class<StandardResource>>` — has an ordinary dependency whose
+bound happens to be a class literal.
 
 **4-8. Enumeration.** The concrete narrowings of `Class<Metal>` are `Class<Steel>` and
 `Class<Titanium>` — one per concrete subclass. A literal for a class with no concrete subclass
@@ -382,9 +360,9 @@ and optionally a refinement (section 8). Two types are equal when those three ag
 was written.
 
 **5-2. A bare class name means that class's base type**, which supplies every dependency's declared
-bound. An explicit empty argument list, `GreeneryTile<>`, means the same type. (The two spellings
+bound. An explicit empty argument list, `GreeneryTile<>`, means the same type. The two spellings
 differ elsewhere in Pets: in an instruction, writing `<>` says "I accept this use's defaults on
-purpose". That rule belongs to instructions, not to types; see `docs/agents/TYPES.md`.)
+purpose". That instruction-language rule is outside this specification.
 
 **5-3. Abstractness.** A type is abstract if its root class is abstract, **or** any dependency bound
 is abstract, **or** it carries a refinement. Only a concrete type can describe a component.
@@ -401,12 +379,12 @@ This is the source of a common confusion: the *class* `OceanTile` is concrete, w
 
 Abstractness is structural and never consults a world.
 
-**5-4. Full form.** `expressionFull` writes every dependency, in key order. For the
+**5-4. Full form.** A type's **full expression** writes every dependency, in key order. For the
 `GreeneryTile` of rule 3-2 that is `GreeneryTile<MarsArea, Owner>`; had `Owned` been inherited
 first, the same type would be written `GreeneryTile<Owner, MarsArea>`.
 
-**5-5. Minimal form.** `expression` — also what `toString` shows — writes the smallest set of
-arguments that resolves back to the same type. Concretely:
+**5-5. Minimal form.** A type's **minimal expression**, also its canonical text, writes the smallest
+set of arguments that resolves back to the same type. Concretely:
 
 - an argument equal to what the class already declares is omitted;
 - arguments are written in dependency-key order, whatever order they were supplied in;
@@ -418,16 +396,17 @@ arguments that resolves back to the same type. Concretely:
 
 **5-6. Both forms round-trip.** Resolving either form of a type yields that same type.
 
-**5-7. Building a type directly.** `Class.withAllDependencies(deps)` needs a bound for every one of
-that class's own keys; a missing one is an error. A bound for a key the class does *not* have is
-ignored, which is exactly what projects a type onto each of its supertypes — a greenery tile's owner
-is not part of what an `Occupant` is. `Class.specialize(arguments)` applies arguments to the base
-type, using the matching rule of 3-5.
+**5-7. Building a type directly.** **Complete dependency construction** needs a bound for every one
+of the root class's own keys; a missing one is an error. A bound for a key the class does *not* have
+is ignored, which is exactly what projects a type onto each of its supertypes — a greenery tile's
+owner is not part of what an `Occupant` is. **Specialization** applies authored arguments to the base
+type using the matching rule of 3-5.
 
-**5-8. `Type` has two forms.** A `GroundType` is a resolved, non-variable type, optionally carrying
-a refinement: it is its own `groundType`, and its `typeVariable` is absent. The other form is a type
-variable; see section 13. Code that only needs classes, dependencies or narrowing can treat both
-uniformly.
+**5-8. Types have two forms.** A **ground type** is an ordinary resolved, non-variable type,
+optionally carrying a refinement. Its resolved interpretation is itself, and it has no type-variable
+identity. The other form is a **type-variable occurrence**; see section 13. Operations that only
+need classes, dependencies, or narrowing can treat both uniformly through their resolved
+interpretation.
 
 ---
 
@@ -435,10 +414,11 @@ uniformly.
 
 Narrowing is the central relation: "every component of type A is also of type B".
 
-**6-1. Two spellings of one test.** `narrows(that, info)` returns a boolean;
-`ensureNarrows(that, info)` throws `NarrowingException` with a reason. `isSubtypeOf` /
-`isSupertypeOf` are the world-free spellings; they pass a sentinel world that raises
-`IllegalStateException` if the comparison actually turns out to need one (8-8).
+**6-1. Contextual and context-free tests.** A **contextual narrowing test** receives a world and can
+either test or assert the relation, with a failed assertion producing a narrowing error. A
+**context-free subtype test** is the same relation without a world; it reports that a world is
+required if the comparison reaches a state-dependent refinement (8-8). The supertype test is its
+converse.
 
 **6-2. The structural rule.** A narrows B when
 
@@ -465,18 +445,18 @@ with a world is a preorder, not an order.
 
 **6-5. Cross-universe comparisons are rejected**, per 1-2.
 
-**6-6. Constrained narrowing.** `ClassTable.matchesConstraint(candidate, constraint, domain, info)`
-asks whether a candidate satisfies a constraint expression *read inside a domain*. The constraint is
-first intersected with the domain, then the candidate is tested against the result. This is how a
-trigger's `BY` selector is applied: with domain `Actor`, the constraint `Player` accepts `Player1`
-and rejects `Admin`, and `Actor(NOT Player1)` accepts both `Player2` and `Admin`. A constraint that
-cannot meet the domain at all simply answers false.
+**6-6. Constrained narrowing.** **Constraint matching** asks whether a candidate satisfies a
+constraint expression *read inside a domain*. The constraint is first intersected with the domain,
+then the candidate is tested against the result in a world. This is how a trigger's `BY` selector is
+applied: with domain `Actor`, the constraint `Player` accepts `Player1` and rejects `Admin`, and
+`Actor(NOT Player1)` accepts both `Player2` and `Admin`. A constraint that cannot meet the domain at
+all simply answers false.
 
 ---
 
 ## 7. Bounds
 
-**7-1. Greatest lower bound (`⊓`, `glb`).** The most general type below both operands, or **absent**
+**7-1. Greatest lower bound (`⊓`).** The most general type below both operands, or **absent**
 when there is none. It is computed componentwise: the root classes by 2-8, each shared dependency key
 by `⊓` again, and refinements by 8-9.
 
@@ -490,7 +470,7 @@ GreeneryTile  ⊓  OceanTile                 =  absent
 Absent means "Pets cannot write down a single type for this", not "no component could be both".
 Where a result does exist it narrows both operands, and no other type below both is outside it.
 
-**7-2. Least upper bound (`⊔`, `lub`).** Always exists, falling back to `Component`. The root classes
+**7-2. Least upper bound (`⊔`).** Always exists, falling back to `Component`. The root classes
 join by 2-9, and only the dependency keys *both* operands carry survive — which is automatic, since
 both are below the joined class.
 
@@ -508,7 +488,7 @@ the result *means*:
 - when several minimal common superclasses tie, 2-9 breaks the tie by the order each operand happens
   to list its supertypes, so `A ⊔ B` and `B ⊔ A` can name different classes;
 - a joined `HAS` requirement (8-9) is written in operand order, so `A ⊓ B` and `B ⊓ A` can carry
-  the same conjuncts in the other order, and are then not `==`.
+  the same conjuncts in the other order, and are then not equal as written types.
 
 **7-4. Cross-universe bounds are rejected**, per 1-2.
 
@@ -550,8 +530,8 @@ argument.
 > the first, which may be the one an argument was written into, leaving the intended slot open. For
 > `Area(HAS Adjacency<Tharsis_2_2>)` with candidate `Tharsis_2_2`, the world is asked
 > `Adjacency<Tharsis_2_2, Area>` rather than `Adjacency<Tharsis_2_2, Tharsis_2_2>`. Characterized in
-> `BugsTest`. Reserving written keys is *not* the fix: real cards, including Viron and Mons
-> Insurance, depend on the merging behavior above.
+> This departure has a passing characterization. Reserving written keys is *not* the fix: real
+> cards, including Viron and Mons Insurance, depend on the merging behavior above.
 
 **8-4. `NOT` is a structural difference.** `D(NOT X)` is the part of `D` that cannot overlap `X`. A
 candidate satisfies it only when its **entire** structural domain avoids `X`:
@@ -587,24 +567,24 @@ variable may be specialized later, making the difference non-empty again.
   guarantees the target: `LandArea(HAS Neighbor, Occupant) <: LandArea(HAS Neighbor)`.
 - Otherwise a refined type never satisfies an unrelated `HAS` target, and this is decided without a
   world. Different predicates do not imply one another.
-- An *unrefined* type tested against a `HAS` target needs a world; asked with none it raises
-  `IllegalStateException` rather than guessing.
+- An *unrefined* type tested against a `HAS` target needs a world; asked with none it reports that a
+  world is required rather than guessing.
 - A `NOT` target always uses the structural test of 8-4, whatever refinement the candidate carries.
 - These comparisons read the two predicates *as written*, which is only meaningful when both types
   substitute the same candidate into them. Two class literals for different classes do not (8-11),
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
   `Class<Tag>(HAS Tag)`, because for the target the predicate asks about the candidate's own class.
 
-**8-9. `glb` of refinements.** A refinement the other operand lacks is kept, and two identical
-refinements collapse to one. Otherwise:
+**8-9. Greatest lower bound of refinements.** A refinement the other operand lacks is kept, and two
+identical refinements collapse to one. Otherwise:
 
 - two different `HAS` refinements produce the conjunction of both requirements. By 8-8 that result
   is below both operands.
 - a `HAS` against a `NOT`, or two different `NOT`s, likewise have no single writable predicate.
-  `glb` is absent.
+  the greatest lower bound is absent.
 
-**8-10. `lub` of refinements.** A refinement survives only when both operands carry exactly the same
-one; otherwise the result is the unrefined common domain.
+**8-10. Least upper bound of refinements.** A refinement survives only when both operands carry
+exactly the same one; otherwise the result is the unrefined common domain.
 
 **8-11. Refined class literals.** A refinement on `Class<X>` tests the class the candidate names:
 references to `X` inside the requirement are rewritten to the candidate's class. Testing
@@ -649,10 +629,9 @@ one path narrowed further than another, the narrower fact wins — provided the 
 narrowings. Two properties with the same name from unrelated origins are an error, and so are two
 divergent narrowings of one property.
 
-**9-5. Reading a property.** A type exposes the values of its root class:
-`getNumberPropertyValue`, `getMetricPropertyValue`, `getRequirementPropertyValue` (which returns
-`null` for an absent optional). Reading a property that is still a bound, or one that does not exist,
-is a programming error and throws.
+**9-5. Reading a property.** A type exposes the numeric, metric, and requirement values of its root
+class. Reading an absent optional requirement produces no value. Reading a property that is still a
+bound, has a different kind, or does not exist is a programming error.
 
 **9-6. Properties take no part in type identity or subtyping.** They are facts about the class, not
 dependencies. Two cards with different costs are different types because they are different classes,
@@ -667,9 +646,9 @@ area, that a resource belongs to the current player. It changes how an authored 
 it never changes which types exist.
 
 **10-1. Three separate sets.** Defaults are gathered independently for all uses (`DEFAULT Foo<...>`),
-for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A class's `defaultType` is its
-base type with the all-uses defaults applied; the gain and removal sets are consumed by instructions,
-not by resolution.
+for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A class's **default type** is
+its base type with the all-uses defaults applied; the gain and removal sets are consumed by
+instructions, not by resolution.
 
 ```pets
 ABSTRACT CLASS Tile<Area> : Owned<Owner> {
@@ -697,7 +676,7 @@ that merely restates the declared bound records nothing at all.
 literal `Owner` written in a default is *not* intersected with the class's bound, so it can later be
 replaced by whichever player supplies the context.
 
-The visible consequence is that a class's `defaultType` may sit outside its own base type:
+The visible consequence is that a class's default type may sit outside its own base type:
 
 ```pets
 ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Owner> }
@@ -714,14 +693,13 @@ Because a class table is closed once frozen, Pets can list the concrete possibil
 abstract type — the operation behind "which area do you want?" and behind narrowing a choice
 automatically when only one exists.
 
-These operations come in two flavours. Asked of a **type** (`someType.allConcreteSubtypes()`) they
-range over the whole master universe. Asked of a **class table**
-(`table.allConcreteSubtypes(someType)`) they range only over what that table holds, which for a game
-view means only its active classes (12-3). The rules below describe the shape of the operation;
-section 12 says which universe answers.
+These operations come in two flavours. **Master enumeration** ranges over the whole master universe.
+**View enumeration** ranges only over what one class-table view holds, which for a game means only
+its active classes (12-3). The rules below describe the shape of the operation; section 12 says
+which universe answers.
 
-**11-1. Enumerating concrete narrowings.** `allConcreteSubtypes()` pairs every concrete subclass of
-the root class with every admissible concrete binding of every dependency:
+**11-1. Enumerating concrete narrowings.** **Concrete-narrowing enumeration** pairs every concrete
+subclass of the root class with every admissible concrete binding of every dependency:
 
 ```text
 Tile              →  GreeneryTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_3>, OceanTile<Tharsis_1_1>
@@ -734,11 +712,11 @@ A concrete type enumerates only itself. A type with no concrete narrowing enumer
 structurally. A `HAS` is **not** applied: enumeration is world-free, and the caller tests the
 survivors. So `LandArea(HAS Neighbor)` enumerates every concrete land area.
 
-**11-3. Same-class enumeration.** `concreteSubtypesSameClass()` holds the root class fixed and varies
+**11-3. Same-class enumeration.** **Same-class enumeration** holds the root class fixed and varies
 only the dependencies. An abstract root class yields nothing.
 
-**11-4. Automatic narrowing.** `singleConcreteSubtype(info)` returns the one concrete narrowing when
-there is exactly one, and `null` otherwise. It is stricter than "one candidate matched the
+**11-4. Automatic narrowing.** **Single-concrete narrowing** produces the one concrete narrowing
+when there is exactly one, and is absent otherwise. It is stricter than "one candidate matched the
 refinement": the root class and *every* dependency must each have a single concrete choice, and the
 refinement must then accept the result. Any remaining choice, anywhere, blocks it — deliberately, so
 the engine never silently makes a decision a player should have made.
@@ -751,16 +729,16 @@ with every concrete class. Both flavours answer alike about the same universe. A
 `HAS` refinement can decide between candidates only where enumeration happens anyway, as with a
 refined class literal (8-11).
 
-**11-5. Caller-supplied targets.** `ClassTable.allConcreteSubtypes(type, dependencyTargets)`
-enumerates using a caller's smaller set of possible dependency targets instead of the full structural
-domain. A custom metric that already knows which components exist uses this: a dependency requires its
-target to exist, so no omitted specialization could contribute.
+**11-5. Supplied dependency targets.** Concrete-narrowing enumeration may use a supplied, smaller
+set of possible dependency targets instead of the full structural domain. A metric that already
+knows which components exist uses this: a dependency requires its target to exist, so no omitted
+specialization could contribute.
 
 ---
 
 ## 12. Inhabitance
 
-One Catalog is compiled once into a master universe. A game then takes a **view** of it. The view
+One catalog is compiled once into a master universe. A game then takes a **view** of it. The view
 does not create, rename or reshape anything; it records which names this game can hold components of.
 
 **12-1. Three states for a name.**
@@ -768,7 +746,7 @@ does not create, rename or reshape anything; it records which names this game ca
 | State | Meaning |
 | --- | --- |
 | **active** | full behavior in this game |
-| **uninhabited** | known to the Catalog, but with an empty domain here |
+| **uninhabited** | known to the catalog, but with an empty domain here |
 | **unknown** | an error in every context |
 
 An uninhabited class keeps its name, its place in the hierarchy, and its dependencies. It resolves;
@@ -777,26 +755,26 @@ it is still a subclass of what it extends; `Class<It>` still names it. Imagine a
 error and is still a rabbit — but the game knows something stronger than "we have not seen one":
 there cannot be one.
 
-**12-2. A view reuses the master universe.** It shares the very same class and type objects.
-Resolution, subtyping, `glb` and `lub` therefore give the same answers in a view as in the master.
+**12-2. A view reuses the master universe.** It shares the very same class and type identities.
+Resolution, subtyping, and both bounds therefore give the same answers in a view as in the master.
 A type has one meaning, not one per game.
 
 **12-3. What the view does change.** Everything that *enumerates*:
 
-- `allSubclasses` and `directSubclasses` list only active classes;
-- `allConcreteSubtypes` and `concreteSubtypesSameClass` list only active types;
+- all-subclass and direct-subclass enumeration list only active classes;
+- concrete-narrowing and same-class enumeration list only active types;
 - an uninhabited type enumerates nothing, and neither does its class literal;
-- `singleConcreteSubtype` can therefore succeed in a view where the master is undecided — if this
+- single-concrete narrowing can therefore succeed in a view where the master is undecided — if this
   game has only one milestone, `Milestone` narrows to it automatically.
 
 **12-4. Active types.** A type is active when its root class is active and every dependency bound is.
-A type from another Catalog is not even *known*, let alone active (1-2).
+A type from another catalog is not even *known*, let alone active (1-2).
 
 **12-5. Structural meaning stays catalog-wide.** A difference (8-4) is judged in the master universe.
-If two classes overlap in the Catalog, `Left(NOT Right)` keeps its refinement and keeps rejecting bare
-`Left`, even in a game where the overlapping class is uninhabited. Enumeration under that difference is
-still view-relative, so the game sees only what it can hold. This keeps a written type from meaning
-different things in different games.
+If two classes overlap in the catalog, `Left(NOT Right)` keeps its refinement and keeps rejecting
+bare `Left`, even in a game where the overlapping class is uninhabited. Enumeration under that
+difference is still view-relative, so the game sees only what it can hold. This keeps a written type
+from meaning different things in different games.
 
 ---
 
@@ -811,14 +789,13 @@ PROD[StandardResource]: StandardResource
 "When you gain production of a resource, gain one of *that* resource." The two occurrences are one
 **type variable**: one choice, used twice.
 
-**13-1. A variable is a kind of type.** `Type` has exactly two forms: an ordinary `GroundType`, and a
-`TypeVariable` whose resolved meaning is its `bound` — itself a ground type. Every ordinary
-operation (`rootClass`, `dependencies`, `narrows`, `abstract`) works on a variable through its bound,
-so code that does not care about capture can ignore the distinction. Code that does care asks for
-`typeVariable`, which is absent on a ground type.
+**13-1. A variable is a kind of type.** A type has exactly two forms: an ordinary **ground type**,
+and a **type variable** whose resolved meaning is its **bound**, itself a ground type. Every ordinary
+type operation works on a variable through its bound, so consumers that do not care about capture
+can ignore the distinction. A ground type has no variable identity.
 
 A variable has one **declaration** occurrence and any number of **usage** occurrences, in authored
-order. Each occurrence is itself a `Type` view of the same variable, and remembers where it was
+order. Each occurrence is itself a type view of the same variable, and remembers where it was
 written.
 
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
@@ -854,8 +831,9 @@ rejected.
 **13-4. Inheritance.** A subclass does not redeclare an inherited variable, and effects inherited
 from a superclass keep that superclass's scope.
 
-**13-5. Capturing values.** `variableBindingsFrom(general, variables)` reads what a specialized
-component type supplies for each variable. Both types must have the same root class. Specializing
+**13-5. Capturing class-header values.** **Class-header capture** reads what a specialized component
+type supplies for each selected variable. The general and specialized types must have the same root
+class. Specializing
 `Holder<Box<Person>>` to `Holder<Box<Alice>>` supplies `Box<Person> = Box<Alice>` and
 `Person = Alice`, and binding those into the class's effect turns `This: Box<Person>` into
 `This: Box<Alice>`.
@@ -919,27 +897,26 @@ Binding `Player` to `Player1` gives
 
 ### Binding
 
-**13-10. Binding replaces recorded occurrences only.** `TypeVariableScope.bind(bindings)` returns a
-transformer that rewrites the occurrences it recorded and nothing else — a coincidental mention of
-the same class elsewhere is untouched. Each occurrence keeps its own arguments while receiving the
-captured value.
+**13-10. Binding replaces recorded occurrences only.** **Scope binding** rewrites the occurrences
+recorded in a variable scope and nothing else — a coincidental mention of the same class elsewhere is
+untouched. Each occurrence keeps its own arguments while receiving the captured value.
 
 A refinement on the *declaration* is consumed by binding: it was already evaluated while the
 candidate was captured, so later occurrences reuse the captured type without asking the world again.
 
-**13-11. Scope queries.** A `TypeVariableScope` reports the variables visible in it (`variables`,
-`isEmpty`), the current spelling of a variable or of one occurrence (`expressionsOf`,
-`expressionOf`), and which variable a given syntax node uses or declares (`variableAt`,
-`variableDeclaredAt`). `bindingsFrom(authored, general, specific)` captures values by walking the
-dependency keys chosen while resolving the authored expression — so a candidate that lacks the path a
-variable sits on captures nothing, rather than guessing from a coincidentally similar type.
+**13-11. Scope queries and structural capture.** A **type-variable scope** reports its visible
+variables and emptiness, the current spellings of variables and occurrences, and which variable a
+given syntax node uses or declares. **Structural capture** walks the dependency keys chosen while
+resolving an authored expression and captures values from the corresponding positions of a specific
+type. A candidate that lacks the path a variable sits on captures nothing, rather than guessing from
+a coincidentally similar type.
 
 ---
 
 ## Appendix A: known departures
 
-One behavior contradicts the rules above. It has a passing characterization in
-`test/common/dev/martianzoo/pets/types/BugsTest.kt`; the rule states the intent.
+One behavior contradicts the rules above. It has a passing characterization; the rule states the
+intent.
 
 | Rule | Departure |
 | --- | --- |
@@ -947,11 +924,11 @@ One behavior contradicts the rules above. It has a passing characterization in
 
 ## Appendix B: deliberately unspecified
 
-- **Which minimal common superclass `lub` returns** when several are incomparable (2-9). The result
-  is a common superclass and a minimal one; among ties, do not depend on the choice, and note that
-  swapping the operands can change it (7-3).
+- **Which minimal common superclass the least upper bound uses** when several are incomparable
+  (2-9). The result is a common superclass and a minimal one; among ties, do not depend on the
+  choice, and note that swapping the operands can change it (7-3).
 - **The order of conjuncts in a joined `HAS` requirement** (8-9). The predicate means the same
-  thing either way, but the two spellings are different types by `==` (7-3).
-- **Exception messages.** Rules name exception *types* where the type is part of the contract.
-- **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
-  lazily; neither is observable except through 1-6.
+  thing either way, but the two spellings are unequal types (7-3).
+- **Diagnostic messages.** Rules define failure categories, not their message text.
+- **Evaluation order and caching.** They are not specified except for the identity and freezing
+  guarantees in section 1.

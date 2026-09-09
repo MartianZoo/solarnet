@@ -9,10 +9,33 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement.Counting
 import kotlin.Int.Companion.MAX_VALUE
 
-/** Immutable component-count limits for one active [ClassTable] projection. */
+/**
+ * Immutable component-count limits for one active class-table view. The type system uses these
+ * limits only to enforce that every dependency can identify a unique component, as specified by
+ * [rule 3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+ */
 public class ClassLimitTable private constructor(private val classTable: ClassTable) {
-  /** One concrete Type bound and its allowed multiplicity. */
-  public data class Limit(public val type: Type, public val range: IntRange)
+  /**
+   * One component domain and the invariant range that constrains its multiplicity under
+   * [rule 3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   *
+   * @constructor Associates a component [type] with one inclusive multiplicity [range] for the
+   *   invariant used by
+   *   [rule 3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   */
+  public data class Limit(
+      /**
+       * The component type constrained by this limit under
+       * [rule 3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+       */
+      public val type: Type,
+
+      /**
+       * The inclusive number of matching components permitted by the invariant used in
+       * [rule 3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+       */
+      public val range: IntRange,
+  )
 
   private val restrictionsByClass: Map<Class, List<Restriction>> = compileRestrictions()
 
@@ -39,7 +62,12 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     }
   }
 
-  /** Every strongest applicable limit for [type], including its unconstrained fallback. */
+  /**
+   * Returns every strongest component-count invariant applicable to [type], plus an unconstrained
+   * fallback. Dependency validation accepts a target only if at least one returned upper bound is
+   * at most one, implementing
+   * [rule 3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   */
   public fun limitsFor(type: Type): Set<Limit> {
     require(classTable.knows(type)) { "$type belongs to a different Catalog" }
     val bound = restrictionsByClass[type.rootClass].orEmpty().mapNotNull { it.bindThisTo(type) }
