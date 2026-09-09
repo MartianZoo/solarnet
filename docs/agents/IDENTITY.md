@@ -9,7 +9,8 @@
 > `Owner`/`Anyone` contextual-variable overload.
 >
 > **Skip when:** changing ownership as a Type dependency without task routing, attribution, or the
-> contextual `Owner` spelling; read the dependency sections of [TYPES.md](TYPES.md).
+> contextual `Owner` spelling; read sections 3 and 10 of
+> [type-system-spec.md](../type-system-spec.md).
 >
 > **Status:** current identity semantics. The
 > interaction between SAFE auto-selection and cross-Player handoff remains open, as does the entry

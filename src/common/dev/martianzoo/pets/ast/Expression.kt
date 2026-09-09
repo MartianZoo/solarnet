@@ -141,10 +141,17 @@ public data class Expression(
     }
 
     internal companion object {
+      /**
+       * The one predicate meaning "both", or null when there is none. A strict conjunction implies
+       * each of its conjuncts, and implies a forgiving predicate too, so it serves whenever either
+       * operand is strict. Two *different* forgiving predicates have no single conjunction: each
+       * escape clause is relative to its own whole requirement.
+       */
       internal fun join(ref1: Refinement, ref2: Refinement): Refinement? {
         if (ref1 == ref2) return ref1
-        if (ref1 !is Has || ref2 !is Has || ref1.forgiving != ref2.forgiving) return null
-        return Has(Requirement.join(ref1.requirement, ref2.requirement)!!, ref1.forgiving)
+        if (ref1 !is Has || ref2 !is Has) return null
+        if (ref1.forgiving && ref2.forgiving) return null
+        return Has(Requirement.join(ref1.requirement, ref2.requirement)!!, forgiving = false)
       }
     }
   }

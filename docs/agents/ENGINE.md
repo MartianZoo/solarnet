@@ -7,7 +7,8 @@
 > **Read when:** changing live World construction, components, events, tasks, effects, rollback,
 > recoverable dead ends, input transformation, recordings, or the current `Agent` surface.
 >
-> **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
+> **Skip when:** a narrower document owns the concern. Use
+> [type-system-spec.md](../type-system-spec.md) for static types,
 > [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
 > resolution.
 >
@@ -437,7 +438,7 @@ still required; context-closed does not mean concrete or resolved.
 meaningful only in declaration syntax that supplies a Class or component context and it disappears
 by the component-effect stage. `Class<This>` retains the root Class identity without dependencies.
 Static Class construction and the current specialized `This<...>` invariant behavior are specified
-in [TYPES.md](TYPES.md#inherited-and-narrowed-dependencies).
+in [type-system-spec.md](../type-system-spec.md) (rule 3-2).
 
 `Owner` currently conflates two roles: a contextual value to bind and the ordinary abstract `Owner`
 Type, whose concrete choices include seated Players and `SoloOpponent`. Consequently, failure to
