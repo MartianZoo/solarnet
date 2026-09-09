@@ -7,7 +7,8 @@
 > **Read when:** changing live World construction, components, events, tasks, effects, rollback,
 > recoverable dead ends, input transformation, recordings, or the current `Agent` surface.
 >
-> **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
+> **Skip when:** a narrower document owns the concern. Use
+> [type-system-spec.md](../type-system-spec.md) for static types,
 > [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
 > resolution.
 >
@@ -42,7 +43,7 @@
   for history, atomicity, rollback, or revisions.
  - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
    `public interface Agent` before changing caller-facing operations.
- - [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt),
+ - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt),
    [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
    [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) — inspect together
    for authored elaboration, class/component specialization, and Player-scoped input.
@@ -90,11 +91,10 @@ observational and do not activate their protocol Classes. Modules directly creat
 standard actions and other protocols they issue; generic families use `EACH` over the structurally
 present `Class<T>` representatives only when the family itself owns the fanout.
 
-Module defaults, constructive active-provenance edges, and premise requirements are authored in
-Pets. The Catalog resolves defaults and provenance to a fixed point; the engine checks each selected Module's premise
-requirement and configuration-facing invariants against the resolved projection before creating the
-World. Ambient Class ownership derives compatibility conditions from source declarations and
-lowered structured data. Bundle
+Module defaults and premise requirements are authored in Pets. The Catalog resolves defaults to a
+fixed point; the engine checks each selected Module's premise requirement and configuration-facing
+invariants against the resolved projection before creating the World. Ambient Class ownership
+derives compatibility conditions from source declarations and lowered structured data. Bundle
 availability locks ambient Classes behind their owning Modules, and exact uninhabited-domain
 viability checks reject impossible selected content before World construction.
 
@@ -121,22 +121,22 @@ three direct class exclusions for the cards its revised printings supersede; the
 replacement registry.
 
 `Engine.newGame(premise)` wires the World with one structural representative for every active
-concrete Class, then creates `Admin`. It directly creates root selected Modules and seated Players
-as one seed layer. Creating the Terraforming Mars Module immediately creates `BootstrapPhase`
-before the Players; after the whole seed layer exists, initialization drains its queued work. It
-next directly creates any selected Module left absent after its potential source ran and drains
-again, creates the premise's exact initial components, and performs a final drain. Completion
-requires an empty task queue and every premise-required component to exist before the initialized
-state is committed. Structural Class representatives are installed before event logging and
-therefore produce no Change Events. By the time `newGame` returns, the World has one Phase, every
-seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow later replaces
-Bootstrap with `SetupPhase` as an ordinary effectful operation.
+concrete Class, then creates `Admin`. Admin creates `BootstrapPhase`, which creates the generated
+`Premise` component. Its immediate effects create the `BaseGameModule` first, then the other
+literally named Modules, seated Players in order, and the premise's exact initial components. Its
+queued `ModulesReady` signal runs after that complete layer exists. The initializer then drains the
+remaining queued work and performs a final drain. Completion requires an empty task queue and every
+premise-required component to exist
+before the initialized state is committed. Structural Class representatives are installed before
+event logging and therefore produce no Change Events. By the time `newGame` returns, the World has
+one Phase, every seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow
+later replaces Bootstrap with `SetupPhase` as an ordinary effectful operation.
 
-This staging is deliberate. A queued `:` self-effect is selected only after the whole seed layer
-exists, so peer initializers appear in stable level-by-level causal history and a queued `EACH`
-sees the Players and Modules in that layer. The component carrying the effect remains the cause of
-the resulting changes; the Kotlin initializer is not a second registry of everything a Module or
-Player owns. Stable drain order is diagnostic, not game meaning.
+This staging is deliberate. The generated declaration is the executable form of the already
+resolved Module selection; live effects do not choose defaults from a partial World. Queued
+self-effects execute only after all Modules and Players have been created, so a queued `EACH` sees
+that whole layer. The component carrying the effect remains the cause of the resulting changes.
+Stable drain order is diagnostic, not game meaning.
 
 Required state should arise at its earliest honest owner. The base Module creates initial
 global-parameter status, Player1 creates the first-player token, the selected map creates its Mars
@@ -181,12 +181,12 @@ The goal is not to call every constructor step an Admin action. It is to make th
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, the initializer directly materializes only root premise Modules, seated Players, and
-exact initial component Types. Queued Module and Player effects create their owned bootstrap state,
-including constructively selected Modules; `EACH` over Class representatives supplies generic
-specialization fanout. The initializer's direct fallback is only for a selected Module still absent
-after a potential source's gated effect had an opportunity to run. An exact `HAS =1 This` remains a
-live multiplicity invariant, not an initialization instruction.
+In Canon, the initializer directly materializes only `Admin` and `BootstrapPhase`, then creates the
+generated `Premise` with the phase as its cause. Immediate Premise effects create all selected
+Modules, seated Players, and exact initial component Types; direct initialization remains only an
+idempotent fallback for copied custom premises. Module and Player effects create their owned
+bootstrap state. An exact `HAS =1 This` remains a live multiplicity invariant, not an initialization
+instruction.
 
 ## Component graph
 
@@ -420,7 +420,7 @@ onto the progression as follows:
 
 - A declaration retains `authoredEffects` and `authoredActions`. Its executable `effects` also
   include actions converted to effects and may contain Catalog-specific source compilation.
-- `Transformers.classEffects` collects inherited effects for an active Class, inserts defaults,
+- `PetElaborator.classEffects` collects inherited effects for an active Class, inserts defaults,
   atomizes, lowers marked syntax, and evaluates properties as far as the Class context permits. A
   class effect may still contain context-relative or event-relative values.
 - `LiveEffect.compile` specializes a class effect to one exact component Type. Apart from the
@@ -438,7 +438,7 @@ still required; context-closed does not mean concrete or resolved.
 meaningful only in declaration syntax that supplies a Class or component context and it disappears
 by the component-effect stage. `Class<This>` retains the root Class identity without dependencies.
 Static Class construction and the current specialized `This<...>` invariant behavior are specified
-in [TYPES.md](TYPES.md#inherited-and-narrowed-dependencies).
+in [type-system-spec.md](../type-system-spec.md) (rule 3-2).
 
 `Owner` currently conflates two roles: a contextual value to bind and the ordinary abstract `Owner`
 Type, whose concrete choices include seated Players and `SoloOpponent`. Consequently, failure to
@@ -475,12 +475,12 @@ reflection-like: ordinary execution moves forward through the lifecycle, while s
 explicitly reaches into preserved directives as data. Re-submitted data must re-enter through the
 same elaboration path as any other authored Pets.
 
-There is no single elaboration entry point today. `ApiTranslation`, `Transformers.classEffects`,
-property evaluation, and `CustomClassRuntime` assemble overlapping transformer chains, while
-`Instructor` applies marked-syntax handling after custom translation. Their shared intended
-contract is one authored-to-elaborated operation, parameterized by the active Class Table, Catalog
-handlers, and the contextual bindings available at that stage. Reflection-like re-entry should call
-that same operation rather than reconstructing a private subset of the pipeline.
+`PetElaborator` owns the shared authored-to-elaborated packages for session input, Metric input,
+Class Effects, and source-shaped custom-instruction output. Its private transformers supply one
+meaning for defaults, atomization, marked syntax, and property expansion. The engine chooses which
+public elaboration operation applies and supplies live component, Owner, trigger, or fanout context;
+it does not reconstruct those transformation chains. Reflection-like re-entry likewise returns
+through the matching elaboration operation.
 
 The `Effector` indexes live component-effect pairs with their component multiplicity.
 
@@ -569,13 +569,14 @@ rules, global-parameter completion state, end barriers, and setup operations. `M
 missing maximum-one declaration found by the current Canon audit. `TradeFleet` deliberately has no
 one-count limit: additional fleet components are real capacity granted by cards.
 
-`StartToken` is exact one: Player1's queued bootstrap effect creates it, and generations move it
-only by atomic transmutation. In Terraforming Mars, Phase is likewise exact one from the creation
-of its Module: Bootstrap is created first, and each transition replaces the current Phase; `End`
-remains as the terminal Phase. A separate temporary
+`StartToken` is exact one: the generated Premise creates it with the explicit binary `AfterMe`
+ring, and each `ResearchPhase` moves it along that relation by atomic transmutation. Each Player
+permits at most one incoming and one outgoing edge. Phase is likewise exact one after Admin creates
+BootstrapPhase; each transition replaces the current Phase, and `End` remains as the terminal Phase.
+A separate temporary
 `FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
 scoring task settles. A future comprehensive lower-bound validator must account for the short
-construction interval before the Terraforming Mars Module creates Bootstrap. Bootstrap completion
+construction interval before Admin creates BootstrapPhase. Bootstrap completion
 verifies its required components and empty task queue; ordinary mutations continue to enforce
 applicable multiplicity limits.
 
@@ -614,8 +615,7 @@ a second representation or a hidden “repairing” marker merely to permit the 
 **Disposition: at peace with the operator set.** `Metric.Max`, `Metric.Subtract`, and `Metric.Or`
 each have only a handful of authored uses, almost all inside `Award.metric`, so a sweep for
 single-client machinery flags them. The measurement is backwards: the algebra is *under*-built, not
-over-built. `Subtract` saturates but there is no `Add`, and
-[TURMOIL.md](TURMOIL.md#open-language-and-modeling-questions) needs one for global events that add
+over-built. `Subtract` saturates but there is no `Add`, which is needed for global events that add
 Influence after a capped or grouped Metric. Union and sum are also genuinely different operators —
 Awards need `Or`'s non-double-counting union, Turmoil needs arithmetic addition — so neither can
 stand in for the other. Propose completing this algebra, not trimming it.
@@ -682,9 +682,9 @@ an earlier compilation stage can handle only the syntax it owns. Terraforming Ma
 `PROD` lowering and follow-mode `CARDS` lowering. Card-source compilation invokes the same
 dispatcher with only `CARDS`, leaving `PROD` for the active-table stage.
 
-AST values created inside the engine skip parsing but may use relevant transforms explicitly.
-Transform entry points preserve their declared AST `kind`; a cardinality-changing caller must
-request `InstructionTree`, not `Instruction`.
+Source-shaped AST returned by custom implementations enters through
+`PetElaborator.elaborateCustomInstruction`. Public elaboration entry points preserve their declared
+AST family; instruction entry points use `InstructionTree` where cardinality may change.
 
 ## Current Agent surface
 

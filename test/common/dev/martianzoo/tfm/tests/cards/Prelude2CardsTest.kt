@@ -7,7 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Player.Companion.PLAYER3
+import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -152,7 +152,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.manual("$Spire")
     admin.phase("Action")
 
-    p1.stdAction("DoRequiredActions")
+    p1.stdAction("DoRequiredActionsAction")
 
     p1.count("ProjectCard") shouldBe 1
     p1.count("RequiredAction") shouldBe 0
@@ -179,10 +179,10 @@ internal class Prelude2CardsTest : CardTest() {
     p1.manual("$Research")
     p1.count("Science<$Spire>") shouldBe startingScience + 1
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions")
+    p1.stdAction("DoRequiredActionsAction")
 
     p1.stdProject(
-            "PowerPlantSP",
+            "PowerPlantProject",
             payment = {
               doTask("PayFromCard<$Spire> FROM Science<$Spire>")
               doTask("Pay<Class<MC>> FROM MC / Owed<>")
@@ -230,13 +230,15 @@ internal class Prelude2CardsTest : CardTest() {
     val startingMoney = p1.count("MC")
 
     p1.manual("NewTurn") {
-      doTask("UseAction<PowerPlantSP, Action1>")
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<PowerPlantProject, Action1>")
       doTask("Pay<Class<MC>> FROM MC / Owed<>")
     }
     p1.count("MC") shouldBe startingMoney - 9
 
     p1.manual("SecondAction") {
-      doTask("UseAction<PowerPlantSP, Action1>")
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<PowerPlantProject, Action1>")
       doTask("Pay<Class<MC>> FROM MC / Owed<>")
     }
 

@@ -10,6 +10,6 @@ internal class CredicorTest : CardTest() {
     admin.phase("Action")
     p1.manual("40 MC, 2 ProjectCard, $CrediCor")
     p1.playProject(EarthCatapult, 23).expect("-19 MC")
-    p1.stdProject("CitySP") { placeTile(2, 1) }.expect("-21 MC")
+    p1.stdProject("CityProject") { placeTile(2, 1) }.expect("-21 MC")
   }
 }

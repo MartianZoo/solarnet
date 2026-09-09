@@ -75,20 +75,19 @@ internal fun playedEventCards(game: World, player: Player): List<ClassName> {
 private val supportedPlayerColors = listOf("red", "yellow", "green", "blue", "purple")
 
 internal fun assignPlayerColors(playerNames: List<String>): List<String> {
-  require(playerNames.size <= supportedPlayerColors.size) {
-    "Only ${supportedPlayerColors.size} distinct player colors are available"
-  }
-
   val unclaimedColors = supportedPlayerColors.toMutableList()
   val assignedColors = MutableList<String?>(playerNames.size) { null }
   playerNames.forEachIndexed { index, playerName ->
     val requestedColor = playerName.lowercase()
     if (unclaimedColors.remove(requestedColor)) assignedColors[index] = requestedColor
   }
+  var reusedColorIndex = 0
   assignedColors.indices
       .filter { assignedColors[it] == null }
       .forEach { index ->
-        assignedColors[index] = unclaimedColors.removeFirst()
+        assignedColors[index] =
+            if (unclaimedColors.isNotEmpty()) unclaimedColors.removeFirst()
+            else supportedPlayerColors[reusedColorIndex++ % supportedPlayerColors.size]
       }
   return assignedColors.filterNotNull()
 }

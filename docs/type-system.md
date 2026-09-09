@@ -159,4 +159,4 @@ CLASS Production<Class<StandardResource>> : Owned {
 
 * Document dependency-target uniqueness and linked dependencies.
 * Cover effect declaration order, duplicate effects, and the full inherited meaning of `This`.
-* Incorporate the useful parts of the [agent-written type-system specification](agents/TYPES.md).
+* Incorporate the useful parts of the [type-system specification](type-system-spec.md).

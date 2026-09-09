@@ -17,7 +17,7 @@ internal class PhilaresTest : CardTest() {
     p1.manual("23 MC")
     admin.phase("Action")
 
-    p1.stdProject("GreenerySP") {
+    p1.stdProject("GreeneryProject") {
       placeTile(4, 3)
       p2.doTask("Titanium").expect("Titanium")
     }
@@ -58,8 +58,8 @@ internal class PhilaresTest : CardTest() {
     p1.manual("$Philares")
     p1.manual("23 MC")
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { placeTile(4, 2) }
-    p1.stdProject("GreenerySP") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")
+    p1.stdAction("DoRequiredActionsAction") { placeTile(4, 2) }
+    p1.stdProject("GreeneryProject") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")
   }
 
   @Test

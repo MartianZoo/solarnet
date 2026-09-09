@@ -193,16 +193,14 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
+  /** Finds the greatest Class that is a subtype of both operands, when it is unique. */
   public infix fun glb(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
         else -> {
-          allSubclasses().singleOrNull {
-            it.isIntersectionType() &&
-                this in it.directSuperclasses &&
-                that in it.directSuperclasses
-          }
+          val lowerBounds = allSubclasses().filter(that::isSupertypeOf)
+          lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
         }
       }
 
@@ -350,15 +348,27 @@ internal constructor(
         }
     )
   }
-  // Laziness enables dependency cycles.
+  private var resolvingDependencies: Boolean = false
+
+  // Laziness lets classes refer to each other; a true cycle has no finite answer, so it is
+  // rejected.
   private val dependenciesLazy = lazy {
-    val result =
-        if (className == CLASS) {
-          depsForClassType(loader.componentClass)
-        } else {
-          inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
-        }
-    result
+    if (resolvingDependencies) {
+      throw PetException(
+          "$className has a circular dependency: resolving its dependency bounds requires " +
+              "those same bounds"
+      )
+    }
+    resolvingDependencies = true
+    try {
+      if (className == CLASS) {
+        depsForClassType(loader.componentClass)
+      } else {
+        inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
+      }
+    } finally {
+      resolvingDependencies = false
+    }
   }
   public val dependencies: DependencySet
     get() = dependenciesLazy.value
@@ -738,7 +748,8 @@ internal constructor(
         val next =
             binding.paths.map { path -> capturedAt(specific, path) }.distinct().singleOrNull()
                 ?: error("Type variable ${binding.variable} has conflicting values")
-        if (next == previous) return@forEach
+        // A fixed inherited dependency still has to replace its superclass's open variable.
+        if (next == previous && next.abstract) return@forEach
         aliases.forEach { variable -> put(variable, next) }
       }
     }
@@ -801,7 +812,14 @@ internal constructor(
     ): List<Class> {
       return declaration.supertypes
           .classNames()
-          .also { require(COMPONENT !in it) }
+          .also {
+            if (COMPONENT in it) {
+              throw PetException(
+                  "${declaration.className} must not name $COMPONENT as a supertype; " +
+                      "every class extends it already"
+              )
+            }
+          }
           .ifEmpty { listOf(COMPONENT) }
           .map { loader.loadRelated(it, active = true) }
     }

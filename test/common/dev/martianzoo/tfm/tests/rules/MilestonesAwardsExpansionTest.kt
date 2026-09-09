@@ -68,7 +68,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
     admin.phase("Action")
 
-    p1.stdAction("ClaimMilestone") { doTask("Merchant") }
+    p1.stdAction("ClaimMilestoneAction") { doTask("Merchant") }
 
     p1.count("Merchant") shouldBe 1
   }
@@ -121,7 +121,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     shouldThrow<RequirementException> { p1.manual(milestone) }
 
     p1.manual("PROD[Energy]")
-    p1.stdAction("ClaimMilestone") { doTask(milestone) }
+    p1.stdAction("ClaimMilestoneAction") { doTask(milestone) }
 
     p1.count(milestone) shouldBe 1
   }

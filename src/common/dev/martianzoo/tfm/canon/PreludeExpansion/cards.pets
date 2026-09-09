@@ -119,7 +119,7 @@ CLASS ExperimentalForest : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: PlantTag<This>
-  This: GreeneryTile<>, CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
+  This: DefaultGreeneryTile, CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
 }
 
 CLASS GalileanMining : CardFront<Class<PreludeCard>> {

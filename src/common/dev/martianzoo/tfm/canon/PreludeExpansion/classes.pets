@@ -1,6 +1,7 @@
 "The published Prelude 1 rules"
 CLASS PreludeExpansion : Module {
   HAS PreludeCardPack, Class<PreludePhase>
+  autoSelectWhen = HAS "Prelude2Expansion"
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
   SetupPhase:: EACH Player { 4 PreludeCard THEN -2 PreludeCard }

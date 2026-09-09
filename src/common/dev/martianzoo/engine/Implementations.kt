@@ -637,8 +637,8 @@ internal class Implementations(
   private fun loweredRemovalBinding(then: Then, narrow: Instruction): PetTransformer? {
     val general = (then.first as? Change)?.removing ?: return null
     val specific = (narrow as? Change)?.removing ?: return null
-    val transformers = (reader as GameReaderImpl).transformers
-    return transformers.bindVariablesFrom(
+    val elaborator = (reader as GameReaderImpl).elaborator
+    return elaborator.specializeVariables(
         reader.resolve(general),
         reader.resolve(specific),
         general,

@@ -67,7 +67,7 @@ The single largest method was ModuleSelection's valid-configuration catalog at 1
 
 A Java Flight Recorder sample of all 25 `Prelude2CardsTest` methods ran for 19s. The single test
 thread allocated an estimated 41.6GB and triggered 492 young collections. Collection wall time was
-only 0.36s (2.36s combined collection CPU), so pauses are not the principal problem; allocation and
+0.36s (2.36s combined collection CPU), so pauses are not the principal problem; allocation and
 construction work are.
 
 Top CPU samples were `DependencySet` construction (7.6%), dependency validation (6.5%),

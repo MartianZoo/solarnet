@@ -56,7 +56,7 @@ public class OtbGame20260828 : RecordedGame() {
 
     green.turn { playProject(TitanShuttles, 14, titanium = 3) }
     blue.turn {
-      stdAction("DoRequiredActions")
+      stdAction("DoRequiredActionsAction")
       playProject(LocalShading, 4)
     }
     yellow.turn { playProject(RimFreighters, 1, titanium = 1) }
@@ -610,16 +610,16 @@ public class OtbGame20260828 : RecordedGame() {
     blue.buyCards(0)
 
     yellow.turn {
-      stdProject("GreenerySP") { placeTile(7, 3) }
-      stdProject("GreenerySP") { placeTile(7, 4) }
+      stdProject("GreeneryProject") { placeTile(7, 3) }
+      stdProject("GreeneryProject") { placeTile(7, 4) }
     }
     green.turn {
       cardAction1(WaterSplittingPlant)
       playProject(ImmigrantCity, 9) { placeTile(9, 8) }
     }
     blue.turn {
-      stdProject("CitySP") { placeTile(8, 5) }
-      stdProject("CitySP") { placeTile(7, 8) }
+      stdProject("CityProject") { placeTile(8, 5) }
+      stdProject("CityProject") { placeTile(7, 8) }
     }
     yellow.turn {
       playProject(KaguyaTech, 10) {
@@ -678,7 +678,7 @@ public class OtbGame20260828 : RecordedGame() {
     blue.turn { cardAction1(Dirigibles) { addCardResources(Celestic) } }
     yellow.turn { cardAction1(FloatingHabs) { addCardResources(FloatingHabs) } }
     yellow.exMachina("2 MC")
-    green.turn { stdProject("GreenerySP") { placeTile(8, 7) } }
+    green.turn { stdProject("GreeneryProject") { placeTile(8, 7) } }
     blue.turn { cardAction1(FloaterTechnology) { addCardResources(Celestic) } }
     yellow.turn { sellPatents(1) }
     green.turn { sellPatents(5) }

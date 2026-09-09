@@ -14,6 +14,7 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260828
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -42,14 +43,15 @@ private fun createGame(playerCount: Int): World {
       )
   return Engine.newGame(premise).also { game ->
     TfmWorkflow.Manual(game).setupPhase()
-    game.actors.filterIsInstance<Player>().forEach { player ->
+    val players = game.actors.filterIsInstance<Player>()
+    players.forEach { player ->
       game.agent(player).doTask("-6 ProjectCard<Hand>")
     }
     if (playerCount == 1) {
-      game.tfm(Player.PLAYER1).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
+      game.tfm(players.first()).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
     }
     TfmWorkflow.Manual(game).corporationPhase()
-    game.tfm(Player.PLAYER1).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
+    game.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
   }
 }
 
@@ -96,7 +98,16 @@ private fun dump(game: World, output: Path) {
 }
 
 public fun main(args: Array<String>) {
-  require(args.size == 2) { "Usage: dumpEventlog <three-player.tsv> <solo.tsv>" }
-  dump(createGame(playerCount = 3), Path.of(args[0]))
-  dump(createGame(playerCount = 1), Path.of(args[1]))
+  when (args.size) {
+    1 -> dump(OtbGame20260828().record().world, Path.of(args.single()))
+    2 -> {
+      dump(createGame(playerCount = 3), Path.of(args[0]))
+      dump(createGame(playerCount = 1), Path.of(args[1]))
+    }
+    else ->
+        error(
+            "Usage: dumpEventlog <otb-game.tsv> OR " +
+                "dumpEventlog <three-player.tsv> <solo.tsv>"
+        )
+  }
 }

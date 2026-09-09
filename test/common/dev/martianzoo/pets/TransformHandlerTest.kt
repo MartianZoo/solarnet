@@ -1,8 +1,10 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
@@ -29,6 +31,15 @@ internal class TransformHandlerTest {
     dispatcher
         .transformInstructionTree(parse("MARK[Inside, AlsoInside], Outside"))
         .toString() shouldBe "Inside, AlsoInside, Outside"
+  }
+
+  @Test
+  internal fun cardinalityChangingTransformRequiresTheInstructionTreeEntryPoint() {
+    val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
+    val source = parse<Instruction>("MARK[Inside, AlsoInside]")
+
+    shouldThrow<KindException> { dispatcher.transformInstruction(source) }
+    dispatcher.transformInstructionTree(source).toString() shouldBe "Inside, AlsoInside"
   }
 
   @Test

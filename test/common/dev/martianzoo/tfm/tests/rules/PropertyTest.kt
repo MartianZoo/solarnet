@@ -7,8 +7,8 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -32,7 +32,7 @@ internal class PropertyTest {
     p1.count("Hellas_8_4.column") shouldBe 4
     p1.count("ColonizerTrainingCamp.cost") shouldBe 8
     p1.count("Class<ColonizerTrainingCamp>.cost") shouldBe 8
-    p1.count("PowerPlantSP.cost") shouldBe 11
+    p1.count("PowerPlantProject.cost") shouldBe 11
     p1.count("Component") shouldBe componentCount
 
     shouldThrow<ExpressionException> { p1.count("MaxwellBaseArea.row") }

@@ -14,9 +14,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.FromExpression.Compact
-import dev.martianzoo.pets.ast.FromExpression.Full
-import dev.martianzoo.pets.ast.FromExpression.Unchanged
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
@@ -24,7 +21,6 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
-import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -36,13 +32,9 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
-import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.ApiUtils.getOwner
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
-import dev.martianzoo.tfm.canon.TfmClasses.SUCCESSOR
-import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import kotlin.math.abs
 
 private val terraformingMarsCustomClasses: Set<CustomClass> =
@@ -51,7 +43,6 @@ private val terraformingMarsCustomClasses: Set<CustomClass> =
         TerraformingMars.AdjustGpRequirement,
         TerraformingMars.HandleCardTags,
         TerraformingMars.ScoreEventVps,
-        TerraformingMars.PassLeft,
         TerraformingMars.NonNegativeIconsOf,
         TerraformingMars.PlacementBonus,
         TerraformingMars.CopyProductionBox,
@@ -126,8 +117,6 @@ private object TerraformingMars {
     }
   }
 
-  private val NEIGHBOR = cn("Neighbor")
-
   internal object Neighbor : CustomMetric() {
     override fun countAbstract(game: GameReader, type: Type): Int {
       val (tile, target) = type.typeDependencies.map { it.boundType }
@@ -144,20 +133,20 @@ private object TerraformingMars {
     }
 
     override fun count(game: GameReader, type: Type): Int {
-      val (tile, target) = type.typeDependencies.map { it.boundType }
-      return if (isNeighbor(tile, target)) 1 else 0
-    }
-
-    private fun isNeighbor(tile: Type, target: Type): Boolean {
-      val source = tile.typeDependencies.single { it.key.declaringClass == TILE }.boundType
-      if (listOf("row", "column").any { PropertyName(it) !in source.rootClass.properties }) {
-        return false
-      }
+      val (piece, target) = type.typeDependencies.map { it.boundType }
+      val source =
+          piece.typeDependencies
+              .map { it.boundType }
+              .singleOrNull {
+                listOf("row", "column").all { property ->
+                  PropertyName(property) in it.rootClass.properties
+                }
+              } ?: return 0
       val rowDelta = target.getNumberPropertyValue("row") - source.getNumberPropertyValue("row")
       val columnDelta =
           target.getNumberPropertyValue("column") - source.getNumberPropertyValue("column")
-      if (abs(rowDelta) > 1 || abs(columnDelta) > 1) return false
-      return rowDelta + columnDelta != 0
+      if (abs(rowDelta) > 1 || abs(columnDelta) > 1) return 0
+      return if (rowDelta + columnDelta == 0) 0 else 1
     }
   }
 
@@ -241,29 +230,6 @@ private object TerraformingMars {
     }
 
     private val end: Trigger = parse("End")
-  }
-
-  internal object PassLeft : CustomClass() {
-    override fun translate(reader: GameReader, component: Type): Instruction {
-      val currentOwner = getOwner(reader, component).groundType
-      val outgoing =
-          reader.getComponents(reader.resolve(SUCCESSOR.expression)).single { relation ->
-            relation.typeDependencies.single { it.key == Key(SUCCESSOR, 0) }.boundType ==
-                currentOwner
-          }
-      val nextOwner = outgoing.typeDependencies.single { it.key == Key(SUCCESSOR, 1) }.boundType
-      if (nextOwner == currentOwner) return NoOp
-
-      val arguments =
-          component.expressionFull.arguments.map {
-            if (reader.resolve(it).groundType == currentOwner) Full(nextOwner.expression, it)
-            else Unchanged(it)
-          }
-      return Transmute(
-          Compact(component.className, arguments),
-          ActualScalar(reader.countComponent(component)),
-      )
-    }
   }
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): Class {

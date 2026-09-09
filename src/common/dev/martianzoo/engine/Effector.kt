@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
@@ -9,7 +10,7 @@ import dev.martianzoo.pets.util.invoke
 
 /** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(
-    private val transformers: Transformers,
+    private val elaborator: PetElaborator,
     readerProvider: () -> GameReader,
 ) {
   private val reader: Lazy<GameReader> = lazy(readerProvider)
@@ -20,7 +21,7 @@ internal class Effector(
 
   /** Copies the materialized live-effect view for an overlay with its own reader. */
   internal fun overlay(readerProvider: () -> GameReader): Effector =
-      Effector(transformers, readerProvider).also { overlay ->
+      Effector(elaborator, readerProvider).also { overlay ->
         registry.forEach { (key, effects) ->
           overlay.registry[key] = HashMultiset<LiveEffect>().also { it.addAll(effects) }
         }
@@ -46,7 +47,7 @@ internal class Effector(
       }
 
   private fun liveEffects(component: Component): List<LiveEffect> =
-      effects.getOrPut(component) { LiveEffect.compile(component, transformers) }
+      effects.getOrPut(component) { LiveEffect.compile(component, elaborator) }
 
   internal fun fire(
       triggerEvent: ChangeEvent,

@@ -7,17 +7,18 @@ import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.data.Catalog
@@ -26,7 +27,6 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
-import dev.martianzoo.pets.data.ModuleProvenance
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.Class as PetClass
@@ -209,14 +209,16 @@ public open class TfmCatalog : Catalog {
    *
    * Structured inputs may use unambiguous English Pets names. Naming any milestones or awards
    * selects the exact configured pool for that category. A playable Terraforming Mars Catalog
-   * requires one to five player names in seat order. Missing names are composed into the Catalog as
-   * concrete `Player` subclasses before the premise is resolved.
+   * requires at least one player name in seat order. Missing names are composed into the Catalog as
+   * concrete `Player` subclasses before the premise is resolved. The returned Catalog also contains
+   * one generated concrete `Premise` Class whose immediate effects create the resolved Modules,
+   * Players, and exact starting Components.
    */
   public open fun gamePremise(config: GameConfig): GamePremise {
     val configuredPlayerNames = config.playerNames
-    if (PLAYER_CLASS in allClassNames) {
-      require(configuredPlayerNames.size in 1..5) {
-        "a Terraforming Mars configuration must have 1 to 5 player names"
+    if (PLAYER in allClassNames) {
+      require(configuredPlayerNames.isNotEmpty()) {
+        "a Terraforming Mars configuration must have at least one player name"
       }
       val catalogWithPlayers =
           if (
@@ -249,26 +251,12 @@ public open class TfmCatalog : Catalog {
               next.add(moduleName)
             }
           }
-      included
-          .filter { it in modules }
-          .flatMap { source -> constructivelySelectedModules(source, included) }
-          .filter { target -> target !in explicitlyExcluded }
-          .forEach(next::add)
       if (next == included) break
       included = next
     }
     require(seenSelections.last() == included) {
       "Module defaults do not converge: ${seenSelections.joinToString(" -> ")}"
     }
-
-    included
-        .filter { it in modules }
-        .flatMap { source -> constructivelySelectedModules(source, included) }
-        .forEach { target ->
-          require(target !in explicitlyExcluded) {
-            "active Module provenance selects excluded Module $target"
-          }
-        }
 
     cards
         .filter { it.className in explicitlyIncluded }
@@ -350,7 +338,7 @@ public open class TfmCatalog : Catalog {
       initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
       configuredPlayerNames.zip(configuredPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
           (player, nextPlayer) ->
-        TfmClasses.SUCCESSOR.of(player.expression, nextPlayer.expression)
+        TfmClasses.AFTER_ME.of(player.expression, nextPlayer.expression)
       }
     }
     val selectedByModules =
@@ -365,12 +353,31 @@ public open class TfmCatalog : Catalog {
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "selected ColonyTiles must be provided by a selected Module"
     }
+    val premiseCatalog =
+        if (moduleNames.isEmpty()) {
+          this
+        } else {
+          val baseGameModule = universe.findClass(BASE_GAME_MODULE)
+          val orderedModuleNames =
+              if (baseGameModule == null) {
+                moduleNames.toList()
+              } else {
+                moduleNames.filter { universe.getClass(it).isSubtypeOf(baseGameModule) } +
+                    moduleNames.filterNot { universe.getClass(it).isSubtypeOf(baseGameModule) }
+              }
+          withPremiseDeclaration(orderedModuleNames, configuredPlayerNames, initialTypes)
+        }
     return GamePremise(
-        this,
-        moduleNames,
-        classSelections,
-        initialTypes,
-        configuredPlayerNames,
+        catalog = premiseCatalog,
+        modules = moduleNames,
+        classSelections = classSelections,
+        initialComponentTypes = initialTypes,
+        playerNames = configuredPlayerNames,
+        bootstrapClassName =
+            BOOTSTRAP_PHASE.takeIf {
+              moduleNames.isNotEmpty() && it in premiseCatalog.allClassNames
+            },
+        premiseClassName = PREMISE_CLASS.takeIf { moduleNames.isNotEmpty() },
     )
   }
 
@@ -387,22 +394,6 @@ public open class TfmCatalog : Catalog {
     val playerNames = playerDeclarations.map(ClassDeclaration::className)
     return catalog.gamePremise(config.copy(playerNames = playerNames))
   }
-
-  /** Module gains on an active Module's own creation are forward selection provenance. */
-  private fun constructivelySelectedModules(
-      source: ClassName,
-      configuredClassNames: Set<ClassName>,
-  ): Set<ClassName> =
-      ModuleProvenance.gains(universe.getClass(source).declaration)
-          .filter { gain ->
-            gain.target in modules &&
-                gain.requirements.all { requirement ->
-                  requirement.isMetBy { metric ->
-                    countConfigured(metric, configuredClassNames - gain.target)
-                  }
-                }
-          }
-          .mapTo(linkedSetOf()) { it.target }
 
   private fun initialColonyTileType(className: ClassName) =
       if (universe.getClass(className).isSubtypeOf(universe.getClass(COLONY_TILE_SELECTION))) {
@@ -473,24 +464,24 @@ public open class TfmCatalog : Catalog {
 
   private fun resolveConfigurationName(configuredName: ClassName): ClassName? {
     val configuredClass = universe.findClass(configuredName) ?: return null
-    val playerClass = universe.findClass(PLAYER_CLASS)
+    val playerClass = universe.findClass(PLAYER)
     if (playerClass != null && configuredClass.isSubtypeOf(playerClass)) return null
     return configuredName.takeIf { it in allClassNames }
   }
 
   /** Returns this Catalog composed with concrete `Player1` through `PlayerN` seat Classes. */
   public fun withPlayers(playerCount: Int): TfmCatalog {
-    require(playerCount in 1..5) { "player count must be between 1 and 5: $playerCount" }
+    require(playerCount > 0) { "player count must be positive: $playerCount" }
     val names = Player.players(playerCount).map(Player::className)
     if (hasPlayerClasses(names)) return this
-    return conventionalPlayerCatalogs.value[playerCount - 1]
+    return conventionalPlayerCatalogs.getOrPut(playerCount) { withPlayerClassesUncached(names) }
   }
 
   private fun withPlayerDeclarations(playerDeclarations: Set<ClassDeclaration>): TfmCatalog {
     if (playerDeclarations.isEmpty()) return this
     val result = withDeclarations(playerDeclarations)
     val playerClass =
-        requireNotNull(result.universe.findClass(PLAYER_CLASS)) { "Catalog does not define Player" }
+        requireNotNull(result.universe.findClass(PLAYER)) { "Catalog does not define Player" }
     playerDeclarations.forEach { declaration ->
       val player = result.universe.getClass(declaration.className)
       require(!player.abstract && player.isSubtypeOf(playerClass)) {
@@ -502,7 +493,7 @@ public open class TfmCatalog : Catalog {
 
   /** Returns this Catalog composed with concrete `Player` subclasses named by [playerNames]. */
   public fun withPlayers(playerNames: List<ClassName>): TfmCatalog {
-    require(playerNames.size in 1..5) { "a game must have 1 to 5 player names" }
+    require(playerNames.isNotEmpty()) { "a game must have at least one player name" }
     require(playerNames.distinct().size == playerNames.size) {
       "a game cannot seat the same player name more than once"
     }
@@ -514,14 +505,10 @@ public open class TfmCatalog : Catalog {
     }
   }
 
-  private val conventionalPlayerCatalogs: Lazy<List<TfmCatalog>> = lazy {
-    (1..5).map { count ->
-      withPlayerClassesUncached(Player.players(count).map(Player::className))
-    }
-  }
+  private val conventionalPlayerCatalogs: MutableMap<Int, TfmCatalog> = mutableMapOf()
 
   private fun hasPlayerClasses(playerNames: List<ClassName>): Boolean {
-    val playerClass = universe.findClass(PLAYER_CLASS) ?: return false
+    val playerClass = universe.findClass(PLAYER) ?: return false
     return playerNames.all { name ->
       universe.findClass(name)?.let { !it.abstract && it.isSubtypeOf(playerClass) } == true
     }
@@ -529,7 +516,7 @@ public open class TfmCatalog : Catalog {
 
   private fun withPlayerClassesUncached(playerNames: List<ClassName>): TfmCatalog {
     val playerClass =
-        requireNotNull(universe.findClass(PLAYER_CLASS)) { "Catalog does not define Player" }
+        requireNotNull(universe.findClass(PLAYER)) { "Catalog does not define Player" }
     val missingNames = linkedSetOf<ClassName>()
     playerNames.forEach { name ->
       val existing = universe.findClass(name)
@@ -553,6 +540,48 @@ public open class TfmCatalog : Catalog {
           override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
         },
     )
+  }
+
+  private fun withPremiseDeclaration(
+      moduleNames: List<ClassName>,
+      playerNames: List<ClassName>,
+      initialComponentTypes: Set<Expression>,
+  ): TfmCatalog {
+    val declaration = generatedPremiseDeclaration(moduleNames, playerNames, initialComponentTypes)
+    require(declaration.className !in allClassNames) {
+      "${declaration.className} is reserved for the resolved game configuration"
+    }
+    return withDeclarations(setOf(declaration))
+  }
+
+  private fun generatedPremiseDeclaration(
+      moduleNames: List<ClassName>,
+      playerNames: List<ClassName>,
+      initialComponentTypes: Set<Expression>,
+  ): ClassDeclaration {
+    val effects = buildList {
+      if (moduleNames.isNotEmpty()) add("This:: ${moduleNames.joinToString()}")
+      if (PLAYER in allClassNames && playerNames.isNotEmpty()) {
+        add("This:: ${playerNames.joinToString(" THEN ")}")
+      }
+      if (initialComponentTypes.isNotEmpty()) {
+        add("This:: ${initialComponentTypes.joinToString()}")
+      }
+      if (BASE_GAME_MODULE in allClassNames && MODULES_READY in allClassNames) {
+        add("This: ModulesReady")
+      }
+    }
+    return parseClasses(
+            """
+            "The resolved game configuration that initializes this game"
+            CLASS Premise : System {
+              HAS =1 This
+              ${effects.joinToString("\n")}
+            }
+            """
+                .trimIndent()
+        )
+        .single()
   }
 
   private fun addExactGoalSelections(
@@ -630,18 +659,7 @@ public open class TfmCatalog : Catalog {
           !declaration.abstract && isSubtypeOf(declaration.className, MODULE_CLASS)
         }
         .associate { declaration ->
-          val provenanceSelections =
-              ModuleProvenance.gains(declaration)
-                  .filter { gain -> isSubtypeOf(gain.target, MODULE_CLASS) }
-                  .mapTo(linkedSetOf()) { gain ->
-                    ClassSelection(
-                        gain.target,
-                        requirement =
-                            if (gain.requirements.isEmpty()) null
-                            else And.create(gain.requirements),
-                    )
-                  }
-          declaration.className to (selectionsFor(declaration.className) + provenanceSelections)
+          declaration.className to selectionsFor(declaration.className)
         }
   }
 
@@ -893,8 +911,11 @@ public open class TfmCatalog : Catalog {
     /** Returns one Catalog containing the unique contributions from [catalogs]. */
     public fun compose(vararg catalogs: TfmCatalog): TfmCatalog = Composite(*catalogs)
 
+    private val BOOTSTRAP_PHASE = cn("BootstrapPhase")
+    private val BASE_GAME_MODULE = cn("BaseGameModule")
     private val MODULE_CLASS = cn("Module")
-    private val PLAYER_CLASS = cn("Player")
+    private val MODULES_READY = cn("ModulesReady")
+    private val PREMISE_CLASS = cn("Premise")
     private val MULTIPLAYER_MODE = cn("MultiplayerMode")
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")

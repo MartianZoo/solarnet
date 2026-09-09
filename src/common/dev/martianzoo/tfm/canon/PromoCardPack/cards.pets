@@ -1,4 +1,22 @@
 // Published promotional card declarations.
+CLASS ArcadianCommunities : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This: 40 MC, 10 Steel, RequiredAction { -> Community<LandArea(HAS MAX 0 Occupant)> }
+
+  -> Community<LandArea(HAS MAX 0 Occupant, Neighbor<OwnedOccupant>)>
+  -Community: 3 MC
+}
+
+CLASS MarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> {
+  cost = 13
+
+  This: NomadsMarker<LandArea(HAS MAX 0 Occupant)>
+
+  -> NomadsMarker<LandArea(HAS MAX 0 Occupant, Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> \
+    THEN EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }
+}
+
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
 
@@ -37,7 +55,7 @@ CLASS Philares : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This: 47 MC, RequiredAction { -> GreeneryTile<> }
+  This: 47 MC, RequiredAction { -> DefaultGreeneryTile }
   Adjacency<OwnedTile<Owner>, OwnedTile<Anyone(NOT Owner)>> BY Anyone: StandardResource
 }
 
@@ -75,7 +93,7 @@ CLASS KuiperCooperative : ActionCard, ResourceCard<Class<Asteroid>, Class<Corpor
 
   This:: 2 SpaceTag<This>
   This: 33 MC, PROD[Titanium]
-  UseAction<AsteroidSP> OR UseAction<AquiferSP>:: AcceptingFromCard<This>
+  UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>
   PayFromCard<This>:: -Owed<>
 
   -> Asteroid<This> / SpaceTag

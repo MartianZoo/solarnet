@@ -16,9 +16,11 @@ internal class HeadStartTest : CardTest() {
     p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
 
-      doTask("UseAction<PowerPlantSP, Action1>")
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<PowerPlantProject, Action1>")
       doTask("11 Pay<Class<MC>> FROM MC")
-      doTask("UseAction<PowerPlantSP, Action1>")
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<PowerPlantProject, Action1>")
       doTask("11 Pay<Class<MC>> FROM MC")
 
       p1.assertCounts(2 to "MC")
@@ -34,9 +36,10 @@ internal class HeadStartTest : CardTest() {
     p1.manual("10 ProjectCard, PreludeCard")
 
     p1.playPrelude(FakeHeadStart) {
-      doTask("UseAction<DoRequiredActions, Action1>")
+      doTask("UseAction<DoRequiredActionsAction, Action1>")
       p1.playPrelude(MartianIndustries) {
-        doTask("UseAction<PowerPlantSP, Action1>")
+        doTask("UseAction<UseStandardProjectAction, Action1>")
+        doTask("UseAction<PowerPlantProject, Action1>")
         doTask("11 Pay<Class<MC>> FROM MC")
       }
     }

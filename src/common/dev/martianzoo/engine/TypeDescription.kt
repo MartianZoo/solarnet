@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Requirement
@@ -20,7 +21,7 @@ public constructor(
   private val rootClass: Class
     get() = type.rootClass
 
-  private val transformers = Transformers(classTable)
+  private val elaborator = PetElaborator(classTable)
   private val active = classTable.isActive(type)
 
   public val docstring: String?
@@ -32,7 +33,7 @@ public constructor(
 
   public val rawClassEffects: List<Effect> = rootClass.declaration.effects
   public val classEffects: List<Effect> =
-      if (active) transformers.classEffects(rootClass) else emptyList()
+      if (active) elaborator.classEffects(rootClass) else emptyList()
 
   public val classInvariants: Set<Requirement> = rootClass.invariants
 
@@ -52,7 +53,7 @@ public constructor(
 
   public val componentEffects: List<Effect> =
       if (type.abstract || !active) emptyList()
-      else LiveEffect.compile(type.toComponent(), transformers).map(LiveEffect::effect)
+      else LiveEffect.compile(type.toComponent(), elaborator).map(LiveEffect::effect)
 
   private fun descendingBySubclassCount(classes: Iterable<Class>): Set<ClassName> =
       classes

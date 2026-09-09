@@ -10,7 +10,7 @@
 > **Skip when:** changing live World state after premise creation; use [ENGINE.md](ENGINE.md).
 >
 > **Status:** current model except where a section is explicitly marked as settled direction.
-> Stronger closed-world viability proofs and durable projection-decision explanations remain future
+> Stronger closed-world viability proofs and durable projection-decision explanations are future
 > work.
 
 ## Read only the relevant sections
@@ -69,7 +69,7 @@ Within a Catalog, every Class Name has one meaning. The Catalog loads and valida
 
 - selected classes are active;
 - Catalog-known inactive classes are uninhabited; and
-- unknown names remain errors.
+- unknown names are errors.
 
 The master table is a schema, not a playable Game World. It is never instantiated because it
 contains mutually exclusive maps, modes, and replacement classes.
@@ -91,33 +91,31 @@ realized choice. Base rules, expansions, maps, modes, content groups, and varian
 exact live Module set is the complete statement of a game's general rules.
 
 `Module` is an ordinary Pets superclass except where premise construction and initialization ask
-whether a Class is its subtype. The resolved premise names every selected concrete Module, while
-initialization directly creates only roots and lets their ordinary self-effects create selected
-descendants. A selected target still absent after its potential source ran is created directly as a
-fallback. Inherited rules keep each Module component unique and permanent. Its `autoSelectWhen` and
-`premiseRequirement` properties have meaning because the Catalog reads them. There is no separate
-Kotlin Module object or special component storage.
+whether a Class is its subtype. The resolved premise names every selected concrete Module and adds
+a generated concrete `Premise` Class to its composed Catalog. In Canon, its Pets effects first
+create the selected `BaseGameModule`, then the other literally named Modules, the ordered Players,
+and exact starting components, and finally emit `ModulesReady`. The generated declaration is the
+executable recipe for that specific game. Module effects create their owned non-Module state; they
+do not repeat configuration decisions in a partial live World. Inherited rules keep each Module
+component unique and permanent. Its `autoSelectWhen` and `premiseRequirement` properties have
+meaning because the Catalog reads them. There is no separate Kotlin Module object or special
+component storage.
 
 Each Module selects classes to activate or deactivate. Selection may depend on the complete
-configuration. A constructive self-gain in an active Module is also **active provenance** for a
-target Module: `A { This: B }` lets A select B, whether the effect is queued or immediate. A gated
-gain does so only when its Requirement is true in the settled selection after disregarding its own
-target. This selection is resolved before class projection. Initialization creates sources before
-their constructively selected targets, while still creating Modules needed to evaluate a source's
-gates first. Thus the declaration of A, rather than B or a central registry, owns “A causes B.”
-Other structural reachability may
-activate dependencies, but it may not activate an unselected Module or defeat an explicit
-exclusion.
+configuration. Module-to-Module defaults and implications are premise policy: the target's
+`autoSelectWhen` describes when it joins the selection, while the source's `premiseRequirement`
+rejects an explicit exclusion when the relationship is mandatory. Selection is fully resolved
+before class projection and before a live World exists. Other structural reachability may activate
+dependencies, but it may not activate an unselected Module or defeat an explicit exclusion.
 
 Module premise policy is authored with Requirement-valued Pets properties.
 `autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
 resolve to an order-independent fixed point and an explicit exclusion wins. Each candidate's
 condition is evaluated without counting that candidate itself, and an automatic selection is
 retracted when later selections make its condition false. A nonconverging set of defaults is
-invalid. By contrast, an explicit exclusion that contradicts an active constructive provenance
-edge makes the configuration invalid.
-`premiseRequirement` is checked against the completed projection when that Module is selected.
-Module invariants provide the exact-count rules that are also meaningful in the live
+invalid. A selected source's premise requirement can make an otherwise winning explicit exclusion
+invalid. `premiseRequirement` is checked against the completed projection when that Module is
+selected. Module invariants provide the exact-count rules that are also meaningful in the live
 World. `Class<T>` representatives describe that already-fixed projection and are structurally
 present before history begins. Required representatives are declared with invariants, not created
 by triggered instructions.
@@ -135,16 +133,18 @@ contains only:
 1. one Catalog;
 2. selected Module Class Names;
 3. signed selections for other Catalog classes;
-4. concrete Player Class Names in seat order; and
-5. exact concrete types to instantiate once.
+4. concrete Player Class Names in seat order;
+5. exact concrete types to instantiate once; and
+6. the concrete bootstrap Class Name and generated concrete `Premise` Class Name.
 
 Canon declares only the abstract `Player`; each configured name is the identity of a concrete
 `Player` subclass in the composed game Catalog. `withPlayers(count)` supplies reusable conventional
-names `Player1` through `PlayerN`. The `gamePremise(config, playerDeclarations)` overload instead
+names `Player1` through `PlayerN`; player counts have no fixed upper limit. Individual configurations
+may still be impossible when finite selected content cannot satisfy their player-count rules. The
+`gamePremise(config, playerDeclarations)` overload instead
 derives every player name and its seat order from explicit concrete Player declarations, including
-any per-seat Pets setup rules. The Pets-owned `SecondPlaceRule` Module is automatically selected for
-three or more Players and activates `SecondPlace`, keeping player-count policy out of Kotlin and
-numbered seat classes. Initial state is not an unrestricted Pets script.
+any per-seat Pets setup rules. Award scoring conditions its second-place effect directly on the
+presence of at least three Players. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection
@@ -152,7 +152,7 @@ representations. Normal selected colonies become tiles during setup; card-resour
 delayed until a compatible card exists. In solo play four are selected; setup asks the player to
 remove one `ColonyTileSelection` before creating the remaining normal tiles.
 
-Defaults and active provenance are evaluated against the growing Module selection. Naming a
+Defaults are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
 multiplayer, each Bundle whose same-named Module is selected contributes its applicable concrete
 milestone and award Classes as defaults. Premise resolution discovers those Classes by their
@@ -165,27 +165,29 @@ Solo Colonies selects four and keeps three after the setup choice, two-player Co
 and games with at least three players use two more tiles than players.
 
 Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
-terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The premise's ordered
-player list creates a directed `Successor<Player, Player>` ring, where the second Player follows the
-first, and gives the first Player the initial `StartToken`; passing the token reads that relation.
+terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The generated Premise
+explicitly creates the initial `StartToken` and a binary `AfterMe<Owner, Player>` ring from the
+ordered player list. Each Player permits at most one incoming and one outgoing edge. Each
+`ResearchPhase` passes the token along that relation.
 The solo game never passes through a synthetic 20-rating state followed by a compensating reduction.
 
 Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the other map names
 therefore identify both the immutable premise choice and the live board component; there is no
-parallel map option component. `TerraformingMars` selects `TharsisMap` only when no map is already
-selected. Creating the selected map fans out over the active `Class<Area>` representatives and
+parallel map option component. `TharsisMap` selects itself by default when `TerraformingMars` is
+present and no map is selected, while `TerraformingMars` requires exactly one map. Creating the
+selected map fans out over the active `Class<Area>` representatives and
 creates all of those Areas. The selected map also determines which map-area Classes are active,
 while the retained map record supplies the grid and compact display data.
 
 Concrete track-rule components own global-parameter limits, terminal steps, and printed bonuses.
-The base and Venus modules create their respective standard track-rule components when
-`ExtendedGlobalParametersRule` is absent. Selecting that rule replaces both components with the
-longer limits and bonuses. `AmazonisMap` selects the rule by default; an explicit exclusion wins.
+On `ModulesReady`, selected Modules create the applicable standard or extended track-rule
+components from Pets effects that inspect the complete live Module set. `AmazonisMap` selects
+`ExtendedGlobalParametersRule` by default; an explicit exclusion wins.
 
 `PreludeExpansion` supplies the Prelude 1 rules and phase. It selects `Prelude1CardPack` by default
 and requires at least one `PreludeCardPack`. Either card pack, or both together, may instead be
 selected without enabling the Prelude 1 rules; they only determine which cards can enter a merged
-Prelude deck. `Prelude2Expansion` constructively selects both `PreludeExpansion` and
+Prelude deck. `Prelude2Expansion` requires and automatically selects both `PreludeExpansion` and
 `Prelude2CardPack`. When `PreludeExpansion` is already selected, adding either
 `Prelude2Expansion` or `Prelude2CardPack` therefore contributes the same cards. The Prelude 1 pack
 remains the default and may be explicitly excluded. The phase and solo generation adjustment come
@@ -198,7 +200,7 @@ declarations, category-specific card or map data, and custom implementations. It
 directly and never becomes a live component.
 
 A Bundle may contain several Modules while retaining their separate card pools. A Module named for
-its owning Bundle selects that Bundle's ordinary cards and colony tiles. In multiplayer, its
+its owning Bundle selects that Bundle's cards and colony tiles. In multiplayer, its
 applicable concrete milestones and awards also become category defaults during premise resolution.
 Each map has its own same-named Bundle containing its map definition, areas, goals, and source-local
 goal support. Exceptional cross-Bundle or narrowed selections remain expressible, but Canon's
@@ -210,7 +212,7 @@ Prelude 2 Expansion Bundle. These should be removed only after declaration autho
 
 ### Content grouping
 
-**Status: current for cards; broader simplification remains a direction.**
+**Status: current for cards; broader simplification is still a direction.**
 
 Card membership comes from the bundle/resource organization itself, not a list of
 individual members and not reconstruction from Class-name prefixes. A card resource directory
@@ -218,7 +220,7 @@ selects its concrete `CardFront` declarations and unreferenced non-card roots fo
 Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
 which active Classes instantiate. None has a per-card metadata relationship.
 
-A same-named Module selects the Bundle's ordinary cards and supplies its default goal pools through
+A same-named Module selects the Bundle's cards and supplies its default goal pools through
 general rules. `Prelude1CardPack` should own a separate selectable resource group, represented by
 its own internal Bundle even though it shares a published product with the Prelude 1 rules and
 project cards. Once the common cases use those mechanisms, delete `BundleContentSelection` instead
@@ -318,7 +320,7 @@ compatibility does not promise that every conditional branch executes in every g
 
 The rule applies to hand-authored Class declarations and structured standard-action declarations.
 Cards, maps, areas, milestones, awards, and colony tiles remain independently selectable content;
-merely residing in an expansion Bundle does not make a content Class expansion-dependent. Module
+residing in an expansion Bundle does not by itself make a content Class expansion-dependent. Module
 Classes are never availability-locked: premise selection alone decides whether a Module is active.
 
 For content compatibility, inspect every semantic Class reference in the loaded content
@@ -332,7 +334,7 @@ as Colonies-dependent as one that places a colony.
 referencing content Venus-dependent. `WorldGovernmentTerraforming` is a shared protocol in the base
 Bundle, so `WorldGovernmentRule` and World Government Advisor may use it without enabling Venus
 Next. `ChooseOceanArea` belongs to the Promo Card Pack that alone uses it. `PreludeCard` belongs to
-the Prelude Expansion Bundle; Valley Trust's RequiredAction reference therefore derives its Prelude
+the Prelude Expansion Bundle; Valley Trust's RequiredAction reference derives its Prelude
 1 dependency without a card property. Automatic Prelude-card selection also requires a
 `PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 

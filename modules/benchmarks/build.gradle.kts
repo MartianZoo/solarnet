@@ -6,7 +6,10 @@ plugins {
 kotlin {
   sourceSets.named("jmh") {
     kotlin.setSrcDirs(
-        listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/benchmarks"))
+        listOf(
+            rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
+            rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/benchmarks"),
+        )
     )
   }
 }

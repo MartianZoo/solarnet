@@ -44,5 +44,5 @@ combine the effects while discarding the no-ops.
 `./gradlew :tools:generateTfmPets` rewrites every generated `maps.pets` and `cards.pets`. For a
 non-mutating comparison, pass `-PtfmPetsOutput=PATH`. Map output retains each row exactly in a
 diagram comment, keeps each area declaration on one line, and separates declaration rows with a
-blank line. `GenerateCardPetsTest` checks byte-for-byte drift and proves the generated map Class
+blank line. `GenerateCardPetsTest` checks byte-for-byte drift and confirms the generated map Class
 names match the expanded data.

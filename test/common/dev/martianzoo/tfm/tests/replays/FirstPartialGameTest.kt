@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
@@ -144,7 +144,7 @@ internal class FirstPartialGameTest : TfmTest() {
 
       p2.turn {
         playProject(SolarPower, 1, steel = 4)
-        stdProject("CitySP") { placeTile(6, 5) }
+        stdProject("CityProject") { placeTile(6, 5) }
       }
 
       workflow.shutdown()

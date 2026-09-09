@@ -52,7 +52,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     yellow.turn {
-      stdAction("DoRequiredActions") {
+      stdAction("DoRequiredActionsAction") {
         playPrelude(DoubleDown) { doTask("CopyPrelude<$MartianIndustries>") }
       }
 
@@ -339,7 +339,7 @@ public class OtbGame20260818 : RecordedGame() {
     green.turn {
       playProject(IndustrialMicrobes, 12)
       green.exMachina(fakeWildTags("MicrobeTag"))
-      stdAction("ClaimMilestone") {
+      stdAction("ClaimMilestoneAction") {
         doTask("Ecologist")
       }
     }
@@ -353,9 +353,9 @@ public class OtbGame20260818 : RecordedGame() {
     green.turn {
       playProject(ImportOfAdvancedGhg, 1, titanium = 2)
 
-      stdAction("ClaimMilestone") { doTask("Metallurgist") }
+      stdAction("ClaimMilestoneAction") { doTask("Metallurgist") }
     }
-    yellow.turn { stdAction("ClaimMilestone") { doTask("Tactician") } }
+    yellow.turn { stdAction("ClaimMilestoneAction") { doTask("Tactician") } }
     green.turn {
       cardAction1(FloatingHabs) { addCardResources(AerialMappers) }
       cardAction2(AerialMappers)
@@ -401,7 +401,7 @@ public class OtbGame20260818 : RecordedGame() {
     yellow.buyCards(3)
 
     green.turn {
-      stdAction("FundAward") { doTask("Traveller") }
+      stdAction("FundAwardAction") { doTask("Traveller") }
     }
 
     yellow.turn {
@@ -658,7 +658,7 @@ public class OtbGame20260818 : RecordedGame() {
         doTask("OceanTile<Utopia_8_6>")
       }
 
-      stdProject("AquiferSP") { placeTile(4, 5) }
+      stdProject("AquiferProject") { placeTile(4, 5) }
     }
 
     yellow.turn {
@@ -683,7 +683,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     yellow.turn {
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
 
       cardAction1(Psychrophiles)
     }
@@ -721,11 +721,11 @@ public class OtbGame20260818 : RecordedGame() {
     yellow.turn {
       convertPlants { placeTile(5, 5) }
 
-      stdProject("GreenerySP") { placeTile(2, 1) }
+      stdProject("GreeneryProject") { placeTile(2, 1) }
     }
 
     green.turn {
-      stdProject("CitySP") { placeTile(4, 4) }
+      stdProject("CityProject") { placeTile(4, 4) }
 
       playProject(EcologicalZone, 12) { placeTile(2, 2) }
     }
@@ -850,7 +850,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      stdAction("FundAward", which = 2) { doTask("Mogul") }
+      stdAction("FundAwardAction", which = 2) { doTask("Mogul") }
 
       playProject(Sabotage, 1) { doTask("-7 M<Yellow>") }
     }
@@ -873,7 +873,7 @@ public class OtbGame20260818 : RecordedGame() {
     yellow.turn { cardAction2(NitriteReducingBacteria) }
 
     green.turn {
-      stdProject("CitySP") { placeTile(2, 3) }
+      stdProject("CityProject") { placeTile(2, 3) }
 
       playProject(CommercialDistrict, 16) { placeTile(3, 3) }
     }

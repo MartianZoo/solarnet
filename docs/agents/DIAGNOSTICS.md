@@ -7,7 +7,7 @@
 > **Read when:** investigating engine sequencing, task assignment, permissions, autoexecution,
 > replay divergence, or another failure whose runtime cause is not apparent from the final World.
 >
-> **Skip when:** the failure is already explained by a focused assertion or ordinary source-level
+> **Skip when:** the failure is already explained by a focused assertion or source-level
 > debugging.
 >
 > **Status:** proposal and investigation procedure. This document does not authorize adding every
@@ -21,7 +21,7 @@ read captured runtime evidence before reconstructing execution from source searc
 Diagnostics have layer-specific homes:
 
 - Game World `GameEvent`s remain the durable account of changes and task lifecycle. We may add a
-  few optional diagnostic properties to those events, but no new event kinds merely to describe
+  few optional diagnostic properties to those events, but no new event kinds simply to describe
   debugging activity. [GAMEWORLD.md](GAMEWORLD.md) owns their data and export role.
 - An opt-in engine debug log records resolution, execution, effects, and rollback attempts that
   produced no event.
@@ -56,7 +56,8 @@ explanation or relevant pre-transition context.
 - appear only in explicitly diagnostic rendering, so normal history remains readable; and
 - carry no stable machine-readable format promise.
 
-Do not put information in `diagnostics` merely because it is convenient. In particular, "why did
+Do not put information in `diagnostics`
+for convenience alone. In particular, "why did
 autoexec skip this task?" cannot belong to an event when the skipped decision produced no event.
 
 Avoid adding several typed fields speculatively. A possible later exception is making operation

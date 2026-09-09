@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.data.Player.Companion.PLAYER3
+import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
@@ -45,7 +45,7 @@ internal class AirRaidTest : CardTest() {
   internal fun `Cannot be played when no player has five mc`() {
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    p2.turn { stdProject("PowerPlantSP") }
+    p2.turn { stdProject("PowerPlantProject") }
     p3.turn { playProject(Tardigrades, 4) }
 
     shouldThrow<LimitsException> {

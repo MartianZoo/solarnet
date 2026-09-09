@@ -18,7 +18,7 @@
 | `Insulation`      | `This: PROD[X MC FROM Heat]`                                |
 | `EarthCatapult`   | `PlayCard:: -2 Owed<MC>`                              |
 | `TerraformRating` | `ProductionPhase: MC`, `End: VictoryPoint`                  |
-| `CitySP`        | `25 MC -> CityTile<>, PROD[MC]`                             |
+| `CityProject`     | `25 MC -> CityTile<>, PROD[MC]`                             |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
 * This means you can add your own fan cards to it pretty easily and without actual "programming" -- so long as the cards don't introduce entirely new game mechanics.
@@ -62,7 +62,8 @@ I haven't written too much yet.
 * [Cheat sheet](docs/cheat-sheet.md)
 * Overview of [component types](docs/component-types.md) -- not a bad place to start
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
-* The Pets [type system](docs/type-system.md) (incomplete)
+* The Pets [type system](docs/type-system.md) (incomplete), and its full
+  [specification](docs/type-system-spec.md)
 * The growing project [glossary](docs/glossary.md)
 * API docs -- see below
 

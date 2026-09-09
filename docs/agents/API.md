@@ -8,7 +8,7 @@
 > authority, script access modes, or client-visible state.
 >
 > **Status:** selected layering direction with substantial current implementation divergence. The
-> current flat Agent remains described here only as migration evidence.
+> current flat Agent remains described here only as a migration reference.
 
 ## Source map
 
@@ -73,7 +73,7 @@ before selection, even when that target happens to satisfy the refinement in the
 
 Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
 is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that
-normalization belongs to engine task admission or an Agent policy remains open; both must use the
+normalization belongs to engine task admission or an Agent policy is still open; both must use the
 same checked narrowing relation.
 
 ## Agent
@@ -103,7 +103,7 @@ the factory does not introduce another public game wrapper.
 
 ## Layer responsibility
 
-Agent depends on engine; engine does not depend on Agent. Every ordinary explicit and autonomous
+Agent depends on engine; engine does not depend on Agent. Every explicit and autonomous
 action for one Actor enters through the same Agent methods and therefore uses the same validation
 path.
 
@@ -153,5 +153,5 @@ single-task removal. The extraction should preserve behavior while successively:
 4. move parsing, policy ownership, and the shared autoexecution loop into `:agent`; and
 5. migrate normal clients to Agent while keeping direct engine cheats and test helpers explicit.
 
-Do not retain obsolete aliases merely to preserve the current public API. User-visible script
+Do not retain obsolete aliases simply to preserve the current public API. User-visible script
 syntax must be migrated deliberately.

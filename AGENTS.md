@@ -12,6 +12,10 @@ correctness edits unless the user explicitly asks for more. Agent-maintained doc
 `docs/agents/`; when a change makes one inaccurate, update the smallest owning document selected by
 the router.
 
+> **Recurring failure warning:** A narrow request that appears to require a new gameplay helper,
+> representation, processing stage, or cross-module API is a stop signal. Explain the design
+> pressure and the smallest promising direction before editing.
+
 Keep embedded Pets declarations multiline when they do not fit comfortably on one line; do not
 replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep gameviewer recordings compact:
 source evidence, commentary, and assertions belong in the corresponding replay test, not in the
@@ -28,6 +32,9 @@ recording used by the viewer.
   interpretation.
 - Preserve scope. Do not turn a local request into general cleanup or restore adjacent behavior
   without authorization.
+- Keep an acceptance checklist as the user settles requirements during review. Before each revision
+  and at final-diff review, verify the whole checklist so fixing one point does not undo an earlier
+  accepted point.
 
 ### Protect the design
 
@@ -75,6 +82,9 @@ a behavior or architecture change.
   diff and verify the relevant behavior.
 - Prefer readable scenario and integration tests that prove meaningful behavior. Do not add tests
   that merely restate production data or constants.
+
+Before staging a commit or reporting an implementation complete, apply
+[`docs/agents/REVIEW_CRITERIA.md`](docs/agents/REVIEW_CRITERIA.md) to the entire final diff.
 
 ## Read these only when triggered
 

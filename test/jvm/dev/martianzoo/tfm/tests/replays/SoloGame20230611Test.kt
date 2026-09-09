@@ -45,7 +45,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       playPrelude(Biolab).expect("3 Card")
       playPrelude(NewPartner) { playPrelude(BusinessEmpire) }.expect("PROD[7 MC]")
 
-      stdAction("DoRequiredActions") { playPrelude(GalileanMining) }.expect("PROD[2 T]")
+      stdAction("DoRequiredActionsAction") { playPrelude(GalileanMining) }.expect("PROD[2 T]")
       playProject(IndenturedWorkers, 0)
       playProject(IndustrialMicrobes, 4).expect("PROD[S, E], MicrobeTag")
 
@@ -94,7 +94,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       cardAction2(ForcedPrecipitation).expect("TR")
       cardAction1(RegolithEaters)
       playProject(SmallAsteroid, 1, titanium = 3) { doTask("-2 Plant<SoloOpponent>") }.expect("TR")
-      stdProject("AsteroidSP").expect("PROD[H]")
+      stdProject("AsteroidProject").expect("PROD[H]")
       playProject(MagneticFieldDome, 3, steel = 1).expect("TR, PROD[P, -2 E], AutomatedCard")
 
       pass()
@@ -188,9 +188,9 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       playProject(MirandaResort, 2, titanium = 3)
       cardAction1(RegolithEaters)
       cardAction1(ForcedPrecipitation)
-      stdProject("AquiferSP") { placeTile(6, 7) }
+      stdProject("AquiferProject") { placeTile(6, 7) }
       sellPatents(3)
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
 
       // The player chose to convert only three of six energy with Supercapacitors.
       pass()
@@ -212,7 +212,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       cardAction1(EquatorialMagnetizer)
       playProject(ImportedGhg, 1, titanium = 1)
       playProject(NitrogenRichAsteroid, 10, titanium = 6)
-      stdProject("GreenerySP") { placeTile(7, 7) }
+      stdProject("GreeneryProject") { placeTile(7, 7) }
       cardAction1(RegolithEaters)
 
       pass()
@@ -228,10 +228,10 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       playProject(Greenhouses, 1, steel = 2)
       playProject(TerraformingGanymede, 18, titanium = 4).expect("4 TR")
       sellPatents(6)
-      stdProject("AirScrappingSP")
-      stdProject("AirScrappingSP")
-      stdProject("AirScrappingSP")
-      stdProject("AirScrappingSP").expect("2 TR")
+      stdProject("AirScrappingProject")
+      stdProject("AirScrappingProject")
+      stdProject("AirScrappingProject")
+      stdProject("AirScrappingProject").expect("2 TR")
       sellPatents(3)
       playProject(TransNeptuneProbe, 1)
       convertPlants { placeTile(6, 5) }

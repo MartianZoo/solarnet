@@ -4,6 +4,7 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
@@ -14,7 +15,6 @@ import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
@@ -64,7 +64,8 @@ public abstract class ClassTable {
           premise.modules +
               ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
               initialClassNames +
-              premise.actors.map(Actor::className)
+              premise.actors.map(Actor::className) +
+              listOfNotNull(premise.bootstrapClassName, premise.premiseClassName)
 
       val table =
           ClassLoader.projection(
@@ -81,7 +82,7 @@ public abstract class ClassTable {
       require(unexpectedModules.isEmpty()) {
         "structural activation selected unrequested Modules: $unexpectedModules"
       }
-      val playerClass = masterTable.findClass(Player.CLASS_NAME)
+      val playerClass = masterTable.findClass(PLAYER)
       val activePlayerClassNames =
           playerClass
               ?.let(table::allSubclasses)
@@ -244,8 +245,14 @@ public abstract class ClassTable {
     if ((type.rootClass.className == CLASS && type.refinement != null) || type.refinement is Not) {
       return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
     }
-    val klass = allSubclasses(type.rootClass).singleOrNull { !it.abstract } ?: return null
-    val intersection = type glb klass.baseType ?: return null
+    // A concrete subclass incompatible with [type] is not a choice, so it must not count as one.
+    val intersection =
+        allSubclasses(type.rootClass)
+            .asSequence()
+            .filterNot(Class::abstract)
+            .mapNotNull { type glb it.baseType }
+            .take(2)
+            .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null
     val candidate = intersection.rootClass.withAllDependencies(dependencies)
     return candidate.takeIf { !it.abstract && it.narrows(type, info) }

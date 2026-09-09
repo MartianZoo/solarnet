@@ -4,8 +4,8 @@ CLASS NirgalEnterprises : CardFront<Class<CorporationCard>> {
 
   This:: PowerTag<This>, PlantTag<This>, BuildingTag<This>
   This: 30 MC, PROD[Energy, Plant, Steel]
-  Invoice<ClaimMilestone>:: -Owed<> / Owed<>
-  Invoice<FundAward>:: -Owed<> / Owed<>
+  Invoice<ClaimMilestoneAction>:: -Owed<> / Owed<>
+  Invoice<FundAwardAction>:: -Owed<> / Owed<>
 }
 
 CLASS PalladinShipping : ActionCard<Class<CorporationCard>> {
@@ -129,7 +129,7 @@ CLASS ProjectEden : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: CityTag<This>, PlantTag<This>
-  This: OceanTile<>, CityTile<>, GreeneryTile<>, -3 ProjectCard
+  This: OceanTile<>, CityTile<>, DefaultGreeneryTile, -3 ProjectCard
 }
 
 CLASS Recession : CardFront<Class<PreludeCard>> {

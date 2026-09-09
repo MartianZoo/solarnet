@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
@@ -60,15 +61,15 @@ public object Engine {
 
     private val backingRevision = backing?.revision
     private val classTable = premise.classTable.also { if (backing == null) validatePremise(it) }
-    private val transformers: Transformers =
-        backing?.readerImpl?.transformers ?: Transformers(classTable)
-    private val customClasses = CustomClassRuntime(premise.catalog, transformers)
+    private val elaborator: PetElaborator =
+        backing?.readerImpl?.elaborator ?: PetElaborator(classTable)
+    private val customClasses = CustomClassRuntime(premise.catalog, elaborator)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
     // complete.
     private val effector: Effector =
-        backing?.effector?.overlay { reader } ?: Effector(transformers) { reader }
+        backing?.effector?.overlay { reader } ?: Effector(elaborator) { reader }
     private val components =
         backing?.let { OverlayComponentGraph(it.components, effector, ::requireUnchangedBacking) }
             ?: ComponentGraph(effector, classTable)
@@ -79,7 +80,7 @@ public object Engine {
             ?: TaskQueues(events, classTable)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReaderImpl =
-        GameReaderImpl(classTable, components, transformers, customClasses, premise)
+        GameReaderImpl(classTable, components, elaborator, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
     private val atomicOperationScope: AtomicOperationScope =
@@ -91,7 +92,7 @@ public object Engine {
         )
     private val changer = Changer(reader, components, events)
     private val instructor =
-        Instructor(reader, limiter, changer, effector, classTable, transformers, customClasses)
+        Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
     private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
     private val initializer =
         if (backing == null) {
@@ -162,6 +163,9 @@ public object Engine {
     }
 
     private fun validatePremise(classTable: ClassTable) {
+      require(premise.modules.isEmpty() || premise.premiseClassName != null) {
+        "a premise with Modules must provide a premise Class"
+      }
       premise.initialComponentTypes.forEach { expression ->
         val type = classTable.resolve(expression)
         require(!type.abstract && classTable.isActive(type) && !type.rootClass.declaration.custom) {
@@ -172,6 +176,7 @@ public object Engine {
       val initiallyPresentClassNames =
           premise.modules +
               premise.playerNames +
+              listOfNotNull(premise.bootstrapClassName, premise.premiseClassName) +
               premise.classSelections.filter { it.included }.map { it.className } +
               premise.initialComponentTypes.map { classTable.resolve(it).className }
 
@@ -234,7 +239,7 @@ public object Engine {
           implementations,
           tasks,
           classTable,
-          transformers,
+          elaborator,
           vocabulary,
           atomicOperationScope,
           backing?.agent(actor)?.autoExecMode ?: AutoExecMode.FIRST,

@@ -28,7 +28,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
@@ -48,7 +48,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { cn(randomName()) }
       register<Refinement> {
         chooseS(
-            1 to { Refinement.Has(recurse(), choose(6 to false, 1 to true)) },
+            1 to { Refinement.Has(recurse()) },
             1 to { Refinement.Not(recurse<Expression>().withoutRefinements()) },
         )
       }

@@ -2,8 +2,11 @@ plugins { id("solarnet.kmp-jvm-js") }
 
 val commonSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/pets")
+val commonTestSupportDirectory =
+    rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport")
 val commonTestDirectories =
     listOf(
+        commonTestSupportDirectory,
         rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/pets"),
         rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/pets"),
         rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/testlib"),

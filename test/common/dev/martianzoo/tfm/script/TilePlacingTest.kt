@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
-import dev.martianzoo.pets.data.Player.Companion.PLAYER2
+import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,7 +17,7 @@ internal class TilePlacingTest {
       phase("Action")
       manual("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
       assertFailsWith<NarrowingException> {
-        stdProject("CitySP") { doTask("CityTile<Tharsis_3_4>") }
+        stdProject("CityProject") { doTask("CityTile<Tharsis_3_4>") }
       }
     }
   }
@@ -38,9 +38,9 @@ internal class TilePlacingTest {
     with(game.tfm(PLAYER1)) {
       sneak("100 MC")
       phase("Action")
-      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_3>") }
+      stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_3>") }
       assertFailsWith<NarrowingException> {
-        stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+        stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_7_5>") }
       }
       // Yer surrounded!
       game
@@ -50,7 +50,7 @@ internal class TilePlacingTest {
                   "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
           )
 
-      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+      stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_7_5>") }
     }
   }
 
@@ -68,7 +68,7 @@ internal class TilePlacingTest {
 
     // Player1 is 2 money short of what they need to place on the south pole
     assertFailsWith<LimitsException> { // do we care which step fails?
-      p1.manual("GreeneryTile<>") {
+      p1.manual("DefaultGreeneryTile") {
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OceanTile<Hellas_4_6>")
       }
@@ -77,13 +77,13 @@ internal class TilePlacingTest {
 
     // But too bad, they don't get permission to place elsewhere!
     assertFailsWith<NarrowingException> {
-      p1.manual("GreeneryTile<>") { doTask("GreeneryTile<Hellas_7_5>") }
+      p1.manual("DefaultGreeneryTile") { doTask("GreeneryTile<Hellas_7_5>") }
     }
 
     // That concludes our test. But for funsies,
     // Suppose there had already been an ocean to place next to - now it works
     p2.manual("OceanTile<Hellas_5_6>")
-    p1.manual("GreeneryTile<>") {
+    p1.manual("DefaultGreeneryTile") {
       doTask("GreeneryTile<Hellas_9_7>")
       doTask("OceanTile<Hellas_4_6>")
     }
@@ -104,7 +104,7 @@ internal class TilePlacingTest {
       manual("CityTile<Player2, Tharsis_6_7>")
 
       // Use the standard project so that the placement rule is in effect
-      stdProject("GreenerySP") {
+      stdProject("GreeneryProject") {
         fun checkCantPlaceGreenery(area: String) =
             assertFailsWith<NarrowingException>(area) { doTask("GreeneryTile<$area>") }
 

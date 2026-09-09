@@ -15,8 +15,8 @@
 
 This analysis may inspect the whole game through the unscoped `GameReader` reachable from Agent's
 scoped reader. Any disposable-World exploration must still arrive through an explicit
-hypothetical-analysis facility; a policy does not gain raw engine mutation objects merely by
-promising safety. If a later restricted reader omits a fact required by a proof, the result is
+hypothetical-analysis facility; a policy does not gain raw engine mutation objects by
+promising safety alone. If a later restricted reader omits a fact required by a proof, the result is
 `UNKNOWN`.
 
 ## Source map

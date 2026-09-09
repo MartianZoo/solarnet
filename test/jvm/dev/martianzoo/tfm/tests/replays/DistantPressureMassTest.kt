@@ -281,7 +281,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       }
     }
     keen.turn { playProject(FakeResearchCoordination, 2) }
-    been.turn { stdProject("PowerPlantSP") }
+    been.turn { stdProject("PowerPlantProject") }
     keen.turn {
       cardAction1(BusinessNetwork) {
         discardUnselectedProjectCards(GalileanWaystation)
@@ -394,7 +394,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn {
       playProject(OptimalAerobraking, 2, titanium = 1)
       convertHeat()
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
       pass()
     }
     been.wgt("VenusStep")
@@ -504,7 +504,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.discardUnselectedProjectCards(Farming)
 
     been.turn {
-      stdProject("GreenerySP") { placeTile(2, 4) }
+      stdProject("GreeneryProject") { placeTile(2, 4) }
       convertPlants { placeTile(1, 5) }
     }
     keen.turn {
@@ -695,7 +695,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       // Test inference: Cloud Tourism is the only named, never-played card available for this
       // one-card patent sale.
       sellPatents(CloudTourism)
-      stdProject("GreenerySP") { placeTile(4, 3) }
+      stdProject("GreeneryProject") { placeTile(4, 3) }
       pass()
     }
     keen.wgt("TemperatureStep")
@@ -749,7 +749,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     been.pass()
     keen.turn {
-      stdProject("CitySP") { placeTile(3, 2) }
+      stdProject("CityProject") { placeTile(3, 2) }
       convertPlants { placeTile(4, 2) }
       playProject(PeroxidePower, 2, steel = 1)
       cardAction1(SearchForLife) {
@@ -758,7 +758,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         declineTask("Science<$SearchForLife>?")
       }
       playProject(LuxuryFoods, 4)
-      stdProject("AsteroidSP")
+      stdProject("AsteroidProject")
       pass()
     }
     been.wgt("TemperatureStep")
@@ -778,11 +778,11 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     been.turn {
       convertHeat()
-      stdProject("CitySP") { placeTile(5, 3) }
+      stdProject("CityProject") { placeTile(5, 3) }
     }
     keen.turn {
       convertHeat()
-      stdProject("CitySP") { placeTile(7, 5) }
+      stdProject("CityProject") { placeTile(7, 5) }
     }
     been.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
@@ -793,7 +793,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         placeTile(7, 6)
         draw(InvestmentLoan)
       }
-      stdProject("CitySP") { placeTile(8, 8) }
+      stdProject("CityProject") { placeTile(8, 8) }
     }
     been.turn {
       playProject(Plantation, 15) { placeTile(1, 2) }

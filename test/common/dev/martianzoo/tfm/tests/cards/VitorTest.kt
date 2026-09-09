@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.data.Player.Companion.PLAYER1
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -18,7 +18,7 @@ internal class VitorTest : CardTest() {
     p1.phase("Action")
     p1.assertCounts(0 to "Award", 33 to "MC")
 
-    p1.stdAction("DoRequiredActions") { doTask("Landlord") }
+    p1.stdAction("DoRequiredActionsAction") { doTask("Landlord") }
     p1.assertCounts(1 to "Landlord", 33 to "MC")
   }
 

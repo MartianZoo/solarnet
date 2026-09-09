@@ -4,7 +4,10 @@ kotlin {
   sourceSets {
     commonTest {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"))
+          listOf(
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"),
+          )
       )
       dependencies {
         implementation(libs.kotest.assertions.core)
@@ -72,3 +75,7 @@ tasks.register("jsBrowserSmokeTest") {
   description = "Runs one extensive Terraforming Mars game in a browser."
   dependsOn("jsBrowserTest")
 }
+
+// Generated game-specific Catalogs deliberately have distinct class universes. Periodic worker
+// replacement keeps the complete replay suite from retaining all of them in one test JVM.
+tasks.named<Test>("jvmTest") { forkEvery = 50 }

@@ -7,7 +7,7 @@
 > **Read when:** working on TR63 exact/conservative optimization, standard-resource monotonicity, or
 > the associated report tool.
 >
-> **Skip when:** implementing ordinary solo rules or evaluating general AI-player architecture.
+> **Skip when:** implementing solo rules or evaluating general AI-player architecture.
 >
 > **Status:** research note; no optimizer is implemented.
 
@@ -147,7 +147,7 @@ turn an uncertified component into a certified one during play.
 “Monotonic except for these three unseen cards” is therefore valuable even before the three cards
 are found. It isolates the uncertainty and tells later search exactly which observations can settle
 it. Drawing a card is not pure observation—it also changes the hand, deck, and possibly the game—so
-prioritizing draws for information remains a decision heuristic rather than a free theorem.
+prioritizing draws for information is a decision heuristic rather than a free theorem.
 
 ## Factorum and Energy
 

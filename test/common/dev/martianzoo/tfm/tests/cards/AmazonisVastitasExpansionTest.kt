@@ -38,9 +38,9 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
       doTask("3 Plant")
       placeTile(2, 1)
     }
-    p1.stdProject("CitySP") { placeTile(7, 5) }
-    p1.stdProject("CitySP") { placeTile(7, 7) }
-    p1.stdProject("CitySP") { placeTile(11, 7) }
+    p1.stdProject("CityProject") { placeTile(7, 5) }
+    p1.stdProject("CityProject") { placeTile(7, 7) }
+    p1.stdProject("CityProject") { placeTile(11, 7) }
     p1.playProject(ImportedGhg, 7)
 
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Merchant3")) }
@@ -80,8 +80,8 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     playUntilFirstActionPhase()
 
     p1.turn {
-      stdProject("CitySP") { placeTile(1, 4) }.expect("ProjectCard")
-      stdProject("CitySP") {
+      stdProject("CityProject") { placeTile(1, 4) }.expect("ProjectCard")
+      stdProject("CityProject") {
             placeTile(5, 3)
             doTask("Titanium")
           }
@@ -89,7 +89,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     }
     requireP2().pass()
 
-    p1.stdProject("CitySP") { placeTile(2, 2) }.expect("0 ProjectCard, 0 Titanium")
+    p1.stdProject("CityProject") { placeTile(2, 2) }.expect("0 ProjectCard, 0 Titanium")
   }
 
   @Test
@@ -97,7 +97,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     newGameWithAutoWorkflow(Vastitas)
     playUntilFirstActionPhase()
     p1.turn {
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
       playProject(LavaFlows, 18) { placeTile(4, 1) }
     }
     requireP2().pass()
@@ -115,13 +115,13 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     game.classTable.isActive(cn("Landscaper")) shouldBe true
     playUntilFirstActionPhase()
     p1.turn {
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
       playProject(LavaFlows, 18) { placeTile(4, 1) }
     }
     requireP2().pass()
     p1.playProject(RestrictedArea, 11) { placeTile(3, 1) }
     p1.playProject(CommercialDistrict, 16) { placeTile(4, 2) }
-    p1.stdProject("CitySP") { placeTile(8, 7) }
+    p1.stdProject("CityProject") { placeTile(8, 7) }
 
     p1.count("OwnedTile") shouldBe 4
     p1.count("TileInLargestGroup") shouldBe 3
@@ -144,6 +144,6 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     newGameWithAutoWorkflow(Vastitas)
     playUntilFirstActionPhase()
 
-    p1.stdProject("CitySP") { placeTile(5, 5) }.expect("-29 MC, TemperatureStep")
+    p1.stdProject("CityProject") { placeTile(5, 5) }.expect("-29 MC, TemperatureStep")
   }
 }
